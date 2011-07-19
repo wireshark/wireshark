@@ -257,7 +257,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean    missing = FALSE;  /* Set when extras is missing */
 
   if (extras_len) {
-    extras_item = proto_tree_add_item (tree, hf_extras, tvb, offset, extras_len, FALSE);
+    extras_item = proto_tree_add_item (tree, hf_extras, tvb, offset, extras_len, ENC_BIG_ENDIAN);
     extras_tree = proto_item_add_subtree (extras_item, ett_extras);
   }
 
@@ -272,7 +272,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Request shall not have extras */
         illegal = TRUE;
       } else {
-        proto_tree_add_item (extras_tree, hf_extras_flags, tvb, offset, 4, FALSE);
+        proto_tree_add_item (extras_tree, hf_extras_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       }
     } else if (!request) {
@@ -289,10 +289,10 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case OP_REPLACE_Q:
     if (extras_len) {
       if (request) {
-        proto_tree_add_item (extras_tree, hf_extras_flags, tvb, offset, 4, FALSE);
+        proto_tree_add_item (extras_tree, hf_extras_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item (extras_tree, hf_extras_expiration, tvb, offset, 4, FALSE);
+        proto_tree_add_item (extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       } else {
         /* Response shall not have extras */
@@ -310,13 +310,13 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case OP_DECREMENT_Q:
     if (extras_len) {
       if (request) {
-        proto_tree_add_item (extras_tree, hf_extras_delta, tvb, offset, 8, FALSE);
+        proto_tree_add_item (extras_tree, hf_extras_delta, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
 
-        proto_tree_add_item (extras_tree, hf_extras_initial, tvb, offset, 8, FALSE);
+        proto_tree_add_item (extras_tree, hf_extras_initial, tvb, offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
 
-        proto_tree_add_item (extras_tree, hf_extras_expiration, tvb, offset, 4, FALSE);
+        proto_tree_add_item (extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       } else {
         /* Response must not have extras (response is in Value) */
@@ -331,7 +331,7 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case OP_FLUSH:
   case OP_FLUSH_Q:
     if (extras_len) {
-      proto_tree_add_item (extras_tree, hf_extras_expiration, tvb, offset, 4, FALSE);
+      proto_tree_add_item (extras_tree, hf_extras_expiration, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
     break;
@@ -355,20 +355,20 @@ dissect_extras (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   default:
     if (extras_len) {
       /* Decode as unknown extras */
-      proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, FALSE);
+      proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_BIG_ENDIAN);
       offset += extras_len;
     }
     break;
   }
 
   if (illegal) {
-    ti = proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, FALSE);
+    ti = proto_tree_add_item (extras_tree, hf_extras_unknown, tvb, offset, extras_len, ENC_BIG_ENDIAN);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s shall not have Extras",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
     offset += extras_len;
   } else if (missing) {
-    ti = proto_tree_add_item (tree, hf_extras_missing, tvb, offset, 0, FALSE);
+    ti = proto_tree_add_item (tree, hf_extras_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s must have Extras",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
@@ -389,7 +389,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   gboolean    missing = FALSE;  /* Set when key is missing */
 
   if (key_len) {
-    ti = proto_tree_add_item (tree, hf_key, tvb, offset, key_len, FALSE);
+    ti = proto_tree_add_item (tree, hf_key, tvb, offset, key_len, ENC_BIG_ENDIAN);
     offset += key_len;
   }
 
@@ -427,7 +427,7 @@ dissect_key (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
   } else if (missing) {
-    ti = proto_tree_add_item (tree, hf_key_missing, tvb, offset, 0, FALSE);
+    ti = proto_tree_add_item (tree, hf_key_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s must have Key",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
@@ -444,12 +444,12 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   if (value_len > 0) {
     if (!request && ((opcode == OP_INCREMENT) || (opcode == OP_DECREMENT))) {
-      ti = proto_tree_add_item (tree, hf_uint64_response, tvb, offset, 8, FALSE);
+      ti = proto_tree_add_item (tree, hf_uint64_response, tvb, offset, 8, ENC_BIG_ENDIAN);
       if (value_len != 8) {
         expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "Illegal Value length, should be 8");
       }
     } else {
-      ti = proto_tree_add_item (tree, hf_value, tvb, offset, value_len, FALSE);
+      ti = proto_tree_add_item (tree, hf_value, tvb, offset, value_len, ENC_BIG_ENDIAN);
     }
     offset += value_len;
   }
@@ -497,7 +497,7 @@ dissect_value (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
   } else if (missing) {
-    ti = proto_tree_add_item (tree, hf_value_missing, tvb, offset, 0, FALSE);
+    ti = proto_tree_add_item (tree, hf_value_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s %s must have Value",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             request ? "Request" : "Response");
@@ -518,11 +518,11 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, FALSE);
+  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_BIG_ENDIAN);
   memcache_tree = proto_item_add_subtree (memcache_item, ett_memcache);
 
   magic = tvb_get_guint8 (tvb, offset);
-  ti = proto_tree_add_item (memcache_tree, hf_magic, tvb, offset, 1, FALSE);
+  ti = proto_tree_add_item (memcache_tree, hf_magic, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   if (match_strval (magic, magic_vals) == NULL) {
@@ -530,7 +530,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   opcode = tvb_get_guint8 (tvb, offset);
-  ti = proto_tree_add_item (memcache_tree, hf_opcode, tvb, offset, 1, FALSE);
+  ti = proto_tree_add_item (memcache_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   if (match_strval (opcode, opcode_vals) == NULL) {
@@ -545,20 +545,20 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                    val_to_str (magic, magic_vals, "Unknown magic (%d)"));
 
   key_len = tvb_get_ntohs (tvb, offset);
-  proto_tree_add_item (memcache_tree, hf_key_length, tvb, offset, 2, FALSE);
+  proto_tree_add_item (memcache_tree, hf_key_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   extras_len = tvb_get_guint8 (tvb, offset);
-  proto_tree_add_item (memcache_tree, hf_extras_length, tvb, offset, 1, FALSE);
+  proto_tree_add_item (memcache_tree, hf_extras_length, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
-  proto_tree_add_item (memcache_tree, hf_data_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item (memcache_tree, hf_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   status = tvb_get_ntohs (tvb, offset);
   if (magic & 0x01) {    /* We suppose this is a response, even when unknown magic byte */
     request = FALSE;
-    ti = proto_tree_add_item (memcache_tree, hf_status, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_item (memcache_tree, hf_status, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
       expert_add_info_format (pinfo, ti, PI_RESPONSE_CODE, PI_NOTE, "%s: %s",
                               val_to_str (opcode, opcode_vals, "Unknown opcode (%d)"),
@@ -566,7 +566,7 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   } else {
     request = TRUE;
-    ti = proto_tree_add_item (memcache_tree, hf_reserved, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_item (memcache_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     if (status != 0) {
       expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "Reserved value: %d", status);
     }
@@ -578,13 +578,13 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_uint (memcache_tree, hf_value_length, tvb, offset, 0, value_len);
   PROTO_ITEM_SET_GENERATED (ti);
 
-  proto_tree_add_item (memcache_tree, hf_total_body_length, tvb, offset, 4, FALSE);
+  proto_tree_add_item (memcache_tree, hf_total_body_length, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item (memcache_tree, hf_opaque, tvb, offset, 4, FALSE);
+  proto_tree_add_item (memcache_tree, hf_opaque, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item (memcache_tree, hf_cas, tvb, offset, 8, FALSE);
+  proto_tree_add_item (memcache_tree, hf_cas, tvb, offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
 
   if (status == 0) {
@@ -597,13 +597,13 @@ dissect_memcache (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     dissect_value (tvb, pinfo, memcache_tree, offset, value_len, opcode, request);
     offset += value_len;
   } else if (body_len) {
-    proto_tree_add_item (memcache_tree, hf_value, tvb, offset, body_len, FALSE);
+    proto_tree_add_item (memcache_tree, hf_value, tvb, offset, body_len, ENC_BIG_ENDIAN);
     offset += body_len;
 
     col_append_fstr (pinfo->cinfo, COL_INFO, " (%s)",
                      val_to_str (status, status_vals, "Unknown status: %d"));
   } else {
-    ti = proto_tree_add_item (memcache_tree, hf_value_missing, tvb, offset, 0, FALSE);
+    ti = proto_tree_add_item (memcache_tree, hf_value_missing, tvb, offset, 0, ENC_BIG_ENDIAN);
     expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_WARN, "%s with status %s (%d) must have Value",
                             val_to_str (opcode, opcode_vals, "Opcode %d"),
                             val_to_str (status, status_vals, "Unknown"), status);
@@ -871,7 +871,7 @@ dissect_memcache_message (tvbuff_t *tvb, int offset, packet_info *pinfo, proto_t
 
   orig_offset = offset;
 
-  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, FALSE);
+  memcache_item = proto_tree_add_item (tree, proto_memcache, tvb, offset, -1, ENC_BIG_ENDIAN);
   memcache_tree = proto_item_add_subtree (memcache_item, ett_memcache);
 
   /* Process the packet data. The first line is expected to be a
@@ -1030,7 +1030,7 @@ incr_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
       return -1;
     }
 
-    proto_tree_add_item (tree, hf_uint64_response, tvb, offset, tokenlen, FALSE);
+    proto_tree_add_item (tree, hf_uint64_response, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1076,7 +1076,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
 
     tokenlen = get_token_len (line, lineend, &next_token);
     if ((tokenlen == 4) && strncmp (line, "STAT", tokenlen) == 0) {
-      proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, FALSE);
+      proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       offset += (int) (next_token - line);
       line = next_token;
       occurrences = find_stat_colon (line, lineend, &first_colon, &last_colon);
@@ -1093,8 +1093,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
     case 2: /* stats items: 2 colons */
       /* subcommand 'items' */
       tokenlen = (int) (first_colon - line);
-      proto_tree_add_item (tree, hf_subcommand, tvb, offset,
-                          tokenlen, FALSE);
+      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       offset += tokenlen + 1;
 
       /* slabclass */
@@ -1140,7 +1139,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
       return -1; /* invalid token */
     }
 
-    proto_tree_add_item (tree, hf_name, tvb, offset, tokenlen, FALSE);
+    proto_tree_add_item (tree, hf_name, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1149,7 +1148,7 @@ stat_dissector (tvbuff_t *tvb, proto_tree *tree, int offset)
     if (tokenlen == 0) {
       return -1; /* invalid token */
     }
-    proto_tree_add_item (tree, hf_name_value, tvb, offset, tokenlen, FALSE);
+    proto_tree_add_item (tree, hf_name_value, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1320,7 +1319,7 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       return -1;
     }
 
-    proto_tree_add_item (tree, hf_version, tvb, offset, tokenlen, FALSE);
+    proto_tree_add_item (tree, hf_version, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1359,7 +1358,7 @@ memcache_response_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
       (tokenlen == 2 && strncmp (line, "OK", tokenlen) == 0) ||
       (tokenlen == 3 && strncmp (line, "END", tokenlen) == 0))
   {
-    proto_tree_add_item (tree, hf_response, tvb, offset, tokenlen, FALSE);
+    proto_tree_add_item (tree, hf_response, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
     offset += (int) (next_token - line);
     line = next_token;
     return offset;
@@ -1398,7 +1397,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   if (tokenlen == 0) {
     return -1;
   }
-  proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, FALSE);
+  proto_tree_add_item (tree, hf_command, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
   offset += (int) (next_token - line);
   line = next_token;
 
@@ -1485,7 +1484,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     tokenlen = get_token_len (line, lineend, &next_token);
     if (tokenlen != 0) {
       if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
-        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, FALSE);
+        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       }
       offset += (int) (next_token - line);
       line = next_token;
@@ -1515,7 +1514,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen == 0) {
       return -1;
     }
-    proto_tree_add_item (tree, hf_value, tvb, offset, tokenlen, FALSE);
+    proto_tree_add_item (tree, hf_value, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
     offset += (int) (next_token - line);
     line = next_token;
 
@@ -1525,7 +1524,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       return offset; /* reached CRLF */
     }
     if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
-      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, FALSE);
+      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       offset += (int) (next_token - line);
       line = next_token;
     } else {
@@ -1561,7 +1560,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen <= 10) {
       if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
         /* noreply */
-        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, FALSE);
+        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       } else {
         /* expiration */
         memcpy (response_chars, line, tokenlen);
@@ -1608,7 +1607,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen == 0) { /* just the 'stats' command;*/
       return offset;
     } else { /* there is a sub command; record it*/
-      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, FALSE);
+      proto_tree_add_item (tree, hf_subcommand, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       offset += (int) (next_token - line);
       line = next_token;
     }
@@ -1632,7 +1631,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tokenlen <= 10) {
       if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
         /* noreply */
-        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, FALSE);
+        proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       } else {
         /* expiration */
         memcpy (response_chars, line, tokenlen);
@@ -1654,7 +1653,7 @@ memcache_request_dissector (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     if (tokenlen == 7 && strncmp (line, "noreply", 7) == 0) {
       /* noreply */
-      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, FALSE);
+      proto_tree_add_item (tree, hf_noreply, tvb, offset, tokenlen, ENC_BIG_ENDIAN);
       offset += (int) (next_token - line);
       line = next_token;
     } else {

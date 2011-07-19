@@ -521,7 +521,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
    loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
    (void) dissect_ber_length(actx->pinfo, tree, tvb, loffset, &len, NULL);
 
-   item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+   item = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_BIG_ENDIAN);
    tree = proto_item_add_subtree(item, ett_p1_additional_information);
    proto_item_append_text(tree, " (The use of this field is \"strongly deprecated\".)"); 
 
@@ -1259,7 +1259,7 @@ MessageToken						B	"2.6.1.7.36"	"id-hat-forwarded-token"
 	(void) dissect_ber_length(actx->pinfo, tree, tvb, loffset, &len, NULL);
 
 	/* create some structure so we can tell what this unknown ASN.1 represents */	
-	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(item, ett_p1_bilateral_information);
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);

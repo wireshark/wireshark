@@ -2729,7 +2729,7 @@ dissect_p1_T_bilateral_information(gboolean implicit_tag _U_, tvbuff_t *tvb _U_,
 	(void) dissect_ber_length(actx->pinfo, tree, tvb, loffset, &len, NULL);
 
 	/* create some structure so we can tell what this unknown ASN.1 represents */	
-	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+	item = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(item, ett_p1_bilateral_information);
 
 	offset = dissect_unknown_ber(actx->pinfo, tvb, offset, tree);
@@ -3414,7 +3414,7 @@ dissect_p1_AdditionalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
    loffset = dissect_ber_identifier(actx->pinfo, tree, tvb, offset, NULL, NULL, NULL);
    (void) dissect_ber_length(actx->pinfo, tree, tvb, loffset, &len, NULL);
 
-   item = proto_tree_add_item(tree, hf_index, tvb, offset, len, FALSE);
+   item = proto_tree_add_item(tree, hf_index, tvb, offset, len, ENC_BIG_ENDIAN);
    tree = proto_item_add_subtree(item, ett_p1_additional_information);
    proto_item_append_text(tree, " (The use of this field is \"strongly deprecated\".)"); 
 
@@ -8325,7 +8325,7 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	p1_initialize_content_globals (parent_tree, TRUE);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_p1);
 	}
 
@@ -8367,7 +8367,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_p1);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");

@@ -203,7 +203,7 @@ static gboolean ros_try_string(const char *oid, tvbuff_t *tvb, packet_info *pinf
 	if((session != NULL) && ((rinfo = (ros_info_t*)g_hash_table_lookup(protocol_table, oid)) != NULL)) {
 
 		if(tree){
-			item = proto_tree_add_item(tree, *(rinfo->proto), tvb, 0, -1, FALSE);
+			item = proto_tree_add_item(tree, *(rinfo->proto), tvb, 0, -1, ENC_BIG_ENDIAN);
 			ros_tree = proto_item_add_subtree(item, *(rinfo->ett_proto));
 		}
 
@@ -1066,7 +1066,7 @@ dissect_ros(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* pinfo->private_data = ros_info; */
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_ros, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_ros, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_ros);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ROS");

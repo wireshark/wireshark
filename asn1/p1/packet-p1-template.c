@@ -141,7 +141,7 @@ dissect_p1_mts_apdu (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	p1_initialize_content_globals (parent_tree, TRUE);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_p1);
 	}
 
@@ -183,7 +183,7 @@ dissect_p1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_p1, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_p1);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "P1");

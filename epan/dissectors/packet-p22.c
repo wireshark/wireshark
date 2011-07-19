@@ -4526,7 +4526,7 @@ dissect_p22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_p22, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_p22, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_p22);
 	}
 

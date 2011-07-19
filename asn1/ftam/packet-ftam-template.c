@@ -68,7 +68,7 @@ static gint ett_ftam = -1;
 static void
 dissect_ftam_unstructured_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
-	proto_tree_add_item (parent_tree, hf_ftam_unstructured_text, tvb, 0, tvb_length_remaining(tvb, 0), FALSE); 
+	proto_tree_add_item (parent_tree, hf_ftam_unstructured_text, tvb, 0, tvb_length_remaining(tvb, 0), ENC_BIG_ENDIAN); 
 }
 
 /*
@@ -77,7 +77,7 @@ dissect_ftam_unstructured_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 static void
 dissect_ftam_unstructured_binary(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
-	proto_tree_add_item (parent_tree, hf_ftam_unstructured_binary, tvb, 0, tvb_length_remaining(tvb, 0), FALSE); 
+	proto_tree_add_item (parent_tree, hf_ftam_unstructured_binary, tvb, 0, tvb_length_remaining(tvb, 0), ENC_BIG_ENDIAN); 
 }
 
 /*
@@ -95,7 +95,7 @@ dissect_ftam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_ftam, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_ftam, tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_ftam);
 	}
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FTAM");

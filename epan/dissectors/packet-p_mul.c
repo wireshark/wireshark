@@ -560,7 +560,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       } else {
         en = proto_tree_add_item (analysis_tree,
                                   hf_analysis_addr_pdu_missing,
-                                  tvb, offset, 0, FALSE);
+                                  tvb, offset, 0, ENC_BIG_ENDIAN);
         expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                                 "Address PDU missing");
         PROTO_ITEM_SET_GENERATED (en);
@@ -581,7 +581,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       } else if (!pkg_data->msg_resend_count) {
         en = proto_tree_add_item (analysis_tree,
                                   hf_analysis_ack_missing,
-                                  tvb, offset, 0, FALSE);
+                                  tvb, offset, 0, ENC_BIG_ENDIAN);
         if (pinfo->fd->flags.visited) {
           /* We do not know this on first visit and we do not want to
              add a entry in the "Expert Severity Info" for this note */
@@ -626,7 +626,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     } else {
       en = proto_tree_add_item (analysis_tree,
                                 hf_analysis_addr_pdu_missing,
-                                tvb, offset, 0, FALSE);
+                                tvb, offset, 0, ENC_BIG_ENDIAN);
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Address PDU missing");
       PROTO_ITEM_SET_GENERATED (en);
@@ -709,7 +709,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     } else if (!pkg_data->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree,
                                 hf_analysis_addr_pdu_missing,
-                                tvb, offset, 0, FALSE);
+                                tvb, offset, 0, ENC_BIG_ENDIAN);
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Address PDU missing");
       PROTO_ITEM_SET_GENERATED (en);
@@ -732,7 +732,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     } else if (!pkg_data->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree,
                                 hf_analysis_prev_pdu_missing,
-                                tvb, offset, 0, FALSE);
+                                tvb, offset, 0, ENC_BIG_ENDIAN);
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Previous PDU missing");
       PROTO_ITEM_SET_GENERATED (en);
@@ -826,13 +826,13 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* First fetch PDU Type */
   pdu_type = tvb_get_guint8 (tvb, offset + 3) & 0x3F;
 
-  ti = proto_tree_add_item (tree, proto_p_mul, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item (tree, proto_p_mul, tvb, offset, -1, ENC_BIG_ENDIAN);
   proto_item_append_text (ti, ", %s", get_type (pdu_type));
   p_mul_tree = proto_item_add_subtree (ti, ett_p_mul);
 
   /* Length of PDU */
   pdu_length = tvb_get_ntohs (tvb, offset);
-  len_en = proto_tree_add_item (p_mul_tree, hf_length, tvb, offset, 2, FALSE);
+  len_en = proto_tree_add_item (p_mul_tree, hf_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   switch (pdu_type) {
@@ -845,12 +845,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case FEC_Address_PDU:
   case Extra_FEC_Address_PDU:
     /* Priority */
-    proto_tree_add_item (p_mul_tree, hf_priority, tvb, offset, 1, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
     break;
 
   default:
     /* Unused */
-    proto_tree_add_item (p_mul_tree, hf_unused8, tvb, offset, 1, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_unused8, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
   offset += 1;
 
@@ -873,8 +873,8 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case FEC_Address_PDU:
   case Extra_FEC_Address_PDU:
     map = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_item (field_tree, hf_map_first, tvb, offset, 1, FALSE);
-    proto_tree_add_item (field_tree, hf_map_last, tvb, offset, 1, FALSE);
+    proto_tree_add_item (field_tree, hf_map_first, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (field_tree, hf_map_last, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((map & 0x80) || (map & 0x40)) {
       proto_item_append_text (en, ", %s / %s",
                               (map & 0x80) ? "Not first" : "First",
@@ -885,10 +885,10 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
   default:
-    proto_tree_add_item (field_tree, hf_map_unused, tvb, offset, 1, FALSE);
+    proto_tree_add_item (field_tree, hf_map_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
     break;
   }
-  proto_tree_add_item (field_tree, hf_pdu_type_value, tvb, offset, 1, FALSE);
+  proto_tree_add_item (field_tree, hf_pdu_type_value, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   switch (pdu_type) {
@@ -900,32 +900,32 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Total Number of PDUs */
     no_pdus = tvb_get_ntohs (tvb, offset);
     seq_no = 0;
-    proto_tree_add_item (p_mul_tree, hf_no_pdus, tvb, offset, 2, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_no_pdus, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text (ti, ", No PDUs: %u", no_pdus);
     break;
 
   case Data_PDU:
     /* Sequence Number of PDUs */
     seq_no = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_seq_no, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_item_append_text (ti, ", Seq no: %u", seq_no);
     break;
 
   case Announce_PDU:
     /* Count of Destination Entries */
     count = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2,FALSE);
+    proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2, ENC_BIG_ENDIAN);
     break;
 
   default:
     /* Unused */
-    proto_tree_add_item (p_mul_tree, hf_unused16, tvb, offset, 2, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_unused16, tvb, offset, 2, ENC_BIG_ENDIAN);
     break;
   }
   offset += 2;
 
   /* Checksum */
-  en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, FALSE);
+  en = proto_tree_add_item (p_mul_tree, hf_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
   checksum_tree = proto_item_add_subtree (en, ett_checksum);
   len = tvb_length (tvb);
   value = tvb_get_ephemeral_string (tvb, 0, len);
@@ -955,18 +955,18 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Source ID of Ack Sender */
     ip = tvb_get_ipv4 (tvb, offset);
     SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), ep_memdup (&ip, 4));
-    proto_tree_add_item (p_mul_tree, hf_source_id_ack, tvb, offset, 4, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_source_id_ack, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Count of Ack Info Entries */
     count = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_ack_count, tvb, offset, 2, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_ack_count, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   } else {
     /* Source Id */
     ip = tvb_get_ipv4 (tvb, offset);
     SET_ADDRESS (&src, AT_IPv4, sizeof(ip), ep_memdup (&ip, 4));
-    proto_tree_add_item (p_mul_tree, hf_source_id, tvb, offset, 4, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Message Id */
@@ -981,7 +981,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                   message_id, "Message ID (MSID): %u"
                                   "    (relative message id)", message_id);
     } else {
-      proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, FALSE);
+      proto_tree_add_item (p_mul_tree, hf_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset += 4;
 
@@ -1001,11 +1001,11 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (pdu_type == FEC_Address_PDU || pdu_type == Extra_FEC_Address_PDU) {
     /* FEC Parameters Length */
     fec_len = tvb_get_guint8 (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_fec_len, tvb, offset, 1, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_fec_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* FEC ID */
-    proto_tree_add_item (p_mul_tree, hf_fec_id, tvb, offset, 1, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_fec_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (fec_len > 0) {
@@ -1025,12 +1025,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case Extra_FEC_Address_PDU:
     /* Count of Destination Entries */
     no_dest = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_count_of_dest, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length of Reserved Field */
     len = tvb_get_ntohs (tvb, offset);
-    proto_tree_add_item (p_mul_tree, hf_length_of_res, tvb, offset, 2, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_length_of_res, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     for (i = 0; i < no_dest; i++) {
@@ -1043,11 +1043,11 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Destination Id */
       ip = tvb_get_ipv4 (tvb, offset);
       SET_ADDRESS (&dst, AT_IPv4, sizeof(ip), ep_memdup(&ip, 4));
-      proto_tree_add_item (field_tree, hf_dest_id, tvb, offset, 4, FALSE);
+      proto_tree_add_item (field_tree, hf_dest_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
       /* Message Sequence Number */
-      proto_tree_add_item (field_tree, hf_msg_seq_no, tvb, offset, 4, FALSE);
+      proto_tree_add_item (field_tree, hf_msg_seq_no, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
       if (len > 0) {
@@ -1095,8 +1095,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       field_tree = proto_item_add_subtree (en, ett_ack_entry);
 
       /* Length of Ack Info Entry */
-      en = proto_tree_add_item (field_tree, hf_ack_length, tvb, offset,
-                                2, FALSE);
+      en = proto_tree_add_item (field_tree, hf_ack_length, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       if (len < 10) {
@@ -1108,7 +1107,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* Source Id */
       ip = tvb_get_ipv4 (tvb, offset);
       SET_ADDRESS (&src, AT_IPv4, sizeof(ip), ep_memdup (&ip, 4));
-      proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, FALSE);
+      proto_tree_add_item (field_tree, hf_source_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
 
       /* Message Id */
@@ -1123,7 +1122,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     message_id, "Message ID (MSID): %u"
                                     "    (relative message id)", message_id);
       } else {
-        proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, FALSE);
+        proto_tree_add_item (field_tree, hf_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       }
       offset += 4;
 
@@ -1173,8 +1172,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             prev_ack_seq_no = end_seq_no;
           } else {
             /* No range, handle one seq no */
-            en = proto_tree_add_item (field_tree, hf_miss_seq_no, tvb,offset,
-                                      2, FALSE);
+            en = proto_tree_add_item (field_tree, hf_miss_seq_no, tvb,offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             if (ack_seq_no == 0) {
@@ -1227,12 +1225,12 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case Announce_PDU:
     /* Announced Multicast Group */
-    proto_tree_add_item (p_mul_tree, hf_ann_mc_group, tvb, offset, 4, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_ann_mc_group, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     for (i = 0; i < count; i++) {
       /* Destination Id */
-      proto_tree_add_item (p_mul_tree, hf_dest_id, tvb, offset, 4, FALSE);
+      proto_tree_add_item (p_mul_tree, hf_dest_id, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
     break;
@@ -1241,7 +1239,7 @@ static void dissect_p_mul (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case Reject_PDU:
   case Release_PDU:
     /* Multicast Group */
-    proto_tree_add_item (p_mul_tree, hf_mc_group, tvb, offset, 4, FALSE);
+    proto_tree_add_item (p_mul_tree, hf_mc_group, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 

@@ -792,7 +792,7 @@ dissect_rtse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 						     frag_msg, &rtse_frag_items, NULL, parent_tree);
 	}
 	if(parent_tree){
-		item = proto_tree_add_item(parent_tree, proto_rtse, next_tvb ? next_tvb : tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, proto_rtse, next_tvb ? next_tvb : tvb, 0, -1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_rtse);
 	}
 	if (rtse_reassemble && session->spdu_type == SES_DATA_TRANSFER) {

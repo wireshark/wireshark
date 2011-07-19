@@ -81,7 +81,7 @@ void dissect_cdt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   top_tree = parent_tree;
 
   if (parent_tree) {
-    cdt_item = proto_tree_add_item (parent_tree, proto_cdt, tvb, 0, -1, FALSE);
+    cdt_item = proto_tree_add_item (parent_tree, proto_cdt, tvb, 0, -1, ENC_BIG_ENDIAN);
     tree = proto_item_add_subtree (cdt_item, ett_cdt_CompressedData);
   }
 

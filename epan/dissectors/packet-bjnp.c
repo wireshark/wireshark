@@ -97,18 +97,18 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, ENC_BIG_ENDIAN);
   bjnp_tree = proto_item_add_subtree (ti, ett_bjnp);
 
-  proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, FALSE);
+  proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   dev_type = tvb_get_guint8 (tvb, offset);
-  proto_tree_add_item (bjnp_tree, hf_dev_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item (bjnp_tree, hf_dev_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   cmd_code = tvb_get_guint8 (tvb, offset);
-  proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, FALSE);
+  proto_tree_add_item (bjnp_tree, hf_cmd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   info = g_strdup_printf ("%s: %s",val_to_str (dev_type, dev_type_vals, "Unknown type (%d)"),
@@ -119,19 +119,19 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   g_free (info);
 
-  proto_tree_add_item (bjnp_tree, hf_seq_no, tvb, offset, 4, FALSE);
+  proto_tree_add_item (bjnp_tree, hf_seq_no, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item (bjnp_tree, hf_session_id, tvb, offset, 2, FALSE);
+  proto_tree_add_item (bjnp_tree, hf_session_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   payload_len = tvb_get_ntohl (tvb, offset);
-  proto_tree_add_item (bjnp_tree, hf_payload_len, tvb, offset, 4, FALSE);
+  proto_tree_add_item (bjnp_tree, hf_payload_len, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
   if (payload_len > 0) {
     /* TBD: Dissect various commands */
-    proto_tree_add_item (bjnp_tree, hf_payload, tvb, offset, payload_len, FALSE);
+    proto_tree_add_item (bjnp_tree, hf_payload, tvb, offset, payload_len, ENC_BIG_ENDIAN);
     offset += payload_len;
   }
 }

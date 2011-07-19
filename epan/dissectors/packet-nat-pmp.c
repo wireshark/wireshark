@@ -94,15 +94,15 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item (tree, proto_nat_pmp, tvb, offset, -1, ENC_BIG_ENDIAN);
   nat_pmp_tree = proto_item_add_subtree (ti, ett_nat_pmp);
 
-  proto_tree_add_item (nat_pmp_tree, hf_version, tvb, offset, 1, FALSE);
+  proto_tree_add_item (nat_pmp_tree, hf_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   opcode = tvb_get_guint8 (tvb, offset);
   proto_item_append_text (ti, ", %s", val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
-  op_ti = proto_tree_add_item (nat_pmp_tree, hf_opcode, tvb, offset, 1, FALSE);
+  op_ti = proto_tree_add_item (nat_pmp_tree, hf_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   col_add_str (pinfo->cinfo, COL_INFO, val_to_str (opcode, opcode_vals, "Unknown opcode: %d"));
@@ -114,46 +114,46 @@ static void dissect_nat_pmp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     break;
 
   case EXTERNAL_ADDRESS_RESPONSE:
-    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item (nat_pmp_tree, hf_external_ip, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_external_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 
   case MAP_UDP_REQUEST:
   case MAP_TCP_REQUEST:
-    proto_tree_add_item (nat_pmp_tree, hf_reserved, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     
-    proto_tree_add_item (nat_pmp_tree, hf_external_port_requested, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_external_port_requested, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_rpmlis, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_rpmlis, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 
   case MAP_UDP_RESPONSE:
   case MAP_TCP_RESPONSE:
-    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_result_code, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_sssoe, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_internal_port, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     
-    proto_tree_add_item (nat_pmp_tree, hf_external_port_mapped, tvb, offset, 2, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_external_port_mapped, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item (nat_pmp_tree, hf_pmlis, tvb, offset, 4, FALSE);
+    proto_tree_add_item (nat_pmp_tree, hf_pmlis, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     break;
 

@@ -74,11 +74,11 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   col_set_str (pinfo->cinfo, COL_PROTOCOL, PSNAME);
   col_clear (pinfo->cinfo, COL_INFO);
 
-  ti = proto_tree_add_item (tree, proto_packetlogger, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item (tree, proto_packetlogger, tvb, 0, -1, ENC_BIG_ENDIAN);
   packetlogger_tree = proto_item_add_subtree (ti, ett_packetlogger);
 
   pl_type = tvb_get_guint8 (tvb, 0);
-  proto_tree_add_item (packetlogger_tree, hf_type, tvb, 0, 1, FALSE);
+  proto_tree_add_item (packetlogger_tree, hf_type, tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_item_append_text (ti, " %s", val_to_str (pl_type, type_vals, "Unknown 0x%02x"));
 
   len = tvb_length_remaining (tvb, 1);
@@ -125,7 +125,7 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case PKT_POWER:
     case PKT_NOTE:
     case PKT_NEW_CONTROLLER:
-      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, FALSE);
+      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_BIG_ENDIAN);
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (next_tvb, 0, len));
       break;
     default:

@@ -569,7 +569,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 	pt_varbind = proto_item_add_subtree(pi_varbind,ett_varbind);
 	*label = '\0';
 
-	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,FALSE);
+	pi_name = proto_tree_add_item(pt_varbind,hf_snmp_objectname,tvb,name_offset,name_len,ENC_BIG_ENDIAN);
 	pt_name = proto_item_add_subtree(pi_name,ett_name);
 
 	/* fetch ObjectName and its relative oid_info */
@@ -623,7 +623,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 			}
 		}
 
-		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
+		pi = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		expert_add_info_format(actx->pinfo, pi, PI_RESPONSE_CODE, PI_NOTE, "%s",note);
 		g_strlcpy (label, note, ITEM_LABEL_LENGTH);
 		goto set_label;
@@ -640,7 +640,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 			} else if (oid_left  == 0) {
 				if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 					/* unSpecified  does not require an instance sub-id add the new value and get off the way! */
-					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
+					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 					goto set_label;
 				} else {
 					proto_item* pi = proto_tree_add_text(pt_name,tvb,0,0,"A scalar should have one instance sub-id this one has none");
@@ -664,7 +664,7 @@ dissect_snmp_VarBind(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset,
 
 				if ( key_len == 0 && ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
 					/* unSpecified  does not require an instance sub-id add the new value and get off the way! */
-					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
+					pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 					goto set_label;
 				}
 
@@ -831,7 +831,7 @@ indexing_done:
 
 	if (oid_info_is_ok && oid_info->value_type) {
 		if (ber_class == BER_CLASS_UNI && tag == BER_UNI_TAG_NULL) {
-			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,FALSE);
+			pi_value = proto_tree_add_item(pt_varbind,hf_snmp_unSpecified,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		} else {
 			/* Provide a tree_item to attach errors to, if needed. */
 			pi_value = pi_name;
@@ -851,7 +851,7 @@ indexing_done:
 			}
 
 			if (format_error == BER_NO_ERROR)
-				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,FALSE);
+				pi_value = proto_tree_add_item(pt_varbind,oid_info->value_hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		}
 	} else {
 		switch(ber_class|(tag<<4)) {
@@ -927,7 +927,7 @@ indexing_done:
 				break;
 		}
 
-		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,FALSE);
+		pi_value = proto_tree_add_item(pt_varbind,hfid,tvb,value_offset,value_len,ENC_BIG_ENDIAN);
 		if (format_error != BER_NO_ERROR) {
 			expert_add_info_format(actx->pinfo, pi_value, PI_UNDECODED, PI_NOTE, "Unresolved value, Missing MIB");
 		}
@@ -1051,7 +1051,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
     /* first bit: engine id conformance */
     if (len_remain<4) return offset;
     conformance = ((tvb_get_guint8(tvb, offset)>>7) & 0x01);
-    proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_snmp_engineid_conform, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* 4-byte enterprise number/name */
     if (len_remain<4) return offset;
@@ -1091,7 +1091,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case SNMP_ENGINEID_FORMAT_IPV4:
 	/* 4-byte IPv4 address */
 	if (len_remain==4) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_ipv4, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset+=4;
 	  len_remain=0;
 	}
@@ -1099,7 +1099,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case SNMP_ENGINEID_FORMAT_IPV6:
 	/* 16-byte IPv6 address */
 	if (len_remain==16) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, FALSE);
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
 	  offset+=16;
 	  len_remain=0;
 	}
@@ -1107,13 +1107,13 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case SNMP_ENGINEID_FORMAT_MACADDRESS:
 	/* See: https://supportforums.cisco.com/message/3010617#3010617 for details. */
 	if ((enterpriseid==9)&&(len_remain==7)) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_cisco_type, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(tree, hf_snmp_engineid_cisco_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  offset++;
 	  len_remain--;
 	}
 	/* 6-byte MAC address */
 	if (len_remain==6) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, FALSE);
+	  proto_tree_add_item(tree, hf_snmp_engineid_mac, tvb, offset, 6, ENC_BIG_ENDIAN);
 	  offset+=6;
 	  len_remain=0;
 	}
@@ -1121,7 +1121,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case SNMP_ENGINEID_FORMAT_TEXT:
 	/* max. 27-byte string, administratively assigned */
 	if (len_remain<=27) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, FALSE);
+	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, ENC_BIG_ENDIAN);
 	  offset+=len_remain;
 	  len_remain=0;
 	}
@@ -1132,7 +1132,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
 	  proto_item_append_text(item, (enterpriseid==2021) ? ": UCD-SNMP Random" : ": Net-SNMP Random");
 	  /* demystify: 4B random, 4B epoch seconds */
 	  if (len_remain==8) {
-	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, FALSE);
+	    proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, 4, ENC_BIG_ENDIAN);
 	    seconds = tvb_get_letohl(tvb, offset+4);
 	    ts.secs = seconds;
 	    ts.nsecs = 0;
@@ -1148,7 +1148,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       default:
 	/* max. 27 bytes, administratively assigned or unknown format */
 	if (len_remain<=27) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain, FALSE);
+	  proto_tree_add_item(tree, hf_snmp_engineid_data, tvb, offset, len_remain, ENC_BIG_ENDIAN);
 	  offset+=len_remain;
 	  len_remain=0;
 	}
@@ -2854,7 +2854,7 @@ dissect_snmp_pdu(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		item = proto_tree_add_item(tree, proto, tvb, start_offset,
-				           message_length, FALSE);
+				           message_length, ENC_BIG_ENDIAN);
 		snmp_tree = proto_item_add_subtree(item, ett);
 	}
 
@@ -3005,7 +3005,7 @@ dissect_smux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SMUX");
 
 	if (tree) {
-		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, FALSE);
+		item = proto_tree_add_item(tree, proto_smux, tvb, 0, -1, ENC_BIG_ENDIAN);
 		smux_tree = proto_item_add_subtree(item, ett_smux);
 	}
 
