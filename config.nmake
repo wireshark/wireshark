@@ -34,8 +34,11 @@ WTAP_VERSION_MICRO=0
 #
 # Base directory, where your libraries reside, which are needed to
 # compile the sources. This setting is used only inside this file.
+# This can be defined in the system environment.
 #
+!IFNDEF WIRESHARK_LIBS
 WIRESHARK_LIBS=C:\wireshark-$(WIRESHARK_TARGET_PLATFORM)-libs
+!ENDIF
 
 #
 # Base directory, where your programs reside.
