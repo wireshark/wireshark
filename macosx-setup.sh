@@ -94,11 +94,18 @@ cd macosx-support-libs
 # Start with GNU gettext; GLib requires it, and OS X doesn't have it
 # or a BSD-licensed replacement.
 #
+# At least on Lion with Xcode 4, _FORTIFY_SOURCE gets defined as 2
+# by default, which causes, for example, stpncpy to be defined as
+# a hairy macro that collides with the GNU gettext configure script's
+# attempts to workaround AIX's lack of a declaration for stpncpy,
+# with the result being a huge train wreck.  Define _FORTIFY_SOURCE
+# as 0 in an attempt to keep the trains on separate tracks.
+#
 echo "Downloading, building, and installing GNU gettext:"
 curl -O http://ftp.gnu.org/pub/gnu/gettext/gettext-$GETTEXT_VERSION.tar.gz || exit 1
 tar xf gettext-$GETTEXT_VERSION.tar.gz || exit 1
 cd gettext-$GETTEXT_VERSION
-./configure || exit 1
+CFLAGS="-D_FORTIFY_SOURCE=0" ./configure || exit 1
 make -j 3 || exit 1
 $DO_MAKE_INSTALL || exit 1
 cd ..
