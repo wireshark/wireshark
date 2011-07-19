@@ -1094,7 +1094,7 @@ dissect_nt_guid_hnd(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 int
 dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
-                      proto_tree *tree, guint8 *drep, int hfindex,
+                      proto_tree *tree, guint8 *drep _U_, int hfindex,
 		      int length, const guint8 **pdata)
 {
     const guint8 *data;
@@ -1102,7 +1102,8 @@ dissect_dcerpc_uint8s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     data = (const guint8 *)tvb_get_ptr(tvb, offset, length);
 
     if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, length, (drep[0] & 0x10));
+    	/* This should be an FT_BYTES, so the byte order should not matter */
+        proto_tree_add_item (tree, hfindex, tvb, offset, length, ENC_NA);
     }
 
     if (pdata)
@@ -1135,7 +1136,12 @@ dissect_dcerpc_uint16s(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 		      int length)
 {
     if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, (drep[0] & 0x10));
+    	/* These are FT_BYTES fields, so the byte order should not matter;
+	   however, perhaps there should be an FT_HEXADECTETS type,
+	   or something such as that, with each pair of octets
+	   displayed as a single unit, in which case the byte order
+	   would matter, so we'll calculate the byte order here.  */
+        proto_tree_add_item (tree, hfindex, tvb, offset, length * 2, DREP_ENC_INTEGER(drep));
     }
 
     return offset + length * 2;

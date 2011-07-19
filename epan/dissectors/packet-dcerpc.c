@@ -1053,7 +1053,7 @@ dissect_dcerpc_uint8 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     data = tvb_get_guint8 (tvb, offset);
     if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, 1, (drep[0] & 0x10));
+        proto_tree_add_item (tree, hfindex, tvb, offset, 1, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
         *pdata = data;
@@ -1067,12 +1067,12 @@ dissect_dcerpc_uint16 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 {
     guint16 data;
 
-    data = ((drep[0] & 0x10)
+    data = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letohs (tvb, offset)
             : tvb_get_ntohs (tvb, offset));
 
     if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, 2, (drep[0] & 0x10));
+        proto_tree_add_item (tree, hfindex, tvb, offset, 2, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
         *pdata = data;
@@ -1086,12 +1086,12 @@ dissect_dcerpc_uint32 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 {
     guint32 data;
 
-    data = ((drep[0] & 0x10)
+    data = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letohl (tvb, offset)
             : tvb_get_ntohl (tvb, offset));
 
     if (tree) {
-        proto_tree_add_item (tree, hfindex, tvb, offset, 4, (drep[0] & 0x10));
+        proto_tree_add_item (tree, hfindex, tvb, offset, 4, DREP_ENC_INTEGER(drep));
     }
     if (pdata)
         *pdata = data;
@@ -1107,7 +1107,7 @@ dissect_dcerpc_time_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint32 data;
     nstime_t tv;
 
-    data = ((drep[0] & 0x10)
+    data = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letohl (tvb, offset)
             : tvb_get_ntohl (tvb, offset));
 
@@ -1134,7 +1134,7 @@ dissect_dcerpc_uint64 (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 {
     guint64 data;
 
-    data = ((drep[0] & 0x10)
+    data = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letoh64 (tvb, offset)
             : tvb_get_ntoh64 (tvb, offset));
 
@@ -1175,7 +1175,7 @@ dissect_dcerpc_float(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     switch(drep[1]) {
     case(DCE_RPC_DREP_FP_IEEE):
-        data = ((drep[0] & 0x10)
+        data = ((drep[0] & DREP_LITTLE_ENDIAN)
                 ? tvb_get_letohieee_float(tvb, offset)
                 : tvb_get_ntohieee_float(tvb, offset));
         if (tree) {
@@ -1209,7 +1209,7 @@ dissect_dcerpc_double(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 
     switch(drep[1]) {
     case(DCE_RPC_DREP_FP_IEEE):
-        data = ((drep[0] & 0x10)
+        data = ((drep[0] & DREP_LITTLE_ENDIAN)
                 ? tvb_get_letohieee_double(tvb, offset)
                 : tvb_get_ntohieee_double(tvb, offset));
         if (tree) {
@@ -1241,7 +1241,7 @@ dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     e_uuid_t uuid;
 
 
-    if (drep[0] & 0x10) {
+    if (drep[0] & DREP_LITTLE_ENDIAN) {
         tvb_get_letohguid (tvb, offset, (e_guid_t *) &uuid);
     } else {
         tvb_get_ntohguid (tvb, offset, (e_guid_t *) &uuid);
@@ -1262,7 +1262,7 @@ dissect_dcerpc_uuid_t (tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
 guint16
 dcerpc_tvb_get_ntohs (tvbuff_t *tvb, gint offset, guint8 *drep)
 {
-    if (drep[0] & 0x10) {
+    if (drep[0] & DREP_LITTLE_ENDIAN) {
         return tvb_get_letohs (tvb, offset);
     } else {
         return tvb_get_ntohs (tvb, offset);
@@ -1272,7 +1272,7 @@ dcerpc_tvb_get_ntohs (tvbuff_t *tvb, gint offset, guint8 *drep)
 guint32
 dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, guint8 *drep)
 {
-    if (drep[0] & 0x10) {
+    if (drep[0] & DREP_LITTLE_ENDIAN) {
         return tvb_get_letohl (tvb, offset);
     } else {
         return tvb_get_ntohl (tvb, offset);
@@ -1282,7 +1282,7 @@ dcerpc_tvb_get_ntohl (tvbuff_t *tvb, gint offset, guint8 *drep)
 void
 dcerpc_tvb_get_uuid (tvbuff_t *tvb, gint offset, guint8 *drep, e_uuid_t *uuid)
 {
-    if (drep[0] & 0x10) {
+    if (drep[0] & DREP_LITTLE_ENDIAN) {
         tvb_get_letohguid (tvb, offset, (e_guid_t *) uuid);
     } else {
         tvb_get_ntohguid (tvb, offset, (e_guid_t *) uuid);
@@ -1481,7 +1481,7 @@ dissect_ndr_byte_array(tvbuff_t *tvb, int offset, packet_info *pinfo,
     if (tree && len) {
         tvb_ensure_bytes_exist(tvb, offset, (guint32)len);
         proto_tree_add_item(tree, hf_dcerpc_array_buffer,
-                            tvb, offset, (guint32)len, drep[0] & 0x10);
+                            tvb, offset, (guint32)len, ENC_NA);
     }
 
     offset += (guint32)len;
@@ -1545,6 +1545,10 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (size_is == sizeof(guint16)) {
         /* XXX - use drep to determine the byte order? */
+        /* XXX - once we have an ENC_ value for UTF-16, just use
+           proto_tree_add_item() with the appropriate ENC_ value? */
+        /* XXX - should this ever be used with something that's *not*
+           an FT_STRING? */
         s = tvb_get_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
 
         if (tree && buffer_len) {
@@ -1555,7 +1559,7 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                       buffer_len, s);
             } else {
                 proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                    buffer_len, drep[0] & 0x10);
+                                    buffer_len, DREP_ENC_INTEGER(drep));
             }
         }
     } else {
@@ -1566,12 +1570,16 @@ dissect_ndr_cvstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * (It won't help if the length is *valid* but immensely large,
          * but that's another matter; in any case, that would happen only
          * if we had an immensely large tvbuff....)
+         *
+         * XXX - if this is an octet string, does the byte order
+         * matter?  Will this ever be anything *other* than an
+	 * octet string?  What if size_is is neither 1 nor 2?
          */
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
         s = tvb_get_ephemeral_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                buffer_len, drep[0] & 0x10);
+                                buffer_len, DREP_ENC_INTEGER(drep));
     }
 
     if (string_item != NULL)
@@ -1727,6 +1735,10 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
     if (size_is == sizeof(guint16)) {
         /* XXX - use drep to determine the byte order? */
+        /* XXX - once we have an ENC_ value for UTF-16, just use
+           proto_tree_add_item() with the appropriate ENC_ value? */
+        /* XXX - should this ever be used with something that's *not*
+           an FT_STRING? */
         s = tvb_get_unicode_string(tvb, offset, buffer_len, ENC_LITTLE_ENDIAN);
 
         if (tree && buffer_len) {
@@ -1737,7 +1749,7 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
                                       buffer_len, s);
             } else {
                 proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                    buffer_len, drep[0] & 0x10);
+                                    buffer_len, DREP_ENC_INTEGER(drep));
             }
         }
     } else {
@@ -1748,12 +1760,16 @@ dissect_ndr_vstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
          * (It won't help if the length is *valid* but immensely large,
          * but that's another matter; in any case, that would happen only
          * if we had an immensely large tvbuff....)
+         *
+         * XXX - if this is an octet string, does the byte order
+         * matter?  Will this ever be anything *other* than an
+	 * octet string?  What if size_is is neither 1 nor 2?
          */
         tvb_ensure_bytes_exist(tvb, offset, buffer_len);
         s = tvb_get_ephemeral_string(tvb, offset, buffer_len);
         if (tree && buffer_len)
             proto_tree_add_item(string_tree, hfindex, tvb, offset,
-                                buffer_len, drep[0] & 0x10);
+                                buffer_len, DREP_ENC_INTEGER(drep));
     }
 
     if (string_item != NULL)
@@ -2809,7 +2825,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         if (dcerpc_tree) {
             ctx_item = proto_tree_add_item(dcerpc_tree, hf_dcerpc_cn_ctx_item,
                                            tvb, offset, 0,
-                                           hdr->drep[0] & 0x10);
+                                           ENC_NA);
             ctx_tree = proto_item_add_subtree(ctx_item, ett_dcerpc_cn_ctx);
         }
 
@@ -2845,7 +2861,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         }
         offset += 16;
 
-        if (hdr->drep[0] & 0x10) {
+        if (hdr->drep[0] & DREP_LITTLE_ENDIAN) {
             offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, iface_tree, hdr->drep,
                                             hf_dcerpc_cn_bind_if_ver, &if_ver);
             offset = dissect_dcerpc_uint16 (tvb, offset, pinfo, iface_tree, hdr->drep,
@@ -3744,12 +3760,12 @@ dissect_dcerpc_cn_fault (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     /*offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, dcerpc_tree, hdr->drep,
       hf_dcerpc_cn_status, &status);*/
-    status = ((hdr->drep[0] & 0x10)
+    status = ((hdr->drep[0] & DREP_LITTLE_ENDIAN)
               ? tvb_get_letohl (tvb, offset)
               : tvb_get_ntohl (tvb, offset));
 
     if (dcerpc_tree) {
-        pi = proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_status, tvb, offset, 4, (hdr->drep[0] & 0x10));
+        pi = proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_status, tvb, offset, 4, DREP_ENC_INTEGER(hdr->drep));
     }
     offset+=4;
 

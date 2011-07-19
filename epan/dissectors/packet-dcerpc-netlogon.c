@@ -486,12 +486,13 @@ static gint dissect_dcerpc_8bytes (tvbuff_t *tvb, gint offset, packet_info *pinf
 {
     guint64 data;
 
-    data = ((drep[0] & 0x10)
+    data = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letoh64 (tvb, offset)
             : tvb_get_ntoh64 (tvb, offset));
 
+    /* These fields are FT_BYTES, hence the byte order doesn't matter */
     if (tree) {
-        proto_tree_add_item(tree, hfindex, tvb, offset, 8, (drep[0] & 0x10));
+        proto_tree_add_item(tree, hfindex, tvb, offset, 8, ENC_NA);
     }
     if (pdata)
         *pdata = data;
@@ -7662,8 +7663,8 @@ static int dissect_secchan_nl_auth_message(tvbuff_t *tvb, int offset,
         hf_netlogon_secchan_nl_message_type, &messagetype);
 
     /* Flags */
-    proto_tree_add_bitmask(subtree, tvb, offset, hf_netlogon_secchan_nl_message_flags, ett_secchan_nl_auth_message_flags, flag_fields, (drep[0] & 0x10));
-    messageflags = ((drep[0] & 0x10)
+    proto_tree_add_bitmask(subtree, tvb, offset, hf_netlogon_secchan_nl_message_flags, ett_secchan_nl_auth_message_flags, flag_fields, (drep[0] & DREP_LITTLE_ENDIAN));
+    messageflags = ((drep[0] & DREP_LITTLE_ENDIAN)
                     ? tvb_get_letohl (tvb, offset)
                     : tvb_get_ntohl (tvb, offset));
     offset += 4;

@@ -440,7 +440,7 @@ dissect_spoolss_buffer_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	item = proto_tree_add_item(
 		tree, hf_buffer_data, tvb, offset - size,
-		size, drep[0] & 0x10);
+		size, ENC_NA);
 
 	/* Return buffer info */
 
@@ -1562,7 +1562,7 @@ dissect_DEVMODE(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if (print_quality < 0)
 		proto_tree_add_item(
 			subtree, hf_devmode_print_quality, tvb,
-			offset - 2, 2, drep[0] & 0x10);
+			offset - 2, 2, DREP_ENC_INTEGER(drep));
 	else
 		proto_tree_add_text(
 			subtree, tvb, offset - 4, 4,

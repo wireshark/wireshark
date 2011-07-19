@@ -2147,7 +2147,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
     proto_item *sub_item;
 	proto_tree *sub_tree;
 	guint32 u32SubStart;
-    int bytemask = (drep[0] & 0x10) ? 3 : 0;
+    int bytemask = (drep[0] & DREP_LITTLE_ENDIAN) ? 3 : 0;
     const value_string *error_code1_vals;
     const value_string *error_code2_vals = pn_io_error_code2;   /* defaults */
 
@@ -3274,7 +3274,7 @@ dissect_IODWriteResHeader_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_add_val2, &u16AddVal2);
 
-    u32Status = ((drep[0] & 0x10)
+    u32Status = ((drep[0] & DREP_LITTLE_ENDIAN)
             ? tvb_get_letohl (tvb, offset)
             : tvb_get_ntohl (tvb, offset));
 
@@ -6483,39 +6483,39 @@ dissect_block(tvbuff_t *tvb, int offset,
     guint16 u16BlockLength;
     guint8 u8BlockVersionHigh;
     guint8 u8BlockVersionLow;
-	proto_item *sub_item;
-	proto_tree *sub_tree;
-	guint32 u32SubStart;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+    guint32 u32SubStart;
     guint16 u16BodyLength;
-	proto_item *header_item;
-	proto_tree *header_tree;
+    proto_item *header_item;
+    proto_tree *header_tree;
 
 
     /* from here, we only have big endian (network byte ordering)!!! */
-    drep[0] &= ~0x10;
+    drep[0] &= ~DREP_LITTLE_ENDIAN;
 
     sub_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
-	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_block);
+    sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_block);
     u32SubStart = offset;
 
     header_item = proto_tree_add_item(sub_tree, hf_pn_io_block_header, tvb, offset, 6, FALSE);
-	header_tree = proto_item_add_subtree(header_item, ett_pn_io_block_header);
+    header_tree = proto_item_add_subtree(header_item, ett_pn_io_block_header);
 
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_type, &u16BlockType);
-	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_length, &u16BlockLength);
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_version_high, &u8BlockVersionHigh);
-	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
+    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, header_tree, drep,
                         hf_pn_io_block_version_low, &u8BlockVersionLow);
 
-	proto_item_append_text(header_item, ": Type=%s, Length=%u(+4), Version=%u.%u",
-		val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
+    proto_item_append_text(header_item, ": Type=%s, Length=%u(+4), Version=%u.%u",
+        val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"),
         u16BlockLength, u8BlockVersionHigh, u8BlockVersionLow);
 
-	proto_item_set_text(sub_item, "%s",
-		val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
+    proto_item_set_text(sub_item, "%s",
+        val_to_str(u16BlockType, pn_io_block_type, "Unknown (0x%04x)"));
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
         val_to_str(u16BlockType, pn_io_block_type, "Unknown"));

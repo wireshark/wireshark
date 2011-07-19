@@ -28,6 +28,17 @@
 
 #include <epan/conversation.h>
 
+/*
+ * Data representation.
+ */
+#define DREP_LITTLE_ENDIAN	0x10
+
+/*
+ * Data representation to integer byte order.
+ */
+#define DREP_ENC_INTEGER(drep)	\
+	(((drep)[0] & DREP_LITTLE_ENDIAN) ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)
+
 #ifdef PT_R4
 /* now glib always includes signal.h and on linux PPC 
  * signal.h defines PT_R4

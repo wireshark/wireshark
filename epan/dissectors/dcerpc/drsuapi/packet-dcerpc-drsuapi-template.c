@@ -80,7 +80,7 @@ ucarray_drsuapi_dissect_DsReplicaSyncRequest1Info_nc_dn(tvbuff_t *tvb, int offse
                                       len, s);
             } else {
                 proto_tree_add_item(tree, hf_drsuapi_DsReplicaSyncRequest1Info_nc_dn, tvb, offset,
-                                    len, drep[0] & 0x10);
+                                    len, DREP_ENC_INTEGER(drep));
             }
         }
 

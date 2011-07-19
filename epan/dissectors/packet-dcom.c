@@ -987,7 +987,7 @@ dissect_dcom_indexed_WORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 	if (tree) {
 		/* special formatted output of indexed value */
-		proto_tree_add_uint_format(tree, hfindex, tvb, offset, 2, (drep[0] & 0x10),
+		proto_tree_add_uint_format(tree, hfindex, tvb, offset, 2, u16WORD,
 			"%s[%u]: 0x%04x",
 			proto_registrar_get_name(hfindex),
 			field_index, u16WORD);
@@ -1017,7 +1017,7 @@ dissect_dcom_indexed_DWORD(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 	if (tree) {
 		/* special formatted output of indexed value */
-		proto_tree_add_uint_format(tree, hfindex, tvb, offset, 4, (drep[0] & 0x10),
+		proto_tree_add_uint_format(tree, hfindex, tvb, offset, 4, u32DWORD,
 			"%s[%u]: 0x%08x",
 			proto_registrar_get_name(hfindex),
 			field_index, u32DWORD);
@@ -1046,7 +1046,7 @@ dissect_dcom_HRESULT_item(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 	if (tree) {
 		/* special formatted output of indexed value */
-		*item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, (drep[0] & 0x10));
+		*item = proto_tree_add_item (tree, field_index, tvb, offset-4, 4, DREP_ENC_INTEGER(drep));
 	}
 
 	if (pu32HResult)
@@ -1071,7 +1071,7 @@ dissect_dcom_HRESULT(tvbuff_t *tvb, int offset,	packet_info *pinfo,
 
 	if (tree) {
 		/* special formatted output of indexed value */
-		item = proto_tree_add_item (tree, hf_dcom_hresult, tvb, offset-4, 4, (drep[0] & 0x10));
+		item = proto_tree_add_item (tree, hf_dcom_hresult, tvb, offset-4, 4, DREP_ENC_INTEGER(drep));
 	}
 
 	/* expert info only if severity is set */
