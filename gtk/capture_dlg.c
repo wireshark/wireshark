@@ -2689,7 +2689,7 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
 
   if (get_interfaces_dialog_window()) {
-    window_destroy(get_interfaces_dialog_window());
+     window_destroy(GTK_WIDGET(get_interfaces_dialog_window()));
   }
   
   if (cap_open_w) {

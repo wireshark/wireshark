@@ -50,6 +50,9 @@ capture_if_cb(GtkWidget *widget, gpointer data);
 GtkWidget *
 capture_get_if_icon(const if_info_t* if_info);
 
+void
+update_selected_interface(gchar *name, gboolean activate);
+
 GtkWidget *
 get_interfaces_dialog_window(void);
 

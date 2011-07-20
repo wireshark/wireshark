@@ -676,7 +676,7 @@ main_welcome_add_recent_capture_file(const char *widget_cf_name, GObject *menu_i
 
 #ifdef HAVE_LIBPCAP
 static gboolean select_current_ifaces(GtkTreeModel  *model,
-                                  GtkTreePath   *path _U_,
+                                  GtkTreePath   *path,
                                   GtkTreeIter   *iter,
                                   gpointer       userdata)
 {
@@ -688,7 +688,9 @@ static gboolean select_current_ifaces(GtkTreeModel  *model,
     gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
         if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
-            gtk_tree_selection_select_iter(selection, iter);
+            if (!gtk_tree_selection_path_is_selected(selection, path)) {
+              gtk_tree_selection_select_iter(selection, iter);
+            }
             found = TRUE;
             break;
         }
@@ -711,7 +713,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
     guint i;
     cap_settings_t    cap_settings;
     gboolean found = FALSE;
-    
+
     gtk_tree_model_get_iter (model, &iter, path);
     gtk_tree_model_get (model, &iter, IFACE_NAME, &if_name, -1);
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
@@ -720,6 +722,9 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
             if (path_currently_selected) {
                 interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
                 global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
+                if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && get_interfaces_dialog_window()) {
+                    update_selected_interface(strdup(interface_opts.name), FALSE);
+                }
                 g_free(interface_opts.name);
                 g_free(interface_opts.descr);
                 g_free(interface_opts.cfilter);
@@ -762,8 +767,48 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
         interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
         g_array_append_val(global_capture_opts.ifaces, interface_opts);
+        if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && get_interfaces_dialog_window()) {
+           update_selected_interface(strdup(interface_opts.name), TRUE);
+        }
     }
     return TRUE;
+}
+
+static gboolean activate_ifaces(GtkTreeModel  *model,
+                                  GtkTreePath   *path _U_,
+                                  GtkTreeIter   *iter,
+                                  gpointer       userdata)
+{
+  gchar *if_name;
+  GtkWidget *view;
+  GtkTreeSelection *selection;
+  selected_name_t  *entry = (selected_name_t *)userdata;
+  
+  view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+  selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+  gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
+  if (strcmp(if_name, entry->name) == 0) {
+    if (entry->activate) {
+      gtk_tree_selection_select_iter(selection, iter);
+    } else {
+      gtk_tree_selection_unselect_iter(selection, iter);
+    }
+    return TRUE;
+  }
+  return FALSE;
+}
+
+void change_interface_selection(gchar* name, gboolean activate)
+{
+    GtkWidget        *view;
+    GtkTreeModel     *model;
+    selected_name_t  entry;
+   
+    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+    entry.name = strdup(name);
+    entry.activate = activate;
+    gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc)(activate_ifaces), (gpointer) &entry);
 }
 #endif
 
@@ -868,7 +913,6 @@ welcome_if_panel_reload(void)
     GtkWidget *child_box;
     GList* child_list;
     GList* child_list_item;
-
 
     if(welcome_if_panel_vb) {
         child_box = scroll_box_dynamic_reset(welcome_if_panel_vb);
@@ -1223,3 +1267,9 @@ welcome_new(void)
 
     return welcome_scrollw;
 }
+
+GtkWidget* get_welcome_window(void)
+{
+  return welcome_hb;
+}
+

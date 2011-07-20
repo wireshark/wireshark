@@ -66,6 +66,7 @@
 #include "gtk/webbrowser.h"
 #include "gtk/capture_globals.h"
 #include "gtk/network_icons.h"
+#include "gtk/main_welcome.h"
 
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
@@ -136,8 +137,29 @@ typedef struct if_dlg_data_s {
 
 static gboolean gbl_capture_in_progress = FALSE;
 
+void
+update_selected_interface(gchar *name, gboolean activate)
+{
+  guint ifs;
+  GList *curr;
+  if_dlg_data_t *temp;
+
+  for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
+    curr = g_list_nth(if_data_list, ifs);
+    temp = (if_dlg_data_t *)(curr->data);
+    if (strcmp(name, temp->if_info.name) == 0) {
+      if (activate) {
+        gtk_toggle_button_set_active((GtkToggleButton *)temp->choose_bt, TRUE);
+      } else {
+        gtk_toggle_button_set_active((GtkToggleButton *)temp->choose_bt, FALSE);
+      }
+      break;
+    }
+  }
+}
+
 static void
-store_selected(GtkWidget *choose_bt _U_, gpointer if_data)
+store_selected(GtkWidget *choose_bt, gpointer if_data)
 {
   if_dlg_data_t *if_dlg_data = if_data, *temp;
   GList *curr;
@@ -161,6 +183,9 @@ store_selected(GtkWidget *choose_bt _U_, gpointer if_data)
           if (!temp->selected) {
             interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
             global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
+            if (gtk_widget_is_focus(choose_bt) && get_welcome_window()) {
+              change_interface_selection(interface_opts.name, FALSE);
+            }
             g_free(interface_opts.name);
             g_free(interface_opts.descr);
             g_free(interface_opts.cfilter);
@@ -203,6 +228,9 @@ store_selected(GtkWidget *choose_bt _U_, gpointer if_data)
         interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
         g_array_append_val(global_capture_opts.ifaces, interface_opts);
+        if (gtk_widget_is_focus(choose_bt) && get_welcome_window() != NULL) {
+          change_interface_selection(g_strdup(temp->if_info.name), TRUE);
+        }
       }
       
       if (temp->selected)

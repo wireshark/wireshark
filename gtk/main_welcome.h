@@ -33,6 +33,10 @@ enum
   NUMCOLUMNS
 };
 
+typedef struct selected_name_s {
+  gchar *name;
+  gboolean activate;
+} selected_name_t;
 GtkWidget *welcome_new(void);
 
 /* reset the list of recently used files */
@@ -62,5 +66,9 @@ void welcome_header_set_message(gchar *msg);
 void welcome_header_pop_msg(void);
 
 void select_ifaces(void);
+
+GtkWidget* get_welcome_window(void);
+
+void change_interface_selection(gchar* name, gboolean activate);
 
 #endif /* __MAIN_WELCOME_H__ */
