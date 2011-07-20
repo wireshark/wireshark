@@ -723,7 +723,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
                 interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
                 global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
                 if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && get_interfaces_dialog_window()) {
-                    update_selected_interface(strdup(interface_opts.name), FALSE);
+                    update_selected_interface(g_strdup(interface_opts.name), FALSE);
                 }
                 g_free(interface_opts.name);
                 g_free(interface_opts.descr);
@@ -768,7 +768,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
 #endif
         g_array_append_val(global_capture_opts.ifaces, interface_opts);
         if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && get_interfaces_dialog_window()) {
-           update_selected_interface(strdup(interface_opts.name), TRUE);
+           update_selected_interface(g_strdup(interface_opts.name), TRUE);
         }
     }
     return TRUE;
@@ -806,7 +806,7 @@ void change_interface_selection(gchar* name, gboolean activate)
    
     view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
-    entry.name = strdup(name);
+    entry.name = g_strdup(name);
     entry.activate = activate;
     gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc)(activate_ifaces), (gpointer) &entry);
 }
