@@ -177,21 +177,21 @@ AM_CONDITIONAL(HAVE_DOXYGEN, test x$HAVE_DOXYGEN = xyes)
 #
 AC_SYS_LARGEFILE
 
-# gnu tls
+# GnuTLS
 tls_message="no"
 AC_ARG_WITH([gnutls],
   AC_HELP_STRING( [--with-gnutls=@<:@yes/no@:>@],
-		  [use gnutls library @<:@default=yes@:>@]),
+		  [use GnuTLS library @<:@default=yes@:>@]),
   with_gnutls="$withval", with_gnutls="yes")
 if test "x$with_gnutls" = "xyes"; then
   PKG_CHECK_MODULES([LIBGNUTLS], [gnutls >= 1.2.0],
         [
-                echo "gnuTLS found, enabling ssl decryption"
-                AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use gnutls library])
+                echo "GnuTLS found, enabling SSL decryption"
+                AC_DEFINE(HAVE_LIBGNUTLS, 1, [Define to use GnuTLS library])
                 tls_message="yes"
         ]
         , [
-                echo "gnuTLS not found, disabling ssl decryption"
+                echo "GnuTLS not found, disabling SSL decryption"
                 tls_message="no"
         ]
   )
@@ -311,7 +311,7 @@ AC_SUBST(HAVE_OSX_PACKAGING)
 #
 AC_ARG_ENABLE(extra-gcc-checks,
   AC_HELP_STRING( [--enable-extra-gcc-checks],
-		  [Do additional -W checks in GCC.  @<:@default=no@:>@]),
+		  [do additional -W checks in GCC @<:@default=no@:>@]),
 [
 	wireshark_extra_gcc_flags=$enableval
 	if test $enableval != no
@@ -414,7 +414,7 @@ warnings_as_errors_default="yes"
 AC_MSG_CHECKING(whether we should treat compiler warnings as errors)
 AC_ARG_ENABLE(warnings-as-errors,
   AC_HELP_STRING( [--enable-warnings-as-errors],
-		  [Treat warnings as errors (only for GCC or clang). @<:@default=yes@:>@]),
+		  [treat warnings as errors (only for GCC or clang) @<:@default=yes@:>@]),
 [
   if test "x$ac_supports_gcc_flags" = "xyes" -a "x$enableval" = "xyes" -a "x$wireshark_extra_gcc_flags" != "xyes"; then
     with_warnings_as_errors="yes"
@@ -646,7 +646,7 @@ dnl search path as this causes gcc 3.2 on Linux to complain about a change
 dnl of the system search order for includes
 AC_ARG_ENABLE(usr-local,
   AC_HELP_STRING( [--enable-usr-local],
-                  [look for headers and libs in /usr/local tree.  @<:@default=yes@:>@]),
+                  [look for headers and libs in /usr/local tree @<:@default=yes@:>@]),
     ac_cv_enable_usr_local=$enableval,ac_cv_enable_usr_local=yes)
 
 AC_MSG_CHECKING(whether to use /usr/local for headers and libraries)
@@ -728,7 +728,7 @@ fi
 
 AC_ARG_ENABLE(wireshark,
   AC_HELP_STRING( [--enable-wireshark],
-                  [build GTK+-based wireshark.  @<:@default=yes, if GTK+ available@:>@]),
+                  [build GTK+-based Wireshark @<:@default=yes, if GTK+ available@:>@]),
     enable_wireshark=$enableval,enable_wireshark=yes)
 if test x$enable_wireshark = xyes; then
 	CFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CFLAGS"
@@ -736,16 +736,16 @@ fi
 
 AC_ARG_ENABLE(ui-manager,
   AC_HELP_STRING( [--enable-ui-manager],
-                  [use ui-manager in Wireshark (experimental).  @<:@default=no@:>@]),
+                  [use ui-manager in Wireshark (experimental) @<:@default=no@:>@]),
     enable_uimanager=$enableval,enable_uimanager=no)
 if test x$enable_uimanager = xyes; then
-	AC_DEFINE(UI_MANAGER, 1, [Use gtk ui-manager])
+	AC_DEFINE(UI_MANAGER, 1, [Use GTK ui-manager])
 	CFLAGS="-DGTK_DISABLE_DEPRECATED $CFLAGS"
 fi
 
 AC_ARG_ENABLE(packet-editor,
   AC_HELP_STRING( [--enable-packet-editor],
-                  [add support for packet editor in wireshark.  @<:@default=no@:>@]),
+                  [add support for packet editor in Wireshark @<:@default=no@:>@]),
     enable_packet_editor=$enableval,enable_packet_editor=no)
 if test x$enable_packet_editor = xyes; then
 	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
@@ -753,7 +753,7 @@ fi
 
 AC_ARG_ENABLE(threads,
   AC_HELP_STRING( [--enable-threads],
-                  [use threads in wireshark.  @<:@default=yes@:>@]),
+                  [use threads in Wireshark @<:@default=yes@:>@]),
     enable_threads=$enableval,enable_threads=yes)
 if test x$enable_threads = xyes; then
 	AC_DEFINE(USE_THREADS, 1, [Support for threads])
@@ -761,7 +761,7 @@ fi
 
 AC_ARG_ENABLE(profile-build,
   AC_HELP_STRING( [--enable-profile-build],
-		  [build profile-ready binaries.  @<:@default=no@:>@]),
+		  [build profile-ready binaries @<:@default=no@:>@]),
     enable_profile_build=$enableval,enable_profile_build=no)
 AM_CONDITIONAL(USE_PROFILE_BUILD, test x$enable_profile_build = xyes)
 AC_MSG_CHECKING(if profile builds must be generated)
@@ -953,7 +953,7 @@ then
 
     AC_ARG_WITH(osx-integration,
       AC_HELP_STRING( [--with-osx-integration],
-                      [use OS X integration functions (@<:@default=yes, if available@:>@]),
+                      [use OS X integration functions @<:@default=yes, if available@:>@]),
     [
         if test $withval = no
         then
@@ -980,7 +980,7 @@ AC_SUBST(wireshark_man)
 
 AC_ARG_ENABLE(tshark,
   AC_HELP_STRING( [--enable-tshark],
-                  [build tshark.  @<:@default=yes@:>@]),
+                  [build TShark @<:@default=yes@:>@]),
     tshark=$enableval,enable_tshark=yes)
 
 if test "x$enable_tshark" = "xyes" ; then
@@ -1001,7 +1001,7 @@ AC_SUBST(wiresharkfilter_man)
 
 AC_ARG_ENABLE(editcap,
   AC_HELP_STRING( [--enable-editcap],
-                  [build editcap.  @<:@default=yes@:>@]),
+                  [build editcap @<:@default=yes@:>@]),
     enable_editcap=$enableval,enable_editcap=yes)
 
 if test "x$enable_editcap" = "xyes" ; then
@@ -1021,7 +1021,7 @@ AC_SUBST(editcap_man)
 
 AC_ARG_ENABLE(capinfos,
   AC_HELP_STRING( [--enable-capinfos],
-                  [build capinfos.  @<:@default=yes@:>@]),
+                  [build capinfos @<:@default=yes@:>@]),
     enable_capinfos=$enableval,enable_capinfos=yes)
 
 if test "x$enable_capinfos" = "xyes" ; then
@@ -1039,7 +1039,7 @@ AC_SUBST(capinfos_man)
 
 AC_ARG_ENABLE(mergecap,
   AC_HELP_STRING( [--enable-mergecap],
-                  [build mergecap.  @<:@default=yes@:>@]),
+                  [build mergecap @<:@default=yes@:>@]),
     enable_mergecap=$enableval,enable_mergecap=yes)
 
 if test "x$enable_mergecap" = "xyes" ; then
@@ -1057,7 +1057,7 @@ AC_SUBST(mergecap_man)
 
 AC_ARG_ENABLE(text2pcap,
   AC_HELP_STRING( [--enable-text2pcap],
-                  [build text2pcap.  @<:@default=yes@:>@]),
+                  [build text2pcap @<:@default=yes@:>@]),
     text2pcap=$enableval,enable_text2pcap=yes)
 
 if test "x$enable_text2pcap" = "xyes" ; then
@@ -1074,7 +1074,7 @@ AC_SUBST(text2pcap_man)
 
 AC_ARG_ENABLE(idl2wrs,
   AC_HELP_STRING( [--enable-idl2wrs],
-                  [build idl2wrs.  @<:@default=yes@:>@]),
+                  [build idl2wrs @<:@default=yes@:>@]),
     enable_idl2wrs=$enableval,enable_idl2wrs=yes)
 
 if test "x$enable_idl2wrs" = "xyes" ; then
@@ -1092,7 +1092,7 @@ AC_SUBST(idl2wrs_man)
 
 AC_ARG_ENABLE(dftest,
   AC_HELP_STRING( [--enable-dftest],
-                  [build dftest.  @<:@default=yes@:>@]),
+                  [build dftest @<:@default=yes@:>@]),
     enable_dftest=$enableval,enable_dftest=yes)
 
 if test "x$enable_dftest" = "xyes" ; then
@@ -1110,7 +1110,7 @@ AC_SUBST(dftest_man)
 
 AC_ARG_ENABLE(randpkt,
   AC_HELP_STRING( [--enable-randpkt],
-                  [build randpkt.  @<:@default=yes@:>@]),
+                  [build randpkt @<:@default=yes@:>@]),
     enable_randpkt=$enableval,enable_randpkt=yes)
 
 if test "x$enable_randpkt" = "xyes" ; then
@@ -1138,7 +1138,7 @@ AC_MSG_CHECKING(whether to use libpcap for packet capture)
 
 AC_ARG_WITH(pcap,
   AC_HELP_STRING( [--with-pcap@<:@=DIR@:>@],
-                  [use libpcap for packet capturing.  @<:@default=yes@:>@]),
+                  [use libpcap for packet capturing @<:@default=yes@:>@]),
 [
 	if test $withval = no
 	then
@@ -1168,7 +1168,7 @@ AC_MSG_CHECKING(whether to build dumpcap)
 
 AC_ARG_ENABLE(dumpcap,
   AC_HELP_STRING( [--enable-dumpcap],
-                  [build dumpcap.  @<:@default=yes@:>@]),
+                  [build dumpcap @<:@default=yes@:>@]),
     enable_dumpcap=$enableval,enable_dumpcap=yes)
 
 if test "x$enable_dumpcap" = "xyes" ; then
@@ -1199,7 +1199,7 @@ AC_MSG_CHECKING(whether to build rawshark)
 
 AC_ARG_ENABLE(rawshark,
   AC_HELP_STRING( [--enable-rawshark],
-                  [build rawshark.  @<:@default=yes@:>@]),
+                  [build rawshark @<:@default=yes@:>@]),
     rawshark=$enableval,enable_rawshark=yes)
 
 if test "x$enable_rawshark" = "xyes" ; then
@@ -1226,7 +1226,7 @@ AC_SUBST(rawshark_man)
 dnl Use pcap-ng by default
 AC_ARG_ENABLE(pcap-ng-default,
   AC_HELP_STRING( [--enable-pcap-ng-default],
-                  [use the pcap-ng file format by default instead of pcap.  @<:@default=yes@:>@]),
+                  [use the pcap-ng file format by default instead of pcap @<:@default=yes@:>@]),
     enable_pcap_ng_default=$enableval,enable_pcap_ng_default=yes)
 if test x$enable_pcap_ng_default = xyes; then
 	AC_DEFINE(PCAP_NG_DEFAULT, 1, [Support for pcap-ng])
@@ -1260,7 +1260,7 @@ AC_MSG_CHECKING(whether to use zlib for gzip compression and decompression)
 
 AC_ARG_WITH(zlib,
   AC_HELP_STRING([--with-zlib@<:@=DIR@:>@],
-                 [use zlib (located in directory DIR, if supplied) for gzip compression and decompression .  @<:@default=yes, if available@:>@]),
+                 [use zlib (located in directory DIR, if supplied) for gzip compression and decompression @<:@default=yes, if available@:>@]),
 [
 	if test "x$withval" = "xno"
 	then
@@ -1298,7 +1298,7 @@ AC_MSG_CHECKING(whether to use libpcre for regular expressions in dfilters)
 
 AC_ARG_WITH(pcre,
   AC_HELP_STRING( [--with-pcre@<:@=DIR@:>@],
-                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions. Not needed if you have GLib 2.14 or later. @<:@default=no@:>@]),
+                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions. Not needed if you have GLib 2.14 or later @<:@default=no@:>@]),
 [
 	if test $withval = no
 	then
@@ -1330,7 +1330,7 @@ AC_MSG_CHECKING(whether to use liblua for the Lua scripting plugin)
 
 AC_ARG_WITH(lua,
   AC_HELP_STRING( [--with-lua@<:@=DIR@:>@],
-                  [use liblua (located in directory DIR, if supplied) for the Lua scripting plugin.  @<:@default=yes, if available@:>@]),
+                  [use liblua (located in directory DIR, if supplied) for the Lua scripting plugin @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then
@@ -1366,7 +1366,7 @@ AC_MSG_CHECKING(whether to use libportaudio for the rtp_player)
 
 AC_ARG_WITH(portaudio,
   AC_HELP_STRING( [--with-portaudio@<:@=DIR@:>@],
-                  [use libportaudio (located in directory DIR, if supplied) for the rtp_player.  @<:@default=yes, if available@:>@]),
+                  [use libportaudio (located in directory DIR, if supplied) for the rtp_player @<:@default=yes, if available@:>@]),
 [
 	if test $withval = no
 	then
@@ -1400,7 +1400,7 @@ AM_CONDITIONAL(HAVE_LIBPORTAUDIO, test x$want_portaudio = xyes)
 dnl ipv6 check
 AC_ARG_ENABLE(ipv6,
   AC_HELP_STRING( [--enable-ipv6],
-                  [use ipv6 name resolution, if available.  @<:@default=yes@:>@]),
+                  [use IPv6 name resolution, if available @<:@default=yes@:>@]),
     enable_ipv6=$enableval,enable_ipv6=yes)
 
 AC_MSG_CHECKING(whether to enable ipv6 name resolution if available)
@@ -1482,7 +1482,7 @@ AC_MSG_CHECKING(whether to use the libcap capabilities library)
 
 AC_ARG_WITH(libcap,
   AC_HELP_STRING( [--with-libcap@<:@=DIR@:>@],
-                  [use libcap (located in directory DIR, if supplied) for POSIX.1e capabilities management.   @<:@default=yes, if present@:>@]),
+                  [use libcap (located in directory DIR, if supplied) for POSIX.1e capabilities management @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_libcap=no
@@ -1513,7 +1513,7 @@ AC_MSG_CHECKING(whether to use SSL library)
 
 AC_ARG_WITH(ssl,
   AC_HELP_STRING( [--with-ssl@<:@=DIR@:>@],
-                  [use SSL crypto library (located in directory DIR, if supplied).   @<:@default=no@:>@]),
+                  [use SSL crypto library (located in directory DIR, if supplied) @<:@default=no@:>@]),
 [
 if test "x$withval" = "xno";  then
 	want_ssl=no
@@ -1541,11 +1541,11 @@ fi
 AC_SUBST(SSL_LIBS)
 
 dnl kerberos check
-AC_MSG_CHECKING(whether to use kerberos)
+AC_MSG_CHECKING(whether to use Kerberos library)
 
 AC_ARG_WITH(krb5,
   AC_HELP_STRING( [--with-krb5@<:@=DIR@:>@],
-                  [use kerberos (located in directory DIR, if supplied) to use in kerberos dissection  @<:@default=yes@:>@]),
+                  [use Kerberos library (located in directory DIR, if supplied) to use in Kerberos dissection @<:@default=yes@:>@]),
 [
 	if test $withval = no
 	then
@@ -1559,7 +1559,7 @@ AC_ARG_WITH(krb5,
 	fi
 ],[
 	#
-	# Use kerberos if specified, otherwise don't.
+	# Use Kerberos library if available, otherwise don't.
 	#
 	want_krb5=ifavailable
 	krb5_dir=
@@ -1578,7 +1578,7 @@ AC_MSG_CHECKING(whether to use the c-ares library if available)
 
 AC_ARG_WITH(c-ares,
   AC_HELP_STRING( [--with-c-ares@<:@=DIR@:>@],
-                  [use c-ares (located in directory DIR, if supplied). Supersedes --with-adns.   @<:@default=yes, if present@:>@]),
+                  [use c-ares (located in directory DIR, if supplied) - supersedes --with-adns @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_c_ares=no
@@ -1603,7 +1603,7 @@ AC_MSG_CHECKING(whether to use the GNU ADNS library if available)
 
 AC_ARG_WITH(adns,
   AC_HELP_STRING( [--with-adns@<:@=DIR@:>@],
-                  [use GNU ADNS (located in directory DIR, if supplied).   @<:@default=yes, if present@:>@]),
+                  [use GNU ADNS (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_adns=no
@@ -1628,7 +1628,7 @@ AC_MSG_CHECKING(whether to use the GeoIP IP address mapping library if available
 
 AC_ARG_WITH(geoip,
   AC_HELP_STRING( [--with-geoip@<:@=DIR@:>@],
-                  [use GeoIP (located in directory DIR, if supplied).   @<:@default=yes, if present@:>@]),
+                  [use GeoIP (located in directory DIR, if supplied) @<:@default=yes, if present@:>@]),
 [
 if   test "x$withval" = "xno";  then
 	want_geoip=no
@@ -1652,7 +1652,7 @@ AC_MSG_CHECKING(whether to use the Python interpreter for scripting)
 
 AC_ARG_WITH(python,
     AC_HELP_STRING( [--with-python@<:@=DIR@:>@],
-                    [use Python interpreter (installed in DIR, if supplied). @<:@default=yes, if available@:>@ (EXPERIMENTAL)]),
+                    [use Python interpreter (installed in DIR, if supplied) @<:@default=yes, if available@:>@ (EXPERIMENTAL)]),
 [
 	pythondir='${libdir}/wireshark/python/${VERSION}'
 	if test "x$withval" = "xno"
@@ -1701,7 +1701,7 @@ AC_DEFINE(WS_MSVC_NORETURN,, [Define as the string to precede declarations of ro
 
 AC_ARG_ENABLE(airpcap,
   AC_HELP_STRING( [--enable-airpcap],
-                  [use airpcap in wireshark.  @<:@default=no@:>@]),
+                  [use AirPcap in Wireshark @<:@default=no@:>@]),
   enable_airpcap=$enableval
   if test x$enable_airpcap != xno; then
 	AC_DEFINE(HAVE_AIRPCAP, 1, [Enable AirPcap])
@@ -1846,7 +1846,7 @@ dnl we don't wish to expand ${libdir} yet
 plugindir='${libdir}/wireshark/plugins/${VERSION}'
 AC_ARG_WITH(plugins,
   AC_HELP_STRING( [--with-plugins@<:@=DIR@:>@],
-                  [support plugins (installed in DIR, if supplied).   @<:@default=yes, if possible@:>@]),
+                  [support plugins (installed in DIR, if supplied) @<:@default=yes, if possible@:>@]),
 [
   if test "x$withval" = "xno"; then
     have_plugins=no
