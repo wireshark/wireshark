@@ -4100,6 +4100,46 @@ typedef struct
 /* End Packet Physical Information */
 
 
+
+/*  ADDITIONAL MS RADIO ACCESS CAPABILITIES -----------------*/
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    Global_TFI_t Global_TFI;
+    guint32 TLLI;
+  } u;
+} AdditionalMsRadAccessCapID_t;
+
+
+typedef struct
+{
+  guint8 MESSAGE_TYPE;
+  guint8 PayloadType;
+  guint8 spare;
+  guint8 R;
+
+  AdditionalMsRadAccessCapID_t ID;
+  MS_Radio_Access_capability_t MS_Radio_Access_capability;
+} Additional_MS_Rad_Access_Cap_t;
+
+/* End ADDITIONAL MS RADIO ACCESS CAPABILITIES */
+
+
+/* Packet Pause -----------------*/
+
+typedef struct
+{
+  guint8 MESSAGE_TYPE;
+
+  guint32 TLLI;
+  guint8  RAI[48/8];
+} Packet_Pause_t;
+
+/* End Packet Pause */
+
+
 /*
 < NC Measurement Parameters struct > ::=
                                         < NETWORK_CONTROL_ORDER : bit (2) >
@@ -4246,6 +4286,8 @@ typedef struct
     Packet_Enh_Measurement_Report_t       Packet_Enh_Measurement_Report;
     Packet_Cell_Change_Notification_t     Packet_Cell_Change_Notification;
     Packet_SI_Status_t                    Packet_SI_Status;
+	Additional_MS_Rad_Access_Cap_t        Additional_MS_Rad_Access_Cap;
+	Packet_Pause_t                        Packet_Pause;
   } u;
   gint16 NrOfBits;
 } RlcMacUplink_t;

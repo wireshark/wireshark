@@ -994,6 +994,17 @@ static int hf_packet_physicalinformation_pagemode;
 static int hf_packet_physicalinformation_timingadvance;
 
 /*< End Packet Physical Information > */
+
+/* < Additinal MS Radio Access Capability */
+static int hf_additionalmsradcap_tlli;
+/* < End Additinal MS Radio Access Capability */
+
+
+/* < Packet Pause > */
+static int hf_packet_pause_message_type;
+static int hf_packet_pause_tlli;
+/* < End Packet Pause > */
+
 static int hf_si1_restoctet_nch_position;
 static int hf_si1_restoctet_bandindicator;
 static int hf_selection_parameters_cbq;
@@ -1019,6 +1030,7 @@ static int hf_si6_restoctet_vbs_vgcs_options;
 static int hf_si6_restoctet_rac;
 static int hf_si6_restoctet_max_lapdm;
 static int hf_si6_restoctet_bandindicator;
+
 
 /* Payload type as defined in TS 44.060 / 10.4.7 */
 #define PAYLOAD_TYPE_DATA              0
@@ -4572,6 +4584,51 @@ CSN_DESCR_END  (Packet_PhysicalInformation_t)
 /*< End Packet Physical Information > */
 
 
+/*< ADDITIONAL MS RADIO ACCESS CAPABILITIES content > */
+static const
+CSN_ChoiceElement_t AdditionalMsRadAccessCapID[] =
+{
+  {1, 0,    M_TYPE(AdditionalMsRadAccessCapID_t, u.Global_TFI, Global_TFI_t)},
+  {1, 0x01, M_UINT(AdditionalMsRadAccessCapID_t, u.TLLI, 32, &hf_additionalmsradcap_tlli)},
+};
+
+static const
+CSN_DESCR_BEGIN(AdditionalMsRadAccessCapID_t)
+  M_CHOICE     (AdditionalMsRadAccessCapID_t, UnionType, AdditionalMsRadAccessCapID, ElementsOf(AdditionalMsRadAccessCapID)),
+CSN_DESCR_END  (AdditionalMsRadAccessCapID_t)
+
+
+static const
+CSN_DESCR_BEGIN       (Additional_MS_Rad_Access_Cap_t)
+  /* Mac header */
+  M_UINT              (Additional_MS_Rad_Access_Cap_t,  PayloadType,  2, &hf_packet_resource_request_payloadtype),
+  M_UINT              (Additional_MS_Rad_Access_Cap_t,  spare,  5, &hf_packet_resource_request_spare),
+  M_UINT              (Additional_MS_Rad_Access_Cap_t,  R,  1, &hf_packet_resource_request_r),
+  M_UINT              (Additional_MS_Rad_Access_Cap_t,  MESSAGE_TYPE,  6, &hf_packet_resource_request_message_type),
+  /* Mac header */
+
+  M_TYPE              (Additional_MS_Rad_Access_Cap_t,  ID, AdditionalMsRadAccessCapID_t),
+  M_TYPE              (Additional_MS_Rad_Access_Cap_t,  MS_Radio_Access_capability, MS_Radio_Access_capability_t),
+CSN_DESCR_END         (Additional_MS_Rad_Access_Cap_t)
+
+
+/*< End  ADDITIONAL MS RADIO ACCESS CAPABILITIES > */
+
+
+/*< Packet Pause content > */
+
+static const
+CSN_DESCR_BEGIN       (Packet_Pause_t)
+  M_UINT              (Packet_Pause_t,  MESSAGE_TYPE,  2, &hf_packet_pause_message_type),
+  M_UINT              (Packet_Pause_t,  TLLI, 32, &hf_packet_pause_tlli),
+  M_BITMAP            (Packet_Pause_t,  RAI, 48),
+CSN_DESCR_END         (Packet_Pause_t)
+
+
+/*< End Packet Pause > */
+
+
+
 typedef char* MT_Strings_t;
 
 static const MT_Strings_t szMT_Downlink[] = {
@@ -4858,7 +4915,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
     case MT_PACKET_PAUSE:
     {
-      ret = -1;
+      ret = csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(Packet_Pause_t), tvb, &data->u.Packet_Pause, ett_gsm_rlcmac);
       break;
     }
     case MT_PACKET_ENHANCED_MEASUREMENT_REPORT:
@@ -4868,7 +4925,7 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
     }
     case MT_ADDITIONAL_MS_RAC:
     {
-      ret = -1;
+      ret = csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(Additional_MS_Rad_Access_Cap_t), tvb, &data->u.Additional_MS_Rad_Access_Cap, ett_gsm_rlcmac);
       break;
     }
     case MT_PACKET_CELL_CHANGE_NOTIFICATION:
@@ -10480,6 +10537,29 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+/*< Additional MS Radio Access Capability message content > */
+    { &hf_additionalmsradcap_tlli,
+      { "TLLI",        "gsm_rlcmac_ul.arac_tlli",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+/*< End Additional MS Radio Access Capability> */
+
+/*< Packet Pause message content > */
+    { &hf_packet_pause_message_type,
+      { "MessageType",        "gsm_rlcmac_dl.packet_pause_messagetype",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_pause_tlli,
+      { "TLLI",        "gsm_rlcmac_ul.packet_pause_tlli",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+/*< End Packet Pause> */
   };
 
 
