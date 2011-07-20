@@ -218,22 +218,22 @@ dissect_amr_nb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	int offset = 0;
 	guint8 octet;
 
-	proto_tree_add_item(tree, hf_amr_nb_if1_ft, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_nb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
 	octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
 	if (octet == AMR_NB_SID){
-		proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		if (tvb_get_guint8(tvb,offset+1) & 0x1f)
 			proto_tree_add_text(tree, tvb, offset+1, 1, "Error:Spare bits not 0");
 		proto_tree_add_text(tree, tvb, offset+2, 5, "Speech data");
-		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, FALSE);
-		proto_tree_add_item(tree, hf_amr_nb_if1_sti_mode_ind, tvb, offset+7, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_amr_nb_if1_sti_mode_ind, tvb, offset+7, 1, ENC_BIG_ENDIAN);
 		return;
 	}
 
-	proto_tree_add_item(tree, hf_amr_nb_if1_mode_ind, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_nb_if1_mode_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_nb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (tvb_get_guint8(tvb,offset) & 0x1f)
 		proto_tree_add_text(tree, tvb, offset, 1, "Error:Spare bits not 0");
 	offset++;
@@ -246,22 +246,22 @@ static void
 dissect_amr_wb_if1(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree){
 	int offset = 0;
 	guint8 octet;
-	proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_wb_if1_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_amr_if1_fqi, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (tvb_get_guint8(tvb,offset) & 0x03)
 		proto_tree_add_text(tree, tvb, offset, 1, "Error:Spare bits not 0");
 	octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
 	if (octet == AMR_WB_SID){
-		proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset+1, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_text(tree, tvb, offset+2, 4, "Speech data");
-		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, FALSE);
-		proto_tree_add_item(tree, hf_amr_wb_if1_sti_mode_ind, tvb, offset+7, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_if1_sti, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_amr_wb_if1_sti_mode_ind, tvb, offset+7, 1, ENC_BIG_ENDIAN);
 		return;
 	}
 
 	offset++;
-	proto_tree_add_item(tree, hf_amr_wb_if1_mode_ind, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_wb_if1_mode_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_amr_wb_if1_mode_req, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	proto_tree_add_text(tree, tvb, offset, -1, "Speech data");
 
@@ -273,13 +273,13 @@ dissect_amr_nb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
 	guint8 octet;
 
-	proto_tree_add_item(tree, hf_amr_nb_if2_ft, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_nb_if2_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
 	octet = tvb_get_guint8(tvb,offset) & 0x0f;
 
 	if (octet == AMR_NB_SID) {
 		proto_tree_add_text(tree, tvb, offset+1, 3, "Speech data");
-		proto_tree_add_item(tree, hf_amr_if2_sti, tvb, offset+4, 1, FALSE);
-		proto_tree_add_item(tree, hf_amr_nb_if2_sti_mode_ind, tvb, offset+5, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_if2_sti, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_amr_nb_if2_sti_mode_ind, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 		return;
 	}
 	if (octet == AMR_NO_TRANS)
@@ -295,13 +295,13 @@ dissect_amr_wb_if2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
 	int offset = 0;
 	guint8 octet;
 
-	proto_tree_add_item(tree, hf_amr_wb_if2_ft, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_amr_wb_if2_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
 	octet = (tvb_get_guint8(tvb,offset) & 0xf0) >> 4;
 
 	if (octet == AMR_WB_SID) {
 		proto_tree_add_text(tree, tvb, offset+1, 4, "Speech data");
-		proto_tree_add_item(tree, hf_amr_if2_sti, tvb, offset+5, 1, FALSE);
-		proto_tree_add_item(tree, hf_amr_wb_if2_sti_mode_ind, tvb, offset+5, 1, FALSE);
+		proto_tree_add_item(tree, hf_amr_if2_sti, tvb, offset+5, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_amr_wb_if2_sti_mode_ind, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 		return;
 	}
 	if (octet == AMR_NO_TRANS)
@@ -337,9 +337,9 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
 
 	bitcount = 3;
 	if (amr_mode==AMR_NB)
-		proto_tree_add_bits_item(tree, hf_amr_nb_cmr, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_amr_nb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	else
-		proto_tree_add_bits_item(tree, hf_amr_wb_cmr, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_amr_wb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 
 	bit_offset+=4;
 	/* In bandwidth-efficient mode, a ToC entry takes the following format:
@@ -361,13 +361,13 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
 		/* Check F bit */
 		bitcount += 1;
 		f_bit = tvb_get_bits8(tvb, bit_offset, 1);
-		proto_tree_add_bits_item(tree, hf_amr_toc_f, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		ft = tvb_get_bits8(tvb, bit_offset, 4);
 		if (amr_mode==AMR_NB)
-			item = proto_tree_add_bits_item(tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, FALSE);
+			item = proto_tree_add_bits_item(tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		else
-			item = proto_tree_add_bits_item(tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, FALSE);
+			item = proto_tree_add_bits_item(tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 
 		bit_offset+=4;
 		bitcount += 4;
@@ -377,7 +377,7 @@ dissect_amr_be(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint amr
 			bits_used_for_frames +=Framebits_WB[ft];
 		/* Check Q bit */
 		q_bit = tvb_get_bits8(tvb, bit_offset, 1);
-		proto_tree_add_bits_item(tree, hf_amr_toc_q, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 		bitcount += 1;
 		if (q_bit==1)
@@ -440,7 +440,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 
 	if (tree) {
 
-		ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_amr, tvb, 0, -1, ENC_BIG_ENDIAN);
 		amr_tree = proto_item_add_subtree(ti, ett_amr);
 
 		proto_tree_add_text(amr_tree, tvb, offset, -1, "Payload decoded as %s",
@@ -469,9 +469,9 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 		}
 
 		if (amr_mode==AMR_NB)
-			proto_tree_add_bits_item(amr_tree, hf_amr_nb_cmr, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(amr_tree, hf_amr_nb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_bits_item(amr_tree, hf_amr_wb_cmr, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(amr_tree, hf_amr_wb_cmr, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 
 		bit_offset+=4;
 		octet = tvb_get_guint8(tvb,offset) & 0x0f;
@@ -482,7 +482,7 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 
 		}
 
-		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(amr_tree, hf_amr_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		bit_offset+=4;
 		/*
@@ -510,14 +510,14 @@ dissect_amr_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint amr
 			first_time = FALSE;
 			octet = tvb_get_guint8(tvb,offset);
 
-			proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, FALSE);
+			proto_tree_add_bits_item(toc_tree, hf_amr_toc_f, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
 			if (amr_mode==AMR_NB)
-				proto_tree_add_bits_item(toc_tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(toc_tree, hf_amr_nb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 			else
-				proto_tree_add_bits_item(toc_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, FALSE);
+				proto_tree_add_bits_item(toc_tree, hf_amr_wb_toc_ft, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 			bit_offset+=4;
-			proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, FALSE);
+			proto_tree_add_bits_item(toc_tree, hf_amr_toc_q, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 			bit_offset++;
 			/* 2 pading bits */
 			bit_offset+=2;
@@ -820,7 +820,7 @@ proto_register_amr(void)
 	prefs_register_enum_preference(amr_module, "encoding.version",
 				       "Type of AMR encoding of the payload",
 				       "Type of AMR encoding of the payload",
-				       &amr_encoding_type, encoding_types, FALSE);
+				       &amr_encoding_type, encoding_types, ENC_BIG_ENDIAN);
 
 	prefs_register_enum_preference(amr_module, "mode",
 				       "The AMR mode",

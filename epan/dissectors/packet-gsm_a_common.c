@@ -745,7 +745,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	 * The Location Estimate field is composed of 1 or more octets with an internal structure
 	 * according to section 7 in [23.032].
 	 */
-	proto_tree_add_item(tree, hf_gsm_a_geo_loc_type_of_shape, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_geo_loc_type_of_shape, tvb, 0, 1, ENC_BIG_ENDIAN);
 	if (length<2)
 		return;
 	type_of_shape = tvb_get_guint8(tvb,offset)>>4;
@@ -765,17 +765,17 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		offset++;
 		if (length<4)
 			return;
-		proto_tree_add_item(tree, hf_gsm_a_geo_loc_sign_of_lat, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_geo_loc_sign_of_lat, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		value32 = tvb_get_ntoh24(tvb,offset)&0x7fffff;
 		/* convert degrees (X/0x7fffff) * 90 = degrees */
-		lat_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_lat, tvb, offset, 3, FALSE);
+		lat_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_lat, tvb, offset, 3, ENC_BIG_ENDIAN);
 		proto_item_append_text(lat_item,"(%.5f degrees)", (((double)value32/8388607) * 90));
 		if (length<7)
 			return;
 		offset = offset + 3;
 		value32 = tvb_get_ntoh24(tvb,offset)&0x7fffff;
-		long_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_long, tvb, offset, 3, FALSE);
+		long_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_deg_of_long, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* (X/0xffffff) *360 = degrees */
 		proto_item_append_text(long_item,"(%.5f degrees)", (((double)value32/16777215) * 360));
 		offset = offset + 3;
@@ -785,7 +785,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 				return;
 			/* Uncertainty code */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			uncer_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_code, tvb, offset, 1, FALSE);
+			uncer_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(uncer_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 		}else if(type_of_shape==ELLIPSOID_POINT_WITH_UNCERT_ELLIPSE){
 			/* Ellipsoid Point with uncertainty Ellipse */
@@ -793,14 +793,14 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(major_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Uncertainty semi-minor Octet 11
 			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(minor_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Orientation of major axis octet 12
@@ -811,33 +811,33 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			proto_tree_add_uint(tree, hf_gsm_a_geo_loc_orientation_of_major_axis, tvb, offset, 1, value*2);
 			offset++;
 			/* Confidence */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 		}else if(type_of_shape==ELLIPSOID_POINT_WITH_ALT){
 			/* Ellipsoid Point with Altitude */
 			/*D: Direction of Altitude */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* Altitude */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, ENC_BIG_ENDIAN);
 		}else if(type_of_shape==ELLIPSOID_POINT_WITH_ALT_AND_UNCERT_ELLIPSOID){
 			/* Ellipsoid Point with altitude and uncertainty ellipsoid */
 			/*D: Direction of Altitude octet 8,9 */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_D, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* Altitude Octet 8,9*/
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_altitude, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
 			/* Uncertainty semi-major octet 10
 			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, FALSE);
+			major_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_major, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(major_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Uncertainty semi-minor Octet 11
 			 * To convert to metres 10*(((1.1)^X)-1)
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, FALSE);
+			minor_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_semi_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(minor_item,"(%.1f m)", 10 * (pow(1.1, (double)value) - 1));
 			offset++;
 			/* Orientation of major axis octet 12
@@ -851,35 +851,35 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			 * to convert to metres 45*(((1.025)^X)-1)
 			 */
 			value = tvb_get_guint8(tvb,offset)&0x7f;
-			alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_altitude, tvb, offset, 1, FALSE);
+			alt_item = proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_altitude, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(alt_item,"(%.1f m)", 45 * (pow(1.025, (double)value) - 1));
 			offset++;
 			/* Confidence octet 14
 			 */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}else if(type_of_shape==ELLIPSOID_ARC){
 			/* Ellipsoid Arc */
 			/* Inner radius */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_inner_radius, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_inner_radius, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset= offset +2;
 			/* Uncertainty radius */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_radius, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_uncertainty_radius, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* Offset angle */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_offset_angle, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_offset_angle, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* Included angle */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_included_angle, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_included_angle, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* Confidence */
-			proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_geo_loc_confidence, tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 
 		break;
 	case POLYGON:					/* Polygon */
 		/* Number of points */
 		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
-		proto_tree_add_item(tree, hf_gsm_a_geo_loc_no_of_points, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_geo_loc_no_of_points, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/*
 		while ( no_of_points > 0){
 			offset++;
@@ -935,51 +935,51 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
 	/* Bit 8 - 5 Velocity Type */
 	velocity_type = tvb_get_guint8(tvb,curr_offset);
-	proto_tree_add_item(tree, hf_gsm_a_velocity_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_velocity_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	switch(velocity_type){
 		case 0:
 			/* 8.12 Coding of Horizontal Velocity */
 			/* Spare bits */
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, ENC_BIG_ENDIAN);
 			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
-			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
 			break;
 		case 1:
 			/* 8.13 Coding of Horizontal with Vertical Velocity */
 			/* Spare bits */
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, ENC_BIG_ENDIAN);
 			/* D: Direction of Vertical Speed */
-			proto_tree_add_item(tree, hf_gsm_a_d, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_d, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
-			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
 			/* Vertical Speed Octet 5 
 			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
 			 */
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset++;
 			break;
 		case 2:
 			/* 8.14 Coding of Horizontal Velocity with Uncertainty */
 			/* Spare bits */
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 3, ENC_BIG_ENDIAN);
 			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
-			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
 			/* Uncertainty Speed Octet 5 
@@ -987,7 +987,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 			 * N gives the uncertainty speed except for N=255 which indicates that the uncertainty is not specified.
 			 */
 			uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_uncertainty_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_uncertainty_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(uncertainty_speed==255){
 				proto_item_append_text(velocity_item," not specified");
 			}else{
@@ -998,26 +998,26 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 		case 3:
 			/* 8.15 Coding of Horizontal with Vertical Velocity and Uncertainty */
 			/* Spare bits */
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 2, ENC_BIG_ENDIAN);
 			/* D: Direction of Vertical Speed */
-			proto_tree_add_item(tree, hf_gsm_a_d, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_d, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* Bearing is encoded in increments of 1 degree measured clockwise from North using a 9 bit binary coded number N. */
-			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_bearing, tvb, (curr_offset<<3)+7, 9, ENC_BIG_ENDIAN);
 			curr_offset+=2;
 			/* Horizontal speed is encoded in increments of 1 kilometre per hour using a 16 bit binary coded number N. */
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_horizontal_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset+=2;
 			/* Vertical Speed Octet 5 
 			 * Vertical speed is encoded in increments of 1 kilometre per hour using 8 bits giving a number N between 0 and 28-1.
 			 */
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_vertical_speed, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(velocity_item," km/h");
 			curr_offset++;
 
 			/* Horizontal Uncertainty Speed Octet 6 */
 			uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_h_uncertainty_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_h_uncertainty_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(uncertainty_speed==255){
 				proto_item_append_text(velocity_item," not specified");
 			}else{
@@ -1027,7 +1027,7 @@ dissect_description_of_velocity(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 
 			/* Vertical Uncertainty Speed Octet 7 */
 			uncertainty_speed = tvb_get_guint8(tvb,curr_offset);
-			velocity_item = proto_tree_add_item(tree, hf_gsm_a_v_uncertainty_speed, tvb, offset, 2, FALSE);
+			velocity_item = proto_tree_add_item(tree, hf_gsm_a_v_uncertainty_speed, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(uncertainty_speed==255){
 				proto_item_append_text(velocity_item," not specified");
 			}else{
@@ -1271,7 +1271,7 @@ guint16 elem_telv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint8 ie
 			get_hf_elem_id(pdu_type), tvb,
 			curr_offset, 1, oct);
 
-		proto_tree_add_item(subtree, hf_gsm_a_l_ext, tvb, curr_offset+1, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_a_l_ext, tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_uint(subtree, hf_gsm_a_length, tvb,
 			curr_offset + 1, lengt_length, parm_len);
@@ -1990,8 +1990,8 @@ de_ciph_key_seq_num( tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	curr_offset = offset;
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_key_seq, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_key_seq, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -2032,7 +2032,7 @@ de_lai(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
 	value = tvb_get_ntohs(tvb, curr_offset);
 
-	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset, 2, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_lac, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
 	proto_item_append_text(item, " - %s/%s/%u", mcc,mnc,value);
 
@@ -2075,9 +2075,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 			"%s = Unused",
 			a_bigbuf);
 
-		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 		if (add_string)
 			g_snprintf(add_string, string_len, " - No Identity Code");
@@ -2106,9 +2106,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
 		odd = oct & 0x08;
 
-		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 		a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
 		curr_offset++;
@@ -2158,9 +2158,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 			a_bigbuf,
 			Dgt1_9_bcd.out[(oct & 0xf0) >> 4]);
 
-		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 		a_bigbuf[0] = Dgt1_9_bcd.out[(oct & 0xf0) >> 4];
 		curr_offset++;
@@ -2190,9 +2190,9 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 			"%s = Unused",
 			a_bigbuf);
 
-		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 		curr_offset++;
 
@@ -2210,18 +2210,18 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 
 	case 5: /* TMGI and optional MBMS Session Identity */
 		/* Spare bits (octet 3) Bits 8-7 */
-		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, ENC_BIG_ENDIAN);
 		/* MBMS Session Identity indication (octet 3) Bit 6 */
-		proto_tree_add_item(tree, hf_gsm_a_mbs_ses_id_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mbs_ses_id_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		/* MCC/MNC indication (octet 3) Bit 5 */
-		proto_tree_add_item(tree, hf_gsm_a_tmgi_mcc_mnc_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_tmgi_mcc_mnc_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		/* Odd/even indication (octet 3) Bit 4 */
-		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		/* Type of identity (octet 3) Bits 3-1 */
-		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		curr_offset++;
 		/* MBMS Service ID (octet 4, 5 and 6) */
-		proto_tree_add_item(tree, hf_gsm_a_mbs_service_id, tvb, curr_offset, 3, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_mbs_service_id, tvb, curr_offset, 3, ENC_BIG_ENDIAN);
 		curr_offset += 3;
 		if((oct&0x10)==0x10){
 			/* MCC/MNC*/
@@ -2234,14 +2234,14 @@ de_mid(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guin
 			 * The MBMS Session Identity field is encoded as the value part
 			 * of the MBMS Session Identity IE as specified in 3GPP TS 48.018 [86].
 			 */
-			proto_tree_add_item(tree, hf_gsm_a_mbs_session_id, tvb, curr_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_a_mbs_session_id, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 			curr_offset++;
 		}
 		break;
 
 	default:	/* Reserved */
-		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, FALSE);
-		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_a_odd_even_ind, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_a_mobile_identity_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_text(tree, tvb, curr_offset, len,
 			"Mobile station identity Format %u, Format Unknown",(oct & 0x07));
 
@@ -2279,15 +2279,15 @@ de_ms_cm_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_1]);
 
-	proto_tree_add_item(subtree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_gsm_a_ES_IND, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_ES_IND, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_gsm_a_A5_1_algorithm_sup, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_A5_1_algorithm_sup, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_gsm_a_RF_power_capability, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_a_RF_power_capability, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -2306,55 +2306,55 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	guint32	curr_offset;
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_MSC_rev, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_gsm_a_ES_IND, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_ES_IND, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_gsm_a_A5_1_algorithm_sup, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_A5_1_algorithm_sup, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_gsm_a_RF_power_capability, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_RF_power_capability, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
 
-	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_gsm_a_ps_sup_cap, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_ps_sup_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_gsm_a_SS_screening_indicator, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_SS_screening_indicator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	/* SM capability (MT SMS pt to pt capability) (octet 4)*/
-	proto_tree_add_item(tree, hf_gsm_a_SM_capability, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_SM_capability, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* VBS notification reception (octet 4) */
-	proto_tree_add_item(tree, hf_gsm_a_VBS_notification_rec, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_VBS_notification_rec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/*VGCS notification reception (octet 4)*/
-	proto_tree_add_item(tree, hf_gsm_a_VGCS_notification_rec, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_VGCS_notification_rec, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* FC Frequency Capability (octet 4 ) */
-	proto_tree_add_item(tree, hf_gsm_a_FC_frequency_cap, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_FC_frequency_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
 	NO_MORE_DATA_CHECK(len);
 
 	/* CM3 (octet 5, bit 8) */
-	proto_tree_add_item(tree, hf_gsm_a_CM3, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_CM3, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* spare bit 7 */
-	proto_tree_add_item(tree, hf_gsm_a_b7spare, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_b7spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* LCS VA capability (LCS value added location request notification capability) (octet 5,bit 6) */
-	proto_tree_add_item(tree, hf_gsm_a_LCS_VA_cap, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_LCS_VA_cap, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* UCS2 treatment (octet 5, bit 5) */
-	proto_tree_add_item(tree, hf_gsm_a_UCS2_treatment, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_UCS2_treatment, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* SoLSA (octet 5, bit 4) */
-	proto_tree_add_item(tree, hf_gsm_a_SoLSA, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_SoLSA, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* CMSP: CM Service Prompt (octet 5, bit 3) */
-	proto_tree_add_item(tree, hf_gsm_a_CMSP, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_CMSP, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* A5/3 algorithm supported (octet 5, bit 2) */
-	proto_tree_add_item(tree, hf_gsm_a_A5_3_algorithm_sup, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_A5_3_algorithm_sup, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* A5/2 algorithm supported (octet 5, bit 1) */
-	proto_tree_add_item(tree, hf_gsm_a_A5_2_algorithm_sup, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_A5_2_algorithm_sup, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -2371,7 +2371,7 @@ de_ms_cm_2(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	bits_left = ((len + offset) << 3) - bit_offset; \
 	if (bits_left < (n)) { \
 		if (bits_left) \
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE); \
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, ENC_BIG_ENDIAN); \
 		return(len); \
 	}
 
@@ -2396,7 +2396,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	bit_offset = curr_offset << 3;
 
 	/* Spare bit */
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 
 	/* Multiband supported field
@@ -2412,29 +2412,29 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * < Associated Radio Capability 1 : bit(4) > }
 	 */
 
-	item = proto_tree_add_bits_ret_val(tree, hf_gsm_a_multi_bnd_sup_fields, tvb, bit_offset, 3, &multi_bnd_sup_fields, FALSE);
+	item = proto_tree_add_bits_ret_val(tree, hf_gsm_a_multi_bnd_sup_fields, tvb, bit_offset, 3, &multi_bnd_sup_fields, ENC_BIG_ENDIAN);
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
-	proto_tree_add_bits_item(subtree, hf_gsm_a_gsm1800_supported, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_gsm1800_supported, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 
-	proto_tree_add_bits_item(subtree, hf_gsm_a_egsm_supported, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_egsm_supported, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 
-	proto_tree_add_bits_item(subtree, hf_gsm_a_pgsm_supported, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_pgsm_supported, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 
-	item = proto_tree_add_bits_item(tree, hf_gsm_a_cm3_A5_bits, tvb, bit_offset, 4, FALSE);
+	item = proto_tree_add_bits_item(tree, hf_gsm_a_cm3_A5_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 	subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
 	/* < A5 bits > */
-	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_7_algorithm_sup, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_6_algorithm_sup, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_5_algorithm_sup, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
-	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(subtree, hf_gsm_a_A5_4_algorithm_sup, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 
 	switch(multi_bnd_sup_fields){
@@ -2448,10 +2448,10 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 		case 2:
 		case 4:
 			/* < spare bit >(4) */
-			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 			bit_offset+=4;
 			/* < Associated Radio Capability 1 : bit(4) > */
-			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 			bit_offset+=4;
 			break;
 		/* < Multiband supported : { 101 | 110 } > */
@@ -2459,10 +2459,10 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 			/* fall trough */
 		case 6:
 			/* < Associated Radio Capability 2 : bit(4) > */
-			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap2, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap2, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 			bit_offset+=4;
 			/* < Associated Radio Capability 1 : bit(4) > */
-			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_ass_radio_cap1, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 			bit_offset+=4;
 			break;
 		default:
@@ -2470,7 +2470,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	}
 	/* Extract R Support */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rsupport, tvb, bit_offset, 1, &rsupport, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_rsupport, tvb, bit_offset, 1, &rsupport, ENC_BIG_ENDIAN);
 	bit_offset++;
 
 	if(rsupport == 1)
@@ -2479,7 +2479,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 		 * { 0 | 1 < R Support > }
 		 * Extract R Capabilities
 		 */
-		proto_tree_add_bits_item(tree, hf_gsm_a_r_capabilities, tvb, bit_offset, 3, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_r_capabilities, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 3;
 	}
 
@@ -2488,41 +2488,41 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Multislot capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_multislot_capabilities, tvb, bit_offset, 1, &multislotCapability, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_multislot_capabilities, tvb, bit_offset, 1, &multislotCapability, ENC_BIG_ENDIAN);
 	bit_offset++;
 
 	if(multislotCapability == 1)
 	{
 		/* Extract Multislot Class */
-		proto_tree_add_bits_item(tree, hf_gsm_a_multislot_class, tvb, bit_offset, 5, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_multislot_class, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 5;
 	}
 
 	/* < UCS2 treatment: bit > */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_ucs2_treatment, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_ucs2_treatment, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* < Extended Measurement Capability : bit > */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_extended_measurement_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* { 0 | 1 < MS measurement capability > }
 	 * Extract MS Measurement capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_measurement_capability, tvb, bit_offset, 1, &msMeasurementCapability, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(msMeasurementCapability == 1)
 	{
 		/* Extract SMS Value n/4 */
-		proto_tree_add_bits_item(tree, hf_gsm_a_sms_value, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_sms_value, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 
 		/* Extract SM Value n/4 */
-		proto_tree_add_bits_item(tree, hf_gsm_a_sm_value, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_sm_value, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2530,28 +2530,28 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract MS Positioning Method Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_pos_method_cap_present, tvb, bit_offset, 1, &msPosMethodCapPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ms_pos_method_cap_present, tvb, bit_offset, 1, &msPosMethodCapPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(msPosMethodCapPresent == 1)
 	{
 		/* Extract MS Positioning Method */
-		item = proto_tree_add_bits_item(tree, hf_gsm_a_ms_pos_method, tvb, bit_offset, 5, FALSE);
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_ms_pos_method, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
-		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_assisted_e_otd, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_assisted_e_otd, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 
-		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_based_e_otd, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_based_e_otd, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 
-		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_assisted_gps, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_assisted_gps, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 
-		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_based_gps, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_based_gps, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 
-		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_conventional_gps, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_ms_conventional_gps, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset++;
 	}
 
@@ -2559,13 +2559,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract ECSD Multi Slot Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ecsd_multi_slot_capability, tvb, bit_offset, 1, &ecsdMultiSlotCapability, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ecsd_multi_slot_capability, tvb, bit_offset, 1, &ecsdMultiSlotCapability, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(ecsdMultiSlotCapability == 1)
 	{
 		/* Extract ECSD Multi Slot Class */
-		proto_tree_add_bits_item(tree, hf_gsm_a_ecsd_multi_slot_class, tvb, bit_offset, 5, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_ecsd_multi_slot_class, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 5;
 	}
 
@@ -2573,25 +2573,25 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract 8-PSK struct presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_8_psk_struct_present, tvb, bit_offset, 1, &eightPskStructPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_8_psk_struct_present, tvb, bit_offset, 1, &eightPskStructPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(eightPskStructPresent == 1)
 	{
 		/* Extract 8-PSK struct */
-		item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, 5, FALSE);
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_struct, tvb, bit_offset, 5, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
 		/* Extract Modulation Capability */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_modulation_capability, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_modulation_capability, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 1;
 
 		/* Extract 8_PSK RF Power Capability 1 */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_1, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 
 		/* Extract 8_PSK RF Power Capability 2 */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_8_psk_rf_power_capability_2, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 	}
 
@@ -2600,17 +2600,17 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GSM 400 Band Information presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_400_band_info_present, tvb, bit_offset, 1, &gsm400BandInfoPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_400_band_info_present, tvb, bit_offset, 1, &gsm400BandInfoPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(gsm400BandInfoPresent == 1)
 	{
 		/* Extract GSM 400 Bands Supported */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_400_bands_supported, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_400_bands_supported, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 
 		/* Extract GSM 400 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_400_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_400_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2618,13 +2618,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GSM 850 Associated Radio Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_850_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm850AssocRadioCapabilityPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_850_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm850AssocRadioCapabilityPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(gsm850AssocRadioCapabilityPresent == 1)
 	{
 		/* Extract GSM 850 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_850_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_850_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2632,13 +2632,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GSM 1900 Associated Radio Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_1900_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm1900AssocRadioCapabilityPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_1900_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm1900AssocRadioCapabilityPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(gsm1900AssocRadioCapabilityPresent == 1)
 	{
 		/* Extract GSM 1900 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_1900_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_1900_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2646,21 +2646,21 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract UMTS FDD Radio Access Technology Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_umts_fdd_rat_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_umts_fdd_rat_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* < UMTS 3.84 Mcps TDD Radio Access Technology Capability : bit >
 	 * Extract UMTS 3.84 Mcps TDD Radio Access Technology Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_umts_384_mcps_tdd_rat_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_umts_384_mcps_tdd_rat_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* < CDMA 2000 Radio Access Technology Capability : bit >
 	 * Extract CDMA 2000 Radio Access Technology Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_cdma_2000_rat_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_cdma_2000_rat_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* { 0 | 1 < DTM GPRS Multi Slot Class : bit(2) >
@@ -2669,27 +2669,27 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract DTM E/GPRS Information presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_multi_slot_info_present, tvb, bit_offset, 1, &dtmEGprsMultiSlotInfoPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_multi_slot_info_present, tvb, bit_offset, 1, &dtmEGprsMultiSlotInfoPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(dtmEGprsMultiSlotInfoPresent == 1)
 	{
 		/* Extract DTM GPRS Multi Slot Class */
-		proto_tree_add_bits_item(tree, hf_gsm_a_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 
 		/* Extract Single Slot DTM */
-		proto_tree_add_bits_item(tree, hf_gsm_a_single_slot_dtm, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_single_slot_dtm, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 1;
 
 		/* Extract DTM EGPRS Multi Slot Class Presence */
-		proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_egprs_multi_slot_class_present, tvb, bit_offset, 1, &dtmEgprsMultiSlotClassPresent, FALSE);
+		proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_egprs_multi_slot_class_present, tvb, bit_offset, 1, &dtmEgprsMultiSlotClassPresent, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 1;
 
 		/* Extract DTM EGPRS Multi Slot Class */
 		if (dtmEgprsMultiSlotClassPresent == 1)
 		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 			bit_offset = bit_offset + 2;
 		}
 	}
@@ -2701,13 +2701,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Single Band Support
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_single_band_support, tvb, bit_offset, 1, &singleBandSupport, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_single_band_support, tvb, bit_offset, 1, &singleBandSupport, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(singleBandSupport == 1)
 	{
 		/* Extract Single Band Support */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_band, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_band, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2715,13 +2715,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GSM 750 Associated Radio Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_750_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm750AssocRadioCapabilityPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_750_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm750AssocRadioCapabilityPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(gsm750AssocRadioCapabilityPresent == 1)
 	{
 		/* Extract GSM 750 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_750_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_750_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2729,14 +2729,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract UMTS 1.28 Mcps TDD Radio Access Technology Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_umts_128_mcps_tdd_rat_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_umts_128_mcps_tdd_rat_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* < GERAN Feature Package 1 : bit >
 	 * Extract GERAN Feature Package 1
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_1, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_1, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* { 0 | 1 < Extended DTM GPRS Multi Slot Class : bit(2) >
@@ -2744,17 +2744,17 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Extended DTM E/GPRS Information presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ext_dtm_e_gprs_multi_slot_info_present, tvb, bit_offset, 1, &extDtmEGprsMultiSlotInfoPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_ext_dtm_e_gprs_multi_slot_info_present, tvb, bit_offset, 1, &extDtmEGprsMultiSlotInfoPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(extDtmEGprsMultiSlotInfoPresent == 1)
 	{
 		/* Extract Extended DTM GPRS Multi Slot Class */
-		proto_tree_add_bits_item(tree, hf_gsm_a_ext_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_ext_dtm_gprs_multi_slot_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 
 		/* Extract Extended DTM EGPRS Multi Slot Class */
-		proto_tree_add_bits_item(tree, hf_gsm_a_ext_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_ext_dtm_egprs_multi_slot_class, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 	}
 
@@ -2765,13 +2765,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract High Multislot Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_high_multislot_cap_present, tvb, bit_offset, 1, &highMultislotCapPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_high_multislot_cap_present, tvb, bit_offset, 1, &highMultislotCapPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(highMultislotCapPresent == 1)
 	{
 		/* Extract High Multislot Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_high_multislot_cap, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_high_multislot_cap, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 	}
 
@@ -2780,7 +2780,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GERAN Iu Mode Capabilities presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_geran_iu_mode_support, tvb, bit_offset, 1, &geranIuModeSupport, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_geran_iu_mode_support, tvb, bit_offset, 1, &geranIuModeSupport, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(geranIuModeSupport == 1)
@@ -2789,22 +2789,22 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 		length = tvb_get_bits8(tvb, bit_offset, 4);
 
 		/* Extract GERAN Iu Mode Capabilities */
-		item = proto_tree_add_bits_item(tree, hf_gsm_a_geran_iu_mode_cap, tvb, bit_offset, length + 4, FALSE);
+		item = proto_tree_add_bits_item(tree, hf_gsm_a_geran_iu_mode_cap, tvb, bit_offset, length + 4, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_gsm_common_elem[DE_MS_CM_3]);
 
 		/* Add GERAN Iu Mode Capabilities Length in subtree */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_geran_iu_mode_cap_length, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_geran_iu_mode_cap_length, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset += 4;
 		target_bit_offset = bit_offset + length;
 
 		/* Extract FLO Iu Capability */
-		proto_tree_add_bits_item(subtree, hf_gsm_a_flo_iu_cap, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(subtree, hf_gsm_a_flo_iu_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset += 1;
 
 		/* If needed, add spare bits */
 		if (target_bit_offset > bit_offset)
 		{
-			proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, bit_offset, target_bit_offset - bit_offset, FALSE);
+			proto_tree_add_bits_item(subtree, hf_gsm_a_spare_bits, tvb, bit_offset, target_bit_offset - bit_offset, ENC_BIG_ENDIAN);
 			bit_offset = target_bit_offset;
 		}
 	}
@@ -2813,21 +2813,21 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GERAN Feature Package 2
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_2, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_geran_feature_package_2, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* < GMSK Multislot Power Profile : bit (2) >
 	 * Extract GMSK Multislot Power Profile
 	 */
 	AVAILABLE_BITS_CHECK(2);
-	proto_tree_add_bits_item(tree, hf_gsm_a_gmsk_multislot_power_prof, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_gmsk_multislot_power_prof, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 2;
 
 	/* < 8-PSK Multislot Power Profile : bit (2) >
 	 * Extract GMSK Multislot Power Profile
 	 */
 	AVAILABLE_BITS_CHECK(2);
-	proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_multislot_power_prof, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_8_psk_multislot_power_prof, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 2;
 
 	/*
@@ -2837,17 +2837,17 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 *   < T-GSM 400 Associated Radio Capability: bit(4) > }
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_400_band_info_present, tvb, bit_offset, 1, &tGsm400BandInfoPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_400_band_info_present, tvb, bit_offset, 1, &tGsm400BandInfoPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(tGsm400BandInfoPresent == 1)
 	{
 		/* Extract T-GSM 400 Bands Supported */
-		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_400_bands_supported, tvb, bit_offset, 2, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_400_bands_supported, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 2;
 
 		/* Extract T-GSM 400 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_400_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_400_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2855,13 +2855,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract T-GSM 900 Associated Radio Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_900_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm900AssocRadioCapabilityPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_900_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm900AssocRadioCapabilityPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(tGsm900AssocRadioCapabilityPresent == 1)
 	{
 		/* Extract T-GSM 900 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_900_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_900_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2869,14 +2869,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Downlink Advanced Receiver Performance
 	 */
 	AVAILABLE_BITS_CHECK(2);
-	proto_tree_add_bits_item(tree, hf_gsm_a_downlink_adv_receiver_perf, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_downlink_adv_receiver_perf, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 2;
 
 	/* < DTM Enhancements Capability : bit >
 	 * Extract DTM Enhancements Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_dtm_enhancements_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_dtm_enhancements_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* { 0 | 1 < DTM GPRS High Multi Slot Class : bit(3) >
@@ -2885,27 +2885,27 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract DTM E/GPRS High Multi Slot Information presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_high_multi_slot_info_present, tvb, bit_offset, 1, &dtmEGprsHighMultiSlotInfoPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_e_gprs_high_multi_slot_info_present, tvb, bit_offset, 1, &dtmEGprsHighMultiSlotInfoPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(dtmEGprsHighMultiSlotInfoPresent == 1)
 	{
 		/* Extract DTM GPRS High Multi Slot Class */
-		proto_tree_add_bits_item(tree, hf_gsm_a_dtm_gprs_high_multi_slot_class, tvb, bit_offset, 3, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_dtm_gprs_high_multi_slot_class, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 3;
 
 		/* Extract Offset Required */
-		proto_tree_add_bits_item(tree, hf_gsm_a_offset_required, tvb, bit_offset, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_offset_required, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 1;
 
 		/* Extract DTM EGPRS High Multi Slot Class Presence */
-		proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_egprs_high_multi_slot_class_present, tvb, bit_offset, 1, &dtmEgprsHighMultiSlotClassPresent, FALSE);
+		proto_tree_add_bits_ret_val(tree, hf_gsm_a_dtm_egprs_high_multi_slot_class_present, tvb, bit_offset, 1, &dtmEgprsHighMultiSlotClassPresent, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 1;
 
 		/* Extract DTM EGPRS High Multi Slot Class */
 		if (dtmEgprsHighMultiSlotClassPresent == 1)
 		{
-			proto_tree_add_bits_item(tree, hf_gsm_a_dtm_egprs_high_multi_slot_class, tvb, bit_offset, 3, FALSE);
+			proto_tree_add_bits_item(tree, hf_gsm_a_dtm_egprs_high_multi_slot_class, tvb, bit_offset, 3, ENC_BIG_ENDIAN);
 			bit_offset = bit_offset + 3;
 		}
 	}
@@ -2914,7 +2914,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Repeated ACCH Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_repeated_acch_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_repeated_acch_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -2924,13 +2924,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract GSM 710 Associated Radio Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_710_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm710AssocRadioCapabilityPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_gsm_710_assoc_radio_cap_present, tvb, bit_offset, 1, &gsm710AssocRadioCapabilityPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(gsm710AssocRadioCapabilityPresent == 1)
 	{
 		/* Extract GSM 710 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_710_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_gsm_710_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2938,13 +2938,13 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract T-GSM 810 Associated Radio Capability presence
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm810AssocRadioCapabilityPresent, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap_present, tvb, bit_offset, 1, &tGsm810AssocRadioCapabilityPresent, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	if(tGsm810AssocRadioCapabilityPresent == 1)
 	{
 		/* Extract T-GSM 810 Associated Radio Capability */
-		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap, tvb, bit_offset, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_t_gsm_810_assoc_radio_cap, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset = bit_offset + 4;
 	}
 
@@ -2952,14 +2952,14 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Ciphering Mode Setting Capability
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_ciphering_mode_setting_cap, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_ciphering_mode_setting_cap, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/* < Additional Positioning Capabilities : bit >
 	 * Extract Additional Positioning Capabilities
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_additional_positioning_caps, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_additional_positioning_caps, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -2969,7 +2969,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract E-UTRA FDD support
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_fdd_support, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_fdd_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -2977,7 +2977,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract E-UTRA TDD support
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_tdd_support, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_tdd_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -2985,7 +2985,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract E-UTRA Measurement and Reporting support
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_meas_and_report_support, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_e_utra_meas_and_report_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -2993,7 +2993,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract Priority-based reselection support
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_prio_based_resel_support, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_prio_based_resel_support, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -3003,7 +3003,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract UTRA CSG Cells Reporting
 	 */
 	AVAILABLE_BITS_CHECK(1);
-	proto_tree_add_bits_item(tree, hf_gsm_a_utra_csg_cells_reporting, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_utra_csg_cells_reporting, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 1;
 
 	/*
@@ -3011,7 +3011,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	 * Extract VAMOS Level
 	 */
 	AVAILABLE_BITS_CHECK(2);
-	proto_tree_add_bits_item(tree, hg_gsm_a_vamos_level, tvb, bit_offset, 2, FALSE);
+	proto_tree_add_bits_item(tree, hg_gsm_a_vamos_level, tvb, bit_offset, 2, ENC_BIG_ENDIAN);
 	bit_offset = bit_offset + 2;
 
 	/*
@@ -3020,7 +3020,7 @@ de_ms_cm_3(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 	bits_left = (((len + offset) << 3) - bit_offset) & 0x07;
 	if (bits_left != 0)
 	{
-		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, bit_offset, bits_left, ENC_BIG_ENDIAN);
 		bit_offset += bits_left;
 	}
 
@@ -3115,7 +3115,7 @@ de_d_gb_call_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 		"%s = Ciphering Information",
 		a_bigbuf);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, (curr_offset<<3)+4, 4, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	/* no length check possible */
@@ -3146,7 +3146,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_PD_SAPI]);
 
-	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_a_spare_bits, tvb, curr_offset<<3, 2, ENC_BIG_ENDIAN);
 
 	switch ((oct & 0x30) >> 4)
 	{
@@ -3163,7 +3163,7 @@ de_pd_sapi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
 		a_bigbuf,
 		str);
 
-	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_L3_protocol_discriminator, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	curr_offset++;
 
@@ -3194,8 +3194,8 @@ de_prio(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset,
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_bits_item(tree, hf_gsm_a_call_prio, tvb, (curr_offset<<3)+5, 3, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_b8spare, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_bits_item(tree, hf_gsm_a_call_prio, tvb, (curr_offset<<3)+5, 3, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	/* no length check possible */
@@ -3268,14 +3268,14 @@ de_nas_cont_for_ps_ho(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
 	 *     0     0     0   old     0     Type of ciphering
 	 * spare  spare  spare XID  spare      algorithm
 	 */
-	proto_tree_add_item(tree, hf_gsm_a_old_xid, tvb, curr_offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_gsm_a_type_of_ciph_alg, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_old_xid, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_gsm_a_type_of_ciph_alg, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	/* IOV-UI value (octet 2 to 5)
 	 * The IOV-UI value consists of 32 bits, the format is defined in 3GPP TS 44.064 [78a].
 	 */
-	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_gsm_a_iov_ui, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 	curr_offset+=4;
 	
 	EXTRANEOUS_DATA_CHECK_EXPERT(len, curr_offset - offset, pinfo);
