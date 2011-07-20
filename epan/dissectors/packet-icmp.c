@@ -806,6 +806,54 @@ static icmp_transaction_t *transaction_end(packet_info *pinfo, proto_tree *tree,
 
 } /* transaction_end() */
 
+#define MSPERDAY            86400000
+
+/* ======================================================================= */
+static guint32 get_best_guess_mstimeofday(tvbuff_t *tvb, gint offset, guint32 comp_ts)
+{
+    guint32 be_ts, le_ts;
+
+    /* Account for the special case from RFC 792 as best we can by clearing
+     * the msb.  Ref: [Page 16] of http://tools.ietf.org/html/rfc792:
+
+        If the time is not available in miliseconds or cannot be provided
+        with respect to midnight UT then any time can be inserted in a
+        timestamp provided the high order bit of the timestamp is also set
+        to indicate this non-standard value.
+     */
+    be_ts = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
+    le_ts = tvb_get_letohl(tvb, offset) & 0x7fffffff;
+
+    if (be_ts < MSPERDAY && le_ts >= MSPERDAY)
+        return (be_ts);
+
+    if (le_ts < MSPERDAY && be_ts >= MSPERDAY)
+        return (le_ts);
+
+    if (be_ts < MSPERDAY && le_ts < MSPERDAY) {
+        guint32 saved_be_ts = be_ts;
+        guint32 saved_le_ts = le_ts;        
+
+        /* Is this a rollover to a new day, clocks not synchronized, different
+         * timezones between originate and receive/transmit, .. what??? */
+        if (be_ts < comp_ts && be_ts <= (MSPERDAY / 2) && comp_ts >= (MSPERDAY - (MSPERDAY / 2)))
+            be_ts += MSPERDAY;  /* Assume a rollover to a new day */
+        if (le_ts < comp_ts && le_ts <= (MSPERDAY / 2) && comp_ts >= (MSPERDAY - (MSPERDAY / 2)))
+            le_ts += MSPERDAY;  /* Assume a rollover to a new day */
+        if (abs(be_ts - comp_ts) < abs(le_ts - comp_ts))
+            return (saved_be_ts);
+        return (saved_le_ts);
+    }
+
+    /* Both are bigger than MSPERDAY, but neither one's msb's are set.  This
+     * is cleary invalid, but now what TODO?  For now, take the one closest to
+     * the commparative timestamp, which is another way of saying, "let's
+     * return a deterministic wild guess. */
+    if (abs(be_ts - comp_ts) < abs(le_ts - comp_ts))
+        return (be_ts);
+    return (le_ts);
+} /* get_best_guess_mstimeofday() */
+
 /*
  * RFC 792 for basic ICMP.
  * RFC 1191 for ICMP_FRAG_NEEDED (with MTU of next hop).
@@ -1092,13 +1140,25 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case ICMP_TSTAMP:
       case ICMP_TSTAMPREPLY:
-	proto_tree_add_text(icmp_tree, tvb, 8, 4, "Originate timestamp: %s after midnight UTC",
-	  time_msecs_to_str(tvb_get_ntohl(tvb, 8)));
-	proto_tree_add_text(icmp_tree, tvb, 12, 4, "Receive timestamp: %s after midnight UTC",
-	  time_msecs_to_str(tvb_get_ntohl(tvb, 12)));
-	proto_tree_add_text(icmp_tree, tvb, 16, 4, "Transmit timestamp: %s after midnight UTC",
-	  time_msecs_to_str(tvb_get_ntohl(tvb, 16)));
-	break;
+      {
+        guint32 frame_ts, orig_ts;
+
+        frame_ts = ((pinfo->fd->abs_ts.secs * 1000) + 
+          (pinfo->fd->abs_ts.nsecs / 1000000)) % 86400000;
+       
+        orig_ts = get_best_guess_mstimeofday(tvb, 8, frame_ts);
+        proto_tree_add_text(icmp_tree, tvb, 8, 4,
+          "Originate timestamp: %s after midnight UTC",
+          time_msecs_to_str(orig_ts));
+
+        proto_tree_add_text(icmp_tree, tvb, 12, 4,
+          "Receive timestamp: %s after midnight UTC",
+          time_msecs_to_str(get_best_guess_mstimeofday(tvb, 12, orig_ts)));
+        proto_tree_add_text(icmp_tree, tvb, 16, 4,
+          "Transmit timestamp: %s after midnight UTC",
+          time_msecs_to_str(get_best_guess_mstimeofday(tvb, 16, orig_ts)));
+    }
+    break;
 
     case ICMP_MASKREQ:
     case ICMP_MASKREPLY:
