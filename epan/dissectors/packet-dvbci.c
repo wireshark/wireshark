@@ -169,6 +169,12 @@
 
 #define CA_DESC_TAG 0x9
 
+#define CA_ENAB_DESC_OK             0x01
+#define CA_ENAB_DESC_OK_PURCHASE    0x02
+#define CA_ENAB_DESC_OK_TECH        0x03
+#define CA_ENAB_DESC_NG_ENTITLEMENT 0x71
+#define CA_ENAB_DESC_NG_TECH        0x73
+
 /* mmi resource */
 #define CLOSE_MMI_CMD_ID_IMMEDIATE 0x0
 #define CLOSE_MMI_CMD_ID_DELAY     0x1
@@ -196,7 +202,6 @@
 /* used for answer_text_length, choice_nb and item_nb */
 #define NB_UNKNOWN 0xFF
 
-
 /* character tables, DVB-SI spec annex A.2 */
 #define CHAR_TBL_8859_5   0x01
 #define CHAR_TBL_8859_6   0x02
@@ -213,6 +218,7 @@
 #define TEXT_CTRL_EMPH_ON   0x86
 #define TEXT_CTRL_EMPH_OFF  0x87
 #define TEXT_CTRL_CRLF      0x8A
+
 
 /* application layer */
 
@@ -271,6 +277,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 #define T_CA_INFO_ENQ     0x9F8030
 #define T_CA_INFO         0x9F8031
 #define T_CA_PMT          0x9F8032
+#define T_CA_PMT_REPLY    0x9F8033
 #define T_TUNE            0x9F8400
 #define T_REPLACE         0x9F8401
 #define T_CLEAR_REPLACE   0x9F8402
@@ -289,12 +296,17 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 #define T_LIST_MORE       0x9F880D
 
 /* the following apdus are recognized but not dissected in this release */
-#define T_CA_PMT_REPLY    0x9F8033
+#define T_COMMS_CMD       0x9F8C00
+#define T_COMMS_REPLY     0x9F8C02
+#define T_COMMS_SEND_LAST 0x9F8C03
+#define T_COMMS_SEND_MORE 0x9F8C04
+#define T_COMMS_RCV_LAST  0x9F8C05
+#define T_COMMS_RCV_MORE  0x9F8C06
 
 /* these are no real apdus, they just use the same format */
-#define T_TEXT_LAST       0x9F8803
-#define T_TEXT_MORE       0x9F8804
-
+#define T_TEXT_LAST             0x9F8803
+#define T_TEXT_MORE             0x9F8804
+#define T_CONNECTION_DESCRIPTOR 0x9F8C01
 
 #define IS_MENU_APDU(t) (t==T_MENU_MORE || t==T_MENU_LAST)
 
@@ -310,6 +322,7 @@ static const apdu_info_t apdu_info[] = {
     {T_CA_INFO_ENQ,     0, 0,             DATA_HOST_TO_CAM, NULL},
     {T_CA_INFO,         0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
     {T_CA_PMT,          6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
+    {T_CA_PMT_REPLY,    8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
 
     {T_TUNE,            0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_REPLACE,         0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
@@ -360,6 +373,12 @@ static const value_string dvbci_apdu_tag[] = {
     { T_MENU_ANSW,       "Menu answer" },
     { T_LIST_LAST,       "List last" },
     { T_LIST_MORE,       "List more" },
+    { T_COMMS_CMD,       "Comms command" },
+    { T_COMMS_REPLY,     "Comms reply" },
+    { T_COMMS_SEND_LAST, "Comms send last" },
+    { T_COMMS_SEND_MORE, "Comms send more" },
+    { T_COMMS_RCV_LAST,  "Comms receive last" },
+    { T_COMMS_RCV_MORE,  "Comms receive more" },
     { 0, NULL }
 };
 
@@ -411,6 +430,8 @@ static int hf_dvbci_es_info_len = -1;
 static int hf_dvbci_ca_pmt_cmd_id = -1;
 static int hf_dvbci_descr_len = -1;
 static int hf_dvbci_ca_pid = -1;
+static int hf_dvbci_ca_enable_flag = -1;
+static int hf_dvbci_ca_enable = -1;
 static int hf_dvbci_network_id = -1;
 static int hf_dvbci_original_network_id = -1;
 static int hf_dvbci_transport_stream_id = -1;
@@ -578,6 +599,18 @@ static const value_string dvbci_ca_pmt_cmd_id[] = {
     { CMD_ID_NOT_SELECTED, "not selected" },
     { 0, NULL }
 };
+static const value_string dvbci_ca_enable[] = {
+    { CA_ENAB_DESC_OK, "descrambling possible" },
+    { CA_ENAB_DESC_OK_PURCHASE,
+        "descrambling possible under conditions (purchase dialogue)" },
+    { CA_ENAB_DESC_OK_TECH,
+        "descrambling possible under conditions (technical dialogue)" },
+    { CA_ENAB_DESC_NG_ENTITLEMENT,
+        "descrambling not possible (because no entitlement)" },
+    { CA_ENAB_DESC_NG_TECH,
+        "descrambling not possible (for technical reasons)" },
+    { 0, NULL }
+};
 static const value_string dvbci_close_mmi_cmd_id[] = {
     { CLOSE_MMI_CMD_ID_IMMEDIATE, "immediate close" },
     { CLOSE_MMI_CMD_ID_DELAY, "delayed close" },
@@ -632,7 +665,6 @@ static const value_string dvbci_ans_id[] = {
     { ANSW_ID_ANSWER, "answer" },
     { 0, NULL }
 };
-
 
 
 
@@ -704,6 +736,31 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
     proto_tree_add_text(tree, tvb, offset, str_len, "%s: %s", title, si_str);
     if (show_col_info)
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", si_str);
+}
+
+
+/* dissect ca_enable_flag and ca_enable fields in the ca_pmt_reply
+ * return true if descrambling is possible, false otherwise */
+static gboolean
+dissect_ca_enable(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
+        proto_tree *tree)
+{
+    gboolean desc_ok = FALSE;
+    guint8 byte, ca_enab;
+
+    byte = tvb_get_guint8(tvb,offset);
+    proto_tree_add_item(tree, hf_dvbci_ca_enable_flag, tvb, offset, 1, ENC_NA);
+    if (byte&0x80) {
+        ca_enab = byte & ~0x80;
+        proto_tree_add_item(tree, hf_dvbci_ca_enable, tvb, offset, 1, ENC_NA);
+        if (ca_enab==CA_ENAB_DESC_OK ||
+            ca_enab==CA_ENAB_DESC_OK_PURCHASE ||
+            ca_enab==CA_ENAB_DESC_OK_TECH) {
+            desc_ok = TRUE;
+        }
+    }
+
+    return desc_ok;
 }
 
 
@@ -961,6 +1018,8 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
     guint prog_info_len;
     gint es_info_len, all_len;
     gint ca_desc_len;
+    proto_tree *es_tree = NULL;
+    gboolean desc_ok = FALSE;
 
 
     if (tag==T_CA_INFO) {
@@ -1025,6 +1084,36 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
             offset += es_info_len;
         }
     }
+    else if (tag==T_CA_PMT_REPLY) {
+        prog_num = tvb_get_ntohs(tvb, offset);
+        col_append_sep_fstr(
+                pinfo->cinfo, COL_INFO, NULL, "Program number %x", prog_num);
+        proto_tree_add_item(
+                tree, hf_dvbci_prog_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset += 2;
+        byte = tvb_get_guint8(tvb,offset);
+        proto_tree_add_text(tree, tvb, offset, 1, 
+                "Version number: 0x%x, Current-next indicator: 0x%x",
+                (byte&0x3E) >> 1, byte&0x01);
+        offset++;
+        desc_ok |= dissect_ca_enable(tvb, offset, pinfo, tree);
+        offset++;
+        while (tvb_reported_length_remaining(tvb, offset) > 0) {
+            /* there's no need to check for tree==NULL */
+            pi = proto_tree_add_text(tree, tvb, offset, 3, "Elementary Stream");
+            es_tree = proto_item_add_subtree(pi, ett_dvbci_application);
+
+            proto_tree_add_item(es_tree, hf_dvbci_es_pid,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            desc_ok |= dissect_ca_enable(tvb, offset, pinfo, es_tree);
+            offset++;
+        }
+        if (desc_ok) {
+            col_append_sep_fstr(
+                pinfo->cinfo, COL_INFO, NULL, "descrambling possible");
+        }
+     }
 }
 
 
@@ -2183,7 +2272,13 @@ proto_register_dvbci(void)
         { &hf_dvbci_ca_pid,
             { "CA PID", "dvbci.ca_pid", FT_UINT16, BASE_HEX,
                 NULL, 0x1FFF, NULL, HFILL } },
-        { &hf_dvbci_network_id,
+        { &hf_dvbci_ca_enable_flag,
+            { "CA enable flag", "dvbci.ca_enable_flag", FT_UINT8, BASE_HEX,
+                NULL, 0x80, NULL, HFILL } },
+        { &hf_dvbci_ca_enable,
+            { "CA enable", "dvbci.ca_enable", FT_UINT8, BASE_HEX,
+                VALS(dvbci_ca_enable), 0x7F, NULL, HFILL } },
+         { &hf_dvbci_network_id,
            { "Network ID", "dvbci.hc.nid", FT_UINT16, BASE_HEX,
               NULL, 0, NULL, HFILL } },
         { &hf_dvbci_original_network_id,
