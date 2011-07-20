@@ -1444,7 +1444,7 @@ main(int argc, char *argv[])
           }
         }
 
-        if(phdr->caplen > wtap_snapshot_length(wth)) {
+        if((wtap_snapshot_length(wth) != 0) && (phdr->caplen > wtap_snapshot_length(wth))) {
             fprintf(stderr, "Warning: packet %d too big for file type, skipping it...\n", count);
             count++;
             continue;
