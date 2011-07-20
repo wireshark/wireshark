@@ -19395,7 +19395,37 @@ dissect_lte_rrc_UL_DCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 }
 
+static void
+dissect_lte_rrc_BCCH_BCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *lte_rrc_tree;
 
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC BCCH_BCH");
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+		dissect_BCCH_BCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+	}
+}
+ 
+static void
+dissect_lte_rrc_BCCH_DL_SCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+{
+	proto_item *ti;
+	proto_tree *lte_rrc_tree;
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LTE RRC DL_SCH");
+	col_clear(pinfo->cinfo, COL_INFO);
+	if (tree) {
+
+		ti = proto_tree_add_item(tree, proto_lte_rrc, tvb, 0, -1, FALSE);
+		lte_rrc_tree = proto_item_add_subtree(ti, ett_lte_rrc);
+		dissect_BCCH_DL_SCH_Message_PDU(tvb, pinfo, lte_rrc_tree);
+	}
+}
 
 /*--- proto_register_rrc -------------------------------------------*/
 void proto_register_lte_rrc(void) {
@@ -24468,7 +24498,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 308 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 338 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -25276,7 +25306,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 443 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 473 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
   };
@@ -25290,6 +25320,8 @@ void proto_register_lte_rrc(void) {
   register_dissector("lte_rrc.dl_dcch", dissect_lte_rrc_DL_DCCH, proto_lte_rrc);
   register_dissector("lte_rrc.ul_ccch", dissect_lte_rrc_UL_CCCH, proto_lte_rrc);
   register_dissector("lte_rrc.ul_dcch", dissect_lte_rrc_UL_DCCH, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_bch", dissect_lte_rrc_BCCH_BCH, proto_lte_rrc);
+  register_dissector("lte_rrc.bcch_dl_sch", dissect_lte_rrc_BCCH_DL_SCH, proto_lte_rrc);
 
   /* Register fields and subtrees */
   proto_register_field_array(proto_lte_rrc, hf, array_length(hf));
@@ -25312,7 +25344,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 463 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 495 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 

@@ -1468,10 +1468,10 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         /* Get appropriate dissector handle */
         dissector_handle_t protocol_handle = 0;
         if (p_mac_lte_info->rntiType == SI_RNTI) {
-            protocol_handle = find_dissector("lte-rrc.bcch.dl.sch");
+            protocol_handle = find_dissector("lte-rrc.bcch_dl_sch");
         }
         else {
-            protocol_handle = find_dissector("lte-rrc.bcch.bch");
+            protocol_handle = find_dissector("lte-rrc.bcch_bch");
         }
 
         /* Hide raw view of bytes */
