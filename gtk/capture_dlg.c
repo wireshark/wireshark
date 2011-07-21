@@ -245,7 +245,7 @@ capture_get_cap_settings (gchar *if_name)
     cap_settings = *cap_settings_p;
   } else {
     cap_settings.monitor_mode = prefs_capture_device_monitor_mode(if_name);
-    cap_settings.linktype = capture_dev_user_linktype_find(if_name);;
+    cap_settings.linktype = capture_dev_user_linktype_find(if_name);
   }
 
   return cap_settings;
@@ -1678,7 +1678,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkAdjustment *snap_adj, *ringbuffer_nbf_adj,
                 *stop_packets_adj, *stop_filesize_adj, *stop_duration_adj, *stop_files_adj,
                 *ring_filesize_adj, *file_duration_adj;
-  GList         *if_list = NULL, *combo_list, *cfilter_list, *if_entry;
+  GList         *if_list = NULL, *combo_list, *cfilter_list;
   int           row;
   int           err;
   gchar         *err_str = NULL;
@@ -1741,11 +1741,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       if_info = g_list_first(if_list)->data;
       interface_opts.name = g_strdup(if_info->name);
       interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-      interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);  
+      interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
       interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
       interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
       interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-      cap_settings = capture_get_cap_settings (interface_opts.name);;
+      cap_settings = capture_get_cap_settings (interface_opts.name);
       interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
@@ -1767,10 +1767,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
       interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
       g_array_append_val(global_capture_opts.ifaces, interface_opts);
-    }  
+    } 
   }
 #ifdef HAVE_PCAP_REMOTE
-  if (interface_opts.src_type == CAPTURE_IFREMOTE) {
+  if (global_capture_opts.ifaces->len > 0 && interface_opts.src_type == CAPTURE_IFREMOTE) {
     if_list = get_remote_interface_list(interface_opts.remote_host,
                                         interface_opts.remote_port,
                                         interface_opts.auth_type,
@@ -1849,28 +1849,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(if_hb), iftype_cbx, FALSE, FALSE, 0);
 #endif
 
-  if (interface_opts.name == NULL && prefs.capture_device != NULL) {
-    /* No interface was specified on the command line or in a previous
-       capture, but there is one specified in the preferences file;
-       make the one from the preferences file the default */
-    if_device = g_strdup(prefs.capture_device);
-    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-      if_info = (if_info_t*)if_entry->data;
-      if (strcmp(if_info->name, get_if_name(if_device)) == 0) {
-        interface_opts.name = g_strdup(get_if_name(if_device));
-        /* Warning: see capture_prep_cb() */
-        /* XXX: Could the following code be changed to use the if_list obtained above instead  */
-        /*      of maybe calling capture_interface_list() again ?                           */
-        interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
-        break;
-      }
-    }
-    g_free(if_device);
-    if_device = NULL;
-  }
-
   /* If we have a prefered interface, get the string to compare with to select the active text*/
-  if (interface_opts.name != NULL) {
+  if (global_capture_opts.ifaces->len > 0 && interface_opts.name != NULL) {
       if_device = build_capture_combo_name(if_list, interface_opts.name);
   }
 #if GTK_CHECK_VERSION(2,24,0)
@@ -1912,13 +1892,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_AIRPCAP
   /* get the airpcap interface (if it IS an airpcap interface, and update the
      toolbar... and of course enable the advanced button...)*/
-  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,interface_opts.name);
+  if (global_capture_opts.ifaces->len >= 0)
+    airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,interface_opts.name);
 #endif
 
   free_capture_combo_list(combo_list);
 #ifdef HAVE_PCAP_REMOTE
   /* Only delete if fetched local */
-  if (interface_opts.src_type == CAPTURE_IFLOCAL)
+  if (global_capture_opts.ifaces->len >= 0 && interface_opts.src_type == CAPTURE_IFLOCAL)
 #endif
   free_interface_list(if_list);
   gtk_widget_set_tooltip_text(if_cb,
@@ -1997,8 +1978,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Promiscuous mode row */
   promisc_cb = gtk_check_button_new_with_mnemonic(
       "Capture packets in _promiscuous mode");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
+  if (global_capture_opts.ifaces->len > 0) {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
                                interface_opts.promisc_mode);
+  } else {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
+                               global_capture_opts.default_options.promisc_mode);
+  }
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
@@ -2009,10 +1995,15 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   /* Monitor mode row */
   monitor_cb = gtk_check_button_new_with_mnemonic(
       "Capture packets in monitor mode");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
+  if (global_capture_opts.ifaces->len > 0) {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
                                interface_opts.monitor_mode);
-  g_signal_connect(monitor_cb, "toggled",
+    g_signal_connect(monitor_cb, "toggled",
                    G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
+  } else {
+    gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
+                               global_capture_opts.default_options.monitor_mode);
+  }
 
   gtk_widget_set_tooltip_text(monitor_cb,
     "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture the traffic on the BSS to which it's associated. "
@@ -2034,12 +2025,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
    * you have it, the monitor mode checkbox.  That's why we do this
    * now.
    */
-  global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
-  /* To keep consistency, the status has to be stored */
-  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
-  set_if_capabilities(FALSE);
+  if (global_capture_opts.ifaces->len > 0) {
+    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+    /* To keep consistency, the status has to be stored */
+    g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
 
-  interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+    set_if_capabilities(FALSE);
+    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
+  }
   /* Pcap-NG row */
   pcap_ng_cb = gtk_check_button_new_with_mnemonic("Capture packets in pcap-ng format");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), global_capture_opts.use_pcapng);
@@ -2105,7 +2098,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #endif
     }
   }
-  if (g_array_index(global_capture_opts.ifaces, interface_options, 0).cfilter)
+  if (global_capture_opts.ifaces->len > 0 && g_array_index(global_capture_opts.ifaces, interface_options, 0).cfilter)
 #if GTK_CHECK_VERSION(2,24,0)
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), g_array_index(global_capture_opts.ifaces, interface_options, 0).cfilter);
 #else
@@ -2170,11 +2163,17 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   buffer_size_hb = gtk_hbox_new(FALSE, 3);
   buffer_size_lb = gtk_label_new("Buffer size:");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 0);
-
-  buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) interface_opts.buffer_size,
-    1, 65535, 1.0, 10.0, 0.0);
-  buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
-  gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) interface_opts.buffer_size);
+  if (global_capture_opts.ifaces->len > 0) {
+    buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) interface_opts.buffer_size,
+      1, 65535, 1.0, 10.0, 0.0);
+    buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) interface_opts.buffer_size);
+  } else {
+    buffer_size_adj = (GtkAdjustment *) gtk_adjustment_new((gfloat) global_capture_opts.default_options.buffer_size,
+      1, 65535, 1.0, 10.0, 0.0);
+    buffer_size_sb = gtk_spin_button_new (buffer_size_adj, 0, 0);
+    gtk_spin_button_set_value(GTK_SPIN_BUTTON (buffer_size_sb), (gfloat) global_capture_opts.default_options.buffer_size);
+  }
   gtk_spin_button_set_wrap (GTK_SPIN_BUTTON (buffer_size_sb), TRUE);
   gtk_widget_set_size_request(buffer_size_sb, 80, -1);
   gtk_widget_set_tooltip_text(buffer_size_sb,
@@ -2503,9 +2502,11 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(help_bt,
     "Show help about capturing.");
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
-
-  global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
-  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
+  
+  if (global_capture_opts.ifaces->len > 0) {
+    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
+    g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
+  }
   gtk_widget_grab_default(ok_bt);
 
   /* Attach pointers to needed widgets to the capture prefs window/object */

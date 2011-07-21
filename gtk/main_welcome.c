@@ -92,6 +92,7 @@ static GtkWidget *welcome_file_panel_vb = NULL;
 #ifdef HAVE_LIBPCAP
 static GtkWidget *welcome_if_panel_vb = NULL;
 static GtkWidget *if_view = NULL;
+static GtkWidget *swindow;
 #endif
 
 static GSList *status_messages = NULL;
@@ -821,7 +822,7 @@ select_ifaces(void)
     GtkTreeModel     *model;
     GtkTreeSelection *entry;
 
-    if (global_capture_opts.ifaces->len > 0) {
+    if (global_capture_opts.ifaces->len > 0 && swindow) {
         view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
         model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
         entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
@@ -988,7 +989,6 @@ welcome_new(void)
     DWORD ce_size = sizeof(chimney_enabled);
 #endif
 #ifdef HAVE_LIBPCAP
-    GtkWidget *swindow;
     GtkTreeSelection *selection;
     GtkCellRenderer *renderer;
     GtkTreeViewColumn *column;
