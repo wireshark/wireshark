@@ -8,8 +8,10 @@ BEGIN
 -- Import from GSM MAP for convenience
 IMPORTS
 	IMSI
-	FROM MAP-Protocol;
-
+FROM MAP-CommonDataTypes {
+   itu-t identified-organization (4) etsi (0) mobileDomain (0)
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
+;
 -- 6.4.2.1 
 -- http://www.3gpp2.org/Public_html/specs/X.S0004-550-E_v2.0_070723.pdf
 AuthenticationDirective ::= [PRIVATE 18] SET {
