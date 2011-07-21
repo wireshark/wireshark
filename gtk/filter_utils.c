@@ -34,6 +34,8 @@
 #include "gtk/color_dlg.h"
 #include "gtk/filter_utils.h"
 
+#include "gtk/old-gtk-compat.h"
+
 void
 apply_selected_filter (guint callback_action, char *filter)
 {
@@ -83,11 +85,7 @@ apply_selected_filter (guint callback_action, char *filter)
 	case ACTION_MATCH:
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
 		main_filter_packets(&cfile, str, FALSE);
-#if GTK_CHECK_VERSION(2,14,0)
 		gdk_window_raise(gtk_widget_get_window(top_level));
-#else
-		gdk_window_raise(top_level->window);
-#endif
 		break;
 	case ACTION_PREPARE:
 		gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);

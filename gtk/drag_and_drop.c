@@ -52,6 +52,8 @@
 #include "gtk/capture_globals.h"
 #endif
 
+#include "gtk/old-gtk-compat.h"
+
 #ifdef HAVE_GTKOSXAPPLICATION
 #include <igemacintegration/gtkosxapplication.h>
 #endif
@@ -342,13 +344,8 @@ dnd_data_received(GtkWidget *widget _U_, GdkDragContext *dc _U_, gint x _U_, gin
 
 	/* the selection_data will soon be gone, make a copy first */
 	/* the data string is not zero terminated -> make a zero terminated "copy" of it */
-#if GTK_CHECK_VERSION(2,14,0)
 	sel_data_len = gtk_selection_data_get_length(selection_data);
 	sel_data_data = gtk_selection_data_get_data(selection_data);
-#else
-	sel_data_len = selection_data->length;
-	sel_data_data = selection_data->data;
-#endif
 	cf_names_freeme = g_malloc(sel_data_len + 1);
 	memcpy(cf_names_freeme, sel_data_data, sel_data_len);
 	cf_names_freeme[sel_data_len] = '\0';

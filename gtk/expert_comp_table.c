@@ -55,6 +55,8 @@
 #include "gtk/stock_icons.h"
 #include "gtk/utf8_entities.h"
 
+#include "gtk/old-gtk-compat.h"
+
 const char  *packet = "Packet:";
 
 enum
@@ -278,11 +280,7 @@ error_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data, guint call
     case ACTION_MATCH:
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);
         main_filter_packets(&cfile, str, FALSE);
-#if GTK_CHECK_VERSION(2,14,0)
 	gdk_window_raise(gtk_widget_get_window(top_level));
-#else
-        gdk_window_raise(top_level->window);
-#endif
         break;
     case ACTION_PREPARE:
         gtk_entry_set_text(GTK_ENTRY(main_display_filter_widget), str);

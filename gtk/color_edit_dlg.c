@@ -46,6 +46,7 @@
 #include "gtk/color_edit_dlg.h"
 #include "gtk/filter_autocomplete.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define BUTTON_SIZE_X -1
 #define BUTTON_SIZE_Y -1
@@ -464,11 +465,7 @@ color_sel_win_new(color_filter_t *colorf, gboolean is_bg)
 
   if (color != NULL) {
     color_t_to_gdkcolor(&gcolor, color);
-#if GTK_CHECK_VERSION(2,14,0)
     gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_sel_win))), &gcolor);
-#else
-    gtk_color_selection_set_current_color(GTK_COLOR_SELECTION(GTK_COLOR_SELECTION_DIALOG(color_sel_win)->colorsel), &gcolor);
-#endif
   }
 
   g_object_get(color_sel_win, "ok-button", &color_sel_ok, NULL);
@@ -546,11 +543,7 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 
   color_dialog = (GtkWidget *)user_data;
 
-#if GTK_CHECK_VERSION(2,14,0)
   gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_dialog))), &new_color);
-#else
-  gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(GTK_COLOR_SELECTION_DIALOG(color_dialog)->colorsel), &new_color);
-#endif
 
   if ( ! get_color(&new_color) ){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

@@ -20,6 +20,7 @@
 #include <gtk/gtk.h>
 #include "gtk/gtkvumeter.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define MIN_DYNAMIC_SIDE    40
 
@@ -188,17 +189,10 @@ static void gtk_vumeter_realize (GtkWidget *widget)
     widget->window = gdk_window_new (widget->parent->window, &attributes, attributes_mask);
 #endif
 
-#if GTK_CHECK_VERSION(2,14,0)
     gtk_widget_set_style(widget, gtk_style_attach(gtk_widget_get_style(widget), gtk_widget_get_window(widget)));
 
     gdk_window_set_user_data (gtk_widget_get_window(widget), widget);
     gtk_style_set_background (gtk_widget_get_style(widget), gtk_widget_get_window(widget),  GTK_STATE_NORMAL);
-#else
-    widget->style = gtk_style_attach (widget->style, widget->window);
-
-    gdk_window_set_user_data (widget->window, widget);
-    gtk_style_set_background (widget->style, widget->window,  GTK_STATE_NORMAL);
-#endif
 
     /* colors */
     vumeter->colormap = gdk_colormap_get_system ();
@@ -301,11 +295,7 @@ static void gtk_vumeter_size_allocate (GtkWidget *widget, GtkAllocation *allocat
     if (GTK_WIDGET_REALIZED (widget)) {
 #endif
 
-#if GTK_CHECK_VERSION(2,14,0)
         gdk_window_move_resize (gtk_widget_get_window(widget), allocation->x, allocation->y,
-#else
-        gdk_window_move_resize (widget->window, allocation->x, allocation->y,
-#endif
 			MAX (allocation->width, requisition.width),
             MAX (allocation->height, requisition.height));
 
@@ -322,11 +312,7 @@ static gboolean gtk_vumeter_expose (GtkWidget *widget, GdkEventExpose *event)
     gint w, h, inc;
     GList * current;
     GtkAllocation widget_alloc;
-#if GTK_CHECK_VERSION(2,14,0)
     GdkWindow *widget_window = gtk_widget_get_window(widget);
-#else
-    GdkWindow *widget_window = widget->window;
-#endif
 
     g_return_val_if_fail (GTK_IS_VUMETER (widget), FALSE);
     g_return_val_if_fail (event != NULL, FALSE);
@@ -647,19 +633,11 @@ static void gtk_vumeter_setup_colors (GtkVUMeter *vumeter)
     for (index = 0; index < vumeter->colors; index++) {
         /* foreground */
         gdk_colormap_alloc_color (vumeter->colormap, &vumeter->f_colors[index], FALSE, TRUE);
-#if GTK_CHECK_VERSION(2,14,0)
         vumeter->f_gc[index] = gdk_gc_new(gtk_widget_get_window(GTK_WIDGET(vumeter)));
-#else
-        vumeter->f_gc[index] = gdk_gc_new(GTK_WIDGET(vumeter)->window);
-#endif
         gdk_gc_set_foreground(vumeter->f_gc[index], &vumeter->f_colors[index]);
         /* background */
         gdk_colormap_alloc_color (vumeter->colormap, &vumeter->b_colors[index], FALSE, TRUE);
-#if GTK_CHECK_VERSION(2,14,0)
         vumeter->b_gc[index] = gdk_gc_new(gtk_widget_get_window(GTK_WIDGET(vumeter)));
-#else
-        vumeter->b_gc[index] = gdk_gc_new(GTK_WIDGET(vumeter)->window);
-#endif
         gdk_gc_set_foreground(vumeter->b_gc[index], &vumeter->b_colors[index]);
     }
 }

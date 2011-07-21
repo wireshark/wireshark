@@ -83,6 +83,7 @@
 #include "gtk/rtp_player.h"
 #include "gtk/stock_icons.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /*define this symbol to compile with G729 and G723 codecs*/
 /*#define HAVE_G729_G723 1*/
@@ -1016,7 +1017,6 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		}
 	}
 #endif
-#if GTK_CHECK_VERSION(2,14,0)
 	if (!rci->cursor_catch) {
 		if (idx/MULT < gtk_adjustment_get_page_size(rci->h_scrollbar_adjustment)/2) {
 			gtk_adjustment_set_value(rci->h_scrollbar_adjustment, gtk_adjustment_get_lower(rci->h_scrollbar_adjustment));
@@ -1035,27 +1035,6 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
 		}
 	}
-#else
-	if (!rci->cursor_catch) {
-		if (idx/MULT < rci->h_scrollbar_adjustment->page_size/2) {
-			rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->lower;
-		} else if (idx/MULT > (rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size/2)) {
-			rci->h_scrollbar_adjustment->value = rci->h_scrollbar_adjustment->upper - rci->h_scrollbar_adjustment->page_size;
-		} else {
-			rci->h_scrollbar_adjustment->value = idx/MULT - rci->h_scrollbar_adjustment->page_size/2;
-		}
-
-		gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
-	} else if ( (rci->cursor_prev/MULT < (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) &&
-		(idx/MULT >= (rci->h_scrollbar_adjustment->value+rci->h_scrollbar_adjustment->page_increment)) ){
-		rci->cursor_catch = FALSE;
-		for (i=1; i<10; i++) {
-			rci->h_scrollbar_adjustment->value = MIN(rci->h_scrollbar_adjustment->upper-rci->h_scrollbar_adjustment->page_size, rci->h_scrollbar_adjustment->value + (rci->h_scrollbar_adjustment->page_size/20));
-			gtk_adjustment_value_changed(rci->h_scrollbar_adjustment);
-		}
-	}
-#endif
-
 
 	/* Connect back the "value" scroll signal */
 	g_signal_connect(rci->h_scrollbar_adjustment, "value_changed", G_CALLBACK(h_scrollbar_changed), rci);

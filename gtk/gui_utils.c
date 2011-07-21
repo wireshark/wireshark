@@ -49,6 +49,8 @@
 #include "gtk/font_utils.h"
 #include "gtk/recent.h"
 
+#include "gtk/old-gtk-compat.h"
+
 #include "image/wsicon16.xpm"
 
 #include "../version_info.h"
@@ -119,22 +121,12 @@ window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
     style = gtk_widget_get_style (win);
 
     if (icon_pmap == NULL) {
-#if GTK_CHECK_VERSION(2,14,0)
         icon_pmap = gdk_pixmap_create_from_xpm_d (gtk_widget_get_window(win),
                                                   &icon_mask, &style->bg[GTK_STATE_NORMAL],
                                                   (gchar **) wsicon16_xpm);
-#else
-        icon_pmap = gdk_pixmap_create_from_xpm_d (win->window,
-                                                  &icon_mask, &style->bg[GTK_STATE_NORMAL],
-                                                  (gchar **) wsicon16_xpm);
-#endif
     }
 
-#if GTK_CHECK_VERSION(2,14,0)
     gdk_window_set_icon (gtk_widget_get_window(win), NULL, icon_pmap, icon_mask);
-#else /* GTK_CHECK_VERSION(2,14,0) */
-    gdk_window_set_icon (win->window, NULL, icon_pmap, icon_mask);
-#endif /* GTK_CHECK_VERSION(2,14,0) */
 #endif
 }
 
@@ -320,11 +312,7 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 
     memset (geom, 0, sizeof (window_geometry_t));
 
-#if GTK_CHECK_VERSION(2,14,0)
     widget_window = gtk_widget_get_window(widget);
-#else
-    widget_window = widget->window;
-#endif
 
     gdk_window_get_root_origin(widget_window,
         &geom->x,
@@ -394,20 +382,11 @@ window_set_geometry(GtkWidget *widget, window_geometry_t *geom)
     }
 
     if(geom->set_maximized) {
-#if GTK_CHECK_VERSION(2,14,0)
         if (geom->maximized) {
             gdk_window_maximize(gtk_widget_get_window(widget));
         } else {
             gdk_window_unmaximize(gtk_widget_get_window(widget));
         }
-#else
-        if (geom->maximized) {
-            gdk_window_maximize(widget->window);
-        } else {
-            gdk_window_unmaximize(widget->window);
-        }
-
-#endif
     }
 }
 
@@ -848,11 +827,7 @@ reactivate_window(GtkWidget *win)
 {
     GdkWindow *win_window;
 
-#if GTK_CHECK_VERSION(2,14,0)
     win_window = gtk_widget_get_window(win);
-#else
-    win_window = win->window;
-#endif
 
     gdk_window_show(win_window);
     gdk_window_raise(win_window);

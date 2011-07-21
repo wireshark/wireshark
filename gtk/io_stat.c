@@ -60,6 +60,7 @@
 #include "gtk/main.h"
 #include "gtk/filter_autocomplete.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define MAX_GRAPHS 5
 
@@ -1128,7 +1129,6 @@ io_stat_draw(io_stat_t *io)
 
 
 	/* update the scrollbar */
-#if GTK_CHECK_VERSION(2,14,0)
 	if (io->max_interval == 0) {
 		gtk_adjustment_set_upper(io->scrollbar_adjustment, (gfloat) io->interval);
 		gtk_adjustment_set_step_increment(io->scrollbar_adjustment, (gfloat) (io->interval/10));
@@ -1140,19 +1140,6 @@ io_stat_draw(io_stat_t *io)
 	}
 	gtk_adjustment_set_page_size(io->scrollbar_adjustment, gtk_adjustment_get_page_increment(io->scrollbar_adjustment));
 	gtk_adjustment_set_value(io->scrollbar_adjustment, (gfloat)first_interval);
-#else
-	if (io->max_interval == 0) {
-		io->scrollbar_adjustment->upper=(gfloat) io->interval;
-		io->scrollbar_adjustment->step_increment=(gfloat) (io->interval/10);
-		io->scrollbar_adjustment->page_increment=(gfloat) io->interval;
-	} else {
-		io->scrollbar_adjustment->upper=(gfloat) io->max_interval;
-		io->scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
-		io->scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
-	}
-	io->scrollbar_adjustment->page_size=io->scrollbar_adjustment->page_increment;
-	io->scrollbar_adjustment->value=(gfloat)first_interval;
-#endif
 	gtk_adjustment_changed(io->scrollbar_adjustment);
 	gtk_adjustment_value_changed(io->scrollbar_adjustment);
 
@@ -1432,11 +1419,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 	io_stat_t *io = user_data;
 	guint32 mi;
 
-#if GTK_CHECK_VERSION(2,14,0)
 	mi=(guint32) (gtk_adjustment_get_value(io->scrollbar_adjustment) + gtk_adjustment_get_page_size(io->scrollbar_adjustment));
-#else
-	mi=(guint32) (io->scrollbar_adjustment->value+io->scrollbar_adjustment->page_size);
-#endif
 	if(io->last_interval==mi){
 		return;
 	}

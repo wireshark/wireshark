@@ -91,6 +91,8 @@
 #include "gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 
+#include "gtk/old-gtk-compat.h"
+
 enum
 {
 	PACKET_COLUMN,
@@ -1400,11 +1402,7 @@ static gint scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	user_data_t *user_data=(user_data_t *)data;
 	guint32 mi;
 
-#if GTK_CHECK_VERSION(2,14,0)
 	mi=(guint32) (gtk_adjustment_get_value(user_data->dlg.dialog_graph.scrollbar_adjustment) + gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
-#else
-	mi=(guint32) (user_data->dlg.dialog_graph.scrollbar_adjustment->value+user_data->dlg.dialog_graph.scrollbar_adjustment->page_size);
-#endif
 	if(user_data->dlg.dialog_graph.last_interval==mi){
 		return TRUE;
 	}

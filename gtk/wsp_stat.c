@@ -45,6 +45,7 @@
 #include "gtk/tap_param_dlg.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /* used to keep track of the stats for a specific PDU type*/
 typedef struct _wsp_pdu_t {
@@ -416,7 +417,7 @@ gtk_wspstat_init(const char *optarg, void *userdata _U_)
         window_present(sp->win);
 
         cf_retap_packets(&cfile);
-	gdk_window_raise(sp->win->window);
+	gdk_window_raise(gtk_widget_get_window(sp->win));
 }
 
 static tap_param wsp_stat_params[] = {

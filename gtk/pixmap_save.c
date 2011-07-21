@@ -39,6 +39,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/file_dlg.h"
 
+#include "gtk/old-gtk-compat.h"
 
 static GtkWidget *save_as_w;
 
@@ -170,11 +171,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	gtk_widget_show(save_as_w);
 	window_present(save_as_w);
 	parent = gtk_widget_get_parent_window(w);
-#if GTK_CHECK_VERSION(2,14,0)
 	gdk_window_set_transient_for(gtk_widget_get_window(save_as_w), parent);
-#else
-	gdk_window_set_transient_for(save_as_w->window, parent);
-#endif
 
 #if 0
 	if(gtk_dialog_run(GTK_DIALOG(save_as_w)) == GTK_RESPONSE_ACCEPT)

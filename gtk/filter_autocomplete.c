@@ -44,6 +44,8 @@
 #include "gtk/gui_utils.h"
 #include "gtk/filter_autocomplete.h"
 
+#include "gtk/old-gtk-compat.h"
+
 #define E_FILT_AUTOCOMP_TREE_KEY    "filter_autocomplete_tree"
 
 
@@ -768,11 +770,7 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
   gtk_window_resize(GTK_WINDOW(popup_win), filter_te_alloc.width,
                     (requisition.height<200? requisition.height+8:200));
 
-#if GTK_CHECK_VERSION(2,14,0)
   gdk_window_get_origin(gtk_widget_get_window(filter_te), &x_pos, &y_pos);
-#else
-  gdk_window_get_origin(filter_te->window, &x_pos, &y_pos);
-#endif
   y_pos = y_pos + filter_te_alloc.height;
   gtk_window_move(GTK_WINDOW(popup_win), x_pos, y_pos);
 

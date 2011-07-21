@@ -86,6 +86,8 @@
 #include "gtk/rtp_stream_dlg.h"
 #include "gtk/utf8_entities.h"
 
+#include "gtk/old-gtk-compat.h"
+
 enum
 {
 	PACKET_COLUMN,
@@ -1283,7 +1285,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 
 
 	/* update the scrollbar */
-#if GTK_CHECK_VERSION(2,14,0)
 	gtk_adjustment_set_upper(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) user_data->dlg.dialog_graph.max_interval);
 	gtk_adjustment_set_step_increment(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) ((last_interval-first_interval)/10));
 	gtk_adjustment_set_page_increment(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (last_interval-first_interval));
@@ -1293,17 +1294,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 		gtk_adjustment_set_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (last_interval-first_interval));
 	}
 	gtk_adjustment_set_value(user_data->dlg.dialog_graph.scrollbar_adjustment, last_interval - gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
-#else
-	user_data->dlg.dialog_graph.scrollbar_adjustment->upper=(gfloat) user_data->dlg.dialog_graph.max_interval;
-	user_data->dlg.dialog_graph.scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
-	user_data->dlg.dialog_graph.scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
-	if((last_interval-first_interval)*100 < user_data->dlg.dialog_graph.max_interval){
-		user_data->dlg.dialog_graph.scrollbar_adjustment->page_size=(gfloat) (user_data->dlg.dialog_graph.max_interval/100);
-	} else {
-		user_data->dlg.dialog_graph.scrollbar_adjustment->page_size=(gfloat) (last_interval-first_interval);
-	}
-	user_data->dlg.dialog_graph.scrollbar_adjustment->value=last_interval-user_data->dlg.dialog_graph.scrollbar_adjustment->page_size;
-#endif
 	gtk_adjustment_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
 	gtk_adjustment_value_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
 
@@ -1385,11 +1375,7 @@ static void scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 	user_data_t *user_data = data;
 	guint32 mi;
 
-#if GTK_CHECK_VERSION(2,14,0)
 	mi=(guint32) (gtk_adjustment_get_value(user_data->dlg.dialog_graph.scrollbar_adjustment) + gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
-#else
-	mi=(guint32) (user_data->dlg.dialog_graph.scrollbar_adjustment->value+user_data->dlg.dialog_graph.scrollbar_adjustment->page_size);
-#endif
 	if(user_data->dlg.dialog_graph.last_interval==mi){
 		return;
 	}

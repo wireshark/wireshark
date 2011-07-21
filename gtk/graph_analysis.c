@@ -63,6 +63,9 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
 #include "gtk/graph_analysis.h"
+
+#include "gtk/old-gtk-compat.h"
+
 #include "../image/voip_select.xpm"
 #include "../image/voip_bg.xpm"
 
@@ -1047,19 +1050,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 						draw_area_comments_alloc.width, draw_area_comments_alloc.height);
 
 	/* update the v_scrollbar */
-#if GTK_CHECK_VERSION(2,14,0)
 	gtk_adjustment_set_upper(user_data->dlg.v_scrollbar_adjustment, (gdouble) user_data->num_items-1);
 	gtk_adjustment_set_step_increment(user_data->dlg.v_scrollbar_adjustment, 1);
 	gtk_adjustment_set_page_increment(user_data->dlg.v_scrollbar_adjustment, (gdouble) (last_item-first_item));
 	gtk_adjustment_set_page_size(user_data->dlg.v_scrollbar_adjustment, (gdouble) (last_item-first_item));
 	gtk_adjustment_set_value(user_data->dlg.v_scrollbar_adjustment, (gdouble) first_item);
-#else
-	user_data->dlg.v_scrollbar_adjustment->upper=(gfloat) user_data->num_items-1;
-	user_data->dlg.v_scrollbar_adjustment->step_increment=1;
-	user_data->dlg.v_scrollbar_adjustment->page_increment=(gfloat) (last_item-first_item);
-	user_data->dlg.v_scrollbar_adjustment->page_size=(gfloat) (last_item-first_item);
-	user_data->dlg.v_scrollbar_adjustment->value=(gfloat) first_item;
-#endif
 
 	gtk_adjustment_changed(user_data->dlg.v_scrollbar_adjustment);
 	gtk_adjustment_value_changed(user_data->dlg.v_scrollbar_adjustment);
@@ -1110,15 +1105,9 @@ static gboolean scroll_event(GtkWidget *widget _U_, GdkEventScroll *event, gpoin
 			user_data->dlg.first_item -= 3;
 		break;
 	case(GDK_SCROLL_DOWN):
-#if GTK_CHECK_VERSION(2,14,0)
 		if ((user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)+1 == user_data->num_items)) return TRUE;
 		if ((user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)+1) > (user_data->num_items-3))
 			user_data->dlg.first_item = user_data->num_items-(guint32)gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)-1;
-#else
-		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)) return TRUE;
-		if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1) > (user_data->num_items-3))
-			user_data->dlg.first_item = user_data->num_items-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size-1;
-#endif
 		else
 			user_data->dlg.first_item += 3;
 	    break;
@@ -1144,24 +1133,14 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 	if (event->keyval == GDK_Up){
 		if (user_data->dlg.selected_item == 0) return TRUE;
 		user_data->dlg.selected_item--;
-#if GTK_CHECK_VERSION(2,14,0)
 		if ( (user_data->dlg.selected_item<user_data->dlg.first_item) || (user_data->dlg.selected_item>user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)) )
-#else
-		if ( (user_data->dlg.selected_item<user_data->dlg.first_item) || (user_data->dlg.selected_item>user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size) )
-#endif
 			user_data->dlg.first_item = user_data->dlg.selected_item;
 		/* Down arrow */
 	} else if (event->keyval == GDK_Down){
 		if (user_data->dlg.selected_item == user_data->num_items-1) return TRUE;
 		user_data->dlg.selected_item++;
-#if GTK_CHECK_VERSION(2,14,0)
 		if ( (user_data->dlg.selected_item<user_data->dlg.first_item) || (user_data->dlg.selected_item>user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)) )
 			user_data->dlg.first_item = (guint32)user_data->dlg.selected_item-(guint32)gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment);
-#else
-		if ( (user_data->dlg.selected_item<user_data->dlg.first_item) || (user_data->dlg.selected_item>user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size) )
-			user_data->dlg.first_item = (guint32)user_data->dlg.selected_item-(guint32)user_data->dlg.v_scrollbar_adjustment->page_size;
-#endif
-
 	} else if (event->keyval == GDK_Left){
 		if (user_data->dlg.first_node == 0) return TRUE;
 		user_data->dlg.first_node--;
@@ -1299,11 +1278,7 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 	widget_style = widget->style;
 #endif
 
-#if GTK_CHECK_VERSION(2,14,0)
 	user_data->dlg.pixmap_main=gdk_pixmap_new(gtk_widget_get_window(widget),
-#else
-	user_data->dlg.pixmap_main=gdk_pixmap_new(widget->window,
-#endif
 		widget_alloc.width,
 		widget_alloc.height,
 		-1);
@@ -1361,12 +1336,7 @@ static gboolean configure_event_comments(GtkWidget *widget, GdkEventConfigure *e
 		user_data->dlg.pixmap_comments=NULL;
 	}
 
-#if GTK_CHECK_VERSION(2,14,0)
 	user_data->dlg.pixmap_comments=gdk_pixmap_new(gtk_widget_get_window(widget),
-#else
-	user_data->dlg.pixmap_comments=gdk_pixmap_new(widget->window,
-#endif
-
 						widget_alloc.width,
 						widget_alloc.height,
 						-1);
@@ -1403,11 +1373,7 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 		user_data->dlg.pixmap_time=NULL;
 	}
 
-#if GTK_CHECK_VERSION(2,14,0)
 	user_data->dlg.pixmap_time=gdk_pixmap_new(gtk_widget_get_window(widget),
-#else
-	user_data->dlg.pixmap_time=gdk_pixmap_new(widget->window,
-#endif
 						widget_alloc.width,
 						widget_alloc.height,
 						-1);
@@ -1471,7 +1437,6 @@ static void v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
 
-#if GTK_CHECK_VERSION(2,14,0)
 	if ((user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)+1 == user_data->num_items)
 	    && (gtk_adjustment_get_value(user_data->dlg.v_scrollbar_adjustment) >= user_data->dlg.first_item ))
 		return;
@@ -1480,16 +1445,6 @@ static void v_scrollbar_changed(GtkWidget *widget _U_, gpointer data)
 		return;
 
 	user_data->dlg.first_item = (guint32) gtk_adjustment_get_value(user_data->dlg.v_scrollbar_adjustment);
-#else
-	if ((user_data->dlg.first_item+user_data->dlg.v_scrollbar_adjustment->page_size+1 == user_data->num_items)
-	    && (user_data->dlg.v_scrollbar_adjustment->value >= user_data->dlg.first_item ))
-		return;
-
-	if (user_data->dlg.first_item == user_data->dlg.v_scrollbar_adjustment->value)
-		return;
-
-	user_data->dlg.first_item = (guint32) user_data->dlg.v_scrollbar_adjustment->value;
-#endif
 
 	dialog_graph_redraw(user_data);
 

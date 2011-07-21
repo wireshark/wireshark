@@ -68,6 +68,8 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/filter_autocomplete.h"
 
+#include "gtk/old-gtk-compat.h"
+
 #define COLUMN_WIDTH_MIN 40
 
 #define COL_EDIT_COLUMN          "column"
@@ -1108,19 +1110,11 @@ new_packet_list_check_end(void)
 	adj = gtk_tree_view_get_vadjustment(GTK_TREE_VIEW(packetlist->view));
 	g_return_val_if_fail(adj != NULL, FALSE);
 
-#if GTK_CHECK_VERSION(2,14,0)
 	if (gtk_adjustment_get_value(adj) >= gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj)) {
-#else
-	if (adj->value >= adj->upper - adj->page_size) {
-#endif
 		at_end = TRUE;
 	}
 #ifdef HAVE_LIBPCAP
-#if GTK_CHECK_VERSION(2,14,0)
 	if (gtk_adjustment_get_value(adj) > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
-#else
-	if (adj->value > 0 && at_end != last_at_end && at_end != auto_scroll_live) {
-#endif
 		menu_auto_scroll_live_changed(at_end);
 	}
 #endif
