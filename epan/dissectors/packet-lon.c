@@ -620,7 +620,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_nv,
 			{"Network Variable", "lon.nv",
-			FT_UINT16, BASE_HEX, NULL, 0x8000,
+			FT_UINT16, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_nv_dir,
@@ -635,7 +635,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_app,
 			{"Application", "lon.application",
-			FT_UINT8, BASE_HEX, NULL, 0xc0,
+			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_app_code,
@@ -645,7 +645,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_nm,
 			{"Network Management", "lon.nm",
-			FT_UINT8, BASE_HEX, NULL, 0xe0,
+			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_nm_code,
@@ -655,7 +655,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_nd,
 			{"Network Diagnostic", "lon.nd",
-			FT_UINT8, BASE_HEX, NULL, 0xf0,
+			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_nd_code,
@@ -665,7 +665,7 @@ proto_register_lon(void)
 		},
 		{&hf_lon_ff,
 			{"Foreign Frame", "lon.ff",
-			FT_UINT8, BASE_HEX, NULL, 0xf0,
+			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_ff_code,
