@@ -441,7 +441,6 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
     int         err;
     gchar       *err_str;
     interface_options interface_opts;
-    gboolean    found = FALSE;
 
 
     /*
@@ -452,21 +451,6 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
      * names that begin with digits.  It can be useful on Windows, where
      * more than one interface can have the same name.
      */
-    if_list = capture_interface_list(&err, &err_str);
-    if (if_list == NULL) {
-        switch (err) {
-
-        case CANT_GET_INTERFACE_LIST:
-            cmdarg_err("%s", err_str);
-            g_free(err_str);
-            break;
-
-        case NO_INTERFACES_FOUND:
-            cmdarg_err("There are no interfaces on which a capture can be done");
-            break;
-        }
-        return 2;
-    }
     adapter_index = strtol(optarg_str_p, &p, 10);
     if (p != NULL && *p == '\0') {
         if (adapter_index < 0) {
@@ -482,66 +466,63 @@ capture_opts_add_iface_opt(capture_options *capture_opts, const char *optarg_str
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
+        if_list = capture_interface_list(&err, &err_str);
+        if (if_list == NULL) {
+            switch (err) {
 
+            case CANT_GET_INTERFACE_LIST:
+                cmdarg_err("%s", err_str);
+                g_free(err_str);
+                break;
+
+            case NO_INTERFACES_FOUND:
+                cmdarg_err("There are no interfaces on which a capture can be done");
+                break;
+            }
+            return 2;
+        }
         if_info = (if_info_t *)g_list_nth_data(if_list, adapter_index - 1);
         if (if_info == NULL) {
             cmdarg_err("There is no interface with that adapter index");
             return 1;
         }
-        found = TRUE;
         interface_opts.name = g_strdup(if_info->name);
         /*  We don't set iface_descr here because doing so requires
          *  capture_ui_utils.c which requires epan/prefs.c which is
          *  probably a bit too much dependency for here...
          */
+        free_interface_list(if_list);
     } else {
-        GList *curr;
-        
-        for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
-            if_info = curr->data;
-            if (strcmp(if_info->name, optarg_str_p) == 0) {
-                found = TRUE;
-                break;
-            }
-        }
-        if (found) {
-            interface_opts.name = g_strdup(optarg_str_p);
-        }
+        interface_opts.name = g_strdup(optarg_str_p);
     }
-    free_interface_list(if_list);
-    if (found) {
-        interface_opts.descr = g_strdup(capture_opts->default_options.descr);
-        interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
-        interface_opts.snaplen = capture_opts->default_options.snaplen;
-        interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
-        interface_opts.linktype = capture_opts->default_options.linktype;
-        interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
+    interface_opts.descr = g_strdup(capture_opts->default_options.descr);
+    interface_opts.cfilter = g_strdup(capture_opts->default_options.cfilter);
+    interface_opts.snaplen = capture_opts->default_options.snaplen;
+    interface_opts.has_snaplen = capture_opts->default_options.has_snaplen;
+    interface_opts.linktype = capture_opts->default_options.linktype;
+    interface_opts.promisc_mode = capture_opts->default_options.promisc_mode;
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        interface_opts.buffer_size = capture_opts->default_options.buffer_size;
+    interface_opts.buffer_size = capture_opts->default_options.buffer_size;
 #endif
-        interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
+    interface_opts.monitor_mode = capture_opts->default_options.monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
-        interface_opts.src_type = capture_opts->default_options.src_type;
-        interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
-        interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
-        interface_opts.auth_type = capture_opts->default_options.auth_type;
-        interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
-        interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
-        interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
-        interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
-        interface_opts.nocap_local = capture_opts->default_options.nocap_local;
+    interface_opts.src_type = capture_opts->default_options.src_type;
+    interface_opts.remote_host = g_strdup(capture_opts->default_options.remote_host);
+    interface_opts.remote_port = g_strdup(capture_opts->default_options.remote_port);
+    interface_opts.auth_type = capture_opts->default_options.auth_type;
+    interface_opts.auth_username = g_strdup(capture_opts->default_options.auth_username);
+    interface_opts.auth_password = g_strdup(capture_opts->default_options.auth_password);
+    interface_opts.datatx_udp = capture_opts->default_options.datatx_udp;
+    interface_opts.nocap_rpcap = capture_opts->default_options.nocap_rpcap;
+    interface_opts.nocap_local = capture_opts->default_options.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
-        interface_opts.sampling_method = capture_opts->default_options.sampling_method;
-        interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
+    interface_opts.sampling_method = capture_opts->default_options.sampling_method;
+    interface_opts.sampling_param  = capture_opts->default_options.sampling_param;
 #endif
 
-        g_array_append_val(capture_opts->ifaces, interface_opts);
-    } else {
-      cmdarg_err("There is no interface with that name (%s)", optarg_str_p);
-            return 1;
-    }
-    
+    g_array_append_val(capture_opts->ifaces, interface_opts);
+
     return 0;
 }
 
