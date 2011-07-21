@@ -53,6 +53,8 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/gui_utils.h"
 
+#include "gtk/old-gtk-compat.h"
+
 enum
 {
     IEI_COLUMN,
@@ -445,7 +447,7 @@ gsm_a_stat_gtk_bssmap_cb(
      */
     if (dlg_bssmap.win)
     {
-    gdk_window_raise(dlg_bssmap.win->window);
+    gdk_window_raise(gtk_widget_get_window(dlg_bssmap.win));
     return;
     }
 
@@ -486,7 +488,7 @@ gsm_a_stat_gtk_dtap_cb(
      */
     if (dlg_dtap_p->win)
     {
-    gdk_window_raise(dlg_dtap_p->win->window);
+    gdk_window_raise(gtk_widget_get_window(dlg_dtap_p->win));
     return;
     }
 
@@ -724,7 +726,7 @@ gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action _U_, gpointer user_data _U_ )
      */
     if (dlg_sacch_rr.win)
     {
-    gdk_window_raise(dlg_sacch_rr.win->window);
+    gdk_window_raise(gtk_widget_get_window(dlg_sacch_rr.win));
     return;
     }
 

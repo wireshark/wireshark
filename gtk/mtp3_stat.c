@@ -54,6 +54,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/mtp3_stat.h"
 
+#include "gtk/old-gtk-compat.h"
 
 enum
 {
@@ -405,7 +406,7 @@ mtp3_stat_gtk_cb(
      */
     if (dlg.win)
     {
-        gdk_window_raise(dlg.win->window);
+        gdk_window_raise(gtk_widget_get_window(dlg.win));
         return;
     }
 

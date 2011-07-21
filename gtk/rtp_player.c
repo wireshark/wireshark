@@ -968,7 +968,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 
 		gdk_draw_pixbuf(rci->pixmap, NULL, rci->cursor_pixbuf, 0, 0, (int) (rci->cursor_prev/MULT), 0, -1, -1, GDK_RGB_DITHER_NONE, 0 ,0);
 
-		gdk_draw_drawable(rci->draw_area->window,
+		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
 #else
@@ -992,7 +992,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			(int) (idx/MULT),
 			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
-		gdk_draw_drawable(rci->draw_area->window,
+		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
 #else
@@ -1310,11 +1310,11 @@ static void channel_draw(rtp_channel_info_t* rci)
 		   bump that value by this amount. */
 		progbar_quantum = imax/100;
 
-		red_gc = gdk_gc_new(rci->draw_area->window);
+		red_gc = gdk_gc_new(gtk_widget_get_window(rci->draw_area));
 		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
-		amber_gc = gdk_gc_new(rci->draw_area->window);
+		amber_gc = gdk_gc_new(gtk_widget_get_window(rci->draw_area));
 		gdk_gc_set_rgb_fg_color(amber_gc, &amber_color);
-		white_gc = gdk_gc_new(rci->draw_area->window);
+		white_gc = gdk_gc_new(gtk_widget_get_window(rci->draw_area));
 		gdk_gc_set_rgb_fg_color(white_gc, &white_color);
 
 		for (i=0; i< imax; i++) {
@@ -1426,8 +1426,8 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 {
 	rtp_channel_info_t *rci = user_data;
 
-	if (GDK_IS_DRAWABLE(widget->window))
-		gdk_draw_drawable(widget->window,
+	if (GDK_IS_DRAWABLE(gtk_widget_get_window(widget)))
+		gdk_draw_drawable(gtk_widget_get_window(widget),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
@@ -1471,7 +1471,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 		rci->pixmap=NULL;
 	}
 
-	rci->pixmap = gdk_pixmap_new(widget->window,
+	rci->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
 					widget->allocation.width,
 					widget->allocation.height,
 					-1);

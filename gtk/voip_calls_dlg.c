@@ -72,6 +72,7 @@
 #include "gtk/rtp_player.h"
 #endif /* HAVE_LIBPORTAUDIO */
 
+#include "gtk/old-gtk-compat.h"
 
 /****************************************************************************/
 /* pointer to the one and only dialog window */
@@ -865,7 +866,7 @@ voip_calls_init_tap(const char *dummy _U_, void* userdata _U_)
 
 	/* Scan for VoIP calls calls (redissect all packets) */
 	cf_retap_packets(&cfile);
-	gdk_window_raise(voip_calls_dlg->window);
+	gdk_window_raise(gtk_widget_get_window(voip_calls_dlg));
 	/* Tap listener will be removed and cleaned up in voip_calls_on_destroy */
 }
 

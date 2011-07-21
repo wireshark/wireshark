@@ -56,6 +56,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define TH_FIN    0x01
 #define TH_SYN    0x02
@@ -769,7 +770,7 @@ static void create_drawing_area (struct graph *g)
 
 	colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
 	if (!xor_gc) {
-		xor_gc = gdk_gc_new (g->drawing_area->window);
+		xor_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
 		gdk_gc_set_function (xor_gc, GDK_XOR);
 		if (!gdk_color_parse ("gray15", &color)) {
 			/*
@@ -787,8 +788,8 @@ static void create_drawing_area (struct graph *g)
 		}
 		gdk_gc_set_foreground (xor_gc, &color);
 	}
-	g->fg_gc = gdk_gc_new (g->drawing_area->window);
-	g->bg_gc = gdk_gc_new (g->drawing_area->window);
+	g->fg_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
+	g->bg_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
 	if (!gdk_color_parse ("white", &color)) {
 		/*
 		 * XXX - do more than just warn.
@@ -1500,7 +1501,7 @@ static void callback_cross_on_off (GtkWidget *toggle, gpointer data)
 	if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON (toggle))) {
 		int x, y;
 		g->cross.draw = TRUE;
-		gdk_window_get_pointer (g->drawing_area->window, &x, &y, 0);
+		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
 		cross_draw (g, x, y);
 	} else {
 		g->cross.draw = FALSE;
@@ -2017,7 +2018,7 @@ static void graph_title_pixmap_create (struct graph *g)
 	if (g->title_pixmap)
 		g_object_unref (g->title_pixmap);
 
-	g->title_pixmap = gdk_pixmap_new (g->drawing_area->window,
+	g->title_pixmap = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
 							g->x_axis->p.width, g->wp.y, -1);
 }
 
@@ -2041,7 +2042,7 @@ static void graph_title_pixmap_draw (struct graph *g)
 
 static void graph_title_pixmap_display (struct graph *g)
 {
-	gdk_draw_pixmap (g->drawing_area->window, g->fg_gc, g->title_pixmap,
+	gdk_draw_pixmap (gtk_widget_get_window(g->drawing_area), g->fg_gc, g->title_pixmap,
                          0, 0, g->wp.x, 0, g->x_axis->p.width, g->wp.y);
 }
 
@@ -2054,9 +2055,9 @@ static void graph_pixmaps_create (struct graph *g)
 	if (g->pixmap[1])
 		g_object_unref (g->pixmap[1]);
 
-	g->pixmap[0] = gdk_pixmap_new (g->drawing_area->window,
+	g->pixmap[0] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
 									g->wp.width, g->wp.height, -1);
-	g->pixmap[1] = gdk_pixmap_new (g->drawing_area->window,
+	g->pixmap[1] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
 									g->wp.width, g->wp.height, -1);
 
 	g->displayed = 0;
@@ -2064,16 +2065,16 @@ static void graph_pixmaps_create (struct graph *g)
 
 static void graph_display (struct graph *g)
 {
-	set_busy_cursor (g->drawing_area->window);
+	set_busy_cursor (gtk_widget_get_window(g->drawing_area));
 	graph_pixmap_draw (g);
-	unset_busy_cursor (g->drawing_area->window);
+	unset_busy_cursor (gtk_widget_get_window(g->drawing_area));
 	graph_pixmaps_switch (g);
 	graph_pixmap_display (g);
 }
 
 static void graph_pixmap_display (struct graph *g)
 {
-    gdk_draw_pixmap (g->drawing_area->window, g->fg_gc,
+    gdk_draw_pixmap (gtk_widget_get_window(g->drawing_area), g->fg_gc,
 					g->pixmap[g->displayed], 0, 0, g->wp.x, g->wp.y,
 					g->wp.width, g->wp.height);
     if (g->cross.erase_needed) {
@@ -2176,9 +2177,9 @@ static void axis_pixmaps_create (struct axis *axis)
 	if (axis->pixmap[1])
 		g_object_unref (axis->pixmap[1]);
 
-	axis->pixmap[0] = gdk_pixmap_new (axis->drawing_area->window,
+	axis->pixmap[0] = gdk_pixmap_new (gtk_widget_get_window(axis->drawing_area),
 							axis->p.width, axis->p.height, -1);
-	axis->pixmap[1] = gdk_pixmap_new (axis->drawing_area->window,
+	axis->pixmap[1] = gdk_pixmap_new (gtk_widget_get_window(axis->drawing_area),
 							axis->p.width, axis->p.height, -1);
 
 	axis->displayed = 0;
@@ -2378,7 +2379,7 @@ static void axis_pixmaps_switch (struct axis *axis)
 
 static void axis_pixmap_display (struct axis *axis)
 {
-	gdk_draw_pixmap (axis->drawing_area->window, axis->g->fg_gc,
+	gdk_draw_pixmap (gtk_widget_get_window(axis->drawing_area), axis->g->fg_gc,
 			axis->pixmap[axis->displayed], 0, 0, axis->p.x, axis->p.y,
 			axis->p.width, axis->p.height);
 }
@@ -2552,7 +2553,7 @@ static void graph_select_segment (struct graph *g, int x, int y)
 	x -= g->geom.x;
 	y = g->geom.height-1 - (y - g->geom.y);
 
-	set_busy_cursor (g->drawing_area->window);
+	set_busy_cursor (gtk_widget_get_window(g->drawing_area));
 
 	for (list=g->elists; list; list=list->next)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
@@ -2578,7 +2579,7 @@ static void graph_select_segment (struct graph *g, int x, int y)
 	if (num) {
 		cf_goto_frame(&cfile, num);
 	}
-	unset_busy_cursor (g->drawing_area->window);
+	unset_busy_cursor (gtk_widget_get_window(g->drawing_area));
 }
 
 static int line_detect_collision (struct element *e, int x, int y)
@@ -2629,9 +2630,9 @@ static void cross_xor (struct graph *g, int x, int y)
 {
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
-		gdk_draw_line (g->drawing_area->window, xor_gc, g->wp.x,
+		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
 						y, g->wp.x + g->wp.width, y);
-		gdk_draw_line (g->drawing_area->window, xor_gc, x,
+		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
 						g->wp.y, x, g->wp.y + g->wp.height);
 	}
 }
@@ -2690,7 +2691,7 @@ static void magnify_create (struct graph *g, int x, int y)
 	}
 	graph_element_lists_make (mg);
 
-	gdk_window_get_position (GTK_WIDGET (g->toplevel)->window, &pos.x, &pos.y);
+	gdk_window_get_position (gtk_widget_get_window(GTK_WIDGET (g->toplevel)), &pos.x, &pos.y);
 	g->magnify.x = pos.x + x - g->magnify.width/2;
 	g->magnify.y = pos.y + y - g->magnify.height/2;
 	offsetpos.x = g->magnify.x + g->magnify.offset.x;
@@ -2725,7 +2726,7 @@ static void magnify_move (struct graph *g, int x, int y)
 {
 	struct ipoint pos, offsetpos;
 
-	gdk_window_get_position (GTK_WIDGET (g->toplevel)->window, &pos.x, &pos.y);
+	gdk_window_get_position (gtk_widget_get_window(GTK_WIDGET (g->toplevel)), &pos.x, &pos.y);
 	g->magnify.x = pos.x + x - g->magnify.width/2;
 	g->magnify.y = pos.y + y - g->magnify.height/2;
 	offsetpos.x = g->magnify.x + g->magnify.offset.x;
@@ -2762,7 +2763,7 @@ static void magnify_get_geom (struct graph *g, int x, int y)
 {
 	int posx, posy;
 
-	gdk_window_get_position (GTK_WIDGET (g->toplevel)->window, &posx, &posy);
+	gdk_window_get_position (gtk_widget_get_window(GTK_WIDGET (g->toplevel)), &posx, &posy);
 
 	g->magnify.g->geom.x = g->geom.x;
 	g->magnify.g->geom.y = g->geom.y;
@@ -2869,10 +2870,10 @@ static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer
 		return TRUE;
 
 	/* lower left corner */
-	gdk_draw_rectangle (g->drawing_area->window, g->bg_gc, TRUE, 0,
+	gdk_draw_rectangle (gtk_widget_get_window(g->drawing_area), g->bg_gc, TRUE, 0,
 			g->wp.y + g->wp.height, g->y_axis->p.width, g->x_axis->p.height);
 	/* right margin */
-	gdk_draw_rectangle (g->drawing_area->window, g->bg_gc, TRUE,
+	gdk_draw_rectangle (gtk_widget_get_window(g->drawing_area), g->bg_gc, TRUE,
 			g->wp.x + g->wp.width, g->wp.y, RMARGIN_WIDTH, g->wp.height);
 
 	graph_pixmap_display (g);
@@ -2952,7 +2953,7 @@ static void do_zoom_keyboard (struct graph *g)
 	struct { double x, y; } factor;
 	int pointer_x, pointer_y;
 
-	gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
 
 	if (g->zoom.flags & ZOOM_OUT) {
 		if (g->zoom.flags & ZOOM_HLOCK)
@@ -3030,7 +3031,7 @@ static void do_select_segment (struct graph *g)
 {
 	int pointer_x, pointer_y;
 
-	gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
 	graph_select_segment (g, pointer_x, pointer_y);
 }
 
@@ -3063,7 +3064,7 @@ static void do_magnify_create (struct graph *g)
 {
 	int pointer_x, pointer_y;
 
-	gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+	gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
 
 	magnify_create (g, (int )rint (pointer_x), (int )rint (pointer_y));
 }
@@ -3084,7 +3085,7 @@ static void do_key_motion (struct graph *g)
 	axis_display (g->x_axis);
 	if (g->cross.draw) {
 		int pointer_x, pointer_y;
-		gdk_window_get_pointer (g->drawing_area->window, &pointer_x, &pointer_y, 0);
+		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &pointer_x, &pointer_y, 0);
 		cross_draw (g, pointer_x, pointer_y);
 	}
 }
@@ -3331,7 +3332,7 @@ static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 	/* graph_pixmap_display (g); */
 	if (g->cross.draw) {
 		int x, y;
-		gdk_window_get_pointer (g->drawing_area->window, &x, &y, 0);
+		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
 		cross_draw (g, x, y);
 	}
 	return TRUE;
@@ -3343,7 +3344,7 @@ static void toggle_crosshairs (struct graph *g)
 #if 0
 	if (g->cross.draw) {
 		int x, y;
-		gdk_window_get_pointer (g->drawing_area->window, &x, &y, 0);
+		gdk_window_get_pointer (gtk_widget_get_window(g->drawing_area), &x, &y, 0);
 		cross_draw (g);
 	} else if (g->cross.erase_needed) {
 		cross_erase (g);
@@ -3656,9 +3657,9 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	GdkColor color;
 
 	g->s.tseq_tcptrace.flags = 0;
-	g->s.tseq_tcptrace.gc_seq = gdk_gc_new (g->drawing_area->window);
-	g->s.tseq_tcptrace.gc_ack[0] = gdk_gc_new (g->drawing_area->window);
-	g->s.tseq_tcptrace.gc_ack[1] = gdk_gc_new (g->drawing_area->window);
+	g->s.tseq_tcptrace.gc_seq = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
+	g->s.tseq_tcptrace.gc_ack[0] = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
+	g->s.tseq_tcptrace.gc_ack[1] = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
 	colormap = gtk_widget_get_colormap (GTK_WIDGET(g->drawing_area));
 	if (!gdk_color_parse ("black", &color)) {
 		/*

@@ -53,6 +53,8 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _gtpstat_t {
 	GtkWidget *win;
@@ -217,7 +219,7 @@ gtk_gtpstat_init(const char *optarg, void *userdata _U_)
 	window_present(gtp->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(gtp->win->window);
+	gdk_window_raise(gtk_widget_get_window(gtp->win));
 }
 
 static tap_param gtp_stat_params[] = {

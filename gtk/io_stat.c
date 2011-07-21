@@ -1116,7 +1116,7 @@ io_stat_draw(io_stat_t *io)
 
 
 
-	gdk_draw_pixmap(io->draw_area->window,
+	gdk_draw_pixmap(gtk_widget_get_window(io->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(io->draw_area)->fg_gc[gtk_widget_get_state(io->draw_area)],
 #else
@@ -1308,7 +1308,7 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 	init_io_stat_window(io);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(io->window->window);
+	gdk_window_raise(gtk_widget_get_window(io->window));
 	io_stat_redraw(io);
 }
 
@@ -1385,7 +1385,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 		io->pixmap=NULL;
 	}
 
-	io->pixmap=gdk_pixmap_new(widget->window,
+	io->pixmap=gdk_pixmap_new(gtk_widget_get_window(widget),
 			widget->allocation.width,
 			widget->allocation.height,
 			-1);
@@ -1440,7 +1440,7 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_d
 {
 	io_stat_t *io = user_data;
 
-	gdk_draw_pixmap(widget->window,
+	gdk_draw_pixmap(gtk_widget_get_window(widget),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
@@ -1489,7 +1489,7 @@ tick_interval_select(GtkWidget *item, gpointer user_data)
 
 	io->interval=tick_interval_values[i];
 	cf_retap_packets(&cfile);
-	gdk_window_raise(io->window->window);
+	gdk_window_raise(gtk_widget_get_window(io->window));
 	io_stat_redraw(io);
 }
 
@@ -1890,7 +1890,7 @@ filter_callback(GtkWidget *widget _U_, gpointer user_data)
 	io_stat_reset(gio->io);
 	enable_graph(gio, filter, field);
 	cf_retap_packets(&cfile);
-	gdk_window_raise(gio->io->window->window);
+	gdk_window_raise(gtk_widget_get_window(gio->io->window));
 	io_stat_redraw(gio->io);
 
 	return;

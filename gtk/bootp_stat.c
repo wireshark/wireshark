@@ -42,6 +42,7 @@
 #include "gtk/tap_param_dlg.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 typedef const char* bootp_info_value_t;
 
@@ -268,7 +269,7 @@ dhcpstat_init(const char *optarg, void *userdata _U_)
 	window_present(sp->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(sp->win->window);
+	gdk_window_raise(gtk_widget_get_window(sp->win));
 }
 
 static tap_param bootp_stat_params[] = {

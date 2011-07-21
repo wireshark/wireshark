@@ -41,6 +41,8 @@
 #include "gtk/sctp_stat.h"
 #include "gtk/gtkglobals.h"
 
+#include "gtk/old-gtk-compat.h"
+
 static GtkWidget *sctp_stat_dlg=NULL;
 static GtkWidget *clist = NULL;
 static GList *last_list = NULL;
@@ -627,7 +629,7 @@ gtk_sctpstat_dlg(void)
 
 	sctp_stat_dlg = sctp_stat_dlg_w;
 	cf_retap_packets(&cfile);
-	gdk_window_raise(sctp_stat_dlg_w->window);
+	gdk_window_raise(gtk_widget_get_window(sctp_stat_dlg_w));
 
 }
 

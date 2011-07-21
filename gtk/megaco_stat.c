@@ -57,7 +57,7 @@
 
 #include "tap-megaco-common.h"
 
-
+#include "gtk/old-gtk-compat.h"
 
 static void
 megacostat_reset(void *pms)
@@ -213,7 +213,7 @@ gtk_megacostat_init(const char *optarg, void *userdata _U_)
 	window_present(ms->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(ms->win->window);
+	gdk_window_raise(gtk_widget_get_window(ms->win));
 }
 
 static tap_param megaco_srt_params[] = {

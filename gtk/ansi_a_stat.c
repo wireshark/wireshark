@@ -53,6 +53,8 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/gui_utils.h"
 
+#include "gtk/old-gtk-compat.h"
+
 enum
 {
    IEI_COLUMN,
@@ -328,7 +330,7 @@ ansi_a_stat_gtk_bsmap_cb(
      */
     if (dlg_bsmap.win)
     {
-        gdk_window_raise(dlg_bsmap.win->window);
+        gdk_window_raise(gtk_widget_get_window(dlg_bsmap.win));
         return;
     }
 
@@ -360,7 +362,7 @@ ansi_a_stat_gtk_dtap_cb(
      */
     if (dlg_dtap.win)
     {
-        gdk_window_raise(dlg_dtap.win->window);
+        gdk_window_raise(gtk_widget_get_window(dlg_dtap.win));
         return;
     }
 

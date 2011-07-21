@@ -1272,7 +1272,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	}
 
 
-	gdk_draw_pixmap(user_data->dlg.dialog_graph.draw_area->window,
+	gdk_draw_pixmap(gtk_widget_get_window(user_data->dlg.dialog_graph.draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->fg_gc[gtk_widget_get_state(user_data->dlg.dialog_graph.draw_area)],
 #else
@@ -1320,7 +1320,7 @@ static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event,
 {
 	user_data_t *user_data = data;
 
-	gdk_draw_pixmap(widget->window,
+	gdk_draw_pixmap(gtk_widget_get_window(widget),
 #if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
@@ -1345,7 +1345,7 @@ static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *
 		user_data->dlg.dialog_graph.pixmap=NULL;
 	}
 
-	user_data->dlg.dialog_graph.pixmap=gdk_pixmap_new(widget->window,
+	user_data->dlg.dialog_graph.pixmap=gdk_pixmap_new(gtk_widget_get_window(widget),
 			widget->allocation.width,
 			widget->allocation.height,
 			-1);

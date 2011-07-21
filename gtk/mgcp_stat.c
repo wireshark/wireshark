@@ -52,6 +52,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define NUM_TIMESTATS 10
 
@@ -299,7 +300,7 @@ gtk_mgcpstat_init(const char *optarg, void *userdata _U_)
 	window_present(ms->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(ms->win->window);
+	gdk_window_raise(gtk_widget_get_window(ms->win));
 }
 
 static tap_param mgcp_srt_params[] = {

@@ -38,6 +38,8 @@
 #include "gtk/gui_utils.h"
 #include "gtk/stock_icons.h"
 
+#include "gtk/old-gtk-compat.h"
+
 static void simple_dialog_cancel_cb(GtkWidget *, gpointer);
 
 #define CALLBACK_FCT_KEY    "ESD_Callback_Fct"
@@ -306,7 +308,7 @@ vsimple_dialog(ESD_TYPE_E type, gint btn_mask, const gchar *msg_format, va_list 
   message = g_strdup_vprintf(msg_format, ap);
 
   if (top_level != NULL) {
-    state = gdk_window_get_state(top_level->window);
+    state = gdk_window_get_state(gtk_widget_get_window(top_level));
   }
 
   /* If we don't yet have a main window or it's iconified, don't show the

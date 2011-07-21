@@ -52,6 +52,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define NUM_TIMESTATS 8
 #define NUM_COLUMNS 11
@@ -350,7 +351,7 @@ gtk_radiusstat_init(const char *optarg, void *userdata _U_)
 	window_present(rs->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(rs->win->window);
+	gdk_window_raise(gtk_widget_get_window(rs->win));
 }
 
 static tap_param radius_stat_params[] = {

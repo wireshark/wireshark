@@ -56,6 +56,8 @@
 #include "gtk/help_dlg.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
+
 /**********************************************/
 /* Table column identifiers and title strings */
 
@@ -1526,7 +1528,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
     /* Retap */
     cf_retap_packets(&cfile);
-    gdk_window_raise(hs->dlg_w->window);
+    gdk_window_raise(gtk_widget_get_window(hs->dlg_w));
 }
 
 

@@ -50,6 +50,8 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
+
 #define NANOSECS_PER_SEC 1000000000
 
 static GtkWidget *win=NULL;
@@ -340,7 +342,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	GtkWidget *bbox;
 
 	if(win){
-		gdk_window_raise(win->window);
+		gdk_window_raise(gtk_widget_get_window(win));
 		return;
 	}
 
@@ -406,7 +408,7 @@ gtk_rpcprogs_init(const char *optarg _U_, void* userdata _U_)
 	window_present(win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(win->window);
+	gdk_window_raise(gtk_widget_get_window(win));
 }
 
 #ifdef MAIN_MENU_USE_UIMANAGER

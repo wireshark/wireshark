@@ -52,6 +52,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _smbstat_t {
@@ -235,7 +236,7 @@ gtk_smbstat_init(const char *optarg, void *userdata _U_)
 	window_present(ss->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(ss->win->window);
+	gdk_window_raise(gtk_widget_get_window(ss->win));
 }
 
 static tap_param smb_stat_params[] = {

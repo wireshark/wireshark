@@ -52,6 +52,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/filter_autocomplete.h"
 
+#include "gtk/old-gtk-compat.h"
 
 typedef struct _tap_param_dlg_list_item {
     GtkWidget *dlg;
@@ -201,7 +202,7 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
 
     /* if the window is already open, bring it to front */
     if(current_dlg->dlg){
-        gdk_window_raise(current_dlg->dlg->window);
+        gdk_window_raise(gtk_widget_get_window(current_dlg->dlg));
         return;
     }
 

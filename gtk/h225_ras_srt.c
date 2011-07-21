@@ -53,6 +53,7 @@
 #include "gtk/gui_utils.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 static void gtk_h225rassrt_init(const char *optarg, void *userdata);
 
@@ -333,7 +334,7 @@ gtk_h225rassrt_init(const char *optarg, void *userdata _U_)
 	window_present(hs->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(hs->win->window);
+	gdk_window_raise(gtk_widget_get_window(hs->win));
 }
 
 void

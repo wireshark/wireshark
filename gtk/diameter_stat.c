@@ -54,6 +54,8 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
+
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _diameterstat_t {
 	GtkWidget *win;
@@ -214,7 +216,7 @@ gtk_diameterstat_init(const char *optarg, void *userdata _U_)
 	window_present(diameter->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(diameter->win->window);
+	gdk_window_raise(gtk_widget_get_window(diameter->win));
 }
 
 static tap_param diameter_stat_params[] = {

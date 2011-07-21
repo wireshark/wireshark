@@ -52,6 +52,7 @@
 
 #include "gtk/main_proto_draw.h"
 
+#include "gtk/old-gtk-compat.h"
 
 enum
 {
@@ -767,7 +768,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     /* This will bring up the progress bar
      * Put our window back in front
      */
-    gdk_window_raise(ss->win->window);
+    gdk_window_raise(gtk_widget_get_window(ss->win));
     /* Set the lable text */
     expert_comp_draw(ss);
 }

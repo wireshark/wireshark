@@ -43,6 +43,7 @@
 #include "gtk/main.h"
 #include "gtk/sctp_stat.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK     4
@@ -125,10 +126,10 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 	gboolean more = FALSE;
 	gint width;
 
-	red_gc = gdk_gc_new(u_data->io->draw_area->window);
+	red_gc = gdk_gc_new(gtk_widget_get_window(u_data->io->draw_area));
 	gdk_gc_set_rgb_fg_color(red_gc, &red_color);
 
-	green_gc = gdk_gc_new(u_data->io->draw_area->window);
+	green_gc = gdk_gc_new(gtk_widget_get_window(u_data->io->draw_area));
 	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
 
 	if (u_data->dir == 1)
@@ -593,7 +594,7 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 	g_assert(ios != NULL);
 
-	gdk_draw_pixmap(u_data->io->draw_area->window,
+	gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 	                gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
 #else
@@ -650,7 +651,7 @@ on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer use
 		u_data->io->pixmap = NULL;
 	}
 
-	u_data->io->pixmap = gdk_pixmap_new(widget->window,
+	u_data->io->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
 	                                    widget->allocation.width,
 	                                    widget->allocation.height,
 	                                    -1);
@@ -675,7 +676,7 @@ on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_
 	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(widget), "sctp_graph_t");
 	g_assert(ios != NULL);
 
-	gdk_draw_pixmap(widget->window,
+	gdk_draw_pixmap(gtk_widget_get_window(widget),
 #if GTK_CHECK_VERSION(2,18,0)
 	                gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
@@ -829,7 +830,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 		g_assert(ios != NULL);
 
-		gdk_draw_pixmap(u_data->io->draw_area->window,
+		gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 		                gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
 #else
@@ -894,7 +895,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 		g_assert(ios != NULL);
 
-		gdk_draw_pixmap(u_data->io->draw_area->window,
+		gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 		                gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
 #else
@@ -1026,7 +1027,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 			g_assert(ios != NULL);
 
-			gdk_draw_pixmap(u_data->io->draw_area->window,
+			gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
 #if GTK_CHECK_VERSION(2,18,0)
 		                    gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
 #else

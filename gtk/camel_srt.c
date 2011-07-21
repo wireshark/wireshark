@@ -54,6 +54,7 @@
 #include "gtk/tap_param_dlg.h"
 #include "gtk/service_response_time_table.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /* used to keep track of the statistics for an entire program interface */
 struct camelsrt_t {
@@ -226,7 +227,7 @@ static void gtk_camelsrt_init(const char *optarg, void *userdata _U_)
   gtk_widget_show_all(p_camelsrt->win);
   window_present(p_camelsrt->win);
   cf_retap_packets(&cfile);
-  gdk_window_raise(p_camelsrt->win->window);
+  gdk_window_raise(gtk_widget_get_window(p_camelsrt->win));
 
 }
 

@@ -52,6 +52,8 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/gui_utils.h"
 
+#include "gtk/old-gtk-compat.h"
+
 enum
 {
     OP_CODE_COLUMN,
@@ -337,7 +339,7 @@ ansi_map_stat_gtk_cb(
      * if the window is already open, bring it to front
      */
     if (dlg.win){
-        gdk_window_raise(dlg.win->window);
+        gdk_window_raise(gtk_widget_get_window(dlg.win));
         return;
     }
 

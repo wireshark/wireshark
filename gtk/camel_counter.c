@@ -52,6 +52,7 @@
 #include "gtk/gui_stat_util.h"
 #include "gtk/tap_param_dlg.h"
 
+#include "gtk/old-gtk-compat.h"
 
 static void gtk_camelcounter_reset(void *phs);
 static int gtk_camelcounter_packet(void *phs,
@@ -210,7 +211,7 @@ static void gtk_camelcounter_init(const char *optarg, void *userdata _U_)
   window_present(p_camelcounter->win);
 
   cf_retap_packets(&cfile);
-  gdk_window_raise(p_camelcounter->win->window);
+  gdk_window_raise(gtk_widget_get_window(p_camelcounter->win));
 }
 
 static tap_param camel_counter_params[] = {

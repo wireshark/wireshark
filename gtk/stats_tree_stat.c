@@ -42,6 +42,7 @@
 #include "gtk/tap_param_dlg.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 struct _st_node_pres {
 	GtkTreeIter*	iter;
@@ -328,7 +329,7 @@ init_gtk_tree(const char* optarg, void *userdata _U_)
 	window_present(st->pr->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(st->pr->win->window);
+	gdk_window_raise(gtk_widget_get_window(st->pr->win));
 }
 
 static tap_param tree_stat_params[] = {

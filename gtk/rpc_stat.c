@@ -55,6 +55,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/filter_autocomplete.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _rpcstat_t {
@@ -314,7 +315,7 @@ gtk_rpcstat_init(const char *optarg, void* userdata _U_)
 	window_present(rs->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(rs->win->window);
+	gdk_window_raise(gtk_widget_get_window(rs->win));
 }
 
 
@@ -431,7 +432,7 @@ gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* if the window is already open, bring it to front */
 	if(dlg){
-		gdk_window_raise(dlg->window);
+		gdk_window_raise(gtk_widget_get_window(dlg));
 		return;
 	}
 

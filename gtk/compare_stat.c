@@ -80,6 +80,9 @@
 #include "color_filters.h"
 #include "color_dlg.h"
 #include "new_packet_list.h"
+
+#include "gtk/old-gtk-compat.h"
+
 /* From colorize convertion */
 #define COLOR_N	1
 
@@ -900,7 +903,7 @@ gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
 
 	/* if the window is already open, bring it to front */
 	if(dlg){
-		gdk_window_raise(dlg->window);
+		gdk_window_raise(gtk_widget_get_window(dlg));
 		return;
 	}
 

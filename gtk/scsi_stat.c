@@ -58,6 +58,7 @@
 #include "gtk/tap_param_dlg.h"
 #include "gtk/gtkglobals.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /* used to keep track of the statistics for an entire scsi command set */
 typedef struct _scsistat_t {
@@ -277,7 +278,7 @@ gtk_scsistat_init(const char *optarg, void* userdata _U_)
 	window_present(rs->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(rs->win->window);
+	gdk_window_raise(gtk_widget_get_window(rs->win));
 }
 
 static enum_val_t scsi_command_sets[] = {

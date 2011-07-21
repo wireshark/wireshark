@@ -52,6 +52,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/main.h"
 
+#include "gtk/old-gtk-compat.h"
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _ldapstat_t {
@@ -232,7 +233,7 @@ gtk_ldapstat_init(const char *optarg, void *userdata _U_)
 	window_present(ldap->win);
 
 	cf_retap_packets(&cfile);
-	gdk_window_raise(ldap->win->window);
+	gdk_window_raise(gtk_widget_get_window(ldap->win));
 }
 
 static tap_param ldap_stat_params[] = {
