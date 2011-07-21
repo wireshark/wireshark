@@ -771,6 +771,7 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
            update_selected_interface(g_strdup(interface_opts.name), TRUE);
         }
     }
+    set_menus_for_number_of_ifaces();
     return TRUE;
 }
 

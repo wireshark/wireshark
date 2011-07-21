@@ -67,6 +67,7 @@
 #include "gtk/capture_globals.h"
 #include "gtk/network_icons.h"
 #include "gtk/main_welcome.h"
+#include "gtk/menus.h"
 
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
@@ -248,6 +249,7 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
 #endif
     gtk_widget_set_sensitive(options_bt, !gbl_capture_in_progress && (currently_selected <= 1));
   }
+  set_menus_for_number_of_ifaces();
 }
 
 /* start capture button was pressed */
