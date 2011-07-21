@@ -1523,21 +1523,12 @@ create_pixels_per_tick_menu_items(io_stat_t *io)
 	char str[5];
 	GtkWidget *combo_box;
 	int i;
-#if GTK_CHECK_VERSION(2,24,0)
 	combo_box = gtk_combo_box_text_new ();
 
 	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
 		g_snprintf(str, 5, "%u", pixels_per_tick[i]);
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
-#else
-	combo_box = gtk_combo_box_new_text ();
-
-	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
-		g_snprintf(str, 5, "%u", pixels_per_tick[i]);
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
-	}
-#endif
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PIXELS_PER_TICK_INDEX);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(pixels_per_tick_select), io);
 
@@ -1563,11 +1554,7 @@ create_tick_interval_menu_items(io_stat_t *io)
 	char str[15];
 	int i;
 
-#if GTK_CHECK_VERSION(2,24,0)
 	combo_box = gtk_combo_box_text_new ();
-#else
-	combo_box = gtk_combo_box_new_text ();
-#endif
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
 		if(tick_interval_values[i]>=60000){
@@ -1581,11 +1568,7 @@ create_tick_interval_menu_items(io_stat_t *io)
 		} else {
 			g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
 		}
-#if GTK_CHECK_VERSION(2,24,0)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
-#else
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
-#endif
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_TICK_VALUE_INDEX);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), io);
@@ -1600,11 +1583,7 @@ create_yscale_max_menu_items(io_stat_t *io)
 	GtkWidget *combo_box;
 	int i;
 
-#if GTK_CHECK_VERSION(2,24,0)
 	combo_box = gtk_combo_box_text_new ();
-#else
-	combo_box = gtk_combo_box_new_text ();
-#endif
 	for(i=0;i<MAX_YSCALE;i++){
 		if(yscale_max[i]==LOGARITHMIC_YSCALE){
 			g_strlcpy(str, "Logarithmic", 15);
@@ -1613,11 +1592,7 @@ create_yscale_max_menu_items(io_stat_t *io)
 		} else {
 			g_snprintf(str, 15, "%u", yscale_max[i]);
 		}
-#if GTK_CHECK_VERSION(2,24,0)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
-#else
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
-#endif
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_YSCALE_INDEX);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), io);
@@ -1663,18 +1638,10 @@ create_frames_or_bytes_menu_items(io_stat_t *io)
 	GtkWidget *combo_box;
 	int i;
 
-#if GTK_CHECK_VERSION(2,24,0)
 	combo_box = gtk_combo_box_text_new ();
-#else
-	combo_box = gtk_combo_box_new_text ();
-#endif
 
 	for(i=0;i<MAX_COUNT_TYPES;i++){
-#if GTK_CHECK_VERSION(2,24,0)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), count_type_names[i]);
-#else
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), count_type_names[i]);
-#endif
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_COUNT_TYPE);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(count_type_select), io);
@@ -1914,17 +1881,9 @@ create_calc_types_menu_items(io_stat_graph_t *gio)
 	GtkWidget *combo_box;
 	int i;
 
-#if GTK_CHECK_VERSION(2,24,0)
 	combo_box = gtk_combo_box_text_new ();
-#else
-	combo_box = gtk_combo_box_new_text ();
-#endif
 	for(i=0;i<MAX_CALC_TYPES;i++){
-#if GTK_CHECK_VERSION(2,24,0)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), calc_type_names[i]);
-#else
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), calc_type_names[i]);
-#endif
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_CALC_TYPE);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(calc_type_select), gio);
@@ -2065,17 +2024,9 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-#if GTK_CHECK_VERSION(2,24,0)
 	combo_box = gtk_combo_box_text_new ();
-#else
-	combo_box = gtk_combo_box_new_text ();
-#endif
 	for(i=0;i<MAX_PLOT_STYLES;i++){
-#if GTK_CHECK_VERSION(2,24,0)
 		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), plot_style_name[i]);
-#else
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), plot_style_name[i]);
-#endif
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_PLOT_STYLE);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(plot_style_select), &gio->io->graphs[num-1]);

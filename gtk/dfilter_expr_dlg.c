@@ -56,6 +56,7 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/dfilter_expr_dlg.h"
 
+#include "gtk/old-gtk-compat.h"
 
 #define E_DFILTER_EXPR_TREE_KEY			"dfilter_expr_tree"
 #define E_DFILTER_EXPR_CURRENT_VAR_KEY		"dfilter_expr_current_var"
@@ -643,11 +644,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     /*
      * Get the range to use, if any.
      */
-#if GTK_CHECK_VERSION(2,20,0)
     if (gtk_widget_get_sensitive(range_entry)) {
-#else
-    if (GTK_WIDGET_SENSITIVE(range_entry)) {
-#endif
         range_str = g_strdup(gtk_entry_get_text(GTK_ENTRY(range_entry)));
         /*
          * XXX - strip this even for strings?
@@ -725,11 +722,7 @@ dfilter_expr_dlg_accept_cb(GtkWidget *w, gpointer filter_te_arg)
     /*
      * Get the value to use, if any.
      */
-#if GTK_CHECK_VERSION(2,20,0)
     if (gtk_widget_get_sensitive(value_entry)) {
-#else
-    if (GTK_WIDGET_SENSITIVE(value_entry)) {
-#endif
         value_str = g_strdup(gtk_entry_get_text(GTK_ENTRY(value_entry)));
         stripped_value_str = g_strstrip(value_str);
         if (strcmp(stripped_value_str, "") == 0) {

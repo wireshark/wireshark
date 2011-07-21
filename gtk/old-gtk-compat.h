@@ -41,4 +41,28 @@
 #	define gtk_adjustment_get_page_size(adj) (adj)->page_size
 #endif
 
+#if !GTK_CHECK_VERSION (2, 16, 0)
+#	define GTK_ORIENTABLE(x) GTK_TOOLBAR(x)
+#endif
+
+#if !GTK_CHECK_VERSION (2, 18, 0)
+#endif
+
+#if !GTK_CHECK_VERSION (2, 20, 0)
+#	define gtk_widget_get_sensitive(x) GTK_WIDGET_SENSITIVE(x)
+#	define gtk_widget_get_realized(x) GTK_WIDGET_REALIZED(x)
+#endif
+
+#if !GTK_CHECK_VERSION (2, 22, 0)
+#endif
+
+#if !GTK_CHECK_VERSION (2, 24, 0)
+#	define GTK_COMBO_BOX_TEXT(x) GTK_COMBO_BOX(x)
+#	define gtk_combo_box_text_get_active_text(x) gtk_combo_box_get_active_text(x)
+#	define gtk_combo_box_text_new(x) gtk_combo_box_new_text(x)
+#	define gtk_combo_box_text_append_text(x,y) gtk_combo_box_append_text(x,y)
+#	define gtk_combo_box_text_new_with_entry() gtk_combo_box_entry_new_text()
+#	define gtk_combo_box_text_prepend_text(x,y) gtk_combo_box_prepend_text(x,y)
+#endif
+
 #endif

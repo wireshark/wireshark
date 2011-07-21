@@ -60,6 +60,8 @@
 #include "gtk/packet_history.h"
 #include "gtk/new_packet_list.h"
 
+#include "gtk/old-gtk-compat.h"
+
 static gboolean toolbar_init = FALSE;
 
 #ifdef HAVE_LIBPCAP
@@ -287,13 +289,8 @@ toolbar_new(void)
     /* toolbar will be horizontal, with both icons and text (as default here) */
     /* (this will usually be overwritten by the preferences setting) */
     main_tb = gtk_toolbar_new();
-#if GTK_CHECK_VERSION(2,16,0)
     gtk_orientable_set_orientation(GTK_ORIENTABLE(main_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
-#else
-    gtk_toolbar_set_orientation(GTK_TOOLBAR(main_tb),
-                                GTK_ORIENTATION_HORIZONTAL);
-#endif
 
     g_object_set_data(G_OBJECT(top_level), E_TB_MAIN_KEY, main_tb);
 
