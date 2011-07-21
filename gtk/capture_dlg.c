@@ -1892,14 +1892,14 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 #ifdef HAVE_AIRPCAP
   /* get the airpcap interface (if it IS an airpcap interface, and update the
      toolbar... and of course enable the advanced button...)*/
-  if (global_capture_opts.ifaces->len >= 0)
+  if (global_capture_opts.ifaces->len > 0)
     airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,interface_opts.name);
 #endif
 
   free_capture_combo_list(combo_list);
 #ifdef HAVE_PCAP_REMOTE
   /* Only delete if fetched local */
-  if (global_capture_opts.ifaces->len >= 0 && interface_opts.src_type == CAPTURE_IFLOCAL)
+  if (global_capture_opts.ifaces->len > 0 && interface_opts.src_type == CAPTURE_IFLOCAL)
 #endif
   free_interface_list(if_list);
   gtk_widget_set_tooltip_text(if_cb,
