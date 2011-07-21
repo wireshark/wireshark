@@ -973,7 +973,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 * Clear out old plot
 	 */
 	gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
-			   user_data->dlg.dialog_graph.draw_area->style->white_gc,
+			   gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->white_gc,
 			   TRUE,
 			   0, 0,
 			   user_data->dlg.dialog_graph.draw_area->allocation.width,
@@ -1028,7 +1028,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 * Draw the y axis and labels
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
-	gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc,
+	gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 		user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
 		top_y_border,
 		user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
@@ -1042,7 +1042,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			xwidth=10;
 		}
 		/* draw the tick */
-		gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc,
+		gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 			user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
 			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10,
 			user_data->dlg.dialog_graph.pixmap_width-right_x_border+1+xwidth,
@@ -1053,7 +1053,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					user_data->dlg.dialog_graph.draw_area->style->black_gc,
+					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 					user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
 					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
 					layout);
@@ -1063,7 +1063,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					user_data->dlg.dialog_graph.draw_area->style->black_gc,
+					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 					user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
 					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
 					layout);
@@ -1073,7 +1073,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					user_data->dlg.dialog_graph.draw_area->style->black_gc,
+					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 					user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
 					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
 					layout);
@@ -1098,7 +1098,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 
 /*XXX*/
 	/* plot the x-scale */
-	gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc, left_x_border, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1);
+	gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc, left_x_border, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1);
 
 	if((last_interval/user_data->dlg.dialog_graph.interval)>draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1){
 		first_interval=(last_interval/user_data->dlg.dialog_graph.interval)-draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1;
@@ -1133,7 +1133,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 		}
 
 		x=draw_width+left_x_border-((last_interval-current_interval)/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.pixels_per_tick;
-		gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.draw_area->style->black_gc,
+		gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 			      x-1-user_data->dlg.dialog_graph.pixels_per_tick/2,
 			      user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1,
 			      x-1-user_data->dlg.dialog_graph.pixels_per_tick/2,
@@ -1155,7 +1155,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					user_data->dlg.dialog_graph.draw_area->style->black_gc,
+					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 					x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
 					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20,
 					layout);
@@ -1176,7 +1176,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-			user_data->dlg.dialog_graph.draw_area->style->black_gc,
+			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 			user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
 			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
 			layout);
@@ -1184,7 +1184,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
 	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-			user_data->dlg.dialog_graph.draw_area->style->black_gc,
+			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 			user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
 			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9,
 			layout);
@@ -1214,7 +1214,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 				pango_layout_set_text(layout, label_string, -1);
 				pango_layout_get_pixel_size(layout, &lwidth, NULL);
 				gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					user_data->dlg.dialog_graph.draw_area->style->black_gc,
+					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
 					x_pos-1-lwidth/2,
 					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2),
 					layout);
@@ -1272,9 +1272,9 @@ static void dialog_graph_draw(user_data_t* user_data)
 
 	gdk_draw_pixmap(user_data->dlg.dialog_graph.draw_area->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			user_data->dlg.dialog_graph.draw_area->style->fg_gc[gtk_widget_get_state(user_data->dlg.dialog_graph.draw_area)],
+			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->fg_gc[gtk_widget_get_state(user_data->dlg.dialog_graph.draw_area)],
 #else
-			user_data->dlg.dialog_graph.draw_area->style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.dialog_graph.draw_area)],
+			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->fg_gc[GTK_WIDGET_STATE(user_data->dlg.dialog_graph.draw_area)],
 #endif
 			user_data->dlg.dialog_graph.pixmap,
 			0, 0,
@@ -1332,9 +1332,9 @@ static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event,
 
 	gdk_draw_pixmap(widget->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			widget->style->fg_gc[gtk_widget_get_state(widget)],
+			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
-			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			gtk_widget_get_style(widget)->fg_gc[GTK_WIDGET_STATE(widget)],
 #endif
 			user_data->dlg.dialog_graph.pixmap,
 			event->area.x, event->area.y,
@@ -1363,7 +1363,7 @@ static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *
 	user_data->dlg.dialog_graph.pixmap_height=widget->allocation.height;
 
 	gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
-			widget->style->white_gc,
+			gtk_widget_get_style(widget)->white_gc,
 			TRUE,
 			0, 0,
 			widget->allocation.width,

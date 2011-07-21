@@ -765,7 +765,7 @@ static void create_drawing_area (struct graph *g)
 	g->wp.height = GTK_WIDGET (g->drawing_area)->allocation.height -
 						g->wp.y - g->x_axis->s.height;
 
-        g->font = g->drawing_area->style->font_desc;
+        g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
 
 	colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
 	if (!xor_gc) {

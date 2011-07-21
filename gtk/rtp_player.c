@@ -969,9 +969,9 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 
 		gdk_draw_drawable(rci->draw_area->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			rci->draw_area->style->fg_gc[gtk_widget_get_state(rci->draw_area)],
+			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
 #else
-			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
+			gtk_widget_get_style(rci->draw_area)->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
 #endif
 			rci->pixmap,
 			(int) (rci->cursor_prev/MULT), 0,
@@ -985,7 +985,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	if (idx>0 && (rci->cursor_prev>=0)) {
 		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (idx/MULT), 0, 0, 0, 1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
-		gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
+		gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 			(int) (idx/MULT),
 			0,
 			(int) (idx/MULT),
@@ -993,9 +993,9 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 
 		gdk_draw_drawable(rci->draw_area->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			rci->draw_area->style->fg_gc[gtk_widget_get_state(rci->draw_area)],
+			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
 #else
-			rci->draw_area->style->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
+			gtk_widget_get_style(rci->draw_area)->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
 #endif
 			rci->pixmap,
 			(int) (idx/MULT), 0,
@@ -1315,7 +1315,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 		/* calculated the pixel offset to display integer seconds */
 		offset = ((double)rci->start_time/1000 - floor((double)rci->start_time/1000))*SAMPLE_RATE/MULT;
 
-		gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
+		gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 				0,
 				rci->draw_area->allocation.height-HEIGHT_TIME_LABEL,
 				rci->draw_area->allocation.width,
@@ -1370,7 +1370,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 			} else if (status == S_SILENCE) {
 				gc = white_gc;
 			} else {
-				gc = rci->draw_area->style->black_gc;
+				gc = gtk_widget_get_style(rci->draw_area)->black_gc;
 			}
 
 			/* if silence added by Wireshark, graphically show it with letter to indicate why */
@@ -1405,7 +1405,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 			/* Draw tick mark and put a number for each whole second */
 			if ( !((i*MULT)%(SAMPLE_RATE)) ) {
-				gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
+				gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 					(int) (i - offset),
 					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL,
 					(int) (i - offset),
@@ -1422,14 +1422,14 @@ static void channel_draw(rtp_channel_info_t* rci)
 				pango_layout_set_text(small_layout, label_string, -1);
 				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
 				gdk_draw_layout(rci->pixmap,
-					rci->draw_area->style->black_gc,
+					gtk_widget_get_style(rci->draw_area)->black_gc,
 					(int) (i - offset - label_width/2),
 					rci->draw_area->allocation.height - label_height,
 					small_layout);
 
 			/* Draw only a tick mark for half second intervals */
 			} else if ( !((i*MULT)%(SAMPLE_RATE/2)) ) {
-				gdk_draw_line(rci->pixmap, rci->draw_area->style->black_gc,
+				gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 					(int) (i - offset),
 					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL,
 					(int) (i - offset),
@@ -1450,9 +1450,9 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 	if (GDK_IS_DRAWABLE(widget->window))
 		gdk_draw_drawable(widget->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			widget->style->fg_gc[gtk_widget_get_state(widget)],
+			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
-			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			gtk_widget_get_style(widget)->fg_gc[GTK_WIDGET_STATE(widget)],
 #endif
 			rci->pixmap,
 			event->area.x, event->area.y,
@@ -1499,7 +1499,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 
 	if ( GDK_IS_DRAWABLE(rci->pixmap) )
 		gdk_draw_rectangle(rci->pixmap,
-			widget->style->white_gc,
+			gtk_widget_get_style(widget)->white_gc,
 			TRUE,
 			0, 0,
 			widget->allocation.width,

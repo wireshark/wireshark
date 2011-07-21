@@ -754,7 +754,7 @@ io_stat_draw(io_stat_t *io)
 	 * Clear out old plot
 	 */
 	gdk_draw_rectangle(io->pixmap,
-			   io->draw_area->style->white_gc,
+			   gtk_widget_get_style(io->draw_area)->white_gc,
 			   TRUE,
 			   0, 0,
 			   io->draw_area->allocation.width,
@@ -860,7 +860,7 @@ io_stat_draw(io_stat_t *io)
 		g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
 		pango_layout_set_text(layout, label_string, -1);
 		gdk_draw_layout(io->pixmap,
-				io->draw_area->style->black_gc, 5,
+				gtk_widget_get_style(io->draw_area)->black_gc, 5,
 				io->pixmap_height-bottom_y_border-draw_height-label_height/2,
 				layout);
 	}
@@ -869,7 +869,7 @@ io_stat_draw(io_stat_t *io)
 	 * Draw the y axis and labels
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
-	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
+	gdk_draw_line(io->pixmap, gtk_widget_get_style(io->draw_area)->black_gc,
 		io->pixmap_width-io->right_x_border+1,
 		top_y_border,
 		io->pixmap_width-io->right_x_border+1,
@@ -901,7 +901,7 @@ io_stat_draw(io_stat_t *io)
 				for(j=2;j<10;j++) {
 					ypos=(int)(io->pixmap_height-bottom_y_border-(draw_height-ystart)*(i+log10((double)j))/tics-ystart);
 					/* draw the tick */
-					gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
+					gdk_draw_line(io->pixmap, gtk_widget_get_style(io->draw_area)->black_gc,
 						      io->pixmap_width-io->right_x_border+1, ypos,
 						      io->pixmap_width-io->right_x_border+1+xwidth, ypos);
 				}
@@ -917,7 +917,7 @@ io_stat_draw(io_stat_t *io)
 			ypos=io->pixmap_height-bottom_y_border-draw_height*i/10;
 		}
 		/* draw the tick */
-		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
+		gdk_draw_line(io->pixmap, gtk_widget_get_style(io->draw_area)->black_gc,
 			      io->pixmap_width-io->right_x_border+1, ypos,
 			      io->pixmap_width-io->right_x_border+1+xwidth, ypos);
 		/* draw the labels */
@@ -942,7 +942,7 @@ io_stat_draw(io_stat_t *io)
 	                pango_layout_set_text(layout, label_string, -1);
 	                pango_layout_get_pixel_size(layout, &lwidth, NULL);
 			gdk_draw_layout(io->pixmap,
-					io->draw_area->style->black_gc,
+					gtk_widget_get_style(io->draw_area)->black_gc,
 					io->pixmap_width-io->right_x_border+15+label_width-lwidth,
 					ypos-label_height/2,
 	                                layout);
@@ -966,7 +966,7 @@ io_stat_draw(io_stat_t *io)
 
 /*XXX*/
 	/* plot the x-scale */
-	gdk_draw_line(io->pixmap, io->draw_area->style->black_gc, io->left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-io->right_x_border+1, io->pixmap_height-bottom_y_border+1);
+	gdk_draw_line(io->pixmap, gtk_widget_get_style(io->draw_area)->black_gc, io->left_x_border, io->pixmap_height-bottom_y_border+1, io->pixmap_width-io->right_x_border+1, io->pixmap_height-bottom_y_border+1);
 
 	if((last_interval/io->interval)>=draw_width/io->pixels_per_tick){
 		first_interval=(last_interval/io->interval)-draw_width/io->pixels_per_tick+1;
@@ -995,7 +995,7 @@ io_stat_draw(io_stat_t *io)
 		}
 
 		x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
-		gdk_draw_line(io->pixmap, io->draw_area->style->black_gc,
+		gdk_draw_line(io->pixmap, gtk_widget_get_style(io->draw_area)->black_gc,
 			x-1-io->pixels_per_tick/2,
 			io->pixmap_height-bottom_y_border+1,
 			x-1-io->pixels_per_tick/2,
@@ -1016,7 +1016,7 @@ io_stat_draw(io_stat_t *io)
 			}
 
 			gdk_draw_layout(io->pixmap,
-					io->draw_area->style->black_gc,
+					gtk_widget_get_style(io->draw_area)->black_gc,
 					x_pos,
 					io->pixmap_height-bottom_y_border+15,
 					layout);
@@ -1117,9 +1117,9 @@ io_stat_draw(io_stat_t *io)
 
 	gdk_draw_pixmap(io->draw_area->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			io->draw_area->style->fg_gc[gtk_widget_get_state(io->draw_area)],
+			gtk_widget_get_style(io->draw_area)->fg_gc[gtk_widget_get_state(io->draw_area)],
 #else
-			io->draw_area->style->fg_gc[GTK_WIDGET_STATE(io->draw_area)],
+			gtk_widget_get_style(io->draw_area)->fg_gc[GTK_WIDGET_STATE(io->draw_area)],
 #endif
 			io->pixmap,
 			0, 0,
@@ -1410,7 +1410,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 	gtk_widget_set_sensitive(save_bt, TRUE);
 
 	gdk_draw_rectangle(io->pixmap,
-			widget->style->white_gc,
+			gtk_widget_get_style(widget)->white_gc,
 			TRUE,
 			0, 0,
 			widget->allocation.width,
@@ -1459,9 +1459,9 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_d
 
 	gdk_draw_pixmap(widget->window,
 #if GTK_CHECK_VERSION(2,18,0)
-			widget->style->fg_gc[gtk_widget_get_state(widget)],
+			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
 #else
-			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
+			gtk_widget_get_style(widget)->fg_gc[GTK_WIDGET_STATE(widget)],
 #endif
 			io->pixmap,
 			event->area.x, event->area.y,
