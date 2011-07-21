@@ -60,7 +60,7 @@ enum {
 
 static const gchar *ue_titles[] = { " UEId",
                                     "UL Frames", "UL Bytes", "   UL Mbs", "UL ACKs", "UL NACKs", "UL Missed",
-                                    "DL Frames", "DL Bytes", "   DL Mbs", "UL ACKs", "DL NACKs", "DL Missed"};
+                                    "DL Frames", "DL Bytes", "   DL Mbs", "DL ACKs", "DL NACKs", "DL Missed"};
 
 /* Stats for one UE */
 typedef struct rlc_lte_row_data {
@@ -156,6 +156,8 @@ static rlc_lte_ep_t* alloc_rlc_lte_ep(struct rlc_lte_tap_info *si, packet_info *
     ep->stats.DL_total_bytes = 0;
     memset(&ep->stats.DL_time_start, 0, sizeof(nstime_t));
     memset(&ep->stats.DL_time_stop, 0, sizeof(nstime_t));
+    ep->stats.UL_total_acks = 0;
+    ep->stats.DL_total_acks = 0;
     ep->stats.UL_total_nacks = 0;
     ep->stats.DL_total_nacks = 0;
     ep->stats.UL_total_missing = 0;
