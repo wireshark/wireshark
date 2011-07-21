@@ -1444,12 +1444,6 @@ main(int argc, char *argv[])
           }
         }
 
-        if((wtap_snapshot_length(wth) != 0) && (phdr->caplen > wtap_snapshot_length(wth))) {
-            fprintf(stderr, "Warning: packet %d too big for file type, skipping it...\n", count);
-            count++;
-            continue;
-        }
-
         if (!wtap_dump(pdh, phdr, wtap_pseudoheader(wth), buf, &err)) {
           fprintf(stderr, "editcap: Error writing to %s: %s\n",
                   filename, wtap_strerror(err));
