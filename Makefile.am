@@ -823,45 +823,46 @@ EXTRA_DIST = \
 	wiretap/CMakeLists.txt	\
 	README.cmake		\
 	ConfigureChecks.cmake	\
-	cmake/modules/readme.txt		\
-	cmake/modules/FindLYNX.cmake		\
-	cmake/modules/FindYACC.cmake		\
+	cmake/modules/CMakeInstallDirs.cmake	\
+	cmake/modules/COPYING-CMAKE-SCRIPTS	\
+	cmake/modules/CheckCLinkerFlag.cmake	\
 	cmake/modules/FeatureSummary.cmake	\
 	cmake/modules/FindADNS.cmake		\
 	cmake/modules/FindCAP.cmake		\
-	cmake/modules/UseLemon.cmake		\
-	cmake/modules/FindPCRE.cmake		\
-	cmake/modules/FindZLIB.cmake		\
-	cmake/modules/FindPORTAUDIO.cmake	\
-	cmake/modules/FindPCAP.cmake		\
-	cmake/modules/FindSMI.cmake		\
 	cmake/modules/FindCARES.cmake		\
-	cmake/modules/FindXSLTPROC.cmake	\
-	cmake/modules/FindSH.cmake		\
-	cmake/modules/FindGNUTLS.cmake		\
-	cmake/modules/FindGCRYPT.cmake		\
-	cmake/modules/UseMakeDissectorReg.cmake	\
-	cmake/modules/FindLEX.cmake		\
-	cmake/modules/FindPYTHON.cmake		\
-	cmake/modules/FindLUA.cmake		\
-	cmake/modules/FindYAPP.cmake		\
-	cmake/modules/FindGEOIP.cmake		\
-	cmake/modules/FindXMLLINT.cmake		\
-	cmake/modules/FindSED.cmake		\
-	cmake/modules/FindGLIB2.cmake		\
-	cmake/modules/FindGMODULE2.cmake		\
-	cmake/modules/FindGTHREAD2.cmake		\
-	cmake/modules/FindHtmlViewer.cmake	\
-	cmake/modules/FindGTK2.cmake		\
 	cmake/modules/FindFOP.cmake		\
-	cmake/modules/LICENSE.txt		\
-	cmake/modules/CMakeInstallDirs.cmake	\
-	cmake/modules/CheckCLinkerFlag.cmake	\
-	cmake/modules/COPYING-CMAKE-SCRIPTS	\
-	cmake/modules/UseMakeTapReg.cmake	\
-	cmake/modules/FindM.cmake		\
+	cmake/modules/FindGCRYPT.cmake		\
+	cmake/modules/FindGEOIP.cmake		\
+	cmake/modules/FindGLIB2.cmake		\
+	cmake/modules/FindGMODULE2.cmake	\
+	cmake/modules/FindGNUTLS.cmake		\
+	cmake/modules/FindGTHREAD2.cmake	\
+	cmake/modules/FindGTK2.cmake		\
+	cmake/modules/FindGTK3.cmake		\
+	cmake/modules/FindHtmlViewer.cmake	\
 	cmake/modules/FindKERBEROS.cmake	\
+	cmake/modules/FindLEX.cmake		\
+	cmake/modules/FindLUA.cmake		\
+	cmake/modules/FindLYNX.cmake		\
+	cmake/modules/FindM.cmake		\
+	cmake/modules/FindPCAP.cmake		\
+	cmake/modules/FindPCRE.cmake		\
 	cmake/modules/FindPOD.cmake		\
+	cmake/modules/FindPORTAUDIO.cmake	\
+	cmake/modules/FindPYTHON.cmake		\
+	cmake/modules/FindSED.cmake		\
+	cmake/modules/FindSH.cmake		\
+	cmake/modules/FindSMI.cmake		\
+	cmake/modules/FindXMLLINT.cmake		\
+	cmake/modules/FindXSLTPROC.cmake	\
+	cmake/modules/FindYACC.cmake		\
+	cmake/modules/FindYAPP.cmake		\
+	cmake/modules/FindZLIB.cmake		\
+	cmake/modules/LICENSE.txt		\
+	cmake/modules/UseLemon.cmake		\
+	cmake/modules/UseMakeDissectorReg.cmake	\
+	cmake/modules/UseMakeTapReg.cmake	\
+	cmake/modules/readme.txt		\
 	win32/Makefile.nmake	\
 	win32/file_dlg_win32.c		\
 	win32/file_dlg_win32.h		\
