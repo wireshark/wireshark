@@ -295,6 +295,7 @@ noinst_HEADERS = \
 	mtp3_stat.h	\
 	network_icons.h	\
 	new_packet_list.h \
+	old-gtk-compat.h	\
 	packet_history.h	\
 	packet_list_store.h	\
 	packet_win.h	\
