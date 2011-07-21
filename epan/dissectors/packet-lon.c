@@ -336,7 +336,8 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			length = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_NA);
 			offset++;
-			proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
+			if (length > 0)
+				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 		} else {
@@ -367,7 +368,8 @@ dissect_lon(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			length = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(lon_tree, hf_lon_mlen, tvb, offset, 1, ENC_NA);
 			offset++;
-			proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
+			if (length > 0)
+				proto_tree_add_item(lon_tree, hf_lon_mlist, tvb, offset, length, ENC_NA);
 			offset += length;
 			offset += dissect_apdu(lon_tree, pinfo, tvb, offset);
 		} else {
@@ -594,12 +596,12 @@ proto_register_lon(void)
 			NULL, HFILL }
 		},
 		{&hf_lon_mlen,
-			{"SPDU Length of M_List", "lon.spdu.mlen",
+			{"Length of M_List", "lon.spdu.mlen",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
 		{&hf_lon_mlist,
-			{"SPDU M_List", "lon.spdu.mlist",
+			{"M_List", "lon.spdu.mlist",
 			FT_UINT8, BASE_HEX, NULL, 0,
 			NULL, HFILL }
 		},
