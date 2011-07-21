@@ -1739,7 +1739,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     if (g_list_length(if_list) > 0) {
       if_info = g_list_first(if_list)->data;
-      interface_opts.name = strdup(if_info->name);
+      interface_opts.name = g_strdup(if_info->name);
       interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
       interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);  
       interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
