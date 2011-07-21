@@ -24,24 +24,14 @@ There are two ways to make the Wireshark code gtk3 ready:
   version of gtk2 and turn on one or more of these flags, you can find many
   things that are not gtk3 compatible yet. 
 
-Some statistics (as of rev 38092)
+Some statistics (as of rev 38150)
 
 -DGSEAL_ENABLE
   grep error: make.log| cut -d: -f5 | sort | uniq -c
-      1  ‘GtkAdjustment’ has no member named ‘lower’
-      7  ‘GtkAdjustment’ has no member named ‘page_increment’
-     18  ‘GtkAdjustment’ has no member named ‘page_size’
-      4  ‘GtkAdjustment’ has no member named ‘step_increment’
-      8  ‘GtkAdjustment’ has no member named ‘upper’
-     14  ‘GtkAdjustment’ has no member named ‘value’
-      1  ‘GtkCheckMenuItem’ has no member named ‘active’
       1  ‘GtkDialog’ has no member named ‘vbox’
-      1  ‘GtkTable’ has no member named ‘nrows’
-     43  ‘GtkToggleButton’ has no member named ‘active’
       4  ‘GtkTreeViewColumn’ has no member named ‘button’
      79  ‘GtkWidget’ has no member named ‘allocation’
-    103  ‘GtkWidget’ has no member named ‘style’
-    113  ‘GtkWidget’ has no member named ‘window’
+      1  ‘GtkWidget’ has no member named ‘window’
 
 -DGDK_DISABLE_DEPRECATED
   grep error: make.log| grep -v assignment | cut -d: -f5 | sort | uniq -c
