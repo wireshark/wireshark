@@ -1197,14 +1197,10 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 /* 8.4.5.4.3 (table 290) */
 guint wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo _U_, tvbuff_t *tvb, guint offset, guint nibble_offset)
 {
-	guint byte;
-
 #ifdef DEBUG
 	/* update the info column */
 	col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CDMA Allocation IE");
 #endif
-	/* Get the first byte */
-	byte = tvb_get_guint8(tvb, offset);
 	if(nibble_offset & 1)
 	{	/* display the Duration */
 		proto_tree_add_item(tree, hf_cdma_allocation_duration_1, tvb, offset, 2, FALSE);

@@ -714,7 +714,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	gint length, i, cid_index;
 	guint tvb_len, ret_length, ubyte, new_tvb_len;
 	guint new_payload_len = 0;
-	guint mac_ht, mac_ec, mac_esf, mac_ci, mac_eks, mac_len, mac_cid, cid;
+	guint /*mac_ht,*/ mac_ec, mac_esf, mac_ci, /*mac_eks,*/ mac_len, mac_cid, cid;
 	guint ffb_grant_mgmt_subheader, packing_subheader, fragment_subheader;
 	guint mesh_subheader;
 	guint packing_length;
@@ -761,7 +761,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		/* Get the first byte */
 		ubyte = tvb_get_guint8(tvb, offset);
 		/* get the Header Type (HT) */
-		mac_ht = ((ubyte & WIMAX_MAC_HEADER_GENERIC_HT_MASK)?1:0);
+		/*mac_ht = ((ubyte & WIMAX_MAC_HEADER_GENERIC_HT_MASK)?1:0); XX: not used ?? */
 		/* get the Encryption Control (EC) */
 		mac_ec = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EC_MASK)?1:0);
 		/* get the sub types */
@@ -778,7 +778,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		/* get the CRC indicator (CI) */
 		mac_ci = ((ubyte & WIMAX_MAC_HEADER_GENERIC_CI_MASK)?1:0);
 		/* get the Encryption key sequence (EKS) */
-		mac_eks = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EKS_MASK)>>4);
+		/*mac_eks = ((ubyte & WIMAX_MAC_HEADER_GENERIC_EKS_MASK)>>4); XX: not used ?? */
 		/* get the MAC length */
 		mac_len = (tvb_get_ntohs(tvb, (offset+1)) & WIMAX_MAC_HEADER_GENERIC_LEN);
 		/* get the CID */

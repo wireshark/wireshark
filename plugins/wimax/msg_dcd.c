@@ -339,7 +339,6 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 {
 	guint offset = 0;
 	guint tvb_len, payload_type, length;
-	guint configChangeCount;
 	gint  tlv_type, tlv_len, tlv_offset, tlv_value_offset;
 	guint dl_burst_diuc, dl_num_regions;
 	proto_item *dcd_item = NULL;
@@ -372,8 +371,6 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		proto_tree_add_item(dcd_tree, hf_dcd_downlink_channel_id, tvb, offset, 1, FALSE);
 		/* set the offset for the Configuration Change Count */
 		offset++;
-		/* get the Configuration Change Count */
-		configChangeCount = tvb_get_guint8(tvb, offset);
 		/* display the Configuration Change Count */
 		proto_tree_add_item(dcd_tree, hf_dcd_config_change_count, tvb, offset, 1, FALSE);
 		/* set the offset for the TLV Encoded info */

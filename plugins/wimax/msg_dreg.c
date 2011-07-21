@@ -148,12 +148,6 @@ Action Code 03 cancels this restriction"},
 /* Decode sub-TLV's of either DREG-REQ or DREG-CMD. */
 static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb, guint tlv_offset, guint tlv_len)
 {
-	guint tvb_len;
-	/*guint tlv_len;*/
-
-	/* Get the tvb reported length */
-	tvb_len =  tvb_reported_length(tvb);
-
 	switch (tlv_type) {
 		case DREG_PAGING_INFO:
 			proto_tree_add_item(dreg_tree, hf_dreg_paging_cycle, tvb, tlv_offset, 2, FALSE);

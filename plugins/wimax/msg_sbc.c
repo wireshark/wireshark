@@ -541,7 +541,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	guint offset = 0;
 	guint tvb_len, payload_type, value;
 	gint  tlv_type, tlv_len, tlv_value_offset;
-	guint num_dl_harq_chans;
+	/*guint num_dl_harq_chans;*/
 	proto_item *sbc_item = NULL;
 	proto_tree *sbc_tree = NULL;
 	proto_item *tlv_item = NULL;
@@ -732,7 +732,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
 					/* get and save the value */
-					num_dl_harq_chans = tvb_get_guint8(tvb, offset);
+					/*num_dl_harq_chans = tvb_get_guint8(tvb, offset);*/
 					proto_tree_add_item(tlv_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
 				break;
 				case SBC_SS_PERMUTATION_SUPPORT:
@@ -1096,7 +1096,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 	guint tvb_len, payload_type, value;
 	gint  tlv_type, tlv_len, tlv_value_offset;
 /*	guint ssttg, ssrtg;*/
-	guint num_dl_harq_chans; /*, num_ul_harq_chans;*/
+	/*guint num_dl_harq_chans, num_ul_harq_chans;*/
 	proto_item *sbc_item = NULL;
 	proto_tree *sbc_tree = NULL;
 	proto_item *tlv_item = NULL;
@@ -1278,7 +1278,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
 					/* get and save the value */
-					num_dl_harq_chans = tvb_get_guint8(tvb, offset);
+					/*num_dl_harq_chans = tvb_get_guint8(tvb, offset);*/
 					proto_tree_add_item(tlv_tree, hf_sbc_number_dl_arq_ack_channel, tvb, offset, tlv_len, FALSE);
 				break;
 				case SBC_SS_PERMUTATION_SUPPORT:

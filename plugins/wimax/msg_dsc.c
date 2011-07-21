@@ -68,7 +68,6 @@ void dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
-	guint dsc_transaction_id;
 	proto_item *dsc_item = NULL;
 	proto_tree *dsc_tree = NULL;
 
@@ -91,8 +90,6 @@ void dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		proto_tree_add_item(dsc_tree, hf_dsc_req_message_type, tvb, offset, 1, FALSE);
 		/* move to next field */
 		offset++;
-		/* get the Configuration Change Count */
-		dsc_transaction_id = tvb_get_ntohs(tvb, offset);
 		/* display the Transaction ID */
 		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, FALSE);
 		/* move to next field */
@@ -106,7 +103,6 @@ void dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
-	guint dsc_transaction_id;
 	proto_item *dsc_item = NULL;
 	proto_tree *dsc_tree = NULL;
 
@@ -129,8 +125,6 @@ void dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		proto_tree_add_item(dsc_tree, hf_dsc_rsp_message_type, tvb, offset, 1, FALSE);
 		/* move to next field */
 		offset++;
-		/* get the Configuration Change Count */
-		dsc_transaction_id = tvb_get_ntohs(tvb, offset);
 		/* display the Transaction ID */
 		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, FALSE);
 		/* move to next field */
@@ -148,7 +142,6 @@ void dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 {
 	guint offset = 0;
 	guint tvb_len, payload_type;
-	guint dsc_transaction_id;
 	proto_item *dsc_item = NULL;
 	proto_tree *dsc_tree = NULL;
 
@@ -171,8 +164,6 @@ void dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		proto_tree_add_item(dsc_tree, hf_dsc_ack_message_type, tvb, offset, 1, FALSE);
 		/* move to next field */
 		offset++;
-		/* get the Configuration Change Count */
-		dsc_transaction_id = tvb_get_ntohs(tvb, offset);
 		/* display the Transaction ID */
 		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, FALSE);
 		/* move to next field */

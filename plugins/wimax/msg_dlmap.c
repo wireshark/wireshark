@@ -1839,7 +1839,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
     gint alt_format = 0;
     guint data = 0;
     gint i;
-    gint papr = 0;
+    /*gint papr = 0;*/
     gint ie_len = 9;
 
     gint n_cid;
@@ -1995,7 +1995,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
         /* Downlink IE */
         alt_format = 0;
         data = 0;
-        papr = 0;
+        /*papr = 0; XX: not used ? */
         ie_len = 9;
 
         /* TODO: alt_format = 1 if (Permutation == 0x11) and (AMC type is 2x3 or 1x6) */
@@ -2012,7 +2012,7 @@ gint dissect_dlmap_ie(proto_tree *ie_tree, const guint8 *bufptr, gint offset, gi
 
         if (diuc == 13) {
             /* 8.4.5.3.1 [1] Gap/PAPR Reduction */
-            papr = 1;
+            /*papr = 1; XX: not used ? */
             proto_item_append_text(ti, " (Gap/PAPR Reduction)");
         }
 

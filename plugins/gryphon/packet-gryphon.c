@@ -200,7 +200,7 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_item      *ti;
     proto_tree      *header_tree, *body_tree, *localTree;
     proto_item      *header_item, *body_item, *localItem, *hiddenItem;
-    int             start_offset, msgend;
+    int             msgend;
     int             msglen, msgpad;
     unsigned int    src, dest, i, frmtyp;
     guint8          flags;
@@ -307,7 +307,6 @@ dissect_gryphon_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                     msglen + msgpad, "Body");
     body_tree = proto_item_add_subtree(body_item, ett_gryphon_body);
 
-    start_offset = offset;
     offset += MSG_HDR_SZ;
     switch (frmtyp) {
     case GY_FT_CMD:
@@ -630,7 +629,7 @@ static const value_string ioctls[] = {
 static int
 decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
 {
-    int             cmd, padding, msglen;
+    int             cmd, msglen;
     unsigned int    i;
     proto_tree      *ft;
     proto_item      *ti;
@@ -662,7 +661,6 @@ decode_command(tvbuff_t *tvb, int offset, int dst, proto_tree *pt)
     msglen -= 4;
 
     if (cmds[i].cmd_fnct && msglen > 0) {
-        padding = 3 - (msglen + 3) % 4;
         ti = proto_tree_add_text(pt, tvb, offset, -1, "Data: (%d byte%s)",
                 msglen, msglen == 1 ? "" : "s");
         ft = proto_item_add_subtree(ti, ett_gryphon_command_data);
@@ -847,12 +845,12 @@ decode_misc (tvbuff_t *tvb, int offset, proto_tree *pt)
 {
     #define         LENGTH 120
     int             padding, msglen;
-    gint            length;
+    /*gint            length;*/
     unsigned char   local_data[LENGTH+1];
 
     msglen = tvb_reported_length_remaining(tvb, offset);
     padding = 3 - (msglen + 3) % 4;
-    length = tvb_get_nstringz0(tvb, offset, LENGTH, local_data);
+    /*length =*/ tvb_get_nstringz0(tvb, offset, LENGTH, local_data);
     proto_tree_add_text(pt, tvb, offset, msglen, "Data: %s", local_data);
     offset += msglen;
     if (padding) {
