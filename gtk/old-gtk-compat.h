@@ -43,6 +43,7 @@
 
 #if !GTK_CHECK_VERSION (2, 16, 0)
 #	define GTK_ORIENTABLE(x) GTK_TOOLBAR(x)
+#	define gtk_orientable_set_orientation(x,y) gtk_toolbar_set_orientation(x,y)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
