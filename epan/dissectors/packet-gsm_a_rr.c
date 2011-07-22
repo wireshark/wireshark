@@ -1437,13 +1437,11 @@ de_rr_cell_dsc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 {
     proto_tree  *subtree;
     proto_item  *item;
-    guint8       oct;
     guint32      curr_offset;
     guint16      bcch_arfcn;
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
     item =
         proto_tree_add_text(tree,
                             tvb, curr_offset, 2, "%s",
@@ -1563,12 +1561,10 @@ de_rr_cell_sel_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 {
     proto_tree  *subtree;
     proto_item  *item;
-    guint8       oct;
     guint32      curr_offset;
 
     curr_offset = offset;
 
-    oct = tvb_get_guint8(tvb, curr_offset);
     item = proto_tree_add_text(tree, tvb, curr_offset, 2, "%s",
                                gsm_rr_elem_strings[DE_RR_CELL_SEL_PARAM].strptr);
 
@@ -8537,12 +8533,9 @@ dtap_rr_imm_ass_ext(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     guint32     curr_offset;
     guint32     consumed;
     guint       curr_len;
-    guint8      oct;
 
     curr_offset = offset;
     curr_len = len;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
 
     /* Page Mode                                                10.5.2.26       M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
@@ -8579,12 +8572,9 @@ dtap_rr_imm_ass_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     guint32     curr_offset;
     guint32     consumed;
     guint       curr_len;
-    guint8      oct;
 
     curr_offset = offset;
     curr_len = len;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
 
     /* Page Mode                                        10.5.2.26       M V 1/2 */
     ELEM_MAND_V_SHORT(GSM_A_PDU_TYPE_RR, DE_RR_PAGE_MODE);
@@ -9761,7 +9751,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gint                        ti;
     int                         hf_idx;
     gboolean                    nsd;
-    guint8                      pseudo_len;
+    /*guint8                      pseudo_len;*/
     guint32                     curr_offset;
     guint32                     consumed;
     guint                       curr_len;
@@ -9858,7 +9848,7 @@ dissect_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = 1;
 
     /*  L2 Pseudo Length 10.5.2.19 */
-    pseudo_len = tvb_get_guint8(tvb,offset)>>2;
+    /*pseudo_len = tvb_get_guint8(tvb,offset)>>2;*/
 
     saved_tree = tree;
     tree = ccch_tree;

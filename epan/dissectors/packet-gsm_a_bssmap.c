@@ -2315,12 +2315,9 @@ static const value_string gsm_a_bssmap_trace_invoking_event_vals[] = {
 static guint16
 be_chosen_chan(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint8  oct;
     guint32 curr_offset;
 
     curr_offset = offset;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
 
     /* Channel mode */
     proto_tree_add_item(tree, hf_gsm_a_bssmap_ch_mode, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2654,12 +2651,9 @@ be_cct_pool(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 static guint16
 be_curr_chan_1(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    guint8  oct;
     guint32 curr_offset;
 
     curr_offset = offset;
-
-    oct = tvb_get_guint8(tvb, curr_offset);
 
     /* Channel mode */
     proto_tree_add_item(tree, hf_gsm_a_bssmap_cur_ch_mode, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
