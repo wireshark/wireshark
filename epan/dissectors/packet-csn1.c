@@ -195,8 +195,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         if (remaining_bits_len > 0)
         {
           pui8  = pui8DATA(data, pDescr->offset);
-          pDescr++;
-
+          
           *pui8 = tvb_get_bits8(tvb, bit_offset, 1);
           proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
@@ -204,7 +203,12 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
           /* end add the bit value to protocol tree */
         }
+        else
+        {
+          return ProcessError(tree, tvb, bit_offset,"csnStreamDissector", CSN_ERROR_NEED_MORE_BITS_TO_UNPACK, pDescr);
+        }
 
+        pDescr++;
         remaining_bits_len--;
         bit_offset++;
         break;
