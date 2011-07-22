@@ -59,6 +59,8 @@
 #define GSMTAP_TYPE_TETRA_I1		0x05	/* tetra air interface */
 #define GSMTAP_TTPE_TETRA_I1_BURST	0x06	/* tetra air interface */
 #define GSMTAP_TYPE_WMX_BURST		0x07	/* WiMAX burst */
+#define GSMTAP_TYPE_GB_LLC			0x08 /* GPRS Gb interface: LLC */
+#define GSMTAP_TYPE_GB_SNDCP		0x09 /* GPRS Gb interface: SNDCP */
 
 #define GSMTAP_BURST_UNKNOWN		0x00
 #define GSMTAP_BURST_FCCH			0x01
@@ -159,6 +161,8 @@ enum {
 	GSMTAP_SUB_UM_LAPDM,
 	GSMTAP_SUB_UM_RLC_MAC_UL,
 	GSMTAP_SUB_UM_RLC_MAC_DL,
+	GSMTAP_SUB_LLC,
+	GSMTAP_SUB_SNDCP,
 	GSMTAP_SUB_ABIS,
 	/* WiMAX sub handles */
 	GSMTAP_SUB_CDMA_CODE, 
@@ -443,6 +447,12 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case GSMTAP_TYPE_ABIS:
 		sub_handle = GSMTAP_SUB_ABIS;
 		break;
+	case GSMTAP_TYPE_GB_LLC:
+		sub_handle = GSMTAP_SUB_LLC;
+		break;
+	case GSMTAP_TYPE_GB_SNDCP:
+		sub_handle = GSMTAP_SUB_SNDCP;
+		break;
 	case GSMTAP_TYPE_TETRA_I1:
 		handle_tetra(tvb_get_guint8(tvb, offset+12), payload_tvb, pinfo, tree);
 		return;
@@ -544,6 +554,8 @@ proto_reg_handoff_gsmtap(void)
 	sub_handles[GSMTAP_SUB_UM_LAPDM] = find_dissector("lapdm");
 	sub_handles[GSMTAP_SUB_UM_RLC_MAC_UL] = find_dissector("gsm_rlcmac_ul");
 	sub_handles[GSMTAP_SUB_UM_RLC_MAC_DL] = find_dissector("gsm_rlcmac_dl");
+	sub_handles[GSMTAP_SUB_LLC] = find_dissector("llcgprs");
+	sub_handles[GSMTAP_SUB_SNDCP] = find_dissector("sndcp");
 	sub_handles[GSMTAP_SUB_ABIS] = find_dissector("gsm_a_dtap");
 	sub_handles[GSMTAP_SUB_CDMA_CODE] = find_dissector("wimax_cdma_code_burst_handler"); 
 	sub_handles[GSMTAP_SUB_FCH] = find_dissector("wimax_fch_burst_handler"); 
