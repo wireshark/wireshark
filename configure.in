@@ -221,6 +221,11 @@ if test "x$with_gcrypt" = "xyes"; then
   )
 fi
 
+AC_ARG_WITH([gtk3],
+  AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
+                  [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
+  with_gtk3="$withval", with_gtk="no")
+
 
 # libsmi
 # FIXME: currently the path argument to with-libsmi is being ignored
@@ -721,6 +726,31 @@ fi
 
 # Enable/disable tshark
 
+AC_ARG_ENABLE(wireshark,
+  AC_HELP_STRING( [--enable-wireshark],
+                  [build GTK+-based Wireshark @<:@default=yes, if GTK+ available@:>@]),
+    enable_wireshark=$enableval,enable_wireshark=yes)
+if test x$enable_wireshark = xyes; then
+	CFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CFLAGS"
+fi
+
+AC_ARG_ENABLE(ui-manager,
+  AC_HELP_STRING( [--enable-ui-manager],
+                  [use ui-manager in Wireshark (experimental) @<:@default=no@:>@]),
+    enable_uimanager=$enableval,enable_uimanager=no)
+if test x$enable_uimanager = xyes; then
+	AC_DEFINE(UI_MANAGER, 1, [Use GTK ui-manager])
+	CFLAGS="-DGTK_DISABLE_DEPRECATED $CFLAGS"
+fi
+
+AC_ARG_ENABLE(packet-editor,
+  AC_HELP_STRING( [--enable-packet-editor],
+                  [add support for packet editor in Wireshark @<:@default=no@:>@]),
+    enable_packet_editor=$enableval,enable_packet_editor=no)
+if test x$enable_packet_editor = xyes; then
+	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
+fi
+
 AC_ARG_ENABLE(threads,
   AC_HELP_STRING( [--enable-threads],
                   [use threads in Wireshark @<:@default=yes@:>@]),
@@ -769,11 +799,6 @@ docdir=`(
     eval eval echo "$docdir"
 )`
 AC_DEFINE_UNQUOTED(DOC_DIR, "$docdir", [Directory for docs])
-
-AC_ARG_WITH([gtk3],
-  AC_HELP_STRING( [--with-gtk3=@<:@yes/no@:>@],
-                  [use GTK+ 3.0 instead of 2.0 @<:@default=no@:>@]),
-  with_gtk3="$withval", with_gtk="no")
 
 # GTK checks; we require GTK+ 2.12 or later.
 # We don't add $GLIB_LIBS to LIBS, because we don't want to force all
@@ -947,33 +972,9 @@ then
     fi
 fi
 
-AC_ARG_ENABLE(wireshark,
-  AC_HELP_STRING( [--enable-wireshark],
-                  [build GTK+-based Wireshark @<:@default=yes, if GTK+ available@:>@]),
-    enable_wireshark=$enableval,enable_wireshark=yes)
-if test x$enable_wireshark = xyes; then
-	CFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CFLAGS"
-fi
-
-AC_ARG_ENABLE(ui-manager,
-  AC_HELP_STRING( [--enable-ui-manager],
-                  [use ui-manager in Wireshark (experimental) @<:@default=no@:>@]),
-    enable_uimanager=$enableval,enable_uimanager=no)
-if test x$enable_uimanager = xyes; then
-	AC_DEFINE(UI_MANAGER, 1, [Use GTK ui-manager])
-	CFLAGS="-DGTK_DISABLE_DEPRECATED $CFLAGS"
-fi
-
-AC_ARG_ENABLE(packet-editor,
-  AC_HELP_STRING( [--enable-packet-editor],
-                  [add support for packet editor in Wireshark @<:@default=no@:>@]),
-    enable_packet_editor=$enableval,enable_packet_editor=no)
-if test x$enable_packet_editor = xyes; then
-	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
-fi
-
 AC_SUBST(wireshark_bin)
 AC_SUBST(wireshark_man)
+
 
 # Enable/disable tshark
 
