@@ -1005,6 +1005,26 @@ static int hf_packet_pause_message_type;
 static int hf_packet_pause_tlli;
 /* < End Packet Pause > */
 
+/* < Packet System Information Type 1 > */
+static int hf_packet_system_info_type1_message_type;
+static int hf_packet_system_info_type1_page_mode;
+static int hf_packet_system_info_type1_pbcch_change_mark;
+static int hf_packet_system_info_type1_psi_change_field;
+static int hf_packet_system_info_type1_psi1_repeat_period;
+static int hf_packet_system_info_type1_psi_count_lr;
+static int hf_packet_system_info_type1_psi_count_hr;
+static int hf_packet_system_info_type1_measurement_order;
+static int hf_packet_system_info_type1_psi_status_ind;
+static int hf_packet_system_info_type1_mscr;
+static int hf_packet_system_info_type1_sgsnr;
+static int hf_packet_system_info_type1_band_indicator;
+static int hf_pccch_org_bs_pcc_rel;
+static int hf_pccch_org_pbcch_blks;
+static int hf_pccch_org_pag_blks_res;
+static int hf_pccch_org_prach_blks;
+/* <End Packet System Information Type 1> */
+
+
 static int hf_si1_restoctet_nch_position;
 static int hf_si1_restoctet_bandindicator;
 static int hf_selection_parameters_cbq;
@@ -4628,6 +4648,50 @@ CSN_DESCR_END         (Packet_Pause_t)
 /*< End Packet Pause > */
 
 
+/*< Packet System Information Type 1 message content >*/
+static const
+CSN_DESCR_BEGIN(PSI1_AdditionsR99_t)
+  M_UINT       (PSI1_AdditionsR99_t,  MSCR,  1, &hf_packet_system_info_type1_mscr),
+  M_UINT       (PSI1_AdditionsR99_t,  SGSNR,  1, &hf_packet_system_info_type1_sgsnr),
+  M_UINT       (PSI1_AdditionsR99_t,  BandIndicator,  1, &hf_packet_system_info_type1_band_indicator),
+CSN_DESCR_END  (PSI1_AdditionsR99_t)
+
+static const
+CSN_DESCR_BEGIN(PCCCH_Organization_t)
+  M_UINT       (PCCCH_Organization_t,  BS_PCC_REL,  1, &hf_pccch_org_bs_pcc_rel),
+  M_UINT       (PCCCH_Organization_t,  BS_PBCCH_BLKS,  2, &hf_pccch_org_pbcch_blks),
+  M_UINT       (PCCCH_Organization_t,  BS_PAG_BLKS_RES,  4, &hf_pccch_org_pag_blks_res),
+  M_UINT       (PCCCH_Organization_t,  BS_PRACH_BLKS,  4, &hf_pccch_org_prach_blks),
+CSN_DESCR_END  (PCCCH_Organization_t)
+
+
+static const
+CSN_DESCR_BEGIN(PSI1_t)
+  M_UINT       (PSI1_t,  MESSAGE_TYPE,  6, &hf_packet_system_info_type1_message_type),
+  M_UINT       (PSI1_t,  PAGE_MODE,  2, &hf_packet_system_info_type1_page_mode),
+
+  M_UINT       (PSI1_t,  PBCCH_CHANGE_MARK,  3, &hf_packet_system_info_type1_pbcch_change_mark),
+  M_UINT       (PSI1_t,  PSI_CHANGE_FIELD,  4, &hf_packet_system_info_type1_psi_change_field),
+  M_UINT       (PSI1_t,  PSI1_REPEAT_PERIOD,  4, &hf_packet_system_info_type1_psi1_repeat_period),
+  M_UINT       (PSI1_t,  PSI_COUNT_LR,  6, &hf_packet_system_info_type1_psi_count_lr),
+
+  M_NEXT_EXIST (PSI1_t, Exist_PSI_COUNT_HR, 1),
+  M_UINT       (PSI1_t,  PSI_COUNT_HR,  4, &hf_packet_system_info_type1_psi_count_hr),
+
+  M_UINT       (PSI1_t,  MEASUREMENT_ORDER,  1, &hf_packet_system_info_type1_measurement_order),
+  M_TYPE       (PSI1_t,  GPRS_Cell_Options, GPRS_Cell_Options_t),
+  M_TYPE       (PSI1_t,  PRACH_Control, PRACH_Control_t),
+  M_TYPE       (PSI1_t,  PCCCH_Organization, PCCCH_Organization_t),
+  M_TYPE       (PSI1_t,  Global_Power_Control_Parameters, Global_Power_Control_Parameters_t),
+  M_UINT       (PSI1_t,  PSI_STATUS_IND,  1, &hf_packet_system_info_type1_psi_status_ind),
+
+  M_NEXT_EXIST (PSI1_t, Exist_AdditionsR99, 1),
+  M_TYPE       (PSI1_t,  AdditionsR99, PSI1_AdditionsR99_t),
+CSN_DESCR_END  (PSI1_t)
+/*< End Packet System Information Type 1 message content >*/
+
+
+
 
 typedef char* MT_Strings_t;
 
@@ -5133,6 +5197,11 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     case MT_PACKET_DOWNLINK_DUMMY_CONTROL_BLOCK:
     {
       ret = csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(Packet_Downlink_Dummy_Control_Block_t), tvb, &data->u.Packet_Downlink_Dummy_Control_Block, ett_gsm_rlcmac);
+      break;
+    }
+    case MT_PACKET_SYSTEM_INFO_1:
+    {
+      ret = csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI1_t), tvb, &data->u.PSI1, ett_gsm_rlcmac);
       break;
     }
     default: ret = -1;
@@ -10560,6 +10629,106 @@ proto_register_gsm_rlcmac(void)
       }
     },
 /*< End Packet Pause> */
+
+/* < Packet System Information Type 1 message content > */    
+    { &hf_packet_system_info_type1_message_type,
+      { "MessageType",        "gsm_rlcmac_dl.packet_psi1_messagetype",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_page_mode,
+      { "PageMode",        "gsm_rlcmac_dl.psi1_pagemode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_pbcch_change_mark,
+      { "PBCCH_CHANGE_MARK",        "gsm_rlcmac_dl.psi1_pbcch_change_mark",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_psi_change_field,
+      { "PSI_CHANGE_FIELD",        "gsm_rlcmac_dl.psi1_psi_change_field",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_psi1_repeat_period,
+      { "PSI1_REPEAT_PERIOD",        "gsm_rlcmac_dl.psi1_psi1_repeat_period",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_psi_count_lr,
+      { "PSI_COUNT_LR",        "gsm_rlcmac_dl.psi1_psi_count_lr",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_psi_count_hr,
+      { "PSI_COUNT_HR",        "gsm_rlcmac_dl.psi1_psi_count_hr",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_measurement_order,
+      { "MEASUREMENT_ORDER",        "gsm_rlcmac_dl.psi1_measurement_order",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_psi_status_ind,
+      { "PSI_STATUS_IND",        "gsm_rlcmac_dl.psi1_psi_status_ind",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_mscr,
+      { "MSCR",        "gsm_rlcmac_dl.psi1_mscr",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_sgsnr,
+      { "SGSNR",        "gsm_rlcmac_dl.psi1_sgsnr",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type1_band_indicator,
+      { "BAND_INDICATOR",        "gsm_rlcmac_dl.psi1_band_indicator",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pccch_org_bs_pcc_rel,
+      { "BS_PCC_REL",        "gsm_rlcmac_dl.pccch_org_bs_pcc_rel",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pccch_org_pbcch_blks,
+      { "PBCCH_BLKS",        "gsm_rlcmac_dl.pccch_org_pbcch_blks",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pccch_org_pag_blks_res,
+      { "PAG_BLKS_RES",        "gsm_rlcmac_dl.pccch_org_pag_blks_res",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pccch_org_prach_blks,
+      { "PRACH_BLKS",        "gsm_rlcmac_dl.pccch_org_prach_blks",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+/* < End Packet System Information Type 1 message content > */
+
   };
 
 
