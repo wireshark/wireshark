@@ -947,10 +947,6 @@ then
     fi
 fi
 
-AC_SUBST(wireshark_bin)
-AC_SUBST(wireshark_man)
-
-
 AC_ARG_ENABLE(wireshark,
   AC_HELP_STRING( [--enable-wireshark],
                   [build GTK+-based Wireshark @<:@default=yes, if GTK+ available@:>@]),
@@ -975,6 +971,9 @@ AC_ARG_ENABLE(packet-editor,
 if test x$enable_packet_editor = xyes; then
 	AC_DEFINE(WANT_PACKET_EDITOR, 1, [Support for packet editor])
 fi
+
+AC_SUBST(wireshark_bin)
+AC_SUBST(wireshark_man)
 
 # Enable/disable tshark
 
