@@ -1083,6 +1083,7 @@ tvb_fcwwn_to_str
 tvb_find_guint8
 tvb_find_line_end
 tvb_find_line_end_unquoted
+tvb_find_tvb
 tvb_format_text
 tvb_format_text_wsp
 tvb_free
