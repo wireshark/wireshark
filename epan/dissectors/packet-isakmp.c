@@ -38,9 +38,9 @@
  * IKEv2 http://www.ietf.org/rfc/rfc4306.txt?number=4306
  * IKEv2bis http://www.ietf.org/rfc/rfc5996.txt?number=5996
  *
- * http://www.iana.org/assignments/isakmp-registry (last updated 2009-10-08)
- * http://www.iana.org/assignments/ipsec-registry (last updated 2010-06-14)
- * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-05-09)
+ * http://www.iana.org/assignments/isakmp-registry (last updated 2011-07-15)
+ * http://www.iana.org/assignments/ipsec-registry (last updated 2011-03-14)
+ * http://www.iana.org/assignments/ikev2-parameters (last updated 2011-07-14)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -1213,11 +1213,11 @@ static const range_string notifmsg_v2_type[] = {
   { 16416,16416,        "ROHC_SUPPORTED" },			/* RFC5857 */
   { 16417,16417,        "EAP_ONLY_AUTHENTICATION" },		/* RFC5998 */
   { 16418,16418,        "CHILDLESS_IKEV2_SUPPORTED" },		/* RFC6023 */
-  { 16419,16419,        "QUICK_CRASH_DETECTION" },              /* [RFC-ietf-ipsecme-failure-detection-08.txt] */
-  { 16420,16420,        "IKEV2_MESSAGE_ID_SYNC_SUPPORTED" },    /* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
-  { 16421,16421,        "IPSEC_REPLAY_COUNTER_SYNC_SUPPORTED" },/* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
-  { 16422,16422,        "IKEV2_MESSAGE_ID_SYNC" },              /* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
-  { 16423,16423,        "IPSEC_REPLAY_COUNTER_SYNC" },          /* [RFC-ietf-ipsecme-ipsecha-protocol-06.txt] */
+  { 16419,16419,        "QUICK_CRASH_DETECTION" },              /* RFC6290 */
+  { 16420,16420,        "IKEV2_MESSAGE_ID_SYNC_SUPPORTED" },    /* RFC6311 */
+  { 16421,16421,        "IPSEC_REPLAY_COUNTER_SYNC_SUPPORTED" },/* RFC6311 */
+  { 16422,16422,        "IKEV2_MESSAGE_ID_SYNC" },              /* RFC6311 */
+  { 16423,16423,        "IPSEC_REPLAY_COUNTER_SYNC" },          /* RFC6311 */
   { 16424,40959,        "RESERVED TO IANA - STATUS TYPES" },
   { 40960,65535,        "Private Use - STATUS TYPES" },
   { 0,0,	NULL },
