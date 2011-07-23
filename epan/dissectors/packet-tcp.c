@@ -2261,7 +2261,7 @@ tcp_info_append_str(packet_info *pinfo, const char *abbrev, const char *val)
 
 
 static void
-dissec_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
     proto_item *item;
@@ -3334,7 +3334,7 @@ static const ip_tcp_opt tcpopts[] = {
         NULL,
         FIXED_LENGTH,
         TCPOLEN_MSS,
-        dissect_tcpopt_maxseg
+        dissect_tcpopt_mss
     },
     {
         TCPOPT_WINDOW,
@@ -3487,7 +3487,23 @@ static const ip_tcp_opt tcpopts[] = {
         FIXED_LENGTH,
         TCPOLEN_RVBD_TRPY_MIN,
         dissect_tcpopt_rvbd_trpy
-        }
+  },
+  {
+        TCPOPT_EXP_FD,
+        "Experimental",
+        NULL,
+        VARIABLE_LENGTH,
+        TCPOLEN_EXP_MIN,
+        dissect_tcpopt_exp
+  },
+  {
+        TCPOPT_EXP_FE,
+        "Experimental",
+        NULL,
+        VARIABLE_LENGTH,
+        TCPOLEN_EXP_MIN,
+        dissect_tcpopt_exp
+  }
 };
 
 #define N_TCP_OPTS  array_length(tcpopts)
