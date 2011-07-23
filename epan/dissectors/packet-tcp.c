@@ -150,6 +150,8 @@ static int hf_tcp_option_ccnew = -1;
 static int hf_tcp_option_ccecho = -1;
 static int hf_tcp_option_md5 = -1;
 static int hf_tcp_option_qs = -1;
+static int hf_tcp_option_exp = -1;
+static int hf_tcp_option_exp_data = -1;
 
 static int hf_tcp_option_rvbd_probe = -1;
 static int hf_tcp_option_rvbd_probe_version1 = -1;
@@ -221,11 +223,14 @@ static gint ett_tcp = -1;
 static gint ett_tcp_flags = -1;
 static gint ett_tcp_options = -1;
 static gint ett_tcp_option_timestamp = -1;
+static gint ett_tcp_option_mss = -1;
 static gint ett_tcp_option_wscale = -1;
 static gint ett_tcp_option_sack = -1;
 static gint ett_tcp_option_scps = -1;
 static gint ett_tcp_option_scps_extended = -1;
 static gint ett_tcp_option_user_to = -1;
+static gint ett_tcp_option_exp = -1;
+static gint ett_tcp_option_sack_perm = -1;
 static gint ett_tcp_analysis = -1;
 static gint ett_tcp_analysis_faults = -1;
 static gint ett_tcp_timestamps = -1;
@@ -263,6 +268,8 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
 #define TCPOPT_QS               27      /* RFC4782 */
 #define TCPOPT_USER_TO          28      /* RFC5482 */
+#define TCPOPT_EXP_FD		0xfd	/* Experimental, reserved */
+#define TCPOPT_EXP_FE		0xfe	/* Experimental, reserved */
 /* Non IANA registered option numbers */
 #define TCPOPT_RVBD_PROBE       76      /* Riverbed probe option */
 #define TCPOPT_RVBD_TRPY        78      /* Riverbed transparency option */
@@ -291,13 +298,18 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_USER_TO        4
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
+#define TCPOLEN_EXP_MIN	       2
 
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
 };
 
 static const value_string tcp_option_kind_vs[] = {
+    { TCPOPT_EXP_FD, "Experimental 0xFD" },
+    { TCPOPT_EXP_FE, "Experimental 0xFE" },
     { TCPOPT_WINDOW, "Window Scale" },
+    { TCPOPT_SACK_PERM, "SACK Permission" },
+    { TCPOPT_MSS, "MSS size" },
     { TCPOPT_TIMESTAMP, "Timestamp" },
     { 0, NULL }
 };
@@ -2249,27 +2261,53 @@ tcp_info_append_str(packet_info *pinfo, const char *abbrev, const char *val)
 
 
 static void
+dissec_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
+    int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
+{
+    proto_item *item;
+    proto_tree *exp_tree;
+
+    item = proto_tree_add_item(opt_tree, hf_tcp_option_exp, tvb,
+	offset, optlen, FALSE);
+    exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
+	offset + 2, optlen - 2, FALSE);
+    tcp_info_append_uint(pinfo, "Expxx", TRUE);
+}
+
+
+static void
 dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
-    proto_tree_add_boolean(opt_tree, hf_tcp_option_sack_perm, tvb, offset,
+    proto_item *item;
+    proto_tree *exp_tree;
+
+    item = proto_tree_add_boolean(opt_tree, hf_tcp_option_sack_perm, tvb, offset,
                            optlen, TRUE);
+    exp_tree = proto_item_add_subtree(item, ett_tcp_option_sack_perm);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
     tcp_info_append_uint(pinfo, "SACK_PERM", TRUE);
 }
 
 static void
-dissect_tcpopt_maxseg(const ip_tcp_opt *optp, tvbuff_t *tvb,
+dissect_tcpopt_mss(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int offset, guint optlen, packet_info *pinfo, proto_tree *opt_tree)
 {
-    proto_item *hidden_item;
+    proto_item *item;
+    proto_tree *exp_tree;
     guint16 mss;
 
     mss = tvb_get_ntohs(tvb, offset + 2);
-    hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_mss, tvb, offset,
-                                         optlen, TRUE);
-    PROTO_ITEM_SET_HIDDEN(hidden_item);
-    proto_tree_add_uint_format(opt_tree, hf_tcp_option_mss_val, tvb, offset,
-                               optlen, mss, "%s: %u bytes", optp->name, mss);
+    item = proto_tree_add_none_format(opt_tree, hf_tcp_option_mss, tvb, offset,
+	optlen, "%s: %u bytes", optp->name, mss);
+    exp_tree = proto_item_add_subtree(item, ett_tcp_option_mss);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_mss_val, tvb, offset + 2, 2, ENC_NA);
     tcp_info_append_uint(pinfo, "MSS", mss);
 }
 
@@ -2332,6 +2370,13 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
         }
     }
 
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s:", optp->name);
     offset += 2;    /* skip past type and length */
     optlen -= 2;    /* subtract size of type and length */
@@ -2381,6 +2426,13 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_item *hidden_item;
     guint32 echo;
 
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     echo = tvb_get_ntohl(tvb, offset + 2);
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_echo, tvb, offset,
                                          optlen, TRUE);
@@ -2429,6 +2481,13 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_item *hidden_item;
     guint32 cc;
 
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     cc = tvb_get_ntohl(tvb, offset + 2);
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_cc, tvb, offset,
                                          optlen, TRUE);
@@ -2468,6 +2527,13 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
 
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_qs, tvb, offset,
                                          optlen, TRUE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -2494,6 +2560,13 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
     gint        i, bpos;
     guint8      capvector;
     guint8      connid;
+
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
@@ -2660,6 +2733,13 @@ dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
     gboolean g;
     guint16 to;
 
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+
     g = tvb_get_ntohs(tvb, offset + 2) & 0x8000;
     to = tvb_get_ntohs(tvb, offset + 2) & 0x7FFF;
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_user_to, tvb, offset,
@@ -2717,6 +2797,13 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     char    relative_modifier[] = "(relative)";
     char   *modifier = null_modifier;
     proto_item *hidden_item;
+
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
 
@@ -2807,6 +2894,13 @@ dissect_tcpopt_mood(const ip_tcp_opt _U_*optp, tvbuff_t *tvb,
     proto_item *mood_item;
     gchar *mood;
     mood = tvb_get_ephemeral_string(tvb, offset + 2, optlen-2);
+
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
+    hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
+                        offset + 1, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_mood, tvb, offset+2, optlen-2, TRUE);
 
@@ -2929,6 +3023,12 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     /* optlen, type, ver are common for all probes */
     field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_probe);
+    pitem = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(pitem);
+    pitem = proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(pitem);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
 
@@ -3137,6 +3237,12 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
         "%s", "");
 
     field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_trpy);
+    pitem = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
+                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(pitem);
+    pitem = proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
+                        offset, 1, FALSE);
+    PROTO_ITEM_SET_HIDDEN(pitem);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
                         offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
 
