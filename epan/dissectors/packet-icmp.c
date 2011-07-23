@@ -836,9 +836,9 @@ static guint32 get_best_guess_mstimeofday(tvbuff_t *tvb, gint offset, guint32 co
 
         /* Is this a rollover to a new day, clocks not synchronized, different
          * timezones between originate and receive/transmit, .. what??? */
-        if (be_ts < comp_ts && be_ts <= (MSPERDAY / 2) && comp_ts >= (MSPERDAY - (MSPERDAY / 2)))
+        if (be_ts < comp_ts && be_ts <= (MSPERDAY / 4) && comp_ts >= (MSPERDAY - (MSPERDAY / 4)))
             be_ts += MSPERDAY;  /* Assume a rollover to a new day */
-        if (le_ts < comp_ts && le_ts <= (MSPERDAY / 2) && comp_ts >= (MSPERDAY - (MSPERDAY / 2)))
+        if (le_ts < comp_ts && le_ts <= (MSPERDAY / 4) && comp_ts >= (MSPERDAY - (MSPERDAY / 4)))
             le_ts += MSPERDAY;  /* Assume a rollover to a new day */
         if (abs(be_ts - comp_ts) < abs(le_ts - comp_ts))
             return (saved_be_ts);
