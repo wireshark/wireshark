@@ -2267,7 +2267,7 @@ init_io_stat_window(io_stat_t *io)
 
 	close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
 	window_set_cancel_button(io->window, close_bt, window_cancel_button_cb);
-	gtk_widget_set_tooltip_text(close_bt,  "Enter the hostname or host IP address to be used as a source for remote capture.");
+	gtk_widget_set_tooltip_text(close_bt,  "Close this dialog");
 	save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
 	gtk_widget_set_sensitive(save_bt, FALSE);
 	gtk_widget_set_tooltip_text(save_bt, "Save the displayed graph to a file");
