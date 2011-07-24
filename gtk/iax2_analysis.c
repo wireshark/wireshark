@@ -1551,7 +1551,7 @@ create_yscale_max_menu_items(user_data_t* user_data)
 	GtkWidget *combo_box;
 	int i;
 
-	combo_box = gtk_combo_box_new_text ();
+	combo_box = gtk_combo_box_text_new();
 
 	for(i=0;i<MAX_YSCALE;i++){
 		if(yscale_max[i]==AUTO_MAX_YSCALE){
@@ -1561,7 +1561,7 @@ create_yscale_max_menu_items(user_data_t* user_data)
 		} else {
 			g_snprintf(str, sizeof(str), "%u s", yscale_max[i]/1000000);
 		}
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
+		 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.max_y_units_index);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), user_data);
@@ -1577,11 +1577,11 @@ create_pixels_per_tick_menu_items(user_data_t *user_data)
 	GtkWidget *combo_box;
 	int i;
 
-	combo_box = gtk_combo_box_new_text ();
+	combo_box = gtk_combo_box_text_new();
 
 	for(i=0;i<MAX_PIXELS_PER_TICK;i++){
 		g_snprintf(str, sizeof(str), "%u", pixels_per_tick[i]);
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
+		 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.pixels_per_tick_index);
 
@@ -1598,7 +1598,7 @@ create_tick_interval_menu_items(user_data_t *user_data)
 	char str[15];
 	int i;
 
-	combo_box = gtk_combo_box_new_text ();
+	combo_box = gtk_combo_box_text_new();
 
 	for(i=0;i<MAX_TICK_VALUES;i++){
 		if(tick_interval_values[i]>=1000){
@@ -1610,7 +1610,7 @@ create_tick_interval_menu_items(user_data_t *user_data)
 		} else {
 			g_snprintf(str, sizeof(str), "0.%03u sec", (tick_interval_values[i])%10);
 		}
-		gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), str);
+		 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), user_data->dlg.dialog_graph.interval_index);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(tick_interval_select), user_data);

@@ -246,10 +246,10 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
             gtk_widget_show(label);
 
             /* Combo box */
-            item=gtk_combo_box_new_text();
+            item=gtk_combo_box_text_new();
             for (j = 0; current_dlg->cont.params[i].enum_vals[j].name != NULL;
                  j++)
-                gtk_combo_box_append_text(GTK_COMBO_BOX(item),
+                 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(item),
                                           current_dlg->cont.params[i].enum_vals[j].description);
             gtk_combo_box_set_active(GTK_COMBO_BOX(item), 0);
             break;

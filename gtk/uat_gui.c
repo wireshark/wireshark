@@ -68,7 +68,7 @@
 #include "gtk/gui_stat_menu.h"
 #include "gtk/main.h"
 #include "gtk/uat_gui.h"
-
+#include "gtk/old-gtk-compat.h"
 
 # define BUTTON_SIZE_X -1
 # define BUTTON_SIZE_Y -1
@@ -495,11 +495,11 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 				int* valptr = g_malloc(sizeof(int));	/* A place to store the index of the    */
 									/*  "active" fld_data array entry       */
 									/* -1 means "nothing selected (active)" */
-				combo_box = gtk_combo_box_new_text();
+				combo_box = gtk_combo_box_text_new();
 				*valptr = -1;
 				for (idx = 0; enum_vals[idx].strptr != NULL; idx++) {
 					const char* str = enum_vals[idx].strptr;
-					gtk_combo_box_append_text(GTK_COMBO_BOX(combo_box), str);
+					 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_box), str);
 					
 					if ( g_str_equal(str, text) ) {
 						*valptr = idx;
