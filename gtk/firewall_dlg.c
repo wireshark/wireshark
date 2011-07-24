@@ -66,6 +66,7 @@
 #include <gtk/file_dlg.h>
 #include <gtk/help_dlg.h>
 #include <gtk/gui_utils.h>
+#include "gtk/old-gtk-compat.h"
 #include "gtk/firewall_dlg.h"
 
 #define MAX_RULE_LEN 200
@@ -228,9 +229,9 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
     label = gtk_label_new("Product");
     gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
-    product_combo_box = gtk_combo_box_new_text();
+    product_combo_box = gtk_combo_box_text_new();
     for (i = 0; i < NUM_PRODS; i++) {
-        gtk_combo_box_append_text(GTK_COMBO_BOX(product_combo_box), products[i].name);
+        gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(product_combo_box), products[i].name);
     }
     g_object_set_data(G_OBJECT(product_combo_box), WS_RULE_INFO_KEY, rule_info);
     g_signal_connect(product_combo_box, "changed", G_CALLBACK(select_product), NULL);

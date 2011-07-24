@@ -33,6 +33,7 @@
 #ifdef HAVE_AIRPCAP
 
 #include <gtk/gtk.h>
+#include "gtk/old-gtk-compat.h"
 
 #include <epan/epan.h>
 #include <epan/frequency-utils.h>
@@ -67,7 +68,7 @@ airpcap_toolbar_fcs_filter_combo_cb(GtkWidget *fcs_filter_cb, gpointer user_data
     gchar *fcs_filter_str;
 
     if (fcs_filter_cb != NULL && !block_toolbar_signals && (airpcap_if_active != NULL)) {
-        fcs_filter_str = gtk_combo_box_get_active_text(GTK_COMBO_BOX(fcs_filter_cb));
+        fcs_filter_str = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb));
         ad = airpcap_if_open(airpcap_if_active->name, ebuf);
 
         if (fcs_filter_str && (g_ascii_strcasecmp("", fcs_filter_str)) && ad) {
@@ -215,7 +216,7 @@ GtkWidget *airpcap_toolbar_new(void)
 	gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "Current 802.11 Channel");
 
     /* Create the channel combo box */
-    channel_cb = gtk_combo_box_new_text();
+    channel_cb = gtk_combo_box_text_new();
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_CHANNEL_KEY, channel_cb);
 
     /* Select the current channel */
@@ -246,7 +247,7 @@ GtkWidget *airpcap_toolbar_new(void)
 	gtk_widget_set_tooltip_text(GTK_WIDGET(tool_item), "Current 802.11 Channel Offset");
 
     /* Start: Channel offset combo box */
-    channel_offset_cb = gtk_combo_box_new_text();
+    channel_offset_cb = gtk_combo_box_text_new();
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_CHANNEL_OFFSET_KEY, channel_offset_cb);
 
     if(airpcap_if_active != NULL){
@@ -282,14 +283,14 @@ GtkWidget *airpcap_toolbar_new(void)
     gtk_toolbar_insert(GTK_TOOLBAR(airpcap_tb), tool_item, -1);
 
     /* FCS filter combo box */
-    fcs_filter_cb = gtk_combo_box_new_text();
+    fcs_filter_cb = gtk_combo_box_text_new();
     g_object_set_data(G_OBJECT(airpcap_tb), AIRPCAP_TOOLBAR_FCS_FILTER_KEY, fcs_filter_cb);
 
     gtk_widget_set_size_request(fcs_filter_cb, 100, -1);
 
-    gtk_combo_box_append_text(GTK_COMBO_BOX(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_EVERYTHING));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRECT_FRAMES));
-    gtk_combo_box_append_text(GTK_COMBO_BOX(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES));
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_EVERYTHING));
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRECT_FRAMES));
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fcs_filter_cb), airpcap_get_validation_name(AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES));
     gtk_combo_box_set_active(GTK_COMBO_BOX(fcs_filter_cb), 0);
 
 	gtk_widget_set_tooltip_text(fcs_filter_cb, "Select the 802.11 FCS filter that the wireless adapter will apply.");
@@ -312,7 +313,7 @@ GtkWidget *airpcap_toolbar_new(void)
     gtk_widget_set_name (decryption_mode_lb, "decryption_mode_lb");
     gtk_widget_show (decryption_mode_lb);
 
-    decryption_mode_cb = gtk_combo_box_new_text();
+    decryption_mode_cb = gtk_combo_box_text_new();
     gtk_widget_set_name (decryption_mode_cb, "decryption_mode_cb");
     gtk_widget_show (decryption_mode_cb);
     gtk_widget_set_size_request(decryption_mode_cb, 83, -1);

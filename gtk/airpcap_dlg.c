@@ -553,7 +553,7 @@ on_key_management_apply_bt_clicked(GtkWidget *button _U_, gpointer data)
     "might be using AirPcap, or you might not have sufficient privileges."
     /* Set the Decryption Mode */
 
-    decryption_mode_string = gtk_combo_box_get_active_text (GTK_COMBO_BOX(decryption_mode_cb));
+    decryption_mode_string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(decryption_mode_cb));
     if (g_ascii_strcasecmp(decryption_mode_string, AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0)
     {
         set_wireshark_decryption(TRUE);

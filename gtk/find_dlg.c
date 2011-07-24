@@ -50,6 +50,7 @@
 #include "gtk/keys.h"
 #include "gtk/help_dlg.h"
 #include "gtk/filter_autocomplete.h"
+#include "gtk/old-gtk-compat.h"
 
 /* Capture callback data keys */
 #define E_FIND_FILT_KEY       "find_filter_te"
@@ -286,11 +287,11 @@ find_frame_cb(GtkWidget *w _U_, gpointer d _U_)
      These only apply to the string find option */
   /* Create Combo Box */
 
-  combo_cb = gtk_combo_box_new_text();
+  combo_cb = gtk_combo_box_text_new();
 
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Unicode & Non-Unicode");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Non-Unicode");
-  gtk_combo_box_append_text(GTK_COMBO_BOX(combo_cb), "ASCII Unicode");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_cb), "ASCII Unicode & Non-Unicode");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_cb), "ASCII Non-Unicode");
+  gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(combo_cb), "ASCII Unicode");
 
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_cb),0);
   gtk_container_add(GTK_CONTAINER(string_opt_vb), combo_cb);

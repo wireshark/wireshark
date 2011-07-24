@@ -966,7 +966,7 @@ my %deprecatedGtkFunctions = (
 		'gdk_bitmap_create_from_data',				'W', # 
 		'gdk_bitmap_ref',							'W', # 
 		'gdk_bitmap_unref',							'W', # 
-		'gdk_cairo_set_source_pixmap',				'W', # 
+		'gdk_cairo_set_source_pixmap',				'W', # deprecated since version 2.24. Use gdk_cairo_set_source_window() where appropriate(Since 2.24).
 		'gdk_char_height',							'W', #
 		'gdk_char_measure',							'W', #
 		'gdk_char_width',							'W', #
@@ -1014,7 +1014,7 @@ my %deprecatedGtkFunctions = (
 		'gdk_draw_layout_line_with_colors',			'W', # 
 		'gdk_draw_layout_with_colors',				'W', # 
 		'gdk_draw_line',							'W', # 
-		'gdk_draw_lines',							'W', # 
+		'gdk_draw_lines',							'W', # deprecated since version 2.22. Use cairo_line_to() and cairo_stroke() instead.
 		'gdk_draw_pixbuf',							'W', # gdk_cairo_set_source_pixbuf() and cairo_paint() or cairo_rectangle() and cairo_fill() instead.
 		'gdk_draw_pixmap',							'W', # gdk_draw_drawable() (gdk_draw_drawable has been deprecated since version 2.22 )
 		'gdk_draw_point',							'W', # 

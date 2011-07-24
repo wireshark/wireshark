@@ -56,6 +56,7 @@
 #include <gtk/gui_utils.h>
 #include <gtk/help_dlg.h>
 #include "gtk/main.h"
+#include "gtk/old-gtk-compat.h"
 
 #ifdef _WIN32
 #include "../tempfile.h"
@@ -765,16 +766,16 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	direction_hbox = gtk_hbox_new(FALSE, 1);
 	gtk_box_pack_start(GTK_BOX(stream_vb), direction_hbox, FALSE, FALSE, 0);
 
-	stream_cmb = gtk_combo_box_new_text();
+	stream_cmb = gtk_combo_box_text_new();
 
-	gtk_combo_box_append_text(GTK_COMBO_BOX(stream_cmb),
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb),
 				  both_directions_string);
 	follow_info->show_stream = BOTH_HOSTS;
 
-	gtk_combo_box_append_text(GTK_COMBO_BOX(stream_cmb),
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb),
 				  server_to_client_string);
 
-	gtk_combo_box_append_text(GTK_COMBO_BOX(stream_cmb),
+	gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(stream_cmb),
 				   client_to_server_string);
 
 	gtk_combo_box_set_active(GTK_COMBO_BOX(stream_cmb), 0); /* Do this before signal_connect  */
