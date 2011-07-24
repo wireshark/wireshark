@@ -14,7 +14,17 @@
 
 PORT NUMBERS
 
-(last updated 2011-07-11)
+(last updated 2011-07-21)
+
+****************************************************************************
+ATTENTION:  This registry has recently been combined with the Service Names 
+Registry according to the recently approved document            
+[http://tools.ietf.org/html/draft-ietf-tsvwg-iana-ports].                
+For the new version of the registry, please see:                      
+http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xml.  
+This URL will soon redirect to the new registry and the old registry format 
+will be removed.
+*****************************************************************************
 
 The port numbers are divided into three ranges: the Well Known Ports,
 the Registered Ports, and the Dynamic and/or Private Ports.
@@ -15609,10 +15619,10 @@ qb-db-server    10160/udp  QB Database Server
 #                          Wei Wang <Wei_Wang&intuit.com> November 2005
 snmptls         10161/tcp  SNMP-TLS
 snmpdtls        10161/udp  SNMP-DTLS
-#                          [RFC-5953]
+#                          [RFC6353]
 snmptls-trap    10162/tcp  SNMP-Trap-TLS
 snmpdtls-trap   10162/udp  SNMP-Trap-DTLS
-#                          [RFC5953]
+#                          [RFC6353]
 #               10163-10199 Unassigned
 trisoap		10200/tcp  Trigence AE Soap Service
 trisoap		10200/udp  Trigence AE Soap Service
@@ -16805,7 +16815,10 @@ kitim           35354/tcp   KIT Messenger
 altova-lm       35355/tcp   Altova License Management
 altova-lm-disc  35355/udp   Altova License Management Discovery
 #                           Alexander Falk <al&altova.com> 07 July 2011
-#               35356-36000 Unassigned
+guttersnex      35356/tcp   Gutters Note Exchange
+#                           Tristan Seifert <tristan&squee.co> 19 July 2011
+#               35356/udp   Reserved 
+#               35357-36000 Unassigned
 allpeers	36001/tcp   AllPeers Network
 allpeers	36001/udp   AllPeers Network
 #			    Cedric Maloux <cedric&allpeers.com> April 2007
@@ -17263,9 +17276,6 @@ References
 [RFC5905]  J. Burbank, W. Kasch, J. Martin, Ed., D. Mills, "Network Time Protocol Version 4 
            Protocol And Algorithms Specification," RFC 5905, June 2010.
 
-[RFC5953]  W. Hardaker, "Transport Layer Security (TLS) Transport Model for the Simple 
-           Network Management Protocol (SNMP)", RFC 5953, August 2010.
-
 [RFC5971]  H. Schulzrinne, R. Hancock, "GIST: General Internet Signalling Transport", 
            RFC 5971, October 2010.
 
@@ -17292,6 +17302,9 @@ References
 [RFC6242]  M. Wasserman, T. Goddard, "Using the NETCONF Configuration Protocol over 
            Secure Shell (SSH)", RFC 6242, June 2011.
 
+[RFC6353]  W. Hardaker, "Transport Layer Security (TLS) Transport Model for the Simple 
+           Network Management Protocol (SNMP)", RFC 6353, July 2011.
+           
 [RFC-ietf-ancp-protocol-17.txt]
             S. Wadhwa, J. Moisand, T. Haag, N. Voigt, T. Taylor, Ed., "Protocol for 
             Access Node Control Mechanism in Broadband Networks", RFC XXXX, Month Year.
