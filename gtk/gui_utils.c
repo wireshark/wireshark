@@ -290,7 +290,6 @@ window_delete_event_cb(GtkWidget *win, GdkEvent *event _U_, gpointer user_data _
 void
 window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 {
-    gint desk_x, desk_y;
     GdkWindowState state;
     GdkWindow *widget_window;
 
