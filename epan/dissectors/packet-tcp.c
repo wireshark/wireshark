@@ -2307,7 +2307,7 @@ dissect_tcpopt_mss(const ip_tcp_opt *optp, tvbuff_t *tvb,
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_mss);
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
     proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
-    proto_tree_add_item(exp_tree, hf_tcp_option_mss_val, tvb, offset + 2, 2, ENC_NA);
+    proto_tree_add_item(exp_tree, hf_tcp_option_mss_val, tvb, offset + 2, 2, FALSE);
     tcp_info_append_uint(pinfo, "MSS", mss);
 }
 
