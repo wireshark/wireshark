@@ -69,6 +69,8 @@
 #include "gtk/main_welcome.h"
 #include "gtk/menus.h"
 
+#include "gtk/old-gtk-compat.h"
+
 #ifdef HAVE_AIRPCAP
 #include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
@@ -983,7 +985,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       row++;
       if (row <= 10) {
         /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
-        gtk_widget_size_request(GTK_WIDGET(if_dlg_data->choose_bt), &requisition);
+        gtk_widget_get_preferred_size(GTK_WIDGET(if_dlg_data->choose_bt), &requisition, NULL);
         height += requisition.height;
       }
   }
@@ -1006,7 +1008,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(options_bt, "clicked", G_CALLBACK(capture_prepare_cb), if_dlg_data);
   capture_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
-  gtk_widget_size_request(GTK_WIDGET(close_bt), &requisition);
+  gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
   height += requisition.height + 20 + ifs;
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);

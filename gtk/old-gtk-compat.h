@@ -61,9 +61,19 @@
 #	define GTK_COMBO_BOX_TEXT(x) GTK_COMBO_BOX(x)
 #	define gtk_combo_box_text_get_active_text(x) gtk_combo_box_get_active_text(x)
 #	define gtk_combo_box_text_new() gtk_combo_box_new_text()
+#	define gtk_combo_box_text_insert_text(x,y,z) gtk_combo_box_insert_text(x,y,z)
 #	define gtk_combo_box_text_append_text(x,y) gtk_combo_box_append_text(x,y)
+#	define gtk_combo_box_text_remove(x,y) gtk_combo_box_remove_text(x,y)
 #	define gtk_combo_box_text_new_with_entry() gtk_combo_box_entry_new_text()
 #	define gtk_combo_box_text_prepend_text(x,y) gtk_combo_box_prepend_text(x,y)
+#endif
+
+#if !GTK_CHECK_VERSION (3, 0, 0)
+#	define gtk_widget_get_preferred_size(x,y,z) gtk_widget_size_request(x,y)
+#	define GtkStyleContext GtkStyle
+#	define gtk_widget_get_style_context(x) gtk_widget_get_style(x)
+#	define gtk_style_context_get_color(x,y,z) gdkcolor_to_color_t(&z, &x->text[y])
+#	define gtk_style_context_get_color_background(x,y,z) gdkcolor_to_color_t(&z, &x->base[y])
 #endif
 
 #endif

@@ -747,9 +747,9 @@ static struct iftype_info iftype[] = {
 static void
 iftype_combo_box_add_remote_separators (GtkWidget *iftype_cbx)
 {
-  gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), REMOTE_HOST_SEPARATOR);
-  gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), REMOTE_HOST_SEPARATOR);
-  gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), "Clear list");
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(iftype_cbx), REMOTE_HOST_SEPARATOR);
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(iftype_cbx), REMOTE_HOST_SEPARATOR);
+  gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(iftype_cbx), "Clear list");
 }
 
 static void
@@ -768,7 +768,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx)
     if (g_hash_table_size (remote_host_list) == 0) {
       iftype_combo_box_add_remote_separators (iftype_cbx);
     }
-    gtk_combo_box_insert_text(GTK_COMBO_BOX(iftype_cbx), pos, g_array_index(global_capture_opts.ifaces, interface_options, 0).remote_host);
+    gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(iftype_cbx), pos, g_array_index(global_capture_opts.ifaces, interface_options, 0).remote_host);
     rh->remote_host = g_strdup (g_array_index(global_capture_opts.ifaces, interface_options, 0).remote_host);
     create_new = TRUE;
   } else {
@@ -814,7 +814,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx)
 static void
 iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer user_data)
 {
-  gtk_combo_box_insert_text(GTK_COMBO_BOX(user_data), REMOTE_HOST_START, key);
+  gtk_combo_box_text_insert_text(GTK_COMBO_BOX_TEXT(user_data), REMOTE_HOST_START, key);
 
   if (g_array_index(global_capture_opts.ifaces, interface_options, 0).src_type == CAPTURE_IFREMOTE) {
     /* Ensure we select the correct entry */
@@ -831,10 +831,10 @@ iftype_combo_box_new(void)
   GtkWidget *iftype_cbx;
   unsigned int i;
 
-  iftype_cbx = gtk_combo_box_new_text();
+  iftype_cbx = gtk_combo_box_text_new();
 
   for (i = 0; i < sizeof(iftype) / sizeof(iftype[0]); i++) {
-    gtk_combo_box_append_text(GTK_COMBO_BOX(iftype_cbx), iftype[i].name);
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(iftype_cbx), iftype[i].name);
   }
 
   if (g_hash_table_size (remote_host_list) > 0) {
@@ -937,16 +937,16 @@ update_interface_list(void)
   /* Empty the interface combo box */
   model = gtk_combo_box_get_model(GTK_COMBO_BOX(if_cb));
   while (gtk_tree_model_iter_n_children(model, NULL) > 0) {
-    gtk_combo_box_remove_text (GTK_COMBO_BOX(if_cb), 0);
+    gtk_combo_box_text_remove (GTK_COMBO_BOX_TEXT(if_cb), 0);
   }
 
   combo_list = build_capture_combo_list(if_list, TRUE);
   for (combo_list_entry = combo_list; combo_list_entry != NULL; combo_list_entry = g_list_next(combo_list_entry)) {
-      gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), combo_list_entry->data);
+      gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(if_cb), combo_list_entry->data);
   }
 
   if (combo_list == NULL)
-    gtk_combo_box_append_text(GTK_COMBO_BOX(if_cb), "");
+    gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(if_cb), "");
 
   gtk_combo_box_set_active(GTK_COMBO_BOX(if_cb),0);
 
@@ -2801,11 +2801,11 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
         g_hash_table_foreach_remove (remote_host_list, free_remote_host, NULL);
         num_remote += 3;
         while (num_remote--)  /* Remove separator lines and "Clear" item */
-          gtk_combo_box_remove_text (iftype_cbx, 2);
+          gtk_combo_box_text_remove (GTK_COMBO_BOX_TEXT(iftype_cbx), 2);
       } else {
         struct remote_host *rh;
         gchar *string;
-        string = gtk_combo_box_get_active_text (GTK_COMBO_BOX(iftype_cbx));
+        string = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(iftype_cbx));
         rh = g_hash_table_lookup (remote_host_list, string);
         g_free (string);
 
