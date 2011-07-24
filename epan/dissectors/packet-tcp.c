@@ -4718,11 +4718,11 @@ proto_register_tcp(void)
             BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_mss,
-          { "TCP MSS Option", "tcp.options.mss", FT_BOOLEAN,
+          { "TCP MSS Option", "tcp.options.mss", FT_NONE,
             BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
         { &hf_tcp_option_mss_val,
-          { "TCP MSS Option Value", "tcp.options.mss_val", FT_UINT16,
+          { "MSS Value", "tcp.options.mss_val", FT_UINT16,
             BASE_DEC, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_wscale_shift,
@@ -4732,6 +4732,14 @@ proto_register_tcp(void)
         { &hf_tcp_option_wscale_multiplier,
           { "Multiplier", "tcp.options.wscale.multiplier",  FT_UINT8,
             BASE_DEC, NULL, 0x0, "Multiply segment window size by this for scaled window size", HFILL}},
+
+        { &hf_tcp_option_exp,
+          { "TCP Option - Experimental", "tcp.options.experimental", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
+
+        { &hf_tcp_option_exp_data,
+          { "Data", "tcp.options.experimental.data", FT_BYTES,
+            BASE_NONE, NULL, 0x0, NULL, HFILL}},
 
         { &hf_tcp_option_sack_perm,
           { "TCP SACK Permitted Option", "tcp.options.sack_perm",
@@ -5099,6 +5107,9 @@ proto_register_tcp(void)
         &ett_tcp_option_scps,
         &ett_tcp_option_scps_extended,
         &ett_tcp_option_user_to,
+        &ett_tcp_option_exp,
+        &ett_tcp_option_sack_perm,
+        &ett_tcp_option_mss,
         &ett_tcp_opt_rvbd_probe,
         &ett_tcp_opt_rvbd_probe_flags,
         &ett_tcp_opt_rvbd_trpy,
