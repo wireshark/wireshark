@@ -34,6 +34,7 @@
 #include <string.h>
 
 #include <gtk/gtk.h>
+#include "gtk/old-gtk-compat.h"
 
 #include "filter_dlg.h"
 #include "filter_autocomplete.h"
@@ -50,7 +51,6 @@
 #include "main_toolbar.h"
 #include "main_filter_toolbar.h"
 
-#include "gtk/old-gtk-compat.h"
 
 GtkWidget   *main_display_filter_widget=NULL;
 
@@ -124,7 +124,7 @@ GtkWidget *filter_toolbar_new(void)
 	gtk_widget_set_tooltip_text( GTK_WIDGET(filter_bt), "Open the \"Display Filter\" dialog, to edit/apply filters");
 
     /* Create the filter combobox */
-    filter_cm = gtk_combo_box_entry_new_text ();
+    filter_cm = gtk_combo_box_text_new_with_entry ();
     filter_te = gtk_bin_get_child(GTK_BIN(filter_cm));
     main_display_filter_widget=filter_te;
     g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, filter_te);
@@ -319,7 +319,7 @@ dfilter_combo_add(GtkWidget *filter_cm, char *s) {
     int index;
 
     if(!dfilter_entry_match(filter_cm,s, &index))
-        gtk_combo_box_append_text(GTK_COMBO_BOX(filter_cm), s);
+         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(filter_cm), s);
     g_free(s);
 
     return TRUE;
@@ -391,11 +391,11 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
         int index;
 
         if(!dfilter_entry_match(filter_cm,s, &index)){
-            gtk_combo_box_prepend_text(GTK_COMBO_BOX(filter_cm), s);
+            gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), s);
             index++;
         }
         while ((guint)index >= prefs.gui_recent_df_entries_max){
-            gtk_combo_box_remove_text(GTK_COMBO_BOX(filter_cm), index);
+            gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(filter_cm), index);
             index--;
         }
     }

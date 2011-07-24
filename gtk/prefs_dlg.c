@@ -57,7 +57,7 @@
 #include "gtk/help_dlg.h"
 #include "gtk/keys.h"
 #include "gtk/uat_gui.h"
-
+#include "gtk/old-gtk-compat.h"
 
 #ifdef HAVE_LIBPCAP
 #ifdef _WIN32
@@ -787,13 +787,13 @@ create_preference_option_menu(GtkWidget *main_tb, int table_position,
   set_option_label(main_tb, table_position, label_text, tooltip_text);
 
   /* Create a menu from the enumvals */
-  combo_box = gtk_combo_box_new_text ();
+  combo_box = gtk_combo_box_text_new();
   if (tooltip_text != NULL)
     gtk_widget_set_tooltip_text(combo_box, tooltip_text);
   menu_idx = 0;
   for (enum_valp = enumvals, idx = 0; enum_valp->name != NULL;
        enum_valp++, idx++) {
-    gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), enum_valp->description);
+     gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), enum_valp->description);
     if (enum_valp->value == current_val)
       menu_idx = idx;
   }

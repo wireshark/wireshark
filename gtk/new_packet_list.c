@@ -357,9 +357,9 @@ col_details_edit_dlg (gint col_id, GtkTreeViewColumn *col)
 	gtk_misc_set_alignment(GTK_MISC(label), 1.0f, 0.5f);
 	gtk_widget_set_tooltip_text(label, "Select which packet information to present in the column.");
 
-	format_cmb = gtk_combo_box_new_text();
+	format_cmb = gtk_combo_box_text_new();
 	for (i = 0; i < NUM_COL_FMTS; i++) {
-	  gtk_combo_box_append_text(GTK_COMBO_BOX(format_cmb), col_format_desc(i));
+	   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(format_cmb), col_format_desc(i));
 	}
 	g_signal_connect(format_cmb, "changed", G_CALLBACK(col_details_format_changed_cb), NULL);
 	gtk_table_attach_defaults(GTK_TABLE(main_tb), format_cmb, 1, 2, 1, 2);

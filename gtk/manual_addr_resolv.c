@@ -43,6 +43,7 @@
 #include "gtk/main.h"
 #include "gtk/menus.h"
 #include "gtk/manual_addr_resolv.h"
+#include "gtk/old-gtk-compat.h"
 
 GtkWidget *man_addr_resolv_dlg = NULL;
 
@@ -61,7 +62,7 @@ man_addr_resolv_ok (GtkWidget *w _U_, gpointer data _U_)
   addr_cb = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "address");
   name_te = g_object_get_data (G_OBJECT(man_addr_resolv_dlg), "name");
 
-  addr = gtk_combo_box_get_active_text (GTK_COMBO_BOX(addr_cb));
+  addr = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(addr_cb));
   name = gtk_entry_get_text (GTK_ENTRY (name_te));
 
   if (strlen (addr) && strlen (name)) {
@@ -119,12 +120,12 @@ manual_addr_resolv_dlg (GtkWidget *w _U_, gpointer data)
   addr_lb = gtk_label_new("Address:");
   gtk_table_attach_defaults (GTK_TABLE (table), addr_lb, 0, 1, 0, 1);
 
-  addr_cb = gtk_combo_box_entry_new_text();
+  addr_cb = gtk_combo_box_text_new_with_entry();
   if (data) {
     GList *addr_entry;
     addr_list = get_ip_address_list_from_packet_list_row(data);
     for (addr_entry = addr_list; addr_entry != NULL; addr_entry = g_list_next (addr_entry)) {
-      gtk_combo_box_append_text(GTK_COMBO_BOX(addr_cb), addr_entry->data);
+      gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(addr_cb), addr_entry->data);
     }
     gtk_combo_box_set_active (GTK_COMBO_BOX(addr_cb), 0);
   }

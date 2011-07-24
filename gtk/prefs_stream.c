@@ -37,7 +37,7 @@
 #include "gtk/prefs_stream.h"
 #include "gtk/keys.h"
 #include "gtk/follow_tcp.h"
-
+#include "gtk/old-gtk-compat.h"
 
 #define SAMPLE_MARKED_TEXT  "Sample marked packet text\n"
 #define SAMPLE_IGNORED_TEXT "Sample ignored packet text\n"
@@ -114,9 +114,9 @@ stream_prefs_show(void)
   /* We have to create this now, and configure it below. */
   colorsel = gtk_color_selection_new();
 
-  combo_box = gtk_combo_box_new_text ();
+  combo_box = gtk_combo_box_text_new();
   for (i = 0; i < mcount; i++){
-	  gtk_combo_box_append_text (GTK_COMBO_BOX (combo_box), mt[i]);
+	   gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), mt[i]);
   }
   gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), CFG_IDX);
   g_signal_connect(combo_box, "changed", G_CALLBACK(update_current_color), colorsel);

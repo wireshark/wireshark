@@ -60,7 +60,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w_lcl, GdkPixbuf *pixbuf)
 
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w_lcl));
 	type_cm = g_object_get_data(G_OBJECT(save_as_w_lcl), "type_cm");
-	file_type = gtk_combo_box_get_active_text(GTK_COMBO_BOX(type_cm));
+	file_type = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(type_cm));
 
 	/* Perhaps the user specified a directory instead of a file.
 	   Check whether they did. */
@@ -142,7 +142,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	gtk_box_pack_start(GTK_BOX(save_as_type_hb), type_lb, FALSE, FALSE, 0);
 	gtk_widget_show(type_lb);
 
-	type_cm = gtk_combo_box_new_text();
+	type_cm = gtk_combo_box_text_new();
 	gtk_box_pack_start(GTK_BOX(save_as_type_hb), type_cm, FALSE, FALSE, 0);
 
 	/* List all of the file formats the gdk-pixbuf library supports */
@@ -152,7 +152,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 		pixbuf_format = ffp->data;
 		if (gdk_pixbuf_format_is_writable(pixbuf_format)) {
 			format_name = gdk_pixbuf_format_get_name(pixbuf_format);
-			gtk_combo_box_append_text(GTK_COMBO_BOX(type_cm),
+			 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(type_cm),
 						  format_name);
 			if (!(g_ascii_strcasecmp(format_name, "png")))
 				default_index = format_index;

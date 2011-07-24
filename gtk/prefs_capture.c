@@ -45,6 +45,7 @@
 #include "gtk/main_welcome.h"
 #include "gtk/help_dlg.h"
 #include "gtk/stock_icons.h"
+#include "gtk/old-gtk-compat.h"
 #include <epan/strutil.h>
 
 
@@ -123,7 +124,7 @@ capture_prefs_show(void)
 	gtk_misc_set_alignment(GTK_MISC(if_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_lb);
 
-	if_cbxe = gtk_combo_box_entry_new_text();
+	if_cbxe = gtk_combo_box_text_new_with_entry();
 	/*
 	 * XXX - what if we can't get the list?
 	 */
@@ -133,7 +134,7 @@ capture_prefs_show(void)
 	if (combo_list != NULL) {
 		GList *combo_entry;
 		for (combo_entry = combo_list; combo_entry != NULL; combo_entry = g_list_next(combo_entry)) {
-				gtk_combo_box_append_text(GTK_COMBO_BOX(if_cbxe), combo_entry->data);
+				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_cbxe), combo_entry->data);
 		}
 	}
 	if (prefs.capture_device) {
@@ -535,7 +536,7 @@ ifopts_edit_cb(GtkWidget *w, gpointer data _U_)
 	gtk_misc_set_alignment(GTK_MISC(if_linktype_lb), 1.0f, 0.5f);
 	gtk_widget_show(if_linktype_lb);
 
-	if_linktype_cb = gtk_combo_box_new_text();
+	if_linktype_cb = gtk_combo_box_text_new();
 	num_linktypes = 0;
 	interfaces_info_nochange = FALSE;
 	g_signal_connect(if_linktype_cb, "changed", G_CALLBACK(ifopts_edit_linktype_changed_cb),
@@ -733,7 +734,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
         /*  -- remove old linktype list (if any) from the ComboBox */
 	while (num_linktypes > 0) {
 		num_linktypes--;
-		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_linktype_cb), num_linktypes);
+		gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(if_linktype_cb), num_linktypes);
 	}
 
         /*
@@ -761,7 +762,7 @@ ifopts_edit_ifsel_cb(GtkTreeSelection	*selection _U_,
 				if (strcmp(linktype, text) == 0) {
 					selected = num_linktypes;
 				}
-				gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
+				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_linktype_cb), text);
 				num_linktypes++;
 			}
 			gtk_widget_set_sensitive(if_linktype_lb, num_linktypes >= 2);
@@ -828,7 +829,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
         /*  -- remove old linktype list (if any) from the ComboBox */
 	while (num_linktypes > 0) {
 		num_linktypes--;
-		gtk_combo_box_remove_text (GTK_COMBO_BOX(if_linktype_cb), num_linktypes);
+		gtk_combo_box_text_remove(GTK_COMBO_BOX_TEXT(if_linktype_cb), num_linktypes);
 	}
 
 	list_store = GTK_LIST_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW (udata))); /* Get store */
@@ -861,7 +862,7 @@ ifopts_edit_monitor_changed_cb(GtkToggleButton *tbt, gpointer udata)
 			    lt_entry = g_list_next(lt_entry)) {
 				data_link_info_t *dli_p = lt_entry->data;
 				text = (dli_p->description != NULL) ? dli_p->description : dli_p->name;
-				gtk_combo_box_append_text(GTK_COMBO_BOX(if_linktype_cb), text);
+				 gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(if_linktype_cb), text);
 				num_linktypes++;
 			}
 			gtk_widget_set_sensitive(if_linktype_lb, num_linktypes >= 2);
@@ -917,7 +918,7 @@ ifopts_edit_linktype_changed_cb(GtkComboBox *cb, gpointer udata)
 		-1);
 
 	/* get current description text and set value in list_store for currently selected interface */
-	text = gtk_combo_box_get_active_text(cb);
+	text = gtk_combo_box_text_get_active_text (GTK_COMBO_BOX_TEXT(cb));
 	if (text) {
 #ifdef HAVE_PCAP_CREATE
 		linktype = ifopts_description_to_val(ifnm, monitor_mode, text);

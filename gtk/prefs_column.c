@@ -43,7 +43,7 @@
 #include "gtk/new_packet_list.h"
 #include "gtk/filter_dlg.h"
 #include "gtk/filter_autocomplete.h"
-
+#include "gtk/old-gtk-compat.h"
 
 static GtkWidget *remove_bt, *field_te, *field_lb, *occurrence_te, *occurrence_lb, *fmt_cmb;
 static gulong column_menu_changed_handler_id;
@@ -311,10 +311,10 @@ column_prefs_show(GtkWidget *prefs_window) {
                           "0=all (default), 1=first, 2=second, ..., -1=last.");
     gtk_widget_show(occurrence_te);
 
-    fmt_cmb = gtk_combo_box_new_text();
+    fmt_cmb = gtk_combo_box_text_new();
 
     for (i = 0; i < NUM_COL_FMTS; i++)
-        gtk_combo_box_append_text(GTK_COMBO_BOX(fmt_cmb), col_format_desc(i));
+         gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT(fmt_cmb), col_format_desc(i));
 
     column_menu_changed_handler_id = g_signal_connect(fmt_cmb, "changed", G_CALLBACK(column_menu_changed_cb), column_l);
 
