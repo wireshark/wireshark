@@ -52,6 +52,9 @@
 #include "gtk/old-gtk-compat.h"
 
 #include "image/wsicon16.xpm"
+#include "image/wsicon32.xpm"
+#include "image/wsicon48.xpm"
+#include "image/wsicon64.xpm"
 
 #include "../version_info.h"
 
@@ -114,19 +117,20 @@ static void
 window_icon_realize_cb (GtkWidget *win, gpointer data _U_)
 {
 #ifndef _WIN32
-    static GdkPixmap *icon_pmap = NULL;
-    static GdkBitmap *icon_mask = NULL;
-    GtkStyle         *style;
+    GList            *ws_icon_list=NULL;
+    GdkPixbuf        *icon;
 
-    style = gtk_widget_get_style (win);
 
-    if (icon_pmap == NULL) {
-        icon_pmap = gdk_pixmap_create_from_xpm_d (gtk_widget_get_window(win),
-                                                  &icon_mask, &style->bg[GTK_STATE_NORMAL],
-                                                  (gchar **) wsicon16_xpm);
-    }
+	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon16_xpm);
+	ws_icon_list = g_list_append (ws_icon_list, icon);
+	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon32_xpm);
+	ws_icon_list = g_list_append (ws_icon_list, icon);
+	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon48_xpm);
+	ws_icon_list = g_list_append (ws_icon_list, icon);
+	icon = gdk_pixbuf_new_from_xpm_data ((const char **) wsicon64_xpm);
+	ws_icon_list = g_list_append (ws_icon_list, icon);
+	gtk_window_set_icon_list(GTK_WINDOW(win), ws_icon_list);
 
-    gdk_window_set_icon (gtk_widget_get_window(win), NULL, icon_pmap, icon_mask);
 #endif
 }
 
