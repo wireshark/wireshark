@@ -308,6 +308,8 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
 
         http://mail.gnome.org/archives/gtk-devel-list/2001-March/msg00289.html
         http://www.gtk.org/faq/#AEN606
+
+		As gdk_window_get_deskrelative_origin() is deprecated it has been removed 2011-07-24.
      */
 
     memset (geom, 0, sizeof (window_geometry_t));
@@ -317,21 +319,16 @@ window_get_geometry(GtkWidget *widget, window_geometry_t *geom)
     gdk_window_get_root_origin(widget_window,
         &geom->x,
         &geom->y);
-    if (gdk_window_get_deskrelative_origin(widget_window,
-                                           &desk_x, &desk_y)) {
-        if (desk_x <= geom->x &&
-            desk_y <= geom->y)
-        {
-            geom->x = desk_x;
-            geom->y = desk_y;
-        }
-    }
 
     /* XXX - Is this the "approved" method? */
+#if GTK_CHECK_VERSION(2,24,0)
+	geom->width = gdk_window_get_width(widget_window);
+	geom->height = gdk_window_get_height (widget_window);
+#else
     gdk_drawable_get_size(widget_window,
         &geom->width,
         &geom->height);
-
+#endif
     state = gdk_window_get_state(widget_window);
     geom->maximized = (state == GDK_WINDOW_STATE_MAXIMIZED);
 }

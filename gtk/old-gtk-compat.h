@@ -47,6 +47,7 @@
 #endif
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
+#	define gtk_widget_getvisible(x) GTK_WIDGET_VISIBLE(x)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)

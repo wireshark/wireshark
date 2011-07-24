@@ -3439,11 +3439,7 @@ is_widget_visible(GtkWidget *widget, gpointer data)
     gboolean *is_visible = data;
 
     if (!*is_visible) {
-#if GTK_CHECK_VERSION(2,18,0)
         if (gtk_widget_get_visible(widget))
-#else
-        if (GTK_WIDGET_VISIBLE(widget))
-#endif
             *is_visible = TRUE;
     }
 }
