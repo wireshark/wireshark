@@ -1016,13 +1016,14 @@ my %deprecatedGtkFunctions = (
 		'gdk_draw_layout_line',						'W', # 
 		'gdk_draw_layout_line_with_colors',			'W', # 
 		'gdk_draw_layout_with_colors',				'W', # 
-		'gdk_draw_line',							'W', # 
+		'gdk_draw_line',							'W', # deprecated since version 2.22. Use cairo_line_to() and cairo_stroke()
 		'gdk_draw_lines',							'W', # deprecated since version 2.22. Use cairo_line_to() and cairo_stroke() instead.
 		'gdk_draw_pixbuf',							'W', # gdk_cairo_set_source_pixbuf() and cairo_paint() or cairo_rectangle() and cairo_fill() instead.
 		'gdk_draw_pixmap',							'W', # gdk_draw_drawable() (gdk_draw_drawable has been deprecated since version 2.22 )
 		'gdk_draw_point',							'W', # 
 		'gdk_draw_points',							'W', # 
-		'gdk_draw_polygon',							'W', # 
+		'gdk_draw_polygon',							'W', # deprecated since version 2.22. Use cairo_line_to() or cairo_append_path() and cairo_fill() 
+														 # or cairo_stroke() instead.
 		'gdk_draw_rectangle',						'W', # deprecated since version 2.22, Use cairo_rectangle() and cairo_fill() or cairo_stroke() 
 		'gdk_draw_rgb_32_image',					'W', # 
 		'gdk_draw_rgb_32_image_dithalign',			'W', # 
@@ -1072,7 +1073,7 @@ my %deprecatedGtkFunctions = (
 		'gdk_gc_set_colormap',						'W', # 
 		'gdk_gc_set_dashes',						'W', # 
 		'gdk_gc_set_exposures',						'W', # 
-		'gdk_gc_set_fill',							'W', # 
+		'gdk_gc_set_fill',							'W', # deprecated since version 2.22. Use cairo_pattern_set_extend() on the source.
 		'gdk_gc_set_font',							'W', # 
 		'gdk_gc_set_foreground',					'W', # deprecated since version 2.22. Use gdk_cairo_set_source_color() to use a GdkColor as the source in Cairo. 
 		'gdk_gc_set_function',						'W', # deprecated since version 2.22. Use cairo_set_operator() with Cairo.
@@ -1082,6 +1083,9 @@ my %deprecatedGtkFunctions = (
 		'gdk_gc_set_stipple',						'W', # 
 		'gdk_gc_set_subwindow',						'W', # 
 		'gdk_gc_set_tile',							'W', # deprecated since version 2.22.
+														 # The following code snippet sets a tiling GdkPixmap as the source in Cairo: 
+														 # gdk_cairo_set_source_pixmap (cr, tile, ts_origin_x, ts_origin_y);
+														 # cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
 		'gdk_gc_set_ts_origin',						'W', # 
 		'gdk_gc_set_values',						'W', # 
 		'gdk_gc_unref',								'E', # deprecated since version 2.0. Use g_object_unref() 
