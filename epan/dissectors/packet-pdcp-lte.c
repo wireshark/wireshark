@@ -293,7 +293,8 @@ static const value_string ip_protocol_vals[] = {
 
 
 static dissector_handle_t ip_handle;
-
+static dissector_handle_t ipv6_handle;
+static dissector_handle_t data_handle;
 
 /* Preference variables */
 static gboolean global_pdcp_show_feedback_option_tag_length = FALSE;
@@ -2135,7 +2136,17 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             if (p_pdcp_info->plane == USER_PLANE) {
                 if (global_pdcp_dissect_user_plane_as_ip) {
                     tvbuff_t *payload_tvb = tvb_new_subset_remaining(tvb, offset);
-                    call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
+                    switch (tvb_get_guint8(tvb, offset) & 0xf0) {
+                        case 0x40:
+                            call_dissector_only(ip_handle, payload_tvb, pinfo, pdcp_tree);
+                            break;
+                        case 0x60:
+                            call_dissector_only(ipv6_handle, payload_tvb, pinfo, pdcp_tree);
+                            break;
+                        default:
+                            call_dissector_only(data_handle, payload_tvb, pinfo, pdcp_tree);
+                            break;
+                    }
                 }
                 else {
                     proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
@@ -3058,5 +3069,7 @@ void proto_reg_handoff_pdcp_lte(void)
     heur_dissector_add("udp", dissect_pdcp_lte_heur, proto_pdcp_lte);
 
     ip_handle = find_dissector("ip");
+    ipv6_handle = find_dissector("ipv6");
+    data_handle = find_dissector("data");
 }
 
