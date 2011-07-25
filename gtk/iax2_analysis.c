@@ -143,7 +143,6 @@ typedef struct _dialog_graph_graph_t {
 	GtkWidget *display_button;
 	int hf_index;
 	GdkColor color;
-	GdkGC *gc;
 	gchar title[100];
 } dialog_graph_graph_t;
 
@@ -360,40 +359,40 @@ iax2_reset(void *user_data_arg)
 }
 
 /****************************************************************************/
-static int iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, packet_info *pinfo, guint32 value)
+static gboolean iax2_packet_add_graph(dialog_graph_graph_t *dgg, tap_iax2_stat_t *statinfo, packet_info *pinfo, guint32 value)
 {
 	dialog_graph_graph_item_t *it;
-	int idx;
+	guint32 idx;
 	double rtp_time;
 
 	/* we sometimes get called when dgg is disabled.
 	this is a bug since the tap listener should be removed first */
 	if(!dgg->display){
-		return 0;
+		return FALSE;
 	}
 
 	dgg->ud->dlg.dialog_graph.needs_redraw=TRUE;
 
 	/*
-	* Find which interval this is supposed to to in and store the
+	* Find which interval this is supposed to go in and store the
 	* interval index as idx
 	*/
 	if (dgg->ud->dlg.dialog_graph.start_time == -1){ /* it is the first */
 		dgg->ud->dlg.dialog_graph.start_time = statinfo->start_time;
 	}
-	rtp_time = nstime_to_sec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
+	rtp_time = nstime_to_msec(&pinfo->fd->rel_ts) - dgg->ud->dlg.dialog_graph.start_time;
 	if(rtp_time<0){
 		return FALSE;
 	}
-	idx = (guint32)(rtp_time*1000)/dgg->ud->dlg.dialog_graph.interval;
+	idx = (guint32)(rtp_time)/dgg->ud->dlg.dialog_graph.interval;
 
 	/* some sanity checks */
-	if((idx<0)||(idx>=NUM_GRAPH_ITEMS)){
+	if(idx>=NUM_GRAPH_ITEMS){
 		return FALSE;
 	}
 
 	/* update num_items */
-	if((guint32)idx > dgg->ud->dlg.dialog_graph.num_items){
+	if(idx > dgg->ud->dlg.dialog_graph.num_items){
 		dgg->ud->dlg.dialog_graph.num_items=idx;
 		dgg->ud->dlg.dialog_graph.max_interval=idx*dgg->ud->dlg.dialog_graph.interval;
 	}
@@ -922,6 +921,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	int label_width_mid, label_height_mid;
 	guint32 draw_width, draw_height;
 	char label_string[15];
+	cairo_t *cr;
 
 	/* new variables */
 	guint32 num_time_intervals;
@@ -974,12 +974,15 @@ static void dialog_graph_draw(user_data_t* user_data)
 	/*
 	 * Clear out old plot
 	 */
-	gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
-			   gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->white_gc,
-			   TRUE,
-			   0, 0,
-			   user_data->dlg.dialog_graph.draw_area->allocation.width,
-			   user_data->dlg.dialog_graph.draw_area->allocation.height);
+	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, 
+		0, 
+		0, 
+		user_data->dlg.dialog_graph.draw_area->allocation.width,
+		user_data->dlg.dialog_graph.draw_area->allocation.height);
+	cairo_fill (cr);
+	cairo_destroy (cr);
 
 
 	/*
@@ -1030,11 +1033,13 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 * Draw the y axis and labels
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
-	gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-		user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
-		top_y_border,
-		user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
-		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border);
+	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+	cairo_set_line_width (cr, 1.0);
+	cairo_move_to(cr, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1.5, top_y_border+0.5);
+	cairo_line_to(cr, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1.5, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+0.5);
+	cairo_stroke(cr);
+	cairo_destroy(cr);
+
 	for(i=0;i<=10;i++){
 		int xwidth;
 
@@ -1044,11 +1049,17 @@ static void dialog_graph_draw(user_data_t* user_data)
 			xwidth=10;
 		}
 		/* draw the tick */
-		gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-			user_data->dlg.dialog_graph.pixmap_width-right_x_border+1,
-			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10,
-			user_data->dlg.dialog_graph.pixmap_width-right_x_border+1+xwidth,
-			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10);
+		cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr, 
+			user_data->dlg.dialog_graph.pixmap_width-right_x_border+1.5, 
+			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+0.5);
+		
+		cairo_line_to(cr, 
+			user_data->dlg.dialog_graph.pixmap_width-right_x_border+1.5+xwidth,
+			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10+0.5);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
 		/* draw the labels */
 		if(i==0){
 			print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
@@ -1100,7 +1111,12 @@ static void dialog_graph_draw(user_data_t* user_data)
 
 /*XXX*/
 	/* plot the x-scale */
-	gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc, left_x_border, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1);
+	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+	cairo_set_line_width (cr, 1.0);
+	cairo_move_to(cr, left_x_border+0.5, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1.5);
+	cairo_line_to(cr, user_data->dlg.dialog_graph.pixmap_width-right_x_border+1.5,user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1.5);
+	cairo_stroke(cr);
+	cairo_destroy(cr);
 
 	if((last_interval/user_data->dlg.dialog_graph.interval)>draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1){
 		first_interval=(last_interval/user_data->dlg.dialog_graph.interval)-draw_width/user_data->dlg.dialog_graph.pixels_per_tick+1;
@@ -1135,11 +1151,12 @@ static void dialog_graph_draw(user_data_t* user_data)
 		}
 
 		x=draw_width+left_x_border-((last_interval-current_interval)/user_data->dlg.dialog_graph.interval)*user_data->dlg.dialog_graph.pixels_per_tick;
-		gdk_draw_line(user_data->dlg.dialog_graph.pixmap, gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-			      x-1-user_data->dlg.dialog_graph.pixels_per_tick/2,
-			      user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1,
-			      x-1-user_data->dlg.dialog_graph.pixels_per_tick/2,
-			      user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+xlen+1);
+		cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr, x-1-user_data->dlg.dialog_graph.pixels_per_tick/2+0.5, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+1.5);
+		cairo_line_to(cr, x-1-user_data->dlg.dialog_graph.pixels_per_tick/2+0.5, user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+xlen+1.5);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
 
 		if(xlen==17){
 			if(user_data->dlg.dialog_graph.interval>=1000){
@@ -1261,9 +1278,13 @@ static void dialog_graph_draw(user_data_t* user_data)
 			}
 
 			if(val){
-				gdk_draw_line(user_data->dlg.dialog_graph.pixmap, user_data->dlg.dialog_graph.graph[i].gc,
-				x_pos, draw_height-1+top_y_border,
-				x_pos, y_pos);
+				cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+				gdk_cairo_set_source_color (cr, &user_data->dlg.dialog_graph.graph[i].color);
+				cairo_set_line_width (cr, 1.0);
+				cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
+				cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
 			}
 
 			prev_y_pos=y_pos;
@@ -1272,16 +1293,13 @@ static void dialog_graph_draw(user_data_t* user_data)
 	}
 
 
-	gdk_draw_pixmap(gtk_widget_get_window(user_data->dlg.dialog_graph.draw_area),
-#if GTK_CHECK_VERSION(2,18,0)
-			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->fg_gc[gtk_widget_get_state(user_data->dlg.dialog_graph.draw_area)],
-#else
-			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->fg_gc[GTK_WIDGET_STATE(user_data->dlg.dialog_graph.draw_area)],
-#endif
-			user_data->dlg.dialog_graph.pixmap,
-			0, 0,
-			0, 0,
-			user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
+	cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.dialog_graph.draw_area));
+
+	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
+	cairo_rectangle (cr, 0, 0, user_data->dlg.dialog_graph.pixmap_width, user_data->dlg.dialog_graph.pixmap_height);
+	cairo_fill (cr);
+
+	cairo_destroy (cr);
 
 
 	/* update the scrollbar */
@@ -1319,17 +1337,13 @@ static void draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	user_data_t *user_data = data;
+	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
-	gdk_draw_pixmap(gtk_widget_get_window(widget),
-#if GTK_CHECK_VERSION(2,18,0)
-			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
-#else
-			gtk_widget_get_style(widget)->fg_gc[GTK_WIDGET_STATE(widget)],
-#endif
-			user_data->dlg.dialog_graph.pixmap,
-			event->area.x, event->area.y,
-			event->area.x, event->area.y,
-			event->area.width, event->area.height);
+	gdk_cairo_set_source_pixmap (cr, user_data->dlg.dialog_graph.pixmap, 0, 0);
+	cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+	cairo_fill (cr);
+
+	cairo_destroy (cr);
 
 	return FALSE;
 }
@@ -1338,7 +1352,7 @@ static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event,
 static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
 	user_data_t *user_data = data;
-	int i;
+	cairo_t *cr;
 
 	if(user_data->dlg.dialog_graph.pixmap){
 		g_object_unref(user_data->dlg.dialog_graph.pixmap);
@@ -1352,18 +1366,11 @@ static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *
 	user_data->dlg.dialog_graph.pixmap_width=widget->allocation.width;
 	user_data->dlg.dialog_graph.pixmap_height=widget->allocation.height;
 
-	gdk_draw_rectangle(user_data->dlg.dialog_graph.pixmap,
-			gtk_widget_get_style(widget)->white_gc,
-			TRUE,
-			0, 0,
-			widget->allocation.width,
-			widget->allocation.height);
-
-	/* set up the colors and the GC structs for this pixmap */
-	for(i=0;i<MAX_GRAPHS;i++){
-		user_data->dlg.dialog_graph.graph[i].gc=gdk_gc_new(user_data->dlg.dialog_graph.pixmap);
-		gdk_gc_set_rgb_fg_color(user_data->dlg.dialog_graph.graph[i].gc, &user_data->dlg.dialog_graph.graph[i].color);
-	}
+	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+	cairo_rectangle (cr, 0, 0, widget->allocation.width, widget->allocation.height);
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_fill (cr);
+	cairo_destroy (cr);
 
 	dialog_graph_redraw(user_data);
 	return TRUE;
@@ -3428,7 +3435,6 @@ void iax2_analysis(
 	user_data->dlg.dialog_graph.start_time = -1;
 
 	for(i=0;i<MAX_GRAPHS;i++){
-		user_data->dlg.dialog_graph.graph[i].gc=NULL;
 		user_data->dlg.dialog_graph.graph[i].color.pixel=0;
 		user_data->dlg.dialog_graph.graph[i].color.red=col[i].red;
 		user_data->dlg.dialog_graph.graph[i].color.green=col[i].green;
