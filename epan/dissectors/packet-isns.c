@@ -267,6 +267,7 @@ static const value_string isns_function_ids[] = {
 
     {0x0,NULL},
 };
+static value_string_ext isns_function_ids_ext = VALUE_STRING_EXT_INIT(isns_function_ids);
 
 #define ISNS_ENTITY_PROTOCOL_NO_PROTOCOL 1
 #define ISNS_ENTITY_PROTOCOL_ISCSI       2
@@ -309,6 +310,7 @@ static const value_string isns_errorcode[] = {
 
     {0x0,NULL}
 };
+static value_string_ext isns_errorcode_ext = VALUE_STRING_EXT_INIT(isns_errorcode);
 
 
 #define ISNS_ATTR_TAG_DELIMITER                     0
@@ -469,7 +471,7 @@ static const value_string isns_attribute_tags[] = {
 
     {0,NULL}
 };
-
+static value_string_ext isns_attribute_tags_ext = VALUE_STRING_EXT_INIT(isns_attribute_tags);
 
 /* iSNS flags */
 #define ISNS_FLAGS_CLIENT	0x8000
@@ -557,18 +559,10 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint offset = 0;
     guint16 function_id;
-    guint16 isns_protocol_version;
-    guint32 packet_len = tvb_length(tvb);
-    /* Set up structures needed to add the protocol subtree and manage it */
-    proto_item *ti = NULL;
-    proto_tree *isns_tree = NULL;
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "iSNS");
     col_clear(pinfo->cinfo, COL_INFO);
-
-    /* Get the protocol version - only version one at the moment*/
-    isns_protocol_version = tvb_get_ntohs(tvb, offset + 0);
 
     /* Get the function id from the packet */
     function_id =  tvb_get_ntohs(tvb, offset + 2);
@@ -576,60 +570,43 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* Add the function name in the info col */
     if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_str(pinfo->cinfo, COL_INFO,
-	            val_to_str(function_id, isns_function_ids,
+	            val_to_str_ext(function_id, &isns_function_ids_ext,
 	                       "Unknown function ID 0x%04x"));
 
-    /* In the interest of speed, if "tree" is NULL, don't do any work not
-     * necessary to generate protocol tree items.
-     */
     if (tree) {
-	guint16 b;
-	guint16 flags;
+        proto_item *ti;
+        proto_tree *isns_tree;
+	guint16     flags;
 	proto_tree *tt;
 	proto_item *tflags;
 	proto_item *tpayload;
 
-	/* NOTE: The offset and length values in the call to
-	 * "proto_tree_add_item()" define what data bytes to highlight in the hex
-	 * display window when the line in the protocol tree display
-	 * corresponding to that item is selected.
-	 *  tvb_length(tvb) is a handy way to highlight all data from the offset to
-	 *  the end of the packet.
-	 */
-
 	/* create display subtree for the protocol */
-	ti = proto_tree_add_item(tree, proto_isns, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_isns, tvb, 0, -1, ENC_BIG_ENDIAN);
 	isns_tree = proto_item_add_subtree(ti, ett_isns);
 
 	/* OK... Sort out the header */
-	b = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_uint(isns_tree, hf_isns_version, tvb, offset, 2, b);
-
-	b = tvb_get_ntohs(tvb, offset + 2);
-	proto_tree_add_uint(isns_tree, hf_isns_function_id, tvb, offset+2, 2, b);
-
-	b = tvb_get_ntohs(tvb, offset + 4);
-	proto_tree_add_uint(isns_tree, hf_isns_pdu_length, tvb, offset+4, 2, b);
+	proto_tree_add_item(isns_tree, hf_isns_version,     tvb, offset,   2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(isns_tree, hf_isns_function_id, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(isns_tree, hf_isns_pdu_length,  tvb, offset+4, 2, ENC_BIG_ENDIAN);
 
 	/*FLAGS*/
-	flags = tvb_get_ntohs(tvb, offset + 6);
-	tflags = proto_tree_add_uint(isns_tree, hf_isns_flags, tvb, offset+6, 2, flags);
-	tt = proto_item_add_subtree(tflags, ett_isns_flags);
+	flags  = tvb_get_ntohs(tvb, offset + 6);
+	tflags = proto_tree_add_item(isns_tree, hf_isns_flags, tvb, offset+6, 2, ENC_BIG_ENDIAN);
+	tt     = proto_item_add_subtree(tflags, ett_isns_flags);
 
-	proto_tree_add_boolean(tt, hf_isns_client, tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_server, tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_auth, tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_replace, tvb, offset+6, 2, flags);
-	proto_tree_add_boolean(tt, hf_isns_last_pdu, tvb, offset+6, 2, flags);
+	proto_tree_add_boolean(tt, hf_isns_client,    tvb, offset+6, 2, flags);
+	proto_tree_add_boolean(tt, hf_isns_server,    tvb, offset+6, 2, flags);
+	proto_tree_add_boolean(tt, hf_isns_auth,      tvb, offset+6, 2, flags);
+	proto_tree_add_boolean(tt, hf_isns_replace,   tvb, offset+6, 2, flags);
+	proto_tree_add_boolean(tt, hf_isns_last_pdu,  tvb, offset+6, 2, flags);
 	proto_tree_add_boolean(tt, hf_isns_first_pdu, tvb, offset+6, 2, flags);
 
-	b = tvb_get_ntohs(tvb, offset + 8);
-	proto_tree_add_uint(isns_tree, hf_isns_transaction_id, tvb, offset+8, 2, b);
+	proto_tree_add_item(isns_tree, hf_isns_transaction_id, tvb, offset+8,  2, ENC_BIG_ENDIAN);
 
-	b = tvb_get_ntohs(tvb, offset + 10);
-	proto_tree_add_uint(isns_tree, hf_isns_sequence_id, tvb, offset+10, 2, b);
+	proto_tree_add_item(isns_tree, hf_isns_sequence_id,    tvb, offset+10, 2, ENC_BIG_ENDIAN);
 
-	tpayload = proto_tree_add_item(isns_tree, hf_isns_payload, tvb, offset+12, packet_len - 12 , FALSE);
+	tpayload = proto_tree_add_item(isns_tree, hf_isns_payload, tvb, offset+12, -1, ENC_NA);
 	tt = proto_item_add_subtree(tpayload, ett_isns_payload);
 
 	/* Now set the offset to the start of the payload */
@@ -640,27 +617,19 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 	case ISNS_FUNC_HEARTBEAT:
 	{
-	    guint8 hb_ipv6[16];
-	    guint16 port;
-	    guint32 c;
-	    tvb_memcpy(tvb,hb_ipv6,offset,16);
-	    proto_tree_add_ipv6(tt,hf_isns_heartbeat_ipv6_addr, tvb, offset, 16, hb_ipv6);
+	    proto_tree_add_item(tt,hf_isns_heartbeat_ipv6_addr, tvb, offset, 16, ENC_NA);
 	    offset += 16;
 
-	    port = tvb_get_ntohs(tvb, offset);
-	    proto_tree_add_uint(tt,hf_isns_heartbeat_tcp_port, tvb, offset, 2, port);
+	    proto_tree_add_item(tt,hf_isns_heartbeat_tcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 	    offset += 2;
 
-	    port = tvb_get_ntohs(tvb, offset);
-	    proto_tree_add_uint(tt,hf_isns_heartbeat_udp_port, tvb, offset, 2, port);
+	    proto_tree_add_item(tt,hf_isns_heartbeat_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 	    offset += 2;
 
-	    c = tvb_get_ntohl(tvb, offset);
-	    proto_tree_add_uint(tt,hf_isns_heartbeat_interval, tvb, offset, 4, c);
+	    proto_tree_add_item(tt,hf_isns_heartbeat_interval, tvb, offset, 4, ENC_BIG_ENDIAN);
 	    offset += 4;
 
-	    c = tvb_get_ntohl(tvb, offset);
-	    proto_tree_add_uint(tt,hf_isns_heartbeat_counter, tvb, offset, 4, c);
+	    proto_tree_add_item(tt,hf_isns_heartbeat_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
 	    offset += 4;
 	    break;
 	}
@@ -683,11 +652,16 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ISNS_FUNC_RSP_GETDOMID:
 	{
 	    /* Get the Error message of the response */
-	    guint32 errorcode =  tvb_get_ntohl(tvb, offset);
-	    proto_tree_add_uint(tt,hf_isns_resp_errorcode, tvb, offset, 4, errorcode);
-	    offset += 4;
-	    /* Messages */
+	    /*  The Error field exists only at the beginning of a message (i.e., in the first PDU */
+	    if(flags&ISNS_FLAGS_FIRST_PDU){
+		    proto_tree_add_item(tt,hf_isns_resp_errorcode, tvb, offset, 4, ENC_BIG_ENDIAN);
+		    offset += 4;
+	    }
+            /* Fall Thru if there are attributes */
+            if (tvb_reported_length_remaining(tvb, offset) == 0)
+                return;
 	}
+	/* Messages */
 	case ISNS_FUNC_DEVATTRREG:
 	case ISNS_FUNC_DEVATTRQRY:
 	case ISNS_FUNC_DEVGETNEXT:
@@ -705,16 +679,21 @@ dissect_isns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case ISNS_FUNC_RLSEDOMID:
 	case ISNS_FUNC_GETDOMID:
 	default:
+        {
+            guint packet_len;
+
 	    /* we can only look at the attributes for the first PDU */
 	    if(!(flags&ISNS_FLAGS_FIRST_PDU)){
-		proto_tree_add_text(tt, tvb, offset, packet_len-offset, "This is not the first PDU. The attributes are not decoded");
+		proto_tree_add_text(tt, tvb, offset, -1, "This is not the first PDU. The attributes are not decoded");
 		return;
 	    }
 
+            packet_len = tvb_reported_length(tvb);
 	    while( offset < packet_len )
 	    {
 		offset = AddAttribute(pinfo, tvb, tt, offset, function_id);
 	    }
+        }
 	}
     }
 
@@ -751,12 +730,12 @@ dissect_isns_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get the function id from the packet */
     function_id =  tvb_get_ntohs(tvb, 2);
-    if (match_strval(function_id, isns_function_ids) == NULL) {
+    if (match_strval_ext(function_id, &isns_function_ids_ext) == NULL) {
         /* Unknown function ID */
         return 0;
     }
 
-    tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, 12, get_isns_pdu_len,
+    tcp_dissect_pdus(tvb, pinfo, tree, isns_desegment, ISNS_HEADER_SIZE, get_isns_pdu_len,
                      dissect_isns_pdu);
     return length;
 }
@@ -782,7 +761,7 @@ dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Get the function id from the packet */
     function_id =  tvb_get_ntohs(tvb, 2);
-    if (match_strval(function_id, isns_function_ids) == NULL) {
+    if (match_strval_ext(function_id, &isns_function_ids_ext) == NULL) {
         /* Unknown function ID */
         return 0;
     }
@@ -795,16 +774,17 @@ dissect_isns_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static guint
 dissect_isns_attr_ip_address(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
 
-    if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+    if(parent_tree) {
+        proto_item *item;
+        proto_tree *tree;
+
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
         tree = proto_item_add_subtree(item, ett_isns_attribute);
-    }
 
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    }
 
     return offset+8+len;
 }
@@ -812,16 +792,16 @@ dissect_isns_attr_ip_address(tvbuff_t *tvb, guint offset, proto_tree *parent_tre
 static guint
 dissect_isns_attr_string(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-        tree = proto_item_add_subtree(item, ett_isns_attribute);
-    }
+        proto_item *item;
+        proto_tree *tree;
 
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
+        tree = proto_item_add_subtree(item, ett_isns_attribute);
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    }
 
     return offset+8+len;
 }
@@ -829,9 +809,6 @@ dissect_isns_attr_string(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, i
 static guint
 dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len, guint16 function_id)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-
     /*
      * 5.6.5.1
      * in a DevAttrReg , the PGT (tag 51) may be sent as 0 length
@@ -842,26 +819,25 @@ dissect_isns_attr_integer(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, 
      * not find this mentioned in the standard) so allow it for the
      * response as well.
      */
-    if(len){
-        if(parent_tree){
-            item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-            tree = proto_item_add_subtree(item, ett_isns_attribute);
-        }
-    } else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&((function_id==ISNS_FUNC_DEVATTRREG)||(function_id==ISNS_FUNC_RSP_DEVATTRREG))){
-        /* 5.6.5.1 */
-        if(parent_tree){
-            item=proto_tree_add_uint_format(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "PG Tag: <NULL>");
-            tree = proto_item_add_subtree(item, ett_isns_attribute);
-        }
-    } else {
-        if(parent_tree){
-            item=proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");
-            tree = proto_item_add_subtree(item, ett_isns_attribute);
-        }
-    }
+    if (parent_tree){
+        proto_item *item;
+        proto_tree *tree;
 
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        if(len){
+            item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
+            tree = proto_item_add_subtree(item, ett_isns_attribute);
+        } else if((tag==ISNS_ATTR_TAG_PORTAL_GROUP_TAG)&&((function_id==ISNS_FUNC_DEVATTRREG)||(function_id==ISNS_FUNC_RSP_DEVATTRREG))){
+            /* 5.6.5.1 */
+            item = proto_tree_add_uint_format(parent_tree, hf_isns_portal_group_tag, tvb, offset, 8, 0, "PG Tag: <NULL>");
+            tree = proto_item_add_subtree(item, ett_isns_attribute);
+        } else {
+            item = proto_tree_add_text(parent_tree, tvb, offset, 8, "Oops, you surprised me here. a 0 byte integer.");
+            tree = proto_item_add_subtree(item, ett_isns_attribute);
+        }
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    }
 
     return offset+8+len;
 }
@@ -870,21 +846,22 @@ static guint
 dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len,
                        guint16 isns_port_type, packet_info *pinfo)
 {
-    proto_item *tree=NULL;
-    proto_item *item=NULL;
-    guint16 port = tvb_get_ntohs(tvb, offset + 10);
-    guint16 isudp = tvb_get_ntohs(tvb, offset + 8)&0x01;
+    guint16         port  = tvb_get_ntohs(tvb, offset + 10);
+    guint16         isudp = tvb_get_ntohs(tvb, offset + 8)&0x01;
     conversation_t *conversation;
 
     if(parent_tree){
+        proto_item *tree;
+        proto_item *item;
+
         item = proto_tree_add_uint(parent_tree, hf_index, tvb, offset+8, 4, port);
         tree = proto_item_add_subtree(item, ett_isns_port);
+
+        proto_tree_add_boolean(tree, hf_isns_port_type, tvb, offset+8, 2, isudp);
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
     }
-
-    proto_tree_add_boolean(tree, hf_isns_port_type, tvb, offset+8, 2, isudp);
-
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
     if ((isns_port_type == ISNS_ESI_PORT) || (isns_port_type == ISNS_SCN_PORT)) {
         if (isudp) {
@@ -913,16 +890,16 @@ dissect_isns_attr_port(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int
 static guint
 dissect_isns_attr_none(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *tree=NULL;
-    proto_item *item=NULL;
-
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset, 8, FALSE);
-        tree = proto_item_add_subtree(item, ett_isns_port);
-    }
+        proto_item *tree;
+        proto_item *item;
 
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, 8, ENC_BIG_ENDIAN);
+        tree = proto_item_add_subtree(item, ett_isns_port);
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    }
 
     return offset+8+len;
 }
@@ -930,16 +907,16 @@ dissect_isns_attr_none(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int
 static guint
 dissect_isns_attr_not_decoded_yet(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *tree=NULL;
-    proto_item *item=NULL;
-
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
-        tree = proto_item_add_subtree(item, ett_isns_port);
-    }
+        proto_item *tree;
+        proto_item *item;
 
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
+        tree = proto_item_add_subtree(item, ett_isns_port);
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    }
 
     return offset+8+len;
 }
@@ -947,30 +924,30 @@ dissect_isns_attr_not_decoded_yet(tvbuff_t *tvb, guint offset, proto_tree *paren
 static guint
 dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    guint32 node_type=tvb_get_ntohl(tvb, offset + 8);
-
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        proto_item *item;
+        proto_tree *tree;
+        guint32 node_type = tvb_get_ntohl(tvb, offset + 8);
+
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
         tree = proto_item_add_subtree(item, ett_isns_attribute);
-    }
 
-    proto_tree_add_boolean(tree, hf_isns_isnt_control,   tvb, offset+8, 4, node_type);
-    if(node_type&0x00000004){
-        proto_item_append_text(item, " Control");
-    }
-    proto_tree_add_boolean(tree, hf_isns_isnt_initiator, tvb, offset+8, 4, node_type);
-    if(node_type&0x00000002){
-        proto_item_append_text(item, " Initiator");
-    }
-    proto_tree_add_boolean(tree, hf_isns_isnt_target,    tvb, offset+8, 4, node_type);
-    if(node_type&0x00000001){
-        proto_item_append_text(item, " Target");
-    }
+        proto_tree_add_boolean(tree, hf_isns_isnt_control,   tvb, offset+8, 4, node_type);
+        if(node_type&0x00000004){
+            proto_item_append_text(item, " Control");
+        }
+        proto_tree_add_boolean(tree, hf_isns_isnt_initiator, tvb, offset+8, 4, node_type);
+        if(node_type&0x00000002){
+            proto_item_append_text(item, " Initiator");
+        }
+        proto_tree_add_boolean(tree, hf_isns_isnt_target,    tvb, offset+8, 4, node_type);
+        if(node_type&0x00000001){
+            proto_item_append_text(item, " Target");
+        }
 
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
+    }
 
     return offset+8+len;
 }
@@ -980,25 +957,25 @@ dissect_isns_attr_iscsi_node_type(tvbuff_t *tvb, guint offset, proto_tree *paren
 static guint
 dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    guint32 psb=tvb_get_ntohl(tvb, offset + 8);
-
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        proto_item *item;
+        proto_tree *tree;
+        guint32 psb = tvb_get_ntohl(tvb, offset + 8);
+
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
         tree = proto_item_add_subtree(item, ett_isns_attribute);
+
+        proto_tree_add_boolean(tree, hf_isns_psb_tunnel_mode,     tvb, offset+8, 4, psb);
+        proto_tree_add_boolean(tree, hf_isns_psb_transport_mode,  tvb, offset+8, 4, psb);
+        proto_tree_add_boolean(tree, hf_isns_psb_pfs,             tvb, offset+8, 4, psb);
+        proto_tree_add_boolean(tree, hf_isns_psb_aggressive_mode, tvb, offset+8, 4, psb);
+        proto_tree_add_boolean(tree, hf_isns_psb_main_mode,       tvb, offset+8, 4, psb);
+        proto_tree_add_boolean(tree, hf_isns_psb_ike_ipsec,       tvb, offset+8, 4, psb);
+        proto_tree_add_boolean(tree, hf_isns_psb_bitmap,          tvb, offset+8, 4, psb);
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
     }
-
-    proto_tree_add_boolean(tree, hf_isns_psb_tunnel_mode,     tvb, offset+8, 4, psb);
-    proto_tree_add_boolean(tree, hf_isns_psb_transport_mode,  tvb, offset+8, 4, psb);
-    proto_tree_add_boolean(tree, hf_isns_psb_pfs,             tvb, offset+8, 4, psb);
-    proto_tree_add_boolean(tree, hf_isns_psb_aggressive_mode, tvb, offset+8, 4, psb);
-    proto_tree_add_boolean(tree, hf_isns_psb_main_mode,       tvb, offset+8, 4, psb);
-    proto_tree_add_boolean(tree, hf_isns_psb_ike_ipsec,       tvb, offset+8, 4, psb);
-    proto_tree_add_boolean(tree, hf_isns_psb_bitmap,          tvb, offset+8, 4, psb);
-
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
     return offset+8+len;
 }
@@ -1008,42 +985,39 @@ dissect_isns_attr_portal_security_bitmap(tvbuff_t *tvb, guint offset, proto_tree
 static guint
 dissect_isns_attr_scn_bitmap(tvbuff_t *tvb, guint offset, proto_tree *parent_tree, int hf_index, guint32 tag, guint32 len)
 {
-    proto_item *item=NULL;
-    proto_tree *tree=NULL;
-    guint32 scn_bitmap=tvb_get_ntohl(tvb, offset + 8);
-
     if(parent_tree){
-        item=proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, FALSE);
+        proto_item *item;
+        proto_tree *tree;
+        guint32 scn_bitmap = tvb_get_ntohl(tvb, offset + 8);
+
+        item = proto_tree_add_item(parent_tree, hf_index, tvb, offset + 8, len, ENC_BIG_ENDIAN);
         tree = proto_item_add_subtree(item, ett_isns_attribute);
+
+        /*
+          24              INITIATOR AND SELF INFORMATION ONLY
+          25              TARGET AND SELF INFORMATION ONLY
+          26              MANAGEMENT REGISTRATION/SCN
+          27              OBJECT REMOVED
+          28              OBJECT ADDED
+          29              OBJECT UPDATED
+          30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only)
+          31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only)
+        */
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_initiator_and_self_information_only, tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_target_and_self_information_only,    tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_management_registration_scn,         tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_removed,                      tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_added,                        tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_updated,                      tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_removed,               tvb, offset+8, 4, scn_bitmap);
+        proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_added,                 tvb, offset+8, 4, scn_bitmap);
+
+        proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
+        proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
     }
-
-
-    /*
-      24              INITIATOR AND SELF INFORMATION ONLY
-      25              TARGET AND SELF INFORMATION ONLY
-      26              MANAGEMENT REGISTRATION/SCN
-      27              OBJECT REMOVED
-      28              OBJECT ADDED
-      29              OBJECT UPDATED
-      30              DD/DDS MEMBER REMOVED (Mgmt Reg/SCN only)
-      31 (Lsb)        DD/DDS MEMBER ADDED (Mgmt Reg/SCN only)
-    */
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_initiator_and_self_information_only, tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_target_and_self_information_only,    tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_management_registration_scn,         tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_removed,                      tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_added,                        tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_object_updated,                      tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_removed,               tvb, offset+8, 4, scn_bitmap);
-    proto_tree_add_boolean(tree, hf_isns_scn_bitmap_dd_dds_member_added,                 tvb, offset+8, 4, scn_bitmap);
-
-    proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
-    proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
 
     return offset+8+len;
 }
-
-
 
 
 static guint
@@ -1059,9 +1033,9 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
     /* Now the Length */
     len = tvb_get_ntohl(tvb, offset + 4);
 
-    if (!len) {
+    if (len == 0) {
         if (tree) {
-            proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset, 4, tag);
+            proto_tree_add_uint(tree, hf_isns_attr_tag, tvb, offset,   4, tag);
             proto_tree_add_uint(tree, hf_isns_attr_len, tvb, offset+4, 4, len);
         }
         return (offset+8);
@@ -1404,165 +1378,161 @@ AddAttribute(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree, guint offset,
 
 /* Register the protocol with Wireshark */
 
-/* this format is require because a script is used to build the C function
-   that calls all the protocol registration.
-*/
-
 void proto_register_isns(void)
 {
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
 	/* The Header Stuff */
 	{ &hf_isns_version,
-	  { "iSNSP Version","isns.PVer",
+	  { "iSNSP Version", "isns.PVer",
 	    FT_UINT16, BASE_DEC, NULL, 0,
-	    "iSNS Protocol Version", HFILL}
+	    NULL, HFILL}
 	},
 	{ &hf_isns_function_id,
-	  { "Function ID","isns.functionid",
-	    FT_UINT16, BASE_DEC,VALS(isns_function_ids),0,
-	    "iSNS Function ID", HFILL}
+	  { "Function ID", "isns.functionid",
+	    FT_UINT16, BASE_DEC|BASE_EXT_STRING, &isns_function_ids_ext, 0,
+	    NULL, HFILL}
 	},
 	{ &hf_isns_pdu_length,
-	  { "PDU Length","isns.pdulength",
-	    FT_UINT16, BASE_DEC,NULL,0,
-	    "iSNS PDU Length", HFILL}
+	  { "PDU Length", "isns.pdulength",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    NULL, HFILL}
 	},
 
 	{ &hf_isns_flags,
-	  { "Flags","isns.flags",
-	    FT_UINT16, BASE_HEX,NULL,0,
-	    "iSNS Flags", HFILL}
+	  { "Flags", "isns.flags",
+	    FT_UINT16, BASE_HEX, NULL, 0,
+	    NULL, HFILL}
 	},
 	{ &hf_isns_client,
-	  { "Client","isns.flags.client",
+	  { "Client", "isns.flags.client",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_client), ISNS_FLAGS_CLIENT,
-	    "iSNS Client", HFILL}
+	    NULL, HFILL}
 	},
 	{ &hf_isns_server,
-	  { "Server","isns.flags.server",
+	  { "Server", "isns.flags.server",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_server), ISNS_FLAGS_SERVER,
-	    "iSNS Server", HFILL}
+	    NULL, HFILL}
 	},
 	{ &hf_isns_auth,
-	  { "Auth","isns.flags.authentication_block",
+	  { "Auth", "isns.flags.authentication_block",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_auth), ISNS_FLAGS_AUTH,
 	    "is iSNS Authentication Block present?", HFILL}
 	},
 	{ &hf_isns_replace,
-	  { "Replace","isns.flags.replace",
+	  { "Replace", "isns.flags.replace",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_replace), ISNS_FLAGS_REPLACE,
-	    "iSNS Replace", HFILL}
+	    NULL, HFILL}
 	},
 	{ &hf_isns_last_pdu,
-	  { "Last PDU","isns.flags.lastpdu",
+	  { "Last PDU", "isns.flags.lastpdu",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_last_pdu), ISNS_FLAGS_LAST_PDU,
-	    "iSNS Last PDU", HFILL}
+	    NULL, HFILL}
 	},
 	{ &hf_isns_first_pdu,
-	  { "First PDU","isns.flags.firstpdu",
+	  { "First PDU", "isns.flags.firstpdu",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_flag_first_pdu), ISNS_FLAGS_FIRST_PDU,
-	    "iSNS First PDU", HFILL }
+	    NULL, HFILL }
 	},
 
 
 	{ &hf_isns_transaction_id,
-	  { "Transaction ID","isns.transactionid",
-	    FT_UINT16, BASE_DEC,NULL,0,
-	    "iSNS transaction ID", HFILL}
+	  { "Transaction ID", "isns.transactionid",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    NULL, HFILL}
 	},
 	{ &hf_isns_sequence_id,
-	  { "Sequence ID","isns.sequenceid",
-	    FT_UINT16, BASE_DEC,NULL,0,
-	    "iSNS sequence ID", HFILL}
+	  { "Sequence ID", "isns.sequenceid",
+	    FT_UINT16, BASE_DEC, NULL, 0,
+	    NULL, HFILL}
 	},
 
 	{ &hf_isns_entity_protocol,
-	  { "Entity Protocol","isns.entity_protocol",
-	    FT_UINT32, BASE_DEC,VALS(isns_entity_protocol),0,
-	    "iSNS Entity Protocol", HFILL}
+	  { "Entity Protocol", "isns.entity_protocol",
+	    FT_UINT32, BASE_DEC, VALS(isns_entity_protocol), 0,
+	    NULL, HFILL}
 	},
 	/* The Payload stuff */
 
 	{ &hf_isns_dd_member_portal_port,
-	  { "DD Member Portal Port","isns.dd_member_portal_port",
+	  { "DD Member Portal Port", "isns.dd_member_portal_port",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "TCP/UDP DD Member Portal Port", HFILL }
 	},
 
 	{ &hf_isns_iscsi_node_type,
-	  { "iSCSI Node Type","isns.iscsi.node_type",
+	  { "iSCSI Node Type", "isns.iscsi.node_type",
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    NULL, HFILL }
 	},
 
 	{ &hf_isns_esi_port,
-	  { "ESI Port","isns.esi_port",
+	  { "ESI Port", "isns.esi_port",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "TCP/UDP ESI Port", HFILL }
 	},
 
 	{ &hf_isns_scn_port,
-	  { "SCN Port","isns.scn_port",
+	  { "SCN Port", "isns.scn_port",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "TCP/UDP SCN Port", HFILL }
 	},
 
 	{ &hf_isns_portal_port,
-	  { "Portal Port","isns.portal_port",
+	  { "Portal Port", "isns.portal_port",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "TCP/UDP Portal Port", HFILL }
 	},
 
 	{ &hf_isns_pg_portal_port,
-	  { "PG Portal Port","isns.pg.portal_port",
+	  { "PG Portal Port", "isns.pg.portal_port",
 	    FT_UINT32, BASE_DEC, NULL, 0,
 	    "PG Portal TCP/UDP Port", HFILL }
 	},
 
 	{ &hf_isns_port_type,
-	  { "Port Type","isns.port.port_type",
+	  { "Port Type", "isns.port.port_type",
 	    FT_BOOLEAN, 16, TFS(&tfs_isns_port_type), 0x01, /* bit 15 (or bit 1 of a 16bit word) */
 	    NULL, HFILL }
 	},
 
 	{ &hf_isns_psb,
-	  { "Portal Security Bitmap","isns.psb",
+	  { "Portal Security Bitmap", "isns.psb",
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_tunnel_mode,
-	  { "Tunnel Mode","isns.psb.tunnel",
+	  { "Tunnel Mode", "isns.psb.tunnel",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_tunnel_mode),     0x0040, /* bit 25 */
 	    "Tunnel Mode Preferred", HFILL }
 	},
 	{ &hf_isns_psb_transport_mode,
-	  { "Transport Mode","isns.psb.transport",
+	  { "Transport Mode", "isns.psb.transport",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_transport_mode),  0x0020, /* bit 26 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_pfs,
-	  { "PFS","isns.psb.pfs",
+	  { "PFS", "isns.psb.pfs",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_pfs),        0x0010, /* bit 27 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_aggressive_mode,
-	  { "Aggressive Mode","isns.psb.aggressive_mode",
+	  { "Aggressive Mode", "isns.psb.aggressive_mode",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_aggressive_mode), 0x0008, /* bit 28 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_main_mode,
-	  { "Main Mode","isns.psb.main_mode",
+	  { "Main Mode", "isns.psb.main_mode",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_main_mode),  0x0004, /* bit 29 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_ike_ipsec,
-	  { "IKE/IPSec","isns.psb.ike_ipsec",
+	  { "IKE/IPSec", "isns.psb.ike_ipsec",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_ike_ipsec),  0x0002, /* bit 30 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_psb_bitmap,
-	  { "Bitmap","isns.psb.bitmap",
+	  { "Bitmap", "isns.psb.bitmap",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_psb_bitmap),     0x0001, /* bit 31 */
 	    NULL, HFILL }
 	},
@@ -1570,377 +1540,377 @@ void proto_register_isns(void)
 
 
 	{ &hf_isns_scn_bitmap,
-	  { "iSCSI SCN Bitmap","isns.scn_bitmap",
+	  { "iSCSI SCN Bitmap", "isns.scn_bitmap",
 	    FT_UINT32, BASE_HEX, NULL, 0,
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_initiator_and_self_information_only,
-	  { "Initiator And Self Information Only","isns.scn_bitmap.initiator_and_self_information_only",
+	  { "Initiator And Self Information Only", "isns.scn_bitmap.initiator_and_self_information_only",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_initiator_and_self_information_only),     0x0080, /* bit 24 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_target_and_self_information_only,
-	  { "Target And Self Information Only","isns.scn_bitmap.target_and_self_information_only",
+	  { "Target And Self Information Only", "isns.scn_bitmap.target_and_self_information_only",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_target_and_self_information_only),     0x0040, /* bit 25 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_management_registration_scn,
-	  { "Management Registration/SCN","isns.scn_bitmap.management_registration_scn",
+	  { "Management Registration/SCN", "isns.scn_bitmap.management_registration_scn",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_management_registration_scn),     0x0020, /* bit 26 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_removed,
-	  { "Object Removed","isns.scn_bitmap.object_removed",
+	  { "Object Removed", "isns.scn_bitmap.object_removed",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_removed),     0x0010, /* bit 27 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_added,
-	  { "Object Added","isns.scn_bitmap.object_added",
+	  { "Object Added", "isns.scn_bitmap.object_added",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_added),     0x0008, /* bit 28 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_object_updated,
-	  { "Object Updated","isns.scn_bitmap.object_updated",
+	  { "Object Updated", "isns.scn_bitmap.object_updated",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_object_updated),     0x0004, /* bit 29 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_removed,
-	  { "DD/DDS Member Removed (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_removed",
+	  { "DD/DDS Member Removed (Mgmt Reg/SCN only)", "isns.scn_bitmap.dd_dds_member_removed",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_removed),     0x0002, /* bit 30 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_scn_bitmap_dd_dds_member_added,
-	  { "DD/DDS Member Added (Mgmt Reg/SCN only)","isns.scn_bitmap.dd_dds_member_added",
+	  { "DD/DDS Member Added (Mgmt Reg/SCN only)", "isns.scn_bitmap.dd_dds_member_added",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_scn_bitmap_dd_dds_member_added),     0x0001, /* bit 31 */
 	    NULL, HFILL }
 	},
 
 
 	{ &hf_isns_isnt_control,
-	  { "Control","isns.isnt.control",
+	  { "Control", "isns.isnt.control",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_control),  0x0004, /* bit 29 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_isnt_initiator,
-	  { "Initiator","isns.isnt.initiator",
+	  { "Initiator", "isns.isnt.initiator",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_initiator),  0x0002, /* bit 30 */
 	    NULL, HFILL }
 	},
 	{ &hf_isns_isnt_target,
-	  { "Target","isns.isnt.target",
+	  { "Target", "isns.isnt.target",
 	    FT_BOOLEAN, 32, TFS(&tfs_isns_isnt_target),     0x0001, /* bit 31 */
 	    NULL, HFILL }
 	},
 
 
 	{ &hf_isns_resp_errorcode,
-	  { "ErrorCode","isns.errorcode",
-	    FT_UINT32, BASE_DEC,VALS(isns_errorcode),0,
+	  { "ErrorCode", "isns.errorcode",
+	    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &isns_errorcode_ext, 0,
 	    "iSNS Response Error Code", HFILL}
 	},
 
 	{ &hf_isns_attr_tag,
-	  { "Attribute Tag","isns.attr.tag",
-	    FT_UINT32, BASE_DEC,VALS(isns_attribute_tags),0,
-	    "iSNS Attribute Tag", HFILL}
+	  { "Attribute Tag", "isns.attr.tag",
+	    FT_UINT32, BASE_DEC|BASE_EXT_STRING, &isns_attribute_tags_ext, 0,
+	    NULL, HFILL}
 	},
 
 	{ &hf_isns_attr_len,
-	  { "Attribute Length","isns.attr.len",
-	    FT_UINT32, BASE_DEC,NULL,0,
-	    "iSNS Attribute Length", HFILL}
+	  { "Attribute Length", "isns.attr.len",
+	    FT_UINT32, BASE_DEC, NULL, 0,
+	    NULL, HFILL}
 	},
 
 	{ &hf_isns_delimiter,
-	  { "Delimiter","isns.delimiter",
+	  { "Delimiter", "isns.delimiter",
 	    FT_NONE, BASE_NONE, NULL,0,
-	    "iSNS Delimiter", HFILL}
+	   NULL, HFILL}
 	},
 
 	{ &hf_isns_not_decoded_yet,
-	  { "Not Decoded Yet","isns.not_decoded_yet",
-	    FT_NONE, BASE_NONE, NULL,0,
+	  { "Not Decoded Yet", "isns.not_decoded_yet",
+	    FT_NONE, BASE_NONE, NULL, 0,
 	    "This tag is not yet decoded by Wireshark", HFILL}
 	},
 
 	{ &hf_isns_heartbeat_ipv6_addr,
-	  { "Heartbeat Address (ipv6)","isns.heartbeat.address",
+	  { "Heartbeat Address (ipv6)", "isns.heartbeat.address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "Server IPv6 Address", HFILL }},
 
 	{ &hf_isns_heartbeat_tcp_port,
-	  { "Heartbeat TCP Port","isns.heartbeat.tcpport",
+	  { "Heartbeat TCP Port", "isns.heartbeat.tcpport",
 	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Server TCP Port", HFILL }},
 
 	{ &hf_isns_heartbeat_udp_port,
-	  { "Heartbeat UDP Port","isns.heartbeat.udpport",
+	  { "Heartbeat UDP Port", "isns.heartbeat.udpport",
 	    FT_UINT16, BASE_DEC, NULL, 0x0,
 	    "Server UDP Port", HFILL }},
 
 
 	{ &hf_isns_heartbeat_interval,
-	  { "Heartbeat Interval (secs)","isns.heartbeat.interval",
+	  { "Heartbeat Interval (secs)", "isns.heartbeat.interval",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Server Heartbeat interval", HFILL }},
 
 	{ &hf_isns_heartbeat_counter,
-	  { "Heartbeat counter","isns.heartbeat.counter",
+	  { "Heartbeat counter", "isns.heartbeat.counter",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Server Heartbeat Counter", HFILL }},
 
 	{ &hf_isns_iscsi_name,
-	  { "iSCSI Name","isns.iscsi_name",
+	  { "iSCSI Name", "isns.iscsi_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "iSCSI Name of device", HFILL }},
 
 	{ &hf_isns_dd_member_iscsi_name,
-	  { "DD Member iSCSI Name","isns.dd_member.iscsi_name",
+	  { "DD Member iSCSI Name", "isns.dd_member.iscsi_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "DD Member iSCSI Name of device", HFILL }},
 
 	{ &hf_isns_virtual_fabric_id,
-	  { "Virtual Fabric ID","isns.virtual_fabric_id",
+	  { "Virtual Fabric ID", "isns.virtual_fabric_id",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_proxy_iscsi_name,
-	  { "Proxy iSCSI Name","isns.proxy_iscsi_name",
+	  { "Proxy iSCSI Name", "isns.proxy_iscsi_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_fc4_descriptor,
-	  { "FC4 Descriptor","isns.fc4_descriptor",
+	  { "FC4 Descriptor", "isns.fc4_descriptor",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "FC4 Descriptor of this device", HFILL }},
 
 	{ &hf_isns_iscsi_auth_method,
-	  { "iSCSI Auth Method","isns.iscsi_auth_method",
+	  { "iSCSI Auth Method", "isns.iscsi_auth_method",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Authentication Method required by this device", HFILL }},
 
 	{ &hf_isns_iscsi_alias,
-	  { "iSCSI Alias","isns.iscsi_alias",
+	  { "iSCSI Alias", "isns.iscsi_alias",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "iSCSI Alias of device", HFILL }},
 
 	{ &hf_isns_portal_symbolic_name,
-	  { "Portal Symbolic Name","isns.portal.symbolic_name",
+	  { "Portal Symbolic Name", "isns.portal.symbolic_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Symbolic name of this portal", HFILL }},
 
 	{ &hf_isns_dd_set_symbolic_name,
-	  { "DD Set Symbolic Name","isns.dd_set.symbolic_name",
+	  { "DD Set Symbolic Name", "isns.dd_set.symbolic_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Symbolic name of this DD Set", HFILL }},
 
 	{ &hf_isns_dd_symbolic_name,
-	  { "DD Symbolic Name","isns.dd.symbolic_name",
+	  { "DD Symbolic Name", "isns.dd.symbolic_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Symbolic name of this DD", HFILL }},
 
 	{ &hf_isns_symbolic_port_name,
-	  { "Symbolic Port Name","isns.port.symbolic_name",
+	  { "Symbolic Port Name", "isns.port.symbolic_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Symbolic name of this port", HFILL }},
 
 	{ &hf_isns_symbolic_node_name,
-	  { "Symbolic Node Name","isns.node.symbolic_name",
+	  { "Symbolic Node Name", "isns.node.symbolic_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Symbolic name of this node", HFILL }},
 
 	{ &hf_isns_entity_identifier,
-	  { "Entity Identifier","isns.entity_identifier",
+	  { "Entity Identifier", "isns.entity_identifier",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    "Entity Identifier of this object", HFILL }},
 
 	{ &hf_isns_mgmt_ip_addr,
-	  { "Management IP Address","isns.mgmt.ip_address",
+	  { "Management IP Address", "isns.mgmt.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "Management IPv4/IPv6 Address", HFILL }},
 
 	{ &hf_isns_node_ip_addr,
-	  { "Node IP Address","isns.node.ip_address",
+	  { "Node IP Address", "isns.node.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "Node IPv4/IPv6 Address", HFILL }},
 
 	{ &hf_isns_port_ip_addr,
-	  { "Port IP Address","isns.port.ip_address",
+	  { "Port IP Address", "isns.port.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "Port IPv4/IPv6 Address", HFILL }},
 
 	{ &hf_isns_portal_ip_addr,
-	  { "Portal IP Address","isns.portal.ip_address",
+	  { "Portal IP Address", "isns.portal.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "Portal IPv4/IPv6 Address", HFILL }},
 
 	{ &hf_isns_dd_member_portal_ip_addr,
-	  { "DD Member Portal IP Address","isns.dd.member_portal.ip_address",
+	  { "DD Member Portal IP Address", "isns.dd.member_portal.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "DD Member Portal IPv4/IPv6 Address", HFILL }},
 
 	{ &hf_isns_pg_iscsi_name,
-	  { "PG iSCSI Name","isns.pg_iscsi_name",
+	  { "PG iSCSI Name", "isns.pg_iscsi_name",
 	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_pg_portal_ip_addr,
-	  { "PG Portal IP Address","isns.pg_portal.ip_address",
+	  { "PG Portal IP Address", "isns.pg_portal.ip_address",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
 	    "PG Portal IPv4/IPv6 Address", HFILL }},
 
 	{ &hf_isns_pg_index,
-	  { "PG Index","isns.pg_index",
+	  { "PG Index", "isns.pg_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_pg_next_index,
-	  { "PG Next Index","isns.pg_next_index",
+	  { "PG Next Index", "isns.pg_next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_dd_id_next_id,
-	  { "DD ID Next ID","isns.index",
+	  { "DD ID Next ID", "isns.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_member_iscsi_index,
-	  { "Member iSCSI Index","isns.member_iscsi_index",
+	  { "Member iSCSI Index", "isns.member_iscsi_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_member_portal_index,
-	  { "Member Portal Index","isns.member_portal_index",
+	  { "Member Portal Index", "isns.member_portal_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_member_fc_port_name,
-	  { "Member FC Port Name","isns.member_fc_port_name",
+	  { "Member FC Port Name", "isns.member_fc_port_name",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_vendor_oui,
-	  { "Vendor OUI","isns.index",
+	  { "Vendor OUI", "isns.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_preferred_id,
-	  { "Preferred ID","isns.preferred_id",
+	  { "Preferred ID", "isns.preferred_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_dd_set_id,
-	  { "DD Set ID","isns.dd_set_id",
+	  { "DD Set ID", "isns.dd_set_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_dd_id,
-	  { "DD ID","isns.dd_id",
+	  { "DD ID", "isns.dd_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_port_id,
-	  { "Port ID","isns.port_id",
+	  { "Port ID", "isns.port_id",
 	    FT_UINT24, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_hard_address,
-	  { "Hard Address","isns.hard_address",
+	  { "Hard Address", "isns.hard_address",
 	    FT_UINT24, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_wwnn_token,
-	  { "WWNN Token","isns.wwnn_token",
+	  { "WWNN Token", "isns.wwnn_token",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_fc_port_name_wwpn,
-	  { "FC Port Name WWPN","isns.fc_port_name_wwpn",
+	  { "FC Port Name WWPN", "isns.fc_port_name_wwpn",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_fc_node_name_wwnn,
-	  { "FC Node Name WWNN","isns.fc_node_name_wwnn",
+	  { "FC Node Name WWNN", "isns.fc_node_name_wwnn",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_node_ipa,
-	  { "Node IPA","isns.node_ipa",
+	  { "Node IPA", "isns.node_ipa",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_fabric_port_name,
-	  { "Fabric Port Name","isns.fabric_port_name",
+	  { "Fabric Port Name", "isns.fabric_port_name",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_permanent_port_name,
-	  { "Permanent Port Name","isns.permanent_port_name",
+	  { "Permanent Port Name", "isns.permanent_port_name",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_switch_name,
-	  { "Switch Name","isns.switch_name",
+	  { "Switch Name", "isns.switch_name",
 	    FT_UINT64, BASE_HEX, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_dd_set_next_id,
-	  { "DD Set Next ID","isns.dd_set_next_id",
+	  { "DD Set Next ID", "isns.dd_set_next_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_assigned_id,
-	  { "Assigned ID","isns.assigned_id",
+	  { "Assigned ID", "isns.assigned_id",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_node_index,
-	  { "Node Index","isns.node.index",
+	  { "Node Index", "isns.node.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_node_next_index,
-	  { "Node Next Index","isns.node.next_index",
+	  { "Node Next Index", "isns.node.next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Node INext index", HFILL }},
 
 	{ &hf_isns_portal_index,
-	  { "Portal Index","isns.portal.index",
+	  { "Portal Index", "isns.portal.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_portal_next_index,
-	  { "Portal Next Index","isns.portal.next_index",
+	  { "Portal Next Index", "isns.portal.next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_entity_index,
-	  { "Entity Index","isns.entity.index",
+	  { "Entity Index", "isns.entity.index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }},
 
 	{ &hf_isns_entity_next_index,
-	  { "Entity Next Index","isns.entity.next_index",
+	  { "Entity Next Index", "isns.entity.next_index",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Next Entity Index", HFILL }},
 
 	{ &hf_isns_timestamp,
-	  { "Timestamp","isns.timestamp",
+	  { "Timestamp", "isns.timestamp",
 	    FT_UINT64, BASE_DEC, NULL, 0x0,
 	    "Timestamp in Seconds", HFILL }},
 
 	{ &hf_isns_esi_interval,
-	  { "ESI Interval","isns.esi_interval",
+	  { "ESI Interval", "isns.esi_interval",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "ESI Interval in Seconds", HFILL }},
 
 	{ &hf_isns_registration_period,
-	  { "Registration Period","isns.registration_period",
+	  { "Registration Period", "isns.registration_period",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Registration Period in Seconds", HFILL }},
 
 	{ &hf_isns_portal_group_tag,
-	  { "PG Tag","isns.portal_group_tag",
+	  { "PG Tag", "isns.portal_group_tag",
 	    FT_UINT32, BASE_DEC, NULL, 0x0,
 	    "Portal Group Tag", HFILL }},
 
@@ -1976,11 +1946,6 @@ void proto_register_isns(void)
 	" To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
     &isns_desegment);
 }
-
-/* If this dissector uses sub-dissector registration add a registration routine.
-   This format is required because a script is used to find these routines and
-   create the code that calls these routines.
-*/
 
 void
 proto_reg_handoff_isns(void)
