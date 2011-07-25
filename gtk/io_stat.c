@@ -755,7 +755,6 @@ io_stat_draw(io_stat_t *io)
 	cr = gdk_cairo_create (io->pixmap);
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_rectangle (cr, 0, 0, io->draw_area->allocation.width,io->draw_area->allocation.height);
-	/*gdk_cairo_set_source_color (cr, &widget->style->base[widget->state]);*/
 	cairo_fill (cr);
 	cairo_destroy (cr);
 	/*
@@ -868,11 +867,9 @@ io_stat_draw(io_stat_t *io)
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
 	cr = gdk_cairo_create (io->pixmap);
-	/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 	cairo_set_line_width (cr, 1.0);
-	/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 	cairo_move_to(cr, io->pixmap_width-io->right_x_border+1.5, top_y_border+0.5);
-	cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5,io->pixmap_height-bottom_y_border+0.5);
+	cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5, io->pixmap_height-bottom_y_border+0.5);
 	cairo_stroke(cr);
 	cairo_destroy(cr);
 	if(io->max_y_units==LOGARITHMIC_YSCALE){
@@ -902,9 +899,7 @@ io_stat_draw(io_stat_t *io)
 					ypos=(int)(io->pixmap_height-bottom_y_border-(draw_height-ystart)*(i+log10((double)j))/tics-ystart);
 					/* draw the tick */
 					cr = gdk_cairo_create (io->pixmap);
-					/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 					cairo_set_line_width (cr, 1.0);
-					/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 					cairo_move_to(cr, io->pixmap_width-io->right_x_border+1.5, ypos+0.5);
 					cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5+xwidth,ypos+0.5);
 					cairo_stroke(cr);
@@ -923,9 +918,7 @@ io_stat_draw(io_stat_t *io)
 		}
 		/* draw the tick */
 		cr = gdk_cairo_create (io->pixmap);
-		/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 		cairo_set_line_width (cr, 1.0);
-		/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 		cairo_move_to(cr, io->pixmap_width-io->right_x_border+1.5, ypos+0.5);
 		cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5+xwidth,ypos+0.5);
 		cairo_stroke(cr);
@@ -977,9 +970,7 @@ io_stat_draw(io_stat_t *io)
 /*XXX*/
 	/* plot the x-scale */
 		cr = gdk_cairo_create (io->pixmap);
-		/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 		cairo_set_line_width (cr, 1.0);
-		/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 		cairo_move_to(cr, io->left_x_border+0.5, io->pixmap_height-bottom_y_border+1.5);
 		cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5,io->pixmap_height-bottom_y_border+1.5);
 		cairo_stroke(cr);
@@ -1011,9 +1002,7 @@ io_stat_draw(io_stat_t *io)
 		}
 		x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
 		cr = gdk_cairo_create (io->pixmap);
-		/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 		cairo_set_line_width (cr, 1.0);
-		/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 		cairo_move_to(cr, x-1-io->pixels_per_tick/2+0.5, io->pixmap_height-bottom_y_border+1.5);
 		cairo_line_to(cr, x-1-io->pixels_per_tick/2+0.5, io->pixmap_height-bottom_y_border+xlen+1.5);
 		cairo_stroke(cr);
@@ -1092,10 +1081,8 @@ io_stat_draw(io_stat_t *io)
 				 */
 				if( (prev_y_pos!=0) || (y_pos!=0) ){
 					cr = gdk_cairo_create (io->pixmap);
-					/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
 					cairo_set_line_width (cr, 1.0);
-					/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 					cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);
 					cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
 					cairo_stroke(cr);
@@ -1105,9 +1092,7 @@ io_stat_draw(io_stat_t *io)
 			case PLOT_STYLE_IMPULSE:
 				if(val){
 					cr = gdk_cairo_create (io->pixmap);
-					/*cairo_set_source_rgb(cr, 0, 0, 0);*/
 					cairo_set_line_width (cr, 1.0);
-					/*cairo_set_line_cap (cr, CAIRO_LINE_CAP_SQUARE);*/
 					cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
 					cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
 					cairo_stroke(cr);
@@ -1403,7 +1388,6 @@ static gboolean
 draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
 	io_stat_t *io = user_data;
-	int i;
 	GtkWidget *save_bt;
 	cairo_t *cr;
 
@@ -1428,9 +1412,6 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_fill (cr);
 	cairo_destroy (cr);
-	/* set up the colors and the GC structs for this pixmap */
-	for(i=0;i<MAX_GRAPHS;i++){
-	}
 
 	io_stat_redraw(io);
 	return TRUE;
