@@ -924,7 +924,7 @@ my %deprecatedGtkFunctions = (
 		'GTK_WIDGET_HAS_GRAB',						'E', # gtk_widget_get_has_grab()			(avail since 2.18)
 		'GTK_WIDGET_IS_SENSITIVE',					'E', # gtk_widget_get_is_sensitive()		(avail since 2.18)
 		'GTK_WIDGET_MAPPED',						'E', # gtk_widget_get_mapped()				(avail since 2.18)
-		'GTK_WIDGET_NO_WINDOW',						'W', # gtk_widget_get_no_window()			(avail since 2.18)
+		'GTK_WIDGET_NO_WINDOW',						'E', # gtk_widget_get_no_window()			(avail since 2.18)
 		'GTK_WIDGET_PARENT_SENSITIVE',				'E', # gtk_widget_get_parent_sensitive()	(avail since 2.18)
 		'GTK_WIDGET_RC_STYLE',						'E', # gtk_widget_get_rc_style()			(avail since 2.18)
 		'GTK_WIDGET_REALIZED',						'E', # gtk_widget_get_realized()			(avail since 2.18)

@@ -47,6 +47,7 @@
 #endif
 
 #if !GTK_CHECK_VERSION (2, 18, 0)
+#	define gtk_widget_get_has_window(x) (!GTK_WIDGET_NO_WINDOW(x))
 #	define gtk_widget_get_visible(x) GTK_WIDGET_VISIBLE(x)
 #endif
 
