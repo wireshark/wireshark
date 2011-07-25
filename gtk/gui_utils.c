@@ -529,9 +529,9 @@ window_destroy(GtkWidget *win)
     /* ...and don't do this at all, if we currently have no GdkWindow (e.g. if the
      * GtkWidget is hidden) */
 #if GTK_CHECK_VERSION(2,18,0)
-    if(!gtk_widget_get_has_window (win) && gtk_widget_get_visible(win)) {
+    if(gtk_widget_get_has_window (win) && gtk_widget_get_visible(win)) {
 #else
-    if(!GTK_WIDGET_NO_WINDOW(win) && GTK_WIDGET_VISIBLE(win)) {
+    if(!GTK_WIDGET_NO_WINDOW(win) && gtk_widget_get_visible(win)) {
 #endif
         window_get_geometry(win, &geom);
 

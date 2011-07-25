@@ -911,29 +911,30 @@ my %deprecatedGtkFunctions = (
 ##
 ## Deprecated as of GTK+ 2.20 but to be replaced only when Wireshark requires GTK+ 2.18 or later
 ##  (or: use conditional code based upon the GTK version).
+## If needed define these in old-gtk-compat.h
 		'GTK_WIDGET_APP_PAINTABLE',					'E', # gtk_widget_get_app_paintable()		(avail since 2.18)
-		'GTK_WIDGET_CAN_DEFAULT',					'E', # gtk_widget_getcan_default()		(avail since 2.18)
-		'GTK_WIDGET_CAN_FOCUS',						'E', # gtk_widget_getcan_focus()		(avail since 2.18)
-		'GTK_WIDGET_COMPOSITE_CHILD',				'E', # gtk_widget_getcomposite_child()	(avail since 2.18)
-		'GTK_WIDGET_DOUBLE_BUFFERED',				'E', # gtk_widget_getdouble_buffered()		(avail since 2.18)
-		'GTK_WIDGET_DRAWABLE',						'E', # gtk_widget_getdrawable()			(avail since 2.18)
-		'GTK_WIDGET_FLAGS',							'E', # gtk_widget_getflags()			(avail since 2.18)
-		'GTK_WIDGET_HAS_DEFAULT',					'E', # gtk_widget_gethas_default()		(avail since 2.18)
-		'GTK_WIDGET_HAS_FOCUS',						'E', # gtk_widget_gethas_focus()		(avail since 2.18)
-		'GTK_WIDGET_HAS_GRAB',						'E', # gtk_widget_gethas_grab()			(avail since 2.18)
-		'GTK_WIDGET_IS_SENSITIVE',					'E', # gtk_widget_getis_sensitive()		(avail since 2.18)
-		'GTK_WIDGET_MAPPED',						'E', # gtk_widget_getmapped()			(avail since 2.18)
-		'GTK_WIDGET_NO_WINDOW',						'W', # gtk_widget_getno_window()		(avail since 2.18)
-		'GTK_WIDGET_PARENT_SENSITIVE',				'E', # gtk_widget_getparent_sensitive()		(avail since 2.18)
-		'GTK_WIDGET_RC_STYLE',						'E', # gtk_widget_getrc_style()			(avail since 2.18)
-		'GTK_WIDGET_REALIZED',						'W', # gtk_widget_getrealized()			(avail since 2.18)
-		'GTK_WIDGET_RECEIVES_DEFAULT',				'E', # gtk_widget_getreceives_default()		(avail since 2.18)
-		'GTK_WIDGET_SAVED_STATE',					'E', # gtk_widget_getsaved_state()		(avail since 2.18)
-		'GTK_WIDGET_SENSITIVE',						'W', # gtk_widget_getsensitive()		(avail since 2.18)
-		'GTK_WIDGET_STATE',							'W', # gtk_widget_getstate()			(avail since 2.18)
-		'GTK_WIDGET_TOPLEVEL',						'E', # gtk_widget_gettoplevel()			(avail since 2.18)
-		'GTK_WIDGET_TYPE',							'E', # gtk_widget_gettype()			(avail since 2.18)
-		'GTK_WIDGET_VISIBLE',						'W', # gtk_widget_getvisible()			(avail since 2.18)
+		'GTK_WIDGET_CAN_DEFAULT',					'E', # gtk_widget_get_can_default()			(avail since 2.18)
+		'GTK_WIDGET_CAN_FOCUS',						'E', # gtk_widget_get_can_focus()			(avail since 2.18)
+		'GTK_WIDGET_COMPOSITE_CHILD',				'E', # gtk_widget_get_composite_child()		(avail since 2.18)
+		'GTK_WIDGET_DOUBLE_BUFFERED',				'E', # gtk_widget_get_double_buffered()		(avail since 2.18)
+		'GTK_WIDGET_DRAWABLE',						'E', # gtk_widget_get_drawable()			(avail since 2.18)
+		'GTK_WIDGET_FLAGS',							'E', # gtk_widget_get_flags()				(avail since 2.18)
+		'GTK_WIDGET_HAS_DEFAULT',					'E', # gtk_widget_get_has_default()			(avail since 2.18)
+		'GTK_WIDGET_HAS_FOCUS',						'E', # gtk_widget_get_has_focus()			(avail since 2.18)
+		'GTK_WIDGET_HAS_GRAB',						'E', # gtk_widget_get_has_grab()			(avail since 2.18)
+		'GTK_WIDGET_IS_SENSITIVE',					'E', # gtk_widget_get_is_sensitive()		(avail since 2.18)
+		'GTK_WIDGET_MAPPED',						'E', # gtk_widget_get_mapped()				(avail since 2.18)
+		'GTK_WIDGET_NO_WINDOW',						'W', # gtk_widget_get_no_window()			(avail since 2.18)
+		'GTK_WIDGET_PARENT_SENSITIVE',				'E', # gtk_widget_get_parent_sensitive()	(avail since 2.18)
+		'GTK_WIDGET_RC_STYLE',						'E', # gtk_widget_get_rc_style()			(avail since 2.18)
+		'GTK_WIDGET_REALIZED',						'E', # gtk_widget_get_realized()			(avail since 2.18)
+		'GTK_WIDGET_RECEIVES_DEFAULT',				'E', # gtk_widget_get_receives_default()	(avail since 2.18)
+		'GTK_WIDGET_SAVED_STATE',					'E', # gtk_widget_get_saved_state()			(avail since 2.18)
+		'GTK_WIDGET_SENSITIVE',						'E', # gtk_widget_get_sensitive()			(avail since 2.18)
+		'GTK_WIDGET_STATE',							'W', # gtk_widget_get_state()				(avail since 2.18)
+		'GTK_WIDGET_TOPLEVEL',						'E', # gtk_widget_get_toplevel()			(avail since 2.18)
+		'GTK_WIDGET_TYPE',							'E', # gtk_widget_get_type()				(avail since 2.18)
+		'GTK_WIDGET_VISIBLE',						'E', # gtk_widget_get_visible()				(avail since 2.18)
 ## Deprecated as of GTK+ 2.22 but to be replaced only when Wireshark requires GTK+ 2.18 or later
 ##  (or: use conditional code based upon the GTK version).
 		'gtk_dialog_get_has_separator',				'E', # This function will be removed in GTK+ 3
@@ -948,19 +949,21 @@ my %deprecatedGtkFunctions = (
 ##
 ## Deprecated as of GTK+ 2.24 but to be replaced only when Wireshark requires GTK+ 2.24 or later
 ##  (or: use conditional code based upon the GTK version).
-		'gtk_combo_box_new_text',					'W', # gtk_combo_box_text_new()
-		'GtkComboBoxEntry',							'W', #
-		'gtk_combo_box_append_text',				'W', #
-		'gtk_combo_box_entry_get_text_column',		'W', #
-		'gtk_combo_box_entry_new',					'W', #
-		'gtk_combo_box_entry_new_text',				'W', #
-		'gtk_combo_box_entry_new_with_model',		'W', #
-		'gtk_combo_box_entry_set_text_column',		'W', #
-		'gtk_combo_box_get_active_text',			'W', #
-		'gtk_combo_box_insert_text',				'W', #
-		'gtk_combo_box_new_text',					'W', #
-		'gtk_combo_box_prepend_text',				'W', #
-		'gtk_combo_box_remove_text',				'W', #
+## Mapped  in old-gtk-compat.h
+
+		'gtk_combo_box_new_text',					'E', # gtk_combo_box_text_new()
+		'GtkComboBoxEntry',							'E', #
+		'gtk_combo_box_append_text',				'E', #
+		'gtk_combo_box_entry_get_text_column',		'E', #
+		'gtk_combo_box_entry_new',					'E', #
+		'gtk_combo_box_entry_new_text',				'E', #
+		'gtk_combo_box_entry_new_with_model',		'E', #
+		'gtk_combo_box_entry_set_text_column',		'E', #
+		'gtk_combo_box_get_active_text',			'E', #
+		'gtk_combo_box_insert_text',				'E', #
+		'gtk_combo_box_new_text',					'E', #
+		'gtk_combo_box_prepend_text',				'E', #
+		'gtk_combo_box_remove_text',				'E', #
 
 ## GDK deprecated functions:
 		'gdk_bitmap_create_from_data',				'W', # 
