@@ -273,6 +273,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	gfloat dis;
 	gboolean write_label = FALSE;
 	PangoLayout  *layout;
+	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
 	if (u_data->io->x1_tmp_sec == 0 && u_data->io->x1_tmp_usec == 0)
@@ -330,11 +331,12 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 
 	cr = gdk_cairo_create (u_data->io->pixmap);
 	cairo_set_source_rgb (cr, 1, 1, 1);
-	cairo_rectangle (cr, 
-		0, 
-		0, 
-		u_data->io->draw_area->allocation.width,
-		u_data->io->draw_area->allocation.height);
+	gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
+	cairo_rectangle (cr,
+		0,
+		0,
+		widget_alloc.width,
+		widget_alloc.height);
 	cairo_fill (cr);
 	cairo_destroy (cr);
 
@@ -599,6 +601,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 static void sctp_graph_redraw(struct sctp_udata *u_data)
 {
 	sctp_graph_t *ios;
+	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
 	u_data->io->needs_redraw = TRUE;
@@ -624,7 +627,8 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 	cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
 
 	gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
-	cairo_rectangle (cr, 0, 0, u_data->io->draw_area->allocation.width, u_data->io->draw_area->allocation.height);
+	gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
+	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
 	cairo_fill (cr);
 
 	cairo_destroy (cr);
@@ -666,6 +670,7 @@ static gboolean
 on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer user_data)
 {
 	struct sctp_udata *u_data = user_data;
+	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
 	g_assert(u_data->io != NULL);
@@ -675,15 +680,16 @@ on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer use
 		u_data->io->pixmap = NULL;
 	}
 
+	gtk_widget_get_allocation(widget, &widget_alloc);
 	u_data->io->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
-	                                    widget->allocation.width,
-	                                    widget->allocation.height,
+	                                    widget_alloc.width,
+	                                    widget_alloc.height,
 	                                    -1);
-	u_data->io->pixmap_width = widget->allocation.width;
-	u_data->io->pixmap_height = widget->allocation.height;
+	u_data->io->pixmap_width = widget_alloc.width;
+	u_data->io->pixmap_height = widget_alloc.height;
 
 	cr = gdk_cairo_create (u_data->io->pixmap);
-	cairo_rectangle (cr, 0, 0, widget->allocation.width, widget->allocation.height);
+	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -891,6 +897,8 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 	GList *tsnlist=NULL;
 	tsn_t *tsn, *tmptsn;
 	PangoLayout  *layout;
+	GtkAllocation widget_alloc;
+
 	g_snprintf(label_string, 15, "%d", 0);
 	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
 	layout = gtk_widget_create_pango_layout(u_data->io->draw_area, label_string);
@@ -916,17 +924,14 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 		g_assert(ios != NULL);
 
+		gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
 		gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
-#if GTK_CHECK_VERSION(2,18,0)
 		                gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
-#else
-		                gtk_widget_get_style(u_data->io->draw_area)->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
-#endif
 		                ios->pixmap,
 		                0, 0,
 		                0, 0,
-		                u_data->io->draw_area->allocation.width,
-		                u_data->io->draw_area->allocation.height);
+		                widget_alloc.width,
+		                widget_alloc.height);
 
 		x1_tmp=(guint32) floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 		x2_tmp=(guint32) floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
@@ -1057,8 +1062,8 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		                    ios->pixmap,
 		                    0, 0,
 		                    0, 0,
-		                    u_data->io->draw_area->allocation.width,
-		                    u_data->io->draw_area->allocation.height);
+		                    widget_alloc.width,
+		                    widget_alloc.height);
 		}
 	}
 	return TRUE;

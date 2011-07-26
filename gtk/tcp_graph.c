@@ -679,6 +679,7 @@ static void create_drawing_area (struct graph *g)
 	char window_title[WINDOW_TITLE_LENGTH];
 	struct segment current;
 	struct tcpheader *thdr;
+	GtkAllocation widget_alloc;
 
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
 #if 0
@@ -761,10 +762,9 @@ static void create_drawing_area (struct graph *g)
 	gtk_widget_show (g->toplevel);
 
 	/* in case we didn't get what we asked for */
-	g->wp.width = GTK_WIDGET (g->drawing_area)->allocation.width -
-						g->wp.x - RMARGIN_WIDTH;
-	g->wp.height = GTK_WIDGET (g->drawing_area)->allocation.height -
-						g->wp.y - g->x_axis->s.height;
+	gtk_widget_get_allocation(GTK_WIDGET (g->drawing_area), &widget_alloc);
+	g->wp.width = widget_alloc.width - g->wp.x - RMARGIN_WIDTH;
+	g->wp.height = widget_alloc.height - g->wp.y - g->x_axis->s.height;
 
         g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
 

@@ -925,6 +925,7 @@ static void dialog_graph_draw(user_data_t* user_data)
 	int label_width_mid, label_height_mid;
 	guint32 draw_width, draw_height;
 	char label_string[15];
+	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
 	/* new variables */
@@ -980,11 +981,12 @@ static void dialog_graph_draw(user_data_t* user_data)
 	 */
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 	cairo_set_source_rgb (cr, 1, 1, 1);
-	cairo_rectangle (cr, 
-		0, 
-		0, 
-		user_data->dlg.dialog_graph.draw_area->allocation.width,
-		user_data->dlg.dialog_graph.draw_area->allocation.height);
+	gtk_widget_get_allocation(user_data->dlg.dialog_graph.draw_area, &widget_alloc);
+	cairo_rectangle (cr,
+		0,
+		0,
+		widget_alloc.width,
+		widget_alloc.height);
 	cairo_fill (cr);
 	cairo_destroy (cr);
 
@@ -1353,6 +1355,7 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 {
 	user_data_t *user_data;
 	GtkWidget *bt_save;
+	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
 	user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
@@ -1366,19 +1369,20 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 		user_data->dlg.dialog_graph.pixmap=NULL;
 	}
 
+	gtk_widget_get_allocation(widget, &widget_alloc);
 	user_data->dlg.dialog_graph.pixmap=gdk_pixmap_new(gtk_widget_get_window(widget),
-							  widget->allocation.width,
-							  widget->allocation.height,
+							  widget_alloc.width,
+							  widget_alloc.height,
 							  -1);
-	user_data->dlg.dialog_graph.pixmap_width=widget->allocation.width;
-	user_data->dlg.dialog_graph.pixmap_height=widget->allocation.height;
+	user_data->dlg.dialog_graph.pixmap_width=widget_alloc.width;
+	user_data->dlg.dialog_graph.pixmap_height=widget_alloc.height;
 
 	bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
 	g_object_set_data(G_OBJECT(bt_save), "pixmap", user_data->dlg.dialog_graph.pixmap);
 	gtk_widget_set_sensitive(bt_save, TRUE);
 
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
-	cairo_rectangle (cr, 0, 0, widget->allocation.width, widget->allocation.height);
+	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_fill (cr);
 	cairo_destroy (cr);

@@ -700,6 +700,7 @@ io_stat_draw(io_stat_t *io)
 	int label_width, label_height;
 	guint32 draw_width, draw_height;
 	char label_string[45];
+	GtkAllocation widget_alloc;
 
 	/* new variables */
 	guint32 num_time_intervals;
@@ -754,7 +755,8 @@ io_stat_draw(io_stat_t *io)
 	 */
 	cr = gdk_cairo_create (io->pixmap);
 	cairo_set_source_rgb (cr, 1, 1, 1);
-	cairo_rectangle (cr, 0, 0, io->draw_area->allocation.width,io->draw_area->allocation.height);
+	gtk_widget_get_allocation(io->draw_area, &widget_alloc);
+	cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
 	cairo_fill (cr);
 	cairo_destroy (cr);
 	/*
@@ -1389,6 +1391,7 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 {
 	io_stat_t *io = user_data;
 	GtkWidget *save_bt;
+	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
 	if(io->pixmap){
@@ -1396,19 +1399,20 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 		io->pixmap=NULL;
 	}
 
+	gtk_widget_get_allocation(widget, &widget_alloc);
 	io->pixmap=gdk_pixmap_new(gtk_widget_get_window(widget),
-			widget->allocation.width,
-			widget->allocation.height,
+			widget_alloc.width,
+			widget_alloc.height,
 			-1);
-	io->pixmap_width=widget->allocation.width;
-	io->pixmap_height=widget->allocation.height;
+	io->pixmap_width=widget_alloc.width;
+	io->pixmap_height=widget_alloc.height;
 
 	save_bt = g_object_get_data(G_OBJECT(io->window), "save_bt");
 	g_object_set_data(G_OBJECT(save_bt), "pixmap", io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
 
 	cr = gdk_cairo_create (io->pixmap);
-	cairo_rectangle (cr, 0, 0, widget->allocation.width, widget->allocation.height);
+	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -1605,6 +1609,7 @@ count_type_select(GtkWidget *item, gpointer user_data)
 	io_stat_t *io = user_data;
 	static gboolean advanced_visible=FALSE;
 	int i;
+	GtkAllocation widget_alloc;
 
 	io->count_type = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
 
@@ -1613,11 +1618,12 @@ count_type_select(GtkWidget *item, gpointer user_data)
 			disable_graph(&io->graphs[i]);
 			gtk_widget_show(io->graphs[i].advanced_buttons);
 			/* redraw the entire window so the unhidden widgets show up, hopefully */
+			gtk_widget_get_allocation(io->window, &widget_alloc);
 			gtk_widget_queue_draw_area(io->window,
 						   0,
 						   0,
-						   io->window->allocation.width,
-						   io->window->allocation.height);
+						   widget_alloc.width,
+						   widget_alloc.height);
 		}
 		advanced_visible=TRUE;
 		io_stat_redraw(io);
