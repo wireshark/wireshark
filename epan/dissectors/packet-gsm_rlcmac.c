@@ -1024,6 +1024,49 @@ static int hf_pccch_org_pag_blks_res;
 static int hf_pccch_org_prach_blks;
 /* <End Packet System Information Type 1> */
 
+/* <Packet System Information Type 2> */
+static int hf_packet_system_info_type2_message_type;
+static int hf_packet_system_info_type2_page_mode;
+static int hf_packet_system_info_type2_change_mark;
+static int hf_packet_system_info_type2_index;
+static int hf_packet_system_info_type2_count;
+static int hf_packet_system_info_type2_ref_freq_num;
+static int hf_packet_system_info_type2_ma_number;
+static int hf_packet_system_info_type2_ma_hsn;
+static int hf_packet_system_info_type2_pcch_desc_tsc;
+static int hf_packet_system_info_type2_non_hopping_arfcn;
+static int hf_packet_system_info_type2_non_hopping_timeslot;
+static int hf_packet_system_info_type2_hopping_ma_num;
+static int hf_packet_system_info_type2_hopping_maio;
+static int hf_packet_system_info_type2_hopping_timeslot;
+
+static int hf_packet_cell_id_rac;
+static int hf_packet_cell_id_cell_idneity;
+static int hf_packet_lai_lac;
+static int hf_packet_plmn_mcc1;
+static int hf_packet_plmn_mcc2;
+static int hf_packet_plmn_mcc3;
+static int hf_packet_plmn_mnc1;
+static int hf_packet_plmn_mnc2;
+static int hf_packet_plmn_mnc3;
+static int hf_packet_non_gprs_cell_opt_att;
+static int hf_packet_non_gprs_cell_opt_t3212;
+static int hf_packet_non_gprs_cell_opt_neci;
+static int hf_packet_non_gprs_cell_opt_pwrc;
+static int hf_packet_non_gprs_cell_opt_dtx;
+static int hf_packet_non_gprs_cell_opt_radio_link_timeout;
+static int hf_packet_non_gprs_cell_opt_bs_ag_blks_res;
+static int hf_packet_non_gprs_cell_opt_ccch_conf;
+static int hf_packet_non_gprs_cell_opt_bs_pa_mfrms;
+static int hf_packet_non_gprs_cell_opt_max_retrans;
+static int hf_packet_non_gprs_cell_opt_tx_int;
+static int hf_packet_non_gprs_cell_opt_ec;
+static int hf_packet_non_gprs_cell_opt_ms_txpwr_max_ccch;
+static int hf_packet_non_gprs_cell_opt_ext_len;
+/* <End Packet System Information Type 2> */
+
+
+
 
 static int hf_si1_restoctet_nch_position;
 static int hf_si1_restoctet_bandindicator;
@@ -4691,6 +4734,119 @@ CSN_DESCR_END  (PSI1_t)
 /*< End Packet System Information Type 1 message content >*/
 
 
+/*< Packet System Information Type 2 message content >*/
+static const
+CSN_DESCR_BEGIN(PLMN_t)
+  M_UINT       (PLMN_t,  MCC2,  4, &hf_packet_plmn_mcc2),
+  M_UINT       (PLMN_t,  MCC1,  4, &hf_packet_plmn_mcc1),
+  M_UINT       (PLMN_t,  MNC3,  4, &hf_packet_plmn_mnc3),
+  M_UINT       (PLMN_t,  MCC3,  4, &hf_packet_plmn_mcc3),
+  M_UINT       (PLMN_t,  MNC2,  4, &hf_packet_plmn_mnc2),
+  M_UINT       (PLMN_t,  MNC1,  4, &hf_packet_plmn_mnc1),
+CSN_DESCR_END  (PLMN_t)
+
+static const
+CSN_DESCR_BEGIN(LAI_t)
+  M_TYPE       (LAI_t,  PLMN, PLMN_t),
+  M_UINT       (LAI_t,  LAC,  16, &hf_packet_lai_lac),
+CSN_DESCR_END  (LAI_t)
+
+static const
+CSN_DESCR_BEGIN(Cell_Identification_t)
+  M_TYPE       (Cell_Identification_t,  LAI, LAI_t),
+  M_UINT       (Cell_Identification_t,  RAC,  8, &hf_packet_cell_id_rac),
+  M_UINT       (Cell_Identification_t,  Cell_Identity,  16, &hf_packet_cell_id_cell_idneity),
+CSN_DESCR_END  (Cell_Identification_t)
+
+static const
+CSN_DESCR_BEGIN(Non_GPRS_Cell_Options_t)
+  M_BIT        (Non_GPRS_Cell_Options_t,  ATT, &hf_packet_non_gprs_cell_opt_att),
+  
+  M_NEXT_EXIST (Non_GPRS_Cell_Options_t, Exist_T3212, 1),
+  M_UINT       (Non_GPRS_Cell_Options_t,  T3212, 8, &hf_packet_non_gprs_cell_opt_t3212),
+  
+  M_BIT        (Non_GPRS_Cell_Options_t,  NECI, &hf_packet_non_gprs_cell_opt_neci),
+  M_BIT        (Non_GPRS_Cell_Options_t,  PWRC, &hf_packet_non_gprs_cell_opt_pwrc),
+  M_UINT       (Non_GPRS_Cell_Options_t,  DTX, 2, &hf_packet_non_gprs_cell_opt_dtx),
+  M_UINT       (Non_GPRS_Cell_Options_t,  RADIO_LINK_TIMEOUT, 4, &hf_packet_non_gprs_cell_opt_radio_link_timeout),
+  M_UINT       (Non_GPRS_Cell_Options_t,  BS_AG_BLKS_RES, 3, &hf_packet_non_gprs_cell_opt_bs_ag_blks_res),
+  M_UINT       (Non_GPRS_Cell_Options_t,  CCCH_CONF, 3, &hf_packet_non_gprs_cell_opt_ccch_conf),
+  M_UINT       (Non_GPRS_Cell_Options_t,  BS_PA_MFRMS, 3, &hf_packet_non_gprs_cell_opt_bs_pa_mfrms),
+  M_UINT       (Non_GPRS_Cell_Options_t,  MAX_RETRANS, 2, &hf_packet_non_gprs_cell_opt_max_retrans),
+  M_UINT       (Non_GPRS_Cell_Options_t,  TX_INTEGER, 4, &hf_packet_non_gprs_cell_opt_tx_int),
+  M_BIT        (Non_GPRS_Cell_Options_t,  EC, &hf_packet_non_gprs_cell_opt_ec),
+  M_UINT       (Non_GPRS_Cell_Options_t,  MS_TXPWR_MAX_CCCH, 5, &hf_packet_non_gprs_cell_opt_ms_txpwr_max_ccch),
+
+  M_NEXT_EXIST (Non_GPRS_Cell_Options_t, Exist_Extension_Bits, 1),
+  M_TYPE       (Non_GPRS_Cell_Options_t,  Extension_Bits, Extension_Bits_t),
+CSN_DESCR_END  (Non_GPRS_Cell_Options_t)
+
+static const
+CSN_DESCR_BEGIN(Reference_Frequency_t)
+  M_UINT(Reference_Frequency_t, NUMBER, 4, &hf_packet_system_info_type2_ref_freq_num),
+  M_UINT_OFFSET(Reference_Frequency_t, Length, 4, 3),
+  M_VAR_ARRAY  (Reference_Frequency_t, Contents[0], Length, 0),
+CSN_DESCR_END  (Reference_Frequency_t)
+
+static const
+CSN_DESCR_BEGIN(PSI2_MA_t)
+  M_UINT(PSI2_MA_t, NUMBER, 4, &hf_packet_system_info_type2_ma_number),
+  M_TYPE(PSI2_MA_t, Mobile_Allocation, GPRS_Mobile_Allocation_t),
+CSN_DESCR_END  (PSI2_MA_t)
+
+static const
+CSN_DESCR_BEGIN(Non_Hopping_PCCCH_Carriers_t)
+  M_UINT(Non_Hopping_PCCCH_Carriers_t, ARFCN, 10, &hf_packet_system_info_type2_non_hopping_arfcn),
+  M_UINT(Non_Hopping_PCCCH_Carriers_t, TIMESLOT_ALLOCATION, 8, &hf_packet_system_info_type2_non_hopping_timeslot),
+CSN_DESCR_END  (Non_Hopping_PCCCH_Carriers_t)
+
+static const
+CSN_DESCR_BEGIN(NonHoppingPCCCH_t)
+  M_REC_TARRAY (NonHoppingPCCCH_t, Carriers[0], Non_Hopping_PCCCH_Carriers_t, Count_Carriers),
+CSN_DESCR_END  (NonHoppingPCCCH_t)
+
+static const
+CSN_DESCR_BEGIN(Hopping_PCCCH_Carriers_t)
+  M_UINT(Hopping_PCCCH_Carriers_t, MAIO, 6, &hf_packet_system_info_type2_hopping_maio),
+  M_UINT(Hopping_PCCCH_Carriers_t, TIMESLOT_ALLOCATION, 8, &hf_packet_system_info_type2_hopping_timeslot),
+CSN_DESCR_END  (Hopping_PCCCH_Carriers_t)
+
+static const
+CSN_DESCR_BEGIN(HoppingPCCCH_t)
+  M_UINT(HoppingPCCCH_t, MA_NUMBER, 4, &hf_packet_system_info_type2_hopping_ma_num),
+  M_REC_TARRAY (HoppingPCCCH_t, Carriers[0], Hopping_PCCCH_Carriers_t, Count_Carriers),
+CSN_DESCR_END  (HoppingPCCCH_t)
+
+static const
+CSN_DESCR_BEGIN(PCCCH_Description_t)
+  M_UINT(PCCCH_Description_t, TSC, 3, &hf_packet_system_info_type2_pcch_desc_tsc),
+  M_UNION     (PCCCH_Description_t, 2),
+  M_TYPE      (PCCCH_Description_t, u.NonHopping, NonHoppingPCCCH_t),
+  M_TYPE      (PCCCH_Description_t, u.Hopping, HoppingPCCCH_t),
+CSN_DESCR_END  (PCCCH_Description_t)
+
+static const
+CSN_DESCR_BEGIN(PSI2_t)
+  M_UINT       (PSI2_t,  MESSAGE_TYPE,  6, &hf_packet_system_info_type2_message_type),
+  M_UINT       (PSI2_t,  PAGE_MODE,  2, &hf_packet_system_info_type2_page_mode),
+
+  M_UINT       (PSI2_t,  CHANGE_MARK,  2, &hf_packet_system_info_type2_change_mark),
+  M_UINT       (PSI2_t,  INDEX,  3, &hf_packet_system_info_type2_index),
+  M_UINT       (PSI2_t,  COUNT,  3, &hf_packet_system_info_type2_count),
+
+  M_NEXT_EXIST (PSI2_t, Exist_Cell_Identification, 1),
+  M_TYPE       (PSI2_t,  Cell_Identification, Cell_Identification_t),
+
+  M_NEXT_EXIST (PSI2_t, Exist_Non_GPRS_Cell_Options, 1),
+  M_TYPE       (PSI2_t,  Non_GPRS_Cell_Options, Non_GPRS_Cell_Options_t),
+
+  M_REC_TARRAY (PSI2_t, Reference_Frequency[0], Reference_Frequency_t, Count_Reference_Frequency),
+  M_TYPE       (PSI2_t,  Cell_Allocation, Cell_Allocation_t),
+  M_REC_TARRAY (PSI2_t, GPRS_MA[0], PSI2_MA_t, Count_GPRS_MA),
+  M_REC_TARRAY (PSI2_t, PCCCH_Description[0], PCCCH_Description_t, Count_PCCCH_Description),
+CSN_DESCR_END  (PSI2_t)
+/*< End Packet System Information Type 2 message content >*/
+
 
 
 typedef char* MT_Strings_t;
@@ -5202,6 +5358,11 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     case MT_PACKET_SYSTEM_INFO_1:
     {
       /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI1_t), tvb, &data->u.PSI1, ett_gsm_rlcmac);
+      break;
+    }
+    case MT_PACKET_SYSTEM_INFO_2:
+    {
+      /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI2_t), tvb, &data->u.PSI2, ett_gsm_rlcmac);
       break;
     }
     default:
@@ -10729,6 +10890,231 @@ proto_register_gsm_rlcmac(void)
       }
     },
 /* < End Packet System Information Type 1 message content > */
+
+/* < Packet System Information Type 2 message content > */    
+    { &hf_packet_system_info_type2_message_type,
+      { "MessageType",        "gsm_rlcmac_dl.packet_psi2_messagetype",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_page_mode,
+      { "PageMode",        "gsm_rlcmac_dl.psi2_pagemode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_change_mark,
+      { "PSI2_CHANGE_MARK",        "gsm_rlcmac_dl.psi2_change_mark",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_index,
+      { "PSI2_INDEX",        "gsm_rlcmac_dl.psi2_INDEX",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_count,
+      { "PSI2_COUNT",        "gsm_rlcmac_dl.psi2_COUNT",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_cell_id_rac,
+      { "RAC",        "gsm_rlcmac_dl.cell_id_rac",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_cell_id_cell_idneity,
+      { "CELL_IDENTITY",        "gsm_rlcmac_dl.cell_id_cell_identity",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_lai_lac,
+      { "LAC",        "gsm_rlcmac_dl.lai_lac",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_plmn_mcc1,
+      { "MCC1",        "gsm_rlcmac_dl.plmn_mcc1",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_plmn_mcc2,
+      { "MCC2",        "gsm_rlcmac_dl.plmn_mcc2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_plmn_mcc3,
+      { "MCC3",        "gsm_rlcmac_dl.plmn_mcc3",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_plmn_mnc1,
+      { "MNC1",        "gsm_rlcmac_dl.plmn_mnc1",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_plmn_mnc2,
+      { "MNC2",        "gsm_rlcmac_dl.plmn_mnc2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_plmn_mnc3,
+      { "MNC3",        "gsm_rlcmac_dl.plmn_mnc3",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_att,
+      { "ATT",        "gsm_rlcmac_dl.non_gprs_cell_opt_att",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_t3212,
+      { "T3212",        "gsm_rlcmac_dl.non_gprs_cell_opt_t3212",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_neci,
+      { "NECI",        "gsm_rlcmac_dl.non_gprs_cell_opt_neci",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_pwrc,
+      { "PWRC",        "gsm_rlcmac_dl.non_gprs_cell_opt_pwrc",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_dtx,
+      { "DTX",        "gsm_rlcmac_dl.non_gprs_cell_opt_dtx",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_radio_link_timeout,
+      { "RADIO_LINK_TIMEOUT",        "gsm_rlcmac_dl.non_gprs_cell_opt_radio_link_timeout",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_bs_ag_blks_res,
+      { "BS_AG_BLKS_RES",        "gsm_rlcmac_dl.non_gprs_cell_opt_bs_ag_blks_res",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_ccch_conf,
+      { "CCCH_CONF",        "gsm_rlcmac_dl.non_gprs_cell_opt_ccch_conf",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_bs_pa_mfrms,
+      { "BS_PA_MFRMS",        "gsm_rlcmac_dl.non_gprs_cell_opt_bs_pa_mfrms",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_max_retrans,
+      { "MAX_RETRANS",        "gsm_rlcmac_dl.non_gprs_cell_opt_max_retrans",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_tx_int,
+      { "TX_INTEGER",        "gsm_rlcmac_dl.non_gprs_cell_opt_tx_integer",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_ec,
+      { "EC",        "gsm_rlcmac_dl.non_gprs_cell_opt_ec",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_ms_txpwr_max_ccch,
+      { "MS_TXPWR_MAX_CCCH",        "gsm_rlcmac_dl.non_gprs_cell_opt_ms_txpwr_max_ccch",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_non_gprs_cell_opt_ext_len,
+      { "Extention_Length",        "gsm_rlcmac_dl.non_gprs_cell_opt_extention_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_ref_freq_num,
+      { "RFL_NUMBER",        "gsm_rlcmac_dl.psi2_ref_freq_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_ma_number,
+      { "MA_NUMBER",        "gsm_rlcmac_dl.psi2_ma_number",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_ma_hsn,
+      { "HSN",        "gsm_rlcmac_dl.psi2_ma_hsn",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_pcch_desc_tsc,
+      { "TSC",        "gsm_rlcmac_dl.psi2_pccch_desc_tsc",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_non_hopping_arfcn,
+      { "ARFCN",        "gsm_rlcmac_dl.psi2_pccch_desc_non_hopping_arfcn",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_non_hopping_timeslot,
+      { "TIMESLOT",        "gsm_rlcmac_dl.psi2_pccch_desc_non_hopping_timeslot",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_hopping_ma_num,
+      { "MA_NUMBER",        "gsm_rlcmac_dl.psi2_pccch_desc_hopping_ma_num",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_hopping_maio,
+      { "MAIO",        "gsm_rlcmac_dl.psi2_pccch_desc_hopping_maio",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type2_hopping_timeslot,
+      { "TIMESLOT",        "gsm_rlcmac_dl.psi2_pccch_desc_hopping_timeslot",
+        FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+/* < End Packet System Information Type 2 message content > */
 
   };
 

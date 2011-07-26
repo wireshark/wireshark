@@ -183,12 +183,12 @@ typedef PRE_PACKED struct
 
 typedef  struct
 {
-  guint8 MCC1:4;
-  guint8 MCC2:4;
-  guint8 MCC3:4;
-  guint8 MNC3:4;
-  guint8 MNC1:4;
-  guint8 MNC2:4;
+  guint8 MCC1;
+  guint8 MCC2;
+  guint8 MCC3;
+  guint8 MNC3;
+  guint8 MNC1;
+  guint8 MNC2;
 } PLMN_t;
 
 
