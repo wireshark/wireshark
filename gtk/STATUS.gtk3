@@ -25,13 +25,12 @@ There are two ways to make the Wireshark code gtk3 ready:
   things that are not gtk3 compatible yet. 
   This is a subset of what breaks when compiling with Gtk3/Gdk3.
 
-Some statistics (as of rev 38150)
+Some statistics (as of rev 38217)
 
 -DGSEAL_ENABLE
   grep error: make.log| cut -d: -f5 | sort | uniq -c
       1  ‘GtkDialog’ has no member named ‘vbox’
       4  ‘GtkTreeViewColumn’ has no member named ‘button’
-     79  ‘GtkWidget’ has no member named ‘allocation’
       1  ‘GtkWidget’ has no member named ‘window’
 
 -DGDK_DISABLE_DEPRECATED
@@ -39,21 +38,20 @@ Some statistics (as of rev 38150)
       2  implicit declaration of function ‘gdk_draw_arc’
       1  implicit declaration of function ‘gdk_draw_drawable’
       9  implicit declaration of function ‘gdk_draw_layout’
-      9  implicit declaration of function ‘gdk_draw_line’
+      6  implicit declaration of function ‘gdk_draw_line’
       1  implicit declaration of function ‘gdk_draw_pixbuf’
-      7  implicit declaration of function ‘gdk_draw_pixmap’
+      4  implicit declaration of function ‘gdk_draw_pixmap’
       1  implicit declaration of function ‘gdk_draw_polygon’
-      8  implicit declaration of function ‘gdk_draw_rectangle’
-      9  implicit declaration of function ‘gdk_gc_new’
+      5  implicit declaration of function ‘gdk_draw_rectangle’
+      5  implicit declaration of function ‘gdk_gc_new’
       1  implicit declaration of function ‘gdk_gc_set_fill’
       2  implicit declaration of function ‘gdk_gc_set_foreground’
       1  implicit declaration of function ‘gdk_gc_set_function’
       1  implicit declaration of function ‘gdk_gc_set_line_attributes’
-      7  implicit declaration of function ‘gdk_gc_set_rgb_fg_color’
+      3  implicit declaration of function ‘gdk_gc_set_rgb_fg_color’
       1  implicit declaration of function ‘gdk_gc_set_tile’
       1  implicit declaration of function ‘gdk_gc_set_ts_origin’
-      2  implicit declaration of function ‘gdk_pixmap_create_from_xpm_d’
-      1  implicit declaration of function ‘gdk_window_get_deskrelative_origin’
+      1  implicit declaration of function ‘gdk_pixmap_create_from_xpm_d’
 
 -DGTK_DISABLE_DEPRECATED
 	Will work if and only if building with UI_MANAGER enabled:
