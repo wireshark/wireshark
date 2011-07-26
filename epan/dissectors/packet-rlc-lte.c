@@ -609,6 +609,7 @@ static guint rlc_frame_hash_func(gconstpointer v)
 
 /* Add to the tree values associated with sequence analysis for this frame */
 static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
+                                   gboolean isControlFrame,
                                    rlc_lte_info *p_rlc_lte_info,
                                    guint16   sequenceNumber,
                                    gboolean  newSegmentStarted,
@@ -637,6 +638,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
 
             switch (p->state) {
                 case SN_OK:
+                    if (isControlFrame) {
+                        return;
+                    }
+
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -644,6 +649,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     break;
 
                 case SN_MAC_Retx:
+                    if (isControlFrame) {
+                        return;
+                    }
+
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -658,6 +667,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     break;
 
                 case SN_Retx:
+                    if (isControlFrame) {
+                        return;
+                    }
+
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -673,6 +686,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     break;
 
                 case SN_Repeated:
+                    if (isControlFrame) {
+                        return;
+                    }
+
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -689,6 +706,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     break;
 
                 case SN_Missing:
+                    if (isControlFrame) {
+                        return;
+                    }
+
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
                     PROTO_ITEM_SET_GENERATED(ti);
@@ -718,6 +739,11 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     break;
 
                 case ACK_Out_of_Window:
+                    if (!isControlFrame) {
+                        return;
+                    }
+
+
                     /* Not OK */
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ok,
                                                 tvb, 0, 0, FALSE);
@@ -726,7 +752,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                     ti = proto_tree_add_boolean(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range,
                                                 tvb, 0, 0, TRUE);
                     PROTO_ITEM_SET_GENERATED(ti);
-                    
+
                     /* Link back to last seen SN in other direction */
                     ti = proto_tree_add_uint(seqnum_tree, hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame,
                                              tvb, 0, 0, p->previousFrameNum);
@@ -889,6 +915,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
 /* Update the channel status and set report for this frame */
 static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      rlc_lte_info *p_rlc_lte_info,
+                                     gboolean isControlFrame,
                                      guint16 sequenceNumber,
                                      gboolean first_includes_start, gboolean last_includes_end,
                                      gboolean is_resegmented _U_,
@@ -908,7 +935,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
         p_report_in_frame = (state_sequence_analysis_report_in_frame*)g_hash_table_lookup(rlc_lte_frame_sequence_analysis_report_hash,
                                                                                           &pinfo->fd->num);
         if (p_report_in_frame != NULL) {
-            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info,
+            addChannelSequenceInfo(p_report_in_frame, isControlFrame, p_rlc_lte_info,
                                    sequenceNumber, first_includes_start,
                                    tap_info, pinfo, tree, tvb);
             return;
@@ -1123,7 +1150,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
     g_hash_table_insert(rlc_lte_frame_sequence_analysis_report_hash, &pinfo->fd->num, p_report_in_frame);
 
     /* Add state report for this frame into tree */
-    addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info, sequenceNumber,
+    addChannelSequenceInfo(p_report_in_frame, isControlFrame, p_rlc_lte_info, sequenceNumber,
                            first_includes_start, tap_info, pinfo, tree, tvb);
 }
 
@@ -1299,7 +1326,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
                                                                                           &pinfo->fd->num);
         if (p_report_in_frame != NULL) {
             /* Add any info to tree */
-            addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info,
+            addChannelSequenceInfo(p_report_in_frame, TRUE, p_rlc_lte_info,
                                    0, FALSE,
                                    tap_info, pinfo, tree, tvb);
             return;
@@ -1342,7 +1369,7 @@ static void checkChannelACKWindow(guint16 ack_sn,
                             &pinfo->fd->num, p_report_in_frame);
 
         /* Add state report for this frame into tree */
-        addChannelSequenceInfo(p_report_in_frame, p_rlc_lte_info, 0,
+        addChannelSequenceInfo(p_report_in_frame, TRUE, p_rlc_lte_info, 0,
                                FALSE, tap_info, pinfo, tree, tvb);
     }
 }
@@ -1554,6 +1581,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
          (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
 
         checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info,
+                                FALSE,
                                 (guint16)sn, first_includes_start, last_includes_end,
                                 FALSE, /* UM doesn't re-segment */
                                 tap_info, um_header_tree);
@@ -1886,7 +1914,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
          (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
 
-        checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, (guint16)sn,
+        checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, FALSE, (guint16)sn,
                                  first_includes_start, last_includes_end,
                                  is_resegmented, tap_info, tree);
     }
