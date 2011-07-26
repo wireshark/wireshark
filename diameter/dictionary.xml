@@ -135,14 +135,16 @@
 		8388617 WiMAX-LAA-Request/Answer (WLAAR/WLAA) WLAA [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
 		8388618 WiMAX-Location-Accounting-Request/Answer (WLACR/WLACA) WLAC [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
 		8388619 WiMAX-Location-Measurement-Query-Request/Answer (WLMQR/WLMQA) WLMQ [http://www.wimaxforum.org/resources/documents/technical/T33][WiMAX Release 1.5][Avi_Lior]
-		8388620 3GPP-Provide-Location-Request/Answer (PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
-		8388621 3GPP-Location-Report-Request/Answer (LRR/LRA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172][Kimmo_Kymalainen]
-		8388622 3GPP-LCS-Routing-Info-Request/Answer (RIR/RIA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.173][Kimmo_Kymalainen]
-		8388623-16777213 Unassigned
-		16777214 Experimental code [RFC3588]
-		16777215 Experimental code [RFC3588]
-		-->
-		<!-- ********************** End Commands ************************** -->
+    -->
+    <command name="3GPP-Provide-Location"           code="8388620" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
+    <command name="3GPP-Location-Report"            code="8388621" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
+    <command name="3GPP-LCS-Routing-Info"           code="8388622" vendor-id="None"/>         <!--(PLR/PLA) [http://www.3gpp.org/ftp/Specs/][3GPP TS 29.172 -->
+    <!-- 
+    8388623-16777213 Unassigned
+    16777214 Experimental code [RFC3588]
+    16777215 Experimental code [RFC3588]
+    -->
+    <!-- ********************** End Commands ************************** -->
 		<!-- ************************* Vendors **************************** -->
 		<vendor vendor-id="None" code="0" name="None"/>
 		<vendor vendor-id="HP"    code="11"    name="Hewlett Packard"/>
@@ -5575,30 +5577,110 @@ Note: The AVP codes from 2320 to 2399 are reserved for TS 32.299
 2406	Additional-Serving-Node	Grouped
 2407	PPR-Address	Address
 Note: The AVP codes from 2408 to 2499 are reserved for TS 29.173
-2500	Location-Type	Enumerated
-2501	LCS-EPS-Client-Name	Grouped
-2502	LCS-Requestor-Name	Grouped
-2503	LCS-Priority	Unsigned32
-2504	LCS-QoS	Grouped
+-->
+      <avp name="Location-Type" code="2500" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Enumerated"/>
+        <enum name="CURRENT_LOCATION" code="0"/>
+        <enum name="CURRENT_OR_LAST_KNOWN_LOCATION" code="1"/>
+        <enum name="INITIAL_LOCATION " code="2"/>
+        <enum name="RESERVED" code="3"/>
+        <enum name="RESERVED" code="4"/>
+        <enum name="NOTIFICATION_VERIFICATION_ONLY" code="5"/>
+      </avp>
+
+      <avp name="LCS-EPS-Client-Name" code="2501" vendor-bit="must" vendor-id="TGPP">
+        <grouped>
+          <gavp name="LCS-Name-String"/>
+          <gavp name="LCS-Format-Indicator"/>
+        </grouped>
+      </avp>
+
+      <avp name="LCS-Requestor-Name" code="2502" vendor-bit="must" vendor-id="TGPP">
+        <grouped>
+          <gavp name="LCS-Requestor-Id-String"/>
+          <gavp name="LCS-Format-Indicator"/>
+        </grouped>
+      </avp>
+
+      <avp name="LCS-Priority" code="2503" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Unsigned32"/>
+      </avp>
+
+      <avp name="LCS-QoS" code="2504" vendor-bit="must" vendor-id="TGPP">
+        <gavp name="LCS-QoS-Class"/>
+        <gavp name="Vertical-Accuracy "/>
+        <gavp name="Vertical-Requested"/>
+        <gavp name="Response-Time"/>
+      </avp>
+
+      <!--      
 2505	Horizontal-Accuracy	Unsigned32
 2506	Vertical-Accuracy	Unsigned32
 2507	Vertical-Requested	Enumerated
-2508	Velocity-Requested	Enumerated
+-->
+      <avp name="Velocity-Requested" code="2508" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Enumerated"/>
+        <enum name="VELOCITY_IS_NOT_REQUESTED" code="0"/>
+        <enum name="BEST VELOCITY_IS_REQUESTED" code="1"/>
+      </avp>
+
+      <!--
 2509	Response-Time	Enumerated
-2510	Supported-GAD-Shapes	Unsigned32
-2511	LCS-Codeword	UTF8String
-2512	LCS-Privacy-Check	Enumerated
+-->
+      <avp name="Supported-GAD-Shapes" code="2510" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Unsigned32"/>
+      </avp>
+
+      <avp name="LCS-Codeword" code="2511" vendor-bit="must" vendor-id="TGPP"> 
+        <type type-name="UTF8String"/>
+      </avp>
+
+      <avp name="LCS-Privacy-Check" code="2512" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Enumerated"/>
+        <enum name="ALLOWED_WITHOUT_NOTIFICATION" code="0"/>
+        <enum name="ALLOWED_WITH_NOTIFICATION" code="1"/>
+        <enum name="ALLOWED_IF_NO_RESPONSE" code="2"/>
+        <enum name="RESTRICTED_IF_NO_RESPONSE" code="3"/>
+        <enum name="NOT_ALLOWED" code="4"/>
+      </avp>
+
+      <!--
 2513	Accuracy-Fulfilment-Indicator	Enumerated
-2514	Age-Of-Location-Estimate	Unsigned32
+-->
+      <avp name="Age-Of-Location-Estimate" code="2514" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Unsigned32"/>
+      </avp>
+
+      <!--
 2515	Velocity-Estimate	OctetString
 2516	EUTRAN-Positioning-Data	OctetString
-2517	ECGI	OctetString
+-->
+      <avp name="ECGI" code="2517" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="OctetString"/>
+      </avp>
+      <!--
 2518	Location-Event	Enumerated
 2519	Pseudonym-Indicator	Enumerated
-2520	LCS-Service-Type-ID	Unsigned32
-2521	LCS-Privacy-Check-Non-Session  	Grouped
-2522	LCS-Privacy-Check-Session  	Grouped
-2523	LCS-QoS-Class	Enumerated
+-->
+      <avp name="LCS-Service-Type-ID" code="2520" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Unsigned32"/>
+      </avp>
+
+      <avp name="LCS-Privacy-Check-Non-Session" code="2521" vendor-bit="must" vendor-id="TGPP">
+        <gavp name="LCS-Privacy-Check"/>
+      </avp>
+
+      <avp name="LCS-Privacy-Check-Session" code="2522" vendor-bit="must" vendor-id="TGPP">
+        <gavp name="LCS-Privacy-Check"/>
+      </avp>
+
+      <avp name="LCS-QoS-Class" code="2523" vendor-bit="must" vendor-id="TGPP">
+        <type type-name="Enumerated"/>
+        <enum name="ASSURED" code="0"/>
+        <enum name="BEST EFFORT" code="1"/>
+      </avp>
+
+      <!--
 Note: The AVP codes from 2524 to 2599 are reserved for TS 29.172
 
 -->
@@ -5717,7 +5799,9 @@ http://www.3gcn.org/TGPP2/TSGX/Projects/X.P0013-B%20IP%20Network%20-%20MMD/X.S00
 	</application>
 	<application id="16777252" name="3GPP S13/S13'" uri="http://www.ietf.org/rfc/rfc5516.txt?number=5516">
 	</application>
-	<application id="16777265" name="3GPP SWx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
+  <application id="16777255" name="3GPP SLg" uri="http://www.ietf.org/rfc/rfc3588.txt?number=3588">
+  </application>
+  <application id="16777265" name="3GPP SWx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
 	<application id="16777266" name="3GPP Gxx" uri="http://www.3gpp.org/ftp/Specs/html-info/29212.htm">
 	</application>
