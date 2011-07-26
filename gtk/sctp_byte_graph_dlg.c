@@ -119,18 +119,12 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 {
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor green_color = {0, 0, 65535, 0};
-	GdkGC *red_gc, *green_gc;
 	gint diff;
 	GPtrArray *array = NULL;
 	guint32 i, size = 0, start=0, end;
 	gboolean more = FALSE;
 	gint width;
-
-	red_gc = gdk_gc_new(gtk_widget_get_window(u_data->io->draw_area));
-	gdk_gc_set_rgb_fg_color(red_gc, &red_color);
-
-	green_gc = gdk_gc_new(gtk_widget_get_window(u_data->io->draw_area));
-	gdk_gc_set_rgb_fg_color(green_gc, &green_color);
+	cairo_t *cr;
 
 	if (u_data->dir == 1)
 	{
@@ -180,25 +174,35 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 
 		if (start >= min_tsn && diff > 0 && diff <= width)
 		{
-			gdk_draw_line(u_data->io->pixmap,red_gc,
-			             (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-			             (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)),
-			             (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-			             (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)));
+			cr = gdk_cairo_create (u_data->io->pixmap);
+			gdk_cairo_set_source_color (cr, &red_color);
+			cairo_set_line_width (cr, 1.0);
+			cairo_move_to(cr, 
+				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5, 
+				u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)+0.5);
+			cairo_line_to(cr, 
+				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5, 
+				u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)+0.5);
+				cairo_stroke(cr);
+				cairo_destroy(cr);			
 			if (more == TRUE)
 			{
-				gdk_draw_line(u_data->io->pixmap,green_gc,
-				              (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-				              (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)),
-				              (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-				              (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end+10,min_tsn))*u_data->io->y_interval)));
+				cr = gdk_cairo_create (u_data->io->pixmap);
+				gdk_cairo_set_source_color (cr, &green_color);
+				cairo_set_line_width (cr, 1.0);
+				cairo_move_to(cr, 
+					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5, 
+					u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)+0.5);
+				cairo_line_to(cr, 
+					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff, 
+					u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end+10,min_tsn))*u_data->io->y_interval)+0.5);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
 				more = FALSE;
 			}
 		}
 
 	}
-	g_object_unref(G_OBJECT(red_gc));
-	g_object_unref(G_OBJECT(green_gc));
 }
 
 
