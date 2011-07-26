@@ -1301,7 +1301,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 	cairo_destroy (cr);
 
 	/* update the scrollbar */
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_adjustment_set_upper(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) user_data->dlg.dialog_graph.max_interval);
 	gtk_adjustment_set_step_increment(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) ((last_interval-first_interval)/10));
 	gtk_adjustment_set_page_increment(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (last_interval-first_interval));
@@ -1311,17 +1310,6 @@ static void dialog_graph_draw(user_data_t* user_data)
 		gtk_adjustment_set_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment, (gfloat) (last_interval-first_interval));
 	}
 	gtk_adjustment_set_value(user_data->dlg.dialog_graph.scrollbar_adjustment, last_interval - gtk_adjustment_get_page_size(user_data->dlg.dialog_graph.scrollbar_adjustment));
-#else
-	user_data->dlg.dialog_graph.scrollbar_adjustment->upper=(gfloat) user_data->dlg.dialog_graph.max_interval;
-	user_data->dlg.dialog_graph.scrollbar_adjustment->step_increment=(gfloat) ((last_interval-first_interval)/10);
-	user_data->dlg.dialog_graph.scrollbar_adjustment->page_increment=(gfloat) (last_interval-first_interval);
-	if((last_interval-first_interval)*100 < user_data->dlg.dialog_graph.max_interval){
-		user_data->dlg.dialog_graph.scrollbar_adjustment->page_size=(gfloat) (user_data->dlg.dialog_graph.max_interval/100);
-	} else {
-		user_data->dlg.dialog_graph.scrollbar_adjustment->page_size=(gfloat) (last_interval-first_interval);
-	}
-	user_data->dlg.dialog_graph.scrollbar_adjustment->value=last_interval-user_data->dlg.dialog_graph.scrollbar_adjustment->page_size;
-#endif
 	gtk_adjustment_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
 	gtk_adjustment_value_changed(user_data->dlg.dialog_graph.scrollbar_adjustment);
 

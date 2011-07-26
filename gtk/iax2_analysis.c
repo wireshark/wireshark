@@ -103,13 +103,6 @@ enum
 };
 
 /****************************************************************************/
-
-typedef struct column_arrows {
-	GtkWidget *table;
-	GtkWidget *ascend_pm;
-	GtkWidget *descend_pm;
-} column_arrows;
-
 #define NUM_COLS 7
 #define NUM_GRAPH_ITEMS 100000
 #define MAX_YSCALE 16
