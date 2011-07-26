@@ -516,6 +516,7 @@ static guint8 * unxorFrame(guint8 dataLength, guint8 byteStream[], guint16 frame
     guint8 frame1Size;
 
     frame1Size = ( frameStart2 > frameStart1 ? frameStart2 : dataLength - frameStart1 );
+    frame1Size = MIN(frame1Size, dataLength);
 
 
     pb_sendMemBlock = (guint8*) ep_alloc0( sizeof(guint8) * dataLength);
