@@ -942,6 +942,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	PaTime idx;
 #endif /* PORTAUDIO_API_1 */
 	int i;
+	GtkAllocation widget_alloc;
 
 	if (!rci) return;
 
@@ -963,6 +964,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		return;
 	}
 
+	gtk_widget_get_allocation(rci->draw_area, &widget_alloc);
 	/* draw the previous saved pixbuf line */
 	if (rci->cursor_pixbuf && (rci->cursor_prev>=0)) {
 
@@ -973,27 +975,27 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			rci->pixmap,
 			(int) (rci->cursor_prev/MULT), 0,
 			(int) (rci->cursor_prev/MULT), 0,
-			1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+			1, widget_alloc.height-HEIGHT_TIME_LABEL);
 
 		g_object_unref(rci->cursor_pixbuf);
 		rci->cursor_pixbuf = NULL;
 	}
 
 	if (idx>0 && (rci->cursor_prev>=0)) {
-		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (idx/MULT), 0, 0, 0, 1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (idx/MULT), 0, 0, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 			(int) (idx/MULT),
 			0,
 			(int) (idx/MULT),
-			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+			widget_alloc.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
 			rci->pixmap,
 			(int) (idx/MULT), 0,
 			(int) (idx/MULT), 0,
-			1, rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+			1, widget_alloc.height-HEIGHT_TIME_LABEL);
 	}
 
 	/* Disconnect the scroll bar "value" signal to not be called */
@@ -1270,15 +1272,17 @@ static void channel_draw(rtp_channel_info_t* rci)
 	GdkColor white_color = {0, 65535, 65535, 65535};
 	time_t seconds;
 	struct tm *timestamp;
+	GtkAllocation widget_alloc;
 
 	if (GDK_IS_DRAWABLE(rci->pixmap)) {
+		gtk_widget_get_allocation(rci->draw_area, &widget_alloc);
 		/* Clear out old plot */
 		gdk_draw_rectangle(rci->pixmap,
 			rci->bg_gc[1+rci->call_num%MAX_NUM_COL_CONV],
 			TRUE,
 			0, 0,
-			rci->draw_area->allocation.width,
-			rci->draw_area->allocation.height);
+			widget_alloc.width,
+			widget_alloc.height);
 
 		small_layout = gtk_widget_create_pango_layout(rci->draw_area, NULL);
 		pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
@@ -1288,11 +1292,11 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 		gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 				0,
-				rci->draw_area->allocation.height-HEIGHT_TIME_LABEL,
-				rci->draw_area->allocation.width,
-				rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
+				widget_alloc.height-HEIGHT_TIME_LABEL,
+				widget_alloc.width,
+				widget_alloc.height-HEIGHT_TIME_LABEL);
 
-		imax = MIN(rci->draw_area->allocation.width,(gint)(rci->samples->len/MULT));
+		imax = MIN(widget_alloc.width,(gint)(rci->samples->len/MULT));
 
 		/* we update the progress bar 100 times */
 
@@ -1350,7 +1354,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 					i,
 					0,
 					i,
-					(gint) (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL)-1);
+					(gint) (widget_alloc.height-HEIGHT_TIME_LABEL)-1);
 
 				if (status == S_DROP_BY_JITT) g_snprintf(label_string, MAX_TIME_LABEL,"D");
 				if (status == S_WRONG_TIMESTAMP) g_snprintf(label_string, MAX_TIME_LABEL, "W");
@@ -1367,9 +1371,9 @@ static void channel_draw(rtp_channel_info_t* rci)
 				/* Draw a graphical representation of the sample */
 				gdk_draw_line(rci->pixmap, gc,
 					i,
-					(gint)(( (0x7FFF+min) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF),
+					(gint)(( (0x7FFF+min) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF),
 					i,
-					(gint)(( (0x7FFF+max) * (rci->draw_area->allocation.height-HEIGHT_TIME_LABEL))/0xFFFF));
+					(gint)(( (0x7FFF+max) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF));
 			}
 
 			/* Draw the x-axis (seconds since beginning of packet flow for this call) */
@@ -1378,9 +1382,9 @@ static void channel_draw(rtp_channel_info_t* rci)
 			if ( !((i*MULT)%(SAMPLE_RATE)) ) {
 				gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 					(int) (i - offset),
-					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL,
+					widget_alloc.height-HEIGHT_TIME_LABEL,
 					(int) (i - offset),
-					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL+4);
+					widget_alloc.height-HEIGHT_TIME_LABEL+4);
 
 				if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day))) {
 					seconds = rci->start_time_abs.secs + i * MULT / SAMPLE_RATE;
@@ -1395,16 +1399,16 @@ static void channel_draw(rtp_channel_info_t* rci)
 				gdk_draw_layout(rci->pixmap,
 					gtk_widget_get_style(rci->draw_area)->black_gc,
 					(int) (i - offset - label_width/2),
-					rci->draw_area->allocation.height - label_height,
+					widget_alloc.height - label_height,
 					small_layout);
 
 			/* Draw only a tick mark for half second intervals */
 			} else if ( !((i*MULT)%(SAMPLE_RATE/2)) ) {
 				gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
 					(int) (i - offset),
-					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL,
+					widget_alloc.height-HEIGHT_TIME_LABEL,
 					(int) (i - offset),
-					rci->draw_area->allocation.height-HEIGHT_TIME_LABEL+2);
+					widget_alloc.height-HEIGHT_TIME_LABEL+2);
 
 			}
 
@@ -1435,6 +1439,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 {
 	rtp_channel_info_t *rci = user_data;
 	int i;
+	GtkAllocation widget_alloc;
 
 	/* the first color is blue to highlight the selected item
 	 * the other collors are the same as in the Voip Graph analysys
@@ -1459,9 +1464,10 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 		rci->pixmap=NULL;
 	}
 
+	gtk_widget_get_allocation(widget, &widget_alloc);
 	rci->pixmap = gdk_pixmap_new(gtk_widget_get_window(widget),
-					widget->allocation.width,
-					widget->allocation.height,
+					widget_alloc.width,
+					widget_alloc.height,
 					-1);
 
 	if ( GDK_IS_DRAWABLE(rci->pixmap) )
@@ -1469,8 +1475,8 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 			gtk_widget_get_style(widget)->white_gc,
 			TRUE,
 			0, 0,
-			widget->allocation.width,
-			widget->allocation.height);
+			widget_alloc.width,
+			widget_alloc.height);
 
 	/* create gc's for the background color of each channel */
 	for (i=0; i<MAX_NUM_COL_CONV+1; i++){

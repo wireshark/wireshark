@@ -1053,12 +1053,9 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 			g_assert(ios != NULL);
 
+			gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
 			gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
-#if GTK_CHECK_VERSION(2,18,0)
 		                    gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
-#else
-		                    gtk_widget_get_style(u_data->io->draw_area)->fg_gc[GTK_WIDGET_STATE(u_data->io->draw_area)],
-#endif
 		                    ios->pixmap,
 		                    0, 0,
 		                    0, 0,
