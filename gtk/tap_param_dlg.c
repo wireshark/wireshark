@@ -88,14 +88,14 @@ register_dfilter_stat(tap_param_dlg *info, const char *name,
     full_name = g_strdup_printf("%s...", name);
     register_stat_menu_item(full_name, group, tap_param_dlg_cb, NULL,
                             NULL, info);
-    g_free(full_name);
-}              
+    /* tap_menu_item_add() uses the name later on. Leave it allocated. */
+}
 
 void tap_param_dlg_update (void)
 {
     tap_param_dlg_list_item *dialog = start_dlg_list;
     char *title;
-    
+
     while(dialog != NULL) {
         if(dialog->dlg) {
             title = g_strdup_printf("Wireshark: %s: %s", dialog->cont.win_title , cf_get_display_name(&cfile));
@@ -119,7 +119,7 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
     GString *params;
     size_t i;
     gint j;
-    
+
     tap_param_dlg_list_item *dlg_data = (tap_param_dlg_list_item *) dialog_data;
 
     params = g_string_new(dlg_data->cont.init_string);
@@ -156,12 +156,12 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
     GtkWidget *bbox, *start_button, *cancel_button;
     size_t i, j;
     char *label_with_colon;
-    
+
     tap_param_dlg *dlg_data = (tap_param_dlg *) data;
 
     if(dlg_data==NULL)
         return;
-        
+
     if(dlg_data->index==-1) {
         /* Dialog is not registered */
         if(start_dlg_list==NULL) {
@@ -281,7 +281,7 @@ tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
             item=NULL;
             break;
         }
-    
+
         gtk_box_pack_start(GTK_BOX(item_box), item, TRUE, TRUE, 0);
         current_dlg->param_items[i]=item;
         gtk_widget_show(item);
