@@ -577,6 +577,7 @@
 				<gavp name="Volume-Threshold"/>
 				<gavp name="Time-Threshold"/>
                 <gavp name="Cisco-Report-Usage"/>
+                        <gavp name="Volume-Threshold-64"/>
 			</grouped>
 		</avp>	
 	<!--Billing-Plan-Name-->
@@ -982,7 +983,8 @@
 				<enum name="TCP_SYN_DETECTION" code="1"/>
 				<enum name="VOLUME_THRESHOLD" code="2"/>
 				<enum name="TIME_THRESHOLD" code="3"/>
-				
+				<enum name="USER_AGENT_DETECTION" code="4"/>
+                        <enum name="Volume-Threshold-64" code="5"/>
 		</avp>	
     <!--Cisco-Event-Trigger-->       
         <avp name="Cisco-Event-Trigger" code="131193" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
@@ -991,6 +993,7 @@
 				<gavp name="Volume-Threshold"/>
 				<gavp name="Time-Threshold"/>
 				<gavp name="Cisco-Report-Usage"/>
+                        <gavp name="Volume-Threshold-64"/>
 			</grouped>
 		</avp>
     <!--TCP-SYN-->	
@@ -1006,7 +1009,7 @@
 				<gavp name="Volume-Usage"/>
 				<gavp name="Time-Usage"/>
                 <gavp name="Cisco-Report-Usage"/>
-
+                        <gavp name="User-Agent"/>
 			</grouped>
 		</avp>
 	<!--Interleaved-->
@@ -1371,8 +1374,67 @@
         </avp>
 
 
-		<!-- ********************** END GX AVPS ***************** -->
-
+    <!--********************** START Cisco GX R6 AVPS *****************-->
+    <!--Cisco-Answer-User-Usage-->
+		<avp name="Cisco-Answer-User-Usage" code="131250" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<grouped>
+				<gavp name="Cisco-Request-Usage-Type"/>
+				<gavp name="Volume-Usage"/>
+				<gavp name="Time-Usage"/>
+			</grouped>
+		</avp>
+    <!--Cisco-Request-Usage-Type-->
+		<avp name="Cisco-Request-Usage-Type" code="131251" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+				<enum name="NO_USAGE" code="0"/>		
+				<enum name="VOL_USAGE" code="1"/>
+				<enum name="TIME_USAGE" code="2"/>
+		</avp>
+    <!--Cisco-Request-Charging-Rule-Usage-->
+		<avp name="Cisco-Request-Charging-Rule-Usage" code="131252" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<grouped>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Cisco-Request-Usage-Type"/>
+			</grouped>
+		</avp>
+    <!--Cisco-Request-Service-Group-Usage-->
+		<avp name="Cisco-Request-Service-Group-Usage" code="131253" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<grouped>
+				<gavp name="Service-Group-Name"/>
+				<gavp name="Cisco-Request-Usage-Type"/>
+			</grouped>
+		</avp>
+    <!--Cisco-Answer-Charging-Rule-Usage-->
+		<avp name="Cisco-Answer-Charging-Rule-Usage" code="131254" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<grouped>
+				<gavp name="Charging-Rule-Name"/>
+				<gavp name="Cisco-Request-Usage-Type"/>
+				<gavp name="Volume-Usage"/>
+				<gavp name="Time-Usage"/>
+			</grouped>
+		</avp>
+    <!--Cisco-Answer-Service-Group-Usage-->
+		<avp name="Cisco-Answer-Service-Group-Usage" code="131255" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<grouped>
+				<gavp name="Service-Group-Name"/>
+				<gavp name="Cisco-Request-Usage-Type"/>
+				<gavp name="Volume-Usage"/>
+				<gavp name="Time-Usage"/>
+			</grouped>
+		</avp>
+    <!--User-Agent-->
+		<avp name="User-Agent" code="131256" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<type type-name="OctetString"/>
+		</avp>
+    <!--Service-Life-Time-->
+		<avp name="Service-Life-Time" code="131257" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<type type-name="Unsigned32"/>
+		</avp>
+    <!--Volume-Threshold-64-->
+ 		<avp name="Volume-Threshold-64" code="131258" vendor-id="Cisco" mandatory="mustnot" protected="mustnot" may-encrypt="yes" vendor-bit="must">
+			<type type-name="Unsigned64"/>
+		</avp>
+		<!-- ********************** END GX AVPS ***************** -->      
 	</application>
 
 
