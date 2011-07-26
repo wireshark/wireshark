@@ -969,11 +969,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 		gdk_draw_pixbuf(rci->pixmap, NULL, rci->cursor_pixbuf, 0, 0, (int) (rci->cursor_prev/MULT), 0, -1, -1, GDK_RGB_DITHER_NONE, 0 ,0);
 
 		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
-#if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
-#else
-			gtk_widget_get_style(rci->draw_area)->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
-#endif
 			rci->pixmap,
 			(int) (rci->cursor_prev/MULT), 0,
 			(int) (rci->cursor_prev/MULT), 0,
@@ -993,11 +989,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			rci->draw_area->allocation.height-HEIGHT_TIME_LABEL);
 
 		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
-#if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
-#else
-			gtk_widget_get_style(rci->draw_area)->fg_gc[GTK_WIDGET_STATE(rci->draw_area)],
-#endif
 			rci->pixmap,
 			(int) (idx/MULT), 0,
 			(int) (idx/MULT), 0,
@@ -1428,11 +1420,7 @@ static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, 
 
 	if (GDK_IS_DRAWABLE(gtk_widget_get_window(widget)))
 		gdk_draw_drawable(gtk_widget_get_window(widget),
-#if GTK_CHECK_VERSION(2,18,0)
 			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
-#else
-			gtk_widget_get_style(widget)->fg_gc[GTK_WIDGET_STATE(widget)],
-#endif
 			rci->pixmap,
 			event->area.x, event->area.y,
 			event->area.x, event->area.y,
