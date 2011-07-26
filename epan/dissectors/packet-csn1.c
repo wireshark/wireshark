@@ -1331,6 +1331,9 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           }
         }
 
+        /* existNextElement() returned FALSE, 1 bit consumed */
+        bit_offset++;
+
         /* Store the counted number of elements of the array */
         *pui8DATA(data, (gint16)(gint32)pDescr->i) = ElementCount;
 
