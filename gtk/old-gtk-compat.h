@@ -39,6 +39,7 @@
 #	define gtk_adjustment_get_page_increment(adj) (adj)->page_increment
 #	define gtk_adjustment_set_page_size(adj, val) (adj)->page_size = val
 #	define gtk_adjustment_get_page_size(adj) (adj)->page_size
+#	define gtk_dialog_get_content_area(GTK_DIALOG(dialog)) (dialog)->vbox 
 #endif
 
 #if !GTK_CHECK_VERSION (2, 16, 0)

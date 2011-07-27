@@ -489,7 +489,7 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 			GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT,
 			NULL);
 
-	GtkWidget *dialog_vbox = GTK_DIALOG(dialog)->vbox;
+	GtkWidget *dialog_vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	GtkWidget *fvalue_edit;
 	GtkWidget *native_repr;
 	GtkWidget *bv_nb_ptr;
