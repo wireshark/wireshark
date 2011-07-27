@@ -49,7 +49,7 @@
 #include "gtk/gtkglobals.h"
 #include "gtk/help_dlg.h"
 #include "gtk/recent.h"
-
+#include "gtk/old-gtk-compat.h"
 enum {
   NAME_COLUMN,
   GLOBAL_COLUMN,
@@ -862,7 +862,7 @@ profile_dialog_new(void)
   renderer = gtk_cell_renderer_toggle_new();
   column = gtk_tree_view_column_new_with_attributes("Global", renderer, "active", GLOBAL_COLUMN, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(profile_l), column);
-  gtk_widget_set_tooltip_text(column->button, "Global profiles will be copied to users profiles when used");
+  gtk_widget_set_tooltip_text(gtk_tree_view_column_get_button(column), "Global profiles will be copied to users profiles when used");
   gtk_tree_view_column_set_visible(column, has_global);
 
   sel = gtk_tree_view_get_selection(GTK_TREE_VIEW(profile_l));

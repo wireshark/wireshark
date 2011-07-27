@@ -78,6 +78,7 @@
 #	define gtk_widget_get_style_context(x) gtk_widget_get_style(x)
 #	define gtk_style_context_get_color(x,y,z) gdkcolor_to_color_t(&z, &x->text[y])
 #	define gtk_style_context_get_color_background(x,y,z) gdkcolor_to_color_t(&z, &x->base[y])
+#	define gtk_tree_view_column_get_button(x) x->button
 #endif
 
 #endif
