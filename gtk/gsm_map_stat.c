@@ -439,7 +439,7 @@ gsm_map_stat_gtk_cb(
      * if the window is already open, bring it to front
      */
     if (dlg.win){
-        gdk_window_raise(dlg.win->window);
+        gdk_window_raise(gtk_widget_get_window(dlg.win));
         return;
     }
 
