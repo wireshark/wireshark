@@ -52,6 +52,15 @@
  *
  */
 
+/*
+ * The part of this dissector for IDMS XR blocks was written by 
+ * Torsten Loebner (loebnert@googlemail.com) in the context of a graduation
+ * project with the research organization TNO in Delft, Netherland.
+ * The extension is based on the RTCP XR block specified in 
+ * ETSI TS 182 063 v3.5.2 Annex W (http://www.etsi.org/deliver/etsi_ts/183000_183099/183063/),
+ * which was registered by IANA as RTCP XR Block Type 12 
+ * (http://www.iana.org/assignments/rtcp-xr-block-types/rtcp-xr-block-types.xml).
+ */
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -173,6 +182,7 @@ static const value_string rtcp_sdes_type_vals[] =
 #define RTCP_XR_TI_VOIP     9
 #define RTCP_XR_PR_LOSS_RLE 10
 #define RTCP_XR_MC_ACQ      11
+#define RTCP_XR_IDMS      12
 
 static const value_string rtcp_xr_type_vals[] =
 {
@@ -187,7 +197,7 @@ static const value_string rtcp_xr_type_vals[] =
 	{ RTCP_XR_TI_VOIP,      "Texas Instruments Extended VoIP Quality Block" },
 	{ RTCP_XR_PR_LOSS_RLE,  "Post-repair Loss RLE Report Block" },
 	{ RTCP_XR_MC_ACQ,       "Multicast Acquisition Report Block" },
-	{ 12,                   "Inter-destination Media Synchronization Block" }, /* [http://www.etsi.org/deliver/etsi_ts/183000_183099/183063/][ETSI 183 063][Miguel_Angel_Reina_Ortega] */
+	{ RTCP_XR_IDMS,                   "Inter-destination Media Synchronization Block" }, /* [http://www.etsi.org/deliver/etsi_ts/183000_183099/183063/][ETSI 183 063][Miguel_Angel_Reina_Ortega] */
 	{ 0, NULL}
 };
 
@@ -218,6 +228,28 @@ static const value_string rtcp_xr_ip_ttl_vals[] =
 	{ 1, "IPv4" },
 	{ 2, "IPv6" },
 	{ 3, "Undefined" },
+	{ 0, NULL }
+};
+
+/* XR IDMS synchronization packet sender type */
+static const value_string rtcp_xr_idms_spst[] =
+{
+	{ 0, "Reserved" },
+	{ 1, "SC" },
+	{ 2, "MSAS" },
+	{ 3, "SC' INPUT" },
+	{ 4, "SC' OUTPUT" },
+	{ 5, "Reserved" },
+	{ 6, "Reserved" },
+	{ 7, "Reserved" },
+	{ 8, "Reserved" },
+	{ 9, "Reserved" },
+	{ 10, "Reserved" },
+	{ 11, "Reserved" },
+	{ 12, "Reserved" },
+	{ 13, "Reserved" },
+	{ 14, "Reserved" },
+	{ 15, "Reserved" },
 	{ 0, NULL }
 };
 
@@ -450,6 +482,14 @@ static int hf_rtcp_xr_stats_meanttl = -1;
 static int hf_rtcp_xr_stats_devttl = -1;
 static int hf_rtcp_xr_lrr = -1;
 static int hf_rtcp_xr_dlrr = -1;
+static int hf_rtcp_xr_idms_spst = -1;
+static int hf_rtcp_xr_idms_pt = -1;
+static int hf_rtcp_xr_idms_msci = -1;
+static int hf_rtcp_xr_idms_source_ssrc = -1;
+static int hf_rtcp_xr_idms_ntp_rcv_ts_msw = -1;
+static int hf_rtcp_xr_idms_ntp_rcv_ts_lsw = -1;
+static int hf_rtcp_xr_idms_rtp_ts = -1;
+static int hf_rtcp_xr_idms_ntp_pres_ts = -1;
 static int hf_rtcp_length_check = -1;
 static int hf_rtcp_bye_reason_not_padded = -1;
 static int hf_rtcp_rtpfb_fmt = -1;
@@ -691,7 +731,7 @@ int dissect_rtcp_length_field( proto_tree *tree, tvbuff_t *tvb, int offset)
 {
 	proto_item *ti;
 	unsigned short raw_length = tvb_get_ntohs( tvb, offset );
-	ti = proto_tree_add_item( tree, hf_rtcp_length, tvb, offset, 2,  FALSE);
+	ti = proto_tree_add_item( tree, hf_rtcp_length, tvb, offset, 2,  ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, " (%u bytes)", (raw_length+1)*4);
 	offset += 2;
 	return offset;
@@ -776,11 +816,11 @@ dissect_rtcp_rtpfb_nack( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto
     unsigned int rtcp_rtpfb_nack_blp = 0;
     proto_item *ti = (proto_item*) NULL;
 
-    proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, FALSE);
+    proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		rtcp_rtpfb_nack_pid = tvb_get_ntohs(tvb, offset);
     offset += 2;
 
-    ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_item(rtcp_tree, hf_rtcp_rtpfb_nack_blp, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     proto_item_set_text(ti, "RTCP Transport Feedback NACK BLP: ");
 		rtcp_rtpfb_nack_blp = tvb_get_ntohs(tvb, offset);
@@ -1001,7 +1041,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		   the length */
 
 		/* Top-level poc tree */
-		PoC1_item = proto_tree_add_item(tree, hf_rtcp_app_poc1, tvb, offset, packet_len, FALSE);
+		PoC1_item = proto_tree_add_item(tree, hf_rtcp_app_poc1, tvb, offset, packet_len, ENC_BIG_ENDIAN);
 		PoC1_tree = proto_item_add_subtree( PoC1_item, ett_PoC1 );
 
 		/* Dissect it according to its subtype */
@@ -1214,7 +1254,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					item_len = tvb_get_guint8( tvb, offset );
 					/* Item len of 1 because its an FT_UINT_STRING... */
 					proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_disp_name,
-					                    tvb, offset, 1, FALSE);
+					                    tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
 					col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
@@ -1494,7 +1534,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		{
 			guint16 local_port = 0;
 
-			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, FALSE);
+			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, ENC_BIG_ENDIAN);
 			proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
 			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
 			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
@@ -1566,7 +1606,7 @@ dissect_rtcp_bye( tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tre
 
 	while ( chunk <= count ) {
 		/* source identifier, 32 bits */
-		proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+		proto_tree_add_item( tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		chunk++;
 	}
@@ -1726,18 +1766,18 @@ static void parse_xr_type_specific_field(tvbuff_t *tvb, gint offset, guint block
     case RTCP_XR_LOSS_RLE:
     case RTCP_XR_DUP_RLE:
     case RTCP_XR_PKT_RXTIMES:
-        proto_tree_add_item(tree, hf_rtcp_xr_thinning, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_rtcp_xr_thinning, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
 
     case RTCP_XR_STATS_SUMRY:
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_loss_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_dup_flag, tvb, offset, 1, flags);
         proto_tree_add_boolean(tree, hf_rtcp_xr_stats_jitter_flag, tvb, offset, 1, flags);
-        proto_tree_add_item(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_rtcp_xr_stats_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
 
     default:
-        proto_tree_add_item(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_rtcp_xr_block_specific, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     }
 }
@@ -1766,7 +1806,13 @@ static gboolean validate_xr_block_length(tvbuff_t *tvb, packet_info *pinfo, int 
 			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
 			                      "Invalid block length, should be 8");
         return FALSE;
-
+	
+    case RTCP_XR_IDMS:
+        if (block_len != 7)
+			expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
+			                      "Invalid block length, should be 7");
+        return FALSE;
+    
     default:
         break;
     }
@@ -1778,6 +1824,10 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 {
     guint block_num = 1;
     guint temp_value = 0;                          /* used when checking spare bits in block type 8 */
+    const gchar *buff;
+    proto_item *item;
+    int hour,min,sec,msec;
+    guint32 tmp_ts;
 
     /* Packet length should at least be 4 */
     if (packet_len < 4) {
@@ -1801,7 +1851,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         proto_item *contents = NULL;
         proto_item *content_tree = NULL;
 
-        proto_tree_add_item(xr_block_tree, hf_rtcp_xr_block_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(xr_block_tree, hf_rtcp_xr_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if (packet_len >= 2) {
             parse_xr_type_specific_field(tvb, offset + 1, block_type, xr_block_tree);
@@ -1833,7 +1883,7 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             guint fraction_rate;
 
             /* Identifier */
-            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Loss Rate */
@@ -1849,51 +1899,51 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset++;
 
             /* Burst Density */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_density, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_density, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Gap Density */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_density, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_density, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Burst Duration */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_duration, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_burst_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Gap Duration */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_duration, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gap_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Round Trip Delay */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rtdelay, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rtdelay, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* End System Delay */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_esdelay, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_esdelay, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Signal Level */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_siglevel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Noise Level */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_noiselevel, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* RERL */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rerl, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* GMin */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gmin, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_gmin, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* R factor */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_rfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* external R Factor */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_extrfactor, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* MOS LQ */
@@ -1907,21 +1957,21 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             offset++;
 
             /* PLC, JB Adaptive, JB Rate */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, FALSE);
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, FALSE);
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_plc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbadaptive, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbrate, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset += 2; /* skip over reseved bit */
 
             /* JB Nominal */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbnominal, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbnominal, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* JB Max */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbmax, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbmax, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* JB Abs max */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbabsmax, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_voip_metrics_jbabsmax, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             break;
@@ -1929,55 +1979,55 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
         case RTCP_XR_STATS_SUMRY: {
             /* Identifier */
-            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Begin Seq */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* End Seq */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* Lost Pkts */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_lost, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_lost, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Dup Pkts */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_dups, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_dups, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Min Jitter */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_minjitter, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_minjitter, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Max Jitter */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_maxjitter, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_maxjitter, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Mean Jitter */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_meanjitter, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_meanjitter, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Dev Jitter */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_devjitter, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_devjitter, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Min TTL */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_minttl, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_minttl, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset ++;
 
             /* Max TTL */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_maxttl, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_maxttl, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset ++;
 
             /* Mean TTL */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_meanttl, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_meanttl, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset ++;
 
             /* Dev TTL */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_devttl, tvb, offset, 1, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_stats_devttl, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset ++;
 
             break;
@@ -2006,15 +2056,15 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
                 proto_tree *ssrc_tree = proto_item_add_subtree(ti, ett_xr_ssrc);
 
                 /* SSRC_n source identifier, 32 bits */
-                proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+                proto_tree_add_item(ssrc_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 /* Last RR timestamp */
-                proto_tree_add_item(ssrc_tree, hf_rtcp_xr_lrr, tvb, offset, 4, FALSE);
+                proto_tree_add_item(ssrc_tree, hf_rtcp_xr_lrr, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
 
                 /* Delay since last RR timestamp */
-                proto_tree_add_item(ssrc_tree, hf_rtcp_xr_dlrr, tvb, offset, 4, FALSE);
+                proto_tree_add_item(ssrc_tree, hf_rtcp_xr_dlrr, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
 
@@ -2029,21 +2079,21 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             guint16 begin = 0;
 
             /* Identifier */
-            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Begin Seq */
             begin = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* End Seq */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             for(count = 0; skip < content_length; skip += 4, count++) {
                 proto_tree_add_text(content_tree, tvb, offset, 4, "Seq: %u, Timestamp: %u",
-                                    (begin + count) % 65536, FALSE);
+                                    (begin + count) % 65536, ENC_BIG_ENDIAN);
                 offset += 4;
             }
             break;
@@ -2057,15 +2107,15 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
             proto_tree *chunks_tree;
 
             /* Identifier */
-            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_ssrc_source, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             /* Begin Seq */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_beginseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* End Seq */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, FALSE);
+            proto_tree_add_item(content_tree, hf_rtcp_xr_endseq, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* report Chunks */
@@ -2099,19 +2149,19 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
         }
         case RTCP_XR_BT_XNQ: {										/* BT XNQ block as defined in RFC5093 */
 
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_begseq, tvb, offset, 2, FALSE);          /* Begin Sequence number */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_endseq, tvb, offset+2, 2, FALSE);        /* End Sequence number */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_begseq, tvb, offset, 2, ENC_BIG_ENDIAN);          /* Begin Sequence number */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_endseq, tvb, offset+2, 2, ENC_BIG_ENDIAN);        /* End Sequence number */
             offset += 4;
 
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vmaxdiff, tvb, offset, 2, FALSE);        /* vmaxdiff */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vrange, tvb, offset+2, 2, FALSE);        /* vrange */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vmaxdiff, tvb, offset, 2, ENC_BIG_ENDIAN);        /* vmaxdiff */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vrange, tvb, offset+2, 2, ENC_BIG_ENDIAN);        /* vrange */
             offset += 4;
 
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vsum, tvb, offset, 4, FALSE);            /* vsum */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_vsum, tvb, offset, 4, ENC_BIG_ENDIAN);            /* vsum */
             offset += 4;
 
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_cycles, tvb, offset, 2, FALSE);          /* cycle count */
-            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_jbevents, tvb, offset+2, 2, FALSE);      /* jitter buffer events */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_cycles, tvb, offset, 2, ENC_BIG_ENDIAN);          /* cycle count */
+            proto_tree_add_item(content_tree, hf_rtcp_xr_btxnq_jbevents, tvb, offset+2, 2, ENC_BIG_ENDIAN);      /* jitter buffer events */
             offset += 4;
 
             temp_value = tvb_get_ntohl(tvb, offset);                                                    /* tDegNet */
@@ -2140,6 +2190,38 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 
             break;
         }
+        case RTCP_XR_IDMS:
+	    offset -= 3;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_spst, tvb, offset, 1, ENC_BIG_ENDIAN); 
+		offset+=3;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_pt, tvb, offset, 1, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_msci, tvb, offset, 4, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_source_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_msw, tvb, offset, 4, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_lsw, tvb, offset, 4, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    buff=tvb_ntp_fmt_ts(tvb, offset-8);
+		item = proto_tree_add_item(content_tree, hf_rtcp_ntp, tvb, offset-8, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+		PROTO_ITEM_SET_GENERATED(item);
+
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_rtp_ts, tvb, offset, 4, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_pres_ts, tvb, offset, 4, ENC_BIG_ENDIAN); 
+		offset+=4;
+	    
+	    tmp_ts = tvb_get_ntohl(tvb,offset-4);
+	    hour 	= ( (int) ( tmp_ts >> 16 ) ) / 3600;
+	    min		= (( (int) ( tmp_ts >> 16 ) ) - hour * 3600) / 60; 
+	    sec		= (( (int) ( tmp_ts >> 16 ) ) - hour * 3600 - min * 60);
+	    msec	= ( (int) ( tmp_ts & 0x0000FFFF ) ) / 66;
+	    
+	    item = proto_tree_add_text( content_tree, tvb, offset-4, 4, "short NTP timestamp of presentation: %d:%02d:%02d:%03d [h:m:s:ms] ", hour,min,sec,msec);
+	    PROTO_ITEM_SET_GENERATED(item);
+	break;
         default:
             /* skip over the unknown block */
             offset += content_length;
@@ -2238,7 +2320,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	if ((offset-rr_offset) < (int)packet_length)
 	{
 		proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
-		                    packet_length - (offset - rr_offset), FALSE);
+		                    packet_length - (offset - rr_offset), ENC_BIG_ENDIAN);
 		offset = rr_offset + packet_length;
 	}
 
@@ -2255,10 +2337,10 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 
 	/* NTP timestamp */
 	ts_msw = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_rtcp_ntp_msw, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rtcp_ntp_msw, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 	ts_lsw = tvb_get_ntohl(tvb, offset+4);
-	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, FALSE);
+	proto_tree_add_item(tree, hf_rtcp_ntp_lsw, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
 	item = proto_tree_add_item(tree, hf_rtcp_ntp, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_GENERATED(item);
@@ -2293,7 +2375,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		if ((offset-sr_offset) < (int)packet_length)
 		{
 			proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
-			                    packet_length - (offset - sr_offset), FALSE);
+			                    packet_length - (offset - sr_offset), ENC_BIG_ENDIAN);
 			offset = sr_offset + packet_length;
 		}
 	}
@@ -2725,7 +2807,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         temp_byte = tvb_get_guint8( tvb, offset );
 
         proto_tree_add_item( rtcp_tree, hf_rtcp_version, tvb,
-                             offset, 1, FALSE);
+                             offset, 1, ENC_BIG_ENDIAN);
         padding_set = RTCP_PADDING( temp_byte );
         padding_offset = offset + packet_length - 1;
 
@@ -2852,16 +2934,16 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     /* If the payload was encrypted, the main payload was not dissected */
     if (srtcp_encrypted == TRUE) {
         proto_tree_add_text(rtcp_tree, tvb, offset, srtcp_offset-offset, "Encrypted RTCP Payload - not dissected");
-        proto_tree_add_item(rtcp_tree, hf_srtcp_e, tvb, srtcp_offset, 4, FALSE);
+        proto_tree_add_item(rtcp_tree, hf_srtcp_e, tvb, srtcp_offset, 4, ENC_BIG_ENDIAN);
         proto_tree_add_uint(rtcp_tree, hf_srtcp_index, tvb, srtcp_offset, 4, srtcp_index);
         srtcp_offset += 4;
         if (srtcp_info->mki_len) {
-            proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, FALSE);
+            proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, ENC_BIG_ENDIAN);
             srtcp_offset += srtcp_info->mki_len;
         }
 
         if (srtcp_info->auth_tag_len) {
-            proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, FALSE);
+            proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, ENC_BIG_ENDIAN);
             srtcp_offset += srtcp_info->auth_tag_len;
         }
     }
@@ -4438,6 +4520,102 @@ proto_register_rtcp(void)
 				FT_BYTES,
 				BASE_NONE,
 				NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_spst,
+			{
+				"Syncronization Packet Sender Type",
+				"rtcp.xr.idms.spst",
+				FT_UINT8,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_pt,
+			{
+				"Payload Type",
+				"rtcp.xr.idms.pt",
+				FT_UINT8,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_msci,
+			{
+				"Media Stream Correlation Identifier",
+				"rtcp.xr.idms.msci",
+				FT_UINT32,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_source_ssrc,
+			{
+				"Source SSRC",
+				"rtcp.xr.idms.source_ssrc",
+				FT_UINT32,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_ntp_rcv_ts_msw,
+			{
+				"NTP Timestamp of packet reception (msw)",
+				"rtcp.xr.idms.ntp_rcv_ts_msw",
+				FT_UINT32,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_ntp_rcv_ts_lsw,
+			{
+				"NTP Timestamp of packet reception (lsw)",
+				"rtcp.xr.idms.ntp_rcv_ts_lsw",
+				FT_UINT32,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_rtp_ts,
+			{
+				"RTP Timestamp of packet",
+				"rtcp.xr.idms.rtp_ts",
+				FT_UINT32,
+				BASE_DEC,
+                                NULL,
+				0x0,
+				NULL, HFILL
+			}
+		},
+		{
+			&hf_rtcp_xr_idms_ntp_pres_ts,
+			{
+				"NTP Timestamp of presentation",
+				"rtcp.xr.idms.ntp_pres_ts",
+				FT_UINT32,
+				BASE_DEC,
+                                NULL,
 				0x0,
 				NULL, HFILL
 			}
