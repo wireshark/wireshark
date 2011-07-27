@@ -1094,6 +1094,7 @@ io_stat_draw(io_stat_t *io)
 			case PLOT_STYLE_IMPULSE:
 				if(val){
 					cr = gdk_cairo_create (io->pixmap);
+					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
 					cairo_set_line_width (cr, 1.0);
 					cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
 					cairo_line_to(cr, x_pos+0.5, y_pos+0.5);
@@ -1103,26 +1104,27 @@ io_stat_draw(io_stat_t *io)
 				break;
 			case PLOT_STYLE_FILLED_BAR:
 				if(val){
-						cr = gdk_cairo_create (io->pixmap);
-						cairo_rectangle (cr, 
-							x_pos-io->pixels_per_tick/2, 
-							y_pos, 
-							io->pixels_per_tick, 
-							draw_height-1+top_y_border-y_pos);
-						cairo_set_source_rgb (cr, 1, 1, 1);
-						cairo_fill (cr);
-						cairo_destroy (cr);
+					cr = gdk_cairo_create (io->pixmap);
+					cairo_rectangle (cr,
+						x_pos-io->pixels_per_tick/2,
+						y_pos,
+						io->pixels_per_tick,
+						draw_height-1+top_y_border-y_pos);
+					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
+					cairo_fill (cr);
+					cairo_destroy (cr);
 				}
 				break;
 			case PLOT_STYLE_DOT:
 				if(val){
 					cr = gdk_cairo_create (io->pixmap);
-					cairo_rectangle (cr, 
-						x_pos-io->pixels_per_tick/2, 
-						y_pos-io->pixels_per_tick/2, 
-						io->pixels_per_tick, 
-						io->pixels_per_tick);
-					cairo_set_source_rgb (cr, 1, 1, 1);
+					cairo_arc (cr,
+						x_pos-io->pixels_per_tick/2+io->pixels_per_tick/2,
+						y_pos-io->pixels_per_tick/2+io->pixels_per_tick/2,
+						(gdouble)io->pixels_per_tick/2,
+						0,
+						2 * M_PI);
+					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
 					cairo_fill (cr);
 					cairo_destroy (cr);
 				}
