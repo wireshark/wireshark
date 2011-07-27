@@ -64,7 +64,9 @@
 
 #define MAX_GRAPHS 5
 
+#ifndef M_PI
 #define M_PI 3.14159265358979323846264338327
+#endif
 
 #define MAX_YSCALE 28
 #define LOGARITHMIC_YSCALE 0
