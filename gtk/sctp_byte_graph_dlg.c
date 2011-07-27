@@ -898,6 +898,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 	tsn_t *tsn, *tmptsn;
 	PangoLayout  *layout;
 	GtkAllocation widget_alloc;
+	cairo_t *cr;
 
 	g_snprintf(label_string, 15, "%d", 0);
 	memcpy(label_string,(gchar *)g_locale_to_utf8(label_string, -1 , NULL, NULL, NULL), 15);
@@ -924,14 +925,14 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 		g_assert(ios != NULL);
 
+		cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
+
+		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 		gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
-		gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
-		                gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
-		                ios->pixmap,
-		                0, 0,
-		                0, 0,
-		                widget_alloc.width,
-		                widget_alloc.height);
+		cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
+		cairo_fill (cr);
+
+		cairo_destroy (cr);
 
 		x1_tmp=(guint32) floor(u_data->io->min_x+((u_data->io->x_old-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
 		x2_tmp=(guint32) floor(u_data->io->min_x+((event->x-LEFT_BORDER-u_data->io->offset)*u_data->io->tmp_width/u_data->io->axis_width));
@@ -1053,14 +1054,15 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 			g_assert(ios != NULL);
 
+			cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
+
+			gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 			gtk_widget_get_allocation(u_data->io->draw_area, &widget_alloc);
-			gdk_draw_pixmap(gtk_widget_get_window(u_data->io->draw_area),
-		                    gtk_widget_get_style(u_data->io->draw_area)->fg_gc[gtk_widget_get_state(u_data->io->draw_area)],
-		                    ios->pixmap,
-		                    0, 0,
-		                    0, 0,
-		                    widget_alloc.width,
-		                    widget_alloc.height);
+			cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
+			cairo_fill (cr);
+
+			cairo_destroy (cr);
+
 		}
 	}
 	return TRUE;
