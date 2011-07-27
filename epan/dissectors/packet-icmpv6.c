@@ -3376,11 +3376,11 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
 
                 /* Reachable time */
-                proto_tree_add_uint(icmp6_tree, hf_icmpv6_nd_ra_reachable_time, tvb, offset, 4, FALSE);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_ra_reachable_time, tvb, offset, 4, FALSE);
                 offset += 4;
 
                 /* Retrans timer */
-                proto_tree_add_uint(icmp6_tree, hf_icmpv6_nd_ra_retrans_timer, tvb, offset, 4, FALSE);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_nd_ra_retrans_timer, tvb, offset, 4, FALSE);
                 offset += 4;
 
                 /* Show options */
