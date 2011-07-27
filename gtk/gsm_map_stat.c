@@ -55,6 +55,7 @@
 #include "gtk/filter_dlg.h"
 #include "gtk/gsm_map_stat.h"
 
+#include "gtk/old-gtk-compat.h"
 
 enum
 {
