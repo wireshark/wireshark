@@ -314,13 +314,6 @@ dissect_fmp_fileHandleSrc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 static int
 dissect_fmp_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	extentState state;
-
-	if (!tree) {
-		return offset;
-	}
-
-	state = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_extent_state,
 	                            offset);
 
@@ -332,10 +325,6 @@ dissect_fmp_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree
 {
 	proto_item *extItem;
 	proto_tree *extTree;
-
-	if (!tree) {
-		return offset;
-	}
 
 	extItem = proto_tree_add_text(tree, tvb, offset, 20 ,
 	                              "Extent (%u)", (guint32) ext_num);
@@ -364,10 +353,6 @@ dissect_fmp_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree *extListTree;
 	guint32 i;
 
-	if (!tree) {
-		return offset;
-	}
-
 	numExtents = tvb_get_ntohl(tvb, offset);
 	totalLength = 4 + (20 * numExtents);
 
@@ -395,12 +380,7 @@ dissect_fmp_extentListEx(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         proto_tree *extListTree;
         guint32 i;
 
-        if (!tree) {
-                return offset;
-        }
-
         numExtents = tvb_get_ntohl(tvb, offset);
-
 
         offset += 4;
 
@@ -440,66 +420,64 @@ dissect_plugInID(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,  proto_tree *tree)
+dissect_fmp_flushCmd(tvbuff_t *tvb, int offset,	 proto_tree *tree)
 {
 	guint32 cmd;
 	char msg[MAX_MSG_SIZE];
 	guint32 bitValue;
 	int i;
 
-	if (!tree) {
-		return offset;
-	}
+	if (tree) {
+		cmd = tvb_get_ntohl(tvb, offset);
 
-	cmd = tvb_get_ntohl(tvb, offset);
+		/* Initialize the message for an empty string */
+		msg[0] = '\0';
 
-	/* Initialize the message for an empty string */
-	msg[0] = '\0';
+		for (i = 0; cmd != 0 && i < 32; i++) {
 
-	for (i = 0; cmd != 0 && i < 32; i++) {
+			bitValue = 1 << i;
 
-		bitValue = 1 << i;
+			if (cmd & bitValue) {
+				switch (bitValue) {
+				case FMP_COMMIT_SPECIFIED:
+					g_strlcat(msg, "COMMIT_SPECIFIED", MAX_MSG_SIZE);
+					break;
+				case FMP_RELEASE_SPECIFIED:
+					g_strlcat(msg, "RELEASE_SPECIFIED", MAX_MSG_SIZE);
+					break;
+				case FMP_RELEASE_ALL:
+					g_strlcat(msg, "RELEASE_ALL", MAX_MSG_SIZE);
+					break;
+				case FMP_CLOSE_FILE:
+					g_strlcat(msg, "CLOSE_FILE", MAX_MSG_SIZE);
+					break;
+				case FMP_UPDATE_TIME:
+					g_strlcat(msg, "UPDATE_TIME", MAX_MSG_SIZE);
+					break;
+				case FMP_ACCESS_TIME:
+					g_strlcat(msg, "ACCESS_TIME", MAX_MSG_SIZE);
+					break;
+				default:
+					g_strlcat(msg, "UNKNOWN", MAX_MSG_SIZE);
+					break;
+				}
 
-		if (cmd & bitValue) {
-			switch (bitValue) {
-			case FMP_COMMIT_SPECIFIED:
-				g_strlcat(msg, "COMMIT_SPECIFIED", MAX_MSG_SIZE);
-				break;
-			case FMP_RELEASE_SPECIFIED:
-				g_strlcat(msg, "RELEASE_SPECIFIED", MAX_MSG_SIZE);
-				break;
-			case FMP_RELEASE_ALL:
-				g_strlcat(msg, "RELEASE_ALL", MAX_MSG_SIZE);
-				break;
-			case FMP_CLOSE_FILE:
-				g_strlcat(msg, "CLOSE_FILE", MAX_MSG_SIZE);
-				break;
-			case FMP_UPDATE_TIME:
-				g_strlcat(msg, "UPDATE_TIME", MAX_MSG_SIZE);
-				break;
-			case FMP_ACCESS_TIME:
-				g_strlcat(msg, "ACCESS_TIME", MAX_MSG_SIZE);
-				break;
-			default:
-				g_strlcat(msg, "UNKNOWN", MAX_MSG_SIZE);
-				break;
-			}
+				/* clear the bit that we processed */
+				cmd &= ~bitValue;
 
-			/* clear the bit that we processed */
-			cmd &= ~bitValue;
-
-			/* add a "bitwise inclusive OR" symbol between cmds */
-			if (cmd) {
-				g_strlcat(msg, " | ", MAX_MSG_SIZE);
+				/* add a "bitwise inclusive OR" symbol between cmds */
+				if (cmd) {
+					g_strlcat(msg, " | ", MAX_MSG_SIZE);
+				}
 			}
 		}
-	}
 
-	if (strlen(msg) == 0) {
-	  g_strlcpy(msg, "No command specified", MAX_MSG_SIZE);
-	}
+		if (strlen(msg) == 0) {
+			g_strlcpy(msg, "No command specified", MAX_MSG_SIZE);
+		}
 
-	proto_tree_add_text(tree, tvb, offset, 4, "Cmd: %s", msg);
+		proto_tree_add_text(tree, tvb, offset, 4, "Cmd: %s", msg);
+	}
 	offset += 4;
 	return offset;
 }
@@ -538,51 +516,43 @@ dissect_InterpretVolMgtStuff(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_fmp_capability(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	int vmType;
+	if (tree) {
+		int vmType;
+		vmType = tvb_get_ntohl(tvb, offset);
 
-	if (!tree) {
-		return offset;
+		switch (vmType) {
+		case FMP_SERVER_BASED:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Volume Mgmt Capability: SERVER_BASED (%d)", vmType);
+			break;
+
+		case FMP_THIRD_PARTY:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Volume Mgmt Capability: THIRD_PARTY (%d)", vmType);
+			break;
+
+		case FMP_CLIENT_BASED_DART:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Volume Mgmt Capability: CLIENT_BASED_DART (%d)",
+					    vmType);
+			break;
+
+		case FMP_CLIENT_BASED_SIMPLE:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Volume Mgmt Capability: CLIENT_BASED_SIMPLE (%d)",
+					    vmType);
+			break;
+		case FMP_HIERARCHICAL_VOLUME:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Volume Mgmt Capability: FMP_HIERARCHICAL_VOLUME (%d)",
+					    vmType);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Volume Mgmt Capability: UNKNOWN (%d)", vmType);
+			break;
+		}
 	}
-
-	vmType = tvb_get_ntohl(tvb, offset);
-
-	switch (vmType) {
-	case FMP_SERVER_BASED:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		           "Volume Mgmt Capability: SERVER_BASED (%d)", vmType);
-		break;
-
-	case FMP_THIRD_PARTY:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		           "Volume Mgmt Capability: THIRD_PARTY (%d)", vmType);
-		break;
-
-	case FMP_CLIENT_BASED_DART:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		           "Volume Mgmt Capability: CLIENT_BASED_DART (%d)",
-		           vmType);
-		break;
-
-	case FMP_CLIENT_BASED_SIMPLE:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		           "Volume Mgmt Capability: CLIENT_BASED_SIMPLE (%d)",
-		           vmType);
-		break;
-	case FMP_HIERARCHICAL_VOLUME:
-               proto_tree_add_text(tree, tvb, offset, 4,
-                          "Volume Mgmt Capability: FMP_HIERARCHICAL_VOLUME (%d)",
-                          vmType);
-               break;
-
-
-
-
-	default:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		           "Volume Mgmt Capability: UNKNOWN (%d)", vmType);
-		break;
-	}
-
 	offset += 4;
 	return offset;
 }
@@ -592,30 +562,23 @@ dissect_fmp_timeval(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, int hf_time, int hf_time_sec,
                     int hf_time_nsec)
 {
-	nstime_t ts;
+	if (tree) {
+		nstime_t ts;
 
-	proto_item* time_item;
-	proto_tree* time_tree = NULL;
+		proto_item* time_item;
+		proto_tree* time_tree = NULL;
 
-	if (!tree) {
-		return offset;
-	}
+		ts.secs = tvb_get_ntohl(tvb, offset+0);
+		ts.nsecs = tvb_get_ntohl(tvb, offset+4);
 
-	ts.secs = tvb_get_ntohl(tvb, offset+0);
-	ts.nsecs = tvb_get_ntohl(tvb, offset+4);
-
-	time_item = proto_tree_add_time(tree, hf_time, tvb, offset, 8, &ts);
-	if (time_item) {
+		time_item = proto_tree_add_time(tree, hf_time, tvb, offset, 8, &ts);
 		time_tree = proto_item_add_subtree(time_item, ett_fmp_timeval);
-	}
 
-	if (time_tree) {
 		proto_tree_add_uint(time_tree, hf_time_sec, tvb, offset, 4,
-		                    (guint32) ts.secs);
+				    (guint32) ts.secs);
 		proto_tree_add_uint(time_tree, hf_time_nsec, tvb, offset+4, 4,
-		                    ts.nsecs);
+				    ts.nsecs);
 	}
-
 	offset += 8;
 	return offset;
 }
@@ -624,14 +587,12 @@ static int
 dissect_fmp_heartBeatIntv(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                           proto_tree *tree)
 {
-	if (!tree) {
-		return offset;
+	if (tree) {
+		proto_tree_add_text(tree, tvb, offset, 8,
+				    "Heart Beat Interval: %d.%d seconds",
+				    tvb_get_ntohl(tvb, offset),
+				    tvb_get_ntohl(tvb, offset+4));
 	}
-
-	proto_tree_add_text(tree, tvb, offset, 8,
-	                    "Heart Beat Interval: %d.%d seconds",
-	                    tvb_get_ntohl(tvb, offset),
-	                    tvb_get_ntohl(tvb, offset+4));
 	offset += 8;
 	return offset;
 }
@@ -640,10 +601,6 @@ static int
 dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 {
 	fmpStat status;
-
-	if (!tree) {
-		return offset;
-	}
 
 	status = tvb_get_ntohl(tvb, offset);
 
@@ -706,7 +663,6 @@ dissect_fmp_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval)
 		*rval = 1;
 		break;
 	}
-
         offset = dissect_rpc_uint32(tvb, tree, hf_fmp_status , offset);
 	return offset;
 }
@@ -715,32 +671,32 @@ static int
 dissect_fmp_devSerial(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                       proto_tree *tree)
 {
-	queryCmd qc;
+	if (tree) {
+		queryCmd qc;
 
-	if (!tree) {
-		return offset;
-	}
+		qc = tvb_get_ntohl(tvb, offset);
 
-	qc = tvb_get_ntohl(tvb, offset);
-
-	switch (qc) {
-	case FMP_SCSI_INQUIRY:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		                   "Query Command: SCSI_INQUIRY (%d)", qc);
-		break;
-	case FMP_DART_STAMP:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		                    "Query Command: DART_STAMP (%d)", qc);
-		break;
-	default:
-		proto_tree_add_text(tree, tvb, offset, 4,
-		                    "Query Command: UNKNOWN (%d)", qc);
-		break;
+		switch (qc) {
+		case FMP_SCSI_INQUIRY:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Query Command: SCSI_INQUIRY (%d)", qc);
+			break;
+		case FMP_DART_STAMP:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Query Command: DART_STAMP (%d)", qc);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Query Command: UNKNOWN (%d)", qc);
+			break;
+		}
 	}
 	offset += 4;
 
-	proto_tree_add_text(tree, tvb, offset, 4, "sigOffset: 0x%x",
-	                    tvb_get_ntohl(tvb, offset));
+	if (tree) {
+		proto_tree_add_text(tree, tvb, offset, 4, "sigOffset: 0x%x",
+				    tvb_get_ntohl(tvb, offset));
+	}
 	offset += 4;
 
 	offset = dissect_rpc_string(tvb, tree, hf_fmp_devSignature,
@@ -909,10 +865,6 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	guint32 phyVolList_len;
 	guint32 volIndex;
 
-	if (!tree) {
-		return offset;
-	}
-
 	vmType = tvb_get_ntohl(tvb, offset);
 
 	switch (vmType) {
@@ -1009,73 +961,64 @@ dissect_fmp_vmInfo(tvbuff_t *tvb, int offset, packet_info *pinfo,
 static int
 dissect_fmp_notifyProtocol(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	if (tree) {
+		int proto;
 
-        int proto;
+		proto = tvb_get_ntohl(tvb, offset);
 
-        if (!tree) {
-                return offset;
-        }
-
-        proto = tvb_get_ntohl(tvb, offset);
-
-        switch(proto){
-        case FMP_TCP:
-                proto_tree_add_text(tree, tvb, offset, 4,
-                                    "Protocol: TCP (%d)",
-                                    proto);
-                break;
-        case FMP_UDP:
-                proto_tree_add_text(tree, tvb, offset, 4,
-                                    "Protocol: UDP (%d)",
-                                    proto);
-                break;
-        default:
-                proto_tree_add_text(tree, tvb, offset, 4,
-                                    "Protocol: UNKNOWN (%d)",
-                                    proto);
-                break;
-        }
-
+		switch(proto){
+		case FMP_TCP:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Protocol: TCP (%d)",
+					    proto);
+			break;
+		case FMP_UDP:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Protocol: UDP (%d)",
+					    proto);
+			break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, 4,
+					    "Protocol: UNKNOWN (%d)",
+					    proto);
+			break;
+		}
+	}
         return (offset+4);
-
-
 }
 
 
 static int
 dissect_fmp_capabilities(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
+	if (tree) {
+		int cap_val ;
+		proto_tree *capTree;
+		proto_tree *captree;
 
-        int cap_val ;
-        proto_tree *capTree;
-        proto_tree *captree;
-        if (!tree) {
-                return offset;
-        }
+		cap_val = tvb_get_ntohl(tvb, offset);
+		captree = proto_tree_add_text(tree, tvb, offset, 4,
+					       "Capabilities: ");
 
-        cap_val = tvb_get_ntohl(tvb, offset);
-        captree =  proto_tree_add_text(tree, tvb, offset, 4,
-                                              "Capabilities: ");
+		capTree = proto_item_add_subtree(captree,
+						 ett_capabilities);
 
-        capTree = proto_item_add_subtree(captree,
-                                                ett_capabilities);
-
-        if (cap_val & FMP_CAP_REVOKE_HANDLE_LIST ){
-                proto_tree_add_text(capTree, tvb, offset, 4,
-                                    "CAP_REVOKE_HANDLE_LIST (%x)",
-                                    cap_val);
-        }
-        if (cap_val & FMP_CAP_UNC_NAMES ){
-                proto_tree_add_text(capTree, tvb, offset, 4,
-                                    "CAP_UNC_NAMES (%x)",
-                                    cap_val);
-        }
-        if (cap_val & FMP_CAP_CIFSV2 ){
-                proto_tree_add_text(capTree, tvb, offset, 4,
-                                    "CAP_CIFSV2  (%x)",
-                                    cap_val);
-        }
-
+		if (cap_val & FMP_CAP_REVOKE_HANDLE_LIST ){
+			proto_tree_add_text(capTree, tvb, offset, 4,
+					    "CAP_REVOKE_HANDLE_LIST (%x)",
+					    cap_val);
+		}
+		if (cap_val & FMP_CAP_UNC_NAMES ){
+			proto_tree_add_text(capTree, tvb, offset, 4,
+					    "CAP_UNC_NAMES (%x)",
+					    cap_val);
+		}
+		if (cap_val & FMP_CAP_CIFSV2 ){
+			proto_tree_add_text(capTree, tvb, offset, 4,
+					    "CAP_CIFSV2  (%x)",
+					    cap_val);
+		}
+	}
         return (offset+4);
 }
 
@@ -1117,7 +1060,6 @@ dissect_fmp_cerrInfo(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 dissect_fmp_attrs(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-        int attrs;
         proto_tree *attrstree;
         proto_tree *attrsTree;
 
@@ -1125,7 +1067,6 @@ dissect_fmp_attrs(tvbuff_t *tvb, int offset, proto_tree *tree)
                                               "Attribute: ");
         attrsTree = proto_item_add_subtree(attrstree,
                                                 ett_attrs );
-        attrs = tvb_get_ntohl(tvb, offset);
         offset = dissect_rpc_uint32(tvb, attrsTree, hf_fmp_nfsv3Attr_type, offset);
         offset = dissect_rpc_uint32(tvb, attrsTree, hf_fmp_nfsv3Attr_mode, offset);
         offset = dissect_rpc_uint32(tvb, attrsTree, hf_fmp_nfsv3Attr_nlink, offset);
