@@ -91,10 +91,6 @@ dissect_fmp_notify_status(tvbuff_t *tvb, int offset, proto_tree *tree, int *rval
 {
         fmpStat status;
 
-        if (!tree) {
-                return offset;
-        }
-
         status = tvb_get_ntohl(tvb, offset);
 
         switch (status) {
@@ -178,32 +174,29 @@ dissect_revokeHandleListReason(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	revokeHandleListReason reason;
 
-	if (!tree) {
-		return offset;
-	}
+  	if (tree) {
+		reason  = tvb_get_ntohl(tvb, offset);
+		switch (reason) {
+		case FMP_LIST_USER_QUOTA_EXCEEDED:
+			proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
+					    "LIST_USER_QUOTA_EXCEEDED");
+			break;
 
-	reason  = tvb_get_ntohl(tvb, offset);
+		case FMP_LIST_GROUP_QUOTA_EXCEEDED:
+			proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
+					    "LIST_GROUP_QUOTA_EXCEEDED");
+			break;
 
-	switch (reason) {
-	case FMP_LIST_USER_QUOTA_EXCEEDED:
-		proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
-		                    "LIST_USER_QUOTA_EXCEEDED");
-		break;
+		case FMP_LIST_SERVER_RESOURCE_LOW:
+			proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
+					    "LIST_SERVER_RESOURCE_LOW");
+			break;
 
-	case FMP_LIST_GROUP_QUOTA_EXCEEDED:
-		proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
-		                    "LIST_GROUP_QUOTA_EXCEEDED");
-		break;
-
-	case FMP_LIST_SERVER_RESOURCE_LOW:
-		proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
-		                    "LIST_SERVER_RESOURCE_LOW");
-		break;
-
-	default:
-		proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
-		                    "Unknown Reason");
-		break;
+		default:
+			proto_tree_add_text(tree, tvb, offset, 4, "Reason: %s",
+					    "Unknown Reason");
+			break;
+		}
 	}
 	offset += 4;
 	return offset;
@@ -219,10 +212,6 @@ dissect_handleList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	int i;
 	proto_item *handleListItem;
 	proto_tree *handleListTree;
-
-	if (!tree) {
-		return offset;
-	}
 
 	numHandles = tvb_get_ntohl(tvb, offset);
 	listLength = 4;
@@ -586,13 +575,6 @@ proto_reg_handoff_fmp_notify(void)
 static int
 dissect_fmp_notify_extentState(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	extentState state;
-
-	if (!tree) {
-		return offset;
-	}
-
-	state = tvb_get_ntohl(tvb, offset);
 	offset = dissect_rpc_uint32(tvb, tree, hf_fmp_extent_state,
 	                            offset);
 
@@ -605,10 +587,6 @@ dissect_fmp_notify_extent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 {
 	proto_item *extItem;
 	proto_tree *extTree;
-
-	if (!tree) {
-		return offset;
-	}
 
 	extItem = proto_tree_add_text(tree, tvb, offset, 20 ,
 	                              "Extent (%u)", (guint32) ext_num);
@@ -638,10 +616,6 @@ dissect_fmp_notify_extentList(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	proto_item *extListItem;
 	proto_tree *extListTree;
 	guint32 i;
-
-	if (!tree) {
-		return offset;
-	}
 
 	numExtents = tvb_get_ntohl(tvb, offset);
 	totalLength = 4 + (20 * numExtents);
