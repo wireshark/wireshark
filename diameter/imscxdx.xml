@@ -265,7 +265,7 @@
     <avp name="User-Authorization-Type" code="623" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
       <type type-name="Enumerated"/>
       <enum name="REGISTRATION" code="0"/>
-      <enum name="REGISTRATION" code="1"/>
+      <enum name="DE_REGISTRATION" code="1"/>
       <enum name="REGISTRATION_AND_CAPABILITIES" code="2"/>
     </avp>
     <avp name="User-Data-Already-Available" code="624" mandatory="must" vendor-bit="must" vendor-id="TGPP" may-encrypt="yes">
@@ -396,6 +396,13 @@
       <enum name="PRIORITY-2" code="2"/>
       <enum name="PRIORITY-3" code="3"/>
       <enum name="PRIORITY-4" code="4"/>
+    </avp>
+    <avp name="Identity-with-Emergency-Registration" code="651" mandatory="mustnot" vendor-bit="must" vendor-id="TGPP" may-encrypt="no">
+      <grouped>
+        <gavp name="User-Name"/>
+        <gavp name="Public-Identity"/>
+        <gavp name="Restoration-Info"/>
+      </grouped>
     </avp>
     <!-- ************************ END IMS Cx Dx AVPS ******************* -->
 

@@ -2650,9 +2650,9 @@ Note: The AVP codes from 421 to 499 are reserved for TS 29.109
  NOTE AVP 500 - 523 is in gqpolicy.xml
       AVP 524 - 527 is in TGPPRx.xml (3GPP TS 29.214)
 Note: The AVP codes from 524 to 599 are reserved for TS 29.209 and TS 29.211
- NOTE AVP 600 - 650 is in imscxdx.xml
+ NOTE AVP 600 - 651 is in imscxdx.xml
 
-Note: The AVP codes from 651 to 699 are reserved for TS 29.229.
+Note: The AVP codes from 652 to 699 are reserved for TS 29.229.
  ************************** 3GPP Sh AVPS        **************************
  ************************** NOTE see TGPPSh.xml **************************
  ************************** 3GPP TS 29.329      **************************
