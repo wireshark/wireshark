@@ -169,8 +169,10 @@ static int hf_mac_lte_control_power_headroom_reserved = -1;
 static int hf_mac_lte_control_power_headroom_level = -1;
 static int hf_mac_lte_control_padding = -1;
 
-static int hf_mac_lte_suspected_dl_retx_original_frame = -1;
-static int hf_mac_lte_suspected_dl_retx_time_since_previous_frame = -1;
+static int hf_mac_lte_dl_harq_resend_original_frame = -1;
+static int hf_mac_lte_dl_harq_resend_time_since_previous_frame = -1;
+static int hf_mac_lte_dl_harq_resend_next_frame = -1;
+static int hf_mac_lte_dl_harq_resend_time_until_next_frame = -1;
 
 static int hf_mac_lte_ul_harq_resend_original_frame = -1;
 static int hf_mac_lte_ul_harq_resend_time_since_previous_frame = -1;
@@ -723,8 +725,11 @@ typedef struct DLHarqBuffers {
 static GHashTable *mac_lte_dl_harq_hash = NULL;
 
 typedef struct DLHARQResult {
+    gboolean    previousSet, nextSet;
     guint       previousFrameNum;
     guint       timeSincePreviousFrame;
+    guint       nextFrameNum;
+    guint       timeToNextFrame;
 } DLHARQResult;
 
 
@@ -1641,6 +1646,7 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
                                       proto_tree *tree, mac_lte_info *p_mac_lte_info)
 {
     DLHARQResult *result = NULL;
+    DLHARQResult *original_result = NULL;
 
     /* If don't have detailed DL PHy info, just give up */
     if (!p_mac_lte_info->detailed_phy_info.dl_info.present) {
@@ -1689,11 +1695,23 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
 
                     /* Expect to be within (say) 8-13 subframes since previous */
                     if ((total_gap >= 8) && (total_gap <= 13)) {
-                        /* Resend detected! Store result */
-                        result = se_alloc(sizeof(DLHARQResult));
+
+                        /* Resend detected! Store result pointing back. */
+                        result = se_alloc0(sizeof(DLHARQResult));
+                        result->previousSet = TRUE;
                         result->previousFrameNum = lastData->framenum;
                         result->timeSincePreviousFrame = total_gap;
                         g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num), result);
+
+                        /* Now make previous frame point forward to here */
+                        original_result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum));
+                        if (original_result == NULL) {
+                            original_result = se_alloc0(sizeof(ULHARQResult));
+                            g_hash_table_insert(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(lastData->framenum), original_result);
+                        }
+                        original_result->nextSet = TRUE;
+                        original_result->nextFrameNum = pinfo->fd->num;
+                        original_result->timeToNextFrame = total_gap;
                     }
                 }
             }
@@ -1722,14 +1740,27 @@ static void TrackReportedDLHARQResend(packet_info *pinfo, tvbuff_t *tvb, volatil
     /***************************************************/
     /* Show link back to original frame (if available) */
     if (result != NULL) {
-        proto_item *gap_ti;
-        proto_item *original_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_retx_original_frame,
-                                                      tvb, 0, 0, result->previousFrameNum);
-        PROTO_ITEM_SET_GENERATED(original_ti);
+        if (result->previousSet) {
+            proto_item *gap_ti;
+            proto_item *original_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_original_frame,
+                                                          tvb, 0, 0, result->previousFrameNum);
+            PROTO_ITEM_SET_GENERATED(original_ti);
 
-        gap_ti = proto_tree_add_uint(tree, hf_mac_lte_suspected_dl_retx_time_since_previous_frame,
-                                     tvb, 0, 0, result->timeSincePreviousFrame);
-        PROTO_ITEM_SET_GENERATED(gap_ti);
+            gap_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_time_since_previous_frame,
+                                         tvb, 0, 0, result->timeSincePreviousFrame);
+            PROTO_ITEM_SET_GENERATED(gap_ti);
+        }
+
+        if (result->nextSet) {
+            proto_item *gap_ti;
+            proto_item *next_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_next_frame,
+                                                      tvb, 0, 0, result->nextFrameNum);
+            PROTO_ITEM_SET_GENERATED(next_ti);
+
+            gap_ti = proto_tree_add_uint(tree, hf_mac_lte_dl_harq_resend_time_until_next_frame,
+                                         tvb, 0, 0, result->timeToNextFrame);
+            PROTO_ITEM_SET_GENERATED(gap_ti);
+        }
 
     }
 }
@@ -1745,7 +1776,8 @@ int is_mac_lte_frame_retx(packet_info *pinfo, guint8 direction)
     }
     else {
         /* For DL, must consult result table */
-        return (g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num)) != NULL);
+        DLHARQResult *result = g_hash_table_lookup(mac_lte_dl_harq_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
+        return ((result != NULL) && result->previousSet);
     }
 }
 
@@ -3860,7 +3892,7 @@ void proto_register_mac_lte(void)
 
         /* Out-of-band events */
         { &hf_mac_lte_oob_send_preamble,
-            { "PRACH:",
+            { "PRACH",
               "mac-lte.preamble-sent", FT_STRING, BASE_NONE, NULL, 0x0,
               NULL, HFILL
             }
@@ -4238,19 +4270,30 @@ void proto_register_mac_lte(void)
         },
 
         /* Generated fields */
-        { &hf_mac_lte_suspected_dl_retx_original_frame,
+        { &hf_mac_lte_dl_harq_resend_original_frame,
             { "Frame with previous tx",
               "mac-lte.dlsch.retx.original-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
               NULL, HFILL
             }
         },
-        { &hf_mac_lte_suspected_dl_retx_time_since_previous_frame,
+        { &hf_mac_lte_dl_harq_resend_time_since_previous_frame,
             { "Time since previous tx (ms)",
               "mac-lte.dlsch.retx.time-since-previous", FT_UINT16, BASE_DEC, 0, 0x0,
               NULL, HFILL
             }
         },
-
+        { &hf_mac_lte_dl_harq_resend_next_frame,
+            { "Frame with next tx",
+              "mac-lte.dlsch.retx.next-frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_mac_lte_dl_harq_resend_time_until_next_frame,
+            { "Time until next tx (ms)",
+              "mac-lte.dlsch.retx.time-until-next", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
 
         { &hf_mac_lte_ul_harq_resend_original_frame,
             { "Frame with previous tx",
