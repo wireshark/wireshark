@@ -231,6 +231,7 @@ add_definitions(
 	# struct fields so that you can go through them one by one and replace
 	# them with a call to an accessor function instead.
 
+	# Is enabled automatically when not building with GTK3 (see below).
 	# -DGSEAL_ENABLE
 
 	# To verify that your program does not use any deprecated symbols,
@@ -245,9 +246,19 @@ add_definitions(
 if (UI_MANAGER)
 	add_definitions(
 		-DMAIN_MENU_USE_UIMANAGER=1
-		-DGTK_DISABLE_DEPRECATED
+	)
+	if (NOT ENABLE_GTK3)
+		add_definitions(
+			-DGTK_DISABLE_DEPRECATED
+		)
+	endif()
+endif()
+if (NOT ENABLE_GTK3)
+	add_definitions(
+		-DGSEAL_ENABLE
 	)
 endif()
+
 if (WANT_PACKET_EDITOR)
 	add_definitions(
 		-DWANT_PACKET_EDITOR=1
