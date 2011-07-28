@@ -744,7 +744,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint32 n_ext_flags = 0;
     guint32 ampdu_id = 0;
     fragment_data *fd_head = NULL, *ft_fdh = NULL;
-    gint len_remain, pad_len = 0, ampdu_len = 0;
+    gint len_remain, /*pad_len = 0,*/ ampdu_len = 0;
     gint mpdu_count = 0;
     gchar *mpdu_str;
     gboolean first_mpdu = TRUE;
@@ -896,9 +896,11 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (ppi_ampdu_reassemble && DOT11N_IS_AGGREGATE(n_ext_flags)) {
         len_remain = tvb_length_remaining(tvb, offset);
+#if 0 /* XXX: pad_len never actually used ?? */
         if (DOT11N_MORE_AGGREGATES(n_ext_flags)) {
             pad_len = PADDING4(len_remain);
         }
+#endif
         pinfo->fragmented = TRUE;
 
         /* Make sure we aren't going to go past AGGREGATE_MAX
