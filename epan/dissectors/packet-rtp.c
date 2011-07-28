@@ -1163,8 +1163,8 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	guint32     sync_src;
 	guint32     csrc_item;
 	struct _rtp_conversation_info *p_conv_data = NULL;
-	struct srtp_info *srtp_info = NULL;
-	unsigned int srtp_offset;
+	/*struct srtp_info *srtp_info = NULL;*/
+	/*unsigned int srtp_offset;*/
 	unsigned int hdrext_offset = 0;
 	tvbuff_t *newtvb = NULL;
 
@@ -1298,16 +1298,17 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 	col_set_str( pinfo->cinfo, COL_PROTOCOL, (is_srtp) ? "SRTP" : "RTP" );
 
-	/* check if this is added as an SRTP stream - if so, don't try to dissector the payload data for now */
+	/* check if this is added as an SRTP stream - if so, don't try to dissect the payload data for now */
 	p_conv_data = p_get_proto_data(pinfo->fd, proto_rtp);
 
-
+#if 0 /* XXX: srtp_offset never actually used ?? */
 	if (p_conv_data && p_conv_data->srtp_info) {
 		srtp_info = p_conv_data->srtp_info;
 		if (rtp_info->info_all_data_present) {
 			srtp_offset = rtp_info->info_data_len - srtp_info->mki_len - srtp_info->auth_tag_len;
 		}
 	}
+#endif
 
 	/* if it is dynamic payload, let use the conv data to see if it is defined */
 	if ( (payload_type>95) && (payload_type<128) ) {
