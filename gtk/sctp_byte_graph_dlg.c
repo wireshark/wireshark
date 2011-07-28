@@ -850,12 +850,16 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 
 	if (u_data->io->rectangle==TRUE)
 	{
-		gdk_draw_rectangle(u_data->io->pixmap,gtk_widget_get_style(u_data->io->draw_area)->white_gc,
-		                   FALSE,
-		                   (gint)floor(MIN(u_data->io->x_old,u_data->io->x_new)),
-		                   (gint)floor(MIN(u_data->io->y_old,u_data->io->y_new)),
-		                   (gint)abs((long)(u_data->io->x_new-u_data->io->x_old)),
-		                   (gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
+		cr = gdk_cairo_create (u_data->io->pixmap);
+		cairo_rectangle (cr, 
+			floor(MIN(u_data->io->x_old,u_data->io->x_new)), 
+			floor(MIN(u_data->io->y_old,u_data->io->y_new)), 
+			abs((long)(u_data->io->x_new-u_data->io->x_old)), 
+			abs((long)(u_data->io->y_new-u_data->io->y_old)));
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_stroke (cr);
+		cairo_destroy (cr);
+
 
 		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 		g_assert(ios != NULL);
@@ -863,7 +867,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 		cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
 
 		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
-		cairo_rectangle (cr, 0, 0, (gint)abs((long)(u_data->io->x_new-u_data->io->x_old)), (gint)abs((long)(u_data->io->y_new-u_data->io->y_old)));
+		cairo_rectangle (cr, 0, 0, abs((long)(u_data->io->x_new-u_data->io->x_old)), abs((long)(u_data->io->y_new-u_data->io->y_old)));
 		cairo_fill (cr);
 
 		cairo_destroy (cr);
@@ -916,11 +920,16 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		u_data->io->rect_x_max = (guint32) ceil(MAX(u_data->io->x_old,event->x));
 		u_data->io->rect_y_min = (guint32) floor(MIN(u_data->io->y_old,event->y));
 		u_data->io->rect_y_max = (guint32) ceil(MAX(u_data->io->y_old,event->y));
-		gdk_draw_rectangle(u_data->io->pixmap,gtk_widget_get_style(u_data->io->draw_area)->black_gc,
-		                   FALSE,
-		                   u_data->io->rect_x_min, u_data->io->rect_y_min,
-		                   u_data->io->rect_x_max - u_data->io->rect_x_min,
-				   u_data->io->rect_y_max - u_data->io->rect_y_min);
+
+		cr = gdk_cairo_create (u_data->io->pixmap);
+		cairo_rectangle (cr, 
+			u_data->io->rect_x_min+0.5, 
+			u_data->io->rect_y_min+0.5, 
+			u_data->io->rect_x_max - u_data->io->rect_x_min, 
+			u_data->io->rect_y_max - u_data->io->rect_y_min);
+		cairo_set_line_width (cr, 1.0);
+		cairo_stroke (cr);
+		cairo_destroy (cr);
 
 		ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t");
 		g_assert(ios != NULL);
