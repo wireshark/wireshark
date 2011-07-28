@@ -637,7 +637,7 @@ dissect_fcdns_gfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             dissect_fc4type(req_tree, tvb, offset+4, hf_fcdns_fc4type);
         }
         else {
-            tot_len = tvb_length (tvb) - offset; /* excluding CT header */
+            tot_len = tvb_reported_length_remaining (tvb, offset); /* excluding CT header */
             while (tot_len > 0) {
                 /* The count of the descriptors is not returned and so we have
                  * to track the display by the length field */
@@ -1068,7 +1068,7 @@ static void
 dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 {
     int offset = 16;            /* past the fc_ct header */
-    int len, dlen;
+    int len;
 
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_portid, tvb,
@@ -1076,11 +1076,10 @@ dissect_fcdns_rfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                tvb_fc_to_str (tvb, offset+1));
         dissect_fc4type(req_tree, tvb, offset+4, hf_fcdns_req_fc4types);
 
-        len = tvb_length (tvb) - offset - 36;
         offset += 36;
+        len = tvb_reported_length_remaining (tvb, offset);
 
         while (len > 0) {
-            dlen = tvb_get_guint8 (tvb, offset);
             proto_tree_add_item (req_tree, hf_fcdns_req_fdesclen, tvb, offset,
                                  1, 0);
             proto_tree_add_item (req_tree, hf_fcdns_req_fdesc, tvb, offset+1,
@@ -1481,13 +1480,13 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         if (cthdr.gstype == FCCT_GSTYPE_DIRSVC) {
             ti = proto_tree_add_protocol_format (tree, proto_fcdns, tvb, 0,
-                                                 tvb_reported_length (tvb),
+                                                 -1,
                                                  "dNS");
             fcdns_tree = proto_item_add_subtree (ti, ett_fcdns);
         }
         else {
             ti = proto_tree_add_protocol_format (tree, proto_fcdns, tvb, 0,
-                                                 tvb_reported_length (tvb),
+                                                 -1,
                                                  "Unzoned NS");
             fcdns_tree = proto_item_add_subtree (ti, ett_fcdns);
         }
@@ -1542,7 +1541,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              "0x%x"));
                 }
                 /* No record of what this accept is for. Can't decode */
-                proto_tree_add_text (fcdns_tree, tvb, 0, tvb_length (tvb),
+                proto_tree_add_text (fcdns_tree, tvb, 0, -1,
                                      "No record of Exchg. Unable to decode MSG_ACC/RJT");
                 return;
             }
@@ -1577,7 +1576,7 @@ dissect_fcdns (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tree) {
                 if ((cdata == NULL) && (opcode != FCCT_MSG_RJT)) {
                     /* No record of what this accept is for. Can't decode */
-                    proto_tree_add_text (fcdns_tree, tvb, 0, tvb_length (tvb),
+                    proto_tree_add_text (fcdns_tree, tvb, 0, -1,
                                          "No record of Exchg. Unable to decode MSG_ACC/RJT");
                     return;
                 }
