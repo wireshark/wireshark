@@ -241,7 +241,18 @@ absolute_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 	struct tm tm;
 	char    *curptr;
 
+	memset(&tm, 0, sizeof(tm));
 	curptr = strptime(s,"%b %d, %Y %H:%M:%S", &tm);
+	if (curptr == NULL)
+		curptr = strptime(s,"%Y-%m-%dT%H:%M:%S", &tm);
+	if (curptr == NULL)
+		curptr = strptime(s,"%Y-%m-%d %H:%M:%S", &tm);
+	if (curptr == NULL)
+		curptr = strptime(s,"%Y-%m-%d %H:%M", &tm);
+	if (curptr == NULL)
+		curptr = strptime(s,"%Y-%m-%d %H", &tm);
+	if (curptr == NULL)
+		curptr = strptime(s,"%Y-%m-%d", &tm);
 	if (curptr == NULL)
 		goto fail;
 	tm.tm_isdst = -1;	/* let the computer figure out if it's DST */
@@ -283,7 +294,7 @@ absolute_val_from_string(fvalue_t *fv, char *s, LogFunc logfunc)
 
 fail:
 	if (logfunc != NULL)
-		logfunc("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\"",
+		logfunc("\"%s\" is not a valid absolute time. Example: \"Nov 12, 1999 08:55:44.123\" or \"2011-07-04 12:34:56\"",
 		    s);
 	return FALSE;
 }
