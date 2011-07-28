@@ -123,6 +123,7 @@ static const gchar* default_media_types[] = {
 	"application/rls-services+xml",
 	"application/smil",
 	"application/simple-filter+xml",
+	"application/simservs+xml",
 	"application/soap+xml",
 	"application/vnd.etsi.aoc+xml",
 	"application/vnd.etsi.cug+xml",
