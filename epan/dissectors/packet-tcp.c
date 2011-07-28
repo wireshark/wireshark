@@ -2442,6 +2442,9 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     tcp_info_append_uint(pinfo, "ECHO", echo);
 }
 
+/* If set, do not put the TCP timestamp information on the summary line */
+static gboolean tcp_ignore_timestamps = FALSE;
+
 static void
 dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     int offset, guint optlen _U_, packet_info *pinfo, proto_tree *opt_tree)
@@ -2470,8 +2473,10 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     offset += 4;
 
     proto_item_append_text(ti, "TSval %u, TSecr %u", ts_val, ts_ecr);
-    tcp_info_append_uint(pinfo, "TSval", ts_val);
-    tcp_info_append_uint(pinfo, "TSecr", ts_ecr);
+    if (tcp_ignore_timestamps == FALSE) {
+	tcp_info_append_uint(pinfo, "TSval", ts_val);
+	tcp_info_append_uint(pinfo, "TSecr", ts_ecr);
+    }
 }
 
 static void
@@ -5178,6 +5183,10 @@ proto_register_tcp(void)
         "Try heuristic sub-dissectors first",
         "Try to decode a packet using an heuristic sub-dissector before using a sub-dissector registered to a specific port",
         &try_heuristic_first);
+    prefs_register_bool_preference(tcp_module, "ignore_tcp_timestamps",
+        "Ignore TCP Timestamps in summary",
+        "Do not place the TCP Timestamps in the summary line",
+        &tcp_ignore_timestamps);
 
     register_init_routine(tcp_init);
 }
