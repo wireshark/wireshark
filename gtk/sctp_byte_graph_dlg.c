@@ -211,6 +211,7 @@ static void draw_tsn_graph(struct sctp_udata *u_data)
 GPtrArray *array = NULL;
 guint32 i, size = 0, start, end;
 gint diff, width;
+cairo_t *cr;
 
 	if (u_data->dir == 1)
 	{
@@ -252,13 +253,18 @@ gint diff, width;
 			diff = (gint)((struct tsn_sort*)(g_ptr_array_index(array, i)))->secs*1000000 + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->usecs-u_data->io->min_x;
 		start = ((struct tsn_sort*)(g_ptr_array_index(array, i)))->offset;
 		end = start + ((struct tsn_sort*)(g_ptr_array_index(array, i)))->length;
-		if (start >= min_tsn && diff > 0 && diff <= width)
-			gdk_draw_line(u_data->io->pixmap,
-			              gtk_widget_get_style(u_data->io->draw_area)->black_gc,
-			              (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-			              (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)),
-			              (guint32)(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff),
-			              (guint32)(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)));
+		if (start >= min_tsn && diff > 0 && diff <= width){
+			cr = gdk_cairo_create (u_data->io->pixmap);
+			cairo_set_line_width (cr, 1.0);
+			cairo_move_to(cr, 
+				(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff)+0.5, 
+				(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval))+0.5);
+			cairo_line_to(cr, 
+				(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff)+0.5, 
+				(u_data->io->pixmap_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval))+0.5);
+			cairo_stroke(cr);
+			cairo_destroy(cr);
+		}
 	}
 
 }
@@ -1044,8 +1050,27 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			g_snprintf(label_string, sizeof(label_string), "(%.6f, %u)", x_value, y_value);
 			label_set = TRUE;
 
-			gdk_draw_line(u_data->io->pixmap,text_color, (gint)(event->x-2), (gint)(event->y), (gint)(event->x+2), (gint)(event->y));
-			gdk_draw_line(u_data->io->pixmap,text_color, (gint)(event->x), (gint)(event->y-2), (gint)(event->x), (gint)(event->y+2));
+			cr = gdk_cairo_create (u_data->io->pixmap);
+			cairo_set_line_width (cr, 1.0);
+			cairo_move_to(cr, 
+				(event->x-2)+0.5, 
+				(event->y)+0.5);
+			cairo_line_to(cr, 
+				(event->x+2)+0.5, 
+				(event->y)+0.5);
+			cairo_stroke(cr);
+			cairo_destroy(cr);
+
+			cr = gdk_cairo_create (u_data->io->pixmap);
+			cairo_set_line_width (cr, 1.0);
+			cairo_move_to(cr, 
+				(event->x)+0.5, 
+				(event->y-2)+0.5);
+			cairo_line_to(cr, 
+				(event->x)+0.5, 
+				(event->y+2)+0.5);
+			cairo_stroke(cr);
+			cairo_destroy(cr);
 			if (event->x+150>=u_data->io->pixmap_width)
 				position = event->x - 150;
 			else
