@@ -219,6 +219,40 @@ typedef guint16 CellId_t;
 
 #define MAX_ELEMENTS_IN_EQPLMN_LIST   16
 
+
+typedef struct
+{
+  guint8 NUMBER_CELLS;
+  guint8 CCN_SUPPORTED[16];  /* bit (1), max size: 16 x 8 => 128 bits */
+} CCN_Support_Description_t;
+
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    guint8 LSA_ID;
+    guint8 ShortLSA_ID;
+  } u;
+} LSA_ID_Info_Element_t;
+
+#define LSA_ID_INFO_ELEMENTS_MAX (16)
+
+typedef struct
+{
+  guint8 Count_LSA_ID_Info_Element;
+  LSA_ID_Info_Element_t LSA_ID_Info_Elements[LSA_ID_INFO_ELEMENTS_MAX];
+} LSA_ID_Info_t;
+
+#define NR_OF_FREQ_OR_CELLS_MAX (32)
+
+typedef struct
+{
+  guint8 NR_OF_FREQ_OR_CELLS;
+  LSA_ID_Info_t LSA_ID_Info[NR_OF_FREQ_OR_CELLS_MAX];
+} LSA_Parameters_t;
+
+
 /*
 **========================================================================
 **  Global types
@@ -2541,6 +2575,75 @@ typedef struct
 } NeighbourCellList_t;
 
 /* < PSI3 message content > */
+
+typedef struct
+{
+  guint8  bsic;
+  guint8  CELL_BAR_ACCESS_2;
+  guint8  EXC_ACC;
+  guint8  SAME_RA_AS_SERVING_CELL;
+  guint8 Exist_GPRS_RXLEV_ACCESS_MIN;
+  guint8  GPRS_RXLEV_ACCESS_MIN;
+  guint8  GPRS_MS_TXPWR_MAX_CCH;
+  guint8 Exist_GPRS_TEMPORARY_OFFSET;
+  guint8  GPRS_TEMPORARY_OFFSET;
+  guint8  GPRS_PENALTY_TIME;
+  guint8 Exist_GPRS_RESELECT_OFFSET;
+  guint8  GPRS_RESELECT_OFFSET;
+  guint8 Exist_Hcs_Parm;
+  HCS_t   HCS_Param;
+  guint8 Exist_TIME_GROUP;
+  guint8  TIME_GROUP;
+  guint8 Exist_GUAR_CONSTANT_PWR_BLKS;
+  guint8  GUAR_CONSTANT_PWR_BLKS;
+}COMPACT_Cell_Sel_t;
+
+typedef struct
+{
+  guint8  FREQ_DIFF_LENGTH;
+  guint16 FREQUENCY_DIFF;
+  COMPACT_Cell_Sel_t  COMPACT_Cell_Sel_Remain_Cells;
+}COMPACT_Neighbour_Cell_Param_Remaining_t;
+
+typedef struct
+{
+  guint16 START_FREQUENCY;
+  COMPACT_Cell_Sel_t COMPACT_Cell_Sel;
+  guint8  NR_OF_REMAINING_CELLS;
+  guint8  FREQ_DIFF_LENGTH;
+  COMPACT_Neighbour_Cell_Param_Remaining_t  COMPACT_Neighbour_Cell_Param_Remaining[16];
+}COMPACT_Neighbour_Cell_Param_t;
+
+typedef struct
+{
+  Cell_Identification_t Cell_Identification;
+  guint8  COMPACT_Neighbour_Cell_Param_Count;
+  COMPACT_Neighbour_Cell_Param_t COMPACT_Neighbour_Cell_Param[8];
+}COMPACT_Info_t;
+
+typedef struct
+{
+  guint8  Exist_CCN_Support_Desc;
+  CCN_Support_Description_t CCN_Support_Desc;
+}PSI3_AdditionR4_t;
+
+typedef struct
+{
+  guint8 Exist_COMPACT_Info;
+  COMPACT_Info_t COMPACT_Info;
+  guint8 Exist_AdditionR4;
+  PSI3_AdditionR4_t AdditionR4;
+}PSI3_AdditionR99_t;
+
+typedef struct
+{
+  LSA_ID_Info_t Scell_LSA_ID_Info;
+  guint8 Exist_LSA_Parameters;
+  LSA_Parameters_t LSA_Parameters;
+  guint8 Exist_AdditionR99;
+  PSI3_AdditionR99_t AdditionR99;
+}PSI3_AdditionR98_t;
+
 typedef struct
 {
   guint8 MESSAGE_TYPE;
@@ -2552,6 +2655,9 @@ typedef struct
 
   Gen_Cell_Sel_t General_Cell_Selection;
   NeighbourCellList_t NeighbourCellList;
+
+  guint8 Exist_AdditionR98;
+  PSI3_AdditionR98_t AdditionR98;
 } PSI3_t;
 
 /* < PSI3_BIS message content > */
@@ -3335,12 +3441,6 @@ typedef struct
 
 typedef struct
 {
-  guint8 NUMBER_CELLS;
-  guint8 CCN_SUPPORTED[16];  /* bit (1), max size: 16 x 8 => 128 bits */
-} CCN_Support_Description_t;
-
-typedef struct
-{
   guint8 CELL_BAR_QUALIFY_3;
   guint8 Exist_SI13_Alt_PBCCH_Location;
   SI13_PBCCH_Location_t SI13_Alt_PBCCH_Location;
@@ -3679,32 +3779,6 @@ typedef struct
   guint8 Exist_AdditionsR4;
   PMO_AdditionsR4_t AdditionsR4;
 } PMO_AdditionsR99_t;
-
-typedef struct
-{
-  guint8 UnionType;
-  union
-  {
-    guint8 LSA_ID;
-    guint8 ShortLSA_ID;
-  } u;
-} LSA_ID_Info_Element_t;
-
-#define LSA_ID_INFO_ELEMENTS_MAX (16)
-
-typedef struct
-{
-  guint8 Count_LSA_ID_Info_Element;
-  LSA_ID_Info_Element_t LSA_ID_Info_Elements[LSA_ID_INFO_ELEMENTS_MAX];
-} LSA_ID_Info_t;
-
-#define NR_OF_FREQ_OR_CELLS_MAX (32)
-
-typedef struct
-{
-  guint8 NR_OF_FREQ_OR_CELLS;
-  LSA_ID_Info_t LSA_ID_Info[NR_OF_FREQ_OR_CELLS_MAX];
-} LSA_Parameters_t;
 
 typedef struct
 {

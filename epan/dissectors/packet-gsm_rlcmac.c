@@ -1066,6 +1066,38 @@ static int hf_packet_non_gprs_cell_opt_ext_len;
 /* <End Packet System Information Type 2> */
 
 
+/* <Packet System Information Type 3> */
+static int hf_packet_system_info_type3_message_type;
+static int hf_packet_system_info_type3_page_mode;
+static int hf_packet_system_info_type3_change_mark;
+static int hf_packet_system_info_type3_bis_count;
+
+static int hf_packet_scell_param_cell_bar_access_2;
+static int hf_packet_scell_param_exc_acc;
+static int hf_packet_scell_param_gprs_rxlev_access_min;
+static int hf_packet_scell_param_gprs_ms_txpwr_max_cch;
+static int hf_packet_scell_param_multiband_reporting;
+
+static int hf_packet_gen_cell_sel_gprs_cell_resl_hyst;
+static int hf_packet_gen_cell_sel_c31_hyst;
+static int hf_packet_gen_cell_sel_c32_qual;
+static int hf_packet_gen_cell_sel_t_resel;
+static int hf_packet_gen_cell_sel_ra_resel_hyst;
+
+static int hf_packet_compact_cell_sel_bsic;
+static int hf_packet_compact_cell_sel_cell_bar_access_2;
+static int hf_packet_compact_cell_sel_exc_acc;
+static int hf_packet_compact_cell_sel_same_as_scell;
+static int hf_packet_compact_cell_sel_gprs_rxlev_access_min;
+static int hf_packet_compact_cell_sel_gprs_ms_txpwr_max_cch;
+static int hf_packet_compact_cell_sel_gprs_temp_offset;
+static int hf_packet_compact_cell_sel_gprs_penalty_time;
+static int hf_packet_compact_cell_sel_gprs_resel_offset;
+static int hf_packet_compact_cell_sel_time_group;
+static int hf_packet_compact_cell_sel_guar_const_pwr_blks;
+static int hf_packet_compact_ncell_param_start_freq;
+static int hf_packet_compact_ncell_param_nr_of_remaining_cells;
+/* <End Packet System Information Type 3> */
 
 
 static int hf_si1_restoctet_nch_position;
@@ -3969,8 +4001,6 @@ CSN_DESCR_END          (PCCO_AdditionsR99_t)
 
 static const
 CSN_DESCR_BEGIN(LSA_ID_Info_Element_t)
-  /* 1 -- Message escape*/
-  M_FIXED      (LSA_ID_Info_Element_t, 1, 0x1),
   M_UNION      (LSA_ID_Info_Element_t, 2),
   M_UINT       (LSA_ID_Info_Element_t,  u.LSA_ID,  24, &hf_lsa_id_info_element_lsa_id),
   M_UINT       (LSA_ID_Info_Element_t,  u.ShortLSA_ID,  10, &hf_lsa_id_info_element_shortlsa_id),
@@ -4849,6 +4879,131 @@ CSN_DESCR_END  (PSI2_t)
 
 
 
+/*< Packet System Information Type 3 message content >*/
+static const
+CSN_DESCR_BEGIN(Serving_Cell_params_t)
+  M_BIT        (Serving_Cell_params_t,  CELL_BAR_ACCESS_2, &hf_packet_scell_param_cell_bar_access_2),
+  M_BIT        (Serving_Cell_params_t,  EXC_ACC, &hf_packet_scell_param_exc_acc),
+  M_UINT       (Serving_Cell_params_t,  GPRS_RXLEV_ACCESS_MIN, 6, &hf_packet_scell_param_gprs_rxlev_access_min),
+  M_UINT       (Serving_Cell_params_t,  GPRS_MS_TXPWR_MAX_CCH, 5, &hf_packet_scell_param_gprs_ms_txpwr_max_cch),
+  M_NEXT_EXIST (Serving_Cell_params_t, Exist_HCS, 1),
+  M_TYPE       (Serving_Cell_params_t,  HCS, HCS_t),
+  M_UINT       (Serving_Cell_params_t,  MULTIBAND_REPORTING, 2, &hf_packet_scell_param_multiband_reporting),
+CSN_DESCR_END  (Serving_Cell_params_t)
+
+
+static const
+CSN_DESCR_BEGIN(Gen_Cell_Sel_t)
+  M_UINT       (Gen_Cell_Sel_t,  GPRS_CELL_RESELECT_HYSTERESIS, 3, &hf_packet_gen_cell_sel_gprs_cell_resl_hyst),
+  M_BIT        (Gen_Cell_Sel_t,  C31_HYST, &hf_packet_gen_cell_sel_c31_hyst),
+  M_BIT        (Gen_Cell_Sel_t,  C32_QUAL, &hf_packet_gen_cell_sel_c32_qual),
+  M_FIXED      (Gen_Cell_Sel_t, 1, 0x01),
+    
+  M_NEXT_EXIST (Gen_Cell_Sel_t, Exist_T_RESEL, 1),
+  M_UINT       (Gen_Cell_Sel_t,  T_RESEL, 3, &hf_packet_gen_cell_sel_t_resel),
+
+  M_NEXT_EXIST (Gen_Cell_Sel_t, Exist_RA_RESELECT_HYSTERESIS, 1),
+  M_UINT       (Gen_Cell_Sel_t,  RA_RESELECT_HYSTERESIS, 3, &hf_packet_gen_cell_sel_ra_resel_hyst),
+CSN_DESCR_END  (Gen_Cell_Sel_t)
+
+
+static const
+CSN_DESCR_BEGIN(COMPACT_Cell_Sel_t)
+  M_UINT       (COMPACT_Cell_Sel_t,  bsic, 6, &hf_packet_compact_cell_sel_bsic),
+  M_BIT        (COMPACT_Cell_Sel_t,  CELL_BAR_ACCESS_2, &hf_packet_compact_cell_sel_cell_bar_access_2),
+  M_BIT        (COMPACT_Cell_Sel_t,  EXC_ACC, &hf_packet_compact_cell_sel_exc_acc),
+  M_BIT        (COMPACT_Cell_Sel_t,  SAME_RA_AS_SERVING_CELL, &hf_packet_compact_cell_sel_same_as_scell),
+  M_NEXT_EXIST (COMPACT_Cell_Sel_t, Exist_GPRS_RXLEV_ACCESS_MIN, 2),
+  M_UINT       (COMPACT_Cell_Sel_t,  GPRS_RXLEV_ACCESS_MIN, 6, &hf_packet_compact_cell_sel_gprs_rxlev_access_min),
+  M_UINT       (COMPACT_Cell_Sel_t,  GPRS_MS_TXPWR_MAX_CCH, 5, &hf_packet_compact_cell_sel_gprs_ms_txpwr_max_cch),
+  M_NEXT_EXIST (COMPACT_Cell_Sel_t, Exist_GPRS_TEMPORARY_OFFSET, 2),
+  M_UINT       (COMPACT_Cell_Sel_t,  GPRS_TEMPORARY_OFFSET, 3, &hf_packet_compact_cell_sel_gprs_temp_offset),
+  M_UINT       (COMPACT_Cell_Sel_t,  GPRS_PENALTY_TIME, 5, &hf_packet_compact_cell_sel_gprs_penalty_time),
+  M_NEXT_EXIST (COMPACT_Cell_Sel_t, Exist_GPRS_RESELECT_OFFSET, 1),
+  M_UINT       (COMPACT_Cell_Sel_t,  GPRS_RESELECT_OFFSET, 5, &hf_packet_compact_cell_sel_gprs_resel_offset),
+  M_NEXT_EXIST (COMPACT_Cell_Sel_t, Exist_Hcs_Parm, 1),
+  M_TYPE       (COMPACT_Cell_Sel_t,  HCS_Param, HCS_t),
+  M_NEXT_EXIST (COMPACT_Cell_Sel_t, Exist_TIME_GROUP, 1),
+  M_UINT       (COMPACT_Cell_Sel_t,  TIME_GROUP, 2, &hf_packet_compact_cell_sel_time_group),
+  M_NEXT_EXIST (COMPACT_Cell_Sel_t, Exist_GUAR_CONSTANT_PWR_BLKS, 1),
+  M_UINT       (COMPACT_Cell_Sel_t,  GUAR_CONSTANT_PWR_BLKS, 2, &hf_packet_compact_cell_sel_guar_const_pwr_blks),
+CSN_DESCR_END  (COMPACT_Cell_Sel_t)
+
+static const
+CSN_DESCR_BEGIN(COMPACT_Neighbour_Cell_Param_Remaining_t)
+  /* this FREQ_DIFF_LENGTH is not initialised, it should be the SAME as COMPACT_Neighbour_Cell_Param_t.FREQ_DIFF_LENGTH.
+  * So it is buggy, but there is no way to handle it. Same issue is in Cell_Selection_Params_With_FreqDiff_t.FREQ_DIFF_LENGTH.
+  */
+  M_VAR_BITMAP (COMPACT_Neighbour_Cell_Param_Remaining_t,  FREQUENCY_DIFF, FREQ_DIFF_LENGTH, 0),
+  M_TYPE       (COMPACT_Neighbour_Cell_Param_Remaining_t,  COMPACT_Cell_Sel_Remain_Cells, COMPACT_Cell_Sel_t),
+CSN_DESCR_END  (COMPACT_Neighbour_Cell_Param_Remaining_t)
+
+
+static const
+CSN_DESCR_BEGIN(COMPACT_Neighbour_Cell_Param_t)
+  M_UINT       (COMPACT_Neighbour_Cell_Param_t,  START_FREQUENCY, 10, &hf_packet_compact_ncell_param_start_freq),
+  M_TYPE       (COMPACT_Neighbour_Cell_Param_t,  COMPACT_Cell_Sel, COMPACT_Cell_Sel_t),
+  M_UINT       (COMPACT_Neighbour_Cell_Param_t,  NR_OF_REMAINING_CELLS, 4, &hf_packet_compact_ncell_param_nr_of_remaining_cells),
+  M_UINT_OFFSET(COMPACT_Neighbour_Cell_Param_t,  FREQ_DIFF_LENGTH, 3, 1),
+  M_VAR_TARRAY (COMPACT_Neighbour_Cell_Param_t,  COMPACT_Neighbour_Cell_Param_Remaining, COMPACT_Neighbour_Cell_Param_Remaining_t, NR_OF_REMAINING_CELLS),
+CSN_DESCR_END  (COMPACT_Neighbour_Cell_Param_t)
+
+
+static const
+CSN_DESCR_BEGIN(COMPACT_Info_t)
+  M_TYPE       (COMPACT_Info_t,  Cell_Identification, Cell_Identification_t),
+  M_REC_TARRAY (COMPACT_Info_t,  COMPACT_Neighbour_Cell_Param, COMPACT_Neighbour_Cell_Param_t, COMPACT_Neighbour_Cell_Param_Count),
+CSN_DESCR_END  (COMPACT_Info_t)
+
+
+static const
+CSN_DESCR_BEGIN(PSI3_AdditionR4_t)
+  M_NEXT_EXIST (PSI3_AdditionR4_t, Exist_CCN_Support_Desc, 1),
+  M_TYPE       (PSI3_AdditionR4_t,  CCN_Support_Desc, CCN_Support_Description_t),
+CSN_DESCR_END  (PSI3_AdditionR4_t)
+
+
+static const
+CSN_DESCR_BEGIN(PSI3_AdditionR99_t)
+  M_FIXED      (PSI3_AdditionR99_t, 2, 0x00),
+  M_NEXT_EXIST (PSI3_AdditionR99_t, Exist_COMPACT_Info, 1),
+  M_TYPE       (PSI3_AdditionR99_t,  COMPACT_Info, COMPACT_Info_t),
+  M_FIXED      (PSI3_AdditionR99_t, 1, 0x00),
+  M_NEXT_EXIST (PSI3_AdditionR99_t, Exist_AdditionR4, 1),
+  M_TYPE       (PSI3_AdditionR99_t,  AdditionR4, PSI3_AdditionR4_t),
+CSN_DESCR_END  (PSI3_AdditionR99_t)
+
+
+static const
+CSN_DESCR_BEGIN(PSI3_AdditionR98_t)
+  M_TYPE       (PSI3_AdditionR98_t,  Scell_LSA_ID_Info, LSA_ID_Info_t),
+
+  M_NEXT_EXIST (PSI3_AdditionR98_t, Exist_LSA_Parameters, 1),
+  M_TYPE       (PSI3_AdditionR98_t,  LSA_Parameters, LSA_Parameters_t),
+
+  M_NEXT_EXIST (PSI3_AdditionR98_t, Exist_AdditionR99, 1),
+  M_TYPE       (PSI3_AdditionR98_t,  AdditionR99, PSI3_AdditionR99_t),
+CSN_DESCR_END  (PSI3_AdditionR98_t)
+
+
+static const
+CSN_DESCR_BEGIN(PSI3_t)
+  M_UINT       (PSI3_t,  MESSAGE_TYPE,  6, &hf_packet_system_info_type3_message_type),
+  M_UINT       (PSI3_t,  PAGE_MODE,  2, &hf_packet_system_info_type3_page_mode),
+  M_UINT       (PSI3_t,  CHANGE_MARK,  2, &hf_packet_system_info_type3_change_mark),
+  M_UINT       (PSI3_t,  BIS_COUNT,  4, &hf_packet_system_info_type3_bis_count),
+  M_TYPE       (PSI3_t,  Serving_Cell_params, Serving_Cell_params_t),
+  M_TYPE       (PSI3_t,  General_Cell_Selection, Gen_Cell_Sel_t),
+  M_TYPE       (PSI3_t,  NeighbourCellList, NeighbourCellList_t),
+  
+  M_NEXT_EXIST (PSI3_t, Exist_AdditionR98, 1),
+  M_TYPE       (PSI3_t,  AdditionR98, PSI3_AdditionR98_t),
+CSN_DESCR_END  (PSI3_t)
+/*< End Packet System Information Type 3 message content >*/
+
+
+
+
 typedef char* MT_Strings_t;
 
 static const MT_Strings_t szMT_Downlink[] = {
@@ -5363,6 +5518,11 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     case MT_PACKET_SYSTEM_INFO_2:
     {
       /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI2_t), tvb, &data->u.PSI2, ett_gsm_rlcmac);
+      break;
+    }
+    case MT_PACKET_SYSTEM_INFO_3:
+    {
+      /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI3_t), tvb, &data->u.PSI3, ett_gsm_rlcmac);
       break;
     }
     default:
@@ -11111,6 +11271,168 @@ proto_register_gsm_rlcmac(void)
     { &hf_packet_system_info_type2_hopping_timeslot,
       { "TIMESLOT",        "gsm_rlcmac_dl.psi2_pccch_desc_hopping_timeslot",
         FT_UINT8, BASE_HEX, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type3_message_type,
+      { "MESSAGE_TYPE",        "gsm_rlcmac_dl.psi3_message_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type3_page_mode,
+      { "PAGE_MODE",        "gsm_rlcmac_dl.psi3_page_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type3_change_mark,
+      { "PSI3_CHANGE_MARK",        "gsm_rlcmac_dl.psi3_change_mark",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type3_bis_count,
+      { "PSI3_BIS_COUNT",        "gsm_rlcmac_dl.psi3_bis_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_scell_param_cell_bar_access_2,
+      { "CELL_BAR_ACCESS_2",        "gsm_rlcmac_dl.psi3_scell_param_cell_bar_access_2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_scell_param_exc_acc,
+      { "EXC_ACC",        "gsm_rlcmac_dl.psi3_scell_param_exc_acc",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_scell_param_gprs_rxlev_access_min,
+      { "RXLEV_ACCESS_MIN",        "gsm_rlcmac_dl.psi3_scell_param_gprs_rxlev_access_min",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_scell_param_gprs_ms_txpwr_max_cch,
+      { "MS_TXPWR_MAX_CCH",        "gsm_rlcmac_dl.psi3_scell_param_ms_txpwr_max_cch",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_scell_param_multiband_reporting,
+      { "MULTIBAND_REPORTING",        "gsm_rlcmac_dl.psi3_scell_param_multiband_reporting",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_gen_cell_sel_gprs_cell_resl_hyst,
+      { "GPRS_CELL_RESELECT_HYSTERESIS",        "gsm_rlcmac_dl.psi3_gen_cell_sel_resel_hyst",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_gen_cell_sel_c31_hyst,
+      { "C31_HYST",        "gsm_rlcmac_dl.psi3_gen_cell_sel_c31_hyst",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_gen_cell_sel_c32_qual,
+      { "C32_QUAL",        "gsm_rlcmac_dl.psi3_gen_cell_sel_c32_qual",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_gen_cell_sel_t_resel,
+      { "T_RESEL",        "gsm_rlcmac_dl.psi3_gen_cell_sel_t_resel",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_gen_cell_sel_ra_resel_hyst,
+      { "RA_RESELECT_HYSTERESIS",        "gsm_rlcmac_dl.psi3_gen_cell_sel_ra_resel_hyst",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_bsic,
+      { "BSIC",        "gsm_rlcmac_dl.psi3_compact_cell_sel_bsic",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_cell_bar_access_2,
+      { "CELL_BAR_ACCESS_2",        "gsm_rlcmac_dl.psi3_compact_cell_sel_cell_bar_access_2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_exc_acc,
+      { "EXC_ACC",        "gsm_rlcmac_dl.psi3_compact_cell_sel_exc_acc",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_same_as_scell,
+      { "SAME_AS_SERVING_CELL",        "gsm_rlcmac_dl.psi3_compact_cell_sel_same_as_scell",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_gprs_rxlev_access_min,
+      { "GPRS_RXLEV_ACCESS_MIN",        "gsm_rlcmac_dl.psi3_compact_cell_sel_gprs_rxlev_access_min",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_gprs_ms_txpwr_max_cch,
+      { "GPRS_MS_TXPWR_MAX_CCH",        "gsm_rlcmac_dl.psi3_compact_cell_sel_gprs_ms_txpwr_cch",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_gprs_temp_offset,
+      { "GPRS_TEMP_OFFSET",        "gsm_rlcmac_dl.psi3_compact_cell_sel_gprs_temp_offset",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_gprs_penalty_time,
+      { "GPRS_PENALTY_TIME",        "gsm_rlcmac_dl.psi3_compact_cell_sel_gprs_panelty_time",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_gprs_resel_offset,
+      { "GPRS_RESEL_OFFSET",        "gsm_rlcmac_dl.psi3_compact_cell_sel_gprs_resel_offset",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_time_group,
+      { "TIME_GROUP",        "gsm_rlcmac_dl.psi3_compact_cell_sel_time_group",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_cell_sel_guar_const_pwr_blks,
+      { "GUAR_CONSTANT_PWR_BLKS",        "gsm_rlcmac_dl.psi3_compact_cell_sel_guar_const_pwr_blks",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_ncell_param_start_freq,
+      { "START_FREQUENCY",        "gsm_rlcmac_dl.psi3_compact_ncell_start_freq",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_compact_ncell_param_nr_of_remaining_cells,
+      { "NR_OF_REMAINING_CELLS",        "gsm_rlcmac_dl.psi3_compact_ncell_nr_of_remaining_cells",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
     },
