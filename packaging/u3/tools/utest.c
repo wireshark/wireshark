@@ -81,7 +81,7 @@ void main(int argc, char **argv)
 
     if(argc > 1) { 
 
-      uuid_create_sha1_from_name(&u, NameSpace_WS, argv[1], strlen(argv[1]));
+      uuid_create_sha1_from_name(&u, NameSpace_WS, argv[1], (int)strlen(argv[1]));
       printf("s/$(UUID)/"); puid(u); printf("/\n");
 
       exit(0);
