@@ -3880,12 +3880,13 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
   offset += 2;
   length -= 2;
 
-
-  while (length > 0) {
+  if (spi_size > 0) {
+    while (length > 0) {
          proto_tree_add_item(tree, hf_isakmp_delete_spi, tvb, offset, spi_size, FALSE);
          offset+=spi_size;
          length-=spi_size;
- }
+    }
+  }
 }
 
 
