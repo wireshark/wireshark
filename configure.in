@@ -732,6 +732,10 @@ AC_ARG_ENABLE(wireshark,
     enable_wireshark=$enableval,enable_wireshark=yes)
 if test x$enable_wireshark = xyes; then
 	CFLAGS="-DGTK_DISABLE_SINGLE_INCLUDES $CFLAGS"
+	if test "x$with_gtk3" != "xyes"; then
+		# Enable GSEAL when not building with GTK3
+		CFLAGS="-DGSEAL_ENABLE $CFLAGS"
+	fi
 fi
 
 AC_ARG_ENABLE(ui-manager,
