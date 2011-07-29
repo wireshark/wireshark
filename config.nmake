@@ -1029,7 +1029,8 @@ GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
 	/I$(GTK_DIR)\lib\gtk-2.0\include \
 	/I$(GTK_DIR)\include\atk-1.0 \
 	/I$(GTK_DIR)\include\cairo \
-	/I$(GTK_DIR)\include\pango-1.0
+	/I$(GTK_DIR)\include\pango-1.0 \
+	-DGSEAL_ENABLE
 GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\gdk-win32-2.0.lib \
 	$(GTK_DIR)\lib\gdk_pixbuf-2.0.lib \
