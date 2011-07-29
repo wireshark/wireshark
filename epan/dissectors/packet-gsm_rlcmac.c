@@ -1099,6 +1099,40 @@ static int hf_packet_compact_ncell_param_start_freq;
 static int hf_packet_compact_ncell_param_nr_of_remaining_cells;
 /* <End Packet System Information Type 3> */
 
+/* <Packet System Information Type 5> */
+static int hf_gprsmeasurementparams3g_psi5_repquantfdd;
+static int hf_gprsmeasurementparams3g_psi5_multiratreportingfdd;
+static int hf_gprsmeasurementparams3g_psi5_reportingoffsetfdd;
+static int hf_gprsmeasurementparams3g_psi5_reportingthresholdfdd;
+static int hf_gprsmeasurementparams3g_psi5_multiratreportingtdd;
+static int hf_gprsmeasurementparams3g_psi5_reportingoffsettdd;
+static int hf_gprsmeasurementparams3g_psi5_reportingthresholdtdd;
+static int hf_enh_reporting_parameters_report_type;
+static int hf_enh_reporting_parameters_reporting_rate;
+static int hf_enh_reporting_parameters_invalid_bsic_reporting;
+static int hf_enh_reporting_parameters_ncc_permitted;
+static int hf_packet_system_info_type5_message_type;
+static int hf_packet_system_info_type5_page_mode;
+static int hf_packet_system_info_type5_change_mark;
+static int hf_packet_system_info_type5_index;
+static int hf_packet_system_info_type5_count;
+/* <End Packet System Information Type 5> */
+
+
+/* <Packet System Information Type 13> */
+static int hf_packet_system_info_type13_lb_ms_mxpwr_max_cch;
+static int hf_packet_system_info_type13_si2n_support;
+static int hf_packet_system_info_type13_si_status_ind;
+static int hf_packet_system_info_type13_sgsnr;
+static int hf_packet_system_info_type13_message_type;
+static int hf_packet_system_info_type13_page_mode;
+static int hf_packet_system_info_type13_bcch_change_mark;
+static int hf_packet_system_info_type13_si_change_field;
+static int hf_packet_system_info_type13_change_mark;
+/* <End Packet System Information Type 13> */
+
+
+
 
 static int hf_si1_restoctet_nch_position;
 static int hf_si1_restoctet_bandindicator;
@@ -1680,6 +1714,27 @@ CSN_DESCR_BEGIN(PBCCH_present_t)
 CSN_DESCR_END  (PBCCH_present_t)
 
 static const
+CSN_DESCR_BEGIN(SI13_AdditionsR6)
+  M_NEXT_EXIST (SI13_AdditionsR6, Exist_LB_MS_TXPWR_MAX_CCH, 1),
+  M_UINT       (SI13_AdditionsR6,  LB_MS_TXPWR_MAX_CCH,  5, &hf_packet_system_info_type13_lb_ms_mxpwr_max_cch),
+  M_UINT       (SI13_AdditionsR6,  SI2n_SUPPORT,  2, &hf_packet_system_info_type13_si2n_support),
+CSN_DESCR_END  (SI13_AdditionsR6)
+
+static const
+CSN_DESCR_BEGIN(SI13_AdditionsR4)
+  M_UINT       (SI13_AdditionsR4,  SI_STATUS_IND,  1, &hf_packet_system_info_type13_si_status_ind),
+  M_NEXT_EXIST_OR_NULL_LH (SI13_AdditionsR4, Exist_AdditionsR6, 1),
+  M_TYPE       (SI13_AdditionsR4,  AdditionsR6, SI13_AdditionsR6),
+CSN_DESCR_END  (SI13_AdditionsR4)
+
+static const
+CSN_DESCR_BEGIN(SI13_AdditionR99)
+  M_UINT       (SI13_AdditionR99,  SGSNR,  1, &hf_packet_system_info_type13_sgsnr),
+  M_NEXT_EXIST_OR_NULL_LH (SI13_AdditionR99, Exist_AdditionsR4, 1),
+  M_TYPE       (SI13_AdditionR99,  AdditionsR4, SI13_AdditionsR4),
+CSN_DESCR_END  (SI13_AdditionR99)
+
+static const
 CSN_DESCR_BEGIN          (SI_13_t)
   M_THIS_EXIST_LH        (SI_13_t),
 
@@ -1695,9 +1750,7 @@ CSN_DESCR_BEGIN          (SI_13_t)
   M_TYPE                 (SI_13_t, u.PBCCH_present, PBCCH_present_t),
 
   M_NEXT_EXIST_OR_NULL_LH(SI_13_t, Exist_AdditionsR99, 1),
-  M_UINT                 (SI_13_t,  SGSNR,  1, &hf_si_13_sgsnr),
-  M_NEXT_EXIST_OR_NULL_LH(SI_13_t, Exist_AdditionsR4, 1),
-  M_UINT                 (SI_13_t,  SI_STATUS_IND,  1, &hf_si_13_si_status_ind),
+  M_TYPE                 (SI_13_t, AdditionsR99, SI13_AdditionR99),
 CSN_DESCR_END            (SI_13_t)
 
 /************************************************************/
@@ -5002,6 +5055,156 @@ CSN_DESCR_END  (PSI3_t)
 /*< End Packet System Information Type 3 message content >*/
 
 
+/*< Packet System Information Type 5 message content >*/
+static const
+CSN_DESCR_BEGIN(MeasurementParams_t)
+  M_NEXT_EXIST (MeasurementParams_t, Exist_MULTI_BAND_REPORTING, 1),
+  M_UINT       (MeasurementParams_t,  MULTI_BAND_REPORTING,  2, &hf_gprsmeasurementparams_pmo_pcco_multi_band_reporting),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_SERVING_BAND_REPORTING, 1),
+  M_UINT       (MeasurementParams_t,  SERVING_BAND_REPORTING,  2, &hf_gprsmeasurementparams_pmo_pcco_serving_band_reporting),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_SCALE_ORD, 1),
+  M_UINT       (MeasurementParams_t,  SCALE_ORD,  2, &hf_gprsmeasurementparams_pmo_pcco_scale_ord),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_OffsetThreshold900, 1),
+  M_TYPE       (MeasurementParams_t, OffsetThreshold900, OffsetThreshold_t),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_OffsetThreshold1800, 1),
+  M_TYPE       (MeasurementParams_t, OffsetThreshold1800, OffsetThreshold_t),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_OffsetThreshold400, 1),
+  M_TYPE       (MeasurementParams_t, OffsetThreshold400, OffsetThreshold_t),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_OffsetThreshold1900, 1),
+  M_TYPE       (MeasurementParams_t, OffsetThreshold1900, OffsetThreshold_t),
+
+  M_NEXT_EXIST (MeasurementParams_t, Exist_OffsetThreshold850, 1),
+  M_TYPE       (MeasurementParams_t, OffsetThreshold850, OffsetThreshold_t),
+CSN_DESCR_END  (MeasurementParams_t)
+
+static const
+CSN_DESCR_BEGIN(GPRSMeasurementParams3G_PSI5_t)
+  M_NEXT_EXIST (GPRSMeasurementParams3G_PSI5_t, existRepParamsFDD, 2),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  RepQuantFDD,  1, &hf_gprsmeasurementparams3g_psi5_repquantfdd),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  MultiratReportingFDD,  2, &hf_gprsmeasurementparams3g_psi5_multiratreportingfdd),
+    
+  M_NEXT_EXIST (GPRSMeasurementParams3G_PSI5_t, existReportingParamsFDD, 2),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  ReportingOffsetFDD,  3, &hf_gprsmeasurementparams3g_psi5_reportingoffsetfdd),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  ReportingThresholdFDD,  3, &hf_gprsmeasurementparams3g_psi5_reportingthresholdfdd),
+    
+  M_NEXT_EXIST (GPRSMeasurementParams3G_PSI5_t, existMultiratReportingTDD, 1),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  MultiratReportingTDD,  2, &hf_gprsmeasurementparams3g_psi5_multiratreportingtdd),
+    
+  M_NEXT_EXIST (GPRSMeasurementParams3G_PSI5_t, existOffsetThresholdTDD, 2),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  ReportingOffsetTDD,  3, &hf_gprsmeasurementparams3g_psi5_reportingoffsettdd),
+  M_UINT       (GPRSMeasurementParams3G_PSI5_t,  ReportingThresholdTDD,  3, &hf_gprsmeasurementparams3g_psi5_reportingthresholdtdd),
+CSN_DESCR_END  (GPRSMeasurementParams3G_PSI5_t)
+
+static const
+CSN_DESCR_BEGIN(ENH_Reporting_Parameters_t)
+  M_UINT       (ENH_Reporting_Parameters_t,  REPORT_TYPE,  1, &hf_enh_reporting_parameters_report_type),
+  M_UINT       (ENH_Reporting_Parameters_t,  REPORTING_RATE,  1, &hf_enh_reporting_parameters_reporting_rate),
+  M_UINT       (ENH_Reporting_Parameters_t,  INVALID_BSIC_REPORTING,  1, &hf_enh_reporting_parameters_invalid_bsic_reporting),
+
+  M_NEXT_EXIST (ENH_Reporting_Parameters_t, Exist_NCC_PERMITTED, 1),
+  M_UINT       (ENH_Reporting_Parameters_t,  NCC_PERMITTED,  8, &hf_enh_reporting_parameters_ncc_permitted),
+    
+  M_NEXT_EXIST (ENH_Reporting_Parameters_t, Exist_GPRSMeasurementParams, 1),
+  M_TYPE       (ENH_Reporting_Parameters_t, GPRSMeasurementParams, MeasurementParams_t),
+    
+  M_NEXT_EXIST (ENH_Reporting_Parameters_t, Exist_GPRSMeasurementParams3G, 1),
+  M_TYPE       (ENH_Reporting_Parameters_t, GPRSMeasurementParams3G, GPRSMeasurementParams3G_PSI5_t),
+CSN_DESCR_END  (ENH_Reporting_Parameters_t)
+
+static const
+CSN_DESCR_BEGIN(PSI5_AdditionsR7)
+  M_NEXT_EXIST (PSI5_AdditionsR7, Exist_OffsetThreshold_700, 1),
+  M_TYPE       (PSI5_AdditionsR7,  OffsetThreshold_700, OffsetThreshold_t),
+
+  M_NEXT_EXIST (PSI5_AdditionsR7, Exist_OffsetThreshold_810, 1),
+  M_TYPE       (PSI5_AdditionsR7,  OffsetThreshold_810, OffsetThreshold_t),
+CSN_DESCR_END  (PSI5_AdditionsR7)
+
+static const
+CSN_DESCR_BEGIN(PSI5_AdditionsR5)
+  M_NEXT_EXIST (PSI5_AdditionsR5, Exist_GPRS_AdditionalMeasurementParams3G, 1),
+  M_TYPE       (PSI5_AdditionsR5,  GPRS_AdditionalMeasurementParams3G, GPRS_AdditionalMeasurementParams3G_t),
+  
+  M_NEXT_EXIST (PSI5_AdditionsR5, Exist_AdditionsR7, 1),
+  M_TYPE       (PSI5_AdditionsR5,  AdditionsR7, PSI5_AdditionsR7),
+CSN_DESCR_END  (PSI5_AdditionsR5)
+
+static const
+CSN_DESCR_BEGIN(PSI5_AdditionsR99)
+  M_NEXT_EXIST (PSI5_AdditionsR99, Exist_ENH_Reporting_Param, 1),
+  M_TYPE       (PSI5_AdditionsR99,  ENH_Reporting_Param, ENH_Reporting_Parameters_t),
+
+  M_NEXT_EXIST (PSI5_AdditionsR99, Exist_AdditionsR5, 1),
+  M_TYPE       (PSI5_AdditionsR99,  AdditionisR5, PSI5_AdditionsR5),
+CSN_DESCR_END  (PSI5_AdditionsR99)
+
+static const
+CSN_DESCR_BEGIN(PSI5_t)
+  M_UINT       (PSI5_t,  MESSAGE_TYPE,  6, &hf_packet_system_info_type5_message_type),
+  M_UINT       (PSI5_t,  PAGE_MODE,  2, &hf_packet_system_info_type5_page_mode),
+  M_UINT       (PSI5_t,  CHANGE_MARK,  2, &hf_packet_system_info_type5_change_mark),
+  M_UINT       (PSI5_t,  INDEX,  3, &hf_packet_system_info_type5_index),
+  M_UINT       (PSI5_t,  COUNT,  3, &hf_packet_system_info_type5_count),
+
+  M_NEXT_EXIST (PSI5_t, Eixst_NC_Meas_Param, 1),
+  M_TYPE       (PSI5_t,  NC_Meas_Param, NC_Measurement_Parameters_t),
+
+  M_FIXED      (PSI5_t, 1, 0x00),
+
+  M_NEXT_EXIST (PSI5_t, Exist_AdditionsR99, 1),
+  M_TYPE       (PSI5_t,  AdditionsR99, PSI5_AdditionsR99),
+CSN_DESCR_END  (PSI5_t)
+/*< End Packet System Information Type 5 message content >*/
+
+
+/*< Packet System Information Type 13 message content >*/
+static const
+CSN_DESCR_BEGIN(PSI13_AdditionsR6)
+  M_NEXT_EXIST (PSI13_AdditionsR6, Exist_LB_MS_TXPWR_MAX_CCH, 1),
+  M_UINT       (PSI13_AdditionsR6,  LB_MS_TXPWR_MAX_CCH,  5, &hf_packet_system_info_type13_lb_ms_mxpwr_max_cch),
+  M_UINT       (PSI13_AdditionsR6,  SI2n_SUPPORT,  2, &hf_packet_system_info_type13_si2n_support),
+CSN_DESCR_END  (PSI13_AdditionsR6)
+
+static const
+CSN_DESCR_BEGIN(PSI13_AdditionsR4)
+  M_UINT       (PSI13_AdditionsR4,  SI_STATUS_IND,  1, &hf_packet_system_info_type13_si_status_ind),
+  M_NEXT_EXIST (PSI13_AdditionsR4, Exist_AdditionsR6, 1),
+  M_TYPE       (PSI13_AdditionsR4,  AdditionsR6, PSI13_AdditionsR6),
+CSN_DESCR_END  (PSI13_AdditionsR4)
+
+static const
+CSN_DESCR_BEGIN(PSI13_AdditionR99)
+  M_UINT       (PSI13_AdditionR99,  SGSNR,  1, &hf_packet_system_info_type13_sgsnr),
+  M_NEXT_EXIST (PSI13_AdditionR99, Exist_AdditionsR4, 1),
+  M_TYPE       (PSI13_AdditionR99,  AdditionsR4, PSI13_AdditionsR4),
+CSN_DESCR_END  (PSI13_AdditionR99)
+
+static const
+CSN_DESCR_BEGIN(PSI13_t)
+  M_UINT       (PSI13_t,  MESSAGE_TYPE,  6, &hf_packet_system_info_type13_message_type),
+  M_UINT       (PSI13_t,  PAGE_MODE,  2, &hf_packet_system_info_type13_page_mode),
+  M_UINT       (PSI13_t,  BCCH_CHANGE_MARK,  3, &hf_packet_system_info_type13_bcch_change_mark),
+  M_UINT       (PSI13_t,  SI_CHANGE_FIELD,  4, &hf_packet_system_info_type13_si_change_field),
+  
+  M_NEXT_EXIST (PSI13_t, Exist_MA, 2),
+  M_UINT       (PSI13_t,  SI13_CHANGE_MARK,  2, &hf_packet_system_info_type13_change_mark),
+  M_TYPE       (PSI13_t,  GPRS_Mobile_Allocation, GPRS_Mobile_Allocation_t),
+
+  M_UNION      (PSI13_t, 2),
+  M_TYPE       (PSI13_t, u.PBCCH_Not_present, PBCCH_Not_present_t),
+  M_TYPE       (PSI13_t, u.PBCCH_present, PBCCH_present_t),
+
+  M_NEXT_EXIST (PSI13_t, Exist_AdditionsR99, 1),
+  M_TYPE       (PSI13_t,  AdditionsR99, PSI13_AdditionR99),
+CSN_DESCR_END  (PSI13_t)
+/*< End Packet System Information Type 13 message content >*/
+
 
 
 typedef char* MT_Strings_t;
@@ -5523,6 +5726,16 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     case MT_PACKET_SYSTEM_INFO_3:
     {
       /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI3_t), tvb, &data->u.PSI3, ett_gsm_rlcmac);
+      break;
+    }
+    case MT_PACKET_SYSTEM_INFO_5:
+    {
+      /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI5_t), tvb, &data->u.PSI5, ett_gsm_rlcmac);
+      break;
+    }
+    case MT_PACKET_SYSTEM_INFO_13:
+    {
+      /*ret =*/ csnStreamDissector(rlcmac_tree, &ar, CSNDESCR(PSI13_t), tvb, &data->u.PSI13, ett_gsm_rlcmac);
       break;
     }
     default:
@@ -11274,6 +11487,10 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+/* < End Packet System Information Type 2 message content > */
+
+
+/* < Packet System Information Type 3 message content > */
     { &hf_packet_system_info_type3_message_type,
       { "MESSAGE_TYPE",        "gsm_rlcmac_dl.psi3_message_type",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -11436,7 +11653,163 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-/* < End Packet System Information Type 2 message content > */
+/* < End Packet System Information Type 3 message content > */
+
+/* < Packet System Information Type 5 message content > */
+    { &hf_gprsmeasurementparams3g_psi5_repquantfdd,
+      { "FDD_REP_QUANT",        "gsm_rlcmac_dl.psi5_rep_quant_fdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprsmeasurementparams3g_psi5_multiratreportingfdd,
+      { "FDD_MULTIRAT_REPORTING",        "gsm_rlcmac_dl.psi5_multirat_reporting_fdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprsmeasurementparams3g_psi5_reportingoffsetfdd,
+      { "FDD_REPORTING_OFFSET",        "gsm_rlcmac_dl.psi5_reporting_offset_fdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprsmeasurementparams3g_psi5_reportingthresholdfdd,
+      { "FDD_REPORTING_THRESHOLD",        "gsm_rlcmac_dl.psi5_reporting_threshold_fdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprsmeasurementparams3g_psi5_multiratreportingtdd,
+      { "TDD_MULTIRAT_REPORTING",        "gsm_rlcmac_dl.psi5_multirat_reporting_tdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprsmeasurementparams3g_psi5_reportingoffsettdd,
+      { "TDD_REPORTING_OFFSET",        "gsm_rlcmac_dl.psi5_reporting_offset_tdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_gprsmeasurementparams3g_psi5_reportingthresholdtdd,
+      { "TDD_REPORTING_THRESHOLD",        "gsm_rlcmac_dl.psi5_reporting_threshold_tdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_enh_reporting_parameters_report_type,
+      { "Report_Type",        "gsm_rlcmac_dl.psi5_enh_reporting_param_report_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_enh_reporting_parameters_reporting_rate,
+      { "REPORTING_RATE",        "gsm_rlcmac_dl.psi5_enh_reporting_param_reporting_rate",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_enh_reporting_parameters_invalid_bsic_reporting,
+      { "INVALID_BSIC_REPORTING",        "gsm_rlcmac_dl.psi5_enh_reporting_param_invalid_bsic_reporting",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_enh_reporting_parameters_ncc_permitted,
+      { "NCC_PERMITTED",        "gsm_rlcmac_dl.psi5_enh_reporting_param_ncc_permitted",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type5_message_type,
+      { "MESSAGE_TYPE",        "gsm_rlcmac_dl.psi5_message_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type5_page_mode,
+      { "PAGE_MODE",        "gsm_rlcmac_dl.psi5_page_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type5_change_mark,
+      { "PSI5_CHANGE_MARK",        "gsm_rlcmac_dl.psi5_change_mark",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type5_index,
+      { "PSI5_INDEX",        "gsm_rlcmac_dl.psi5_index",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type5_count,
+      { "PSI5_COUNT",        "gsm_rlcmac_dl.psi5_count",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+/* < End Packet System Information Type 5 message content > */
+
+/* < Packet System Information Type 13 message content > */
+    { &hf_packet_system_info_type13_lb_ms_mxpwr_max_cch,
+      { "LB_MS_TXPWR_MAX_CCH",        "gsm_rlcmac_dl.psi13_lb_ms_txpwr_max_cch",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_si2n_support,
+      { "SI2n_SUPPORT",        "gsm_rlcmac_dl.psi13_si2n_support",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_si_status_ind,
+      { "SI_STATUS_IND",        "gsm_rlcmac_dl.psi13_si_status_ind",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_sgsnr,
+      { "SGSNR",        "gsm_rlcmac_dl.psi13_sgsnr",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_message_type,
+      { "MESSAGE_TYPE",        "gsm_rlcmac_dl.psi13_message_type",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_page_mode,
+      { "PAGE_MODE",        "gsm_rlcmac_dl.psi13_page_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_bcch_change_mark,
+      { "BCCH_CHANGE_MARK",        "gsm_rlcmac_dl.psi13_bcch_change_mark",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_si_change_field,
+      { "SI_CHANGE_FIELD",        "gsm_rlcmac_dl.psi13_si_change_field",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_packet_system_info_type13_change_mark,
+      { "SI13_CHANGE_MARK",        "gsm_rlcmac_dl.psi13_change_mark",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+/* < End Packet System Information Type 13 message content > */
 
   };
 

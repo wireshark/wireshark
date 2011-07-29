@@ -252,6 +252,77 @@ typedef struct
   LSA_ID_Info_t LSA_ID_Info[NR_OF_FREQ_OR_CELLS_MAX];
 } LSA_Parameters_t;
 
+#define MAX_REPORT_PRIORITY_CELLS (16)
+
+typedef struct
+{
+  guint8 NUMBER_CELLS;
+  guint8 REPORT_PRIORITY[MAX_REPORT_PRIORITY_CELLS];
+} ReportPriority_t;
+
+typedef ReportPriority_t GPRSReportPriority_t;
+
+typedef struct
+{
+  guint8 REPORTING_OFFSET;
+  guint8 REPORTING_THRESHOLD;
+} OffsetThreshold_t;
+
+
+typedef struct
+{
+  guint8             Exist_MULTI_BAND_REPORTING;
+  guint8             MULTI_BAND_REPORTING;
+
+  guint8             Exist_SERVING_BAND_REPORTING;
+  guint8             SERVING_BAND_REPORTING;
+
+  /* Warning:
+   *
+   * SI2quater, MI, PMO, and PCCO always specify Scale Ord.  There is no
+   * "exist SCALE_ORD" bit in the CSN.1 descriptions for these messages.
+   * However, this struct is shared with the PSI5 message which may or may
+   * not specify SCALE_ORD, thus necessitating the inclusion of member
+   * Exist_SCALE_ORD in the struct.  This member is never set for SI2quater, MI,
+   * PMO, and PCCO so to check it (in these cases) would be erroneous.
+   */
+  guint8             Exist_SCALE_ORD;
+  guint8             SCALE_ORD;
+
+  guint8             Exist_OffsetThreshold900;
+  OffsetThreshold_t OffsetThreshold900;
+
+  guint8             Exist_OffsetThreshold1800;
+  OffsetThreshold_t OffsetThreshold1800;
+
+  guint8             Exist_OffsetThreshold400;
+  OffsetThreshold_t OffsetThreshold400;
+
+  guint8             Exist_OffsetThreshold1900;
+  OffsetThreshold_t OffsetThreshold1900;
+
+  guint8             Exist_OffsetThreshold850;
+  OffsetThreshold_t OffsetThreshold850;
+
+} MeasurementParams_t;
+
+typedef struct
+{
+  guint8 Exist_FDD_REPORTING_THRESHOLD_2;
+  guint8 FDD_REPORTING_THRESHOLD_2;
+} GPRS_AdditionalMeasurementParams3G_t;
+
+
+typedef struct
+{
+  guint8 NETWORK_CONTROL_ORDER;
+
+  guint8 Exist_NC;
+  guint8 NC_NON_DRX_PERIOD;
+  guint8 NC_REPORTING_PERIOD_I;
+  guint8 NC_REPORTING_PERIOD_T;
+} NC_Measurement_Parameters_t;
+
 
 /*
 **========================================================================
@@ -2714,9 +2785,112 @@ typedef struct
 
 } PSI4_t;
 
+
+/* < PSI5 message content > */
+typedef struct
+{
+  guint8 existRepParamsFDD;
+  guint8 RepQuantFDD;
+  guint8 MultiratReportingFDD;
+
+  guint8 existReportingParamsFDD;
+  guint8 ReportingOffsetFDD;
+  guint8 ReportingThresholdFDD;
+
+  guint8 existMultiratReportingTDD;
+  guint8 MultiratReportingTDD;
+
+  guint8 existOffsetThresholdTDD;
+  guint8 ReportingOffsetTDD;
+  guint8 ReportingThresholdTDD;
+} GPRSMeasurementParams3G_PSI5_t;
+
+typedef struct
+{
+  guint8   REPORT_TYPE;
+  guint8   REPORTING_RATE;
+  guint8   INVALID_BSIC_REPORTING;
+  guint8  Exist_NCC_PERMITTED;
+  guint8   NCC_PERMITTED;
+  
+  gboolean Exist_GPRSMeasurementParams;
+  MeasurementParams_t   GPRSMeasurementParams;
+  gboolean Exist_GPRSMeasurementParams3G;
+  GPRSMeasurementParams3G_PSI5_t  GPRSMeasurementParams3G;
+} ENH_Reporting_Parameters_t;
+
+typedef struct
+{
+  guint8 Exist_OffsetThreshold_700;
+  OffsetThreshold_t OffsetThreshold_700;
+  guint8 Exist_OffsetThreshold_810;
+  OffsetThreshold_t OffsetThreshold_810;
+}PSI5_AdditionsR7;
+
+typedef struct
+{
+  guint8 Exist_GPRS_AdditionalMeasurementParams3G;
+  GPRS_AdditionalMeasurementParams3G_t GPRS_AdditionalMeasurementParams3G;
+  guint8 Exist_AdditionsR7;
+  PSI5_AdditionsR7 AdditionsR7;
+}PSI5_AdditionsR5;
+
+typedef struct
+{
+  guint8 Exist_ENH_Reporting_Param;
+  ENH_Reporting_Parameters_t ENH_Reporting_Param;
+  guint8 Exist_AdditionsR5;
+  PSI5_AdditionsR5 AdditionisR5;
+}PSI5_AdditionsR99;
+
+typedef struct
+{
+  guint8 MESSAGE_TYPE;
+
+  guint8 PAGE_MODE;
+  guint8 CHANGE_MARK;
+  guint8 INDEX;
+  guint8 COUNT;
+
+  guint8 Eixst_NC_Meas_Param;
+  NC_Measurement_Parameters_t NC_Meas_Param;
+  guint8 Exist_AdditionsR99;
+  PSI5_AdditionsR99 AdditionsR99;
+} PSI5_t;
+
+
+
+
 /* < PSI13 message content >
  * Combined with SI13
  */
+typedef struct
+{
+  guint8 Exist_LB_MS_TXPWR_MAX_CCH;
+  guint8 LB_MS_TXPWR_MAX_CCH;
+  guint8 SI2n_SUPPORT;
+}PSI13_AdditionsR6;
+
+typedef PSI13_AdditionsR6 SI13_AdditionsR6;
+
+typedef struct
+{
+  guint8                SI_STATUS_IND;
+  guint8                Exist_AdditionsR6;
+  PSI13_AdditionsR6     AdditionsR6;
+}PSI13_AdditionsR4;
+
+typedef PSI13_AdditionsR4 SI13_AdditionsR4;
+
+typedef struct
+{
+  guint8                SGSNR;
+  gboolean              Exist_AdditionsR4;
+  PSI13_AdditionsR4     AdditionsR4;
+}PSI13_AdditionR99;
+
+typedef PSI13_AdditionR99 SI13_AdditionR99;
+
 typedef struct
 {
   guint8 Exist;
@@ -2738,9 +2912,7 @@ typedef struct
   } u;
 
   gboolean              Exist_AdditionsR99;
-  guint8                SGSNR;
-  gboolean              Exist_AdditionsR4;
-  guint8                SI_STATUS_IND;
+  PSI13_AdditionR99     AdditionsR99;
 } PSI13_t;
 
 /* SI_13_t is combined in the PSI13 structure */
@@ -2859,15 +3031,6 @@ typedef struct
   Add_Frequency_list_t Add_Frequency[32];
 } NC_Frequency_list_t;
 
-typedef struct
-{
-  guint8 NETWORK_CONTROL_ORDER;
-
-  guint8 Exist_NC;
-  guint8 NC_NON_DRX_PERIOD;
-  guint8 NC_REPORTING_PERIOD_I;
-  guint8 NC_REPORTING_PERIOD_T;
-} NC_Measurement_Parameters_t;
 
 typedef struct
 {
@@ -3118,21 +3281,6 @@ typedef struct
 
 /* < Packet Cell Change Order message contents > */
 
-#define MAX_REPORT_PRIORITY_CELLS (16)
-
-typedef struct
-{
-  guint8 NUMBER_CELLS;
-  guint8 REPORT_PRIORITY[MAX_REPORT_PRIORITY_CELLS];
-} ReportPriority_t;
-
-typedef ReportPriority_t GPRSReportPriority_t;
-
-typedef struct
-{
-  guint8 REPORTING_OFFSET;
-  guint8 REPORTING_THRESHOLD;
-} OffsetThreshold_t;
 
 typedef struct
 {
@@ -3188,42 +3336,6 @@ typedef struct
   RTDList_t ListRTD12;
 } RealTimeDiffs_t;
 
-typedef struct
-{
-  guint8             Exist_MULTI_BAND_REPORTING;
-  guint8             MULTI_BAND_REPORTING;
-
-  guint8             Exist_SERVING_BAND_REPORTING;
-  guint8             SERVING_BAND_REPORTING;
-
-  /* Warning:
-   *
-   * SI2quater, MI, PMO, and PCCO always specify Scale Ord.  There is no
-   * "exist SCALE_ORD" bit in the CSN.1 descriptions for these messages.
-   * However, this struct is shared with the PSI5 message which may or may
-   * not specify SCALE_ORD, thus necessitating the inclusion of member
-   * Exist_SCALE_ORD in the struct.  This member is never set for SI2quater, MI,
-   * PMO, and PCCO so to check it (in these cases) would be erroneous.
-   */
-  guint8             Exist_SCALE_ORD;
-  guint8             SCALE_ORD;
-
-  guint8             Exist_OffsetThreshold900;
-  OffsetThreshold_t OffsetThreshold900;
-
-  guint8             Exist_OffsetThreshold1800;
-  OffsetThreshold_t OffsetThreshold1800;
-
-  guint8             Exist_OffsetThreshold400;
-  OffsetThreshold_t OffsetThreshold400;
-
-  guint8             Exist_OffsetThreshold1900;
-  OffsetThreshold_t OffsetThreshold1900;
-
-  guint8             Exist_OffsetThreshold850;
-  OffsetThreshold_t OffsetThreshold850;
-
-} MeasurementParams_t;
 
 typedef MeasurementParams_t GPRSMeasurementParams_PMO_PCCO_t;
 
@@ -3512,11 +3624,6 @@ typedef struct
   Add_lu_ModeOnlyFrequencyList_t Add_lu_ModeOnlyFrequencyList[32];
 } NC_lu_ModeOnlyCapableCellList_t;
 
-typedef struct
-{
-  guint8 Exist_FDD_REPORTING_THRESHOLD_2;
-  guint8 FDD_REPORTING_THRESHOLD_2;
-} GPRS_AdditionalMeasurementParams3G_t;
 
 typedef struct
 {
@@ -4329,7 +4436,7 @@ typedef struct
     PSI3_BIS_t                            PSI3_BIS;
     PSI4_t                                PSI4;
     PSI13_t                               PSI13;
-
+    PSI5_t                                PSI5;
   } u;
 
   /* NrOfBits is placed after union to avoid unnecessary code changes when addressing the union members
