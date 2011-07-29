@@ -96,10 +96,17 @@ static int hf_pn_io_ar_properties_achnowledge_companion_ar = -1;
 static int hf_pn_io_ar_properties_reserved = -1;
 static int hf_pn_io_ar_properties_pull_module_alarm_allowed = -1;
 
+static int hf_pn_RedundancyInfo = -1;
+static int hf_pn_RedundancyInfo_reserved = -1;
+static int hf_pn_io_number_of_ARDATAInfo = -1;
+
 static int hf_pn_io_cminitiator_activitytimeoutfactor = -1;
 static int hf_pn_io_cminitiator_udprtport = -1;
 static int hf_pn_io_station_name_length = -1;
 static int hf_pn_io_cminitiator_station_name = -1;
+static int hf_pn_io_responder_station_name = -1;
+static int hf_pn_io_arproperties_StartupMode = -1;
+
 static int hf_pn_io_parameter_server_station_name = -1;
 
 static int hf_pn_io_cmresponder_macadd = -1;
@@ -109,8 +116,16 @@ static int hf_pn_io_number_of_iocrs = -1;
 static int hf_pn_io_iocr_tree = -1;
 static int hf_pn_io_iocr_type = -1;
 static int hf_pn_io_iocr_reference = -1;
+static int hf_pn_io_iocr_SubframeOffset = -1;
+static int hf_pn_io_iocr_SubframeData =-1;
 static int hf_pn_io_iocr_txports_port = -1;
 static int hf_pn_io_iocr_txports_redundantport = -1;
+static int hf_pn_io_sr_properties_Reserved_1 = -1;
+static int hf_pn_io_sr_properties_Reserved_2 = -1;
+static int hf_pn_io_RedundancyDataHoldFactor = -1;
+static int hf_pn_io_sr_properties = -1;
+static int hf_pn_io_sr_properties_InputValidOnBackupAR = -1;
+static int hf_pn_io_sr_properties_ActivateRedundancyAlarm = -1;
 
 static int hf_pn_io_lt = -1;
 static int hf_pn_io_iocr_properties = -1;
@@ -132,6 +147,7 @@ static int hf_pn_io_reduction_ratio = -1;
 static int hf_pn_io_phase = -1;
 static int hf_pn_io_sequence = -1;
 static int hf_pn_io_frame_send_offset = -1;
+static int hf_pn_io_frame_data_properties = -1;
 static int hf_pn_io_watchdog_factor = -1;
 static int hf_pn_io_data_hold_factor = -1;
 static int hf_pn_io_iocr_tag_header = -1;
@@ -141,6 +157,24 @@ static int hf_pn_io_number_of_io_data_objects = -1;
 static int hf_pn_io_io_data_object_frame_offset = -1;
 static int hf_pn_io_number_of_iocs = -1;
 static int hf_pn_io_iocs_frame_offset = -1;
+
+static int hf_pn_io_SFIOCRProperties = -1;
+static int hf_pn_io_DistributedWatchDogFactor = -1;
+static int hf_pn_io_RestartFactorForDistributedWD = -1;
+static int hf_pn_io_SFIOCRProperties_DFPmode = -1;
+static int hf_pn_io_SFIOCRProperties_reserved_1 = -1;
+static int hf_pn_io_SFIOCRProperties_reserved_2 = -1;
+static int hf_pn_io_SFIOCRProperties_DFPRedundantPathLayout = -1;
+static int hf_pn_io_SFIOCRProperties_SFCRC16 = -1;
+
+static int hf_pn_io_subframe_data = -1;
+static int hf_pn_io_subframe_data_reserved1 = -1;
+static int hf_pn_io_subframe_data_reserved2 = -1;
+
+static int hf_pn_io_subframe_data_position = -1;
+static int hf_pn_io_subframe_reserved1 = -1;
+static int hf_pn_io_subframe_data_length = -1;
+static int hf_pn_io_subframe_reserved2 = -1;
 
 static int hf_pn_io_alarmcr_type = -1;
 static int hf_pn_io_alarmcr_properties = -1;
@@ -156,6 +190,7 @@ static int hf_pn_io_maxalarmdatalength = -1;
 static int hf_pn_io_alarmcr_tagheaderhigh = -1;
 static int hf_pn_io_alarmcr_tagheaderlow = -1;
 
+static int hf_pn_io_IRData_uuid = -1;
 static int hf_pn_io_ar_uuid = -1;
 static int hf_pn_io_target_ar_uuid = -1;
 static int hf_pn_io_api_tree = -1;
@@ -163,6 +198,9 @@ static int hf_pn_io_module_tree = -1;
 static int hf_pn_io_submodule_tree = -1;
 static int hf_pn_io_io_data_object = -1;
 static int hf_pn_io_io_cs = -1;
+
+static int hf_pn_io_substitutionmode = -1;
+
 static int hf_pn_io_api = -1;
 static int hf_pn_io_slot_nr = -1;
 static int hf_pn_io_subslot_nr = -1;
@@ -191,6 +229,9 @@ static int hf_pn_io_control_block_properties = -1;
 static int hf_pn_io_control_block_properties_applready = -1;
 static int hf_pn_io_control_block_properties_applready0 = -1;
 
+static int hf_pn_io_AlarmSequenceNumber = -1;
+static int hf_pn_io_control_command_reserved = -1;
+static int hf_pn_io_SubmoduleListEntries = -1;
 static int hf_pn_io_error_code = -1;
 static int hf_pn_io_error_decode = -1;
 static int hf_pn_io_error_code1 = -1;
@@ -291,25 +332,37 @@ static int hf_pn_io_address_resolution_properties = -1;
 static int hf_pn_io_mci_timeout_factor = -1;
 static int hf_pn_io_provider_station_name = -1;
 
-static int hf_pn_io_subframe_data = -1;
-static int hf_pn_io_subframe_data_position = -1;
-static int hf_pn_io_subframe_data_reserved1 = -1;
-static int hf_pn_io_subframe_data_data_length = -1;
-static int hf_pn_io_subframe_data_reserved2 = -1;
-
 static int hf_pn_io_user_structure_identifier = -1;
 
 static int hf_pn_io_channel_number = -1;
 static int hf_pn_io_channel_properties = -1;
 static int hf_pn_io_channel_properties_type = -1;
 static int hf_pn_io_channel_properties_accumulative = -1;
+static int hf_pn_io_channel_properties_maintenance = -1;
+/* replaced with 2 bit values
 static int hf_pn_io_channel_properties_maintenance_required = -1;
 static int hf_pn_io_channel_properties_maintenance_demanded = -1;
+*/
+static int hf_pn_io_NumberOfSubframeBlocks = -1;
 static int hf_pn_io_channel_properties_specifier = -1;
 static int hf_pn_io_channel_properties_direction = -1;
 
 static int hf_pn_io_channel_error_type = -1;
+static int hf_pn_io_ext_channel_error_type0 = -1;
+static int hf_pn_io_ext_channel_error_type0x8000 = -1;
+static int hf_pn_io_ext_channel_error_type0x8001 = -1;
+static int hf_pn_io_ext_channel_error_type0x8002 = -1;
+static int hf_pn_io_ext_channel_error_type0x8003 = -1;
+static int hf_pn_io_ext_channel_error_type0x8004 = -1;
+static int hf_pn_io_ext_channel_error_type0x8005 = -1;
+static int hf_pn_io_ext_channel_error_type0x8007 = -1;
+static int hf_pn_io_ext_channel_error_type0x8008 = -1;
+static int hf_pn_io_ext_channel_error_type0x800A = -1;
+static int hf_pn_io_ext_channel_error_type0x800B = -1;
+static int hf_pn_io_ext_channel_error_type0x800C = -1;
+
 static int hf_pn_io_ext_channel_error_type = -1;
+
 static int hf_pn_io_ext_channel_add_value = -1;
 
 static int hf_pn_io_ptcp_subdomain_id = -1;
@@ -318,6 +371,9 @@ static int hf_pn_io_max_bridge_delay = -1;
 static int hf_pn_io_number_of_ports = -1;
 static int hf_pn_io_max_port_tx_delay = -1;
 static int hf_pn_io_max_port_rx_delay = -1;
+
+static int hf_pn_io_max_line_rx_delay = -1;
+static int hf_pn_io_yellowtime = -1;
 static int hf_pn_io_reserved_interval_begin = -1;
 static int hf_pn_io_reserved_interval_end = -1;
 static int hf_pn_io_pllwindow = -1;
@@ -332,11 +388,21 @@ static int hf_pn_io_ptcp_master_priority_2 = -1;
 static int hf_pn_io_ptcp_length_subdomain_name = -1;
 static int hf_pn_io_ptcp_subdomain_name = -1;
 
+/* added Portstatistics */
+static int hf_pn_io_pdportstatistic_ifInOctets = -1;
+static int hf_pn_io_pdportstatistic_ifOutOctets = -1;
+static int hf_pn_io_pdportstatistic_ifInDiscards = -1;
+static int hf_pn_io_pdportstatistic_ifOutDiscards = -1;
+static int hf_pn_io_pdportstatistic_ifInErrors = -1;
+static int hf_pn_io_pdportstatistic_ifOutErrors = -1;
+/* end of port statistics */
+
 static int hf_pn_io_domain_boundary = -1;
 static int hf_pn_io_domain_boundary_ingress = -1;
 static int hf_pn_io_domain_boundary_egress = -1;
 static int hf_pn_io_multicast_boundary = -1;
 static int hf_pn_io_adjust_properties = -1;
+static int hf_pn_io_PreambleLength = -1;
 static int hf_pn_io_mau_type = -1;
 static int hf_pn_io_mau_type_mode = -1;
 static int hf_pn_io_port_state = -1;
@@ -361,6 +427,15 @@ static int hf_pn_io_frame_details_sync_frame = -1;
 static int hf_pn_io_frame_details_meaning_frame_send_offset = -1;
 static int hf_pn_io_frame_details_reserved = -1;
 static int hf_pn_io_nr_of_tx_port_groups = -1;
+static int hf_pn_io_TxPortGroupProperties = -1;
+static int hf_pn_io_TxPortGroupProperties_bit0 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit1 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit2 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit3 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit4 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit5 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit6 = -1;
+static int hf_pn_io_TxPortGroupProperties_bit7 = -1;
 
 static int hf_pn_io_start_of_red_frame_id = -1;
 static int hf_pn_io_end_of_red_frame_id = -1;
@@ -559,6 +634,8 @@ static gint ett_pn_io_profidrive_parameter_response = -1;
 static gint ett_pn_io_profidrive_parameter_address = -1;
 static gint ett_pn_io_profidrive_parameter_value = -1;
 
+static gint ett_pn_io_GroupProperties = -1;
+
 static e_uuid_t uuid_pn_io_device = { 0xDEA00001, 0x6C97, 0x11D1, { 0x82, 0x71, 0x00, 0xA0, 0x24, 0x42, 0xDF, 0x7D } };
 static guint16  ver_pn_io_device = 1;
 
@@ -593,6 +670,7 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0018, "ARData"},
 	{ 0x0019, "LogData"},
 	{ 0x001A, "APIData"},
+	{ 0x001b, "SRLData"},
 	{ 0x0020, "I&M0"},
 	{ 0x0021, "I&M1"},
 	{ 0x0022, "I&M2"},
@@ -625,8 +703,12 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0105, "PrmServerBlockReq"},
 	{ 0x8105, "PrmServerBlockRes"},
 	{ 0x0106, "MCRBlockReq"},
+    { 0x8106, "ARServerBlock"},
 	{ 0x0107, "SubFrameBlock"},
-	{ 0x0108, "IRTFrameBlock"},
+	{ 0x0108, "ARVendorBlock"},
+    { 0x0109, "IRInfoBlock"},
+    { 0x010A, "SRInfoBlock"},
+	{ 0x010B, "ARFSUBlock"},
 	{ 0x0110, "IODBlockReq"},
 	{ 0x8110, "IODBlockRes"},
 	{ 0x0111, "IODBlockReq"},
@@ -643,6 +725,10 @@ static const value_string pn_io_block_type[] = {
 	{ 0x8116, "IOXBlockRes"},
 	{ 0x0117, "IOXBlockReq"},
 	{ 0x8117, "IOXBlockRes"},
+    { 0x0118, "ControlBlockPrmBegin"},
+    { 0x0119, "SubmoduleListBlock"},
+	{ 0x8118, "ControlBlockPrmBeginRes"},
+
 	{ 0x0200, "PDPortDataCheck"},
 	{ 0x0201, "PDevData"},
 	{ 0x0202, "PDPortDataAdjust"},
@@ -680,10 +766,13 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0223, "PDPortFODataCheck"},
 	{ 0x0224, "Adjust PeerToPeerBoundary"},
 	{ 0x0225, "Adjust DCPBoundary"},
-	{ 0x0226, "Adjust PreambelLength"},
+    { 0x0226, "Adjust PreambleLength"},
 	{ 0x0227, "Adjust FastForwardingBoundary"},
+    { 0x022A, "PDIRSubframeData"},
+    { 0x022B, "SubframeBlock"},
 	{ 0x0230, "PDNCDataCheck"},
 	{ 0x0240, "PDInterfaceDataReal"},
+    { 0x0251, "PDPortStatistic"},
 	{ 0x0400, "MultipleBlockHeader"},
 	{ 0x0500, "RecordDataReadQuery"},
 	{ 0x0600, "FSHello"},
@@ -693,6 +782,14 @@ static const value_string pn_io_block_type[] = {
 	{ 0x0700, "AutoConfiguration"},
 	{ 0x0701, "AutoConfiguration Communication"},
 	{ 0x0702, "AutoConfiguration Configuration"},
+    { 0xB050, "Ext-PLL Control / RTC+RTA SyncID 0 (EDD)" },
+    { 0xB051, "Ext-PLL Control / RTA SyncID 1 (GSY)" },
+
+    { 0xB060, "EDD Trace Unit (EDD)" },
+    { 0xB061, "EDD Trace Unit (EDD)" },
+
+    { 0xB070, "OHA Info (OHA)" },
+
 	{ 0x0F00, "MaintenanceItem"},
 	{ 0x0F01, "Upload selected Records within Upload&RetrievalItem"},
 	{ 0x0F02, "iParameterItem"},
@@ -736,6 +833,36 @@ static const value_string pn_io_pdu_type[] = {
 	{ 0x02, "NACK-RTA-PDU" },
 	{ 0x03, "ACK-RTA-PDU" },
 	{ 0x04, "ERR-RTA-PDU" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_frame_data_properties[] = {
+    { 0x00, "absolute mode use interface MAC" },
+    { 0x01, "relative mode use interface MAC" },
+    { 0x02, "absolute mode use RT_CLASS_3 destination MAC" },
+    { 0x03, "relative mode use RT_CLASS_3 destination MAC" },
+    { 0x04, "absolute mode use FastForwarding destination MAC" },
+    { 0x05, "relative mode use FastForwarding destination MAC" },
+    { 0x06, "absolute mode use FastForwarding MAC" },
+    { 0x07, "relative mode use FastForwarding MAC" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_DFPRedundantPathLayout_decode[] = {
+    { 0x00, "The Frame for the redundant path contains the ordering shown by SubframeData" },
+    { 0x01, "The Frame for the redundant path contains the inverse ordering shown by SubframeData" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_SFCRC16_Decode[] = {
+    { 0x00, "SFCRC16 and SFCycleCounter shall be created or set to zero by the sender and not checked by the receiver" },
+    { 0x01, "SFCRC16 and SFCycleCounter shall be created by the sender and checked by the receiver." },
+    { 0, NULL }
+};
+
+static const value_string pn_io_txgroup_state[] = {
+    { 0x00, "Transmission off" },
+    { 0x01, "Transmission on " },
     { 0, NULL }
 };
 
@@ -1269,6 +1396,10 @@ static const value_string pn_io_ar_type[] = {
 	{ 0x0004, "IOCAR_IOControllerRedundant" },
 	{ 0x0005, "IOCAR_IODeviceRedundant" },
 	{ 0x0006, "IOSAR" },
+    /*0x0007 - 0x000F reserved */
+    { 0x0010, "IOCARSingle using RT_CLASS_3"},
+    /*0x0011 - 0x001F reserved */
+    { 0x0020, "IOCARSR" },
     /*0x0007 - 0xFFFF reserved */
     { 0, NULL }
 };
@@ -1305,55 +1436,79 @@ static const value_string pn_io_module_state[] = {
 };
 
 static const value_string pn_io_arproperties_state[] = {
-	{ 0x00000000, "Backup" },
-	{ 0x00000001, "Primary" },
-    /*0x00000002 - 0x00000007 reserved */
+    { 0x00000000, "Reserved" },
+    { 0x00000001, "Active" },
+    { 0x00000002, "reserved" },
+    { 0x00000003, "reserved" },
+    { 0x00000004, "reserved" },
+    { 0x00000005, "reserved" },
+    { 0x00000006, "reserved" },
+    { 0x00000007, "reserved" },
     { 0, NULL }
 };
 
 static const value_string pn_io_arproperties_supervisor_takeover_allowed[] = {
-	{ 0x00000000, "not allowed" },
-	{ 0x00000001, "allowed" },
+    { 0x00000000, "not allowed" },
+    { 0x00000001, "allowed" },
     { 0, NULL }
 };
 
 static const value_string pn_io_arproperties_parametrization_server[] = {
-	{ 0x00000000, "External PrmServer" },
-	{ 0x00000001, "CM Initiator" },
+    { 0x00000000, "External PrmServer" },
+    { 0x00000001, "CM Initiator" },
+    { 0, NULL }
+};
+/* BIT 8 */
+static const value_string pn_io_arproperties_DeviceAccess[] = {
+    { 0x00000000, "Only the submodules from the ExpectedSubmoduleBlock are accessible" },
+    { 0x00000001, "Submodule access is controlled by IO device application" },
     { 0, NULL }
 };
 
-static const value_string pn_io_arproperties_data_rate[] = {
-	{ 0x00000000, "at least 100 MB/s or more" },
-	{ 0x00000001, "100 MB/s" },
-	{ 0x00000002, "1 GB/s" },
-	{ 0x00000003, "10 GB/s" },
-    { 0, NULL }
-};
-
-static const value_string pn_io_arproperties_device_access[] = {
-	{ 0x00000000, "only submodules from ExtendedSubmoduleBlock" },
-	{ 0x00000001, "Submodule is controlled by IO device appl." },
-    { 0, NULL }
-};
-
+/* Bit 9 - 10 */
 static const value_string pn_io_arproperties_companion_ar[] = {
-	{ 0x00000000, "Single AR or second AR of a companion pair" },
+    { 0x00000000, "Single AR" },
 	{ 0x00000001, "First AR of a companion pair and a companion AR shall follow" },
 	{ 0x00000002, "Companion AR" },
 	{ 0x00000003, "Reserved" },
     { 0, NULL }
 };
+/* REMOVED with 2.3 
+static const value_string pn_io_arproperties_data_rate[] = {
+    { 0x00000000, "at least 100 MB/s or more" },
+    { 0x00000001, "100 MB/s" },
+    { 0x00000002, "1 GB/s" },
+    { 0x00000003, "10 GB/s" },
+    { 0, NULL }
+};
+*/
 
+/* BIT 11 */
 static const value_string pn_io_arproperties_acknowldege_companion_ar[] = {
-	{ 0x00000000, "No companion AR or no acknowledge for the companion AR required" },
-	{ 0x00000001, "Companion AR with acknowledge" },
+    { 0x00000000, "No companion AR or no acknowledge for the companion AR required" },
+    { 0x00000001, "Companion AR with acknowledge" },
     { 0, NULL }
 };
 
+/* bit 30 */
+static const value_string pn_io_arpropertiesStartupMode[] = {
+    { 0x00000000, "Legacy" },
+    { 0x00000001, "Advanced" },
+    { 0, NULL }
+};
+
+/* bit 31 */
 static const value_string pn_io_arproperties_pull_module_alarm_allowed[] = {
 	{ 0x00000000, "AlarmType(=Pull) shall signal pulling of submodule and module" },
 	{ 0x00000001, "AlarmType(=Pull) shall signal pulling of submodule" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_RedundancyInfo[] = {
+	{ 0x00000000, "Reserved" },
+	{ 0x00000001, "The delivering node is the left or below one" },
+	{ 0x00000002, "The delivering node is the right or above one" },
+	{ 0x00000003, "Reserved" },
     { 0, NULL }
 };
 
@@ -1364,6 +1519,18 @@ static const value_string pn_io_iocr_properties_rtclass[] = {
 	{ 0x00000003, "RT_CLASS_3" },
 	{ 0x00000004, "RT_CLASS_UDP" },
     /*0x00000005 - 0x00000007 reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_sr_properties_BackupAR[] = {
+    { 0x00000000, "The device may deliver valid input data" },
+    { 0x00000001, "The device shall deliver valid input data" },
+    { 0, NULL }
+};
+
+static const value_string pn_io_sr_properties_ActivateRedundancyAlarm[] = {
+    { 0x00000000, "The device shall not send Redundancy alarm" },
+    { 0x00000001, "The device shall send Redundancy alarm" },
     { 0, NULL }
 };
 
@@ -1461,7 +1628,7 @@ static const value_string pn_io_submodule_state_ar_info[] = {
 	{ 0x0001, "ApplicationReadyPending (ARP)" },
 	{ 0x0002, "Superordinated Locked (SO)" },
 	{ 0x0003, "Locked By IO Controller (IOC)" },
-	{ 0x0004, "Locked By IO Supervisor (IOS)" },
+    { 0x0004, "Locked By IO Supervisor (IOS)" },
     /*0x0005 - 0x000F reserved */
     { 0, NULL }
 };
@@ -1485,6 +1652,14 @@ static const value_string pn_io_submodule_state_detail[] = {
 	{ 0x0006, "reserved" },
 	{ 0x0007, "Substitute" },
     /*0x0008 - 0x7FFF reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_substitutionmode[] = {
+    { 0x0000, "ZERO" },
+    { 0x0001, "Last value" },
+    { 0x0002, "Replacement value" },
+    /*0x0003 - 0xFFFF reserved */
     { 0, NULL }
 };
 
@@ -1560,6 +1735,8 @@ static const value_string pn_io_index[] = {
 	{ 0x8062, "PDPortFODataAdjust for one subslot" },
     /*0x8063 - 0x806F reserved */
 	{ 0x8070, "PDNCDataCheck for one subslot" },
+	{ 0x8071, "PDInterfaceAdjust for one subslot" },
+	{ 0x8072, "PDPortStatistic for one subslot" },
     /*0x8071 - 0x807F reserved */
 	{ 0x8080, "PDInterfaceDataReal" },
     /*0x8081 - 0x808F reserved */
@@ -1582,12 +1759,65 @@ static const value_string pn_io_index[] = {
 	{ 0xAFFE, "I&M14" },
 	{ 0xAFFF, "I&M15" },
     /*0xB000 - 0xB02D reserved for profiles */
-    
-	/* PROFIDrive */
+    { 0xB000, "Sync-Log / RTA SyncID 0 (GSY)" },
+    { 0xB001, "Sync-Log / RTA SyncID 1 (GSY)" },
+    { 0xB002, "reserved for profiles" },
+    { 0xB003, "reserved for profiles" },
+    { 0xB004, "reserved for profiles" },
+    { 0xB005, "reserved for profiles" },
+    { 0xB006, "reserved for profiles" },
+    { 0xB007, "reserved for profiles" },
+    { 0xB008, "reserved for profiles" },
+    { 0xB009, "reserved for profiles" },
+    { 0xB00A, "reserved for profiles" },
+    { 0xB00B, "reserved for profiles" },
+    { 0xB00C, "reserved for profiles" },
+    { 0xB00D, "reserved for profiles" },
+    { 0xB00E, "reserved for profiles" },
+    { 0xB00F, "reserved for profiles" },
+    { 0xB010, "reserved for profiles" },
+    { 0xB011, "reserved for profiles" },
+    { 0xB012, "reserved for profiles" },
+    { 0xB013, "reserved for profiles" },
+    { 0xB014, "reserved for profiles" },
+    { 0xB015, "reserved for profiles" },
+    { 0xB016, "reserved for profiles" },
+    { 0xB017, "reserved for profiles" },
+    { 0xB018, "reserved for profiles" },
+    { 0xB019, "reserved for profiles" },
+    { 0xB01A, "reserved for profiles" },
+    { 0xB01B, "reserved for profiles" },
+    { 0xB01C, "reserved for profiles" },
+    { 0xB01D, "reserved for profiles" },
+    { 0xB01E, "reserved for profiles" },
+    { 0xB01F, "reserved for profiles" },
+    { 0xB020, "reserved for profiles" },
+    { 0xB001, "reserved for profiles" },
+    { 0xB022, "reserved for profiles" },
+    { 0xB023, "reserved for profiles" },
+    { 0xB024, "reserved for profiles" },
+    { 0xB025, "reserved for profiles" },
+    { 0xB026, "reserved for profiles" },
+    { 0xB027, "reserved for profiles" },
+    { 0xB028, "reserved for profiles" },
+    { 0xB029, "reserved for profiles" },
+    { 0xB02A, "reserved for profiles" },
+    { 0xB02B, "reserved for profiles" },
+    { 0xB02C, "reserved for profiles" },
+    { 0xB02D, "reserved for profiles" },
+    /* PROFIDrive */
     { 0xB02E, "PROFIDrive Parameter Access - Local"},
     { 0xB02F, "PROFIDrive Parameter Access - Global"},
         
     /*0xB030 - 0xBFFF reserved for profiles */
+    { 0xB050, "Ext-PLL Control / RTC+RTA SyncID 0 (EDD)" },
+    { 0xB051, "Ext-PLL Control / RTA SyncID 1 (GSY)" },
+
+    { 0xB060, "EDD Trace Unit (EDD" },
+    { 0xB061, "EDD Trace Unit (EDD" },
+
+    { 0xB070, "OHA Info (OHA)" },
+
 
     /* slot specific */
 	{ 0xC000, "ExpectedIdentificationData for one slot" },
@@ -1659,7 +1889,6 @@ static const value_string pn_io_index[] = {
     { 0xF850, "AutoConfigurarion" },
     /*0xF851 - 0xFBFF reserved */
     /*0xFC00 - 0xFFFF reserved for profiles */
-
     { 0, NULL }
 };
 
@@ -1720,9 +1949,172 @@ static const value_string pn_io_channel_error_type[] = {
 	{ 0x8007, "Fiber optic mismatch" },
 	{ 0x8008, "Network component function mismatch" },
 	{ 0x8009, "Time mismatch" },
-    /*0x800A - 0x8FFF reserved */
+    /* added values for IEC version 2.3: */
+    { 0x800A, "Dynamic frame packing function mismatch" },
+    { 0x800B, "Media redundancy with planned duplication mismatch"},
+    { 0x800C, "System redundancy mismatch"},
+    /* ends */
+    /*0x800D - 0x8FFF reserved */
     /*0x9000 - 0x9FFF reserved for profile */
     /*0xA000 - 0xFFFF reserved */
+    { 0, NULL }
+};
+    /* ExtChannelErrorType for ChannelErrorType 0 - 0x7FFF */
+
+static const value_string pn_io_ext_channel_error_type0[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,	"Accumulative Info"},
+    /* 0x8001 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+
+    /* ExtChannelErrorType for ChannelErrorType “Data transmission impossible” */
+static const value_string pn_io_ext_channel_error_type0x8000[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Link State mismatch – Link down"},
+    { 0x8001,   "MAUType mismatch"},
+    { 0x8002,   "Line Delay mismatch"},
+    /* 0x8003 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Remote mismatch” */
+static const value_string pn_io_ext_channel_error_type0x8001[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Peer Chassis ID mismatch"},
+    { 0x8001,   "Peer Port ID mismatch"},
+    { 0x8002,   "Peer RT_CLASS_3 mismatch a"},
+    { 0x8003,   "Peer MAUType mismatch"},
+    { 0x8004,   "Peer MRP domain mismatch"},
+    { 0x8005,   "No peer detected"},
+    { 0x8006,   "Reserved"},
+    { 0x8007,   "Peer Line Delay mismatch"},
+    { 0x8008,   "Peer PTCP mismatch b"},
+    { 0x8009,   "Peer Preamble Length mismatch"},
+    { 0x800A,   "Peer Fragmentation mismatch"},
+    /* 0x800B – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Media redundancy mismatch" 0x8002 */
+static const value_string pn_io_ext_channel_error_type0x8002[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Manager role fail"},
+    { 0x8001,   "MRP ring open"},
+    { 0x8002,   "Reserved"},
+    { 0x8003,   "Multiple mananger"},
+    /* 0x8004 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Sync mismatch” and for ChannelErrorType “Time mismatch” 0x8003 and 0x8009*/
+static const value_string pn_io_ext_channel_error_type0x8003[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "No sync message received"},
+    { 0x8001,   "– 0x8002	Reserved"},
+    { 0x8003,   "Jitter out of boundary"},
+    /* 0x8004 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /*ExtChannelErrorType for ChannelErrorType “Isochronous mode mismatch” 0x8004 */
+static const value_string pn_io_ext_channel_error_type0x8004[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Output Time Failure – Output update missing or out of order"},
+    { 0x8001,   "Input Time Failure"},
+    { 0x8002,   "Master Life Sign Failure – Error in MLS update detected"},
+    /* 0x8003 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Multicast CR mismatch” 0x8005 */
+static const value_string pn_io_ext_channel_error_type0x8005[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Multicast Consumer CR timed out"},
+    { 0x8001,   "Address resolution failed"},
+    /* 0x8002 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Fiber optic mismatch” 0x8007*/
+static const value_string pn_io_ext_channel_error_type0x8007[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Power Budget"},
+    /* 0x8001 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Network component function mismatch” 0x8008 */
+static const value_string pn_io_ext_channel_error_type0x8008[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "Frame dropped – no resource"},
+    /* 0x8001 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Dynamic Frame Packing function mismatch” 0x800A */
+static const value_string pn_io_ext_channel_error_type0x800A[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    /* 0x8000 – 0x80FF	Reserved */
+    { 0x8100,   "Frame late error for FrameID “0x0100”"},
+    /* 0x8101 + 0x8FFE	See Equation (56) */    
+    { 0x8FFF,	"Frame late error for FrameID “0x0FFF”"},
+    /* 0x8001 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “Media redundancy with planned duplication mismatch” 0x800B */
+static const value_string pn_io_ext_channel_error_type0x800B[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    /* 0x8000 – 0x86FF	Reserved */
+    { 0x8700,   "MRPD duplication void for FrameID “0x0700”"},
+    /* 0x8701 + 0x8FFE	See Equation (57) */
+    { 0x8FFF,   "MRPD duplication void for FrameID “0x0FFF”"},
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
+    { 0, NULL }
+};
+
+    /* ExtChannelErrorType for ChannelErrorType “System redundancy mismatch” 0x800C */
+static const value_string pn_io_ext_channel_error_type0x800C[] = {
+    /* 0x0000	Reserved */
+    /* 0x0001 – 0x7FFF	Manufacturer specific */
+    { 0x8000,   "System redundandancy event"},
+    /* 0x8001 – 0x8FFF	Reserved */
+    /* 0x9000 – 0x9FFF	Reserved for profiles */
+    /* 0xA000 – 0xFFFF	Reserved */
     { 0, NULL }
 };
 
@@ -1736,6 +2128,14 @@ static const value_string pn_io_channel_properties_type[] = {
 	{ 0x0006, "32 Bit" },
 	{ 0x0007, "64 Bit" },
     /*0x0008 - 0x00FF reserved */
+    { 0, NULL }
+};
+
+static const value_string pn_io_channel_properties_maintenance[] = {
+    { 0x0000, "Diagnosis" },
+    { 0x0001, "Maintenance required" },
+    { 0x0002, "Maintenance demanded" },
+    { 0x0003, "Qualified diagnosis" },
     { 0, NULL }
 };
 
@@ -1794,6 +2194,13 @@ static const value_string pn_io_mau_type[] = {
     { 0, NULL }
 };
 
+
+static const value_string pn_io_preamble_length[] = {
+    { 0x0000, "Seven octets Preamble shall be used" },
+    { 0x0001, "One octet Preamble shall be used" },
+    /*0x0002 - 0xFFFF reserved */
+    { 0, NULL }
+};
 
 static const value_string pn_io_mau_type_mode[] = {
 	{ 0x0000, "OFF" },
@@ -2034,6 +2441,7 @@ typedef struct pnio_ar_s {
     /* device only */
     const guint8    devicemac[6];
     guint16         devicealarmref;
+    guint16         arType;
 } pnio_ar_t;
 
 
@@ -2083,6 +2491,9 @@ pnio_ar_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pnio_ar_t *ar)
 
 static int dissect_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep, guint16 *u16Index, guint32 *u32RecDataLen, pnio_ar_t **ar);
+
+static int dissect_a_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, guint8 *drep);
 
 static int dissect_blocks(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, guint8 *drep);
@@ -2154,7 +2565,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
 
 
     /* status */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_status, tvb, offset, 0, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_status, tvb, offset, 0, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_status);
     u32SubStart = offset;
 
@@ -2396,7 +2807,7 @@ dissect_Alarm_specifier(tvbuff_t *tvb, int offset,
 	proto_tree *sub_tree;
 
     /* alarm specifier */
-	sub_item = proto_tree_add_item(tree, hf_pn_io_alarm_specifier, tvb, offset, 2, FALSE);
+	sub_item = proto_tree_add_item(tree, hf_pn_io_alarm_specifier, tvb, offset, 2, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_pdu_type);
 
 	dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -2464,16 +2875,20 @@ dissect_ChannelProperties(tvbuff_t *tvb, int offset,
     guint16 u16ChannelProperties;
 
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_channel_properties, tvb, offset, 2, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_channel_properties, tvb, offset, 2, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_channel_properties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_direction, &u16ChannelProperties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_specifier, &u16ChannelProperties);
+/* replaced with 2 bit values
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_maintenance_demanded, &u16ChannelProperties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_maintenance_required, &u16ChannelProperties);
+*/
+    dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
+                    hf_pn_io_channel_properties_maintenance, &u16ChannelProperties);
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_channel_properties_accumulative, &u16ChannelProperties);
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -2514,8 +2929,72 @@ dissect_AlarmUserStructure(tvbuff_t *tvb, int offset,
 
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_channel_error_type, &u16ChannelErrorType);
-        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+
+        if(u16ChannelErrorType < 0x7fff)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8000)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8000, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8001)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8001, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8002)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8002, &u16ExtChannelErrorType);
+        }
+        else if((u16ChannelErrorType == 0x8003)||(u16ChannelErrorType == 0x8009))
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8003, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8004)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8004, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8005)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8005, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8007)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8007, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x8008)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x8008, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x800A)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x800A, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x800B)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x800B, &u16ExtChannelErrorType);
+        }
+        else if(u16ChannelErrorType == 0x800C)
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_ext_channel_error_type0x800C, &u16ExtChannelErrorType);
+        }
+        else
+        {
+            offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ext_channel_error_type, &u16ExtChannelErrorType);
+        }
         offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ext_channel_add_value, &u32ExtChannelAddValue);
         *body_length -= 12;
@@ -2810,7 +3289,7 @@ dissect_IandM0FilterData_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_number_of_modules, &u16NumberOfModules);
 
         while(u16NumberOfModules--) {
-            module_item = proto_tree_add_item(tree, hf_pn_io_subslot, tvb, offset, 6, FALSE);
+            module_item = proto_tree_add_item(tree, hf_pn_io_subslot, tvb, offset, 6, ENC_BIG_ENDIAN);
             module_tree = proto_item_add_subtree(module_item, ett_pn_io_module);
 
             u32ModuleStart = offset;
@@ -2829,7 +3308,7 @@ dissect_IandM0FilterData_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u32ModuleIdentNumber, u16NumberOfSubmodules);
 
             while(u16NumberOfSubmodules--) {
-                subslot_item = proto_tree_add_item(module_tree, hf_pn_io_subslot, tvb, offset, 6, FALSE);
+                subslot_item = proto_tree_add_item(module_tree, hf_pn_io_subslot, tvb, offset, 6, ENC_BIG_ENDIAN);
                 subslot_tree = proto_item_add_subtree(subslot_item, ett_pn_io_subslot);
 
                 /* SubslotNumber */
@@ -2899,7 +3378,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(item, ", Slots:%u", u16NumberOfSlots);
 
         while(u16NumberOfSlots--) {
-            slot_item = proto_tree_add_item(tree, hf_pn_io_slot, tvb, offset, 0, FALSE);
+            slot_item = proto_tree_add_item(tree, hf_pn_io_slot, tvb, offset, 0, ENC_BIG_ENDIAN);
             slot_tree = proto_item_add_subtree(slot_item, ett_pn_io_slot);
             u32SlotStart = offset;
 
@@ -2917,7 +3396,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u32ModuleIdentNumber, u16NumberOfSubslots);
 
             while(u16NumberOfSubslots--) {
-                subslot_item = proto_tree_add_item(slot_tree, hf_pn_io_subslot, tvb, offset, 6, FALSE);
+                subslot_item = proto_tree_add_item(slot_tree, hf_pn_io_subslot, tvb, offset, 6, ENC_BIG_ENDIAN);
 	            subslot_tree = proto_item_add_subtree(subslot_item, ett_pn_io_subslot);
 
                 /* SubslotNumber */
@@ -2955,7 +3434,7 @@ dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
 
     /* SubstitutionMode */
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_subslot_nr, &u16SubstitutionMode);
+                    hf_pn_io_substitutionmode, &u16SubstitutionMode);
 
 
     /* SubstituteDataItem */
@@ -2963,7 +3442,7 @@ dissect_SubstituteValue_block(tvbuff_t *tvb, int offset,
     offset = dissect_PNIO_IOxS(tvb, offset, pinfo, tree, drep, hf_pn_io_iocs);
     u16BodyLength -= 3;
     /* SubstituteDataObjectElement */
-    dissect_pn_user_data(tvb, offset, pinfo, tree, u16BodyLength, "SubstituteDataObjectElement");
+    dissect_pn_user_data_bytes(tvb, offset, pinfo, tree, u16BodyLength, "SubstituteDataObjectElement");
 
     return offset;
 }
@@ -3093,7 +3572,7 @@ dissect_Maintenance_block(tvbuff_t *tvb, int offset,
 
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_maintenance_status, tvb, offset, 4, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_maintenance_status, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_maintenance_status);
 
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
@@ -3376,7 +3855,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_reserved16, NULL);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_control_command, tvb, offset, 2, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_control_command, tvb, offset, 2, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_command);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -3394,7 +3873,7 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
 
     if(u16Command & 0x0002) {
         /* ApplicationReady: special decode */
-        sub_item = proto_tree_add_item(tree, hf_pn_io_control_block_properties_applready, tvb, offset, 2, FALSE);
+        sub_item = proto_tree_add_item(tree, hf_pn_io_control_block_properties_applready, tvb, offset, 2, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_control_block_properties);
         offset = dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
                             hf_pn_io_control_block_properties_applready0, &u16Properties);
@@ -3431,6 +3910,84 @@ dissect_ControlConnect_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the ControlBlockPrmBegin block */
+static int
+dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint32 u32RecDataLen,
+    pnio_ar_t **ar)
+{
+    e_uuid_t    ar_uuid;
+    guint16     u16SessionKey;
+    guint16     u16Command;
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    if(u32RecDataLen != 28-2) /* must be 28 see specification (version already dissected) */
+    {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block length of %u is invalid!", u32RecDataLen);
+        return offset;
+    }
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* ARUUID */
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_uuid, &ar_uuid);
+
+    *ar = pnio_ar_find_by_aruuid(pinfo, &ar_uuid);
+    if(*ar == NULL) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_NOTE, "ControlBlockPrmBegin: AR information not found! (partial capture?)");
+    }
+    /* SessionKey */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_sessionkey, &u16SessionKey);
+
+	offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* ControlCommand */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_control_command, &u16Command);
+	if(u16Command == 0x40)
+	{
+		proto_item_append_text(item, " PrmBegin");
+	}
+
+    /* ControlBlockProperties.reserved */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_control_command_reserved, NULL);
+    return offset;
+}
+
+/* dissect the SubmoduleListBlock  block */
+static int
+dissect_SubmoduleListBlock(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint32 u32RecDataLen,
+    pnio_ar_t **ar)
+{
+    guint16     u16Entries;
+    guint32     u32API;
+    guint16     u16SlotNumber;
+    guint16     u16SubSlotNumber;
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_SubmoduleListEntries, &u16Entries);
+
+    while (u16Entries --)
+    {
+        /*API */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_api, &u32API);
+        /*SlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_slot_nr, &u16SlotNumber);
+        /* SubSlotNumber */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_subslot_nr, &u16SubSlotNumber);
+    }
+    return offset;
+}
+
 
 /* dissect the PDevData block */
 static int
@@ -3451,10 +4008,77 @@ dissect_PDevData_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-
-/* dissect the PDPortDataCheck/PDPortDataAdjust blocks */
+/* dissect the AdjustPreambleLength block */
 static int
-dissect_PDPortData_Check_Adjust_block(tvbuff_t *tvb, int offset,
+dissect_AdjustPreambleLength_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16 u16AdjustProperties;
+    guint16  u16PreambleLength;
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* PreambleLength */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_PreambleLength, &u16PreambleLength);
+
+
+    /* AdjustProperties */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+        hf_pn_io_adjust_properties, &u16AdjustProperties);
+
+    return offset;
+}
+
+/* dissect the PDPortDataAdjust block */
+static int
+dissect_PDPortData_Adjust_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+    guint16 u16BodyLength)
+{
+    guint16 u16SlotNr;
+    guint16 u16SubslotNr;
+    tvbuff_t *new_tvb;
+
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    /* SlotNumber */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_slot_nr, &u16SlotNr);
+    /* Subslotnumber */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_subslot_nr, &u16SubslotNr);
+
+    proto_item_append_text(item, ": Slot:0x%x/0x%x", u16SlotNr, u16SubslotNr);
+
+    u16BodyLength -= 6;
+
+    new_tvb = tvb_new_subset(tvb, offset, u16BodyLength, u16BodyLength);
+    dissect_blocks(new_tvb, 0, pinfo, tree, drep);
+    offset += u16BodyLength;
+
+    /* XXX - do we have to free the new_tvb somehow? */
+
+    return offset;
+}
+
+
+/* dissect the PDPortDataCheck blocks */
+static int
+dissect_PDPortData_Check_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
 	guint16 u16BodyLength)
 {
@@ -3616,12 +4240,13 @@ dissect_PDPortDataReal_block(tvbuff_t *tvb, int offset,
 
 static int
 dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BodyLength)
 {
     e_uuid_t uuid;
     guint16 u16Role;
     guint8 u8LengthDomainName;
     char *pDomainName;
+    int iStartOffset = offset;
 
 
 	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
@@ -3654,25 +4279,27 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-
-    offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
-
+    if((offset - iStartOffset) < u16BodyLength) 
+    {
+        offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
+    }
     return offset;
 }
 
 
 static int
 dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+    packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,guint16 u16BodyLength)
 {
     e_uuid_t uuid;
     guint16 u16Role;
     guint16 u16Version;
     guint8 u8LengthDomainName;
     char *pDomainName;
+    int endoffset = offset + u16BodyLength;
 
-
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+    /* added blockversion 1 */
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -3688,6 +4315,11 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_role, &u16Role);
 
+    if(u8BlockVersionLow == 1){
+        /* MRP_Version */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_mrp_version, &u16Version);
+    }
     /* MRP_LengthDomainName */
     offset = dissect_dcerpc_uint8(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_mrp_length_domain_name, &u8LengthDomainName);
@@ -3698,15 +4330,18 @@ dissect_PDInterfaceMrpDataReal_block(tvbuff_t *tvb, int offset,
     proto_tree_add_string (tree, hf_pn_io_mrp_domain_name, tvb, offset, u8LengthDomainName, pDomainName);
     offset += u8LengthDomainName;
 
-    /* MRP_Version */
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
-                    hf_pn_io_mrp_version, &u16Version);
-
-	/* Padding */
+    if(u8BlockVersionLow == 0){
+        /* MRP_Version */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+            hf_pn_io_mrp_version, &u16Version);
+    }
+    /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
-    offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
-
+    while(endoffset < offset)
+    {
+        offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+    }
     return offset;
 }
 
@@ -3816,7 +4451,7 @@ dissect_MrpRTMode(tvbuff_t *tvb, int offset,
 
 
     /* MRP_RTMode */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_mrp_rtmode, tvb, offset, 4, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_mrp_rtmode, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_mrp_rtmode);
 
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
@@ -3967,7 +4602,7 @@ dissect_CheckSyncDifference_block(tvbuff_t *tvb, int offset,
         return offset;
 	}
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_check_sync_mode, tvb, offset, 2, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_check_sync_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_check_sync_mode);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -4476,6 +5111,39 @@ dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* PDPortStatistic for one subslot */
+static int
+dissect_PDPortStatistic_block(tvbuff_t *tvb, int offset,
+ packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint32     u32StatValue;
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    /* Padding */
+    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_pdportstatistic_ifInOctets, &u32StatValue);
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_pdportstatistic_ifOutOctets, &u32StatValue);
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_pdportstatistic_ifInDiscards, &u32StatValue);
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_pdportstatistic_ifOutDiscards, &u32StatValue);
+
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_pdportstatistic_ifInErrors, &u32StatValue);
+    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_pdportstatistic_ifOutErrors, &u32StatValue);
+
+    return offset;
+}
+
 
 /* dissect the PDInterfaceDataReal block */
 static int
@@ -4679,8 +5347,8 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
     guint32 u32RecDataLen;
     pnio_ar_t *ar = NULL;
 
-
-	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1) ) {
+    /* versions decoded are High: 1 and LOW 0..2 */
+    if(u8BlockVersionHigh != 1 || (u8BlockVersionLow > 2 ) ) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -4700,16 +5368,20 @@ dissect_PDIRData_block(tvbuff_t *tvb, int offset,
 
     /* PDIRGlobalData */
     offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
-	if(u8BlockVersionLow != 1) {
+    if(u8BlockVersionLow == 0) {
 		/* PDIRFrameData */
 		offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
-	} else {
+    } else if (u8BlockVersionLow == 1) {
 		/* [PDIRFrameData] */
 		offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
 		/* PDIRBeginEndData */
 		offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
-	}
-
+    }else if (u8BlockVersionLow == 2) {
+        /* [PDIRFrameData] */
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+        /* PDIRBeginEndData */
+        offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+    }
     return offset;
 }
 
@@ -4724,10 +5396,12 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
 	guint32 u32NumberOfPorts;
 	guint32 u32MaxPortTxDelay;
 	guint32 u32MaxPortRxDelay;
+    guint32 u32MaxLineRxDelay;
+    guint32 u32YellowTime;
 	guint32 u32Tmp;
 
-
-	if(u8BlockVersionHigh != 1 || (u8BlockVersionLow != 0 && u8BlockVersionLow != 1)) {
+    /* added blockversion 2 */
+    if(u8BlockVersionHigh != 1 || (u8BlockVersionLow > 2)) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -4739,29 +5413,35 @@ dissect_PDIRGlobalData_block(tvbuff_t *tvb, int offset,
     offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_ir_data_id, &uuid);
 
-	if(u8BlockVersionLow == 1) {
-		/* MaxBridgeDelay */
-	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+    if(u8BlockVersionLow <= 2) {
+        /* MaxBridgeDelay */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                                      hf_pn_io_max_bridge_delay, &u32MaxBridgeDelay);
-		/* NumberOfPorts */
-	    offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+        /* NumberOfPorts */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
                                      hf_pn_io_number_of_ports, &u32NumberOfPorts);
-		u32Tmp = u32NumberOfPorts;
+        u32Tmp = u32NumberOfPorts;
 
-		while(u32Tmp--) {
-			/* MaxPortTxDelay */
-			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-										 hf_pn_io_max_port_tx_delay, &u32MaxPortTxDelay);
-			/* MaxPortRxDelay */
-			offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-										 hf_pn_io_max_port_rx_delay, &u32MaxPortRxDelay);
-		}
-
+        while(u32Tmp--) {
+            /* MaxPortTxDelay */
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                                         hf_pn_io_max_port_tx_delay, &u32MaxPortTxDelay);
+            /* MaxPortRxDelay */
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                                         hf_pn_io_max_port_rx_delay, &u32MaxPortRxDelay);
+            if (u8BlockVersionLow >= 2){
+                /* MaxLineRxDelay */
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_max_line_rx_delay, &u32MaxLineRxDelay);
+                /* YellowTime */
+                offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                    hf_pn_io_yellowtime, &u32YellowTime);
+            }
+        }
 		proto_item_append_text(item, ": MaxBridgeDelay:%u, NumberOfPorts:%u",
 							 u32MaxBridgeDelay, u32NumberOfPorts);
 
 	}
-
     return offset;
 }
 
@@ -4773,6 +5453,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
 	guint16 u16BodyLength)
 {
     guint32 u32FrameSendOffset;
+    guint32 u32FrameDataProperties;
     guint16 u16DataLength;
     guint16 u16ReductionRatio;
     guint16 u16Phase;
@@ -4781,15 +5462,17 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     guint8 u8RXPort;
     guint8 u8FrameDetails;
     guint8 u8NumberOfTxPortGroups;
-    guint16  u16EndOffset;
+    guint8 u8TxPortGroupArray;
+    guint16 u16TxPortGroupArraySize;
+    guint16 u16EndOffset;
     proto_tree *ir_frame_data_tree = NULL;
     proto_item *ir_frame_data_sub_item = NULL;
 	guint16 n=0;
 	proto_item *sub_item;
 	proto_tree *sub_tree;
 
-
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+    /* added low version 1 */
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
@@ -4798,14 +5481,18 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
     u16EndOffset = offset + u16BodyLength -2;
-
+    if(u8BlockVersionLow > 0){
+        /* for low version 1 FrameDataProperties is added */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, ir_frame_data_tree, drep,
+            hf_pn_io_frame_data_properties, &u32FrameDataProperties);
+    }
     /* dissect all IR frame data */
     while (offset < u16EndOffset)
     {
 	  n++;
 
      /* new subtree for each IR frame */
-      ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, FALSE);
+      ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, ENC_BIG_ENDIAN);
       ir_frame_data_tree = proto_item_add_subtree(ir_frame_data_sub_item, ett_pn_io_ir_frame_data);
 
       /* FrameSendOffset */
@@ -4831,7 +5518,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
     	offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                     hf_pn_io_rx_port, &u8RXPort);
       /* FrameDetails */
-        sub_item = proto_tree_add_item(ir_frame_data_tree, hf_pn_io_frame_details, tvb, offset, 1, FALSE);
+        sub_item = proto_tree_add_item(ir_frame_data_tree, hf_pn_io_frame_details, tvb, offset, 1, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_frame_defails);
         dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_frame_details_sync_frame, &u8FrameDetails);
@@ -4840,8 +5527,30 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
         offset = dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_frame_details_reserved, &u8FrameDetails);
       /* TxPortGroup */
-	    offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
+        offset = dissect_dcerpc_uint8(tvb, offset, pinfo, ir_frame_data_tree, drep,
                                     hf_pn_io_nr_of_tx_port_groups, &u8NumberOfTxPortGroups);
+        if((u8NumberOfTxPortGroups > 21) || ((u8NumberOfTxPortGroups & 0x1) !=1)){
+            proto_tree_add_text(ir_frame_data_tree, tvb, offset -1, 1, "Not allowed value of NumberOfTxPortGroups");
+        }
+
+      /* TxPortArray */
+        u16TxPortGroupArraySize =  (u8NumberOfTxPortGroups + 7 / 8); 
+        sub_item = proto_tree_add_item(ir_frame_data_tree, hf_pn_io_TxPortGroupProperties, tvb, offset, u16TxPortGroupArraySize, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_GroupProperties);
+        while(u16TxPortGroupArraySize > 0)
+        {
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit0, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit1, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit2, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit3, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit4, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit5, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit6, &u8TxPortGroupArray);
+            dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep, hf_pn_io_TxPortGroupProperties_bit7, &u8TxPortGroupArray);
+
+            offset+=1;
+            u16TxPortGroupArraySize --;
+        }
 
       /* align to next dataset */
       offset = dissect_pn_align4(tvb, offset, pinfo, ir_frame_data_tree);
@@ -4897,7 +5606,7 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
 	u32Tmp2 = u32NumberOfPorts;
     while(u32Tmp2--) {
 		/* new subtree for each Port */
-		ir_begin_end_port_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_begin_end_port, tvb, offset, 0, FALSE);
+		ir_begin_end_port_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_begin_end_port, tvb, offset, 0, ENC_BIG_ENDIAN);
 		ir_begin_end_port_tree = proto_item_add_subtree(ir_begin_end_port_sub_item, ett_pn_io_ir_begin_end_port);
 		u32SubStart = offset;
 
@@ -5009,11 +5718,13 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
         guint32 u32ARProperties;
 
 
-	sub_item = proto_tree_add_item(tree, hf_pn_io_ar_properties, tvb, offset, 4, FALSE);
+	sub_item = proto_tree_add_item(tree, hf_pn_io_ar_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_ar_properties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_pull_module_alarm_allowed, &u32ARProperties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+                        hf_pn_io_arproperties_StartupMode, &u32ARProperties);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_reserved, &u32ARProperties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_achnowledge_companion_ar, &u32ARProperties);
@@ -5023,8 +5734,10 @@ dissect_ARProperties(tvbuff_t *tvb, int offset,
                         hf_pn_io_ar_properties_device_access, &u32ARProperties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_reserved_1, &u32ARProperties);
-	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
+/* removed within 2.3
+    dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_data_rate, &u32ARProperties);
+*/
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_ar_properties_parametrization_server, &u32ARProperties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
@@ -5045,7 +5758,7 @@ dissect_IOCRProperties(tvbuff_t *tvb, int offset,
     proto_tree *sub_tree;
     guint32 u32IOCRProperties;
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_iocr_properties, tvb, offset, 4, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_iocr_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_iocr_properties);
 	dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_iocr_properties_full_subframe_structure, &u32IOCRProperties);
@@ -5071,9 +5784,10 @@ dissect_IOCRProperties(tvbuff_t *tvb, int offset,
 /* dissect the ARData block */
 static int
 dissect_ARData_block(tvbuff_t *tvb, int offset,
-	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint16 u16BlockLength)
 {
     guint16 u16NumberOfARs;
+	guint16 u16NumberofEntries;
     e_uuid_t aruuid;
     e_uuid_t uuid;
     guint16 u16ARType;
@@ -5096,17 +5810,19 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
     proto_item *iocr_item;
     proto_tree *iocr_tree;
     guint32 u32IOCRStart;
+	gint32  i32EndOffset;
 
-
-	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+	/* added BlockversionLow == 1  */
+	if(u8BlockVersionHigh != 1 || u8BlockVersionLow > 1) {
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
 			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
         return offset;
 	}
-
+	i32EndOffset = offset + u16BlockLength;
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                     hf_pn_io_number_of_ars, &u16NumberOfARs);
-
+	/* BlockversionLow:  0 */ 
+	if(u8BlockVersionLow == 0){
     while(u16NumberOfARs--) {
         offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
                             hf_pn_io_ar_uuid, &aruuid);
@@ -5127,7 +5843,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
 
         while(u16NumberOfIOCRs--) {
-            iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, FALSE);
+            iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
             iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
             u32IOCRStart = offset;
 
@@ -5212,10 +5928,134 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_number_of_apis, &u16NumberOfAPIs);
         /* API */
-	offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
-                        hf_pn_io_api, &u32Api);
-    }
+        if (u16NumberOfAPIs > 0){
+            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep,
+                hf_pn_io_api, &u32Api);
+			}
+		}
+	}
+	else
+	{	/* BlockversionLow == 1 */ 
+		while(u16NumberOfARs--) {
+			/*ARUUID */
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_uuid, &aruuid);
+			/* CMInitiatorObjectUUID */
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_cminitiator_objectuuid, &uuid);
+			/* ParameterServerObjectUUID */
+			offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep, hf_pn_io_parameter_server_objectuuid, &uuid);
+			/* ARProperties*/
+			offset = dissect_ARProperties(tvb, offset, pinfo, tree, item, drep);
+			/* ARType*/
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_ar_type, &u16ARType);
+			/* AlarmCRType */
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_alarmcr_type, &u16AlarmCRType);
+			/* LocalAlarmReference */
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_localalarmref, &u16LocalAlarmReference);
+			/* RemoteAlarmReference */
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_remotealarmref, &u16RemoteAlarmReference);
+			/* InitiatorUDPRTPort*/
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cminitiator_udprtport, &u16UDPRTPort);
+			/* ResponderUDPRTPort*/
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_cmresponder_udprtport, &u16UDPRTPort);
+			/* CMInitiatorStationName*/
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_station_name_length, &u16NameLength);
+			pStationName = ep_alloc(u16NameLength+1);
+			tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
+			pStationName[u16NameLength] = '\0';
+			proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+			offset += u16NameLength;
+			/** align padding! **/
+			offset = dissect_pn_align4(tvb, offset, pinfo, tree);
 
+			/* StationNameLength */
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_station_name_length, &u16NameLength);
+			if(u16NameLength != 0){
+				/* ParameterServerStationName */
+				pStationName = ep_alloc(u16NameLength+1);
+				tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
+				pStationName[u16NameLength] = '\0';
+				proto_tree_add_string (tree, hf_pn_io_parameter_server_station_name, tvb, offset, u16NameLength, pStationName);
+				offset += u16NameLength;
+			}
+			/** align padding! **/
+			offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+
+			/* NumberOfIOCRs*/
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
+			/* align to next 32 bit */
+			offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+			while(u16NumberOfIOCRs--) {
+				iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+				iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
+				u32IOCRStart = offset;
+
+				/* IOCRProperties*/
+				offset = dissect_IOCRProperties(tvb, offset, pinfo, iocr_tree, drep);
+				/* IOCRType*/
+				offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep, hf_pn_io_iocr_type, &u16IOCRType);
+				/* FrameID*/
+				offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep, hf_pn_io_frame_id, &u16FrameID);
+				proto_item_append_text(iocr_item, ": FrameID:0x%x", u16FrameID);
+
+				/* add cycle counter */
+				offset = dissect_dcerpc_uint16(tvb, offset, pinfo, iocr_tree, drep,
+					hf_pn_io_cycle_counter, &u16CycleCounter);
+
+				u8DataStatus = tvb_get_guint8(tvb, offset);
+				u8TransferStatus = tvb_get_guint8(tvb, offset+1);
+
+				/* add data status subtree */
+				ds_item = proto_tree_add_uint_format(iocr_tree, hf_pn_io_data_status,
+					tvb, offset, 1, u8DataStatus,
+					"DataStatus: 0x%02x (Frame: %s and %s, Provider: %s and %s)",
+					u8DataStatus,
+					(u8DataStatus & 0x04) ? "Valid" : "Invalid",
+					(u8DataStatus & 0x01) ? "Primary" : "Backup",
+					(u8DataStatus & 0x20) ? "Ok" : "Problem",
+					(u8DataStatus & 0x10) ? "Run" : "Stop");
+				ds_tree = proto_item_add_subtree(ds_item, ett_pn_io_data_status);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res67, tvb, offset, 1, u8DataStatus);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_ok, tvb, offset, 1, u8DataStatus);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_operate, tvb, offset, 1, u8DataStatus);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res3, tvb, offset, 1, u8DataStatus);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_valid, tvb, offset, 1, u8DataStatus);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_res1, tvb, offset, 1, u8DataStatus);
+				proto_tree_add_uint(ds_tree, hf_pn_io_data_status_primary, tvb, offset, 1, u8DataStatus);
+
+				offset++;
+
+				/* add transfer status */
+				if (u8TransferStatus) {
+					proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+						offset, 1, u8TransferStatus,
+						"TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
+				} else {
+					proto_tree_add_uint_format(iocr_tree, hf_pn_io_transfer_status, tvb,
+						offset, 1, u8TransferStatus,
+						"TransferStatus: 0x%02x (OK)", u8TransferStatus);
+				}
+				offset++;
+			}
+			/* NumberOfAPIs */
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_apis, &u16NumberOfAPIs);
+			/* align to next 32 bit */
+			offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+			/* API */
+			if (u16NumberOfAPIs > 0){
+				offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_api, &u32Api);
+			}
+			/* get the number of subblocks an dissect them */
+			offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_number_of_ARDATAInfo, &u16NumberofEntries);
+
+			offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+			while ((offset < i32EndOffset) && (u16NumberofEntries > 0)){
+				offset = dissect_a_block(tvb, offset, pinfo, tree, drep);
+				u16NumberofEntries--;
+			}
+		}
+	}
     return offset;
 }
 
@@ -5247,7 +6087,25 @@ dissect_APIData_block(tvbuff_t *tvb, int offset,
 
     return offset;
 }
+/* dissect the SLRData block */
+static int
+dissect_SRLData_block(tvbuff_t *tvb, int offset,
+	packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint8 *drep _U_, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16 RedundancyInfo;
 
+	if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+			"Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+	}
+	/* bit 0 ..1  EndPoint1 and EndPoint2*/
+	dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_RedundancyInfo, &RedundancyInfo);
+	/* bit 2 .. 15 reserved */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_RedundancyInfo_reserved, &RedundancyInfo);
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+	return offset;
+}
 
 /* dissect the LogData block */
 static int
@@ -5381,7 +6239,7 @@ dissect_PDInterfaceFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 	}
 
     /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     u16BodyLength -= 2;
 
@@ -5410,7 +6268,7 @@ dissect_ARFSUDataAdjust_block(tvbuff_t *tvb, int offset,
 	}
 
     /* Padding */
-    offset = dissect_pn_align4(tvb, offset, pinfo, tree);
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
     u16BodyLength -= 2;
 
@@ -5484,6 +6342,7 @@ dissect_ARBlockReq_block(tvbuff_t *tvb, int offset,
     if(par == NULL) {
         par = pnio_ar_new(&aruuid);
         memcpy( (void *) (&par->controllermac), mac, sizeof(par->controllermac));
+        par->arType = u16ARType; /* store AR-type for filter generation */
         /*strncpy( (char *) (&par->controllername), pStationName, sizeof(par->controllername));*/
     } else {
         /*expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "ARBlockReq: AR already existing!");*/
@@ -5627,7 +6486,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         u16SendClockFactor, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
 
     while(u16NumberOfAPIs--) {
-        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, FALSE);
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	    api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
         u32ApiStart = offset;
 
@@ -5640,7 +6499,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         u16Tmp = u16NumberOfIODataObjects;
         while(u16Tmp--) {
-            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, FALSE);
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, ENC_BIG_ENDIAN);
 	        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_data_object);
             u32SubStart = offset;
 
@@ -5665,7 +6524,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         u16Tmp = u16NumberOfIOCS;
         while(u16Tmp--) {
-            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_cs, tvb, offset, 0, FALSE);
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_cs, tvb, offset, 0, ENC_BIG_ENDIAN);
 	        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_cs);
             u32SubStart = offset;
 
@@ -5751,7 +6610,7 @@ dissect_AlarmCRBlockReq_block(tvbuff_t *tvb, int offset,
 	offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_lt, &u16LT);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_alarmcr_properties, tvb, offset, 4, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_alarmcr_properties, tvb, offset, 4, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_alarmcr_properties);
     dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                         hf_pn_io_alarmcr_properties_reserved, &u32AlarmCRProperties);
@@ -5830,7 +6689,34 @@ dissect_AlarmCRBlockRes_block(tvbuff_t *tvb, int offset,
         expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "AlarmCRBlockRes: no corresponding AR found!");
     }
 
+    return offset;
+}
+/* dissect the ARServerBlock */
+static int
+dissect_ARServerBlock(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    char *pStationName;
+    guint16 u16NameLength, u16padding;
 
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_station_name_length, &u16NameLength);
+
+    pStationName = ep_alloc(u16NameLength+1);
+    tvb_memcpy(tvb, (guint8 *) pStationName, offset, u16NameLength);
+    pStationName[u16NameLength] = '\0';
+    proto_tree_add_string (tree, hf_pn_io_cminitiator_station_name, tvb, offset, u16NameLength, pStationName);
+    offset += u16NameLength;
+    /* Padding to next 4 byte allignment in this block */
+	u16padding = (u16NameLength-2) & 0x3;
+	if(u16padding >0)
+		offset = dissect_pn_padding(tvb, offset, pinfo, tree, u16padding);
     return offset;
 }
 
@@ -5967,14 +6853,14 @@ dissect_SubFrameBlock_block(tvbuff_t *tvb, int offset,
 	u16BodyLength -= 10;
 	u16Tmp = u16BodyLength;
 	do {
-		sub_item = proto_tree_add_item(tree, hf_pn_io_subframe_data, tvb, offset, 4, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_pn_io_subframe_data, tvb, offset, 4, ENC_BIG_ENDIAN);
 		sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_subframe_data);
 		/* 31-16 reserved_2 */
 		dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
 							hf_pn_io_subframe_data_reserved2, &u32SubFrameData);
 		/* 15- 8 DataLength */
 		dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
-							hf_pn_io_subframe_data_data_length, &u32SubFrameData);
+							hf_pn_io_subframe_data_length, &u32SubFrameData);
 		/*    7 reserved_1 */
 		dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
 							hf_pn_io_subframe_data_reserved1, &u32SubFrameData);
@@ -5992,8 +6878,157 @@ dissect_SubFrameBlock_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
+/* dissect the (PD)SubFrameBlock  0x022B */
+static int
+dissect_PDSubFrameBlock_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint32 u32SFIOCRProperties;
+    guint32 u32SubFrameData;
+    guint16 u16FrameID;
 
-/* dissect the IRTFrameBlock */
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    /* FrameID */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_frame_id, &u16FrameID);
+    /* SFIOCRProperties */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_SFIOCRProperties, &u32SFIOCRProperties);
+    /*  bit 0..7 SFIOCRProperties.DistributedWatchDogFactor */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_DistributedWatchDogFactor, &u32SFIOCRProperties);
+    /*  Bit 8 – 15: SFIOCRProperties.RestartFactorForDistributedWD */
+/*      0x00	Mandatory	No restart delay necessary
+        0x01 – 0x09	Optional	Less than 1 s restart delay
+        0x0A – 0x50	Mandatory	1 s to 8 s restart delay
+        0x51 – 0xFF	Optional	More than 8 s restart delay */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_RestartFactorForDistributedWD, &u32SFIOCRProperties);
+    /* Bit 16 – 23: SFIOCRProperties.DFPmode */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_SFIOCRProperties_DFPmode, &u32SFIOCRProperties);
+    /* Bit 24 – 27: SFIOCRProperties.reserved_1 */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_SFIOCRProperties_reserved_1, &u32SFIOCRProperties);
+    /* Bit 28 – 29: SFIOCRProperties.reserved_2 */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_SFIOCRProperties_reserved_2, &u32SFIOCRProperties);
+    /* Bit 30: SFIOCRProperties.DFPRedundantPathLayout */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_SFIOCRProperties_DFPRedundantPathLayout, &u32SFIOCRProperties);
+    /* Bit 31: SFIOCRProperties.SFCRC16 */
+    offset = /* it is the last one, so advance! */
+        dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_SFIOCRProperties_SFCRC16, &u32SFIOCRProperties);
+
+    /* SubframeData */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_subframe_data, &u32SubFrameData);
+    /* Bit 0 – 6: SubframeData.Position */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_subframe_data_position, &u32SubFrameData);
+    /* Bit 7: SubframeData.reserved_1 */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_subframe_reserved1, &u32SubFrameData);
+    /* Bit 8 – 15: SubframeData.DataLength */
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_subframe_data_length, &u32SubFrameData);
+    /* Bit 16 – 31: SubframeData.reserved_2 */
+    offset = 
+        dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_subframe_reserved2, &u32SubFrameData);
+
+
+    return offset;
+}
+
+
+/* dissect the IRInfoBlock */
+static int
+dissect_IRInfoBlock_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+    guint16 u16BodyLength _U_)
+{
+    guint16  u16NumberOfIOCR;
+    guint16  u16SubframeOffset;
+    guint32  u32SubframeData;
+    guint16  u16IOCRReference;
+    e_uuid_t IRDataUUID;
+
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    offset = dissect_dcerpc_uuid_t(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_IRData_uuid, &IRDataUUID);
+
+    offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
+
+    /* Numbers of IOCRs */
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep,
+                        hf_pn_io_number_of_iocrs, &u16NumberOfIOCR);
+
+    while(u16NumberOfIOCR--) 
+    {   /* IOCRReference */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_iocr_reference, &u16IOCRReference);
+
+        /* SubframeOffset 16 */
+        offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_iocr_SubframeOffset, &u16SubframeOffset);
+
+        /* SubframeData  32 */
+        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_iocr_SubframeData, &u32SubframeData);
+    }    
+    return offset;
+}
+
+/* dissect the SRInfoBlock */
+static int
+dissect_SRInfoBlock_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
+    guint16 u16BodyLength _U_)
+{
+    guint16 u16RedundancyDataHoldFactor;
+    guint32 u32sr_properties;
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_RedundancyDataHoldFactor, &u16RedundancyDataHoldFactor);
+
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties, &u32sr_properties);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_InputValidOnBackupAR, &u32sr_properties);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_ActivateRedundancyAlarm, &u32sr_properties);
+    dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_Reserved_1, &u32sr_properties);
+    offset = 
+       dissect_dcerpc_uint32(tvb, offset, pinfo, tree, drep, hf_pn_io_sr_properties_Reserved_2, &u32sr_properties);
+    return offset;
+}
+
+/* dissect the PDIRSubframeData block  0x022a */
+static int
+dissect_PDIRSubframeData_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow)
+{
+    guint16 u16NumberOfSubframeBlocks;
+    proto_item *sub_item;
+    proto_tree *sub_tree;
+
+
+    if(u8BlockVersionHigh != 1 || u8BlockVersionLow != 0) {
+        expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN,
+            "Block version %u.%u not implemented yet!", u8BlockVersionHigh, u8BlockVersionLow);
+        return offset;
+    }
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, tree, drep, hf_pn_io_NumberOfSubframeBlocks, &u16NumberOfSubframeBlocks);
+
+    while(u16NumberOfSubframeBlocks --)
+    {   /* dissect the Subframe Block  */
+        sub_item = proto_tree_add_item(tree, hf_pn_io_subframe_data, tvb, offset, 4, ENC_BIG_ENDIAN);
+        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_subframe_data);
+        dissect_a_block(tvb, offset, pinfo, sub_tree, drep);
+
+    }
+
+    return offset;
+}
+
+
 static int
 dissect_IRTFrameBlock_block(tvbuff_t *tvb, int offset,
 	packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow,
@@ -6049,7 +7084,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
 	guint32 u32SubStart;
 
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_data_description);
     u32SubStart = offset;
 
@@ -6111,7 +7146,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": APIs:%u", u16NumberOfAPIs);
 
     while(u16NumberOfAPIs--) {
-        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, FALSE);
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	    api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
         u32ApiStart = offset;
 
@@ -6137,7 +7172,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(item, ", Submodules:%u", u16NumberOfSubmodules);
 
         while(u16NumberOfSubmodules--) {
-            sub_item = proto_tree_add_item(api_tree, hf_pn_io_submodule_tree, tvb, offset, 0, FALSE);
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_submodule_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	        sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_submodule);
             u32SubStart = offset;
 
@@ -6148,7 +7183,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
 	        offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                             hf_pn_io_submodule_ident_number, &u32SubmoduleIdentNumber);
             /* SubmoduleProperties */
-            submodule_item = proto_tree_add_item(sub_tree, hf_pn_io_submodule_properties, tvb, offset, 2, FALSE);
+            submodule_item = proto_tree_add_item(sub_tree, hf_pn_io_submodule_properties, tvb, offset, 2, ENC_BIG_ENDIAN);
 	        submodule_tree = proto_item_add_subtree(submodule_item, ett_pn_io_submodule_properties);
 	        dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                             hf_pn_io_submodule_properties_reserved, &u16SubmoduleProperties);
@@ -6232,7 +7267,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": APIs:%u", u16NumberOfAPIs);
 
     while(u16NumberOfAPIs--) {
-        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, FALSE);
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	    api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
         u32ApiStart = offset;
 
@@ -6249,7 +7284,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(item, ", Modules:%u", u16NumberOfModules);
 
         while(u16NumberOfModules--) {
-            module_item = proto_tree_add_item(api_tree, hf_pn_io_module_tree, tvb, offset, 0, FALSE);
+            module_item = proto_tree_add_item(api_tree, hf_pn_io_module_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	        module_tree = proto_item_add_subtree(module_item, ett_pn_io_module);
             u32ModuleStart = offset;
 
@@ -6274,7 +7309,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
             proto_item_append_text(item, ", Submodules:%u", u16NumberOfSubmodules);
 
             while(u16NumberOfSubmodules--) {
-                sub_item = proto_tree_add_item(module_tree, hf_pn_io_submodule_tree, tvb, offset, 0, FALSE);
+                sub_item = proto_tree_add_item(module_tree, hf_pn_io_submodule_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
 	            sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_submodule);
                 u32SubStart = offset;
 
@@ -6285,7 +7320,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
 	            offset = dissect_dcerpc_uint32(tvb, offset, pinfo, sub_tree, drep,
                                 hf_pn_io_submodule_ident_number, &u32SubmoduleIdentNumber);
                 /* SubmoduleState */
-                submodule_item = proto_tree_add_item(sub_tree, hf_pn_io_submodule_state, tvb, offset, 2, FALSE);
+                submodule_item = proto_tree_add_item(sub_tree, hf_pn_io_submodule_state, tvb, offset, 2, ENC_BIG_ENDIAN);
 	            submodule_tree = proto_item_add_subtree(submodule_item, ett_pn_io_submodule_state);
 	            dissect_dcerpc_uint16(tvb, offset, pinfo, submodule_tree, drep,
                                 hf_pn_io_submodule_state_format_indicator, &u16SubmoduleState);
@@ -6489,16 +7524,16 @@ dissect_block(tvbuff_t *tvb, int offset,
     guint16 u16BodyLength;
     proto_item *header_item;
     proto_tree *header_tree;
-
+	gint remainingBytes;
 
     /* from here, we only have big endian (network byte ordering)!!! */
     drep[0] &= ~DREP_LITTLE_ENDIAN;
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_block);
     u32SubStart = offset;
 
-    header_item = proto_tree_add_item(sub_tree, hf_pn_io_block_header, tvb, offset, 6, FALSE);
+    header_item = proto_tree_add_item(sub_tree, hf_pn_io_block_header, tvb, offset, 6, ENC_BIG_ENDIAN);
     header_tree = proto_item_add_subtree(header_item, ett_pn_io_block_header);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
@@ -6523,8 +7558,12 @@ dissect_block(tvbuff_t *tvb, int offset,
     /* block length is without type and length fields, but with version field */
     /* as it's already dissected, remove it */
     u16BodyLength = u16BlockLength - 2;
-    tvb_ensure_bytes_exist(tvb, offset, u16BodyLength);
-
+    remainingBytes = tvb_reported_length_remaining(tvb, offset);
+    if (remainingBytes +2 < u16BodyLength)
+    {
+        proto_item_append_text(sub_item, " Block_Length: %d greater than remaining Bytes, trying with Blocklen = remaining (%d)", u16BodyLength, remainingBytes);
+        u16BodyLength = remainingBytes;
+    }
     switch(u16BlockType) {
     case(0x0001):
     case(0x0002):
@@ -6559,13 +7598,16 @@ dissect_block(tvbuff_t *tvb, int offset,
         break;
     /*   0x0017 reserved */
     case(0x0018):
-        dissect_ARData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_ARData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,u16BodyLength);
         break;
     case(0x0019):
         dissect_LogData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x001A):
         dissect_APIData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x001B):
+        dissect_SRLData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0020):
         dissect_IandM0_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -6615,6 +7657,14 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0108):
         dissect_IRTFrameBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+    case(0x0109):
+        dissect_IRInfoBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+    case(0x010A):
+        dissect_SRInfoBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
+        break;
+
+
     case(0x0110):
     case(0x0111):
     case(0x0112):
@@ -6622,19 +7672,27 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0114):
     case(0x0116):
     case(0x0117):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			ar);
+        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar);
         break;
-    case(0x0200):
-        dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+
+	case(0x0118):
+        dissect_ControlBlockPrmBegin(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength, ar);
+        break;
+
+    case(0x0119):
+        dissect_SubmoduleListBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength, ar);
+        break;
+
+    case(0x0200): /* PDPortDataCheck */
+        dissect_PDPortData_Check_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
+            u16BodyLength);
         break;
     case(0x0201):
         dissect_PDevData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
-    case(0x0202):
-        dissect_PDPortData_Check_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+    case(0x0202): /*dissect_PDPortData_Adjust_block */
+        dissect_PDPortData_Adjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
+            u16BodyLength);
         break;
     case(0x0203):
         dissect_PDSyncData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -6678,10 +7736,10 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_AdjustMulticastBoundary_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0211):
-        dissect_PDInterfaceMrpDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_PDInterfaceMrpDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,u16BodyLength);
         break;
     case(0x0212):
-        dissect_PDInterfaceMrpDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_PDInterfaceMrpDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,u16BodyLength);
         break;
     case(0x0213):
         dissect_PDInterfaceMrpDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -6721,12 +7779,10 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_CheckMAUTypeDifference_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0220):
-        dissect_PDPortFODataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+        dissect_PDPortFODataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0221):
-        dissect_FiberOpticManufacturerSpecific_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+        dissect_FiberOpticManufacturerSpecific_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0222):
         dissect_PDPortFODataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -6734,19 +7790,30 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x0223):
         dissect_PDPortFODataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0226):
+        dissect_AdjustPreambleLength_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+	case(0x022A):
+        dissect_PDIRSubframeData_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case(0x022B):
+        dissect_PDSubFrameBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+
     case(0x0230):
-        dissect_PDNCDataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        dissect_PDPortFODataCheck_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0240):
         dissect_PDInterfaceDataReal_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
+    case(0x0251):
+        dissect_PDPortStatistic_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
     case(0x0400):
-        dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+        dissect_MultipleBlockHeader_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0500):
-        dissect_RecordDataReadQuery_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			*u16Index, u16BodyLength);
+        dissect_RecordDataReadQuery_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, *u16Index, u16BodyLength);
         break;
     case(0x0600):
         dissect_FSHello_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -6755,12 +7822,11 @@ dissect_block(tvbuff_t *tvb, int offset,
         dissect_FSParameter_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x0608):
-        dissect_PDInterfaceFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+        dissect_PDInterfaceFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
+	case(0x010B):
     case(0x0609):
-        dissect_ARFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			u16BodyLength);
+        dissect_ARFSUDataAdjust_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, u16BodyLength);
         break;
     case(0x0f00):
         dissect_Maintenance_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
@@ -6778,19 +7844,19 @@ dissect_block(tvbuff_t *tvb, int offset,
 			u16Index, u32RecDataLen, ar);
         break;
     case(0x8101):
-        dissect_ARBlockRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			ar);
+        dissect_ARBlockRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, ar);
         break;
     case(0x8102):
-        dissect_IOCRBlockRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			*ar);
+        dissect_IOCRBlockRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, *ar);
         break;
     case(0x8103):
-        dissect_AlarmCRBlockRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			*ar);
+        dissect_AlarmCRBlockRes_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow, *ar);
         break;
     case(0x8104):
         dissect_ModuleDiffBlock_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
+        break;
+    case (0x8106):
+        dissect_ARServerBlock(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow);
         break;
     case(0x8110):
     case(0x8111):
@@ -6799,19 +7865,37 @@ dissect_block(tvbuff_t *tvb, int offset,
     case(0x8114):
     case(0x8116):
     case(0x8117):
-        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,
-			ar);
+	case(0x8118):
+        dissect_ControlConnect_block(tvb, offset, pinfo, sub_tree, sub_item, drep, u8BlockVersionHigh, u8BlockVersionLow,ar);
         break;
     default:
         dissect_pn_undecoded(tvb, offset, pinfo, sub_tree, u16BodyLength);
     }
     offset += u16BodyLength;
 
-	proto_item_set_len(sub_item, offset - u32SubStart);
+    proto_item_set_len(sub_item, offset - u32SubStart);
 
     return offset;
 }
 
+
+/* dissect any PN-IO block */
+static int
+dissect_a_block(tvbuff_t *tvb, int offset,
+    packet_info *pinfo, proto_tree *tree, guint8 *drep)
+{
+    guint16 u16Index = 0;
+    guint32 u32RecDataLen;
+    pnio_ar_t *ar = NULL;
+
+    offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+
+    if(ar != NULL) {
+        pnio_ar_info(tvb, pinfo, tree, ar);
+    }
+
+    return offset;
+}
 
 /* dissect any number of PN-IO blocks */
 static int
@@ -6861,7 +7945,7 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_args_len, &u32ArgsLen);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io);
     u32SubStart = offset;
 
@@ -6904,7 +7988,7 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_args_len, &u32ArgsLen);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io);
     u32SubStart = offset;
 
@@ -6964,7 +8048,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
 
-    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_request);
     proto_item_set_text(profidrive_item, "PROFIDrive Parameter Request: ");
     
@@ -6998,7 +8082,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
         proto_item *sub_item;
         proto_tree *sub_tree;
 
-        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_address);
         proto_item_set_text(sub_item, "Parameter Address %u: ", addr_idx+1);
         
@@ -7031,7 +8115,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
             proto_item *sub_item;
             proto_tree *sub_tree;
 
-            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
             proto_item_set_text(sub_item, "Parameter Value %u: ", addr_idx+1);
  
@@ -7068,7 +8152,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
 
-    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_response); 
     proto_item_set_text(profidrive_item, "PROFIDrive Parameter Response: ");        
    
@@ -7097,7 +8181,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
         proto_item *sub_item;
         proto_tree *sub_tree;
 
-        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
         proto_item_set_text(sub_item, "Parameter Value %u: ", val_idx++);
          
@@ -7165,6 +8249,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x8061):   /* PDPortFODataCheck for one subslot */
     case(0x8062):   /* PDPortFODataAdjust for one subslot */
     case(0x8070):   /* PDNCDataCheck for one subslot */
+    case(0x8071):   /* PDPortStatistic for one subslot */
     case(0x8080):   /* PDInterfaceDataReal */
     case(0x8090):   /* PDInterfaceFSUDataAdjust */
 
@@ -7206,8 +8291,18 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf821):   /* APIData */
     case(0xf830):   /* LogData */
     case(0xf831):   /* PDevData */
+    case(0xf840):   /* I&M0FilterData */
         offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
         break;
+
+    case (0xB050):
+    case (0xB051):
+    case (0xB060):
+    case (0xB061):
+
+       offset = dissect_block(tvb, offset, pinfo, tree, drep, &u16Index, &u32RecDataLen, &ar);
+        break;
+
 
     /*** multiple blocks possible ***/
     case(0x8000):   /* ExpectedIdentificationData for one subslot */
@@ -7253,7 +8348,7 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0x804d):
     case(0x804e):
     case(0x804f):   /* Expected PDSyncData for one subslot with SyncID value 31 */
-
+    case(0x8072):	/* PDPortStatistic for one subslot */
     case(0xc000):   /* ExpectedIdentificationData for one slot */
     case(0xc001):   /* RealIdentificationData for one slot */
     case(0xc00a):   /* Diagnosis in channel coding for one slot */
@@ -7273,7 +8368,6 @@ dissect_RecordDataRead(tvbuff_t *tvb, int offset,
     case(0xf00c):   /* Diagnosis, Maintenance, Qualified and Status for one API */
 
     case(0xf80c):   /* Diagnosis, Maintenance, Qualified and Status for one device */
-    case(0xf840):   /* I&M0FilterData */
     case(0xf841):   /* PDRealData */
     case(0xf842):   /* PDExpectedData */
         offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
@@ -7319,8 +8413,10 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
 {
     proto_item *f_item;
     proto_tree *f_tree;
-    proto_item *flags_item;
-    proto_tree *flags_tree;
+    proto_item *flags1_item;
+    proto_tree *flags1_tree;
+    proto_item *flags2_item;
+    proto_tree *flags2_tree;
     guint16 src_addr;
     guint16 dst_addr;
     guint16 wd_time;
@@ -7335,47 +8431,49 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     guint8 prm_flag2_reserved;
     guint8 prm_flag2_f_block_id;
     guint8 prm_flag2_f_par_version;
+
+    prm_flag1 = prm_flag2 = 0;
     
-    f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, FALSE);
+    f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
     f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter); 
     proto_item_set_text(f_item, "F-Parameter: ");        
 
     
-    flags_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, FALSE);
-    flags_tree = proto_item_add_subtree(flags_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
+    flags1_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    flags1_tree = proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_seq, &prm_flag1_chck_seq); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_ipar, &prm_flag1_chck_ipar); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
         hf_pn_io_profisafe_f_prm_flag1_sil, &prm_flag1_sil); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
         hf_pn_io_profisafe_f_prm_flag1_crc_len, &prm_flag1_crc_len); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
         hf_pn_io_profisafe_f_prm_flag1_reserved, &prm_flag1_reserved); 
     prm_flag1 = prm_flag1_chck_seq|prm_flag1_chck_ipar|prm_flag1_sil|prm_flag1_reserved;
     offset++;
 
-    flags_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, FALSE);
-    flags_tree = proto_item_add_subtree(flags_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
+    flags2_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, ENC_BIG_ENDIAN);
+    flags2_tree = proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
         hf_pn_io_profisafe_f_prm_flag2_reserved, &prm_flag2_reserved);
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
         hf_pn_io_profisafe_f_prm_flag2_f_block_id, &prm_flag2_f_block_id);
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags_tree, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
         hf_pn_io_profisafe_f_prm_flag2_f_par_version, &prm_flag2_f_par_version);
     prm_flag2 = prm_flag2_reserved|prm_flag2_f_block_id|prm_flag2_f_par_version;
     offset++;
 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
                     hf_pn_io_profisafe_f_src_addr, &src_addr); 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
                     hf_pn_io_profisafe_f_dst_addr, &dst_addr); 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
                     hf_pn_io_profisafe_f_wd_time, &wd_time); 
-    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_tree, drep,
+    offset = dissect_dcerpc_uint16(tvb, offset, pinfo, f_item, drep,
                     hf_pn_io_profisafe_f_par_crc, &par_crc); 
 
     col_append_fstr(pinfo->cinfo, COL_INFO, ", F-Parameter record, prm_flag1:0x%02x, prm_flag2:0x%02x, src:0x%04x, dst:0x%04x, wd_time:%d, crc:0x%04x",
@@ -7417,6 +8515,7 @@ dissect_RecordDataWrite(tvbuff_t *tvb, int offset,
 
     /* see: pn_io_index */
     switch(u16Index) {
+    case(0x8020):   /* PDIRSubframeData */
     case(0x801e):   /* SubstituteValues for one subslot */
     case(0x802b):   /* PDPortDataCheck for one subslot */
     case(0x802c):   /* PDirData for one subslot */
@@ -7643,7 +8742,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
         u16AlarmSrcEndpoint, u16AlarmDstEndpoint);
 
     /* PDU type */
-	sub_item = proto_tree_add_item(rta_tree, hf_pn_io_pdu_type, tvb, offset, 1, FALSE);
+	sub_item = proto_tree_add_item(rta_tree, hf_pn_io_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_pdu_type);
     dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_pdu_type_type, &u8PDUType);
@@ -7656,7 +8755,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
         u8PDUVersion);
 
     /* additional flags */
-	sub_item = proto_tree_add_item(rta_tree, hf_pn_io_add_flags, tvb, offset, 1, FALSE);
+	sub_item = proto_tree_add_item(rta_tree, hf_pn_io_add_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_add_flags);
     dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_window_size, &u8WindowSize);
@@ -7726,8 +8825,8 @@ dissect_PNIO_heur(tvbuff_t *tvb,
 
     /* is this a (none DFP) PNIO class 3 data packet? */
 	/* frame id must be in valid range (cyclic Real-Time, class=3) */
-	if ((u16FrameID >= 0x0100 && u16FrameID <= 0x04ff) || /* non redundant */
-	    (u16FrameID >= 0x0800 && u16FrameID <= 0x0fff)) { /* redundant */
+    if ((u16FrameID >= 0x0100 && u16FrameID <= 0x6FF /*0x04ff*/) || /* non redundant */
+        (u16FrameID >= 0x700/*0x0800*/ && u16FrameID <= 0x0fff)) { /* redundant */
         dissect_PNIO_C_SDU(tvb, 0, pinfo, tree, drep);
         return TRUE;
     }
@@ -7810,18 +8909,32 @@ pn_io_ar_conv_data_filter(packet_info *pinfo)
     if(pinfo->profinet_type != 10) {
         return NULL;
     }
-
-    buf = g_strdup_printf(
-        "pn_io.ar_uuid == %s || "                                           /* ARUUID */
-        "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Input CR && dev MAC -> contr MAC */
-        "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Output CR && contr MAC -> dev MAC */
-        "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "           /* Alarm CR (contr -> dev) */
-        "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",              /* Alarm CR (dev -> contr) */
-        guid_to_str((const e_guid_t*) &ar->aruuid),
-        ar->inputframeid, ether_to_str((const guint8 *)ar->devicemac), ether_to_str((const guint8 *)ar->controllermac),
-        ar->outputframeid, ether_to_str((const guint8 *)ar->controllermac), ether_to_str((const guint8 *)ar->devicemac),
-        ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
-        ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+    if(ar->arType == 0x0010) /* IOCARSingle using RT_CLASS_3 */
+    {
+        buf = g_strdup_printf(
+            "pn_io.ar_uuid == %s || "                                           /* ARUUID */
+            "(pn_rt.frame_id == 0x%x) || (pn_rt.frame_id == 0x%x) || "
+            "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "           /* Alarm CR (contr -> dev) */
+            "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",              /* Alarm CR (dev -> contr) */
+            guid_to_str((const e_guid_t*) &ar->aruuid),
+            ar->inputframeid,ar->outputframeid,
+            ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
+            ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+    }
+    else
+    {
+        buf = g_strdup_printf(
+            "pn_io.ar_uuid == %s || "                                           /* ARUUID */
+            "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Input CR && dev MAC -> contr MAC */
+            "(pn_rt.frame_id == 0x%x && eth.src == %s && eth.dst == %s) || "    /* Output CR && contr MAC -> dev MAC */
+            "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s) || "           /* Alarm CR (contr -> dev) */
+            "(pn_io.alarm_src_endpoint == 0x%x && eth.src == %s)",              /* Alarm CR (dev -> contr) */
+            guid_to_str((const e_guid_t*) &ar->aruuid),
+            ar->inputframeid, ether_to_str((const guint8 *)ar->devicemac), ether_to_str((const guint8 *)ar->controllermac),
+            ar->outputframeid, ether_to_str((const guint8 *)ar->controllermac), ether_to_str((const guint8 *)ar->devicemac),
+            ar->controlleralarmref, ether_to_str((const guint8 *)ar->controllermac),
+            ar->devicealarmref, ether_to_str((const guint8 *)ar->devicemac));
+    }
     return buf;
 }
 
@@ -7883,20 +8996,33 @@ proto_register_pn_io (void)
 		{ "SupervisorTakeoverAllowed", "pn_io.ar_properties.supervisor_takeover_allowed", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_supervisor_takeover_allowed), 0x00000008, NULL, HFILL }},
 	{ &hf_pn_io_ar_properties_parametrization_server,
 		{ "ParametrizationServer", "pn_io.ar_properties.parametrization_server", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_parametrization_server), 0x00000010, NULL, HFILL }},
-	{ &hf_pn_io_ar_properties_data_rate,
-		{ "DataRate", "pn_io.ar_properties.data_rate", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_data_rate), 0x00000060, NULL, HFILL }},
-	{ &hf_pn_io_ar_properties_reserved_1,
-		{ "Reserved_1", "pn_io.ar_properties.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x00000080, NULL, HFILL }},
-	{ &hf_pn_io_ar_properties_device_access,
-		{ "DeviceAccess", "pn_io.ar_properties.device_access", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_device_access), 0x00000100, NULL, HFILL }},
-	{ &hf_pn_io_ar_properties_companion_ar,
-		{ "CompanionAR", "pn_io.ar_properties.companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_companion_ar), 0x00000600, NULL, HFILL }},
-	{ &hf_pn_io_ar_properties_achnowledge_companion_ar,
-		{ "AcknowledgeCompanionAR", "pn_io.ar_properties.acknowledge_companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_acknowldege_companion_ar), 0x00000800, NULL, HFILL }},
+/*removed with 2.3
+    { &hf_pn_io_ar_properties_data_rate,
+        { "DataRate", "pn_io.ar_properties.data_rate", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_data_rate), 0x00000060, NULL, HFILL }},
+*/
+    { &hf_pn_io_ar_properties_reserved_1,
+        { "Reserved_1", "pn_io.ar_properties.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x000000E0, NULL, HFILL }},
+    { &hf_pn_io_ar_properties_device_access,
+        { "DeviceAccess", "pn_io.ar_properties.device_access", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_DeviceAccess), 0x00000100, NULL, HFILL }},
+    { &hf_pn_io_ar_properties_companion_ar,
+        { "CompanionAR", "pn_io.ar_properties.companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_companion_ar), 0x00000600, NULL, HFILL }},
+    { &hf_pn_io_ar_properties_achnowledge_companion_ar,
+        { "AcknowledgeCompanionAR", "pn_io.ar_properties.acknowledge_companion_ar", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_acknowldege_companion_ar), 0x00000800, NULL, HFILL }},
+
+    { &hf_pn_io_arproperties_StartupMode,
+        { "StartupMode", "pn_io.ar_properties.StartupMode", FT_UINT32, BASE_HEX, VALS(pn_io_arpropertiesStartupMode), 0x40000000, NULL, HFILL }},
+
 	{ &hf_pn_io_ar_properties_reserved,
-		{ "Reserved", "pn_io.ar_properties.reserved", FT_UINT32, BASE_HEX, NULL, 0x7FFFF000, NULL, HFILL }},
+        { "Reserved", "pn_io.ar_properties.reserved", FT_UINT32, BASE_HEX, NULL, 0x3FFFF000, NULL, HFILL }},
 	{ &hf_pn_io_ar_properties_pull_module_alarm_allowed,
 		{ "PullModuleAlarmAllowed", "pn_io.ar_properties.pull_module_alarm_allowed", FT_UINT32, BASE_HEX, VALS(pn_io_arproperties_pull_module_alarm_allowed), 0x80000000, NULL, HFILL }},
+
+	{ &hf_pn_RedundancyInfo,
+		{ "RedundancyInfo.EndPoint", "pn_io.srl_data.redundancyInfo", FT_UINT16, BASE_HEX, VALS(pn_io_RedundancyInfo), 0x0000003, NULL, HFILL }},
+	{ &hf_pn_RedundancyInfo_reserved,
+		{ "RedundancyInfo.reserved", "pn_io.srl_data.redundancyInfoReserved", FT_UINT16, BASE_HEX, NULL, 0xFFFFFFFC, NULL, HFILL }},
+    { &hf_pn_io_number_of_ARDATAInfo,
+    { "ARDataInfo.NumberOfEntries", "pn_io.number_of_ARDATAInfo", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 
 	{ &hf_pn_io_cminitiator_activitytimeoutfactor,
 		{ "CMInitiatorActivityTimeoutFactor", "pn_io.cminitiator_activitytimeoutfactor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},  /* XXX - special values */
@@ -7906,6 +9032,8 @@ proto_register_pn_io (void)
 		{ "StationNameLength", "pn_io.station_name_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_io_cminitiator_station_name,
 		{ "CMInitiatorStationName", "pn_io.cminitiator_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_responder_station_name,
+        { "CMResponderrStationName", "pn_io.cmresponder_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_io_parameter_server_station_name,
 		{ "ParameterServerStationName", "pn_io.parameter_server_station_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
@@ -7926,6 +9054,27 @@ proto_register_pn_io (void)
     { "IOCRTxPorts.Port", "pn_io.iocr_txports_port", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_iocr_txports_redundantport,
     { "IOCRTxPorts.RedundantPort", "pn_io.iocr_txports_redundantport", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_iocr_SubframeOffset,
+    { "SubframeOffset", "pn_io.subframe_offset", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_iocr_SubframeData,
+    { "SubframeData", "pn_io.subframe_data", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_RedundancyDataHoldFactor,
+    { "RedundancyDataHoldFactor", "pn_io.RedundancyDataHoldFactor", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_sr_properties,
+    { "SRProperties", "pn_io.sr_properties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_sr_properties_InputValidOnBackupAR,
+    { "InputValidOnBackupAR", "pn_io.sr_properties.InputValidOnBackupAR", FT_UINT32, BASE_HEX, VALS(pn_io_sr_properties_BackupAR), 0x01, NULL, HFILL }},
+    { &hf_pn_io_sr_properties_ActivateRedundancyAlarm,
+    { "ActivateRedundancyAlarm", "pn_io.sr_properties.ActivateRedundancyAlarm", FT_UINT32, BASE_HEX,  VALS(pn_io_sr_properties_ActivateRedundancyAlarm), 0x02, NULL, HFILL }},
+    { &hf_pn_io_sr_properties_Reserved_1,
+    { "Reserved_1", "pn_io.sr_properties.Reserved_1", FT_UINT32, BASE_HEX, NULL, 0x0FFFC, NULL, HFILL }},
+    { &hf_pn_io_sr_properties_Reserved_2,
+    { "Reserved_2", "pn_io.sr_properties.Reserved_2", FT_UINT32, BASE_HEX, NULL, 0x0FFFF0000, NULL, HFILL }},
+
     { &hf_pn_io_lt,
     { "LT", "pn_io.lt", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
@@ -7947,6 +9096,22 @@ proto_register_pn_io (void)
     { "DistributedSubFrameWatchDog", "pn_io.iocr_properties.distributed_subframe_watchdog", FT_UINT32, BASE_HEX, NULL, 0x40000000, NULL, HFILL }},
 	{ &hf_pn_io_iocr_properties_full_subframe_structure,
     { "FullSubFrameStructure", "pn_io.iocr_properties.full_subframe_structure", FT_UINT32, BASE_HEX, NULL, 0x80000000, NULL, HFILL }},
+    { &hf_pn_io_SFIOCRProperties,
+      { "SFIOCRProperties", "pn_io.SFIOCRProperties", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_DistributedWatchDogFactor,
+      { "SFIOCRProperties.DistributedWatchDogFactor", "pn_io.SFIOCRProperties.DistributedWatchDogFactor", FT_UINT32, BASE_HEX, NULL, 0x0FF, NULL, HFILL }},
+    { &hf_pn_io_RestartFactorForDistributedWD,
+      { "SFIOCRProperties.RestartFactorForDistributedWD", "pn_io.SFIOCRProperties.RestartFactorForDistributedWD", FT_UINT32, BASE_HEX, NULL, 0xff00, NULL, HFILL }},
+    { &hf_pn_io_SFIOCRProperties_DFPmode,
+      { "SFIOCRProperties.DFPmode", "pn_io.SFIOCRProperties.DFPmode", FT_UINT32, BASE_HEX, NULL, 0xFF0000, NULL, HFILL }},
+    { &hf_pn_io_SFIOCRProperties_reserved_1,
+      { "SFIOCRProperties.reserved_1", "pn_io.SFIOCRProperties.reserved_1", FT_UINT32, BASE_HEX, NULL, 0x0F000000, NULL, HFILL }},
+    { &hf_pn_io_SFIOCRProperties_reserved_2,
+      { "SFIOCRProperties.reserved_2", "pn_io.SFIOCRProperties.reserved_2", FT_UINT32, BASE_HEX, NULL, 0x030000000, NULL, HFILL }},
+    { &hf_pn_io_SFIOCRProperties_DFPRedundantPathLayout,
+      { "SFIOCRProperties.DFPRedundantPathLayout", "pn_io.SFIOCRProperties.DFPRedundantPathLayout", FT_UINT32, BASE_HEX, VALS(pn_io_DFPRedundantPathLayout_decode), 0x040000000, NULL, HFILL }},
+    { &hf_pn_io_SFIOCRProperties_SFCRC16,
+      { "SFIOCRProperties.SFCRC16", "pn_io.SFIOCRProperties.SFCRC16", FT_UINT32, BASE_HEX, VALS(pn_io_SFCRC16_Decode), 0x080000000, NULL, HFILL }},
 
     { &hf_pn_io_data_length,
       { "DataLength", "pn_io.data_length", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
@@ -7964,6 +9129,8 @@ proto_register_pn_io (void)
       { "Sequence", "pn_io.sequence", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_frame_send_offset,
       { "FrameSendOffset", "pn_io.frame_send_offset", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_frame_data_properties,
+      { "FrameDataProperties", "pn_io.frame_data_properties", FT_UINT32, BASE_HEX, VALS(pn_io_frame_data_properties), 0x0, NULL, HFILL }},
     { &hf_pn_io_watchdog_factor,
       { "WatchdogFactor", "pn_io.watchdog_factor", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_data_hold_factor,
@@ -8021,6 +9188,12 @@ proto_register_pn_io (void)
     { &hf_pn_io_io_cs,
       { "IOCS", "pn_io.io_cs", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 
+    { &hf_pn_io_substitutionmode,
+      { "Substitutionmode", "pn_io.substitutionmode", FT_UINT16, BASE_HEX, VALS(pn_io_substitutionmode), 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_IRData_uuid,
+      { "IRDataUUID", "pn_io.IRData_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+
     { &hf_pn_io_ar_uuid,
       { "ARUUID", "pn_io.ar_uuid", FT_GUID, BASE_NONE, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_target_ar_uuid,
@@ -8054,7 +9227,10 @@ proto_register_pn_io (void)
     { &hf_pn_io_sessionkey,
       { "SessionKey", "pn_io.session_key", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_control_command,
-      { "ControlCommand", "pn_io.control_command", FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+      { "ControlCommand", "pn_io.control_command", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+      
+    { &hf_pn_io_control_command_reserved,
+      { "ControlBlockProperties.reserved", "pn_io.control_properties_reserved", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_control_command_prmend,
       { "PrmEnd", "pn_io.control_command.prmend", FT_UINT16, BASE_DEC, NULL, 0x0001, NULL, HFILL }},
     { &hf_pn_io_control_command_applready,
@@ -8074,6 +9250,10 @@ proto_register_pn_io (void)
       { "ControlBlockProperties", "pn_io.control_block_properties.appl_ready", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_control_block_properties_applready0,
       { "ApplicationReady", "pn_io.control_block_properties.appl_ready0", FT_UINT16, BASE_HEX, VALS(pn_io_control_properties_application_ready_vals), 0x0001, NULL, HFILL }},
+    { &hf_pn_io_AlarmSequenceNumber,
+      { "AlarmSequenceNumber", "pn_io.AlarmSequenceNumber", FT_UINT16, BASE_HEX,NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_SubmoduleListEntries,
+      { "NumberOfEntries", "pn_io.SubmoduleListEntries", FT_UINT16, BASE_DEC,NULL, 0x0, NULL, HFILL }},
 
     { &hf_pn_io_error_code,
       { "ErrorCode", "pn_io.error_code", FT_UINT8, BASE_HEX, VALS(pn_io_error_code), 0x0, NULL, HFILL }},
@@ -8277,14 +9457,14 @@ proto_register_pn_io (void)
 
     { &hf_pn_io_subframe_data,
       { "SubFrameData", "pn_io.subframe_data", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
-    { &hf_pn_io_subframe_data_reserved2,
+    { &hf_pn_io_subframe_reserved2,
       { "Reserved1", "pn_io.subframe_data.reserved1", FT_UINT32, BASE_DEC, NULL, 0xFFFF0000, NULL, HFILL }},
-    { &hf_pn_io_subframe_data_data_length,
+    { &hf_pn_io_subframe_data_length,
       { "DataLength", "pn_io.subframe_data.data_length", FT_UINT32, BASE_DEC, NULL, 0x0000FF00, NULL, HFILL }},
-    { &hf_pn_io_subframe_data_reserved1,
+    { &hf_pn_io_subframe_reserved1,
       { "Reserved1", "pn_io.subframe_data.reserved1", FT_UINT32, BASE_DEC, NULL, 0x00000080, NULL, HFILL }},
     { &hf_pn_io_subframe_data_position,
-      { "Position", "pn_io.subframe_data.position", FT_UINT32, BASE_DEC, NULL, 0x0000007F, NULL, HFILL }},
+      { "DataPosition", "pn_io.subframe_data.position", FT_UINT32, BASE_DEC, NULL, 0x0000007F, NULL, HFILL }},
 
     { &hf_pn_io_channel_number,
       { "ChannelNumber", "pn_io.channel_number", FT_UINT16, BASE_HEX, VALS(pn_io_channel_number), 0x0, NULL, HFILL }},
@@ -8295,17 +9475,50 @@ proto_register_pn_io (void)
       { "Type", "pn_io.channel_properties.type", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_type), 0x00FF, NULL, HFILL }},
     { &hf_pn_io_channel_properties_accumulative,
       { "Accumulative", "pn_io.channel_properties.accumulative", FT_UINT16, BASE_HEX, NULL, 0x0100, NULL, HFILL }},
+/* replaced with 2 bit values
     { &hf_pn_io_channel_properties_maintenance_required,
       { "MaintenanceRequired", "pn_io.channel_properties.maintenance_required", FT_UINT16, BASE_HEX, NULL, 0x0200, NULL, HFILL }},
     { &hf_pn_io_channel_properties_maintenance_demanded,
       { "MaintenanceDemanded", "pn_io.channel_properties.maintenance_demanded", FT_UINT16, BASE_HEX, NULL, 0x0400, NULL, HFILL }},
-    { &hf_pn_io_channel_properties_specifier,
+*/
+    { &hf_pn_io_NumberOfSubframeBlocks,
+      { "NumberOfSubframeBlocks", "pn_io.NumberOfSubframeBlocks", FT_UINT16, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_channel_properties_maintenance,
+      { "Maintenance", "pn_io.channel_properties.maintenance", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_maintenance), 0x0300, NULL, HFILL }},
+      { &hf_pn_io_channel_properties_specifier,
       { "Specifier", "pn_io.channel_properties.specifier", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_specifier), 0x1800, NULL, HFILL }},
     { &hf_pn_io_channel_properties_direction,
       { "Direction", "pn_io.channel_properties.direction", FT_UINT16, BASE_HEX, VALS(pn_io_channel_properties_direction), 0xE000, NULL, HFILL }},
 
     { &hf_pn_io_channel_error_type,
       { "ChannelErrorType", "pn_io.channel_error_type", FT_UINT16, BASE_HEX, VALS(pn_io_channel_error_type), 0x0, NULL, HFILL }},
+
+    { &hf_pn_io_ext_channel_error_type0,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type0", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8000,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type0800", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8000), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8001,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8001", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8001), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8002,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8002", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8002), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8003,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8003", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8003), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8004,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8004", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8004), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8005,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8005", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8005), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8007,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8007", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8007), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x8008,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type8008", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x8008), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x800A,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800A", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800A), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x800B,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800B", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800B), 0x0, NULL, HFILL }},
+    { &hf_pn_io_ext_channel_error_type0x800C,
+      { "ExtChannelErrorType", "pn_io.ext_channel_error_type800C", FT_UINT16, BASE_HEX, VALS(pn_io_ext_channel_error_type0x800C), 0x0, NULL, HFILL }},
+
     { &hf_pn_io_ext_channel_error_type,
       { "ExtChannelErrorType", "pn_io.ext_channel_error_type", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_ext_channel_add_value,
@@ -8323,6 +9536,11 @@ proto_register_pn_io (void)
       { "MaxPortTxDelay", "pn_io.max_port_tx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_max_port_rx_delay,
       { "MaxPortRxDelay", "pn_io.max_port_rx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+   { &hf_pn_io_max_line_rx_delay,
+      { "MaxLineRxDelay", "pn_io.max_line_rx_delay", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+   { &hf_pn_io_yellowtime,
+      { "YellowTime", "pn_io.yellowtime", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+
     { &hf_pn_io_reserved_interval_begin,
       { "ReservedIntervalBegin", "pn_io.reserved_interval_begin", FT_UINT32, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_reserved_interval_end,
@@ -8349,6 +9567,18 @@ proto_register_pn_io (void)
       { "PTCPLengthSubdomainName", "pn_io.ptcp_length_subdomain_name", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_ptcp_subdomain_name,
       { "PTCPSubdomainName", "pn_io.ptcp_subdomain_name", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_pdportstatistic_ifInOctets,
+      { "ifInOctets", "pn_io.ifInOctets", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_pdportstatistic_ifOutOctets,
+      { "ifOutOctets", "pn_io.ifOutOctets", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_pdportstatistic_ifInDiscards,
+      { "ifInDiscards", "pn_io.ifInDiscards", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_pdportstatistic_ifOutDiscards,
+      { "ifOutDiscards", "pn_io.ifOutDiscards", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_pdportstatistic_ifInErrors,
+      { "ifInErrors", "pn_io.ifInErrors", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_pdportstatistic_ifOutErrors,
+      { "ifOutErrors", "pn_io.ifOutErrors", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
 
     { &hf_pn_io_domain_boundary,
       { "DomainBoundary", "pn_io.domain_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -8360,6 +9590,8 @@ proto_register_pn_io (void)
       { "MulticastBoundary", "pn_io.multicast_boundary", FT_UINT32, BASE_HEX, NULL, 0x0, NULL, HFILL }},
     { &hf_pn_io_adjust_properties,
       { "AdjustProperties", "pn_io.adjust_properties", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_PreambleLength,
+      { "Preamble Length", "pn_io.preamble_length", FT_UINT16, BASE_HEX, VALS(pn_io_preamble_length), 0x0, NULL, HFILL }},
     { &hf_pn_io_mau_type,
       { "MAUType", "pn_io.mau_type", FT_UINT16, BASE_HEX, VALS(pn_io_mau_type), 0x0, NULL, HFILL }},
     { &hf_pn_io_mau_type_mode,
@@ -8407,6 +9639,24 @@ proto_register_pn_io (void)
       { "Reserved", "pn_io.frame_details.reserved", FT_UINT8, BASE_HEX, NULL, 0xF0, NULL, HFILL }},
     { &hf_pn_io_nr_of_tx_port_groups,
       { "NumberOfTxPortGroups", "pn_io.nr_of_tx_port_groups", FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties,
+      { "TxPortGroupProperties", "pn_io.tx_port_properties", FT_UINT8, BASE_HEX, NULL, 0x0, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit0,
+      { "TxPortLocal", "pn_io.tx_port_properties_bit_0", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x01, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit1,
+      { "TxPort_1", "pn_io.tx_port_properties_bit_1", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x02, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit2,
+      { "TxPort_2", "pn_io.tx_port_properties_bit_2", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x04, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit3,
+      { "TxPort_3", "pn_io.tx_port_properties_bit_3", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x08, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit4,
+      { "TxPort_4", "pn_io.tx_port_properties_bit_4", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x10, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit5,
+      { "TxPort_5", "pn_io.tx_port_properties_bit_5", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x20, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit6,
+      { "TxPort_6", "pn_io.tx_port_properties_bit_6", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x40, NULL, HFILL }},
+    { &hf_pn_io_TxPortGroupProperties_bit7,
+      { "TxPort_7", "pn_io.tx_port_properties_bit_7", FT_UINT8, BASE_HEX, VALS(pn_io_txgroup_state), 0x80, NULL, HFILL }},
 
     { &hf_pn_io_start_of_red_frame_id,
       { "StartOfRedFrameID", "pn_io.start_of_red_frame_id", FT_UINT16, BASE_HEX, NULL, 0x0, NULL, HFILL }},
@@ -8737,7 +9987,8 @@ proto_register_pn_io (void)
         &ett_pn_io_profidrive_parameter_request,
         &ett_pn_io_profidrive_parameter_response,
         &ett_pn_io_profidrive_parameter_address,
-        &ett_pn_io_profidrive_parameter_value
+        &ett_pn_io_profidrive_parameter_value,
+        &ett_pn_io_GroupProperties
     };
 
 	proto_pn_io = proto_register_protocol ("PROFINET IO", "PNIO", "pn_io");

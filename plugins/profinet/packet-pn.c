@@ -46,6 +46,7 @@
 static int hf_pn_padding = -1;
 static int hf_pn_undecoded_data = -1;
 static int hf_pn_user_data = -1;
+static int hf_pn_user_bytes = -1;
 static int hf_pn_malformed = -1;
 
 
@@ -217,6 +218,15 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 /* "dissect" some user bytes */
 int
+dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
+                    proto_tree *tree, guint32 length, const char *text)
+{
+    proto_tree_add_bytes(tree, hf_pn_user_bytes, tvb, offset, length, tvb_get_ptr(tvb,offset, length));
+
+    return offset + length;
+}
+
+int
 dissect_pn_user_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                     proto_tree *tree, guint32 length, const char *text)
 {
@@ -286,6 +296,8 @@ init_pn (int proto)
         { "Undecoded Data", "pn.undecoded", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
         { &hf_pn_user_data,
         { "User Data", "pn.user_data", FT_STRING, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+        { &hf_pn_user_bytes,
+        { "Substitute Data", "pn.user_bytes", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }},
 	{ &hf_pn_malformed,
 	{ "Malformed", "pn_rt.malformed", FT_BYTES, BASE_NONE, NULL, 0x0, NULL, HFILL }}
         };
