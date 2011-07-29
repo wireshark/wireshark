@@ -217,7 +217,7 @@ savesslkeys_save_clicked_cb(GtkWidget * w _U_, gpointer data _U_)
 void
 savesslkeys_cb(GtkWidget * w _U_, gpointer data _U_)
 {
-    win32_export_sslkeys_file(GDK_WINDOW_HWND(top_level->window));
+    win32_export_sslkeys_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
     return;
 }
 #else

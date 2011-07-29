@@ -745,7 +745,7 @@ gsm_a_stat_gtk_sacch_rr_cb(
      */
     if (dlg_sacch_rr.win)
     {
-    gdk_window_raise(dlg_sacch_rr.win->window);
+    gdk_window_raise(gtk_widget_get_window(dlg_sacch_rr.win));
     return;
     }
 

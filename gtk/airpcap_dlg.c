@@ -2709,10 +2709,14 @@ on_keys_check_ok_bt_clicked (GtkWidget *button _U_, gpointer user_data)
     ignore_rb = g_object_get_data(G_OBJECT(keys_check_w),AIRPCAP_CHECK_WINDOW_RADIO_IGNORE_KEY);
 
     /* Find out which radio button is selected and call the correct function */
-    if (GTK_TOGGLE_BUTTON(merge_rb)->active) on_merge_bt_clicked (merge_rb,keys_check_w);
-    else if (GTK_TOGGLE_BUTTON(keep_rb)->active) on_keep_bt_clicked (keep_rb,keys_check_w);
-    else if (GTK_TOGGLE_BUTTON(import_rb)->active) on_import_bt_clicked (import_rb,keys_check_w);
-    else if (GTK_TOGGLE_BUTTON(ignore_rb)->active) on_ignore_bt_clicked (ignore_rb,keys_check_w);
+    if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(merge_rb)))
+		on_merge_bt_clicked (merge_rb,keys_check_w);
+    else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(keep_rb))) 
+		on_keep_bt_clicked (keep_rb,keys_check_w);
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(import_rb))) 
+		on_import_bt_clicked (import_rb,keys_check_w);
+    else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ignore_rb)))
+		on_ignore_bt_clicked (ignore_rb,keys_check_w);
     else on_keys_check_cancel_bt_clicked(NULL,keys_check_w);
 }
 

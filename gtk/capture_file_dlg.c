@@ -450,7 +450,7 @@ static void
 file_open_cmd(GtkWidget *w)
 {
 #if _WIN32
-  win32_open_file(GDK_WINDOW_HWND(top_level->window));
+  win32_open_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
 #else /* _WIN32 */
   GtkWidget	*main_hb, *main_vb, *filter_hbox, *filter_bt, *filter_te,
   		*m_resolv_cb, *n_resolv_cb, *t_resolv_cb, *prev;
@@ -736,7 +736,7 @@ static void
 file_merge_cmd(GtkWidget *w)
 {
 #if _WIN32
-  win32_merge_file(GDK_WINDOW_HWND(top_level->window));
+  win32_merge_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)));
   new_packet_list_freeze();
   new_packet_list_thaw();
 #else /* _WIN32 */
@@ -1182,7 +1182,7 @@ void
 file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
 {
 #if _WIN32
-  win32_save_as_file(GDK_WINDOW_HWND(top_level->window), action_after_save, action_after_save_data);
+  win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), action_after_save, action_after_save_data);
 #else /* _WIN32 */
   GtkWidget     *main_vb, *ft_hb, *ft_lb, *ft_combo_box, *range_fr, *compressed_cb;
   gint combo_box_item_to_select;
@@ -1516,7 +1516,7 @@ void
 file_color_import_cmd_cb(GtkWidget *color_filters, gpointer filter_list _U_)
 {
 #if _WIN32
-  win32_import_color_file(GDK_WINDOW_HWND(top_level->window), color_filters);
+  win32_import_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), color_filters);
 #else /* _WIN32 */
   GtkWidget	*main_vb, *cfglobal_but;
 
@@ -1649,7 +1649,7 @@ void
 file_color_export_cmd_cb(GtkWidget *w _U_, gpointer filter_list)
 {
 #if _WIN32
-  win32_export_color_file(GDK_WINDOW_HWND(top_level->window), filter_list);
+  win32_export_color_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), filter_list);
 #else /* _WIN32 */
   GtkWidget *main_vb, *cfglobal_but;
   GtkWidget *cfselect_cb;
