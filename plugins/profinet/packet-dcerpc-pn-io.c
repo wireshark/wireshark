@@ -2087,9 +2087,9 @@ static const value_string pn_io_ext_channel_error_type0x800A[] = {
     /* 0x0000 Reserved */
     /* 0x0001 - 0x7FFF Manufacturer specific */
     /* 0x8000 - 0x80FF Reserved */
-    { 0x8100, "Frame late error for FrameID "0x0100""},
+    { 0x8100, "Frame late error for FrameID (0x0100)"},
     /* 0x8101 + 0x8FFE See Equation (56) */    
-    { 0x8FFF, "Frame late error for FrameID "0x0FFF""},
+    { 0x8FFF, "Frame late error for FrameID (0x0FFF)"},
     /* 0x8001 - 0x8FFF Reserved */
     /* 0x9000 - 0x9FFF Reserved for profiles */
     /* 0xA000 - 0xFFFF Reserved */
@@ -2101,9 +2101,9 @@ static const value_string pn_io_ext_channel_error_type0x800B[] = {
     /* 0x0000 Reserved */
     /* 0x0001 - 0x7FFF Manufacturer specific */
     /* 0x8000 - 0x86FF Reserved */
-    { 0x8700, "MRPD duplication void for FrameID "0x0700""},
+    { 0x8700, "MRPD duplication void for FrameID (0x0700)"},
     /* 0x8701 + 0x8FFE See Equation (57) */
-    { 0x8FFF, "MRPD duplication void for FrameID "0x0FFF""},
+    { 0x8FFF, "MRPD duplication void for FrameID (0x0FFF)"},
     /* 0x9000 - 0x9FFF Reserved for profiles */
     /* 0xA000 - 0xFFFF Reserved */
     { 0, NULL }
