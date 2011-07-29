@@ -68,7 +68,7 @@
 #define LOWPAN_PATTERN_HC1_BITS         8
 #define LOWPAN_PATTERN_BC0              0x50
 #define LOWPAN_PATTERN_BC0_BITS         8
-#define LOWPAN_PATTERN_IPHC             0x03    /* See draft-ietf-6lowpan-hc-05.txt */
+#define LOWPAN_PATTERN_IPHC             0x03    /* See draft-ietf-6lowpan-hc-15.txt */
 #define LOWPAN_PATTERN_IPHC_BITS        3
 #define LOWPAN_PATTERN_ESC              0x7f
 #define LOWPAN_PATTERN_ESC_BITS         8
@@ -172,12 +172,17 @@
 #define LOWPAN_NHC_PATTERN_EXT_BITS     4
 #define LOWPAN_NHC_PATTERN_UDP          0x1e
 #define LOWPAN_NHC_PATTERN_UDP_BITS     5
+/* IP-in-IP tunneling is handled as a separate NHC pattern.  */
+#define LOWPAN_NHC_PATTERN_EXT_IPV6     ((LOWPAN_NHC_PATTERN_EXT << LOWPAN_NHC_EXT_EID_BITS) | LOWPAN_NHC_EID_IPV6)
+#define LOWPAN_NHC_PATTERN_EXT_IPV6_BITS (LOWPAN_NHC_PATTERN_EXT_BITS + LOWPAN_NHC_EXT_EID_BITS)
 
 /* NHC Extension header fields. */
 #define LOWPAN_NHC_EXT_EID              0x0e
 #define LOWPAN_NHC_EXT_EID_OFFSET       1
+#define LOWPAN_NHC_EXT_EID_BITS         3
 #define LOWPAN_NHC_EXT_NHDR             0x01
 
+/* Extension header ID codes. */
 #define LOWPAN_NHC_EID_HOP_BY_HOP       0x00
 #define LOWPAN_NHC_EID_ROUTING          0x01
 #define LOWPAN_NHC_EID_FRAGMENT         0x02
@@ -443,12 +448,13 @@ static void         prefs_6lowpan_apply         (void);
 static gboolean     dissect_6lowpan_heur        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void         dissect_6lowpan             (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static tvbuff_t *   dissect_6lowpan_ipv6        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static tvbuff_t *   dissect_6lowpan_hc1         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, proto_item *length_item);
+static tvbuff_t *   dissect_6lowpan_hc1         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid);
 static tvbuff_t *   dissect_6lowpan_bc0         (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static tvbuff_t *   dissect_6lowpan_iphc        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size);
-static struct lowpan_nhdr * dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint dgram_size);
+static tvbuff_t *   dissect_6lowpan_iphc        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid);
+static struct lowpan_nhdr * 
+                    dissect_6lowpan_iphc_nhc    (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint dgram_size, guint8 *siid, guint8 *diid);
 static tvbuff_t *   dissect_6lowpan_mesh        (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-static tvbuff_t *   dissect_6lowpan_frag_first  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static tvbuff_t *   dissect_6lowpan_frag_first  (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 *siid, guint8 *diid);
 static tvbuff_t *   dissect_6lowpan_frag_middle (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 static void         dissect_6lowpan_unknown     (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -658,7 +664,7 @@ lowpan_parse_nhc_proto(tvbuff_t *tvb, gint offset)
             case LOWPAN_NHC_EID_MOBILITY:
                 return IP_PROTO_MIPV6;
             case LOWPAN_NHC_EID_IPV6:
-                /* I don't understand this option. */
+                return IP_PROTO_IPV6;
             default:
                 /* Unknown protocol type. */
                 return IP_PROTO_NONE;
@@ -730,7 +736,14 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *volatile    lowpan_tree = NULL;
     proto_item *volatile    lowpan_root = NULL;
     tvbuff_t *              next = tvb;
-
+    /* Interface identifier of the encapsulating layer. */
+    guint8                  src_iid[LOWPAN_IFC_ID_LEN];
+    guint8                  dst_iid[LOWPAN_IFC_ID_LEN];
+    
+    /* Get the interface identifiers from the encapsulating layer. */
+    lowpan_dlsrc_to_ifcid(pinfo, src_iid);
+    lowpan_dldst_to_ifcid(pinfo, dst_iid);
+    
     /* Create the protocol tree. */
     if (tree) {
         lowpan_root = proto_tree_add_protocol_format(tree, proto_6lowpan, tvb, 0, tvb_length(tvb), "6LoWPAN");
@@ -749,30 +762,35 @@ dissect_6lowpan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (!next) return;
     }
 
-    /* Reassemble first fragments. */
+    /* After the mesh and broadcast headers, process dispatch codes recursively. */
+    /* Fragmentation headers.*/
     if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAG1) {
-        next = dissect_6lowpan_frag_first(next, pinfo, lowpan_tree);
+        next = dissect_6lowpan_frag_first(next, pinfo, lowpan_tree, src_iid, dst_iid);
     }
-    /* Reassemble intermediate fragments. */
     else if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_FRAG_BITS) == LOWPAN_PATTERN_FRAGN) {
         next = dissect_6lowpan_frag_middle(next, pinfo, lowpan_tree);
     }
-    /* Next should be either an uncompressed IPv6, HC1, or IPHC datagram. */
+    /* Uncompressed IPv6 packets. */
     else if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_IPV6_BITS) == LOWPAN_PATTERN_IPV6) {
         next = dissect_6lowpan_ipv6(next, pinfo, lowpan_tree);
     }
+    /* Compressed IPv6 packets. */
     else if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
-        next = dissect_6lowpan_hc1(next, pinfo, lowpan_tree, -1, NULL);
+        next = dissect_6lowpan_hc1(next, pinfo, lowpan_tree, -1, src_iid, dst_iid);
+        /* Add a new data source. */
+        if (next) add_new_data_source(pinfo, next, "6LoWPAN");
     }
     else if (tvb_get_bits8(next, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
-        next = dissect_6lowpan_iphc(next, pinfo, lowpan_tree, -1);
+        next = dissect_6lowpan_iphc(next, pinfo, lowpan_tree, -1, src_iid, dst_iid);
+        /* Add a new data source. */
+        if (next) add_new_data_source(pinfo, next, "6LoWPAN");
     }
     /* Unknown 6LoWPAN dispatch type */
     else {
         dissect_6lowpan_unknown(next, pinfo, lowpan_tree);
         return;
     }
-
+    
     /* The last step should have returned an uncompressed IPv6 datagram. */
     if (next) {
         call_dissector(ipv6_handle, next, pinfo, tree);
@@ -819,12 +837,14 @@ dissect_6lowpan_ipv6(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  *      pinfo           ; packet info.
  *      tree            ; 6LoWPAN display tree.
  *      dgram_size      ; Datagram size (or <0 if not fragmented).
+ *      siid            ; Source Interface ID.
+ *      diid            ; Destination Interface ID.
  *  RETURNS
  *      tvbuff_t *      ; The remaining payload to be parsed.
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, proto_item *length_item)
+dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid)
 {
     gint                offset = 0;
     gint                bit_offset;
@@ -929,13 +949,8 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
             ipv6.ip6_src.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
         }
     }
-    /* Try to recover the source interface identifier from the packet info. */
-    else if (pinfo->src.type == AT_EUI64) {
-        memcpy(&ipv6.ip6_src.bytes[8], pinfo->src.data, 8);
-    }
-    /* Try to recover the source interface identifier from the link layer. */
     else {
-        lowpan_dlsrc_to_ifcid(pinfo, &ipv6.ip6_src.bytes[8]);
+        memcpy(&ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
     }
     /* Display the source address. */
     if (tree) {
@@ -966,13 +981,8 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
             ipv6.ip6_dst.bytes[i] = tvb_get_bits8(tvb, bit_offset, 8);
         }
     }
-    /* Try to recover the destination interface identifier from the packet info. */
-    else if (pinfo->dst.type == AT_EUI64) {
-        memcpy(&ipv6.ip6_dst.bytes[8], pinfo->dst.data, 8);
-    }
-    /* Try to recover the source interface identifier from the link layer. */
     else {
-        lowpan_dldst_to_ifcid(pinfo, &ipv6.ip6_dst.bytes[8]);
+        memcpy(&ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
     }
     /* Display the destination address. */
     if (tree) {
@@ -1083,9 +1093,6 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
         else if (dgram_size >= 0) {
             if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
                 /* Datagram size is too small */
-                expert_add_info_format(pinfo, length_item, PI_MALFORMED,
-                    PI_ERROR, "Length is less than IPv6 header length %u",
-                    (guint)sizeof(struct ip6_hdr));
                 return NULL;
             }
             udp.length = dgram_size - (gint)sizeof(struct ip6_hdr);
@@ -1143,7 +1150,6 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
 
     /* Link the reassembled tvbuff together.  */
     ipv6_tvb = lowpan_reassemble_ipv6(tvb, &ipv6, nhdr_list);
-    add_new_data_source(pinfo, ipv6_tvb, "Decompressed 6LoWPAN header");
     return ipv6_tvb;
 } /* dissect_6lowpan_hc1 */
 
@@ -1156,18 +1162,20 @@ dissect_6lowpan_hc1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dg
  *      This header is still in the draft phase, but is expected
  *      to replace HC1.
  *
- *      See draft-ietf-6lowpan-hc-06.txt
+ *      See draft-ietf-6lowpan-hc-15.txt
  *  PARAMETERS
  *      tvb             ; packet buffer.
  *      pinfo           ; packet info.
  *      tree            ; 6LoWPAN display tree.
  *      dgram_size      ; Datagram size (or <0 if not fragmented).
+ *      siid            ; Source Interface ID.
+ *      diid            ; Destination Interface ID.
  *  RETURNS
  *      tvbuff_t *      ; The remaining payload to be parsed.
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size)
+dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint dgram_size, guint8 *siid, guint8 *diid)
 {
     gint                offset = 0;
     gint                length = 0;
@@ -1334,10 +1342,10 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         length = 0;
         memset(&ipv6.ip6_src, 0, sizeof(ipv6.ip6_src));
     }
-    /* The IID is derived from the link-layer source. */
+    /* The IID is derived from the encapsulating layer. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
         length = 0;
-        lowpan_dlsrc_to_ifcid(pinfo, &ipv6.ip6_src.bytes[8]);
+        memcpy(&ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN], siid, LOWPAN_IFC_ID_LEN);
     }
     /* Full Address inline. */
     else if (iphc_src_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
@@ -1358,6 +1366,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
     if (length) {
         tvb_memcpy(tvb, &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - length], offset, length);
     }
+    /* Update the IID of the encapsulating layer. */
+    siid = &ipv6.ip6_src.bytes[sizeof(ipv6.ip6_src) - LOWPAN_IFC_ID_LEN];
 
     /* Display the source IPv6 address. */
     if (tree) {
@@ -1448,7 +1458,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         /* The IID is derived from the link-layer source. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_COMPRESSED) {
             length = 0;
-            lowpan_dldst_to_ifcid(pinfo, &ipv6.ip6_dst.bytes[8]);
+            memcpy(&ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN], diid, LOWPAN_IFC_ID_LEN);
         }
         /* Full Address inline. */
         else if (iphc_dst_mode == LOWPAN_IPHC_ADDR_FULL_INLINE) {
@@ -1468,6 +1478,8 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         if (length) {
             tvb_memcpy(tvb, &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - length], offset, length);
         }
+        /* Update the interface id of the encapsulating layer. */
+        diid = &ipv6.ip6_dst.bytes[sizeof(ipv6.ip6_dst) - LOWPAN_IFC_ID_LEN];
     }
 
     /* Display the destination IPv6 address. */
@@ -1491,7 +1503,7 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
         ipv6.ip6_nxt = lowpan_parse_nhc_proto(tvb, offset);
 
         /* Parse the 6LoWPAN NHC fields. */
-        nhdr_list = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - sizeof(struct ip6_hdr));
+        nhdr_list = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - sizeof(struct ip6_hdr), siid, diid);
     }
     /* Create an extension header for the remaining payload. */
     else {
@@ -1515,7 +1527,6 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
      */
     /* Reassemble the IPv6 packet. */
     ipv6_tvb = lowpan_reassemble_ipv6(tvb, &ipv6, nhdr_list);
-    add_new_data_source(pinfo, ipv6_tvb, "Decompressed 6LoWPAN header");
     return ipv6_tvb;
 } /* dissect_6lowpan_iphc */
 
@@ -1530,19 +1541,64 @@ dissect_6lowpan_iphc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint d
  *      tree            ; 6LoWPAN display tree.
  *      offset          ; packet buffer offset.
  *      dgram_size      ; Remaining datagram size (or <0 if unknown).
+ *      siid            ; Source Interface ID.
+ *      diid            ; Destination Interface ID.
  *  RETURNS
  *      lowpan_nhdr *   ; List of ep_alloc'd next header structures.
  *---------------------------------------------------------------
  */
 static struct lowpan_nhdr *
-dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint dgram_size)
+dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint offset, gint dgram_size, guint8 *siid, guint8 *diid)
 {
     gint                length;
     proto_item *        ti = NULL;
     proto_tree *        nhc_tree = NULL;
     struct lowpan_nhdr *nhdr;
 
-    /* IPv6 Extension Header. */
+    /*=====================================================
+     * IP-in-IP Tunneling
+     *=====================================================
+     */
+    if (tvb_get_bits8(tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_IPV6_BITS) == LOWPAN_NHC_PATTERN_EXT_IPV6) {
+        guint8          ext_flags;
+        tvbuff_t       *iphc_tvb;
+        
+        /* Create a tree for the IPv6 extension header. */
+        if (tree) {
+            ti = proto_tree_add_text(tree, tvb, offset, sizeof(guint16), "IPv6 extension header");
+            nhc_tree = proto_item_add_subtree(ti, ett_6lowpan_nhc_ext);
+            /* Display the NHC-UDP pattern. */
+            proto_tree_add_bits_item(nhc_tree, hf_6lowpan_nhc_pattern, tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS, FALSE);
+        }
+
+        /* Get and display the extension header compression flags. */
+        ext_flags = tvb_get_guint8(tvb, offset);
+        if (tree) {
+            proto_tree_add_uint(nhc_tree, hf_6lowpan_nhc_ext_eid, tvb, offset, sizeof(guint8), ext_flags & LOWPAN_NHC_EXT_EID);
+            proto_tree_add_boolean(nhc_tree, hf_6lowpan_nhc_ext_nh, tvb, offset, sizeof(guint8), ext_flags & LOWPAN_NHC_EXT_NHDR);
+            if (ext_flags & LOWPAN_NHC_EXT_NHDR) {
+                /* TODO: Flag a warning, the NH bit MUST be 0 when EID==0x7 (IP-in-IP). */
+            }
+        }
+        offset += sizeof(guint8);
+        
+        /* Decode the remainder of the packet using IPHC encoding. */
+        iphc_tvb = dissect_6lowpan_iphc(tvb_new_subset(tvb, offset, -1, -1), pinfo, tree, dgram_size, siid, diid);
+        if (!iphc_tvb) return NULL;
+        
+        /* Create the next header structure for the tunneled IPv6 header. */
+        nhdr = (struct lowpan_nhdr *)ep_alloc0(sizeof(struct lowpan_nhdr) + tvb_length(iphc_tvb));
+        nhdr->next = NULL;
+        nhdr->proto = IP_PROTO_IPV6;
+        nhdr->length = tvb_length(iphc_tvb);
+        nhdr->reported = tvb_reported_length(iphc_tvb);
+        tvb_memcpy(iphc_tvb, LOWPAN_NHDR_DATA(nhdr), 0, nhdr->length);
+        return nhdr;
+    }
+    /*=====================================================
+     * IPv6 Extension Header
+     *=====================================================
+     */
     if (tvb_get_bits8(tvb, offset<<3, LOWPAN_NHC_PATTERN_EXT_BITS) == LOWPAN_NHC_PATTERN_EXT) {
         struct ip6_ext  ipv6_ext;
         guint8          ext_flags;
@@ -1633,7 +1689,7 @@ dissect_6lowpan_iphc_nhc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
              * There are more LOWPAN_NHC structures to parse. Call ourself again
              * recursively to parse them and build the linked list.
              */
-            nhdr->next = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - ext_len - sizeof(struct ip6_ext));
+            nhdr->next = dissect_6lowpan_iphc_nhc(tvb, pinfo, tree, offset, dgram_size - ext_len - sizeof(struct ip6_ext), siid, diid);
         }
         else {
             /* Create another next header structure for the remaining payload. */
@@ -1972,12 +2028,14 @@ dissect_6lowpan_mesh(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  *      tvb             ; packet buffer.
  *      pinfo           ; packet info.
  *      tree            ; 6LoWPAN display tree.
+ *      siid            ; Source Interface ID.
+ *      diid            ; Destination Interface ID.
  *  RETURNS
  *      tvbuff_t *      ; reassembled IPv6 packet.
  *---------------------------------------------------------------
  */
 static tvbuff_t *
-dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint8 *siid, guint8 *diid)
 {
     gint                offset = 0;
     gint                frag_size;
@@ -2018,16 +2076,28 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item_set_end(ti, tvb, offset);
     }
 
-    /* The first fragment should be followed by  */
+    /* The first fragment can contain an uncompressed IPv6, HC1 or IPHC fragment.  */
     frag_tvb = tvb_new_subset(tvb, offset, -1, -1);
     if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_IPV6_BITS) == LOWPAN_PATTERN_IPV6) {
         frag_tvb = dissect_6lowpan_ipv6(frag_tvb, pinfo, tree);
     }
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_HC1_BITS) == LOWPAN_PATTERN_HC1) {
-        frag_tvb = dissect_6lowpan_hc1(frag_tvb, pinfo, tree, dgram_size, length_item);
+        /* Check if the datagram size is sane. */
+        if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
+            expert_add_info_format(pinfo, length_item, PI_MALFORMED,
+                PI_ERROR, "Length is less than IPv6 header length %u",
+                (guint)sizeof(struct ip6_hdr));
+        }
+        frag_tvb = dissect_6lowpan_hc1(frag_tvb, pinfo, tree, dgram_size, siid, diid);
     }
     else if (tvb_get_bits8(frag_tvb, 0, LOWPAN_PATTERN_IPHC_BITS) == LOWPAN_PATTERN_IPHC) {
-        frag_tvb = dissect_6lowpan_iphc(frag_tvb, pinfo, tree, dgram_size);
+        /* Check if the datagram size is sane. */
+        if (dgram_size < (gint)sizeof(struct ip6_hdr)) {
+            expert_add_info_format(pinfo, length_item, PI_MALFORMED,
+                PI_ERROR, "Length is less than IPv6 header length %u",
+                (guint)sizeof(struct ip6_hdr));
+        }
+        frag_tvb = dissect_6lowpan_iphc(frag_tvb, pinfo, tree, dgram_size, siid, diid);
     }
     /* Unknown 6LoWPAN dispatch type */
     else {
@@ -2051,7 +2121,7 @@ dissect_6lowpan_frag_first(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Attempt reassembly. */
     new_tvb = process_reassembled_data(frag_tvb, 0, pinfo,
-                    "Reassembled 6LowPAN", frag_data, &lowpan_frag_items,
+                    "6LowPAN", frag_data, &lowpan_frag_items,
                     NULL, tree);
 
     /* If reassembly was successful, then return the completed datagram. */
@@ -2147,7 +2217,7 @@ dissect_6lowpan_frag_middle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Attempt reassembly. */
     new_tvb = process_reassembled_data(tvb, offset, pinfo,
-                    "Reassembled 6LowPAN", frag_data, &lowpan_frag_items,
+                    "6LowPAN", frag_data, &lowpan_frag_items,
                     NULL, tree);
 
     /* If reassembly was successful, then return the completed datagram. */
