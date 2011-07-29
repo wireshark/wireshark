@@ -79,7 +79,7 @@
 #	define gtk_widget_get_style_context(x) gtk_widget_get_style(x)
 #	define gtk_style_context_get_color(x,y,z) gdkcolor_to_color_t(&z, &x->text[y])
 #	define gtk_style_context_get_color_background(x,y,z) gdkcolor_to_color_t(&z, &x->base[y])
-#	if GTK_CHECK_VERSION (2, 22, 0) && defined(GSEAL_ENABLE)
+#	if GTK_CHECK_VERSION (2, 20, 0) && defined(GSEAL_ENABLE)
 	/* This is too late, see https://bugzilla.gnome.org/show_bug.cgi?id=641089
 	 * They also admit that they missed a use case and thus failed to provide
 	 * an accessor function:
