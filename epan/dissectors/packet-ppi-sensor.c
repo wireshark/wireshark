@@ -30,13 +30,9 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/ptvcursor.h>
-#include <epan/prefs.h>
-#include <epan/reassemble.h>
-#include <epan/dissectors/packet-ppi-geolocation-common.h>
+#include "packet-ppi-geolocation-common.h"
 
 enum ppi_sensor_type {
     PPI_SENSOR_SENSORTYPE   = 0, /* Velocity, Acceleration, etc */
@@ -136,12 +132,9 @@ static int hf_ppi_sensor_present_ext = -1;
 static gint ett_ppi_sensor = -1;
 static gint ett_ppi_sensor_present = -1;
 
-
-static void
-dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 /* used with ScaleFactor */
-gdouble base_10_expt(int power)
+static gdouble
+base_10_expt(int power)
 {
     gdouble ret = 1;
     int provide_frac = 0;
@@ -165,7 +158,9 @@ gdouble base_10_expt(int power)
     else
         return (1.0/ret);
 }
-void dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+
+static void
+dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* The fixed values up front */
     guint32 version;
     guint length;
@@ -311,7 +306,7 @@ void dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val =  fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_gdouble(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_x, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -325,7 +320,7 @@ void dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val =  fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_gdouble(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_y, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -340,7 +335,7 @@ void dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val =  fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_gdouble(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_z, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -354,7 +349,7 @@ void dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val =  fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_gdouble(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_t, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -368,7 +363,7 @@ void dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             val_t = tvb_get_letohl(tvb, offset);
-            c_val =  fixed6_4_to_gdouble(val_t);
+            c_val = ppi_fixed6_4_to_gdouble(val_t);
             if (tree) {
                 my_pt = proto_tree_add_double(ppi_sensor_tree, hf_ppi_sensor_val_e, tvb, offset, 4, c_val);
                 proto_item_append_text (my_pt, " %s", unit_str);
@@ -563,3 +558,18 @@ proto_register_ppi_sensor(void) {
     register_dissector("ppi_sensor", dissect_ppi_sensor, proto_ppi_sensor);
 
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
+
+

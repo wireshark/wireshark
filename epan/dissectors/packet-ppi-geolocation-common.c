@@ -23,13 +23,14 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+#include <glib.h>
 #include "packet-ppi-geolocation-common.h"
 
 /*
  * input: a unsigned 32-bit (native endian) value between 0 and 3600000000 (inclusive)
  * output: a signed floating point value betwen -180.0000000 and + 180.0000000, inclusive)
  */
-gdouble fixed3_7_to_gdouble(guint32 in) {
+gdouble ppi_fixed3_7_to_gdouble(guint32 in) {
     gint32 remapped_in = in - (180 * 10000000);
     gdouble ret = (gdouble) ((gdouble) remapped_in / 10000000);
     return ret;
@@ -39,7 +40,7 @@ gdouble fixed3_7_to_gdouble(guint32 in) {
  * output: a positive floating point value between 000.0000000 and 999.9999999
  */
 
-gdouble fixed3_6_to_gdouble(guint32 in) {
+gdouble ppi_fixed3_6_to_gdouble(guint32 in) {
     gdouble ret = (gdouble) in  / 1000000.0;
     return ret;
 
@@ -48,13 +49,13 @@ gdouble fixed3_6_to_gdouble(guint32 in) {
  * input: a native 32 bit unsigned value between 0 and 3600000000
  * output: a signed floating point value between -180000.0000 and +180000.0000
  */
-gdouble fixed6_4_to_gdouble(guint32 in) {
+gdouble ppi_fixed6_4_to_gdouble(guint32 in) {
     gint32 remapped_in = in - (180000 * 10000);
     gdouble ret = (gdouble) ((gdouble) remapped_in / 10000);
     return ret;
 }
 
-gdouble ns_counter_to_gdouble(guint32 in) {
+gdouble ppi_ns_counter_to_gdouble(guint32 in) {
     gdouble ret;
     ret = (gdouble) in / 1000000000;
     return ret;

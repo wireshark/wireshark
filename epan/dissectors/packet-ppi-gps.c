@@ -30,12 +30,8 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 #include <epan/packet.h>
-#include <epan/ptvcursor.h>
-#include <epan/prefs.h>
-#include <epan/reassemble.h>
-#include <epan/dissectors/packet-ppi-geolocation-common.h>
+#include "packet-ppi-geolocation-common.h"
 
 enum ppi_geotagging_type {
     PPI_GEOTAG_GPSFLAGS = 0,
@@ -126,12 +122,10 @@ static gint ett_ppi_gps_present = -1;
 static gint ett_ppi_gps_gpsflags_flags= -1;
 
 static void
-dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* These are locals used for processing the current tvb */
     guint length;
-    guint length_remaining;
+    gint  length_remaining;
     int offset = 0;
 
     proto_tree *ppi_gps_tree = NULL;
@@ -162,11 +156,11 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     gps_timestamp.secs = gps_timestamp.nsecs = already_processed_fractime = 0;
 
     /* Clear out stuff in the info column */
-    if (check_col(pinfo->cinfo,COL_INFO))
-        col_clear(pinfo->cinfo,COL_INFO);
+    col_clear(pinfo->cinfo,COL_INFO);
+
     /* pull out the first three fields of the BASE-GEOTAG-HEADER */
     version = tvb_get_guint8(tvb, offset);
-    length = tvb_get_letohs(tvb, offset+2);
+    length  = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
 
     /* Setup basic column info */
@@ -179,7 +173,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         gps_line = ti; /*we will make this more useful if we hit lon/lat later */
         ppi_gps_tree= proto_item_add_subtree(ti, ett_ppi_gps);
         proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_version, tvb, offset, 1, version);
-        proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_pad, tvb, offset + 1, 1, FALSE);
+        proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_pad, tvb, offset + 1, 1, ENC_NA);
         ti = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_length, tvb, offset + 2, 2, length);
     }
 
@@ -215,20 +209,20 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pt = proto_tree_add_uint(ppi_gps_tree, hf_ppi_gps_present, tvb, offset + 4, 4, present);
         present_tree = proto_item_add_subtree(pt, ett_ppi_gps_present);
 
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_gpsflags_flags, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_lat, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_lon, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_alt, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_alt_gnd, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_gpstime, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_fractime, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_eph, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_epv, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_ept, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_descr, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_appspecific_num, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_appspecific_data, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_gps_present_ext, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_gpsflags_flags, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_lat, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_lon, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_alt, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_alt_gnd, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_gpstime, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_fractime, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_eph, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_epv, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_ept, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_descr, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_appspecific_num, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_gps_present_ext, tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
@@ -250,15 +244,15 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 /* then we add a subtree */
                 gpsflags_flags_tree = proto_item_add_subtree(my_pt, ett_ppi_gps_gpsflags_flags);
                 /* to pin the individual bits on */
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag0_nofix, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag1_gpsfix, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag2_diffgps, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag3_PPS, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag4_RTK, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag5_floatRTK, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag6_dead_reck, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag7_manual, tvb, offset, 4, TRUE);
-                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag8_sim, tvb, offset, 4, TRUE);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag0_nofix, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag1_gpsfix, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag2_diffgps, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag3_PPS, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag4_RTK, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag5_floatRTK, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag6_dead_reck, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag7_manual, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(gpsflags_flags_tree, hf_ppi_gps_gpsflags_flag8_sim, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             }
             offset+=4;
             length_remaining-=4;
@@ -267,7 +261,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_lat = tvb_get_letohl(tvb, offset);
-            lat =  fixed3_7_to_gdouble(t_lat);
+            lat =  ppi_fixed3_7_to_gdouble(t_lat);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_lat, tvb, offset, 4, lat);
@@ -280,7 +274,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_lon = tvb_get_letohl(tvb, offset);
-            lon =  fixed3_7_to_gdouble(t_lon);
+            lon =  ppi_fixed3_7_to_gdouble(t_lon);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_lon, tvb, offset, 4, lon);
@@ -293,7 +287,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_alt = tvb_get_letohl(tvb, offset);
-            alt = fixed6_4_to_gdouble(t_alt);
+            alt = ppi_fixed6_4_to_gdouble(t_alt);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_alt, tvb, offset, 4, alt);
@@ -306,7 +300,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_alt_gnd = tvb_get_letohl(tvb, offset);
-            alt_gnd = fixed6_4_to_gdouble(t_alt_gnd);
+            alt_gnd = ppi_fixed6_4_to_gdouble(t_alt_gnd);
             if (tree)
             {
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_alt_gnd, tvb, offset, 4, alt_gnd);
@@ -347,7 +341,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_herr = tvb_get_letohl(tvb, offset);
-            eph  =  fixed3_6_to_gdouble(t_herr);
+            eph  =  ppi_fixed3_6_to_gdouble(t_herr);
             if (tree)
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_eph, tvb, offset, 4, eph);
             offset+=4;
@@ -357,7 +351,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_verr = tvb_get_letohl(tvb, offset);
-            epv  =  fixed3_6_to_gdouble(t_verr);
+            epv  =  ppi_fixed3_6_to_gdouble(t_verr);
             if (tree)
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_epv, tvb, offset, 4, epv);
             offset+=4;
@@ -367,7 +361,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_terr = tvb_get_letohl(tvb, offset);
-            ept  =  ns_counter_to_gdouble(t_terr);
+            ept  =  ppi_ns_counter_to_gdouble(t_terr);
             if (tree)
                 proto_tree_add_double(ppi_gps_tree, hf_ppi_gps_ept, tvb, offset, 4, ept);
             offset+=4;
@@ -378,7 +372,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 break;
             if (tree)
             {
-                /* proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_descstr, tvb, offset, 32,  FALSE); */
+                /* proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_descstr, tvb, offset, 32,  ENC_NA); */
                 curr_str = tvb_format_stringzpad(tvb, offset, 32); /* need to append_text this */
                 proto_tree_add_string(ppi_gps_tree, hf_ppi_gps_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(gps_line, " (%s)", curr_str);
@@ -400,7 +394,7 @@ void dissect_ppi_gps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 60)
                 break;
             if (tree) {
-                proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_appspecific_data, tvb, offset, 60,  FALSE);
+                proto_tree_add_item(ppi_gps_tree, hf_ppi_gps_appspecific_data, tvb, offset, 60,  ENC_NA);
             }
             offset+=60;
             length_remaining-=60;
@@ -426,9 +420,9 @@ proto_register_ppi_gps(void) {
     /* The following array initializes those header fields declared above to the values displayed */
     static hf_register_info hf[] = {
         { &hf_ppi_gps_version,
-            { "Header revision", "ppi_gps.version",
-                FT_UINT8, BASE_DEC, NULL, 0x0,
-                "Version of ppi_gps header format", HFILL } },
+          { "Header revision", "ppi_gps.version",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "Version of ppi_gps header format", HFILL } },
         { &hf_ppi_gps_pad,
           { "Header pad", "ppi_gps.pad",
             FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -564,7 +558,7 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_appspecific_num,
           { "Application Specific id", "ppi_gps.appid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Application-specific identifier", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_appspecific_data,
           { "Application specific data", "ppi_gps.appdata",
             FT_BYTES, BASE_NONE, NULL, 0x0,
@@ -591,7 +585,7 @@ proto_register_ppi_gps(void) {
         { &hf_ppi_gps_gpsflags_flag2_diffgps, /* Differential GPS fix  available */
           { "Differential GPS provided fix", "ppi_gps.gpsflagss.diffgps",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG2_DIFFGPS,
-            "DGPS provided fix", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_gps_gpsflags_flag3_PPS, /* PPS fix  */
           { "PPS fix", "ppi_gps.gpsflagss.pps",
             FT_BOOLEAN, 32, NULL, PPI_GPS_GPSFLAGS_FLAG3_PPS,

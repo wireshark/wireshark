@@ -30,13 +30,9 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/ptvcursor.h>
-#include <epan/prefs.h>
-#include <epan/reassemble.h>
-#include <epan/dissectors/packet-ppi-geolocation-common.h>
+#include "packet-ppi-geolocation-common.h"
 
 enum ppi_antenna_type {
     PPI_ANTENNA_ANTFLAGS    = 0, /* Various flags about the antenna in use, Polarity, etc */
@@ -55,9 +51,6 @@ enum ppi_antenna_type {
     PPI_ANTENNA_EXT         = 31  /* Indicates n extended bitmap follows */
 };
 #define PPI_ANTENNA_MAXTAGLEN  187 /* increase as fields are added */
-
-
-
 
 
 /* protocol */
@@ -111,13 +104,11 @@ static gint ett_ppi_antennaflags= -1;
 
 
 static void
-dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
-void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
+dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     /* The fixed values up front */
     guint32 version;
     guint length;
-    guint length_remaining;
+    gint  length_remaining;
 
     proto_tree *ppi_antenna_tree = NULL;
     proto_tree *present_tree = NULL;
@@ -140,12 +131,11 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     int offset = 0;
 
     /* Clear out stuff in the info column */
-    if (check_col(pinfo->cinfo,COL_INFO)) {
         col_clear(pinfo->cinfo,COL_INFO);
-    }
+
     /* pull out the first three fields of the BASE-GEOTAG-HEADER */
     version = tvb_get_guint8(tvb, offset);
-    length = tvb_get_letohs(tvb, offset+2);
+    length  = tvb_get_letohs(tvb, offset+2);
     present = tvb_get_letohl(tvb, offset+4);
 
     /* Setup basic column info */
@@ -164,7 +154,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_uint(ppi_antenna_tree, hf_ppi_antenna_version,
                             tvb, offset, 1, version);
         proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_pad,
-                            tvb, offset + 1, 1, FALSE);
+                            tvb, offset + 1, 1, ENC_NA);
         ti = proto_tree_add_uint(ppi_antenna_tree, hf_ppi_antenna_length,
                                  tvb, offset + 2, 2, length);
     }
@@ -201,19 +191,19 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pt = proto_tree_add_uint(ppi_antenna_tree, hf_ppi_antenna_present, tvb, offset + 4, 4, present);
         present_tree = proto_item_add_subtree(pt, ett_ppi_antenna_present);
 
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_flags, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_gaindb, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_horizbw, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_vertbw, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_pgain, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_beamid, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_serialnum, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_modelname, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_descstr, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_appspecific_num, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_appspecific_data, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_flags, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_gaindb, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_horizbw, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_vertbw, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_pgain, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_beamid, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_serialnum, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_modelname, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_descstr, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_appspecific_num, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 
-        proto_tree_add_item(present_tree, hf_ppi_antenna_present_ext, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_antenna_present_ext, tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;
@@ -234,13 +224,13 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 /*Add antenna_flags bitfields here */
                 antennaflags_tree= proto_item_add_subtree(my_pt, ett_ppi_antennaflags);
 
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_mimo, tvb, offset, 4, TRUE);
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_horizpol, tvb, offset, 4, TRUE);
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_vertpol, tvb, offset, 4, TRUE);
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_circpol_l, tvb, offset, 4, TRUE);
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_circpol_r, tvb, offset, 4, TRUE);
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_steer_elec, tvb, offset, 4, TRUE);
-                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_steer_mech, tvb, offset, 4, TRUE);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_mimo, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_horizpol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_vertpol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_circpol_l, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_circpol_r, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_steer_elec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(antennaflags_tree, hf_ppi_antennaflags_steer_mech, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             }
             offset+=4;
             length_remaining-=4;
@@ -261,7 +251,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_hbw = tvb_get_letohl(tvb, offset);
-            horizbw =  fixed3_6_to_gdouble(t_hbw);
+            horizbw =  ppi_fixed3_6_to_gdouble(t_hbw);
             if (tree) {
                 proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_horizbw, tvb, offset, 4, horizbw);
                 proto_item_append_text(antenna_line, " HorizBw: %f", horizbw);
@@ -273,7 +263,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_vbw = tvb_get_letohl(tvb, offset);
-            vertbw =  fixed3_6_to_gdouble(t_vbw);
+            vertbw =  ppi_fixed3_6_to_gdouble(t_vbw);
             if (tree) {
                 proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_vertbw, tvb, offset, 4, vertbw);
             }
@@ -284,7 +274,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 4)
                 break;
             t_pgain = tvb_get_letohl(tvb, offset);
-            pgain =  fixed3_6_to_gdouble(t_pgain);
+            pgain   = ppi_fixed3_6_to_gdouble(t_pgain);
             if (tree) {
                 proto_tree_add_double(ppi_antenna_tree, hf_ppi_antenna_pgain, tvb, offset, 4, pgain);
             }
@@ -349,7 +339,7 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 60)
                 break;
             if (tree) {
-                proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_appspecific_data, tvb, offset, 60,  FALSE);
+                proto_tree_add_item(ppi_antenna_tree, hf_ppi_antenna_appspecific_data, tvb, offset, 60,  ENC_NA);
             }
             offset+=60;
             length_remaining-=60;
@@ -359,7 +349,8 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              * This indicates a field whose size we do not
              * know, so we cannot proceed.
              */
-            proto_tree_add_text(ppi_antenna_tree, tvb, offset, 0,  "Error: PPI-ANTENNA: unknown bit (%d) set in present field.\n", bit);
+            proto_tree_add_text(ppi_antenna_tree, tvb, offset, 0,
+                                "Error: PPI-ANTENNA: unknown bit (%d) set in present field.\n", bit);
             next_present = 0;
             continue;
         }
@@ -370,7 +361,6 @@ void dissect_ppi_antenna(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 void
 proto_register_ppi_antenna(void) {
-    /* The following array initializes those header fields declared above to the values displayed */
     static hf_register_info hf[] = {
         { &hf_ppi_antenna_version,
           { "Header revision", "ppi_antenna.version",
@@ -404,7 +394,7 @@ proto_register_ppi_antenna(void) {
 #define PPI_ANTENNA_MASK_MODELSTR   0x08000000  /* 27 */
 #define PPI_ANTENNA_MASK_DESCSTR    0x10000000  /* 28 */
 #define PPI_ANTENNA_MASK_APPID      0x20000000  /* 29 */
-#define PPI_ANTENNA_MASK_APPDATA     0x40000000  /* 30 */
+#define PPI_ANTENNA_MASK_APPDATA    0x40000000  /* 30 */
 #define PPI_ANTENNA_MASK_EXT        0x80000000  /* 31 */
 
         /*This second set is for the AntennaFlags bitfield. */
@@ -522,20 +512,20 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antenna_pgain,
           { "Precision Gain (dBi)", "ppi_antenna.pgain",
             FT_DOUBLE, BASE_NONE, NULL, 0x0,
-            "Precision Gain", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_antenna_beamid,
           { "BeamID", "ppi_antenna.beamid",
             FT_UINT16, BASE_HEX, NULL, 0x0,
-            "Beam ID", HFILL } },
+            NULL, HFILL } },
 
         { &hf_ppi_antenna_serialnum,
           { "SerialNumber", "ppi_antenna.serialnum",
             FT_STRING,  BASE_NONE, NULL, 0x0,
-            "Serial number", HFILL } } ,
+            NULL, HFILL } } ,
         { &hf_ppi_antenna_modelname,
           { "ModelName", "ppi_antenna.modelname",
             FT_STRING,  BASE_NONE, NULL, 0x0,
-            "Model name", HFILL } } ,
+            NULL, HFILL } } ,
         { &hf_ppi_antenna_descstr,
           { "Description", "ppi_antenna.descr",
             FT_STRING,  BASE_NONE, NULL, 0x0,
@@ -543,11 +533,11 @@ proto_register_ppi_antenna(void) {
         { &hf_ppi_antenna_appspecific_num,
           { "Application Specific id", "ppi_antenna.appid",
             FT_UINT32, BASE_HEX, NULL, 0x0,
-            "Application-specific identifier", HFILL } },
+            NULL, HFILL } },
         { &hf_ppi_antenna_appspecific_data,
           { "Application specific data", "ppi_antenna.appdata",
             FT_BYTES, BASE_NONE, NULL, 0x0,
-            "Application-specific data", HFILL } },
+            NULL, HFILL } },
     };
     static gint *ett[] = {
         &ett_ppi_antenna,
@@ -561,3 +551,16 @@ proto_register_ppi_antenna(void) {
     register_dissector("ppi_antenna", dissect_ppi_antenna, proto_ppi_antenna);
 
 }
+
+/*
+ * Editor modelines
+ *
+ * Local Variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * ex: set shiftwidth=4 tabstop=8 expandtab
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */

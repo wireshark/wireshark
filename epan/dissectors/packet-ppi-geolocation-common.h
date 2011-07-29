@@ -25,7 +25,6 @@
 
 #ifndef __PPI_GEOLOCATION_COMMON_H
 #define __PPI_GEOLOCATION_COMMON_H
-#include <glib.h>
 
 /*
  * Declarations from shared PPI-GEOLOCATION functions.
@@ -59,14 +58,14 @@
  * the fixedX_Y fixed point values into 'native' gdoubles for displaying.
  * Documentation on these formats can be found in the PPI-GEOLOCATION specification
  */
-gdouble fixed3_7_to_gdouble(guint32 in);
-gdouble fixed3_6_to_gdouble(guint32 in);
-gdouble fixed6_4_to_gdouble(guint32 in);
+gdouble ppi_fixed3_7_to_gdouble(guint32 in);
+gdouble ppi_fixed3_6_to_gdouble(guint32 in);
+gdouble ppi_fixed6_4_to_gdouble(guint32 in);
 /*
  * Some values are encoded as 32-bit unsigned nano-second counters.
  * Usually we want to display these values as doubles.
  */
-gdouble ns_counter_to_gdouble(guint32 in);
+gdouble ppi_ns_counter_to_gdouble(guint32 in);
 
 
 typedef enum {

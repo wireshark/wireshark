@@ -55,7 +55,6 @@
 #include <epan/ptvcursor.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <epan/range.h>
 #include <epan/frequency-utils.h>
 
 /* Needed for wtap_pcap_encap_to_wtap_encap(). */
@@ -372,9 +371,6 @@ static GHashTable *ampdu_reassembled_table = NULL;
 static gboolean ppi_ampdu_reassemble = TRUE;
 
 
-static void
-dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
-
 void
 capture_ppi(const guchar *pd, int len, packet_counts *ld)
 {
@@ -421,7 +417,8 @@ capture_ppi(const guchar *pd, int len, packet_counts *ld)
     ld->other++;
 }
 
-static void ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_val) {
+static void
+ptvcursor_add_invalid_check(ptvcursor_t *csr, int hf, gint len, guint64 invalid_val) {
     proto_item *ti;
     guint64 val = invalid_val;
 
@@ -596,7 +593,8 @@ dissect_80211n_mac(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int 
     ptvcursor_free(csr);
 }
 
-static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len, guint32 *n_mac_flags, guint32 *ampdu_id)
+static void
+dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int data_len, guint32 *n_mac_flags, guint32 *ampdu_id)
 {
     proto_tree *ftree = NULL;
     proto_item *ti = NULL;
@@ -669,7 +667,8 @@ static void dissect_80211n_mac_phy(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     ptvcursor_free(csr);
 }
 
-static void dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
+static void
+dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
 {
     proto_tree *ftree = tree;
     proto_item *ti = NULL;
@@ -691,7 +690,8 @@ static void dissect_aggregation_extension(tvbuff_t *tvb, packet_info *pinfo _U_,
     ptvcursor_free(csr);
 }
 
-static void dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
+static void
+dissect_8023_extension(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset, int data_len)
 {
     proto_tree *ftree = tree;
     proto_item *ti = NULL;
