@@ -120,12 +120,13 @@ static int hf_pana_avp_data_bytes = -1;
 static int hf_pana_avp_data_string = -1;
 static int hf_pana_avp_data_enumerated = -1;
 
-#define MSG_TYPE_MAX 4
+#define MSG_TYPE_MAX 5
 static const value_string msg_type_names[] = {
        { 1, "PANA-Client-Initiation" },
        { 2, "PANA-Auth" },
        { 3, "PANA-Termination" },
        { 4, "PANA-Notification" },
+       { 5, "PANA-Relay" },
        { 0, NULL }
 };
 
@@ -135,7 +136,7 @@ static const value_string msg_subtype_names[] = {
        { 0, NULL }
 };
 
-#define AVP_CODE_MAX 9
+#define AVP_CODE_MAX 11
 static const value_string avp_code_names[] = {
        { 1, "AUTH AVP" },
        { 2, "EAP-Payload AVP" },
@@ -146,6 +147,8 @@ static const value_string avp_code_names[] = {
        { 7, "Result-Code" },
        { 8, "Session-Lifetime" },
        { 9, "Termination-Cause" },
+       { 10, "PaC-Information" },
+       { 11, "Relayed-Message" },
        { 0, NULL }
 };
 
@@ -169,7 +172,8 @@ typedef enum {
   PANA_ENUMERATED,
   PANA_UTF8STRING,
   PANA_EAP,
-  PANA_RESULT_CODE
+  PANA_RESULT_CODE,
+  PANA_ENCAPSULATED
 } pana_avp_types;
 
 static const value_string avp_type_names[]={
@@ -186,6 +190,7 @@ static const value_string avp_type_names[]={
        { PANA_UTF8STRING,      "UTF8String" },
        { PANA_EAP,             "OctetString" },
        { PANA_RESULT_CODE,     "Unsigned32" },
+       { PANA_ENCAPSULATED,    "Encapsulated" },
        { 0, NULL }
 };
 
@@ -208,6 +213,8 @@ typedef struct _pana_conv_info_t {
         emem_tree_t *pdus;
 } pana_conv_info_t;
 
+static void
+dissect_pana_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /*
  * Function for the PANA flags dissector.
@@ -293,6 +300,8 @@ pana_avp_get_type(guint16 avp_code, guint32 vendor_id)
                        case 7:  return PANA_RESULT_CODE;        /* Result-Code AVP */
                        case 8:  return PANA_UNSIGNED32;         /* Session-Lifetime AVP */
                        case 9:  return PANA_ENUMERATED;         /* Termination-Cause AVP */
+                       case 10: return PANA_OCTET_STRING;       /* PaC-Information AVP */
+                       case 11: return PANA_ENCAPSULATED;       /* Relayed-Message AVP */
                        default: return PANA_OCTET_STRING;
                }
        } else {
@@ -323,10 +332,13 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
 
        tvbuff_t   *group_tvb;
        tvbuff_t   *eap_tvb;
+       tvbuff_t   *encap_tvb;
        proto_item *single_avp_item;
        proto_tree *single_avp_tree;
        proto_item *avp_eap_item;
        proto_tree *avp_eap_tree;
+       proto_item *avp_encap_item;
+       proto_tree *avp_encap_tree;
 
        offset = 0;
        buffer_length = tvb_reported_length(tvb);
@@ -459,6 +471,15 @@ dissect_avps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *avp_tree)
                                        if (eap_handle != NULL) {
                                                call_dissector(eap_handle, eap_tvb, pinfo, avp_eap_tree);
                                        }
+                                       break;
+                               }
+                               case PANA_ENCAPSULATED: {
+                                       avp_encap_item = proto_tree_add_text(single_avp_tree,
+                                                                          tvb, offset, avp_data_length,
+                                                                          "AVP Value (PANA packet)");
+                                       avp_encap_tree = proto_item_add_subtree(avp_encap_item, ett_pana_avp);
+                                       encap_tvb = tvb_new_subset(tvb, offset, avp_data_length, avp_data_length);
+                                       dissect_pana_pdu(encap_tvb, pinfo, avp_encap_tree);
                                        break;
                                }
                        }
