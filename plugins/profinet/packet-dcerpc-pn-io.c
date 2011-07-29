@@ -88,7 +88,9 @@ static int hf_pn_io_ar_properties = -1;
 static int hf_pn_io_ar_properties_state = -1;
 static int hf_pn_io_ar_properties_supervisor_takeover_allowed = -1;
 static int hf_pn_io_ar_properties_parametrization_server = -1;
+/* removed within 2.3
 static int hf_pn_io_ar_properties_data_rate = -1;
+*/
 static int hf_pn_io_ar_properties_reserved_1 = -1;
 static int hf_pn_io_ar_properties_device_access = -1;
 static int hf_pn_io_ar_properties_companion_ar = -1;
@@ -3960,8 +3962,8 @@ dissect_ControlBlockPrmBegin(tvbuff_t *tvb, int offset,
 /* dissect the SubmoduleListBlock  block */
 static int
 dissect_SubmoduleListBlock(tvbuff_t *tvb, int offset,
-    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint32 u32RecDataLen,
-    pnio_ar_t **ar)
+    packet_info *pinfo, proto_tree *tree, proto_item *item, guint8 *drep, guint8 u8BlockVersionHigh, guint8 u8BlockVersionLow, guint32 u32RecDataLen _U_,
+    pnio_ar_t **ar _U_)
 {
     guint16     u16Entries;
     guint32     u32API;
@@ -5073,7 +5075,7 @@ dissect_PDPortFODataCheck_block(tvbuff_t *tvb, int offset,
     return offset;
 }
 
-
+#if 0
 /* dissect the PDNCDataCheck block */
 static int
 dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
@@ -5110,6 +5112,7 @@ dissect_PDNCDataCheck_block(tvbuff_t *tvb, int offset,
 
     return offset;
 }
+#endif
 
 /* PDPortStatistic for one subslot */
 static int

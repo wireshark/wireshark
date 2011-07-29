@@ -219,7 +219,7 @@ dissect_pn_undecoded(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 /* "dissect" some user bytes */
 int
 dissect_pn_user_data_bytes(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
-                    proto_tree *tree, guint32 length, const char *text)
+                    proto_tree *tree, guint32 length, const char *text _U_)
 {
     proto_tree_add_bytes(tree, hf_pn_user_bytes, tvb, offset, length, tvb_get_ptr(tvb,offset, length));
 
