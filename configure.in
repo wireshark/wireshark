@@ -851,7 +851,11 @@ if test "$GTK_OK" = "no" ; then
 	# Wireshark unless they fix the GTK+ problem).
 	#
 	if test "x$enable_wireshark" = "xyes"; then
-		AC_MSG_ERROR([GTK+ 2.12 or later isn't available, so Wireshark can't be compiled])
+		if test "x$with_gtk3" = "xyes"; then
+			AC_MSG_ERROR([GTK+ 3.0 or later isn't available, so Wireshark can't be compiled])
+		else
+			AC_MSG_ERROR([GTK+ 2.12 or later isn't available, so Wireshark can't be compiled])
+		fi
 	fi
 	wireshark_bin=""
 	wireshark_man=""
