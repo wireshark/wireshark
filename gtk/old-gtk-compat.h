@@ -79,11 +79,14 @@
 #	define gtk_widget_get_style_context(x) gtk_widget_get_style(x)
 #	define gtk_style_context_get_color(x,y,z) gdkcolor_to_color_t(&z, &x->text[y])
 #	define gtk_style_context_get_color_background(x,y,z) gdkcolor_to_color_t(&z, &x->base[y])
-#	if GTK_CHECK_VERSION (2, 20, 0) && defined(GSEAL_ENABLE)
+#	if GTK_CHECK_VERSION (2, 14, 0) && defined(GSEAL_ENABLE)
 	/* This is too late, see https://bugzilla.gnome.org/show_bug.cgi?id=641089
-	 * They also admit that they missed a use case and thus failed to provide
-	 * an accessor function:
+	 * Accoriding to
+	 * http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.13/gtk+-2.13.4.changes
+	 * access to the button element was sealed during 2.13. They also admit that
+	 * they missed a use case and thus failed to provide an accessor function:
 	 * http://mail.gnome.org/archives/commits-list/2010-December/msg00578.html
+	 * An accessor function was finally added in 3.0.
 	 */
 #		define gtk_tree_view_column_get_button(x) x->_g_sealed__button
 #	else
