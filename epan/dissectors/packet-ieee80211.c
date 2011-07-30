@@ -639,7 +639,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* Not yet assigned by ANA */
 #define TAG_MESH_CONFIGURATION       113
 #define TAG_MESH_ID                  114
-#define TAG_MESH_PEER_LINK_MGMT   55
+#define TAG_MESH_PEERING_MGMT        117
 #define TAG_MESH_PREQ             68
 #define TAG_MESH_PREP             69
 #define TAG_MESH_PERR             70
@@ -722,7 +722,7 @@ static const range_string tag_num_vals[] = {
 #ifdef MESH_OVERRIDES
   { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
   { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
-  { TAG_MESH_PEER_LINK_MGMT, TAG_MESH_PEER_LINK_MGMT, "Mesh Peer Link Management" },
+  { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
   { TAG_MESH_PREQ, TAG_MESH_PREQ, "Mesh Path Request" },
   { TAG_MESH_PREP, TAG_MESH_PREP, "Mesh Path Response" },
   { TAG_MESH_PERR, TAG_MESH_PERR, "Mesh Path Error" },
@@ -909,6 +909,9 @@ static const value_string ieee80211_status_code[] = {
   { 64, "Request refused due to permissions received via SSPN interface" },
   { 65, "Request refused because AP does not support unauthenticated access" },
   { 72, "Invalid contents of RSNIE" },
+  { 76, "Authentication is rejected because an Anti-Clogging Token is required" },
+  { 77, "Authentication is rejected because the offered finite cyclic group is not supported" },
+  { 78, "The TBTT adjustment request has not been successful because the STA could not find an alternative TBTT" },
   { 0,    NULL}
 };
 
@@ -1145,6 +1148,11 @@ static const value_string aruba_mgt_typevals[] = {
 #define SELFPROT_ACTION_MESH_PEERING_CLOSE          3
 #define SELFPROT_ACTION_MESH_GROUP_KEY_INFORM       4
 #define SELFPROT_ACTION_MESH_GROUP_KEY_ACK          5
+
+/* 11s draft 12.0, table 7-43bj6: Mesh Peering Protocol Identifier field values */
+#define MESH_PEERING_PROTO_MGMT                     0
+#define MESH_PEERING_PROTO_AMPE                     1
+#define MESH_PEERING_PROTO_VENDOR                 255
 
 #define MESH_PL_PEER_LINK_OPEN                      0
 #define MESH_PL_PEER_LINK_CONFIRM                   1
@@ -1696,10 +1704,10 @@ static int hf_ieee80211_ff_mesh_mgt_dest_rf_flags = -1;  /* Mesh Management Repl
 
 
 /* variable header fields */
-static int hf_ieee80211_mesh_mgt_pl_subtype = -1;/* Mesh Management peer link frame subtype */
-static int hf_ieee80211_mesh_mgt_pl_local_link_id = -1;/* Mesh Management local link id */
-static int hf_ieee80211_mesh_mgt_pl_peer_link_id = -1;/* Mesh Management peer link id */
-static int hf_ieee80211_mesh_mgt_pl_reason_code = -1;/* Mesh Management peer link reason code */
+static int hf_ieee80211_mesh_peering_proto = -1;
+static int hf_ieee80211_mesh_peering_local_link_id = -1;
+static int hf_ieee80211_mesh_peering_peer_link_id = -1;/* Mesh Management peer link id */
+
 static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
 static int hf_ieee80211_mesh_config_path_sel_metric = -1;
 static int hf_ieee80211_mesh_config_congestion_control = -1;
@@ -8187,32 +8195,43 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
 
 #ifdef MESH_OVERRIDES
-    case TAG_MESH_PEER_LINK_MGMT:
+    case TAG_MESH_PEERING_MGMT:
       {
+        guint start = offset + 2;
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_subtype, tvb, offset, 1, TRUE);
-        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_mesh_peering_proto, tvb, offset, 2, TRUE);
+        offset += 2;
+        proto_tree_add_item (tree, hf_ieee80211_mesh_peering_local_link_id, tvb, offset, 2, TRUE);
+        offset += 2;
         switch (tvb_get_guint8(tvb, 1))
-          {                                         /* IE subtype */
-          case MESH_PL_PEER_LINK_OPEN:
-            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
+          {                                         /* Self-protected action field */
+          case SELFPROT_ACTION_MESH_PEERING_OPEN:
             break;
 
-          case MESH_PL_PEER_LINK_CONFIRM:
-            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
-            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_peer_link_id, tvb, offset + 2, 2, TRUE);
+          case SELFPROT_ACTION_MESH_PEERING_CONFIRM:
+            proto_tree_add_item (tree, hf_ieee80211_mesh_peering_peer_link_id, tvb, offset, 2, TRUE);
+            offset += 2;
             break;
 
-          case MESH_PL_PEER_LINK_CLOSE:
-            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_local_link_id, tvb, offset, 2, TRUE);
-            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_peer_link_id, tvb, offset + 2, 2, TRUE);
-            proto_tree_add_item (tree, hf_ieee80211_mesh_mgt_pl_reason_code, tvb, offset + 4, 2, TRUE);
+          case SELFPROT_ACTION_MESH_PEERING_CLOSE:
+            if (tag_len == 8 || tag_len == 24)
+              {
+                proto_tree_add_item (tree, hf_ieee80211_mesh_peering_peer_link_id, tvb, offset, 2, TRUE);
+                offset += 2;
+              }
+            offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
             break;
 
-          /* undefined values */
+          /* unexpected values */
           default:
-            proto_tree_add_text (tree, tvb, offset, tag_len, "Unknown Peer Link Message Subtype");
+            proto_tree_add_text (tree, tvb, offset, tag_len, "Unexpected Self-protected action");
+            offset += tag_len;
             break;
+          }
+        if (tag_len - (offset - start) == 16)
+          {
+            proto_tree_add_item(tree, hf_ieee80211_rsn_pmkid, tvb, offset, 16, FALSE);
+            offset +=16;
           }
         break;
       }
@@ -11511,6 +11530,13 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
+  static const value_string mesh_peering_proto_ids[] = {
+    {MESH_PEERING_PROTO_MGMT, "Mesh peering management protocol"},
+    {MESH_PEERING_PROTO_AMPE, "Authenticated mesh peering exchange protocol"},
+    {MESH_PEERING_PROTO_VENDOR, "Vendor specific"},
+    {0, NULL}
+  };
+
   static const value_string mesh_mgt_action_ps_codes[] ={
     {MESH_PS_PATH_REQUEST, "Path Request"},
     {MESH_PS_PATH_REPLY, "Path Reply"},
@@ -13312,25 +13338,20 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_pl_codes), 0,
       "Mesh Management Peer Link action code", HFILL }},
 
-    {&hf_ieee80211_mesh_mgt_pl_local_link_id,
-     {"Local Link ID", "wlan.pl.local_id",
+    {&hf_ieee80211_mesh_peering_proto,
+     {"Mesh Peering Protocol ID", "wlan.peering.proto",
+      FT_UINT16, BASE_HEX, VALS (&mesh_peering_proto_ids), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_mesh_peering_local_link_id,
+     {"Local Link ID", "wlan.peering.local_id",
       FT_UINT16, BASE_HEX, NULL, 0,
-      "Mesh Management Local Link ID", HFILL }},
+      "Mesh Peering Management Local Link ID", HFILL }},
 
-    {&hf_ieee80211_mesh_mgt_pl_subtype,
-     {"Peer Link Subtype", "wlan.pl.subtype",
-      FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_pl_codes), 0,
-      "Mesh Management Peer Link Subtype", HFILL }},
-
-    {&hf_ieee80211_mesh_mgt_pl_reason_code,
-     {"Reason Code", "wlan.pl.reason_code",
-      FT_UINT16, BASE_HEX, VALS (&mesh_mgt_pl_reason_codes), 0,
-      "Mesh Management Reason Code", HFILL }},
-
-    {&hf_ieee80211_mesh_mgt_pl_peer_link_id,
-     {"Peer Link ID", "wlan.pl.peer_id",
+    {&hf_ieee80211_mesh_peering_peer_link_id,
+     {"Peer Link ID", "wlan.peering.peer_id",
       FT_UINT16, BASE_HEX, NULL, 0,
-      "Mesh Management Peer Link ID", HFILL }},
+      "Mesh Peering Management Peer Link ID", HFILL }},
 
     {&hf_ieee80211_mesh_config_path_sel_protocol,
      {"Path Selection Protocol", "wlan.mesh.config.ps_protocol",
