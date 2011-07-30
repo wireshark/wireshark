@@ -3462,7 +3462,7 @@ static const value_string gsm_a_sysid_values[] = {
 	{ 0x4,	"UMTS" },
 	{ 0, NULL }
 };
-static guint16
+guint16
 de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	guint32	curr_offset;
