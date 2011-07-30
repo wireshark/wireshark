@@ -294,11 +294,7 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
         }
 
         /* Get number of rows in table */
-#if GTK_CHECK_VERSION(2,22,0)
         gtk_table_get_size(GTK_TABLE(data->table), &x, NULL);
-#else
-        x = GTK_TABLE(data->table)->nrows;
-#endif
 
         /* Create a new label with this response, e.g. "SIP 180 Ringing" */
         g_snprintf(string_buff, sizeof(string_buff),
