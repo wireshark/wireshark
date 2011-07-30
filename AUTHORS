@@ -3279,11 +3279,14 @@ Florian Fainelli	<florian [AT] openwrt.org> {
 	HomePlug AV protocol dissector
 }
 
-Daniel  Willmann	<daniel [AT] totalueberwachung.de> {
+Daniel Willmann		<daniel [AT] totalueberwachung.de> {
 	CN/IP (EIA-852) protocol dissector
 	Lontalk protocol (EIA-709.1) dissector
 }
 
+Brian Cavagnolo		<brian [AT] cozybit.com> {
+	Update 802.11s packet dissecting
+}
 
 and by:
 

@@ -57,6 +57,9 @@
  * 05/29/2011 - UATification of decryption keys
  * Michael Mann <mmann78@netscape.net>
  *
+ * 07/30/2011 - Update 802.11s packet dissecting to the ratified standard (v12.0)
+ * Brian Cavagnolo <brian@cozybit.com>
+ *
  * Enhance 802.11 dissector by Alexis La Goutte
  */
 
@@ -409,14 +412,10 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define KEY_EXTIV    0x20
 #define EXTIV_LEN    8
 
-/* Uncomment for 802.11s draft (mesh) support */
-/* #define MESH_OVERRIDES 1 */
-#ifdef MESH_OVERRIDES
 /*
  * Bits from the Mesh Flags field
  */
 #define MESH_FLAGS_ADDRESS_EXTENSION  0x3
-#endif /* MESH_OVERRIDES */
 
 /* ************************************************************************* */
 /*              Constants used to identify cooked frame types                */
@@ -537,7 +536,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_FT_ACTION_CODE            0x32
 #define FIELD_STA_ADDRESS               0x33
 #define FIELD_TARGET_AP_ADDRESS         0x34
-#define FIELD_MESH_MGT_ACTION_PS_CODE   0x35    /* Mesh Management action peer link code */
+/* unassigned                           0x35 */
 /* unassigned                           0x36 */
 #define FIELD_GAS_COMEBACK_DELAY        0x37
 #define FIELD_GAS_FRAGMENT_ID           0x38
@@ -620,7 +619,6 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_SYMBOL_PROPRIETARY       173
 #define TAG_VENDOR_SPECIFIC_IE       221
 
-#ifndef MESH_OVERRIDES
 #define TAG_SUPPORTED_CHANNELS       36
 #define TAG_CHANNEL_SWITCH_ANN       37
 #define TAG_MEASURE_REQ              38
@@ -630,14 +628,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_NEIGHBOR_REPORT          52
 #define TAG_FAST_BSS_TRANSITION      55  /* IEEE Std 802.11r-2008 */
 #define TAG_WSIE                     69   /* tag of the Wave Service Information (802.11p) */
-#else /* MESH_OVERRIDES */
-#define TAG_SUPPORTED_CHANNELS       224
-#define TAG_CHANNEL_SWITCH_ANN       225
-#define TAG_MEASURE_REQ              226
-#define TAG_MEASURE_REP              227
-#define TAG_QUIET                    228
-#define TAG_IBSS_DFS                 229
-/* Not yet assigned by ANA */
+
 #define TAG_MESH_CONFIGURATION       113
 #define TAG_MESH_ID                  114
 #define TAG_MESH_PEERING_MGMT        117
@@ -645,7 +636,6 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_MESH_PREQ                130
 #define TAG_MESH_PREP                131
 #define TAG_MESH_PERR                132
-#endif /* MESH_OVERRIDES */
 
 static const range_string tag_num_vals[] = {
   { TAG_SSID, TAG_SSID, "SSID parameter set" },
@@ -685,23 +675,17 @@ static const range_string tag_num_vals[] = {
   { TAG_RSN_IE, TAG_RSN_IE, "RSN Information" },
   { TAG_EXT_SUPP_RATES, TAG_EXT_SUPP_RATES, "Extended Supported Rates" },
   { TAG_AP_CHANNEL_REPORT, TAG_AP_CHANNEL_REPORT, "AP Channel Report" },
-#ifndef MESH_OVERRIDES
   { TAG_NEIGHBOR_REPORT, TAG_NEIGHBOR_REPORT, "Neighbor Report" },
-#endif
   { TAG_RCPI, TAG_RCPI, "RCPI" },
   { TAG_MOBILITY_DOMAIN, TAG_MOBILITY_DOMAIN, "Mobility Domain" },
-#ifndef MESH_OVERRIDES
   { TAG_FAST_BSS_TRANSITION, TAG_FAST_BSS_TRANSITION, "Fast BSS Transition" },
-#endif
   { TAG_TIMEOUT_INTERVAL, TAG_TIMEOUT_INTERVAL,"Timeout Interval" },
   { TAG_RIC_DATA, TAG_RIC_DATA, "RIC Data" },
   { TAG_SUPPORTED_REGULATORY_CLASSES, TAG_SUPPORTED_REGULATORY_CLASSES, "Supported Regulatory Classes" },
   { TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT, "Extended Channel Switch Announcement" },
   { TAG_HT_INFO, TAG_HT_INFO, "HT Information (802.11n D1.10)" },
   { TAG_SECONDARY_CHANNEL_OFFSET, TAG_SECONDARY_CHANNEL_OFFSET, "Secondary Channel Offset (802.11n D1.10)" },
-#ifndef MESH_OVERRIDES
   { TAG_WSIE, TAG_WSIE, "Wave Service Information" }, /* www.aradasystems.com */
-#endif
   { TAG_20_40_BSS_CO_EX, TAG_20_40_BSS_CO_EX, "20/40 BSS Coexistence" },
   { TAG_20_40_BSS_INTOL_CH_REP, TAG_20_40_BSS_INTOL_CH_REP, "20/40 BSS Intolerant Channel Report" },   /* IEEE P802.11n/D6.0 */
   { TAG_OVERLAP_BSS_SCAN_PAR, TAG_OVERLAP_BSS_SCAN_PAR, "Overlapping BSS Scan Parameters" },       /* IEEE P802.11n/D6.0 */
@@ -721,7 +705,6 @@ static const range_string tag_num_vals[] = {
   { TAG_CISCO_UNKNOWN_96, TAG_CISCO_UNKNOWN_96, "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY, TAG_SYMBOL_PROPRIETARY, "Symbol Proprietary" },
   { TAG_VENDOR_SPECIFIC_IE, TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
-#ifdef MESH_OVERRIDES
   { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
   { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
   { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
@@ -729,7 +712,6 @@ static const range_string tag_num_vals[] = {
   { TAG_MESH_PREQ, TAG_MESH_PREQ, "Path Request" },
   { TAG_MESH_PREP, TAG_MESH_PREP, "Path Reply" },
   { TAG_MESH_PERR, TAG_MESH_PERR, "Path Error" },
-#endif /* MESH_OVERRIDES */
   { 0, 0, NULL }
 };
 
@@ -1054,24 +1036,20 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_PUBLIC_PROTECTED    9
 #define CAT_TDLS                12
 
-#ifdef MESH_OVERRIDES
 /* per 11s draft 12.0 */
 #define CAT_MESH                13
 #define CAT_MULTIHOP            14
 #define CAT_SELF_PROTECTED      15
-#endif /* MESH_OVERRIDES */
 
 #define CAT_MGMT_NOTIFICATION   17
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
 
-#ifdef MESH_OVERRIDES
 #define CAT_MESH_LINK_METRIC               31
 #define CAT_MESH_PATH_SELECTION            32
 #define CAT_MESH_INTERWORKING              33
 #define CAT_MESH_RESOURCE_COORDINATION     34
 #define CAT_MESH_SECURITY_ARCHITECTURE     35
-#endif /* MESH_OVERRIDES */
 
 #define SM_ACTION_MEASUREMENT_REQUEST   0
 #define SM_ACTION_MEASUREMENT_REPORT    1
@@ -1141,7 +1119,6 @@ static const value_string aruba_mgt_typevals[] = {
 #define TDLS_PEER_TRAFFIC_RESPONSE      9
 #define TDLS_DISCOVERY_REQUEST          10
 
-#ifdef MESH_OVERRIDES
 /* 11s draft 12.0, table 7-57v30 */
 #define MESH_ACTION_LINK_METRIC_REPORT              0
 #define MESH_ACTION_HWMP                            1
@@ -1170,20 +1147,6 @@ static const value_string aruba_mgt_typevals[] = {
 #define MESH_PEERING_PROTO_MGMT                     0
 #define MESH_PEERING_PROTO_AMPE                     1
 #define MESH_PEERING_PROTO_VENDOR                 255
-
-#define MESH_PS_PATH_REQUEST                        0
-#define MESH_PS_PATH_REPLY                          1
-#define MESH_PS_PATH_ERROR                          2
-#define MESH_PS_ROOT_ANNOUNCEMENT                   3
-#endif /* MESH_OVERRIDES */
-
-/* 11s draft, table 7-22 */
-#define MESH_LINK_CANCELLED                     2
-#define MESH_MAX_NEIGHBORS                      3
-#define MESH_CONFIG_POLICY_VIOLATION            4
-#define MESH_CLOSE_RCVD                         5
-#define MESH_MAX_RETRIES                        6
-#define MESH_CONFIRM_TIMEOUT                    7
 
 /* Vendor actions */
 /* MARVELL */
@@ -1683,7 +1646,7 @@ static int hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id = -1;
 
 static int hf_ieee80211_ff_mimo_csi_snr = -1;
 
-#ifdef MESH_OVERRIDES
+/*** Begin: 802.11s additions ***/
 static int hf_ieee80211_ff_mesh_action = -1;
 static int hf_ieee80211_ff_multihop_action = -1;
 static int hf_ieee80211_ff_mesh_flags = -1;
@@ -1694,13 +1657,6 @@ static int hf_ieee80211_ff_mesh_addr5 = -1;
 static int hf_ieee80211_ff_mesh_addr6 = -1;
 static int hf_ieee80211_ff_selfprot_action = -1;
 
-/*** Begin: Mesh Frame Format ***/
-static int hf_ieee80211_ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
-/* NB: see above for more items */
-static int hf_ieee80211_ff_mesh_mgt_srccount = -1;  /* Mesh Management src count */
-
-
-/* variable header fields */
 static int hf_ieee80211_mesh_peering_proto = -1;
 static int hf_ieee80211_mesh_peering_local_link_id = -1;
 static int hf_ieee80211_mesh_peering_peer_link_id = -1;
@@ -1734,10 +1690,6 @@ static int hf_ieee80211_mesh_config_auth_protocol = -1;
 static int hf_ieee80211_mesh_config_formation_info = -1;
 static int hf_ieee80211_mesh_config_capability = -1;
 static int hf_ieee80211_mesh_id = -1;
-
-/*** End: Mesh Frame Format ***/
-
-#endif /* MESH_OVERRIDES */
 
 static int hf_ieee80211_ff_public_action = -1;
 
@@ -2427,10 +2379,8 @@ static gint ett_tag_country_rcc_tree = -1;
 static gint ett_qos_parameters = -1;
 static gint ett_qos_ps_buf_state = -1;
 static gint ett_wep_parameters = -1;
-#ifdef MESH_OVERRIDES
 static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
-#endif /* MESH_OVERRIDES */
 
 static gint ett_rsn_gcs_tree = -1;
 static gint ett_rsn_pcs_tree = -1;
@@ -2680,7 +2630,6 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
   }
 }
 
-#ifdef MESH_OVERRIDES
 /* ************************************************************************* */
 /* Mesh Control field helper functions
  *
@@ -2717,7 +2666,6 @@ find_mesh_control_length(guint8 mesh_flags)
 {
   return 6 + 6*(mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
 }
-#endif /* MESH_OVERRIDES */
 
 mimo_control_t get_mimo_control (tvbuff_t *tvb, int offset)
 {
@@ -2965,7 +2913,6 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
         hdr_length = DATA_LONG_HDR_LEN;
       } else {
         hdr_length = find_header_length (fcf, 0, is_ht);
-#ifdef MESH_OVERRIDES
         /* adjust the header length depending on the Mesh Control field */
         if (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
             DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
@@ -2977,7 +2924,6 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
             hdr_length += find_mesh_control_length(mesh_flags);
           }
         }
-#endif /* MESH_OVERRIDES */
         if (datapad)
           hdr_length = roundup2(hdr_length, 4);
       }
@@ -3789,7 +3735,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         break;
       }
 
-#ifdef MESH_OVERRIDES
     case FIELD_MESH_ACTION:
       proto_tree_add_item(tree, hf_ieee80211_ff_mesh_action, tvb, offset, 1, TRUE);
       length += 1;
@@ -3832,14 +3777,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       proto_tree_add_item(tree, hf_ieee80211_ff_selfprot_action, tvb, offset, 1, TRUE);
       length += 1;
       break;
-
-    /* Mesh Management */
-    case FIELD_MESH_MGT_ACTION_PS_CODE:
-      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_mgt_action_ps_code, tvb, offset, 1, TRUE);
-      length += 1;
-      break;
-
-#endif /* MESH_OVERRIDES */
 
     case FIELD_DLS_ACTION_CODE:
       proto_tree_add_item(tree, hf_ieee80211_ff_dls_action_code, tvb, offset, 1, TRUE);
@@ -4441,7 +4378,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 break;
               }
 
-#ifdef MESH_OVERRIDES
             case CAT_MESH:
               offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
               offset += add_fixed_field(action_tree, tvb, offset, FIELD_MESH_ACTION);
@@ -4482,50 +4418,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 length += offset - start;
                 break;
               }
-
-            case CAT_MESH_PATH_SELECTION:
-              switch (tvb_get_guint8(tvb, 1))
-                {
-                guint offset;
-                /* defined values */
-                case MESH_PS_PATH_REQUEST:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset;
-                  break;
-
-                case MESH_PS_PATH_REPLY:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset;
-                  break;
-
-                case MESH_PS_PATH_ERROR:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset;
-                  break;
-
-                case MESH_PS_ROOT_ANNOUNCEMENT:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, 0, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, 1, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset;
-                  break;
-
-                /* undefined values */
-                default:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, 0, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, 1, FIELD_MESH_MGT_ACTION_PS_CODE);
-                  length = offset;
-                  break;
-                }
-              break;
-#endif /* MESH_OVERRIDES */
 
           case CAT_TDLS:
           {
@@ -5771,7 +5663,6 @@ dissect_mobility_domain(proto_tree *tree, tvbuff_t *tvb, int offset,
                       tvb, offset + 2, 1, FALSE);
 }
 
-#ifndef MESH_OVERRIDES
 static void
 dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
                             guint32 tag_len)
@@ -5875,7 +5766,6 @@ dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
     offset = s_end;
   }
 }
-#endif /* MESH_OVERRIDES */
 
 static void
 dissect_mmie(proto_tree *tree, tvbuff_t *tvb, int offset, guint32 tag_len)
@@ -6163,7 +6053,6 @@ dissect_ht_info_ie_1_1(proto_tree * tree, tvbuff_t * tvb, int offset,
   }
 }
 
-#ifndef MESH_OVERRIDES
 /***  WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
 static void
 dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _U_)
@@ -6262,7 +6151,6 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
     }
   }
 }
-#endif /* MESH_OVERRIDES */
 
 static void secondary_channel_offset_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
 {
@@ -6772,12 +6660,10 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
   guint8 tag_len_len; /* The length of the length parameter in bytes*/
 
   tag_no = tvb_get_guint8(tvb, offset);
-#ifndef MESH_OVERRIDES
   if(tag_no == TAG_WSIE){
     tag_len_len = 2;
     tag_len = tvb_get_letohl(tvb, offset + 1);
   } else
-#endif /* MESH_OVERRIDES */
   {
     tag_len_len = 1;
     tag_len = tvb_get_guint8(tvb, offset + 1);
@@ -8112,11 +7998,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       dissect_mobility_domain(tree, tvb, offset + 2, tag_len);
       break;
 
-#ifndef MESH_OVERRIDES
     case TAG_FAST_BSS_TRANSITION:
       dissect_fast_bss_transition(tree, tvb, offset + 2, tag_len);
       break;
-#endif /* MESH_OVERRIDES */
 
     case TAG_MMIE:
       dissect_mmie(tree, tvb, offset + 2, tag_len);
@@ -8157,17 +8041,12 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       secondary_channel_offset_ie(tree, tvb, offset + 2, tag_len);
       break;
 
-#ifndef MESH_OVERRIDES
     /***  Begin: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
     case TAG_WSIE:
       dissect_wsie_ie(tree, tvb, offset + 3, tag_len);
       break;
     /***  End: WAVE Service information element Dissection - IEEE 802.11p Draft 4.0 ***/
-#endif /* MESH_OVERRIDES */
 
-
-
-#ifdef MESH_OVERRIDES
     case TAG_MESH_PEERING_MGMT:
       {
         guint start = offset + 2;
@@ -8357,17 +8236,15 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         offset += 4;
         break;
       }
-#endif /* MESH_OVERRIDES */
-
       break;
     }
+
     case TAG_ADVERTISEMENT_PROTOCOL:
     {
       dissect_advertisement_protocol(pinfo, tree, tvb, offset, NULL);
       break;
     }
 
-#ifndef MESH_OVERRIDES
     case TAG_NEIGHBOR_REPORT:
     {
       #define SUB_TAG_TSF_INFO                 0x01
@@ -8472,7 +8349,6 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       }
       break;
     }
-#endif /* MESH_OVERRIDES */
 
     case TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT:
     {
@@ -8915,11 +8791,9 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   gchar flag_str[] = "opmPRMFTC";
   gint ii;
   guint16 qosoff = 0, qos_control = 0;
-#ifdef MESH_OVERRIDES
   gint meshctl_len = 0;
   guint8 mesh_flags;
-  guint16 meshoff;
-#endif /* MESH_OVERRIDES */
+  guint16 meshoff = 0;
 
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
@@ -8967,14 +8841,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       DATA_FRAME_IS_QOS(frame_type_subtype)) {
         qosoff = hdr_len - htc_len - 2;
         qos_control = tvb_get_letohs(tvb, qosoff);
-#ifdef MESH_OVERRIDES
         meshoff = hdr_len;
         mesh_flags = tvb_get_guint8 (tvb, hdr_len);
         if (has_mesh_control(fcf, qos_control, mesh_flags)) {
           meshctl_len = find_mesh_control_length(mesh_flags);
           hdr_len += meshctl_len;
         }
-#endif /* MESH_OVERRIDES */
   }
 
   /*
@@ -9744,7 +9616,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           dissect_ht_control(hdr_tree, tvb, ohdr_len - 4);
         }
 
-#ifdef MESH_OVERRIDES
         if (meshctl_len != 0) {
           proto_item *msh_fields;
           proto_tree *msh_tree;
@@ -9753,7 +9624,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
           msh_tree = proto_item_add_subtree (msh_fields, ett_msh_control);
           add_fixed_field(msh_tree, tvb, meshoff, FIELD_MESH_CONTROL);
         }
-#endif /* MESH_OVERRIDES */
 
       } /* end of qos control field */
       /* Davide Schiera (2006-11-21): process handshake packet with AirPDcap    */
@@ -11098,13 +10968,8 @@ proto_register_ieee80211 (void)
       "From DS: 0)"},
     {FLAG_FROM_DS,            "Frame from DS to a STA via AP(To DS: 0 "
       "From DS: 1)"},
-#ifdef MESH_OVERRIDES
     {FLAG_TO_DS|FLAG_FROM_DS, "WDS (AP to AP) or Mesh (MP to MP) Frame "
       "(To DS: 1 From DS: 1)"},
-#else /* MESH_OVERRIDES */
-    {FLAG_TO_DS|FLAG_FROM_DS, "Frame part of WDS from one AP to another "
-      "AP (To DS: 1 From DS: 1)"},
-#endif /* MESH_OVERRIDES */
     {0, NULL}
   };
 
@@ -11428,18 +11293,6 @@ proto_register_ieee80211 (void)
     {0x80 | CAT_BLOCK_ACK, "Block Ack (error)"},
     {CAT_PUBLIC, "Public Action"},
     {0x80 | CAT_PUBLIC, "Public Action (error)"},
-#ifdef MESH_OVERRIDES
-    {CAT_MESH_LINK_METRIC, "Mesh Link Metric"},
-    {0x80 | CAT_MESH_LINK_METRIC, "Mesh Link Metric"},
-    {CAT_MESH_PATH_SELECTION, "Mesh Path Selection"},
-    {0x80 | CAT_MESH_PATH_SELECTION, "Mesh Path Selection"},
-    {CAT_MESH_INTERWORKING, "Mesh Internetworking"},
-    {0x80 | CAT_MESH_INTERWORKING, "Mesh Internetworking"},
-    {CAT_MESH_RESOURCE_COORDINATION, "Mesh Resource Coordination"},
-    {0x80 | CAT_MESH_RESOURCE_COORDINATION, "Mesh Resource Coordination"},
-    {CAT_MESH_SECURITY_ARCHITECTURE, "Mesh Security Arch"},
-    {0x80 | CAT_MESH_SECURITY_ARCHITECTURE, "Mesh Security Arch"},
-#endif /* MESH_OVERRIDES */
     {CAT_RADIO_MEASUREMENT, "Radio Measurement"},
     {0x80 | CAT_RADIO_MEASUREMENT, "Radio Measurement (error)"},
     {CAT_FAST_BSS_TRANSITION, "Fast BSS Transition"},
@@ -11452,14 +11305,12 @@ proto_register_ieee80211 (void)
     {0x80 | CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action (error)"},
     {CAT_TDLS, "TDLS"},
     {0x80 | CAT_TDLS, "TDLS (error)"},
-#ifdef MESH_OVERRIDES
     {CAT_MESH, "MESH"},
     {0x80 | CAT_MESH, "Mesh (error)"},
     {CAT_MULTIHOP, "Multihop"},
     {0x80 | CAT_MULTIHOP, "Multihop (error)"},
     {CAT_SELF_PROTECTED, "Self-protected"},
     {0x80 | CAT_SELF_PROTECTED, "Self-protected (error)"},
-#endif
     {CAT_MGMT_NOTIFICATION, "Management Notification"},
     {0x80 | CAT_MGMT_NOTIFICATION, "Management Notification (error)"},
     {CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected"},
@@ -11515,7 +11366,6 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-#ifdef MESH_OVERRIDES
   static const value_string mesh_action[] ={
     {MESH_ACTION_LINK_METRIC_REPORT, "Mesh Link Metric Report"},
     {MESH_ACTION_HWMP, "HWMP Mesh Path Selection"},
@@ -11553,24 +11403,6 @@ proto_register_ieee80211 (void)
     {0, NULL}
   };
 
-  static const value_string mesh_mgt_action_ps_codes[] ={
-    {MESH_PS_PATH_REQUEST, "Path Request"},
-    {MESH_PS_PATH_REPLY, "Path Reply"},
-    {MESH_PS_PATH_ERROR, "Path Error"},
-    {MESH_PS_ROOT_ANNOUNCEMENT, "Root Announcement"},
-    {0, NULL}
-  };
-
-  static const value_string mesh_mgt_pl_reason_codes[] = {
-    {MESH_LINK_CANCELLED, "Link Cancelled"},
-    {MESH_MAX_NEIGHBORS, "Maximum Number of Peers Reached"},
-    {MESH_CONFIG_POLICY_VIOLATION, "Policy Violation"},
-    {MESH_CLOSE_RCVD, "Close Received"},
-    {MESH_MAX_RETRIES, "Maximum Retries"},
-    {MESH_CONFIRM_TIMEOUT, "Confirm Timeout"},
-    {0x00, NULL}
-  };
-
   static const true_false_string hwmp_targ_usn_flags = {
     "[USN = 1] Target Sequence Number Unkwown at Originator",
     "[USN = 0] Target Sequence Number Known at Originator"
@@ -11580,7 +11412,6 @@ proto_register_ieee80211 (void)
     "[TO = 1] Only Target Will Respond",
     "[TO = 0] Intermediate Nodes May Respond"
   };
-#endif /* MESH_OVERRIDES */
 
   static const value_string ack_policy[] = {
     {0x00, "Normal Ack"},
@@ -13268,7 +13099,6 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, VALS (&wme_status_codes), 0,
       "Management notification setup response status code", HFILL }},
 
-#ifdef MESH_OVERRIDES
     {&hf_ieee80211_ff_mesh_action,
      {"Mesh Action code", "wlan_mgt.fixed.mesh_action",
       FT_UINT8, BASE_HEX, VALS (&mesh_action), 0,
@@ -13307,11 +13137,6 @@ proto_register_ieee80211 (void)
      {"Self-protected Action code", "wlan_mgt.fixed.selfprot_action",
       FT_UINT8, BASE_HEX, VALS (&selfprot_action), 0,
       NULL, HFILL }},
-
-    {&hf_ieee80211_ff_mesh_mgt_action_ps_code,
-     {"Action code", "wlan_mgt.fixed.action_code",
-      FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_ps_codes), 0,
-      "Mesh Management Path Selection action code", HFILL }},
 
     {&hf_ieee80211_mesh_peering_proto,
      {"Mesh Peering Protocol ID", "wlan.peering.proto",
@@ -13450,11 +13275,6 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_rann_interval,
      {"RANN Interval", "wlan.rann.interval", FT_UINT32, BASE_DEC, NULL, 0,
       "Root Announcement Interval", HFILL }},
-
-    {&hf_ieee80211_ff_mesh_mgt_srccount,
-     {"Source Count", "wlan.mesh.srccount",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
-#endif /* MESH_OVERRIDES */
 
     {&hf_ieee80211_ff_qos_action_code,
      {"Action code", "wlan_mgt.fixed.action_code",
@@ -15877,10 +15697,8 @@ proto_register_ieee80211 (void)
     &ett_qos_parameters,
     &ett_qos_ps_buf_state,
     &ett_wep_parameters,
-#ifdef MESH_OVERRIDES
     &ett_msh_control,
     &ett_hwmp_targ_flags_tree,
-#endif /* MESH_OVERRIDES */
     &ett_cap_tree,
     &ett_rsn_gcs_tree,
     &ett_rsn_pcs_tree,
