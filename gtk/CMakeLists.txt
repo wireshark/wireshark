@@ -237,7 +237,7 @@ add_definitions(
 	# To verify that your program does not use any deprecated symbols,
 	# you can use defines to remove deprecated symbols from the header files
 
-	-DGDK_DISABLE_DEPRECATED
+	# -DGDK_DISABLE_DEPRECATED
 
 	# This is automatically enabled if we build with UI_MANAGER (see below)
 	# -DGTK_DISABLE_DEPRECATED
