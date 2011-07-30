@@ -641,6 +641,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_MESH_CONFIGURATION       113
 #define TAG_MESH_ID                  114
 #define TAG_MESH_PEERING_MGMT        117
+#define TAG_RANN                     126
 #define TAG_MESH_PREQ                130
 #define TAG_MESH_PREP                131
 #define TAG_MESH_PERR                132
@@ -724,6 +725,7 @@ static const range_string tag_num_vals[] = {
   { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
   { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
   { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
+  { TAG_RANN, TAG_RANN, "Root Announcement" },
   { TAG_MESH_PREQ, TAG_MESH_PREQ, "Path Request" },
   { TAG_MESH_PREP, TAG_MESH_PREP, "Path Reply" },
   { TAG_MESH_PERR, TAG_MESH_PERR, "Path Error" },
@@ -1719,6 +1721,10 @@ static int hf_ieee80211_ff_hwmp_targ_usn_flags = -1;
 static int hf_ieee80211_ff_hwmp_targ_sta = -1;
 static int hf_ieee80211_ff_hwmp_targ_sn = -1;
 static int hf_ieee80211_ff_hwmp_targ_ext = -1;
+static int hf_ieee80211_rann_flags = -1;
+static int hf_ieee80211_rann_root_sta = -1;
+static int hf_ieee80211_rann_sn = -1;
+static int hf_ieee80211_rann_interval = -1;
 
 static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
 static int hf_ieee80211_mesh_config_path_sel_metric = -1;
@@ -1728,6 +1734,7 @@ static int hf_ieee80211_mesh_config_auth_protocol = -1;
 static int hf_ieee80211_mesh_config_formation_info = -1;
 static int hf_ieee80211_mesh_config_capability = -1;
 static int hf_ieee80211_mesh_id = -1;
+
 /*** End: Mesh Frame Format ***/
 
 #endif /* MESH_OVERRIDES */
@@ -8330,6 +8337,26 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         }
         break;
       }
+
+    case TAG_RANN:
+      {
+        offset += 2;
+        proto_tree_add_item (tree, hf_ieee80211_rann_flags, tvb, offset, 1, FALSE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_hopcount, tvb, offset, 1, FALSE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_ttl, tvb, offset, 1, FALSE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_rann_root_sta, tvb, offset, 6, FALSE);
+        offset += 6;
+        proto_tree_add_item (tree, hf_ieee80211_rann_sn, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_rann_interval, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_metric, tvb, offset, 4, TRUE);
+        offset += 4;
+        break;
+      }
 #endif /* MESH_OVERRIDES */
 
       break;
@@ -13406,6 +13433,23 @@ proto_register_ieee80211 (void)
      {"Mesh ID", "wlan.mesh.id",
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
+
+    {&hf_ieee80211_rann_flags,
+     {"RANN Flags", "wlan.rann.flags",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Root Announcement Flags", HFILL }},
+
+    {&hf_ieee80211_rann_root_sta,
+     {"Root STA Address", "wlan.rann.root_sta", FT_ETHER, BASE_NONE, NULL, 0,
+      "Root Mesh STA Address", HFILL }},
+
+    {&hf_ieee80211_rann_sn,
+     {"Root STA Sequence Number", "wlan.rann.rann_sn",
+      FT_UINT32, BASE_DEC, NULL, 0, "Root Mesh STA Sequence Number", HFILL }},
+
+    {&hf_ieee80211_rann_interval,
+     {"RANN Interval", "wlan.rann.interval", FT_UINT32, BASE_DEC, NULL, 0,
+      "Root Announcement Interval", HFILL }},
 
     {&hf_ieee80211_ff_mesh_mgt_srccount,
      {"Source Count", "wlan.mesh.srccount",
