@@ -1050,7 +1050,7 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_tree_add_item(tree, hf_gtpv2_msv,         tvb, offset, 1, FALSE);
     offset++;
 
-	if(lenght==2){
+	if(length==2){
 		return;
 	}
 	/* Only present in version 9 and higher */
