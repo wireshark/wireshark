@@ -370,6 +370,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define QOS_ACK_POLICY(x)     (((x) & 0x0060) >> 5)
 #define QOS_AMSDU_PRESENT(x)  (((x) & 0x0080) >> 6)
 #define QOS_FIELD_CONTENT(x)  (((x) & 0xFF00) >> 8)
+#define QOS_MESH_CONTROL_PRESENT(x) (((x) & 0x0100) >> 8)
 
 #define QOS_FLAG_EOSP    0x10
 
@@ -1515,18 +1516,6 @@ static int hf_ieee80211_chan_adapt   =    -1;
 static int hf_ieee80211_chan_rate    =    -1;
 static int hf_ieee80211_chan_tx_pow  =    -1;
 
-#ifdef MESH_OVERRIDES
-/* ************************************************************************* */
-/*                   Header values for Mesh Header field                     */
-/* ************************************************************************* */
-static int hf_ieee80211_mesh_ttl = -1;
-static int hf_ieee80211_mesh_seq = -1;
-static int hf_ieee80211_mesh_flags = -1;
-static int hf_ieee80211_mesh_ae1 = -1;
-static int hf_ieee80211_mesh_ae2 = -1;
-static int hf_ieee80211_mesh_ae3 = -1;
-#endif /* MESH_OVERRIDES */
-
 /* ************************************************************************* */
 /*                      Fixed fields found in mgt frames                     */
 /* ************************************************************************* */
@@ -2432,7 +2421,7 @@ static gint ett_qos_parameters = -1;
 static gint ett_qos_ps_buf_state = -1;
 static gint ett_wep_parameters = -1;
 #ifdef MESH_OVERRIDES
-static gint ett_msh_parameters = -1;
+static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
 #endif /* MESH_OVERRIDES */
 
@@ -2686,39 +2675,40 @@ find_header_length (guint16 fcf, guint16 ctrl_fcf, gboolean is_ht)
 
 #ifdef MESH_OVERRIDES
 /* ************************************************************************* */
-/*            Return the length of the mesh header if any (in bytes)
+/* Mesh Control field helper functions
  *
- * Per IEEE 802.11-07/0799r8:
- * 7.1.3.5a.1 The Mesh Header field (...) is present in Data frames if and
- * only if they are transmitted between peer MPs with an established peer
- * link.  Data frames including the Mesh Header field are referred to as
- * Mesh Data frames.
+ * Per IEEE 802.11s Draft 12.0 section 7.2.2.1:
  *
- * We need a stateful sniffer for that.  For now, use heuristics:  If we
- * find valid mesh flags (currently, only MESH_FLAGS_ADDRESS_EXTENSION) at the
- * offset where mesh flags should be, assume we're dealing with a mesh header.
+ * The frame body consists of either:
+ * The MSDU (or a fragment thereof), the Mesh Control field (if and only if the
+ * frame is transmitted by a mesh STA and the Mesh Control Present subfield of
+ * the QoS Control field is 1)...
+ *
+ * We need a stateful sniffer for that.  For now, use heuristics.
+ *
+ * Notably, only mesh data frames contain the Mesh Control field in the header.
+ * Other frames that contain mesh control (i.e., multihop action frames) have
+ * it deeper in the frame body where it can be definitively identified.
+ * Further, mesh data frames always have to-ds and from-ds either 11 or 01.  We
+ * use these facts to make our heuristics more reliable.
  * ************************************************************************* */
 static int
-find_mesh_header_length(const guchar * pd, int offset, guint16 fcf)
+has_mesh_control(guint16 fcf, guint16 qos_ctl, guint8 mesh_flags)
 {
-  guint8 mesh_flags;
+  /* assume mesh control present if the QOS field's Mesh Control Present bit is
+   * set, all reserved bits in the mesh_flags field are zero, and the address
+   * extension mode is not a reserved value.
+   */
+  return ((FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4 || FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2) &&
+          (QOS_MESH_CONTROL_PRESENT(qos_ctl)) &&
+          (mesh_flags & ~MESH_FLAGS_ADDRESS_EXTENSION) == 0 &&
+          (mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION) != MESH_FLAGS_ADDRESS_EXTENSION);
+}
 
-  switch (FCF_FRAME_TYPE (fcf)) {
-
-  case MGT_FRAME:
-    /* TODO: Multihop Action Frames */
-    return 0;
-
-  case DATA_FRAME:
-    mesh_flags = pd[offset];
-
-    /* heuristics:                                                      */
-    /* asume mesh if all reserved bits in the mesh_flags field are zero */
-    if ((mesh_flags & ~MESH_FLAGS_ADDRESS_EXTENSION) == 0)
-      return 6 + 6*(mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
-    break;
-  }
-  return 0;
+static int
+find_mesh_control_length(guint8 mesh_flags)
+{
+  return 6 + 6*(mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
 }
 #endif /* MESH_OVERRIDES */
 
@@ -2943,9 +2933,6 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
         gboolean datapad, gboolean is_ht)
 {
   guint16 fcf, hdr_length;
-#ifdef MESH_OVERRIDES
-  guint16 meshdr_length;
-#endif /* MESH_OVERRIDES */
 
   if (!BYTES_ARE_IN_FRAME(offset, len, 2)) {
     ld->other++;
@@ -2969,23 +2956,24 @@ capture_ieee80211_common (const guchar * pd, int offset, int len,
     {
       if (fixed_length_header) {
         hdr_length = DATA_LONG_HDR_LEN;
-#ifdef MESH_OVERRIDES
-        meshdr_length = 0;
-#endif /* MESH_OVERRIDES */
       } else {
         hdr_length = find_header_length (fcf, 0, is_ht);
 #ifdef MESH_OVERRIDES
+        /* adjust the header length depending on the Mesh Control field */
+        if (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
+            DATA_FRAME_IS_QOS(COMPOSE_FRAME_TYPE(fcf))) {
+
+          guint8 mesh_flags = pd[hdr_length];
+          guint16 qosoff = hdr_length - 2;
+          qosoff -= is_ht ? 4 : 0;
+          if (has_mesh_control(fcf, pletohs(&pd[qosoff]), mesh_flags)) {
+            hdr_length += find_mesh_control_length(mesh_flags);
+          }
+        }
+#endif /* MESH_OVERRIDES */
         if (datapad)
           hdr_length = roundup2(hdr_length, 4);
-        meshdr_length = find_mesh_header_length(pd, offset + hdr_length, fcf);
-        g_warning("mesh hdr_length %d hdr_length %d\n", meshdr_length, hdr_length);
-        hdr_length += meshdr_length;
       }
-#else /* MESH_OVERRIDES */
-      }
-      if (datapad)
-        hdr_length = roundup2(hdr_length, 4);
-#endif /* MESH_OVERRIDES */
       /* I guess some bridges take Netware Ethernet_802_3 frames,
          which are 802.3 frames (with a length field rather than
          a type field, but with no 802.2 header in the payload),
@@ -8899,6 +8887,12 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
   const gchar *fts_str;
   gchar flag_str[] = "opmPRMFTC";
   gint ii;
+  guint16 qosoff = 0, qos_control = 0;
+#ifdef MESH_OVERRIDES
+  gint meshctl_len = 0;
+  guint8 mesh_flags;
+  guint16 meshoff;
+#endif /* MESH_OVERRIDES */
 
   wlan_hdr *volatile whdr;
   static wlan_hdr whdrs[4];
@@ -8920,9 +8914,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
     hdr_len = DATA_LONG_HDR_LEN;
   else
     hdr_len = find_header_length (fcf, ctrl_fcf, is_ht);
-  ohdr_len = hdr_len;
-  if (datapad)
-    hdr_len = roundup2(hdr_len, 4);
 
   fts_str = val_to_str_const(frame_type_subtype, frame_type_subtype_vals,
               "Unrecognized (Reserved frame)");
@@ -8943,6 +8934,32 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       DATA_FRAME_IS_QOS(frame_type_subtype)))) {
     htc_len = 4;
   }
+
+  /* adjust the header length depending on the Mesh Control field */
+  if (FCF_FRAME_TYPE(fcf) == DATA_FRAME &&
+      DATA_FRAME_IS_QOS(frame_type_subtype)) {
+        qosoff = hdr_len - htc_len - 2;
+        qos_control = tvb_get_letohs(tvb, qosoff);
+#ifdef MESH_OVERRIDES
+        meshoff = hdr_len;
+        mesh_flags = tvb_get_guint8 (tvb, hdr_len);
+        if (has_mesh_control(fcf, qos_control, mesh_flags)) {
+          meshctl_len = find_mesh_control_length(mesh_flags);
+          hdr_len += meshctl_len;
+        }
+#endif /* MESH_OVERRIDES */
+  }
+
+  /*
+   * Some portions of this code calculate offsets relative to the end of the
+   * header.  But when the header has been padded to align the data this must
+   * be done relative to true header size, not the padded/aligned value.  To
+   * simplify this work we stash the original header size in ohdr_len instead
+   * of recalculating it every time we need it.
+   */
+  ohdr_len = hdr_len;
+  if (datapad)
+    hdr_len = roundup2(hdr_len, 4);
 
   /* Add the FC to the current tree */
   if (tree)
@@ -9422,58 +9439,6 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         }
 
       }
-
-#ifdef MESH_OVERRIDES
-      if (tree &&
-          (FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T4 ||
-           FCF_ADDR_SELECTOR(fcf) == DATA_ADDR_T2))
-      {
-        proto_item *msh_fields;
-        proto_tree *msh_tree;
-
-        guint16 mshoff;
-        guint8 mesh_flags;
-        guint8 mesh_ttl;
-        guint32 mesh_seq_number;
-        guint8 mesh_hdr_len;
-
-        mshoff = hdr_len;
-        mesh_flags = tvb_get_guint8(tvb, mshoff + 0);
-        /* heuristic method to determine if this is a mesh frame */
-        if (mesh_flags & ~MESH_FLAGS_ADDRESS_EXTENSION) {
-#if 0
-          g_warning("Invalid mesh flags: %x.  Interpreting as WDS frame.\n",  mesh_flags);
-#endif
-          break;
-        }
-        mesh_hdr_len = find_mesh_header_length(tvb_get_ptr(tvb, mshoff, 1), 0, fcf);
-        mesh_ttl = tvb_get_guint8(tvb, mshoff + 1);
-        mesh_seq_number = 0xffffff & tvb_get_letohl(tvb, mshoff + 2);
-
-        msh_fields = proto_tree_add_text(hdr_tree, tvb, mshoff, mesh_hdr_len, "Mesh Header");
-        msh_tree = proto_item_add_subtree (msh_fields, ett_msh_parameters);
-
-        proto_tree_add_boolean_format (msh_tree, hf_ieee80211_mesh_flags,
-              tvb, mshoff, 1, mesh_flags, "Address Extension %x", mesh_flags & MESH_FLAGS_ADDRESS_EXTENSION);
-        proto_tree_add_uint (msh_tree, hf_ieee80211_mesh_ttl, tvb, mshoff + 1, 1, mesh_ttl);
-        proto_tree_add_uint (msh_tree, hf_ieee80211_mesh_seq, tvb, mshoff + 2, 4, mesh_seq_number);
-        switch (mesh_hdr_len) {
-          case 24:
-            proto_tree_add_item(msh_tree, hf_ieee80211_mesh_ae3, tvb, mshoff + 18, 6, ENC_NA);
-          case 18:
-            proto_tree_add_item(msh_tree, hf_ieee80211_mesh_ae2, tvb, mshoff + 12, 6, ENC_NA);
-          case 12:
-            proto_tree_add_item(msh_tree, hf_ieee80211_mesh_ae1, tvb, mshoff + 6, 6, ENC_NA);
-          case 6:
-            break;
-          default:
-            expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
-                "Invalid mesh header length (%d)\n",
-                mesh_hdr_len);
-        }
-        hdr_len += mesh_hdr_len;
-      }
-#endif /* MESH_OVERRIDES */
       break;
   }
 
@@ -9612,29 +9577,16 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         proto_item *qos_fields;
         proto_tree *qos_tree;
 
-        guint16 qosoff;
-        guint16 qos_control;
         guint16 qos_priority;
         guint16 qos_ack_policy;
         guint16 qos_amsdu_present;
         guint16 qos_eosp;
         guint16 qos_field_content;
 
-        /*
-         * We calculate the offset to the QoS header data as
-         * an offset relative to the end of the header.  But
-         * when the header has been padded to align the data
-         * this must be done relative to true header size, not
-         * the padded/aligned value.  To simplify this work we
-         * stash the original header size in ohdr_len instead
-         * of recalculating it.
-         */
-        qosoff = ohdr_len - htc_len - 2;
         qos_fields = proto_tree_add_text(hdr_tree, tvb, qosoff, 2,
             "QoS Control");
         qos_tree = proto_item_add_subtree (qos_fields, ett_qos_parameters);
 
-        qos_control = tvb_get_letohs(tvb, qosoff + 0);
         qos_priority = QOS_PRIORITY(qos_control);
         qos_ack_policy = QOS_ACK_POLICY(qos_control);
         qos_amsdu_present = QOS_AMSDU_PRESENT(qos_control);
@@ -9764,8 +9716,19 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
         if (htc_len == 4) {
           dissect_ht_control(hdr_tree, tvb, ohdr_len - 4);
         }
-      } /* end of qos control field */
 
+#ifdef MESH_OVERRIDES
+        if (meshctl_len != 0) {
+          proto_item *msh_fields;
+          proto_tree *msh_tree;
+
+          msh_fields = proto_tree_add_text(hdr_tree, tvb, meshoff, meshctl_len, "Mesh Control field");
+          msh_tree = proto_item_add_subtree (msh_fields, ett_msh_control);
+          add_fixed_field(msh_tree, tvb, meshoff, FIELD_MESH_CONTROL);
+        }
+#endif /* MESH_OVERRIDES */
+
+      } /* end of qos control field */
       /* Davide Schiera (2006-11-21): process handshake packet with AirPDcap    */
       /* the processing will take care of 4-way handshake sessions for WPA    */
       /* and WPA2 decryption                                  */
@@ -12200,35 +12163,6 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_regulatory_class,
      {"Regulatory Class", "wlan_mgt.fixed.regulatory_class",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }}
-
-#ifdef MESH_OVERRIDES
-    ,
-    {&hf_ieee80211_mesh_flags,
-      {"Mesh Flags", "wlan.mesh.flags",
-       FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-       NULL, HFILL }},
-
-    {&hf_ieee80211_mesh_seq,
-      {"Mesh Seq", "wlan.mesh.seq", FT_UINT32, BASE_DEC, NULL, 0,
-       "Mesh End-to-End sequence number", HFILL }},
-
-    {&hf_ieee80211_mesh_ttl,
-      {"Mesh TTL", "wlan.mesh.ttl", FT_UINT8, BASE_DEC, NULL, 0,
-       NULL, HFILL }},
-
-    {&hf_ieee80211_mesh_ae1,
-      {"Mesh A4", "wlan.mesh.a4", FT_ETHER, BASE_NONE, NULL, 0,
-       "Mesh Address4", HFILL }},
-
-    {&hf_ieee80211_mesh_ae2,
-      {"Mesh A5", "wlan.mesh.a5", FT_ETHER, BASE_NONE, NULL, 0,
-       "Mesh Address5", HFILL }},
-
-    {&hf_ieee80211_mesh_ae3,
-      {"Mesh A6", "wlan.mesh.a6", FT_ETHER, BASE_NONE, NULL, 0,
-       "Mesh Address6", HFILL }}
-
-#endif /* MESH_OVERRIDES */
   };
 
   static hf_register_info hf_prism[] = {
@@ -15900,7 +15834,7 @@ proto_register_ieee80211 (void)
     &ett_qos_ps_buf_state,
     &ett_wep_parameters,
 #ifdef MESH_OVERRIDES
-    &ett_msh_parameters,
+    &ett_msh_control,
     &ett_hwmp_targ_flags_tree,
 #endif /* MESH_OVERRIDES */
     &ett_cap_tree,
