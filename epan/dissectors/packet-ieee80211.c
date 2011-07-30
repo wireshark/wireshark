@@ -640,9 +640,9 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_MESH_CONFIGURATION       113
 #define TAG_MESH_ID                  114
 #define TAG_MESH_PEERING_MGMT        117
-#define TAG_MESH_PREQ             68
-#define TAG_MESH_PREP             69
-#define TAG_MESH_PERR             70
+#define TAG_MESH_PREQ                130
+#define TAG_MESH_PREP                131
+#define TAG_MESH_PERR                132
 #endif /* MESH_OVERRIDES */
 
 static const range_string tag_num_vals[] = {
@@ -723,9 +723,9 @@ static const range_string tag_num_vals[] = {
   { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
   { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
   { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
-  { TAG_MESH_PREQ, TAG_MESH_PREQ, "Mesh Path Request" },
-  { TAG_MESH_PREP, TAG_MESH_PREP, "Mesh Path Response" },
-  { TAG_MESH_PERR, TAG_MESH_PERR, "Mesh Path Error" },
+  { TAG_MESH_PREQ, TAG_MESH_PREQ, "Path Request" },
+  { TAG_MESH_PREP, TAG_MESH_PREP, "Path Reply" },
+  { TAG_MESH_PERR, TAG_MESH_PERR, "Path Error" },
 #endif /* MESH_OVERRIDES */
   { 0, 0, NULL }
 };
@@ -838,6 +838,21 @@ static const value_string ieee80211_reason_code[] = {
   { 38, "Requested from peer STA as the STA received frames using the mechanism for which a setup is required" },
   { 39, "Requested from peer STA due to timeout" },
   { 45, "Peer STA does not support the requested cipher suite" },
+  { 52, "SME cancels the mesh peering instance with the reason other than reaching the maximum number of peer mesh STAs" },
+  { 53, "The mesh STA has reached the supported maximum number of peer mesh STAs" },
+  { 54, "The received information violates the Mesh Configuration policy configured in the mesh STA profile" },
+  { 55, "The mesh STA has received a Mesh Peering Close message requesting to close the mesh peering" },
+  { 56, "The mesh STA has re-sent dot11MeshMaxRetries Mesh Peering Open messages, without receiving a Mesh Peering Confirm message" },
+  { 57, "The confirmTimer for the mesh peering instance times out" },
+  { 58, "The mesh STA fails to unwrap the GTK or the values in the wrapped contents do not match" },
+  { 59, "The mesh STA receives inconsistent information about the mesh parameters between Mesh Peering Management frames" },
+  { 60, "The mesh STA fails the authenticated mesh peering exchange because due to failure in selecting either the pairwise ciphersuite or group ciphersuite" },
+  { 61, "The mesh STA does not have proxy information for this external destination" },
+  { 62, "The mesh STA does not have forwarding information for this destination" },
+  { 63, "The mesh STA determines that the link to the next hop of an active path in its forwarding information is no longer usable" },
+  { 64, "The Deauthentication frame was sent because the MAC address of the STA already exists in the mesh BSS. See 11.3.3 (Additional mechanisms for an AP collocated with a mesh STA)" },
+  { 65, "The mesh STA performs channel switch to meet regulatory requirements" },
+  { 66, "The mesh STA performs channel switch with unspecified reason" },
   { 0,    NULL}
 };
 
@@ -1691,16 +1706,30 @@ static int hf_ieee80211_ff_selfprot_action = -1;
 /*** Begin: Mesh Frame Format ***/
 static int hf_ieee80211_ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
 /* NB: see above for more items */
-static int hf_ieee80211_ff_mesh_mgt_dest_flags = -1;     /* Mesh Management destination flags */
 static int hf_ieee80211_ff_mesh_mgt_srccount = -1;  /* Mesh Management src count */
-static int hf_ieee80211_ff_mesh_mgt_dest_do_flags = -1;  /* Mesh Management Destination Only flag */
-static int hf_ieee80211_ff_mesh_mgt_dest_rf_flags = -1;  /* Mesh Management Reply and Forward flag */
 
 
 /* variable header fields */
 static int hf_ieee80211_mesh_peering_proto = -1;
 static int hf_ieee80211_mesh_peering_local_link_id = -1;
 static int hf_ieee80211_mesh_peering_peer_link_id = -1;
+
+static int hf_ieee80211_ff_hwmp_flags = -1;
+static int hf_ieee80211_ff_hwmp_hopcount = -1;
+static int hf_ieee80211_ff_hwmp_ttl = -1;
+static int hf_ieee80211_ff_hwmp_pdid = -1;
+static int hf_ieee80211_ff_hwmp_orig_sta = -1;
+static int hf_ieee80211_ff_hwmp_orig_sn = -1;
+static int hf_ieee80211_ff_hwmp_orig_ext = -1;
+static int hf_ieee80211_ff_hwmp_lifetime = -1;
+static int hf_ieee80211_ff_hwmp_metric = -1;
+static int hf_ieee80211_ff_hwmp_targ_count = -1;
+static int hf_ieee80211_ff_hwmp_targ_flags = -1;
+static int hf_ieee80211_ff_hwmp_targ_to_flags = -1;
+static int hf_ieee80211_ff_hwmp_targ_usn_flags = -1;
+static int hf_ieee80211_ff_hwmp_targ_sta = -1;
+static int hf_ieee80211_ff_hwmp_targ_sn = -1;
+static int hf_ieee80211_ff_hwmp_targ_ext = -1;
 
 static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
 static int hf_ieee80211_mesh_config_path_sel_metric = -1;
@@ -2404,7 +2433,7 @@ static gint ett_qos_ps_buf_state = -1;
 static gint ett_wep_parameters = -1;
 #ifdef MESH_OVERRIDES
 static gint ett_msh_parameters = -1;
-static gint ett_msh_dest_flags_tree = -1;
+static gint ett_hwmp_targ_flags_tree = -1;
 #endif /* MESH_OVERRIDES */
 
 static gint ett_rsn_gcs_tree = -1;
@@ -8213,54 +8242,104 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
     case TAG_MESH_PREQ:
       {
-        guint8 flags;
+        guint8 flags = tvb_get_guint8(tvb, offset + 2);
+        guint8 targs, i;
         proto_item *item;
         proto_tree *subtree;
 
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_hopcount, tvb, offset + 1, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset + 2, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_rreqid, tvb, offset + 3, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset + 7, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset + 13, 4, TRUE);
-        /* TODO: display proxied address if present */
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_lifetime, tvb, offset + 17, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset + 21, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dstcount, tvb, offset + 25, 1, TRUE);
-        flags = tvb_get_guint8 (tvb, offset + 26);
-        item = proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dest_flags, tvb, offset + 26, 1, TRUE);
-        subtree = proto_item_add_subtree(item, ett_msh_dest_flags_tree);
-        proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_do_flags, tvb, offset + 26, 1, flags);
-        proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_rf_flags, tvb, offset + 26, 1, flags);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset + 27, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset + 33, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_flags, tvb, offset, 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_hopcount, tvb, offset, 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_ttl, tvb, offset, 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_pdid, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sta, tvb, offset, 6, FALSE);
+        offset += 6;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sn, tvb, offset, 4, TRUE);
+        offset += 4;
+
+        if (flags & (1<<6)) {
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_ext, tvb, offset, 6, FALSE);
+          offset += 6;
+        }
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_lifetime, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_metric, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_count, tvb, offset, 1, TRUE);
+        targs = tvb_get_guint8 (tvb, offset);
+        offset += 1;
+        for (i = 0; i < targs; i++) {
+          item = proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_flags, tvb, offset, 1, TRUE);
+          subtree = proto_item_add_subtree(item, ett_hwmp_targ_flags_tree);
+          proto_tree_add_boolean(subtree, hf_ieee80211_ff_hwmp_targ_to_flags, tvb, offset, 1, flags);
+          proto_tree_add_boolean(subtree, hf_ieee80211_ff_hwmp_targ_usn_flags, tvb, offset, 1, flags);
+          offset += 1;
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, FALSE);
+          offset += 6;
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sn, tvb, offset, 4, TRUE);
+          offset += 4;
+        }
         break;
       }
 
     case TAG_MESH_PREP:
       {
+        guint8 flags = tvb_get_guint8(tvb, offset + 2);
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_hopcount, tvb, offset + 1, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset + 2, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset + 3, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset + 9, 4, TRUE);
-        /* TODO: display proxied address if present */
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_lifetime, tvb, offset + 13, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset + 17, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset + 21, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset + 27, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_flags, tvb, offset, 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_hopcount, tvb, offset, 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_ttl, tvb, offset , 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, FALSE);
+        offset += 6;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sn, tvb, offset, 4, TRUE);
+        offset += 4;
+        if (flags & (1<<6)) {
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, FALSE);
+          offset += 6;
+        }
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_lifetime, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_metric, tvb, offset, 4, TRUE);
+        offset += 4;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sta, tvb, offset, 6, FALSE);
+        offset += 6;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_orig_sn, tvb, offset, 4, TRUE);
+        offset += 4;
         break;
       }
 
     case TAG_MESH_PERR:
       {
+        guint8 targs, i;
+
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_srccount, tvb, offset + 1, 1, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset + 2, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset + 8, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_ttl, tvb, offset, 1, TRUE);
+        offset += 1;
+        proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_count, tvb, offset, 1, FALSE);
+        targs = tvb_get_guint8 (tvb, offset);
+        offset += 1;
+        for (i = 0; i < targs; i++) {
+          guint8 flags = tvb_get_guint8(tvb, offset);
+
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_flags, tvb, offset, 1, TRUE);
+          offset += 1;
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sta, tvb, offset, 6, FALSE);
+          offset += 6;
+          proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_sn, tvb, offset, 4, TRUE);
+          offset += 4;
+          if (flags & (1<<6)) {
+            proto_tree_add_item (tree, hf_ieee80211_ff_hwmp_targ_ext, tvb, offset, 6, FALSE);
+            offset += 6;
+          }
+          offset += add_fixed_field(tree, tvb, offset, FIELD_REASON_CODE);
+        }
         break;
       }
 #endif /* MESH_OVERRIDES */
@@ -11502,14 +11581,14 @@ proto_register_ieee80211 (void)
     {0x00, NULL}
   };
 
-  static const true_false_string mesh_dest_rf_flags ={
-    "[RF = 1] Intermediate Nodes That Respond Will Also Forward",
-    "[RF = 0] Intermediate Nodes That Respond Will Not Forward"
+  static const true_false_string hwmp_targ_usn_flags = {
+    "[USN = 1] Target Sequence Number Unkwown at Originator",
+    "[USN = 0] Target Sequence Number Known at Originator"
   };
 
-  static const true_false_string mesh_dest_do_flags ={
-    "[DO = 1] Only Destination Will Respond",
-    "[DO = 0] Intermediate Nodes May Respond"
+  static const true_false_string hwmp_targ_to_flags = {
+    "[TO = 1] Only Target Will Respond",
+    "[TO = 0] Intermediate Nodes May Respond"
   };
 #endif /* MESH_OVERRIDES */
 
@@ -13288,6 +13367,72 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Peering Management Peer Link ID", HFILL }},
 
+    {&hf_ieee80211_ff_hwmp_flags,
+     {"HWMP Flags", "wlan.hwmp.flags", FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_hopcount,
+     {"HWMP Hop Count", "wlan.hwmp.hopcount", FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_ttl,
+     {"HWMP TTL", "wlan.hwmp.ttl", FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_pdid,
+     {"HWMP Path Discovery ID", "wlan.hwmp.pdid", FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_orig_sta,
+     {"Originator STA Address", "wlan.hwmp.orig_sta", FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_orig_sn,
+     {"HWMP Originator Sequence Number", "wlan.hwmp.orig_sn", FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL}},
+
+    {&hf_ieee80211_ff_hwmp_orig_ext,
+     {"Originator External Address", "wlan.hwmp.orig_ext", FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_lifetime,
+     {"HWMP Lifetime", "wlan.hwmp.lifetime", FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_metric,
+     {"HWMP Metric", "wlan.hwmp.metric", FT_UINT32, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_count,
+     {"HWMP Target Count", "wlan.hwmp.targ_count", FT_UINT8, BASE_DEC, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_flags,
+     {"HWMP Per-Target Flags", "wlan.hwmp.targ_flags", FT_UINT8, BASE_HEX, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_to_flags,
+     {"TO Flag", "wlan.hwmp.to_flag",
+      FT_BOOLEAN, 8, TFS (&hwmp_targ_to_flags), 0x01,
+      "Target Only Flag", HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_usn_flags,
+     {"USN Flag", "wlan.hwmp.usn_flag",
+      FT_BOOLEAN, 8, TFS (&hwmp_targ_usn_flags), 0x04,
+      "Unknown Target HWMP Sequence Number Flag", HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_sta,
+     {"Target STA Address", "wlan.hwmp.targ_sta", FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_ext,
+     {"Target External Address", "wlan.hwmp.targ_ext", FT_ETHER, BASE_NONE, NULL, 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_hwmp_targ_sn,
+     {"Target HWMP Sequence Number", "wlan.hwmp.targ_sn",
+      FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_mesh_config_path_sel_protocol,
      {"Path Selection Protocol", "wlan.mesh.config.ps_protocol",
       FT_UINT8, BASE_HEX, NULL, 0,
@@ -13327,20 +13472,6 @@ proto_register_ieee80211 (void)
      {"Mesh ID", "wlan.mesh.id",
       FT_STRING, BASE_NONE, NULL, 0,
       NULL, HFILL }},
-
-    {&hf_ieee80211_ff_mesh_mgt_dest_flags,
-     {"Destination Flags", "wlan.preq.dest_flags",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_ff_mesh_mgt_dest_do_flags,
-     {"Destination Flags", "wlan.preq.dest_flags.do",
-      FT_BOOLEAN, 8, TFS (&mesh_dest_do_flags), 0x01,
-      "Dest Flags", HFILL }},
-
-    {&hf_ieee80211_ff_mesh_mgt_dest_rf_flags,
-     {"Destination Flags", "wlan.preq.dest_flags.rf",
-      FT_BOOLEAN, 8, TFS (&mesh_dest_rf_flags), 0x02,
-      "Dest Flags", HFILL }},
 
     {&hf_ieee80211_ff_mesh_mgt_srccount,
      {"Source Count", "wlan.mesh.srccount",
@@ -15770,7 +15901,7 @@ proto_register_ieee80211 (void)
     &ett_wep_parameters,
 #ifdef MESH_OVERRIDES
     &ett_msh_parameters,
-    &ett_msh_dest_flags_tree,
+    &ett_hwmp_targ_flags_tree,
 #endif /* MESH_OVERRIDES */
     &ett_cap_tree,
     &ett_rsn_gcs_tree,
