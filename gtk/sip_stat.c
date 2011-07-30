@@ -297,7 +297,12 @@ sip_draw_hash_responses(gint * key _U_ , sip_response_code_t *data, gchar * unus
 #if GTK_CHECK_VERSION(2,22,0)
         gtk_table_get_size(GTK_TABLE(data->table), &x, NULL);
 #else
-        x = GTK_TABLE(data->table)->nrows;
+	/* Work around GTK bug: Sealed in 2.14, accessor provided in 2.22 */
+#	if GTK_CHECK_VERSION (2, 14, 0) && defined(GSEAL_ENABLE)
+		x = GTK_TABLE(data->table)->_g_sealed__nrows;
+#	else
+		x = GTK_TABLE(data->table)->nrows;
+#	endif
 #endif
 
         /* Create a new label with this response, e.g. "SIP 180 Ringing" */
