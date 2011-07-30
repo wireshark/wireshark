@@ -1559,19 +1559,19 @@ static int hf_ieee80211_ff_transaction_id = -1;
 /* Vendor specific */
 static int hf_ieee80211_ff_marvell_action_type = -1;
 static int hf_ieee80211_ff_marvell_mesh_mgt_action_code = -1;
-static int hf_ieee80211_ff_mesh_mgt_length = -1;     /* Mesh Management length */
-static int hf_ieee80211_ff_mesh_mgt_mode = -1;       /* Mesh Management mode */
-static int hf_ieee80211_ff_mesh_mgt_ttl = -1;        /* Mesh Management TTL */
-static int hf_ieee80211_ff_mesh_mgt_dstcount = -1;   /* Mesh Management dst count */
-static int hf_ieee80211_ff_mesh_mgt_hopcount = -1;   /* Mesh Management hop count */
-static int hf_ieee80211_ff_mesh_mgt_rreqid = -1;     /* Mesh Management RREQ ID */
-static int hf_ieee80211_ff_mesh_mgt_sa = -1;         /* Mesh Management src addr */
-static int hf_ieee80211_ff_mesh_mgt_ssn = -1;        /* Mesh Management src sequence number */
-static int hf_ieee80211_ff_mesh_mgt_metric = -1;     /* Mesh Management metric */
-static int hf_ieee80211_ff_mesh_mgt_flags = -1;      /* Mesh Management RREQ flags */
-static int hf_ieee80211_ff_mesh_mgt_da = -1;         /* Mesh Management dst addr */
-static int hf_ieee80211_ff_mesh_mgt_dsn = -1;        /* Mesh Management dst sequence number */
-static int hf_ieee80211_ff_mesh_mgt_lifetime = -1;   /* Mesh Management lifetime */
+static int hf_ieee80211_ff_marvell_mesh_mgt_length = -1;     /* Mesh Management length */
+static int hf_ieee80211_ff_marvell_mesh_mgt_mode = -1;       /* Mesh Management mode */
+static int hf_ieee80211_ff_marvell_mesh_mgt_ttl = -1;        /* Mesh Management TTL */
+static int hf_ieee80211_ff_marvell_mesh_mgt_dstcount = -1;   /* Mesh Management dst count */
+static int hf_ieee80211_ff_marvell_mesh_mgt_hopcount = -1;   /* Mesh Management hop count */
+static int hf_ieee80211_ff_marvell_mesh_mgt_rreqid = -1;     /* Mesh Management RREQ ID */
+static int hf_ieee80211_ff_marvell_mesh_mgt_sa = -1;         /* Mesh Management src addr */
+static int hf_ieee80211_ff_marvell_mesh_mgt_ssn = -1;        /* Mesh Management src sequence number */
+static int hf_ieee80211_ff_marvell_mesh_mgt_metric = -1;     /* Mesh Management metric */
+static int hf_ieee80211_ff_marvell_mesh_mgt_flags = -1;      /* Mesh Management RREQ flags */
+static int hf_ieee80211_ff_marvell_mesh_mgt_da = -1;         /* Mesh Management dst addr */
+static int hf_ieee80211_ff_marvell_mesh_mgt_dsn = -1;        /* Mesh Management dst sequence number */
+static int hf_ieee80211_ff_marvell_mesh_mgt_lifetime = -1;   /* Mesh Management lifetime */
 
 
 static int hf_ieee80211_ff_ba_action = -1;
@@ -3286,65 +3286,65 @@ dissect_vendor_action_marvell(proto_tree *tree, tvbuff_t *tvb, int offset)
         switch (octet)
           {
             case MRVL_MESH_MGMT_ACTION_RREQ:
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_length, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_mode, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_rreqid, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_rreqid, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset, 6, FALSE);
               offset+= 6;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, FALSE);
               offset+= 6;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset, 4, TRUE);
               offset+= 4;
               break;
             case MRVL_MESH_MGMT_ACTION_RREP:
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_length, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_mode, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_hopcount, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ttl, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, FALSE);
               offset+= 6;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_lifetime, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_metric, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset, 4, TRUE);
               offset+= 4;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_sa, tvb, offset, 6, FALSE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset, 6, FALSE);
               offset+= 6;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ssn, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset, 4, TRUE);
               offset+= 4;
               break;
             case MRVL_MESH_MGMT_ACTION_RERR:
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_length, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_length, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_mode, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_mode, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dstcount, tvb, offset, 1, TRUE);
               offset++;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_da, tvb, offset, 6, FALSE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset, 6, FALSE);
               offset+= 6;
-              proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dsn, tvb, offset, 4, TRUE);
+              proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset, 4, TRUE);
               offset+= 4;
               break;
             default:
@@ -8218,49 +8218,49 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         proto_tree *subtree;
 
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_hopcount, tvb, offset + 1, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ttl, tvb, offset + 2, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_rreqid, tvb, offset + 3, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_sa, tvb, offset + 7, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ssn, tvb, offset + 13, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_hopcount, tvb, offset + 1, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset + 2, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_rreqid, tvb, offset + 3, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset + 7, 6, FALSE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset + 13, 4, TRUE);
         /* TODO: display proxied address if present */
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_lifetime, tvb, offset + 17, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_metric, tvb, offset + 21, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dstcount, tvb, offset + 25, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_lifetime, tvb, offset + 17, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset + 21, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dstcount, tvb, offset + 25, 1, TRUE);
         flags = tvb_get_guint8 (tvb, offset + 26);
         item = proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dest_flags, tvb, offset + 26, 1, TRUE);
         subtree = proto_item_add_subtree(item, ett_msh_dest_flags_tree);
         proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_do_flags, tvb, offset + 26, 1, flags);
         proto_tree_add_boolean(subtree, hf_ieee80211_ff_mesh_mgt_dest_rf_flags, tvb, offset + 26, 1, flags);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_da, tvb, offset + 27, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dsn, tvb, offset + 33, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset + 27, 6, FALSE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset + 33, 4, TRUE);
         break;
       }
 
     case TAG_MESH_PREP:
       {
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_hopcount, tvb, offset + 1, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ttl, tvb, offset + 2, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_da, tvb, offset + 3, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_dsn, tvb, offset + 9, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_hopcount, tvb, offset + 1, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ttl, tvb, offset + 2, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_da, tvb, offset + 3, 6, FALSE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_dsn, tvb, offset + 9, 4, TRUE);
         /* TODO: display proxied address if present */
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_lifetime, tvb, offset + 13, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_metric, tvb, offset + 17, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_sa, tvb, offset + 21, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ssn, tvb, offset + 27, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_lifetime, tvb, offset + 13, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_metric, tvb, offset + 17, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset + 21, 6, FALSE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset + 27, 4, TRUE);
         break;
       }
 
     case TAG_MESH_PERR:
       {
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_flags, tvb, offset, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_flags, tvb, offset, 1, TRUE);
         proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_srccount, tvb, offset + 1, 1, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_sa, tvb, offset + 2, 6, FALSE);
-        proto_tree_add_item (tree, hf_ieee80211_ff_mesh_mgt_ssn, tvb, offset + 8, 4, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_sa, tvb, offset + 2, 6, FALSE);
+        proto_tree_add_item (tree, hf_ieee80211_ff_marvell_mesh_mgt_ssn, tvb, offset + 8, 4, TRUE);
         break;
       }
 #endif /* MESH_OVERRIDES */
@@ -13166,55 +13166,55 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_HEX, VALS (&mesh_mgt_action_codes_mrvl), 0,
       "Mesh action code(Marvell)", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_length,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_length,
      {"Message Length", "wlan_mgt.fixed.length",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_mode,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_mode,
      {"Message Mode", "wlan_mgt.fixed.mode",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_ttl,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_ttl,
      {"Message TTL", "wlan_mgt.fixed.ttl",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_dstcount,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_dstcount,
      {"Destination Count", "wlan_mgt.fixed.dstcount",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_hopcount,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_hopcount,
      {"Hop Count", "wlan_mgt.fixed.hopcount",
       FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_rreqid,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_rreqid,
      {"RREQ ID", "wlan_mgt.fixed.rreqid",
       FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_sa,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_sa,
      {"Source Address", "wlan_mgt.fixed.sa",
       FT_ETHER, BASE_NONE, NULL, 0, "Source MAC address", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_ssn,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_ssn,
      {"SSN", "wlan_mgt.fixed.ssn",
       FT_UINT32, BASE_DEC, NULL, 0, "Source Sequence Number", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_metric,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_metric,
      {"Metric", "wlan_mgt.fixed.metric",
       FT_UINT32, BASE_DEC, NULL, 0, "Route Metric", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_flags,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_flags,
      {"RREQ Flags", "wlan_mgt.fixed.hopcount",
       FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_da,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_da,
      {"Destination Address", "wlan_mgt.fixed.da",
       FT_ETHER, BASE_NONE, NULL, 0, "Destination MAC address", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_dsn,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_dsn,
      {"DSN", "wlan_mgt.fixed.dsn",
       FT_UINT32, BASE_DEC, NULL, 0, "Destination Sequence Number", HFILL }},
 
-    {&hf_ieee80211_ff_mesh_mgt_lifetime,
+    {&hf_ieee80211_ff_marvell_mesh_mgt_lifetime,
      {"Lifetime", "wlan_mgt.fixed.lifetime",
       FT_UINT32, BASE_DEC, NULL, 0, "Route Lifetime", HFILL }},
 
