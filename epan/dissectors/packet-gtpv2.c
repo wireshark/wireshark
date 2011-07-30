@@ -73,6 +73,28 @@ static int hf_gtpv2_cause_bce = -1;
 static int hf_gtpv2_cause_pce = -1;
 static int hf_gtpv2_cause_off_ie_t = -1;
 static int hf_gtpv2_rec = -1;
+/*Start SRVCC Messages*/
+static int hf_gtpv2_stn_sr = -1;
+static int hf_gtpv2_len_trans_con = -1;
+static int hf_gtpv2_eksi = -1;
+static int hf_gtpv2_ck = -1;
+static int hf_gtpv2_ik = -1;
+static int hf_gtpv2_len_ms_classmark2 = -1;
+static int hf_gtpv2_len_ms_classmark3 = -1;
+static int hf_gtpv2_len_supp_codec_list = -1;
+static int hf_gtpv2_ksi = -1;
+/*static int hf_gtpv2_kc = -1; */
+static int hf_gtpv2_cksn = -1;
+static int hf_gtpv2_srvcc_cause = -1;
+static int hf_gtpv2_rnc_id = -1;
+static int hf_gtpv2_lac = -1;
+static int hf_gtpv2_sac = -1;
+static int hf_gtpv2_tgt_g_cell_id = -1;
+static int hf_gtpv2_teid_c = -1;
+static int hf_gtpv2_sv_sti = -1;
+static int hf_gtpv2_sv_ics = -1;
+static int hf_gtpv2_sv_emind = -1;
+/*End SRVCC Messages*/
 static int hf_gtpv2_apn = -1;
 static int hf_gtpv2_ebi = -1;
 static int hf_gtpv2_daf = -1;
@@ -320,7 +342,10 @@ static gint ett_gtpv2_tra_info_interfaces_lsgw = -1;
 static gint ett_gtpv2_tra_info_interfaces_lpdn_gw = -1;
 static gint ett_gtpv2_tra_info_interfaces_lpdn_lenb = -1;
 static gint ett_gtpv2_tra_info_ne_types = -1;
-
+static gint ett_gtpv2_rai = -1;
+static gint ett_gtpv2_ms_mark = -1;
+static gint ett_gtpv2_stn_sr = -1;
+static gint ett_gtpv2_supp_codec_list = -1;
 
 /* Definition of User Location Info (AVP 22) masks */
 #define GTPv2_ULI_CGI_MASK			0x01
@@ -343,7 +368,20 @@ static const value_string gtpv2_message_type_vals[] = {
     {2, "Echo Response"},
     {3, "Version Not Supported Indication"},
     /* 4-24 Reserved for S101 interface TS 29.276 */
+    {4, "Node Alive Request"},
+    {5, "Node Alive Response"},
+    {6, "Redirection Request"},
+    {7, "Redirection Response"},
     /* 25-31 Reserved for Sv interface TS 29.280 */
+/*Start SRVCC Messages ETSI TS 129 280 V10.1.0 (2011-06) 5.2.1*/
+    {25, "SRVCC PS to CS Request"},
+    {26, "SRVCC PS to CS Response"},
+    {27, "SRVCC PS to CS Complete Notification"},
+    {28, "SRVCC PS to CS Complete Acknowledge"},
+    {29, "SRVCC PS to CS Cancel Notification"},
+    {30, "SRVCC PS to CS Cancel Acknowledge"},
+    {31, "For Future Sv interface use"},
+/*End SRVCC Messages*/
     /* SGSN/MME to PGW (S4/S11, S5/S8) */
     {32, "Create Session Request"},
     {33, "Create Session Response"},
@@ -437,13 +475,29 @@ static const value_string gtpv2_message_type_vals[] = {
     {236, "MBMS Session Stop Response"},
 	/* 237 to 239 For future use */
 /* 240-255 Reserved for GTP-U TS 29.281 [13] */
+	{240, "Data Record Transfer Request"},
+	{241, "Data Record Transfer Response"},
     {0, NULL}
 };
 
-#define GTPV2_IE_RESERVED        0
-#define GTPV2_IE_IMSI            1
-#define GTPV2_IE_CAUSE           2
-#define GTPV2_REC_REST_CNT       3
+#define GTPV2_IE_RESERVED               0
+#define GTPV2_IE_IMSI                   1
+#define GTPV2_IE_CAUSE                  2
+#define GTPV2_REC_REST_CNT              3
+/*Start SRVCC Messages*/
+#define GTPV2_IE_STN_SR                 51
+#define GTPV2_IE_SRC_TGT_TRANS_CON		52
+#define GTPV2_IE_TGT_SRC_TRANS_CON		53
+#define GTPV2_IE_MM_CON_EUTRAN_SRVCC    54
+#define GTPV2_IE_MM_CON_UTRAN_SRVCC	    55
+#define GTPV2_IE_SRVCC_CAUSE            56
+#define GTPV2_IE_TGT_RNC_ID             57
+#define GTPV2_IE_TGT_GLOGAL_CELL_ID	    58
+#define GTPV2_IE_TEID_C                 59
+#define GTPV2_IE_SV_FLAGS               60
+#define GTPV2_IE_SAI                    61
+/* 61 - 70 for future sv interface use*/
+/*End SRVCC Messages*/
 #define GTPV2_APN               71
 #define GTPV2_AMBR              72
 #define GTPV2_EBI               73
@@ -531,6 +585,20 @@ static const value_string gtpv2_element_type_vals[] = {
     {3, "Recovery (Restart Counter)"},                                          /* Variable Length / 8.5 */
     /* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
     /* 51-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
+/*Start SRVCC Messages ETSI TS 129 280 V10.1.0 (2011-06) 6.1*/
+    {51, "STN-SR"},																/* Variable Length / 6.2 */
+    {52, "Source to Target Transparent Container"},								/* Variable Length / 6.3 */
+    {53, "Target to Source Transparent Container"},								/* Variable Length / 6.4 */
+    {54, "MM Context for E-UTRAN SRVCC"},										/* Variable Length / 6.5 */
+    {55, "MM Context for UTRAN SRVCC"},											/* Variable Length / 6.6 */
+    {56, "SRVCC Cause"},														/* Fixed Length / 6.7 */
+    {57, "Target RNC ID"},														/* Variable Length / 6.8 */
+    {58, "Target Global Cell ID"},												/* Variable Length / 6.9 */
+    {59, "TEID-C"},																/* Extendable / 6.10 */
+    {60, "Sv Flags"},															/* Extendable / 6.11 */
+    {61, "Service Area Identifier"},											/* Extendable / 6.12 */
+    /* 62-70 For future Sv interface use */
+/*End SRVCC Messages*/
     {71, "Access Point Name (APN)"},                                            /* Variable Length / 8.6 */
     {72, "Aggregate Maximum Bit Rate (AMBR)"},                                  /* Fixed Length / 8.7 */
     {73, "EPS Bearer ID (EBI)"},                                                /* Extendable / 8.8 */
@@ -598,26 +666,26 @@ static const value_string gtpv2_element_type_vals[] = {
     {135, "Node Type"},                                                         /* Extendable / 8.65 */
     {136, "Fully Qualified Domain Name (FQDN)"},                                /* Variable Length / 8.66 */
     {137, "Transaction Identifier (TI)"},                                       /* Variable Length / 8.68 */
-    {138, "MBMS Session"},							/* Duration Extendable / 8.69 */
-    {139, "MBMS Service Area"},							/* Extendable / 8.70 */
-    {140, "MBMS Session Identifier"},						/* Extendable / 8.71 */
-    {141, "MBMS Flow Identifier"},						/* Extendable / 8.72 */
-    {142, "MBMS IP Multicast Distribution"},					/* Extendable / 8.73 */
-    {143, "MBMS Distribution Acknowledge"},					/* Extendable / 8.74 */
-    {144, "RFSP Index"},							/* Fixed Length / 8.77 */
-    {145, "User CSG Information (UCI)"},					/* Extendable / 8.75 */
-    {146, "CSG Information Reporting Action"},					/* Extendable / 8.76 */
-    {147, "CSG ID"},								/* Extendable / 8.78 */
-    {148, "CSG Membership Indication (CMI)"},					/* Extendable / 8.79 */
-    {149, "Service indicator"},							/* Fixed Length / 8.80 */
-    {150, "Detach Type"},							/* Fixed Length / 8.81 */
-    {151, "Local Distiguished Name (LDN)"},					/* Variable / 8.82 */
+    {138, "MBMS Session"},														/* Duration Extendable / 8.69 */
+    {139, "MBMS Service Area"},													/* Extendable / 8.70 */
+    {140, "MBMS Session Identifier"},											/* Extendable / 8.71 */
+    {141, "MBMS Flow Identifier"},												/* Extendable / 8.72 */
+    {142, "MBMS IP Multicast Distribution"},									/* Extendable / 8.73 */
+    {143, "MBMS Distribution Acknowledge"},										/* Extendable / 8.74 */
+    {144, "RFSP Index"},														/* Fixed Length / 8.77 */
+    {145, "User CSG Information (UCI)"},										/* Extendable / 8.75 */
+    {146, "CSG Information Reporting Action"},									/* Extendable / 8.76 */
+    {147, "CSG ID"},															/* Extendable / 8.78 */
+    {148, "CSG Membership Indication (CMI)"},									/* Extendable / 8.79 */
+    {149, "Service indicator"},													/* Fixed Length / 8.80 */
+    {150, "Detach Type"},														/* Fixed Length / 8.81 */
+    {151, "Local Distiguished Name (LDN)"},										/* Variable / 8.82 */
     {152, "Node Features"},                                                     /* Extendable / 8.83 */
     {153, "MBMS Time to Data Transfer"},                                        /* Extendable / 8.84 */
     {154, "Throttling"},                                                        /* Extendable / 8.85 */
     {155, "Allocation/Retention Priority (ARP)"},                               /* Extendable / 8.86 */
     /* 156 to 254 Spare. For future use.  */                                    /* For future use. FFS */
-    {255, "Private"},                                                           /* Extension Extendable / 8.67 */
+    {255, "Private Extension"},                                                 /* Extension Extendable / 8.67 */
     {0, NULL}
 };
 
@@ -864,6 +932,335 @@ dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 }
 
+
+/*Start SRVCC Messages*/
+
+/* 6.2 STN-SR */
+static void
+dissect_gtpv2_stn_sr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+   proto_item	*stn_sr_item;
+   proto_tree	*sub_tree;
+   tvbuff_t *   new_tvb;
+   int          offset = 0;
+
+    stn_sr_item = proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, FALSE);
+	new_tvb = tvb_new_subset(tvb, offset, length, length );
+    sub_tree = proto_item_add_subtree(item, ett_gtpv2_stn_sr);
+
+	/* Octet 5
+     * contains the Nature of Address and Numbering Plan Indicator (NANPI) of the "AddressString" ASN.1 type (see 3GPP
+     * TS 29.002 [11]). Octets 6 to (n+4) contain the actual STN-SR (digits of an address encoded as a TBCD-STRING as in
+     * the "AddressString" ASN.1 type). For an odd number of STN-SR digits, bits 8 to 5 of the last octet are encoded with the
+     * filler "1111".
+	 */
+	dissect_gsm_map_msisdn(new_tvb, pinfo, sub_tree);
+
+}
+
+/* 6.3 Source to Target Transparent Container */
+
+static void
+dissect_gtpv2_src_tgt_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    proto_tree_add_item(tree, hf_gtpv2_len_trans_con, tvb, offset, 1, FALSE);
+    offset++;
+    /*ra_type_flag = 0;*/
+
+    /* Transparent Container 
+     * When target network is GERAN, this container carries the Old BSS to New BSS
+     * Information IE defined in 3GPP TS 48.008 [8]. When target network is UTRAN, this container carries the Source RNC
+     * to Target RNC Transparent Container IE defined in 3GPP TS 25.413 [9]. The Transparent container field includes the
+     * IE value part as it is specified in the respective specification.
+	 */
+    proto_tree_add_text(tree, tvb, offset, length-1, "Transparent Container: %s", tvb_bytes_to_str(tvb, offset, length-1));
+
+}
+
+/* 6.4 Target to Source Transparent Container */
+static void
+dissect_gtpv2_tgt_src_trans_con(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    proto_tree_add_item(tree, hf_gtpv2_len_trans_con, tvb, offset, 1, FALSE);
+    offset++;
+
+    /* Transparent Container */
+    proto_tree_add_text(tree, tvb, offset, length-1, "Transparent Container: %s", tvb_bytes_to_str(tvb, offset, length-1));
+
+
+}
+
+/* 6.5 MM Context for E-UTRAN SRVCC */
+static void
+dissect_gtpv2_mm_con_eutran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    guint8  ms_class;
+    proto_tree *ms_tree, *fi;
+
+    proto_tree_add_item(tree, hf_gtpv2_eksi, tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_text(tree, tvb, offset , 16,"CKsrvcc: %s ",tvb_bytes_to_str(tvb, offset, 16));
+    offset = offset+16;
+    proto_tree_add_text(tree, tvb, offset, 16, "IKsrvcc: %s ", tvb_bytes_to_str(tvb, offset, 16));
+    offset = offset+16;
+  
+  /* Length of Mobile Station Classmark2  */
+    ms_class = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, FALSE);
+    offset++;
+    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Mobile Station Classmark2  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+    de_ms_cm_2(tvb, ms_tree, pinfo, offset, length, NULL, 0);
+    offset = offset+ms_class;
+
+  /* Length of Mobile Station Classmark3  */
+    ms_class = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, FALSE);
+    offset++;
+    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Mobile Station Classmark3 %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+    de_ms_cm_3(tvb, ms_tree, pinfo, offset, length, NULL, 0);
+    offset = offset+ms_class;
+
+    /*Length of Supported Codec List  */
+    ms_class = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, FALSE);
+    offset++;
+    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
+    de_sup_codec_list(tvb, ms_tree, pinfo, offset, length, NULL, 0);
+    offset = offset+ms_class;
+
+}
+
+/* 6.6 MM Context for UTRAN SRVCC */
+static void
+dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    guint8  ms_class;
+    proto_tree *ms_tree, *fi;
+
+    proto_tree_add_item(tree, hf_gtpv2_ksi, tvb, offset, 1, FALSE);
+    offset++;
+
+    proto_tree_add_text(tree, tvb, offset , 16,"CK'cs: %s",tvb_bytes_to_str(tvb, offset, 16));
+    offset = offset+16;
+    proto_tree_add_text(tree, tvb, offset, 16, "IK'cs: %s",tvb_bytes_to_str(tvb, offset, 16));
+    offset = offset+16;
+    proto_tree_add_text(tree, tvb, offset, 8, "Kc': %s",tvb_bytes_to_str(tvb, offset, 8));
+    offset = offset+8;
+    proto_tree_add_item(tree, hf_gtpv2_cksn, tvb, offset, 1, FALSE);
+    offset++;
+
+    /*Length of Mobile Station Classmark2  */
+    ms_class = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, FALSE);
+    offset++;
+    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Mobile Station Classmark2  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+    de_ms_cm_2(tvb, ms_tree, pinfo, offset, length, NULL, 0);
+    offset = offset+ms_class;
+
+    /*Length of Mobile Station Classmark3  */
+    ms_class = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, FALSE);
+    offset++;
+    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Mobile Station Classmark3  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
+    de_ms_cm_3(tvb, ms_tree, pinfo, offset, length, NULL, 0);
+    offset = offset+ms_class;
+
+    /*Length of Supported Codec List  */
+    ms_class = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, FALSE);
+    offset++;
+    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
+    de_sup_codec_list(tvb, ms_tree, pinfo, offset, length, NULL, 0);
+    offset = offset+ms_class;
+
+}
+
+/* 6.7 SRVCC Cause */
+static const value_string gtpv2_srvcc_cause_vals[] = {
+    {0, "Reserved"},
+    {1, "Unspecified"},
+    {2, "Handover/Relocation cancelled by source system "},
+    {3, "Handover /Relocation Failure with Target system"},
+    {4, "Handover/Relocation Target not allowed"},
+    {5, "Unknown Target ID"},
+    {6, "Target Cell not available"},
+    {7, "No Radio Resources Available in Target Cell"},
+    {8, "Failure in Radio Interface Procedure"},
+    {0, NULL}
+};
+
+static value_string_ext gtpv2_srvcc_cause_vals_ext = VALUE_STRING_EXT_INIT(gtpv2_srvcc_cause_vals);
+
+static void
+dissect_gtpv2_srvcc_cause(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    guint8     srvcc_cause;
+
+    srvcc_cause = tvb_get_guint8(tvb, 0);
+    proto_tree_add_item(tree, hf_gtpv2_srvcc_cause, tvb, 0, 1, FALSE);
+    proto_item_append_text(tree, "%s (%u)", val_to_str_ext_const(srvcc_cause, &gtpv2_srvcc_cause_vals_ext, "Unknown"),srvcc_cause);
+    offset++;
+
+}
+
+/* 6.8 Target RNC ID */
+static void
+dissect_gtpv2_tgt_rnc_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    guint8  rnc_id;
+    proto_tree   *subtree;
+    /*proto_item   *item;*/
+    guint32       mcc;
+    guint32       mnc;
+    guint32       lac;
+    guint32       curr_offset;
+
+    /*ra_type_flag = 1;*/ /*Flag to be set to differentiate GERAN and UTRAN*/
+    curr_offset = offset;
+
+    mcc = (tvb_get_guint8(tvb, curr_offset) & 0x0f) <<8;
+    mcc |= (tvb_get_guint8(tvb, curr_offset) & 0xf0);
+    mcc |= (tvb_get_guint8(tvb, curr_offset+1) & 0x0f);
+    mnc = (tvb_get_guint8(tvb, curr_offset+2) & 0x0f) <<8;
+    mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
+    mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >>4;
+    if ((mnc&0x000f) == 0x000f)
+             mnc = mnc>>4;
+
+    lac = tvb_get_ntohs(tvb, curr_offset+3);
+    rnc_id = tvb_get_guint8(tvb,  curr_offset+5);
+
+    item = proto_tree_add_text(tree,
+            tvb, curr_offset, 6,
+            "Routing area identification: %x-%x-%u-%u",
+            mcc,mnc,lac,rnc_id);
+
+    subtree = proto_item_add_subtree(item, ett_gtpv2_rai);
+    dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
+
+    proto_tree_add_item(subtree, hf_gtpv2_lac, tvb, curr_offset+3, 2, FALSE);
+	proto_tree_add_item(subtree, hf_gtpv2_rnc_id, tvb, curr_offset+5, 1, FALSE);
+
+    curr_offset+=6;
+
+    /* no length check possible */
+
+
+}
+
+/* 6.9 Target Global Cell ID */
+static void
+dissect_gtpv2_tgt_global_cell_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    guint8  tgt_cell_id;
+    proto_tree   *subtree;
+    /*proto_item   *item;*/
+    guint32       mcc;
+    guint32       mnc;
+    guint32       lac;
+    guint32       curr_offset;
+
+    curr_offset = offset;
+
+    mcc = (tvb_get_guint8(tvb, curr_offset) & 0x0f) <<8;
+    mcc |= (tvb_get_guint8(tvb, curr_offset) & 0xf0);
+    mcc |= (tvb_get_guint8(tvb, curr_offset+1) & 0x0f);
+    mnc = (tvb_get_guint8(tvb, curr_offset+2) & 0x0f) <<8;
+    mnc |= (tvb_get_guint8(tvb, curr_offset+2) & 0xf0);
+    mnc |= (tvb_get_guint8(tvb, curr_offset+1) & 0xf0) >>4;
+    if ((mnc&0x000f) == 0x000f)
+             mnc = mnc>>4;
+
+    lac = tvb_get_ntohs(tvb, curr_offset+3);
+    tgt_cell_id = tvb_get_guint8(tvb,  curr_offset+5);
+
+    item = proto_tree_add_text(tree,
+            tvb, curr_offset, 6,
+            "Routing area identification: %x-%x-%u-%u",
+            mcc,mnc,lac,tgt_cell_id);
+
+    subtree = proto_item_add_subtree(item, ett_gtpv2_rai);
+    dissect_e212_mcc_mnc(tvb, pinfo, subtree, offset, TRUE);
+
+    proto_tree_add_item(subtree, hf_gtpv2_lac, tvb, curr_offset+3, 2, FALSE);
+    proto_tree_add_item(subtree, hf_gtpv2_tgt_g_cell_id, tvb, curr_offset+5, 1, FALSE);
+
+    curr_offset+=6;
+
+    /* no length check possible */
+
+}
+
+/* 6.10 Tunnel Endpoint Identifier for Control Plane (TEID-C) */
+static void
+dissect_gtpv2_teid_c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+
+    proto_tree_add_item(tree, hf_gtpv2_teid_c, tvb, offset, 4, FALSE);
+    offset= offset+4;
+    if(length>4)
+		proto_tree_add_text(tree, tvb, offset, length-4, "Spare: %s",tvb_bytes_to_str(tvb, offset, length-4));
+}
+
+/* 6.11 Sv Flags */
+static void
+dissect_gtpv2_sv_flags(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+    proto_tree_add_item(tree, hf_gtpv2_sv_sti, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gtpv2_sv_ics, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_gtpv2_sv_emind, tvb, offset, 1, FALSE);
+    offset++;
+    if(length>1)
+		proto_tree_add_text(tree, tvb, offset, length-1, "Spare: %s",tvb_bytes_to_str(tvb, offset, length-1));
+
+}
+
+/* 6.12 Service Area Identifier */
+
+static void
+dissect_gtpv2_sai(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+{
+    int     offset = 0;
+
+    /* 5 MCC digit 2 MCC digit 1
+     * 6 MNC digit 3 MCC digit 3
+     * 7 MNC digit 2 MNC digit 1
+     */
+    dissect_e212_mcc_mnc(tvb, pinfo, tree, offset, TRUE);
+    offset+=3;
+
+	/* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet 8 is the most significant bit and bit 1 of Octet 9 the
+     * least significant bit. The coding of the location area code is the responsibility of each administration. Coding using full
+     * hexadecimal representation shall be used.
+	 */
+	proto_tree_add_item(tree, hf_gtpv2_lac, tvb, offset, 2, FALSE);
+	offset+=2;
+
+	/* The Service Area Code (SAC) consists of 2 octets. Bit 8 of Octet 10 is the most significant bit and bit 1 of Octet 11 the
+     * least significant bit. The SAC is defined by the operator. See 3GPP TS 23.003 [4] subclause 12.5 for more information
+	 */
+	proto_tree_add_item(tree, hf_gtpv2_sac, tvb, offset, 2, FALSE);
+	offset+=2;
+}
+
+/*End SRVCC Messages*/
+
+
 /*
  * 8.6 Access Point Name (APN)
  * The encoding the APN field follows 3GPP TS 23.003 [2] subclause 9.1.
@@ -950,8 +1347,8 @@ dissect_gtpv2_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
     else if (length==16)
     {
         proto_tree_add_item(tree, hf_gtpv2_ip_address_ipv6, tvb, offset, length, FALSE);
-	tvb_get_ipv6(tvb, offset, &ipv6_addr);
-	proto_item_append_text(item, "IPv6 %s", ip6_to_str(&ipv6_addr));
+		tvb_get_ipv6(tvb, offset, &ipv6_addr);
+		proto_item_append_text(item, "IPv6 %s", ip6_to_str(&ipv6_addr));
     }
 }
 /*
@@ -1016,7 +1413,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
  * 8.12 Indication
  */
 static void
-dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
     int offset = 0;
 	/* Octet 5 DAF DTF HI DFI OI ISRSI ISRAI SGWCI */
@@ -1279,8 +1676,8 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
     if (flags & GTPv2_ULI_CGI_MASK)
     {
         proto_item_append_text(item, "CGI ");
-	fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Cell Global Identity (CGI)");
-	part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
+		fi = proto_tree_add_text(tree, tvb, offset + 1, 7, "Cell Global Identity (CGI)");
+		part_tree = proto_item_add_subtree(fi, ett_gtpv2_uli_field);
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
         proto_tree_add_item(part_tree, hf_gtpv2_uli_cgi_lac, tvb, offset, 2, FALSE);
@@ -1373,12 +1770,12 @@ decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_
         dissect_e212_mcc_mnc(tvb, pinfo, part_tree, offset, TRUE);
         offset+=3;
 
-	/* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet f+3 is the most significant bit
-	 * and bit 1 of Octet f+4 the least significant bit. The coding of the location area code is the
-	 * responsibility of each administration. Coding using full hexadecimal representation shall be used.
-	 */
-	proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, FALSE);
-	offset+=2;
+		/* The Location Area Code (LAC) consists of 2 octets. Bit 8 of Octet f+3 is the most significant bit
+		 * and bit 1 of Octet f+4 the least significant bit. The coding of the location area code is the
+		 * responsibility of each administration. Coding using full hexadecimal representation shall be used.
+		 */
+		proto_tree_add_item(part_tree, hf_gtpv2_uli_lai_lac, tvb, offset, 2, FALSE);
+		offset+=2;
 
     }
 
@@ -1539,13 +1936,13 @@ dissect_gtpv2_f_teid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
     if (flags&0x80)
     {
         proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv4, tvb, offset, 4, FALSE);
-	proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
+		proto_item_append_text(item, ", IPv4 %s", tvb_ip_to_str(tvb, offset));
         offset= offset+4;
     }
     if (flags&0x40)
     {
-	proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, FALSE);
-	proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
+		proto_tree_add_item(tree, hf_gtpv2_f_teid_ipv6, tvb, offset, 16, FALSE);
+		proto_item_append_text(item, ", IPv6 %s", tvb_ip6_to_str(tvb, offset));
         offset= offset+16;
     }
 }
@@ -3124,7 +3521,20 @@ static const gtpv2_ie_t gtpv2_ies[] = {
     {GTPV2_IE_CAUSE, dissect_gtpv2_cause},                           /* 2, Cause (without embedded offending IE) 8.4 */
     {GTPV2_REC_REST_CNT, dissect_gtpv2_recovery},                    /* 3, Recovery (Restart Counter) 8.5 */
                                                                      /* 4-50 Reserved for S101 interface Extendable / See 3GPP TS 29.276 [14] */
-                                                                     /* 51-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
+/*Start SRVCC Messages 3GPP TS 29.280 */
+    {GTPV2_IE_STN_SR, dissect_gtpv2_stn_sr},                            /* 51 51 STN-SR */			
+    {GTPV2_IE_SRC_TGT_TRANS_CON, dissect_gtpv2_src_tgt_trans_con},	    /* 52 Source to Target Transparent Container */
+    {GTPV2_IE_TGT_SRC_TRANS_CON	, dissect_gtpv2_tgt_src_trans_con},	    /* 53 Target to Source Transparent Container */
+    {GTPV2_IE_MM_CON_EUTRAN_SRVCC, dissect_gtpv2_mm_con_eutran_srvcc},	/* 54 MM Context for E-UTRAN SRVCC */
+    {GTPV2_IE_MM_CON_UTRAN_SRVCC, dissect_gtpv2_mm_con_utran_srvcc},	/* 55 MM Context for UTRAN SRVCC */
+    {GTPV2_IE_SRVCC_CAUSE, dissect_gtpv2_srvcc_cause},	                /* 56 SRVCC Cause */
+    {GTPV2_IE_TGT_RNC_ID, dissect_gtpv2_tgt_rnc_id},	                /* 57 Target RNC ID */
+    {GTPV2_IE_TGT_GLOGAL_CELL_ID, dissect_gtpv2_tgt_global_cell_id},	/* 58 Target Global Cell ID */
+    {GTPV2_IE_TEID_C, dissect_gtpv2_teid_c},	                        /* 59 TEID-C */
+    {GTPV2_IE_SV_FLAGS, dissect_gtpv2_sv_flags},	                    /* 60 Sv Flags */
+	{GTPV2_IE_SAI, dissect_gtpv2_sai},	                                /* 61 Service Area Identifie */                                                                  
+	/* 61-70 Reserved for Sv interface Extendable / See 3GPP TS 29.280 [15] */
+
     {GTPV2_APN, dissect_gtpv2_apn},                                  /* 71, Access Point Name (APN) 8.6 */
     {GTPV2_AMBR, dissect_gtpv2_ambr},                                /* 72, Aggregate Maximum Bit Rate (AMBR) */
     {GTPV2_EBI, dissect_gtpv2_ebi},                                  /* 73, EPS Bearer ID (EBI)  8.8 */
@@ -3404,7 +3814,7 @@ void proto_register_gtpv2(void)
         },
         { &hf_gtpv2_cr,
         {"CR flag", "gtpv2.cr",
-        FT_UINT8, BASE_DEC, NULL, 0xe0,
+        FT_UINT8, BASE_DEC, NULL, 0xf0,/* SRVCC */
         NULL, HFILL}
         },
         { &hf_gtpv2_instance,
@@ -3452,6 +3862,116 @@ void proto_register_gtpv2(void)
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
         },
+/*Start SRVCC Messages*/
+        { &hf_gtpv2_stn_sr,
+        {"STN-SR", "gtpv2.stn_sr",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_len_trans_con,
+        {"Length of the Transparent Container", "gtpv2.len_trans_con",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_eksi,
+        {"eKSI", "gtpv2.eksi",
+        FT_UINT8, BASE_DEC, NULL, 0x07,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_ck,
+        {"CK", "gtpv2.ck",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_ik,
+        {"IK", "gtpv2.ik",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        /*{ &hf_gtpv2_ck,
+        {"CK", "gtpv2.ck",
+        FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_ik,
+        {"IK", "gtpv2.ik",
+        FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+        },*/
+        { &hf_gtpv2_len_ms_classmark2,
+        {"Length of Mobile Station Classmark2", "gtpv2.len_ms_classmark2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_len_ms_classmark3,
+        {"Length of Mobile Station Classmark3", "gtpv2.len_ms_classmark3",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_len_supp_codec_list,
+        {"Length of Supported Codec List", "gtpv2.len_supp_codec_list",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_ksi,
+        {"KSI'cs", "gtpv2.ksi",
+        FT_UINT8, BASE_DEC, NULL, 0x0F,
+        NULL, HFILL}
+        },
+/*        { &hf_gtpv2_kc,
+        {"Kc'", "gtpv2.kc",
+        FT_UINT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL}
+        },*/
+        { &hf_gtpv2_cksn,
+        {"CKSN'", "gtpv2.cksn",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_srvcc_cause,
+        {"SRVCC Cause", "gtpv2.srvcc_cause",
+        FT_UINT8, BASE_DEC|BASE_EXT_STRING, &gtpv2_srvcc_cause_vals_ext, 0x0,
+        NULL, HFILL}
+        },
+        { &hf_gtpv2_rnc_id,
+        {"RNC ID", "gtpv2.rnc_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+	{ &hf_gtpv2_lac,
+        { "Location Area Code (LAC)","gtpv2.lac",
+                FT_UINT16, BASE_HEX_DEC, NULL, 0x00,
+                NULL, HFILL }
+	},
+	{ &hf_gtpv2_sac,
+        { "Service Area Code (SAC)","gtpv2.sac",
+                FT_UINT16, BASE_HEX_DEC, NULL, 0x00,
+                NULL, HFILL }
+	},
+        { &hf_gtpv2_tgt_g_cell_id,
+        {"Cell ID", "gtpv2.tgt_g_cell_id",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        {&hf_gtpv2_teid_c,
+        {"Tunnel Endpoint Identifier for Control Plane(TEID-C)", "gtpv2.teid_c",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL}
+        },
+        {&hf_gtpv2_sv_sti,
+        {"STI (Session Transfer Indicator)", "gtpv2.sv_sti",
+        FT_BOOLEAN, 8, NULL, 0x04, NULL, HFILL}
+        },
+        {&hf_gtpv2_sv_ics,
+        {"ICS (IMS Centralized Service)", "gtpv2.sv_ics",
+        FT_BOOLEAN, 8, NULL, 0x02, NULL, HFILL}
+        },
+        {&hf_gtpv2_sv_emind,
+        {"EmInd(Emergency Indicator)", "gtpv2.sv_ics",
+        FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
+        },
+
+/*End SRVCC Messages*/
         {&hf_gtpv2_apn,
         {"APN (Access Point Name)", "gtpv2.apn",
         FT_STRING, BASE_NONE, NULL, 0x0,
@@ -3563,7 +4083,7 @@ void proto_register_gtpv2(void)
         {"MSV (MS Validated)", "gtpv2.msv",
         FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
-		{&hf_gtpv2_ccrsi,
+	{&hf_gtpv2_ccrsi,
         {"CCRSI (CSG Change Reporting support indication)", "gtpv2.ccrsi",
         FT_BOOLEAN, 8, NULL, 0x01, NULL, HFILL}
         },
@@ -4458,32 +4978,35 @@ void proto_register_gtpv2(void)
         &ett_gtpv2,
         &ett_gtpv2_flags,
         &ett_gtpv2_ie,
-	&ett_gtpv2_uli_flags,
-	&ett_gtpv2_uli_field,
+        &ett_gtpv2_uli_flags,
+        &ett_gtpv2_uli_field,
         &ett_gtpv2_bearer_ctx,
-	&ett_gtpv2_PDN_conn,
-	&ett_gtpv2_mm_context_flag,
+        &ett_gtpv2_PDN_conn,
+        &ett_gtpv2_mm_context_flag,
         &ett_gtpv2_pdn_numbers_nsapi,
-	&ett_gtpv2_tra_info_trigg,
+        &ett_gtpv2_tra_info_trigg,
         &ett_gtpv2_tra_info_trigg_msc_server,
         &ett_gtpv2_tra_info_trigg_mgw,
         &ett_gtpv2_tra_info_trigg_sgsn,
         &ett_gtpv2_tra_info_trigg_ggsn,
         &ett_gtpv2_tra_info_trigg_bm_sc,
-	&ett_gtpv2_tra_info_trigg_sgw_mme,
-	&ett_gtpv2_tra_info_interfaces,
-	&ett_gtpv2_tra_info_interfaces_imsc_server,
-	&ett_gtpv2_tra_info_interfaces_lmgw,
-	&ett_gtpv2_tra_info_interfaces_lsgsn,
-	&ett_gtpv2_tra_info_interfaces_lggsn,
-	&ett_gtpv2_tra_info_interfaces_lrnc,
-	&ett_gtpv2_tra_info_interfaces_lbm_sc,
-	&ett_gtpv2_tra_info_interfaces_lmme,
-	&ett_gtpv2_tra_info_interfaces_lsgw,
-	&ett_gtpv2_tra_info_interfaces_lpdn_gw,
-	&ett_gtpv2_tra_info_interfaces_lpdn_lenb,
-	&ett_gtpv2_tra_info_ne_types
-
+        &ett_gtpv2_tra_info_trigg_sgw_mme,
+        &ett_gtpv2_tra_info_interfaces,
+        &ett_gtpv2_tra_info_interfaces_imsc_server,
+        &ett_gtpv2_tra_info_interfaces_lmgw,
+        &ett_gtpv2_tra_info_interfaces_lsgsn,
+        &ett_gtpv2_tra_info_interfaces_lggsn,
+        &ett_gtpv2_tra_info_interfaces_lrnc,
+        &ett_gtpv2_tra_info_interfaces_lbm_sc,
+        &ett_gtpv2_tra_info_interfaces_lmme,
+        &ett_gtpv2_tra_info_interfaces_lsgw,
+        &ett_gtpv2_tra_info_interfaces_lpdn_gw,
+        &ett_gtpv2_tra_info_interfaces_lpdn_lenb,
+        &ett_gtpv2_tra_info_ne_types,
+        &ett_gtpv2_rai,
+		&ett_gtpv2_stn_sr,
+        &ett_gtpv2_ms_mark,
+        &ett_gtpv2_supp_codec_list,
     };
 
     proto_gtpv2 = proto_register_protocol("GPRS Tunneling Protocol V2", "GTPv2", "gtpv2");
