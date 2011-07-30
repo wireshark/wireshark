@@ -39,7 +39,7 @@
 #	define gtk_adjustment_get_page_increment(adj) (adj)->page_increment
 #	define gtk_adjustment_set_page_size(adj, val) (adj)->page_size = val
 #	define gtk_adjustment_get_page_size(adj) (adj)->page_size
-#	define gtk_dialog_get_content_area(dialog) (dialog)->vbox
+#	define gtk_dialog_get_content_area(dialog) (dialog)->vbox 
 #endif
 
 #if !GTK_CHECK_VERSION (2, 16, 0)
@@ -60,16 +60,6 @@
 #endif
 
 #if !GTK_CHECK_VERSION (2, 22, 0)
-	/* Work around GTK bug: Sealed in 2.14, accessor provided in 2.22 */
-#	if GTK_CHECK_VERSION (2, 14, 0) && defined(GSEAL_ENABLE)
-#		define gtk_table_get_size(x,y,z) \
-			if (y) *y=x->_g_sealed__nrows; \
-			if (z) *z=x->_g_sealed__ncols
-#	else
-#		define gtk_table_get_size(x,y,z) \
-			if (y) *y=x->nrows; \
-			if (z) *z=x->ncols
-#	endif
 #endif
 
 #if !GTK_CHECK_VERSION (2, 24, 0)
@@ -89,8 +79,15 @@
 #	define gtk_widget_get_style_context(x) gtk_widget_get_style(x)
 #	define gtk_style_context_get_color(x,y,z) gdkcolor_to_color_t(&z, &x->text[y])
 #	define gtk_style_context_get_color_background(x,y,z) gdkcolor_to_color_t(&z, &x->base[y])
-	/* Work around GTK bug: Sealed in 2.14, accessor provided in 3.0 */
 #	if GTK_CHECK_VERSION (2, 14, 0) && defined(GSEAL_ENABLE)
+	/* This is too late, see https://bugzilla.gnome.org/show_bug.cgi?id=641089
+	 * Accoriding to
+	 * http://ftp.acc.umu.se/pub/GNOME/sources/gtk+/2.13/gtk+-2.13.4.changes
+	 * access to the button element was sealed during 2.13. They also admit that
+	 * they missed a use case and thus failed to provide an accessor function:
+	 * http://mail.gnome.org/archives/commits-list/2010-December/msg00578.html
+	 * An accessor function was finally added in 3.0.
+	 */
 #		define gtk_tree_view_column_get_button(x) x->_g_sealed__button
 #	else
 #		define gtk_tree_view_column_get_button(x) x->button
