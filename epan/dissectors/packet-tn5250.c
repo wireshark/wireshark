@@ -35,15 +35,11 @@
 # include "config.h"
 #endif
 
-#include <string.h>
 #include <glib.h>
+#include <epan/packet.h>
 #include <epan/address.h>
 #include <epan/conversation.h>
-#include <epan/packet.h>
 #include "packet-tn5250.h"
-
-#include <epan/reassemble.h>
-#include <epan/strutil.h>
 
 typedef struct tn5250_conv_info_t {
   struct tn5250_conv_info_t *next;
