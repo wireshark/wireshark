@@ -1016,7 +1016,7 @@ dissect_gtpv2_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, pr
  * 8.12 Indication
  */
 static void
-dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
+dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_,  guint8 instance _U_)
 {
     int offset = 0;
 	/* Octet 5 DAF DTF HI DFI OI ISRSI ISRAI SGWCI */
@@ -1048,7 +1048,12 @@ dissect_gtpv2_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
     proto_tree_add_item(tree, hf_gtpv2_pt,          tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_si,          tvb, offset, 1, FALSE);
     proto_tree_add_item(tree, hf_gtpv2_msv,         tvb, offset, 1, FALSE);
-     offset++;
+    offset++;
+
+	if(lenght==2){
+		return;
+	}
+	/* Only present in version 9 and higher */
 	/* Octet 7 Spare Spare Spare Spare Spare Spare Spare CCRSI */
     proto_tree_add_item(tree, hf_gtpv2_ccrsi,         tvb, offset, 1, FALSE);
 
