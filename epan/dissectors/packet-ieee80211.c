@@ -633,8 +633,8 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_QUIET                    228
 #define TAG_IBSS_DFS                 229
 /* Not yet assigned by ANA */
-#define TAG_MESH_CONFIGURATION    51
-#define TAG_MESH_ID               52
+#define TAG_MESH_CONFIGURATION       113
+#define TAG_MESH_ID                  114
 #define TAG_MESH_PEER_LINK_MGMT   55
 #define TAG_MESH_PREQ             68
 #define TAG_MESH_PREP             69
@@ -1655,11 +1655,12 @@ static int hf_ieee80211_mesh_mgt_pl_subtype = -1;/* Mesh Management peer link fr
 static int hf_ieee80211_mesh_mgt_pl_local_link_id = -1;/* Mesh Management local link id */
 static int hf_ieee80211_mesh_mgt_pl_peer_link_id = -1;/* Mesh Management peer link id */
 static int hf_ieee80211_mesh_mgt_pl_reason_code = -1;/* Mesh Management peer link reason code */
-static int hf_ieee80211_mesh_config_version = -1;
 static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
 static int hf_ieee80211_mesh_config_path_sel_metric = -1;
 static int hf_ieee80211_mesh_config_congestion_control = -1;
-static int hf_ieee80211_mesh_config_channel_prec = -1;
+static int hf_ieee80211_mesh_config_sync_method = -1;
+static int hf_ieee80211_mesh_config_auth_protocol = -1;
+static int hf_ieee80211_mesh_config_formation_info = -1;
 static int hf_ieee80211_mesh_config_capability = -1;
 static int hf_ieee80211_mesh_id = -1;
 /*** End: Mesh Frame Format ***/
@@ -8089,12 +8090,13 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
     case TAG_MESH_CONFIGURATION:
       {
         offset += 2;
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_version, tvb, offset, 1, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_protocol, tvb, offset + 1, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_metric, tvb, offset + 5, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_congestion_control, tvb, offset + 9, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_channel_prec, tvb, offset + 13, 4, TRUE);
-        proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 17, 2, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_protocol, tvb, offset, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_path_sel_metric, tvb, offset + 1, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_congestion_control, tvb, offset + 2, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_sync_method, tvb, offset + 3, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_auth_protocol, tvb, offset + 4, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_formation_info, tvb, offset + 5, 1, TRUE);
+        proto_tree_add_item (tree, hf_ieee80211_mesh_config_capability, tvb, offset + 6, 1, TRUE);
         break;
       }
 
@@ -13123,34 +13125,39 @@ proto_register_ieee80211 (void)
       FT_UINT16, BASE_HEX, NULL, 0,
       "Mesh Management Peer Link ID", HFILL }},
 
-    {&hf_ieee80211_mesh_config_version,
-     {"Version", "wlan.mesh.config.version",
-      FT_UINT16, BASE_HEX, NULL, 0,
-      "Mesh Configuration Version", HFILL }},
-
     {&hf_ieee80211_mesh_config_path_sel_protocol,
      {"Path Selection Protocol", "wlan.mesh.config.ps_protocol",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Path Selection Protocol", HFILL }},
 
     {&hf_ieee80211_mesh_config_path_sel_metric,
      {"Path Selection Metric", "wlan.mesh.config.ps_metric",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Path Selection Metric", HFILL }},
 
     {&hf_ieee80211_mesh_config_congestion_control,
      {"Congestion Control", "wlan.mesh.config.cong_ctl",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Congestion Control", HFILL }},
 
-    {&hf_ieee80211_mesh_config_channel_prec,
-     {"Channel Precedence", "wlan.mesh.config.chan_prec",
-      FT_UINT16, BASE_HEX, NULL, 0,
-      "Mesh Configuration Channel Precedence", HFILL }},
+    {&hf_ieee80211_mesh_config_sync_method,
+     {"Synchronization Method", "wlan.mesh.config.sync_method",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Mesh Configuration Synchronization Method", HFILL }},
+
+    {&hf_ieee80211_mesh_config_auth_protocol,
+     {"Authentication Protocol", "wlan.mesh.config.auth_protocol",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Mesh Configuration Authentication Protocol", HFILL }},
+
+    {&hf_ieee80211_mesh_config_formation_info,
+     {"Formation Info", "wlan.mesh.config.formation_info",
+      FT_UINT8, BASE_HEX, NULL, 0,
+      "Mesh Configuration Formation Info", HFILL }},
 
     {&hf_ieee80211_mesh_config_capability,
      {"Capability", "wlan.mesh.config.cap",
-      FT_UINT16, BASE_HEX, NULL, 0,
+      FT_UINT8, BASE_HEX, NULL, 0,
       "Mesh Configuration Capability", HFILL }},
 
     {&hf_ieee80211_mesh_id,
