@@ -545,6 +545,10 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_TDLS_ACTION_CODE          0x3B
 #define FIELD_TARGET_CHANNEL            0x3C
 #define FIELD_REGULATORY_CLASS          0x3D
+#define FIELD_MESH_ACTION               0x3E
+#define FIELD_MULTIHOP_ACTION           0x3F
+#define FIELD_MESH_CONTROL              0x40
+#define FIELD_SELFPROT_ACTION           0x41
 
 
 /* ************************************************************************* */
@@ -1028,6 +1032,14 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_SA_QUERY            8
 #define CAT_PUBLIC_PROTECTED    9
 #define CAT_TDLS                12
+
+#ifdef MESH_OVERRIDES
+/* per 11s draft 12.0 */
+#define CAT_MESH                13
+#define CAT_MULTIHOP            14
+#define CAT_SELF_PROTECTED      15
+#endif /* MESH_OVERRIDES */
+
 #define CAT_MGMT_NOTIFICATION   17
 #define CAT_VENDOR_SPECIFIC_PROTECTED 126
 #define CAT_VENDOR_SPECIFIC     127
@@ -1110,6 +1122,30 @@ static const value_string aruba_mgt_typevals[] = {
 #define TDLS_DISCOVERY_REQUEST          10
 
 #ifdef MESH_OVERRIDES
+/* 11s draft 12.0, table 7-57v30 */
+#define MESH_ACTION_LINK_METRIC_REPORT              0
+#define MESH_ACTION_HWMP                            1
+#define MESH_ACTION_GATE_ANNOUNCE                   2
+#define MESH_ACTION_CONGESTION_CTL                  3
+#define MESH_ACTION_MCCA_SETUP_REQUEST              4
+#define MESH_ACTION_MCCA_SETUP_REPLY                5
+#define MESH_ACTION_MCCA_ADV_REQUEST                6
+#define MESH_ACTION_MCCA_ADV                        7
+#define MESH_ACTION_MCCA_TEARDOWN                   8
+#define MESH_ACTION_TBTT_ADJ_REQUEST                9
+#define MESH_ACTION_TBTT_ADJ_RESPONSE              10
+
+/* 11s draft 12.0, table 7-57v42: Multihop Action field values */
+#define MULTIHOP_ACTION_PROXY_UPDATE                0
+#define MULTIHOP_ACTION_PROXY_UPDATE_CONF           1
+
+/* 11s draft 12.0, table 7-57v24: Self-protected Action field values */
+#define SELFPROT_ACTION_MESH_PEERING_OPEN           1
+#define SELFPROT_ACTION_MESH_PEERING_CONFIRM        2
+#define SELFPROT_ACTION_MESH_PEERING_CLOSE          3
+#define SELFPROT_ACTION_MESH_GROUP_KEY_INFORM       4
+#define SELFPROT_ACTION_MESH_GROUP_KEY_ACK          5
+
 #define MESH_PL_PEER_LINK_OPEN                      0
 #define MESH_PL_PEER_LINK_CONFIRM                   1
 #define MESH_PL_PEER_LINK_CLOSE                     2
@@ -1639,6 +1675,15 @@ static int hf_ieee80211_ff_psmp_sta_info_psmp_multicast_id = -1;
 static int hf_ieee80211_ff_mimo_csi_snr = -1;
 
 #ifdef MESH_OVERRIDES
+static int hf_ieee80211_ff_mesh_action = -1;
+static int hf_ieee80211_ff_multihop_action = -1;
+static int hf_ieee80211_ff_mesh_flags = -1;
+static int hf_ieee80211_ff_mesh_ttl = -1;
+static int hf_ieee80211_ff_mesh_sequence = -1;
+static int hf_ieee80211_ff_mesh_addr4 = -1;
+static int hf_ieee80211_ff_mesh_addr5 = -1;
+static int hf_ieee80211_ff_mesh_addr6 = -1;
+static int hf_ieee80211_ff_selfprot_action = -1;
 
 /*** Begin: Mesh Frame Format ***/
 static int hf_ieee80211_ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
@@ -3719,6 +3764,49 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       }
 
 #ifdef MESH_OVERRIDES
+    case FIELD_MESH_ACTION:
+      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_action, tvb, offset, 1, TRUE);
+      length += 1;
+      break;
+
+    case FIELD_MULTIHOP_ACTION:
+      proto_tree_add_item(tree, hf_ieee80211_ff_multihop_action, tvb, offset, 1, TRUE);
+      length += 1;
+      break;
+
+    case FIELD_MESH_CONTROL:
+      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_flags, tvb, offset, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_ttl, tvb, offset + 1, 1, TRUE);
+      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_sequence, tvb, offset + 2, 4, TRUE);
+      length += 6;
+      switch (tvb_get_guint8(tvb, offset) & 0x03)
+       {
+         case 1:
+           proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr4, tvb, offset + 6, 6, FALSE);
+           length += 6;
+           break;
+
+         case 2:
+           proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr5, tvb, offset + 6, 6, FALSE);
+           proto_tree_add_item(tree, hf_ieee80211_ff_mesh_addr6, tvb, offset + 12, 6, FALSE);
+           length += 12;
+           break;
+
+         case 3:
+           proto_item_append_text(tree, "Unknown Address Extension Mode");
+           break;
+
+         default:
+           /* no default action */
+           break;
+       }
+      break;
+
+    case FIELD_SELFPROT_ACTION:
+      proto_tree_add_item(tree, hf_ieee80211_ff_selfprot_action, tvb, offset, 1, TRUE);
+      length += 1;
+      break;
+
     /* Mesh Management */
     case FIELD_MESH_MGT_ACTION_PS_CODE:
       proto_tree_add_item(tree, hf_ieee80211_ff_mesh_mgt_action_ps_code, tvb, offset, 1, TRUE);
@@ -3729,6 +3817,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       proto_tree_add_item(tree, hf_ieee80211_ff_mesh_mgt_action_pl_code, tvb, offset, 1, TRUE);
       length += 1;
       break;
+
 #endif /* MESH_OVERRIDES */
 
     case FIELD_DLS_ACTION_CODE:
@@ -4332,6 +4421,47 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               }
 
 #ifdef MESH_OVERRIDES
+            case CAT_MESH:
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+              offset += add_fixed_field(action_tree, tvb, offset, FIELD_MESH_ACTION);
+              /* The only fixed fields are the category and mesh action.  The rest are IEs. */
+              length = 2;
+              if (tvb_get_guint8(tvb, 1) == MESH_ACTION_TBTT_ADJ_RESPONSE) {
+                /* ..except for the TBTT Adjustment Response, which has a status code field */
+                length += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+              }
+              break;
+
+            case CAT_MULTIHOP:
+              {
+                guint start = offset;
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_MULTIHOP_ACTION);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_MESH_CONTROL);
+                length += offset - start;
+                break;
+              }
+
+            case CAT_SELF_PROTECTED:
+              {
+                guint start = offset;
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(action_tree, tvb, offset, FIELD_SELFPROT_ACTION);
+                switch (tvb_get_guint8(tvb, start + 1))
+                {
+                case SELFPROT_ACTION_MESH_PEERING_OPEN:
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
+                  break;
+
+                case SELFPROT_ACTION_MESH_PEERING_CONFIRM:
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
+                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_ASSOC_ID);
+                  break;
+                }
+                length += offset - start;
+                break;
+              }
+
             case CAT_MESH_PEER_LINK:
               /* Non-IE fixed fields here.  edit TAG_MESH_* for IE fields */
               switch (tvb_get_guint8(tvb, 1))
@@ -11287,6 +11417,14 @@ proto_register_ieee80211 (void)
     {0x80 | CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action (error)"},
     {CAT_TDLS, "TDLS"},
     {0x80 | CAT_TDLS, "TDLS (error)"},
+#ifdef MESH_OVERRIDES
+    {CAT_MESH, "MESH"},
+    {0x80 | CAT_MESH, "Mesh (error)"},
+    {CAT_MULTIHOP, "Multihop"},
+    {0x80 | CAT_MULTIHOP, "Multihop (error)"},
+    {CAT_SELF_PROTECTED, "Self-protected"},
+    {0x80 | CAT_SELF_PROTECTED, "Self-protected (error)"},
+#endif
     {CAT_MGMT_NOTIFICATION, "Management Notification"},
     {0x80 | CAT_MGMT_NOTIFICATION, "Management Notification (error)"},
     {CAT_VENDOR_SPECIFIC_PROTECTED, "Vendor-specific Protected"},
@@ -11343,6 +11481,36 @@ proto_register_ieee80211 (void)
   };
 
 #ifdef MESH_OVERRIDES
+  static const value_string mesh_action[] ={
+    {MESH_ACTION_LINK_METRIC_REPORT, "Mesh Link Metric Report"},
+    {MESH_ACTION_HWMP, "HWMP Mesh Path Selection"},
+    {MESH_ACTION_GATE_ANNOUNCE, "Gate Announcement"},
+    {MESH_ACTION_CONGESTION_CTL, "Congestion Control Notification"},
+    {MESH_ACTION_MCCA_SETUP_REQUEST, "MCCA Setup Request"},
+    {MESH_ACTION_MCCA_SETUP_REPLY, "MCCA Setup Reply"},
+    {MESH_ACTION_MCCA_ADV_REQUEST, "MCCA Advertisement Request"},
+    {MESH_ACTION_MCCA_ADV, "MCCA Advertisement"},
+    {MESH_ACTION_MCCA_TEARDOWN, "MCCA Teardown"},
+    {MESH_ACTION_TBTT_ADJ_REQUEST, "TBTT Adjustment Request"},
+    {MESH_ACTION_TBTT_ADJ_RESPONSE, "TBTT Adjustment Response"},
+    {0, NULL}
+  };
+
+  static const value_string multihop_action[] ={
+    {MULTIHOP_ACTION_PROXY_UPDATE, "Proxy Update"},
+    {MULTIHOP_ACTION_PROXY_UPDATE_CONF, "Proxy Update Confirmation"},
+    {0, NULL}
+  };
+
+  static const value_string selfprot_action[] = {
+    {SELFPROT_ACTION_MESH_PEERING_OPEN, "Mesh Peering Open"},
+    {SELFPROT_ACTION_MESH_PEERING_CONFIRM, "Mesh Peering Confirm"},
+    {SELFPROT_ACTION_MESH_PEERING_CLOSE, "Mesh Peering Close"},
+    {SELFPROT_ACTION_MESH_GROUP_KEY_INFORM, "Mesh Group Key Inform"},
+    {SELFPROT_ACTION_MESH_GROUP_KEY_ACK, "Mesh Group Key Ack"},
+    {0, NULL}
+  };
+
   static const value_string mesh_mgt_action_ps_codes[] ={
     {MESH_PS_PATH_REQUEST, "Path Request"},
     {MESH_PS_PATH_REPLY, "Path Reply"},
@@ -13095,6 +13263,45 @@ proto_register_ieee80211 (void)
       "Management notification setup response status code", HFILL }},
 
 #ifdef MESH_OVERRIDES
+    {&hf_ieee80211_ff_mesh_action,
+     {"Mesh Action code", "wlan_mgt.fixed.mesh_action",
+      FT_UINT8, BASE_HEX, VALS (&mesh_action), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_multihop_action,
+     {"Multihop Action code", "wlan_mgt.fixed.multihop_action",
+      FT_UINT8, BASE_HEX, VALS (&multihop_action), 0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mesh_flags,
+     {"Mesh Flags", "wlan_mgt.fixed.mesh_flags",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mesh_ttl,
+     {"Mesh TTL", "wlan_mgt.fixed.mesh_ttl",
+      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mesh_sequence,
+     {"Sequence Number", "wlan_mgt.fixed.mesh_sequence",
+      FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mesh_addr4,
+     {"Mesh Extended Address 4", "wlan_mgt.fixed.mesh_addr4",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mesh_addr5,
+     {"Mesh Extended Address 5", "wlan_mgt.fixed.mesh_addr5",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_mesh_addr6,
+     {"Mesh Extended Address 6", "wlan_mgt.fixed.mesh_addr6",
+      FT_ETHER, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_selfprot_action,
+     {"Self-protected Action code", "wlan_mgt.fixed.selfprot_action",
+      FT_UINT8, BASE_HEX, VALS (&selfprot_action), 0,
+      NULL, HFILL }},
+
     {&hf_ieee80211_ff_mesh_mgt_action_ps_code,
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_ps_codes), 0,
