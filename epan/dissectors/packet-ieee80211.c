@@ -537,7 +537,7 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define FIELD_STA_ADDRESS               0x33
 #define FIELD_TARGET_AP_ADDRESS         0x34
 #define FIELD_MESH_MGT_ACTION_PS_CODE   0x35    /* Mesh Management action peer link code */
-#define FIELD_MESH_MGT_ACTION_PL_CODE   0x36    /* Mesh Management action peer link code */
+/* unassigned                           0x36 */
 #define FIELD_GAS_COMEBACK_DELAY        0x37
 #define FIELD_GAS_FRAGMENT_ID           0x38
 #define FIELD_SA_QUERY_ACTION_CODE      0x39
@@ -1048,7 +1048,6 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_VENDOR_SPECIFIC     127
 
 #ifdef MESH_OVERRIDES
-#define CAT_MESH_PEER_LINK                 30 /* Per 802.11s draft 1.08.  ANA will probably revise this */
 #define CAT_MESH_LINK_METRIC               31
 #define CAT_MESH_PATH_SELECTION            32
 #define CAT_MESH_INTERWORKING              33
@@ -1153,10 +1152,6 @@ static const value_string aruba_mgt_typevals[] = {
 #define MESH_PEERING_PROTO_MGMT                     0
 #define MESH_PEERING_PROTO_AMPE                     1
 #define MESH_PEERING_PROTO_VENDOR                 255
-
-#define MESH_PL_PEER_LINK_OPEN                      0
-#define MESH_PL_PEER_LINK_CONFIRM                   1
-#define MESH_PL_PEER_LINK_CLOSE                     2
 
 #define MESH_PS_PATH_REQUEST                        0
 #define MESH_PS_PATH_REPLY                          1
@@ -1695,7 +1690,6 @@ static int hf_ieee80211_ff_selfprot_action = -1;
 
 /*** Begin: Mesh Frame Format ***/
 static int hf_ieee80211_ff_mesh_mgt_action_ps_code = -1;/* Mesh Management path selection action code */
-static int hf_ieee80211_ff_mesh_mgt_action_pl_code = -1;/* Mesh Management peer link action code */
 /* NB: see above for more items */
 static int hf_ieee80211_ff_mesh_mgt_dest_flags = -1;     /* Mesh Management destination flags */
 static int hf_ieee80211_ff_mesh_mgt_srccount = -1;  /* Mesh Management src count */
@@ -1706,7 +1700,7 @@ static int hf_ieee80211_ff_mesh_mgt_dest_rf_flags = -1;  /* Mesh Management Repl
 /* variable header fields */
 static int hf_ieee80211_mesh_peering_proto = -1;
 static int hf_ieee80211_mesh_peering_local_link_id = -1;
-static int hf_ieee80211_mesh_peering_peer_link_id = -1;/* Mesh Management peer link id */
+static int hf_ieee80211_mesh_peering_peer_link_id = -1;
 
 static int hf_ieee80211_mesh_config_path_sel_protocol = -1;
 static int hf_ieee80211_mesh_config_path_sel_metric = -1;
@@ -3821,11 +3815,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
       length += 1;
       break;
 
-    case FIELD_MESH_MGT_ACTION_PL_CODE:
-      proto_tree_add_item(tree, hf_ieee80211_ff_mesh_mgt_action_pl_code, tvb, offset, 1, TRUE);
-      length += 1;
-      break;
-
 #endif /* MESH_OVERRIDES */
 
     case FIELD_DLS_ACTION_CODE:
@@ -4469,46 +4458,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 length += offset - start;
                 break;
               }
-
-            case CAT_MESH_PEER_LINK:
-              /* Non-IE fixed fields here.  edit TAG_MESH_* for IE fields */
-              switch (tvb_get_guint8(tvb, 1))
-                {
-                guint offset;
-                case MESH_PL_PEER_LINK_OPEN:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PL_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CAP_INFO);
-                  length = offset;
-                  break;
-
-                case MESH_PL_PEER_LINK_CONFIRM:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PL_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CAP_INFO);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_STATUS_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_ASSOC_ID);
-                  length = offset;
-                  break;
-
-                case MESH_PL_PEER_LINK_CLOSE:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PL_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_REASON_CODE);
-                  length = offset;   /* Size of fixed fields */
-                  break;
-
-                default:
-                  offset = 0;
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                  offset += add_fixed_field (action_tree, tvb, offset, FIELD_MESH_MGT_ACTION_PL_CODE);
-                  length = offset;   /* Size of fixed fields */
-                  break;
-                }
-              break;
 
             case CAT_MESH_PATH_SELECTION:
               switch (tvb_get_guint8(tvb, 1))
@@ -11411,8 +11360,6 @@ proto_register_ieee80211 (void)
     {CAT_PUBLIC, "Public Action"},
     {0x80 | CAT_PUBLIC, "Public Action (error)"},
 #ifdef MESH_OVERRIDES
-    {CAT_MESH_PEER_LINK, "Mesh Peer Link"},
-    {0x80 | CAT_MESH_PEER_LINK, "Mesh Peer Link"},
     {CAT_MESH_LINK_METRIC, "Mesh Link Metric"},
     {0x80 | CAT_MESH_LINK_METRIC, "Mesh Link Metric"},
     {CAT_MESH_PATH_SELECTION, "Mesh Path Selection"},
@@ -11542,13 +11489,6 @@ proto_register_ieee80211 (void)
     {MESH_PS_PATH_REPLY, "Path Reply"},
     {MESH_PS_PATH_ERROR, "Path Error"},
     {MESH_PS_ROOT_ANNOUNCEMENT, "Root Announcement"},
-    {0, NULL}
-  };
-
-  static const value_string mesh_mgt_action_pl_codes[] ={
-    {MESH_PL_PEER_LINK_OPEN, "Peer Link Open"},
-    {MESH_PL_PEER_LINK_CONFIRM, "Peer Link Confirm"},
-    {MESH_PL_PEER_LINK_CLOSE, "Peer Link Close"},
     {0, NULL}
   };
 
@@ -13332,11 +13272,6 @@ proto_register_ieee80211 (void)
      {"Action code", "wlan_mgt.fixed.action_code",
       FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_ps_codes), 0,
       "Mesh Management Path Selection action code", HFILL }},
-
-    {&hf_ieee80211_ff_mesh_mgt_action_pl_code,
-     {"Action code", "wlan_mgt.fixed.action_code",
-      FT_UINT16, BASE_HEX, VALS (&mesh_mgt_action_pl_codes), 0,
-      "Mesh Management Peer Link action code", HFILL }},
 
     {&hf_ieee80211_mesh_peering_proto,
      {"Mesh Peering Protocol ID", "wlan.peering.proto",
