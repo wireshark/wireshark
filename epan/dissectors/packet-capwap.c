@@ -46,7 +46,6 @@ static gboolean global_capwap_swap_frame_control = TRUE;
 
 static GHashTable *capwap_fragment_table = NULL;
 static GHashTable *capwap_reassembled_table = NULL;
-static gboolean    save_fragmented;
 
 /* TODO LIST !
 * add decryption of DLTS Message
@@ -1349,6 +1348,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 fragment_id;
 	guint32 fragment_offset;
 	fragment_data *frag_msg = NULL;
+	gboolean save_fragmented;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP");
@@ -1411,6 +1411,7 @@ dissect_capwap_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* CAPWAP Message Element */
 		offset += dissect_capwap_message_element(tvb, capwap_control_tree, offset);
 	}
+	pinfo->fragmented = save_fragmented;
 }
 
 /* Code to actually dissect the packets */
@@ -1430,6 +1431,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint32 fragment_id;
 	guint32 fragment_offset;
 	fragment_data *frag_msg = NULL;
+	gboolean save_fragmented;
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CAPWAP");
@@ -1505,6 +1507,7 @@ dissect_capwap_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		}
 	}
+	pinfo->fragmented = save_fragmented;
 }
 
 

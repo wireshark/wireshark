@@ -1249,6 +1249,7 @@ dissect_netbios(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		}
+                pinfo->fragmented = save_fragmented;
 	}
 }
 

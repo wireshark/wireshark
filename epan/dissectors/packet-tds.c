@@ -2374,6 +2374,7 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         next_tvb = tvb_new_subset_remaining (tvb, offset);
         call_dissector(data_handle, next_tvb, pinfo, tds_tree);
     }
+    pinfo->fragmented = save_fragmented;
 }
 
 static void
