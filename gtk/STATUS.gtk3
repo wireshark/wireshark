@@ -28,6 +28,7 @@ There are two ways to make the Wireshark code gtk3 ready:
 
   With Gdk3, (at least) the following structs used in Wireshark are gone:
   - GdkColormap
+  - GdkDrawable
   - GdkPixmap
 
 Some statistics (as of rev 38283)
