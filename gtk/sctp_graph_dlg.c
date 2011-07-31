@@ -160,7 +160,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 	struct gaps *gap;
 	guint32 /*max_num,*/ diff;
 	guint32 *dup_list;
-	cairo_t * cr;
+	cairo_t * cr = NULL;
 
 	if (u_data->dir==2)
 	{
@@ -338,7 +338,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 	guint32 /*max_num,*/ diff;
 	/* This holds the sum of gap acks and nr gap acks */
 	guint16 total_gaps = 0;
-	cairo_t *cr;
+	cairo_t *cr = NULL;
 
 	if (u_data->dir==2)
 	{
@@ -508,7 +508,7 @@ draw_tsn_graph(struct sctp_udata *u_data)
 	guint32 tsnumber=0;
 	guint32 min_secs=0, diff;
 	gint xvalue, yvalue;
-	cairo_t *cr;
+	cairo_t *cr = NULL;
 
 	if (u_data->dir==1)
 	{
