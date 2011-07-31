@@ -424,7 +424,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 											POINT_SIZE, 
 											0, 
 											2 * M_PI);
-										cairo_fill(cr);
+										cairo_stroke(cr);
 										cairo_destroy(cr);
 
 
