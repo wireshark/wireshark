@@ -636,8 +636,8 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->sumtTS += 1.0 * current_time * nominaltime;
 	}
 
-	/* Calculate the BW in Kbps adding the IP+UDP header to the RTP -> 20bytes(IP)+8bytes(UDP) = 28bytes */
-	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + 28;
+	/* Calculate the BW in Kbps adding the IP+UDP header to the RTP -> IP header+8bytes(UDP) */
+	statinfo->bw_history[statinfo->bw_index].bytes = rtpinfo->info_data_len + pinfo->iphdrlen + 8;
 	statinfo->bw_history[statinfo->bw_index].time = current_time;
 
 	/* Check if there are more than 1sec in the history buffer to calculate BW in bps. If so, remove those for the calculation */
@@ -646,7 +646,8 @@ int rtp_packet_analyse(tap_rtp_stat_t *statinfo,
 		statinfo->bw_start_index++;
 		if (statinfo->bw_start_index == BUFF_BW) statinfo->bw_start_index=0;
 	};
-	statinfo->total_bytes += rtpinfo->info_data_len + 28;
+	/* IP hdr + UDP + RTP */
+	statinfo->total_bytes += rtpinfo->info_data_len + pinfo->iphdrlen + 8;
 	statinfo->bandwidth = (double)(statinfo->total_bytes*8)/1000;
 	statinfo->bw_index++;
 	if (statinfo->bw_index == BUFF_BW) statinfo->bw_index = 0;
