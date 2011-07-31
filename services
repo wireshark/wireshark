@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-07-21)
+(last updated 2011-07-27)
 
 ****************************************************************************
 ATTENTION:  This registry has recently been combined with the Service Names 
@@ -2182,9 +2182,10 @@ telnets		992/tcp    telnet protocol over TLS/SSL
 telnets		992/udp    telnet protocol over TLS/SSL
 imaps		993/tcp    imap4 protocol over TLS/SSL
 imaps		993/udp    imap4 protocol over TLS/SSL
+#
 ircs		994/tcp    irc protocol over TLS/SSL
-ircs		994/udp    irc protocol over TLS/SSL
 #			   Christopher Allen <ChristopherA&consensus.com>
+#               994/udp    Reserved
 pop3s           995/tcp    pop3 protocol over TLS/SSL (was spop3)
 pop3s           995/udp    pop3 protocol over TLS/SSL (was spop3)
 #                          Gordon Mangione <gordm&microsoft.com>
@@ -13031,7 +13032,12 @@ ggz             5688/udp   GGZ Gaming Zone
 qmvideo		5689/tcp   QM video network management protocol
 qmvideo		5689/udp   QM video network management protocol
 #			   Jamie Lokier <jamie&jlokier.co.uk> May 2006
-#               5690-5712  Unassigned
+#               5690-5695  Unassigned
+kmip            5696/tcp   Key Management Interoperability Protocol
+#                          Robin Cover <robin&oasis-open.org> 25 July 2011
+#                          OASIS KMIP Technical Committee
+#               5696/udp   Reserved
+#               5697-5712  Unassigned
 proshareaudio   5713/tcp   proshare conf audio
 proshareaudio   5713/udp   proshare conf audio
 prosharevideo   5714/tcp   proshare conf video
@@ -13750,8 +13756,8 @@ palcom-disc     6657/udp   PalCom Discovery
 #                          Boris Magnusson <boris&cs.lth.se>  06 December 2010
 #               6658-6664  Unassigned
 ircu		6665-6669/tcp  IRCU
-ircu		6665-6669/udp  IRCU
 #			               Brian Tackett <cym&acrux.net>
+#               6665-6669/udp  Reserved
 vocaltec-gold   6670/tcp   Vocaltec Global Online Directory
 vocaltec-gold   6670/udp   Vocaltec Global Online Directory
 #                          Scott Petrack <Scott_Petrack&vocaltec.com>
