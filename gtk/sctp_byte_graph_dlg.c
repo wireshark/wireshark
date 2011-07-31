@@ -478,7 +478,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5, 
 				u_data->io->pixmap_height - BOTTOM_BORDER + length + 0.5);
 			cairo_stroke(cr);
-			cairo_destroy(cr);		}
+			cairo_destroy(cr);
+		}
 
 		if (!u_data->io->uoff)
 		{
@@ -586,16 +587,16 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 					                (guint32)(u_data->io->pixmap_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval - 3),
 					                layout);
 				}
-			cr = gdk_cairo_create (u_data->io->pixmap);
-			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				LEFT_BORDER - length + 0.5, 
-				u_data->io->pixmap_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval + 0.5);
-			cairo_line_to(cr, 
-				LEFT_BORDER + 0.5, 
-				u_data->io->pixmap_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval + 0.5);
-			cairo_stroke(cr);
-			cairo_destroy(cr);
+				cr = gdk_cairo_create (u_data->io->pixmap);
+				cairo_set_line_width (cr, 1.0);
+				cairo_move_to(cr, 
+					LEFT_BORDER - length + 0.5, 
+					u_data->io->pixmap_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval + 0.5);
+				cairo_line_to(cr, 
+					LEFT_BORDER + 0.5, 
+					u_data->io->pixmap_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval + 0.5);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
 			}
 		}
 	}
@@ -699,7 +700,6 @@ on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer use
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_fill (cr);
 	cairo_destroy (cr);
-
 
 	sctp_graph_redraw(u_data);
 	return TRUE;
