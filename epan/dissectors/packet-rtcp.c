@@ -1824,7 +1824,6 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 {
     guint block_num = 1;
     guint temp_value = 0;                          /* used when checking spare bits in block type 8 */
-    const gchar *buff;
     proto_item *item;
     int hour,min,sec,msec;
     guint32 tmp_ts;
@@ -2204,9 +2203,8 @@ dissect_rtcp_xr(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree,
 		offset+=4;
 	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_ntp_rcv_ts_lsw, tvb, offset, 4, ENC_BIG_ENDIAN); 
 		offset+=4;
-	    buff=tvb_ntp_fmt_ts(tvb, offset-8);
-		item = proto_tree_add_item(content_tree, hf_rtcp_ntp, tvb, offset-8, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
-		PROTO_ITEM_SET_GENERATED(item);
+	    item = proto_tree_add_item(content_tree, hf_rtcp_ntp, tvb, offset-8, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
+	    PROTO_ITEM_SET_GENERATED(item);
 
 	    proto_tree_add_item(content_tree, hf_rtcp_xr_idms_rtp_ts, tvb, offset, 4, ENC_BIG_ENDIAN); 
 		offset+=4;
