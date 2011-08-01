@@ -52,10 +52,10 @@
 #	define gtk_widget_get_visible(x) GTK_WIDGET_VISIBLE(x)
 #	define gtk_widget_get_state(x) GTK_WIDGET_STATE(x)
 #	define gtk_widget_get_allocation(x,y) (*(y) = x->allocation)
+#	define gtk_widget_get_sensitive(x) GTK_WIDGET_SENSITIVE(x)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)
-#	define gtk_widget_get_sensitive(x) GTK_WIDGET_SENSITIVE(x)
 #	define gtk_widget_get_realized(x) GTK_WIDGET_REALIZED(x)
 #endif
 
