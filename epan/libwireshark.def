@@ -1088,6 +1088,7 @@ tvb_format_text
 tvb_format_text_wsp
 tvb_free
 tvb_get_bits_buf
+tvb_get_bits
 tvb_get_bits8
 tvb_get_bits16
 tvb_get_bits32
