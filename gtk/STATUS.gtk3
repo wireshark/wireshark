@@ -10,7 +10,7 @@ There are two ways to make the Wireshark code gtk3 ready:
 
 1) CMake and configure options to build with gtk3 instead of gtk2:
   cmake:     ENABLE_GTK3=ON
-  configure: --enable-gtk3
+  configure: --with-gtk3
   This will currently break the build and not gain much until the last
   problem has been fixed. It will also require everyone interested in
   working on this to have gtk3 installed.
