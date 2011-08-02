@@ -939,23 +939,21 @@ dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_gtpv2_stn_sr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
-   proto_item	*stn_sr_item;
-   proto_tree	*sub_tree;
-   tvbuff_t *   new_tvb;
-   int          offset = 0;
+    proto_tree *sub_tree;
+    tvbuff_t   *new_tvb;
+    int        offset = 0;
 
-    stn_sr_item = proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, FALSE);
-	new_tvb = tvb_new_subset(tvb, offset, length, length );
+    proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, FALSE);
+    new_tvb = tvb_new_subset(tvb, offset, length, length );
     sub_tree = proto_item_add_subtree(item, ett_gtpv2_stn_sr);
 
-	/* Octet 5
+    /* Octet 5
      * contains the Nature of Address and Numbering Plan Indicator (NANPI) of the "AddressString" ASN.1 type (see 3GPP
      * TS 29.002 [11]). Octets 6 to (n+4) contain the actual STN-SR (digits of an address encoded as a TBCD-STRING as in
      * the "AddressString" ASN.1 type). For an odd number of STN-SR digits, bits 8 to 5 of the last octet are encoded with the
      * filler "1111".
-	 */
-	dissect_gsm_map_msisdn(new_tvb, pinfo, sub_tree);
-
+     */
+    dissect_gsm_map_msisdn(new_tvb, pinfo, sub_tree);
 }
 
 /* 6.3 Source to Target Transparent Container */
