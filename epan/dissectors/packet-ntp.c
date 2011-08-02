@@ -634,8 +634,8 @@ static void
 dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree      *ntp_tree;
-	proto_item	*ti;
-	guint8		flags;
+	proto_item      *ti = NULL;
+	guint8          flags;
 	void (*dissector)(tvbuff_t *, proto_item *, guint8);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "NTP");
@@ -655,18 +655,23 @@ dissect_ntp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 	}
 
+	/* Adding NTP item and subtree */
+	ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ntp_tree = proto_item_add_subtree(ti, ett_ntp);
+
+	/* Show version and mode in info column and NTP root */
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, %s",
 		val_to_str((flags & NTP_VN_MASK) >> 3, ver_nums,
 			   "Unknown version"),
 		val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
-	if (tree) {
-		/* Adding NTP item and subtree */
-		ti = proto_tree_add_item(tree, proto_ntp, tvb, 0, -1, ENC_BIG_ENDIAN);
-		ntp_tree = proto_item_add_subtree(ti, ett_ntp);
+	proto_item_append_text(ti, " (%s, %s)",
+	                       val_to_str((flags & NTP_VN_MASK) >> 3, ver_nums,
+	                                  "Unknown version"),
+	                       val_to_str(flags & NTP_MODE_MASK, info_mode_types, "Unknown"));
 
-		(*dissector)(tvb, ntp_tree, flags);
-	}
+	/* Dissect according to mode */
+	(*dissector)(tvb, ntp_tree, flags);
 }
 
 static void
