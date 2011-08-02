@@ -66,6 +66,7 @@ static int proto_ranap = -1;
 
 /* initialise sub-dissector handles */
 static dissector_handle_t rrc_s_to_trnc_handle = NULL;
+static dissector_handle_t rrc_t_to_srnc_handle = NULL;
 static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 
 static int hf_ranap_imsi_digits = -1;
@@ -359,6 +360,7 @@ proto_reg_handoff_ranap(void)
 	if (!initialized) {
 		ranap_handle = find_dissector("ranap");
 		rrc_s_to_trnc_handle = find_dissector("rrc.s_to_trnc_cont");
+		rrc_t_to_srnc_handle = find_dissector("rrc.t_to_srnc_cont");
 		rrc_ho_to_utran_cmd = find_dissector("rrc.irat.ho_to_utran_cmd");
 		initialized = TRUE;
 #include "packet-ranap-dis-tab.c"

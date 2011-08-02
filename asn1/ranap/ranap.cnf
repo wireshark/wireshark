@@ -222,18 +222,25 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 %(DEFAULT_BODY)s
 
 	if ((rrc_message_tvb)&&(tvb_length(rrc_message_tvb)!=0)){
-		if(ProtocolIE_ID == id_Source_ToTarget_TransparentContainer){
-		/* Note: In the current version of this specification, this IE may
-		 * either carry the Source RNC to Target RNC Transparent Container 
-		 * or the Source eNB to Target eNB Transparent Container IE as defined in [49]...
-		 */
-			call_dissector(rrc_s_to_trnc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
-		}else{
-			if(pdu_type == SOUT){
-				if(ProcedureCode==id_RelocationResourceAllocation){
-					call_dissector(rrc_ho_to_utran_cmd,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
-				}
-			}
+		switch(ProtocolIE_ID){
+			case id_Source_ToTarget_TransparentContainer: /* INTEGER ::= 61 */
+				/* 9.2.1.30a Source to Target Transparent Container
+				 * Note: In the current version of this specification, this IE may
+				 * either carry the Source RNC to Target RNC Transparent Container 
+				 * or the Source eNB to Target eNB Transparent Container IE as defined in [49]...
+				 */
+				call_dissector(rrc_s_to_trnc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+				break;
+			case id_Target_ToSource_TransparentContainer: /* INTEGER ::= 63 */
+				/* 9.2.1.30b Target to Source Transparent Container
+				 * In the current version of this specification, this IE may
+				 * either carry the Target RNC to Source RNC Transparent Container 
+				 * or the Target eNB to Source eNB Transparent Container IE as defined in [49]...
+				 */
+				call_dissector(rrc_t_to_srnc_handle,rrc_message_tvb,%(ACTX)s->pinfo, proto_tree_get_root(tree));
+				break;
+			default:
+				break;
 		}
 	}
 
