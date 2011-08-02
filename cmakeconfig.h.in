@@ -2,6 +2,9 @@
 
 /* Note: You cannot use earlier #defines in later #cmakedefines (cmake 2.6.2). */
 
+/* Name of package */
+#define PACKAGE "wireshark"
+
 /* Version number of package */
 #define VERSION "${CPACK_PACKAGE_VERSION}"
 
