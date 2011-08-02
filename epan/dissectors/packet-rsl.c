@@ -786,12 +786,19 @@ dissect_rsl_ie_ch_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 
     ie_offset = offset;
 
-    /* 3GPP TS 44.018 "Channel Description" */
-    de_rr_ch_dsc(tvb, ie_tree, pinfo, offset, length, NULL, 0);
+    /* 3GPP TS 44.018 "Channel Description" 
+	 * the whole of the 3GPP TS 44.018 element including the element identifier and 
+	 * length should be included.
+	 * XXX Hmm a type 3 IE (TV).
+	 */
+	proto_tree_add_text(ie_tree, tvb,offset, 1, "Channel Description Tag");
+    de_rr_ch_dsc(tvb, ie_tree, pinfo, offset+1, length, NULL, 0);
+	offset+=4;
     /*
      * The 3GPP TS 24.008 "Mobile Allocation" shall for compatibility reasons be
      * included but empty, i.e. the length shall be zero.
      */
+	proto_tree_add_text(ie_tree, tvb,offset,2,"Mobile Allocation Tag+Length(0)");
     return ie_offset + length;
 }
 /*
@@ -932,7 +939,7 @@ dissect_rsl_ie_ch_mode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
          * If octet 4 indicates signalling then octet 6 is coded as follows:
          * 0000 0000 No resources required
          */
-        proto_tree_add_text(tree, tvb,offset,1,"0 No resources required(All other values are reserved)");
+        proto_tree_add_text(ie_tree, tvb,offset,1,"0 No resources required(All other values are reserved)");
         break;
     default:
         /* Should not happen */
