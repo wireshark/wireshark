@@ -40,6 +40,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/reassemble.h>
 #include <epan/prefs.h>
 #include <epan/expert.h>
 
@@ -87,6 +88,10 @@
 /* link layer */
 #define ML_MORE 0x80
 #define ML_LAST 0x00
+
+/* sequence id for reassembly of fragmented lpdus
+   this can be an arbitrary constant value since lpdus must arrive in order */
+#define SEQ_ID_LINK_LAYER  4
 
 /* transport layer */
 #define NO_TAG        0x00
@@ -393,6 +398,8 @@ static gint ett_dvbci_hdr = -1;
 static gint ett_dvbci_cis = -1;
 static gint ett_dvbci_cis_tpl = -1;
 static gint ett_dvbci_link = -1;
+static gint ett_dvbci_link_frag = -1;
+static gint ett_dvbci_link_frags = -1;
 static gint ett_dvbci_transport = -1;
 static gint ett_dvbci_session = -1;
 static gint ett_dvbci_res = -1;
@@ -407,6 +414,16 @@ static int hf_dvbci_cistpl_code = -1;
 static int hf_dvbci_buf_size = -1;
 static int hf_dvbci_tcid = -1;
 static int hf_dvbci_ml = -1;
+static int hf_dvbci_l_frags = -1;
+static int hf_dvbci_l_frag = -1;
+static int hf_dvbci_l_frag_overlap = -1;
+static int hf_dvbci_l_frag_overlap_conflicts = -1;
+static int hf_dvbci_l_frag_multiple_tails = -1;
+static int hf_dvbci_l_frag_too_long_frag = -1;
+static int hf_dvbci_l_frag_err = -1;
+static int hf_dvbci_l_frag_cnt = -1;
+static int hf_dvbci_l_reass_in = -1;
+static int hf_dvbci_l_reass_len = -1;
 static int hf_dvbci_c_tpdu_tag = -1;
 static int hf_dvbci_r_tpdu_tag = -1;
 static int hf_dvbci_t_c_id = -1;
@@ -455,6 +472,29 @@ static int hf_dvbci_ans_id = -1;
 static int hf_dvbci_choice_nb = -1;
 static int hf_dvbci_choice_ref = -1;
 static int hf_dvbci_item_nb = -1;
+
+
+static GHashTable *lpdu_fragment_table = NULL;
+static GHashTable *lpdu_reassembled_table = NULL;
+
+static const fragment_items lpdu_frag_items = {
+    &ett_dvbci_link_frag,
+    &ett_dvbci_link_frags,
+
+    &hf_dvbci_l_frags,
+    &hf_dvbci_l_frag,
+    &hf_dvbci_l_frag_overlap,
+    &hf_dvbci_l_frag_overlap_conflicts,
+    &hf_dvbci_l_frag_multiple_tails,
+    &hf_dvbci_l_frag_too_long_frag,
+    &hf_dvbci_l_frag_err,
+    &hf_dvbci_l_frag_cnt,
+
+    &hf_dvbci_l_reass_in,
+    &hf_dvbci_l_reass_len,
+    "Lpdu fragments"
+};
+
 
 typedef struct _spdu_info_t {
     guint8 tag;
@@ -687,6 +727,9 @@ dvbci_init(void)
 {
     buf_size_cam  = 0;
     buf_size_host = 0;
+
+    fragment_table_init(&lpdu_fragment_table);
+    reassembled_table_init(&lpdu_reassembled_table);
 }
 
 
@@ -1901,6 +1944,7 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     guint8 tcid, more_last;
     proto_item *pi;
     tvbuff_t *payload_tvb = NULL;
+    fragment_data *frag_msg = NULL;
 
 
     payload_len = tvb_reported_length(tvb);
@@ -1917,13 +1961,6 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(link_tree, hf_dvbci_tcid, tvb, 0, 1, ENC_NA);
 
     more_last = tvb_get_guint8(tvb, 1);
-    if (more_last == ML_MORE) {
-        col_append_sep_fstr(
-                pinfo->cinfo, COL_INFO, NULL, "more fragments follow");
-    }
-    else if (more_last == ML_LAST)
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "last fragment");
-
     if (match_strval(more_last, dvbci_ml)) {
         proto_tree_add_item(link_tree, hf_dvbci_ml, tvb, 1, 1, ENC_NA);
     }
@@ -1932,13 +1969,6 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 link_tree, tvb, 1, 1, "Invalid More/Last indicator");
         expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
                 "Second byte of an LPDU must be 0x80 or 0x00");
-    }
-    /* keep this error case separate, it'll be removed soon */
-    if (more_last == ML_MORE) {
-        pi = proto_tree_add_text(link_tree, tvb, 1, 1, "Unsupported LPDU");
-        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
-                "Reassembly of fragmented packets is not implemented yet");
-        return;
     }
 
     if (payload_len > buf_size_host) {
@@ -1949,8 +1979,25 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 buf_size_host);
     }
 
-    payload_tvb = tvb_new_subset(tvb, 2, -1, -1);
-    dissect_dvbci_tpdu(payload_tvb, pinfo, tree, direction, tcid);
+    frag_msg = fragment_add_seq_next(tvb, 2, pinfo,
+            SEQ_ID_LINK_LAYER,
+            lpdu_fragment_table,
+            lpdu_reassembled_table,
+            tvb_reported_length_remaining(tvb, 2),
+            more_last == ML_MORE ? 1 : 0);
+
+    payload_tvb = process_reassembled_data(tvb, 2, pinfo,
+            "Reassembled Message", frag_msg, &lpdu_frag_items,
+            NULL, link_tree);
+    if (!payload_tvb) {
+        if (more_last == ML_MORE) {
+            pinfo->fragmented = TRUE;
+            col_append_fstr(pinfo->cinfo, COL_INFO, " (Message fragment)");
+       } else
+            payload_tvb = tvb_new_subset(tvb, 2, -1, -1);
+    }
+    if (payload_tvb)
+        dissect_dvbci_tpdu(payload_tvb, pinfo, tree, direction, tcid);
 }
 
 /* dissect DVB-CI buffer size negotiation */
@@ -2174,6 +2221,8 @@ proto_register_dvbci(void)
         &ett_dvbci_cis,
         &ett_dvbci_cis_tpl,
         &ett_dvbci_link,
+        &ett_dvbci_link_frag,
+        &ett_dvbci_link_frags,
         &ett_dvbci_transport,
         &ett_dvbci_session,
         &ett_dvbci_res,
@@ -2202,6 +2251,38 @@ proto_register_dvbci(void)
         { &hf_dvbci_ml,
             { "More/Last indicator", "dvbci.more_last", FT_UINT8, BASE_HEX,
                 VALS(dvbci_ml), 0, NULL, HFILL } },
+        {&hf_dvbci_l_frags,
+            {"Lpdu fragments", "dvbci.lpdu_fragments",
+                FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag,
+            {"Lpdu fragment", "dvbci.lpdu_fragment",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag_overlap,
+            {"Lpdu fragment overlap", "dvbci.lpdu_fragment.overlap",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag_overlap_conflicts,
+            {"Lpdu fragment overlapping with conflicting data",
+                "dvbci.lpdu_fragment.overlap.conflicts",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag_multiple_tails,
+            {"Lpdu has multiple tail fragments",
+                "dvbci.lpdu_fragment.multiple_tails",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag_too_long_frag,
+            {"Lpdu fragment too long", "dvbci.lpdu_fragment.too_long_fragment",
+                FT_BOOLEAN, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag_err,
+            {"Lpdu defragmentation error", "dvbci.lpdu_fragment.error",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_frag_cnt,
+            {"Lpdu fragment count", "dvbci.lpdu_fragment.count",
+                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_reass_in,
+            {"Lpdu reassembled in", "dvbci.lpdu_reassembled.in",
+                FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+        {&hf_dvbci_l_reass_len,
+            {"Reassembled lpdu length", "dvbci.lpdu_reassembled.length",
+                FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
         { &hf_dvbci_c_tpdu_tag,
             { "Command TPDU Tag", "dvbci.c_tpdu_tag", FT_UINT8, BASE_HEX,
                 VALS(dvbci_c_tpdu), 0, NULL, HFILL } },
