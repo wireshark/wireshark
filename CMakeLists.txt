@@ -573,6 +573,7 @@ set(TSHARK_TAP_SRC
 	tap-gsm_astat.c
 	tap-h225counter.c
 	tap-h225rassrt.c
+	tap-hosts.c
 	tap-httpstat.c
 	tap-icmpstat.c
 	tap-icmpv6stat.c
