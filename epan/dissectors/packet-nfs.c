@@ -467,6 +467,9 @@ static int hf_nfs_prot_info4_hash_alg = -1;
 static int hf_nfs_nii_domain4 = -1;
 static int hf_nfs_nii_name4 = -1;
 static int hf_nfs_create_session_flags4 = -1;
+static int hf_nfs_create_session_flags_persist = -1;
+static int hf_nfs_create_session_flags_conn_back_chan = -1;
+static int hf_nfs_create_session_flags_conn_rdma = -1;
 static int hf_nfs_cachethis4 = -1;
 static int hf_nfs_util4 = -1;
 static int hf_nfs_first_stripe_idx4 = -1;
@@ -478,6 +481,10 @@ static int hf_nfs_nfl_util = -1;
 static int hf_nfs_nfl_first_stripe_index = -1;
 static int hf_nfs_lrf_body_content = -1;
 static int hf_nfs_reclaim_one_fs4 = -1;
+static int hf_nfs_bctsa_dir = -1;
+static int hf_nfs_bctsa_use_conn_in_rdma_mode = -1;
+static int hf_nfs_bctsr_dir = -1;
+static int hf_nfs_bctsr_use_conn_in_rdma_mode = -1;
 
 /* Hidden field for v2, v3, and v4 status */
 int hf_nfs_nfsstat = -1;
@@ -609,12 +616,14 @@ static gint ett_nfs_ace4 = -1;
 static gint ett_nfs_clientaddr4 = -1;
 static gint ett_nfs_aceflag4 = -1;
 static gint ett_nfs_acemask4 = -1;
+static gint ett_create_session_flags = -1;
 
 static gint ett_nfs_layoutget4 = -1;
 static gint ett_nfs_layoutcommit4 = -1;
 static gint ett_nfs_layoutreturn4 = -1;
 static gint ett_nfs_getdevinfo4 = -1;
 static gint ett_nfs_getdevlist4 = -1;
+static gint ett_nfs_bind_conn_to_session4 = -1;
 static gint ett_nfs_exchange_id4 = -1;
 static gint ett_nfs_create_session4 = -1;
 static gint ett_nfs_destroy_session4 = -1;
@@ -650,6 +659,7 @@ static gint ett_nfs_fh_obj = -1;
 static gint ett_nfs_fh_ex = -1;
 static gint ett_nfs_layoutseg_fh = -1;
 static gint ett_nfs_reclaim_complete4 = -1;
+static gint ett_nfs_chan_attrs = -1;
 
 /* what type of fhandles shoudl we dissect as */
 static dissector_table_t nfs_fhandle_table;
@@ -8052,6 +8062,7 @@ static const value_string names_nfsv4_operation[] = {
 	{	NFS4_OP_VERIFY,			"VERIFY"		},
 	{	NFS4_OP_WRITE,			"WRITE"			},
 	{	NFS4_OP_RELEASE_LOCKOWNER,	"RELEASE_LOCKOWNER"	},
+	{	NFS4_OP_BIND_CONN_TO_SESSION,	"BIND_CONN_TO_SESSION"	},
 	{	NFS4_OP_EXCHANGE_ID,		"EXCHANGE_ID"		},
 	{	NFS4_OP_CREATE_SESSION,		"CREATE_SESSION"	},
 	{	NFS4_OP_DESTROY_SESSION,	"DESTROY_SESSION"	},
@@ -8077,7 +8088,6 @@ static value_string_ext names_nfsv4_operation_ext = VALUE_STRING_EXT_INIT(names_
 static gint *nfsv4_operation_ett[] =
 {
 	 &ett_nfs_access4 ,
-	 &ett_nfs_access_supp4,
 	 &ett_nfs_close4 ,
 	 &ett_nfs_commit4 ,
 	 &ett_nfs_create4 ,
@@ -8115,7 +8125,7 @@ static gint *nfsv4_operation_ett[] =
 	 &ett_nfs_write4,
 	 &ett_nfs_release_lockowner4,
 	 NULL, /* backchannel_ctl */
-	 NULL, /* bind connection to session */
+	 &ett_nfs_bind_conn_to_session4,
 	 &ett_nfs_exchange_id4,
 	 &ett_nfs_create_session4,
 	 &ett_nfs_destroy_session4,
@@ -8781,43 +8791,51 @@ dissect_rpc_serverowner4(tvbuff_t *tvb, int offset, proto_tree *tree)
 }
 
 static int
-dissect_rpc_chanattrs4(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_rpc_chanattrs4(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	guint i, count;
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_padsize4, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxreqsize4, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxrespsize4, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxrespsizecached4, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxops4, offset);
-	offset = dissect_rpc_uint32(tvb, tree, hf_nfs_maxreqs4, offset);
-	count = tvb_get_ntohl(tvb, offset);
+	proto_item *chan_attrs_item = NULL;
+	proto_tree *chan_attrs_tree = NULL;
+	guint i, count, rdma_ird_len;
+
+	rdma_ird_len = tvb_get_ntohl(tvb, offset + 24);
+	count = 28 + rdma_ird_len * 4;
+
+	chan_attrs_item = proto_tree_add_text(tree, tvb, offset, count, name, count);
+	chan_attrs_tree = proto_item_add_subtree(chan_attrs_item, ett_nfs_chan_attrs);
+
+	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs_padsize4, offset);
+	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs_maxreqsize4, offset);
+	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs_maxrespsize4, offset);
+	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs_maxrespsizecached4, offset);
+	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs_maxops4, offset);
+	offset = dissect_rpc_uint32(tvb, chan_attrs_tree, hf_nfs_maxreqs4, offset);
 	offset += 4;
-	for (i = 0; i < count; i++) {
+	for (i = 0; i < rdma_ird_len; i++) {
 		offset = dissect_rpc_uint32(tvb, tree, hf_nfs_rdmachanattrs4, offset);
 	}
 	return offset;
 }
 
 static int
-dissect_rpc_nfs_impl_id4(tvbuff_t *tvb, int offset, proto_tree *tree)
+dissect_rpc_nfs_impl_id4(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
 {
-	proto_item *eia_client_impl_id_item = NULL;
-	proto_tree *eia_client_impl_id_tree = NULL;
+	proto_item *impl_id_item = NULL;
+	proto_tree *impl_id_tree = NULL;
 	guint i, count;
 
 	count = tvb_get_ntohl(tvb, offset);
-	eia_client_impl_id_item = proto_tree_add_text(tree, tvb, offset, 4, "eia_client_impl_idi<%u>", count);
-	eia_client_impl_id_tree = proto_item_add_subtree(eia_client_impl_id_item, ett_nfs_clientowner4);
+	impl_id_item = proto_tree_add_text(tree, tvb, offset, 4, name, count);
+	impl_id_tree = proto_item_add_subtree(impl_id_item, ett_nfs_clientowner4);
 	offset += 4;
 
 	for (i = 0; i < count; i++) {
 		proto_item *date_item = NULL;
 		proto_tree *date_tree = NULL;
 
-		offset = dissect_nfs_utf8string(tvb, offset, eia_client_impl_id_tree, hf_nfs_nii_domain4, NULL);
-		offset = dissect_nfs_utf8string(tvb, offset, eia_client_impl_id_tree, hf_nfs_nii_name4, NULL);
+		offset = dissect_nfs_utf8string(tvb, offset, impl_id_tree, hf_nfs_nii_domain4, NULL);
+		offset = dissect_nfs_utf8string(tvb, offset, impl_id_tree, hf_nfs_nii_name4, NULL);
 
-		date_item = proto_tree_add_text(eia_client_impl_id_tree, tvb, offset, 12, "Build timestamp(nii_date)");
+		date_item = proto_tree_add_text(impl_id_tree, tvb, offset, 12, "Build timestamp(nii_date)");
 		date_tree = proto_item_add_subtree(date_item, ett_nfs_clientowner4);
 		offset = dissect_nfs_nfstime4(tvb, offset, date_tree);
 	}
@@ -8921,6 +8939,52 @@ dissect_nfs_layout(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	}
 	return offset;
 }
+
+static int
+dissect_nfs_create_session_flags(tvbuff_t *tvb, int offset, proto_tree *tree, const char *name)
+{
+	proto_tree *csa_flags_item = NULL;
+	proto_tree *csa_flags_tree = NULL;
+	guint32 csa_flags;
+
+	csa_flags = tvb_get_ntohl(tvb, offset);
+	csa_flags_item = proto_tree_add_text(tree, tvb, offset, 4, "%s:0x%08x", name, csa_flags);
+	csa_flags_tree = proto_item_add_subtree(csa_flags_item, ett_create_session_flags);
+	proto_tree_add_boolean(csa_flags_tree, hf_nfs_create_session_flags_persist, tvb, offset, 1, csa_flags);
+	proto_tree_add_boolean(csa_flags_tree, hf_nfs_create_session_flags_conn_back_chan, tvb, offset, 1, csa_flags);
+	proto_tree_add_boolean(csa_flags_tree, hf_nfs_create_session_flags_conn_rdma, tvb, offset, 1, csa_flags);
+	offset += 4;
+
+	return offset;
+}
+
+enum channel_dir_from_client4 {
+	CDFC4_FORE = 0x1,
+	CDFC4_BACK = 0x2,
+	CDFC4_FORE_OR_BOTH = 0x3,
+	CDFC4_BACK_OR_BOTH = 0x7,
+};
+
+static const value_string names_channel_dir_from_client[] = {
+	{ CDFC4_FORE,		"CDFC4_FORE" },
+	{ CDFC4_BACK,		"CDFC4_BACK" },
+	{ CDFC4_FORE_OR_BOTH,	"CDFC4_FORE_OR_BOTH" },
+	{ CDFC4_BACK_OR_BOTH,	"CDFC4_BACK_OR_BOTH" },
+	{ 0, NULL }
+};
+
+enum channel_dir_from_server4 {
+	CDFS4_FORE = 0x1,
+	CDFS4_BACK = 0x2,
+	CDFS4_BOTH = 0x3,
+};
+
+static const value_string names_channel_dir_from_server[] = {
+	{ CDFS4_FORE,		"CDFS4_FORE" },
+	{ CDFS4_BACK,		"CDFS4_BACK" },
+	{ CDFS4_BOTH,		"CDFS4_BOTH" },
+	{ 0, NULL }
+};
 
 static int
 dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -9353,6 +9417,14 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 			/* Minor Version 1 */
+		case NFS4_OP_BIND_CONN_TO_SESSION:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
+				NULL, hf_nfs_sessionid4, TRUE, 16,
+				FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_bctsa_dir, offset);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_bctsa_use_conn_in_rdma_mode, offset);
+			break;
+
 		case NFS4_OP_EXCHANGE_ID: {
 #define EXCHGID4_FLAG_SUPP_MOVED_REFER    0x00000001
 #define EXCHGID4_FLAG_SUPP_MOVED_MIGR     0x00000002
@@ -9383,26 +9455,25 @@ dissect_nfs_argop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_bind_princ, tvb, offset, 1, exchange_id_flags);
 				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_moved_migr, tvb, offset, 1, exchange_id_flags);
 				proto_tree_add_boolean(eia_flags_tree, hf_nfs_exchid_flags_moved_refer, tvb, offset, 1, exchange_id_flags);
-				offset +=4;
+				offset += 4;
 
 				offset = dissect_nfs_state_protect4_a(tvb, offset, newftree);
-				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree, "eia_client_impl_id");
 			}
 			break;
 
 		case NFS4_OP_CREATE_SESSION:
-			offset = dissect_rpc_uint64(tvb, newftree,
-					hf_nfs_clientid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree,
-					hf_nfs_seqid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree,
-					hf_nfs_create_session_flags4, offset);
-			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
-			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+#define CREATE_SESSION4_FLAG_PERSIST		0x00000001
+#define CREATE_SESSION4_FLAG_CONN_BACK_CHAN	0x00000002
+#define CREATE_SESSION4_FLAG_CONN_RDMA		0x00000004
+			offset = dissect_rpc_uint64(tvb, newftree, hf_nfs_clientid4, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
+			offset = dissect_nfs_create_session_flags(tvb, offset, newftree, "csa_flags");
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csa_fore_chan_attrs");
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csa_back_chan_attrs");
 			cbprog = tvb_get_ntohl(tvb, offset);
 			reg_callback(cbprog);
-			offset = dissect_rpc_uint32(tvb, newftree,
-					hf_nfs_cb_program, offset);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_cb_program, offset);
 			offset = dissect_rpc_secparms4(tvb, offset, newftree);
 			break;
 
@@ -9806,6 +9877,14 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			break;
 
 			/* Minor Version 1 */
+		case NFS4_OP_BIND_CONN_TO_SESSION:
+			offset = dissect_rpc_opaque_data(tvb, offset, newftree,
+				NULL, hf_nfs_sessionid4, TRUE, 16,
+				FALSE, NULL, NULL);
+			offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_bctsr_dir, offset);
+			offset = dissect_rpc_bool(tvb, newftree, hf_nfs_bctsr_use_conn_in_rdma_mode, offset);
+			break;
+
 		case NFS4_OP_EXCHANGE_ID: {
 				proto_tree *eir_flags_tree = NULL;
 				proto_tree *eir_server_owner_tree = NULL;
@@ -9834,7 +9913,7 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 				offset = dissect_rpc_serverowner4(tvb, offset, eir_server_owner_tree);
 
 				offset = dissect_nfsdata(tvb, offset, newftree, hf_nfs_serverscope4);
-				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree);
+				offset = dissect_rpc_nfs_impl_id4(tvb, offset, newftree, "eir_server_impl_id");
 			}
 			break;
 		case NFS4_OP_CREATE_SESSION:
@@ -9843,11 +9922,9 @@ dissect_nfs_resop4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 					FALSE, NULL, NULL);
 			offset = dissect_rpc_uint32(tvb, newftree,
 					hf_nfs_seqid4, offset);
-			offset = dissect_rpc_uint32(tvb, newftree,
-					hf_nfs_create_session_flags4, offset);
-			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
-
-			offset = dissect_rpc_chanattrs4(tvb, offset, newftree);
+			offset = dissect_nfs_create_session_flags(tvb, offset, newftree, "csa_flags");
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csr_fore_chan_attrs");
+			offset = dissect_rpc_chanattrs4(tvb, offset, newftree, "csr_back_chan_attrs");
 			break;
 
 		case NFS4_OP_DESTROY_SESSION:
@@ -12064,8 +12141,17 @@ proto_register_nfs(void)
 			"Implementation product name(nii_name)", "nfs.nii_name4", FT_STRING, BASE_NONE,
 			NULL, 0, NULL, HFILL }},
 		{ &hf_nfs_create_session_flags4, {
-			"CREATE_SESSION flags", "nfs.create_session_flags", FT_UINT32, BASE_HEX,
+			"csa_flags", "nfs.create_session_flags", FT_UINT32, BASE_HEX,
 			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs_create_session_flags_persist, {
+			"CREATE_SESSION4_FLAG_PERSIST", "nfs.create_session.flags.persist", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), CREATE_SESSION4_FLAG_PERSIST, NULL, HFILL}},
+		{ &hf_nfs_create_session_flags_conn_back_chan, {
+			"CREATE_SESSION4_FLAG_CONN_BACK_CHAN", "nfs.create_session.flags.conn_back_chan", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), CREATE_SESSION4_FLAG_CONN_BACK_CHAN, NULL, HFILL}},
+		{ &hf_nfs_create_session_flags_conn_rdma, {
+			"CREATE_SESSION4_FLAG_CONN_RDMA", "nfs.create_session.flags.conn_rdma", FT_BOOLEAN, 32,
+			TFS(&tfs_set_notset), CREATE_SESSION4_FLAG_CONN_RDMA, NULL, HFILL}},
 		{ &hf_nfs_cachethis4, {
 			"cache this?", "nfs.cachethis4", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0x0, NULL, HFILL }},
@@ -12090,6 +12176,19 @@ proto_register_nfs(void)
 		{ &hf_nfs_cb_clorachanged, {
 			"Clora changed", "nfs.clorachanged", FT_BOOLEAN, BASE_NONE,
 			TFS(&tfs_yes_no), 0, NULL, HFILL }},
+
+		{ &hf_nfs_bctsa_dir, {
+			"bctsa_dir", "nfs.bctsa_dir", FT_UINT32, BASE_HEX,
+			VALS(names_channel_dir_from_client), 0, NULL, HFILL }},
+		{ &hf_nfs_bctsa_use_conn_in_rdma_mode, {
+			"bctsa_use_conn_in_rdma_mode", "nfs.bctsa_use_conn_in_rdma_mode", FT_BOOLEAN, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
+		{ &hf_nfs_bctsr_dir, {
+			"bctsr_dir", "nfs.bctsr_dir", FT_UINT32, BASE_HEX,
+			VALS(names_channel_dir_from_server), 0, NULL, HFILL }},
+		{ &hf_nfs_bctsr_use_conn_in_rdma_mode, {
+			"bctsr_use_conn_in_rdma_mode", "nfs.bctsr_use_conn_in_rdma_mode", FT_BOOLEAN, BASE_NONE,
+			NULL, 0, NULL, HFILL }},
 
 		{ &hf_nfs_mode3, {
 			"Mode", "nfs.mode3", FT_UINT32, BASE_OCT,
@@ -12243,6 +12342,7 @@ proto_register_nfs(void)
 		&ett_nfs_verify4,
 		&ett_nfs_write4,
 		&ett_nfs_release_lockowner4,
+		&ett_nfs_bind_conn_to_session4,
 		&ett_nfs_exchange_id4,
 		&ett_nfs_create_session4,
 		&ett_nfs_destroy_session4,
@@ -12332,6 +12432,8 @@ proto_register_nfs(void)
 		&ett_nfs_cb_reflists,
 		&ett_nfs_cb_refcalls,
 		&ett_nfs_cb_illegal,
+		&ett_nfs_chan_attrs,
+		&ett_create_session_flags,
 	};
 	module_t *nfs_module;
 
