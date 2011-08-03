@@ -111,6 +111,7 @@ typedef struct _e_prefs {
   gboolean gui_plist_sel_browse;
   gboolean gui_ptree_sel_browse;
   gboolean gui_altern_colors;
+  gboolean gui_expert_composite_eyecandy;
   gboolean filter_toolbar_show_in_statusbar;
   gint     gui_ptree_line_style;
   gint     gui_ptree_expander_style;

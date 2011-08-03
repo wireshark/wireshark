@@ -1187,6 +1187,7 @@ init_prefs(void) {
   prefs.gui_plist_sel_browse = FALSE;
   prefs.gui_ptree_sel_browse = FALSE;
   prefs.gui_altern_colors = FALSE;
+  prefs.gui_expert_composite_eyecandy = FALSE;
   prefs.gui_ptree_line_style = 0;
   prefs.gui_ptree_expander_style = 1;
   prefs.gui_hex_dump_highlight_style = 1;
@@ -1795,6 +1796,7 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_GUI_PLIST_SEL_BROWSE         "gui.packet_list_sel_browse"
 #define PRS_GUI_PTREE_SEL_BROWSE         "gui.protocol_tree_sel_browse"
 #define PRS_GUI_ALTERN_COLORS            "gui.tree_view_altern_colors"
+#define PRS_GUI_EXPERT_COMPOSITE_EYECANDY "gui.expert_composite_eyecandy"
 #define PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR "gui.filter_toolbar_show_in_statusbar"
 #define PRS_GUI_PTREE_LINE_STYLE         "gui.protocol_tree_line_style"
 #define PRS_GUI_PTREE_EXPANDER_STYLE     "gui.protocol_tree_expander_style"
@@ -2154,6 +2156,13 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     }
     else {
             prefs.gui_altern_colors = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_EXPERT_COMPOSITE_EYECANDY) == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
+            prefs.gui_expert_composite_eyecandy = TRUE;
+    }
+    else {
+            prefs.gui_expert_composite_eyecandy = FALSE;
     }
   } else if (strcmp(pref_name, PRS_GUI_PTREE_LINE_STYLE) == 0) {
     prefs.gui_ptree_line_style =
@@ -2991,6 +3000,11 @@ write_prefs(char **pf_path_return)
   fprintf(pf, PRS_GUI_ALTERN_COLORS ": %s\n",
 	  prefs.gui_altern_colors == TRUE ? "TRUE" : "FALSE");
 
+  fprintf(pf, "\n# Display LEDs on Expert Composite Dialog Tabs?\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_EXPERT_COMPOSITE_EYECANDY ": %s\n",
+	  prefs.gui_expert_composite_eyecandy == TRUE ? "TRUE" : "FALSE");
+
   fprintf(pf, "\n# Place filter toolbar inside the statusbar?\n");
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_FILTER_TOOLBAR_IN_STATUSBAR ": %s\n",
@@ -3396,6 +3410,7 @@ copy_prefs(e_prefs *dest, e_prefs *src)
   dest->gui_plist_sel_browse = src->gui_plist_sel_browse;
   dest->gui_ptree_sel_browse = src->gui_ptree_sel_browse;
   dest->gui_altern_colors = src->gui_altern_colors;
+  dest->gui_expert_composite_eyecandy = src->gui_expert_composite_eyecandy;
   dest->filter_toolbar_show_in_statusbar = src->filter_toolbar_show_in_statusbar;
   dest->gui_ptree_line_style = src->gui_ptree_line_style;
   dest->gui_ptree_expander_style = src->gui_ptree_expander_style;

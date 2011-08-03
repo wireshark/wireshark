@@ -34,6 +34,7 @@
 #include <gtk/gtk.h>
 
 #include <epan/packet_info.h>
+#include <epan/prefs.h>
 #include <epan/tap.h>
 #include <epan/stat_cmd_args.h>
 #include <epan/prefs.h>
@@ -49,9 +50,8 @@
 #include "gtk/expert_comp_dlg.h"
 #include "gtk/stock_icons.h"
 #include "gtk/main.h"
-
+#include "gtk/expert_indicators.h"
 #include "gtk/main_proto_draw.h"
-
 #include "gtk/old-gtk-compat.h"
 
 enum
@@ -493,7 +493,6 @@ expert_dlg_init_table(expert_tapdata_t * etd, GtkWidget *vbox)
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_append_column (etd->tree_view, column);
 
-
     gtk_tree_view_set_search_column (etd->tree_view, SUMMARY_COLUMN); /* Allow searching the summary */
     gtk_tree_view_set_reorderable (etd->tree_view, TRUE);   /* Allow user to reorder data with drag n drop */
 
@@ -631,6 +630,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     GtkWidget *main_nb;
     GtkWidget *vbox;
     GtkWidget *hbox;
+    GtkWidget *image;
     GtkWidget *bbox;
     GtkWidget *close_bt;
     GtkWidget *help_bt;
@@ -665,6 +665,11 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->error_label = gtk_label_new("Errors: 0/y");
     gtk_widget_show(ss->error_label);
     hbox = gtk_hbox_new(FALSE, 3);
+    if ( prefs.gui_expert_composite_eyecandy ) { 
+        image = pixbuf_to_widget(expert_error_pb_data);
+        gtk_widget_show(image);
+        gtk_container_add(GTK_CONTAINER(hbox), image);
+    }
     gtk_container_add(GTK_CONTAINER(hbox), ss->error_label);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->error_table, 0, temp_page);
@@ -674,6 +679,11 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->warn_label = gtk_label_new("Warnings: 0/y");
     gtk_widget_show(ss->warn_label);
     hbox = gtk_hbox_new(FALSE, 3);
+    if ( prefs.gui_expert_composite_eyecandy ) { 
+        image = pixbuf_to_widget(expert_warn_pb_data);
+        gtk_widget_show(image);
+        gtk_container_add(GTK_CONTAINER(hbox), image);
+    }
     gtk_container_add(GTK_CONTAINER(hbox), ss->warn_label);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->warn_table, 0, temp_page);
@@ -683,6 +693,11 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->note_label = gtk_label_new("Notes: 0/y");
     gtk_widget_show(ss->note_label);
     hbox = gtk_hbox_new(FALSE, 3);
+    if ( prefs.gui_expert_composite_eyecandy ) { 
+        image = pixbuf_to_widget(expert_note_pb_data);
+        gtk_widget_show(image);
+        gtk_container_add(GTK_CONTAINER(hbox), image);
+    }
     gtk_container_add(GTK_CONTAINER(hbox), ss->note_label);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->note_table, 0, temp_page);
@@ -692,6 +707,11 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->chat_label = gtk_label_new("Chats: 0/y");
     gtk_widget_show(ss->chat_label);
     hbox = gtk_hbox_new(FALSE, 3);
+    if ( prefs.gui_expert_composite_eyecandy ) { 
+        image = pixbuf_to_widget(expert_chat_pb_data);
+        gtk_widget_show(image);
+        gtk_container_add(GTK_CONTAINER(hbox), image);
+    }
     gtk_container_add(GTK_CONTAINER(hbox), ss->chat_label);
     gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
     init_error_table(&ss->chat_table, 0, temp_page);
