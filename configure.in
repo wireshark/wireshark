@@ -371,7 +371,6 @@ AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wcast-align)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wformat-security)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wold-style-definition)
 AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-variable)    ##  for now
-AC_WIRESHARK_GCC_CFLAGS_CHECK(-Wno-error=unused-but-set-parameter)   ##  for now
 #
 # Use the faster pre gcc 4.5 floating point precision if available;
 # clang doesn't error out on -f options that it doesn't know about,
