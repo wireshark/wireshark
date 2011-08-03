@@ -191,6 +191,7 @@ static int hf_tcp_ts_delta = -1;
 static int hf_tcp_option_scps = -1;
 static int hf_tcp_option_scps_vector = -1;
 static int hf_tcp_option_scps_binding = -1;
+static int hf_tcp_option_scps_binding_len = -1;
 static int hf_tcp_scpsoption_flags_bets = -1;
 static int hf_tcp_scpsoption_flags_snack1 = -1;
 static int hf_tcp_scpsoption_flags_snack2 = -1;
@@ -199,6 +200,7 @@ static int hf_tcp_scpsoption_flags_nlts = -1;
 static int hf_tcp_scpsoption_flags_resv1 = -1;
 static int hf_tcp_scpsoption_flags_resv2 = -1;
 static int hf_tcp_scpsoption_flags_resv3 = -1;
+static int hf_tcp_scpsoption_connection_id = -1;
 static int hf_tcp_option_snack = -1;
 static int hf_tcp_option_snack_offset = -1;
 static int hf_tcp_option_snack_size = -1;
@@ -289,7 +291,7 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_CCNEW          6
 #define TCPOLEN_CCECHO         6
 #define TCPOLEN_MD5           18
-#define TCPOLEN_SCPS           4
+#define TCPOLEN_SCPS           2
 #define TCPOLEN_SNACK          6
 #define TCPOLEN_RECBOUND       2
 #define TCPOLEN_CORREXP        2
@@ -410,6 +412,7 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
     tcpd->stream = tcp_stream_index++;
+fprintf(stderr, "adding stream %d\n", tcpd->stream);
 
     return tcpd;
 }
@@ -2561,7 +2564,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
     int         direction;
     proto_item *tf = NULL, *hidden_item;
     gchar       flags[64] = "<None>";
-    gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV1", "RESV2", "RESV3"};
+    gchar      *fstr[] = {"BETS", "SNACK1", "SNACK2", "COMP", "NLTS", "RESV3", "RESV2", "RESV1"};
     gint        i, bpos;
     guint8      capvector;
     guint8      connid;
@@ -2626,21 +2629,23 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
         field_tree = proto_item_add_subtree(tf, ett_tcp_option_scps);
 
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_bets, tvb,
-                               offset + 13, 1, capvector);
+                               offset + 2, 1, capvector);
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_snack1, tvb,
-                               offset + 13, 1, capvector);
+                               offset + 2, 1, capvector);
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_snack2, tvb,
-                               offset + 13, 1, capvector);
+                               offset + 2, 1, capvector);
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_compress, tvb,
-                               offset + 13, 1, capvector);
+                               offset + 2, 1, capvector);
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_nlts, tvb,
-                               offset + 13, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv1, tvb,
-                               offset + 13, 1, capvector);
-        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv2, tvb,
-                               offset + 13, 1, capvector);
+                               offset + 2, 1, capvector);
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv3, tvb,
-                               offset + 13, 1, capvector);
+                               offset + 2, 1, capvector);
+        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv2, tvb,
+                               offset + 2, 1, capvector);
+        proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv1, tvb,
+                               offset + 2, 1, capvector);
+        proto_tree_add_item(field_tree, hf_tcp_scpsoption_connection_id, tvb,
+                            offset + 3, 1, 0);
 
         tcp_info_append_str(pinfo, "SCPS", flags);
 
@@ -2648,8 +2653,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
         if (connid)
             tcp_info_append_uint(pinfo, "Connection ID", connid);
-    }
-    else {
+    } else {
         /* The option length != 4, so this is an infamous "extended capabilities
          * option. See "CCSDS 714.0-B-2 (CCSDS Recommended Standard for SCPS
          * Transport Protocol (SCPS-TP)" Section 3.2.5 for definition.
@@ -2665,23 +2669,20 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
         if (flow->scps_capable != 1) {
             /* There was no SCPS capabilities option preceeding this */
             proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
-                                            tvb, offset, optlen, 0, "%s: (%d %s)",
-                                            "Illegal SCPS Extended Capabilities",
-                                            (optlen),
-                                            "bytes");
-        }
-        else {
+                                       tvb, offset, optlen, 0,
+                                       "Illegal SCPS Extended Capabilities (%d bytes)",
+                                       optlen);
+        } else {
             tf = proto_tree_add_uint_format(opt_tree, hf_tcp_option_scps_vector,
-                                            tvb, offset, optlen, 0, "%s: (%d %s)",
-                                            "SCPS Extended Capabilities",
-                                            (optlen),
-                                            "bytes");
+                                            tvb, offset, optlen, 0,
+                                            "SCPS Extended Capabilities (%d bytes)",
+                                            optlen);
             field_tree=proto_item_add_subtree(tf, ett_tcp_option_scps_extended);
+
             /* There may be multiple binding spaces included in a single option,
              * so we will semi-parse each of the stacked binding spaces - skipping
              * over the octets following the binding space identifier and length.
              */
-
             while (optlen > local_offset) {
 
                 /* 1st octet is Extended Capability Binding Space */
@@ -2691,28 +2692,21 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
                  * As defined by the specification, this length is exclusive of the
                  * octets containing the extended capability type and length
                  */
-
                 extended_cap_length =
                     (tvb_get_guint8(tvb, (offset + local_offset + 1)) >> 4);
 
                 /* Convert the extended capabilities length into bytes for display */
                 extended_cap_length = (extended_cap_length << 1);
 
-                proto_tree_add_text(field_tree, tvb, offset + local_offset, 2,
-                                    "\tBinding Space %u",
-                                    binding_space);
-                hidden_item = proto_tree_add_uint(field_tree, hf_tcp_option_scps_binding,
-                                                  tvb, (offset + local_offset), 1,
-                                                  binding_space);
-
-                PROTO_ITEM_SET_HIDDEN(hidden_item);
+                proto_tree_add_item(field_tree, hf_tcp_option_scps_binding, tvb, offset + local_offset, 1, 0);
+                proto_tree_add_uint(field_tree, hf_tcp_option_scps_binding_len, tvb, offset + local_offset + 1, 1, extended_cap_length);
 
                 /* Step past the binding space and length octets */
                 local_offset += 2;
 
                 proto_tree_add_text(field_tree, tvb, offset + local_offset,
                                     extended_cap_length,
-                                    "\tBinding Space Data (%u bytes)",
+                                    "Binding Space Data (%u bytes)",
                                     extended_cap_length);
 
                 tcp_info_append_uint(pinfo, "EXCAP", binding_space);
@@ -2758,29 +2752,6 @@ dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_tree_add_item(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, FALSE);
 
     tcp_info_append_uint(pinfo, "USER_TO", to);
-}
-
-/* This is called for SYN+ACK packets and the purpose is to verify that
- * the SCPS capabilities option has been successfully negotiated for the flow.
- * If the SCPS capabilities option was offered by only one party, the
- * proactively set scps_capable attribute of the flow (set upon seeing
- * the first instance of the SCPS option) is revoked.
- */
-static void
-verify_scps(packet_info *pinfo,  proto_item *tf_syn, struct tcp_analysis *tcpd)
-{
-    tf_syn = 0x0;
-
-    if(tcpd) {
-        if ((!(tcpd->flow1.scps_capable)) || (!(tcpd->flow2.scps_capable))) {
-            tcpd->flow1.scps_capable = 0;
-            tcpd->flow2.scps_capable = 0;
-        }
-        else {
-            expert_add_info_format(pinfo, tf_syn, PI_SEQUENCE, PI_NOTE,
-                                   "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated");
-        }
-    }
 }
 
 /* See "CCSDS 714.0-B-2 (CCSDS Recommended Standard for SCPS
@@ -4314,7 +4285,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * SCPS capabilities on SYN+ACK even if it wasn't offered with the SYN
              */
             if(tcpd && ((tcpd->rev->scps_capable) || (tcpd->fwd->scps_capable))) {
-                verify_scps(pinfo, tf_syn, tcpd);
+                if (tcpd->flow1.scps_capable && tcpd->flow2.scps_capable) {
+                    expert_add_info_format(pinfo, 0, PI_SEQUENCE, PI_NOTE,
+                                           "Connection establish request (SYN-ACK): SCPS Capabilities Negotiated");
+                }
             }
         }
     }
@@ -4811,10 +4785,16 @@ proto_register_tcp(void)
             NULL, HFILL}},
 
         { &hf_tcp_option_scps_binding,
-          { "TCP SCPS Extended Binding Spacce",
-            "tcp.options.scps.binding",
+          { "Binding Space (Community) ID",
+            "tcp.options.scps.binding.id",
             FT_UINT8, BASE_DEC, NULL, 0x0,
-            "TCP SCPS Extended Binding Space", HFILL}},
+            "TCP SCPS Extended Binding Space (Community) ID", HFILL}},
+
+        { &hf_tcp_option_scps_binding_len,
+          { "Extended Capability Length",
+            "tcp.options.scps.binding.len",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "TCP SCPS Extended Capability Length in bytes", HFILL}},
 
         { &hf_tcp_option_snack,
           { "TCP Selective Negative Acknowledgement Option",
@@ -4867,9 +4847,9 @@ proto_register_tcp(void)
             "tcp.options.scpsflags.nlts", FT_BOOLEAN, 8,
             TFS(&tfs_set_notset), 0x8, NULL, HFILL }},
 
-        { &hf_tcp_scpsoption_flags_resv1,
-          { "Reserved Bit 1",
-            "tcp.options.scpsflags.reserved1", FT_BOOLEAN, 8,
+        { &hf_tcp_scpsoption_flags_resv3,
+          { "Reserved Bit 3",
+            "tcp.options.scpsflags.reserved3", FT_BOOLEAN, 8,
             TFS(&tfs_set_notset), 0x4, NULL, HFILL }},
 
         { &hf_tcp_scpsoption_flags_resv2,
@@ -4877,10 +4857,16 @@ proto_register_tcp(void)
             "tcp.options.scpsflags.reserved2", FT_BOOLEAN, 8,
             TFS(&tfs_set_notset), 0x2, NULL, HFILL }},
 
-        { &hf_tcp_scpsoption_flags_resv3,
-          { "Reserved Bit 3",
-            "tcp.options.scpsflags.reserved3", FT_BOOLEAN, 8,
+        { &hf_tcp_scpsoption_flags_resv1,
+          { "Reserved Bit 1",
+            "tcp.options.scpsflags.reserved1", FT_BOOLEAN, 8,
             TFS(&tfs_set_notset), 0x1, NULL, HFILL }},
+
+        { &hf_tcp_scpsoption_connection_id,
+          { "Connection ID",
+            "tcp.options.scps.binding",
+            FT_UINT8, BASE_DEC, NULL, 0x0,
+            "TCP SCPS Connection ID", HFILL}},
 
         { &hf_tcp_option_mood,
           { "TCP Mood Option", "tcp.options.mood", FT_BOOLEAN,
