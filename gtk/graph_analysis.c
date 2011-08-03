@@ -1360,7 +1360,7 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 }
 
 /****************************************************************************/
-static gboolean pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer data)
+static gboolean pane_callback(GtkWidget *widget _U_, GParamSpec *pspec _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
 	GtkAllocation draw_area_comments_alloc;
