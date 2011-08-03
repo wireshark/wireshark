@@ -939,13 +939,14 @@ dissect_gtpv2_recovery(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 static void
 dissect_gtpv2_stn_sr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_,guint8 message_type _U_,  guint8 instance _U_)
 {
+    proto_item *stn_sr_item;
     proto_tree *sub_tree;
     tvbuff_t   *new_tvb;
     int        offset = 0;
 
-    proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, FALSE);
+    stn_sr_item = proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, FALSE);
     new_tvb = tvb_new_subset(tvb, offset, length, length );
-    sub_tree = proto_item_add_subtree(item, ett_gtpv2_stn_sr);
+    sub_tree = proto_item_add_subtree(stn_sr_item, ett_gtpv2_stn_sr);
 
     /* Octet 5
      * contains the Nature of Address and Numbering Plan Indicator (NANPI) of the "AddressString" ASN.1 type (see 3GPP
