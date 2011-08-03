@@ -1475,7 +1475,7 @@ static const value_string pn_io_arproperties_companion_ar[] = {
     { 0x00000003, "Reserved" },
     { 0, NULL }
 };
-/* REMOVED with 2.3 
+/* REMOVED with 2.3
 static const value_string pn_io_arproperties_data_rate[] = {
     { 0x00000000, "at least 100 MB/s or more" },
     { 0x00000001, "100 MB/s" },
@@ -1810,7 +1810,7 @@ static const value_string pn_io_index[] = {
     /* PROFIDrive */
     { 0xB02E, "PROFIDrive Parameter Access - Local"},
     { 0xB02F, "PROFIDrive Parameter Access - Global"},
-        
+
     /*0xB030 - 0xBFFF reserved for profiles */
     { 0xB050, "Ext-PLL Control / RTC+RTA SyncID 0 (EDD)" },
     { 0xB051, "Ext-PLL Control / RTA SyncID 1 (GSY)" },
@@ -2088,7 +2088,7 @@ static const value_string pn_io_ext_channel_error_type0x800A[] = {
     /* 0x0001 - 0x7FFF Manufacturer specific */
     /* 0x8000 - 0x80FF Reserved */
     { 0x8100, "Frame late error for FrameID (0x0100)"},
-    /* 0x8101 + 0x8FFE See Equation (56) */    
+    /* 0x8101 + 0x8FFE See Equation (56) */
     { 0x8FFF, "Frame late error for FrameID (0x0FFF)"},
     /* 0x8001 - 0x8FFF Reserved */
     /* 0x9000 - 0x9FFF Reserved for profiles */
@@ -2406,7 +2406,7 @@ static const value_string pn_io_profidrive_response_id_vals[] = {
     { 0x02, "Positive change response" },
     { 0x81, "Negative read response" },
     { 0x82, "Negative change response" },
-    { 0, NULL }   
+    { 0, NULL }
 };
 
 static const value_string pn_io_profidrive_attribute_vals[] = {
@@ -4281,7 +4281,7 @@ dissect_PDInterfaceMrpDataAdjust_block(tvbuff_t *tvb, int offset,
 
     /* Padding */
     offset = dissect_pn_align4(tvb, offset, pinfo, tree);
-    if((offset - iStartOffset) < u16BodyLength) 
+    if((offset - iStartOffset) < u16BodyLength)
     {
         offset = dissect_blocks(tvb, offset, pinfo, tree, drep);
     }
@@ -5537,7 +5537,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
         }
 
       /* TxPortArray */
-        u16TxPortGroupArraySize =  (u8NumberOfTxPortGroups + 7 / 8); 
+        u16TxPortGroupArraySize =  (u8NumberOfTxPortGroups + 7 / 8);
         sub_item = proto_tree_add_item(ir_frame_data_tree, hf_pn_io_TxPortGroupProperties, tvb, offset, u16TxPortGroupArraySize, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_GroupProperties);
         while(u16TxPortGroupArraySize > 0)
@@ -8445,15 +8445,15 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     flags1_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag1, tvb, offset, 1, ENC_BIG_ENDIAN);
     flags1_tree = proto_item_add_subtree(flags1_item, ett_pn_io_profisafe_f_parameter_prm_flag1);
 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_seq, &prm_flag1_chck_seq); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_chck_ipar, &prm_flag1_chck_ipar); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_sil, &prm_flag1_sil); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_crc_len, &prm_flag1_crc_len); 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags1_tree, drep,
         hf_pn_io_profisafe_f_prm_flag1_reserved, &prm_flag1_reserved); 
     prm_flag1 = prm_flag1_chck_seq|prm_flag1_chck_ipar|prm_flag1_sil|prm_flag1_reserved;
     offset++;
@@ -8461,11 +8461,11 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
     flags2_item = proto_tree_add_item(f_tree, hf_pn_io_profisafe_f_prm_flag2, tvb, offset, 1, ENC_BIG_ENDIAN);
     flags2_tree = proto_item_add_subtree(flags2_item, ett_pn_io_profisafe_f_parameter_prm_flag2);
 
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_tree, drep,
         hf_pn_io_profisafe_f_prm_flag2_reserved, &prm_flag2_reserved);
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_tree, drep,
         hf_pn_io_profisafe_f_prm_flag2_f_block_id, &prm_flag2_f_block_id);
-    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_item, drep,
+    dissect_dcerpc_uint8(tvb, offset, pinfo, flags2_tree, drep,
         hf_pn_io_profisafe_f_prm_flag2_f_par_version, &prm_flag2_f_par_version);
     prm_flag2 = prm_flag2_reserved|prm_flag2_f_block_id|prm_flag2_f_par_version;
     offset++;
