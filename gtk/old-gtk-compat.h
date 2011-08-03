@@ -53,6 +53,7 @@
 #	define gtk_widget_get_state(x) GTK_WIDGET_STATE(x)
 #	define gtk_widget_get_allocation(x,y) (*(y) = x->allocation)
 #	define gtk_widget_get_sensitive(x) GTK_WIDGET_SENSITIVE(x)
+#	define gtk_widget_is_drawable(x) GDK_IS_DRAWABLE(x)
 #endif
 
 #if !GTK_CHECK_VERSION (2, 20, 0)
