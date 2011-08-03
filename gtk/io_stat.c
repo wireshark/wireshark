@@ -862,10 +862,11 @@ io_stat_draw(io_stat_t *io)
 		g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
 		pango_layout_set_text(layout, label_string, -1);
 
-		gdk_draw_layout(io->pixmap,
-				gtk_widget_get_style(io->draw_area)->black_gc, 5,
-				io->pixmap_height-bottom_y_border-draw_height-label_height/2,
-				layout);
+		cr = gdk_cairo_create (io->pixmap);
+		cairo_move_to (cr, 5, io->pixmap_height-bottom_y_border-draw_height-label_height/2);
+		pango_cairo_show_layout (cr, layout);
+		cairo_destroy (cr);
+		cr = NULL;
 	}
 
 	/*
@@ -951,11 +952,12 @@ io_stat_draw(io_stat_t *io)
 	        pango_layout_set_text(layout, label_string, -1);
 	        pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
-			gdk_draw_layout(io->pixmap,
-					gtk_widget_get_style(io->draw_area)->black_gc,
-					io->pixmap_width-io->right_x_border+15+label_width-lwidth,
-					ypos-label_height/2,
-	                layout);
+			cr = gdk_cairo_create (io->pixmap);
+			cairo_move_to (cr, io->pixmap_width-io->right_x_border+15+label_width-lwidth, ypos-label_height/2);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
+
 		}
 	}
 
@@ -1026,12 +1028,11 @@ io_stat_draw(io_stat_t *io)
 			} else {
 				x_pos=x-1-io->pixels_per_tick/2-lwidth/2;
 			}
-
-			gdk_draw_layout(io->pixmap,
-					gtk_widget_get_style(io->draw_area)->black_gc,
-					x_pos,
-					io->pixmap_height-bottom_y_border+15,
-					layout);
+			cr = gdk_cairo_create (io->pixmap);
+			cairo_move_to (cr, x_pos, io->pixmap_height-bottom_y_border+15);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 
 	}

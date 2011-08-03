@@ -1070,31 +1070,37 @@ static void dialog_graph_draw(user_data_t* user_data)
 			print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-					user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
-					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
-					layout);
+			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+			cairo_move_to (cr, 
+				user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth, 
+				user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 		if(i==5){
 			print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-					user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
-					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
-					layout);
+			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+			cairo_move_to (cr, 
+				user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth, 
+				user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 		if(i==10){
 			print_time_scale_string(label_string, sizeof(label_string), (max_y*i/10));
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-					user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth,
-					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2,
-					layout);
+			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+			cairo_move_to (cr, 
+				user_data->dlg.dialog_graph.pixmap_width-right_x_border+15+label_width-lwidth, 
+				user_data->dlg.dialog_graph.pixmap_height-bottom_y_border-draw_height*i/10-label_height/2);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 	}
 
@@ -1175,11 +1181,13 @@ static void dialog_graph_draw(user_data_t* user_data)
 			}
 			pango_layout_set_text(layout, label_string, -1);
 			pango_layout_get_pixel_size(layout, &lwidth, NULL);
-			gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-					gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-					x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2,
-					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20,
-					layout);
+			cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+			cairo_move_to (cr, 
+				x-1-user_data->dlg.dialog_graph.pixels_per_tick/2-lwidth/2, 
+				user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+20);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 
 	}
@@ -1196,19 +1204,24 @@ static void dialog_graph_draw(user_data_t* user_data)
 	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Fwd",sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
-	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-		gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
-		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3,
-		layout);
+	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+	cairo_move_to (cr, 
+		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth, 
+		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3);
+	pango_cairo_show_layout (cr, layout);
+	cairo_destroy (cr);
+	cr = NULL;
+
 	g_strlcpy(label_string, UTF8_LEFTWARDS_ARROW "Rev",sizeof(label_string));
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &lwidth, NULL);
-	gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-			gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-			user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth,
-			user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9,
-			layout);
+	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+	cairo_move_to (cr, 
+		user_data->dlg.dialog_graph.pixmap_width-right_x_border+33-lwidth, 
+		user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+9);
+	pango_cairo_show_layout (cr, layout);
+	cairo_destroy (cr);
+	cr = NULL;
 
 	/* Draw the marks */
 	for(i=MAX_GRAPHS-1;i>=0;i--){
@@ -1234,11 +1247,14 @@ static void dialog_graph_draw(user_data_t* user_data)
 
 				pango_layout_set_text(layout, label_string, -1);
 				pango_layout_get_pixel_size(layout, &lwidth, NULL);
-				gdk_draw_layout(user_data->dlg.dialog_graph.pixmap,
-						gtk_widget_get_style(user_data->dlg.dialog_graph.draw_area)->black_gc,
-						x_pos-1-lwidth/2,
-						user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2),
-						layout);
+				cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
+				cairo_move_to (cr, 
+					x_pos-1-lwidth/2, 
+					user_data->dlg.dialog_graph.pixmap_height-bottom_y_border+3+7*(i/2));
+				pango_cairo_show_layout (cr, layout);
+				cairo_destroy (cr);
+				cr = NULL;
+
 			}
 
 			/*prev_x_pos=x_pos;*/
