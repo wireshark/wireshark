@@ -2027,7 +2027,7 @@ static void TrackSRInfo(SREvent event, packet_info *pinfo, proto_tree *tree,
                         result = GetSRResult(pinfo->fd->num, TRUE);
                         result->type = InvalidSREvent;
                         result->status = SR_Outstanding;
-                        result->event = SR_Grant;
+                        result->event = SR_Request;
                         break;
 
                     case SR_Failure:
