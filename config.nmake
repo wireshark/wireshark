@@ -1036,6 +1036,7 @@ GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\gdk_pixbuf-2.0.lib \
 	$(GTK_DIR)\lib\cairo.lib \
 	$(GTK_DIR)\lib\pango-1.0.lib \
+	$(GTK_DIR)\lib\pangocairo-1.0.lib \
 	$(GLIB_LIBS)
 
 # 2.18 was no good(Theming problem)

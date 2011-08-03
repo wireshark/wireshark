@@ -614,7 +614,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 	GdkGC *frame_fg_color;
 	GdkGC *frame_bg_color;
-	GdkGC *div_line_color;
 	GdkGC *column_header_gc;
 
 	PangoLayout  *layout;
@@ -629,11 +628,19 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	guint32 draw_width, draw_height;
 	char label_string[MAX_COMMENT];
 	GList *list;
+	cairo_t *cr;
+
+	/* gray and soft gray colors */
+	GdkColor grey_color0 = {0, 0x64ff, 0x64ff, 0x64ff};
+	GdkColor grey_color1 = {0, 0x25ff, 0x25ff, 0x25ff};
+
+
+	/* Dashed line pattern */
+	static const double dashed1[] = {5.0, 4.0};
+	static int len1  = sizeof(dashed1) / sizeof(dashed1[0]);
 
 	GtkAllocation draw_area_time_alloc, draw_area_alloc, draw_area_comments_alloc;
 	GtkStyle *draw_area_time_style, *draw_area_style, *draw_area_comments_style;
-
-	/* new variables */
 
 	if(!user_data->dlg.needs_redraw){
 		return;
@@ -644,44 +651,38 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	gdk_gc_set_fill(column_header_gc,GDK_TILED);
 	gdk_gc_set_tile(column_header_gc, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm));
 
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_get_allocation(user_data->dlg.draw_area_time, &draw_area_time_alloc);
 	gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
 	gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_comments_alloc);
-#else
-	draw_area_time_alloc = user_data->dlg.draw_area_time->allocation;
-	draw_area_alloc = user_data->dlg.draw_area->allocation;
-	draw_area_comments_alloc = user_data->dlg.draw_area_comments->allocation;
-#endif
 
 	draw_area_time_style = gtk_widget_get_style(user_data->dlg.draw_area_time);
 	draw_area_style = gtk_widget_get_style(user_data->dlg.draw_area);
 	draw_area_comments_style = gtk_widget_get_style(user_data->dlg.draw_area_comments);
 
 	/* Clear out old plt */
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
-		gdk_draw_rectangle(user_data->dlg.pixmap_time,
-						   draw_area_time_style->white_gc,
-						   TRUE,
-						   0, 0,
-						   draw_area_time_alloc.width,
-						   draw_area_time_alloc.height);
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
+		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width,draw_area_time_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+	}
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
-		gdk_draw_rectangle(user_data->dlg.pixmap_main,
-						   draw_area_style->white_gc,
-						   TRUE,
-						   0, 0,
-						   draw_area_alloc.width,
-						   draw_area_alloc.height);
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
+		cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_rectangle (cr, 0, 0, draw_area_alloc.width,draw_area_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+	}
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) )
-		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
-						   draw_area_style->white_gc,
-						   TRUE,
-						   0, 0,
-						   draw_area_comments_alloc.width,
-						   draw_area_comments_alloc.height);
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) ){
+		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width,draw_area_comments_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+	}
 
 	/* Calculate the y border */
 	top_y_border=TOP_Y_BORDER;	/* to display the node address */
@@ -769,7 +770,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	draw_width=user_data->dlg.pixmap_width-right_x_border-left_x_border;
 
 	/* Paint time title background */
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
 		gdk_draw_rectangle(user_data->dlg.pixmap_time,
 						   column_header_gc,
 						   TRUE,						/* TRUE if the rectangle should be filled.*/
@@ -777,8 +778,9 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 						   0,							/* the y coordinate of the top edge of the rectangle. */
 						   draw_area_time_alloc.width, /* the width of the rectangle. */
 						   top_y_border);				/* the height of the rectangle. */
+	}
 	/* Paint main title background */
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
 		gdk_draw_rectangle(user_data->dlg.pixmap_main,
 						   column_header_gc,
 						   TRUE,
@@ -786,8 +788,10 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 						   0,
 						   draw_area_alloc.width,
 						   top_y_border);
+	}
+
 	/* Paint main comment background */
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) )
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) ){
 		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
 						   column_header_gc,
 						   TRUE,
@@ -795,6 +799,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 						   0,
 						   draw_area_comments_alloc.width,
 						   top_y_border);
+	}
 
 
 	/* Draw the word "Time" on top of time column */
@@ -802,11 +807,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 	if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_time)) {
-		gdk_draw_layout(user_data->dlg.pixmap_time,
-						draw_area_time_style->black_gc,
-						left_x_border,
-						top_y_border/2-label_height/2,
-						layout);
+		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
+		cairo_move_to (cr, left_x_border, top_y_border/2-label_height/2);
+		pango_cairo_show_layout (cr, layout);
+		cairo_destroy (cr);
+		cr = NULL;
 	}
 
 	/* Draw the word "Comment" on top of comment column */
@@ -814,11 +819,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	pango_layout_set_text(layout, label_string, -1);
 	pango_layout_get_pixel_size(layout, &label_width, &label_height);
 	if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments)) {
-		gdk_draw_layout(user_data->dlg.pixmap_comments,
-			   draw_area_comments_style->black_gc,
-			   MAX_COMMENT/2-label_width/2,
-			   top_y_border/2-label_height/2,
-			   layout);
+		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
+		cairo_move_to (cr, MAX_COMMENT/2-label_width/2, top_y_border/2-((i&1)?0:label_height));
+		pango_cairo_show_layout (cr, layout);
+		cairo_destroy (cr);
+		cr = NULL;
 	}
 
 	/* Paint the background items */
@@ -850,20 +855,24 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
-			gdk_draw_layout(user_data->dlg.pixmap_main,
-							draw_area_style->black_gc,
-							left_x_border+NODE_WIDTH/2-label_width/2+NODE_WIDTH*i,
-							top_y_border/2-((i&1)?0:label_height),
-							layout);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			cairo_move_to (cr, left_x_border+NODE_WIDTH/2-label_width/2+NODE_WIDTH*i, top_y_border/2-((i&1)?0:label_height));
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 
 		/* draw the node division lines */
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
-			gdk_draw_line(user_data->dlg.pixmap_main, user_data->dlg.div_line_gc[0],
-						  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
-						  top_y_border,
-						  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
-						  draw_area_alloc.height-bottom_y_border);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			gdk_cairo_set_source_color (cr, &grey_color0);
+			cairo_set_line_width (cr, 1.0);
+			cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
+			cairo_set_dash(cr, dashed1, len1, 0);
+			cairo_move_to(cr, left_x_border+NODE_WIDTH/2+NODE_WIDTH*i, top_y_border);
+			cairo_line_to(cr, (left_x_border+NODE_WIDTH/2+NODE_WIDTH*i),draw_area_alloc.height-bottom_y_border);
+			cairo_stroke(cr);
+			cairo_destroy(cr);
 		}
 
 	}
@@ -875,11 +884,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_time)) {
-			gdk_draw_layout(user_data->dlg.pixmap_time,
-							draw_area_style->black_gc,
-							3,
-							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2,
-							layout);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_time);
+			cairo_move_to (cr, 3, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 
 		/*draw the comments */
@@ -887,19 +896,18 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		pango_layout_set_text(middle_layout, label_string, -1);
 		pango_layout_get_pixel_size(middle_layout, &label_width, &label_height);
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments)) {
-			gdk_draw_layout(user_data->dlg.pixmap_comments,
-							draw_area_style->black_gc,
-							2,
-							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2,
-							middle_layout);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
+			cairo_move_to (cr, 2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2);
+			pango_cairo_show_layout (cr, middle_layout);
+			cairo_destroy (cr);
+			cr = NULL;
+
 		}
 		/* select colors */
 		if ( current_item+first_item == user_data->dlg.selected_item ){
 			frame_fg_color = draw_area_style->white_gc;
-			div_line_color = user_data->dlg.div_line_gc[1];
 		} else {
 			frame_fg_color = draw_area_style->black_gc;
-			div_line_color = user_data->dlg.div_line_gc[0];
 		}
 		/* draw the arrow line */
 		start_arrow = left_x_border+(user_data->dlg.items[current_item].src_node)*NODE_WIDTH+NODE_WIDTH/2;
@@ -947,11 +955,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			label_x = left_x_border + label_width/2;
 
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
-			gdk_draw_layout(user_data->dlg.pixmap_main,
-							frame_fg_color,
-							label_x - label_width/2,
-							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3,
-							layout);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			cairo_move_to (cr, label_x - label_width/2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3);
+			pango_cairo_show_layout (cr, layout);
+			cairo_destroy (cr);
+			cr = NULL;
 		}
 
 		/* draw the source port number */
@@ -965,11 +973,17 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			src_port_x = start_arrow + 2;
 		}
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
-			gdk_draw_layout(user_data->dlg.pixmap_main,
-							div_line_color,
-							src_port_x,
-							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
-							small_layout);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			/* select color */
+			if ( current_item+first_item == user_data->dlg.selected_item ){
+				gdk_cairo_set_source_color (cr, &grey_color1);
+			} else {
+				gdk_cairo_set_source_color (cr, &grey_color0);
+			}
+			gdk_cairo_set_source_color (cr, &grey_color0);
+			cairo_move_to (cr, src_port_x, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2);
+			pango_cairo_show_layout (cr, small_layout);
+			cairo_destroy (cr);
 		}
 
 		/* draw the destination port number */
@@ -983,21 +997,37 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			dst_port_x = end_arrow - label_width - 2;
 		}
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
-			gdk_draw_layout(user_data->dlg.pixmap_main,
-							div_line_color,
-							dst_port_x,
-							top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2,
-							small_layout);
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			/* select color */
+			if ( current_item+first_item == user_data->dlg.selected_item ){
+				gdk_cairo_set_source_color (cr, &grey_color1);
+			} else {
+				gdk_cairo_set_source_color (cr, &grey_color0);
+			}
+			cairo_move_to (cr, dst_port_x, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-2-label_height/2-2);
+			pango_cairo_show_layout (cr, small_layout);
+			cairo_destroy (cr);
 		}
 		/* draw the div line of the selected item with soft gray*/
 		if ( current_item+first_item == user_data->dlg.selected_item )
 			for (i=0; i<user_data->num_nodes; i++){
 				if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
+#if 0
 					gdk_draw_line(user_data->dlg.pixmap_main, user_data->dlg.div_line_gc[1],
 								  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
 								  (user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER,
 								  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
 								  (user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER+ITEM_HEIGHT);
+#endif
+					cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+					gdk_cairo_set_source_color (cr, &grey_color1);
+					cairo_set_line_width (cr, 1.0);
+					cairo_set_line_cap(cr, CAIRO_LINE_CAP_BUTT);
+					cairo_set_dash(cr, dashed1, len1, 0);
+					cairo_move_to(cr, left_x_border+NODE_WIDTH/2+NODE_WIDTH*i, (user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER);
+					cairo_line_to(cr, (left_x_border+NODE_WIDTH/2+NODE_WIDTH*i),(user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER+ITEM_HEIGHT);
+					cairo_stroke(cr);
+					cairo_destroy(cr);
 				}
 			}
 	}
@@ -1005,49 +1035,32 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	g_object_unref(G_OBJECT(layout));
 
 	/* refresh the draw areas */
-#if GTK_CHECK_VERSION(2,18,0)
-	if (gtk_widget_is_drawable(user_data->dlg.draw_area_time) )
-		gdk_draw_pixmap(gtk_widget_get_window(user_data->dlg.draw_area_time),
-						draw_area_time_style->fg_gc[gtk_widget_get_state(user_data->dlg.draw_area_time)],
+	if (gtk_widget_is_drawable(user_data->dlg.draw_area_time) ){
+		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_time));
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_time, 0, 0);
+		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, draw_area_time_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 
-#else
-	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area_time->window) )
-		gdk_draw_pixmap(user_data->dlg.draw_area_time->window,
-						draw_area_time_style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area_time)],
+	if (gtk_widget_is_drawable(user_data->dlg.draw_area) ){
+		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area));
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, 0, 0);
+		cairo_rectangle (cr, 0, 0, draw_area_alloc.width, draw_area_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 
-#endif
-						user_data->dlg.pixmap_time,
-						0, 0,
-						0, 0,
-						draw_area_time_alloc.width, draw_area_time_alloc.height);
-
-#if GTK_CHECK_VERSION(2,18,0)
-	if (gtk_widget_is_drawable(user_data->dlg.draw_area) )
-		gdk_draw_pixmap(gtk_widget_get_window(user_data->dlg.draw_area),
-						draw_area_style->fg_gc[gtk_widget_get_state(user_data->dlg.draw_area)],
-#else
-	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area->window) )
-		gdk_draw_pixmap(user_data->dlg.draw_area->window,
-						draw_area_style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area)],
-#endif
-						user_data->dlg.pixmap_main,
-						0, 0,
-						0, 0,
-						draw_area_alloc.width, draw_area_alloc.height);
-
-#if GTK_CHECK_VERSION(2,18,0)
-	if (gtk_widget_is_drawable(user_data->dlg.draw_area_comments) )
-		gdk_draw_pixmap(gtk_widget_get_window(user_data->dlg.draw_area_comments),
-						draw_area_comments_style->fg_gc[gtk_widget_get_state(user_data->dlg.draw_area_comments)],
-#else
-	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area_comments->window) )
-		gdk_draw_pixmap(user_data->dlg.draw_area_comments->window,
-						draw_area_comments_style->fg_gc[GTK_WIDGET_STATE(user_data->dlg.draw_area_comments)],
-#endif
-						user_data->dlg.pixmap_comments,
-						0, 0,
-						0, 0,
-						draw_area_comments_alloc.width, draw_area_comments_alloc.height);
+	if (gtk_widget_is_drawable(user_data->dlg.draw_area_comments) ){
+		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_comments));
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments, 0, 0);
+		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, draw_area_comments_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 
 	/* update the v_scrollbar */
 	gtk_adjustment_set_upper(user_data->dlg.v_scrollbar_adjustment, (gdouble) user_data->num_items-1);
@@ -1158,25 +1171,15 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
-#if GTK_CHECK_VERSION(2,18,0)
-	GtkStyle *widget_style;
-#endif
+	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
-#if GTK_CHECK_VERSION(2,18,0)
-	widget_style = gtk_widget_get_style(widget);
+	if (gtk_widget_is_drawable(widget)){
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, event->area.x, event->area.y);
+		cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+		cairo_fill (cr);
 
-	if (gtk_widget_is_drawable(widget))
-		gdk_draw_pixmap(gtk_widget_get_window(widget),
-			widget_style->fg_gc[gtk_widget_get_state(widget)],
-#else
-	if (GDK_IS_DRAWABLE(widget->window))
-		gdk_draw_pixmap(widget->window,
-			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-#endif
-			user_data->dlg.pixmap_main,
-			event->area.x, event->area.y,
-			event->area.x, event->area.y,
-			event->area.width, event->area.height);
+		cairo_destroy (cr);
+	}
 
 	return FALSE;
 }
@@ -1185,25 +1188,15 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
-#if GTK_CHECK_VERSION(2,18,0)
-	GtkStyle *widget_style;
-#endif
+	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
-#if GTK_CHECK_VERSION(2,18,0)
-	widget_style = gtk_widget_get_style(widget);
+	if (gtk_widget_is_drawable(widget)){
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments, event->area.x, event->area.y);
+		cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+		cairo_fill (cr);
 
-	if (gtk_widget_is_drawable(widget))
-		gdk_draw_pixmap(gtk_widget_get_window(widget),
-			widget_style->fg_gc[gtk_widget_get_state(widget)],
-#else
-	if (GDK_IS_DRAWABLE(widget->window))
-		gdk_draw_pixmap(widget->window,
-			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-#endif
-			user_data->dlg.pixmap_comments,
-			event->area.x, event->area.y,
-			event->area.x, event->area.y,
-			event->area.width, event->area.height);
+		cairo_destroy (cr);
+	}
 
 	return FALSE;
 }
@@ -1212,25 +1205,15 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, 
 static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
-#if GTK_CHECK_VERSION(2,18,0)
-	GtkStyle *widget_style;
-#endif
+	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
-#if GTK_CHECK_VERSION(2,18,0)
-	widget_style = gtk_widget_get_style(widget);
+	if (gtk_widget_is_drawable(widget) ){
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_time, event->area.x, event->area.y);
+		cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
+		cairo_fill (cr);
 
-	if (gtk_widget_is_drawable(widget) )
-		gdk_draw_pixmap(gtk_widget_get_window(widget),
-			widget_style->fg_gc[gtk_widget_get_state(widget)],
-#else
-	if (GDK_IS_DRAWABLE(widget->window) )
-		gdk_draw_pixmap(widget->window,
-			widget->style->fg_gc[GTK_WIDGET_STATE(widget)],
-#endif
-			user_data->dlg.pixmap_time,
-			event->area.x, event->area.y,
-			event->area.x, event->area.y,
-			event->area.width, event->area.height);
+		cairo_destroy (cr);
+	}
 
 	return FALSE;
 }
@@ -1241,7 +1224,7 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 	graph_analysis_data_t *user_data = data;
 	GtkAllocation widget_alloc;
 	int i;
-	GtkStyle *widget_style;
+	cairo_t *cr;
 
 	/* gray and soft gray colors */
 	static GdkColor color_div_line[2] = {
@@ -1270,26 +1253,21 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 		user_data->dlg.pixmap_main=NULL;
 	}
 
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_get_allocation(widget, &widget_alloc);
-	widget_style = gtk_widget_get_style(widget);
-#else
-	widget_alloc = widget->allocation;
-	widget_style = widget->style;
-#endif
 
 	user_data->dlg.pixmap_main=gdk_pixmap_new(gtk_widget_get_window(widget),
 		widget_alloc.width,
 		widget_alloc.height,
 		-1);
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
-			gdk_draw_rectangle(user_data->dlg.pixmap_main,
-				widget_style->white_gc,
-				TRUE,
-				0, 0,
-				widget_alloc.width,
-				widget_alloc.height);
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
+		cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+		cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 
 	/* create gc for division lines and set the line stype to dash */
 	for (i=0; i<2; i++){
@@ -1321,15 +1299,9 @@ static gboolean configure_event_comments(GtkWidget *widget, GdkEventConfigure *e
 {
 	graph_analysis_data_t *user_data = data;
 	GtkAllocation widget_alloc;
-	GtkStyle *widget_style;
+	cairo_t *cr;
 
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_get_allocation(widget, &widget_alloc);
-	widget_style = gtk_widget_get_style(widget);
-#else
-	widget_alloc = widget->allocation;
-	widget_style = widget->style;
-#endif
 
 	if(user_data->dlg.pixmap_comments){
 		g_object_unref(user_data->dlg.pixmap_comments);
@@ -1341,13 +1313,14 @@ static gboolean configure_event_comments(GtkWidget *widget, GdkEventConfigure *e
 						widget_alloc.height,
 						-1);
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) )
-		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
-						widget_style->white_gc,
-						TRUE,
-						0, 0,
-						widget_alloc.width,
-						widget_alloc.height);
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
+		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
+		cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 
 	dialog_graph_redraw(user_data);
 	return TRUE;
@@ -1358,15 +1331,9 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 {
 	graph_analysis_data_t *user_data = data;
 	GtkAllocation widget_alloc;
-	GtkStyle *widget_style;
+	cairo_t *cr;
 
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_get_allocation(widget, &widget_alloc);
-	widget_style = gtk_widget_get_style(widget);
-#else
-	widget_alloc = widget->allocation;
-	widget_style = widget->style;
-#endif
 
 	if(user_data->dlg.pixmap_time){
 		g_object_unref(user_data->dlg.pixmap_time);
@@ -1378,13 +1345,14 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 						widget_alloc.height,
 						-1);
 
-	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) )
-		gdk_draw_rectangle(user_data->dlg.pixmap_time,
-						widget_style->white_gc,
-						TRUE,
-						0, 0,
-						widget_alloc.width,
-						widget_alloc.height);
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
+		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
+		cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
+	}
 
 	dialog_graph_redraw(user_data);
 
@@ -1395,8 +1363,8 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 static gboolean pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
-	GtkStyle *draw_area_comments_style;
 	GtkAllocation draw_area_comments_alloc;
+	cairo_t *cr;
 
 	if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) > user_data->dlg.pixmap_width)
 		gtk_paned_set_position(GTK_PANED(user_data->dlg.hpane), user_data->dlg.pixmap_width);
@@ -1405,29 +1373,15 @@ static gboolean pane_callback(GtkWidget *widget, GParamSpec *pspec _U_, gpointer
 
 	/* repaint the comment area because when moving the pane position there are times that the expose_event_comments is not called */
 
-#if GTK_CHECK_VERSION(2,18,0)
 	gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_comments_alloc);
-	draw_area_comments_style = gtk_widget_get_style(user_data->dlg.draw_area_comments);
-#else
-	draw_area_comments_alloc = user_data->dlg.draw_area_comments->allocation;
-	draw_area_comments_style = user_data->dlg.draw_area_comments->style;
-#endif
 
-
-#if GTK_CHECK_VERSION(2,18,0)
-	if (gtk_widget_is_drawable(user_data->dlg.draw_area_comments))
-		gdk_draw_pixmap(gtk_widget_get_window(user_data->dlg.draw_area_comments),
-			draw_area_comments_style->fg_gc[gtk_widget_get_state(widget)],
-#else
-	if (GDK_IS_DRAWABLE(user_data->dlg.draw_area_comments->window))
-		gdk_draw_pixmap(user_data->dlg.draw_area_comments->window,
-			draw_area_comments_style->fg_gc[GTK_WIDGET_STATE(widget)],
-#endif
-			user_data->dlg.pixmap_comments,
-			0,0,
-			0,0,
-			draw_area_comments_alloc.width,
-			draw_area_comments_alloc.height);
+	if (gtk_widget_is_drawable(user_data->dlg.draw_area_comments)){
+		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_comments));
+		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments, 0, 0);
+		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, draw_area_comments_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+	}
 
 	return TRUE;
 }
