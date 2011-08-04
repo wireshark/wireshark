@@ -1074,12 +1074,12 @@ decode_add_srcdst_combo_box (GtkWidget *page)
 
     g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_SPORT));
-    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0); /* default */
 
     g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_DPORT));
 
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), "both", GINT_TO_POINTER(E_DECODE_BPORT));
+    ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 2); /* default "both" */
     g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
 
     g_object_set_data(G_OBJECT(page), E_PAGE_SPORT, GINT_TO_POINTER(cfile.edt->pi.srcport));
