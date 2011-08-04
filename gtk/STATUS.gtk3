@@ -30,6 +30,11 @@ There are two ways to make the Wireshark code gtk3 ready:
   - GdkColormap
   - GdkDrawable
   - GdkPixmap
+  Also, the following macros are gone:
+  - GDK_DRAWABLE -> sanity check + cast, can be removed
+  - GDK_IS_DRAWABLE -> probably: sanity check, can be removed
+  - GTK_OBJECT -> sanity check + cast, can probably be removed
+
 
 Some statistics (as of rev 38283)
 
