@@ -72,6 +72,11 @@
  * http://www.freetds.org/tds.html
  *
  * Some more information can be found in
+ * http://www.sybase.com/content/1013412/tds34.pdf
+ * http://www.sybase.com/content/1040983/Sybase-tds38-102306.pdf
+ * Microsoft's [MS-TDS] protocol specification
+ *
+ * This document is no longer available here:
  * http://download.nai.com/products/media/sniffer/support/sdos/sybase.pdf
  *
  * Much of this code was originally developed for the FreeTDS project.
