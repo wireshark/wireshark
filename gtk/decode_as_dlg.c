@@ -45,6 +45,7 @@
 #include "gtk/decode_as_dcerpc.h"
 #include "gtk/decode_as_ber.h"
 #include "gtk/help_dlg.h"
+#include "utf8_entities.h"
 
 #undef DEBUG
 
@@ -1072,13 +1073,14 @@ decode_add_srcdst_combo_box (GtkWidget *page)
 
     combo_box = ws_combo_box_new_text_and_pointer();
 
-    g_snprintf(tmp, sizeof(tmp), "source (%u)", cfile.edt->pi.srcport);
+    g_snprintf(tmp, sizeof(tmp), "Source (%u%s)", cfile.edt->pi.srcport, UTF8_RIGHTWARDS_ARROW);
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_SPORT));
 
-    g_snprintf(tmp, sizeof(tmp), "destination (%u)", cfile.edt->pi.destport);
+    g_snprintf(tmp, sizeof(tmp), "Destination (%s%u)", UTF8_RIGHTWARDS_ARROW, cfile.edt->pi.destport);
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_DPORT));
 
-    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), "both", GINT_TO_POINTER(E_DECODE_BPORT));
+    g_snprintf(tmp, sizeof(tmp), "Both (%u%s%u)", cfile.edt->pi.srcport,UTF8_LEFT_RIGHT_ARROW, cfile.edt->pi.destport);
+    ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(combo_box), tmp, GINT_TO_POINTER(E_DECODE_BPORT));
     ws_combo_box_set_active(GTK_COMBO_BOX(combo_box), 2); /* default "both" */
     g_object_set_data(G_OBJECT(page), E_COMBO_BOX_SRCDST, combo_box);
 
