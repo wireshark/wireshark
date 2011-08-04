@@ -5130,7 +5130,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     g_object_set_data(G_OBJECT(menu_item), MENU_RECENT_FILES_KEY, normalized_cf_name);
     gtk_menu_shell_prepend (GTK_MENU_SHELL(submenu_recent_files), menu_item);
     g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
-                             G_CALLBACK(menu_open_recent_file_cmd_cb), (GtkObject *) menu_item);
+                             G_CALLBACK(menu_open_recent_file_cmd_cb), (GObject *) menu_item);
     gtk_widget_show (menu_item);
 
     /* add seperator at last position */
@@ -5142,7 +5142,7 @@ add_menu_recent_capture_file_absolute(gchar *cf_name) {
     menu_item = gtk_image_menu_item_new_from_stock(GTK_STOCK_CLEAR, NULL);
     gtk_menu_shell_append (GTK_MENU_SHELL(submenu_recent_files), menu_item);
     g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
-                             G_CALLBACK(clear_menu_recent_capture_file_cmd_cb), (GtkObject *) menu_item);
+                             G_CALLBACK(clear_menu_recent_capture_file_cmd_cb), (GObject *) menu_item);
     gtk_widget_show (menu_item);
 
     update_menu_recent_capture_file(submenu_recent_files);
@@ -6789,7 +6789,7 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
                                        gtk_image_new_from_stock(GTK_STOCK_PREFERENCES, GTK_ICON_SIZE_MENU));
         gtk_menu_shell_append (GTK_MENU_SHELL(sub_menu), menu_item);
         g_signal_connect_swapped(GTK_OBJECT(menu_item), "activate",
-                                 G_CALLBACK(properties_cb), (GtkObject *) menu_item);
+                                 G_CALLBACK(properties_cb), (GObject *) menu_item);
         gtk_widget_show (menu_item);
         g_free (label);
 

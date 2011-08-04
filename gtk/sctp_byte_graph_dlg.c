@@ -1247,7 +1247,7 @@ gtk_sctpgraph_init(struct sctp_udata *u_data)
 
 
 static void
-quit(GtkObject *object _U_, gpointer user_data)
+quit(GObject *object _U_, gpointer user_data)
 {
 	struct sctp_udata *u_data=user_data;
 

@@ -146,7 +146,7 @@ voip_calls_remove_tap_listener(void)
 /* CALLBACKS                                                                */
 /****************************************************************************/
 static void
-voip_calls_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
+voip_calls_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	/* remove_tap_listeners */
 	voip_calls_remove_tap_listener();

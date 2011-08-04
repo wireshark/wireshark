@@ -71,7 +71,7 @@ remove_child(struct sctp_udata *child, struct sctp_analyse *parent)
 }
 
 static void
-on_destroy(GtkObject *object _U_, gpointer user_data)
+on_destroy(GObject *object _U_, gpointer user_data)
 {
 	struct sctp_analyse *u_data;
 	guint16 i, j;

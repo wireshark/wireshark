@@ -464,7 +464,7 @@ typedef struct column_arrows {
 
 
 static void
-chunk_dlg_destroy(GtkObject *object _U_, gpointer user_data)
+chunk_dlg_destroy(GObject *object _U_, gpointer user_data)
 {
     struct sctp_udata *u_data=(struct sctp_udata*)user_data;
     decrease_childcount(u_data->parent);
@@ -474,7 +474,7 @@ chunk_dlg_destroy(GtkObject *object _U_, gpointer user_data)
 }
 
 static void
-on_destroy(GtkObject *object _U_, gpointer user_data)
+on_destroy(GObject *object _U_, gpointer user_data)
 {
     struct sctp_udata *u_data=(struct sctp_udata*)user_data;
     decrease_childcount(u_data->parent);

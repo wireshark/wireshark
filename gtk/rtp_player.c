@@ -2076,7 +2076,7 @@ on_bt_stop_clicked(GtkButton *button _U_, gpointer user_data _U_)
 
 /****************************************************************************/
 static void
-rtp_player_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
+rtp_player_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	PaError err;
 	GtkWidget *dialog;

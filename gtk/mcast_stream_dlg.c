@@ -103,7 +103,7 @@ enum
 /* CALLBACKS                                                                */
 /****************************************************************************/
 static void
-mcaststream_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
+mcaststream_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	/* Remove the stream tap listener */
 	remove_tap_listener_mcast_stream();

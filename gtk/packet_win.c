@@ -130,7 +130,7 @@ static void new_tree_view_selection_changed_cb(GtkTreeSelection *sel,
                                                gpointer user_data);
 
 
-static void destroy_new_window(GtkObject *object, gpointer user_data);
+static void destroy_new_window(GObject *object, gpointer user_data);
 
 static gboolean
 button_press_handler(GtkWidget *widget, GdkEvent *event, gpointer data _U_)
@@ -829,7 +829,7 @@ edit_pkt_win_key_pressed_cb(GtkWidget *win _U_, GdkEventKey *event, gpointer use
 }
 
 static void
-edit_pkt_destroy_new_window(GtkObject *object _U_, gpointer user_data)
+edit_pkt_destroy_new_window(GObject *object _U_, gpointer user_data)
 {
 	/* like destroy_new_window, but without freeding DataPtr->pd */
 	struct PacketWinData *DataPtr = user_data;
@@ -979,7 +979,7 @@ void new_packet_window(GtkWidget *w _U_, gboolean editable _U_)
 }
 
 static void
-destroy_new_window(GtkObject *object _U_, gpointer user_data)
+destroy_new_window(GObject *object _U_, gpointer user_data)
 {
 	struct PacketWinData *DataPtr = user_data;
 

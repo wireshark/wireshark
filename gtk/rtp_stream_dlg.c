@@ -153,7 +153,7 @@ static gboolean save_stream_ok_cb(GtkWidget *ok_bt _U_, gpointer fs)
 /* CALLBACKS                                                                */
 /****************************************************************************/
 static void
-rtpstream_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
+rtpstream_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	/* Remove the stream tap listener */
 	remove_tap_listener_rtp_stream();
