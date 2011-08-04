@@ -88,7 +88,6 @@ WIRESHARK_GTK_SRC = \
 	font_utils.c	\
 	goto_dlg.c	\
 	graph_analysis.c \
-	gtkvumeter.c	\
 	gui_stat_util.c	\
 	gui_utils.c	\
 	help_dlg.c	\
@@ -272,7 +271,6 @@ noinst_HEADERS = \
 	graph_analysis.h \
 	gsm_map_stat.h	\
 	gtkglobals.h	\
-	gtkvumeter.h \
 	gui_stat_menu.h	\
 	gui_stat_util.h \
 	gui_utils.h	\

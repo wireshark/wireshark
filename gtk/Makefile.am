@@ -79,13 +79,15 @@ checkapi-base:
 	$(PERL) ../tools/checkAPIs.pl -g deprecated-gtk \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
-	capture_if_details_dlg_win32.c
+	capture_if_details_dlg_win32.c \
+	gtkvumeter.c
 
 checkapi-todo:
 	$(PERL) ../tools/checkAPIs.pl -M -g deprecated-gtk-todo \
 	$(WIRESHARK_GTK_SRC) \
 	$(WIRESHARK_TAP_SRC) \
-	capture_if_details_dlg_win32.c
+	capture_if_details_dlg_win32.c \
+	gtkvumeter.c
 
 expert_indicators.h:
 	echo "/* This file was automatically generated. DO NOT EDIT. */" > $@
@@ -107,6 +109,8 @@ EXTRA_DIST = \
 	airpcap_gui_utils.c		\
 	capture_if_details_dlg_win32.c	\
 	capture_if_details_dlg_win32.h	\
+	gtkvumeter.c			\
+	gtkvumeter.h			\
 	doxygen.cfg.in			\
 	libui.vcproj			\
 	main_airpcap_toolbar.c		\
