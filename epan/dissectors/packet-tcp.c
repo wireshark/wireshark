@@ -412,7 +412,6 @@ init_tcp_conversation_data(packet_info *pinfo)
     tcpd->flow1.valid_bif = 1;
     tcpd->flow2.valid_bif = 1;
     tcpd->stream = tcp_stream_index++;
-fprintf(stderr, "adding stream %d\n", tcpd->stream);
 
     return tcpd;
 }
