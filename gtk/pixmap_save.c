@@ -106,7 +106,7 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	guint format_index = 0;
 	guint default_index = 0;
 
-	pixbuf = gdk_pixbuf_get_from_drawable(NULL, GDK_DRAWABLE(pixmap), NULL,
+	pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, NULL,
 					      0, 0, 0, 0, -1, -1);
 
 	if(!pixbuf) {
