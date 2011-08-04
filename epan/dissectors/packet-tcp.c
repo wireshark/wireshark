@@ -3980,25 +3980,29 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 PROTO_ITEM_SET_GENERATED(tf);
             }
         }
-
-        if (tcph->th_flags & TH_ACK) {
+    }
+    
+    if (tcph->th_flags & TH_ACK) {
+        if (tree) {
             if (tcp_relative_seq){
                 proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack, "Acknowledgement number: %u    (relative ack number)", tcph->th_ack);
             } else {
                 proto_tree_add_uint(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, tcph->th_ack);
             }
-        } else {
-            /* Verify that the ACK field is zero */
-            ack = tvb_get_ntohl(tvb, offset+8);
-            if (ack != 0){
-                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, ack,
-                           "Acknowledgement Number: 0x%08x [should be 0x00000000 because ACK flag is not set]",
-                           ack);
-                expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                    "Acknowledgement number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
-            }
         }
+    } else {
+        /* Verify that the ACK field is zero */
+        ack = tvb_get_ntohl(tvb, offset+8);
+        if (ack != 0){
+            item = proto_tree_add_uint_format(tcp_tree, hf_tcp_ack, tvb, offset + 8, 4, ack,
+                       "Acknowledgement Number: 0x%08x [should be 0x00000000 because ACK flag is not set]",
+                       ack);
+            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+                "Acknowledgement number: Broken TCP. The acknowledge field is nonzero while the ACK flag is not set");
+        }
+    }
 
+    if (tree) {
         proto_tree_add_uint_format(tcp_tree, hf_tcp_hdr_len, tvb, offset + 12, 1, tcph->th_hlen,
                                    "Header length: %u bytes", tcph->th_hlen);
         tf = proto_tree_add_uint_format(tcp_tree, hf_tcp_flags, tvb, offset + 12, 2,
@@ -4236,13 +4240,11 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     } else {
         tcpinfo.urgent = FALSE;
         if (th_urp) {
-            if (tcp_tree != NULL) {
-                item = proto_tree_add_uint_format(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th_urp,
-                                                  "Urgent Pointer: 0x%04x [should be 0x0000 because URG flag is not set]",
-                                                  th_urp);
-                expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
-                    "Urgent Pointer: Broken TCP. The urgent pointer field is nonzero while the URG flag is not set");
-            }
+            item = proto_tree_add_uint_format(tcp_tree, hf_tcp_urgent_pointer, tvb, offset + 18, 2, th_urp,
+                                              "Urgent Pointer: 0x%04x [should be 0x0000 because URG flag is not set]",
+                                              th_urp);
+            expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN,
+                "Urgent Pointer: Broken TCP. The urgent pointer field is nonzero while the URG flag is not set");
         }
     }
 
