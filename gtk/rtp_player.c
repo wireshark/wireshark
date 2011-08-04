@@ -203,7 +203,7 @@ typedef struct _rtp_channel_info {
 #else /* PORTAUDIO_API_1 */
 	PaTime cursor_prev;
 #endif /* PORTAUDIO_API_1 */
-	GdkGC *bg_gc[MAX_NUM_COL_CONV+1];
+	GdkColor bg_color[MAX_NUM_COL_CONV+1];
 	gboolean cursor_catch;
 	rtp_stream_info_t *first_stream;	/* This is the first RTP stream in the channel */
 	guint32 num_packets;
@@ -1263,26 +1263,26 @@ static void channel_draw(rtp_channel_info_t* rci)
 	int progbar_quantum;
 	gfloat progbar_val;
 	guint status;
-	GdkGC *gc;
-	GdkGC *red_gc;
-	GdkGC *amber_gc;
-	GdkGC *white_gc;
 	GdkColor red_color = {0, 65535, 0, 0};
 	GdkColor amber_color = {0, 65535, 49152, 0};
 	GdkColor white_color = {0, 65535, 65535, 65535};
+	GdkColor black_color = {0, 0, 0, 0};
+
+	GdkColor *draw_color_p;
 	time_t seconds;
 	struct tm *timestamp;
 	GtkAllocation widget_alloc;
+	cairo_t *cr;
 
 	if (GDK_IS_DRAWABLE(rci->pixmap)) {
 		gtk_widget_get_allocation(rci->draw_area, &widget_alloc);
 		/* Clear out old plot */
-		gdk_draw_rectangle(rci->pixmap,
-			rci->bg_gc[1+rci->call_num%MAX_NUM_COL_CONV],
-			TRUE,
-			0, 0,
-			widget_alloc.width,
-			widget_alloc.height);
+		cr = gdk_cairo_create (rci->pixmap);
+		gdk_cairo_set_source_color (cr, &rci->bg_color[1+rci->call_num%MAX_NUM_COL_CONV]);
+		cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+		cr = NULL;
 
 		small_layout = gtk_widget_create_pango_layout(rci->draw_area, NULL);
 		pango_layout_set_font_description(small_layout, pango_font_description_from_string("Helvetica,Sans,Bold 7"));
@@ -1290,11 +1290,13 @@ static void channel_draw(rtp_channel_info_t* rci)
 		/* calculated the pixel offset to display integer seconds */
 		offset = ((double)rci->start_time/1000 - floor((double)rci->start_time/1000))*SAMPLE_RATE/MULT;
 
-		gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
-				0,
-				widget_alloc.height-HEIGHT_TIME_LABEL,
-				widget_alloc.width,
-				widget_alloc.height-HEIGHT_TIME_LABEL);
+		cr = gdk_cairo_create (rci->pixmap);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr, 0, widget_alloc.height-HEIGHT_TIME_LABEL+0.5);
+		cairo_line_to(cr, widget_alloc.width, widget_alloc.height-HEIGHT_TIME_LABEL+0.5);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+		cr = NULL;
 
 		imax = MIN(widget_alloc.width,(gint)(rci->samples->len/MULT));
 
@@ -1305,13 +1307,6 @@ static void channel_draw(rtp_channel_info_t* rci)
 		/* When we reach the value that triggers a progress bar update,
 		   bump that value by this amount. */
 		progbar_quantum = imax/100;
-
-		red_gc = gdk_gc_new(gtk_widget_get_window(rci->draw_area));
-		gdk_gc_set_rgb_fg_color(red_gc, &red_color);
-		amber_gc = gdk_gc_new(gtk_widget_get_window(rci->draw_area));
-		gdk_gc_set_rgb_fg_color(amber_gc, &amber_color);
-		white_gc = gdk_gc_new(gtk_widget_get_window(rci->draw_area));
-		gdk_gc_set_rgb_fg_color(white_gc, &white_color);
 
 		for (i=0; i< imax; i++) {
 			sample.val = 0;
@@ -1338,23 +1333,27 @@ static void channel_draw(rtp_channel_info_t* rci)
 				if (sample.status == S_SILENCE) status = S_SILENCE;
 			}
 
+			/* Set the line color, default is black */
 			if (status == S_DROP_BY_JITT) {
-				gc = red_gc;
+				draw_color_p = &red_color;
 			} else if (status == S_WRONG_TIMESTAMP) {
-				gc = amber_gc;
+				draw_color_p = &amber_color;
 			} else if (status == S_SILENCE) {
-				gc = white_gc;
+				draw_color_p = &white_color;
 			} else {
-				gc = gtk_widget_get_style(rci->draw_area)->black_gc;
+				draw_color_p = &black_color;				
 			}
 
 			/* if silence added by Wireshark, graphically show it with letter to indicate why */
 			if ((status == S_DROP_BY_JITT) || (status == S_WRONG_TIMESTAMP) || (status == S_SILENCE)) {
-				gdk_draw_line(rci->pixmap, gc,
-					i,
-					0,
-					i,
-					(gint) (widget_alloc.height-HEIGHT_TIME_LABEL)-1);
+				cr = gdk_cairo_create (rci->pixmap);
+				cairo_set_line_width (cr, 1.0);
+				gdk_cairo_set_source_color (cr, draw_color_p);
+				cairo_move_to(cr, i+0.5, 0);
+				cairo_line_to(cr, i+0.5, (widget_alloc.height-HEIGHT_TIME_LABEL)-1);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
+				cr=NULL;
 
 				if (status == S_DROP_BY_JITT) g_snprintf(label_string, MAX_TIME_LABEL,"D");
 				if (status == S_WRONG_TIMESTAMP) g_snprintf(label_string, MAX_TIME_LABEL, "W");
@@ -1362,29 +1361,34 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 				pango_layout_set_text(small_layout, label_string, -1);
 				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
-				gdk_draw_layout(rci->pixmap,
-					gc,
-					i,
-					0,
-					small_layout);
+				cr = gdk_cairo_create (rci->pixmap);
+				gdk_cairo_set_source_color (cr, draw_color_p);
+				cairo_move_to (cr, i, 0);
+				pango_cairo_show_layout (cr, small_layout);
+				cairo_destroy (cr);
+				cr = NULL;
 			} else {
 				/* Draw a graphical representation of the sample */
-				gdk_draw_line(rci->pixmap, gc,
-					i,
-					(gint)(( (0x7FFF+min) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF),
-					i,
-					(gint)(( (0x7FFF+max) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF));
+				cr = gdk_cairo_create (rci->pixmap);
+				cairo_set_line_width (cr, 1.0);
+				gdk_cairo_set_source_color (cr, draw_color_p);
+				cairo_move_to(cr, i+0.5, ( (0x7FFF+min) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF);
+				cairo_line_to(cr, i+0.5, ( (0x7FFF+max) * (widget_alloc.height-HEIGHT_TIME_LABEL))/0xFFFF);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
 			}
 
 			/* Draw the x-axis (seconds since beginning of packet flow for this call) */
 
 			/* Draw tick mark and put a number for each whole second */
 			if ( !((i*MULT)%(SAMPLE_RATE)) ) {
-				gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
-					(int) (i - offset),
-					widget_alloc.height-HEIGHT_TIME_LABEL,
-					(int) (i - offset),
-					widget_alloc.height-HEIGHT_TIME_LABEL+4);
+				cr = gdk_cairo_create (rci->pixmap);
+				cairo_set_line_width (cr, 1.0);
+				cairo_move_to(cr, i - offset+0.5, widget_alloc.height-HEIGHT_TIME_LABEL);
+				cairo_line_to(cr, i+0.5, widget_alloc.height-HEIGHT_TIME_LABEL+4);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
+				cr=NULL;
 
 				if(gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(cb_view_as_time_of_day))) {
 					seconds = rci->start_time_abs.secs + i * MULT / SAMPLE_RATE;
@@ -1396,20 +1400,22 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 				pango_layout_set_text(small_layout, label_string, -1);
 				pango_layout_get_pixel_size(small_layout, &label_width, &label_height);
-				gdk_draw_layout(rci->pixmap,
-					gtk_widget_get_style(rci->draw_area)->black_gc,
-					(int) (i - offset - label_width/2),
-					widget_alloc.height - label_height,
-					small_layout);
+				cr = gdk_cairo_create (rci->pixmap);
+				cairo_move_to (cr, i - offset - label_width/2, widget_alloc.height - label_height);
+				pango_cairo_show_layout (cr, small_layout);
+				cairo_destroy (cr);
+				cr = NULL;
+
 
 			/* Draw only a tick mark for half second intervals */
 			} else if ( !((i*MULT)%(SAMPLE_RATE/2)) ) {
-				gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
-					(int) (i - offset),
-					widget_alloc.height-HEIGHT_TIME_LABEL,
-					(int) (i - offset),
-					widget_alloc.height-HEIGHT_TIME_LABEL+2);
-
+				cr = gdk_cairo_create (rci->pixmap);
+				cairo_set_line_width (cr, 1.0);
+				cairo_move_to(cr,i - offset+0.5, widget_alloc.height-HEIGHT_TIME_LABEL);
+				cairo_line_to(cr, (i - offset)+0.5, widget_alloc.height-HEIGHT_TIME_LABEL+2);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
+				cr=NULL;
 			}
 
 			progbar_count++;
@@ -1421,14 +1427,16 @@ static void channel_draw(rtp_channel_info_t* rci)
 static gboolean expose_event_channels(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
 	rtp_channel_info_t *rci = user_data;
+	cairo_t *cr;
 
-	if (GDK_IS_DRAWABLE(gtk_widget_get_window(widget)))
-		gdk_draw_drawable(gtk_widget_get_window(widget),
-			gtk_widget_get_style(widget)->fg_gc[gtk_widget_get_state(widget)],
-			rci->pixmap,
-			event->area.x, event->area.y,
-			event->area.x, event->area.y,
-			event->area.width, event->area.height);
+	if (gtk_widget_is_drawable(widget)){
+		cr = gdk_cairo_create (gtk_widget_get_window(widget));
+		gdk_cairo_set_source_pixmap (cr, rci->pixmap, event->area.x, event->area.y);
+		cairo_rectangle (cr, event->area.x,event->area.y, event->area.width, event->area.height);
+		cairo_fill (cr);
+		cairo_destroy(cr);
+		cr = NULL;
+	}
 
 	return FALSE;
 }
@@ -1440,6 +1448,7 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 	rtp_channel_info_t *rci = user_data;
 	int i;
 	GtkAllocation widget_alloc;
+	cairo_t *cr;
 
 	/* the first color is blue to highlight the selected item
 	 * the other collors are the same as in the Voip Graph analysys
@@ -1470,18 +1479,21 @@ configure_event_channels(GtkWidget *widget, GdkEventConfigure *event _U_, gpoint
 					widget_alloc.height,
 					-1);
 
-	if ( GDK_IS_DRAWABLE(rci->pixmap) )
-		gdk_draw_rectangle(rci->pixmap,
-			gtk_widget_get_style(widget)->white_gc,
-			TRUE,
-			0, 0,
-			widget_alloc.width,
-			widget_alloc.height);
+	if ( GDK_IS_DRAWABLE(rci->pixmap) ){
+		cr = gdk_cairo_create (rci->pixmap);
+		cairo_set_source_rgb (cr, 1, 1, 1);
+		cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+	}
 
 	/* create gc's for the background color of each channel */
 	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
-		rci->bg_gc[i]=gdk_gc_new(rci->pixmap);
-		gdk_gc_set_rgb_fg_color(rci->bg_gc[i], &col[i]);
+		rci->bg_color[i].pixel=col[i].pixel;
+		rci->bg_color[i].red=col[i].red;
+		rci->bg_color[i].green=col[i].green;
+		rci->bg_color[i].blue=col[i].blue;
+
 	}
 
 	channel_draw(rci);
