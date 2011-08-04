@@ -1111,8 +1111,8 @@ io_stat_draw(io_stat_t *io)
 				if(val){
 					cr = gdk_cairo_create (io->pixmap);
 					cairo_rectangle (cr,
-						x_pos-io->pixels_per_tick/2,
-						y_pos,
+						x_pos-(gdouble)io->pixels_per_tick/2+0.5,
+						y_pos+0.5,
 						io->pixels_per_tick,
 						draw_height-1+top_y_border-y_pos);
 					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
@@ -1124,8 +1124,8 @@ io_stat_draw(io_stat_t *io)
 				if(val){
 					cr = gdk_cairo_create (io->pixmap);
 					cairo_arc (cr,
-						x_pos-io->pixels_per_tick/2+io->pixels_per_tick/2,
-						y_pos-io->pixels_per_tick/2+io->pixels_per_tick/2,
+						x_pos+0.5,
+						y_pos+0.5,
 						(gdouble)io->pixels_per_tick/2,
 						0,
 						2 * M_PI);
