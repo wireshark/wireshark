@@ -1888,7 +1888,7 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
  */
 
 
-#define wkh_0_Declarations					/* Declarations for Parsing */ \
+#define wkh_0a_Declarations					/* Declarations for Parsing */ \
 	gboolean ok = FALSE; /* Triggers error notification code at end */ \
 	proto_item *ti = NULL; /* Needed for error notification at end */ \
 	proto_item *hidden_item = NULL; \
@@ -1897,8 +1897,11 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 	guint8 val_id = tvb_get_guint8 (tvb, val_start); \
 	guint32 offset = val_start; /* Offset to one past this header */ \
 	guint32 val_len; /* length for value with length field */ \
-	guint32 val_len_len; /* length of length field */ \
-	const gchar *val_str = NULL
+	guint32 val_len_len /* length of length field */
+
+#define wkh_0_Declarations \
+	wkh_0a_Declarations; \
+        const gchar *val_str = NULL
 
 #define wkh_1_WellKnownValue				/* Parse Well Known Value */ \
 	hidden_item = proto_tree_add_string(tree, hf_hdr_name, \
@@ -1916,6 +1919,15 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
 		/* END */ \
 	} else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
 		val_str = (gchar *)tvb_get_ephemeral_stringz (tvb, val_start, (gint *)&val_len); \
+		offset = val_start + val_len; \
+		/* Textual value processing starts HERE \
+		 * \
+		 * BEGIN */
+
+#define wkh_2_TextualValueInv					/* Parse Textual Value */ \
+		/* END */ \
+	} else if ((val_id == 0) || (val_id >= 0x20)) { /* Textual value */ \
+		/*val_str = (gchar *)*/tvb_get_ephemeral_stringz (tvb, val_start, (gint *)&val_len); \
 		offset = val_start + val_len; \
 		/* Textual value processing starts HERE \
 		 * \
@@ -2281,7 +2293,7 @@ wkh_accept_x_q_header(accept_language, "Accept-Language",
 static guint32
 wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
-	wkh_0_Declarations;
+	wkh_0a_Declarations;
 	proto_tree *subtree = NULL;
 
 	wkh_1_WellKnownValue;
@@ -2305,7 +2317,7 @@ wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *p
 			proto_item_append_text(ti, " <Warning: Reserved flags set>");
 		else
 			ok = TRUE;
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		/* Invalid */
@@ -2320,7 +2332,7 @@ wkh_push_flag(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *p
 static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
 		guint32 hdr_start, packet_info *pinfo)
 {
-	wkh_0_Declarations;
+	wkh_0a_Declarations;
 	tvbuff_t *tmp_tvb;
 	proto_tree *subtree;
 
@@ -2328,7 +2340,7 @@ static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
 
 	wkh_1_WellKnownValue;
 		/* Invalid */
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start);
@@ -2345,11 +2357,11 @@ static guint32 wkh_profile_diff_wbxml (proto_tree *tree, tvbuff_t *tvb,
 /*
  * Allow-value =
  *     Short-integer
- */
+1 */
 static guint32
-wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
+wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *apinfo _U_)
 {
-	wkh_0_Declarations;
+	wkh_0a_Declarations;
 
 	wkh_1_WellKnownValue;
 		val_id &= 0x7F;
@@ -2361,7 +2373,7 @@ wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
 						"<Unknown WSP method 0x%02X>"));
 			ok = TRUE;
 		}
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		/* Invalid */
@@ -2372,9 +2384,9 @@ wkh_allow(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
 /*
  * Public-value =
  *     Token-text | Short-integer
- */
+2 */
 static guint32
-wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
+wkh_public(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *apinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2433,7 +2445,7 @@ wkh_vary(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo 
 static guint32
 wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
-	wkh_0_Declarations;
+	wkh_0a_Declarations;
 
 	wkh_1_WellKnownValue;
 		if (val_id == 0x80) {
@@ -2442,7 +2454,7 @@ wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_in
 					tvb, hdr_start, offset - hdr_start, "close-subordinate");
 			ok = TRUE;
 		}
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		/* Invalid */
@@ -2452,9 +2464,9 @@ wkh_x_wap_security(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_in
 
 /*
  * Connection-value = 0x80 | Token-text
- */
+5 */
 static guint32
-wkh_connection(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
+wkh_connection(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *apinfo _U_)
 {
 	wkh_0_Declarations;
 
@@ -2687,7 +2699,7 @@ wkh_accept_encoding(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 static guint32
 wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
-	wkh_0_Declarations;
+	wkh_0a_Declarations;
 	guint32 len, off;
 	guint8 peek;
 	gchar *str;
@@ -2695,7 +2707,7 @@ wkh_content_disposition(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, pack
 
 	wkh_1_WellKnownValue;
 		/* Invalid */
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -2869,13 +2881,13 @@ wkh_text_or_date_value_header(if_range,"If-Range")
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
-	wkh_0_Declarations; \
+	wkh_0a_Declarations; \
 	guint32 val = 0, off = val_start, len; \
 	gchar *str; /* may not be freed! */ \
 	\
 	wkh_1_WellKnownValue; \
 		/* Invalid */ \
-	wkh_2_TextualValue; \
+	wkh_2_TextualValueInv; \
 		/* Invalid */ \
 	wkh_3_ValueWithLength; \
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
@@ -2905,7 +2917,7 @@ wkh_date_value_header(last_modified, "Last-Modified")
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
-	wkh_0_Declarations; \
+	wkh_0a_Declarations; \
 	guint32 val = 0, off = val_start, len; \
 	gchar *str; /* may not be freed! */ \
 	\
@@ -2922,7 +2934,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		/* It seems VERY unlikely that we'll see date values within the first \
 		 * 127 seconds of the UNIX 1-1-1970 00:00:00 start of the date clocks \
 		 * so I assume such a value is a genuine error */ \
-	wkh_2_TextualValue; \
+	wkh_2_TextualValueInv; \
 		/* Invalid */ \
 	wkh_3_ValueWithLength; \
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
@@ -2964,7 +2976,7 @@ wkh_age(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _
 				tvb, hdr_start, offset - hdr_start, val_str);
 		g_free( (gpointer) val_str); /* proto_XXX creates a copy */
 		ok = TRUE;
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		if (val_id <= 4) { /* Length field already parsed by macro! */
@@ -2989,7 +3001,7 @@ static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
-	guint32 val = 0, off = val_start, len; \
+	guint32 val = 0, off = val_start, len;    \
 	\
 	wkh_1_WellKnownValue; \
 		tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
@@ -3007,6 +3019,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_long_integer(val, tvb, off, len, ok); \
 			if (ok) { \
+				val = val; /* hack to prevent 'set but not used' gcc warning */ \
 				tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
 				ti = proto_tree_add_string(tree, hf_hdr_ ## underscored, \
 						tvb, hdr_start, offset - hdr_start, \
@@ -3053,7 +3066,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 	\
 	wkh_1_WellKnownValue; \
 		/* Invalid */ \
-	wkh_2_TextualValue; \
+	wkh_2_TextualValueInv; \
 		/* Invalid */ \
 	wkh_3_ValueWithLength; \
 		off = val_start + val_len_len; \
@@ -3137,7 +3150,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, \
 	\
 	wkh_1_WellKnownValue; \
 		/* Invalid */ \
-	wkh_2_TextualValue; \
+	wkh_2_TextualValueInv; \
 		/* Invalid */ \
 	wkh_3_ValueWithLength; \
 		off = val_start + val_len_len; \
@@ -3210,7 +3223,7 @@ wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info
 
 	wkh_1_WellKnownValue;
 		/* Invalid */
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -3251,7 +3264,7 @@ wkh_content_md5 (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info
 static guint32
 wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_)
 {
-	wkh_0_Declarations;
+	wkh_0a_Declarations;
 	guint32 off;
 
 	wkh_1_WellKnownValue;
@@ -3261,7 +3274,7 @@ wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinf
 					tvb, hdr_start, offset - hdr_start, "no-cache");
 			ok = TRUE;
 		}
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -3284,7 +3297,7 @@ wkh_pragma(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinf
 static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
-	wkh_0_Declarations; \
+	wkh_0a_Declarations; \
 	guint32 val = 0, off = val_start, len; \
 	gchar *str; /* may not be freed! */ \
 	\
@@ -3295,7 +3308,7 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tvb, hdr_start, offset - hdr_start, str); \
 		g_free(str); \
 		ok = TRUE; \
-	wkh_2_TextualValue; \
+	wkh_2_TextualValueInv; \
 		/* Invalid */ \
 	wkh_3_ValueWithLength; \
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
@@ -3320,7 +3333,7 @@ static guint32 \
 wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo _U_) \
 { \
 	wkh_0_Declarations; \
-	guint32 val = 0, off = val_start, len; \
+	guint32 val = 0, off = val_start, len;    \
 	\
 	wkh_1_WellKnownValue; \
 		val_str = match_strval_ext(val_id & 0x7F, valueStringExtAddr); \
@@ -3335,12 +3348,13 @@ wkh_ ## underscored(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 				tvb, hdr_start, offset - hdr_start, \
 				"<Unknown " valueName ">"); \
 		} \
-	wkh_2_TextualValue; \
+	wkh_2_TextualValueInv; \
 		/* Invalid */ \
 	wkh_3_ValueWithLength; \
 		if (val_id <= 4) { /* Length field already parsed by macro! */ \
 			get_long_integer(val, tvb, off, len, ok); \
 			if (ok) { \
+				val = val; /* hack to prevent 'set but not used' gcc warning */ \
 				val_str = match_strval_ext(val_id & 0x7F, valueStringExtAddr); \
 				if (val_str) { \
 					tvb_ensure_bytes_exist(tvb, hdr_start, offset - hdr_start); \
@@ -3514,7 +3528,7 @@ wkh_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pin
 					tvb, val_start, 1, val);
 			ok = TRUE;
 		}
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		/* TODO - subtree with individual values */
@@ -3582,7 +3596,7 @@ wkh_profile_warning(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_i
 					tvb, hdr_start, offset - hdr_start, val_str);
 			ok = TRUE;
 		}
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -3682,7 +3696,7 @@ wkh_content_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_inf
 
 	wkh_1_WellKnownValue;
 		/* Invalid */
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -3732,7 +3746,7 @@ wkh_range(proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packet_info *pinfo
 
 	wkh_1_WellKnownValue;
 		/* Invalid */
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -3800,7 +3814,7 @@ static guint32 wkh_te (proto_tree *tree, tvbuff_t *tvb, guint32 hdr_start, packe
 					tvb, hdr_start, offset - hdr_start, "trailers");
 			ok = TRUE;
 		}
-	wkh_2_TextualValue;
+	wkh_2_TextualValueInv;
 		/* Invalid */
 	wkh_3_ValueWithLength;
 		off = val_start + val_len_len;
@@ -4975,7 +4989,6 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	gboolean found_match;
 
 /* Set up structures we will need to add the protocol subtree and manage it */
-	proto_item *ti;
 	proto_item *proto_ti = NULL; /* for the proto entry */
 	proto_tree *wsp_tree = NULL;
 
@@ -5032,10 +5045,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* If this is connectionless, then the TID Field is always first */
 		if (is_connectionless)
 		{
-			ti = proto_tree_add_item (wsp_tree, hf_wsp_header_tid,
+			proto_tree_add_item (wsp_tree, hf_wsp_header_tid,
 					tvb, 0, 1, bo_little_endian);
 		}
-		ti = proto_tree_add_item( wsp_tree, hf_wsp_header_pdu_type,
+		proto_tree_add_item( wsp_tree, hf_wsp_header_pdu_type,
 				tvb, offset, 1, bo_little_endian);
 	}
 	offset++;
@@ -5055,9 +5068,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				if (pdut == WSP_PDU_CONNECT)
 				{
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_major,
+					proto_tree_add_item (wsp_tree, hf_wsp_version_major,
 							tvb, offset, 1, bo_little_endian);
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_version_minor,
+					proto_tree_add_item (wsp_tree, hf_wsp_version_minor,
 							tvb, offset, 1, bo_little_endian);
 					{
 						guint8 ver = tvb_get_guint8(tvb, offset);
@@ -5068,7 +5081,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				} else {
 					count = 0;	/* Initialise count */
 					value = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree,
+					proto_tree_add_uint (wsp_tree,
 							hf_wsp_server_session_id,
 							tvb, offset, count, value);
 					proto_item_append_text(proto_ti, ", Session ID: %u", value);
@@ -5078,14 +5091,14 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				count = 0;	/* Initialise count */
 				capabilityLength = tvb_get_guintvar (tvb, offset, &count);
 				offset += count;
-				ti = proto_tree_add_uint (wsp_tree, hf_capabilities_length,
+				proto_tree_add_uint (wsp_tree, hf_capabilities_length,
 						tvb, capabilityStart, count, capabilityLength);
 
 				if (pdut != WSP_PDU_RESUME)
 				{
 					count = 0;	/* Initialise count */
 					headerLength = tvb_get_guintvar (tvb, offset, &count);
-					ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+					proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
 							tvb, offset, count, headerLength);
 					offset += count;
 					capabilityStart = offset;
@@ -5125,7 +5138,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			if (tree) {
 				count = 0;	/* Initialise count */
 				value = tvb_get_guintvar (tvb, offset, &count);
-				ti = proto_tree_add_uint (wsp_tree,
+				proto_tree_add_uint (wsp_tree,
 						hf_wsp_server_session_id,
 						tvb, offset, count, value);
 				proto_item_append_text(proto_ti, ", Session ID: %u", value);
@@ -5163,7 +5176,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset += uriLength;
 
 			if (tree)
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+				proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
 						tvb, headerStart, count, headersLength);
 
 			/* Stop processing POST PDU if length of headers is zero;
@@ -5246,7 +5259,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 				reply_status_str = val_to_str_ext_const (reply_status, &wsp_vals_status_ext, "(Unknown response status)");
 				if (tree) {
-					ti = proto_tree_add_item (wsp_tree, hf_wsp_header_status,
+					proto_tree_add_item (wsp_tree, hf_wsp_header_status,
 							tvb, offset, 1, bo_little_endian);
 					proto_item_append_text(proto_ti, ", Status: %s (0x%02x)",
 							reply_status_str, reply_status);
@@ -5261,7 +5274,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			}
 			nextOffset = offset + 1 + count;
 			if (tree)
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+				proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
 						tvb, offset + 1, count, headersLength);
 
 			if (headersLength == 0)
@@ -5323,7 +5336,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						pinfo->private_data = save_private_data;
 #if 0
 						if (tree) / * Only display if needed * /
-							ti = proto_tree_add_item (wsp_tree,
+							proto_tree_add_item (wsp_tree,
 							    hf_wsp_reply_data,
 							    tmp_tvb, 0, -1, bo_little_endian);
 #endif
@@ -5339,7 +5352,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			headerStart = offset + count;
 
 			if (tree)
-				ti = proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
+				proto_tree_add_uint (wsp_tree, hf_wsp_header_length,
 						tvb, offset, count, headersLength);
 
 			if (headersLength == 0)
@@ -5407,7 +5420,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						pinfo->private_data = save_private_data;
 #if 0
 						if (tree) /* Only display if needed */
-							ti = proto_tree_add_item (wsp_tree,
+							proto_tree_add_item (wsp_tree,
 									hf_wsp_push_data,
 									tmp_tvb, 0, -1, bo_little_endian);
 #endif
@@ -5471,19 +5484,17 @@ static void
 add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
 		guint URILenOffset, guint URIOffset, proto_item *proto_ti)
 {
-	proto_item *ti;
-
 	guint count = 0;
 	guint uriLen = tvb_get_guintvar (tvb, URILenOffset, &count);
 	gchar *str = NULL;
 
 	if (tree)
-		ti = proto_tree_add_uint (tree, hf_wsp_header_uri_len,
+		proto_tree_add_uint (tree, hf_wsp_header_uri_len,
 				tvb, URILenOffset, count, uriLen);
 
 	tvb_ensure_bytes_exist(tvb, URIOffset, uriLen);
 	if (tree)
-		ti = proto_tree_add_item (tree, hf_wsp_header_uri,
+		proto_tree_add_item (tree, hf_wsp_header_uri,
 				tvb, URIOffset, uriLen, bo_little_endian);
 
 	str = tvb_format_text (tvb, URIOffset, uriLen);
@@ -5827,7 +5838,6 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 	guint variableStart = 0;
 	guint variableEnd = 0;
 	guint valueStart = 0;
-	guint valueEnd = 0;
 	guint8 peek = 0;
 	proto_item *ti;
 	proto_tree *sub_tree = NULL;
@@ -5867,7 +5877,6 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 					variableStart = offset+1;
 					variableEnd = 0;
 					valueStart = 0;
-					valueEnd = 0;
 				}
 			}
 
