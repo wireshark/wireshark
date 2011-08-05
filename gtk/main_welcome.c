@@ -746,65 +746,65 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
                     break;
                 }
             }
-        } 
-    } 
-    if (!found && !path_currently_selected) {
-		for (j = 0; j < interfaces->len; j++) {
-			d_interface = g_array_index(interfaces, displayed_interface, j);
-			if (strcmp(d_interface.name, if_name) == 0) {
-				break;
-			}
-		}
-        interface_opts.name = g_strdup(d_interface.name);
-        interface_opts.descr = g_strdup(d_interface.descr);
-        interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
-        interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-        interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
-        interface_opts.snaplen = global_capture_opts.default_options.snaplen;
-        cap_settings = capture_get_cap_settings (interface_opts.name);;
-        interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-        interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
-#endif
-        interface_opts.monitor_mode = cap_settings.monitor_mode;
-#ifdef HAVE_PCAP_REMOTE
-        if (d_interface.remote_opts.src_type == CAPTURE_IFREMOTE) {
-            interface_opts.src_type = d_interface.remote_opts.src_type;
-            interface_opts.remote_host = g_strdup(d_interface.remote_opts.remote_host_opts.remote_host);
-            interface_opts.remote_port = g_strdup(d_interface.remote_opts.remote_host_opts.remote_port);
-            interface_opts.auth_type = d_interface.remote_opts.remote_host_opts.auth_type;
-            interface_opts.auth_username = g_strdup(d_interface.remote_opts.remote_host_opts.auth_username);
-            interface_opts.auth_password = g_strdup(d_interface.remote_opts.remote_host_opts.auth_password);
-            interface_opts.datatx_udp = d_interface.remote_opts.remote_host_opts.datatx_udp;
-            interface_opts.nocap_rpcap = d_interface.remote_opts.remote_host_opts.nocap_rpcap;
-            interface_opts.nocap_local = d_interface.remote_opts.remote_host_opts.nocap_local;
-#ifdef HAVE_PCAP_SETSAMPLING
-            interface_opts.sampling_method = d_interface.remote_opts.sampling_method;
-            interface_opts.sampling_param  = d_interface.remote_opts.sampling_param;
-#endif
-        } else {
-            interface_opts.src_type = global_capture_opts.default_options.src_type;
-            interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-            interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-            interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-            interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-            interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-            interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-            interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-            interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
-#ifdef HAVE_PCAP_SETSAMPLING
-            interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-            interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
-#endif
         }
+    }
+    if (!found && !path_currently_selected) {
+        for (j = 0; j < interfaces->len; j++) {
+            d_interface = g_array_index(interfaces, displayed_interface, j);
+            if (strcmp(d_interface.name, if_name) == 0) {
+                interface_opts.name = g_strdup(d_interface.name);
+                interface_opts.descr = g_strdup(d_interface.descr);
+                interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
+                interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+                interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
+                interface_opts.snaplen = global_capture_opts.default_options.snaplen;
+                cap_settings = capture_get_cap_settings (interface_opts.name);;
+                interface_opts.promisc_mode = global_capture_opts.default_options.promisc_mode;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+                interface_opts.buffer_size =  global_capture_opts.default_options.buffer_size;
+#endif
+                interface_opts.monitor_mode = cap_settings.monitor_mode;
+#ifdef HAVE_PCAP_REMOTE
+                if (d_interface.remote_opts.src_type == CAPTURE_IFREMOTE) {
+                    interface_opts.src_type = d_interface.remote_opts.src_type;
+                    interface_opts.remote_host = g_strdup(d_interface.remote_opts.remote_host_opts.remote_host);
+                    interface_opts.remote_port = g_strdup(d_interface.remote_opts.remote_host_opts.remote_port);
+                    interface_opts.auth_type = d_interface.remote_opts.remote_host_opts.auth_type;
+                    interface_opts.auth_username = g_strdup(d_interface.remote_opts.remote_host_opts.auth_username);
+                    interface_opts.auth_password = g_strdup(d_interface.remote_opts.remote_host_opts.auth_password);
+                    interface_opts.datatx_udp = d_interface.remote_opts.remote_host_opts.datatx_udp;
+                    interface_opts.nocap_rpcap = d_interface.remote_opts.remote_host_opts.nocap_rpcap;
+                    interface_opts.nocap_local = d_interface.remote_opts.remote_host_opts.nocap_local;
+#ifdef HAVE_PCAP_SETSAMPLING
+                    interface_opts.sampling_method = d_interface.remote_opts.sampling_method;
+                    interface_opts.sampling_param  = d_interface.remote_opts.sampling_param;
+#endif
+                } else {
+                    interface_opts.src_type = global_capture_opts.default_options.src_type;
+                    interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+                    interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+                    interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+                    interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+                    interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+                    interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+                    interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+                    interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+#ifdef HAVE_PCAP_SETSAMPLING
+                    interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+                    interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+#endif
+                }
 #endif
 
-        g_array_append_val(global_capture_opts.ifaces, interface_opts);
-        if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && interfaces_dialog_window_present()) {
-           update_selected_interface(g_strdup(interface_opts.name), TRUE);
-        }
-        if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && dlg_window_present()) {
-           enable_selected_interface(interface_opts.name, TRUE);
+                g_array_append_val(global_capture_opts.ifaces, interface_opts);
+                if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && interfaces_dialog_window_present()) {
+                    update_selected_interface(g_strdup(interface_opts.name), TRUE);
+                }
+                if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && dlg_window_present()) {
+                    enable_selected_interface(interface_opts.name, TRUE);
+                }
+                break;
+            }
         }
     }
     return TRUE;
@@ -852,7 +852,7 @@ void change_selection_for_all(gboolean enable)
   guint i;
 
   for (i = 0; i < interfaces->len; i++) {
- 	change_interface_selection(g_array_index(interfaces, displayed_interface, i).name, enable);
+    change_interface_selection(g_array_index(interfaces, displayed_interface, i).name, enable);
   }
 }
 #endif
