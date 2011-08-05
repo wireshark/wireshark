@@ -2069,6 +2069,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
     "Show help about capturing.");
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_CAPTURE_OPTIONS_DIALOG);
   gtk_widget_grab_default(ok_bt);
+  dlg_set_activate(filter_te, ok_bt);
   g_signal_connect(opt_edit_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(opt_edit_w, "destroy", G_CALLBACK(options_edit_destroy_cb), NULL);
     gtk_widget_show_all(opt_edit_w);
