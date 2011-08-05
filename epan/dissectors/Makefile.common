@@ -1237,7 +1237,6 @@ DISSECTOR_INCLUDES =	\
 	packet-pcnfsd.h	\
 	packet-pdcp-lte.h	\
 	packet-per.h	\
-	packet-pflog.h	\
 	packet-pim.h	\
 	packet-pkcs1.h	\
 	packet-pkcs12.h	\
