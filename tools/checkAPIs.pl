@@ -907,7 +907,7 @@ my %deprecatedGtkFunctions = (
 ## Deprecated as of GTK+ 2.18 but to be replaced only when Wireshark requires GTK+ 2.12 or later
 ##  (or: use conditional code based upon the GTK version).
 		'gtk_cell_view_get_cell_renderers',			'E', # gtk_cell_layout_get_cells ()		(avail since 2.12)
-##		'gtk_tree_view_column_get_cell_renderers',	'W', # gtk_cell_layout_get_cells ()		(avail since 2.12)
+		'gtk_tree_view_column_get_cell_renderers',		'E', # gtk_cell_layout_get_cells ()		(avail since 2.12)
 ##
 ## Deprecated as of GTK+ 2.20 but to be replaced only when Wireshark requires GTK+ 2.18 or later
 ##  (or: use conditional code based upon the GTK version).
