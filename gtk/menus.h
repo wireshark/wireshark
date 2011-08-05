@@ -161,8 +161,6 @@ void set_menus_for_selected_packet(capture_file *cf);
 /* Enable or disable menu items based on configuration profile */
 void set_menus_for_profiles(gboolean default_profile);
 
-void set_menus_for_number_of_ifaces(void);
-
 #ifdef MAIN_MENU_USE_UIMANAGER
 #define MENU_BAR_PATH_FILE_OPEN							"/Menubar/FileMenu/Open"
 #define MENU_BAR_PATH_EDIT_COPY_AS_FLT					"/Menubar/EditMenu/Copy/AsFilter"

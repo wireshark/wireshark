@@ -55,6 +55,45 @@
 
 #include "capture_ifinfo.h"
 
+#ifdef HAVE_PCAP_REMOTE
+static GList *remote_interface_list = NULL;
+
+static void append_remote_list(GList *iflist)
+{
+    GSList *list;
+    GList *rlist;
+    if_addr_t *if_addr, *temp_addr;
+    if_info_t *if_info, *temp;
+
+    for (rlist = g_list_nth(remote_interface_list, 0); rlist != NULL; rlist = g_list_next(rlist)) {
+        if_info = (if_info_t *)rlist->data;
+        temp = g_malloc0(sizeof(if_info_t));
+        temp->name = g_strdup(if_info->name);
+        temp->description = g_strdup(if_info->description);
+        for (list = g_slist_nth(if_info->addrs, 0); list != NULL; list = g_slist_next(list)) {
+            temp_addr = g_malloc0(sizeof(if_addr_t));
+            if_addr = (if_addr_t *)list->data;
+            if (if_addr) {
+                temp_addr->ifat_type = if_addr->ifat_type;
+                if (temp_addr->ifat_type == IF_AT_IPv4) {
+                    temp_addr->addr.ip4_addr = if_addr->addr.ip4_addr;
+                } else {
+                    memcpy(temp_addr->addr.ip6_addr, if_addr->addr.ip6_addr, sizeof(if_addr->addr));
+                }
+            } else {
+                g_free(temp_addr);
+                temp_addr = NULL;
+            }
+            if (temp_addr) {
+                temp->addrs = g_slist_append(temp->addrs, temp_addr);
+            }
+        }
+        temp->loopback = if_info->loopback;
+        iflist = g_list_append(iflist, temp);
+   }
+}
+#endif
+
 /**
  * Fetch the interface list from a child process (dumpcap).
  *
@@ -151,6 +190,11 @@ capture_interface_list(int *err, char **err_str)
         if (err_str)
             *err_str = g_strdup("No interfaces found");
     }
+#ifdef HAVE_PCAP_REMOTE
+    if (remote_interface_list && g_list_length(remote_interface_list) > 0) {
+        append_remote_list(if_list);
+    }
+#endif
     return if_list;
 }
 
@@ -261,4 +305,35 @@ capture_get_if_capabilities(const gchar *ifname, gboolean monitor_mode,
     return caps;
 }
 
+#ifdef HAVE_PCAP_REMOTE
+void add_interface_to_remote_list(if_info_t *if_info)
+{
+    GSList *list;
+    if_addr_t *if_addr, *temp_addr;
+
+    if_info_t *temp = g_malloc0(sizeof(if_info_t));
+    temp->name = g_strdup(if_info->name);
+    temp->description = g_strdup(if_info->description);
+    for (list = g_slist_nth(if_info->addrs, 0); list != NULL; list = g_slist_next(list)) {
+        temp_addr = g_malloc0(sizeof(if_addr_t));
+        if_addr = (if_addr_t *)list->data;
+        if (if_addr) {
+            temp_addr->ifat_type = if_addr->ifat_type;
+            if (temp_addr->ifat_type == IF_AT_IPv4) {
+                temp_addr->addr.ip4_addr = if_addr->addr.ip4_addr;
+            } else {
+                memcpy(temp_addr->addr.ip6_addr, if_addr->addr.ip6_addr, sizeof(if_addr->addr));
+            }
+        } else {
+            g_free(temp_addr);
+            temp_addr = NULL;
+        }
+        if (temp_addr) {
+            temp->addrs = g_slist_append(temp->addrs, temp_addr);
+        }
+    }
+    temp->loopback = if_info->loopback;
+    remote_interface_list = g_list_append(remote_interface_list, temp);
+}
+#endif
 #endif /* HAVE_LIBPCAP */

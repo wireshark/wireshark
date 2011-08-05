@@ -696,9 +696,11 @@ capture_stat_start(GList *if_list) {
         /* Initialize the cache */
         for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
             if_info = if_entry->data;
-            sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
-            sc_item->name = g_strdup(if_info->name);
-            sc->cache_list = g_list_append(sc->cache_list, sc_item);
+            if (if_info) {
+                sc_item = g_malloc0(sizeof(if_stat_cache_item_t));
+                sc_item->name = g_strdup(if_info->name);
+                sc->cache_list = g_list_append(sc->cache_list, sc_item);
+            }
         }
     }
     return sc;

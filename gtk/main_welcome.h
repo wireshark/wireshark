@@ -25,6 +25,8 @@
 #ifndef __MAIN_WELCOME_H__
 #define __MAIN_WELCOME_H__
 
+#include "gtk/capture_dlg.h"
+
 enum
 {
   ICON = 0,
@@ -37,6 +39,14 @@ typedef struct selected_name_s {
   gchar *name;
   gboolean activate;
 } selected_name_t;
+
+typedef struct displayed_interface_s {
+	gchar *name;
+	gchar *descr;
+	GtkWidget *icon;
+    remote_options remote_opts;
+} displayed_interface;
+
 GtkWidget *welcome_new(void);
 
 /* reset the list of recently used files */
@@ -70,5 +80,9 @@ void select_ifaces(void);
 GtkWidget* get_welcome_window(void);
 
 void change_interface_selection(gchar* name, gboolean activate);
+
+void change_selection_for_all(gboolean enable);
+
+void add_interface_to_list(gchar *name, gchar *descr, remote_options *remote_opts);
 
 #endif /* __MAIN_WELCOME_H__ */

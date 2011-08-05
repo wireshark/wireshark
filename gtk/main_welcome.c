@@ -93,6 +93,7 @@ static GtkWidget *welcome_file_panel_vb = NULL;
 static GtkWidget *welcome_if_panel_vb = NULL;
 static GtkWidget *if_view = NULL;
 static GtkWidget *swindow;
+static GArray *interfaces = NULL;
 #endif
 
 static GSList *status_messages = NULL;
@@ -490,9 +491,9 @@ static void *get_recent_item_status(void *data)
     }
 
     if (!ri_stat->label) { /* The widget went away while we were busy. */
-	g_free(ri_stat->filename);
-	g_string_free(ri_stat->str, TRUE);
-	g_free(ri_stat);
+        g_free(ri_stat->filename);
+        g_string_free(ri_stat->str, TRUE);
+        g_free(ri_stat);
     } else {
         ri_stat->stat_done = TRUE;
     }
@@ -520,14 +521,14 @@ update_recent_items(gpointer data)
     if (ri_stat->stat_done) {
         again = FALSE;
         gtk_label_set_markup(GTK_LABEL(ri_stat->label), ri_stat->str->str);
-	if (ri_stat->err == 0) {
-	    gtk_widget_set_sensitive(ri_stat->label, TRUE);
+        if (ri_stat->err == 0) {
+            gtk_widget_set_sensitive(ri_stat->label, TRUE);
 #ifdef MAIN_MENU_USE_UIMANAGER
-	    gtk_action_set_sensitive((GtkAction *) ri_stat->menu_item, TRUE);
+            gtk_action_set_sensitive((GtkAction *) ri_stat->menu_item, TRUE);
 #else
-	    gtk_widget_set_sensitive(GTK_WIDGET(ri_stat->menu_item), TRUE);
+            gtk_widget_set_sensitive(GTK_WIDGET(ri_stat->menu_item), TRUE);
 #endif
-	}
+        }
         ri_stat->timer = 0;
     }
     /* Else append some sort of Unicode or ASCII animation to the label? */
@@ -541,7 +542,7 @@ static void welcome_filename_destroy_cb(GtkWidget *w _U_, gpointer data) {
     recent_item_status *ri_stat = (recent_item_status *) data;
 
     if (!ri_stat) {
-	return;
+        return;
     }
 
 #ifdef USE_THREADS
@@ -711,37 +712,51 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
     GtkTreeIter  iter;
     gchar *if_name;
     interface_options interface_opts;
-    guint i;
+    guint i, j;
     cap_settings_t    cap_settings;
     gboolean found = FALSE;
+    displayed_interface d_interface;
 
+    d_interface.name = NULL;
+    d_interface.descr = NULL;
     gtk_tree_model_get_iter (model, &iter, path);
     gtk_tree_model_get (model, &iter, IFACE_NAME, &if_name, -1);
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-        if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
-            found = TRUE;
-            if (path_currently_selected) {
-                interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-                global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
-                if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && get_interfaces_dialog_window()) {
-                    update_selected_interface(g_strdup(interface_opts.name), FALSE);
-                }
-                g_free(interface_opts.name);
-                g_free(interface_opts.descr);
-                g_free(interface_opts.cfilter);
+    if (global_capture_opts.ifaces->len > 0) {
+        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+            if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, if_name) == 0) {
+                found = TRUE;
+                if (path_currently_selected) {
+                    interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+                    global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
+                    if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && interfaces_dialog_window_present()) {
+                        update_selected_interface(g_strdup(interface_opts.name), FALSE);
+                    }
+                    if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && dlg_window_present()) {
+                      enable_selected_interface(interface_opts.name, FALSE);
+                    }
+                    g_free(interface_opts.name);
+                    g_free(interface_opts.descr);
+                    g_free(interface_opts.cfilter);
 #ifdef HAVE_PCAP_REMOTE
-                g_free(interface_opts.remote_host);
-                g_free(interface_opts.remote_port);
-                g_free(interface_opts.auth_username);
-                g_free(interface_opts.auth_password);
+                    g_free(interface_opts.remote_host);
+                    g_free(interface_opts.remote_port);
+                    g_free(interface_opts.auth_username);
+                    g_free(interface_opts.auth_password);
 #endif
-                break;
+                    break;
+                }
             }
         } 
     } 
     if (!found && !path_currently_selected) {
-        interface_opts.name = g_strdup(if_name);
-        interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+		for (j = 0; j < interfaces->len; j++) {
+			d_interface = g_array_index(interfaces, displayed_interface, j);
+			if (strcmp(d_interface.name, if_name) == 0) {
+				break;
+			}
+		}
+        interface_opts.name = g_strdup(d_interface.name);
+        interface_opts.descr = g_strdup(d_interface.descr);
         interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
         interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
         interface_opts.has_snaplen = global_capture_opts.default_options.has_snaplen;
@@ -753,26 +768,45 @@ gboolean on_selection_changed(GtkTreeSelection *selection _U_,
 #endif
         interface_opts.monitor_mode = cap_settings.monitor_mode;
 #ifdef HAVE_PCAP_REMOTE
-        interface_opts.src_type = global_capture_opts.default_options.src_type;
-        interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
-        interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
-        interface_opts.auth_type = global_capture_opts.default_options.auth_type;
-        interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
-        interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
-        interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
-        interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
-        interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
-#endif
+        if (d_interface.remote_opts.src_type == CAPTURE_IFREMOTE) {
+            interface_opts.src_type = d_interface.remote_opts.src_type;
+            interface_opts.remote_host = g_strdup(d_interface.remote_opts.remote_host_opts.remote_host);
+            interface_opts.remote_port = g_strdup(d_interface.remote_opts.remote_host_opts.remote_port);
+            interface_opts.auth_type = d_interface.remote_opts.remote_host_opts.auth_type;
+            interface_opts.auth_username = g_strdup(d_interface.remote_opts.remote_host_opts.auth_username);
+            interface_opts.auth_password = g_strdup(d_interface.remote_opts.remote_host_opts.auth_password);
+            interface_opts.datatx_udp = d_interface.remote_opts.remote_host_opts.datatx_udp;
+            interface_opts.nocap_rpcap = d_interface.remote_opts.remote_host_opts.nocap_rpcap;
+            interface_opts.nocap_local = d_interface.remote_opts.remote_host_opts.nocap_local;
 #ifdef HAVE_PCAP_SETSAMPLING
-        interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
-        interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+            interface_opts.sampling_method = d_interface.remote_opts.sampling_method;
+            interface_opts.sampling_param  = d_interface.remote_opts.sampling_param;
 #endif
+        } else {
+            interface_opts.src_type = global_capture_opts.default_options.src_type;
+            interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
+            interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
+            interface_opts.auth_type = global_capture_opts.default_options.auth_type;
+            interface_opts.auth_username = g_strdup(global_capture_opts.default_options.auth_username);
+            interface_opts.auth_password = g_strdup(global_capture_opts.default_options.auth_password);
+            interface_opts.datatx_udp = global_capture_opts.default_options.datatx_udp;
+            interface_opts.nocap_rpcap = global_capture_opts.default_options.nocap_rpcap;
+            interface_opts.nocap_local = global_capture_opts.default_options.nocap_local;
+#ifdef HAVE_PCAP_SETSAMPLING
+            interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
+            interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
+#endif
+        }
+#endif
+
         g_array_append_val(global_capture_opts.ifaces, interface_opts);
-        if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && get_interfaces_dialog_window()) {
+        if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && interfaces_dialog_window_present()) {
            update_selected_interface(g_strdup(interface_opts.name), TRUE);
         }
+        if (gtk_widget_is_focus(g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES)) && dlg_window_present()) {
+           enable_selected_interface(interface_opts.name, TRUE);
+        }
     }
-    set_menus_for_number_of_ifaces();
     return TRUE;
 }
 
@@ -785,7 +819,7 @@ static gboolean activate_ifaces(GtkTreeModel  *model,
   GtkWidget *view;
   GtkTreeSelection *selection;
   selected_name_t  *entry = (selected_name_t *)userdata;
-  
+
   view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_model_get (model, iter, IFACE_NAME, &if_name, -1);
@@ -805,12 +839,21 @@ void change_interface_selection(gchar* name, gboolean activate)
     GtkWidget        *view;
     GtkTreeModel     *model;
     selected_name_t  entry;
-   
+
     view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
     entry.name = g_strdup(name);
     entry.activate = activate;
     gtk_tree_model_foreach(GTK_TREE_MODEL(model), (GtkTreeModelForeachFunc)(activate_ifaces), (gpointer) &entry);
+}
+
+void change_selection_for_all(gboolean enable)
+{
+  guint i;
+
+  for (i = 0; i < interfaces->len; i++) {
+ 	change_interface_selection(g_array_index(interfaces, displayed_interface, i).name, enable);
+  }
 }
 #endif
 
@@ -832,69 +875,130 @@ select_ifaces(void)
 #endif
 }
 
+#ifdef HAVE_PCAP_REMOTE
+void
+add_interface_to_list(gchar *name, gchar *descr, remote_options *remote_opts)
+{
+    GtkWidget *view, *icon;
+    GtkTreeModel *model;
+    GtkTreeIter iter;
+    gint size;
+    gchar *lines;
+    displayed_interface d_interface;
+
+    d_interface.name = g_strdup(name);
+    d_interface.descr = g_strdup(descr);
+    d_interface.remote_opts.src_type = remote_opts->src_type;
+    d_interface.remote_opts.remote_host_opts.remote_host = g_strdup(remote_opts->remote_host_opts.remote_host);
+    d_interface.remote_opts.remote_host_opts.remote_port = g_strdup(remote_opts->remote_host_opts.remote_port);
+    d_interface.remote_opts.remote_host_opts.auth_type = remote_opts->remote_host_opts.auth_type;
+    d_interface.remote_opts.remote_host_opts.auth_username = g_strdup(remote_opts->remote_host_opts.auth_username);
+    d_interface.remote_opts.remote_host_opts.auth_password = g_strdup(remote_opts->remote_host_opts.auth_password);
+    d_interface.remote_opts.remote_host_opts.datatx_udp = remote_opts->remote_host_opts.datatx_udp;
+    d_interface.remote_opts.remote_host_opts.nocap_rpcap = remote_opts->remote_host_opts.nocap_rpcap;
+    d_interface.remote_opts.remote_host_opts.nocap_local = remote_opts->remote_host_opts.nocap_local;
+#ifdef HAVE_PCAP_SETSAMPLING
+    d_interface.remote_opts.sampling_method = remote_opts->sampling_method;
+    d_interface.remote_opts.sampling_param = remote_opts->sampling_param;
+#endif
+    icon = xpm_to_widget(capture_airpcap_16_xpm);
+    d_interface.icon = icon;
+    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
+    size = gtk_tree_model_iter_n_children(model, NULL);
+    lines = g_strdup_printf("%d", size-1);
+    g_array_append_val(interfaces, d_interface);
+    if (gtk_tree_model_get_iter_from_string(model, &iter, lines)) {
+        gtk_list_store_append (GTK_LIST_STORE(model), &iter);
+        gtk_list_store_set(GTK_LIST_STORE(model), &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, descr, IFACE_NAME, name, -1);
+    }
+}
+#endif
+
 /* list the interfaces */
 void
 welcome_if_tree_load(void)
 {
 #ifdef HAVE_LIBPCAP
-    if_info_t     *if_info;
-    GList         *if_list;
-    int err;
-    gchar         *err_str = NULL;
-    GList         *curr;
-    gchar         *user_descr;
-    GtkListStore  *store = NULL;
-    GtkTreeIter   iter;
-    GtkWidget     *icon, *view;
-    GtkTreeSelection *entry;
+    if_info_t           *if_info;
+    GList               *if_list;
+    int                 err;
+    guint               i;
+    gchar               *err_str = NULL;
+    GList               *curr;
+    gchar               *user_descr;
+    GtkListStore        *store = NULL;
+    GtkTreeIter         iter;
+    GtkWidget           *icon, *view;
+    GtkTreeSelection    *entry;
+    displayed_interface d_interface;
+
+    view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
+    entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
+    gtk_tree_selection_unselect_all(entry);
+    store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
 
     /* LOAD THE INTERFACES */
-    if_list = capture_interface_list(&err, &err_str);
-    if_list = g_list_sort (if_list, if_list_comparator_alph);
-    if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
-        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
-        g_free(err_str);
-        return;
-    } else if (err_str) {
-        g_free(err_str);
-    }
-    if (g_list_length(if_list) > 0) {
-        view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
-        entry = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
-        gtk_tree_selection_unselect_all(entry);
-        store = gtk_list_store_new(NUMCOLUMNS, GDK_TYPE_PIXBUF, G_TYPE_STRING, G_TYPE_STRING);
-        /* List the interfaces */
-        for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
-            if_info = curr->data;
-            /* Continue if capture device is hidden */
-            if (prefs_is_capture_device_hidden(if_info->name)) {
-                continue;
-            }
+    if (interfaces && interfaces->len > 0) {
+        for (i = 0; i < interfaces->len; i++) {
+            d_interface = g_array_index(interfaces, displayed_interface, i);
             gtk_list_store_append (store, &iter);
-
+            gtk_list_store_set (store, &iter, ICON, d_interface.icon, IFACE_DESCR, d_interface.descr, IFACE_NAME, d_interface.name, -1);
+        }
+    } else {
+        interfaces = g_array_new(TRUE, TRUE, sizeof(displayed_interface));
+        if_list = capture_interface_list(&err, &err_str);
+        if_list = g_list_sort (if_list, if_list_comparator_alph);
+        if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+            g_free(err_str);
+            return;
+        } else if (err_str) {
+            g_free(err_str);
+        }
+        if (g_list_length(if_list) > 0) {
+            /* List the interfaces */
+            for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
+                if_info = curr->data;
+                /* Continue if capture device is hidden */
+                if (prefs_is_capture_device_hidden(if_info->name)) {
+                    continue;
+                }
+                gtk_list_store_append (store, &iter);
+                d_interface.name = g_strdup(if_info->name);
+#ifdef HAVE_PCAP_REMOTE
+                d_interface.remote_opts.src_type = CAPTURE_IFLOCAL;
+#endif
 #ifdef HAVE_AIRPCAP
-            if (get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
-                icon = xpm_to_widget(capture_airpcap_16_xpm);
-            else
-                icon = capture_get_if_icon(if_info);
+                if (get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
+                    icon = xpm_to_widget(capture_airpcap_16_xpm);
+                else
+                    icon = capture_get_if_icon(if_info);
 #else
-            icon = capture_get_if_icon(if_info);
+                icon = capture_get_if_icon(if_info);
 #endif
-            user_descr = capture_dev_user_descr_find(if_info->name);
-            if (user_descr) {
+                d_interface.icon = icon;
+                user_descr = capture_dev_user_descr_find(if_info->name);
+                if (user_descr) {
 #ifndef _WIN32
-                gchar *comment = user_descr;
-                user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
-                g_free (comment);
+                    gchar *comment = user_descr;
+                    user_descr = g_strdup_printf("%s (%s)", comment, if_info->name);
+                    g_free (comment);
 #endif
-                gtk_list_store_set(store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, user_descr, IFACE_NAME, if_info->name, -1);
-                g_free (user_descr);
-            } else if (if_info->description) {
-                gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->description, IFACE_NAME, if_info->name, -1);
-            } else {
-                gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->name, IFACE_NAME, if_info->name, -1);
+                    gtk_list_store_set(store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, user_descr, IFACE_NAME, if_info->name, -1);
+                    d_interface.descr = g_strdup(user_descr);               
+                    g_free (user_descr);
+                } else if (if_info->description) {
+                    gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->description, IFACE_NAME, if_info->name, -1);
+                    d_interface.descr = g_strdup(if_info->description);
+                } else {
+                    gtk_list_store_set (store, &iter, ICON, gtk_image_get_pixbuf(GTK_IMAGE(icon)), IFACE_DESCR, if_info->name, IFACE_NAME, if_info->name, -1);
+                    d_interface.descr = g_strdup(if_info->name); 
+                }
+                g_array_append_val(interfaces, d_interface);
             }
         }
+        free_interface_list(if_list);
         gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
         if (global_capture_opts.ifaces->len > 0) {
             gtk_tree_model_foreach(GTK_TREE_MODEL(store), select_current_ifaces, (gpointer) entry);
@@ -902,7 +1006,6 @@ welcome_if_tree_load(void)
         }
         gtk_tree_selection_set_select_function(entry, on_selection_changed, NULL, NULL);
     }
-    free_interface_list(if_list);
 #endif  /* HAVE_LIBPCAP */
 }
 

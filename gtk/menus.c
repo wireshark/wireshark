@@ -5909,7 +5909,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 #ifdef HAVE_LIBPCAP
 #ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Options",
-                         !capture_in_progress && global_capture_opts.ifaces->len <= 1);
+                         !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Start",
                          !capture_in_progress);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Stop",
@@ -5918,7 +5918,7 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
                          capture_in_progress);
 #else /* MAIN_MENU_USE_UIMANAGER */
     set_menu_sensitivity_old("/Capture/Options...",
-                         (!capture_in_progress && global_capture_opts.ifaces->len <= 1));
+                         !capture_in_progress);
     set_menu_sensitivity_old("/Capture/Start",
                          !capture_in_progress);
     set_menu_sensitivity_old("/Capture/Stop",
@@ -5930,19 +5930,6 @@ set_menus_for_capture_in_progress(gboolean capture_in_progress)
 
     set_capture_if_dialog_for_capture_in_progress(capture_in_progress);
 #endif /* HAVE_LIBPCAP */
-}
-
-void set_menus_for_number_of_ifaces(void)
-{
-#ifdef HAVE_LIBPCAP
-#ifdef MAIN_MENU_USE_UIMANAGER
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/CaptureMenu/Options",
-                         global_capture_opts.ifaces->len <= 1);
-#else /* MAIN_MENU_USE_UIMANAGER */
-    set_menu_sensitivity_old("/Capture/Options...",
-                         global_capture_opts.ifaces->len <= 1);
-#endif
-#endif
 }
 
 /* Enable or disable menu items based on whether you have some captured

@@ -108,13 +108,16 @@ static GtkWidget *cap_if_w;
 
 static GList     *if_data_list = NULL;
 
-static guint      timer_id;
+static guint     timer_id;
 
 static GtkWidget *stop_bt, *capture_bt, *options_bt;
 
 static GList     *if_list;
 
-static guint   currently_selected = 0;
+static guint     currently_selected = 0;
+
+static if_stat_cache_t   *sc;
+
 /*
  * Timeout, in milliseconds, for reads from the stream of captured packets.
  */
@@ -182,12 +185,15 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
       
       for (i = 0; i < global_capture_opts.ifaces->len; i++) {
         if (strcmp(g_array_index(global_capture_opts.ifaces, interface_options, i).name, temp->if_info.name) == 0) {
-            found = TRUE;
+          found = TRUE;
           if (!temp->selected) {
             interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
             global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
             if (gtk_widget_is_focus(choose_bt) && get_welcome_window()) {
               change_interface_selection(interface_opts.name, FALSE);
+            }
+            if (gtk_widget_is_focus(choose_bt) && dlg_window_present()) {
+              enable_selected_interface(interface_opts.name, FALSE);
             }
             g_free(interface_opts.name);
             g_free(interface_opts.descr);
@@ -234,6 +240,9 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
         if (gtk_widget_is_focus(choose_bt) && get_welcome_window() != NULL) {
           change_interface_selection(g_strdup(temp->if_info.name), TRUE);
         }
+        if (gtk_widget_is_focus(choose_bt) && dlg_window_present()) {
+          enable_selected_interface(interface_opts.name, TRUE);
+        }
       }
       
       if (temp->selected)
@@ -249,9 +258,7 @@ store_selected(GtkWidget *choose_bt, gpointer if_data)
 #else
     gtk_widget_set_sensitive(capture_bt, !gbl_capture_in_progress && (currently_selected == 1));
 #endif
-    gtk_widget_set_sensitive(options_bt, !gbl_capture_in_progress && (currently_selected <= 1));
   }
-  set_menus_for_number_of_ifaces();
 }
 
 /* start capture button was pressed */
@@ -387,18 +394,16 @@ set_capture_if_dialog_for_capture_in_progress(gboolean capture_in_progress)
 #else
     gtk_widget_set_sensitive(capture_bt, !capture_in_progress && (currently_selected == 1));
 #endif
-    gtk_widget_set_sensitive(options_bt, !capture_in_progress && (currently_selected <= 1));
   }
 }
 
 
 /* the window was closed, cleanup things */
 static void
-capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data)
+capture_if_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
 {
     GList *curr;
     int ifs;
-    if_stat_cache_t *sc = user_data;
 
     g_source_remove(timer_id);
 
@@ -684,16 +689,16 @@ found:
 static void
 capture_if_stop_cb(GtkWidget *w _U_, gpointer d _U_)
 {
-    guint ifs;
-    GList *curr;
-    if_dlg_data_t *if_data;
+  guint ifs;
+  GList *curr;
+  if_dlg_data_t *if_data;
 
-    for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
-        curr = g_list_nth(if_data_list, ifs);
-        if_data = (if_dlg_data_t *)(curr->data);
-        gtk_widget_set_sensitive(if_data->choose_bt, TRUE);
-    }
-    capture_stop_cb(NULL, NULL);
+  for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
+    curr = g_list_nth(if_data_list, ifs);
+    if_data = (if_dlg_data_t *)(curr->data);
+    gtk_widget_set_sensitive(if_data->choose_bt, TRUE);
+  }
+  capture_stop_cb(NULL, NULL);
 }
 
 
@@ -726,7 +731,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   GString           *if_tool_str = g_string_new("");
   const gchar       *addr_str;
   gchar             *user_descr;
-  if_stat_cache_t   *sc;
   int               preselected = 0, i;
   interface_options interface_opts;
   gboolean      found = FALSE;
@@ -811,7 +815,6 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_scrolled_window_add_with_viewport(GTK_SCROLLED_WINDOW(main_sw), main_vb);
 
-
   if_tb = gtk_table_new(1,9, FALSE);
   gtk_table_set_row_spacings(GTK_TABLE(if_tb), 3);
   gtk_table_set_col_spacings(GTK_TABLE(if_tb), 3);
@@ -853,141 +856,139 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   /* List the interfaces */
   currently_selected = 0;
   for (ifs = 0; (curr = g_list_nth(if_list, ifs)); ifs++) {
-      g_string_assign(if_tool_str, "");
-      if_info = curr->data;
+    g_string_assign(if_tool_str, "");
+    if_info = curr->data;
 
-      /* Continue if capture device is hidden */
-      if (prefs_is_capture_device_hidden(if_info->name)) {
+    /* Continue if capture device is hidden */
+    if (prefs_is_capture_device_hidden(if_info->name)) {
+      continue;
+    }
+
+    if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
+
+    if (preselected > 0) {
+      found = FALSE;
+      for (i = 0; i < (gint)global_capture_opts.ifaces->len; i++) {
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+        if ((interface_opts.name == NULL) ||
+            (strcmp(interface_opts.name, (char*)if_info->name) != 0)) {
           continue;
-      }
-
-      if_dlg_data = g_malloc0(sizeof(if_dlg_data_t));
-
-      if (preselected > 0) {
-        found = FALSE;
-        for (i = 0; i < (gint)global_capture_opts.ifaces->len; i++) {
-          interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-          if ((interface_opts.name == NULL) ||
-              (strcmp(interface_opts.name, (char*)if_info->name) != 0))
-            continue;
-          else {
-            found = TRUE;
-            currently_selected++;
-            preselected--;
-            break;
-          }
+        } else {
+          found = TRUE;
+          currently_selected++;
+          preselected--;
+          break;
         }
-        if_dlg_data->selected = found;
       }
-      else
-        if_dlg_data->selected = FALSE;
+      if_dlg_data->selected = found;
+    } else {
+      if_dlg_data->selected = FALSE;
+    }
+    if_dlg_data->if_info = *if_info;
 
-      if_dlg_data->if_info = *if_info;
-
-      if_dlg_data->choose_bt = gtk_check_button_new();
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->choose_bt, 0, 1, row, row+1);
-      if (gbl_capture_in_progress) {
-          gtk_widget_set_sensitive(if_dlg_data->choose_bt, FALSE);
-      } else {
-          gtk_widget_set_sensitive(if_dlg_data->choose_bt, TRUE);
-      }
-      gtk_toggle_button_set_active((GtkToggleButton *)if_dlg_data->choose_bt, if_dlg_data->selected);
-      g_signal_connect(if_dlg_data->choose_bt, "toggled", G_CALLBACK(store_selected), if_dlg_data);
+    if_dlg_data->choose_bt = gtk_check_button_new();
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->choose_bt, 0, 1, row, row+1);
+    if (gbl_capture_in_progress) {
+      gtk_widget_set_sensitive(if_dlg_data->choose_bt, FALSE);
+    } else {
+      gtk_widget_set_sensitive(if_dlg_data->choose_bt, TRUE);
+    }
+    gtk_toggle_button_set_active((GtkToggleButton *)if_dlg_data->choose_bt, if_dlg_data->selected);
+    g_signal_connect(if_dlg_data->choose_bt, "toggled", G_CALLBACK(store_selected), if_dlg_data);
      /* Kind of adaptor (icon) */
 #ifdef HAVE_AIRPCAP
-      if (get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
-        icon = xpm_to_widget(capture_airpcap_16_xpm);
-      else
-        icon = capture_get_if_icon(if_info);
-#else
+    if (get_airpcap_if_from_name(airpcap_if_list,if_info->name) != NULL)
+      icon = xpm_to_widget(capture_airpcap_16_xpm);
+    else
       icon = capture_get_if_icon(if_info);
+#else
+    icon = capture_get_if_icon(if_info);
 #endif
-
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 1, 2, row, row+1);
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), icon, 1, 2, row, row+1);
 
       /* device name */
-      if_dlg_data->device_lb = gtk_label_new(if_info->name);
-      if_dlg_data->device = if_info->name;
+    if_dlg_data->device_lb = gtk_label_new(if_info->name);
+    if_dlg_data->device = if_info->name;
 #ifndef _WIN32
-      gtk_misc_set_alignment(GTK_MISC(if_dlg_data->device_lb), 0.0f, 0.5f);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->device_lb, 2, 4, row, row+1);
+    gtk_misc_set_alignment(GTK_MISC(if_dlg_data->device_lb), 0.0f, 0.5f);
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->device_lb, 2, 4, row, row+1);
 #endif
-      g_string_append(if_tool_str, "Device: ");
-      g_string_append(if_tool_str, if_info->name);
+    g_string_append(if_tool_str, "Device: ");
+    g_string_append(if_tool_str, if_info->name);
+    g_string_append(if_tool_str, "\n");
+
+    /* description */
+    user_descr = capture_dev_user_descr_find(if_info->name);
+    if (user_descr) {
+      if_dlg_data->descr_lb = gtk_label_new(user_descr);
+      g_free (user_descr);
+    } else {
+      if (if_info->description)
+        if_dlg_data->descr_lb = gtk_label_new(if_info->description);
+      else
+        if_dlg_data->descr_lb = gtk_label_new("");
+    }
+    gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0f, 0.5f);
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 4, 5, row, row+1);
+
+    if (if_info->description) {
+      g_string_append(if_tool_str, "Description: ");
+      g_string_append(if_tool_str, if_info->description);
       g_string_append(if_tool_str, "\n");
+    }
 
-      /* description */
-      user_descr = capture_dev_user_descr_find(if_info->name);
-      if (user_descr) {
-        if_dlg_data->descr_lb = gtk_label_new(user_descr);
-        g_free (user_descr);
-      } else {
-        if (if_info->description)
-          if_dlg_data->descr_lb = gtk_label_new(if_info->description);
-        else
-          if_dlg_data->descr_lb = gtk_label_new("");
-      }
-      gtk_misc_set_alignment(GTK_MISC(if_dlg_data->descr_lb), 0.0f, 0.5f);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->descr_lb, 4, 5, row, row+1);
+    /* IP address */
+    /* Only one IP address will be shown, start with the first */
+    g_string_append(if_tool_str, "IP: ");
+    if_dlg_data->ip_lb = gtk_label_new("");
+    addr_str = set_ip_addr_label (if_info->addrs, if_dlg_data->ip_lb, 0);
+    if (addr_str) {
+      gtk_widget_set_sensitive(if_dlg_data->ip_lb, TRUE);
+      g_string_append(if_tool_str, addr_str);
+    } else {
+      gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);
+      g_string_append(if_tool_str, "unknown");
+    }
+    eb = gtk_event_box_new ();
+    gtk_container_add(GTK_CONTAINER(eb), if_dlg_data->ip_lb);
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), eb, 5, 6, row, row+1);
+    if (get_ip_addr_count(if_info->addrs) > 1) {
+      /* More than one IP address, make it possible to toggle */
+      g_object_set_data(G_OBJECT(eb), CAPTURE_IF_IP_ADDR_LABEL, if_dlg_data->ip_lb);
+      g_signal_connect(eb, "enter-notify-event", G_CALLBACK(ip_label_enter_cb), NULL);
+      g_signal_connect(eb, "leave-notify-event", G_CALLBACK(ip_label_leave_cb), NULL);
+      g_signal_connect(eb, "button-press-event", G_CALLBACK(ip_label_press_cb), if_info->addrs);
+    }
+    g_string_append(if_tool_str, "\n");
 
-      if (if_info->description) {
-        g_string_append(if_tool_str, "Description: ");
-        g_string_append(if_tool_str, if_info->description);
-        g_string_append(if_tool_str, "\n");
-      }
+    /* packets */
+    if_dlg_data->curr_lb = gtk_label_new("-");
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->curr_lb, 6, 7, row, row+1);
 
-      /* IP address */
-      /* Only one IP address will be shown, start with the first */
-      g_string_append(if_tool_str, "IP: ");
-      if_dlg_data->ip_lb = gtk_label_new("");
-      addr_str = set_ip_addr_label (if_info->addrs, if_dlg_data->ip_lb, 0);
-      if (addr_str) {
-        gtk_widget_set_sensitive(if_dlg_data->ip_lb, TRUE);
-        g_string_append(if_tool_str, addr_str);
-      } else {
-        gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);
-        g_string_append(if_tool_str, "unknown");
-      }
-      eb = gtk_event_box_new ();
-      gtk_container_add(GTK_CONTAINER(eb), if_dlg_data->ip_lb);
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), eb, 5, 6, row, row+1);
-      if (get_ip_addr_count(if_info->addrs) > 1) {
-        /* More than one IP address, make it possible to toggle */
-        g_object_set_data(G_OBJECT(eb), CAPTURE_IF_IP_ADDR_LABEL, if_dlg_data->ip_lb);
-        g_signal_connect(eb, "enter-notify-event", G_CALLBACK(ip_label_enter_cb), NULL);
-        g_signal_connect(eb, "leave-notify-event", G_CALLBACK(ip_label_leave_cb), NULL);
-        g_signal_connect(eb, "button-press-event", G_CALLBACK(ip_label_press_cb), if_info->addrs);
-      }
-      g_string_append(if_tool_str, "\n");
+    /* packets/s */
+    if_dlg_data->last_lb = gtk_label_new("-");
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->last_lb, 7, 8, row, row+1);
 
-      /* packets */
-      if_dlg_data->curr_lb = gtk_label_new("-");
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->curr_lb, 6, 7, row, row+1);
-
-      /* packets/s */
-      if_dlg_data->last_lb = gtk_label_new("-");
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->last_lb, 7, 8, row, row+1);
-
-      /* details button */
+    /* details button */
 #ifdef _WIN32
-      if_dlg_data->details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
-      gtk_widget_set_tooltip_text(if_dlg_data->details_bt, "Open the capture details dialog of this interface.");
-      gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 8, 9, row, row+1);
-      if (capture_if_has_details(if_dlg_data->device)) {
-        g_signal_connect(if_dlg_data->details_bt, "clicked", G_CALLBACK(capture_details_cb), if_dlg_data);
-      } else {
-        gtk_widget_set_sensitive(if_dlg_data->details_bt, FALSE);
-      }
+    if_dlg_data->details_bt = gtk_button_new_from_stock(WIRESHARK_STOCK_CAPTURE_DETAILS);
+    gtk_widget_set_tooltip_text(if_dlg_data->details_bt, "Open the capture details dialog of this interface.");
+    gtk_table_attach_defaults(GTK_TABLE(if_tb), if_dlg_data->details_bt, 8, 9, row, row+1);
+    if (capture_if_has_details(if_dlg_data->device)) {
+      g_signal_connect(if_dlg_data->details_bt, "clicked", G_CALLBACK(capture_details_cb), if_dlg_data);
+    } else {
+      gtk_widget_set_sensitive(if_dlg_data->details_bt, FALSE);
+    }
 #endif
 
-      if_data_list = g_list_append(if_data_list, if_dlg_data);
-
-      row++;
-      if (row <= 10) {
+    if_data_list = g_list_append(if_data_list, if_dlg_data);
+    
+    row++;
+    if (row <= 10) {
         /* Lets add up 10 rows of interfaces, otherwise the window may become too high */
-        gtk_widget_get_preferred_size(GTK_WIDGET(if_dlg_data->choose_bt), &requisition, NULL);
-        height += requisition.height;
-      }
+      gtk_widget_get_preferred_size(GTK_WIDGET(if_dlg_data->choose_bt), &requisition, NULL);
+      height += requisition.height;
+    } 
   }
 
   g_string_free(if_tool_str, TRUE);
@@ -1010,7 +1011,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect(capture_bt, "clicked", G_CALLBACK(capture_do_cb), if_dlg_data);
   gtk_widget_get_preferred_size(GTK_WIDGET(close_bt), &requisition, NULL);
   /* height + static offset + what the GTK MS Windows Engine needs in addition per interface */
-  height += requisition.height + 20 + ifs;
+  height += requisition.height + 40 + ifs;
   gtk_window_set_default_size(GTK_WINDOW(cap_if_w), -1, height);
 
   gtk_widget_grab_default(close_bt);
@@ -1023,13 +1024,39 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
 
   set_capture_if_dialog_for_capture_in_progress(gbl_capture_in_progress);
 
-    /* update the interface list every 1000ms */
+  /* update the interface list every 1000ms */
   timer_id = g_timeout_add(1000, update_all, sc);
 }
 
-GtkWidget* get_interfaces_dialog_window(void)
+gboolean interfaces_dialog_window_present(void)
 {
-  return cap_if_w;
+  return (cap_if_w?TRUE:FALSE);
+}
+
+void refresh_if_window(void)
+{
+  capture_if_destroy_cb(NULL, NULL);
+  capture_if_cb(NULL, NULL);
+}
+
+void select_all_interfaces(gboolean enable)
+{
+  if_dlg_data_t *temp;
+  guint ifs;
+  GList *curr;
+
+  for (ifs = 0; ifs < g_list_length(if_data_list); ifs++) {
+    curr = g_list_nth(if_data_list, ifs);
+    temp = (if_dlg_data_t *)(curr->data);
+    update_selected_interface(temp->if_info.name, enable);
+ } 
+}
+
+void destroy_if_window(void)
+{
+  if (cap_if_w) {
+    window_destroy(cap_if_w);
+  }
 }
 #else /* HAVE_LIBPCAP */
 

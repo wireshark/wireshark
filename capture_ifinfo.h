@@ -91,4 +91,6 @@ capture_get_if_capabilities(const char *devname, gboolean monitor_mode,
 
 void free_if_capabilities(if_capabilities_t *caps);
 
+void add_interface_to_remote_list(if_info_t *if_info);
+
 #endif /* __CAPTURE_IFINFO_H__ */

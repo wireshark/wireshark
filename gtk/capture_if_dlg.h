@@ -53,8 +53,17 @@ capture_get_if_icon(const if_info_t* if_info);
 void
 update_selected_interface(gchar *name, gboolean activate);
 
-GtkWidget *
-get_interfaces_dialog_window(void);
+gboolean
+interfaces_dialog_window_present(void);
+
+void
+refresh_if_window(void);
+
+void
+select_all_interfaces(gboolean enable);
+
+void
+destroy_if_window(void);
 
 #endif /* HAVE_LIBPCAP */
 
