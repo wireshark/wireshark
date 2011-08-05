@@ -406,8 +406,8 @@ static int
 dissect_old_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   tvbuff_t *next_tvb;
-  proto_tree *pflog_tree;
-  proto_item *ti;
+  proto_tree *pflog_tree = NULL;
+  proto_item *ti = NULL;
   guint32 af;
   guint8 *ifname;
   guint16 rnr, action;
