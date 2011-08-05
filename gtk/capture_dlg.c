@@ -764,7 +764,7 @@ void insert_new_rows(GList *list)
           link_row *link = NULL;
 #ifdef HAVE_PCAP_CREATE
           row.monitor_mode = FALSE;
-#endif  
+#endif
           for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
             link = (link_row *)g_malloc(sizeof(link_row));
             data_link_info = lt_entry->data;
@@ -836,7 +836,7 @@ void insert_new_rows(GList *list)
         count++;
         g_string_free(ip_str, TRUE);
 #ifdef HAVE_PCAP_REMOTE
-		add_interface_to_list(if_info->name, if_info->description, &row.remote_opts);
+        add_interface_to_list(if_info->name, if_info->description, &row.remote_opts);
 #endif
       } /*for*/
     }
@@ -1680,7 +1680,8 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   update_options_table(marked_row);
 }
 
-static void 
+#if 0
+static void
 activate_snaplen (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
                               GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data _U_)
 {
@@ -1692,6 +1693,7 @@ activate_snaplen (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
   link_row = g_array_index(rows, interface_row, index);
   gtk_cell_renderer_set_sensitive(renderer, link_row.has_snaplen);
 }
+#endif
 
 static void
 adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
@@ -2569,8 +2571,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   column = gtk_tree_view_column_new_with_attributes (title->str, renderer, "text", SNAPLEN, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_alignment(column, 0.5);
+#if 0
   gtk_cell_renderer_set_sensitive(renderer, FALSE);
   gtk_tree_view_column_set_cell_data_func(column, renderer, activate_snaplen, NULL, FALSE);
+#endif
   g_string_free(title, TRUE);
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   renderer = gtk_cell_renderer_text_new ();
