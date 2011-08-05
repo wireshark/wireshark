@@ -72,6 +72,8 @@
 #include "airpcap.h"
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
+#endif
+#if defined(HAVE_AIRPCAP) || defined(HAVE_PCAP_REMOTE)
 #include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
 
