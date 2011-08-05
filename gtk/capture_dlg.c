@@ -2186,7 +2186,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     }
   } 
   if (!found && enabled) {
-    interface_opts.name = strdup(row.name);
+    interface_opts.name = g_strdup(row.name);
     interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
     interface_opts.linktype = row.active_dlt;
     interface_opts.promisc_mode = row.pmode;
