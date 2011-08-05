@@ -373,6 +373,13 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
     { 0, "Bitmap Type Reporting" },
     { 0, "3G Supplementary Parameters Description" },
     { 0, "UTRAN Measurement Control Parameters" },
+    { 0, "EGPRS Packet Uplink Assignment" },
+    { 0, "Multiple Blocks Packet Downlink Assignment" },
+    { 0, "Temporary Mobile Group Identity (TMGI)" },
+    { 0, "Packet Timing Advance" },
+    { 0, "Packet Uplink Assignment" },
+    { 0, "Packet Downlink Assignment" },
+    { 0, "Second Part Packet Assignment" },
     { 0, NULL }
 };
 
@@ -693,6 +700,35 @@ static int hf_gsm_a_rr_mean_bep_gmsk = -1;
 static int hf_gsm_a_rr_mean_cv_bep = -1;
 static int hf_gsm_a_rr_nbr_rcvd_blocks = -1;
 static int hf_gsm_a_rr_reporting_quantity = -1;
+static int hf_gsm_a_rr_extended_ra = -1;
+static int hf_gsm_a_rr_access_tech_type = -1;
+static int hf_gsm_a_rr_tfi_assignment = -1;
+static int hf_gsm_a_rr_polling = -1;
+static int hf_gsm_a_rr_usf = -1;
+static int hf_gsm_a_rr_usf_granularity = -1;
+static int hf_gsm_a_rr_p0 = -1;
+static int hf_gsm_a_rr_pr_mode = -1;
+static int hf_gsm_a_rr_egprs_mcs = -1;
+static int hf_gsm_a_rr_tlli_block_channel_coding = -1;
+static int hf_gsm_a_rr_bep_period2 = -1;
+static int hf_gsm_a_rr_resegment = -1;
+static int hf_gsm_a_rr_egprs_window_size = -1;
+static int hf_gsm_a_rr_gamma = -1;
+static int hf_gsm_a_rr_timing_adv_index = -1;
+static int hf_gsm_a_rr_timing_adv_timeslot_num = -1;
+static int hf_gsm_a_rr_tbf_starting_time = -1;
+static int hf_gsm_a_rr_num_of_radio_block_allocated = -1;
+static int hf_gsm_a_rr_pfi = -1;
+static int hf_gsm_a_rr_mbms_service_id = -1;
+static int hf_gsm_a_rr_ms_id = -1;
+static int hf_gsm_a_rr_gprs_cs = -1;
+static int hf_gsm_a_rr_rlc_mode = -1;
+static int hf_gsm_a_rr_ta_valid = -1;
+static int hf_gsm_a_rr_link_quality_meas_mode = -1;
+
+
+
+
 /* Additions in Rel-8 */
 static int hf_gsm_a_rr_3g_priority_param_desc_utran_start = -1;
 static int hf_gsm_a_rr_3g_priority_param_desc_utran_stop = -1;
@@ -816,6 +852,13 @@ typedef enum
     DE_RR_REST_OCTETS_BITMAP_TYPE_REPORTING,
     DE_RR_REST_OCTETS_3G_SUPPLEMENTARY_PARAM_DESC,
     DE_RR_REST_OCTETS_UTRAN_MEASUREMENT_CONTROL_PARAM_DESC,
+    DE_RR_REST_OCTETS_EGPRS_PACKET_UPLINK_ASSIGNMENT,
+    DE_RR_REST_OCTETS_MULTIPLE_BLOCKS_PACKET_DOWNLINK_ASSIGNMENT,
+    DE_RR_REST_OCTETS_TMGI,
+    DE_RR_REST_OCTETS_PACKET_TIMING_ADVANCE,
+    DE_RR_REST_OCTETS_PACKET_UPLINK_ASSIGNMENT,
+    DE_RR_REST_OCTETS_PACKET_DOWNLINK_ASSIGNMENT,
+    DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT,
     DE_RR_REST_OCTETS_NONE
 }
 rr_rest_octets_elem_idx_t;
@@ -2536,6 +2579,733 @@ de_rr_ho_ref(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 
     return(curr_offset - offset);
 }
+
+static const value_string gsm_a_access_tech_type_vals[] = {
+    { 0, "GSM P"},
+    { 1, "GSM E --note that GSM E covers GSM P"},
+    { 2, "GSM R --note that GSM R covers GSM E and GSM P"},
+    { 3, "GSM 1800"},
+    { 4, "GSM 1900"},
+    { 5, "GSM 450"},
+    { 6, "GSM 480"},
+    { 7, "GSM 850"},
+    { 8, "GSM 750"},
+    { 9, "GSM T 380"},
+    { 10, "GSM T 410"},
+    { 11, "GSM T 900"},
+    { 12, "GSM 710"},
+    { 13, "GSM T 810"},
+    { 14, "reserved"},
+    { 15, "Indicates the presence of a list of Additional access technologies"},
+    { 0, NULL }
+};
+
+
+static const value_string gsm_a_egprs_mcs_vals[] = {
+    { 0, "MCS-1"},
+    { 1, "MCS-2"},
+    { 2, "MCS-3"},
+    { 3, "MCS-4"},
+    { 4, "MCS-5"},
+    { 5, "MCS-6"},
+    { 6, "MCS-7"},
+    { 7, "MCS-8"},
+    { 8, "MCS-9"},
+    { 9, "MCS-5-7"},
+    { 10, "MCS-6-9"},
+    { 11, "reserved"},
+    { 0, NULL }
+};
+
+static const value_string gsm_a_gprs_cs_vals[] = {
+    { 0, "CS-1"},
+    { 1, "CS-2"},
+    { 2, "CS-3"},
+    { 3, "CS-4"},
+    { 0, NULL }
+};
+
+
+static const true_false_string gsm_a_tlli_block_channel_coding_vals = {
+    "mobile station shall use coding scheme as specified by the corresponding CHANNEL CODING COMMAND or EGPRS CHANNEL CODING COMMAND field",
+    "mobile station shall use CS-1 in GPRS TBF mode or MCS-1 in EGPRS TBF mode"
+};
+
+static const true_false_string gsm_a_resegment_vals = {
+    "Retransmitted RLC data blocks shall be re-segmented according to commanded MCS",
+    "Retransmitted RLC data blocks shall not be re-segmented"
+};
+
+static const true_false_string gsm_a_polling_vals = {
+    "MS shall send a PACKET CONTROL ACKNOWLEDGEMENT message in the uplink block specified by TBF Starting Time, on the assigned PDCH",
+    "no action is required from MS"
+};
+
+static const true_false_string gsm_a_usf_granularity_vals = {
+    "the mobile station shall transmit four consecutive RLC/MAC blocks",
+    "the mobile station shall transmit one RLC/MAC block"
+};
+
+static const true_false_string gsm_a_rlc_mode_vals = {
+    "RLC unacknowledged mode",
+    "RLC acknowledged mode"
+};
+
+static const true_false_string gsm_a_ta_valid_vals = {
+    "the timing advance value is valid",
+    "the timing advance value is not valid"
+};
+
+
+
+static const value_string gsm_a_egprs_windows_size_vals[] = {
+    { 0, "64"},
+    { 1, "96"},
+    { 2, "128"},
+    { 3, "160"},
+    { 4, "192"},
+    { 5, "224"},
+    { 6, "256"},
+    { 7, "288"},
+    { 8, "320"},
+    { 9, "352"},
+    { 10, "384"},
+    { 11, "416"},
+    { 12, "448"},
+    { 13, "480"},
+    { 14, "512"},
+    { 15, "544"},
+    { 16, "576"},
+    { 17, "608"},
+    { 18, "640"},
+    { 19, "672"},
+    { 20, "704"},
+    { 21, "736"},
+    { 22, "768"},
+    { 23, "800"},
+    { 24, "832"},
+    { 25, "864"},
+    { 26, "896"},
+    { 27, "928"},
+    { 28, "960"},
+    { 29, "992"},
+    { 30, "1024"},
+    { 31, "reserved"},
+    { 0, NULL }
+};
+
+static const value_string gsm_a_rr_gamma_vals[] = {
+    {  0, "0 dB"},
+    {  1, "2 dB"},
+    {  2, "4 dB"},
+    {  3, "6 dB"},
+    {  4, "8 dB"},
+    {  5, "10 dB"},
+    {  6, "12 dB"},
+    {  7, "14 dB"},
+    {  8, "16 dB"},
+    {  9, "18 dB"},
+    { 10, "20 dB"},
+    { 11, "22 dB"},
+    { 12, "24 dB"},
+    { 13, "26 dB"},
+    { 14, "28 dB"},
+    { 15, "30 dB"},
+    { 16, "32 dB"},
+    { 17, "34 dB"},
+    { 18, "36 dB"},
+    { 19, "38 dB"},
+    { 20, "40 dB"},
+    { 21, "42 dB"},
+    { 22, "44 dB"},
+    { 23, "46 dB"},
+    { 24, "48 dB"},
+    { 25, "50 dB"},
+    { 26, "52 dB"},
+    { 27, "54 dB"},
+    { 28, "56 dB"},
+    { 29, "58 dB"},
+    { 30, "60 dB"},
+    { 31, "62 dB"},
+    {  0, NULL }
+};
+
+
+
+static const value_string gsm_a_link_quality_meas_mode_vals[] = {
+    {  0, "The MS shall not report either interference measurements or per slot BEP measurements"},
+    {  1, "The MS shall report available interference measurements for timeslots 0 through 7"},
+    {  2, "The MS shall report mean BEP on each assigned time slot ... No interference measurements shall be reported..."},
+    {  3, "The MS shall report mean BEP on each assigned time slot ... In addition to mean BEP, the MS shall report interference measurements for no more than four time slots..."},
+    {  0, NULL }
+};
+
+
+static gint
+de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+    gboolean    flag;
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EGPRS_PACKET_UPLINK_ASSIGNMENT].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EGPRS_PACKET_UPLINK_ASSIGNMENT]);
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, FALSE);
+    curr_bit_offset += 5;
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    while ( value )
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_access_tech_type, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+    }
+
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_polling, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        /* this bit is 0;  The value '1' was allocated in an earlier version of the protocol and shall not be used */
+        curr_bit_offset += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf_granularity, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_mcs, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli_block_channel_coding, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bep_period2, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }        
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_resegment, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_window_size, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }  
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
+            curr_bit_offset += 16;
+        }  
+    }
+    else  /*  Multi Block Allocation */
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
+        curr_bit_offset += 16;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_num_of_radio_block_allocated, tvb, curr_bit_offset, 2, FALSE);
+        curr_bit_offset += 2;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+            /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
+            curr_bit_offset += 1;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        } 
+        flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+        curr_bit_offset += 1;
+        if (flag)
+        {
+            value = tvb_get_bits8(tvb,curr_bit_offset,1);
+            curr_bit_offset += 1;
+            if (value)
+            {
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pfi, tvb, curr_bit_offset, 7, FALSE);
+                curr_bit_offset += 7;
+            }
+        }
+	}
+    
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
+static gint
+de_rr_ia_rest_oct_tmgi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+    guint16     value16;
+    gchar       mcc[4];
+    gchar       mnc[4];
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_TMGI].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_TMGI]);
+
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value == 0)   /*  without MCC and MNC parameters */
+    {        
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_mbms_service_id, tvb, curr_bit_offset, 24, FALSE);
+        curr_bit_offset += 24;
+    }
+    else   /* with MCC and MNC parameters */
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_mbms_service_id, tvb, curr_bit_offset, 24, FALSE);
+        curr_bit_offset += 24;
+
+        value16 = tvb_get_bits16(tvb,curr_bit_offset,12,FALSE);
+        mcc[0] = '0' + ((value16>>8)&0xf);
+        mcc[1] = '0' + ((value16>>4)&0xf);
+        mcc[2] = '0' + ((value16   )&0xf);
+        mcc[3] = '\0';
+        proto_tree_add_text(tree,
+            tvb, curr_bit_offset>>3, 12,
+            "Mobile Country Code (MCC): %s",
+            mcc);
+        curr_bit_offset += 12;
+        
+        value16 = tvb_get_bits16(tvb,curr_bit_offset,12,FALSE);
+        mnc[0] = '0' + ((value16>>8)&0xf);
+        mnc[1] = '0' + ((value16>>4)&0xf);
+        mnc[2] = '0' + ((value16   )&0xf);
+        mnc[3] = '\0';
+        proto_tree_add_text(tree,
+            tvb, curr_bit_offset>>3, 12,
+            "Mobile Network Code (MNC): %s",
+            mnc);
+        curr_bit_offset += 12;
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
+
+static gint
+de_rr_ia_rest_oct_packet_timing_advance(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{   
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PACKET_TIMING_ADVANCE].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PACKET_TIMING_ADVANCE]);
+
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv, tvb, curr_bit_offset, 6, FALSE);
+        curr_bit_offset += 6;
+    }
+
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_timeslot_num, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+    }
+
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
+
+static gint
+de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_MULTIPLE_BLOCKS_PACKET_DOWNLINK_ASSIGNMENT].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_MULTIPLE_BLOCKS_PACKET_DOWNLINK_ASSIGNMENT]);
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
+    curr_bit_offset += 16;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_num_of_radio_block_allocated, tvb, curr_bit_offset, 4, FALSE);
+    curr_bit_offset += 4;
+
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value == 0)  /* MBMS Assignment (Distribution) */
+        {
+            curr_bit_offset += de_rr_ia_rest_oct_tmgi(tvb, tree, curr_bit_offset);
+        }
+        else   /* MBMS Assignment (Non-distribution) */
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli, tvb, curr_bit_offset, 32, FALSE);
+            curr_bit_offset += 32;
+            value = tvb_get_bits8(tvb,curr_bit_offset,1);
+            curr_bit_offset += 1;
+            if (value)
+            {
+                value = tvb_get_bits8(tvb,curr_bit_offset,2);
+                proto_tree_add_text(tree,
+                    tvb, curr_bit_offset>>3, 2,
+                    "Length Indicator of MS ID: %d",
+                    value);
+                curr_bit_offset += 2;
+                
+                proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ms_id, tvb, curr_bit_offset, value+1, FALSE);
+                curr_bit_offset += value+1;
+                curr_bit_offset += de_rr_ia_rest_oct_packet_timing_advance(tvb, tree, curr_bit_offset);
+                value = tvb_get_bits8(tvb,curr_bit_offset,1);
+                curr_bit_offset += 1;
+                if (value)
+                {
+                    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
+                    curr_bit_offset += 4;
+                    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+                    curr_bit_offset += 1;
+                    if (value)
+                    {
+                        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, FALSE);
+                        curr_bit_offset += 5;
+                    }
+                }
+            }
+        }
+    }
+ 
+    
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
+
+
+static gint
+de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+    gboolean    flag;
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PACKET_UPLINK_ASSIGNMENT].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PACKET_UPLINK_ASSIGNMENT]);
+
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_polling, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
+        curr_bit_offset += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_usf_granularity, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gprs_cs, tvb, curr_bit_offset, 2, FALSE);
+        curr_bit_offset += 2;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli_block_channel_coding, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
+            curr_bit_offset += 16;
+        }
+    }
+    else  /* Single Block Allocation */
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        /* fixed bits '01' */
+        curr_bit_offset += 2;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
+        curr_bit_offset += 16;
+        flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+        curr_bit_offset += 1;
+        if (flag)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+            /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
+            curr_bit_offset += 1;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, FALSE);
+            curr_bit_offset += 1;
+        }
+    }
+
+    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+    curr_bit_offset += 1;
+    if (flag)
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+    }
+
+    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+    curr_bit_offset += 1;
+    if (flag)
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pfi, tvb, curr_bit_offset, 7, FALSE);
+            curr_bit_offset += 7;
+        }
+    }
+                
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
+static gint
+de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+    gboolean    flag;
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_PACKET_DOWNLINK_ASSIGNMENT].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_PACKET_DOWNLINK_ASSIGNMENT]);
+
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli, tvb, curr_bit_offset, 32, FALSE);
+    curr_bit_offset += 32;
+    
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tfi_assignment, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_rlc_mode, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_alpha, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_gamma, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_polling, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ta_valid, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;   
+    }
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+    }
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
+        curr_bit_offset += 16;
+    }
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
+    if (value)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_p0, tvb, curr_bit_offset, 4, FALSE);
+        curr_bit_offset += 4;
+        /* The value '1' was allocated in an earlier version of the protocol and shall not be used */
+        curr_bit_offset += 1;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, FALSE);
+        curr_bit_offset += 1;
+    }
+
+    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+    curr_bit_offset += 1;
+    if (flag)
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_window_size, tvb, curr_bit_offset, 5, FALSE);
+        curr_bit_offset += 5;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_link_quality_meas_mode, tvb, curr_bit_offset, 2, FALSE);
+        curr_bit_offset += 2;
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bep_period2, tvb, curr_bit_offset, 4, FALSE);
+            curr_bit_offset += 4;
+        }
+    }
+
+    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+    curr_bit_offset += 1;
+    if (flag)
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pfi, tvb, curr_bit_offset, 7, FALSE);
+            curr_bit_offset += 7;
+        }
+    }
+                
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
+
+
+
+static gint
+de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint        curr_bit_offset;
+    guint8      value;
+    gboolean    flag;
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT]);
+    
+    flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
+    curr_bit_offset += 1;
+    if (flag)
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+    }
+                
+    proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
+
+    return (curr_bit_offset - bit_offset);
+}
+
+
 /*
  * [3] 10.5.2.16 IA Rest Octets
  */
@@ -2546,6 +3316,11 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_tree  *subtree;
     proto_item  *item;
     guint32      curr_offset;
+    gint         bit_offset;
+	gint         length;
+    guint8       value;
+    gboolean     flag;
+    guint64      ma_length;
 
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
@@ -2560,9 +3335,100 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IA_REST_OCT]);
 
-    proto_tree_add_text(subtree,tvb, curr_offset, len ,"Data(Not decoded)");
-
-    curr_offset = curr_offset + len;
+    bit_offset = curr_offset << 3;
+    flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
+    bit_offset += 1;
+    if (flag == FALSE)
+    {
+        flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
+        bit_offset += 1;
+        if (flag == FALSE)  /* LL */
+        {
+            flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
+            bit_offset += 1;
+            if (flag)
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall be used");
+            else
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall not be used");
+        }
+        else   /* LH */
+        {
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            if (value == 0)
+            {
+                value = tvb_get_bits8(tvb,bit_offset,1);
+                bit_offset += 1;
+                if (value == 0)
+                {   
+                    bit_offset += de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvb, tree, bit_offset);
+                }
+                else
+                {
+                    bit_offset += de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvb, tree, bit_offset);
+                }
+            }
+            else
+            {
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "reserved for future use (however the value 7C for the first octet shall not be used)");
+            }
+        }
+    }
+    else
+    {
+        flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
+        bit_offset += 1;
+        if (flag == FALSE)  /* HL */
+        {
+            proto_tree_add_bits_ret_val(subtree, hf_gsm_a_rr_ma_length, tvb, bit_offset, 6, &ma_length, FALSE);
+            bit_offset += 6;
+            if (ma_length>0)
+            {
+                /* two '0' bits */
+                bit_offset += 2;
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "MAIO: %d", tvb_get_bits8(tvb,bit_offset,6));
+                bit_offset += 6;
+                length = (gint)ma_length;
+				item = proto_tree_add_text(subtree,tvb, bit_offset>>3, (length>>3)-1, "MA Bitmap: ");
+                length = (length-1)*8;
+                while (length)
+                {
+                    proto_item_append_text(item,"%d",tvb_get_bits8(tvb,bit_offset,1));
+                    bit_offset += 1;
+                    length -= 1;
+                }
+            }
+            flag = gsm_a_rr_is_bit_high(tvb,bit_offset);
+            bit_offset += 1;
+            if (flag)
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall be used");
+            else
+                proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall not be used");
+        }
+        else   /* HH */
+        {
+            value = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            if (value == 0)
+            {
+                value = tvb_get_bits8(tvb,bit_offset,1);
+                bit_offset += 1;
+                if (value == 0)  /* 00  < Packet Uplink Assignment > */
+                {
+                    bit_offset += de_rr_ia_rest_oct_packet_uplink_assignment(tvb, tree, bit_offset);
+                }
+                else  /*  01     < Packet Downlink Assignment >  */
+                {
+                    bit_offset += de_rr_ia_rest_oct_packet_downlink_assignment(tvb, tree, bit_offset);
+                }
+            }
+            else  /*  1       < Second Part Packet Assignment >   */
+            {
+                bit_offset += de_rr_ia_rest_oct_second_part_packet_assignment(tvb, tree, bit_offset);
+            }
+        }
+    }
+    curr_offset = (bit_offset>>3)+1;
 
     return curr_offset-offset;
 }
@@ -11688,6 +12554,132 @@ proto_register_gsm_a_rr(void)
                 FT_BOOLEAN, BASE_DEC, TFS(&measurement_control_utran), 0x00,
                 NULL, HFILL }
             },
+            { &hf_gsm_a_rr_extended_ra,
+              { "Extended_RA", "gsm_a.rr.extended_ra",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_access_tech_type,
+              { "Access_Technology_Type", "gsm_a.rr.access_tech_type",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_access_tech_type_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_tfi_assignment,
+              { "TFI_Assignment", "gsm_a.rr.tfi_assignment",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_polling,
+              { "Polling", "gsm_a.rr.polling",
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_polling_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_usf,
+              { "USF", "gsm_a.rr.usf",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_usf_granularity,
+              { "USF_granularity", "gsm_a.rr.usf_granularity",
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_usf_granularity_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_p0,
+              { "P0", "gsm_a.rr.p0",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_pr_mode,
+              { "pr_mode", "gsm_a.rr.pr_mode",
+                FT_BOOLEAN, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_egprs_mcs,
+              { "Egprs_Modulation_and_Coding_Scheme", "gsm_a.rr.egprs_mcs",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_egprs_mcs_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_tlli_block_channel_coding,
+              { "TLLI_Block_Channel_Coding", "gsm_a.rr.tlli_block_cs",
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_tlli_block_channel_coding_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_bep_period2,
+              { "Bep_Period2", "gsm_a.rr.bep_period2",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_resegment,
+              { "Resegment", "gsm_a.rr.resegment",
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_resegment_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_egprs_window_size,
+              { "Egprs_Windows_Size", "gsm_a.rr.egprs_win_size",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_egprs_windows_size_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_gamma,
+              { "Gamma", "gsm_a.rr.gamma",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_rr_gamma_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_timing_adv_index,
+              { "Timing_Advance_Index", "gsm_a.rr.timing_adv_idx",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_tbf_starting_time,
+              { "TBF_Starting_Time", "gsm_a.rr.tvf_start_time",
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_num_of_radio_block_allocated,
+              { "Number_of_Radio_Block_Allocated", "gsm_a.rr.num_of_radio_blk_allocated",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_pfi,
+              { "PFI", "gsm_a.rr.pfi",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_mbms_service_id,
+              { "MBMS_Service_ID", "gsm_a.rr.mbms_service_id",
+                FT_UINT32, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ms_id,
+              { "MS_ID", "gsm_a.rr.ms_id",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_timing_adv_timeslot_num,
+              { "Timing_Advance_Timeslot_Number", "gsm_a.rr.timing_adv_ts",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_gprs_cs,
+              { "Channel_Coding_Command", "gsm_a.rr.gprs_cs",
+                FT_UINT8, BASE_DEC, VALS(gsm_a_gprs_cs_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_rlc_mode,
+              { "RLC_Mode", "gsm_a.rr.rlc_mode",
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_rlc_mode_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_ta_valid,
+              { "TA_Valid", "gsm_a.rr.ta_valid",
+                FT_BOOLEAN, BASE_DEC, TFS(&gsm_a_ta_valid_vals), 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_link_quality_meas_mode,
+              { "Link_Quality_Measure_Mode", "gsm_a.rr.link_qual_meas_mode",
+                FT_UINT8, BASE_DEC, VALS(&gsm_a_link_quality_meas_mode_vals), 0x00,
+                NULL, HFILL }
+            },
+            
         };
 
     static hf_register_info hf_sacch[] =
