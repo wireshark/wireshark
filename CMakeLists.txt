@@ -243,6 +243,9 @@ if(BUILD_wireshark)
 		set(GTK2_FIND_VERSION 2.12)
 		set(GTK2_DEBUG false)
 	endif()
+	if(ENABLE_THREADS)
+		set(PACKAGELIST ${PACKAGELIST} GTHREAD2)
+	endif()
 endif()
 
 if(BUILD_dumpcap)
@@ -667,6 +670,9 @@ if(BUILD_wireshark AND GTK_FOUND)
 		${APPLE_CORE_SERVICES_LIBRARY}
 		${APPLE_COCOA_LIBRARY}
 	)
+	if(ENABLE_THREADS)
+		set(wireshark_LIBS ${wireshark_LIBS} ${GTHREAD2_LIBRARIES})
+	endif()
 	set(wireshark_FILES
 		airpcap_loader.c
 		alert_box.c
