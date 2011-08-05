@@ -937,6 +937,8 @@ sctp_graph_draw(struct sctp_udata *u_data)
 	}
 	else if ((u_data->dir==1 && u_data->assoc->n_array_tsn1==0) || (u_data->dir==2 && u_data->assoc->n_array_tsn2==0))
 		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
+
+	g_object_unref(G_OBJECT(layout));
 }
 
 /* This function is used to change the title
@@ -1508,6 +1510,9 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			cairo_destroy (cr);
 		}
 	}
+
+	g_object_unref(G_OBJECT(layout));
+
 	return TRUE;
 }
 

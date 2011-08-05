@@ -616,6 +616,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	}
 	else
 		simple_dialog(ESD_TYPE_INFO, ESD_BTN_OK, "No Data Chunks sent");
+
+	g_object_unref(G_OBJECT(layout));
 }
 
 
@@ -1114,6 +1116,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 
 		}
 	}
+	g_object_unref(G_OBJECT(layout));
 	return TRUE;
 }
 
@@ -1183,6 +1186,7 @@ static void init_sctp_graph_window(struct sctp_udata *u_data)
 	gtk_widget_set_events(u_data->io->draw_area, GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_EXPOSURE_MASK);
 	/* dlg_set_cancel(u_data->io->window, bt_close); */
 
+	g_object_unref(G_OBJECT(layout));
 
 	gtk_widget_show(u_data->io->window);
 }

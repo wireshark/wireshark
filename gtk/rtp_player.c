@@ -1420,6 +1420,7 @@ static void channel_draw(rtp_channel_info_t* rci)
 
 			progbar_count++;
 		}
+		g_object_unref(G_OBJECT(small_layout));
 	}
 
 }
