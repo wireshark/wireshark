@@ -3509,8 +3509,11 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (p_mac_lte_info->isPredefinedData) {
         proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, FALSE);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo,
-                                 "Predefined data (%u bytes)",
-                                 tvb_length_remaining(tvb, offset));
+                                 "Predefined data (%u bytes%s)",
+                                 p_mac_lte_info->length,
+                                 (p_mac_lte_info->length > tvb_length_remaining(tvb, offset) ?
+                                     " - truncated" :
+                                     ""));
 
         /* Queue tap info */
         if (!pinfo->in_error_pkt) {
