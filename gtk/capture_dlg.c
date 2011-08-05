@@ -2624,12 +2624,10 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(all_hb), left_vb, TRUE, TRUE, 0);
 
-#if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
-  /* Avoid adding the right vbox if not needed, because it steals 3 pixels */
   right_vb = gtk_vbox_new(FALSE, 3);
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(all_hb), right_vb, FALSE, FALSE, 3);
-#endif
+
   all_cb = gtk_check_button_new_with_mnemonic(
       "Capture on all interfaces");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_cb),
@@ -2656,7 +2654,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "If you want to set this option on a per interface basis, unmark this button and set the "
     "option individually."
     "See the FAQ for some more details of capturing packets from a switched network.");
-#if defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
+#if defined (HAVE_PCAP_REMOTE)
   gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
 #else
   gtk_container_add(GTK_CONTAINER(right_vb), promisc_cb);
