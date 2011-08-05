@@ -851,6 +851,7 @@ proto_tree_children_foreach
 proto_tree_get_parent
 proto_tree_get_root
 proto_tree_move_item
+proto_tree_set_appendix
 protocols_module                DATA
 ptvcursor_new
 ptvcursor_add
