@@ -1717,7 +1717,10 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
 {
   GtkWidget     *caller, *window,
                 *main_vb, *if_hb, *if_lb, *if_lb_name,
-                *main_hb, *left_vb, *right_vb,
+                *main_hb, *left_vb,
+#if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
+                *right_vb,
+#endif
                 *capture_fr, *capture_vb,
                 *if_ip_hb, *if_ip_lb, *if_ip_eb,
                 *linktype_hb, *linktype_lb, *linktype_combo_box,
