@@ -51,141 +51,147 @@ ELSE (GLIB2_LIBRARIES AND GLIB2_INCLUDE_DIRS )
     ENDIF ( GLIB2_FOUND )
   ENDIF ( PKG_CONFIG_FOUND )
 
-  # Look for glib2 include dir and libraries w/o pkgconfig
-  IF ( NOT GLIB2_FOUND AND NOT PKG_CONFIG_FOUND )
-    FIND_PATH(
-      _glibconfig_include_DIR
-    NAMES
-      glibconfig.h
-    PATHS
-      /opt/gnome/lib64
-      /opt/gnome/lib
-      /opt/lib/
-      /opt/local/lib
-      /sw/lib/
-      /usr/lib64
-      /usr/lib
-      /usr/local/include
-      ${CMAKE_LIBRARY_PATH}
-    PATH_SUFFIXES
-      glib-2.0/include
-    )
+  # Look for glib2 include dir and libraries with hinting from pkgconfig if available
+  FIND_PATH(
+    _glibconfig_include_DIR
+  NAMES
+    glibconfig.h
+  PATHS
+    ${GLIB2_INCLUDE_DIRS}
+    /opt/gnome/lib64
+    /opt/gnome/lib
+    /opt/lib/
+    /opt/local/lib
+    /sw/lib/
+    /usr/lib64
+    /usr/lib
+    /usr/local/include
+    ${CMAKE_LIBRARY_PATH}
+  PATH_SUFFIXES
+    glib-2.0/include
+  )
 
-    FIND_PATH(
-      _glib2_include_DIR
+  FIND_PATH(
+    _glib2_include_DIR
+  NAMES
+    glib.h
+  PATHS
+    ${GLIB2_INCLUDE_DIRS}
+    /opt/gnome/include
+    /opt/local/include
+    /sw/include
+    /usr/include
+    /usr/local/include
+  PATH_SUFFIXES
+    glib-2.0
+  )
+
+  #MESSAGE(STATUS "Glib headers: ${_glib2_include_DIR}")
+
+  FIND_LIBRARY(
+    _glib2_link_DIR
+  NAMES
+    ${GLIB2_LIBRARIES}
+    glib-2.0
+    glib
+  PATHS
+    ${GLIB2_LIBRARY_DIRS}
+    /opt/gnome/lib
+    /opt/local/lib
+    /sw/lib
+    /usr/lib
+    /usr/local/lib
+  )
+  IF ( _glib2_include_DIR AND _glib2_link_DIR )
+      SET ( _glib2_FOUND TRUE )
+  ENDIF ( _glib2_include_DIR AND _glib2_link_DIR )
+
+
+  IF ( _glib2_FOUND )
+      SET ( GLIB2_INCLUDE_DIRS ${_glib2_include_DIR} ${_glibconfig_include_DIR} )
+      SET ( GLIB2_LIBRARIES ${_glib2_link_DIR} )
+      SET ( GLIB2_CORE_FOUND TRUE )
+  ELSE ( _glib2_FOUND )
+      SET ( GLIB2_CORE_FOUND FALSE )
+  ENDIF ( _glib2_FOUND )
+
+  # Handle dependencies
+  # libintl
+  IF ( NOT LIBINTL_FOUND )
+    FIND_PATH(LIBINTL_INCLUDE_DIR
     NAMES
-      glib.h
+      libintl.h
     PATHS
+      ${GLIB2_INCLUDE_DIRS}
       /opt/gnome/include
       /opt/local/include
       /sw/include
       /usr/include
       /usr/local/include
+    )
+
+    FIND_LIBRARY(LIBINTL_LIBRARY
+    NAMES
+      intl
+    PATHS
+      ${GLIB2_LIBRARY_DIRS}
+      /opt/gnome/lib
+      /opt/local/lib
+      /sw/lib
+      /usr/local/lib
+      /usr/lib
+    )
+
+    IF (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
+      SET (LIBINTL_FOUND TRUE)
+    ENDIF (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
+  ENDIF ( NOT LIBINTL_FOUND )
+
+  # libiconv
+  IF ( NOT LIBICONV_FOUND )
+    FIND_PATH(LIBICONV_INCLUDE_DIR
+    NAMES
+      iconv.h
+    PATHS
+      ${GLIB2_INCLUDE_DIRS}
+      /opt/gnome/include
+      /opt/local/include
+      /opt/local/include
+      /sw/include
+      /sw/include
+      /usr/local/include
+      /usr/include
     PATH_SUFFIXES
       glib-2.0
     )
 
-    #MESSAGE(STATUS "Glib headers: ${_glib2_include_DIR}")
-
-    FIND_LIBRARY(
-      _glib2_link_DIR
+    FIND_LIBRARY(LIBICONV_LIBRARY
     NAMES
-      glib-2.0
-      glib
+      iconv
     PATHS
+      ${GLIB2_LIBRARY_DIRS}
       /opt/gnome/lib
       /opt/local/lib
       /sw/lib
       /usr/lib
       /usr/local/lib
     )
-    IF ( _glib2_include_DIR AND _glib2_link_DIR )
-        SET ( _glib2_FOUND TRUE )
-    ENDIF ( _glib2_include_DIR AND _glib2_link_DIR )
 
+    IF (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)
+      SET (LIBICONV_FOUND TRUE)
+    ENDIF (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)
+  ENDIF ( NOT LIBICONV_FOUND )
 
-    IF ( _glib2_FOUND )
-        SET ( GLIB2_INCLUDE_DIRS ${_glib2_include_DIR} ${_glibconfig_include_DIR} )
-        SET ( GLIB2_LIBRARIES ${_glib2_link_DIR} )
-        SET ( GLIB2_CORE_FOUND TRUE )
-    ELSE ( _glib2_FOUND )
-        SET ( GLIB2_CORE_FOUND FALSE )
-    ENDIF ( _glib2_FOUND )
+  IF (LIBINTL_FOUND)
+    SET (GLIB2_LIBRARIES ${GLIB2_LIBRARIES} ${LIBINTL_LIBRARY})
+    SET (GLIB2_INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS} ${LIBINTL_INCLUDE_DIR})
+  ENDIF (LIBINTL_FOUND)
 
-    # Handle dependencies
-    # libintl
-    IF ( NOT LIBINTL_FOUND )
-      FIND_PATH(LIBINTL_INCLUDE_DIR
-      NAMES
-        libintl.h
-      PATHS
-        /opt/gnome/include
-        /opt/local/include
-        /sw/include
-        /usr/include
-        /usr/local/include
-      )
+  IF (LIBICONV_FOUND)
+    SET (GLIB2_LIBRARIES ${GLIB2_LIBRARIES} ${LIBICONV_LIBRARY})
+    SET (GLIB2_INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS} ${LIBICONV_INCLUDE_DIR})
+  ENDIF (LIBICONV_FOUND)
 
-      FIND_LIBRARY(LIBINTL_LIBRARY
-      NAMES
-        intl
-      PATHS
-        /opt/gnome/lib
-        /opt/local/lib
-        /sw/lib
-        /usr/local/lib
-        /usr/lib
-      )
-
-      IF (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
-        SET (LIBINTL_FOUND TRUE)
-      ENDIF (LIBINTL_LIBRARY AND LIBINTL_INCLUDE_DIR)
-    ENDIF ( NOT LIBINTL_FOUND )
-
-    # libiconv
-    IF ( NOT LIBICONV_FOUND )
-      FIND_PATH(LIBICONV_INCLUDE_DIR
-      NAMES
-        iconv.h
-      PATHS
-        /opt/gnome/include
-        /opt/local/include
-        /opt/local/include
-        /sw/include
-        /sw/include
-        /usr/local/include
-        /usr/include
-      PATH_SUFFIXES
-        glib-2.0
-      )
-
-      FIND_LIBRARY(LIBICONV_LIBRARY
-      NAMES
-        iconv
-      PATHS
-        /opt/gnome/lib
-        /opt/local/lib
-        /sw/lib
-        /usr/lib
-        /usr/local/lib
-      )
-
-      IF (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)
-        SET (LIBICONV_FOUND TRUE)
-      ENDIF (LIBICONV_LIBRARY AND LIBICONV_INCLUDE_DIR)
-    ENDIF ( NOT LIBICONV_FOUND )
-
-    IF (LIBINTL_FOUND)
-      SET (GLIB2_LIBRARIES ${GLIB2_LIBRARIES} ${LIBINTL_LIBRARY})
-      SET (GLIB2_INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS} ${LIBINTL_INCLUDE_DIR})
-    ENDIF (LIBINTL_FOUND)
-
-    IF (LIBICONV_FOUND)
-      SET (GLIB2_LIBRARIES ${GLIB2_LIBRARIES} ${LIBICONV_LIBRARY})
-      SET (GLIB2_INCLUDE_DIRS ${GLIB2_INCLUDE_DIRS} ${LIBICONV_INCLUDE_DIR})
-    ENDIF (LIBICONV_FOUND)
-
-  ENDIF ( NOT GLIB2_FOUND AND NOT PKG_CONFIG_FOUND )
   ##
 
   IF (GLIB2_CORE_FOUND AND GLIB2_INCLUDE_DIRS AND GLIB2_LIBRARIES)

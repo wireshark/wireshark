@@ -43,7 +43,7 @@ set(WSUTIL_FILES
 )
 
 set(wsutil_LIBS
-  ${GLIB2_LDFLAGS}
+  ${GLIB2_LIBRARIES}
 )
 
 add_library(wsutil ${LINK_MODE_LIB}
