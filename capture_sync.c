@@ -737,7 +737,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         /* Couldn't create the message pipe between parent and child. */
         *msg = g_strdup_printf("Couldn't create sync pipe: %s",
                                win32strerror(GetLastError()));
-        for (i = 0; i < argc; i++) {
+        for (i = 0; argv[i] != NULL; i++) {
             g_free( (gpointer) argv[i]);
         }
         g_free( (gpointer) argv);
@@ -752,7 +752,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
                                win32strerror(GetLastError()));
         CloseHandle(sync_pipe[PIPE_READ]);
         CloseHandle(sync_pipe[PIPE_WRITE]);
-        for (i = 0; i < argc; i++) {
+        for (i = 0; argv[i] != NULL; i++) {
             g_free( (gpointer) argv[i]);
         }
         g_free( (gpointer) argv);
@@ -792,7 +792,7 @@ sync_pipe_open_command(const char** argv, int *data_read_fd,
         CloseHandle(data_pipe[PIPE_WRITE]);
         CloseHandle(sync_pipe[PIPE_READ]);
         CloseHandle(sync_pipe[PIPE_WRITE]);
-        for (i = 0; i < argc; i++) {
+        for (i = 0; argv[i] != NULL; i++) {
             g_free( (gpointer) argv[i]);
         }
         g_free( (gpointer) argv);
