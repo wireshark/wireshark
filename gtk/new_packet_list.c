@@ -518,11 +518,7 @@ get_xalign_value (gchar xalign, gboolean right_justify)
 static void
 new_packet_list_xalign_column (gint col_id, GtkTreeViewColumn *col, gchar xalign)
 {
-#if GTK_CHECK_VERSION(2,18,0)
 	GList *renderers = gtk_cell_layout_get_cells (GTK_CELL_LAYOUT(col));
-#else
-	GList *renderers = gtk_tree_view_column_get_cell_renderers (col);
-#endif
 	gboolean right_justify = right_justify_column(col_id);
 	gdouble value = get_xalign_value (xalign, right_justify);
 	GList *entry;

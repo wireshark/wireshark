@@ -3786,7 +3786,7 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
   }
   
   gtk_tooltip_set_markup (tooltip, buffer);
-  renderer_list = (GList *)gtk_tree_view_column_get_cell_renderers(GTK_TREE_VIEW_COLUMN(column));
+  renderer_list = gtk-cell-layout-get-cells(GTK_CELL_LAYOUT(column));
   /* get the first renderer */
   for (list = renderer_list; list !=NULL; list = list->next) {
     renderer = (GtkCellRenderer*)list->data;
