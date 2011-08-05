@@ -125,7 +125,6 @@ static int pipe_read_block(int pipe_fd, char *indicator, int len, char *msg,
 static const char **
 sync_pipe_add_arg(const char **args, int *argc, const char *arg)
 {
-    char *temparg;
     /* Grow the array; "*argc" currently contains the number of string
        pointers, *not* counting the NULL pointer at the end, so we have
        to add 2 in order to get the new size of the array, including the
@@ -134,8 +133,7 @@ sync_pipe_add_arg(const char **args, int *argc, const char *arg)
 
     /* Stuff the pointer into the penultimate element of the array, which
        is the one at the index specified by "*argc". */
-    temparg = g_strdup_printf("%s", arg);
-    args[*argc] = temparg;
+    args[*argc] = g_strdup(arg);
     /* Now bump the count. */
     (*argc)++;
 
