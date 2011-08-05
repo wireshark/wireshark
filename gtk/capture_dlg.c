@@ -683,19 +683,19 @@ void insert_new_rows(GList *list)
       for (if_entry = list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
         if_info = if_entry->data;
 #ifdef HAVE_PCAP_REMOTE
-		add_interface_to_remote_list(if_info);
+        add_interface_to_remote_list(if_info);
 #endif
-		for (i = 0; i < count; i++) {
-		  row = g_array_index(rows, interface_row, i);
-		  if (strcmp(row.name, if_info->name) == 0) {
-		    found = TRUE;
-		    break;
-		  }
-	    }
-		if (found) {
-		  found = FALSE;
-		  continue;
-	    }
+        for (i = 0; i < count; i++) {
+          row = g_array_index(rows, interface_row, i);
+          if (strcmp(row.name, if_info->name) == 0) {
+            found = TRUE;
+            break;
+          }
+        }
+        if (found) {
+          found = FALSE;
+          continue;
+        }
         ip_str = g_string_new("");
         str = "";
         ips = 0;
@@ -810,15 +810,15 @@ void insert_new_rows(GList *list)
         row.buffer = 1;
         row.cfilter = NULL;
 #ifdef HAVE_PCAP_REMOTE
-		row.remote_opts.src_type= global_remote_opts.src_type;
+        row.remote_opts.src_type= global_remote_opts.src_type;
         row.remote_opts.remote_host_opts.remote_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
-		row.remote_opts.remote_host_opts.remote_port = g_strdup(global_remote_opts.remote_host_opts.remote_port);
+        row.remote_opts.remote_host_opts.remote_port = g_strdup(global_remote_opts.remote_host_opts.remote_port);
         row.remote_opts.remote_host_opts.auth_type = global_remote_opts.remote_host_opts.auth_type;
-		row.remote_opts.remote_host_opts.auth_username = g_strdup(global_remote_opts.remote_host_opts.auth_username);
-		row.remote_opts.remote_host_opts.auth_password = g_strdup(global_remote_opts.remote_host_opts.auth_password);
-		row.remote_opts.remote_host_opts.datatx_udp = global_remote_opts.remote_host_opts.datatx_udp;
-		row.remote_opts.remote_host_opts.nocap_rpcap = global_remote_opts.remote_host_opts.nocap_rpcap;
-		row.remote_opts.remote_host_opts.nocap_local = global_remote_opts.remote_host_opts.nocap_local;
+        row.remote_opts.remote_host_opts.auth_username = g_strdup(global_remote_opts.remote_host_opts.auth_username);
+        row.remote_opts.remote_host_opts.auth_password = g_strdup(global_remote_opts.remote_host_opts.auth_password);
+        row.remote_opts.remote_host_opts.datatx_udp = global_remote_opts.remote_host_opts.datatx_udp;
+        row.remote_opts.remote_host_opts.nocap_rpcap = global_remote_opts.remote_host_opts.nocap_rpcap;
+        row.remote_opts.remote_host_opts.nocap_local = global_remote_opts.remote_host_opts.nocap_local;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
         row.remote_opts.sampling_method = global_remote_opts.sampling_method;
