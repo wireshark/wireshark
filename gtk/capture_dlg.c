@@ -1667,7 +1667,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
     row.snaplen = WTAP_MAX_PACKET_SIZE;
   }
   
-  filter_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX(filter_cm));
+  filter_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(filter_cm));
   if (row.cfilter)
     g_free(row.cfilter);
   g_assert(filter_text != NULL);
@@ -3288,7 +3288,7 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
         struct remote_host *rh;
         gchar *string;
 
-        string = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX(iftype_cbx));
+        string = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(iftype_cbx));
 
         rh = g_hash_table_lookup (remote_host_list, string);
         g_free (string);
