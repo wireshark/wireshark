@@ -1,5 +1,5 @@
 /* $Id$ */
-/* config.h.win32 Generated manually. :-) */
+/* config.h.win32.  Generated manually. :-) */
 /* config.h.  Generated automatically by configure.  */
 /* config.h.in.  Generated automatically from configure.in by autoheader.  */
 
@@ -68,14 +68,17 @@
 @HAVE_BPF_IMAGE@
 @HAVE_PCAP_SETSAMPLING@
 
+/* availability of pcap_freecode() is handled at runtime */
+#define HAVE_PCAP_FREECODE 1
+
+/* `pcap_get_selectable_fd' is UN*X-only. */
+/* #undef HAVE_PCAP_GET_SELECTABLE_FD */
+
 @HAVE_AIRPCAP@
 
 @PCAP_NG_DEFAULT@
 @MAIN_MENU_USE_UIMANAGER@
 @WANT_PACKET_EDITOR@
-
-/* availability of pcap_freecode() is handled at runtime */
-#define HAVE_PCAP_FREECODE 1
 
 /* define macro for importing variables from an dll
  * it depends on HAVE_LIBWIRESHARKDLL and _NEED_VAR_IMPORT_
