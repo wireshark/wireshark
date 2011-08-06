@@ -199,10 +199,12 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 static void
 select_link_type_cb(GtkWidget *w, gpointer data);
 
-#ifdef HAVE_PCAP_REMOTE
+#ifdef HAVE_PCAP_REMOTE_NEVERTRUE
 static void
 select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data);
+#endif
 
+#ifdef HAVE_PCAP_REMOTE
 static void
 capture_remote_cb(GtkWidget *w, gboolean focus_username);
 #endif
@@ -499,7 +501,7 @@ options_airpcap_advanced_cb(GtkWidget *w, gpointer d)
 }
 #endif
 
-#ifdef HAVE_PCAP_REMOTE
+#ifdef HAVE_PCAP_REMOTE_NEVER
 /* PCAP interface type menu item */
 struct iftype_info {
   capture_source  id;
@@ -523,7 +525,6 @@ iftype_combo_box_add_remote_separators (GtkWidget *iftype_cbx)
   gtk_combo_box_text_append_text(GTK_COMBO_BOX(iftype_cbx), "Clear list");
 }
 
-#if 0
 static void
 iftype_combo_box_add (GtkWidget *iftype_cbx)
 {
@@ -582,7 +583,6 @@ iftype_combo_box_add (GtkWidget *iftype_cbx)
   gtk_combo_box_set_active(GTK_COMBO_BOX(iftype_cbx), pos);
   g_object_set_data(G_OBJECT(iftype_cbx), E_CAP_CBX_IFTYPE_NOUPDATE_KEY, GINT_TO_POINTER(0));
 }
-#endif
 
 static void
 iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer user_data)
@@ -597,7 +597,6 @@ iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer use
   }
 }
 
-#if 0
 /* Fill the menu of available types of interfaces */
 static GtkWidget *
 iftype_combo_box_new(void)
@@ -645,6 +644,7 @@ iftype_combo_is_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data
 }
 #endif
 
+#ifdef HAVE_PCAP_REMOTE
 static void
 error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data)
 {
@@ -3239,7 +3239,7 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
   capture_filter_check_syntax_cb(linktype_combo_box, data);
 }
 
-#ifdef HAVE_PCAP_REMOTE
+#ifdef HAVE_PCAP_REMOTE_NEVERTRUE
 static gboolean
 free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
 {
@@ -3272,11 +3272,7 @@ select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
     capture_remote_cb(GTK_WIDGET(iftype_cbx), FALSE);
   } else if (new_iftype != old_iftype) {
     if (new_iftype > CAPTURE_IFREMOTE) {
-#if GTK_CHECK_VERSION(2,6,0)
       if (new_iftype == num_remote + 4)
-#else
-      if (new_iftype == num_remote + 2)
-#endif
       {
         /* The user selected the "Clear list" entry */
         new_iftype = CAPTURE_IFLOCAL;
