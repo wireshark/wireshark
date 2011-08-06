@@ -5,7 +5,7 @@
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
 # http://standards.ieee.org/regauth/oui/index.shtml and
-# http://www.cavebear.com/CaveBear/Ethernet/
+# http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt
 # with entries in our template file.
 #
 # The script reads the comments at the top of "manuf.tmpl" and writes
@@ -31,7 +31,7 @@ $outfile  = "manuf";
 $inheader = 1;
 $oui_url  = "http://standards.ieee.org/regauth/oui/oui.txt";
 $iab_url  = "http://standards.ieee.org/regauth/oui/iab.txt";
-$cb_url   = "http://www.cavebear.com/CaveBear/Ethernet/Ethernet.txt";
+$cb_url   = "http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt";
 %oui_list = ();
 $hp       = "[0-9a-fA-F]{2}";
 $oui_re   = "$hp:$hp:$hp";
