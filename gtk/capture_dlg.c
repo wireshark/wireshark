@@ -276,7 +276,7 @@ capture_filter_check_syntax_cb(GtkWidget *w _U_, gpointer user_data _U_)
   int       dlt;
 
   GtkWidget *linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
-  
+
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
     g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
@@ -742,7 +742,7 @@ void insert_new_rows(GList *list)
             g_string_append(ip_str, "\n");
           }
           addr = (if_addr_t *)curr_addr->data;
-              
+
           switch (addr->ifat_type) {
             case IF_AT_IPv4:
                 g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
@@ -894,7 +894,7 @@ update_interface_list(void)
 	if (interfaces_dialog_window_present()) {
       refresh_if_window();
     }
-  } 
+  }
 }
 
 /* User changed an interface entry of "Remote interface" dialog */
@@ -1596,7 +1596,7 @@ update_options_table(gint index)
       break;
     }
   }
-  
+
 #if defined(HAVE_PCAP_CREATE)
   gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, interface_opts.promisc_mode?"yes":"no", SNAPLEN, interface_opts.snaplen, BUFFER, (guint) interface_opts.buffer_size, MONITOR, interface_opts.monitor_mode?"yes":"no", FILTER, interface_opts.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
@@ -1609,7 +1609,7 @@ update_options_table(gint index)
   }
   if (get_welcome_window() != NULL) {
     change_interface_selection(g_strdup(row.name), TRUE);
-  }  
+  }
   gtk_tree_path_free (path);
 }
 
@@ -1624,12 +1624,12 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   GtkWidget *buffer_size_sb;
 #endif
-  
+
   interface_row row;
   gpointer  ptr;
   int       dlt;
   const gchar *filter_text;
-  
+
   row = g_array_index(rows, interface_row, marked_row);
   rows = g_array_remove_index(rows, marked_row);
   snap_cb    = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
@@ -1642,9 +1642,9 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   monitor_cb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_MONITOR_KEY);
 #endif
   filter_cm  = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY);
-  
+
   linktype_combo_box = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_LT_CBX_KEY);
-  
+
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
     g_assert_not_reached();  /* Programming error: somehow nothing is active */
   }
@@ -1666,7 +1666,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   } else {
     row.snaplen = WTAP_MAX_PACKET_SIZE;
   }
-  
+
   filter_text = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(filter_cm));
   if (row.cfilter)
     g_free(row.cfilter);
@@ -1704,7 +1704,7 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
   row = g_array_index(rows, interface_row, marked_row);
   snap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
   snap_sb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_SB_KEY);
-  
+
   /* The snapshot length spinbox is sensitive if the "Limit each packet
      to" checkbox is on. */
   gtk_widget_set_sensitive(GTK_WIDGET(snap_sb),
@@ -1754,7 +1754,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   GString       *ip_str = g_string_new("IP address: ");
   gboolean      found = FALSE;
   gint          num_supported_link_types;
-  
+
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
   opt_edit_w = g_object_get_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY);
@@ -1762,7 +1762,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
     reactivate_window(opt_edit_w);
     return;
   }
-  
+
   model = gtk_tree_view_get_model(view);
   gtk_tree_model_get_iter (model, &iter, path);
   marked_row = atoi(gtk_tree_path_to_string(path));
@@ -1771,7 +1771,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   opt_edit_w = dlg_window_new("Edit Interface Settings");
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_EDIT_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY, opt_edit_w);
-  
+
   main_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(main_vb), 5);
   gtk_container_add(GTK_CONTAINER(opt_edit_w), main_vb);
@@ -1790,7 +1790,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
 
   if_lb = gtk_label_new("Interface:  ");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 3);
-  
+
   if_lb_name = gtk_label_new(row.display_name);
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb_name, FALSE, FALSE, 3);
 
@@ -2173,7 +2173,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
           interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
           interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-    	}
+	}
 #endif
         g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
       } else { /* not enabled */
@@ -2185,7 +2185,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
         }
       }
     }
-  } 
+  }
   if (!found && enabled) {
     interface_opts.name = g_strdup(row.name);
     interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
@@ -2235,7 +2235,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
 	if (get_welcome_window() != NULL) {
       change_interface_selection(g_strdup(interface_opts.name), TRUE);
     }
-  } 
+  }
   gtk_tree_path_free (path);
 }
 
@@ -2250,7 +2250,7 @@ void enable_selected_interface(gchar *name, gboolean enable)
   gchar *path_str;
 
   if (enable) {
-      num_selected++; 
+      num_selected++;
   } else {
       num_selected--;
   }
@@ -2276,10 +2276,10 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   GtkTreeModel	*model;
   GtkWidget *pcap_ng_cb;
   gboolean enabled = FALSE, capture_set = FALSE;
-  
+
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
-  
+
   if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter_from_string(model, &iter, "0");
@@ -2287,7 +2287,7 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   do {
     gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, -1);
     if (!capture_set && enabled) {
-      num_selected++; 
+      num_selected++;
     } else if (capture_set && !enabled) {
       num_selected--;
     }
@@ -2317,25 +2317,25 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
   interface_row row;
   interface_options interface_opts;
   guint i;
-  
+
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
-  
+
   if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter_from_string(model, &iter, "0");
-  
+
   do {
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, PMODE, enabled?"yes":"no", -1);
   } while (gtk_tree_model_iter_next(model, &iter));
-  
+
   for (i = 0; i < rows->len; i++) {
     row = g_array_index(rows, interface_row, i);
     rows = g_array_remove_index(rows, i);
     row.pmode = (enabled?TRUE:FALSE);
     g_array_insert_val(rows, i, row);
   }
-  
+
   for (i = 0; i < global_capture_opts.ifaces->len; i++) {
     interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
     global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, i);
@@ -2345,7 +2345,7 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
 }
 
 #if defined (HAVE_PCAP_REMOTE)
-void show_remote_dialog(GtkWidget *w) 
+void show_remote_dialog(GtkWidget *w)
 {
 
     g_free(global_remote_opts.remote_host_opts.remote_host);
@@ -2482,7 +2482,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   cap_open_w = dlg_window_new(cap_title);
   g_free(cap_title);
 
-  if_list = capture_interface_list(&err, &err_str); 
+  if_list = capture_interface_list(&err, &err_str);
 
   if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
@@ -2527,13 +2527,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   swindow = gtk_scrolled_window_new (NULL, NULL);
   gtk_widget_set_size_request(swindow, FALSE, 180);
   gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
-  
+
   view = gtk_tree_view_new ();
   gtk_tree_view_set_rules_hint(GTK_TREE_VIEW (view), TRUE);
   g_signal_connect(view, "row-activated", G_CALLBACK(options_interface_cb), (gpointer)cap_open_w);
-  
+
   toggle_renderer = gtk_cell_renderer_toggle_new();
-  column = gtk_tree_view_column_new_with_attributes ("Capture",  
+  column = gtk_tree_view_column_new_with_attributes ("Capture",
                                                GTK_CELL_RENDERER(toggle_renderer),
                                                "active", CAPTURE,
                                                NULL);
@@ -2543,8 +2543,8 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_signal_connect (GTK_TREE_VIEW(view), "query-tooltip", G_CALLBACK (query_tooltip_tree_view_cb), NULL);
   renderer = gtk_cell_renderer_text_new ();
   gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
-                                               -1,      
-                                               "Interface",   
+                                               -1,
+                                               "Interface",
                                                renderer,
                                                "markup", INTERFACE,
                                                NULL);
@@ -2558,12 +2558,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (view),LINK), TRUE );
   gtk_tree_view_column_set_alignment(column, 0.5);
- 
+
   title = g_string_new("Promisc.\n  Mode  ");
   renderer = gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
-                                               -1,      
-                                               title->str,  
+                                               -1,
+                                               title->str,
                                                renderer,
                                                "text", PMODE,
                                                NULL);
@@ -2620,7 +2620,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   all_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(all_hb), 0);
   gtk_container_add(GTK_CONTAINER(main_hb), all_hb);
-  
+
   left_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
   gtk_box_pack_start(GTK_BOX(all_hb), left_vb, TRUE, TRUE, 0);
@@ -2648,7 +2648,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb)))
     promisc_mode_callback(GTK_TOGGLE_BUTTON(promisc_cb), NULL);
   g_signal_connect(promisc_cb, "toggled", G_CALLBACK(promisc_mode_callback), NULL);
-  
+
   gtk_widget_set_tooltip_text(promisc_cb,
     "Usually a network adapter will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that all network adapters can \"see\", mark this option. "
@@ -3059,7 +3059,7 @@ capture_start_confirmed(void)
 {
   interface_options interface_opts;
   guint i;
-  
+
   /* did the user ever select a capture interface before? */
   if(global_capture_opts.ifaces->len == 0 && prefs.capture_device == NULL) {
     simple_dialog(ESD_TYPE_CONFIRMATION,
@@ -3078,7 +3078,7 @@ capture_start_confirmed(void)
   if (capture_start(&global_capture_opts)) {
     /* The capture succeeded, which means the capture filter syntax is
        valid; add this capture filter to the recent capture filter list. */
-    for (i = 0; i < global_capture_opts.ifaces->len; i++) {  
+    for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
       if (interface_opts.cfilter) {
         cfilter_combo_add_recent(interface_opts.cfilter);
@@ -3225,7 +3225,7 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
   gpointer  ptr;
   int       dlt;
   interface_row row;
-   
+
   row = g_array_index(rows, interface_row, marked_row);
   rows = g_array_remove_index(rows, marked_row);
   if (! ws_combo_box_get_active_pointer(GTK_COMBO_BOX(linktype_combo_box), &ptr)) {
@@ -3663,7 +3663,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
                 /* In case we add non-IP addresses */
                 break;
             }
-          } 
+          }
           if (if_info->loopback) {
             g_string_append(ip_str, " (loopback)");
           }
@@ -3742,7 +3742,7 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
   GList *renderer_list, *list;
 
   char buffer[512];
-  
+
    if (!gtk_tree_view_get_tooltip_context (tree_view, &x, &y, keyboard_tip, &model, &path, &iter))
     return FALSE;
 
@@ -3759,7 +3759,7 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
 
   switch (col)
   {
-    case 0: g_snprintf (buffer, 511, "Choose which interface (network adapter) will be used to capture packets from. " 
+    case 0: g_snprintf (buffer, 511, "Choose which interface (network adapter) will be used to capture packets from. "
               "Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
             break;
     case 1: g_snprintf (buffer, 511, "Lists the interface name and the IP address(es) assigned to it. ");
@@ -3777,7 +3777,7 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
             break;
     case 6: g_snprintf (buffer, 511, "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
               "the traffic on the BSS to which it's associated. "
-              "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option." 
+              "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option."
               "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
               "it might be necessary to turn this option on.\n\n"
               "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated. mode");
@@ -3786,7 +3786,7 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
             break;
     default: g_snprintf(buffer, 511, "another option");
   }
-  
+
   gtk_tooltip_set_markup (tooltip, buffer);
   renderer_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(column));
   /* get the first renderer */
@@ -3812,7 +3812,7 @@ void activate_monitor (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *rend
   row = g_array_index(rows, interface_row, index);
 
   if (row.monitor_mode==TRUE) {
-     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);     
+     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);
   }
   else {
     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_INERT, NULL);
@@ -3940,7 +3940,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
   gtk_widget_set_sensitive(linktype_combo_box, linktype_count >= 2);
   ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),0);
   g_array_insert_val(rows, marked_row, row);
-}  
+}
 #endif
 
 /*
