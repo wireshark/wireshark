@@ -775,8 +775,7 @@ void insert_new_rows(GList *list)
               str = g_strdup_printf("%s (not supported)", data_link_info->name);
               link->pointer = -1;
             }
-            if (g_ascii_strcasecmp(first, "") == 0)
-            {
+            if (g_ascii_strcasecmp(first, "") == 0) {
               first = g_strdup_printf("%s",str);
             }
             link->link_type = g_strdup(str);
@@ -784,25 +783,22 @@ void insert_new_rows(GList *list)
             linktype_count++;
           } /* for link_types */
         } /* caps != NULL */
-#ifdef HAVE_PCAP_CREATE
+#if defined(HAVE_PCAP_CREATE) || defined(HAVE_PCAP_REMOTE)
         else {
           /* We don't know whether this supports monitor mode or not;
           don't ask for monitor mode. */
           cap_settings.monitor_mode = FALSE;
-        }
-#endif
 #ifdef HAVE_PCAP_REMOTE
-        else {
           link = (link_row *)g_malloc(sizeof(link_row));
-          cap_settings.monitor_mode = FALSE;
           row.monitor_mode = FALSE;
           link->pointer = 1;
           link->link_type = g_strdup("Ethernet");
           row.active_dlt = 1;
           row.links = g_list_append(row.links, link);
+#endif
         }
 #endif
-        if(ips == 0) {
+        if (ips == 0) {
           g_string_append(ip_str, "unknown");
         }
         row.addresses = g_strdup(ip_str->str);
