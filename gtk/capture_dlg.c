@@ -673,7 +673,7 @@ void insert_new_rows(GList *list)
   gboolean      found = FALSE;
   GString *ip_str;
   GtkTreeView  *if_cb;
-  GtkTreeModel	*model;
+  GtkTreeModel *model;
   interface_options interface_opts;
   link_row *link = NULL;
 
@@ -891,7 +891,7 @@ update_interface_list(void)
   } else if (iftype == CAPTURE_IFREMOTE) {
     /* New remote interface */
     insert_new_rows(if_list);
-	if (interfaces_dialog_window_present()) {
+    if (interfaces_dialog_window_present()) {
       refresh_if_window();
     }
   }
@@ -1522,7 +1522,7 @@ update_options_table(gint index)
   interface_options interface_opts;
   GtkTreePath  *path;
   GtkTreeView  *if_cb;
-  GtkTreeModel	*model;
+  GtkTreeModel *model;
   GtkTreeIter  iter;
   gchar *temp, *path_str;
   GList *list;
@@ -2083,7 +2083,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   /* get the treemodel from somewhere */
   GtkTreeIter  iter;
   GtkTreeView  *if_cb;
-  GtkTreeModel	*model;
+  GtkTreeModel *model;
   GtkTreePath *path = gtk_tree_path_new_from_string (path_str);
   gboolean enabled, found = FALSE;
   GtkWidget *pcap_ng_cb;
@@ -2147,7 +2147,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
 #endif
 #ifdef HAVE_PCAP_REMOTE
         interface_opts.src_type = row.remote_opts.src_type;
-	    if (interface_opts.src_type == CAPTURE_IFREMOTE) {
+        if (interface_opts.src_type == CAPTURE_IFREMOTE) {
           interface_opts.remote_host = g_strdup(row.remote_opts.remote_host_opts.remote_host);
           interface_opts.remote_port = g_strdup(row.remote_opts.remote_host_opts.remote_port);
           interface_opts.auth_type = row.remote_opts.remote_host_opts.auth_type;
@@ -2160,7 +2160,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
           interface_opts.sampling_method = row.remote_opts.sampling_method;
           interface_opts.sampling_param  = row.remote_opts.sampling_param;
 #endif
-	    } else {
+        } else {
           interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
           interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
           interface_opts.auth_type = global_capture_opts.default_options.auth_type;
@@ -2173,7 +2173,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
           interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
           interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-	}
+        }
 #endif
         g_array_insert_val(global_capture_opts.ifaces, i, interface_opts);
       } else { /* not enabled */
@@ -2200,7 +2200,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
 #endif
 #ifdef HAVE_PCAP_REMOTE
     interface_opts.src_type = row.remote_opts.src_type;
-	if (interface_opts.src_type == CAPTURE_IFREMOTE) {
+    if (interface_opts.src_type == CAPTURE_IFREMOTE) {
       interface_opts.remote_host = g_strdup(row.remote_opts.remote_host_opts.remote_host);
       interface_opts.remote_port = g_strdup(row.remote_opts.remote_host_opts.remote_port);
       interface_opts.auth_type = row.remote_opts.remote_host_opts.auth_type;
@@ -2213,7 +2213,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
       interface_opts.sampling_method = row.remote_opts.sampling_method;
       interface_opts.sampling_param  = row.remote_opts.sampling_param;
 #endif
-	} else {
+    } else {
       interface_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
       interface_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
       interface_opts.auth_type = global_capture_opts.default_options.auth_type;
@@ -2226,13 +2226,13 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
       interface_opts.sampling_method = global_capture_opts.default_options.sampling_method;
       interface_opts.sampling_param  = global_capture_opts.default_options.sampling_param;
 #endif
-	}
+    }
 #endif
     g_array_append_val(global_capture_opts.ifaces, interface_opts);
     if (interfaces_dialog_window_present()) {
       update_selected_interface(g_strdup(interface_opts.name), TRUE);
     }
-	if (get_welcome_window() != NULL) {
+    if (get_welcome_window() != NULL) {
       change_interface_selection(g_strdup(interface_opts.name), TRUE);
     }
   }
@@ -2245,7 +2245,7 @@ void enable_selected_interface(gchar *name, gboolean enable)
   interface_row row;
   GtkTreeIter  iter;
   GtkTreeView  *if_cb;
-  GtkTreeModel	*model;
+  GtkTreeModel *model;
   GtkTreePath *path;
   gchar *path_str;
 
@@ -2273,7 +2273,7 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
 {
   GtkTreeIter  iter;
   GtkTreeView  *if_cb;
-  GtkTreeModel	*model;
+  GtkTreeModel *model;
   GtkWidget *pcap_ng_cb;
   gboolean enabled = FALSE, capture_set = FALSE;
 
@@ -2312,7 +2312,7 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
 {
   GtkTreeIter  iter;
   GtkTreeView  *if_cb;
-  GtkTreeModel	*model;
+  GtkTreeModel *model;
   gboolean enabled = FALSE;
   interface_row row;
   interface_options interface_opts;
@@ -2349,10 +2349,10 @@ void show_remote_dialog(GtkWidget *w)
 {
 
     g_free(global_remote_opts.remote_host_opts.remote_host);
-	g_free(global_remote_opts.remote_host_opts.remote_port);
-	g_free(global_remote_opts.remote_host_opts.auth_username);
-	g_free(global_remote_opts.remote_host_opts.auth_password);
-	global_remote_opts.src_type = CAPTURE_IFREMOTE;
+    g_free(global_remote_opts.remote_host_opts.remote_port);
+    g_free(global_remote_opts.remote_host_opts.auth_username);
+    g_free(global_remote_opts.remote_host_opts.auth_password);
+    global_remote_opts.src_type = CAPTURE_IFREMOTE;
     global_remote_opts.remote_host_opts.remote_host = g_strdup(global_capture_opts.default_options.remote_host);
     global_remote_opts.remote_host_opts.remote_port = g_strdup(global_capture_opts.default_options.remote_port);
     global_remote_opts.remote_host_opts.auth_type = global_capture_opts.default_options.auth_type;
@@ -3557,37 +3557,36 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
   store = gtk_list_store_new (6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING);
 #endif
 
-  if (rows && rows->len > 0){
-	for (i = 0; i < rows->len; i++) {
+  if (rows && rows->len > 0) {
+    for (i = 0; i < rows->len; i++) {
       row = g_array_index(rows, interface_row, i);
       found = FALSE;
       for (j = 0; j < global_capture_opts.ifaces->len; j++) {
-		interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
-		if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
-		  continue;
-		} else {
-		  found = TRUE;
-		  num_selected++;
-		  break;
-		}
-	  }
-	  temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
-	  for (list=row.links; list!=NULL; list=g_list_next(list))
-	  {
-	    link = (link_row*)(list->data);
-	    if (link->pointer == row.active_dlt) {
-	      break;
-	    }
-	  }
-	  gtk_list_store_append (store, &iter);
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, j);
+        if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
+          continue;
+        } else {
+          found = TRUE;
+          num_selected++;
+          break;
+        }
+      }
+      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+      for (list=row.links; list!=NULL; list=g_list_next(list)) {
+        link = (link_row*)(list->data);
+        if (link->pointer == row.active_dlt) {
+          break;
+        }
+      }
+      gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-	  gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode?"yes":"no", FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode?"yes":"no", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-	  gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-	  gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
 #endif
-	}
+    }
   } else {
     rows = g_array_new(TRUE, TRUE, sizeof(interface_row));
     row.addresses = NULL;
@@ -3683,7 +3682,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
               }
               if (g_ascii_strcasecmp(first, "") == 0) {
                 first = g_strdup_printf("%s",str);
-				row.active_dlt = link->pointer;
+                row.active_dlt = link->pointer;
               }
               link->link_type = g_strdup(str);
               row.links = g_list_append(row.links, link);
@@ -3697,7 +3696,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
             cap_settings.monitor_mode = FALSE;
           }
 #endif
-          if(ips == 0) {
+          if (ips == 0) {
             g_string_append(ip_str, "unknown");
           }
           row.addresses = g_strdup(ip_str->str);
@@ -3705,11 +3704,11 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
           row.buffer = 1;
           g_array_append_val(rows, row);
 #if defined(HAVE_PCAP_CREATE)
-		  gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode?"yes":"no", FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode?"yes":"no", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
 #endif
           if (caps != NULL) {
             free_if_capabilities(caps);
@@ -3719,8 +3718,8 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
       }/*for*/
     }
   }
-  gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL (store));
-  return GTK_TREE_MODEL (store);
+  gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(store));
+  return GTK_TREE_MODEL(store);
 }
 
 gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
