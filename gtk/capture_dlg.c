@@ -523,6 +523,7 @@ iftype_combo_box_add_remote_separators (GtkWidget *iftype_cbx)
   gtk_combo_box_text_append_text(GTK_COMBO_BOX(iftype_cbx), "Clear list");
 }
 
+#if 0
 static void
 iftype_combo_box_add (GtkWidget *iftype_cbx)
 {
@@ -581,6 +582,7 @@ iftype_combo_box_add (GtkWidget *iftype_cbx)
   gtk_combo_box_set_active(GTK_COMBO_BOX(iftype_cbx), pos);
   g_object_set_data(G_OBJECT(iftype_cbx), E_CAP_CBX_IFTYPE_NOUPDATE_KEY, GINT_TO_POINTER(0));
 }
+#endif
 
 static void
 iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer user_data)
@@ -595,6 +597,7 @@ iftype_combo_box_add_remote_host (gpointer key, gpointer value _U_, gpointer use
   }
 }
 
+#if 0
 /* Fill the menu of available types of interfaces */
 static GtkWidget *
 iftype_combo_box_new(void)
@@ -640,6 +643,7 @@ iftype_combo_is_separator (GtkTreeModel *model, GtkTreeIter *iter, gpointer data
   return result;
 
 }
+#endif
 
 static void
 error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data)
