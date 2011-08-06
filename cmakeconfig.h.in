@@ -221,9 +221,6 @@
 /* Define to 1 if you have the `pcap_open_dead' function. */
 #cmakedefine HAVE_PCAP_OPEN_DEAD 1
 
-/* Define to 1 if you have the `pcap_set_buffer_size' function. */
-#define HAVE_PCAP_SET_BUFFER_SIZE 1
-
 /* Define to 1 if you have the `pcap_set_datalink' function. */
 #cmakedefine HAVE_PCAP_SET_DATALINK 1
 
