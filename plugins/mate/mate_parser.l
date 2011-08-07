@@ -42,11 +42,11 @@
 	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	*/
 
-#include <wsutil/file_util.h>
-
 #include "mate.h"
 #include "mate_grammar.h"
 #include "mate_parser_lex.h"
+
+#include <wsutil/file_util.h>
 
 #ifdef _WIN32
 /* disable Windows VC compiler warning "signed/unsigned mismatch" associated  */

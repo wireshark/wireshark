@@ -132,7 +132,7 @@ static gchar* recolonize(mate_config* mc, gchar* s) {
 	vec = g_strsplit(s,":",0);
 
 	for (i = 0; vec[i]; i++) {
-		g_ascii_strdown(vec[i]);
+		g_ascii_strdown(vec[i], -1);
 
 		v = 0;
 		switch ( strlen(vec[i]) ) {

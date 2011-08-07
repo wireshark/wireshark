@@ -32,6 +32,8 @@
 # include "config.h"
 #endif
 
+#undef G_DISABLE_DEPRECATED
+
 #ifndef ENABLE_STATIC
 #include "moduleinfo.h"
 #include <gmodule.h>

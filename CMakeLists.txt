@@ -27,9 +27,11 @@ cmake_minimum_required(VERSION 2.6)
 set(CMAKE_BACKWARDS_COMPATIBILITY 2.6)
 
 # Needs to be set after cmake_minimum_required or cmake_policy(VERSION)
-#if(COMMAND cmake_policy)
+if(COMMAND cmake_policy)
+	# Backward compatibility for versions < 2.6.3
+	cmake_policy(SET CMP0011 OLD)
 #	cmake_policy(SET CMP0015 NEW)
-#endif(COMMAND cmake_policy)
+endif(COMMAND cmake_policy)
 
 # set(PROJECT_VERSION "1.3.4-rc5")
 # set(PROJECT_VERSION "1.3.4rc5")
@@ -158,6 +160,7 @@ endif()
 
 add_definitions(
 	-DHAVE_CONFIG_H
+	-DG_DISABLE_DEPRECATED
 )
 
 # Counterhack to work around some cache magic in CHECK_C_SOURCE_COMPILES

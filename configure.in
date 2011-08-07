@@ -885,6 +885,8 @@ AC_MSG_CHECKING(whether GLib supports loadable modules)
 ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
 CFLAGS="$CFLAGS $GLIB_CFLAGS"
+# Error out on the usage of deprecated glib functions
+CFLAGS="$CFLAGS -DG_DISABLE_DEPRECATED"
 LIBS="$GLIB_LIBS $LIBS"
 AC_TRY_RUN([
 #include <glib.h>
