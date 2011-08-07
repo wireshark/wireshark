@@ -1068,7 +1068,7 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
 
     if ( name ) {
         gchar* loname_a = ep_strdup(name);
-        g_strdown(loname_a);
+        g_ascii_strdown(loname_a, -1);
         if ( proto_get_id_by_filter_name(loname_a) > 0 ) {
             WSLUA_ARG_ERROR(Proto_new,NAME,"there cannot be two protocols with the same name");
         } else {
@@ -1076,8 +1076,8 @@ WSLUA_CONSTRUCTOR Proto_new(lua_State* L) {
             gchar* loname = g_strdup(name);
             gchar* hiname = g_strdup(name);
 
-            g_strdown(loname);
-            g_strup(hiname);
+            g_ascii_strdown(loname, -1);
+            g_ascii_strup(hiname, -1);
 
             proto->name = hiname;
             proto->desc = g_strdup(desc);
@@ -1164,7 +1164,7 @@ static int Proto_set_dissector(lua_State* L) {
     if (lua_isfunction(L,3)) {
         /* insert the dissector into the dissectors table */
         gchar* loname = ep_strdup(proto->name);
-        g_strdown(loname);
+        g_ascii_strdown(loname, -1);
 
         lua_rawgeti(L, LUA_REGISTRYINDEX, lua_dissectors_table_ref);
         lua_replace(L, 1);

@@ -1824,7 +1824,7 @@ parse_key_string(gchar* input_string, guint8 key_type)
            /* XXX - The current key handling code in the GUI requires
             * no separators and lower case */
            dk->key  = g_string_new(bytes_to_str(key_ba->data, key_ba->len));
-           g_string_down(dk->key);
+           g_string_ascii_down(dk->key);
            dk->bits = key_ba->len * 8;
            dk->ssid = NULL;
 

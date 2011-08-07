@@ -395,13 +395,13 @@ void add_tlv(const gchar* name, const  gchar* codestr, radius_attr_dissector_t t
 	a = g_hash_table_lookup(dict->attrs_by_name, current_attr);
 
 	if (! a) {
-		g_string_sprintfa(error, "Attr: '%s', does not exist in %s:%i \n", current_attr, fullpaths[include_stack_ptr], linenums[include_stack_ptr]);
+		g_string_append_printf(error, "Attr: '%s', does not exist in %s:%i \n", current_attr, fullpaths[include_stack_ptr], linenums[include_stack_ptr]);
 		BEGIN JUNK;
 		return;
 	}
 
 	if (type == radius_tlv) {
-		g_string_sprintfa(error, "sub-TLV: '%s', sub-TLV's type is specified as tlv in %s:%i \n", name, fullpaths[include_stack_ptr], linenums[include_stack_ptr]);
+		g_string_append_printf(error, "sub-TLV: '%s', sub-TLV's type is specified as tlv in %s:%i \n", name, fullpaths[include_stack_ptr], linenums[include_stack_ptr]);
 		BEGIN JUNK;
 		return;
 	}

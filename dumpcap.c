@@ -2892,15 +2892,17 @@ capture_loop_open_output(capture_options *capture_opts, int *save_file_fd,
         if (global_capture_opts.ifaces->len > 1) {
             prefix = g_strdup_printf("wireshark_%d_interfaces", global_capture_opts.ifaces->len);
         } else {
+            gchar *basename;
 #ifdef _WIN32
             GString *iface;
-
             iface = isolate_uuid(g_array_index(global_capture_opts.ifaces, interface_options, 0).name);
-            prefix = g_strconcat("wireshark_", g_basename(iface->str), NULL);
+            basename = g_path_get_basename(iface->str);
             g_string_free(iface, TRUE);
 #else
-            prefix = g_strconcat("wireshark_", g_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).name), NULL);
+            basename = g_path_get_basename(g_array_index(global_capture_opts.ifaces, interface_options, 0).name);
 #endif
+            prefix = g_strconcat("wireshark_", basename, NULL);
+            g_free(basename);
         }
         *save_file_fd = create_tempfile(&tmpname, prefix);
         g_free(prefix);
