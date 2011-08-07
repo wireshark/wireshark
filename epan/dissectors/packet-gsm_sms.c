@@ -39,7 +39,7 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -54,7 +54,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/reassemble.h>
-#include <glib.h>
 
 #include "packet-gsm_sms.h"
 
@@ -2569,7 +2568,7 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
     guint32     reassembled_in = 0;
     gboolean    is_fragmented = FALSE;
     gboolean    save_fragmented = FALSE, try_gsm_sms_ud_reassemble = FALSE;
-    guint32     num_labels , save_offset;
+    guint32     num_labels;
 
     fill_bits = 0;
 
@@ -2577,7 +2576,6 @@ dis_field_ud(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint32 length, gb
 	proto_tree_add_text(tree, tvb,
                             offset, length,
                             "TP-User-Data");
-    save_offset = offset;
     subtree = proto_item_add_subtree(item, ett_ud);
 
     oct = tvb_get_guint8(tvb, offset);
@@ -3347,27 +3345,18 @@ dis_msg_status_report(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static void
 dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 {
-    guint32	saved_offset;
-    guint32	length;
     guint8	oct;
     guint8	cdl;
     const gchar	*str = NULL;
-    gboolean	udhi;
 
 
     cdl = 0;
-    saved_offset = offset;
-    length = tvb_length_remaining(tvb, offset);
-
-    oct = tvb_get_guint8(tvb, offset);
-    udhi = oct & 0x40;
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_udhi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_srr, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_gsm_sms_tp_mti_up, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
-    oct = tvb_get_guint8(tvb, offset);
 
     proto_tree_add_item(tree, hf_gsm_sms_tp_mr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
@@ -3405,18 +3394,21 @@ dis_msg_command(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     }
 }
 
+#if 0
 #define	NUM_MSGS (sizeof(msg_type_strings)/sizeof(value_string))
 static gint ett_msgs[NUM_MSGS];
+#endif
+
 static void (*gsm_sms_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, guint32 offset) = {
-    dis_msg_deliver,		/* SMS-DELIVER */
-    dis_msg_deliver_report,	/* SMS-DELIVER REPORT */
-    dis_msg_submit,			/* SMS-SUBMIT */
-    dis_msg_submit_report,	/* SMS-SUBMIT REPORT */
-    dis_msg_status_report,	/* SMS-STATUS REPORT */
-    dis_msg_command,		/* SMS-COMMAND */
-    NULL,					/* Reserved */
-    NULL,					/* Reserved */
-    NULL,					/* NONE */
+    dis_msg_deliver,        /* SMS-DELIVER */
+    dis_msg_deliver_report, /* SMS-DELIVER REPORT */
+    dis_msg_submit,         /* SMS-SUBMIT */
+    dis_msg_submit_report,  /* SMS-SUBMIT REPORT */
+    dis_msg_status_report,  /* SMS-STATUS REPORT */
+    dis_msg_command,        /* SMS-COMMAND */
+    NULL,                   /* Reserved */
+    NULL,                   /* Reserved */
+    NULL,                   /* NONE */
 };
 
 /* GENERIC DISSECTOR FUNCTIONS */
@@ -3432,7 +3424,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8	oct;
     gint	idx;
     const gchar	*str = NULL;
-    gint	ett_msg_idx;
+    /*gint	ett_msg_idx;*/
 
 
     g_pinfo = pinfo;
@@ -3497,7 +3489,7 @@ dissect_gsm_sms(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	else
 	{
-	    ett_msg_idx = ett_msgs[idx];
+	    /*ett_msg_idx = ett_msgs[idx];*/ /* XXX: Not actually used */
 	    msg_fcn = gsm_sms_msg_fcn[idx];
 	}
 
@@ -3729,28 +3721,30 @@ proto_register_gsm_sms(void)
 
     /* Setup protocol subtree array */
 #define	NUM_INDIVIDUAL_PARMS	12
-    gint *ett[NUM_INDIVIDUAL_PARMS+NUM_MSGS+NUM_UDH_IEIS+2];
+    gint *ett[NUM_INDIVIDUAL_PARMS/*+NUM_MSGS*/+NUM_UDH_IEIS+2];
 
-    ett[0] = &ett_gsm_sms;
-    ett[1] = &ett_pid;
-    ett[2] = &ett_pi;
-    ett[3] = &ett_fcs;
-    ett[4] = &ett_vp;
-    ett[5] = &ett_scts;
-    ett[6] = &ett_dt;
-    ett[7] = &ett_st;
-    ett[8] = &ett_addr;
-    ett[9] = &ett_dcs;
+    ett[0]  = &ett_gsm_sms;
+    ett[1]  = &ett_pid;
+    ett[2]  = &ett_pi;
+    ett[3]  = &ett_fcs;
+    ett[4]  = &ett_vp;
+    ett[5]  = &ett_scts;
+    ett[6]  = &ett_dt;
+    ett[7]  = &ett_st;
+    ett[8]  = &ett_addr;
+    ett[9]  = &ett_dcs;
     ett[10] = &ett_ud;
     ett[11] = &ett_udh;
 
     last_offset = NUM_INDIVIDUAL_PARMS;
 
+#if 0
     for (i=0; i < NUM_MSGS; i++, last_offset++)
     {
 	ett_msgs[i] = -1;
 	ett[last_offset] = &ett_msgs[i];
     }
+#endif
 
     for (i=0; i < NUM_UDH_IEIS; i++, last_offset++)
     {
