@@ -546,10 +546,8 @@ typedef struct {
        nstime_t req_time;     /*time of the last request*/
 } sbus_request_val;
 
-/* The hash/GMemChunk structure (for conversations)*/
+/* The hash structure (for conversations)*/
 static GHashTable *sbus_request_hash = NULL;
-static GMemChunk *sbus_request_keys = NULL;
-static GMemChunk *sbus_request_vals = NULL;
 
 static guint crc_calc (guint crc, guint val)
 {
@@ -589,8 +587,6 @@ static void sbus_init_protocol(void){
               g_hash_table_destroy(sbus_request_hash);
        }
        sbus_request_hash = g_hash_table_new(sbus_hash, sbus_equal);
-       sbus_request_keys = se_alloc(sizeof(sbus_request_key));
-       sbus_request_vals = se_alloc(sizeof(sbus_request_val));
 }
 
 /* check whether the packet looks like SBUS or not */
