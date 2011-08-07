@@ -641,10 +641,10 @@ static const value_string doi_type[] = {
 #define ISAKMP_ATTR_KEY_ROUNDS			7
 #define ISAKMP_ATTR_CMPR_DICT_SIZE		8
 #define ISAKMP_ATTR_CMPR_ALGORITHM		9
-#define ISAKMP_ATTR_ECN_TUNNEL                  10      /* [RFC3168] */
+#define ISAKMP_ATTR_ECN_TUNNEL			10      /* [RFC3168] */
 #define ISAKMP_ATTR_EXT_SEQ_NBR			11      /* [RFC4304] */
-#define ISAKMP_ATTR_AUTH_KEY_LENGTH             12      /* [RFC4359] */
-#define ISAKMP_ATTR_SIG_ENCO_ALGORITHM		13      /* [RFC4359] */
+#define ISAKMP_ATTR_AUTH_KEY_LENGTH		12      /* [RFC4359] */
+#define ISAKMP_ATTR_SIG_ENCO_ALGORITHM	13      /* [RFC4359] */
 
 static const value_string transform_isakmp_attr_type[] = {
   { ISAKMP_ATTR_LIFE_TYPE,	"SA-Life-Type" },
@@ -665,21 +665,21 @@ static const value_string transform_isakmp_attr_type[] = {
 
 /* Transform IKE Type */
 #define IKE_ATTR_ENCRYPTION_ALGORITHM	1
-#define IKE_ATTR_HASH_ALGORITHM		2
+#define IKE_ATTR_HASH_ALGORITHM			2
 #define IKE_ATTR_AUTHENTICATION_METHOD	3
-#define	IKE_ATTR_GROUP_DESCRIPTION	4
-#define	IKE_ATTR_GROUP_TYPE		5
-#define	IKE_ATTR_GROUP_PRIME		6
+#define IKE_ATTR_GROUP_DESCRIPTION		4
+#define IKE_ATTR_GROUP_TYPE				5
+#define IKE_ATTR_GROUP_PRIME			6
 #define IKE_ATTR_GROUP_GENERATOR_ONE	7
 #define IKE_ATTR_GROUP_GENERATOR_TWO	8
-#define IKE_ATTR_GROUP_CURVE_A		9
-#define IKE_ATTR_GROUP_CURVE_B		10
-#define IKE_ATTR_LIFE_TYPE		11
-#define IKE_ATTR_LIFE_DURATION		12
-#define IKE_ATTR_PRF			13
-#define IKE_ATTR_KEY_LENGTH		14
-#define IKE_ATTR_FIELD_SIZE		15
-#define IKE_ATTR_GROUP_ORDER		16
+#define IKE_ATTR_GROUP_CURVE_A			9
+#define IKE_ATTR_GROUP_CURVE_B			10
+#define IKE_ATTR_LIFE_TYPE				11
+#define IKE_ATTR_LIFE_DURATION			12
+#define IKE_ATTR_PRF					13
+#define IKE_ATTR_KEY_LENGTH				14
+#define IKE_ATTR_FIELD_SIZE				15
+#define IKE_ATTR_GROUP_ORDER			16
 
 
 
@@ -3048,6 +3048,88 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
 	return 2+len+optlen;
 }
 
+/* Dissect life duration, which is variable-length.  Note that this function
+ * handles both/either the security association life duration as defined in
+ * section 4.5 of RFC2407 (http://tools.ietf.org/html/rfc2407), as well as the
+ * life duration according to the attribute classes table in Appendix A of
+ * RFC2409: http://tools.ietf.org/html/rfc2409#page-33 */
+static void
+dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf, int offset, guint len)
+{
+	switch (len) {
+		case 0:
+			break;
+		case 1: {
+			guint8 val;
+			val = tvb_get_guint8(tvb, offset);
+
+			proto_tree_add_uint_format_value(tree, hf, tvb, offset, len, val, "%u", val);
+			proto_item_append_text(ti, " : %u", val);
+			break;
+		}
+		case 2: {
+			guint16 val;
+			val = tvb_get_ntohs(tvb, offset);
+
+			proto_tree_add_uint_format_value(tree, hf, tvb, offset, len, val, "%u", val);
+			proto_item_append_text(ti, " : %u", val);
+			break;
+		}
+		case 3: {
+			guint32 val;
+			val = tvb_get_ntoh24(tvb, offset);
+
+			proto_tree_add_uint_format_value(tree, hf, tvb, offset, len, val, "%u", val);
+			proto_item_append_text(ti, " : %u", val);
+			break;
+		}
+		case 4: {
+			guint32 val;
+			val = tvb_get_ntohl(tvb, offset);
+
+			proto_tree_add_uint_format_value(tree, hf, tvb, offset, len, val, "%u", val);
+			proto_item_append_text(ti, " : %u", val);
+			break;
+		}
+		case 5: {
+			guint64 val;
+			val = tvb_get_ntoh40(tvb, offset);
+
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+			break;
+		}
+		case 6: {
+			guint64 val;
+			val = tvb_get_ntoh48(tvb, offset);
+
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+			break;
+		}
+		case 7: {
+			guint64 val;
+			val = tvb_get_ntoh56(tvb, offset);
+
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+			break;
+		}
+		case 8: {
+			guint64 val;
+			val = tvb_get_ntoh64(tvb, offset);
+
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
+			break;
+		}
+		default:
+			proto_tree_add_item(tree, hf, tvb, offset, len, ENC_NA);
+			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "x ...", tvb_get_ntoh64(tvb, offset));
+			break;
+	}
+}
+
 /* Returns the number of bytes consumed by this option. */
 static int
 dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree, int offset )
@@ -3082,7 +3164,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
 	}
 	if (optlen==0)
  	{
-    	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
+    	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribute value is empty");
 	   return 2+len;
 	}
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_value, tvb, offset, optlen, FALSE);
@@ -3092,8 +3174,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_sa_life_type, "Unknown %d"));
 		break;
 		case ISAKMP_ATTR_LIFE_DURATION:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_life_duration, tvb, offset, optlen, FALSE);
-                proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohl(tvb, offset));
+		dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_tf_attr_life_duration, offset, optlen);
 		break;
 		case ISAKMP_ATTR_GROUP_DESC:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_group_description, tvb, offset, optlen, FALSE);
@@ -3240,8 +3321,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_sa_life_type, "Unknown %d"));
 		break;
 		case IKE_ATTR_LIFE_DURATION:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_life_duration, tvb, offset, optlen, FALSE);
-                proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
+		dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_ike_attr_life_duration, offset, optlen);
 		break;
 		case IKE_ATTR_PRF:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_prf, tvb, offset, optlen, FALSE);
@@ -4220,7 +4300,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_unity_def_domain, tvb, offset, optlen, FALSE);
 		proto_item_append_text(cfg_attr_type_item," : %s", tvb_get_ephemeral_string(tvb, offset,optlen));
 		break;
-/* TODO: Support other UNITY Attributs ! */
+/* TODO: Support other UNITY Attributes ! */
 	default:
 		/* No Default Action */
 		break;
@@ -5482,7 +5562,7 @@ proto_register_isakmp(void)
 	NULL, HFILL }},
    { &hf_isakmp_tf_attr_life_duration,
       { "Life Duration",	"isakmp.tf.attr.life_duration",
-	FT_UINT32, BASE_DEC, NULL, 0x00,
+	FT_BYTES, BASE_NONE, NULL, 0x00,
 	NULL, HFILL }},
    { &hf_isakmp_tf_attr_group_description,
       { "Group Description",	"isakmp.tf.attr.group_description",
@@ -5596,7 +5676,7 @@ proto_register_isakmp(void)
 	NULL, HFILL }},
    { &hf_isakmp_ike_attr_life_duration,
       { "Life Duration",	"isakmp.ike.attr.life_duration",
-	FT_UINT32, BASE_DEC, NULL, 0x00,
+	FT_BYTES, BASE_NONE, NULL, 0x00,
 	NULL, HFILL }},
    { &hf_isakmp_ike_attr_prf,
       { "PRF",	"isakmp.ike.attr.prf",
