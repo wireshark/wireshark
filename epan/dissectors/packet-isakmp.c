@@ -3095,7 +3095,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf, i
 			guint64 val;
 			val = tvb_get_ntoh40(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
 			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
 			break;
 		}
@@ -3103,7 +3103,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf, i
 			guint64 val;
 			val = tvb_get_ntoh48(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
 			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
 			break;
 		}
@@ -3111,7 +3111,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf, i
 			guint64 val;
 			val = tvb_get_ntoh56(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
 			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
 			break;
 		}
@@ -3119,7 +3119,7 @@ dissect_life_duration(tvbuff_t *tvb, proto_tree *tree, proto_item *ti, int hf, i
 			guint64 val;
 			val = tvb_get_ntoh64(tvb, offset);
 
-			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, G_GINT64_MODIFIER "%u", val);
+			proto_tree_add_uint64_format_value(tree, hf, tvb, offset, len, val, "%" G_GINT64_MODIFIER "u", val);
 			proto_item_append_text(ti, " : %" G_GINT64_MODIFIER "u", val);
 			break;
 		}
