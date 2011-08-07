@@ -672,6 +672,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
 
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
     gtk_tree_view_column_set_min_width(column, 80);
+    gtk_tree_view_column_set_fixed_width(column, 80);
     /* Add the column to the view. */
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
 
@@ -687,7 +688,7 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
         GINT_TO_POINTER(PROTOCOL_COLUMN), NULL);
 
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 40);
+    gtk_tree_view_column_set_min_width(column, 80);
     gtk_tree_view_column_set_fixed_width(column, 100);
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
 
@@ -697,8 +698,11 @@ init_error_table(error_equiv_table *err, guint num_procs, GtkWidget *vbox)
     gtk_tree_view_column_set_sort_column_id(column, SUMMARY_COLUMN);
     gtk_tree_view_column_set_resizable(column, TRUE);
     gtk_tree_view_column_set_sizing(column, GTK_TREE_VIEW_COLUMN_FIXED);
-    gtk_tree_view_column_set_min_width(column, 80);
-    gtk_tree_view_column_set_fixed_width(column, 230);
+    gtk_tree_view_column_set_min_width(column, 300);
+    gtk_tree_view_column_set_fixed_width(column,
+        700 /* window size */ -
+        (80 /* group */ + 100 /* protocol */ + 80 /* count */ +
+         24 /* border */ + 22 /* vbar */));
     gtk_tree_view_append_column (GTK_TREE_VIEW (err->tree_view), column);
 
     /* Last column.. Count. */
