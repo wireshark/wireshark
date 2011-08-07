@@ -745,9 +745,9 @@ void gcp_analyze_msg(proto_tree* gcp_tree, tvbuff_t* gcp_tvb, gcp_msg_t* m, gcp_
 
                     if (ctx_term->term->bir && ctx_term->term->nsap) {
                         gchar* tmp_key = ep_strdup_printf("%s:%s",ctx_term->term->nsap,ctx_term->term->bir);
-						gchar* key = g_ascii_strdown(tmp_key, -1);
+                        gchar* key = g_ascii_strdown(tmp_key, -1);
                         alcap_tree_from_bearer_key(term_tree, gcp_tvb, key);
-						g_free(key);
+                        g_free(key);
                     }
                 }
             }
