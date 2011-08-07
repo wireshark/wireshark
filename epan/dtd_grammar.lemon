@@ -99,7 +99,7 @@ doctype ::= TAG_START DOCTYPE_KW NAME(Name) OPEN_BRACKET dtd_parts CLOSE_BRACKET
 
 	bd->proto_root = Name->text;
     
-	g_ascii_strdown(bd->proto_name, -1);
+	g_strdown(bd->proto_name);
     
     for( i = 0; i< bd->elements->len; i++) {
         dtd_named_list_t* el = g_ptr_array_index(bd->elements,i);
@@ -123,7 +123,7 @@ dtd_parts ::= attlist(Attlist). { g_ptr_array_add(bd->attributes,Attlist); }
 
 %type   attlist				{ dtd_named_list_t* }
 attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. {
-    g_ascii_strdown(B->text, -1);
+    g_strdown(B->text);
     A = dtd_named_list_new(B->text,TheList);
     g_free(B->location);
     g_free(B);
@@ -131,7 +131,7 @@ attlist(A) ::= TAG_START ATTLIST_KW NAME(B) attrib_list(TheList) TAG_STOP. {
 
 %type element { dtd_named_list_t* }
 element(A) ::= TAG_START ELEMENT_KW NAME(B) sub_elements(C) TAG_STOP. {
-    g_ascii_strdown(B->text, -1);
+    g_strdown(B->text);
     A = dtd_named_list_new(B->text,C);
     g_free(B->location);
     g_free(B);
@@ -144,7 +144,7 @@ attrib_list(A) ::= attrib(B).  { A = g_ptr_array_new(); g_ptr_array_add(A,B);  }
 %type   attrib				{ gchar* }
 attrib(A) ::= NAME(B) att_type att_default. {
 	A = B->text;
-	g_ascii_strdown(A, -1);
+	g_strdown(A);
     g_free(B->location);
     g_free(B);
 }
@@ -190,28 +190,28 @@ element_list(A) ::= element_list(B) PIPE sub_elements(C).   { A = g_ptr_array_jo
 %type   element_child		{ gchar* }
 element_child(A) ::= NAME(B).			{
 	A = B->text;
-	g_ascii_strdown(A, -1);
+	g_strdown(A);
     g_free(B->location);
     g_free(B);
 }
 
 element_child(A) ::= NAME(B) STAR.		{
 	A = B->text;
-	g_ascii_strdown(A, -1);
+	g_strdown(A);
     g_free(B->location);
     g_free(B);
 }
 
 element_child(A) ::= NAME(B) QUESTION.	{
 	A = B->text;
-	g_ascii_strdown(A, -1);
+	g_strdown(A);
     g_free(B->location);
     g_free(B);
 }
 
 element_child(A) ::= NAME(B) PLUS.		{
 	A = B->text;
-	g_ascii_strdown(A, -1);
+	g_strdown(A);
     g_free(B->location);
     g_free(B);
 }

@@ -1017,8 +1017,7 @@ RC_WTAP_VERSION=$(WTAP_VERSION_MAJOR),$(WTAP_VERSION_MINOR),$(WTAP_VERSION_MICRO
 
 # GLib
 GLIB_CFLAGS=/I$(GTK_DIR)\include\glib-$(GLIB_VERSION) \
-	/I$(GTK_DIR)\lib\glib-$(GLIB_VERSION)\include \
-	 -DG_DISABLE_DEPRECATED
+	/I$(GTK_DIR)\lib\glib-$(GLIB_VERSION)\include
 GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
 	$(GTK_DIR)\lib\gmodule-$(GLIB_VERSION).lib \
 	$(GTK_DIR)\lib\gobject-$(GLIB_VERSION).lib
