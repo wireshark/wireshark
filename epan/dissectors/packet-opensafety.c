@@ -1267,7 +1267,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
     {
         if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, &frameOffset, &frameLength) )
         {
-        	if ((frameOffset + frameLength) > (guint)reported_len )
+            if ((frameOffset + frameLength) > (guint)reported_len )
                 break;
             found++;
 
@@ -1328,10 +1328,19 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
                         type = OPENSAFETY_SPDO_MESSAGE_TYPE;
                     else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
                         type = OPENSAFETY_SNMT_MESSAGE_TYPE;
-                    else
-                    	continue;
-                } else
+                    else {
+                    	/* Skip this frame.  We cannot continue without
+                    	   advancing frameOffset - just doing a continue
+                    	   will result in an infinite loop. */
+                        frameOffset += frameLength;
+                        continue;
+                    }
+                } else {
+                    /* As stated above, you cannot just continue
+                       without advancing frameOffset. */
+                    frameOffset += frameLength;
                     continue;
+                }
             }
 
             /* If both frame starts are equal, something went wrong */
@@ -1342,8 +1351,12 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
             if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
             {
             	address = OSS_FRAME_ADDR(bytesOffset, frameStart1);
-            	if ( address > 1024 )
-            		continue;
+            	if ( address > 1024 ) {
+                    /* As stated above, you cannot just continue
+                       without advancing frameOffset. */
+                    frameOffset += frameLength;
+                    continue;
+                }
             }
 
             /* If this package is not valid, the next step, which normally occurs in unxorFrame will lead to a
