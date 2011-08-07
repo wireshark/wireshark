@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-07-27)
+(last updated 2011-08-05)
 
 ****************************************************************************
 ATTENTION:  This registry has recently been combined with the Service Names 
@@ -5538,7 +5538,12 @@ gtaua           2186/udp   Guy-Tek Automated Update Applications
 ssmc            2187/tcp   Sepehr System Management Control
 ssmd            2187/udp   Sepehr System Management Data
 #                          Shahriar Pourazin <pourazin&sepehrs.com> 02 December 2008
-#               2188-2189  Unassigned
+radware-rpm     2188/tcp   Radware Resource Pool Manager
+#                          Samuel Bercovici <samuelb&radware.com> 05 August 2011
+#               2188/udp   Reserved
+radware-rpm-s   2189/tcp   Secure Radware Resource Pool Manager
+#                          Samuel Bercovici <samuelb&radware.com> 05 August 2011
+#               2189/udp   Reserved
 tivoconnect     2190/tcp   TiVoConnect Beacon
 tivoconnect     2190/udp   TiVoConnect Beacon
 #                          Jeffrey J. Peters <jpeters&tivo.com> August 2002
@@ -12207,7 +12212,11 @@ surfpass	5030/udp   SurfPass
 #               5031/tcp   Reserved
 dmp             5031/udp   Direct Message Protocol
 #                          Gjermund Wallenius <gwallenius&ndlocis.mil.no> 30 September 2009
-#               5032-5041  Unassigned
+signacert-agent 5032/tcp   SignaCert Enterprise Trust Server Agent
+#                          Harris, Corporation
+#                          Daniel R Somerfield <dsomerfi&harris.com> 05 August 2011
+#               5032/udp   Reserved
+#               5033-5041  Unassigned
 asnaacceler8db  5042/tcp   asnaacceler8db
 asnaacceler8db  5042/udp   asnaacceler8db
 #                          Walter Goodwin <wpgoodwin&asna.com>
@@ -13032,7 +13041,12 @@ ggz             5688/udp   GGZ Gaming Zone
 qmvideo		5689/tcp   QM video network management protocol
 qmvideo		5689/udp   QM video network management protocol
 #			   Jamie Lokier <jamie&jlokier.co.uk> May 2006
-#               5690-5695  Unassigned
+#               5690-5692  Unassigned
+rbsystem        5693/tcp   Robert Bosch Data Transfer 
+#                          Thomas Beck (Robert Bosch GmbH) <Thomas.Beck8&bosch.com> 01 August 2011
+#                          Klaus Warth <Klaus.Warth&heitec.de> 01 August 2011
+#               5693/udp   Reserved
+#               5694-5695  Unassigned
 kmip            5696/tcp   Key Management Interoperability Protocol
 #                          Robin Cover <robin&oasis-open.org> 25 July 2011
 #                          OASIS KMIP Technical Committee
@@ -13289,7 +13303,10 @@ max		6074/udp   Microsoft Max
 dpm-acm         6075/tcp   Microsoft DPM Access Control Manager
 #                          Prabu Ambravaneswaran <prambrav&microsoft.com> 29 October 2009
 #               6075/udp   Reserved
-#               6076-6081  Unassigned
+msft-dpm-cert   6076/tcp   Microsoft DPM WCF Certificates
+#                          Prateek Sharma <pratshar&microsoft.com> 04 August 2011
+#               6076/udp   Reserved
+#               6077-6081  Unassigned
 #               6082/tcp   Reserved
 p25cai          6082/udp   APCO Project 25 Common Air Interface - UDP encapsulation
 #                          APCO Project 25 (Steve Glass) <admin&sedition.org.au> 13 May 2011
@@ -14785,12 +14802,14 @@ abarsd		8402/tcp    abarsd
 abarsd		8402/udp    abarsd
 admind		8403/tcp    admind
 admind 		8403/udp    admind
-#			                Aaron Bilbrey <abilbrey&commvault.com>
+#                           Aaron Bilbrey <abilbrey&commvault.com>
 svcloud         8404/tcp    SuperVault Cloud
 #                           Alex Stoev <astoev&vaultusa.com> 14 September 2009
+#                           Alex Stoev <astoev&ninetechnology.com> 01 August 2011
 #               8404/udp    Reserved
 svbackup        8405/tcp    SuperVault Backup
 #                           Alex Stoev <astoev&vaultusa.com> 14 September 2009
+#                           Alex Stoev <astoev&ninetechnology.com> 01 August 2011
 #               8405/udp    Reserved
 #               8406-8415   Unassigned
 espeech         8416/tcp    eSpeech Session Protocol
