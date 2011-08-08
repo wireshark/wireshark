@@ -45,10 +45,6 @@
 
 #include "gtk/old-gtk-compat.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327
-#endif
-
 #define DEFAULT_PIXELS_PER_TICK 2
 #define MAX_PIXELS_PER_TICK     4
 #define AUTO_MAX_YSCALE         0
@@ -236,7 +232,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 										yvalue,
 										POINT_SIZE, 
 										0, 
-										2 * M_PI);
+										2 * G_PI);
 									cairo_fill(cr);
 									cairo_destroy(cr);
 							}
@@ -268,7 +264,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 									yvalue,
 									POINT_SIZE, 
 									0, 
-									2 * M_PI);
+									2 * G_PI);
 								cairo_fill(cr);
 								cairo_destroy(cr);
 
@@ -299,7 +295,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 										yvalue,
 										POINT_SIZE, 
 										0, 
-										2 * M_PI);
+										2 * G_PI);
 									cairo_fill(cr);
 									cairo_destroy(cr);
 							}
@@ -422,7 +418,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 											yvalue,
 											POINT_SIZE, 
 											0, 
-											2 * M_PI);
+											2 * G_PI);
 										cairo_stroke(cr);
 										cairo_destroy(cr);
 
@@ -439,7 +435,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 											yvalue,
 											POINT_SIZE, 
 											0, 
-											2 * M_PI);
+											2 * G_PI);
 										cairo_fill(cr);
 										cairo_destroy(cr);
 									}
@@ -453,7 +449,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 											yvalue,
 											POINT_SIZE, 
 											0, 
-											2 * M_PI);
+											2 * G_PI);
 										cairo_fill(cr);
 										cairo_destroy(cr);
 									}
@@ -486,7 +482,7 @@ draw_nr_sack_graph(struct sctp_udata *u_data)
 								yvalue,
 								POINT_SIZE, 
 								0, 
-								2 * M_PI);
+								2 * G_PI);
 							cairo_fill(cr);
 							cairo_destroy(cr);
 					}
@@ -565,7 +561,7 @@ draw_tsn_graph(struct sctp_udata *u_data)
 							yvalue,
 							POINT_SIZE, 
 							0, 
-							2 * M_PI);
+							2 * G_PI);
 						cairo_fill(cr);
 						cairo_destroy(cr);
 

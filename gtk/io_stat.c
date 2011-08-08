@@ -63,10 +63,6 @@
 
 #define MAX_GRAPHS 5
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846264338327
-#endif
-
 #define MAX_YSCALE 28
 #define LOGARITHMIC_YSCALE 0
 #define AUTO_MAX_YSCALE 1
@@ -1127,7 +1123,7 @@ io_stat_draw(io_stat_t *io)
 						y_pos+0.5,
 						(gdouble)io->pixels_per_tick/2,
 						0,
-						2 * M_PI);
+						2 * G_PI);
 					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
 					cairo_fill (cr);
 					cairo_destroy (cr);
