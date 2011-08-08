@@ -47,7 +47,6 @@
 #include "../stat_menu.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"
-#include "../color.h"
 
 #include "gtk/gtkglobals.h"
 #include "gtk/gui_utils.h"
@@ -1257,7 +1256,7 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 {
 	io_stat_t *io;
 	int i=0;
-	static color_t col[MAX_GRAPHS] = {
+	static GdkColor col[MAX_GRAPHS] = {
 		{0,	0x0000,	0x0000,	0x0000},
 		{0,	0xffff,	0x0000,	0x0000},
 		{0,	0x0000,	0xffff,	0x0000},

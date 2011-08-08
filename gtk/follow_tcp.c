@@ -48,7 +48,6 @@
 #include <epan/ipproto.h>
 #include <epan/charsets.h>
 
-#include "../color.h"
 #include "../file.h"
 #include "../alert_box.h"
 #include "../simple_dialog.h"

@@ -52,7 +52,6 @@
 #include "epan/filesystem.h"
 
 #include "../util.h"
-#include "../color.h"
 #include "../simple_dialog.h"
 #include "../alert_box.h"
 #include <wsutil/file_util.h>

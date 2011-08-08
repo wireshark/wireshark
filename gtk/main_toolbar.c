@@ -36,7 +36,6 @@
 #include <epan/prefs.h>
 #include <epan/dfilter/dfilter.h>
 
-#include "../color.h"
 #include "../color_filters.h"
 
 #ifdef HAVE_LIBPCAP

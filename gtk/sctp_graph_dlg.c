@@ -36,7 +36,6 @@
 #include <epan/strutil.h>
 
 #include "../globals.h"
-#include "../color.h"
 #include "../ui_util.h"
 #include "../simple_dialog.h"
 

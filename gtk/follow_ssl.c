@@ -46,7 +46,6 @@
 #include <epan/filesystem.h>
 #include <epan/tap.h>
 
-#include <../color.h>
 #include <../alert_box.h>
 #include <../simple_dialog.h>
 #include <../util.h>

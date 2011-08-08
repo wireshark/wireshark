@@ -70,7 +70,6 @@
 #include "../simple_dialog.h"
 #include "../stat_menu.h"
 #include "../progress_dlg.h"
-#include "../color.h"
 #include "../tempfile.h"
 #include <wsutil/file_util.h>
 
@@ -3392,7 +3391,7 @@ void iax2_analysis(
 	user_data_t *user_data;
 	int fd;
 	int i;
-	static color_t col[MAX_GRAPHS] = {
+	static GdkColor col[MAX_GRAPHS] = {
 		{0,     0x0000, 0x0000, 0x0000},
 		{0,     0xffff, 0x0000, 0x0000},
 		{0,     0x0000, 0xffff, 0x0000},

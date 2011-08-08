@@ -42,7 +42,6 @@
 #include <epan/expert.h>
 
 #include "../simple_dialog.h"
-#include "../color.h"
 
 #include "gtk/expert_comp_table.h"
 #include "gtk/filter_utils.h"
