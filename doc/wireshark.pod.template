@@ -1938,6 +1938,11 @@ This entry specifies the command line to launch a web browser. It is used
 to access online content, like the Wiki and user guide. Use '%s' to place
 the request URL in the command line.
 
+=item Display LEDs in the Expert Infos dialog tab labels
+
+This item determines if LED-like colored images are displayed in the
+Expert Infos dialog tab labels.
+
 =back
 
 =item Layout Preferences

@@ -77,6 +77,7 @@ static gboolean recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GUI_FIND_WRAP_KEY		"find_wrap"
 #define GUI_USE_PREF_SAVE_KEY		"use_pref_save"
 #define GUI_SHOW_VERSION_KEY		"show_version"
+#define GUI_EXPERT_EYECANDY_KEY		"expert_eyecandy"
 
 static const enum_val_t scrollbar_placement_vals[] _U_ = {
 	{ "FALSE", "Left", FALSE },
@@ -172,6 +173,7 @@ gui_prefs_show(void)
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
 	GtkWidget *macosx_style_cb;
 #endif
+	GtkWidget *expert_info_eyecandy_cb;
 
 	int        pos = 0;
 	char       current_val_str[128];
@@ -334,6 +336,13 @@ gui_prefs_show(void)
 	    g_object_set_data(G_OBJECT(main_vb), GUI_WEBBROWSER_KEY, webbrowser_te);
 	}
 
+	/* Enable Expert Infos Dialog Tab Label "eye-candy" */
+	expert_info_eyecandy_cb = create_preference_check_button(main_tb, pos++,
+	    "Display LEDs in the Expert Infos dialog tab labels:",
+	    "Whether colored LED images should be displayed in the Expert Infos dialog tab labels.",
+	    prefs.gui_expert_composite_eyecandy );
+	g_object_set_data(G_OBJECT(main_vb), GUI_EXPERT_EYECANDY_KEY, expert_info_eyecandy_cb);
+
 	/* Show 'em what we got */
 	gtk_widget_show_all(main_vb);
 
@@ -434,6 +443,10 @@ gui_prefs_fetch(GtkWidget *w)
 		prefs.gui_webbrowser = g_strdup(gtk_entry_get_text(
 							GTK_ENTRY(g_object_get_data(G_OBJECT(w), GUI_WEBBROWSER_KEY))));
 	}
+
+	prefs.gui_expert_composite_eyecandy =
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_EXPERT_EYECANDY_KEY));
+
 	/*
 	 * XXX - we need to have a way to fetch the preferences into
 	 * local storage and only set the permanent preferences if there
