@@ -1002,7 +1002,7 @@ dissect_xtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		xtp_tree = proto_item_add_subtree(ti, ett_xtp);
 		/* key(8) */
 		offset = 0;
-		ti = proto_tree_add_uint64(xtp_tree, hf_xtp_key,
+		proto_tree_add_uint64(xtp_tree, hf_xtp_key,
 					tvb, offset, 8, xtph->key);
 		offset += 8;
 		/* cmd(4) */
