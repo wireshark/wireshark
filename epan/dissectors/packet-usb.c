@@ -1946,7 +1946,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
         }
         usb_conv_info->usb_trans_info=usb_trans_info;
 
-        if(usb_trans_info && usb_trans_info->response_in){
+        if(usb_trans_info->response_in){
             proto_item *ti;
 
             ti=proto_tree_add_uint(tree, hf_usb_response_in, tvb, 0, 0, usb_trans_info->response_in);
