@@ -217,8 +217,6 @@ proto_cb(GtkWidget *w _U_, gpointer data _U_)
   g_signal_connect(proto_w, "delete_event", G_CALLBACK(proto_delete_event_cb), NULL);
   g_signal_connect(proto_w, "destroy", G_CALLBACK(proto_destroy_cb), NULL);
 
-  gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(proto_w));
-
   gtk_widget_show(proto_w);
 
   gtk_widget_grab_focus(proto_list); /* XXX: force focus to the tree_view. This hack req'd so "type-ahead find"

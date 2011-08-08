@@ -106,14 +106,12 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_add(GTK_CONTAINER(main_vb), supported_nb);
 
 
-  /* humm, gtk 1.2 does not support horizontal scrollbar for text widgets */
-
   /* protocol list */
   proto_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(proto_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
-  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+  gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);
   gtk_box_pack_start(GTK_BOX(proto_vb), txt_scrollw, TRUE, TRUE, 0);
   proto_text = gtk_text_view_new();
@@ -131,7 +129,7 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
   gtk_container_set_border_width(GTK_CONTAINER(dfilter_vb), 1);
 
   txt_scrollw = scrolled_window_new(NULL, NULL);
-    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw), 
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(txt_scrollw),
                                    GTK_SHADOW_IN);
   gtk_box_pack_start(GTK_BOX(dfilter_vb), txt_scrollw, TRUE, TRUE, 0);
   dfilter_text = gtk_text_view_new();
@@ -163,8 +161,6 @@ void supported_cb(GtkWidget *w _U_, gpointer data _U_)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   window_set_cancel_button(supported_w, ok_bt, window_cancel_button_cb);
-
-  gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(supported_w));
 
   g_signal_connect(supported_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(supported_w, "destroy", G_CALLBACK(supported_destroy_cb), NULL);
@@ -247,7 +243,7 @@ static void set_supported_text(GtkWidget *w, supported_type_t type)
 	    name = proto_get_protocol_name(i);
 	    short_name = proto_get_protocol_short_name(protocol);
 	    filter_name = proto_get_protocol_filter_name(i);
- 
+
 	    /* the name used for sorting in the left column */
 	    len = g_snprintf(buffer, BUFF_LEN, "%*s %*s %*s\n",
 			   -short_namel,  short_name,
