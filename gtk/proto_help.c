@@ -30,6 +30,10 @@
 
 #include <string.h>
 
+#ifndef GTK_UI_MANAGER_MENUITEM
+# undef GTK_DISABLE_DEPRECATED
+#endif
+
 #include <gtk/gtk.h>
 #include <gtk/webbrowser.h>
 
