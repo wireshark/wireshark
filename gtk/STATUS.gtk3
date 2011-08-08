@@ -36,31 +36,34 @@ There are two ways to make the Wireshark code gtk3 ready:
   - GTK_OBJECT -> sanity check + cast, can probably be removed
 
 
-Some statistics (as of rev 38283)
+Some statistics (as of rev 38402)
 
 -DGDK_DISABLE_DEPRECATED
   grep error: make.log| grep -v assignment | cut -d: -f5 | sort | uniq -c
-      2  implicit declaration of function ‘gdk_draw_arc’
+      1  implicit declaration of function ‘gdk_draw_arc’
       1  implicit declaration of function ‘gdk_draw_drawable’
-      9  implicit declaration of function ‘gdk_draw_layout’
-      5  implicit declaration of function ‘gdk_draw_line’
+      2  implicit declaration of function ‘gdk_draw_layout’
+      4  implicit declaration of function ‘gdk_draw_line’
       1  implicit declaration of function ‘gdk_draw_pixbuf’
-      3  implicit declaration of function ‘gdk_draw_pixmap’
+      1  implicit declaration of function ‘gdk_draw_pixmap’
       1  implicit declaration of function ‘gdk_draw_polygon’
-      4  implicit declaration of function ‘gdk_draw_rectangle’
-      5  implicit declaration of function ‘gdk_gc_new’
+      2  implicit declaration of function ‘gdk_draw_rectangle’
+      3  implicit declaration of function ‘gdk_gc_new’
       1  implicit declaration of function ‘gdk_gc_set_fill’
       2  implicit declaration of function ‘gdk_gc_set_foreground’
       1  implicit declaration of function ‘gdk_gc_set_function’
       1  implicit declaration of function ‘gdk_gc_set_line_attributes’
-      3  implicit declaration of function ‘gdk_gc_set_rgb_fg_color’
+      1  implicit declaration of function ‘gdk_gc_set_rgb_fg_color’
       1  implicit declaration of function ‘gdk_gc_set_tile’
       1  implicit declaration of function ‘gdk_gc_set_ts_origin’
       1  implicit declaration of function ‘gdk_pixmap_create_from_xpm_d’
 
 -DGTK_DISABLE_DEPRECATED
-	Will work if and only if building with UI_MANAGER enabled:
+	The only place where this will cause trouble is menus.c if
+	we are building without UI_MANAGER - in that case it gets
+	disbled there.
+	menus.c will only be checked if building with UI_MANAGER enabled:
         autofoo: configure ... --enable-uimanager ...
 	cmake: cmake ... -DUI_MANAGER=ON ...
-	Right now this looses the proto_help functionality and quite some
-	additional stuff (mostly? statistics).
+	Right now UI_MANAGER=ON looses the proto_help functionality and quite
+	some additional stuff (mostly? statistics).

@@ -220,42 +220,32 @@ if (WERROR)
 	)
 endif()
 
-add_definitions(
-	# To check that your application only includes the allowed headers,
-	# you can use defines to disable inclusion of individual headers
-
-	-DGTK_DISABLE_SINGLE_INCLUDES
-
-	# GTK+ 3 removes many implementation details and struct members from its
-	# public headers. Make the compiler catch all uses of direct access to
-	# struct fields so that you can go through them one by one and replace
-	# them with a call to an accessor function instead.
-
-	# Is enabled automatically when not building with GTK3 (see below).
-	# -DGSEAL_ENABLE
-
-	# To verify that your program does not use any deprecated symbols,
-	# you can use defines to remove deprecated symbols from the header files
-
-	# -DGDK_DISABLE_DEPRECATED
-
-	# This is automatically enabled if we build with UI_MANAGER (see below)
-	# -DGTK_DISABLE_DEPRECATED
-)
-
 if (UI_MANAGER)
 	add_definitions(
 		-DMAIN_MENU_USE_UIMANAGER=1
 	)
-	if (NOT ENABLE_GTK3)
-		add_definitions(
-			-DGTK_DISABLE_DEPRECATED
-		)
-	endif()
 endif()
+
 if (NOT ENABLE_GTK3)
 	add_definitions(
+		# We are only allowed to include gtk/gtk.h, no other files. When
+		# violating this with gtk3 the compiler will complain anyway.
+		-DGTK_DISABLE_SINGLE_INCLUDES
+
+		# GTK+ 3 removes many implementation details and struct members from its
+		# public headers. Make the compiler catch all uses of direct access to
+		# struct fields so that you can go through them one by one and replace
+		# them with a call to an accessor function instead.
 		-DGSEAL_ENABLE
+
+		# The only place where this will cause trouble is menus.c if
+		# we are building without UI_MANAGER - in that case it gets
+		# disbled there.
+		-DGTK_DISABLE_DEPRECATED
+
+		# To verify that your program does not use any deprecated symbols,
+		# you can use defines to remove deprecated symbols from the header files
+		#-DGDK_DISABLE_DEPRECATED
 	)
 endif()
 

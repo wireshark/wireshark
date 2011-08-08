@@ -26,6 +26,10 @@
 # include "config.h"
 #endif
 
+#ifndef GTK_UI_MANAGER_MENUITEM
+# undef GTK_DISABLE_DEPRECATED
+#endif
+
 #include <gtk/gtk.h>
 
 #include <stdio.h>
