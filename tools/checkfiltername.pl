@@ -12,7 +12,7 @@ my $debug = 0;
 #
 # Usage: checkfiltername.pl <file or files>
 
-# $Id:
+# $Id$
 
 #
 # Copyright 2011 Michael Mann (see AUTHORS file)
