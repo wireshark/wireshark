@@ -32,6 +32,9 @@
 # include "config.h"
 #endif
 
+/* The mate dissector is using deprecated GMemChunk. Do not error out
+ * when encountering it.
+ */
 #undef G_DISABLE_DEPRECATED
 
 #ifndef ENABLE_STATIC
