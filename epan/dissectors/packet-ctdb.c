@@ -27,12 +27,9 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/value_string.h>
 #include <epan/emem.h>
 
 /* Initialize the protocol and registered fields */

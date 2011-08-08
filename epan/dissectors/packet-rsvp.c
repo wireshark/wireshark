@@ -101,7 +101,6 @@
 
 #include <glib.h>
 
-#include <epan/tvbuff.h>
 #include <epan/packet.h>
 #include <prefs.h>
 #include <epan/in_cksum.h>

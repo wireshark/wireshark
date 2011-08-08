@@ -33,8 +33,6 @@
 #include <math.h>
 #include <glib.h>
 #include <epan/packet.h>
-#include "packet-ipsec.h"
-#include "packet-ipv6.h"
 #include <epan/ip_opts.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>
@@ -47,10 +45,11 @@
 #include <epan/nlpid.h>
 #include <epan/arcnet_pids.h>
 #include <epan/in_cksum.h>
-#include <epan/value_string.h>
 #include <epan/expert.h>
 #include <epan/emem.h>
 #include <epan/tap.h>
+#include "packet-ipsec.h"
+#include "packet-ipv6.h"
 
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.

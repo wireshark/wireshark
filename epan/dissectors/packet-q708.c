@@ -30,8 +30,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 
-#include <epan/value_string.h>
-
 #include "packet-q708.h"
 
 static int proto_q708 = -1;

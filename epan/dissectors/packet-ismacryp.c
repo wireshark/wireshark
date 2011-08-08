@@ -36,7 +36,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/tvbuff.h>
 #include <epan/prefs.h>
 
 /* keeps track of current position in buffer in terms of bit and byte offset */

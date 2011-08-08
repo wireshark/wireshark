@@ -36,10 +36,7 @@
 #endif
 
 #include <glib.h>
-#include <epan/epan.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
-#include <epan/tvbuff.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/expert.h>

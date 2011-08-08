@@ -29,10 +29,8 @@
 #endif
 
 #include <glib.h>
-#include <string.h>
 
 #include <epan/packet.h>
-#include <epan/value_string.h>
 #include <epan/emem.h>
 #include <epan/reassemble.h>
 #include "packet-btl2cap.h"

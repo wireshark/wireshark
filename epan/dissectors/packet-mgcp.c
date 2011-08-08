@@ -40,9 +40,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include <epan/proto.h>
 #include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/tap.h>

@@ -50,7 +50,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/proto.h>
 #include <etypes.h>
 
 /* Initialize the protocol and registered fields */

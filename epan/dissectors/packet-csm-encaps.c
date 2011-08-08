@@ -29,8 +29,6 @@
 # include "config.h"
 #endif
 
-
-
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
 #endif
@@ -44,11 +42,7 @@
 #include <epan/packet.h>
 #include <epan/tap.h>
 
-#include <epan/proto.h>
-#include <etypes.h>
-
-
-
+#include <epan/etypes.h>
 
 
 #define OPCODE_NOOP	             0x0000

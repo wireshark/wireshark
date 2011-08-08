@@ -41,12 +41,11 @@
 #endif
 
 #include <glib.h>
-#include <epan/exceptions.h>
 #include <epan/packet.h>
+#include <epan/exceptions.h>
 #include <epan/expert.h>
 #include <epan/emem.h>
-#include <epan/dissectors/packet-tcp.h>
-#include <epan/tfs.h>
+#include "packet-tcp.h"
 
 /*  Generic data  */
 

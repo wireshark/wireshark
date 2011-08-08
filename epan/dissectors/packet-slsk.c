@@ -34,17 +34,15 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
 #include <string.h>
 
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/tvbuff.h>
-#include "packet-tcp.h"
 #include <epan/prefs.h>
 #include <epan/strutil.h>
 #include <epan/expert.h>
+#include "packet-tcp.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_slsk = -1;

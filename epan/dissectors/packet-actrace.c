@@ -29,7 +29,6 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/proto.h>
 #include <epan/prefs.h>
 #include <epan/tap.h>
 #include "packet-actrace.h"

@@ -29,9 +29,6 @@
 # include "config.h"
 #endif
 
-#include <stdlib.h>
-#include <ctype.h>
-#include <time.h>
 #include <epan/packet.h>
 #include <epan/afn.h>
 #include <epan/ipproto.h>
@@ -39,7 +36,6 @@
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
 #include <epan/prefs.h>
-#include <epan/proto.h>
 #include <epan/emem.h>
 #include <epan/ptvcursor.h>
 
@@ -368,14 +364,14 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 	}
 
 	opts_total_len = tvb_get_ntohs(tvb, ptvcursor_current_offset(cursor)+2);
-	
+
 	if (opts_total_len < 4) {
 		proto_tree_add_text(opts_tree, tvb, ptvcursor_current_offset(cursor)+2, 2,
 			"%s Options (Total Length %u - invalid, must be >= 4)",
 			pktname, opts_total_len);
 		return;
 	}
-	
+
 	tf = proto_tree_add_text(ptvcursor_tree(cursor), tvb, ptvcursor_current_offset(cursor), opts_total_len,
 		"%s Options (Total Length %d)", pktname, opts_total_len);
 	opts_tree = proto_item_add_subtree(tf, ett_pgm_opts);
@@ -448,7 +444,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
 
-			
+
 			if (genopts_len < PGM_OPT_PARITY_PRM_SIZE) {
 				proto_tree_add_uint_format(opt_tree, hf_pgm_genopt_len, ptvcursor_tvbuff(cursor),
 					ptvcursor_current_offset(cursor), 1, genopts_len,
@@ -501,12 +497,12 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 
 			ptvcursor_add_no_advance(cursor, hf_pgm_genopt_end, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_type, 1, FALSE);
-			
+
 			optdata_len = tvb_get_guint8(tvb, ptvcursor_current_offset(cursor));
 			ptvcursor_add(cursor, hf_pgm_genopt_len, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_genopt_opx, 1, FALSE);
 			ptvcursor_add(cursor, hf_pgm_opt_nak_res, 1, FALSE);
-			
+
 			optdata_len -= PGM_OPT_NAK_LIST_SIZE;
 			tvb_memcpy(tvb, (guint8 *)naklist, ptvcursor_current_offset(cursor), optdata_len);
 			firsttime = TRUE;
@@ -587,7 +583,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 				break;
 
 			default:
-				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1,
 				    "Can't handle this address format");
 				break;
 			}
@@ -714,7 +710,7 @@ dissect_pgmopts(ptvcursor_t* cursor, const char *pktname)
 				break;
 
 			default:
-				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				proto_tree_add_text(opt_tree, tvb, ptvcursor_current_offset(cursor), -1,
 				    "Can't handle this address format");
 				break;
 			}
@@ -875,7 +871,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (check_col(pinfo->cinfo, COL_INFO)) {
 			col_add_fstr(pinfo->cinfo, COL_INFO,
-				"%-5s sqn 0x%x gsi %s subtype %s", 
+				"%-5s sqn 0x%x gsi %s subtype %s",
 					pktname, sqn, gsi, pollstname);
 		}
 		}
@@ -922,7 +918,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ptvcursor_set_tree(cursor, pgm_tree);
 
 		/* Checksum may be 0 (not available), but not for DATA packets */
-		if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) && 
+		if ((pgmhdr_type != PGM_RDATA_PCKT) && (pgmhdr_type != PGM_ODATA_PCKT) &&
 		    (pgmhdr_cksum == 0))
 		{
 			proto_tree_add_uint_format(pgm_tree, hf_pgm_main_cksum, tvb,
@@ -980,7 +976,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
 				    "Can't handle this address format");
 				return;
 			}
@@ -1014,7 +1010,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
 				    "Can't handle this address format");
 				break;
 			}
@@ -1033,7 +1029,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
 				    "Can't handle this address format");
 				return;
 			}
@@ -1059,7 +1055,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1, 
+				proto_tree_add_text(type_tree, tvb, ptvcursor_current_offset(cursor), -1,
 				    "Can't handle this address format");
 				break;
 			}
@@ -1088,7 +1084,7 @@ dissect_pgm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (pgmhdr_opts & PGM_OPT)
 			dissect_pgmopts(cursor, pktname);
 
-		if (isdata) 
+		if (isdata)
 			decode_pgm_ports(tvb, ptvcursor_current_offset(cursor), pinfo, tree, pgmhdr_sport, pgmhdr_dport);
 	}
 }
@@ -1403,7 +1399,7 @@ proto_register_pgm(void)
   /*
    * Register configuration preferences for UDP encapsulation
    * (Note: Initially the ports are set to zero and the ports
-   *        are not registered so the dissecting of PGM 
+   *        are not registered so the dissecting of PGM
    *        encapsulated in UDP packets is off by default;
    *        dissector_add_handle is called so that pgm
    *        is available for 'decode-as'

@@ -35,7 +35,6 @@
 
 #include <epan/etypes.h>
 
-#include <epan/proto.h>
 #include <epan/ptvcursor.h>
 
 static int proto_homeplug                     = -1;

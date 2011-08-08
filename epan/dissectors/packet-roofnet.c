@@ -31,10 +31,8 @@
 
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
-#include <epan/value_string.h>
 #include <epan/expert.h>
 #include <epan/ptvcursor.h>
-#include <epan/tvbuff.h>
 
 
 /* roofnet packet type constants */

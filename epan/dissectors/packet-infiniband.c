@@ -29,15 +29,15 @@
 # include "config.h"
 #endif
 
+#include <string.h>
+
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
 #include <epan/emem.h>
 #include <epan/conversation.h>
-#include <epan/dissectors/packet-frame.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <string.h>
+#include <epan/dissectors/packet-frame.h>
 #include "packet-infiniband.h"
 
 #define PROTO_TAG_INFINIBAND    "Infiniband"

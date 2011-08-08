@@ -29,9 +29,8 @@
 
 /* includes needed for wireshark */
 #include <glib.h>
-#include <epan/prefs.h>
 #include <epan/packet.h>
-#include <epan/proto.h>
+#include <epan/prefs.h>
 #include <epan/conversation.h>
 #include <epan/emem.h>
 

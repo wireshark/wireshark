@@ -38,7 +38,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <epan/proto.h>
 
 #include "packet-tte.h"
 

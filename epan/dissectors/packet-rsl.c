@@ -38,7 +38,6 @@
 #include <ctype.h>
 
 #include <epan/packet.h>
-#include <epan/proto.h>
 #include <epan/lapd_sapi.h>
 
 #include "packet-gsm_a_common.h"

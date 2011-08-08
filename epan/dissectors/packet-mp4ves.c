@@ -36,7 +36,6 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/proto.h>
 #include <epan/asn1.h>
 
 #include <epan/prefs.h>

@@ -34,8 +34,6 @@
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/etypes.h>
-#include <epan/tfs.h>
-#include <epan/proto.h>
 #include <epan/emem.h>
 #include <epan/dissectors/packet-udp.h>
 

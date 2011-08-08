@@ -36,7 +36,6 @@
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <epan/emem.h>
-#include <epan/proto.h>
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 #include <epan/strutil.h>

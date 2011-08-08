@@ -35,7 +35,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/timestamp.h>
-#include <epan/tvbuff.h>
 #include "packet-frame.h"
 #include <epan/prefs.h>
 #include <epan/tap.h>

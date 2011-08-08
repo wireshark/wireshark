@@ -28,7 +28,6 @@
 #endif
 
 #include <glib.h>
-#include <epan/proto.h>
 #include <epan/packet.h>
 #include "packet-ip.h"
 

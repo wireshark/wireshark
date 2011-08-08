@@ -34,12 +34,11 @@
 #include <glib.h>
 
 #include <epan/packet.h>
-#include <epan/value_string.h>
 #include <epan/emem.h>
 #include <etypes.h>
 #include <epan/tap.h>
-#include <epan/dissectors/packet-btsdp.h>
-#include <epan/dissectors/packet-btl2cap.h>
+#include "packet-btsdp.h"
+#include "packet-btl2cap.h"
 
 /* Initialize the protocol and registered fields */
 static int proto_btsdp = -1;

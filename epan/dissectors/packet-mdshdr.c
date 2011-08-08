@@ -13,17 +13,17 @@
  * don't bother with the "Copied from" - you don't even need to put
  * in a "Copied from" if you copied an existing dissector, especially
  * if the bulk of the code in the new dissector is your code)
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -32,8 +32,6 @@
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
-
-#include <stdlib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 # include <sys/types.h>
@@ -45,9 +43,8 @@
 
 #include <glib.h>
 
-#include <epan/value_string.h>
-#include <etypes.h>
 #include <epan/packet.h>
+#include <etypes.h>
 #include <epan/prefs.h>
 
 #define MDSHDR_VERSION_OFFSET 		0
@@ -156,7 +153,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* Set up structures needed to add the protocol subtree and manage it */
     proto_item *ti_main, *ti_hdr, *ti_trlr;
-    proto_item *hidden_item; 
+    proto_item *hidden_item;
     proto_tree *mdshdr_tree_main, *mdshdr_tree_hdr, *mdshdr_tree_trlr;
     int offset = 0;
     guint    pktlen;
@@ -168,20 +165,20 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MDS Header");
-    
+
     col_clear(pinfo->cinfo, COL_INFO);
 
     sof = tvb_get_guint8 (tvb, offset+MDSHDR_SOF_OFFSET) & 0x0F;
     pktlen = tvb_get_ntohs (tvb, offset+MDSHDR_PKTLEN_OFFSET) & 0x1FFF;
     vsan = tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0x0FFF;
     span_id = (tvb_get_ntohs (tvb, offset+MDSHDR_VSAN_OFFSET) & 0xF000) >> 12;
-    
+
     /* The Mdshdr trailer is at the end of the frame */
     if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
      /* Avoid header/trailer overlap if something wrong */
      && pktlen >= MDSHDR_TRAILER_SIZE ) {
-        trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE; 
-    
+        trailer_start = MDSHDR_HEADER_SIZE + pktlen - MDSHDR_TRAILER_SIZE;
+
         eof = tvb_get_guint8 (tvb, trailer_start);
         tvb_set_reported_length (tvb, MDSHDR_HEADER_SIZE+pktlen);
     }
@@ -199,7 +196,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         pinfo->sof_eof = PINFO_SOF_FIRST_FRAME;
     }
     else if (sof == MDSHDR_SOFf) {
-        pinfo->sof_eof = PINFO_SOF_SOFF;      
+        pinfo->sof_eof = PINFO_SOF_SOFF;
     }
 
     if (eof != MDSHDR_EOFn) {
@@ -208,7 +205,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     else if (eof != MDSHDR_EOFt) {
         pinfo->sof_eof |= PINFO_EOF_INVALID;
     }
-    
+
     /* In the interest of speed, if "tree" is NULL, don't do any work not
        necessary to generate protocol tree items. */
     if (tree) {
@@ -216,7 +213,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* create display subtree for the protocol */
         ti_main = proto_tree_add_protocol_format (tree, proto_mdshdr, tvb, 0,
                                                   MDSHDR_HEADER_SIZE+pktlen,
-                                                  "MDS Header(%s/%s)", 
+                                                  "MDS Header(%s/%s)",
 						  val_to_str(sof, sof_vals, "Unknown(%u)"),
                                                   val_to_str(eof, eof_vals, "Unknown(%u)"));
 
@@ -230,7 +227,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         hidden_item = proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_sof, tvb, MDSHDR_SOF_OFFSET,
                                     MDSHDR_SIZE_BYTE, 0);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_pkt_len, tvb, MDSHDR_PKTLEN_OFFSET, 
+        proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_pkt_len, tvb, MDSHDR_PKTLEN_OFFSET,
                              MDSHDR_SIZE_INT16, 0);
         proto_tree_add_item (mdshdr_tree_hdr, hf_mdshdr_dstidx, tvb, MDSHDR_DIDX_OFFSET,
                              MDSHDR_SIZE_INT16, 0);
@@ -242,7 +239,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    tvb, MDSHDR_VSAN_OFFSET,
                                    MDSHDR_SIZE_BYTE, span_id);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        
+
         /* Add Mdshdr Trailer part */
         if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
          && 0 != trailer_start) {
@@ -250,17 +247,17 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                            MDSHDR_TRAILER_SIZE,
                                            "MDS Trailer");
             mdshdr_tree_trlr = proto_item_add_subtree (ti_trlr, ett_mdshdr_trlr);
-        
+
             proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_eof, tvb,
                                  trailer_start, MDSHDR_SIZE_BYTE, 0);
             proto_tree_add_item (mdshdr_tree_trlr, hf_mdshdr_fccrc, tvb,
                                  trailer_start+2, MDSHDR_SIZE_INT32, 0);
         }
         else {
-            proto_tree_add_text (mdshdr_tree_main, tvb, 0, 0, "MDS Trailer: Not Found");        
+            proto_tree_add_text (mdshdr_tree_main, tvb, 0, 0, "MDS Trailer: Not Found");
         }
     }
-    
+
     /* If this protocol has a sub-dissector call it here, see section 1.8 */
     if (tvb_length (tvb) >= MDSHDR_HEADER_SIZE + pktlen
      && 0 != pktlen /*if something wrong*/) {
@@ -287,7 +284,7 @@ dissect_mdshdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_mdshdr(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {

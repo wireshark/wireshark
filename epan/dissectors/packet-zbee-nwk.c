@@ -37,7 +37,6 @@
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
 #include <epan/expert.h>
-#include <epan/value_string.h>
 
 #include "packet-ieee802154.h"
 #include "packet-zbee.h"
