@@ -1025,6 +1025,8 @@ GLIB_LIBS=$(GTK_DIR)\lib\glib-$(GLIB_VERSION).lib \
 GTHREAD_LIBS=$(GTK_DIR)\lib\gthread-$(GLIB_VERSION).lib
 
 # GTK+
+#	-DGTK_DISABLE_DEPRECATED \
+
 GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
 	/I$(GTK_DIR)\include\gdk-pixbuf-2.0 \
 	/I$(GTK_DIR)\lib\gtk-2.0\include \
@@ -1032,7 +1034,6 @@ GTK_CFLAGS=$(GLIB_CFLAGS) /I$(GTK_DIR)\include\gtk-2.0 \
 	/I$(GTK_DIR)\include\cairo \
 	/I$(GTK_DIR)\include\pango-1.0 \
 	-DGTK_DISABLE_SINGLE_INCLUDES \
-	-DGTK_DISABLE_DEPRECATED \
 	-DGSEAL_ENABLE
 GTK_LIBS=$(GTK_DIR)\lib\gtk-win32-2.0.lib \
 	$(GTK_DIR)\lib\gdk-win32-2.0.lib \
