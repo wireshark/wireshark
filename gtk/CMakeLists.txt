@@ -223,6 +223,7 @@ endif()
 if (UI_MANAGER)
 	add_definitions(
 		-DMAIN_MENU_USE_UIMANAGER=1
+		-DGTK_DISABLE_DEPRECATED
 	)
 endif()
 
@@ -237,11 +238,6 @@ if (NOT ENABLE_GTK3)
 		# struct fields so that you can go through them one by one and replace
 		# them with a call to an accessor function instead.
 		-DGSEAL_ENABLE
-
-		# The only place where this will cause trouble is menus.c if
-		# we are building without UI_MANAGER - in that case it gets
-		# disbled there.
-		-DGTK_DISABLE_DEPRECATED
 
 		# To verify that your program does not use any deprecated symbols,
 		# you can use defines to remove deprecated symbols from the header files
