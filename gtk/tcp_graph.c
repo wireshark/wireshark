@@ -49,7 +49,6 @@
 
 #include "../globals.h"
 #include "../simple_dialog.h"
-#include "../color.h"
 #include "../stat_menu.h"
 
 #include "gtk/gui_utils.h"
