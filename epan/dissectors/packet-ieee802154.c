@@ -64,15 +64,15 @@
 #endif /* HAVEHCONFIG_H */
 
 #include <string.h>
-#include <stdlib.h>
-#include <gmodule.h>
-#include <glib.h>
 
 #ifdef HAVE_SYS_TYPES_H
 #include <sys/types.h>
 #endif
 
 #include <sys/stat.h>
+
+#include <glib.h>
+
 #include <epan/emem.h>
 #include <epan/packet.h>
 #include <epan/crc16.h>

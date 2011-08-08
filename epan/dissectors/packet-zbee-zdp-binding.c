@@ -29,9 +29,8 @@
 #include "config.h"
 #endif /* HAVE_CONFIG_H */
 
-#include <stdlib.h>
 #include <glib.h>
-#include <gmodule.h>
+
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 

@@ -38,7 +38,8 @@
 #endif
 
 #include <stdlib.h>
-#include <gmodule.h>
+
+#include <glib.h>
 #include <math.h>
 
 #ifdef HAVE_SYS_TYPES_H

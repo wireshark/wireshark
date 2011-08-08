@@ -39,7 +39,7 @@
 #ifdef HAVE_CONFIG_H
 #    include "config.h"
 #endif
-#include <gmodule.h>
+
 #include <glib.h>
 #include <epan/exceptions.h>
 #include <epan/packet.h>

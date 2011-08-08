@@ -32,7 +32,6 @@
 #endif
 
 #include <glib.h>
-#include <gmodule.h>
 
 #include <epan/strutil.h>
 

@@ -28,7 +28,7 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
+#include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/dissectors/packet-tcp.h> /* For tcp_dissect_pdus() */

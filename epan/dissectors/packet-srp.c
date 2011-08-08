@@ -27,11 +27,10 @@
 # include "config.h"
 #endif
 
-#include <gmodule.h>
 #include <glib.h>
+#include <epan/packet.h>
 #include <epan/bitswap.h>
 #include <epan/circuit.h>
-#include <epan/packet.h>
 #include <epan/stream.h>
 /* #include <epan/reassemble.h> */
 #include <epan/crc16.h>

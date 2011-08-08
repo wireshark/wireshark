@@ -30,10 +30,9 @@
 #endif /* HAVEHCONFIG_H */
 
 #include <string.h>
-#include <stdlib.h>
+
 #include <glib.h>
-#include <gmodule.h>
-#include <epan/proto.h>
+
 #include <epan/packet.h>
 #include <epan/prefs.h>
 #include <epan/addr_resolv.h>
