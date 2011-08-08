@@ -295,6 +295,7 @@ dissect_packet(epan_dissect_t *edt, union wtap_pseudo_header *pseudo_header,
 	edt->pi.annex_a_used = MTP2_ANNEX_A_USED_UNKNOWN;
 	edt->pi.dcerpc_procedure_name="";
 	edt->pi.link_dir = LINK_DIR_UNKNOWN;
+	edt->tvb = NULL;
 
 	/* to enable decode as for ethertype=0x0000 (fix for bug 4721) */
 	edt->pi.ethertype = G_MAXINT;
