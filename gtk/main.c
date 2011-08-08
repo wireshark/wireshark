@@ -1803,6 +1803,17 @@ get_gtk_compiled_info(GString *str)
                     "GTK+ (version unknown)");
 #endif
   g_string_append(str, ", ");
+  /* Cairo */
+  g_string_append(str, "with Cairo ");
+  g_string_append(str, CAIRO_VERSION_STRING);
+  g_string_append(str, ", ");
+
+  /* Pango */
+  g_string_append(str, "with Pango ");
+  g_string_append(str, PANGO_VERSION_STRING);
+  g_string_append(str, ", ");
+
+
 }
 
 static void
