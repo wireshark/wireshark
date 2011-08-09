@@ -1226,13 +1226,6 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 	int i;
 	cairo_t *cr;
 
-	/* gray and soft gray colors */
-	static GdkColor color_div_line[2] = {
-		{0, 0x64ff, 0x64ff, 0x64ff},
-		{0, 0x25ff, 0x25ff, 0x25ff}
-		/*{0, 0x7fff, 0x7fff, 0x7fff}*/
-	};
-
 	/* the first color is blue to highlight the selected item */
 	static GdkColor col[MAX_NUM_COL_CONV+1] = {
 		{0,     0x00FF, 0x00FF, 0xFFFF},
