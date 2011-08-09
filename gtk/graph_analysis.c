@@ -187,22 +187,29 @@ static void on_destroy(GtkWidget *win _U_, graph_analysis_data_t *user_data)
 #define HEIGHT_ARROW 6
 
 /****************************************************************************/
-static void draw_arrow(GdkDrawable *pixmap, GdkGC *gc, gint x, gint y, gboolean direction)
+static void draw_arrow(GdkDrawable *pixmap, GdkColor *color, gint x, gint y, gboolean arrow_type)
 {
-	GdkPoint arrow_point[3];
-
-	arrow_point[0].x = x;
-	arrow_point[0].y = y-HEIGHT_ARROW/2;
-	if (direction == RIGHT_ARROW)
-		arrow_point[1].x = x+WIDTH_ARROW;
-	else
-		arrow_point[1].x = x-WIDTH_ARROW;
-	arrow_point[1].y = y;
-	arrow_point[2].x = x;
-	arrow_point[2].y = y+HEIGHT_ARROW/2;;
+	cairo_t *cr;
 
 	if (GDK_IS_DRAWABLE(pixmap)) {
-		gdk_draw_polygon(pixmap, gc, TRUE, arrow_point, 3);
+		cr = gdk_cairo_create (pixmap);
+		gdk_cairo_set_source_color (cr, color);
+		if (arrow_type == LEFT_ARROW)
+		{
+			cairo_move_to (cr, x + WIDTH_ARROW,      y);
+			cairo_line_to (cr, x + WIDTH_ARROW,      y + HEIGHT_ARROW);
+			cairo_line_to (cr, x,                    y + HEIGHT_ARROW / 2.);
+		}
+		else if (arrow_type == RIGHT_ARROW)
+		{
+			cairo_move_to (cr, x,                    y);
+			cairo_line_to (cr, x + WIDTH_ARROW,      y + HEIGHT_ARROW / 2.);
+			cairo_line_to (cr, x,                    y + HEIGHT_ARROW);
+		}
+		cairo_close_path (cr);
+		cairo_fill (cr);
+	
+		cairo_destroy (cr);
 	}
 }
 
@@ -611,7 +618,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	guint32 bottom_y_border;
 	graph_analysis_item_t *gai;
 
-	GdkGC *frame_fg_color;
 	GdkGC *frame_bg_color;
 	GdkGC *column_header_gc;
 
@@ -629,6 +635,10 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	GList *list;
 	cairo_t *cr;
 
+
+	GdkColor *color_p;
+	GdkColor black_color = {0, 0, 0, 0};
+	GdkColor white_color = {0, 0xffff, 0xffff, 0xffff};
 	/* gray and soft gray colors */
 	GdkColor grey_color0 = {0, 0x64ff, 0x64ff, 0x64ff};
 	GdkColor grey_color1 = {0, 0x25ff, 0x25ff, 0x25ff};
@@ -639,7 +649,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	static int len1  = sizeof(dashed1) / sizeof(dashed1[0]);
 
 	GtkAllocation draw_area_time_alloc, draw_area_alloc, draw_area_comments_alloc;
-	GtkStyle *draw_area_style;
 
 	if(!user_data->dlg.needs_redraw){
 		return;
@@ -654,9 +663,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
 	gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_comments_alloc);
 
-	draw_area_style = gtk_widget_get_style(user_data->dlg.draw_area);
-
-	/* Clear out old plt */
+	/* Clear out old plot */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
 		cairo_set_source_rgb (cr, 1, 1, 1);
@@ -900,12 +907,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			cr = NULL;
 
 		}
-		/* select colors */
-		if ( current_item+first_item == user_data->dlg.selected_item ){
-			frame_fg_color = draw_area_style->white_gc;
-		} else {
-			frame_fg_color = draw_area_style->black_gc;
-		}
+
 		/* draw the arrow line */
 		start_arrow = left_x_border+(user_data->dlg.items[current_item].src_node)*NODE_WIDTH+NODE_WIDTH/2;
 		end_arrow = left_x_border+(user_data->dlg.items[current_item].dst_node)*NODE_WIDTH+NODE_WIDTH/2;
@@ -933,15 +935,15 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 		/* select colors */
 		if ( current_item+first_item == user_data->dlg.selected_item ){
-			frame_fg_color = draw_area_style->white_gc;
+			color_p = &white_color;
 		} else {
-			frame_fg_color = draw_area_style->black_gc;
+			color_p = &black_color;
 		}
 		/* draw the arrow */
 		if (start_arrow<end_arrow)
-			draw_arrow(user_data->dlg.pixmap_main, frame_fg_color, end_arrow-WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, RIGHT_ARROW);
+			draw_arrow(user_data->dlg.pixmap_main, color_p, end_arrow-WIDTH_ARROW, (top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7)-(HEIGHT_ARROW/2), RIGHT_ARROW);
 		else
-			draw_arrow(user_data->dlg.pixmap_main, frame_fg_color, end_arrow+WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, LEFT_ARROW);
+			draw_arrow(user_data->dlg.pixmap_main, color_p, end_arrow, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7-(HEIGHT_ARROW/2), LEFT_ARROW);
 
 		/* draw the frame comment */
 		g_snprintf(label_string, MAX_LABEL, "%s", user_data->dlg.items[current_item].frame_label);
