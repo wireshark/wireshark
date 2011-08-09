@@ -618,8 +618,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	guint32 bottom_y_border;
 	graph_analysis_item_t *gai;
 
-	GdkGC *frame_bg_color;
-
 	PangoLayout  *layout;
 	PangoLayout  *middle_layout;
 	PangoLayout  *small_layout;
@@ -635,12 +633,27 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	cairo_t *cr;
 
 
-	GdkColor *color_p;
+	GdkColor *color_p, *bg_color_p;
 	GdkColor black_color = {0, 0, 0, 0};
 	GdkColor white_color = {0, 0xffff, 0xffff, 0xffff};
 	/* gray and soft gray colors */
 	GdkColor grey_color0 = {0, 0x64ff, 0x64ff, 0x64ff};
 	GdkColor grey_color1 = {0, 0x25ff, 0x25ff, 0x25ff};
+
+	/* the first color is blue to highlight the selected item */
+	static GdkColor background_color[MAX_NUM_COL_CONV+1] = {
+		{0,     0x00FF, 0x00FF, 0xFFFF},
+		{0,     0x90FF, 0xEEFF, 0x90FF},
+		{0,     0xFFFF, 0xA0FF, 0x7AFF},
+		{0,     0xFFFF, 0xB6FF, 0xC1FF},
+		{0,     0xFAFF, 0xFAFF, 0xD2FF},
+		{0,     0xFFFF, 0xFFFF, 0x33FF},
+		{0,     0x66FF, 0xCDFF, 0xAAFF},
+		{0,     0xE0FF, 0xFFFF, 0xFFFF},
+		{0,     0xB0FF, 0xC4FF, 0xDEFF},
+		{0,     0x87FF, 0xCEFF, 0xFAFF},
+		{0,     0xD3FF, 0xD3FF, 0xD3FF}
+	};
 
 
 	/* Dashed line pattern */
@@ -827,21 +840,17 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	for (current_item=0; current_item<display_items; current_item++){
 		/*select the color. if it is the selected item select blue color */
 		if ( current_item+first_item == user_data->dlg.selected_item ) {
-			gdk_gc_set_ts_origin(user_data->dlg.bg_gc[0],left_x_border,top_y_border+current_item*ITEM_HEIGHT);
-			frame_bg_color = user_data->dlg.bg_gc[0];
+			bg_color_p = &background_color[0]; /* blue */
 		} else {
-			frame_bg_color = user_data->dlg.bg_gc[1+user_data->dlg.items[current_item].conv_num%MAX_NUM_COL_CONV];
+			bg_color_p = &background_color[1+user_data->dlg.items[current_item].conv_num%MAX_NUM_COL_CONV];
 		}
-
-		/* Paint background */
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
-			gdk_draw_rectangle(user_data->dlg.pixmap_main,
-							   frame_bg_color,
-							   TRUE,
-							   left_x_border,
-							   top_y_border+current_item*ITEM_HEIGHT,
-							   draw_width,
-							   ITEM_HEIGHT);
+			/* Paint background */
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			gdk_cairo_set_source_color (cr, bg_color_p); 
+			cairo_rectangle (cr, left_x_border, top_y_border+current_item*ITEM_HEIGHT, draw_width, ITEM_HEIGHT);
+			cairo_fill (cr);
+			cairo_destroy (cr);
 		}
 	}
 	/* Draw the node names on top and the division lines */
@@ -958,6 +967,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+			gdk_cairo_set_source_color (cr, color_p);
 			cairo_move_to (cr, label_x - label_width/2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2-3);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1218,23 +1228,7 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 {
 	graph_analysis_data_t *user_data = data;
 	GtkAllocation widget_alloc;
-	int i;
 	cairo_t *cr;
-
-	/* the first color is blue to highlight the selected item */
-	static GdkColor col[MAX_NUM_COL_CONV+1] = {
-		{0,     0x00FF, 0x00FF, 0xFFFF},
-		{0,     0x90FF, 0xEEFF, 0x90FF},
-		{0,     0xFFFF, 0xA0FF, 0x7AFF},
-		{0,     0xFFFF, 0xB6FF, 0xC1FF},
-		{0,     0xFAFF, 0xFAFF, 0xD2FF},
-		{0,     0xFFFF, 0xFFFF, 0x33FF},
-		{0,     0x66FF, 0xCDFF, 0xAAFF},
-		{0,     0xE0FF, 0xFFFF, 0xFFFF},
-		{0,     0xB0FF, 0xC4FF, 0xDEFF},
-		{0,     0x87FF, 0xCEFF, 0xFAFF},
-		{0,     0xD3FF, 0xD3FF, 0xD3FF}
-	};
 
 	if(user_data->dlg.pixmap_main){
 		g_object_unref(user_data->dlg.pixmap_main);
@@ -1255,19 +1249,6 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 		cairo_fill (cr);
 		cairo_destroy (cr);
 		cr = NULL;
-	}
-
-	/* create gcs for the background items */
-	for (i=0; i<MAX_NUM_COL_CONV+1; i++){
-		if (i==0) {
-			user_data->dlg.pixmap_tile_select=gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_main,NULL,NULL,(gchar **)voip_select_xpm);
-			user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap_tile_select);
-			gdk_gc_set_fill(user_data->dlg.bg_gc[i], GDK_TILED);
-			gdk_gc_set_tile(user_data->dlg.bg_gc[i], user_data->dlg.pixmap_tile_select);
-		} else {
-			user_data->dlg.bg_gc[i]=gdk_gc_new(user_data->dlg.pixmap_main);
-			gdk_gc_set_rgb_fg_color(user_data->dlg.bg_gc[i], &col[i]);
-		}
 	}
 
 	dialog_graph_redraw(user_data);

@@ -95,7 +95,6 @@ typedef struct _graph_analysis_dialog_data_t {
 	GtkWidget *v_scrollbar;
 	GtkAdjustment *v_scrollbar_adjustment;
 	GtkWidget *hpane;
-	GdkGC *bg_gc[MAX_NUM_COL_CONV+1];
 	int pixmap_width;
 	int pixmap_height;
 	guint16 first_node;			/* the first node on the left to show in the screen */
