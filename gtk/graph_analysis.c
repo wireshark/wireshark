@@ -654,6 +654,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		{0,     0xD3FF, 0xD3FF, 0xD3FF}
 	};
 
+	/* XXX can't we just set the background color ? */
+	GdkPixbuf *bg_pixbuf =  gdk_pixbuf_new_from_xpm_data(voip_bg_xpm);
 
 	/* Dashed line pattern */
 	static const double dashed1[] = {5.0, 4.0};
@@ -783,7 +785,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint time title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
-		gdk_cairo_set_source_pixmap (cr, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm), 0, 0);
+		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
 		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
 		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
 		cairo_fill (cr);
@@ -793,7 +795,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint main title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-		gdk_cairo_set_source_pixmap (cr, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm), 0, 0);
+		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
 		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
 		cairo_rectangle (cr, 0, 0, draw_area_alloc.width, top_y_border);
 		cairo_fill (cr);
@@ -803,7 +805,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint main comment background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
-		gdk_cairo_set_source_pixmap (cr, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm), 0, 0);
+		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
 		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
 		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, top_y_border);
 		cairo_fill (cr);
