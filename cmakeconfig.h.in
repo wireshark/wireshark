@@ -49,7 +49,7 @@
 #cmakedefine HAVE_FCNTL_H 1
 
 /* Define to 1 if you have the <getopt.h> header file. */
-#cmakedefine HAVE_GETOPT_H 1
+#cmakedefine HAVE_GETOPT 1
 
 /* Define to 1 if you have the `chown' function. */
 #cmakedefine HAVE_CHOWN 1
