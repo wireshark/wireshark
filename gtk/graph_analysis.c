@@ -639,7 +639,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	static int len1  = sizeof(dashed1) / sizeof(dashed1[0]);
 
 	GtkAllocation draw_area_time_alloc, draw_area_alloc, draw_area_comments_alloc;
-	GtkStyle *draw_area_time_style, *draw_area_style, *draw_area_comments_style;
+	GtkStyle *draw_area_style;
 
 	if(!user_data->dlg.needs_redraw){
 		return;
@@ -654,9 +654,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
 	gtk_widget_get_allocation(user_data->dlg.draw_area_comments, &draw_area_comments_alloc);
 
-	draw_area_time_style = gtk_widget_get_style(user_data->dlg.draw_area_time);
 	draw_area_style = gtk_widget_get_style(user_data->dlg.draw_area);
-	draw_area_comments_style = gtk_widget_get_style(user_data->dlg.draw_area_comments);
 
 	/* Clear out old plt */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
@@ -913,22 +911,32 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		end_arrow = left_x_border+(user_data->dlg.items[current_item].dst_node)*NODE_WIDTH+NODE_WIDTH/2;
 
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
-			gdk_draw_line(user_data->dlg.pixmap_main, frame_fg_color,
-				start_arrow,
-				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7,
-				end_arrow,
-				top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7);
-
-			/* draw the additional line when line style is 2 pixels width */
+			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
 			if (user_data->dlg.items[current_item].line_style == 2) {
-				gdk_draw_line(user_data->dlg.pixmap_main, frame_fg_color,
-					start_arrow,
-					top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6,
-					end_arrow,
-					top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-6);
+				/* draw a line thick */
+				cairo_set_line_width (cr, 2.0);
+			}else{
+				cairo_set_line_width (cr, 1.0);
 			}
+			if ( current_item+first_item == user_data->dlg.selected_item ){
+				/* draw white line */
+				cairo_set_source_rgb (cr, 1, 1, 1);
+			}else{
+				/* draw black line */
+				cairo_set_source_rgb (cr, 0, 0, 0);
+			}
+			cairo_move_to(cr, start_arrow, (top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7)+0.5);
+			cairo_line_to(cr, end_arrow, (top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7)+0.5);
+			cairo_stroke(cr);
+			cairo_destroy(cr);
 		}
 
+		/* select colors */
+		if ( current_item+first_item == user_data->dlg.selected_item ){
+			frame_fg_color = draw_area_style->white_gc;
+		} else {
+			frame_fg_color = draw_area_style->black_gc;
+		}
 		/* draw the arrow */
 		if (start_arrow<end_arrow)
 			draw_arrow(user_data->dlg.pixmap_main, frame_fg_color, end_arrow-WIDTH_ARROW,top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT-7, RIGHT_ARROW);
@@ -1011,13 +1019,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		if ( current_item+first_item == user_data->dlg.selected_item )
 			for (i=0; i<user_data->num_nodes; i++){
 				if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ) {
-#if 0
-					gdk_draw_line(user_data->dlg.pixmap_main, user_data->dlg.div_line_gc[1],
-								  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
-								  (user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER,
-								  left_x_border+NODE_WIDTH/2+NODE_WIDTH*i,
-								  (user_data->dlg.selected_item-first_item)*ITEM_HEIGHT+TOP_Y_BORDER+ITEM_HEIGHT);
-#endif
 					cr = gdk_cairo_create (user_data->dlg.pixmap_main);
 					gdk_cairo_set_source_color (cr, &grey_color1);
 					cairo_set_line_width (cr, 1.0);
@@ -1266,13 +1267,6 @@ static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_,
 		cairo_fill (cr);
 		cairo_destroy (cr);
 		cr = NULL;
-	}
-
-	/* create gc for division lines and set the line stype to dash */
-	for (i=0; i<2; i++){
-		user_data->dlg.div_line_gc[i]=gdk_gc_new(user_data->dlg.pixmap_main);
-		gdk_gc_set_line_attributes(user_data->dlg.div_line_gc[i], 1, GDK_LINE_ON_OFF_DASH, 0, 0);
-		gdk_gc_set_rgb_fg_color(user_data->dlg.div_line_gc[i], &color_div_line[i]);
 	}
 
 	/* create gcs for the background items */
