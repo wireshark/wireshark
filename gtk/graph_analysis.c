@@ -65,7 +65,6 @@
 
 #include "gtk/old-gtk-compat.h"
 
-#include "../image/voip_select.xpm"
 #include "../image/voip_bg.xpm"
 
 /****************************************************************************/
