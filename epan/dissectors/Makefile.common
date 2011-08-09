@@ -537,11 +537,12 @@ DISSECTOR_SRC = \
 	packet-hci_h1.c		\
 	packet-hci_h4.c		\
 	packet-hclnfsd.c	\
+	packet-hdfs.c		\
 	packet-hilscher.c	\
 	packet-hip.c		\
 	packet-homeplug.c 	\
 	packet-homeplug-av.c 	\
-	packet-hp-erm.c         \
+	packet-hp-erm.c		\
 	packet-hpext.c		\
 	packet-hpsw.c		\
 	packet-hpteam.c		\

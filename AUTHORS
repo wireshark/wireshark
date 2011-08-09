@@ -3288,6 +3288,9 @@ Brian Cavagnolo		<brian [AT] cozybit.com> {
 	Update 802.11s packet dissecting
 }
 
+Allison			aobourn [AT] isilon.com {
+	HDFS Dissector
+}
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
