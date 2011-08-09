@@ -736,7 +736,7 @@ dvbci_init(void)
 /* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
 static void
 dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
-        packet_info *pinfo, proto_tree *tree, gchar *title,
+        packet_info *pinfo, proto_tree *tree, const gchar *title,
         gboolean show_col_info)
 {
     guint8 byte0;
@@ -1045,7 +1045,6 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
             proto_tree_add_text(tree, tvb, offset, menu_str_len,
                     "Menu string: %s", menu_string);
         }
-        offset += menu_str_len;
     }
 }
 
@@ -1374,7 +1373,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                         tvb, offset, 1, ENC_NA);
             }
             else if (disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL ||
-                     disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL) {
+                     disp_rep_id == DISP_REP_ID_INP_CHAR_TBL) {
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(tree, hf_dvbci_char_tbl,
                             tvb, offset, 1, ENC_NA);
@@ -1694,7 +1693,6 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         default:
             break;
     }
-    offset += len_field;
 
     if (payload_tvb) {
         proto_item_set_len(ti, spdu_len-tvb_reported_length(payload_tvb));
@@ -2192,7 +2190,6 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 "COR value: 0x%x", cor_value);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
             "value 0x%x", cor_value);
-        offset++;
     }
     else if (event==CIS_READ) {
         dissect_dvbci_cis(tvb, offset, pinfo, dvbci_tree);
@@ -2203,7 +2200,6 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 val_to_str_const(hw_event, dvbci_hw_event, "Invalid hardware event"));
         proto_tree_add_item(dvbci_tree, hf_dvbci_hw_event,
                 tvb, offset, 1, ENC_NA);
-        offset++;
     }
 
     return packet_len;
