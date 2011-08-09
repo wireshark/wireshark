@@ -234,8 +234,8 @@ dissect_read_response(tvbuff_t *tvb, proto_tree *hdfsdata_tree, int offset)
 
   /* if there is a crc checksum it is 8* the length of the data * checksum size / chunksize */
   if (tvb_get_guint8(tvb, 2) == CRC) {
-    len = CRC_SIZE * tvb_get_ntohl(tvb, offset - 4) *
-      tvb_get_ntohl(tvb, offset - 8) / tvb_get_ntohl(tvb, CHUNKSIZE_START);
+    len = (int)(CRC_SIZE * tvb_get_ntohl(tvb, offset - 4) *
+      tvb_get_ntohl(tvb, offset - 8) / tvb_get_ntohl(tvb, CHUNKSIZE_START));
   }
 
   /* the rest of bytes (usually 4) = crc32 code */
