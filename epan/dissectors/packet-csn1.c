@@ -195,7 +195,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         if (remaining_bits_len > 0)
         {
           pui8  = pui8DATA(data, pDescr->offset);
-          
+
           *pui8 = tvb_get_bits8(tvb, bit_offset, 1);
           proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                      decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
@@ -454,7 +454,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
 
         if (no_of_bits > 0)
         {
-        	
+
           if (no_of_bits <= 32)
           {
             proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
@@ -470,8 +470,8 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           else
           {
           	return ProcessError(tree, tvb, bit_offset,"csnStreamDissector NOT IMPLEMENTED", 999, pDescr);
-          }           
-          
+          }
+
           remaining_bits_len -= no_of_bits;
           DISSECTOR_ASSERT(remaining_bits_len >= 0);
           bit_offset += no_of_bits;
@@ -531,7 +531,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_tree   *test_tree;
 
             descr[0]      = pChoice->descr;
-            descr[1].type = CSN_END;
+            descr[0].type = CSN_END;
             pui8          = pui8DATA(data, pDescr->offset);
             *pui8         = i;
             proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s Choice: %s",
