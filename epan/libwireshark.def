@@ -293,6 +293,7 @@ dissect_per_real
 dissect_per_restricted_character_string
 dissect_per_sequence_of
 dissect_per_sequence
+dissect_per_sequence_eag
 dissect_per_set_of
 dissect_per_VisibleString
 dissect_q931_bearer_capability_ie

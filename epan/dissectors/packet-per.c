@@ -1802,6 +1802,7 @@ index_get_extension_name(const per_sequence_t *sequence, int idx)
 	for(i=0;sequence[i].p_id;i++){
 		if(sequence[i].extension==ASN1_NOT_EXTENSION_ROOT){
 			if (idx == 0) {
+				if (*sequence[i].p_id == -1) return "extension addition group";
 				hfi = proto_registrar_get_nth(*sequence[i].p_id);
 				return (hfi) ? hfi->name : "<unknown filed>";
 			}
@@ -2011,6 +2012,57 @@ DEBUG_ENTRY("dissect_per_sequence");
 	return offset;
 }
 
+guint32
+dissect_per_sequence_eag(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, proto_tree *tree, const per_sequence_t *sequence)
+{
+	gboolean optional_field_flag;
+	guint32 i, num_opts;
+	guint32 optional_mask;
+
+DEBUG_ENTRY("dissect_per_sequence_eag");
+
+	num_opts=0;
+	for(i=0;sequence[i].p_id;i++){
+		if(sequence[i].optional==ASN1_OPTIONAL){
+			num_opts++;
+		}
+	}
+
+	optional_mask=0;
+	for(i=0;i<num_opts;i++){
+		offset=dissect_per_boolean(tvb, offset, actx, tree, hf_per_optional_field_bit, &optional_field_flag);
+		if (tree) {
+			proto_item_append_text(actx->created_item, " (%s %s present)",
+				index_get_optional_name(sequence, i), optional_field_flag?"is":"is NOT");
+		}
+		if (!display_internal_per_fields) PROTO_ITEM_SET_HIDDEN(actx->created_item);
+		optional_mask<<=1;
+		if(optional_field_flag){
+			optional_mask|=0x01;
+		}
+	}
+
+	for(i=0;sequence[i].p_id;i++){
+		if(sequence[i].optional==ASN1_OPTIONAL){
+			gboolean is_present;
+			if (num_opts == 0){
+				continue;
+			}
+			is_present=(1<<(num_opts-1))&optional_mask;
+			num_opts--;
+			if(!is_present){
+				continue;
+			}
+		}
+		if(sequence[i].func){
+			offset=sequence[i].func(tvb, offset, actx, tree, *sequence[i].p_id);
+		} else {
+			PER_NOT_DECODED_YET(index_get_field_name(sequence, i));
+		}
+	}
+
+	return offset;
+}
 
 
 /* 15 Encoding the bitstring type

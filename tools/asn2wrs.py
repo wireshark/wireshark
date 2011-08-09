@@ -142,6 +142,9 @@ oid_names = {
   '2/upu' : 40,
 }
 
+ITEM_FIELD_NAME = '_item'
+UNTAG_TYPE_NAME = '_untag'
+
 def asn2c(id):
   return id.replace('-', '_').replace('.', '_').replace('&', '_')
 
@@ -676,7 +679,7 @@ class EthCtx:
       ttype = type
       while (val.type == 'TaggedType'):
         val = val.val
-        ttype += '/_untag'
+        ttype += '/' + UNTAG_TYPE_NAME
       if (val.type != 'Type_Ref'):
         if (type != ttype):
           types.append(ttype)
@@ -921,6 +924,7 @@ class EthCtx:
         self.type_imp.remove(ident)
       else:
         raise DuplicateError("type", ident)
+    val.ident = ident
     self.type[ident] = { 'val' : val, 'import' : None }
     self.type[ident]['module'] = self.Module()
     self.type[ident]['proto'] = self.proto
@@ -1001,7 +1005,7 @@ class EthCtx:
     if self.remove_prefix and name.startswith(self.remove_prefix):
         name = name[len(self.remove_prefix):]
 
-    if len(ident.split('/')) > 1 and name == '_item':  # Sequence/Set of type
+    if len(ident.split('/')) > 1 and name == ITEM_FIELD_NAME:  # Sequence/Set of type
       if len(self.field[ident]['type'].split('/')) > 1:
         self.field[ident]['attr']['NAME'] = '"%s item"' % ident.split('/')[-2]
         self.field[ident]['attr']['ABBREV'] = asn2c(ident.split('/')[-2] + name)
@@ -1021,6 +1025,10 @@ class EthCtx:
       self.field_ord.append(ident)
     if parent:
       self.eth_dep_add(parent, type)
+
+  def eth_dummy_eag_field_required(self):
+    if (not self.dummy_eag_field):
+      self.dummy_eag_field = 'dummy_eag_field'
 
   #--- eth_clean --------------------------------------------------------------
   def eth_clean(self):
@@ -1071,6 +1079,7 @@ class EthCtx:
     self.eth_hf_ord = []
     self.eth_hfpdu_ord = []
     self.eth_hf_dupl = {}
+    self.dummy_eag_field = None
     #--- type dependencies -------------------
     self.eth_type_ord1 = []
     self.eth_dep_cycle = []
@@ -1157,13 +1166,13 @@ class EthCtx:
       if ((nm.find('#') >= 0) or
           ((len(t.split('/'))>1) and
            (self.conform.get_fn_presence(t) or self.conform.check_item('FN_PARS', t) or
-            self.conform.get_fn_presence('/'.join((t,'_item'))) or self.conform.check_item('FN_PARS', '/'.join((t,'_item')))) and
+            self.conform.get_fn_presence('/'.join((t,ITEM_FIELD_NAME))) or self.conform.check_item('FN_PARS', '/'.join((t,ITEM_FIELD_NAME)))) and
            not self.conform.check_item('TYPE_RENAME', t))):
-        if len(t.split('/')) == 2 and t.split('/')[1] == '_item':  # Sequence of type at the 1st level
+        if len(t.split('/')) == 2 and t.split('/')[1] == ITEM_FIELD_NAME:  # Sequence of type at the 1st level
           nm = t.split('/')[0] + t.split('/')[1]
-        elif t.split('/')[-1] == '_item':  # Sequence/Set of type at next levels
+        elif t.split('/')[-1] == ITEM_FIELD_NAME:  # Sequence/Set of type at next levels
           nm = 'T_' + self.conform.use_item('FIELD_RENAME', '/'.join(t.split('/')[0:-1]), val_dflt=t.split('/')[-2]) + t.split('/')[-1]
-        elif t.split('/')[-1] == '_untag':  # Untagged type
+        elif t.split('/')[-1] == UNTAG_TYPE_NAME:  # Untagged type
           nm = self.type['/'.join(t.split('/')[0:-1])]['ethname'] + '_U'
         else:
           nm = 'T_' + self.conform.use_item('FIELD_RENAME', t, val_dflt=t.split('/')[-1])
@@ -1258,7 +1267,7 @@ class EthCtx:
 
     #--- fields -------------------------
     for f in (self.pdu_ord + self.field_ord):
-      if len(f.split('/')) > 1 and f.split('/')[-1] == '_item':  # Sequence/Set of type
+      if len(f.split('/')) > 1 and f.split('/')[-1] == ITEM_FIELD_NAME:  # Sequence/Set of type
         nm = self.conform.use_item('FIELD_RENAME', '/'.join(f.split('/')[0:-1]), val_dflt=f.split('/')[-2]) + f.split('/')[-1]
       else:
         nm = f.split('/')[-1]
@@ -1313,6 +1322,8 @@ class EthCtx:
                          'attr' : attr.copy(),
                          'ref' : [f]}
       self.field[f]['ethname'] = nm
+    if (self.dummy_eag_field):
+      self.dummy_eag_field = 'hf_%s_%s' % (self.eproto, self.dummy_eag_field)
     #--- type dependencies -------------------
     (self.eth_type_ord1, self.eth_dep_cycle) = dependency_compute(self.type_ord, self.type_dep, map_fn = lambda t: self.type[t]['ethname'], ignore_fn = lambda t: self.type[t]['import'])
     i = 0
@@ -1544,6 +1555,8 @@ class EthCtx:
       fx.write('/* named bits */\n')
     for nb in self.named_bit:
       fx.write("static int %s = -1;\n" % (nb['ethname']))
+    if (self.dummy_eag_field):
+      fx.write("static int %s = -1; /* never registered */ \n" % (self.dummy_eag_field))
     self.output.file_close(fx)
 
   #--- eth_output_hf_arr ------------------------------------------------------
@@ -3101,6 +3114,9 @@ class Type (Node):
   def eth_strings(self):
     return 'NULL'
 
+  def eth_omit_field(self):
+    return False
+
   def eth_need_tree(self):
     return False
 
@@ -3181,7 +3197,7 @@ class Type (Node):
       self.eth_reg_sub(vnm, ectx)
     if parent and (ectx.type[parent]['val'].type == 'TaggedType'):
       ectx.type[parent]['val'].eth_set_val_name(parent, trnm, ectx)
-    if ident and not tagflag:
+    if ident and not tagflag and not self.eth_omit_field():
       ectx.eth_reg_field(nm, trnm, idx=idx, parent=parent, impl=self.HasImplicitTag(ectx))
     if ectx.conform.check_item('SET_TYPE', nm):
       virtual_tr.eth_reg_sub(nm, ectx)
@@ -3782,7 +3798,7 @@ class TaggedType (Type):
     ectx.eth_dep_add(ident, self.val_name)
 
   def eth_reg_sub(self, ident, ectx):
-    self.val_name = ident + '/' + '_untag'
+    self.val_name = ident + '/' + UNTAG_TYPE_NAME
     self.val.eth_reg(self.val_name, ectx, tstrip=self.tstrip+1, tagflag=True, parent=ident)
 
   def GetTTag(self, ectx):
@@ -3817,11 +3833,13 @@ class TaggedType (Type):
 #--- SqType -----------------------------------------------------------
 class SqType (Type):
   def out_item(self, f, val, optional, ext, ectx):
-    ef = ectx.field[f]['ethname']
-    t = ectx.eth_hf[ef]['ethtype']
-    efd = ef
-    if (ectx.Ber() and ectx.field[f]['impl']):
-      efd += '_impl'
+    if (val.eth_omit_field()):
+      t = ectx.type[val.ident]['ethname']
+      fullname = ectx.dummy_eag_field
+    else:
+      ef = ectx.field[f]['ethname']
+      t = ectx.eth_hf[ef]['ethtype']
+      fullname = ectx.eth_hf[ef]['fullname']
     if (ectx.Ber()):
       #print "optional=%s, e.val.HasOwnTag()=%s, e.val.IndetermTag()=%s" % (str(e.optional), str(e.val.HasOwnTag()), str(e.val.IndetermTag(ectx)))
       #print val.str_depth(1)
@@ -3846,10 +3864,10 @@ class SqType (Type):
     if (ectx.Ber()):
       (tc, tn) = val.GetTag(ectx)
       out = '  { %-24s, %-13s, %s, %s, dissect_%s_%s },\n' \
-            % ('&'+ectx.eth_hf[ef]['fullname'], tc, tn, opt, ectx.eth_type[t]['proto'], t)
+            % ('&'+fullname, tc, tn, opt, ectx.eth_type[t]['proto'], t)
     elif (ectx.Per()):
       out = '  { %-24s, %-23s, %-17s, dissect_%s_%s },\n' \
-            % ('&'+ectx.eth_hf[ef]['fullname'], ext, opt, ectx.eth_type[t]['proto'], t)
+            % ('&'+fullname, ext, opt, ectx.eth_type[t]['proto'], t)
     else:
       out = ''
     return out
@@ -3913,6 +3931,27 @@ class SeqType (SqType):
       else:
         ectx.eth_comp_req(ident)
         return
+    # extension addition groups
+    if hasattr(self, 'ext_list'):
+      if (ectx.Per()):  # add names
+        eag_num = 1
+        for e in (self.ext_list):
+          if isinstance(e.val, ExtensionAdditionGroup):
+            e.val.parent_ident = ident
+            e.val.parent_tname = ectx.type[ident]['tname']
+            if (e.val.ver): 
+              e.val.SetName("eag_v%s" % (e.val.ver))
+            else:
+              e.val.SetName("eag_%d" % (eag_num))
+              eag_num += 1;
+      else:  # expand
+        new_ext_list = []
+        for e in (self.ext_list):
+          if isinstance(e.val, ExtensionAdditionGroup):
+            new_ext_list.extend(e.val.elt_list)
+          else:
+            new_ext_list.append(e)
+        self.ext_list = new_ext_list
     # do autotag
     if autotag:
       atag = 0
@@ -3927,14 +3966,15 @@ class SeqType (SqType):
         for e in (self.ext_list):
           e.val.AddTag(Tag(cls = 'CONTEXT', num = str(atag), mode = 'IMPLICIT'))
           atag += 1
+    # register components
     for e in (self.elt_list):
-        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+      e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
     if hasattr(self, 'ext_list'):
-        for e in (self.ext_list):
-            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+      for e in (self.ext_list):
+        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
     if hasattr(self, 'elt_list2'):
-        for e in (self.elt_list2):
-            e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
+      for e in (self.elt_list2):
+        e.val.eth_reg(ident, ectx, tstrip=1, parent=ident)
 
   def eth_type_default_table(self, ectx, tname):
     #print "eth_type_default_table(tname='%s')" % (tname)
@@ -3972,7 +4012,7 @@ class SeqOfType (SqType):
     if self.val.IsNamed ():
       f = fname + '/' + self.val.name
     else:
-      f = fname + '/' + '_item'
+      f = fname + '/' + ITEM_FIELD_NAME
     table = "static const %(ER)s_sequence_t %(TABLE)s[1] = {\n"
     table += self.out_item(f, self.val, False, 'ASN1_NO_EXTENSIONS', ectx)
     table += "};\n"
@@ -3993,7 +4033,7 @@ class SequenceOfType (SeqOfType):
   def eth_reg_sub(self, ident, ectx):
     itmnm = ident
     if not self.val.IsNamed ():
-      itmnm += '/' + '_item'
+      itmnm += '/' + ITEM_FIELD_NAME
     self.val.eth_reg(itmnm, ectx, tstrip=1, idx='[##]', parent=ident)
 
   def eth_tname(self):
@@ -4050,7 +4090,7 @@ class SetOfType (SeqOfType):
   def eth_reg_sub(self, ident, ectx):
     itmnm = ident
     if not self.val.IsNamed ():
-      itmnm += '/' + '_item'
+      itmnm += '/' + ITEM_FIELD_NAME
     self.val.eth_reg(itmnm, ectx, tstrip=1, idx='(##)', parent=ident)
 
   def eth_tname(self):
@@ -4180,8 +4220,43 @@ class SequenceType (SeqType):
       body = '#error Can not decode %s' % (tname)
     return body
 
+#--- ExtensionAdditionGroup ---------------------------------------------------
+class ExtensionAdditionGroup (SeqType):
+  def __init__(self,*args, **kw) :
+    self.parent_ident = None
+    self.parent_tname = None
+    SeqType.__init__ (self,*args, **kw)
+
+  def eth_omit_field(self):
+    return True
+
+  def eth_tname(self):
+    if (self.parent_tname and self.IsNamed()):
+      return self.parent_tname + "_" + self.name
+    else:
+      return SeqType.eth_tname(self)
+
+  def eth_reg_sub(self, ident, ectx):
+    ectx.eth_dummy_eag_field_required()
+    ectx.eth_dep_add(self.parent_ident, ident)
+    SeqType.eth_reg_sub(self, ident, ectx)
+
+  def eth_type_default_pars(self, ectx, tname):
+    pars = Type.eth_type_default_pars(self, ectx, tname)
+    pars['TABLE'] = '%(PROTOP)s%(TNAME)s_sequence'
+    return pars
+
+  def eth_type_default_body(self, ectx, tname):
+    if (ectx.Per()):
+      body = ectx.eth_fn_call('dissect_%(ER)s_sequence_eag', ret='offset',
+                              par=(('%(TVB)s', '%(OFFSET)s', '%(ACTX)s', '%(TREE)s', '%(TABLE)s',),))
+    else:
+      body = '#error Can not decode %s' % (tname)
+    return body
+
+
 #--- SetType ------------------------------------------------------------------
-class SetType(SeqType):
+class SetType (SeqType):
 
   def eth_need_tree(self):
     return True
@@ -4410,9 +4485,6 @@ class ChoiceType (Type):
       f = fname + '/' + e.name
       ef = ectx.field[f]['ethname']
       t = ectx.eth_hf[ef]['ethtype']
-      efd = ef
-      if (ectx.field[f]['impl']):
-        efd += '_impl'
       if (ectx.Ber()):
         opt = ''
         if (not e.HasOwnTag()):
@@ -6065,29 +6137,30 @@ def p_ExtensionEndMarker (t):
 
 def p_ExtensionAdditionList_1 (t):
   'ExtensionAdditionList : COMMA ExtensionAddition'
-  t[0] = t[2]
+  t[0] = [t[2]]
 
 def p_ExtensionAdditionList_2 (t):
   'ExtensionAdditionList : ExtensionAdditionList COMMA ExtensionAddition'
-  t[0] = t[1] + t[3]
+  t[0] = t[1] + [t[3]]
 
 def p_ExtensionAddition_1 (t):
   'ExtensionAddition : ExtensionAdditionGroup'
-  t[0] = t[1]
+  t[0] = Node ('elt_type', val = t[1], optional = 0)
 
 def p_ExtensionAddition_2 (t):
   'ExtensionAddition : ComponentType'
-  t[0] = [t[1]]
+  t[0] = t[1]
 
 def p_ExtensionAdditionGroup (t):
   'ExtensionAdditionGroup : LVERBRACK VersionNumber ComponentTypeList RVERBRACK'
-  t[0] = t[3]
+  t[0] = ExtensionAdditionGroup (ver = t[2], elt_list = t[3])
 
 def p_VersionNumber_1 (t):
   'VersionNumber : '
 
 def p_VersionNumber_2 (t):
   'VersionNumber : NUMBER COLON'
+  t[0] = t[1]
 
 def p_ComponentTypeList_1 (t):
   'ComponentTypeList : ComponentType'
