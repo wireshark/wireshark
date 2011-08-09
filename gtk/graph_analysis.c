@@ -619,7 +619,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	graph_analysis_item_t *gai;
 
 	GdkGC *frame_bg_color;
-	GdkGC *column_header_gc;
 
 	PangoLayout  *layout;
 	PangoLayout  *middle_layout;
@@ -654,10 +653,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		return;
 	}
 	user_data->dlg.needs_redraw=FALSE;
-
-	column_header_gc = gdk_gc_new(user_data->dlg.pixmap_time);
-	gdk_gc_set_fill(column_header_gc,GDK_TILED);
-	gdk_gc_set_tile(column_header_gc, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm));
 
 	gtk_widget_get_allocation(user_data->dlg.draw_area_time, &draw_area_time_alloc);
 	gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
@@ -775,34 +770,32 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 	/* Paint time title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
-		gdk_draw_rectangle(user_data->dlg.pixmap_time,
-						   column_header_gc,
-						   TRUE,						/* TRUE if the rectangle should be filled.*/
-						   0,							/* the x coordinate of the left edge of the rectangle.*/
-						   0,							/* the y coordinate of the top edge of the rectangle. */
-						   draw_area_time_alloc.width, /* the width of the rectangle. */
-						   top_y_border);				/* the height of the rectangle. */
+		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
+		gdk_cairo_set_source_pixmap (cr, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm), 0, 0);
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+
 	}
 	/* Paint main title background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
-		gdk_draw_rectangle(user_data->dlg.pixmap_main,
-						   column_header_gc,
-						   TRUE,
-						   0,
-						   0,
-						   draw_area_alloc.width,
-						   top_y_border);
+		cr = gdk_cairo_create (user_data->dlg.pixmap_main);
+		gdk_cairo_set_source_pixmap (cr, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm), 0, 0);
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_rectangle (cr, 0, 0, draw_area_alloc.width, top_y_border);
+		cairo_fill (cr);
+		cairo_destroy (cr);
 	}
 
 	/* Paint main comment background */
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) ){
-		gdk_draw_rectangle(user_data->dlg.pixmap_comments,
-						   column_header_gc,
-						   TRUE,
-						   0,
-						   0,
-						   draw_area_comments_alloc.width,
-						   top_y_border);
+		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
+		gdk_cairo_set_source_pixmap (cr, gdk_pixmap_create_from_xpm_d(user_data->dlg.pixmap_time,NULL,NULL,(gchar **)voip_bg_xpm), 0, 0);
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, top_y_border);
+		cairo_fill (cr);
+		cairo_destroy (cr);
 	}
 
 
