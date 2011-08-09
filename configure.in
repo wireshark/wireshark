@@ -1742,7 +1742,7 @@ AC_PROG_GCC_TRADITIONAL
 GETOPT_LO=""
 AC_CHECK_FUNC(getopt,
   [GETOPT_LO=""
-   AC_DEFINE(HAVE_GETOPT_H, 1, [Define to 1 if you have the <getopt.h> header file.])
+   AC_DEFINE(HAVE_GETOPT, 1, [Define to 1 if you have the getopt function.])
   ],
   GETOPT_LO="wsgetopt.lo"
 )
