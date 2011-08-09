@@ -624,6 +624,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-hci_h4.c
 	dissectors/packet-hclnfsd.c
 	dissectors/packet-hdfs.c
+	dissectors/packet-hdfsdata.c
 	dissectors/packet-hilscher.c
 	dissectors/packet-hip.c
 	dissectors/packet-homeplug.c

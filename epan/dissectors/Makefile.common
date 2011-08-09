@@ -538,6 +538,7 @@ DISSECTOR_SRC = \
 	packet-hci_h4.c		\
 	packet-hclnfsd.c	\
 	packet-hdfs.c		\
+	packet-hdfsdata.c	\
 	packet-hilscher.c	\
 	packet-hip.c		\
 	packet-homeplug.c 	\
