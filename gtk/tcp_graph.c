@@ -2024,18 +2024,26 @@ static void graph_title_pixmap_create (struct graph *g)
 static void graph_title_pixmap_draw (struct graph *g)
 {
 	int i;
+	cairo_t *cr;
 
-	gdk_draw_rectangle(g->title_pixmap, g->bg_gc, TRUE, 0, 0,
-                           g->x_axis->p.width, g->wp.y);
+	cr = gdk_cairo_create (g->title_pixmap);
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, 0, 0,  g->x_axis->p.width, g->wp.y);
+	cairo_fill (cr);
+	cairo_destroy (cr);
+	cr = NULL;
+
 	for (i=0; g->title[i]; i++) {
 		gint w, h;
-                PangoLayout *layout;
-                layout = gtk_widget_create_pango_layout(g->drawing_area,
-                                                        g->title[i]);
-                pango_layout_get_pixel_size(layout, &w, &h);
-                gdk_draw_layout(g->title_pixmap, g->fg_gc,
-                                g->wp.width/2 - w/2, 20 + i*(h+3), layout);
-                g_object_unref(G_OBJECT(layout));
+        PangoLayout *layout;
+        layout = gtk_widget_create_pango_layout(g->drawing_area,
+                                                g->title[i]);
+        pango_layout_get_pixel_size(layout, &w, &h);
+		cr = gdk_cairo_create (g->title_pixmap);
+		cairo_move_to (cr, g->wp.width/2 - w/2, 20 + i*(h+3));
+		pango_cairo_show_layout (cr, layout);
+		cairo_destroy (cr);
+        g_object_unref(G_OBJECT(layout));
 	}
 }
 
@@ -2091,12 +2099,18 @@ static void graph_pixmap_draw (struct graph *g)
 	struct element_list *list;
 	struct element *e;
 	int not_disp;
+	cairo_t *cr;
 
 	debug(DBS_FENTRY) puts ("graph_display()");
 	not_disp = 1 ^ g->displayed;
 
-	gdk_draw_rectangle (g->pixmap[not_disp], g->bg_gc, TRUE,
-							0, 0, g->wp.width, g->wp.height);
+	cr = gdk_cairo_create (g->pixmap[not_disp]);
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, 0, 0, g->wp.width, g->wp.height);
+	cairo_fill (cr);
+	cairo_destroy (cr);
+	cr = NULL;
+
 	for (list=g->elists; list; list=list->next)
 		for (e=list->elements; e->type != ELMT_NONE; e++) {
 			switch (e->type) {
@@ -2209,6 +2223,7 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	int not_disp, rdigits, offset, imin, imax;
 	double bottom, top, j, fl, corr;
         PangoLayout *layout;
+	cairo_t *cr;
 
 	debug(DBS_FENTRY) puts ("v_axis_pixmap_draw()");
 	bottom = (g->geom.height - (g->wp.height + g->wp.y + (-g->geom.y))) /
@@ -2228,12 +2243,22 @@ static void v_axis_pixmap_draw (struct axis *axis)
 	}
 
 	not_disp = 1 ^ axis->displayed;
-	gdk_draw_rectangle (axis->pixmap[not_disp], g->bg_gc, TRUE, 0, 0,
-					axis->p.width, axis->p.height);
+
+	cr = gdk_cairo_create (axis->pixmap[not_disp]);
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, 0, 0, axis->p.width, axis->p.height);
+	cairo_fill (cr);
+	cairo_destroy (cr);
+	cr = NULL;
+
 	/* axis */
-	gdk_draw_line (axis->pixmap[not_disp], g->fg_gc, axis->p.width - 1,
-			(gint) ((axis->p.height-axis->s.height)/2.0), axis->s.width - 1,
-			axis->p.height);
+	cr = gdk_cairo_create (axis->pixmap[not_disp]);
+	cairo_set_line_width (cr, 1.0);
+	cairo_move_to(cr, axis->p.width - 1.5, (axis->p.height-axis->s.height)/2.0);
+	cairo_line_to(cr, axis->s.width - 1.5, axis->p.height);
+	cairo_stroke(cr);
+	cairo_destroy(cr);
+	cr = NULL;
 
 	offset = g->wp.y + (-g->geom.y);
 	fl = floor (axis->min / axis->major) * axis->major;
@@ -2253,14 +2278,24 @@ static void v_axis_pixmap_draw (struct axis *axis)
                                                i*axis->major + fl, y);
 		if (y < 0 || y > axis->p.height)
 			continue;
-		gdk_draw_line (axis->pixmap[not_disp], g->fg_gc,
-                               axis->s.width - 15, y, axis->s.width - 1, y);
+
+		cr = gdk_cairo_create (axis->pixmap[not_disp]);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr, axis->p.width - 15, y+0.5);
+		cairo_line_to(cr, axis->s.width - 1, y+0.5);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+		cr = NULL;
+
 		g_snprintf (desc, sizeof(desc), "%.*f", rdigits, i*axis->major + fl);
-                layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
-                pango_layout_get_pixel_size(layout, &w, &h);
-                gdk_draw_layout(axis->pixmap[not_disp], g->fg_gc,
-                                axis->s.width-14-4-w, y - h/2, layout);
-                g_object_unref(G_OBJECT(layout));
+        layout = gtk_widget_create_pango_layout(g->drawing_area, desc);
+        pango_layout_get_pixel_size(layout, &w, &h);
+		cr = gdk_cairo_create (axis->pixmap[not_disp]);
+		cairo_move_to (cr, axis->s.width-14-4-w, y - h/2);
+		pango_cairo_show_layout (cr, layout);
+		cairo_destroy (cr);
+		cr = NULL;
+        g_object_unref(G_OBJECT(layout));
 	}
 	/* minor ticks */
 	if (axis->minor) {
@@ -2273,22 +2308,27 @@ static void v_axis_pixmap_draw (struct axis *axis)
 
 			debug (DBS_AXES_DRAWING) printf ("%f @ %d\n", i*axis->minor+fl, y);
 			if (y > 0 && y < axis->p.height)
-				gdk_draw_line (axis->pixmap[not_disp], g->fg_gc,
-                                               axis->s.width - 8, y,
-                                               axis->s.width - 1, y);
+				cr = gdk_cairo_create (axis->pixmap[not_disp]);
+				cairo_set_line_width (cr, 1.0);
+				cairo_move_to(cr, axis->s.width - 8, y+0.5);
+				cairo_line_to(cr, axis->s.width - 1, y+0.5);
+				cairo_stroke(cr);
+				cairo_destroy(cr);
+				cr = NULL;
 		}
 	}
 	for (i=0; axis->label[i]; i++) {
 		gint w, h;
-                layout = gtk_widget_create_pango_layout(g->drawing_area,
-                                                        axis->label[i]);
-                pango_layout_get_pixel_size(layout, &w, &h);
-                gdk_draw_layout(axis->pixmap[not_disp], g->fg_gc,
-                                (axis->p.width - w)/2,
-                                TITLEBAR_HEIGHT-10 - i*(h+3) - h,
-                                layout);
-                g_object_unref(G_OBJECT(layout));
-	}
+        layout = gtk_widget_create_pango_layout(g->drawing_area,
+                                                axis->label[i]);
+        pango_layout_get_pixel_size(layout, &w, &h);
+        cr = gdk_cairo_create (axis->pixmap[not_disp]);
+        cairo_move_to (cr, (axis->p.width - w)/2, TITLEBAR_HEIGHT-10 - i*(h+3) - h);
+        pango_cairo_show_layout (cr, layout);
+        cairo_destroy (cr);
+        cr = NULL;
+        g_object_unref(G_OBJECT(layout));
+    }
 }
 
 static void h_axis_pixmap_draw (struct axis *axis)
@@ -2861,7 +2901,8 @@ static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gp
 
 static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    cairo_t *cr;
 
 	debug(DBS_FENTRY) puts ("expose_event()");
 
@@ -2869,11 +2910,20 @@ static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer
 		return TRUE;
 
 	/* lower left corner */
-	gdk_draw_rectangle (gtk_widget_get_window(g->drawing_area), g->bg_gc, TRUE, 0,
-			g->wp.y + g->wp.height, g->y_axis->p.width, g->x_axis->p.height);
+	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, 0, g->wp.y + g->wp.height, g->y_axis->p.width, g->x_axis->p.height);
+	cairo_fill (cr);
+	cairo_destroy(cr);
+	cr = NULL;
+
 	/* right margin */
-	gdk_draw_rectangle (gtk_widget_get_window(g->drawing_area), g->bg_gc, TRUE,
-			g->wp.x + g->wp.width, g->wp.y, RMARGIN_WIDTH, g->wp.height);
+	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, g->wp.x + g->wp.width, g->wp.y, RMARGIN_WIDTH, g->wp.height);
+	cairo_fill (cr);
+	cairo_destroy(cr);
+	cr = NULL;
 
 	graph_pixmap_display (g);
 	graph_title_pixmap_display (g);
