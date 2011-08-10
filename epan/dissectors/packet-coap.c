@@ -192,7 +192,7 @@ void proto_reg_handoff_coap(void);
 static int
 coap_is_str_ipv6addr(guint8 *str)
 {
-	int len = strlen(str);
+	size_t len = strlen(str);
 	int colon = 0;
 
 	while (len--) {
