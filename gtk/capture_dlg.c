@@ -3323,8 +3323,7 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te)
 /* convert dialog settings into capture_opts values */
 static gboolean
 capture_dlg_prep(gpointer parent_w) {
-  GtkWidget *promisc_cb,
-            *pcap_ng_cb,
+  GtkWidget *pcap_ng_cb,
             *file_te, *multi_files_on_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_cb,
             *sync_cb, *auto_scroll_cb, *hide_info_cb,
             *stop_packets_cb, *stop_packets_sb,
@@ -3339,7 +3338,6 @@ capture_dlg_prep(gpointer parent_w) {
   gchar *dirname;
   gint32 tmp;
 
-  promisc_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PROMISC_KEY_ALL);
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_PCAP_NG_KEY);
   file_te    = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_FILE_TE_KEY);
   multi_files_on_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MULTI_FILES_ON_CB_KEY);
