@@ -450,6 +450,20 @@ static int Tvb__gc(lua_State* L) {
 
 }
 
+WSLUA_METHOD Tvb_reported_len(lua_State* L) {
+	/* Obtain the reported length of a TVB */
+    Tvb tvb = checkTvb(L,1);
+
+    if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    lua_pushnumber(L,tvb_reported_length(tvb->ws_tvb));
+    WSLUA_RETURN(1); /* The length of the Tvb. */
+}
+
 WSLUA_METHOD Tvb_len(lua_State* L) {
 	/* Obtain the length of a TVB */
     Tvb tvb = checkTvb(L,1);
@@ -563,6 +577,7 @@ static const luaL_reg Tvb_methods[] = {
     {"range", Tvb_range},
     {"len", Tvb_len},
     {"offset", Tvb_offset},
+    {"reported_len", Tvb_reported_len},
     { NULL, NULL }
 };
 
