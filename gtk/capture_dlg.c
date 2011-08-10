@@ -2550,7 +2550,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (view),LINK), TRUE );
   gtk_tree_view_column_set_alignment(column, 0.5);
 
-  title = g_string_new("Promisc.\n  Mode  ");
+  title = g_string_new("Prom. Mode");
   renderer = gtk_cell_renderer_text_new();
   gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
                                                -1,
@@ -2559,9 +2559,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
                                                "text", PMODE,
                                                NULL);
   g_object_set(renderer, "xalign", 0.5, NULL);
-  gtk_tree_view_column_set_alignment(gtk_tree_view_get_column(GTK_TREE_VIEW (view),PMODE), 0.5);
+  gtk_tree_view_column_set_alignment(gtk_tree_view_get_column(GTK_TREE_VIEW (view), PMODE), 0.5);
   g_string_free(title, TRUE);
-  title = g_string_new("Snaplen\n [Bytes]");
+  title = g_string_new("Snaplen [B]");
   renderer = gtk_cell_renderer_text_new ();
   column = gtk_tree_view_column_new_with_attributes (title->str, renderer, "text", SNAPLEN, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
@@ -2578,7 +2578,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_column_set_alignment(column, 0.5);
 #endif
 #if defined (HAVE_PCAP_CREATE)
-  title = g_string_new("Monitor\n  Mode  ");
+  title = g_string_new("Mon. Mode");
   renderer = gtk_cell_renderer_text_new();
   column = gtk_tree_view_column_new_with_attributes (title->str, renderer, "text", MONITOR, NULL);
   gtk_tree_view_column_set_cell_data_func(column, renderer, activate_monitor, NULL, FALSE);
