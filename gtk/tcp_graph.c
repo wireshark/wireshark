@@ -681,12 +681,6 @@ static void create_drawing_area (struct graph *g)
 	GtkAllocation widget_alloc;
 
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
-#if 0
-	g->font = gdk_font_load ("-sony-fixed-medium-r-normal--16-150-75-75"
-							"-c-80-iso8859-2");
-	g->font = gdk_font_load ("-biznet-fotinostypewriter-medium-r-normal-*-*-120"
-							"-*-*-m-*-iso8859-2");
-#endif
 	thdr=select_tcpip_session (&cfile, &current);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
 			refnum,
@@ -2049,8 +2043,13 @@ static void graph_title_pixmap_draw (struct graph *g)
 
 static void graph_title_pixmap_display (struct graph *g)
 {
-	gdk_draw_pixmap (gtk_widget_get_window(g->drawing_area), g->fg_gc, g->title_pixmap,
-                         0, 0, g->wp.x, 0, g->x_axis->p.width, g->wp.y);
+	cairo_t *cr;
+
+	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+	gdk_cairo_set_source_pixmap (cr, g->title_pixmap, g->wp.x, 0);
+	cairo_rectangle (cr, g->wp.x, 0, g->x_axis->p.width, g->wp.y);
+	cairo_fill (cr);
+	cairo_destroy (cr);
 }
 
 static void graph_pixmaps_create (struct graph *g)
@@ -2081,9 +2080,14 @@ static void graph_display (struct graph *g)
 
 static void graph_pixmap_display (struct graph *g)
 {
-    gdk_draw_pixmap (gtk_widget_get_window(g->drawing_area), g->fg_gc,
-					g->pixmap[g->displayed], 0, 0, g->wp.x, g->wp.y,
-					g->wp.width, g->wp.height);
+	cairo_t *cr;
+
+	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+	gdk_cairo_set_source_pixmap (cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
+	cairo_rectangle (cr, g->wp.x, g->wp.y, g->wp.width, g->wp.height);
+	cairo_fill (cr);
+	cairo_destroy (cr);
+
     if (g->cross.erase_needed) {
        cross_xor(g, g->cross.x, g->cross.y);
     }
@@ -2451,9 +2455,14 @@ static void axis_pixmaps_switch (struct axis *axis)
 
 static void axis_pixmap_display (struct axis *axis)
 {
-	gdk_draw_pixmap (gtk_widget_get_window(axis->drawing_area), axis->g->fg_gc,
-			axis->pixmap[axis->displayed], 0, 0, axis->p.x, axis->p.y,
-			axis->p.width, axis->p.height);
+	cairo_t *cr;
+
+	cr = gdk_cairo_create (gtk_widget_get_window(axis->drawing_area));
+	gdk_cairo_set_source_pixmap (cr, axis->pixmap[axis->displayed], axis->p.x, axis->p.y);
+	cairo_rectangle (cr, axis->p.x, axis->p.y, axis->p.width, axis->p.height);
+	cairo_fill (cr);
+	cairo_destroy (cr);
+
 }
 
 static void axis_compute_ticks (struct axis *axis, double x0, double xmax, int dir)
