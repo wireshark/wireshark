@@ -2053,7 +2053,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(save_options_cb), NULL);
   gtk_widget_set_tooltip_text(ok_bt,
-    "Start the capture process.");
+    "Accept interface settings.");
   cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
   gtk_widget_set_tooltip_text(cancel_bt,
     "Cancel and exit dialog.");
