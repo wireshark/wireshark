@@ -2855,18 +2855,29 @@ static void magnify_get_geom (struct graph *g, int x, int y)
 
 static void magnify_draw (struct graph *g)
 {
+	cairo_t *cr;
 	int not_disp = 1 ^ g->magnify.g->displayed;
 
 	graph_pixmap_draw (g->magnify.g);
 	/* graph pixmap is almost ready, just add border */
-	gdk_draw_line (g->magnify.g->pixmap[not_disp], g->fg_gc, 0, 0,
-						g->magnify.width - 1, 0);
-	gdk_draw_line (g->magnify.g->pixmap[not_disp], g->fg_gc,
-			g->magnify.width - 1, 0, g->magnify.width - 1, g->magnify.height);
-	gdk_draw_line (g->magnify.g->pixmap[not_disp], g->fg_gc, 0, 0,
-						0, g->magnify.height - 1);
-	gdk_draw_line (g->magnify.g->pixmap[not_disp], g->fg_gc, 0,
-			g->magnify.height - 1, g->magnify.width - 1, g->magnify.height - 1);
+	cr = gdk_cairo_create (g->magnify.g->pixmap[not_disp]);
+	cairo_set_line_width (cr, 1.0);
+	cairo_move_to(cr, 0, 0);
+	cairo_line_to(cr, g->magnify.width - 1, 0);
+	cairo_stroke(cr);
+
+	cairo_move_to(cr, g->magnify.width - 1, 0);
+	cairo_line_to(cr, g->magnify.width - 1, g->magnify.height);
+	cairo_stroke(cr);
+
+	cairo_move_to(cr, 0, 0);
+	cairo_line_to(cr, 0,g->magnify.height - 1);
+	cairo_stroke(cr);
+
+	cairo_move_to(cr, 0, g->magnify.height - 1);
+	cairo_line_to(cr, g->magnify.width - 1, g->magnify.height - 1);
+	cairo_stroke(cr);
+	cairo_destroy(cr);
 
 	graph_pixmaps_switch (g->magnify.g);
 	graph_pixmap_display (g->magnify.g);
