@@ -199,6 +199,7 @@ typedef enum {
 	TAP_RTP_PADDING_ERROR,
 	TAP_RTP_SHORT_FRAME,
 	TAP_RTP_FILE_OPEN_ERROR,
+	TAP_RTP_FILE_WRITE_ERROR,
 	TAP_RTP_NO_DATA
 } error_type_t;
 
@@ -655,7 +656,7 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 	guint i;
 	const guint8 *data;
 	guint8 tmp;
-	/*size_t nchars;*/
+	size_t nchars;
 
 	/*  is this the first packet we got in this direction? */
 	if (statinfo->flags & STAT_FLAG_FIRST) {
@@ -712,8 +713,13 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 				tmp = 0;
 				break;
 			}
-			/*nchars=*/fwrite(&tmp, 1, 1, saveinfo->fp);
-			/* XXX: Check for write errors ? */
+			nchars = fwrite(&tmp, 1, 1, saveinfo->fp);
+			if (nchars != 1) {
+				/* Write error or short write */
+				saveinfo->saved = FALSE;
+				saveinfo->error_type = TAP_RTP_FILE_WRITE_ERROR;
+				return 0;
+			}
 			saveinfo->count++;
 		}
 		fflush(saveinfo->fp);
@@ -737,8 +743,13 @@ static int rtp_packet_save_payload(tap_rtp_save_info_t *saveinfo,
 		* plus the offset of the payload from the beginning
 		* of the RTP data */
 		data = rtpinfo->info_data + rtpinfo->info_payload_offset;
-		/*nchars=*/fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
-		/* XXX: Check for write errors ? */
+		nchars = fwrite(data, sizeof(unsigned char), (rtpinfo->info_payload_len - rtpinfo->info_padding_count), saveinfo->fp);
+		if (nchars != (rtpinfo->info_payload_len - rtpinfo->info_padding_count)) {
+			/* Write error or short write */
+			saveinfo->saved = FALSE;
+			saveinfo->error_type = TAP_RTP_FILE_WRITE_ERROR;
+			return 0;
+		}
 		saveinfo->count+=(rtpinfo->info_payload_len - rtpinfo->info_padding_count);
 
 		fflush(saveinfo->fp);
@@ -2229,6 +2240,7 @@ static void save_voice_as_destroy_cb(GtkWidget *win _U_, user_data_t *user_data)
 /****************************************************************************/
 /* here we save it into a file that user specified */
 /* XXX what about endians here? could go something wrong? */
+
 static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *user_data)
 {
 	FILE *to_stream, *forw_stream, *rev_stream;
@@ -2241,7 +2253,8 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	progdlg_t *progbar;
 	guint32 progbar_count, progbar_quantum, progbar_nextstep = 0, count = 0;
 	gboolean stop_flag = FALSE;
-	/*size_t nchars;*/
+	size_t nchars;
+	gboolean ret_val;
 
 	forw_stream = ws_fopen(user_data->f_tempname, "rb");
 	if (forw_stream == NULL)
@@ -2266,24 +2279,35 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 	{
 		/* First we write the .au header. XXX Hope this is endian independent */
 		/* the magic word 0x2e736e64 == .snd */
-		/* XXX: Check for write errors below ? */
 		phtonl(pd, 0x2e736e64);
-		/*nchars=*/fwrite(pd, 1, 4, to_stream);
+		nchars = fwrite(pd, 1, 4, to_stream);
+		if (nchars != 4)
+			goto copy_file_err;
 		/* header offset == 24 bytes */
 		phtonl(pd, 24);
-		/*nchars=*/fwrite(pd, 1, 4, to_stream);
+		nchars = fwrite(pd, 1, 4, to_stream);
+		if (nchars != 4)
+			goto copy_file_err;
 		/* total length; it is permitted to set this to 0xffffffff */
 		phtonl(pd, -1);
-		/*nchars=*/fwrite(pd, 1, 4, to_stream);
+		nchars = fwrite(pd, 1, 4, to_stream);
+		if (nchars != 4)
+			goto copy_file_err;
 		/* encoding format == 16-bit linear PCM */
 		phtonl(pd, 3);
-		/*nchars=*/fwrite(pd, 1, 4, to_stream);
+		nchars = fwrite(pd, 1, 4, to_stream);
+		if (nchars != 4)
+			goto copy_file_err;
 		/* sample rate == 8000 Hz */
 		phtonl(pd, 8000);
-		/*nchars=*/fwrite(pd, 1, 4, to_stream);
+		nchars = fwrite(pd, 1, 4, to_stream);
+		if (nchars != 4)
+			goto copy_file_err;
 		/* channels == 1 */
 		phtonl(pd, 1);
-		/*nchars=*/fwrite(pd, 1, 4, to_stream);
+		nchars = fwrite(pd, 1, 4, to_stream);
+		if (nchars != 4)
+			goto copy_file_err;
 
 
 		switch (channels) {
@@ -2310,20 +2334,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						phtons(pd, sample);
 					}
 					else{
-						fclose(forw_stream);
-						fclose(rev_stream);
-						fclose(to_stream);
-						destroy_progress_dlg(progbar);
-						return FALSE;
+						goto copy_file_err;
 					}
 
 					fwritten = fwrite(pd, 1, 2, to_stream);
 					if (fwritten < 2) {
-						fclose(forw_stream);
-						fclose(rev_stream);
-						fclose(to_stream);
-						destroy_progress_dlg(progbar);
-						return FALSE;
+						goto copy_file_err;
 					}
 				}
 				break;
@@ -2351,20 +2367,12 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 						phtons(pd, sample);
 					}
 					else{
-						fclose(forw_stream);
-						fclose(rev_stream);
-						fclose(to_stream);
-						destroy_progress_dlg(progbar);
-						return FALSE;
+						goto copy_file_err;
 					}
 
 					rwritten = fwrite(pd, 1, 2, to_stream);
 					if (rwritten < 2) {
-						fclose(forw_stream);
-						fclose(rev_stream);
-						fclose(to_stream);
-						destroy_progress_dlg(progbar);
-						return FALSE;
+						goto copy_file_err;
 					}
 				}
 				break;
@@ -2440,21 +2448,13 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 					}
 					else
 					{
-						fclose(forw_stream);
-						fclose(rev_stream);
-						fclose(to_stream);
-						destroy_progress_dlg(progbar);
-						return FALSE;
+						goto copy_file_err;
 					}
 
 
 					rwritten = fwrite(pd, 1, 2, to_stream);
 					if (rwritten < 2) {
-						fclose(forw_stream);
-						fclose(rev_stream);
-						fclose(to_stream);
-						destroy_progress_dlg(progbar);
-						return FALSE;
+						goto copy_file_err;
 					}
 				}
 			}
@@ -2479,11 +2479,7 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 				break;
 			}
 			default: {
-				fclose(forw_stream);
-				fclose(rev_stream);
-				fclose(to_stream);
-				destroy_progress_dlg(progbar);
-				return FALSE;
+				goto copy_file_err;
 			}
 		}
 
@@ -2501,20 +2497,24 @@ static gboolean copy_file(gchar *dest, gint channels, gint format, user_data_t *
 			count++;
 
 			if (putc(rawvalue, to_stream) == EOF) {
-				fclose(forw_stream);
-				fclose(rev_stream);
-				fclose(to_stream);
-				destroy_progress_dlg(progbar);
-				return FALSE;
+				goto copy_file_err;
 			}
 		}
 	}
 
+	ret_val = TRUE;
+	goto copy_file_xit;
+
+copy_file_err:
+	ret_val = FALSE;
+	goto copy_file_xit;
+
+copy_file_xit:
 	destroy_progress_dlg(progbar);
 	fclose(forw_stream);
 	fclose(rev_stream);
 	fclose(to_stream);
-	return TRUE;
+	return ret_val;
 }
 
 
@@ -3673,7 +3673,7 @@ static void rtp_analysis_cb(GtkWidget *w _U_, gpointer data _U_)
 
 	/* if it is not an rtp frame, show the rtpstream dialog */
 	frame_matched = dfilter_apply_edt(sfcode, &edt);
-	if (frame_matched != 1) {
+	if (frame_matched != TRUE) {
 		epan_dissect_cleanup(&edt);
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 		    "You didn't choose a RTP packet!");
@@ -3768,7 +3768,7 @@ rtp_analysis_init(const char *dummy _U_,void* userdata _U_)
 void
 register_tap_listener_rtp_analysis(void)
 {
-	register_stat_cmd_arg("rtp", rtp_analysis_init,NULL);
+	register_stat_cmd_arg("rtp", rtp_analysis_init, NULL);
 
 	register_stat_menu_item("_RTP/Stream Analysis...", REGISTER_STAT_GROUP_TELEPHONY,
 	    rtp_analysis_cb, NULL, NULL, NULL);
