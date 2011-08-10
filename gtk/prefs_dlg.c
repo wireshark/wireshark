@@ -910,10 +910,10 @@ pref_check(pref_t *pref, gpointer user_data)
 
     /* XXX: The following ugly hack prevents a gcc warning
        "ignoring return value of 'strtoul', declared with attribute warn_unused_result"
-       which can occur when using certain gcc configurations (see _FORTIFY_SOURCE).
+       which can occur when using certain gcc configurations (see -D_FORTIFY_SOURCE).
        A dummy variable is not used because when using gcc 4.6 with -Wextra a
        "set but not used [-Wunused-but-set-variable]" warning will occur.
-       TBD: will this hack pass muster with other validators such as Coverity, CLang, & etc
+       (Coverity & CLang apparently do not object to this hack).
 
        [Guy Harris comment:
         "... perhaps either using spin buttons for numeric preferences, or otherwise making
