@@ -655,7 +655,7 @@ error_list_remote_interface_cb (gpointer dialog _U_, gint btn _U_, gpointer data
 void insert_new_rows(GList *list)
 {
   interface_row row;
-  GtkTreeIter    iter;
+  GtkTreeIter iter;
   GList *if_entry;
   if_info_t *if_info;
   char *if_string="", *temp="";
@@ -670,14 +670,14 @@ void insert_new_rows(GList *list)
   GList *lt_entry;
   data_link_info_t *data_link_info;
   gchar *str, *first="";
-  gboolean      found = FALSE;
+  gboolean found = FALSE;
   GString *ip_str;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   interface_options interface_opts;
   link_row *link = NULL;
 
-  if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   count = rows->len;
   /* Scan through the list and build a list of strings to display. */
@@ -3734,50 +3734,48 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
   gtk_tree_model_get (model, &iter, 0, &tmp, -1);
   pathstring = gtk_tree_path_to_string (path);
 
-  gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), (gint) x, (gint) y, NULL, &column, NULL, NULL);
+  if (gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(tree_view), (gint) x, (gint) y, NULL, &column, NULL, NULL)) {
+    for (col = 0; col < NUM_COLUMNS; col++) {
+      if (gtk_tree_view_get_column(tree_view, col) == column)
+        break;
+    }
+    switch (col)
+    {
+      case 0: g_snprintf (buffer, 511, "Choose which interface (network adapter) will be used to capture packets from. "
+                "Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
+              break;
+      case 1: g_snprintf (buffer, 511, "Lists the interface name and the IP address(es) assigned to it. ");
+              break;
+      case 2: g_snprintf (buffer, 511, "Link-layer type the interface supports.");
+              break;
+      case 3: g_snprintf (buffer, 511, "Usually a network adapter will only capture the traffic sent to its own network address. "
+                "If you want to capture all traffic that the network adapter can \"see\", promiscuous mode should be configured.");
+              break;
+      case 4: g_snprintf(buffer, 511, "Limit the maximum number of bytes to be captured from each packet. This size includes the "
+                "link-layer header and all subsequent headers. ");
+              break;
+      case 5: g_snprintf (buffer, 511, "The memory buffer size used while capturing."
+                "If you notice packet drops, you can try to increase this size.");
+              break;
+      case 6: g_snprintf (buffer, 511, "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
+                "the traffic on the BSS to which it's associated. "
+                "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option."
+                "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
+                "it might be necessary to turn this option on.\n\n"
+                "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated. mode");
+              break;
+      case 7: g_snprintf(buffer, 511, "Selected capture filter to reduce the amount of packets to be captured.");
+              break;
+      default: g_snprintf(buffer, 511, "another option");
+    }
 
-
-  for (col=0; col<NUM_COLUMNS; col++) {
-   if (gtk_tree_view_get_column(tree_view, col) == column)
-     break;
-  }
-
-  switch (col)
-  {
-    case 0: g_snprintf (buffer, 511, "Choose which interface (network adapter) will be used to capture packets from. "
-              "Be sure to select the correct one, as it's a common mistake to select the wrong interface.");
-            break;
-    case 1: g_snprintf (buffer, 511, "Lists the interface name and the IP address(es) assigned to it. ");
-            break;
-    case 2: g_snprintf (buffer, 511, "Link-layer type the interface supports.");
-            break;
-    case 3: g_snprintf (buffer, 511, "Usually a network adapter will only capture the traffic sent to its own network address. "
-              "If you want to capture all traffic that the network adapter can \"see\", promiscuous mode should be configured.");
-            break;
-    case 4: g_snprintf(buffer, 511, "Limit the maximum number of bytes to be captured from each packet. This size includes the "
-              "link-layer header and all subsequent headers. ");
-            break;
-    case 5: g_snprintf (buffer, 511, "The memory buffer size used while capturing."
-              "If you notice packet drops, you can try to increase this size.");
-            break;
-    case 6: g_snprintf (buffer, 511, "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture "
-              "the traffic on the BSS to which it's associated. "
-              "If you want to capture all traffic that the Wi-Fi adapter can \"receive\", mark this option."
-              "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
-              "it might be necessary to turn this option on.\n\n"
-              "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated. mode");
-            break;
-    case 7: g_snprintf(buffer, 511, "Selected capture filter to reduce the amount of packets to be captured.");
-            break;
-    default: g_snprintf(buffer, 511, "another option");
-  }
-
-  gtk_tooltip_set_markup (tooltip, buffer);
-  renderer_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(column));
-  /* get the first renderer */
-  if (g_list_first(renderer_list)) {
-    renderer = (GtkCellRenderer*)g_list_nth_data(renderer_list, 0);
-    gtk_tree_view_set_tooltip_cell (tree_view, tooltip, path, column, renderer);
+    gtk_tooltip_set_markup (tooltip, buffer);
+    renderer_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(column));
+    /* get the first renderer */
+    if (g_list_first(renderer_list)) {
+      renderer = (GtkCellRenderer*)g_list_nth_data(renderer_list, 0);
+      gtk_tree_view_set_tooltip_cell (tree_view, tooltip, path, column, renderer);
+    }
   }
   gtk_tree_path_free (path);
   g_free (pathstring);
