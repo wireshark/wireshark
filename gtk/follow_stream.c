@@ -554,21 +554,21 @@ follow_save_as_cmd_cb(GtkWidget *w _U_, gpointer data)
 	}
 #endif
 	/* "Run" the GtkFileChooserDialog.                                              */
-        /* Upon exit: If "Accept" run the OK callback.                                  */
-        /*            If the OK callback returns with a FALSE status, re-run the dialog.*/
-        /*            If not accept (ie: cancel) destroy the window.                    */
-        /* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
-        /*      return with a TRUE status so that the dialog window will be destroyed.  */
+	/* Upon exit: If "Accept" run the OK callback.                                  */
+	/*            If the OK callback returns with a FALSE status, re-run the dialog.*/
+	/*            If not accept (ie: cancel) destroy the window.                    */
+	/* XXX: If the OK callback pops up an alert box (eg: for an error) it *must*    */
+	/*      return with a TRUE status so that the dialog window will be destroyed.  */
 	/*      Trying to re-run the dialog after popping up an alert box will not work */
-        /*       since the user will not be able to dismiss the alert box.              */
+	/*       since the user will not be able to dismiss the alert box.              */
 	/*      The (somewhat unfriendly) effect: the user must re-invoke the           */
 	/*      GtkFileChooserDialog whenever the OK callback pops up an alert box.     */
 	/*                                                                              */
-        /*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
+	/*      ToDo: use GtkFileChooserWidget in a dialog window instead of            */
 	/*            GtkFileChooserDialog.                                             */
 	while (gtk_dialog_run(GTK_DIALOG(new_win)) == GTK_RESPONSE_ACCEPT) {
 		if (follow_save_as_ok_cb(NULL, new_win)) {
-                    break; /* we're done */
+		    break; /* we're done */
 		}
 	}
 	window_destroy(new_win);
@@ -659,7 +659,7 @@ follow_save_as_ok_cb(GtkWidget * w _U_, gpointer fs)
 	dirname = get_dirname(to_name);  /* Overwrites to_name */
 	set_last_open_dir(dirname);
 	g_free(to_name);
-        return TRUE;
+	return TRUE;
 }
 
 static void
@@ -805,10 +805,10 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
 	/* Create Print Button */
-    button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
-    g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
-    gtk_widget_set_tooltip_text(button, "Print the content as currently displayed");
-    gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
+	button = gtk_button_new_from_stock(GTK_STOCK_PRINT);
+	g_signal_connect(button, "clicked", G_CALLBACK(follow_print_stream), follow_info);
+	gtk_widget_set_tooltip_text(button, "Print the content as currently displayed");
+	gtk_box_pack_start(GTK_BOX(hbox), button, TRUE, TRUE, 0);
 
 	/* Stream to show */
 	follow_stats(&stats);
@@ -822,7 +822,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 		IS_SHOW_TYPE(SHOW_ASCII));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
-                       follow_info);
+		       follow_info);
 	follow_info->ascii_bt = radio_bt;
 
 	/* EBCDIC radio button */
@@ -834,7 +834,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 		IS_SHOW_TYPE(SHOW_EBCDIC));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
-                       follow_info);
+		       follow_info);
 	follow_info->ebcdic_bt = radio_bt;
 
 	/* HEX DUMP radio button */
@@ -846,7 +846,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 		IS_SHOW_TYPE(SHOW_HEXDUMP));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
-                       follow_info);
+		       follow_info);
 	follow_info->hexdump_bt = radio_bt;
 
 	/* C Array radio button */
@@ -858,7 +858,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 		IS_SHOW_TYPE(SHOW_CARRAY));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
-                       follow_info);
+		       follow_info);
 	follow_info->carray_bt = radio_bt;
 
 	/* Raw radio button */
@@ -870,7 +870,7 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 		IS_SHOW_TYPE(SHOW_RAW));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
 	g_signal_connect(radio_bt, "toggled", G_CALLBACK(follow_charset_toggle_cb),
-                       follow_info);
+		       follow_info);
 	follow_info->raw_bt = radio_bt;
 
 	/* Button row: help, filter out, close button */
@@ -989,24 +989,24 @@ follow_show(follow_info_t *follow_info,
 		break;
 
 	case SHOW_ASCII:
-                /* If our native arch is EBCDIC, call:
-                 * ASCII_TO_EBCDIC(buffer, nchars);
-                 */
-                if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
+		/* If our native arch is EBCDIC, call:
+		 * ASCII_TO_EBCDIC(buffer, nchars);
+		 */
+		if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
 			return FRS_PRINT_ERROR;
-                break;
+		break;
 
 	case SHOW_RAW:
-                /* Don't translate, no matter what the native arch
-                 * is.
-                 */
-                if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
+		/* Don't translate, no matter what the native arch
+		 * is.
+		 */
+		if (!(*print_line_fcn_p) (buffer, nchars, is_server, arg))
 			return FRS_PRINT_ERROR;
-                break;
+		break;
 
 	case SHOW_HEXDUMP:
-                current_pos = 0;
-                while (current_pos < nchars) {
+		current_pos = 0;
+		while (current_pos < nchars) {
 			gchar hexbuf[256];
 			int i;
 			gchar *cur = hexbuf, *ascii_start;
@@ -1049,18 +1049,18 @@ follow_show(follow_info_t *follow_info,
 			*cur = 0;
 			if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_server, arg))
 				return FRS_PRINT_ERROR;
-                }
-                break;
+		}
+		break;
 
 	case SHOW_CARRAY:
-                current_pos = 0;
-                g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n",
+		current_pos = 0;
+		g_snprintf(initbuf, sizeof(initbuf), "char peer%d_%d[] = {\n",
 			   is_server ? 1 : 0,
 			   is_server ? (*server_packet_count)++ : (*client_packet_count)++);
-                if (!(*print_line_fcn_p) (initbuf, strlen(initbuf), is_server, arg))
+		if (!(*print_line_fcn_p) (initbuf, strlen(initbuf), is_server, arg))
 			return FRS_PRINT_ERROR;
 
-                while (current_pos < nchars) {
+		while (current_pos < nchars) {
 			gchar hexbuf[256];
 			int i, cur;
 
@@ -1093,8 +1093,8 @@ follow_show(follow_info_t *follow_info,
 			hexbuf[cur] = 0;
 			if (!(*print_line_fcn_p) (hexbuf, strlen(hexbuf), is_server, arg))
 				return FRS_PRINT_ERROR;
-                }
-                break;
+		}
+		break;
 	}
 
 	return FRS_OK;
