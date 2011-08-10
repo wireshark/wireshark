@@ -1920,6 +1920,9 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     int block_length;
     guint8 type;
     int control_flags;
+    proto_tree *block_flag_tree = NULL;
+    int num_eid_ref = 0;
+    int i = 0, ref_scheme = 0, ref_ssp = 0;
 
     type = tvb_get_guint8(tvb, offset);
     header_start = offset;      /*Used to compute total payload length*/
@@ -1933,12 +1936,42 @@ display_metadata_block(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
     control_flags = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
     if(control_flags & BLOCK_CONTROL_LAST_BLOCK) {
         *lastheader = TRUE;
-    }
-    else {
+    } else {
         *lastheader = FALSE;
     }
     proto_tree_add_text(block_tree, tvb, header_start + offset, 1, "Block Flags: 0x%x", control_flags);
     offset += sdnv_length;
+
+    block_flag_tree = proto_item_add_subtree(block_item, ett_block_flags);
+
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
+			   tvb, offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_transmit_status,
+			   tvb, offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_delete_bundle,
+			   tvb, offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_last_block,
+			   tvb, offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_discard_block,
+			   tvb, offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_not_processed,
+			   tvb, offset, sdnv_length, control_flags);
+    proto_tree_add_boolean(block_flag_tree, hf_block_control_eid_reference,
+			   tvb, offset, sdnv_length, control_flags);
+
+    if (control_flags & BLOCK_CONTROL_EID_REFERENCE) {
+    	num_eid_ref = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+    	offset += sdnv_length;
+
+    	for (i = 0; i < num_eid_ref; i++)
+    	{
+    		ref_scheme = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+    		offset += sdnv_length;
+
+    		ref_ssp = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
+    		offset += sdnv_length;
+    	}
+    }
 
     block_length = evaluate_sdnv(tvb, header_start + offset, &sdnv_length);
     proto_item_set_len(block_item, offset + sdnv_length + block_length);
