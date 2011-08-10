@@ -2240,7 +2240,6 @@ void enable_selected_interface(gchar *name, gboolean enable)
   GtkTreeIter  iter;
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
-  GtkTreePath *path;
   gchar *path_str;
 
   if (enable) {
@@ -2254,7 +2253,6 @@ void enable_selected_interface(gchar *name, gboolean enable)
       if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
       model = gtk_tree_view_get_model(if_cb);
       path_str = g_strdup_printf("%d", i);
-      path = gtk_tree_path_new_from_string(path_str);
       gtk_tree_model_get_iter_from_string(model, &iter, path_str);
       gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enable, -1);
       break;
