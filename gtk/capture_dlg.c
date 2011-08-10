@@ -3724,7 +3724,7 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
   GtkTreeViewColumn *column;
   int col;
   GtkCellRenderer* renderer=NULL;
-  GList *renderer_list, *list;
+  GList *renderer_list;
 
   char buffer[512];
 
@@ -3775,11 +3775,10 @@ gboolean query_tooltip_tree_view_cb (GtkWidget  *widget,
   gtk_tooltip_set_markup (tooltip, buffer);
   renderer_list = gtk_cell_layout_get_cells(GTK_CELL_LAYOUT(column));
   /* get the first renderer */
-  for (list = renderer_list; list !=NULL; list = list->next) {
-    renderer = (GtkCellRenderer*)list->data;
-    break;
+  if (g_list_first(renderer_list)) {
+    renderer = (GtkCellRenderer*)g_list_nth_data(renderer_list, 0);
+    gtk_tree_view_set_tooltip_cell (tree_view, tooltip, path, column, renderer);
   }
-  gtk_tree_view_set_tooltip_cell (tree_view, tooltip, path, column, renderer);
   gtk_tree_path_free (path);
   g_free (pathstring);
 
