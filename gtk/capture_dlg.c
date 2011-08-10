@@ -2439,7 +2439,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkWidget        *swindow;
   GtkCellRenderer  *renderer;
   GtkCellRenderer  *toggle_renderer;
-  GtkTreeModel      *model;
   GtkTreeSelection  *selection;
   GtkTreeViewColumn *column;
   gboolean          if_present = TRUE;
@@ -2592,7 +2591,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   column = gtk_tree_view_column_new_with_attributes ("Capture Filter", renderer, "text", FILTER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_alignment(column, 0.5);
-  model = create_and_fill_model (if_list, TRUE, GTK_TREE_VIEW(view));
+  create_and_fill_model(if_list, TRUE, GTK_TREE_VIEW(view));
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
   gtk_container_add (GTK_CONTAINER (swindow), view);
