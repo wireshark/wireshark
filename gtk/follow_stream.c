@@ -865,7 +865,10 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 	radio_bt = gtk_radio_button_new_with_label(gtk_radio_button_get_group
 						   (GTK_RADIO_BUTTON(radio_bt)),
 						   "Raw");
-	gtk_widget_set_tooltip_text(radio_bt, "Stream data output in \"Raw\" (binary) format. As this contains non printable characters, the screen output will be in ASCII format");
+	gtk_widget_set_tooltip_text(radio_bt,
+                                    "Stream data output in \"Raw\" (binary) format. "
+                                    "As this contains non printable characters, "
+                                    "the screen output will be in ASCII format");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(radio_bt),
 		IS_SHOW_TYPE(SHOW_RAW));
 	gtk_box_pack_start(GTK_BOX(hbox), radio_bt, TRUE, TRUE, 0);
@@ -931,7 +934,8 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	case FOLLOW_TCP :
 		i = ws_unlink(follow_info->data_out_filename);
 		if(i != 0) {
-			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)", follow_info->data_out_filename, g_strerror(errno), errno);
+			g_warning("Follow: Couldn't remove temporary file: \"%s\", errno: %s (%u)",
+				  follow_info->data_out_filename, g_strerror(errno), errno);
 		}
 		break;
 
