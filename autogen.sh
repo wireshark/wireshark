@@ -17,9 +17,13 @@ AUTOHEADER=autoheader
 AUTOMAKE=automake$AM_VERSION
 AUTOCONF=autoconf
 
-# Check for python. There's no "--version" option!
-python -c "print 'Checking for python.'"
-if [ $? != 0 ] ; then
+# Check for python. Python did not support --version before version 2.5.
+# Until we require a version > 2.5, we should use -V.
+PYVER=`python -V 2>&1 | sed 's/Python *//'`
+case "$PYVER" in
+2*|3*)
+  ;;
+*)
   cat >&2 <<_EOF_
 
   	You must have Python in order to compile $PROJECT.
@@ -27,7 +31,7 @@ if [ $? != 0 ] ; then
 	or get the source tarball at http://www.python.org/
 _EOF_
   DIE="exit 1"
-fi
+esac
 
 
 ACVER=`$AUTOCONF --version | grep '^autoconf' | sed 's/.*) *//'`
