@@ -577,12 +577,14 @@ write_current_packet (void)
         if (ts_fmt == NULL) { ts_usec++; }	/* fake packet counter */
         ph.incl_len = length;
         ph.orig_len = length;
-        fwrite(&ph, sizeof(ph), 1, output_file);
+        if (fwrite(&ph, sizeof(ph), 1, output_file) != 1)
+            goto write_current_packet_err;
 
         /* Write Ethernet header */
         if (hdr_ethernet) {
             HDR_ETHERNET.l3pid = g_htons(hdr_ethernet_proto);
-            fwrite(&HDR_ETHERNET, sizeof(HDR_ETHERNET), 1, output_file);
+            if (fwrite(&HDR_ETHERNET, sizeof(HDR_ETHERNET), 1, output_file) != 1)
+                goto write_current_packet_err;
         }
 
         /* Write IP header */
@@ -591,7 +593,8 @@ write_current_packet (void)
             HDR_IP.protocol = (guint8) hdr_ip_proto;
             HDR_IP.hdr_checksum = 0;
             HDR_IP.hdr_checksum = in_checksum(&HDR_IP, sizeof(HDR_IP));
-            fwrite(&HDR_IP, sizeof(HDR_IP), 1, output_file);
+            if (fwrite(&HDR_IP, sizeof(HDR_IP), 1, output_file) != 1)
+                goto write_current_packet_err;
         }
 
 	/* initialize pseudo header for checksum calculation */
@@ -621,7 +624,8 @@ write_current_packet (void)
 	    if (HDR_UDP.checksum == 0) /* differentiate between 'none' and 0 */
 	    	    HDR_UDP.checksum = g_htons(1);
 
-            fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file);
+            if (fwrite(&HDR_UDP, sizeof(HDR_UDP), 1, output_file) != 1)
+                goto write_current_packet_err;
         }
 
         /* Write TCP header */
@@ -645,7 +649,8 @@ write_current_packet (void)
 	    if (HDR_TCP.checksum == 0) /* differentiate between 'none' and 0 */
                 HDR_TCP.checksum = g_htons(1);
 
-            fwrite(&HDR_TCP, sizeof(HDR_TCP), 1, output_file);
+            if (fwrite(&HDR_TCP, sizeof(HDR_TCP), 1, output_file) != 1)
+                goto write_current_packet_err;
         }
 
         /* Compute DATA chunk header and append padding */
@@ -677,20 +682,24 @@ write_current_packet (void)
             x32 = finalize_crc32c(crc32c(packet_buf, curr_offset, HDR_SCTP.checksum));
             HDR_SCTP.checksum  = g_htonl(x32);
 
-            fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file);
+            if (fwrite(&HDR_SCTP, sizeof(HDR_SCTP), 1, output_file) != 1)
+                goto write_current_packet_err;
         }
 
         /* Write DATA chunk header */
         if (hdr_data_chunk) {
-            fwrite(&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), 1, output_file);
+            if (fwrite(&HDR_DATA_CHUNK, sizeof(HDR_DATA_CHUNK), 1, output_file) != 1)
+                goto write_current_packet_err;
         }
         /* Write packet */
-        fwrite(packet_buf, curr_offset, 1, output_file);
+        if (fwrite(packet_buf, curr_offset, 1, output_file) != 1)
+            goto write_current_packet_err;
 
         /* Write Ethernet trailer */
         if (hdr_ethernet && eth_trailer_length > 0) {
             memset(tempbuf, 0, eth_trailer_length);
-            fwrite(tempbuf, eth_trailer_length, 1, output_file);
+            if (fwrite(tempbuf, eth_trailer_length, 1, output_file) != 1)
+                goto write_current_packet_err;
         }
 
         if (!quiet)
@@ -702,6 +711,12 @@ write_current_packet (void)
 
     packet_start += curr_offset;
     curr_offset = 0;
+    return;
+
+write_current_packet_err:
+    fprintf(stderr, "File write error [%s] : %s\n",
+            output_filename, g_strerror(errno));
+    exit(-1);
 }
 
 /*----------------------------------------------------------------------
@@ -720,7 +735,11 @@ write_file_header (void)
     fh.snaplen = 102400;
     fh.network = pcap_link_type;
 
-    fwrite(&fh, sizeof(fh), 1, output_file);
+    if (fwrite(&fh, sizeof(fh), 1, output_file) != 1) {
+        fprintf(stderr, "File write error [%s] : %s\n",
+                output_filename, g_strerror(errno));
+        exit(-1);
+    }
 }
 
 /*----------------------------------------------------------------------
@@ -1389,6 +1408,8 @@ main(int argc, char *argv[])
     yylex();
 
     write_current_packet();
+    fclose(input_file);
+    fclose(output_file);
     if (debug)
         fprintf(stderr, "\n-------------------------\n");
     if (!quiet) {
