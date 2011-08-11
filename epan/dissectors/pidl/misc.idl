@@ -1,0 +1,80 @@
+#include "idl_types.h"
+
+/*
+  miscellaneous IDL structures
+*/
+
+
+[
+	pyhelper("librpc/ndr/py_misc.c"),
+	pointer_default(unique)
+]
+interface misc
+{
+	typedef [public,noprint,gensize] struct {
+		uint32 time_low;
+		uint16 time_mid;
+		uint16 time_hi_and_version;
+		uint8  clock_seq[2];
+		uint8  node[6];
+	} GUID;
+
+	typedef [public] struct {
+		GUID uuid;
+		/* The major version is encoded in the 16 least significant bits, 
+		   the minor in the 16 most significant bits.  
+		   http://www.opengroup.org/onlinepubs/9629399/chap12.htm */
+		uint32 if_version;
+	} ndr_syntax_id;
+
+	typedef [public] struct {
+		uint32 handle_type;
+		GUID   uuid;
+	} policy_handle;
+
+	/* secure channel types */
+	/* Only SEC_CHAN_WKSTA can forward requests to other domains. */
+
+	typedef [public] enum {
+		SEC_CHAN_NULL        = 0,
+		SEC_CHAN_LOCAL       = 1,
+		SEC_CHAN_WKSTA       = 2,
+		SEC_CHAN_DNS_DOMAIN  = 3,
+		SEC_CHAN_DOMAIN      = 4,
+		SEC_CHAN_LANMAN      = 5,
+		SEC_CHAN_BDC         = 6,
+		SEC_CHAN_RODC        = 7
+	} netr_SchannelType;
+
+	typedef [public] struct {
+		NTSTATUS ntstatus;
+		uint32 unknown1;
+		uint32 unknown2; /* 0x00000001 */
+	} KRB5_EDATA_NTSTATUS;
+
+	typedef [public,v1_enum] enum {
+		REG_NONE                       = 0,
+		REG_SZ                         = 1,
+		REG_EXPAND_SZ                  = 2,
+		REG_BINARY                     = 3,
+		REG_DWORD                      = 4,
+		REG_DWORD_BIG_ENDIAN           = 5,
+		REG_LINK                       = 6,
+		REG_MULTI_SZ                   = 7,
+		REG_RESOURCE_LIST              = 8,
+		REG_FULL_RESOURCE_DESCRIPTOR   = 9,
+		REG_RESOURCE_REQUIREMENTS_LIST = 10,
+		REG_QWORD                      = 11
+	} winreg_Type;
+
+	typedef [nodiscriminant,public,flag(NDR_LITTLE_ENDIAN)] union {
+		[case(REG_NONE)];
+		[case(REG_SZ)] nstring string;
+		[case(REG_EXPAND_SZ)] nstring string;
+		[case(REG_BINARY),flag(NDR_REMAINING)] DATA_BLOB binary;
+		[case(REG_DWORD)] uint32 value;
+		[case(REG_DWORD_BIG_ENDIAN),flag(NDR_BIG_ENDIAN)] uint32 value;
+		[case(REG_MULTI_SZ)] nstring_array string_array;
+		[default,flag(NDR_REMAINING)] DATA_BLOB data;
+	} winreg_Data;
+}
