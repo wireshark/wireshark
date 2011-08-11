@@ -166,7 +166,11 @@ typedef struct _io_stat_t {
 	struct _io_stat_graph_t graphs[MAX_GRAPHS];
 	GtkWidget *window;
 	GtkWidget *draw_area;
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_surface_t *surface;
+#else
 	GdkPixmap *pixmap;
+#endif
 	GtkAdjustment *scrollbar_adjustment;
 	GtkWidget *scrollbar;
 	guint first_frame_num[NUM_IO_ITEMS];
@@ -752,7 +756,11 @@ io_stat_draw(io_stat_t *io)
 	/*
 	 * Clear out old plot
 	 */
+#if GTK_CHECK_VERSION(2,22,0)
+	cr = cairo_create (io->surface);
+#else
 	cr = gdk_cairo_create (io->pixmap);
+#endif
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	gtk_widget_get_allocation(io->draw_area, &widget_alloc);
 	cairo_rectangle (cr, 0, 0, widget_alloc.width,widget_alloc.height);
@@ -857,7 +865,11 @@ io_stat_draw(io_stat_t *io)
 		g_snprintf (label_string, 45, "Warning: Graph limited to %d entries", NUM_IO_ITEMS);
 		pango_layout_set_text(layout, label_string, -1);
 
+#if GTK_CHECK_VERSION(2,22,0)
+		cr = cairo_create (io->surface);
+#else
 		cr = gdk_cairo_create (io->pixmap);
+#endif
 		cairo_move_to (cr, 5, io->pixmap_height-bottom_y_border-draw_height-label_height/2);
 		pango_cairo_show_layout (cr, layout);
 		cairo_destroy (cr);
@@ -868,7 +880,11 @@ io_stat_draw(io_stat_t *io)
 	 * Draw the y axis and labels
 	 * (we always draw the y scale with 11 ticks along the axis)
 	 */
+#if GTK_CHECK_VERSION(2,22,0)
+	cr = cairo_create (io->surface);
+#else
 	cr = gdk_cairo_create (io->pixmap);
+#endif
 	cairo_set_line_width (cr, 1.0);
 	cairo_move_to(cr, io->pixmap_width-io->right_x_border+1.5, top_y_border+0.5);
 	cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5, io->pixmap_height-bottom_y_border+0.5);
@@ -900,7 +916,11 @@ io_stat_draw(io_stat_t *io)
 				for(j=2;j<10;j++) {
 					ypos=(int)(io->pixmap_height-bottom_y_border-(draw_height-ystart)*(i+log10((double)j))/tics-ystart);
 					/* draw the tick */
+#if GTK_CHECK_VERSION(2,22,0)
+					cr = cairo_create (io->surface);
+#else
 					cr = gdk_cairo_create (io->pixmap);
+#endif
 					cairo_set_line_width (cr, 1.0);
 					cairo_move_to(cr, io->pixmap_width-io->right_x_border+1.5, ypos+0.5);
 					cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5+xwidth,ypos+0.5);
@@ -919,7 +939,11 @@ io_stat_draw(io_stat_t *io)
 			ypos=io->pixmap_height-bottom_y_border-draw_height*i/10;
 		}
 		/* draw the tick */
+#if GTK_CHECK_VERSION(2,22,0)
+		cr = cairo_create (io->surface);
+#else
 		cr = gdk_cairo_create (io->pixmap);
+#endif
 		cairo_set_line_width (cr, 1.0);
 		cairo_move_to(cr, io->pixmap_width-io->right_x_border+1.5, ypos+0.5);
 		cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5+xwidth,ypos+0.5);
@@ -947,7 +971,11 @@ io_stat_draw(io_stat_t *io)
 	        pango_layout_set_text(layout, label_string, -1);
 	        pango_layout_get_pixel_size(layout, &lwidth, NULL);
 
+#if GTK_CHECK_VERSION(2,22,0)
+			cr = cairo_create (io->surface);
+#else
 			cr = gdk_cairo_create (io->pixmap);
+#endif
 			cairo_move_to (cr, io->pixmap_width-io->right_x_border+15+label_width-lwidth, ypos-label_height/2);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -972,7 +1000,11 @@ io_stat_draw(io_stat_t *io)
 
 /*XXX*/
 	/* plot the x-scale */
+#if GTK_CHECK_VERSION(2,22,0)
+		cr = cairo_create (io->surface);
+#else
 		cr = gdk_cairo_create (io->pixmap);
+#endif
 		cairo_set_line_width (cr, 1.0);
 		cairo_move_to(cr, io->left_x_border+0.5, io->pixmap_height-bottom_y_border+1.5);
 		cairo_line_to(cr, io->pixmap_width-io->right_x_border+1.5,io->pixmap_height-bottom_y_border+1.5);
@@ -1004,7 +1036,11 @@ io_stat_draw(io_stat_t *io)
 			xlen=5;
 		}
 		x=draw_width+io->left_x_border-((last_interval-current_interval)/io->interval)*io->pixels_per_tick;
+#if GTK_CHECK_VERSION(2,22,0)
+		cr = cairo_create (io->surface);
+#else
 		cr = gdk_cairo_create (io->pixmap);
+#endif
 		cairo_set_line_width (cr, 1.0);
 		cairo_move_to(cr, x-1-io->pixels_per_tick/2+0.5, io->pixmap_height-bottom_y_border+1.5);
 		cairo_line_to(cr, x-1-io->pixels_per_tick/2+0.5, io->pixmap_height-bottom_y_border+xlen+1.5);
@@ -1023,7 +1059,11 @@ io_stat_draw(io_stat_t *io)
 			} else {
 				x_pos=x-1-io->pixels_per_tick/2-lwidth/2;
 			}
+#if GTK_CHECK_VERSION(2,22,0)
+			cr = cairo_create (io->surface);
+#else
 			cr = gdk_cairo_create (io->pixmap);
+#endif
 			cairo_move_to (cr, x_pos, io->pixmap_height-bottom_y_border+15);
 			pango_cairo_show_layout (cr, layout);
 			cairo_destroy (cr);
@@ -1082,7 +1122,11 @@ io_stat_draw(io_stat_t *io)
 				 * is entirely above the top of the graph
 				 */
 				if( (prev_y_pos!=0) || (y_pos!=0) ){
+#if GTK_CHECK_VERSION(2,22,0)
+					cr = cairo_create (io->surface);
+#else
 					cr = gdk_cairo_create (io->pixmap);
+#endif
 					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
 					cairo_set_line_width (cr, 1.0);
 					cairo_move_to(cr, prev_x_pos+0.5, prev_y_pos+0.5);
@@ -1093,7 +1137,11 @@ io_stat_draw(io_stat_t *io)
 				break;
 			case PLOT_STYLE_IMPULSE:
 				if(val){
+#if GTK_CHECK_VERSION(2,22,0)
+					cr = cairo_create (io->surface);
+#else
 					cr = gdk_cairo_create (io->pixmap);
+#endif
 					gdk_cairo_set_source_color (cr, &io->graphs[i].color);
 					cairo_set_line_width (cr, 1.0);
 					cairo_move_to(cr, x_pos+0.5, draw_height-1+top_y_border+0.5);
@@ -1104,7 +1152,11 @@ io_stat_draw(io_stat_t *io)
 				break;
 			case PLOT_STYLE_FILLED_BAR:
 				if(val){
+#if GTK_CHECK_VERSION(2,22,0)
+					cr = cairo_create (io->surface);
+#else
 					cr = gdk_cairo_create (io->pixmap);
+#endif
 					cairo_rectangle (cr,
 						x_pos-(gdouble)io->pixels_per_tick/2+0.5,
 						y_pos+0.5,
@@ -1117,7 +1169,11 @@ io_stat_draw(io_stat_t *io)
 				break;
 			case PLOT_STYLE_DOT:
 				if(val){
+#if GTK_CHECK_VERSION(2,22,0)
+					cr = cairo_create (io->surface);
+#else
 					cr = gdk_cairo_create (io->pixmap);
+#endif
 					cairo_arc (cr,
 						x_pos+0.5,
 						y_pos+0.5,
@@ -1138,7 +1194,11 @@ io_stat_draw(io_stat_t *io)
 
 	cr = gdk_cairo_create (gtk_widget_get_window(io->draw_area));
 
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_set_source_surface (cr, io->surface, 0, 0); 
+#else
 	gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
+#endif
 	cairo_rectangle (cr, 0, 0, io->pixmap_width, io->pixmap_height);
 	cairo_fill (cr);
 
@@ -1266,7 +1326,11 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 	io->interval=tick_interval_values[DEFAULT_TICK_VALUE_INDEX];
 	io->window=NULL;
 	io->draw_area=NULL;
+#if GTK_CHECK_VERSION(2,22,0)
+	io->surface=NULL;
+#else
 	io->pixmap=NULL;
+#endif
 	io->scrollbar=NULL;
 	io->scrollbar_adjustment=NULL;
 	io->pixmap_width=500;
@@ -1366,7 +1430,11 @@ pixmap_clicked_event(GtkWidget *widget _U_, GdkEventButton *event, gpointer user
 	      return FALSE;
 	}
 
+#if GTK_CHECK_VERSION(2,22,0)
+	if ((event->button==1 || event->button==3) && io->surface!=NULL) {
+#else
 	if ((event->button==1 || event->button==3) && io->pixmap!=NULL) {
+#endif
 		/*
 		 * Button 1 selects the first package in the interval.
 		 * Button 3 selects the last package in the interval.
@@ -1396,24 +1464,46 @@ draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpoin
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
 
+#if GTK_CHECK_VERSION(2,22,0)
+	if(io->surface){
+		 cairo_surface_destroy (io->surface);
+		io->surface=NULL;
+	}
+#else
 	if(io->pixmap){
 		g_object_unref(io->pixmap);
 		io->pixmap=NULL;
 	}
+#endif
 
 	gtk_widget_get_allocation(widget, &widget_alloc);
+#if GTK_CHECK_VERSION(2,22,0)
+	io->surface = gdk_window_create_similar_surface (gtk_widget_get_window(widget),
+			CAIRO_CONTENT_COLOR,
+			widget_alloc.width,
+			widget_alloc.height);
+
+#else
 	io->pixmap=gdk_pixmap_new(gtk_widget_get_window(widget),
 			widget_alloc.width,
 			widget_alloc.height,
 			-1);
+#endif
 	io->pixmap_width=widget_alloc.width;
 	io->pixmap_height=widget_alloc.height;
 
 	save_bt = g_object_get_data(G_OBJECT(io->window), "save_bt");
+#if GTK_CHECK_VERSION(2,22,0)
+	g_object_set_data(G_OBJECT(save_bt), "surface", io->surface);
+	gtk_widget_set_sensitive(save_bt, TRUE);
+
+	cr = cairo_create (io->surface);
+#else
 	g_object_set_data(G_OBJECT(save_bt), "pixmap", io->pixmap);
 	gtk_widget_set_sensitive(save_bt, TRUE);
 
 	cr = gdk_cairo_create (io->pixmap);
+#endif
 	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_fill (cr);
@@ -1451,7 +1541,11 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_d
 	io_stat_t *io = user_data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_set_source_surface (cr, io->surface, 0, 0); 
+#else
 	gdk_cairo_set_source_pixmap (cr, io->pixmap, 0, 0);
+#endif
 	cairo_rectangle (cr, event->area.x, event->area.y, event->area.width, event->area.height);
 	cairo_fill (cr);
 
