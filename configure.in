@@ -404,6 +404,13 @@ else
   CFLAGS="-D_U_=\"\" $CFLAGS"
 fi
 
+# If we're running GCC or CLang, always use FORTIFY_SOURCE=2
+# See: http://gcc.gnu.org/ml/gcc-patches/2004-09/msg02055.html
+# Note: FORTIFY_SOURCE is only effective for gcc -O2 (and -O1 ?)
+if test "x$GCC" = "xyes" -o "x$CC" = "xclang" ; then
+  CFLAGS="-D_FORTIFY_SOURCE=2 $CFLAGS"
+fi
+
 #
 # If the compiler supports GCC-style flags, enable a barrier "stop on
 # warning".
