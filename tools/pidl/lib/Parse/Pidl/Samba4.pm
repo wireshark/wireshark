@@ -18,12 +18,17 @@ use strict;
 use vars qw($VERSION);
 $VERSION = '0.01';
 
+
+# return true if we are using pidl within the samba source tree. This changes
+# the names of include files, as some include files (such as ntstatus.h) have
+# different paths when installed to the patch in the source tree
 sub is_intree()
 {
 	my $srcdir = $ENV{srcdir};
 	$srcdir = $srcdir ? "$srcdir/" : "";
-	return 4 if (-f "${srcdir}kdc/kdc.c");
-	return 3 if (-f "${srcdir}include/smb.h");
+	return 1 if (-f "${srcdir}kdc/kdc.c");
+	return 1 if (-d "${srcdir}source4");
+	return 1 if (-f "${srcdir}include/smb.h");
 	return 0;
 }
 

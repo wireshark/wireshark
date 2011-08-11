@@ -216,6 +216,30 @@ sub HeaderUnion($$;$)
 }
 
 #####################################################################
+# parse a pipe
+sub HeaderPipe($$;$)
+{
+	my($pipe,$name,$tail) = @_;
+
+	my $struct = $pipe->{DATA};
+	my $e = $struct->{ELEMENTS}[1];
+
+	pidl "struct $name;\n";
+	pidl "struct $struct->{NAME} {\n";
+	$tab_depth++;
+	pidl tabs()."uint32_t count;\n";
+	pidl tabs().mapTypeName($e->{TYPE})." *array;\n";
+	$tab_depth--;
+	pidl "}";
+
+	if (defined $struct->{PROPERTIES}) {
+		HeaderProperties($struct->{PROPERTIES}, []);
+	}
+
+	pidl $tail if defined($tail);
+}
+
+#####################################################################
 # parse a type
 sub HeaderType($$$;$)
 {
@@ -225,6 +249,7 @@ sub HeaderType($$$;$)
 		($data->{TYPE} eq "BITMAP") && HeaderBitmap($data, $name);
 		($data->{TYPE} eq "STRUCT") && HeaderStruct($data, $name, $tail);
 		($data->{TYPE} eq "UNION") && HeaderUnion($data, $name, $tail);
+		($data->{TYPE} eq "PIPE") && HeaderPipe($data, $name, $tail);
 		return;
 	}
 
@@ -385,6 +410,7 @@ sub HeaderInterface($)
 		HeaderUnion($t, $t->{NAME}, ";\n\n") if ($t->{TYPE} eq "UNION");
 		HeaderEnum($t, $t->{NAME}, ";\n\n") if ($t->{TYPE} eq "ENUM");
 		HeaderBitmap($t, $t->{NAME}) if ($t->{TYPE} eq "BITMAP");
+		HeaderPipe($t, $t->{NAME}, "\n\n") if ($t->{TYPE} eq "PIPE");
 	}
 
 	foreach my $fn (@{$interface->{FUNCTIONS}}) {

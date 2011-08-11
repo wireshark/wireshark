@@ -77,8 +77,8 @@ sub Boilerplate_Iface($)
 	my($interface) = shift;
 	my $name = $interface->{NAME}; 
 	my $uname = uc $name;
-	my $uuid = lc($interface->{PROPERTIES}->{uuid});
-	my $if_version = $interface->{PROPERTIES}->{version};
+	my $uuid = lc($interface->{UUID});
+	my $if_version = $interface->{VERSION};
 
 	pidl "
 static NTSTATUS $name\__op_bind(struct dcesrv_call_state *dce_call, const struct dcesrv_interface *iface, uint32_t if_version)
@@ -251,9 +251,9 @@ static bool $name\__op_interface_by_name(struct dcesrv_interface *iface, const c
 		return true;
 	}
 
-	return false;	
+	return false;
 }
-	
+
 NTSTATUS dcerpc_server_$name\_init(void)
 {
 	NTSTATUS ret;
@@ -288,6 +288,9 @@ sub ParseInterface($)
 {
 	my($interface) = shift;
 	my $count = 0;
+
+	$res .= "NTSTATUS dcerpc_server_$interface->{NAME}\_init(void);\n";
+	$res .= "\n";
 
 	if (!defined $interface->{PROPERTIES}->{uuid}) {
 		return $res;

@@ -12,6 +12,7 @@ use Exporter;
 
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property ParseExpr);
+use Parse::Pidl::NDR qw(ContainsPipe);
 use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Samba4 qw(choose_header is_intree DeclLong);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
@@ -42,6 +43,17 @@ sub new($)
 	my ($class) = shift;
 	my $self = { res => "", res_hdr => "", tabs => "" };
 	bless($self, $class);
+}
+
+sub ParseFunctionHasPipes($$)
+{
+	my ($self, $fn) = @_;
+
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		return 1 if ContainsPipe($e, $e->{LEVELS}[0]);
+	}
+
+	return 0;
 }
 
 sub ParseFunction_r_State($$$$)
@@ -89,10 +101,11 @@ sub ParseFunction_r_Send($$$$)
 	$self->pidl("");
 
 	my $out_params = 0;
-	foreach (@{$fn->{ELEMENTS}}) {
-		if (grep(/out/, @{$_->{DIRECTION}})) {
-			$out_params++;
-		}
+	foreach my $e (@{$fn->{ELEMENTS}}) {
+		next unless grep(/out/, @{$e->{DIRECTION}});
+		next if ContainsPipe($e, $e->{LEVELS}[0]);
+		$out_params++;
+
 	}
 
 	my $submem;
@@ -200,6 +213,17 @@ sub ParseFunction_r_Sync($$$$)
 	my ($self, $if, $fn, $name) = @_;
 	my $uname = uc $name;
 
+	if ($self->ParseFunctionHasPipes($fn)) {
+		$self->pidl_both("/*");
+		$self->pidl_both(" * The following function is skipped because");
+		$self->pidl_both(" * it uses pipes:");
+		$self->pidl_both(" *");
+		$self->pidl_both(" * dcerpc_$name\_r()");
+		$self->pidl_both(" */");
+		$self->pidl_both("");
+		return;
+	}
+
 	my $proto = "NTSTATUS dcerpc_$name\_r(struct dcerpc_binding_handle *h, TALLOC_CTX *mem_ctx, struct $name *r)";
 
 	$self->fn_declare($proto);
@@ -213,49 +237,6 @@ sub ParseFunction_r_Sync($$$$)
 	$self->pidl("\t\tNULL, &ndr_table_$if->{NAME},");
 	$self->pidl("\t\tNDR_$uname, mem_ctx, r);");
 	$self->pidl("");
-	$self->pidl("return status;");
-
-	$self->deindent;
-	$self->pidl("}");
-	$self->pidl("");
-}
-
-sub ParseFunction_Compat_Sync($$$$)
-{
-	my ($self, $if, $fn, $name) = @_;
-	my $uname = uc $name;
-
-	my $proto = "NTSTATUS dcerpc_$name\_compat(struct dcerpc_pipe *p, TALLOC_CTX *mem_ctx, struct $name *r)";
-
-	$self->pidl_hdr("#ifdef DCERPC_CALL_$uname\_COMPAT");
-	$self->pidl_hdr("#define dcerpc_$name(p, m, r) dcerpc_$name\_compat(p, m, r)");
-	$self->pidl_hdr("#endif /* DCERPC_CALL_$uname\_COMPAT */");
-
-	$self->fn_declare($proto);
-	$self->pidl("{");
-	$self->indent;
-	$self->pidl("NTSTATUS status;");
-	$self->pidl("");
-
-	$self->pidl("status = dcerpc_$name\_r(p->binding_handle, mem_ctx, r);");
-	$self->pidl("");
-
-	$self->pidl("if (NT_STATUS_IS_RPC(status)) {");
-	$self->indent;
-	$self->pidl("status = NT_STATUS_NET_WRITE_FAULT;");
-	$self->deindent;
-	$self->pidl("}");
-	$self->pidl("");
-
-	if (defined($fn->{RETURN_TYPE}) and $fn->{RETURN_TYPE} eq "NTSTATUS") {
-		$self->pidl("if (NT_STATUS_IS_OK(status)) {");
-		$self->indent;
-		$self->pidl("status = r->out.result;");
-		$self->deindent;
-		$self->pidl("}");
-		$self->pidl("");
-	}
-
 	$self->pidl("return status;");
 
 	$self->deindent;
@@ -510,6 +491,9 @@ sub ParseFunction_Send($$$$)
 		next unless grep(/out/, @{$e->{DIRECTION}});
 
 		$self->ParseCopyArgument($fn, $e, "state->orig.out.", "_");
+
+		next if ContainsPipe($e, $e->{LEVELS}[0]);
+
 		$out_params++;
 	}
 	$self->pidl("");
@@ -589,6 +573,7 @@ sub ParseFunction_Done($$$$)
 
 	$self->pidl("/* Copy out parameters */");
 	foreach my $e (@{$fn->{ELEMENTS}}) {
+		next if ContainsPipe($e, $e->{LEVELS}[0]);
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 
 		$self->ParseOutputArgument($fn, $e,
@@ -665,6 +650,17 @@ sub ParseFunction_Sync($$$$)
 {
 	my ($self, $if, $fn, $name) = @_;
 
+	if ($self->ParseFunctionHasPipes($fn)) {
+		$self->pidl_both("/*");
+		$self->pidl_both(" * The following function is skipped because");
+		$self->pidl_both(" * it uses pipes:");
+		$self->pidl_both(" *");
+		$self->pidl_both(" * dcerpc_$name()");
+		$self->pidl_both(" */");
+		$self->pidl_both("");
+		return;
+	}
+
 	my $uname = uc $name;
 	my $fn_args = "";
 	my $fn_str = "NTSTATUS dcerpc_$name";
@@ -682,9 +678,7 @@ sub ParseFunction_Sync($$$$)
 		$fn_args .= ",\n" . $pad . mapTypeName($fn->{RETURN_TYPE}). " *result";
 	}
 
-	$self->pidl_hdr("#ifndef DCERPC_CALL_$uname\_COMPAT");
 	$self->fn_declare("$fn_str($fn_args)");
-	$self->pidl_hdr("#endif /* DCERPC_CALL_$uname\_COMPAT */");
 	$self->pidl("{");
 	$self->indent;
 	$self->pidl("struct $name r;");
@@ -709,6 +703,7 @@ sub ParseFunction_Sync($$$$)
 
 	$self->pidl("/* Return variables */");
 	foreach my $e (@{$fn->{ELEMENTS}}) {
+		next if ContainsPipe($e, $e->{LEVELS}[0]);
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
 
 		$self->ParseOutputArgument($fn, $e, "r.", "_", "sync");
@@ -734,13 +729,29 @@ sub ParseFunction($$$)
 {
 	my ($self, $if, $fn) = @_;
 
+	if ($self->ParseFunctionHasPipes($fn)) {
+		$self->pidl_both("/*");
+		$self->pidl_both(" * The following function is skipped because");
+		$self->pidl_both(" * it uses pipes:");
+		$self->pidl_both(" *");
+		$self->pidl_both(" * dcerpc_$fn->{NAME}_r_send()");
+		$self->pidl_both(" * dcerpc_$fn->{NAME}_r_recv()");
+		$self->pidl_both(" * dcerpc_$fn->{NAME}_r()");
+		$self->pidl_both(" *");
+		$self->pidl_both(" * dcerpc_$fn->{NAME}_send()");
+		$self->pidl_both(" * dcerpc_$fn->{NAME}_recv()");
+		$self->pidl_both(" * dcerpc_$fn->{NAME}()");
+		$self->pidl_both(" */");
+		$self->pidl_both("");
+		warning($fn->{ORIGINAL}, "$fn->{NAME}: dcerpc client does not support pipe yet");
+		return;
+	}
+
 	$self->ParseFunction_r_State($if, $fn, $fn->{NAME});
 	$self->ParseFunction_r_Send($if, $fn, $fn->{NAME});
 	$self->ParseFunction_r_Done($if, $fn, $fn->{NAME});
 	$self->ParseFunction_r_Recv($if, $fn, $fn->{NAME});
 	$self->ParseFunction_r_Sync($if, $fn, $fn->{NAME});
-
-	$self->ParseFunction_Compat_Sync($if, $fn, $fn->{NAME});
 
 	foreach my $e (@{$fn->{ELEMENTS}}) {
 		next unless (grep(/out/, @{$e->{DIRECTION}}));
@@ -810,16 +821,6 @@ sub ParseInterface($$)
 		$self->pidl_hdr("extern const struct ndr_interface_table ndr_table_$if->{NAME};");
 		$self->pidl_hdr("");
 	}
-
-	$self->pidl_hdr("#ifdef DCERPC_IFACE_$ifu\_COMPAT");
-	foreach my $fn (@{$if->{FUNCTIONS}}) {
-		next if has_property($fn, "noopnum");
-		next if has_property($fn, "todo");
-		my $fnu = uc($fn->{NAME});
-		$self->pidl_hdr("#define DCERPC_CALL_$fnu\_COMPAT 1");
-	}
-	$self->pidl_hdr("#endif /* DCERPC_IFACE_$ifu\_COMPAT */");
-	$self->pidl_hdr("");
 
 	$self->pidl("/* $if->{NAME} - client functions generated by pidl */");
 	$self->pidl("");

@@ -199,6 +199,12 @@ sub ParseFunction($$)
 	pidl "\treturn false;";
 	pidl "}";
 	pidl "";
+	pidl "/*";
+	pidl " * carry over the pointer count to the reply in case we are";
+	pidl " * using full pointer. See NDR specification for full pointers";
+	pidl " */";
+	pidl "push->ptr_count = pull->ptr_count;";
+	pidl "";
 	pidl "ndr_err = call->ndr_push(push, NDR_OUT, r);";
 	pidl "if (!NDR_ERR_CODE_IS_SUCCESS(ndr_err)) {";
 	pidl "\ttalloc_free(r);";
@@ -288,6 +294,7 @@ sub Parse($$$)
 	pidl " */";
 	pidl "";
 	pidl "#include \"includes.h\"";
+	pidl "#include \"ntdomain.h\"";
 	pidl "#include \"$header\"";
 	pidl_hdr "#include \"$ndr_header\"";
 	pidl "";

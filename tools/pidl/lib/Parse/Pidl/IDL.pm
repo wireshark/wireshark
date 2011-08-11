@@ -2249,7 +2249,31 @@ sub
 {{
 		"TYPE" => "PIPE",
 		"PROPERTIES" => $_[1],
-		"DATA" => $_[3],
+		"NAME" => undef,
+		"DATA" => {
+			"TYPE" => "STRUCT",
+			"PROPERTIES" => $_[1],
+			"NAME" => undef,
+			"ELEMENTS" => [{
+				"NAME" => "count",
+				"PROPERTIES" => $_[1],
+				"POINTERS" => 0,
+				"ARRAY_LEN" => [],
+				"TYPE" => "uint3264",
+				"FILE" => $_[0]->YYData->{FILE},
+				"LINE" => $_[0]->YYData->{LINE},
+			},{
+				"NAME" => "array",
+				"PROPERTIES" => $_[1],
+				"POINTERS" => 0,
+				"ARRAY_LEN" => [ "count" ],
+				"TYPE" => $_[3],
+				"FILE" => $_[0]->YYData->{FILE},
+				"LINE" => $_[0]->YYData->{LINE},
+			}],
+			"FILE" => $_[0]->YYData->{FILE},
+			"LINE" => $_[0]->YYData->{LINE},
+		},
 		"FILE" => $_[0]->YYData->{FILE},
 		"LINE" => $_[0]->YYData->{LINE},
 	}}
@@ -2257,13 +2281,13 @@ sub
 	[#Rule 78
 		 'element_list1', 0,
 sub
-#line 398 "idl.yp"
+#line 422 "idl.yp"
 { [] }
 	],
 	[#Rule 79
 		 'element_list1', 3,
 sub
-#line 400 "idl.yp"
+#line 424 "idl.yp"
 { push(@{$_[1]}, $_[2]); $_[1] }
 	],
 	[#Rule 80
@@ -2281,13 +2305,13 @@ sub
 	[#Rule 84
 		 'element_list2', 2,
 sub
-#line 414 "idl.yp"
+#line 438 "idl.yp"
 { [ $_[2] ] }
 	],
 	[#Rule 85
 		 'element_list2', 4,
 sub
-#line 416 "idl.yp"
+#line 440 "idl.yp"
 { push(@{$_[1]}, $_[4]); $_[1] }
 	],
 	[#Rule 86
@@ -2296,13 +2320,13 @@ sub
 	[#Rule 87
 		 'array_len', 3,
 sub
-#line 422 "idl.yp"
+#line 446 "idl.yp"
 { push(@{$_[3]}, "*"); $_[3] }
 	],
 	[#Rule 88
 		 'array_len', 4,
 sub
-#line 424 "idl.yp"
+#line 448 "idl.yp"
 { push(@{$_[4]}, "$_[2]"); $_[4] }
 	],
 	[#Rule 89
@@ -2311,31 +2335,31 @@ sub
 	[#Rule 90
 		 'property_list', 4,
 sub
-#line 430 "idl.yp"
+#line 454 "idl.yp"
 { FlattenHash([$_[1],$_[3]]); }
 	],
 	[#Rule 91
 		 'properties', 1,
 sub
-#line 434 "idl.yp"
+#line 458 "idl.yp"
 { $_[1] }
 	],
 	[#Rule 92
 		 'properties', 3,
 sub
-#line 436 "idl.yp"
+#line 460 "idl.yp"
 { FlattenHash([$_[1], $_[3]]); }
 	],
 	[#Rule 93
 		 'property', 1,
 sub
-#line 440 "idl.yp"
+#line 464 "idl.yp"
 {{ "$_[1]" => "1"     }}
 	],
 	[#Rule 94
 		 'property', 4,
 sub
-#line 442 "idl.yp"
+#line 466 "idl.yp"
 {{ "$_[1]" => "$_[3]" }}
 	],
 	[#Rule 95
@@ -2344,13 +2368,13 @@ sub
 	[#Rule 96
 		 'commalisttext', 3,
 sub
-#line 448 "idl.yp"
+#line 472 "idl.yp"
 { "$_[1],$_[3]" }
 	],
 	[#Rule 97
 		 'anytext', 0,
 sub
-#line 453 "idl.yp"
+#line 477 "idl.yp"
 { "" }
 	],
 	[#Rule 98
@@ -2365,91 +2389,91 @@ sub
 	[#Rule 101
 		 'anytext', 3,
 sub
-#line 461 "idl.yp"
+#line 485 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 102
 		 'anytext', 3,
 sub
-#line 463 "idl.yp"
+#line 487 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 103
 		 'anytext', 3,
 sub
-#line 465 "idl.yp"
+#line 489 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 104
 		 'anytext', 3,
 sub
-#line 467 "idl.yp"
+#line 491 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 105
 		 'anytext', 3,
 sub
-#line 469 "idl.yp"
+#line 493 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 106
 		 'anytext', 3,
 sub
-#line 471 "idl.yp"
+#line 495 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 107
 		 'anytext', 3,
 sub
-#line 473 "idl.yp"
+#line 497 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 108
 		 'anytext', 3,
 sub
-#line 475 "idl.yp"
+#line 499 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 109
 		 'anytext', 3,
 sub
-#line 477 "idl.yp"
+#line 501 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 110
 		 'anytext', 3,
 sub
-#line 479 "idl.yp"
+#line 503 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 111
 		 'anytext', 3,
 sub
-#line 481 "idl.yp"
+#line 505 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 112
 		 'anytext', 3,
 sub
-#line 483 "idl.yp"
+#line 507 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 113
 		 'anytext', 3,
 sub
-#line 485 "idl.yp"
+#line 509 "idl.yp"
 { "$_[1]$_[2]$_[3]" }
 	],
 	[#Rule 114
 		 'anytext', 5,
 sub
-#line 487 "idl.yp"
+#line 511 "idl.yp"
 { "$_[1]$_[2]$_[3]$_[4]$_[5]" }
 	],
 	[#Rule 115
 		 'anytext', 5,
 sub
-#line 489 "idl.yp"
+#line 513 "idl.yp"
 { "$_[1]$_[2]$_[3]$_[4]$_[5]" }
 	],
 	[#Rule 116
@@ -2467,7 +2491,7 @@ sub
 	[#Rule 120
 		 'text', 1,
 sub
-#line 507 "idl.yp"
+#line 531 "idl.yp"
 { "\"$_[1]\"" }
 	],
 	[#Rule 121
@@ -2481,7 +2505,7 @@ sub
     bless($self,$class);
 }
 
-#line 519 "idl.yp"
+#line 543 "idl.yp"
 
 
 use Parse::Pidl qw(error);
@@ -2619,11 +2643,17 @@ sub parse_file($$)
 	my $saved_delim = $/;
 	undef $/;
 	my $cpp = $ENV{CPP};
+	my $options = "";
 	if (! defined $cpp) {
-		$cpp = "cpp";
+		if (defined $ENV{CC}) {
+			$cpp = "$ENV{CC}";
+			$options = "-E";
+		} else {
+			$cpp = "cpp";
+		}
 	}
 	my $includes = join('',map { " -I$_" } @$incdirs);
-	my $data = `$cpp -D__PIDL__$includes -xc "$filename"`;
+	my $data = `$cpp $options -D__PIDL__$includes -xc "$filename"`;
 	$/ = $saved_delim;
 
 	return parse_string($data, $filename);

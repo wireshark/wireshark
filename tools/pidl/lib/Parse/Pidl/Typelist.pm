@@ -8,8 +8,8 @@ package Parse::Pidl::Typelist;
 require Exporter;
 @ISA = qw(Exporter);
 @EXPORT_OK = qw(hasType getType resolveType mapTypeName scalar_is_reference expandAlias
-			    mapScalarType addType typeIs is_signed is_scalar enum_type_fn
-				bitmap_type_fn mapType typeHasBody
+	mapScalarType addType typeIs is_signed is_scalar enum_type_fn
+	bitmap_type_fn mapType typeHasBody is_fixed_size_scalar
 );
 use vars qw($VERSION);
 $VERSION = '0.01';
@@ -21,7 +21,13 @@ my %types = ();
 
 my @reference_scalars = (
 	"string", "string_array", "nbt_string", "dns_string",
-	"wrepl_nbt_name", "ipv4address", "ipv6address"
+	"wrepl_nbt_name", "dnsp_name", "dnsp_string",
+	"ipv4address", "ipv6address"
+);
+
+my @non_fixed_size_scalars = (
+	"string", "string_array", "nbt_string", "dns_string",
+	"wrepl_nbt_name", "dnsp_name", "dnsp_string"
 );
 
 # a list of known scalar types
@@ -48,6 +54,8 @@ my %scalars = (
 	"string"	=> "const char *",
 	"string_array"	=> "const char **",
 	"time_t"	=> "time_t",
+	"uid_t"	        => "uid_t",
+	"gid_t"	        => "gid_t",
 	"NTTIME"	=> "NTTIME",
 	"NTTIME_1sec"	=> "NTTIME",
 	"NTTIME_hyper"	=> "NTTIME",
@@ -128,6 +136,7 @@ sub getType($)
 	return $types{$t};
 }
 
+sub typeIs($$);
 sub typeIs($$)
 {
 	my ($t,$tt) = @_;
@@ -185,6 +194,15 @@ sub is_scalar($)
 	}
 
 	return 0;
+}
+
+sub is_fixed_size_scalar($)
+{
+	my $name = shift;
+
+	return 0 unless is_scalar($name);
+	return 0 if (grep(/^$name$/, @non_fixed_size_scalars));
+	return 1;
 }
 
 sub scalar_is_reference($)
@@ -273,6 +291,7 @@ sub mapType($$)
 	return "struct $n" if ($t->{TYPE} eq "STRUCT" or $t->{TYPE} eq "INTERFACE");
 	return "union $n" if ($t->{TYPE} eq "UNION");
 	return mapScalarType(bitmap_type_fn($t)) if ($t->{TYPE} eq "BITMAP");
+	return "struct $n" if ($t->{TYPE} eq "PIPE");
 	die("Unknown type $t->{TYPE}");
 }
 
@@ -311,11 +330,12 @@ sub LoadIdl($;$)
 			}) if (has_property($x, "object"));
 
 		foreach my $y (@{$x->{DATA}}) {
-			if ($y->{TYPE} eq "TYPEDEF" 
-		 		or $y->{TYPE} eq "UNION"
-		 		or $y->{TYPE} eq "STRUCT"
-		        or $y->{TYPE} eq "ENUM"
-		        or $y->{TYPE} eq "BITMAP") {
+			if ($y->{TYPE} eq "TYPEDEF"
+			    or $y->{TYPE} eq "UNION"
+			    or $y->{TYPE} eq "STRUCT"
+			    or $y->{TYPE} eq "ENUM"
+			    or $y->{TYPE} eq "BITMAP"
+			    or $y->{TYPE} eq "PIPE") {
 				$y->{BASEFILE} = $basename;
 				addType($y);
 			}

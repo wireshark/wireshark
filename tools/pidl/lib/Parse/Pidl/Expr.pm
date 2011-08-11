@@ -1127,7 +1127,7 @@ sub new {
 	[#Rule 2
 		 'exp', 1,
 sub
-#line 24 "./../pidl/expr.yp"
+#line 24 "expr.yp"
 { "\"$_[1]\"" }
 	],
 	[#Rule 3
@@ -1139,199 +1139,199 @@ sub
 	[#Rule 5
 		 'exp', 2,
 sub
-#line 30 "./../pidl/expr.yp"
+#line 30 "expr.yp"
 { "~$_[2]" }
 	],
 	[#Rule 6
 		 'exp', 3,
 sub
-#line 32 "./../pidl/expr.yp"
+#line 32 "expr.yp"
 { "$_[1] + $_[3]" }
 	],
 	[#Rule 7
 		 'exp', 3,
 sub
-#line 34 "./../pidl/expr.yp"
+#line 34 "expr.yp"
 { "$_[1] - $_[3]" }
 	],
 	[#Rule 8
 		 'exp', 3,
 sub
-#line 36 "./../pidl/expr.yp"
+#line 36 "expr.yp"
 { "$_[1] * $_[3]" }
 	],
 	[#Rule 9
 		 'exp', 3,
 sub
-#line 38 "./../pidl/expr.yp"
+#line 38 "expr.yp"
 { "$_[1] % $_[3]" }
 	],
 	[#Rule 10
 		 'exp', 3,
 sub
-#line 40 "./../pidl/expr.yp"
+#line 40 "expr.yp"
 { "$_[1] < $_[3]" }
 	],
 	[#Rule 11
 		 'exp', 3,
 sub
-#line 42 "./../pidl/expr.yp"
+#line 42 "expr.yp"
 { "$_[1] > $_[3]" }
 	],
 	[#Rule 12
 		 'exp', 3,
 sub
-#line 44 "./../pidl/expr.yp"
+#line 44 "expr.yp"
 { "$_[1] | $_[3]" }
 	],
 	[#Rule 13
 		 'exp', 3,
 sub
-#line 46 "./../pidl/expr.yp"
+#line 46 "expr.yp"
 { "$_[1] == $_[3]" }
 	],
 	[#Rule 14
 		 'exp', 3,
 sub
-#line 48 "./../pidl/expr.yp"
+#line 48 "expr.yp"
 { "$_[1] <= $_[3]" }
 	],
 	[#Rule 15
 		 'exp', 3,
 sub
-#line 50 "./../pidl/expr.yp"
+#line 50 "expr.yp"
 { "$_[1] => $_[3]" }
 	],
 	[#Rule 16
 		 'exp', 3,
 sub
-#line 52 "./../pidl/expr.yp"
+#line 52 "expr.yp"
 { "$_[1] << $_[3]" }
 	],
 	[#Rule 17
 		 'exp', 3,
 sub
-#line 54 "./../pidl/expr.yp"
+#line 54 "expr.yp"
 { "$_[1] >> $_[3]" }
 	],
 	[#Rule 18
 		 'exp', 3,
 sub
-#line 56 "./../pidl/expr.yp"
+#line 56 "expr.yp"
 { "$_[1] != $_[3]" }
 	],
 	[#Rule 19
 		 'exp', 3,
 sub
-#line 58 "./../pidl/expr.yp"
+#line 58 "expr.yp"
 { "$_[1] || $_[3]" }
 	],
 	[#Rule 20
 		 'exp', 3,
 sub
-#line 60 "./../pidl/expr.yp"
+#line 60 "expr.yp"
 { "$_[1] && $_[3]" }
 	],
 	[#Rule 21
 		 'exp', 3,
 sub
-#line 62 "./../pidl/expr.yp"
+#line 62 "expr.yp"
 { "$_[1] & $_[3]" }
 	],
 	[#Rule 22
 		 'exp', 5,
 sub
-#line 64 "./../pidl/expr.yp"
+#line 64 "expr.yp"
 { "$_[1]?$_[3]:$_[5]" }
 	],
 	[#Rule 23
 		 'exp', 2,
 sub
-#line 66 "./../pidl/expr.yp"
+#line 66 "expr.yp"
 { "~$_[1]" }
 	],
 	[#Rule 24
 		 'exp', 2,
 sub
-#line 68 "./../pidl/expr.yp"
+#line 68 "expr.yp"
 { "not $_[1]" }
 	],
 	[#Rule 25
 		 'exp', 3,
 sub
-#line 70 "./../pidl/expr.yp"
+#line 70 "expr.yp"
 { "$_[1] / $_[3]" }
 	],
 	[#Rule 26
 		 'exp', 2,
 sub
-#line 72 "./../pidl/expr.yp"
+#line 72 "expr.yp"
 { "-$_[2]" }
 	],
 	[#Rule 27
 		 'exp', 2,
 sub
-#line 74 "./../pidl/expr.yp"
+#line 74 "expr.yp"
 { "&$_[2]" }
 	],
 	[#Rule 28
 		 'exp', 3,
 sub
-#line 76 "./../pidl/expr.yp"
+#line 76 "expr.yp"
 { "$_[1]^$_[3]" }
 	],
 	[#Rule 29
 		 'exp', 3,
 sub
-#line 78 "./../pidl/expr.yp"
+#line 78 "expr.yp"
 { "($_[2])" }
 	],
 	[#Rule 30
 		 'possible_pointer', 1,
 sub
-#line 82 "./../pidl/expr.yp"
+#line 82 "expr.yp"
 { $_[0]->_Lookup($_[1]) }
 	],
 	[#Rule 31
 		 'possible_pointer', 2,
 sub
-#line 84 "./../pidl/expr.yp"
+#line 84 "expr.yp"
 { $_[0]->_Dereference($_[2]); "*$_[2]" }
 	],
 	[#Rule 32
 		 'var', 1,
 sub
-#line 88 "./../pidl/expr.yp"
+#line 88 "expr.yp"
 { $_[0]->_Use($_[1]) }
 	],
 	[#Rule 33
 		 'var', 3,
 sub
-#line 90 "./../pidl/expr.yp"
+#line 90 "expr.yp"
 { $_[0]->_Use("$_[1].$_[3]") }
 	],
 	[#Rule 34
 		 'var', 3,
 sub
-#line 92 "./../pidl/expr.yp"
+#line 92 "expr.yp"
 { "($_[2])" }
 	],
 	[#Rule 35
 		 'var', 3,
 sub
-#line 94 "./../pidl/expr.yp"
+#line 94 "expr.yp"
 { $_[0]->_Use("*$_[1]"); $_[1]."->".$_[3] }
 	],
 	[#Rule 36
 		 'func', 4,
 sub
-#line 99 "./../pidl/expr.yp"
+#line 99 "expr.yp"
 { "$_[1]($_[3])" }
 	],
 	[#Rule 37
 		 'opt_args', 0,
 sub
-#line 104 "./../pidl/expr.yp"
+#line 104 "expr.yp"
 { "" }
 	],
 	[#Rule 38
@@ -1349,7 +1349,7 @@ sub
 	[#Rule 42
 		 'args', 3,
 sub
-#line 118 "./../pidl/expr.yp"
+#line 118 "expr.yp"
 { "$_[1], $_[3]" }
 	]
 ],
@@ -1357,7 +1357,7 @@ sub
     bless($self,$class);
 }
 
-#line 121 "./../pidl/expr.yp"
+#line 121 "expr.yp"
 
 
 package Parse::Pidl::Expr;

@@ -34,12 +34,12 @@ require Exporter;
 use vars qw($VERSION);
 $VERSION = '0.01';
 @ISA = qw(Exporter);
-@EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsString);
+@EXPORT = qw(GetPrevLevel GetNextLevel ContainsDeferred ContainsPipe ContainsString);
 @EXPORT_OK = qw(GetElementLevelTable ParseElement ValidElement align_type mapToScalar ParseType can_contain_deferred is_charset_array);
 
 use strict;
 use Parse::Pidl qw(warning fatal);
-use Parse::Pidl::Typelist qw(hasType getType expandAlias mapScalarType);
+use Parse::Pidl::Typelist qw(hasType getType typeIs expandAlias mapScalarType is_fixed_size_scalar);
 use Parse::Pidl::Util qw(has_property property_matches);
 
 # Alignment of the built-in scalar types
@@ -66,6 +66,8 @@ my $scalar_alignment = {
 	'string' => 4,
 	'string_array' => 4, #???
 	'time_t' => 4,
+	'uid_t' => 8,
+	'gid_t' => 8,
 	'NTTIME' => 4,
 	'NTTIME_1sec' => 4,
 	'NTTIME_hyper' => 8,
@@ -81,9 +83,9 @@ my $scalar_alignment = {
 	'dnsp_string' => 1
 };
 
-sub GetElementLevelTable($$)
+sub GetElementLevelTable($$$)
 {
-	my ($e, $pointer_default) = @_;
+	my ($e, $pointer_default, $ms_union) = @_;
 
 	my $order = [];
 	my $is_deferred = 0;
@@ -111,6 +113,51 @@ sub GetElementLevelTable($$)
 		if ($#bracket_array >= 0) { $needptrs = 0; }
 
 		warning($e, "[out] argument `$e->{NAME}' not a pointer") if ($needptrs > $e->{POINTERS});
+	}
+
+	my $allow_pipe = ($e->{PARENT}->{TYPE} eq "FUNCTION");
+	my $is_pipe = typeIs($e->{TYPE}, "PIPE");
+
+	if ($is_pipe) {
+		if (not $allow_pipe) {
+			fatal($e, "argument `$e->{NAME}' is a pipe and not allowed on $e->{PARENT}->{TYPE}");
+		}
+
+		if ($e->{POINTERS} > 1) {
+			fatal($e, "$e->{POINTERS} are not allowed on pipe element $e->{NAME}");
+		}
+
+		if ($e->{POINTERS} < 0) {
+			fatal($e, "pipe element $e->{NAME} needs pointer");
+		}
+
+		if ($e->{POINTERS} == 1 and pointer_type($e) ne "ref") {
+			fatal($e, "pointer should be 'ref' on pipe element $e->{NAME}");
+		}
+
+		if (scalar(@size_is) > 0) {
+			fatal($e, "size_is() on pipe element");
+		}
+
+		if (scalar(@length_is) > 0) {
+			fatal($e, "length_is() on pipe element");
+		}
+
+		if (scalar(@bracket_array) > 0) {
+			fatal($e, "brackets on pipe element");
+		}
+
+		if (defined(has_property($e, "subcontext"))) {
+			fatal($e, "subcontext on pipe element");
+		}
+
+		if (has_property($e, "switch_is")) {
+			fatal($e, "switch_is on pipe element");
+		}
+
+		if (can_contain_deferred($e->{TYPE})) {
+			fatal($e, "$e->{TYPE} can_contain_deferred - not allowed on pipe element");
+		}
 	}
 
 	# Parse the [][][][] style array stuff
@@ -257,6 +304,19 @@ sub GetElementLevelTable($$)
 		} 
 	}
 
+	if ($is_pipe) {
+		push (@$order, {
+			TYPE => "PIPE",
+			IS_DEFERRED => 0,
+			CONTAINS_DEFERRED => 0,
+		});
+
+		my $i = 0;
+		foreach (@$order) { $_->{LEVEL_INDEX} = $i; $i+=1; }
+
+		return $order;
+	}
+
 	if (defined(has_property($e, "subcontext"))) {
 		my $hdr_size = has_property($e, "subcontext");
 		my $subsize = has_property($e, "subcontext_size");
@@ -307,9 +367,9 @@ sub GetElementLevelTable($$)
 	return $order;
 }
 
-sub GetTypedefLevelTable($$$)
+sub GetTypedefLevelTable($$$$)
 {
-	my ($e, $data, $pointer_default) = @_;
+	my ($e, $data, $pointer_default, $ms_union) = @_;
 
 	my $order = [];
 
@@ -427,35 +487,37 @@ sub align_type($)
 		# Struct/union without body: assume 4
 		return 4 unless (defined($dt->{ELEMENTS}));
 		return find_largest_alignment($dt);
+	} elsif (($dt->{TYPE} eq "PIPE")) {
+		return 5;
 	}
 
 	die("Unknown data type type $dt->{TYPE}");
 }
 
-sub ParseElement($$)
+sub ParseElement($$$)
 {
-	my ($e, $pointer_default) = @_;
+	my ($e, $pointer_default, $ms_union) = @_;
 
 	$e->{TYPE} = expandAlias($e->{TYPE});
 
 	if (ref($e->{TYPE}) eq "HASH") {
-		$e->{TYPE} = ParseType($e->{TYPE}, $pointer_default);
+		$e->{TYPE} = ParseType($e->{TYPE}, $pointer_default, $ms_union);
 	}
 
 	return {
 		NAME => $e->{NAME},
 		TYPE => $e->{TYPE},
 		PROPERTIES => $e->{PROPERTIES},
-		LEVELS => GetElementLevelTable($e, $pointer_default),
+		LEVELS => GetElementLevelTable($e, $pointer_default, $ms_union),
 		REPRESENTATION_TYPE => ($e->{PROPERTIES}->{represent_as} or $e->{TYPE}),
 		ALIGN => align_type($e->{TYPE}),
 		ORIGINAL => $e
 	};
 }
 
-sub ParseStruct($$)
+sub ParseStruct($$$)
 {
-	my ($struct, $pointer_default) = @_;
+	my ($struct, $pointer_default, $ms_union) = @_;
 	my @elements = ();
 	my $surrounding = undef;
 
@@ -473,7 +535,7 @@ sub ParseStruct($$)
 
 	foreach my $x (@{$struct->{ELEMENTS}}) 
 	{
-		my $e = ParseElement($x, $pointer_default);
+		my $e = ParseElement($x, $pointer_default, $ms_union);
 		if ($x != $struct->{ELEMENTS}[-1] and 
 			$e->{LEVELS}[0]->{IS_SURROUNDING}) {
 			fatal($x, "conformant member not at end of struct");
@@ -510,8 +572,10 @@ sub ParseStruct($$)
 
 sub ParseUnion($$)
 {
-	my ($e, $pointer_default) = @_;
+	my ($e, $pointer_default, $ms_union) = @_;
 	my @elements = ();
+	my $is_ms_union = $ms_union;
+	$is_ms_union = 1 if has_property($e, "ms_union");
 	my $hasdefault = 0;
 	my $switch_type = has_property($e, "switch_type");
 	unless (defined($switch_type)) { $switch_type = "uint32"; }
@@ -524,6 +588,7 @@ sub ParseUnion($$)
 		ELEMENTS => undef,
 		PROPERTIES => $e->{PROPERTIES},
 		HAS_DEFAULT => $hasdefault,
+		IS_MS_UNION => $is_ms_union,
 		ORIGINAL => $e,
 		ALIGN => undef
 	} unless defined($e->{ELEMENTS});
@@ -536,7 +601,7 @@ sub ParseUnion($$)
 		if ($x->{TYPE} eq "EMPTY") {
 			$t = { TYPE => "EMPTY" };
 		} else {
-			$t = ParseElement($x, $pointer_default);
+			$t = ParseElement($x, $pointer_default, $ms_union);
 		}
 		if (has_property($x, "default")) {
 			$t->{CASE} = "default";
@@ -561,6 +626,7 @@ sub ParseUnion($$)
 		ELEMENTS => \@elements,
 		PROPERTIES => $e->{PROPERTIES},
 		HAS_DEFAULT => $hasdefault,
+		IS_MS_UNION => $is_ms_union,
 		ORIGINAL => $e,
 		ALIGN => $align
 	};
@@ -568,7 +634,7 @@ sub ParseUnion($$)
 
 sub ParseEnum($$)
 {
-	my ($e, $pointer_default) = @_;
+	my ($e, $pointer_default, $ms_union) = @_;
 
 	return {
 		TYPE => "ENUM",
@@ -580,9 +646,9 @@ sub ParseEnum($$)
 	};
 }
 
-sub ParseBitmap($$)
+sub ParseBitmap($$$)
 {
-	my ($e, $pointer_default) = @_;
+	my ($e, $pointer_default, $ms_union) = @_;
 
 	return {
 		TYPE => "BITMAP",
@@ -594,9 +660,60 @@ sub ParseBitmap($$)
 	};
 }
 
-sub ParseType($$)
+sub ParsePipe($$$)
 {
-	my ($d, $pointer_default) = @_;
+	my ($pipe, $pointer_default, $ms_union) = @_;
+
+	my $pname = $pipe->{NAME};
+	$pname = $pipe->{PARENT}->{NAME} unless defined $pname;
+
+	if (not defined($pipe->{PROPERTIES})
+	    and defined($pipe->{PARENT}->{PROPERTIES})) {
+		$pipe->{PROPERTIES} = $pipe->{PARENT}->{PROPERTIES};
+	}
+
+	if (ref($pipe->{DATA}) eq "HASH") {
+		if (not defined($pipe->{DATA}->{PROPERTIES})
+		    and defined($pipe->{PROPERTIES})) {
+			$pipe->{DATA}->{PROPERTIES} = $pipe->{PROPERTIES};
+		}
+	}
+
+	my $struct = ParseStruct($pipe->{DATA}, $pointer_default, $ms_union);
+	$struct->{ALIGN} = 5;
+	$struct->{NAME} = "$pname\_chunk";
+
+	# 'count' is element [0] and 'array' [1]
+	my $e = $struct->{ELEMENTS}[1];
+	# level [0] is of type "ARRAY"
+	my $l = $e->{LEVELS}[1];
+
+	# here we check that pipe elements have a fixed size type
+	while (defined($l)) {
+		my $cl = $l;
+		$l = GetNextLevel($e, $cl);
+		if ($cl->{TYPE} ne "DATA") {
+			fatal($pipe, el_name($pipe) . ": pipe contains non DATA level");
+		}
+
+		# for now we only support scalars
+		next if is_fixed_size_scalar($cl->{DATA_TYPE});
+
+		fatal($pipe, el_name($pipe) . ": pipe contains non fixed size type[$cl->{DATA_TYPE}]");
+	}
+
+	return {
+		TYPE => "PIPE",
+		NAME => $pipe->{NAME},
+		DATA => $struct,
+		PROPERTIES => $pipe->{PROPERTIES},
+		ORIGINAL => $pipe,
+	};
+}
+
+sub ParseType($$$)
+{
+	my ($d, $pointer_default, $ms_union) = @_;
 
 	my $data = {
 		STRUCT => \&ParseStruct,
@@ -604,14 +721,15 @@ sub ParseType($$)
 		ENUM => \&ParseEnum,
 		BITMAP => \&ParseBitmap,
 		TYPEDEF => \&ParseTypedef,
-	}->{$d->{TYPE}}->($d, $pointer_default);
+		PIPE => \&ParsePipe,
+	}->{$d->{TYPE}}->($d, $pointer_default, $ms_union);
 
 	return $data;
 }
 
 sub ParseTypedef($$)
 {
-	my ($d, $pointer_default) = @_;
+	my ($d, $pointer_default, $ms_union) = @_;
 
 	my $data;
 
@@ -621,7 +739,7 @@ sub ParseTypedef($$)
 			$d->{PROPERTIES} = $d->{DATA}->{PROPERTIES};
 		}
 
-		$data = ParseType($d->{DATA}, $pointer_default);
+		$data = ParseType($d->{DATA}, $pointer_default, $ms_union);
 		$data->{ALIGN} = align_type($d->{NAME});
 	} else {
 		$data = getType($d->{DATA});
@@ -631,7 +749,7 @@ sub ParseTypedef($$)
 		NAME => $d->{NAME},
 		TYPE => $d->{TYPE},
 		PROPERTIES => $d->{PROPERTIES},
-		LEVELS => GetTypedefLevelTable($d, $data, $pointer_default),
+		LEVELS => GetTypedefLevelTable($d, $data, $pointer_default, $ms_union),
 		DATA => $data,
 		ORIGINAL => $d
 	};
@@ -644,9 +762,9 @@ sub ParseConst($$)
 	return $d;
 }
 
-sub ParseFunction($$$)
+sub ParseFunction($$$$)
 {
-	my ($ndr,$d,$opnum) = @_;
+	my ($ndr,$d,$opnum,$ms_union) = @_;
 	my @elements = ();
 	my $rettype = undef;
 	my $thisopnum = undef;
@@ -659,7 +777,7 @@ sub ParseFunction($$$)
 	}
 
 	foreach my $x (@{$d->{ELEMENTS}}) {
-		my $e = ParseElement($x, $ndr->{PROPERTIES}->{pointer_default});
+		my $e = ParseElement($x, $ndr->{PROPERTIES}->{pointer_default}, $ms_union);
 		push (@{$e->{DIRECTION}}, "in") if (has_property($x, "in"));
 		push (@{$e->{DIRECTION}}, "out") if (has_property($x, "out"));
 
@@ -720,6 +838,8 @@ sub ParseInterface($)
 	my @endpoints;
 	my $opnum = 0;
 	my $version;
+	my $ms_union = 0;
+	$ms_union = 1 if has_property($idl, "ms_union");
 
 	if (not has_property($idl, "pointer_default")) {
 		# MIDL defaults to "ptr" in DCE compatible mode (/osf)
@@ -729,11 +849,11 @@ sub ParseInterface($)
 
 	foreach my $d (@{$idl->{DATA}}) {
 		if ($d->{TYPE} eq "FUNCTION") {
-			push (@functions, ParseFunction($idl, $d, \$opnum));
+			push (@functions, ParseFunction($idl, $d, \$opnum, $ms_union));
 		} elsif ($d->{TYPE} eq "CONST") {
 			push (@consts, ParseConst($idl, $d));
 		} else {
-			push (@types, ParseType($d, $idl->{PROPERTIES}->{pointer_default}));
+			push (@types, ParseType($d, $idl->{PROPERTIES}->{pointer_default}, $ms_union));
 			FindNestedTypes(\@types, $d);
 		}
 	}
@@ -823,6 +943,9 @@ sub ContainsString($)
 {
 	my ($e) = @_;
 
+	if (property_matches($e, "flag", ".*STR_NULLTERM.*")) {
+		return 1;
+	}
 	foreach my $l (@{$e->{LEVELS}}) {
 		return 1 if ($l->{TYPE} eq "ARRAY" and $l->{IS_ZERO_TERMINATED});
 	}
@@ -842,6 +965,20 @@ sub ContainsDeferred($$)
 		return 1 if ($l->{CONTAINS_DEFERRED});
 	} 
 	
+	return 0;
+}
+
+sub ContainsPipe($$)
+{
+	my ($e,$l) = @_;
+
+	return 1 if ($l->{TYPE} eq "PIPE");
+
+	while ($l = GetNextLevel($e,$l))
+	{
+		return 1 if ($l->{TYPE} eq "PIPE");
+	}
+
 	return 0;
 }
 
@@ -920,14 +1057,14 @@ my %property_list = (
 
 	"gensize"		=> ["TYPEDEF", "STRUCT", "UNION"],
 	"value"			=> ["ELEMENT"],
-	"flag"			=> ["ELEMENT", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
+	"flag"			=> ["ELEMENT", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
 
 	# generic
-	"public"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
-	"nopush"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
-	"nopull"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
+	"public"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
+	"nopush"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
+	"nopull"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "PIPE"],
 	"nosize"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
-	"noprint"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "ELEMENT"],
+	"noprint"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP", "ELEMENT", "PIPE"],
 	"nopython"		=> ["FUNCTION", "TYPEDEF", "STRUCT", "UNION", "ENUM", "BITMAP"],
 	"todo"			=> ["FUNCTION"],
 
@@ -935,6 +1072,7 @@ my %property_list = (
 	"switch_is"		=> ["ELEMENT"],
 	"switch_type"		=> ["ELEMENT", "UNION"],
 	"nodiscriminant"	=> ["UNION"],
+	"ms_union"		=> ["INTERFACE", "UNION"],
 	"case"			=> ["ELEMENT"],
 	"default"		=> ["ELEMENT"],
 
@@ -1155,11 +1293,16 @@ sub ValidUnion($)
 sub ValidPipe($)
 {
 	my ($pipe) = @_;
-	my $data = $pipe->{DATA};
+	my $struct = $pipe->{DATA};
 
 	ValidProperties($pipe, "PIPE");
 
-	fatal($pipe, $pipe->{NAME} . ": 'pipe' is not yet supported by pidl");
+	$struct->{PARENT} = $pipe;
+
+	$struct->{FILE} = $pipe->{FILE} unless defined($struct->{FILE});
+	$struct->{LINE} = $pipe->{LINE} unless defined($struct->{LINE});
+
+	ValidType($struct);
 }
 
 #####################################################################

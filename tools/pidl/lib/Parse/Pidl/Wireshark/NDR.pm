@@ -270,11 +270,9 @@ sub Bitmap($$$$)
 	$self->register_type($name, "offset = $dissectorname(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_UINT$size", "BASE_HEX", "0", "NULL", $size/8);
 }
 
-sub ElementLevel($$$$$$$)
+sub ElementLevel($$$$$$$$)
 {
-	my ($self,$e,$l,$hf,$myname,$pn,$ifname) = @_;
-
-	my $param = 0;
+	my ($self,$e,$l,$hf,$myname,$pn,$ifname,$param) = @_;
 
 	if (defined($self->{conformance}->{dissectorparams}->{$myname})) {
 		$param = $self->{conformance}->{dissectorparams}->{$myname}->{PARAM};
@@ -323,9 +321,19 @@ sub ElementLevel($$$$$$$)
 				$self->pidl_code("proto_item_append_text(tree, \": %s\", data);");
 			} elsif (property_matches($e, "flag", ".*LIBNDR_FLAG_STR_SIZE4.*")) {
 				$self->pidl_code("offset = dissect_ndr_vstring(tvb, offset, pinfo, tree, drep, $bs, $hf, FALSE, NULL);");
+			} elsif (property_matches($e, "flag", ".*STR_NULLTERM.*")) {
+				if ($bs == 2) {
+					$self->pidl_code("offset = dissect_null_term_wstring(tvb, offset, pinfo, tree, drep, $hf , 0);")
+				} else {
+					$self->pidl_code("offset = dissect_null_term_string(tvb, offset, pinfo, tree, drep, $hf , 0);")
+				}
 			} else {
 				warn("Unable to handle string with flags $e->{PROPERTIES}->{flag}");
 			}
+		} elsif ($l->{DATA_TYPE} eq "DATA_BLOB") {
+			my $remain = 0;
+			$remain = 1 if (property_matches($e->{ORIGINAL}, "flag", ".*LIBNDR_FLAG_REMAINING.*"));
+			$self->pidl_code("offset = dissect_ndr_datablob(tvb, offset, pinfo, tree, drep, $hf, $remain);");
 		} else {
 			my $call;
 
@@ -350,27 +358,65 @@ sub ElementLevel($$$$$$$)
 			$self->pidl_code($call);
 		}
 	} elsif ($_->{TYPE} eq "SUBCONTEXT") {
+		my $varswitch;
+		if (has_property($e, "switch_is")) {
+			$varswitch = $e->{PROPERTIES}->{switch_is};
+		}
 		my $num_bits = ($l->{HEADER_SIZE}*8);
+		my $hf2 = $self->register_hf_field($hf."_", "Subcontext length", "$ifname.$pn.$_->{NAME}subcontext", "FT_UINT$num_bits", "BASE_HEX", "NULL", 0, "");
+		$self->{hf_used}->{$hf2} = 1;
+		$self->pidl_code("dcerpc_info *di = pinfo->private_data;");
 		$self->pidl_code("guint$num_bits size;");
-		$self->pidl_code("int start_offset = offset;");
+		$self->pidl_code("int conformant = di->conformant_run;");
 		$self->pidl_code("tvbuff_t *subtvb;");
-		$self->pidl_code("offset = dissect_ndr_uint$num_bits(tvb, offset, pinfo, tree, drep, $hf, &size);");
-		$self->pidl_code("proto_tree_add_text(tree, tvb, start_offset, offset - start_offset + size, \"Subcontext size\");");
+		$self->pidl_code("");
+		# We need to be able to dissect the length of the context in every case
+		# and conformant run skips the dissections of scalars ...
+		$self->pidl_code("if (!conformant) {");
+		$self->indent;
+		$self->pidl_code("offset = dissect_ndr_uint$num_bits(tvb, offset, pinfo, tree, drep, $hf2, &size);");
 
 		$self->pidl_code("subtvb = tvb_new_subset(tvb, offset, size, -1);");
-		$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, drep);");
+		if ($param ne 0) {
+			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, drep, $param);");
+		} else {
+			$self->pidl_code("$myname\_(subtvb, 0, pinfo, tree, drep);");
+		}
+		$self->pidl_code("offset += size;");
+		$self->deindent;
+		$self->pidl_code("}");
 	} else {
 		die("Unknown type `$_->{TYPE}'");
 	}
 }
 
-sub Element($$$)
+sub Element($$$$$)
 {
-	my ($self,$e,$pn,$ifname) = @_;
+	my ($self,$e,$pn,$ifname,$isoruseswitch) = @_;
 
 	my $dissectorname = "$ifname\_dissect\_element\_".StripPrefixes($pn, $self->{conformance}->{strip_prefixes})."\_".StripPrefixes($e->{NAME}, $self->{conformance}->{strip_prefixes});
 
-	my $call_code = "offset = $dissectorname(tvb, offset, pinfo, tree, drep);";
+	my ($call_code, $moreparam);
+	my $param = 0;
+	if (defined $isoruseswitch) {
+		my $type = $isoruseswitch->[0];
+		my $name = $isoruseswitch->[1];
+
+		my $switch_dt =  getType($type);
+		my $switch_type;
+		if ($switch_dt->{DATA}->{TYPE} eq "ENUM") {
+			$switch_type = "g".Parse::Pidl::Typelist::enum_type_fn($switch_dt->{DATA});
+		} elsif ($switch_dt->{DATA}->{TYPE} eq "SCALAR") {
+			$switch_type = "g$e->{SWITCH_TYPE}";
+		}
+		$moreparam = ", $switch_type *".$name;
+		$param = $name;
+		$call_code = "offset = $dissectorname(tvb, offset, pinfo, tree, drep, &$name);";
+	} else {
+		$moreparam = "";
+		$call_code = "offset = $dissectorname(tvb, offset, pinfo, tree, drep);";
+	}
+
 
 	my $type = $self->find_type($e->{TYPE});
 
@@ -403,16 +449,24 @@ sub Element($$$)
 
 	my $add = "";
 
+	my $oldparam = undef;
 	foreach (@{$e->{LEVELS}}) {
+		if (defined $_->{SWITCH_IS}) {
+			$oldparam = $param;
+			$param = "*$param";
+		}
 		next if ($_->{TYPE} eq "SWITCH");
-		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_);");
+		$self->pidl_def("static int $dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_$moreparam);");
 		$self->pidl_fn_start("$dissectorname$add");
 		$self->pidl_code("static int");
-		$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)");
+		$self->pidl_code("$dissectorname$add(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_$moreparam)");
 		$self->pidl_code("{");
 		$self->indent;
 
-		$self->ElementLevel($e,$_,$hf,$dissectorname.$add,$pn,$ifname);
+		$self->ElementLevel($e,$_,$hf,$dissectorname.$add,$pn,$ifname,$param);
+		if (defined $oldparam) {
+			$param = $oldparam;
+		}
 
 		$self->pidl_code("");
 		$self->pidl_code("return offset;");
@@ -433,7 +487,7 @@ sub Function($$$)
 	my %dissectornames;
 
 	foreach (@{$fn->{ELEMENTS}}) {
-	    $dissectornames{$_->{NAME}} = $self->Element($_, $fn->{NAME}, $ifname) if not defined($dissectornames{$_->{NAME}});
+	    $dissectornames{$_->{NAME}} = $self->Element($_, $fn->{NAME}, $ifname, undef) if not defined($dissectornames{$_->{NAME}});
 	}
 	
 	my $fn_name = $_->{NAME};
@@ -534,7 +588,40 @@ sub Struct($$$$)
 	$self->register_ett("ett_$ifname\_$name");
 
 	my $res = "";
-	($res.="\t".$self->Element($_, $name, $ifname)."\n\n") foreach (@{$e->{ELEMENTS}});
+	my $varswitchs = {};
+	# will contain the switch var declaration;
+	my $vars = [];
+	foreach (@{$e->{ELEMENTS}}) {
+		if (has_property($_, "switch_is")) {
+			$varswitchs->{$_->{PROPERTIES}->{switch_is}} = [];
+		}
+	}
+	foreach (@{$e->{ELEMENTS}}) {
+		my $switch_info = undef;
+
+		my $v = $_->{NAME};
+		if (scalar(grep {/$v/} keys(%$varswitchs)) == 1) {
+			# This element is one of the switch attribute
+			my $switch_dt =  getType($_->{TYPE});
+			my $switch_type;
+			if ($switch_dt->{DATA}->{TYPE} eq "ENUM") {
+				$switch_type = "g".Parse::Pidl::Typelist::enum_type_fn($switch_dt->{DATA});
+			} elsif ($switch_dt->{DATA}->{TYPE} eq "SCALAR") {
+				$switch_type = "g$e->{SWITCH_TYPE}";
+			}
+
+			push @$vars, "$switch_type $v;";
+			$switch_info = [ $_->{TYPE}, $v ];
+			$varswitchs->{$v} = $switch_info;
+		}
+
+		if (has_property($_, "switch_is")) {
+			my $varswitch = $_->{PROPERTIES}->{switch_is};
+			$switch_info = $varswitchs->{$varswitch};
+		}
+
+		$res.="\t".$self->Element($_, $name, $ifname, $switch_info)."\n\n";
+	}
 
 	$self->pidl_hdr("int $dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_);");
 
@@ -543,6 +630,7 @@ sub Struct($$$$)
 	$self->pidl_code("$dissectorname(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)");
 	$self->pidl_code("{");
 	$self->indent;
+	$self->pidl_code($_) foreach (@$vars);
 	$self->pidl_code("proto_item *item = NULL;");
 	$self->pidl_code("proto_tree *tree = NULL;");
 	if ($e->{ALIGN} > 1) {
@@ -551,7 +639,7 @@ sub Struct($$$$)
 	$self->pidl_code("int old_offset;");
 	$self->pidl_code("");
 
-	if ($e->{ALIGN} > 1) {
+	if ($e->{ALIGN} > 1 and not property_matches($e, "flag", ".*LIBNDR_FLAG_NOALIGN.*")) {
 		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
 	}
 	$self->pidl_code("");
@@ -599,7 +687,7 @@ sub Union($$$$)
 	foreach (@{$e->{ELEMENTS}}) {
 		$res.="\n\t\t$_->{CASE}:\n";
 		if ($_->{TYPE} ne "EMPTY") {
-			$res.="\t\t\t".$self->Element($_, $name, $ifname)."\n";
+			$res.="\t\t\t".$self->Element($_, $name, $ifname, undef)."\n";
 		}
 		$res.="\t\tbreak;\n";
 	}
@@ -623,7 +711,11 @@ sub Union($$$$)
 	$self->pidl_code("proto_item *item = NULL;");
 	$self->pidl_code("proto_tree *tree = NULL;");
 	$self->pidl_code("int old_offset;");
-	$self->pidl_code("$switch_type level;");
+	if (!defined $switch_type) {
+		$self->pidl_code("guint32 level = param;");
+	} else {
+		$self->pidl_code("$switch_type level;");
+	}
 	$self->pidl_code("");
 
 	$self->pidl_code("old_offset = offset;");
@@ -636,11 +728,13 @@ sub Union($$$$)
 
 	$self->pidl_code("");
 
-	$self->pidl_code("offset = $switch_dissect(tvb, offset, pinfo, tree, drep, hf_index, &level);");
+	if (defined $switch_type) {
+		$self->pidl_code("offset = $switch_dissect(tvb, offset, pinfo, tree, drep, hf_index, &level);");
 
-	if ($e->{ALIGN} > 1) {
-		$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
-		$self->pidl_code("");
+		if ($e->{ALIGN} > 1) {
+			$self->pidl_code("ALIGN_TO_$e->{ALIGN}_BYTES;");
+			$self->pidl_code("");
+		}
 	}
 
 
@@ -770,8 +864,8 @@ sub ProcessImport
 	my @imports = @_;
 	foreach (@imports) {
 		next if($_ eq "security");
-		s/\.idl\"$//;
 		s/^\"//;
+		s/\.idl"?$//;
 		$self->pidl_hdr("#include \"packet-dcerpc-$_\.h\"");
 	}
 	$self->pidl_hdr("");
@@ -811,7 +905,7 @@ sub ProcessInterface($$)
 	    . ", 0x" . substr($if_uuid, 35, 2) . " }");
 	    $self->pidl_def("};");
 	
-	    my $maj = $x->{VERSION};
+	    my $maj = 0x0000FFFF & $x->{VERSION};
 	    $maj =~ s/\.(.*)$//g;
 	    $self->pidl_def("static guint16 ver_dcerpc_$x->{NAME} = $maj;");
 	    $self->pidl_def("");
@@ -820,7 +914,6 @@ sub ProcessInterface($$)
 	$return_types{$x->{NAME}} = {};
 
 	$self->Interface($x);
-
 	$self->pidl_code("\n".DumpFunctionTable($x));
 
 	foreach (keys %{$return_types{$x->{NAME}}}) {
@@ -879,6 +972,7 @@ sub Initialize($$)
 		$self->register_type("int$bits", "offset = PIDL_dissect_uint$bits(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);", "FT_INT$bits", "BASE_DEC", 0, "NULL", $bytes);
 	}
 		
+	$self->register_type("hyper", "offset = dissect_ndr_uint64(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);", "FT_UINT64", "BASE_DEC", 0, "NULL", 8);
 	$self->register_type("udlong", "offset = dissect_ndr_duint32(tvb, offset, pinfo, tree, drep, \@HF\@, NULL);", "FT_UINT64", "BASE_DEC", 0, "NULL", 4);
 	$self->register_type("bool8", "offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_INT8", "BASE_DEC", 0, "NULL", 1);
 	$self->register_type("char", "offset = PIDL_dissect_uint8(tvb, offset, pinfo, tree, drep, \@HF\@, \@PARAM\@);","FT_INT8", "BASE_DEC", 0, "NULL", 1);

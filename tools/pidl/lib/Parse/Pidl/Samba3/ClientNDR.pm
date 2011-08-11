@@ -14,6 +14,7 @@ use Exporter;
 use strict;
 use Parse::Pidl qw(fatal warning error);
 use Parse::Pidl::Util qw(has_property ParseExpr);
+use Parse::Pidl::NDR qw(ContainsPipe);
 use Parse::Pidl::Typelist qw(mapTypeName);
 use Parse::Pidl::Samba4 qw(DeclLong);
 use Parse::Pidl::Samba4::Header qw(GenerateFunctionInEnv GenerateFunctionOutEnv);
@@ -378,6 +379,16 @@ sub ParseInterface($$)
 	foreach my $fn (@{$if->{FUNCTIONS}}) {
 		next if has_property($fn, "noopnum");
 		next if has_property($fn, "todo");
+
+		my $skip = 0;
+		foreach my $e (@{$fn->{ELEMENTS}}) {
+			if (ContainsPipe($e, $e->{LEVELS}[0])) {
+				$skip = 1;
+				last;
+			}
+		}
+		next if $skip;
+
 		$self->ParseFunction($if->{NAME}, $fn);
 	}
 	$self->pidl_hdr("#endif /* __CLI_$uif\__ */");
