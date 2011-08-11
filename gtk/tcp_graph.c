@@ -145,6 +145,7 @@ struct arc_params {
 
 struct element {
 	ElementType type;
+	GdkColor *elment_color_p;
 	GdkGC *gc;
 	struct segment *parent;
 	union {
@@ -181,6 +182,8 @@ struct axis {
 #define RMARGIN_WIDTH	30
 
 struct style_tseq_tcptrace {
+	GdkColor seq_color;
+	GdkColor ack_color[2];
 	GdkGC *gc_seq;
 	GdkGC *gc_ack[2];
 	int flags;
@@ -679,7 +682,12 @@ static void create_drawing_area (struct graph *g)
 	struct segment current;
 	struct tcpheader *thdr;
 	GtkAllocation widget_alloc;
-
+#if 0
+	/* Prep. to include the controls in the graph window */
+	GtkWidget *frame; 
+	GtkWidget *vbox;
+	GtkWidget *hbox;
+#endif
 	debug(DBS_FENTRY) puts ("create_drawing_area()");
 	thdr=select_tcpip_session (&cfile, &current);
 	g_snprintf (window_title, WINDOW_TITLE_LENGTH, "TCP Graph %d: %s %s:%d -> %s:%d",
@@ -738,17 +746,30 @@ static void create_drawing_area (struct graph *g)
                                | GDK_POINTER_MOTION_HINT_MASK);
 
 #if 0
+	/* Prep. to include the controls in the graph window */
+
+	vbox = gtk_vbox_new (FALSE, 0);
+	gtk_container_add (GTK_CONTAINER (g->toplevel), vbox);
+	gtk_container_set_border_width (GTK_CONTAINER (g->toplevel), 5);
+	gtk_widget_show (vbox);
+
 	frame = gtk_frame_new (NULL);
 	gtk_frame_set_shadow_type (GTK_FRAME (frame), GTK_SHADOW_ETCHED_IN);
 	gtk_container_add (GTK_CONTAINER (frame), g->drawing_area);
-
-	box = gtk_hbox_new (FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (box), g->gui.control_panel, FALSE, FALSE, 0);
-	gtk_box_pack_start (GTK_BOX (box), frame, TRUE, TRUE, 0);
-	gtk_container_add (GTK_CONTAINER (g->toplevel), box);
-	gtk_container_set_border_width (GTK_CONTAINER (g->toplevel), 5);
+	gtk_box_pack_start (GTK_BOX (vbox), frame, TRUE, TRUE, 0);
 	gtk_widget_show (frame);
-	gtk_widget_show (box);
+
+
+	/*gtk_box_pack_start (GTK_BOX (vbox), g->gui.control_panel, FALSE, FALSE, 0);*/
+
+	hbox=gtk_hbox_new(FALSE, 3);
+	gtk_box_pack_start(GTK_BOX(vbox), hbox, FALSE, FALSE, 5);
+	gtk_container_set_border_width(GTK_CONTAINER(hbox), 3);
+	gtk_box_set_child_packing(GTK_BOX(vbox), hbox, FALSE, FALSE, 0, GTK_PACK_START);
+	gtk_widget_show(hbox);
+
+	create_ctrl_area(g, hbox);
+
 #endif
 
 	gtk_container_add (GTK_CONTAINER (g->toplevel), g->drawing_area);
@@ -2135,6 +2156,7 @@ static void graph_pixmap_draw (struct graph *g)
 static void draw_element_line (struct graph *g, struct element *e)
 {
 	int xx1, xx2, yy1, yy2;
+	cairo_t *cr;
 
 	debug(DBS_GRAPH_DRAWING) printf ("line element: (%.2f,%.2f)->(%.2f,%.2f), "
 				"seg %d ... ", e->p.line.dim.x1, e->p.line.dim.y1,
@@ -2168,12 +2190,23 @@ static void draw_element_line (struct graph *g, struct element *e)
 	if (yy1 < 0)
 		yy1 = 0;
 	debug(DBS_GRAPH_DRAWING) printf ("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2,yy2);
-	gdk_draw_line (g->pixmap[1^g->displayed], e->gc, xx1, yy1, xx2, yy2);
+
+	g_assert(e->elment_color_p!=NULL);
+	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
+	cairo_set_line_width (cr, 1.0);
+	if(e->elment_color_p!=NULL){
+		gdk_cairo_set_source_color (cr, e->elment_color_p);
+	}
+	cairo_move_to(cr, xx1+0.5, yy1+0.5);
+	cairo_line_to(cr, xx2+0.5, yy2+0.5);
+	cairo_stroke(cr);
+	cairo_destroy(cr);
 }
 
 static void draw_element_arc (struct graph *g, struct element *e)
 {
 	int xx1, xx2, yy1, yy2;
+	/*cairo_t *cr;*/
 
 	xx1 = (int )rint (e->p.arc.dim.x + g->geom.x - g->wp.x);
 	xx2 = (int )e->p.arc.dim.width;
@@ -2184,6 +2217,28 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
 	gdk_draw_arc (g->pixmap[1^g->displayed], e->gc, e->p.arc.filled, xx1,
 					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
+
+#if 0
+	/* NOTE the coordinates and angels needs to be recalculated as cairo_arc works differently */
+	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
+	cairo_set_line_width (cr, 1.0);
+	if(e->elment_color_p!=NULL){
+		gdk_cairo_set_source_color (cr, e->elment_color_p);
+	}
+	/* The arc is centered at (xc, yc)
+	 * begins at angle1 and proceeds in the direction of increasing angles to end at angle2
+	 */
+	cairo_arc(cr, xx1, yy1, e->p.arc.dim.width/2, /*e->p.arc.angle1*/0, /*e->p.arc.angle2*/2 * G_PI);
+
+	if(e->p.arc.filled){
+		cairo_fill(cr);
+	}else{
+		cairo_stroke(cr);
+	}
+	cairo_destroy(cr);
+
+	g_warning("Drawing arc");
+#endif
 }
 
 static void axis_pixmaps_create (struct axis *axis)
@@ -2709,12 +2764,28 @@ static int arc_detect_collision (struct element *e, int x, int y)
 
 static void cross_xor (struct graph *g, int x, int y)
 {
+#if 0
+	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
+	cairo_t *cr;
+#endif
+
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
 		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
 						y, g->wp.x + g->wp.width, y);
 		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
 						g->wp.y, x, g->wp.y + g->wp.height);
+#if 0
+		/* Draw horisontal line */
+		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
+		gdk_cairo_set_source_color (cr, &gray15);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr,  g->wp.x, y);
+		cairo_line_to(cr,  g->wp.x + g->wp.width, y);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+#endif
 	}
 }
 
@@ -3757,6 +3828,26 @@ static void tseq_tcptrace_read_config (struct graph *g)
 {
 	GdkColormap *colormap;
 	GdkColor color;
+	GdkColor color_LightSlateGray = {0x0, 0x7777, 0x8888, 0x9999};
+	GdkColor color_LightGray = {0x0, 0xd3d3, 0xd3d3, 0xd3d3};
+
+	/* Black */
+	g->s.tseq_tcptrace.seq_color.pixel=0;
+	g->s.tseq_tcptrace.seq_color.red=0;
+	g->s.tseq_tcptrace.seq_color.green=0;
+	g->s.tseq_tcptrace.seq_color.blue=0;
+
+	/* LightSlateGray */
+	g->s.tseq_tcptrace.ack_color[0].pixel=0;
+	g->s.tseq_tcptrace.ack_color[0].red=0x7777;
+	g->s.tseq_tcptrace.ack_color[0].green=0x8888;
+	g->s.tseq_tcptrace.ack_color[0].blue=0x9999;
+
+	/* LightGray */
+	g->s.tseq_tcptrace.ack_color[1].pixel=0;
+	g->s.tseq_tcptrace.ack_color[1].red=0xd3d3;
+	g->s.tseq_tcptrace.ack_color[1].green=0xd3d3;
+	g->s.tseq_tcptrace.ack_color[1].blue=0xd3d3;
 
 	g->s.tseq_tcptrace.flags = 0;
 	g->s.tseq_tcptrace.gc_seq = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
@@ -3883,6 +3974,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
+			/* Set the drawing color */
+			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
 			e1->p.line.dim.x1 = e1->p.line.dim.x2 = x;
 			e1->p.line.dim.y1 = yy1;
 			e1->p.line.dim.y2 = yy2;
@@ -3890,6 +3983,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
+			/* Set the drawing color */
+			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
 			e1->p.line.dim.x1 = x - 1;
 			e1->p.line.dim.x2 = x + 1;
 			e1->p.line.dim.y1 = e1->p.line.dim.y2 = yy1;
@@ -3897,6 +3992,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
 			e1->gc = g->s.tseq_tcptrace.gc_seq;
+			/* Set the drawing color */
+			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
 			e1->p.line.dim.x1 = x + 1;
 			e1->p.line.dim.x2 = x - 1;
 			e1->p.line.dim.y1 = e1->p.line.dim.y2 = yy2;
@@ -3916,6 +4013,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				/* Set the drawing color */
+				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = p_t;
 				e0->p.line.dim.y1 = p_ackno;
 				e0->p.line.dim.x2 = x;
@@ -3924,6 +4023,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				/* Set the drawing color */
+				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = x;
 				e0->p.line.dim.y1 = p_ackno;
 				e0->p.line.dim.x2 = x;
@@ -3933,6 +4034,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				/* Set the drawing color */
+				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = p_t;
 				e0->p.line.dim.y1 = p_win + p_ackno;
 				e0->p.line.dim.x2 = x;
@@ -3941,6 +4044,8 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
 				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
+				/* Set the drawing color */
+				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = x;
 				e0->p.line.dim.y1 = p_win + p_ackno;
 				e0->p.line.dim.x2 = x;
