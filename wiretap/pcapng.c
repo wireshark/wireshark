@@ -662,8 +662,8 @@ pcapng_read_if_descr_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn,
 			break;
 		    case(1): /* opt_comment */
 			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.opt_comment = g_strndup(option_content, sizeof(option_content));
-				pcapng_debug1("pcapng_read_if_descr_block: opt_comment %s", wblock->data.section.opt_comment);
+				wblock->data.if_descr.opt_comment = g_strndup(option_content, sizeof(option_content));
+				pcapng_debug1("pcapng_read_if_descr_block: opt_comment %s", wblock->data.if_descr.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_if_descr_block: opt_comment length %u seems strange", oh.option_length);
 			}
@@ -949,8 +949,8 @@ pcapng_read_packet_block(FILE_T fh, pcapng_block_header_t *bh, pcapng_t *pn, wta
 			break;
 		    case(1): /* opt_comment */
 			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.opt_comment = g_strndup(option_content, sizeof(option_content));
-				pcapng_debug1("pcapng_read_packet_block: opt_comment %s", wblock->data.section.opt_comment);
+				wblock->data.packet.opt_comment = g_strndup(option_content, sizeof(option_content));
+				pcapng_debug1("pcapng_read_packet_block: opt_comment %s", wblock->data.packet.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_packet_block: opt_comment length %u seems strange", oh.option_length);
 			}
@@ -1261,8 +1261,8 @@ pcapng_read_interface_statistics_block(FILE_T fh, pcapng_block_header_t *bh, pca
 			break;
 		    case(1): /* opt_comment */
 			if(oh.option_length > 0 && oh.option_length < sizeof(option_content)) {
-				wblock->data.section.opt_comment = g_strndup(option_content, sizeof(option_content));
-				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment %s", wblock->data.section.opt_comment);
+				wblock->data.if_stats.opt_comment = g_strndup(option_content, sizeof(option_content));
+				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment %s", wblock->data.if_stats.opt_comment);
 			} else {
 				pcapng_debug1("pcapng_read_interface_statistics_block: opt_comment length %u seems strange", oh.option_length);
 			}
