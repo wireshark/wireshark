@@ -1521,7 +1521,7 @@ update_options_table(gint index)
   gchar *temp, *path_str;
   GList *list;
   link_row *link = NULL;
-
+  gboolean enabled;
 
   row = g_array_index(rows, interface_row, index);
 
@@ -1590,7 +1590,10 @@ update_options_table(gint index)
       break;
     }
   }
-
+  gtk_tree_model_get(model, &iter, CAPTURE, &enabled, -1);
+  if (enabled == FALSE) {
+    num_selected++;
+  }
 #if defined(HAVE_PCAP_CREATE)
   gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, interface_opts.promisc_mode?"yes":"no", SNAPLEN, interface_opts.snaplen, BUFFER, (guint) interface_opts.buffer_size, MONITOR, interface_opts.monitor_mode?"yes":"no", FILTER, interface_opts.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
@@ -1598,6 +1601,15 @@ update_options_table(gint index)
 #else
   gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, interface_opts.promisc_mode?"yes":"no", SNAPLEN, interface_opts.snaplen, FILTER, interface_opts.cfilter, -1);
 #endif
+#ifdef USE_THREADS
+  if (num_selected > 0) {
+#else
+  if (num_selected == 1) {
+#endif
+    gtk_widget_set_sensitive(ok_bt, TRUE);
+  } else {
+    gtk_widget_set_sensitive(ok_bt, FALSE);
+  }
   if (interfaces_dialog_window_present()) {
     update_selected_interface(g_strdup(row.name), TRUE);
   }
