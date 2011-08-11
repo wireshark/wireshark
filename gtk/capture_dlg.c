@@ -3551,14 +3551,14 @@ capture_dlg_prep(gpointer parent_w) {
 
 GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeView *view)
 {
-  GtkListStore  *store;
-  GtkTreeIter    iter;
+  GtkListStore *store;
+  GtkTreeIter iter;
   GList *if_entry, *list;
   if_info_t *if_info;
   char *if_string="", *temp="";
   gchar *descr;
   if_capabilities_t *caps=NULL;
-  gint linktype_select, linktype_count;
+  gint linktype_count;
   cap_settings_t cap_settings;
   GSList *curr_addr;
   int ips = 0;
@@ -3569,7 +3569,6 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
   data_link_info_t *data_link_info;
   gchar *str, *first="";
   interface_row row;
-  gboolean pre_selected;
   interface_options interface_opts;
   gboolean      found = FALSE;
   GString *ip_str;
@@ -3631,7 +3630,6 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
         str = "";
         ips = 0;
         row.links = NULL;
-        pre_selected = FALSE;
         first = "";
         row.name = g_strdup(if_info->name);
         /* Is this interface hidden and, if so, should we include it
@@ -3691,7 +3689,6 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
           if (if_info->loopback) {
             g_string_append(ip_str, " (loopback)");
           }
-          linktype_select = 0;
           linktype_count = 0;
           if (caps != NULL) {
             row.monitor_mode = FALSE;
@@ -3971,8 +3968,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 static void
 capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
 {
-  GtkWidget *if_cb,
-            *multi_files_on_cb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
+  GtkWidget *multi_files_on_cb, *ringbuffer_nbf_cb, *ringbuffer_nbf_sb, *ringbuffer_nbf_lb,
             *ring_filesize_cb, *ring_filesize_sb, *ring_filesize_cbx,
             *file_duration_cb, *file_duration_sb, *file_duration_cbx,
             *sync_cb, *auto_scroll_cb,
@@ -3981,7 +3977,6 @@ capture_prep_adjust_sensitivity(GtkWidget *tb _U_, gpointer parent_w)
             *stop_duration_cb, *stop_duration_sb, *stop_duration_cbx,
             *stop_files_cb, *stop_files_sb, *stop_files_lb;
 
-  if_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_IFACE_KEY);
   multi_files_on_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_MULTI_FILES_ON_CB_KEY);
   ringbuffer_nbf_cb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_CB_KEY);
   ringbuffer_nbf_sb = (GtkWidget *) g_object_get_data(G_OBJECT(parent_w), E_CAP_RING_NBF_SB_KEY);
