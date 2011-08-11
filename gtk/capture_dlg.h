@@ -35,20 +35,20 @@
 
 #ifdef HAVE_PCAP_REMOTE
 struct remote_host {
-  gchar    *remote_host;          /**< Host name or network address for remote capturing */
-  gchar    *remote_port;          /**< TCP port of remote RPCAP server */
-  gint      auth_type;            /**< Authentication type */
-  gchar    *auth_username;        /**< Remote authentication parameters */
-  gchar    *auth_password;        /**< Remote authentication parameters */
-  gboolean datatx_udp;
-  gboolean nocap_rpcap;
-  gboolean nocap_local;
+    gchar *remote_host;          /**< Host name or network address for remote capturing */
+    gchar *remote_port;          /**< TCP port of remote RPCAP server */
+    gint auth_type;              /**< Authentication type */
+    gchar *auth_username;        /**< Remote authentication parameters */
+    gchar *auth_password;        /**< Remote authentication parameters */
+    gboolean datatx_udp;
+    gboolean nocap_rpcap;
+    gboolean nocap_local;
 };
 #endif
 
 typedef struct remote_options_tag {
 #ifdef HAVE_PCAP_REMOTE
-	capture_source src_type;
+    capture_source src_type;
     struct remote_host remote_host_opts;
 #endif
 #ifdef HAVE_PCAP_SETSAMPLING
@@ -63,7 +63,7 @@ typedef struct row_options_tag {
     gchar *addresses;
     gchar *cfilter;
     GList *links;
-    gint  active_dlt;
+    gint active_dlt;
     gboolean pmode;
     gboolean monitor_mode;
     gboolean has_snaplen;
@@ -74,24 +74,24 @@ typedef struct row_options_tag {
 
 typedef struct link_row_tag {
     gchar *link_type;
-    gint  pointer;
+    gint pointer;
 } link_row;
 
 enum
 {
-  CAPTURE = 0,
-  INTERFACE,
-  LINK,
-  PMODE,
-  SNAPLEN,
+    CAPTURE = 0,
+    INTERFACE,
+    LINK,
+    PMODE,
+    SNAPLEN,
 #if defined(HAVE_PCAP_CREATE)
-  BUFFER,
-  MONITOR,
+    BUFFER,
+    MONITOR,
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-  BUFFER,
+    BUFFER,
 #endif
-  FILTER,
-  NUM_COLUMNS
+    FILTER,
+    NUM_COLUMNS
 };
 
 /** User requested the "Capture Options" dialog box by menu or toolbar.
@@ -143,8 +143,8 @@ capture_air_cb(GtkWidget *widget, gpointer data);
  * promiscuous mode.
  */
 typedef struct {
-	gboolean	monitor_mode;
-	int		linktype;
+    gboolean monitor_mode;
+    int linktype;
 } cap_settings_t;
 
 /** Get capture settings for interface
@@ -159,15 +159,15 @@ create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeView *view);
 
 gboolean 
 query_tooltip_tree_view_cb (GtkWidget  *widget,
-			    gint        x,
-			    gint        y,
-			    gboolean    keyboard_tip,
-			    GtkTooltip *tooltip,
-			    gpointer    data);
-			                                
+                            gint        x,
+                            gint        y,
+                            gboolean    keyboard_tip,
+                            GtkTooltip *tooltip,
+                            gpointer    data);
+
 void 
 activate_monitor (GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
-                              GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
+                  GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 
 #ifdef HAVE_PCAP_REMOTE
 #define RECENT_KEY_REMOTE_HOST "recent.remote_host"
