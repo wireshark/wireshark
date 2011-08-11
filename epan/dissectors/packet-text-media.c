@@ -55,6 +55,9 @@ static gint proto_text_lines = -1;
 /* Subtrees */
 static gint ett_text_lines = -1;
 
+/* Dissector handles */
+static dissector_handle_t xml_handle;
+
 static void
 dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -63,6 +66,20 @@ dissect_text_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint		offset = 0, next_offset;
 	gint		len;
 	const char	*data_name;
+	guint8		word[6];
+	int length = tvb_length(tvb);
+
+	/* Check if this is actually xml 
+	 * If there is less than 38 characters this is not XML
+	 * <?xml version="1.0" encoding="UTF-8"?>
+	 */
+	if(length > 38){
+		tvb_get_nstringz0(tvb, 0, sizeof(word),word);
+		if (g_ascii_strncasecmp(word, "<?xml", 5) == 0){
+			call_dissector(xml_handle, tvb, pinfo, tree);
+			return;
+		}
+	}
 
 	data_name = pinfo->match_string;
 	if (! (data_name && data_name[0])) {
@@ -159,4 +176,6 @@ proto_reg_handoff_text_lines(void)
 
 	dissector_add_string("media_type", "application/x-wms-logplaystats", text_lines_handle);
 	dissector_add_string("media_type", "application/x-rtsp-udp-packetpair", text_lines_handle);
+
+	xml_handle = find_dissector("xml");
 }
