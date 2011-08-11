@@ -1,7 +1,7 @@
 /*
  * We don't use unput, so don't generate code for it.
  */
-%option nounput 
+%option nounput
 
 /*
  * We don't read from the terminal.
@@ -19,7 +19,7 @@
 %{
 
 	/* dtd_parse.l
-	* an XML dissector for Wireshark 
+	* an XML dissector for Wireshark
 	* lexical analyzer for DTDs
 	*
 	* Copyright 2004, Luis E. Garcia Ontanon <luis@ontanon.org>
@@ -34,43 +34,43 @@
 	* modify it under the terms of the GNU General Public License
 	* as published by the Free Software Foundation; either version 2
 	* of the License, or (at your option) any later version.
-	* 
+	*
 	* This program is distributed in the hope that it will be useful,
 	* but WITHOUT ANY WARRANTY; without even the implied warranty of
 	* MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 	* GNU General Public License for more details.
-	* 
+	*
 	* You should have received a copy of the GNU General Public License
 	* along with this program; if not, write to the Free Software
 	* Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
 	*/
-	
+
 #include <glib.h>
 #include <string.h>
-	
+
 #include "dtd.h"
 #include "dtd_grammar.h"
 #include "dtd_parse.h"
 #include "dtd_parse_lex.h"
-	
+
 	struct _proto_xmlpi_attr {
 		gchar* name;
 		void (*act)(gchar*);
 	};
 
 	static void* pParser;
-	static GString* input_string;	
+	static GString* input_string;
 	static guint offset;
 	static guint len;
 	static gchar* location;
 	static gchar* attr_name;
-	
+
 	static int my_yyinput(char* buff,guint size);
-	
+
 	static dtd_token_data_t* new_token(gchar*);
 
 	static dtd_build_data_t* build_data;
-	
+
 	static void set_proto_name (gchar* val) { if(build_data->proto_name) g_free(build_data->proto_name); build_data->proto_name = g_strdup(val); }
 	static void set_media_type (gchar* val) { if(build_data->media_type) g_free(build_data->media_type); build_data->media_type = g_strdup(val); }
 	static void set_proto_root (gchar* val) { if(build_data->proto_root) g_free(build_data->proto_root); build_data->proto_root = g_strdup(val); }
@@ -86,13 +86,13 @@
 		{ "hierarchy", set_recursive },
 		{NULL,NULL}
 	};
-	
+
 #ifdef DEBUG_DTD_PARSER
 #define DEBUG_DTD_TOKEN fprintf(stderr,"->%s (%i)%s\n",location,token_type,yytext)
 #else
 #define DEBUG_DTD_TOKEN
 #endif
-    
+
 #define DTD_PARSE(token_type) \
 	{   DEBUG_DTD_TOKEN; \
 		DtdParse(pParser, (token_type), new_token(yytext), build_data); \
@@ -171,7 +171,7 @@ name           [A-Za-z0-9][-a-zA-Z0-9_]*
 dquoted        ["][^\"]*["]
 squoted        ['][^\']*[']
 
-%START DTD XMLPI LOCATION DONE PROTOCOL GET_ATTR_QUOTE GET_ATTR_VAL GET_ATTR_CLOSE_QUOTE IN_COMMENT IN_NOTATION 
+%START DTD XMLPI LOCATION DONE PROTOCOL GET_ATTR_QUOTE GET_ATTR_VAL GET_ATTR_CLOSE_QUOTE IN_COMMENT IN_NOTATION
 %%
 
 {whitespace}            ;
@@ -210,8 +210,7 @@ squoted        ['][^\']*[']
 <DONE>{stop_xmlpi}  BEGIN DTD;
 
 <PROTOCOL>{name} {
-	attr_name = g_strdup(yytext);
-	g_strdown(attr_name);
+	attr_name = g_ascii_strdown(yytext, -1);
 	BEGIN GET_ATTR_QUOTE;
 }
 
@@ -228,7 +227,7 @@ squoted        ['][^\']*[']
 	/*"*/
 	struct _proto_xmlpi_attr* pa;
 	gboolean got_it = FALSE;
-	
+
 	for(pa = proto_attrs; pa->name; pa++) {
 		if (g_ascii_strcasecmp(attr_name,pa->name) == 0) {
 			pa->act(yytext);
@@ -236,7 +235,7 @@ squoted        ['][^\']*[']
 			break;
 		}
 	}
-	
+
 	if (! got_it) {
 		g_string_append_printf(build_data->error,
 						"error in wireshark:protocol xmpli at %s : no such parameter %s!",
@@ -244,9 +243,9 @@ squoted        ['][^\']*[']
 		g_free(attr_name);
 		yyterminate();
 	}
-	
+
 	g_free(attr_name);
-		
+
 	BEGIN GET_ATTR_CLOSE_QUOTE;
 }
 
@@ -261,7 +260,7 @@ squoted        ['][^\']*[']
 <DTD>{element_kw}            { DTD_PARSE(TOKEN_ELEMENT_KW); }
 <DTD>{doctype_kw}            { DTD_PARSE(TOKEN_DOCTYPE_KW); }
 
-<DTD>{pcdata}                { DTD_PARSE(TOKEN_ELEM_DATA); } 
+<DTD>{pcdata}                { DTD_PARSE(TOKEN_ELEM_DATA); }
 <DTD>{any}                   { DTD_PARSE(TOKEN_ELEM_DATA); }
 <DTD>{cdata}                 { DTD_PARSE(TOKEN_ELEM_DATA); }
 <DTD>{empty}				 { DTD_PARSE(TOKEN_EMPTY_KW); }
@@ -298,10 +297,10 @@ squoted        ['][^\']*[']
 
 static dtd_token_data_t* new_token(gchar* text) {
 	dtd_token_data_t* t = g_malloc(sizeof(dtd_token_data_t));
-	
+
 	t->text = g_strdup(text);
 	t->location = g_strdup(location);
-	
+
 	return t;
 }
 
@@ -327,13 +326,13 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	input_string = s;
 	offset = 0;
 	len = (guint) input_string->len;
-	
+
 	pParser = DtdParseAlloc(g_malloc);
 
 #ifdef DEBUG_DTD_PARSER
 	DtdParseTrace(stderr, ">>");
 #endif
-    
+
 	build_data = g_malloc(sizeof(dtd_build_data_t));
 
 	build_data->proto_name = NULL;
@@ -341,34 +340,34 @@ extern dtd_build_data_t* dtd_parse(GString* s) {
 	build_data->description = NULL;
 	build_data->proto_root = NULL;
 	build_data->recursion = FALSE;
-    
+
 	build_data->elements = g_ptr_array_new();
 	build_data->attributes = g_ptr_array_new();
 
 	build_data->error = g_string_new("");
-	
+
 	location = NULL;
-    
+
 	BEGIN DTD;
-	
+
 	yylex();
 
 	DtdParse(pParser, 0, NULL,build_data);
 
 	yyrestart(NULL);
-	
+
 	if (location) g_free(location);
-	
+
 	location = NULL;
-    
+
 	DtdParseFree(pParser, g_free );
-	
+
 	return build_data;
 }
 
 /*
  * We want to stop processing when we get to the end of the input.
- * (%option noyywrap is not used because if used then 
+ * (%option noyywrap is not used because if used then
  * some flex versions (eg: 2.5.35) generate code which causes
  * warnings by the Windows VC compiler).
  */
