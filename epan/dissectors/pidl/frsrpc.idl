@@ -1,0 +1,430 @@
+#include "idl_types.h"
+
+import "misc.idl";
+
+[
+  uuid("f5cc59b4-4264-101a-8c59-08002b2f8426"),
+  version(1.1),
+  endpoint("ncacn_ip_tcp:", "ncalrpc:"),
+  helpstring("File Replication Service"),
+  helper("../librpc/ndr/ndr_frsrpc.h"),
+  pointer_default(unique)
+] 
+interface frsrpc
+{
+	/*****************/
+	/* Function 0x00 */
+
+	typedef struct {
+		[subcontext(4)] GUID guid;
+		[subcontext(4)] nstring name;
+	} frsrpc_CommPktChunkGuidName;
+
+	typedef struct {
+		hyper vsn;
+		GUID guid;
+	} frsrpc_CommPktGSVN;
+
+	typedef [bitmap32bit,flag(NDR_PAHEX)] bitmap {
+		FRSRPC_CO_FLAG_ABORT_CO	= 0x00000001,
+		FRSRPC_CO_FLAG_VV_ACTIVATED	= 0x00000002,
+		FRSRPC_CO_FLAG_CONTENT_CMD	= 0x00000004,
+		FRSRPC_CO_FLAG_LOCATION_CMD	= 0x00000008,
+		FRSRPC_CO_FLAG_ONLIST		= 0x00000010,
+		FRSRPC_CO_FLAG_LOCALCO		= 0x00000020,
+		FRSRPC_CO_FLAG_RETRY		= 0x00000040,
+		FRSRPC_CO_FLAG_OUT_OF_ORDER	= 0x00000200,
+		FRSRPC_CO_FLAG_NEW_FILE		= 0x00000400,
+		FRSRPC_CO_FLAG_CONTROL		= 0x00001000,
+		FRSRPC_CO_FLAG_DIRECTED_CO	= 0x00002000,
+		FRSRPC_CO_FLAG_VVJOIN_TO_ORIG	= 0x00040000,
+		FRSRPC_CO_FLAG_SKIP_ORIG_REC_C	= 0x00100000,
+		FRSRPC_CO_FLAG_MOVEIN_GEN	= 0x00200000,
+		FRSRPC_CO_FLAG_MORPH_GEN_HEAD	= 0x00400000,
+		FRSRPC_CO_FLAG_JUST_OID_RESET	= 0x00800000,
+		FRSRPC_CO_FLAG_COMPRESSED_STAGE	= 0x01000000,
+		FRSRPC_CO_FLAG_SKIP_VV_UPDATE	= 0x02000000
+	} frsrpc_CommPktCoCmdFlags;
+
+	const uint32 FRSRPC_CO_IFLAG_NONE = 0x0000000;
+
+	typedef [bitmap32bit,flag(NDR_PAHEX)] bitmap {
+		FRSRPC_CO_IFLAG_VVRETIRE_EXEC	= 0x00000001,
+		FRSRPC_CO_IFLAG_CO_ABORT	= 0x00000002,
+		FRSRPC_CO_IFLAG_DIR_ENUM_PENDING= 0x00000004
+	} frsrpc_CommPktCoCmdIFlags;
+
+	typedef [v1_enum,flag(NDR_PAHEX)] enum {
+		FRSRPC_CO_STATUS_CO_ENTERED_LOG			= 0x00000000,
+		FRSRPC_CO_STATUS_ALLOC_STAGING_LOCAL_CO		= 0x00000001,
+		FRSRPC_CO_STATUS_LOCAL_CO_STAGING_STARTED	= 0x00000002,
+		FRSRPC_CO_STATUS_LOCAL_CO_STAGING_COMPLETED	= 0x00000003,
+		FRSRPC_CO_STATUS_WAIT_RETRY_LOCAL_CO_STAGING	= 0x00000004,
+		FRSRPC_CO_STATUS_ALLOC_STAGING_REMOTE_CO	= 0x00000005,
+		FRSRPC_CO_STATUS_REMOTE_CO_STAGING_STARTED	= 0x00000006,
+		FRSRPC_CO_STATUS_REMOTE_CO_STAGING_COMPLETED	= 0x00000007,
+		FRSRPC_CO_STATUS_WAIT_RETRY_REMOTE_CO_STAGING	= 0x00000008,
+		FRSRPC_CO_STATUS_FILE_INSTALL_REQUESTED		= 0x00000009,
+		FRSRPC_CO_STATUS_FILE_INSTALL_STARTED		= 0x0000000A,
+		FRSRPC_CO_STATUS_FILE_INSTALL_COMPLETED		= 0x0000000B,
+		FRSRPC_CO_STATUS_FILE_INSTALL_WAIT_RETRY	= 0x0000000C,
+		FRSRPC_CO_STATUS_FILE_INSTALL_RETRYING		= 0x0000000D,
+		FRSRPC_CO_STATUS_FILE_INSTALL_RENAME_RETRYING	= 0x0000000E,
+		FRSRPC_CO_STATUS_FILE_INSTALL_DELETE_RETRYING	= 0x0000000F,
+		FRSRPC_CO_STATUS_CO_RECYCLED_FOR_ENUM		= 0x00000013,
+		FRSRPC_CO_STATUS_REQUEST_OUTBOUND_PROPAGATION	= 0x00000014,
+		FRSRPC_CO_STATUS_REQUEST_ACCEPTED_OUTBOUND_LOG	= 0x00000015,
+		FRSRPC_CO_STATUS_DB_STATE_UPDATE_STARTED	= 0x00000016,
+		FRSRPC_CO_STATUS_DB_STATE_UPDATE_COMPLETED	= 0x00000017,
+		FRSRPC_CO_STATUS_CO_ABORTED			= 0x00000018
+	} frsrpc_CommPktCoCmdStatus;
+
+	typedef [bitmap32bit,flag(NDR_PAHEX)] bitmap {
+		FRSRPC_CONTENT_REASON_DATA_OVERWRITE		= 0x00000001,
+		FRSRPC_CONTENT_REASON_DATA_EXTEND		= 0x00000002,
+		FRSRPC_CONTENT_REASON_DATA_TRUNCATION		= 0x00000004,
+		FRSRPC_CONTENT_REASON_NAMED_DATA_OVERWRITE	= 0x00000010,
+		FRSRPC_CONTENT_REASON_NAMED_DATA_EXTEND		= 0x00000020,
+		FRSRPC_CONTENT_REASON_NAMED_DATA_TRUNCATION	= 0x00000040,
+		FRSRPC_CONTENT_REASON_FILE_CREATE		= 0x00000100,
+		FRSRPC_CONTENT_REASON_FILE_DELETE		= 0x00000200,
+		FRSRPC_CONTENT_REASON_EA_CHANGE			= 0x00000400,
+		FRSRPC_CONTENT_REASON_SECURITY_CHANGE		= 0x00000800,
+		FRSRPC_CONTENT_REASON_OLD_NAME			= 0x00001000,
+		FRSRPC_CONTENT_REASON_NEW_NAME			= 0x00002000,
+		FRSRPC_CONTENT_REASON_BASIC_INFO_CHANGE		= 0x00004000,
+		FRSRPC_CONTENT_REASON_COMPRESSION_CHANGE	= 0x00020000
+	} frsrpc_CommPktCoCmdContentCmd;
+
+	typedef [v1_enum,flag(NDR_PAHEX)] enum {
+		FRSRPC_CO_LOCATION_FILE_CREATE	= 0x00000000,
+		FRSRPC_CO_LOCATION_DIR_CREATE	= 0x00000000 | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_DELETE	= 0x00000002,
+		FRSRPC_CO_LOCATION_DIR_DELETE	= 0x00000002 | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_MOVEIN	= 0x00000004,
+		FRSRPC_CO_LOCATION_DIR_MOVEIN	= 0x00000004 | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_MOVEIN2	= 0x00000006,
+		FRSRPC_CO_LOCATION_DIR_MOVEIN2	= 0x00000006 | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_MOVEOUT	= 0x00000008,
+		FRSRPC_CO_LOCATION_DIR_MOVEOUT	= 0x00000008 | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_MOVERS	= 0x0000000a,
+		FRSRPC_CO_LOCATION_DIR_MOVERS	= 0x0000000a | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_MOVEDIR	= 0x0000000c,
+		FRSRPC_CO_LOCATION_DIR_MOVEDIR	= 0x0000000c | 0x00000001,
+		FRSRPC_CO_LOCATION_FILE_NO_CMD	= 0x0000000e,
+		FRSRPC_CO_LOCATION_DIR_NO_CMD	= 0x0000000e | 0x00000001
+	} frsrpc_CommPktCoCmdLocationCmd;
+
+	typedef struct {
+		uint32 sequence_number;
+		frsrpc_CommPktCoCmdFlags flags;
+		frsrpc_CommPktCoCmdIFlags iflags;
+		frsrpc_CommPktCoCmdStatus status;
+		frsrpc_CommPktCoCmdContentCmd content_cmd;
+		frsrpc_CommPktCoCmdLocationCmd location_cmd;
+		uint32 file_attributes;
+		uint32 file_version_number;
+		uint32 partern_ack_sequence_number;
+		[value(0)] uint32 not_used;
+		hyper file_size;
+		hyper file_offset;
+		hyper frs_vsn;
+		hyper file_usn;
+		hyper jrnl_usn;
+		hyper jrnl_first_usn;
+		uint32 original_replica_num;
+		uint32 new_replica_num;
+		GUID change_order_guid;
+		GUID originator_guid;
+		GUID file_guid;
+		GUID old_parent_guid;
+		GUID new_parent_guid;
+		GUID connection_guid;
+		hyper ack_version;
+		[value(0)] hyper spare2ul1;
+		[value(0)] hyper spare1guid_p1;
+		[value(0)] hyper spare1guid_p2;
+		[value(0)] hyper spare2guid_p1;
+		[value(0)] hyper spare3guid_p2;
+		[value(0)] uint32 spare1wcs;
+		[value(0)] uint32 spare2wcs;
+		[value(0)] uint32 extension;
+		[value(0)] uint32 spare2bin;
+		NTTIME event_time;
+		[value(2*strlen_m(file_name))] uint16 file_name_length;
+#define FRSRPC_MAX_PATH 260
+		[charset(UTF16)] uint16 file_name[FRSRPC_MAX_PATH+1];
+		[value(0)] uint8 padding1;
+		[value(0)] uint8 padding2;
+		[value(0)] uint8 padding3;
+		[value(0)] uint8 padding4;
+	} frsrpc_CommPktChangeOrderCommand;
+
+	typedef [v1_enum,flag(NDR_PAHEX)] enum {
+		FRSRPC_DATA_EXTENSION_TERMINATOR	= 0x00000000,
+		FRSRPC_DATA_EXTENSION_MD5_CHECKSUM	= 0x00000001,
+		FRSRPC_DATA_EXTENSION_RETRY_TIMEOUT	= 0x00000002
+	} frsrpc_CommPktDataExtensionType;
+
+	typedef [flag(NDR_PAHEX)] struct {
+		[value(0x00000018)] uint32 prefix_size;
+		[value(FRSRPC_DATA_EXTENSION_MD5_CHECKSUM)]
+			frsrpc_CommPktDataExtensionType prefix_type;
+		uint8 data[16];
+	} frsrpc_CommPktDataExtensionChecksum;
+
+	typedef struct {
+		[value(0x00000018)] uint32 prefix_size;
+		[value(FRSRPC_DATA_EXTENSION_RETRY_TIMEOUT)]
+			frsrpc_CommPktDataExtensionType prefix_type;
+		uint32 count;
+		[value(0)] uint32 not_used;
+		NTTIME first_try_time;
+	} frsrpc_CommPktDataExtensionRetryTimeout;
+
+	typedef [flag(NDR_PAHEX)] enum {
+		FRSRPC_CO_RECORD_EXTENSION_VERSION_WIN2K	= 0x0000,
+		FRSRPC_CO_RECORD_EXTENSION_VERSION_1		= 0x0001
+	} frsrpc_CommPktCoRecordExtensionMajor;
+
+	typedef struct {
+		[value(0x00000028)] uint32 field_size;
+		[value(FRSRPC_CO_RECORD_EXTENSION_VERSION_WIN2K)]
+			frsrpc_CommPktCoRecordExtensionMajor major;
+		[value(0x0001)] uint16 offset_count;
+		[value(0x00000010)] uint32 offset;
+		[value(0)] uint32 offset_last;
+		frsrpc_CommPktDataExtensionChecksum data_checksum;
+	} frsrpc_CommPktCoRecordExtensionWin2k;
+
+	typedef struct {
+		[value(0x00000048)] uint32 field_size;
+		frsrpc_CommPktCoRecordExtensionMajor major;
+		[value(0x0002)] uint16 offset_count;
+		[value(0x00000018)] uint32 offset0;
+		[value(0x00000030)] uint32 offset1;/*TODO: is this correct??? */
+		[value(0)] uint32 offset_last;
+		[value(0)] uint32 not_used;
+		frsrpc_CommPktDataExtensionChecksum data_checksum;
+		frsrpc_CommPktDataExtensionRetryTimeout data_retry_timeout;
+	} frsrpc_CommPktChangeOrderRecordExtension;
+
+	typedef [v1_enum,flag(NDR_PAHEX)] enum {
+		FRSRPC_COMMAND_REMOTE_CO		= 0x00000218,
+		FRSRPC_COMMAND_RECEIVING_STATE		= 0x00000238,
+		FRSRPC_COMMAND_REMOTE_CO_DONE		= 0x00000250,
+		FRSRPC_COMMAND_ABORT_FETCH		= 0x00000246,
+		FRSRPC_COMMAND_RETRY_FETCH		= 0x00000244,
+		FRSRPC_COMMAND_NEED_JOIN		= 0x00000121,
+		FRSRPC_COMMAND_START_JOIN		= 0x00000122,
+		FRSRPC_COMMAND_JOINING			= 0x00000130,
+		FRSRPC_COMMAND_JOINED			= 0x00000128,
+		FRSRPC_COMMAND_UNJOIN_REMOTE		= 0x00000148,
+		FRSRPC_COMMAND_WJOIN_DONE		= 0x00000136,
+		FRSRPC_COMMAND_SEND_STAGE		= 0x00000228
+	} frsrpc_CommPktCommand;
+
+	typedef [flag(NDR_PAHEX)] enum {
+		FRSRPC_COMM_PKT_CHUNK_BOP			= 0x0001,
+		FRSRPC_COMM_PKT_CHUNK_COMMAND			= 0x0002,
+		FRSRPC_COMM_PKT_CHUNK_TO			= 0x0003,
+		FRSRPC_COMM_PKT_CHUNK_FROM			= 0x0004,
+		FRSRPC_COMM_PKT_CHUNK_REPLICA			= 0x0005,
+		FRSRPC_COMM_PKT_CHUNK_CONNECTION		= 0x0008,
+		FRSRPC_COMM_PKT_CHUNK_JOIN_GUID			= 0x0006,
+		FRSRPC_COMM_PKT_CHUNK_LAST_JOIN_TIME		= 0x0012,
+
+		FRSRPC_COMM_PKT_CHUNK_VVECTOR			= 0x0007,
+		FRSRPC_COMM_PKT_CHUNK_JOIN_TIME			= 0x0011,
+		FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID	= 0x0014,
+		FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID		= 0x0018,
+
+		FRSRPC_COMM_PKT_CHUNK_BLOCK			= 0x0009,
+		FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE		= 0x000A,
+		FRSRPC_COMM_PKT_CHUNK_FILE_SIZE			= 0x000B,
+		FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET		= 0x000C,
+		FRSRPC_COMM_PKT_CHUNK_GVSN			= 0x000E,
+		FRSRPC_COMM_PKT_CHUNK_CO_GUID			= 0x000F,
+		FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER	= 0x0010,
+
+		FRSRPC_COMM_PKT_CHUNK_REMOTE_CO			= 0x000D,
+		FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K		= 0x0016,
+		FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2		= 0x0017,
+
+		FRSRPC_COMM_PKT_CHUNK_EOP			= 0x0013
+	} frsrpc_CommPktChunkType;
+
+	typedef [nodiscriminant] union {
+		[default,flag(NDR_REMAINING)] DATA_BLOB blob;
+		[case(FRSRPC_COMM_PKT_CHUNK_BOP)]
+			[value(0)] uint32 bop;
+		[case(FRSRPC_COMM_PKT_CHUNK_COMMAND)]
+			frsrpc_CommPktCommand command;
+		[case(FRSRPC_COMM_PKT_CHUNK_TO)]
+			frsrpc_CommPktChunkGuidName to;
+		[case(FRSRPC_COMM_PKT_CHUNK_FROM)]
+			frsrpc_CommPktChunkGuidName from;
+		[case(FRSRPC_COMM_PKT_CHUNK_REPLICA)]
+			frsrpc_CommPktChunkGuidName replica;
+		[case(FRSRPC_COMM_PKT_CHUNK_CONNECTION)]
+			frsrpc_CommPktChunkGuidName connection;
+		[case(FRSRPC_COMM_PKT_CHUNK_JOIN_GUID)][subcontext(4)]
+			GUID join_guid;
+		[case(FRSRPC_COMM_PKT_CHUNK_LAST_JOIN_TIME)]
+			NTTIME last_join_time;
+		[case(FRSRPC_COMM_PKT_CHUNK_VVECTOR)][subcontext(4)]
+			frsrpc_CommPktGSVN vvector;
+		[case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)][subcontext(4)]
+			NTTIME join_time;
+		[case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)][subcontext(4)]
+			GUID replica_version_guid;
+		[case(FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID)]
+			GUID compression_guid;
+		[case(FRSRPC_COMM_PKT_CHUNK_BLOCK)]
+			[flag(NDR_REMAINING)] DATA_BLOB block;
+		[case(FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE)]
+			hyper block_size;
+		[case(FRSRPC_COMM_PKT_CHUNK_FILE_SIZE)]
+			hyper file_size;
+		[case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)]
+			hyper file_offset;
+		[case(FRSRPC_COMM_PKT_CHUNK_GVSN)][subcontext(4)]
+			frsrpc_CommPktGSVN gvsn;
+		[case(FRSRPC_COMM_PKT_CHUNK_CO_GUID)][subcontext(4)]
+			GUID co_guid;
+		[case(FRSRPC_COMM_PKT_CHUNK_CO_SEQUENCE_NUMBER)]
+			uint32 co_sequnence_number;
+		[case(FRSRPC_COMM_PKT_CHUNK_REMOTE_CO)][subcontext(4)]
+			frsrpc_CommPktChangeOrderCommand remote_co;
+		[case(FRSRPC_COMM_PKT_CHUNK_CO_EXT_WIN2K)][subcontext(4)]
+			frsrpc_CommPktCoRecordExtensionWin2k co_ext_win2k;
+		[case(FRSRPC_COMM_PKT_CHUNK_CO_EXTENTION_2)]
+			frsrpc_CommPktChangeOrderRecordExtension co_extension2;
+		[case(FRSRPC_COMM_PKT_CHUNK_EOP)]
+			[value(0xFFFFFFFF)] uint32 bopend;
+	} frsrpc_CommPktChunkData;
+
+	typedef [public,flag(NDR_NOALIGN)] struct {
+		frsrpc_CommPktChunkType type;
+		[subcontext(4),switch_is(type)] frsrpc_CommPktChunkData data;
+	} frsrpc_CommPktChunk;
+
+	typedef [nopull,nopush,flag(NDR_NOALIGN)] struct {
+		uint32 num_chunks; /* this doesn't appear on the wire */
+		frsrpc_CommPktChunk chunks[num_chunks];
+	} frsrpc_CommPktChunkCtr;
+
+	typedef [v1_enum] enum {
+		FRSRPC_COMM_PKT_MAJOR_0	= 0x00000000
+	} frsrpc_CommPktMajor;
+
+	typedef [v1_enum] enum {
+		FRSRPC_COMM_PKT_MINOR_0	= 0x00000000,
+		FRSRPC_COMM_PKT_MINOR_1	= 0x00000001,
+		FRSRPC_COMM_PKT_MINOR_2	= 0x00000002,
+		FRSRPC_COMM_PKT_MINOR_3	= 0x00000003,
+		FRSRPC_COMM_PKT_MINOR_4	= 0x00000004,
+		FRSRPC_COMM_PKT_MINOR_5	= 0x00000005,
+		FRSRPC_COMM_PKT_MINOR_6	= 0x00000006,
+		FRSRPC_COMM_PKT_MINOR_7	= 0x00000007,
+		FRSRPC_COMM_PKT_MINOR_8	= 0x00000008,
+		FRSRPC_COMM_PKT_MINOR_9	= 0x00000009
+	} frsrpc_CommPktMinor;
+
+	typedef struct {
+		frsrpc_CommPktMajor major;
+		frsrpc_CommPktMinor minor;
+		[value(1)] uint32 cs_id;
+		[value(pkt_len+12)] uint32 memory_len;
+		[value(ndr_size_frsrpc_CommPktChunkCtr(r->ctr,
+			ndr->flags))]
+		[range(0, 262144)]
+			uint32 pkt_len;
+		[value(0)] uint32 upk_len;
+		[subcontext(4),subcontext_size(pkt_len)]
+			frsrpc_CommPktChunkCtr *ctr;
+		[value(0)] uint32 data_name;
+		[value(0)] uint32 data_handle;
+	} frsrpc_FrsSendCommPktReq;
+
+	WERROR frsrpc_FrsSendCommPkt(
+		[in]	frsrpc_FrsSendCommPktReq req
+	);
+
+	/*****************/
+	/* Function 0x01 */
+	/* this function always return WERR_CALL_NOT_IMPLEMENTED */
+	WERROR frsrpc_FrsVerifyPromotionParent(
+		[in,unique,string,charset(UTF16)] uint16 *parent_account,
+		[in,unique,string,charset(UTF16)] uint16 *parent_password,
+		[in,unique,string,charset(UTF16)] uint16 *replica_set_name,
+		[in,unique,string,charset(UTF16)] uint16 *replica_set_type,
+		[in] frsrpc_PartnerAuthLevel partner_auth_level,
+		[in] uint32 __ndr_guid_size
+	);
+
+	/*****************/
+	/* Function 0x02 */
+	typedef [v1_enum,flag(NDR_PAHEX)] enum {
+		FRSRPC_PARENT_AUTH_LEVEL_ENCRYPTED_KERBEROS	= 0x00000000,
+		FRSRPC_PARENT_AUTH_LEVEL_NO_AUTHENTICATION	= 0x00000001
+	} frsrpc_PartnerAuthLevel;
+
+	WERROR frsrpc_FrsStartPromotionParent(
+		[in,unique,string,charset(UTF16)] uint16 *parent_account,
+		[in,unique,string,charset(UTF16)] uint16 *parent_password,
+		[in,unique,string,charset(UTF16)] uint16 *replica_set_name,
+		[in,unique,string,charset(UTF16)] uint16 *replica_set_type,
+		[in,unique,string,charset(UTF16)] uint16 *connection_name,
+		[in,unique,string,charset(UTF16)] uint16 *partner_name,
+		[in,unique,string,charset(UTF16)] uint16 *partner_princ_name,
+		[in] frsrpc_PartnerAuthLevel partner_auth_level,
+		[in,value(16),range(16,16)] uint32 __ndr_guid_size,
+		[in,unique,subcontext(4),subcontext_size(16)]
+			GUID *connection_guid,
+		[in,unique,subcontext(4),subcontext_size(16)]
+			GUID *partner_guid,
+		[in,out,unique,subcontext(4),subcontext_size(16)]
+			GUID *parent_guid
+	);
+
+	/*****************/
+	/* Function 0x03 */
+	WERROR frsrpc_FrsNOP();
+
+	/*
+	 *For Op from 4 to 10 Microsoft use
+	 *the notation OpnumxxNotUsedOnWire
+	 *where xx is the number of the OP.
+	 *They are only declared in the IDL of MS-FRS1.pdf.
+	 *Not in the core of the document.
+	 */
+
+	/*****************/
+	/* Function 0x04 */
+	/*[todo] void FRSRPC_BACKUP_COMPLETE();*/
+
+	/*****************/
+	/* Function 0x05 */
+	/*[todo] void FRSRPC_BACKUP_COMPLETE_5();*/
+
+	/*****************/
+	/* Function 0x06 */
+	/*[todo] void FRSRPC_BACKUP_COMPLETE_6();*/
+
+	/*****************/
+	/* Function 0x07 */
+	/*[todo] void FRSRPC_BACKUP_COMPLETE_7();*/
+
+	/*****************/
+	/* Function 0x08 */
+	/*[todo] void FRSRPC_BACKUP_COMPLETE_8();*/
+
+	/*****************/
+	/* Function 0x09 */
+	/*[todo] void FRSRPC_BACKUP_COMPLETE_9();*/
+
+	/*****************/
+	/* Function 0x0a */
+	/*[todo] void FRSRPC_VERIFY_PROMOTION_PARENT_EX();*/
+}
