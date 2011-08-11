@@ -27,6 +27,7 @@
 #endif
 
 #include "plugins.h"
+#include <stdio.h>
 
 /* linked list of Lua plugins */
 wslua_plugin *wslua_plugin_list = NULL;
@@ -43,7 +44,6 @@ wslua_plugin *wslua_plugin_list = NULL;
 #include <direct.h>
 #endif
 
-#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
@@ -507,6 +507,8 @@ register_all_codecs(void)
     }
 }
 
+#endif	/* big HAVE_PLUGINS */
+
 /*
  * Dump plugin info to stdout. Copied from gtk/plugins_dlg.c:plugins_scan.
  */
@@ -558,4 +560,3 @@ plugins_dump_all(void)
 #endif
 }
 
-#endif
