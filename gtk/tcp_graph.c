@@ -3822,8 +3822,6 @@ static void tseq_stevens_toggle_time_origin (struct graph *g)
 
 static void tseq_tcptrace_read_config (struct graph *g)
 {
-	GdkColor color_LightSlateGray = {0x0, 0x7777, 0x8888, 0x9999};
-	GdkColor color_LightGray = {0x0, 0xd3d3, 0xd3d3, 0xd3d3};
 
 	/* Black */
 	g->s.tseq_tcptrace.seq_color.pixel=0;
