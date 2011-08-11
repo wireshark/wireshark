@@ -17,6 +17,7 @@
  * RFC4704.txt (Client FQDN)
  * RFC5007.txt (DHCPv6 Leasequery)
  * RFC5417.txt (CAPWAP Access Controller DHCP Option)
+ * RFC6334.txt (Dual-Stack Lite Option)
  * draft-ietf-dhc-dhcpv6-opt-timeconfig-03.txt
  * draft-ietf-dhc-dhcpv6-opt-lifetime-00.txt
  * CL-SP-CANN-DHCP-Reg-I06-110210.doc
@@ -53,6 +54,7 @@
 #include <epan/strutil.h>
 #include <epan/arptypes.h>
 #include "packet-arp.h"
+#include "packet-dns.h"				/* for get_dns_name() */
 
 static int proto_dhcpv6 = -1;
 static int hf_dhcpv6_msgtype = -1;
@@ -147,6 +149,7 @@ static gint ett_dhcpv6_pkt_option = -1;
 #define	OPTION_LQ_RELAY_DATA	47
 #define	OPTION_LQ_CLIENT_LINK	48
 #define	OPTION_CAPWAP_AC_V6	52
+#define	OPTION_AFTR_NAME	64
 
 /* temporary value until defined by IETF */
 #define OPTION_MIP6_HA		165
@@ -226,6 +229,7 @@ static const value_string opttype_vals[] = {
     { OPTION_LQ_RELAY_DATA,    "Leasequery Relay Data" },
     { OPTION_LQ_CLIENT_LINK,   "Leasequery Client Link Address List" },
     { OPTION_CAPWAP_AC_V6,     "CAPWAP Access Controllers" },
+    { OPTION_AFTR_NAME,        "Dual-Stack Lite AFTR Name" },
     { OPTION_MIP6_HA,          "Mobile IPv6 Home Agent" },
     { OPTION_MIP6_HOA,         "Mobile IPv6 Home Address" },
     { OPTION_NAI,              "Network Access Identifier" },
@@ -1760,6 +1764,14 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                 ip6_to_str(&in6));
         }
         break;
+    case OPTION_AFTR_NAME:
+    {
+        const guchar *dns_name;
+        get_dns_name(tvb, off, optlen, off, &dns_name);
+        proto_tree_add_text(subtree, tvb, off, optlen,
+                                "DS-Lite AFTR Name: %s", dns_name);
+        break;
+    }
     case OPTION_IAPREFIX:
     {
         guint32 preferred_lifetime, valid_lifetime;
