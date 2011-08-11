@@ -478,6 +478,22 @@ WSLUA_METHOD Tvb_len(lua_State* L) {
     WSLUA_RETURN(1); /* The length of the Tvb. */
 }
 
+WSLUA_METHOD Tvb_reported_length_remaining(lua_State* L) {
+	/* Obtain the reported length of packet data to end of a TVB */
+#define Tvb_reported_length_remaining_OFFSET 2 /* offset */
+    Tvb tvb = checkTvb(L,1);
+    int offset = luaL_optint(L, Tvb_reported_length_remaining_OFFSET, 0);
+
+    if (!tvb) return 0;
+    if (tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    lua_pushnumber(L,tvb_reported_length_remaining(tvb->ws_tvb, offset));
+    WSLUA_RETURN(1); /* The length of the Tvb. */
+}
+
 WSLUA_METHOD Tvb_offset(lua_State* L) {
 	/* Returns the raw offset (from the beginning of the source Tvb) of a sub Tvb. */
     Tvb tvb = checkTvb(L,1);
@@ -578,6 +594,7 @@ static const luaL_reg Tvb_methods[] = {
     {"len", Tvb_len},
     {"offset", Tvb_offset},
     {"reported_len", Tvb_reported_len},
+    {"reported_length_remaining", Tvb_reported_length_remaining},
     { NULL, NULL }
 };
 
