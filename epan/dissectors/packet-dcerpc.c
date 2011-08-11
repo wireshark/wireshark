@@ -4159,7 +4159,7 @@ dissect_dcerpc_cn_rts (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
             break;
         default:
-            break;    
+            break;
         }
         break;
      case RTS_FLAG_PING:
@@ -4294,7 +4294,8 @@ dissect_dcerpc_cn_rts (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         break;
     }
 
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s", info_str);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", info_str);
+    col_set_fence(pinfo->cinfo,COL_INFO);
 }
 
 /*
