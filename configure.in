@@ -880,6 +880,14 @@ else
 	fi
 fi
 
+# Error out if a glib header other than a "top level" header
+#  (glib.h, glib-object.h, gio.h) or certain other headers( e.g.,gmodule.h)
+#  is used.
+CFLAGS="-DG_DISABLE_SINGLE_INCLUDES $CFLAGS"
+
+# Error out on the usage of deprecated glib functions
+CFLAGS="-DG_DISABLE_DEPRECATED $CFLAGS"
+
 #
 # Check whether GLib modules are supported, to determine whether we
 # can support plugins.
@@ -888,8 +896,6 @@ AC_MSG_CHECKING(whether GLib supports loadable modules)
 ac_save_CFLAGS="$CFLAGS"
 ac_save_LIBS="$LIBS"
 CFLAGS="$CFLAGS $GLIB_CFLAGS"
-# Error out on the usage of deprecated glib functions
-CFLAGS="$CFLAGS -DG_DISABLE_DEPRECATED"
 LIBS="$GLIB_LIBS $LIBS"
 AC_TRY_RUN([
 #include <glib.h>
