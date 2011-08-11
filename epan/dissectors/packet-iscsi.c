@@ -48,6 +48,7 @@
 #include "packet-scsi.h"
 #include <epan/nstime.h>
 #include <epan/emem.h>
+#include <epan/range.h>
 #include <epan/crc32.h>
 
 /* the absolute values of these constants don't matter as long as
@@ -89,7 +90,9 @@ static int dataDigestIsCRC32 = TRUE;
 
 static guint dataDigestSize = 4;
 
-static guint iscsi_port        = 3260;
+#define	TCP_PORT_ISCSI_RANGE	"3260"
+
+static range_t *global_iscsi_port_range;
 static guint iscsi_system_port = 860;
 
 /* Initialize the protocol and registered fields */
@@ -2257,10 +2260,10 @@ dissect_iscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean chec
 
 	if(!badPdu && check_port) {
 	    badPdu = TRUE;
-	    if ((opcode & TARGET_OPCODE_BIT) && pinfo->srcport == iscsi_port) {
+	    if ((opcode & TARGET_OPCODE_BIT) && value_is_in_range(global_iscsi_port_range, pinfo->srcport)) {
 	        badPdu = FALSE;
 	    }
-	    if (!(opcode & TARGET_OPCODE_BIT) && pinfo->destport == iscsi_port) {
+	    if (!(opcode & TARGET_OPCODE_BIT) && value_is_in_range(global_iscsi_port_range, pinfo->destport)) {
 	        badPdu = FALSE;
 	    }
 	    if ((opcode & TARGET_OPCODE_BIT) && pinfo->srcport == iscsi_system_port) {
@@ -2476,6 +2479,7 @@ dissect_iscsi_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 void
 proto_register_iscsi(void)
 {
+    module_t *iscsi_module;
 
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
@@ -3010,90 +3014,88 @@ proto_register_iscsi(void)
     proto_register_field_array(proto_iscsi, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
 
-    {
-	module_t *iscsi_module = prefs_register_protocol(proto_iscsi, NULL);
+    iscsi_module = prefs_register_protocol(proto_iscsi, NULL);
 
-	prefs_register_enum_preference(iscsi_module,
-				       "protocol_version",
-				       "Protocol version",
-				       "The iSCSI protocol version",
-				       &iscsi_protocol_version,
-				       iscsi_protocol_versions,
-				       FALSE);
+    prefs_register_enum_preference(iscsi_module,
+				   "protocol_version",
+				   "Protocol version",
+				   "The iSCSI protocol version",
+				   &iscsi_protocol_version,
+				   iscsi_protocol_versions,
+				   FALSE);
 
-	prefs_register_bool_preference(iscsi_module,
-				       "desegment_iscsi_messages",
-				       "Reassemble iSCSI messages\nspanning multiple TCP segments",
-				       "Whether the iSCSI dissector should reassemble messages spanning multiple TCP segments."
-				       " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
-				       &iscsi_desegment);
+    prefs_register_bool_preference(iscsi_module,
+				   "desegment_iscsi_messages",
+				   "Reassemble iSCSI messages\nspanning multiple TCP segments",
+				   "Whether the iSCSI dissector should reassemble messages spanning multiple TCP segments."
+				   " To use this option, you must also enable \"Allow subdissectors to reassemble TCP streams\" in the TCP protocol settings.",
+				   &iscsi_desegment);
 
-	prefs_register_bool_preference(iscsi_module,
-				       "bogus_pdu_filter",
-				       "Enable bogus pdu filter",
-				       "When enabled, packets that appear bogus are ignored",
-				       &enable_bogosity_filter);
+    prefs_register_bool_preference(iscsi_module,
+				   "bogus_pdu_filter",
+				   "Enable bogus pdu filter",
+				   "When enabled, packets that appear bogus are ignored",
+				   &enable_bogosity_filter);
 
-	prefs_register_bool_preference(iscsi_module,
-				       "demand_good_f_bit",
-				       "Ignore packets with bad F bit",
-				       "Ignore packets that haven't set the F bit when they should have",
-				       &demand_good_f_bit);
+    prefs_register_bool_preference(iscsi_module,
+				   "demand_good_f_bit",
+				   "Ignore packets with bad F bit",
+				   "Ignore packets that haven't set the F bit when they should have",
+				   &demand_good_f_bit);
 
-	prefs_register_uint_preference(iscsi_module,
-				       "bogus_pdu_max_data_len",
-				       "Bogus pdu max data length threshold",
-				       "Treat packets whose data segment length is greater than this value as bogus",
-				       10,
-				       &bogus_pdu_data_length_threshold);
+    prefs_register_uint_preference(iscsi_module,
+				   "bogus_pdu_max_data_len",
+				   "Bogus pdu max data length threshold",
+				   "Treat packets whose data segment length is greater than this value as bogus",
+				   10,
+				   &bogus_pdu_data_length_threshold);
 
+    range_convert_str(&global_iscsi_port_range, TCP_PORT_ISCSI_RANGE, MAX_TCP_PORT);
+    prefs_register_range_preference(iscsi_module,
+				   "target_ports",
+				   "Target Ports Range",
+				   "Range of iSCSI target ports"
+				   "(default " TCP_PORT_ISCSI_RANGE ")",
+				   &global_iscsi_port_range, MAX_TCP_PORT);
 
-	prefs_register_uint_preference(iscsi_module,
-				       "target_port",
-				       "Target port",
-				       "Port number of iSCSI target",
-				       10,
-				       &iscsi_port);
+    prefs_register_uint_preference(iscsi_module,
+				   "target_system_port",
+				   "Target system port",
+				   "System port number of iSCSI target",
+				   10,
+				   &iscsi_system_port);
 
-	prefs_register_uint_preference(iscsi_module,
-				       "target_system_port",
-				       "Target system port",
-				       "System port number of iSCSI target",
-				       10,
-				       &iscsi_system_port);
+    prefs_register_bool_preference(iscsi_module,
+				   "enable_data_digests",
+				   "Enable data digests",
+				   "When enabled, pdus are assumed to contain a data digest",
+				   &enableDataDigests);
 
-	prefs_register_bool_preference(iscsi_module,
-				       "enable_data_digests",
-				       "Enable data digests",
-				       "When enabled, pdus are assumed to contain a data digest",
-				       &enableDataDigests);
+    prefs_register_bool_preference(iscsi_module,
+				   "data_digest_is_crc32c",
+				   "Data digest is CRC32C",
+				   "When enabled, data digests are assumed to be CRC32C",
+				   &dataDigestIsCRC32);
 
-	prefs_register_bool_preference(iscsi_module,
-				       "data_digest_is_crc32c",
-				       "Data digest is CRC32C",
-				       "When enabled, data digests are assumed to be CRC32C",
-				       &dataDigestIsCRC32);
+    prefs_register_uint_preference(iscsi_module,
+				   "data_digest_size",
+				   "Data digest size",
+				   "The size of a data digest (bytes)",
+				   10,
+				   &dataDigestSize);
 
-	prefs_register_uint_preference(iscsi_module,
-				       "data_digest_size",
-				       "Data digest size",
-				       "The size of a data digest (bytes)",
-				       10,
-				       &dataDigestSize);
-
-	/* Preference supported in older versions.
-	   Register them as obsolete. */
-	prefs_register_obsolete_preference(iscsi_module,
-				       "version_03_compatible");
-	prefs_register_obsolete_preference(iscsi_module,
-				       "bogus_pdu_max_digest_padding");
-	prefs_register_obsolete_preference(iscsi_module,
-				       "header_digest_is_crc32c");
-	prefs_register_obsolete_preference(iscsi_module,
-				       "header_digest_size");
-	prefs_register_obsolete_preference(iscsi_module,
-				       "enable_header_digests");
-    }
+    /* Preference supported in older versions.
+       Register them as obsolete. */
+    prefs_register_obsolete_preference(iscsi_module,
+				   "version_03_compatible");
+    prefs_register_obsolete_preference(iscsi_module,
+				   "bogus_pdu_max_digest_padding");
+    prefs_register_obsolete_preference(iscsi_module,
+				   "header_digest_is_crc32c");
+    prefs_register_obsolete_preference(iscsi_module,
+				   "header_digest_size");
+    prefs_register_obsolete_preference(iscsi_module,
+				   "enable_header_digests");
 }
 
 
