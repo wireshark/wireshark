@@ -474,6 +474,8 @@ clean: clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../doc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
+	cd ../docbook
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../packaging/nsis
@@ -520,6 +522,8 @@ distclean: distclean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../doc
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
+	cd ../docbook
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../packaging/nsis
@@ -556,6 +560,8 @@ maintainer-clean: maintainer-clean-local
 	cd ../image
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../doc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ../docbook
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../help
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
@@ -675,6 +681,11 @@ plugins::
 
 doc::
 	cd doc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
+	cd ..
+
+docbook::
+	cd docbook
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 

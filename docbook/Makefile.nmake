@@ -50,6 +50,10 @@ release_notes: release_notes.validated release_notes_x
 clean:
 	rm -rf $(CLEANFILES) $(CLEANDIRS)
 
+distclean: clean
+
+maintainer-clean: distclean
+
 # -- All -------------------------------------------------------------------------------
 
 all_x: wsug.validated wsdg.validated release_notes.validated wsug_x wsdg_x release_notes_x
