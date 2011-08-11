@@ -1696,6 +1696,8 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
   interface_row row;
 
   row = g_array_index(rows, interface_row, marked_row);
+  rows = g_array_remove_index(rows, marked_row);
+
   snap_cb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_CB_KEY);
   snap_sb = (GtkWidget *) g_object_get_data(G_OBJECT(opt_edit_w), E_CAP_SNAP_SB_KEY);
 
