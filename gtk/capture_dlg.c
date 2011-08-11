@@ -2088,7 +2088,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   int index = atoi(path_str);
   guint i;
 
-  if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter (model, &iter, path);
   gtk_tree_model_get (model, &iter, CAPTURE, &enabled, -1);
@@ -2097,8 +2097,6 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     num_selected++;
   else
     num_selected--;
-  if (num_selected<0)
-    num_selected=0;
   enabled ^= 1;
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
   if (num_selected >= 2) {
@@ -2243,12 +2241,8 @@ void enable_selected_interface(gchar *name, gboolean enable)
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   gchar *path_str;
+  gboolean enabled;
 
-  if (enable) {
-      num_selected++;
-  } else {
-      num_selected--;
-  }
   for (i = 0; i < rows->len; i++) {
     row = g_array_index(rows, interface_row, i);
     if (strcmp(name, row.name) == 0) {
@@ -2256,9 +2250,25 @@ void enable_selected_interface(gchar *name, gboolean enable)
       model = gtk_tree_view_get_model(if_cb);
       path_str = g_strdup_printf("%d", i);
       gtk_tree_model_get_iter_from_string(model, &iter, path_str);
+      gtk_tree_model_get (model, &iter, CAPTURE, &enabled, -1);
+      if ((enabled == TRUE) && (enable == FALSE)) {
+        num_selected--;
+      }
+      if ((enabled == FALSE) && (enable == TRUE)) {
+        num_selected++;
+      }
       gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enable, -1);
       break;
     }
+  }
+#ifdef USE_THREADS
+  if (num_selected > 0) {
+#else
+  if (num_selected == 1) {
+#endif
+    gtk_widget_set_sensitive(ok_bt, TRUE);
+  } else {
+    gtk_widget_set_sensitive(ok_bt, FALSE);
   }
 }
 
@@ -2273,8 +2283,7 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
 
   if (gtk_toggle_button_get_active(button))
     enabled = TRUE;
-
-  if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+  if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter_from_string(model, &iter, "0");
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
@@ -2298,6 +2307,15 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
   }
   if (get_welcome_window() != NULL) {
     change_selection_for_all(enabled);
+  }
+#ifdef USE_THREADS
+  if (num_selected > 0) {
+#else
+  if (num_selected == 1) {
+#endif
+    gtk_widget_set_sensitive(ok_bt, TRUE);
+  } else {
+    gtk_widget_set_sensitive(ok_bt, FALSE);
   }
 }
 
@@ -2976,8 +2994,16 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
 
   ok_bt = g_object_get_data(G_OBJECT(bbox), WIRESHARK_STOCK_CAPTURE_START);
   g_signal_connect(ok_bt, "clicked", G_CALLBACK(capture_start_cb), NULL);
-  gtk_widget_set_tooltip_text(ok_bt,
-    "Start the capture process.");
+  gtk_widget_set_tooltip_text(ok_bt, "Start the capture process.");
+#ifdef USE_THREADS
+  if (num_selected > 0) {
+#else
+  if (num_selected == 1) {
+#endif
+    gtk_widget_set_sensitive(ok_bt, TRUE);
+  } else {
+    gtk_widget_set_sensitive(ok_bt, FALSE);
+  }
 
   close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
   gtk_widget_set_tooltip_text(close_bt,
