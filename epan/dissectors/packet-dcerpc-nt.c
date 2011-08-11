@@ -50,6 +50,7 @@ static int hf_lsa_String_name_size = -1;
 
 static gint ett_nt_unicode_string = -1;
 static gint ett_lsa_String = -1;
+static gint ett_nt_data_blob = -1;
 
 
 
@@ -76,6 +77,31 @@ const value_string platform_id_vals[] = {
 	{ 700, "VMS" },
 	{ 0,   NULL }
 };
+
+int
+dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, guint8 *drep, int hf_index,
+			int use_remaining_space)
+{
+	proto_item *item;
+	guint32 len;
+	proto_tree *subtree = tree;
+
+	item = proto_tree_add_text(tree, tvb, offset, 0, "%s",
+			proto_registrar_get_name(hf_index));
+
+	subtree = proto_item_add_subtree(item, ett_nt_data_blob);
+
+	if (use_remaining_space) {
+		len = tvb_length_remaining (tvb, offset);
+	} else {
+		offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
+				    hf_index, &len);
+	}
+	proto_tree_add_text(tree, tvb, offset, len, "Blob data");
+	offset += len;
+	return offset;
+}
 
 int
 dissect_null_term_string(tvbuff_t *tvb, int offset,
@@ -1946,6 +1972,7 @@ void dcerpc_smb_init(int proto_dcerpc)
 
 	static gint *ett[] = {
 		&ett_nt_unicode_string,
+		&ett_nt_data_blob,
 		&ett_nt_counted_string,
 		&ett_nt_counted_byte_array,
 		&ett_nt_policy_hnd,

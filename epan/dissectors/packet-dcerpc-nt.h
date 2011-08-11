@@ -84,6 +84,10 @@ extern const value_string platform_id_vals[];
 	    ALIGN_TO_2_BYTES; \
 	  } \
 	}
+int
+dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
+			proto_tree *tree, guint8 *drep, int hf_index,
+			int use_remaining_space);
 
 int 
 dissect_null_term_string(tvbuff_t *tvb, int offset, packet_info *pinfo,
