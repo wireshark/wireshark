@@ -146,7 +146,6 @@ struct arc_params {
 struct element {
 	ElementType type;
 	GdkColor *elment_color_p;
-	GdkGC *gc;
 	struct segment *parent;
 	union {
 		struct arc_params arc;
@@ -184,8 +183,6 @@ struct axis {
 struct style_tseq_tcptrace {
 	GdkColor seq_color;
 	GdkColor ack_color[2];
-	GdkGC *gc_seq;
-	GdkGC *gc_ack[2];
 	int flags;
 };
 
@@ -2215,7 +2212,7 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	if (xx1<-xx2 || xx1>=g->wp.width || yy1<-yy2 || yy1>=g->wp.height)
 		return;
 	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
-	gdk_draw_arc (g->pixmap[1^g->displayed], e->gc, e->p.arc.filled, xx1,
+	gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, e->p.arc.filled, xx1,
 					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
 
 #if 0
@@ -3786,7 +3783,6 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 
 		e->type = ELMT_ARC;
 		e->parent = tmp;
-		e->gc = g->fg_gc;
 		e->p.arc.dim.width = g->s.tseq_stevens.seq_width;
 		e->p.arc.dim.height = g->s.tseq_stevens.seq_height;
 		e->p.arc.dim.x = secs - g->s.tseq_stevens.seq_width/2.0;
@@ -3826,8 +3822,6 @@ static void tseq_stevens_toggle_time_origin (struct graph *g)
 
 static void tseq_tcptrace_read_config (struct graph *g)
 {
-	GdkColormap *colormap;
-	GdkColor color;
 	GdkColor color_LightSlateGray = {0x0, 0x7777, 0x8888, 0x9999};
 	GdkColor color_LightGray = {0x0, 0xd3d3, 0xd3d3, 0xd3d3};
 
@@ -3850,55 +3844,6 @@ static void tseq_tcptrace_read_config (struct graph *g)
 	g->s.tseq_tcptrace.ack_color[1].blue=0xd3d3;
 
 	g->s.tseq_tcptrace.flags = 0;
-	g->s.tseq_tcptrace.gc_seq = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
-	g->s.tseq_tcptrace.gc_ack[0] = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
-	g->s.tseq_tcptrace.gc_ack[1] = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
-	colormap = gtk_widget_get_colormap (GTK_WIDGET(g->drawing_area));
-	if (!gdk_color_parse ("black", &color)) {
-		/*
-		 * XXX - do more than just warn.
-		 */
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Could not parse color black.");
-	}
-	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
-		/*
-		 * XXX - do more than just warn.
-		 */
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Could not allocate color black.");
-	}
-	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_seq, &color);
-	if (!gdk_color_parse ("LightSlateGray", &color)) {
-		/*
-		 * XXX - do more than just warn.
-		 */
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Could not parse color LightSlateGray.");
-	}
-	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
-		/*
-		 * XXX - do more than just warn.
-		 */
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Could not allocate color LightSlateGray.");
-	}
-	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[0], &color);
-	if (!gdk_color_parse ("LightGray", &color)) {
-		/*
-		 * XXX - do more than just warn.
-		 */
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Could not parse color LightGray.");
-	}
-	if (!gdk_colormap_alloc_color (colormap, &color, FALSE, TRUE)) {
-		/*
-		 * XXX - do more than just warn.
-		 */
-		simple_dialog(ESD_TYPE_WARN, ESD_BTN_OK,
-		    "Could not allocate color LightGray.");
-	}
-	gdk_gc_set_foreground (g->s.tseq_tcptrace.gc_ack[1], &color);
 
 	g->elists->next = (struct element_list * )
 				g_malloc (sizeof (struct element_list));
@@ -3973,7 +3918,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			yy2 = g->zoom.y * (seq_cur + data);
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
-			e1->gc = g->s.tseq_tcptrace.gc_seq;
 			/* Set the drawing color */
 			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
 			e1->p.line.dim.x1 = e1->p.line.dim.x2 = x;
@@ -3982,7 +3926,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1++;
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
-			e1->gc = g->s.tseq_tcptrace.gc_seq;
 			/* Set the drawing color */
 			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
 			e1->p.line.dim.x1 = x - 1;
@@ -3991,7 +3934,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			e1++;
 			e1->type = ELMT_LINE;
 			e1->parent = tmp;
-			e1->gc = g->s.tseq_tcptrace.gc_seq;
 			/* Set the drawing color */
 			e1->elment_color_p = &g->s.tseq_tcptrace.seq_color;
 			e1->p.line.dim.x1 = x + 1;
@@ -4012,7 +3954,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 			if (ack_seen == TRUE) { /* don't plot the first ack */
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
-				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
 				/* Set the drawing color */
 				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = p_t;
@@ -4022,7 +3963,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0++;
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
-				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
 				/* Set the drawing color */
 				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = x;
@@ -4033,7 +3973,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				/* window line */
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
-				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
 				/* Set the drawing color */
 				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = p_t;
@@ -4043,7 +3982,6 @@ static void tseq_tcptrace_make_elmtlist (struct graph *g)
 				e0++;
 				e0->type = ELMT_LINE;
 				e0->parent = tmp;
-				e0->gc = g->s.tseq_tcptrace.gc_ack[toggle];
 				/* Set the drawing color */
 				e0->elment_color_p = &g->s.tseq_tcptrace.ack_color[toggle];
 				e0->p.line.dim.x1 = x;
@@ -4115,7 +4053,6 @@ static void tput_make_elmtlist (struct graph *g)
 
 		e->type = ELMT_ARC;
 		e->parent = tmp;
-		e->gc = g->fg_gc;
 		e->p.arc.dim.width = g->s.tput.width;
 		e->p.arc.dim.height = g->s.tput.height;
 		e->p.arc.dim.x = g->zoom.x*(time_val - g->bounds.x0) - g->s.tput.width/2.0;
@@ -4387,7 +4324,6 @@ static void rtt_make_elmtlist (struct graph *g)
 
 					e->type = ELMT_ARC;
 					e->parent = tmp;
-					e->gc = g->fg_gc;
 					e->p.arc.dim.width = g->s.rtt.width;
 					e->p.arc.dim.height = g->s.rtt.height;
 					e->p.arc.dim.x = g->zoom.x * u->seqno - g->s.rtt.width/2.0;
@@ -4536,7 +4472,6 @@ static void wscale_make_elmtlist(struct graph* g)
 			{
 				e->type = ELMT_ARC;
 				e->parent = segm;
-				e->gc = g->fg_gc;
 				e->p.arc.dim.width = g->s.wscale.win_width;
 				e->p.arc.dim.height = g->s.wscale.win_height;
 				e->p.arc.dim.x = g->zoom.x * (sec - sec_base) - g->s.wscale.win_width / 2.0;
