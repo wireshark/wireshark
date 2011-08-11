@@ -80,6 +80,7 @@ PIDL_DISSECTOR_INCLUDES = \
 	packet-dcerpc-eventlog.h	\
 	packet-dcerpc-initshutdown.h	\
 	packet-dcerpc-lsa.h	\
+	packet-dcerpc-misc.h	\
 	packet-dcerpc-nspi.h	\
 	packet-dcerpc-rfr.h \
 	packet-dcerpc-srvsvc.h	\

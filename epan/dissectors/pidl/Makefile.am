@@ -37,12 +37,15 @@ EXTRA_DIST = \
 	efs.idl				\
 	eventlog.cnf			\
 	eventlog.idl			\
+	frsrpc.cnf			\
+	frsrpc.idl			\
 	frstrans.cnf			\
 	frstrans.idl			\
 	idl_types.h			\
 	initshutdown.idl		\
 	lsa.cnf				\
 	lsa.idl				\
+	misc.idl			\
 	samr.cnf			\
 	samr.idl			\
 	srvsvc.cnf			\
