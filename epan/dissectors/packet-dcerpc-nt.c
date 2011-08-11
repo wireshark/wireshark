@@ -4,6 +4,7 @@
 /* packet-dcerpc-nt.c
  * Routines for DCERPC over SMB packet disassembly
  * Copyright 2001-2003, Tim Potter <tpot@samba.org>
+ * Copyright 2011, Matthieu Patou <mat@matws.net>
  *
  * $Id$
  *
@@ -41,6 +42,7 @@
 
 
 int hf_nt_cs_len = -1;
+int hf_nt_error;
 int hf_nt_cs_size = -1;
 static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
@@ -74,6 +76,82 @@ const value_string platform_id_vals[] = {
 	{ 700, "VMS" },
 	{ 0,   NULL }
 };
+
+int
+dissect_null_term_string(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree,
+				guint8 *drep _U_, int hf_index, int levels _U_)
+{
+	guint8 data;
+	int tmp_offset = offset;
+	guint32 len = 0;
+	char *s;
+	 
+	data = tvb_get_guint8 (tvb, tmp_offset);
+	for ( ;tvb_length_remaining (tvb, tmp_offset) > 0 && data; tmp_offset++) {
+		data = tvb_get_guint8 (tvb, tmp_offset);
+	}
+
+	/* Let's try to the terminator on the last char ...*/
+	if (data) {
+		tmp_offset++;
+	 	data = tvb_get_guint8 (tvb, tmp_offset);
+	}
+
+	if (data) {
+		proto_item *ti;
+		
+		ti = proto_tree_add_string(tree, hf_nt_error, tvb, offset, tmp_offset - offset, "Not a null terminated string");
+		return tmp_offset;
+		/*expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+		"Length of item (%d) is not valid", length);*/
+	}
+
+	len = tmp_offset - offset;
+	/* tvb_get_ephemeral_string didn't want the length with the 0*/
+	s = tvb_get_ephemeral_string(tvb, offset, len);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len + 1, s);
+
+	return tmp_offset;
+}
+
+int
+dissect_null_term_wstring(tvbuff_t *tvb, int offset,
+				packet_info *pinfo _U_, proto_tree *tree,
+				guint8 *drep, int hf_index, int levels _U_)
+{
+	guint16 data;
+	int tmp_offset = offset;
+	guint32 len = 0;
+	char *s;
+	 
+	data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
+	for ( ; tvb_length_remaining (tvb, tmp_offset) > 1 && data; tmp_offset +=2) {
+		data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
+	}
+
+	/* Let's try to find the terminator on the last char ...*/
+
+	if (data) {
+		tmp_offset += 2;
+		data = dcerpc_tvb_get_ntohs(tvb, tmp_offset, drep);
+	}
+
+	if (data) {
+		proto_item *ti;
+		ti = proto_tree_add_string(tree, hf_nt_error, tvb, offset, tmp_offset - offset, "Not a null terminated string");
+		return tmp_offset;
+		/*expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
+		"Length of item (%d) is not valid", length);*/
+	}
+	len = tmp_offset - offset;
+
+	/* tvb_get_ephemeral_string didn't want the length with the 0*/
+	s = tvb_get_unicode_string(tvb, offset, len, ENC_LITTLE_ENDIAN);
+	proto_tree_add_string(tree, hf_index, tvb, offset, len, s);
+
+	return tmp_offset;
+}
 
 /* Parse some common RPC structures */
 
@@ -1821,6 +1899,11 @@ void dcerpc_smb_init(int proto_dcerpc)
 		  { "Account is autolocked", "dcerpc.nt.acb.autolock", FT_BOOLEAN, 32,
 		    TFS(&tfs_nt_acb_autolock), 0x0400,
 		    "If this account has been autolocked", HFILL }},
+
+		{ &hf_nt_error,
+		  { "Wrong string type", "dcerpc.nt.sting_error",
+		    FT_STRING, BASE_NONE, NULL, 0x0,
+		    "Non terminated string", HFILL }},
 
 		/* SIDs */
 

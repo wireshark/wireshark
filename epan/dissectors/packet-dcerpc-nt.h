@@ -85,6 +85,15 @@ extern const value_string platform_id_vals[];
 	  } \
 	}
 
+int 
+dissect_null_term_string(tvbuff_t *tvb, int offset, packet_info *pinfo,
+							proto_tree *tree, guint8 *drep, int hf_index,
+							int levels);
+
+int 
+dissect_null_term_wstring(tvbuff_t *tvb, int offset, packet_info *pinfo,
+							proto_tree *tree, guint8 *drep, int hf_index,
+							int levels);
 
 int
 dissect_ndr_counted_ascii_string_cb(tvbuff_t *tvb, int offset,
