@@ -150,7 +150,7 @@ typedef struct _dialog_graph_t {
 	GtkWidget *window;
 	GtkWidget *draw_area;
 #if GTK_CHECK_VERSION(2,22,0)
-cairo_surface_t *surface;
+	cairo_surface_t *surface;
 #else
 	GdkPixmap *pixmap;
 #endif
