@@ -2315,7 +2315,7 @@ main(int argc, char *argv[])
    * We haven't localized anything, but some GTK widgets are localized
    * (the file selection dialogue, for example).
    * This also sets the C-language locale to the native environment. */
-  gtk_set_locale();
+  setlocale (LC_ALL, "");
 
   /* Let GTK get its args (will need an X server, so do this after command line only commands handled) */
   gtk_init (&argc, &argv);
