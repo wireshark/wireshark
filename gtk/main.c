@@ -3594,9 +3594,9 @@ create_main_window (gint pl_size, gint tv_size, gint bv_size, e_prefs *prefs_p)
     gtk_widget_set_name(top_level, "main window");
     g_signal_connect(top_level, "delete_event", G_CALLBACK(main_window_delete_event_cb),
                    NULL);
-    g_signal_connect(GTK_OBJECT(top_level), "window_state_event",
+    g_signal_connect(G_OBJECT(top_level), "window_state_event",
                          G_CALLBACK(window_state_event_cb), NULL);
-    g_signal_connect(GTK_OBJECT(top_level), "key-press-event",
+    g_signal_connect(G_OBJECT(top_level), "key-press-event",
                          G_CALLBACK(top_level_key_pressed_cb), NULL );
 
     /* Vertical container for menu bar, toolbar(s), paned windows and progress/info box */

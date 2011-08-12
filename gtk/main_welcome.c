@@ -1164,7 +1164,7 @@ welcome_new(void)
         gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
 
         if_view = gtk_tree_view_new ();
-        g_object_set(GTK_OBJECT(if_view), "headers-visible", FALSE, NULL);
+        g_object_set(G_OBJECT(if_view), "headers-visible", FALSE, NULL);
         g_object_set_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES, if_view);
         renderer = gtk_cell_renderer_pixbuf_new();
         column = gtk_tree_view_column_new_with_attributes ("",

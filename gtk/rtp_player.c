@@ -2173,7 +2173,7 @@ rtp_player_dlg_create(void)
 	jitter_spinner = gtk_spin_button_new (jitter_spinner_adj, 5, 0);
 	gtk_box_pack_start(GTK_BOX(h_jitter_buttons_box), jitter_spinner, FALSE, FALSE, 0);
 	gtk_widget_set_tooltip_text (jitter_spinner, "The simulated jitter buffer in [ms]");
-	g_signal_connect(GTK_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
+	g_signal_connect(G_OBJECT (jitter_spinner_adj), "value_changed", G_CALLBACK(jitter_spinner_value_changed), NULL);
 
 	cb_use_rtp_timestamp = gtk_check_button_new_with_label("Use RTP timestamp");
 	gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(cb_use_rtp_timestamp), FALSE);

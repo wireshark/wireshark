@@ -147,7 +147,7 @@ static void gtk_vumeter_destroy (GtkObject *object)
 
     gtk_vumeter_free_colors (vumeter);
 
-    GTK_OBJECT_CLASS (parent_class)->destroy (object);
+    G_OBJECT_CLASS (parent_class)->destroy (object);
 }
 
 static void gtk_vumeter_realize (GtkWidget *widget)
