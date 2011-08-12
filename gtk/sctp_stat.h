@@ -301,9 +301,13 @@ typedef struct _sctp_graph_t {
 	gfloat    y_interval;
 	GtkWidget *window;
 	GtkWidget *draw_area;
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_surface_t *surface;
+#else
 	GdkPixmap *pixmap;
-	gint      pixmap_width;
-	gint      pixmap_height;
+#endif
+	gint      surface_width;
+	gint      surface_height;
 	gint      graph_type;
 	gdouble   x_old;
 	gdouble   y_old;
