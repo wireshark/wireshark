@@ -87,16 +87,23 @@ typedef struct _graph_analysis_dialog_data_t {
 	GtkWidget *draw_area_time;
 	GtkWidget *draw_area;
 	GtkWidget *draw_area_comments;
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_surface_t *surface_time;
+	cairo_surface_t *surface_main;
+	cairo_surface_t *surface_comments;
+	cairo_surface_t *surface_tile_select;
+#else
 	GdkPixmap *pixmap_time;
 	GdkPixmap *pixmap_main;
 	GdkPixmap *pixmap_comments;
 	GdkPixmap *pixmap_tile_select;
+#endif
 	GtkWidget *scroll_window;
 	GtkWidget *v_scrollbar;
 	GtkAdjustment *v_scrollbar_adjustment;
 	GtkWidget *hpane;
-	int pixmap_width;
-	int pixmap_height;
+	int surface_width;
+	int surface_height;
 	guint16 first_node;			/* the first node on the left to show in the screen */
 	guint32	first_item;			/* the first item (row) to show from the top */
 	guint32	selected_item;		/* the selected item */
