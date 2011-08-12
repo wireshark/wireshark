@@ -860,7 +860,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	cairo_destroy (cr);
 #else
 	/* Paint time title background */
-	if ( GDK_IS_DRAWABLE(user_data->dlg.surface_time) ){
+	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
 		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
 		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
