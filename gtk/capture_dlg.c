@@ -799,7 +799,7 @@ void insert_new_rows(GList *list)
 #endif
     }
     if (ips == 0) {
-      g_string_append(ip_str, "unknown");
+      g_string_append(ip_str, "none");
     }
     row.addresses = g_strdup(ip_str->str);
     temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
@@ -3738,7 +3738,7 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
 #endif
         }
         if (ips == 0) {
-          g_string_append(ip_str, "unknown");
+          g_string_append(ip_str, "none");
         }
         row.addresses = g_strdup(ip_str->str);
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);

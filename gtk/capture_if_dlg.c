@@ -618,7 +618,7 @@ set_ip_addr_label(GSList *addr_list, GtkWidget *ip_lb, guint selected_ip_addr)
   if (addr_str) {
     gtk_label_set_text(GTK_LABEL(ip_lb), addr_str);
   } else {
-    gtk_label_set_text(GTK_LABEL(ip_lb), "unknown");
+    gtk_label_set_text(GTK_LABEL(ip_lb), "none");
   }
   g_object_set_data(G_OBJECT(ip_lb), CAPTURE_IF_SELECTED_IP_ADDR, GINT_TO_POINTER(selected_ip_addr));
 
@@ -947,7 +947,7 @@ capture_if_cb(GtkWidget *w _U_, gpointer d _U_)
       g_string_append(if_tool_str, addr_str);
     } else {
       gtk_widget_set_sensitive(if_dlg_data->ip_lb, FALSE);
-      g_string_append(if_tool_str, "unknown");
+      g_string_append(if_tool_str, "none");
     }
     eb = gtk_event_box_new ();
     gtk_container_add(GTK_CONTAINER(eb), if_dlg_data->ip_lb);
