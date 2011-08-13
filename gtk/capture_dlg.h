@@ -71,7 +71,9 @@ typedef struct row_options_tag {
 #endif
     gboolean has_snaplen;
     guint snaplen;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     gint buffer;
+#endif
     remote_options remote_opts;
 } interface_row;
 

@@ -803,7 +803,9 @@ void insert_new_rows(GList *list)
     }
     row.addresses = g_strdup(ip_str->str);
     temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     row.buffer = 1;
+#endif
     row.cfilter = NULL;
 #ifdef HAVE_PCAP_REMOTE
     row.remote_opts.src_type= global_remote_opts.src_type;
@@ -3633,15 +3635,6 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
     }
   } else {
     rows = g_array_new(TRUE, TRUE, sizeof(interface_row));
-    row.addresses = NULL;
-    row.links = NULL;
-    row.active_dlt = -1;
-    row.buffer = 1;
-    row.pmode = FALSE;
-    row.has_snaplen = FALSE;
-    row.snaplen = 65535;
-    row.cfilter = NULL;
-
     /* Scan through the list and build a list of strings to display. */
     for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
       if_info = if_entry->data;
@@ -3673,7 +3666,7 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
         }
         row.display_name = g_strdup(if_string);
         found = FALSE;
-        for (i=0; i<global_capture_opts.ifaces->len; i++) {
+        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
           interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
           if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
             continue;
@@ -3682,6 +3675,23 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
             num_selected++;
             break;
           }
+        }
+        if (found) {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+          row.buffer = interface_opts.buffer_size;
+#endif
+          row.pmode = interface_opts.promisc_mode;
+          row.has_snaplen = interface_opts.has_snaplen;
+          row.snaplen = interface_opts.snaplen;
+          row.cfilter = g_strdup(interface_opts.cfilter);
+        } else {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+          row.buffer = global_capture_opts.default_options.buffer_size;
+#endif
+          row.pmode = global_capture_opts.default_options.promisc_mode;
+          row.has_snaplen = global_capture_opts.default_options.has_snaplen;
+          row.snaplen = global_capture_opts.default_options.snaplen;
+          row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
         }
         cap_settings = capture_get_cap_settings(if_info->name);
         gtk_list_store_append (store, &iter);
@@ -3742,7 +3752,6 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
         }
         row.addresses = g_strdup(ip_str->str);
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
-        row.buffer = 1;
         g_array_append_val(rows, row);
         if (row.has_snaplen) {
           snaplen_string = g_strdup_printf("%d", row.snaplen);
