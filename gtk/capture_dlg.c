@@ -702,9 +702,6 @@ void insert_new_rows(GList *list)
     ips = 0;
     row.links = NULL;
     first = "";
-    row.has_snaplen = global_capture_opts.default_options.has_snaplen;
-    row.snaplen = global_capture_opts.default_options.snaplen;
-    row.pmode = global_capture_opts.default_options.promisc_mode;
     row.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
        anyway? */
@@ -734,6 +731,23 @@ void insert_new_rows(GList *list)
         found = TRUE;
         break;
       }
+    }
+    if (found) {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+      row.buffer = interface_opts.buffer_size;
+#endif
+      row.pmode = interface_opts.promisc_mode;
+      row.has_snaplen = interface_opts.has_snaplen;
+      row.snaplen = interface_opts.snaplen;
+      row.cfilter = g_strdup(interface_opts.cfilter);
+    } else {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+      row.buffer = global_capture_opts.default_options.buffer_size;
+#endif
+      row.pmode = global_capture_opts.default_options.promisc_mode;
+      row.has_snaplen = global_capture_opts.default_options.has_snaplen;
+      row.snaplen = global_capture_opts.default_options.snaplen;
+      row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     }
     cap_settings = capture_get_cap_settings(if_string);
     caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
@@ -803,10 +817,6 @@ void insert_new_rows(GList *list)
     }
     row.addresses = g_strdup(ip_str->str);
     temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-    row.buffer = 1;
-#endif
-    row.cfilter = NULL;
 #ifdef HAVE_PCAP_REMOTE
     row.remote_opts.src_type= global_remote_opts.src_type;
     row.remote_opts.remote_host_opts.remote_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
