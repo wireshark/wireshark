@@ -811,9 +811,6 @@ void insert_new_rows(GList *list)
       row.links = g_list_append(row.links, link);
 #endif
     }
-    if (ips == 0) {
-      g_string_append(ip_str, "none");
-    }
     row.addresses = g_strdup(ip_str->str);
     if (ips == 0) {
       temp = g_strdup_printf("<b>%s</b>", if_string);
@@ -1609,7 +1606,7 @@ update_options_table(gint index)
   if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter (model, &iter, path);
-  if (strcmp(row.addresses, "none") == 0) {
+  if (strcmp(row.addresses, "") == 0) {
     temp = g_strdup_printf("<b>%s</b>", row.display_name);
   } else {
     temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
@@ -3629,7 +3626,7 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           break;
         }
       }
-      if (strcmp(row.addresses, "none") == 0) {
+      if (strcmp(row.addresses, "") == 0) {
         temp = g_strdup_printf("<b>%s</b>", row.display_name);
       } else {
         temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
