@@ -658,7 +658,7 @@ void insert_new_rows(GList *list)
   GtkTreeIter iter;
   GList *if_entry;
   if_info_t *if_info;
-  char *if_string="", *temp="";
+  char *if_string="", *temp="", *snaplen_string;
   gchar *descr;
   if_capabilities_t *caps;
   gint linktype_select, linktype_count;
@@ -821,13 +821,18 @@ void insert_new_rows(GList *list)
     row.remote_opts.sampling_param = global_remote_opts.sampling_param;
 #endif
     g_array_append_val(rows, row);
+    if (row.has_snaplen) {
+      snaplen_string = g_strdup_printf("%d", row.snaplen);
+    } else {
+      snaplen_string = g_strdup("default");
+    }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, row.snaplen, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, row.snaplen, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, row.snaplen, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, -1);
 #endif
     count++;
     g_string_free(ip_str, TRUE);
@@ -1517,7 +1522,7 @@ update_options_table(gint index)
   GtkTreeView  *if_cb;
   GtkTreeModel *model;
   GtkTreeIter  iter;
-  gchar *temp, *path_str;
+  gchar *temp, *path_str, *snaplen_string;
   GList *list;
   link_row *link = NULL;
   gboolean enabled;
@@ -1601,12 +1606,17 @@ update_options_table(gint index)
   if (enabled == FALSE) {
     num_selected++;
   }
+  if (row.has_snaplen) {
+    snaplen_string = g_strdup_printf("%d", row.snaplen);
+  } else {
+    snaplen_string = g_strdup("default");
+  }
 #if defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
 #ifdef USE_THREADS
   if (num_selected > 0) {
@@ -2487,7 +2497,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   GtkTreeSelection  *selection;
   GtkTreeViewColumn *column;
   gboolean          if_present = TRUE;
-  GString *title;
 
   if (interfaces_dialog_window_present()) {
     destroy_if_window();
@@ -2595,45 +2604,34 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (view),LINK), TRUE );
   gtk_tree_view_column_set_alignment(column, 0.5);
 
-  title = g_string_new("Prom. Mode");
   renderer = gtk_cell_renderer_text_new();
-  gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
-                                               -1,
-                                               title->str,
-                                               renderer,
-                                               "text", PMODE,
-                                               NULL);
+  column = gtk_tree_view_column_new_with_attributes("Prom. Mode", renderer, "text", PMODE, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   g_object_set(renderer, "xalign", 0.5, NULL);
-  gtk_tree_view_column_set_alignment(gtk_tree_view_get_column(GTK_TREE_VIEW (view), PMODE), 0.5);
-  g_string_free(title, TRUE);
-  title = g_string_new("Snaplen [B]");
-  renderer = gtk_cell_renderer_text_new ();
-  column = gtk_tree_view_column_new_with_attributes (title->str, renderer, "text", SNAPLEN, NULL);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_alignment(column, 0.5);
-#if 0
-  gtk_cell_renderer_set_sensitive(renderer, FALSE);
-  gtk_tree_view_column_set_cell_data_func(column, renderer, activate_snaplen, NULL, FALSE);
-#endif
-  g_string_free(title, TRUE);
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-  renderer = gtk_cell_renderer_text_new ();
-  column = gtk_tree_view_column_new_with_attributes ("Buffer [MB]", renderer, "text", BUFFER, NULL);
-  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-  gtk_tree_view_column_set_alignment(column, 0.5);
-#endif
-#if defined (HAVE_PCAP_CREATE)
-  title = g_string_new("Mon. Mode");
+
   renderer = gtk_cell_renderer_text_new();
-  column = gtk_tree_view_column_new_with_attributes (title->str, renderer, "text", MONITOR, NULL);
+  column = gtk_tree_view_column_new_with_attributes("Snaplen [B]", renderer, "text", SNAPLEN, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  g_object_set(renderer, "xalign", 0.5, NULL);
+
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Buffer [MB]", renderer, "text", BUFFER, NULL);
+  gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
+  g_object_set(renderer, "xalign", 0.5, NULL);
+#endif
+
+#if defined (HAVE_PCAP_CREATE)
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes ("Mon. Mode", renderer, "text", MONITOR, NULL);
   gtk_tree_view_column_set_cell_data_func(column, renderer, activate_monitor, NULL, FALSE);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
-  gtk_tree_view_column_set_alignment(column, 0.5);
   g_object_set(renderer, "xalign", 0.5, NULL);
-  g_string_free(title, TRUE);
 #endif
-  renderer = gtk_cell_renderer_text_new ();
-  column = gtk_tree_view_column_new_with_attributes ("Capture Filter", renderer, "text", FILTER, NULL);
+
+  renderer = gtk_cell_renderer_text_new();
+  column = gtk_tree_view_column_new_with_attributes("Capture Filter", renderer, "text", FILTER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_alignment(column, 0.5);
   create_and_fill_model(if_list, TRUE, GTK_TREE_VIEW(view));
@@ -3572,7 +3570,7 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
   GtkTreeIter iter;
   GList *if_entry, *list;
   if_info_t *if_info;
-  char *if_string="", *temp="";
+  char *if_string="", *temp="", *snaplen_string;
   gchar *descr;
   if_capabilities_t *caps=NULL;
   gint linktype_count;
@@ -3591,11 +3589,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
   GString *ip_str;
 
 #if defined(HAVE_PCAP_CREATE)
-  store = gtk_list_store_new (8, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
+  store = gtk_list_store_new (8, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
 #elif defined(_WIN32) && !defined (HAVE_PCAP_CREATE)
-  store = gtk_list_store_new (7, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_UINT, G_TYPE_STRING);
+  store = gtk_list_store_new (7, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING);
 #else
-  store = gtk_list_store_new (6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING);
+  store = gtk_list_store_new (6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 #endif
 
   if (rows && rows->len > 0) {
@@ -3619,13 +3617,18 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           break;
         }
       }
+      if (row.has_snaplen) {
+        snaplen_string = g_strdup_printf("%d", row.snaplen);
+      } else {
+        snaplen_string = g_strdup("default");
+      }
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
     }
   } else {
@@ -3743,12 +3746,17 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
           row.buffer = 1;
           g_array_append_val(rows, row);
+          if (row.has_snaplen) {
+            snaplen_string = g_strdup_printf("%d", row.snaplen);
+          } else {
+            snaplen_string = g_strdup("default");
+          }
 #if defined(HAVE_PCAP_CREATE)
-          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
           if (caps != NULL) {
             free_if_capabilities(caps);
