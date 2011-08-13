@@ -256,7 +256,7 @@ dissect_coap_opt_time(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 {
 	proto_item *item = NULL;
 
-	if (opt_length > 4) {
+	if (opt_length <= 0 || opt_length > 4) {
 		expert_add_info_format(pinfo, subtree, PI_MALFORMED, PI_WARN, "Invalid Option Length: %d", opt_length);
 		return;
 	}
