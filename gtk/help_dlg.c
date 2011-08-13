@@ -346,6 +346,9 @@ topic_action(topic_action_e action)
     case(HELP_SAVE_WIN32_DIALOG):
         help_topic_html("ChIOSaveSection.html");
         break;
+    case(HELP_TIME_SHIFT_DIALOG):
+        help_topic_html("ChWorkShiftTimePacketSection.html");
+        break;
 
     default:
         g_assert_not_reached();

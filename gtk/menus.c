@@ -102,6 +102,7 @@
 #include "gtk/dissector_tables_dlg.h"
 #include "gtk/utf8_entities.h"
 #include "gtk/expert_comp_dlg.h"
+#include "gtk/time_shift_dlg.h"
 
 #include "gtk/new_packet_list.h"
 
@@ -1075,6 +1076,7 @@ static const char *ui_desc_menubar =
 "        <separator/>\n"
 "        <menuitem name='SetTimeReference' action='/Edit/SetTimeReference'/>\n"
 "        <menuitem name='Un-TimeReferenceAllPackets' action='/Edit/Un-TimeReferenceAllPackets'/>\n"
+"        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>\n"
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
 "        <separator/>\n"
@@ -1532,6 +1534,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/Un-IgnoreAllPackets",		NULL,				"U_n-Ignore All Packets",				"<shift><control>X",		NULL,			G_CALLBACK(new_packet_list_unignore_all_frames_cb) },
    { "/Edit/SetTimeReference",			WIRESHARK_STOCK_TIME,	"Set Time Reference (toggle)",			"<control>T",			NULL,			G_CALLBACK(set_reftime_cb) },
    { "/Edit/Un-TimeReferenceAllPackets",NULL,				"Un-Time Reference All Packets",		"<alt><control>T",			NULL,			G_CALLBACK(new_packet_list_untime_reference_all_frames_cb) },
+   { "/Edit/TimeShift",				NULL,				"Time Shift...",							"<control>A",				NULL,			G_CALLBACK(set_time_shift_cb) },
    { "/Edit/FindNextTimeReference",		NULL,				"Find Next Time Reference",				"<alt><control>N",			NULL,			G_CALLBACK(find_next_ref_time_cb) },
    { "/Edit/FindPreviousTimeReference",	NULL,				"Find Previous Time Reference",			"<alt><control>B",			NULL,			G_CALLBACK(find_previous_ref_time_cb) },
 
@@ -1984,6 +1987,7 @@ static GtkItemFactoryEntry menu_items[] =
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Set Time Reference (toggle)",                 "<control>T", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_TOGGLE, "<StockItem>", WIRESHARK_STOCK_TIME,},
     {"/Edit/Un-Time Reference All Packets",          "<alt><control>T", GTK_MENU_FUNC(new_packet_list_untime_reference_all_frames_cb), 0, NULL, NULL,},
+    {"/Edit/Time Shift...",								  "<control>A", GTK_MENU_FUNC(time_shift_cb), 0, "<StockItem>", WIRESHARK_STOCK_TIME,},
     {"/Edit/Find Next Time Reference",               "<alt><control>N", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_NEXT, NULL, NULL,},
     {"/Edit/Find Previous Time Reference",           "<alt><control>B", GTK_MENU_FUNC(reftime_frame_cb), REFTIME_FIND_PREV, NULL, NULL,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
@@ -2975,6 +2979,7 @@ static const char *ui_desc_packet_list_menu_popup =
 "     <menuitem name='MarkPacket' action='/MarkPacket'/>\n"
 "     <menuitem name='IgnorePacket' action='/IgnorePacket'/>\n"
 "     <menuitem name='SetTimeReference' action='/Set Time Reference'/>\n"
+"     <menuitem name='TimeShift' action='/TimeShift'/>\n"
 "     <separator/>\n"
 "     <menuitem name='ManuallyResolveAddress' action='/ManuallyResolveAddress'/>\n"
 "     <separator/>\n"
@@ -3101,6 +3106,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
   { "/MarkPacket",						NULL,					"Mark Packet (toggle)",			NULL,					NULL,			G_CALLBACK(new_packet_list_mark_frame_cb) },
   { "/IgnorePacket",					NULL,					"Ignore Packet (toggle)",		NULL,					NULL,			G_CALLBACK(new_packet_list_ignore_frame_cb) },
   { "/Set Time Reference",				WIRESHARK_STOCK_TIME,	"Set Time Reference (toggle)",	NULL,					NULL,			G_CALLBACK(packet_list_menu_set_ref_time_cb) },
+  { "/TimeShift",						WIRESHARK_STOCK_TIME,	"Time Shift...",					NULL,					NULL,			G_CALLBACK(time_shift_cb) },
   { "/ManuallyResolveAddress",			NULL,					"Manually Resolve Address",		NULL,					NULL,			G_CALLBACK(manual_addr_resolv_dlg) },
   { "/Apply as Filter",					NULL,					"Apply as Filter",				NULL,					NULL,			NULL },
 

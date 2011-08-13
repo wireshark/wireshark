@@ -117,6 +117,7 @@ set(WIRESHARK_GTK_SRC
 	tap_param_dlg.c
 	text_import.c
 	text_page_utils.c
+	time_shift_dlg.c
 	uat_gui.c
 	voip_calls.c
 	webbrowser.c

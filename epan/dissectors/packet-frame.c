@@ -46,6 +46,7 @@
 
 int proto_frame = -1;
 int hf_frame_arrival_time = -1;
+int hf_frame_shift_offset = -1;
 int hf_frame_arrival_time_epoch = -1;
 static int hf_frame_time_invalid = -1;
 static int hf_frame_time_delta = -1;
@@ -219,6 +220,9 @@ dissect_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 			PROTO_ITEM_SET_GENERATED(item);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Arrival Time: Fractional second out of range (0-1000000000)");
 		}
+		item = proto_tree_add_time(fh_tree, hf_frame_shift_offset, tvb,
+				    0, 0, &(pinfo->fd->shift_offset));
+		PROTO_ITEM_SET_GENERATED(item);
 
 		if(generate_epoch_time) {
 			proto_tree_add_time(fh_tree, hf_frame_arrival_time_epoch, tvb,
@@ -542,6 +546,10 @@ proto_register_frame(void)
 		{ &hf_frame_arrival_time,
 		{ "Arrival Time",		"frame.time", FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
 			"Absolute time when this frame was captured", HFILL }},
+
+		{ &hf_frame_shift_offset,
+		{ "Time shift for this packet","frame.offset_shift", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+			"Time shift applied to this packet", HFILL }},
 
 		{ &hf_frame_arrival_time_epoch,
 		{ "Epoch Time",			"frame.time_epoch", FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,

@@ -60,6 +60,7 @@ typedef struct _frame_data {
   const void *color_filter; /**< Per-packet matching color_filter_t object */
 
   nstime_t     abs_ts;      /**< Absolute timestamp */
+  nstime_t     shift_offset;/**< How much the abs_tm of the frame is shifted */
   nstime_t     rel_ts;      /**< Relative timestamp (yes, it can be negative) */
   nstime_t     del_dis_ts;  /**< Delta timestamp to previous displayed frame (yes, it can be negative) */
   nstime_t     del_cap_ts;  /**< Delta timestamp to previous captured frame (yes, it can be negative) */
