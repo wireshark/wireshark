@@ -71,6 +71,16 @@ gboolean nstime_is_unset(nstime_t *nstime)
 }
 
 
+/** funcion: nstime_copy
+ *
+ * a = b
+ */
+void nstime_copy(nstime_t *a, const nstime_t *b)
+{
+	a->secs = b->secs;
+	a->nsecs = b->nsecs;
+}
+
 /*
  * function: nstime_delta
  * delta = b - a

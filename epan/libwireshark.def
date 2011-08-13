@@ -660,6 +660,7 @@ next_tvb_add_uint
 next_tvb_add_string
 next_tvb_call
 nstime_cmp
+nstime_copy
 nstime_delta
 nstime_diff
 nstime_is_unset

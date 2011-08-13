@@ -56,6 +56,12 @@ extern void nstime_set_unset(nstime_t *nstime);
 /* is the given nstime_t currently (0,maxint)? */
 extern gboolean nstime_is_unset(nstime_t *nstime);
 
+/** duplicate the current time
+ *
+ * a = b
+ */
+extern void nstime_copy(nstime_t *a, const nstime_t *b);
+
 /** calculate the delta between two times (can be negative!)
  *
  * delta = b-a
