@@ -661,7 +661,7 @@ void insert_new_rows(GList *list)
   char *if_string="", *temp="", *snaplen_string;
   gchar *descr;
   if_capabilities_t *caps;
-  gint linktype_select, linktype_count;
+  gint linktype_count;
   cap_settings_t cap_settings;
   GSList *curr_addr;
   int ips = 0;
@@ -773,7 +773,6 @@ void insert_new_rows(GList *list)
     if (if_info->loopback) {
       g_string_append(ip_str, " (loopback)");
     }
-    linktype_select = 0;
     linktype_count = 0;
     if (caps != NULL) {
       link_row *link = NULL;
