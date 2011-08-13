@@ -815,7 +815,11 @@ void insert_new_rows(GList *list)
       g_string_append(ip_str, "none");
     }
     row.addresses = g_strdup(ip_str->str);
-    temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+    if (ips == 0) {
+      temp = g_strdup_printf("<b>%s</b>", if_string);
+    } else {
+      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+    }
 #ifdef HAVE_PCAP_REMOTE
     row.remote_opts.src_type= global_remote_opts.src_type;
     row.remote_opts.remote_host_opts.remote_host = g_strdup(global_remote_opts.remote_host_opts.remote_host);
@@ -1605,7 +1609,11 @@ update_options_table(gint index)
   if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
   gtk_tree_model_get_iter (model, &iter, path);
-  temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+  if (strcmp(row.addresses, "none") == 0) {
+    temp = g_strdup_printf("<b>%s</b>", row.display_name);
+  } else {
+    temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+  }
   for (list=row.links; list!=NULL; list=g_list_next(list))
   {
     link = (link_row*)(list->data);
@@ -3621,7 +3629,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           break;
         }
       }
-      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+      if (strcmp(row.addresses, "none") == 0) {
+        temp = g_strdup_printf("<b>%s</b>", row.display_name);
+      } else {
+        temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+      }
       for (list = row.links; list != NULL; list = g_list_next(list)) {
         link = (link_row*)(list->data);
         if (link->pointer == row.active_dlt) {
@@ -3637,9 +3649,9 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
 #if defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
     }
   } else {
@@ -3760,7 +3772,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           g_string_append(ip_str, "none");
         }
         row.addresses = g_strdup(ip_str->str);
-        temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+        if (ips == 0) {
+          temp = g_strdup_printf("<b>%s</b>", if_string);
+        } else {
+          temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+        }
         g_array_append_val(rows, row);
         if (row.has_snaplen) {
           snaplen_string = g_strdup_printf("%d", row.snaplen);
