@@ -1159,7 +1159,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -S                       update packet display when new packets are captured\n");
   fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #ifdef HAVE_PCAP_CREATE
-  fprintf(output, "  -I                       use monitor mode\n");
+  fprintf(output, "  -I                       capture in monitor mode, if available\n");
 #endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   fprintf(output, "  -B <buffer size>         size of kernel buffer (def: 1MB)\n");
