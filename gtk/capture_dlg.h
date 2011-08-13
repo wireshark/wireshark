@@ -65,7 +65,10 @@ typedef struct row_options_tag {
     GList *links;
     gint active_dlt;
     gboolean pmode;
-    gboolean monitor_mode;
+#ifdef HAVE_PCAP_CREATE
+    gboolean monitor_mode_enabled;
+    gboolean monitor_mode_supported;
+#endif
     gboolean has_snaplen;
     guint snaplen;
     gint buffer;

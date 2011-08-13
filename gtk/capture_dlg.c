@@ -660,7 +660,7 @@ void insert_new_rows(GList *list)
   if_info_t *if_info;
   char *if_string="", *temp="";
   gchar *descr;
-  if_capabilities_t *caps=NULL;
+  if_capabilities_t *caps;
   gint linktype_select, linktype_count;
   cap_settings_t cap_settings;
   GSList *curr_addr;
@@ -736,7 +736,7 @@ void insert_new_rows(GList *list)
       }
     }
     cap_settings = capture_get_cap_settings(if_string);
-    cap_settings.monitor_mode = FALSE;
+    caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
     gtk_list_store_append (GTK_LIST_STORE(model), &iter);
     for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
       if (ips != 0) {
@@ -764,7 +764,8 @@ void insert_new_rows(GList *list)
     if (caps != NULL) {
       link_row *link = NULL;
 #ifdef HAVE_PCAP_CREATE
-      row.monitor_mode = FALSE;
+      row.monitor_mode_enabled = cap_settings.monitor_mode;
+      row.monitor_mode_supported = caps->can_set_rfmon;
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
         link = (link_row *)g_malloc(sizeof(link_row));
@@ -783,22 +784,20 @@ void insert_new_rows(GList *list)
         row.links = g_list_append(row.links, link);
         linktype_count++;
       } /* for link_types */
-    } /* caps != NULL */
-#if defined(HAVE_PCAP_CREATE) || defined(HAVE_PCAP_REMOTE)
-    else {
-      /* We don't know whether this supports monitor mode or not;
-         don't ask for monitor mode. */
+    } else {
       cap_settings.monitor_mode = FALSE;
+#if defined(HAVE_PCAP_CREATE) || defined(HAVE_PCAP_REMOTE)
+      row.monitor_mode_enabled = FALSE;
+      row.monitor_mode_supported = FALSE;
 #ifdef HAVE_PCAP_REMOTE
       link = (link_row *)g_malloc(sizeof(link_row));
-      row.monitor_mode = FALSE;
       link->pointer = 1;
       link->link_type = g_strdup("Ethernet");
       row.active_dlt = 1;
       row.links = g_list_append(row.links, link);
 #endif
-    }
 #endif
+    }
     if (ips == 0) {
       g_string_append(ip_str, "unknown");
     }
@@ -1541,7 +1540,11 @@ update_options_table(gint index)
       interface_opts.has_snaplen = row.has_snaplen;
       interface_opts.snaplen = row.snaplen;
       interface_opts.cfilter = g_strdup(row.cfilter);
-      interface_opts.monitor_mode = row.monitor_mode;
+#ifdef HAVE_PCAP_CREATE
+      interface_opts.monitor_mode = row.monitor_mode_enabled;
+#else
+      interface_opts.monitor_mode = FALSE;
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
       interface_opts.buffer_size = row.buffer;
 #endif
@@ -1556,7 +1559,11 @@ update_options_table(gint index)
     interface_opts.has_snaplen = row.has_snaplen;
     interface_opts.snaplen = row.snaplen;
     interface_opts.cfilter = g_strdup(row.cfilter);
-    interface_opts.monitor_mode = row.monitor_mode;
+#ifdef HAVE_PCAP_CREATE
+    interface_opts.monitor_mode = row.monitor_mode_enabled;
+#else
+    interface_opts.monitor_mode = FALSE;
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     interface_opts.buffer_size = row.buffer;
 #endif
@@ -1595,11 +1602,11 @@ update_options_table(gint index)
     num_selected++;
   }
 #if defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, interface_opts.promisc_mode?"yes":"no", SNAPLEN, interface_opts.snaplen, BUFFER, (guint) interface_opts.buffer_size, MONITOR, interface_opts.monitor_mode?"yes":"no", FILTER, interface_opts.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, interface_opts.promisc_mode?"yes":"no", SNAPLEN, interface_opts.snaplen, BUFFER, (guint) interface_opts.buffer_size, FILTER, interface_opts.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, interface_opts.promisc_mode?"yes":"no", SNAPLEN, interface_opts.snaplen, FILTER, interface_opts.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, FILTER, row.cfilter, -1);
 #endif
 #ifdef USE_THREADS
   if (num_selected > 0) {
@@ -1679,7 +1686,7 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   g_assert(filter_text != NULL);
   row.cfilter = g_strdup(filter_text);
 #ifdef HAVE_PCAP_CREATE
-  row.monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
+  row.monitor_mode_enabled = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor_cb));
 #endif
   g_array_insert_val(rows, marked_row, row);
   window_destroy(opt_edit_w);
@@ -1905,12 +1912,10 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
 
 #ifdef HAVE_PCAP_CREATE
   /* Monitor mode row */
-  monitor_cb = gtk_check_button_new_with_mnemonic(
-      "Capture packets in monitor mode");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb),
-                               row.monitor_mode);
-  g_signal_connect(monitor_cb, "toggled",
-                   G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
+  monitor_cb = gtk_check_button_new_with_mnemonic( "Capture packets in monitor mode");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(monitor_cb), row.monitor_mode_enabled);
+  gtk_widget_set_sensitive(monitor_cb, row.monitor_mode_supported);
+  g_signal_connect(monitor_cb, "toggled", G_CALLBACK(capture_prep_monitor_changed_cb), NULL);
 
   gtk_widget_set_tooltip_text(monitor_cb,
     "Usually a Wi-Fi adapter will, even in promiscuous mode, only capture the traffic on the BSS to which it's associated. "
@@ -2147,7 +2152,11 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
         interface_opts.has_snaplen = row.has_snaplen;
         interface_opts.snaplen = row.snaplen;
         interface_opts.cfilter = g_strdup(row.cfilter);
-        interface_opts.monitor_mode = row.monitor_mode;
+#ifdef HAVE_PCAP_CREATE
+        interface_opts.monitor_mode = row.monitor_mode_enabled;
+#else
+        interface_opts.monitor_mode = FALSE;
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
         interface_opts.buffer_size = row.buffer;
 #endif
@@ -2200,7 +2209,11 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
     interface_opts.has_snaplen = row.has_snaplen;
     interface_opts.snaplen = row.snaplen;
     interface_opts.cfilter = g_strdup(row.cfilter);
-    interface_opts.monitor_mode = row.monitor_mode;
+#ifdef HAVE_PCAP_CREATE
+    interface_opts.monitor_mode = row.monitor_mode_enabled;
+#else
+    interface_opts.monitor_mode = FALSE;
+#endif
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     interface_opts.buffer_size = row.buffer;
 #endif
@@ -3192,7 +3205,11 @@ capture_start_cb(GtkWidget *w _U_, gpointer d _U_)
     }
     interface_opts.name = g_strdup(get_if_name(prefs.capture_device));
     interface_opts.descr = get_interface_descriptive_name(interface_opts.name);
+#ifdef HAVE_PCAP_CREATE
     interface_opts.monitor_mode = prefs_capture_device_monitor_mode(interface_opts.name);
+#else
+    interface_opts.monitor_mode = FALSE;
+#endif
     interface_opts.linktype = capture_dev_user_linktype_find(interface_opts.name);
     interface_opts.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
     interface_opts.snaplen = global_capture_opts.default_options.snaplen;
@@ -3549,7 +3566,7 @@ capture_dlg_prep(gpointer parent_w) {
   return TRUE;
 }
 
-GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeView *view)
+GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeView *view)
 {
   GtkListStore *store;
   GtkTreeIter iter;
@@ -3570,7 +3587,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
   gchar *str, *first="";
   interface_row row;
   interface_options interface_opts;
-  gboolean      found = FALSE;
+  gboolean found = FALSE;
   GString *ip_str;
 
 #if defined(HAVE_PCAP_CREATE)
@@ -3596,7 +3613,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
         }
       }
       temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
-      for (list=row.links; list!=NULL; list=g_list_next(list)) {
+      for (list = row.links; list != NULL; list = g_list_next(list)) {
         link = (link_row*)(list->data);
         if (link->pointer == row.active_dlt) {
           break;
@@ -3604,7 +3621,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
       }
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode?"yes":"no", FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
       gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
@@ -3666,7 +3683,6 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
             }
           }
           cap_settings = capture_get_cap_settings(if_info->name);
-          cap_settings.monitor_mode = FALSE;
           gtk_list_store_append (store, &iter);
           caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
           for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
@@ -3691,7 +3707,10 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
           }
           linktype_count = 0;
           if (caps != NULL) {
-            row.monitor_mode = FALSE;
+#ifdef HAVE_PCAP_CREATE
+            row.monitor_mode_enabled = cap_settings.monitor_mode;
+            row.monitor_mode_supported = caps->can_set_rfmon;
+#endif
             for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
               link_row *link = (link_row *)g_malloc(sizeof(link_row));
               data_link_info = lt_entry->data;
@@ -3710,14 +3729,13 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
               row.links = g_list_append(row.links, link);
               linktype_count++;
             }
-          }
-#ifdef HAVE_PCAP_CREATE
-          else {
-            /* We don't know whether this supports monitor mode or not;
-               don't ask for monitor mode. */
+          } else {
             cap_settings.monitor_mode = FALSE;
-          }
+#ifdef HAVE_PCAP_CREATE
+            row.monitor_mode_enabled = FALSE;
+            row.monitor_mode_supported =FALSE;
 #endif
+          }
           if (ips == 0) {
             g_string_append(ip_str, "unknown");
           }
@@ -3726,7 +3744,7 @@ GtkTreeModel * create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeV
           row.buffer = 1;
           g_array_append_val(rows, row);
 #if defined(HAVE_PCAP_CREATE)
-          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode?"yes":"no", FILTER, row.cfilter, -1);
+          gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
           gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, row.snaplen, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
@@ -3829,10 +3847,9 @@ void activate_monitor (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *rend
 
   row = g_array_index(rows, interface_row, index);
 
-  if (row.monitor_mode==TRUE) {
-     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);
-  }
-  else {
+  if (row.monitor_mode_supported==TRUE) {
+    g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_ACTIVATABLE, NULL);
+  } else {
     g_object_set(G_OBJECT(renderer), "mode", GTK_CELL_RENDERER_MODE_INERT, NULL);
   }
 }
@@ -3902,9 +3919,7 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
 
   if_string = g_strdup(row.name);
   cap_settings = capture_get_cap_settings(if_string);
-
   cap_settings.monitor_mode = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(monitor));
-
   caps = capture_get_if_capabilities(if_string, cap_settings.monitor_mode, NULL);
 
   if (caps != NULL) {
@@ -3917,8 +3932,8 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     }
     row.active_dlt = -1;
     linktype_count = 0;
-    row.monitor_mode = caps->can_set_rfmon;
-
+    row.monitor_mode_supported = caps->can_set_rfmon;
+    row.monitor_mode_enabled = cap_settings.monitor_mode;
     for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
       link = (link_row *)g_malloc(sizeof(link_row));
       data_link_info = lt_entry->data;
@@ -3952,7 +3967,8 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
     /* We don't know whether this supports monitor mode or not;
     don't ask for monitor mode. */
     cap_settings.monitor_mode = FALSE;
-    row.monitor_mode = FALSE;
+    row.monitor_mode_enabled = FALSE;
+    row.monitor_mode_supported = FALSE;
   }
   gtk_widget_set_sensitive(linktype_lb, linktype_count >= 2);
   gtk_widget_set_sensitive(linktype_combo_box, linktype_count >= 2);
