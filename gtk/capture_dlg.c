@@ -786,16 +786,16 @@ void insert_new_rows(GList *list)
       } /* for link_types */
     } else {
       cap_settings.monitor_mode = FALSE;
-#if defined(HAVE_PCAP_CREATE) || defined(HAVE_PCAP_REMOTE)
+#if defined(HAVE_PCAP_CREATE)
       row.monitor_mode_enabled = FALSE;
       row.monitor_mode_supported = FALSE;
+#endif
 #ifdef HAVE_PCAP_REMOTE
       link = (link_row *)g_malloc(sizeof(link_row));
       link->pointer = 1;
       link->link_type = g_strdup("Ethernet");
       row.active_dlt = 1;
       row.links = g_list_append(row.links, link);
-#endif
 #endif
     }
     if (ips == 0) {
