@@ -2599,7 +2599,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   g_object_set(G_OBJECT(renderer), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
   renderer = gtk_cell_renderer_text_new();
-  column = gtk_tree_view_column_new_with_attributes ("Link", renderer, "text", LINK, NULL);
+  column = gtk_tree_view_column_new_with_attributes ("Link-layer header", renderer, "text", LINK, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (view),LINK), TRUE );
   gtk_tree_view_column_set_alignment(column, 0.5);
