@@ -14,7 +14,7 @@
 
 PORT NUMBERS
 
-(last updated 2011-08-05)
+(last updated 2011-08-12)
 
 ****************************************************************************
 ATTENTION:  This registry has recently been combined with the Service Names 
@@ -16422,7 +16422,11 @@ WibuKey		22347/udp  WibuKey Standard WkLan
 CodeMeter	22350/tcp  CodeMeter Standard 
 CodeMeter	22350/udp  CodeMeter Standard 
 #			   Wolfgang Voelker <wolfgang.voelker&wibu.com> June 2007
-#               22351-22554 Unassigned
+#               22351-22536 Unassigned
+caldsoft-backup 22537/tcp  CaldSoft Backup server file transfer
+#                          Mark Caldwell <development&caldsoft.co.uk> 12 August 2011
+#               22537/udp  Reserved
+#               22538-22554 Unassigned
 vocaltec-wconf  22555/tcp  Vocaltec Web Conference
 vocaltec-phone  22555/udp  Vocaltec Internet Phone
 #                          Scott Petrack <Scott_Petrack&vocaltec.com>
@@ -16567,7 +16571,11 @@ rna             25471/sctp  RNSAP User Adaptation for Iurh
 sauterdongle    25576/tcp  Sauter Dongle
 #                          Christian Brecht <Christian.Brecht&Sauter-GmbH.de> 15 December 2010
 #               25576/udp  Reserved
-#               25577-25792 Unassigned 
+#               25577-25603 Unassigned 
+idtp            25604/tcp   Identifier Tracing Protocol
+#                           Huang Neng-geng <huangng&ngweb.org, nghuang&ieee.org> 09 August 2011
+#               25604/udp  Reserved
+#               25605-25792 Unassigned 
 vocaltec-hos    25793/tcp  Vocaltec Address Server      
 vocaltec-hos    25793/udp  Vocaltec Address Server
 #                          Scott Petrack <Scott_Petrack&vocaltec.com>
