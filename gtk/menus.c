@@ -6772,7 +6772,7 @@ rebuild_protocol_prefs_menu (module_t *prefs_module_p, gboolean preferences)
     gchar *label;
 
     menu_preferences = gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup/ProtocolPreferences");
-    if (preferences) {
+    if (prefs_module_p && preferences) {
         sub_menu = gtk_menu_new();
         gtk_menu_item_set_submenu (GTK_MENU_ITEM(menu_preferences), sub_menu);
 
