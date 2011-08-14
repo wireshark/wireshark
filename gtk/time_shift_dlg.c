@@ -398,9 +398,6 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 }
 
 #ifdef _MSC_VER
-/* should be good enough to round down on Windows */
-#define truncl(ld) floorl(ld)
-
 #define localtime_r(a, b) memcpy((b), localtime((a)), sizeof(struct tm));
 #endif
 
@@ -579,7 +576,7 @@ action_timeshift(GtkWindow *parent_w)
     return(1);
 
   nstime_set_zero(&offset);
-  offset.secs = (time_t)truncl(offset_float);
+  offset.secs = (time_t)floorl(offset_float);
   offset_float -= offset.secs;
   offset.nsecs = (int)(offset_float * 1000000000);
 
@@ -668,7 +665,7 @@ timestring2nstime(const gchar *ts, nstime_t *packettime, nstime_t *nstime)
   }
   tm.tm_hour = h;
   tm.tm_min = m;
-  tm.tm_sec = (int)truncl(f);
+  tm.tm_sec = (int)floorl(f);
   tt = mktime(&tm);
   if (tt == -1) {
     error_message("mktime went wrong. Was the time invalid?");
@@ -777,7 +774,7 @@ calcNT3(nstime_t *OT1, nstime_t *OT3, nstime_t *NT1, nstime_t *NT3,
   secs = f * NT3->secs;
   nsecs = f * NT3->nsecs;
   NT3->secs = (time_t)secs;
-  secs -= truncl(secs);
+  secs -= floorl(secs);
   NT3->nsecs = (int)(nsecs + (secs * 1000000000));
   while (NT3->nsecs > 1000000000) {
     NT3->secs += 1;
