@@ -199,11 +199,6 @@ capture_prep_file_cb(GtkWidget *file_bt, GtkWidget *file_te);
 static void
 select_link_type_cb(GtkWidget *w, gpointer data);
 
-#ifdef HAVE_PCAP_REMOTE_NEVERTRUE
-static void
-select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data);
-#endif
-
 #ifdef HAVE_PCAP_REMOTE
 static void
 capture_remote_cb(GtkWidget *w, gboolean focus_username);
@@ -1715,21 +1710,6 @@ save_options_cb(GtkWidget *win _U_, gpointer user_data _U_)
   window_destroy(opt_edit_w);
   update_options_table(marked_row);
 }
-
-#if 0
-static void
-activate_snaplen (GtkTreeViewColumn *tree_column _U_, GtkCellRenderer *renderer,
-                              GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data _U_)
-{
-  interface_row link_row;
-
-  GtkTreePath *path = gtk_tree_model_get_path(tree_model, iter);
-  int index = atoi(gtk_tree_path_to_string(path));
-
-  link_row = g_array_index(rows, interface_row, index);
-  gtk_cell_renderer_set_sensitive(renderer, link_row.has_snaplen);
-}
-#endif
 
 static void
 adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
@@ -3290,87 +3270,6 @@ select_link_type_cb(GtkWidget *linktype_combo_box, gpointer data _U_)
   g_array_insert_val(rows, marked_row, row);
   capture_filter_check_syntax_cb(linktype_combo_box, data);
 }
-
-#ifdef HAVE_PCAP_REMOTE_NEVERTRUE
-static gboolean
-free_remote_host (gpointer key _U_, gpointer value, gpointer user _U_)
-{
-  struct remote_host *rh = value;
-
-  g_free (rh->remote_host);
-  g_free (rh->remote_port);
-  g_free (rh->auth_username);
-  g_free (rh->auth_password);
-
-  return TRUE;
-}
-
-/* user selected an interface type (local/remote), convert to internal value) */
-static void
-select_if_type_cb(GtkComboBox *iftype_cbx, gpointer data _U_)
-{
-  int new_iftype = gtk_combo_box_get_active(GTK_COMBO_BOX(iftype_cbx));
-  int old_iftype = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(iftype_cbx),
-                                                     E_CAP_CBX_IFTYPE_VALUE_KEY));
-  int no_update = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(iftype_cbx),
-                                                    E_CAP_CBX_IFTYPE_NOUPDATE_KEY));
-  gint num_remote = g_hash_table_size (remote_host_list);
-  interface_options interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, 0);
-  global_capture_opts.ifaces = g_array_remove_index(global_capture_opts.ifaces, 0);
-
-  if (new_iftype == CAPTURE_IFREMOTE) {
-    g_object_set_data(G_OBJECT(iftype_cbx), E_CAP_CBX_PREV_IFTYPE_VALUE_KEY,
-                      GINT_TO_POINTER(old_iftype));
-    capture_remote_cb(GTK_WIDGET(iftype_cbx), FALSE);
-  } else if (new_iftype != old_iftype) {
-    if (new_iftype > CAPTURE_IFREMOTE) {
-      if (new_iftype == num_remote + 4)
-      {
-        /* The user selected the "Clear list" entry */
-        new_iftype = CAPTURE_IFLOCAL;
-        gtk_combo_box_set_active(GTK_COMBO_BOX(iftype_cbx), new_iftype);
-        g_hash_table_foreach_remove (remote_host_list, free_remote_host, NULL);
-        num_remote += 3;
-        while (num_remote--)  /* Remove separator lines and "Clear" item */
-          gtk_combo_box_text_remove(iftype_cbx, 2);
-      } else {
-        struct remote_host *rh;
-        gchar *string;
-
-        string = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(iftype_cbx));
-
-        rh = g_hash_table_lookup (remote_host_list, string);
-        g_free (string);
-
-        g_free(interface_opts.remote_host);
-        interface_opts.remote_host = g_strdup(rh->remote_host);
-        g_free(interface_opts.remote_port);
-        interface_opts.remote_port = g_strdup(rh->remote_port);
-        interface_opts.auth_type = rh->auth_type;
-        if (interface_opts.auth_type == CAPTURE_AUTH_PWD && strlen(rh->auth_username) == 0) {
-          /* Empty username, ask for one */
-          capture_remote_cb(GTK_WIDGET(iftype_cbx), TRUE);
-          no_update = TRUE;
-        } else {
-          /* Already entered username and password */
-          g_free(interface_opts.auth_username);
-          interface_opts.auth_username = g_strdup(rh->auth_username);
-          g_free(interface_opts.auth_password);
-          interface_opts.auth_password = g_strdup(rh->auth_password);
-        }
-      }
-    }
-    if (!no_update) {
-      g_object_set_data(G_OBJECT(iftype_cbx), E_CAP_CBX_PREV_IFTYPE_VALUE_KEY,
-                        GINT_TO_POINTER(old_iftype));
-      g_object_set_data(G_OBJECT(iftype_cbx), E_CAP_CBX_IFTYPE_VALUE_KEY,
-                        GINT_TO_POINTER(new_iftype));
-      update_interface_list();
-    }
-  }
-  g_array_insert_val(global_capture_opts.ifaces, 0, interface_opts);
-}
-#endif
 
 /* user pressed "File" button */
 static void
