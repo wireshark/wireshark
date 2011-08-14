@@ -715,7 +715,11 @@ void insert_new_rows(GList *list)
         if_string = g_strdup(if_info->name);
       }
     } /* else descr != NULL */
-    row.display_name = g_strdup(if_string);
+    if (if_info->loopback) {
+      row.display_name = g_strdup_printf("%s (loopback)", if_string);
+    } else {
+      row.display_name = g_strdup(if_string);
+    }
     found = FALSE;
     for (i = 0; i < global_capture_opts.ifaces->len; i++) {
       interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
@@ -764,9 +768,6 @@ void insert_new_rows(GList *list)
           break;
       }
     } /* for curr_addr */
-    if (if_info->loopback) {
-      g_string_append(ip_str, " (loopback)");
-    }
     linktype_count = 0;
     row.links = NULL;
     if (caps != NULL) {
@@ -805,9 +806,9 @@ void insert_new_rows(GList *list)
     row.addresses = g_strdup(ip_str->str);
     row.no_addresses = ips;
     if (ips == 0) {
-      temp = g_strdup_printf("<b>%s</b>", if_string);
+      temp = g_strdup_printf("<b>%s</b>", row.display_name);
     } else {
-      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+      temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
     }
 #ifdef HAVE_PCAP_REMOTE
     row.remote_opts.src_type= global_remote_opts.src_type;
@@ -3577,7 +3578,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
             if_string = g_strdup(if_info->name);
           }
         }
-        row.display_name = g_strdup(if_string);
+        if (if_info->loopback) {
+          row.display_name = g_strdup_printf("%s (loopback)", if_string);
+        } else {
+          row.display_name = g_strdup(if_string);
+        }
         found = FALSE;
         for (i = 0; i < global_capture_opts.ifaces->len; i++) {
           interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
@@ -3626,9 +3631,6 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
               break;
           }
         }
-        if (if_info->loopback) {
-          g_string_append(ip_str, " (loopback)");
-        }
         linktype_count = 0;
         if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
@@ -3663,9 +3665,9 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
         row.addresses = g_strdup(ip_str->str);
         row.no_addresses = ips;
         if (ips == 0) {
-          temp = g_strdup_printf("<b>%s</b>", if_string);
+          temp = g_strdup_printf("<b>%s</b>", row.display_name);
         } else {
-          temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", if_string, ip_str->str);
+          temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
         }
         g_array_append_val(rows, row);
         if (row.has_snaplen) {
