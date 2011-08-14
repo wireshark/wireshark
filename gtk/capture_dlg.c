@@ -1982,7 +1982,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   gtk_box_pack_start(GTK_BOX(filter_hb), filter_bt, FALSE, FALSE, 3);
 
   /* Create the capture filter combo box*/
-  filter_cm = gtk_combo_box_text_new_with_entry ();
+  filter_cm = gtk_combo_box_text_new_with_entry();
   cfilter_list = g_object_get_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CFILTER_FL_KEY, cfilter_list);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CFILTER_CM_KEY, filter_cm);
@@ -1990,13 +1990,19 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   colorize_filter_te_as_empty(filter_te);
   g_signal_connect(filter_te, "changed", G_CALLBACK(capture_filter_check_syntax_cb), NULL);
 
-  if (cfilter_list != NULL){
-    for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
+  for (cf_entry = cfilter_list; cf_entry != NULL; cf_entry = g_list_next(cf_entry)) {
+    if (cf_entry->data && (strlen(cf_entry->data) > 0)) {
       gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(filter_cm), cf_entry->data);
     }
   }
-  if (global_capture_opts.default_options.cfilter)
+  if (global_capture_opts.default_options.cfilter && (strlen(global_capture_opts.default_options.cfilter) > 0)) {
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), global_capture_opts.default_options.cfilter);
+  }
+  if (row.cfilter && (strlen(row.cfilter) > 0)) {
+    gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), row.cfilter);
+    gtk_combo_box_set_active(GTK_COMBO_BOX_TEXT(filter_cm), 0);
+  }
+
   gtk_widget_set_tooltip_text(filter_cm,
     "Enter a capture filter to reduce the amount of packets to be captured. "
     "See \"Capture Filters\" in the online help for further information how to use it. "
