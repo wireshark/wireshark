@@ -2781,20 +2781,19 @@ main(int argc, char *argv[])
 #endif
   if ((global_capture_opts.ifaces->len == 0) &&
       (prefs.capture_device != NULL)) {
+    GList *curr, *combo_list;
     gboolean found = FALSE;
+
     if_list = capture_interface_list(&err, NULL);
     if (g_list_length(if_list) > 0) {
-      GList *curr;
-      if_info_t *if_info;
-      
-      for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
-        if_info = curr->data;
-        if (strcmp(if_info->name, prefs.capture_device) == 0) {
+      combo_list = build_capture_combo_list(if_list, FALSE);
+      free_interface_list(if_list);
+      for (curr = combo_list; curr; curr = g_list_next(curr)) {
+        if (strcmp(curr->data, prefs.capture_device) == 0) {
           found = TRUE;
           break;
         }
       }
-      free_interface_list(if_list);
     }
     if (found) {
       interface_options interface_opts;
