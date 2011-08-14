@@ -2001,7 +2001,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   }
   if (row.cfilter && (strlen(row.cfilter) > 0)) {
     gtk_combo_box_text_prepend_text(GTK_COMBO_BOX_TEXT(filter_cm), row.cfilter);
-    gtk_combo_box_set_active(GTK_COMBO_BOX_TEXT(filter_cm), 0);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(filter_cm), 0);
   }
 
   gtk_widget_set_tooltip_text(filter_cm,
