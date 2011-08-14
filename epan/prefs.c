@@ -640,11 +640,15 @@ prefs_find_preference(module_t *module, const char *name)
 {
 	GList *list_entry;
 
+	if (module == NULL)
+		return NULL;	/* invalid parameters */
+
 	list_entry = g_list_find_custom(module->prefs, name,
 	    preference_match);
 
 	if (list_entry == NULL)
 		return NULL;	/* no such preference */
+
 	return (struct preference *) list_entry->data;
 }
 
