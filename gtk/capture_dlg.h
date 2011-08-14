@@ -61,6 +61,7 @@ typedef struct row_options_tag {
     gchar *name;
     gchar *display_name;
     gchar *addresses;
+    gint no_addresses;
     gchar *cfilter;
     GList *links;
     gint active_dlt;
