@@ -404,14 +404,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 error_message(const gchar *msg)
 {
-  GtkWidget *dialog;
-  dialog = gtk_message_dialog_new(GTK_WINDOW(time_shift_frame_w),
-				  GTK_DIALOG_DESTROY_WITH_PARENT,
-				  GTK_MESSAGE_ERROR,
-				  GTK_BUTTONS_OK,
-				  "%s", msg);
-  gtk_dialog_run(GTK_DIALOG(dialog));
-  gtk_widget_destroy(dialog);
+  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
 }
 
 static int  action_timeshift(GtkWindow *parent_w);
