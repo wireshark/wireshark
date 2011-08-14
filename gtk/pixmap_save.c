@@ -40,7 +40,11 @@
 #include "gtk/file_dlg.h"
 
 #include "gtk/old-gtk-compat.h"
-
+#if GTK_CHECK_VERSION(2,22,0)
+#if !GTK_CHECK_VERSION(3,0,0)
+#include "gtk/gui_utils.h"
+#endif
+#endif
 static GtkWidget *save_as_w;
 
 static void
@@ -55,7 +59,7 @@ pixbuf_save_button_cb(GtkWidget *save_as_w_lcl, GdkPixbuf *pixbuf)
 {
 	gchar *filename, *file_type;
 	GtkWidget *type_cm, *simple_w;
-        GError *error = NULL;
+    GError *error = NULL;
 	gboolean ret;
 
 	filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(save_as_w_lcl));
@@ -95,7 +99,11 @@ pixbuf_save_button_cb(GtkWidget *save_as_w_lcl, GdkPixbuf *pixbuf)
 void
 pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 {
-        GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
+#if GTK_CHECK_VERSION(2,22,0)
+	surface_info_t *surface_info = g_object_get_data(G_OBJECT(w), "surface-info");
+#else
+    GdkPixmap *pixmap = g_object_get_data(G_OBJECT(w), "pixmap");
+#endif
 	GdkPixbuf *pixbuf;
 	GdkPixbufFormat *pixbuf_format;
 	GtkWidget *main_vb, *save_as_type_hb, *type_lb, *type_cm;
@@ -106,9 +114,13 @@ pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr _U_)
 	guint format_index = 0;
 	guint default_index = 0;
 
+#if GTK_CHECK_VERSION(2,22,0)
+	pixbuf = gdk_pixbuf_get_from_surface (surface_info->surface,
+		0, 0, surface_info->width, surface_info->height);
+#else
 	pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, NULL,
 					      0, 0, 0, 0, -1, -1);
-
+#endif
 	if(!pixbuf) {
 		simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
 			      "%sCould not get image from graph%s",

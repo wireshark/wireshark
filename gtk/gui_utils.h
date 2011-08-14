@@ -526,4 +526,13 @@ void ws_combo_box_set_active(GtkComboBox *combo_box, gint idx);
 void
 ws_combo_box_set_active_iter(GtkComboBox *combo_box, GtkTreeIter *iter);
 
+#if GTK_CHECK_VERSION(2,22,0)
+#if !GTK_CHECK_VERSION(3,0,0)
+GdkPixbuf *gdk_pixbuf_get_from_surface (cairo_surface_t *surface,
+                                        gint             src_x,
+                                        gint             src_y,
+                                        gint             width,
+                                        gint             height);
+#endif
+#endif
 #endif /* __GUI_UTIL__H__ */

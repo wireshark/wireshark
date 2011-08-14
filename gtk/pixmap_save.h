@@ -30,4 +30,9 @@
  * asking for options to save the graph with (such as file type). */
 void pixmap_save_cb(GtkWidget *w, gpointer pixmap_ptr);
 
+typedef struct _surface_info_t {
+	cairo_surface_t *surface;
+	gint	width;
+	gint	height;
+} surface_info_t;
 #endif /* __PIXMAP_SAVE_H__ */
