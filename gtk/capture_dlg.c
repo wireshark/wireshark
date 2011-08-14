@@ -2592,26 +2592,19 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   view = gtk_tree_view_new ();
   gtk_tree_view_set_rules_hint(GTK_TREE_VIEW (view), TRUE);
   g_signal_connect(view, "row-activated", G_CALLBACK(options_interface_cb), (gpointer)cap_open_w);
-
   toggle_renderer = gtk_cell_renderer_toggle_new();
-  column = gtk_tree_view_column_new_with_attributes ("Capture",
-                                               GTK_CELL_RENDERER(toggle_renderer),
-                                               "active", CAPTURE,
-                                               NULL);
+  column = gtk_tree_view_column_new_with_attributes("Capture", GTK_CELL_RENDERER(toggle_renderer), "active", CAPTURE, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   g_signal_connect (G_OBJECT(toggle_renderer), "toggled", G_CALLBACK (toggle_callback), NULL);
   g_object_set (GTK_TREE_VIEW(view), "has-tooltip", TRUE, NULL);
   g_signal_connect (GTK_TREE_VIEW(view), "query-tooltip", G_CALLBACK (query_tooltip_tree_view_cb), NULL);
+
   renderer = gtk_cell_renderer_text_new ();
-  gtk_tree_view_insert_column_with_attributes (GTK_TREE_VIEW (view),
-                                               -1,
-                                               "Interface",
-                                               renderer,
-                                               "markup", INTERFACE,
-                                               NULL);
-  gtk_tree_view_column_set_min_width(gtk_tree_view_get_column(GTK_TREE_VIEW (view),INTERFACE), 200);
-  gtk_tree_view_column_set_resizable(gtk_tree_view_get_column(GTK_TREE_VIEW (view),INTERFACE), TRUE );
-  gtk_tree_view_column_set_alignment(gtk_tree_view_get_column(GTK_TREE_VIEW (view),INTERFACE), 0.5);
+  gtk_tree_view_insert_column_with_attributes(GTK_TREE_VIEW (view), -1, "Interface", renderer, "markup", INTERFACE, NULL);
+  column = gtk_tree_view_get_column(GTK_TREE_VIEW (view), INTERFACE);
+  gtk_tree_view_column_set_min_width(column, 200);
+  gtk_tree_view_column_set_resizable(column, TRUE );
+  gtk_tree_view_column_set_alignment(column, 0.5);
   g_object_set(G_OBJECT(renderer), "ellipsize", PANGO_ELLIPSIZE_END, NULL);
 
   renderer = gtk_cell_renderer_text_new();
@@ -2654,7 +2647,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
   gtk_container_add (GTK_CONTAINER (swindow), view);
-  gtk_container_add(GTK_CONTAINER(capture_vb), swindow);
+  gtk_box_pack_start(GTK_BOX(capture_vb), swindow, TRUE, TRUE, 0);
 
   free_interface_list(if_list);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, view);
@@ -2664,12 +2657,12 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
      toolbar... and of course enable the advanced button...)*/
  /* airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,interface_opts.name);*/
 #endif
-  main_hb = gtk_vbox_new(FALSE, 5);
+  main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 3);
-  gtk_container_add(GTK_CONTAINER(capture_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(capture_vb), main_hb, FALSE, FALSE, 0);
   all_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(all_hb), 0);
-  gtk_container_add(GTK_CONTAINER(main_hb), all_hb);
+  gtk_box_pack_start(GTK_BOX(main_hb), all_hb, TRUE, TRUE, 0);
 
   left_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
@@ -2679,20 +2672,16 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_container_set_border_width(GTK_CONTAINER(right_vb), 0);
   gtk_box_pack_start(GTK_BOX(all_hb), right_vb, FALSE, FALSE, 3);
 
-  all_cb = gtk_check_button_new_with_mnemonic(
-      "Capture on all interfaces");
-  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_cb),
-                               FALSE);
-  g_signal_connect(all_cb, "toggled",
-                   G_CALLBACK(capture_all_cb), NULL);
+  all_cb = gtk_check_button_new_with_mnemonic( "Capture on all interfaces");
+  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(all_cb), FALSE);
+  g_signal_connect(all_cb, "toggled", G_CALLBACK(capture_all_cb), NULL);
   gtk_widget_set_tooltip_text(all_cb, "Activate the box to capture on all interfaces. "
     "Deactivate it to capture on none and set the interfaces individually.");
   gtk_box_pack_start(GTK_BOX(left_vb), all_cb, TRUE, TRUE, 0);
 
   gtk_widget_set_sensitive(GTK_WIDGET(all_cb), if_present);
   /* Promiscuous mode row */
-  promisc_cb = gtk_check_button_new_with_mnemonic(
-      "Capture all in _promiscuous mode");
+  promisc_cb = gtk_check_button_new_with_mnemonic("Capture all in _promiscuous mode");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(promisc_cb),
                                global_capture_opts.default_options.promisc_mode);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(promisc_cb)))
@@ -2706,9 +2695,9 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     "option individually."
     "See the FAQ for some more details of capturing packets from a switched network.");
 #if defined (HAVE_PCAP_REMOTE)
-  gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
+  gtk_box_pack_start(GTK_BOX(left_vb), promisc_cb, TRUE, TRUE, 0);
 #else
-  gtk_container_add(GTK_CONTAINER(right_vb), promisc_cb);
+  gtk_box_pack_start(GTK_BOX(right_vb), promisc_cb, TRUE, TRUE, 0);
 #endif
   gtk_widget_set_sensitive(GTK_WIDGET(promisc_cb), if_present);
 
@@ -2717,13 +2706,13 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_widget_set_tooltip_text(iftype_cbx, "Connect to remote host to get interfaces to capture from");
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFTYPE_CBX_KEY, iftype_cbx);
 
-  gtk_box_pack_start(GTK_BOX(right_vb),iftype_cbx,FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(right_vb), iftype_cbx, FALSE, FALSE, 0);
   g_signal_connect(iftype_cbx, "clicked", G_CALLBACK(show_remote_dialog), iftype_cbx);
   gtk_widget_show(iftype_cbx);
 #endif
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 0);
-  gtk_container_add(GTK_CONTAINER(main_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(main_vb), main_hb, FALSE, FALSE, 0);
 
   left_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
