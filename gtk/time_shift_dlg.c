@@ -404,7 +404,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 static void
 error_message(const gchar *msg)
 {
-  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, msg);
+  simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", msg);
 }
 
 static int  action_timeshift(GtkWindow *parent_w);
