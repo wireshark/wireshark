@@ -700,7 +700,6 @@ void insert_new_rows(GList *list)
     ip_str = g_string_new("");
     str = "";
     ips = 0;
-    row.links = NULL;
     first = "";
     row.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
@@ -774,8 +773,8 @@ void insert_new_rows(GList *list)
       g_string_append(ip_str, " (loopback)");
     }
     linktype_count = 0;
+    row.links = NULL;
     if (caps != NULL) {
-      link_row *link = NULL;
 #ifdef HAVE_PCAP_CREATE
       row.monitor_mode_enabled = cap_settings.monitor_mode;
       row.monitor_mode_supported = caps->can_set_rfmon;
@@ -791,7 +790,7 @@ void insert_new_rows(GList *list)
           link->pointer = -1;
         }
         if (g_ascii_strcasecmp(first, "") == 0) {
-          first = g_strdup_printf("%s",str);
+          first = g_strdup_printf("%s", str);
         }
         link->link_type = g_strdup(str);
         row.links = g_list_append(row.links, link);
@@ -804,11 +803,8 @@ void insert_new_rows(GList *list)
       row.monitor_mode_supported = FALSE;
 #endif
 #ifdef HAVE_PCAP_REMOTE
-      link = (link_row *)g_malloc(sizeof(link_row));
-      link->pointer = 1;
-      link->link_type = g_strdup("Ethernet");
-      row.active_dlt = 1;
-      row.links = g_list_append(row.links, link);
+      row.active_dlt = -1;
+      first = g_strdup("default");
 #endif
     }
     row.addresses = g_strdup(ip_str->str);
@@ -841,11 +837,11 @@ void insert_new_rows(GList *list)
     }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, first, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, first, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link->link_type, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, first, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, -1);
 #endif
     count++;
     g_string_free(ip_str, TRUE);
