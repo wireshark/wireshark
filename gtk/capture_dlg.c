@@ -1849,7 +1849,11 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   gtk_misc_set_alignment(GTK_MISC(if_ip_lb), 0, 0); /* Left justified */
   gtk_container_add(GTK_CONTAINER(if_ip_eb), if_ip_lb);
 
-  g_string_append(ip_str, row.addresses);
+  if (row.no_addresses > 0) {
+    g_string_append(ip_str, row.addresses);
+  } else {
+    g_string_append(ip_str, "none");
+  }
   gtk_label_set_text(GTK_LABEL(if_ip_lb), ip_str->str);
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 0);
@@ -2133,7 +2137,7 @@ static void toggle_callback(GtkCellRendererToggle *cell _U_,
   gtk_tree_model_get_iter (model, &iter, path);
   gtk_tree_model_get (model, &iter, CAPTURE, &enabled, -1);
   row = g_array_index(rows, interface_row, index);
-  if (enabled==FALSE)
+  if (enabled == FALSE)
     num_selected++;
   else
     num_selected--;
@@ -3748,11 +3752,8 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           cap_settings.monitor_mode = FALSE;
 #ifdef HAVE_PCAP_CREATE
           row.monitor_mode_enabled = FALSE;
-          row.monitor_mode_supported =FALSE;
+          row.monitor_mode_supported = FALSE;
 #endif
-        }
-        if (ips == 0) {
-          g_string_append(ip_str, "none");
         }
         row.addresses = g_strdup(ip_str->str);
         row.no_addresses = ips;
