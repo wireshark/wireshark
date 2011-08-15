@@ -73,7 +73,7 @@ static GtkWidget *about_wireshark_w;
 
 
 static void
-about_wireshark(GtkWidget *parent, GtkWidget *main_vb)
+about_wireshark(GtkWidget *parent _U_, GtkWidget *main_vb)
 {
   GtkWidget   *msg_label, *icon;
   gchar       *message;
