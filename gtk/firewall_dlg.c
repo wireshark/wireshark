@@ -301,8 +301,12 @@ firewall_rule_cb(GtkWidget *w _U_, gpointer data _U_)
 
     /* Make sure this widget gets destroyed if we quit the main loop,
        so that if we exit, we clean up any temporary files we have
-       for "Follow SSL Stream" windows. */
-    gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(rule_w));
+       for "Follow SSL Stream" windows. 
+       gtk_quit_add_destroy is deprecated and should not be used in newly-written code. This function is going to be removed in GTK+ 3.0
+
+       gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(rule_w));
+
+	   */
 
     gtk_combo_box_set_active(GTK_COMBO_BOX(product_combo_box), 0);  /* invokes select_product callback */
     gtk_widget_show_all(rule_w);
@@ -649,6 +653,7 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
     forget_rule_info(rule_info);
 #endif
     g_free(rule_info);
+	gtk_object_destroy(GTK_OBJECT(w));
 }
 
 static void
