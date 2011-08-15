@@ -1413,6 +1413,10 @@ static void dialog_graph_redraw(user_data_t* user_data)
 /****************************************************************************/
 static void quit(GtkWidget *widget _U_, user_data_t *user_data)
 {
+	GtkWidget *bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
+	surface_info_t *surface_info = g_object_get_data(G_OBJECT(bt_save), "surface-info");
+
+	g_free(surface_info);
 	user_data->dlg.dialog_graph.window = NULL;
 }
 
@@ -1447,6 +1451,9 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	GtkWidget *bt_save;
 	GtkAllocation widget_alloc;
 	cairo_t *cr;
+#if GTK_CHECK_VERSION(2,22,0)
+	surface_info_t *surface_info = g_new(surface_info_t, 1);
+#endif
 
 	user_data=(user_data_t *)g_object_get_data(G_OBJECT(widget), "user_data_t");
 
@@ -1480,12 +1487,18 @@ static gint configure_event(GtkWidget *widget, GdkEventConfigure *event _U_)
 	user_data->dlg.dialog_graph.surface_height=widget_alloc.height;
 
 	bt_save = g_object_get_data(G_OBJECT(user_data->dlg.dialog_graph.window), "bt_save");
-	/*g_object_set_data(G_OBJECT(bt_save), "pixmap", user_data->dlg.dialog_graph.pixmap); Not used ?*/
+#if GTK_CHECK_VERSION(2,22,0)
+	surface_info->surface = user_data->dlg.dialog_graph.surface;
+	surface_info->width = widget_alloc.width;
+	surface_info->height = widget_alloc.height;
+	g_object_set_data(G_OBJECT(bt_save), "surface-info", surface_info);
 	gtk_widget_set_sensitive(bt_save, TRUE);
 
-#if GTK_CHECK_VERSION(2,22,0)
 	cr = cairo_create (user_data->dlg.dialog_graph.surface);
 #else
+	g_object_set_data(G_OBJECT(bt_save), "pixmap", user_data->dlg.dialog_graph.pixmap);
+	gtk_widget_set_sensitive(bt_save, TRUE);
+
 	cr = gdk_cairo_create (user_data->dlg.dialog_graph.pixmap);
 #endif
 	cairo_rectangle (cr, 0, 0, widget_alloc.width, widget_alloc.height);
