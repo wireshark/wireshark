@@ -1246,7 +1246,7 @@ de_rr_utran_freq_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
  * [3] 10.5.2.1e Cell selection indicator after release of all TCH and SDCCH
  */
 static const guint8
-convert_n_to_p[32] = {   0, 10, 19, 28, 26, 44, 52, 60, 67, 74, 81, 88, 95, 102, 109, 116,
+convert_n_to_p[32] = {   0, 10, 19, 28, 36, 44, 52, 60, 67, 74, 81, 88, 95, 102, 109, 116,
                        122,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,   0,   0,   0};
 
 static const guint8
