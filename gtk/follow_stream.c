@@ -909,8 +909,11 @@ follow_stream(gchar *title, follow_info_t *follow_info,
 
 	/* Make sure this widget gets destroyed if we quit the main loop,
 	   so that if we exit, we clean up any temporary files we have
-	   for "Follow TCP Stream" windows. */
-	gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(streamwindow));
+	   for "Follow TCP Stream" windows. 
+       gtk_quit_add_destroy is deprecated and should not be used in newly-written code. 
+       This function is going to be removed in GTK+ 3.0
+       gtk_quit_add_destroy(gtk_main_level(), GTK_OBJECT(streamwindow));
+	   */
 
 	gtk_widget_show_all(streamwindow);
 	window_present(streamwindow);
@@ -970,6 +973,7 @@ follow_destroy_cb(GtkWidget *w, gpointer data _U_)
 	g_free((gpointer)follow_info->client_ip.data);
 	forget_follow_info(follow_info);
 	g_free(follow_info);
+	gtk_widget_destroy(w);
 }
 
 frs_return_t
