@@ -653,7 +653,7 @@ firewall_destroy_cb(GtkWidget *w, gpointer data _U_)
     forget_rule_info(rule_info);
 #endif
     g_free(rule_info);
-	gtk_object_destroy(GTK_OBJECT(w));
+	gtk_widget_destroy(w);
 }
 
 static void
