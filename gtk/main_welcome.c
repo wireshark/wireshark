@@ -332,7 +332,8 @@ welcome_header_new(void)
     item_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
-    icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);
+    /*icon = xpm_to_widget_from_parent(top_level, wssplash_xpm);*/
+	icon = xpm_to_widget(wssplash_xpm);
     gtk_box_pack_start(GTK_BOX(item_hb), icon, FALSE, FALSE, 10);
 
     header_lb = gtk_label_new(NULL);

@@ -541,7 +541,8 @@ window_destroy(GtkWidget *win)
     gtk_widget_destroy(win);
 }
 
-
+#if 0
+/* Do we need this one ? */
 /* convert an xpm to a GtkWidget, using the window settings from it's parent */
 /* (be sure that the parent window is already being displayed) */
 GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
@@ -555,7 +556,7 @@ GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm) {
 
     return gtk_image_new_from_pixmap (pixmap, bitmap);
 }
-
+#endif
 
 /* convert an xpm to a GtkWidget */
 GtkWidget *xpm_to_widget(const char ** xpm) {

@@ -295,7 +295,7 @@ extern GtkWidget *xpm_to_widget(const char ** xpm);
  * @param xpm the character array containing the picture
  * @return a newly created GtkWidget showing the picture
  */
-extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);
+/*extern GtkWidget *xpm_to_widget_from_parent(GtkWidget *parent, const char ** xpm);*/
 
 /** Convert an pixbuf data to a GtkWidget
  *

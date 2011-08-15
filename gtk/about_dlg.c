@@ -79,7 +79,9 @@ about_wireshark(GtkWidget *parent, GtkWidget *main_vb)
   gchar       *message;
   const char  *title = "Network Protocol Analyzer";
 
-  icon = xpm_to_widget_from_parent(parent, wssplash_xpm);
+  /*icon = xpm_to_widget_from_parent(parent, wssplash_xpm);*/
+  icon = xpm_to_widget(wssplash_xpm);
+
   gtk_container_add(GTK_CONTAINER(main_vb), icon);
 
   msg_label = gtk_label_new(title);
