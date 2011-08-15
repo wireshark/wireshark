@@ -664,7 +664,7 @@ void insert_new_rows(GList *list)
   if_addr_t *addr;
   GList *lt_entry;
   data_link_info_t *data_link_info;
-  gchar *str, *first="";
+  gchar *str, *link_type_name = NULL;
   gboolean found = FALSE;
   GString *ip_str;
   GtkTreeView  *if_cb;
@@ -695,7 +695,6 @@ void insert_new_rows(GList *list)
     ip_str = g_string_new("");
     str = "";
     ips = 0;
-    first = "";
     row.name = g_strdup(if_info->name);
     /* Is this interface hidden and, if so, should we include it
        anyway? */
@@ -776,19 +775,19 @@ void insert_new_rows(GList *list)
       row.monitor_mode_supported = caps->can_set_rfmon;
 #endif
       for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-        link = (link_row *)g_malloc(sizeof(link_row));
         data_link_info = lt_entry->data;
         if (data_link_info->description != NULL) {
           str = g_strdup_printf("%s", data_link_info->description);
-          link->pointer = data_link_info->dlt;
         } else {
           str = g_strdup_printf("%s (not supported)", data_link_info->name);
-          link->pointer = -1;
         }
-        if (g_ascii_strcasecmp(first, "") == 0) {
-          first = g_strdup_printf("%s", str);
+        if (linktype_count == 0) {
+          link_type_name = g_strdup(str);
+          row.active_dlt = data_link_info->dlt;
         }
-        link->link_type = g_strdup(str);
+        link = (link_row *)g_malloc(sizeof(link_row));
+        link->dlt = data_link_info->dlt;
+        link->name = g_strdup(str);
         row.links = g_list_append(row.links, link);
         linktype_count++;
       } /* for link_types */
@@ -798,10 +797,8 @@ void insert_new_rows(GList *list)
       row.monitor_mode_enabled = FALSE;
       row.monitor_mode_supported = FALSE;
 #endif
-#ifdef HAVE_PCAP_REMOTE
       row.active_dlt = -1;
-      first = g_strdup("default");
-#endif
+      link_type_name = g_strdup("default");
     }
     row.addresses = g_strdup(ip_str->str);
     row.no_addresses = ips;
@@ -833,11 +830,11 @@ void insert_new_rows(GList *list)
     }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, first, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, first, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, first, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, -1);
 #endif
     count++;
     g_string_free(ip_str, TRUE);
@@ -1607,7 +1604,7 @@ update_options_table(gint index)
   for (list=row.links; list!=NULL; list=g_list_next(list))
   {
     link = (link_row*)(list->data);
-    if (link->pointer == row.active_dlt) {
+    if (link->dlt == row.active_dlt) {
       break;
     }
   }
@@ -1621,11 +1618,11 @@ update_options_table(gint index)
     snaplen_string = g_strdup("default");
   }
 #if defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
 #ifdef USE_THREADS
   if (num_selected > 0) {
@@ -1890,12 +1887,12 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   {
     temp = (link_row*)(list->data);
     ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
-                                                  temp->link_type,
-                                                  GINT_TO_POINTER(temp->pointer)  /* Flag as "not supported" */
+                                                  temp->name,
+                                                  GINT_TO_POINTER(temp->dlt)  /* Flag as "not supported" */
                                                   );
     num_supported_link_types++;
-    if (temp->pointer == row.active_dlt) {
-      ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box),num_supported_link_types-1);
+    if (temp->dlt == row.active_dlt) {
+      ws_combo_box_set_active(GTK_COMBO_BOX(linktype_combo_box), num_supported_link_types - 1);
       found = TRUE;
     }
   }
@@ -3494,7 +3491,7 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
   GList *lt_entry;
   link_row *link = NULL;
   data_link_info_t *data_link_info;
-  gchar *str, *first="";
+  gchar *str, *link_type_name = NULL;
   interface_row row;
   interface_options interface_opts;
   gboolean found = FALSE;
@@ -3529,7 +3526,7 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
       }
       for (list = row.links; list != NULL; list = g_list_next(list)) {
         link = (link_row*)(list->data);
-        if (link->pointer == row.active_dlt) {
+        if (link->dlt == row.active_dlt) {
           break;
         }
       }
@@ -3540,11 +3537,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
       }
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->link_type,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
     }
   } else {
@@ -3555,8 +3552,6 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
       ip_str = g_string_new("");
       str = "";
       ips = 0;
-      row.links = NULL;
-      first = "";
       row.name = g_strdup(if_info->name);
       /* Is this interface hidden and, if so, should we include it anyway? */
       if (!prefs_is_capture_device_hidden(if_info->name) || !do_hide) {
@@ -3632,26 +3627,26 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           }
         }
         linktype_count = 0;
+        row.links = NULL;
         if (caps != NULL) {
 #ifdef HAVE_PCAP_CREATE
           row.monitor_mode_enabled = cap_settings.monitor_mode;
           row.monitor_mode_supported = caps->can_set_rfmon;
 #endif
           for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-            link_row *link = (link_row *)g_malloc(sizeof(link_row));
             data_link_info = lt_entry->data;
             if (data_link_info->description != NULL) {
               str = g_strdup_printf("%s", data_link_info->description);
-              link->pointer = data_link_info->dlt;
             } else {
               str = g_strdup_printf("%s (not supported)", data_link_info->name);
-              link->pointer = -1;
             }
-            if (g_ascii_strcasecmp(first, "") == 0) {
-              first = g_strdup_printf("%s",str);
-              row.active_dlt = link->pointer;
+            if (linktype_count == 0) {
+              link_type_name = g_strdup(str);
+              row.active_dlt = data_link_info->dlt;
             }
-            link->link_type = g_strdup(str);
+            link = (link_row *)g_malloc(sizeof(link_row));
+            link->dlt = data_link_info->dlt;
+            link->name = g_strdup(str);
             row.links = g_list_append(row.links, link);
             linktype_count++;
           }
@@ -3661,6 +3656,8 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           row.monitor_mode_enabled = FALSE;
           row.monitor_mode_supported = FALSE;
 #endif
+          row.active_dlt = -1;
+          link_type_name = g_strdup("default");
         }
         row.addresses = g_strdup(ip_str->str);
         row.no_addresses = ips;
@@ -3676,11 +3673,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           snaplen_string = g_strdup("default");
         }
 #if defined(HAVE_PCAP_CREATE)
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, first,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
         if (caps != NULL) {
           free_if_capabilities(caps);
@@ -3872,11 +3869,11 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
         ws_combo_box_append_text_and_pointer(GTK_COMBO_BOX(linktype_combo_box),
                                              data_link_info->description,
                                              GINT_TO_POINTER(data_link_info->dlt));
-        link->pointer = data_link_info->dlt;
+        link->dlt = data_link_info->dlt;
         if (linktype_count == 0) {
           row.active_dlt = data_link_info->dlt;
         }
-        link->link_type = g_strdup(data_link_info->description);
+        link->name = g_strdup(data_link_info->description);
       } else {
         gchar *str;
         /* Not supported - tell them about it but don't let them select it. */
@@ -3886,8 +3883,8 @@ capture_prep_monitor_changed_cb(GtkWidget *monitor, gpointer argp _U_)
                                                   str,
                                                   GINT_TO_POINTER(-1),  /* Flag as "not supported" */
                                                   FALSE);
-        link->pointer = -1;
-        link->link_type = g_strdup(str);
+        link->dlt = -1;
+        link->name = g_strdup(str);
         g_free(str);
       }
       row.links = g_list_append(row.links, link);

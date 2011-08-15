@@ -79,8 +79,8 @@ typedef struct row_options_tag {
 } interface_row;
 
 typedef struct link_row_tag {
-    gchar *link_type;
-    gint pointer;
+    gchar *name;
+    gint dlt;
 } link_row;
 
 enum
