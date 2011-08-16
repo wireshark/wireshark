@@ -4986,7 +4986,9 @@ proto_reg_handoff_ber(void)
 	syntax_names[i].value = 0;
 	syntax_names[i].strptr = NULL;
 
-
+	/* allow the dissection of BER/DER carried over a TCP transport 
+	   by using "Decode As..." */
+	dissector_add_handle("tcp.port", ber_handle);
 
 	ber_update_oids();
 }
