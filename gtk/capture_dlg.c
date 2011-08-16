@@ -2321,17 +2321,18 @@ static void capture_all_cb(GtkToggleButton *button, gpointer d _U_)
     enabled = TRUE;
   if_cb = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
-  gtk_tree_model_get_iter_from_string(model, &iter, "0");
   pcap_ng_cb = (GtkWidget *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_PCAP_NG_KEY);
-  do {
-    gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, -1);
-    if (!capture_set && enabled) {
-      num_selected++;
-    } else if (capture_set && !enabled) {
-      num_selected--;
-    }
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
-  } while (gtk_tree_model_iter_next(model, &iter));
+  if (gtk_tree_model_get_iter_first(model, &iter)) {
+    do {
+      gtk_tree_model_get (model, &iter, CAPTURE, &capture_set, -1);
+      if (!capture_set && enabled) {
+        num_selected++;
+      } else if (capture_set && !enabled) {
+        num_selected--;
+      }
+      gtk_list_store_set(GTK_LIST_STORE(model), &iter, CAPTURE, enabled, -1);
+    } while (gtk_tree_model_iter_next(model, &iter));
+  }
   if (num_selected >= 2) {
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(pcap_ng_cb), TRUE);
     gtk_widget_set_sensitive(pcap_ng_cb, FALSE);
@@ -2371,11 +2372,11 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
 
   if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
   model = gtk_tree_view_get_model(if_cb);
-  gtk_tree_model_get_iter_from_string(model, &iter, "0");
-
-  do {
-    gtk_list_store_set(GTK_LIST_STORE(model), &iter, PMODE, enabled?"yes":"no", -1);
-  } while (gtk_tree_model_iter_next(model, &iter));
+  if (gtk_tree_model_get_iter_first(model, &iter)) {
+    do {
+      gtk_list_store_set(GTK_LIST_STORE(model), &iter, PMODE, enabled?"yes":"no", -1);
+    } while (gtk_tree_model_iter_next(model, &iter));
+  }
 
   for (i = 0; i < rows->len; i++) {
     row = g_array_index(rows, interface_row, i);

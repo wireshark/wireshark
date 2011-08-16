@@ -854,8 +854,10 @@ void change_selection_for_all(gboolean enable)
 {
   guint i;
 
-  for (i = 0; i < interfaces->len; i++) {
-    change_interface_selection(g_array_index(interfaces, displayed_interface, i).name, enable);
+  if (interfaces) {
+    for (i = 0; i < interfaces->len; i++) {
+      change_interface_selection(g_array_index(interfaces, displayed_interface, i).name, enable);
+    }
   }
 }
 #endif
