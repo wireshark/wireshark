@@ -830,11 +830,11 @@ void insert_new_rows(GList *list)
     }
 
 #if defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, MONITOR, "no",FILTER, "",-1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, BUFFER, (guint) global_capture_opts.default_options.buffer_size, FILTER, "",-1);
  #else
-    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"yes":"no"), SNAPLEN, snaplen_string, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, FALSE, INTERFACE, temp, LINK, link_type_name, PMODE, (row.pmode?"enabled":"disabled"), SNAPLEN, snaplen_string, -1);
 #endif
     count++;
     g_string_free(ip_str, TRUE);
@@ -1618,11 +1618,11 @@ update_options_table(gint index)
     snaplen_string = g_strdup("default");
   }
 #if defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
 #ifdef USE_THREADS
   if (num_selected > 0) {
@@ -2374,7 +2374,7 @@ static void promisc_mode_callback(GtkToggleButton *button, gpointer d _U_)
   model = gtk_tree_view_get_model(if_cb);
   if (gtk_tree_model_get_iter_first(model, &iter)) {
     do {
-      gtk_list_store_set(GTK_LIST_STORE(model), &iter, PMODE, enabled?"yes":"no", -1);
+      gtk_list_store_set(GTK_LIST_STORE(model), &iter, PMODE, enabled?"enabled":"disabled", -1);
     } while (gtk_tree_model_iter_next(model, &iter));
   }
 
@@ -3538,11 +3538,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
       }
       gtk_list_store_append (store, &iter);
 #if defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+      gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
     }
   } else {
@@ -3674,11 +3674,11 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
           snaplen_string = g_strdup("default");
         }
 #if defined(HAVE_PCAP_CREATE)
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"yes":"no"):"n/a", FILTER, row.cfilter, -1);
+        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"yes":"no", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
         if (caps != NULL) {
           free_if_capabilities(caps);
