@@ -3029,7 +3029,7 @@ write_preamble(capture_file *cf)
 
   case WRITE_XML:
     if (verbose)
-	write_pdml_preamble(stdout, cf->filename);
+      write_pdml_preamble(stdout, cf ? cf->filename : NULL);
     else
       write_psml_preamble(stdout);
     return !ferror(stdout);
