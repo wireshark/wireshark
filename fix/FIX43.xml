@@ -29,7 +29,7 @@
     <field name="OnBehalfOfSendingTime" required="N" />
     <group name="NoHops" required="N">
       <field name="HopCompID" required="N" />
-      <field name="HopSendingTime" required="N" />    
+      <field name="HopSendingTime" required="N" />
       <field name="HopRefID" required="N" />
     </group>
   </header>
@@ -1804,7 +1804,7 @@
         <field name="ListID" required="N" />
       </group>
       <group name="NoExecs" required="N">
-        <field name="LastQty" required="N" />      
+        <field name="LastQty" required="N" />
         <field name="ExecID" required="N" />
         <field name="SecondaryExecID" required="N" />
         <field name="LastPx" required="N" />
@@ -2016,7 +2016,7 @@
         <group name="NoContAmts" required="N">
           <field name="ContAmtType" required="N" />
           <field name="ContAmtValue" required="N" />
-          <field name="ContAmtCurr" required="N" />        
+          <field name="ContAmtCurr" required="N" />
         </group>
         <group name="NoMiscFees" required="N">
           <field name="MiscFeeAmt" required="N" />
@@ -2863,7 +2863,7 @@
       <value enum="COFP" description="CERTIFICATE_OF_PARTICIPATION" />
       <value enum="GO" description="GENERAL_OBLIGATION_BONDS" />
       <value enum="MT" description="MANDATORY_TENDER" />
-      <value enum="RAN" description="REVENUE_ANTICIPATION_NOTE" />      
+      <value enum="RAN" description="REVENUE_ANTICIPATION_NOTE" />
       <value enum="REV" description="REVENUE_BONDS" />
       <value enum="SPCLA" description="SPECIAL_ASSESSMENT" />
       <value enum="SPCLO" description="SPECIAL_OBLIGATION" />
@@ -3381,7 +3381,7 @@
     <field number="379" name="BusinessRejectRefID" type="STRING" />
     <field number="380" name="BusinessRejectReason" type="INT">
       <value enum="0" description="OTHER" />
-      <value enum="1" description="UNKOWN_ID" />
+      <value enum="1" description="UNKNOWN_ID" />
       <value enum="2" description="UNKNOWN_SECURITY" />
       <value enum="3" description="UNSUPPORTED_MESSAGE_TYPE" />
       <value enum="4" description="APPLICATION_NOT_AVAILABLE" />

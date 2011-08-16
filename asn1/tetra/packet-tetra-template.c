@@ -474,7 +474,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					pinfo->srcport, pinfo->destport);
 		break;
 	default:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Unkown command: %d",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Unknown command: %d",
 				pinfo->srcport, pinfo->destport, type);
 		break;
 	}

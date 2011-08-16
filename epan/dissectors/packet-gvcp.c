@@ -123,11 +123,11 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* packets from the PC to the camera on GVCP_PORT seem to always
      start with 0x4201 or 0x4200 */
-  if ( pinfo->destport == GVCP_PORT && 
+  if ( pinfo->destport == GVCP_PORT &&
        (packet_type != 0x4200 && packet_type != 0x4201) )
     return 0;
 
-  /* packets from the camera GVCP_PORT to the PC seem to start 
+  /* packets from the camera GVCP_PORT to the PC seem to start
      with 0x0000, but can be different on error condition (e.g. 0x8005) */
 #if 0
   if ( pinfo->srcport == GVCP_PORT && tvb_get_ntohs(tvb, 0) != 0x0 )
@@ -147,13 +147,13 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* check that GVCP header+payload match total packet size */
   if (tvb_reported_length(tvb) < 8+(guint32)packet_plsize) {
-    ep_strbuf_append_printf(info, " (truncated? %u bytes missing)", 
+    ep_strbuf_append_printf(info, " (truncated? %u bytes missing)",
                             (8 + packet_plsize) - tvb_reported_length(tvb));
     col_add_str(pinfo->cinfo, COL_INFO, info->str);
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
   }
   if (tvb_reported_length(tvb) > 8+(guint32)packet_plsize) {
-    ep_strbuf_append_printf(info, " (%u excess bytes)", 
+    ep_strbuf_append_printf(info, " (%u excess bytes)",
                             tvb_reported_length(tvb) - (8 + packet_plsize));
     col_add_str(pinfo->cinfo, COL_INFO, info->str);
     return tvb_length(tvb);/* or should we assume this is not GVCP, return 0?*/
@@ -168,7 +168,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   switch (packet_opcode) {
   case 0x04: /* Assign new temporary IP */
-    if (packet_plsize < 24) {/* 56 bytes seem to be normal */ 
+    if (packet_plsize < 24) {/* 56 bytes seem to be normal */
       ep_strbuf_append(info, " <missing args>");
     } else { /* packet contain new network configuration */
       ep_strbuf_append_printf(info, "%d.%d.%d.%d to %s",
@@ -197,7 +197,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ep_strbuf_append_printf(info, " *0x%08x = 0x%08x", tvb_get_ntohl(tvb, 8),
                               tvb_get_ntohl(tvb, 12));
       if (packet_plsize >= 16) {
-        ep_strbuf_append_printf(info, ", *0x%08x = 0x%08x", 
+        ep_strbuf_append_printf(info, ", *0x%08x = 0x%08x",
                                 tvb_get_ntohl(tvb, 16), tvb_get_ntohl(tvb, 20));
         if (packet_plsize >= 24)
           ep_strbuf_append(info, ", ...");
@@ -208,8 +208,8 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (packet_plsize < 4) {
       ep_strbuf_append(info, " <missing arg>");
     } else {
-      ep_strbuf_append_printf(info, " %d register%s written", 
-                              tvb_get_ntohl(tvb, 8), 
+      ep_strbuf_append_printf(info, " %d register%s written",
+                              tvb_get_ntohl(tvb, 8),
                               tvb_get_ntohl(tvb, 8)==1?"":"s");
     }
     break;
@@ -217,7 +217,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (packet_plsize < 8) {
       ep_strbuf_append(info, " <missing args>");
     } else { /* packet contains address/size pair to read from */
-      ep_strbuf_append_printf(info, " 0x%08x (%d bytes, X=0x%04x)", 
+      ep_strbuf_append_printf(info, " 0x%08x (%d bytes, X=0x%04x)",
                               tvb_get_ntohl(tvb, 8), tvb_get_ntohs(tvb, 14),
                               tvb_get_ntohs(tvb, 12));
       if (packet_plsize > 8) {
@@ -237,7 +237,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (packet_plsize < 8) {
       ep_strbuf_append(info, " <missing args>");
     } else { /* packet contains desired data */
-      ep_strbuf_append_printf(info, " *0x%08x = <%d bytes>", 
+      ep_strbuf_append_printf(info, " *0x%08x = <%d bytes>",
                               tvb_get_ntohl(tvb, 8), packet_plsize - 4);
     }
     break;
@@ -255,7 +255,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) { /* we are being asked for details */
     proto_item *ti = NULL;
     proto_tree *gvcp_tree = NULL;
-    
+
     ti = proto_tree_add_item(tree, proto_gvcp, tvb, 0, -1, FALSE);
     gvcp_tree = proto_item_add_subtree(ti, ett_gvcp);
     proto_tree_add_item(gvcp_tree, hf_gvcp_type, tvb, 0, 2, FALSE);
@@ -331,7 +331,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(gvcp_tree, hf_gvcp_data, tvb, 8, -1, FALSE);
       break;
     }
-    
+
   }
 
   return tvb_length(tvb);
@@ -408,7 +408,7 @@ proto_register_gvcp(void)
         NULL, HFILL }
     },
     { &hf_gvcp_unknown16,
-      { "2-byte unknown meaning", "gvcp.unkown16",
+      { "2-byte unknown meaning", "gvcp.unknown16",
         FT_UINT16, BASE_HEX,
         NULL, 0x0,
         NULL, HFILL }

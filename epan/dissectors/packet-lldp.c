@@ -1762,7 +1762,7 @@ dissect_ieee_802_3_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 		if (tree)
 			proto_tree_add_text(tree, tvb, tempOffset, 1, "%s %s %s",
 				decode_boolean_bitfield(tempByte, 0xC0, 8, "Power Type:", "Power Type:"),
-				val_to_str(subType, power_type_802_3, "Unkown"),
+				val_to_str(subType, power_type_802_3, "Unknown"),
 				val_to_str(subType, media_power_type, "Unknown"));
 
 		/* Determine power source */

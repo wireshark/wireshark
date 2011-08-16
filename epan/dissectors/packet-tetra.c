@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tetra.c                                                             */
-/* ../../tools/asn2wrs.py -u -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . tetra.asn */
+/* ../../../tools/asn2wrs.py -u -p tetra -c ../../../asn1/tetra/tetra.cnf -s ../../../asn1/tetra/packet-tetra-template -D ../../../asn1/tetra tetra.asn */
 
 /* Input file: packet-tetra-template.c */
 
@@ -9286,7 +9286,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					pinfo->srcport, pinfo->destport);
 		break;
 	default:
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Unkown command: %d",
+		col_add_fstr(pinfo->cinfo, COL_INFO, "%d > %d Unknown command: %d",
 				pinfo->srcport, pinfo->destport, type);
 		break;
 	}

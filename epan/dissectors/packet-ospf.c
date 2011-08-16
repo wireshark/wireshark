@@ -2673,7 +2673,7 @@ dissect_ospf_v3_lsa(tvbuff_t *tvb, int offset, proto_tree *tree,
                         (tvb_get_ntohs(tvb, offset) & OSPF_DNA_LSA) ? "True" : "False");
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 2, 2, "LSA Type: 0x%04x (%s)",
-                        ls_type, val_to_str(ls_type, v3_ls_type_vals,"Unkown"));
+                        ls_type, val_to_str(ls_type, v3_ls_type_vals,"Unknown"));
 
     proto_tree_add_text(ospf_lsa_tree, tvb, offset + 4, 4, "Link State ID: %s",
                         tvb_ip_to_str(tvb, offset + 4));

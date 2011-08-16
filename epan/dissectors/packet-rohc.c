@@ -266,7 +266,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 				 *   +---+---+---+---+---+---+---+---+
 				 *
 				 */
-				
+
 				oct = tvb_get_guint8(tvb, offset);
 				proto_tree_add_item(tree, hf_rohc_fb1_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 				col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", oct);
@@ -337,7 +337,7 @@ dissect_rohc_feedback_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, 
 				}
 				feedback_data_len = feedback_data_len - opt_len;
 				offset = offset + opt_len;
-				 
+
 			}
 			break;
 		default:
@@ -351,7 +351,7 @@ static void
 dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset, rohc_info *p_rohc_info){
 
 	proto_item *item;
-	proto_tree *sub_tree;	
+	proto_tree *sub_tree;
 	guint8 oct, rx, cc, val_len = 0;
 	int i, start_offset;
 
@@ -390,7 +390,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 			break;
 	}
 
-	/* 5.7.7.5.  Initialization of UDP Header 
+	/* 5.7.7.5.  Initialization of UDP Header
 	 * Dynamic part:
 	 * Checksum
 	 */
@@ -488,7 +488,7 @@ static void
 dissect_rohc_ir_rtp_udp_profile_static(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, int offset, gboolean d, rohc_info *p_rohc_info){
 
 	proto_item *item;
-	proto_tree *sub_tree;	
+	proto_tree *sub_tree;
 	guint8 version;
 	int start_offset;
 
@@ -596,15 +596,15 @@ dissect_rohc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	length = tvb_length(tvb);
-	
+
 	/* If this is ROHC ethertype clear col */
 	if ( pinfo->src.type == AT_ETHER ){
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "ROHC(%s)",
-			val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unkown"));
+			val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unknown"));
 		col_clear(pinfo->cinfo, COL_INFO);
 	}else{
 		col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-			val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unkown"));
+			val_to_str(p_rohc_info->profile, rohc_profile_vals, "Unknown"));
 		/* Append a space if we add stuff to existing col info */
 		col_append_str(pinfo->cinfo, COL_INFO, " ");
 	}
@@ -642,15 +642,15 @@ start_over:
 			offset++;
 			oct = tvb_get_guint8(tvb,offset);
 		}
-		/* feedback ? 
-		 * Feedback (begins with 11110) 
+		/* feedback ?
+		 * Feedback (begins with 11110)
 		 */
 		if((oct&0xf8) == 0xf0){
 		/* 3) If the first remaining octet starts with 11110, and an Add-CID
-		 *    octet was found in step 2), an error has occurred; 
+		 *    octet was found in step 2), an error has occurred;
 		 *    the header MUST be discarded without further action.
 		 */
-			
+
 			if(is_add_cid){
 				proto_tree_add_item(rohc_tree, hf_rohc_feedback, tvb, offset, 1, ENC_BIG_ENDIAN);
 				col_append_str(pinfo->cinfo, COL_INFO, "Error packet");
@@ -727,7 +727,7 @@ start_over:
 			if((p_rohc_info->large_cid_present == FALSE) && (is_add_cid == FALSE)){
 				item = proto_tree_add_uint(rohc_tree, hf_rohc_small_cid, tvb, 0, 0, cid);
 				PROTO_ITEM_SET_GENERATED(item);
-			} 
+			}
 			ir_item = proto_tree_add_item(rohc_tree, hf_rohc_ir_packet, tvb, offset, 1, ENC_BIG_ENDIAN);
 			ir_tree = proto_item_add_subtree(ir_item, ett_rohc_ir);
 			d = oct & 0x01;
@@ -771,7 +771,7 @@ start_over:
 			if((p_rohc_info->large_cid_present == FALSE) && (is_add_cid == FALSE)){
 				item = proto_tree_add_uint(rohc_tree, hf_rohc_small_cid, tvb, 0, 0, cid);
 				PROTO_ITEM_SET_GENERATED(item);
-			} 
+			}
 			ir_item = proto_tree_add_item(rohc_tree, hf_rohc_ir_dyn_packet, tvb, offset, 1, ENC_BIG_ENDIAN);
 			ir_tree = proto_item_add_subtree(ir_item, ett_rohc_ir_dyn);
 			if(p_rohc_info->large_cid_present == TRUE){
@@ -820,103 +820,103 @@ proto_register_rohc(void)
 	static hf_register_info hf[] =
 	{
 		{ &hf_rohc_padding,
-			{ "Padding","rohc.pading", 
+			{ "Padding","rohc.pading",
 			FT_BYTES, BASE_NONE, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_add_cid,
-			{ "Add-CID","rohc.add_cid", 
+			{ "Add-CID","rohc.add_cid",
 			FT_UINT8, BASE_HEX, NULL, 0xf0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_feedback,
-			{ "Feedback","rohc.feedback", 
+			{ "Feedback","rohc.feedback",
 			FT_UINT8, BASE_HEX, NULL, 0xf8,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_code,
-			{ "Code","rohc.code", 
+			{ "Code","rohc.code",
 			FT_UINT8, BASE_DEC, NULL, 0x07,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_size,
-			{ "Size","rohc.size", 
+			{ "Size","rohc.size",
 			FT_UINT8, BASE_DEC, NULL, 0x00,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_ir_packet,
-			{ "IR packet","rohc.ir_packet", 
+			{ "IR packet","rohc.ir_packet",
 			FT_UINT8, BASE_DEC, NULL, 0xfe,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_ir_dyn_packet,
-			{ "IR-DYN packet","rohc.ir_dyn_packet", 
+			{ "IR-DYN packet","rohc.ir_dyn_packet",
 			FT_UINT8, BASE_DEC, NULL, 0xff,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_small_cid,
-			{ "Small CID","rohc.small_cid", 
+			{ "Small CID","rohc.small_cid",
 			FT_UINT8, BASE_DEC, NULL, 0x0f,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_large_cid,
-			{ "Large CID","rohc.large_cid", 
+			{ "Large CID","rohc.large_cid",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_acktype,
-			{ "Acktype","rohc.acktype", 
+			{ "Acktype","rohc.acktype",
 			FT_UINT8, BASE_DEC, VALS(rohc_acktype_vals), 0xc0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_mode,
-			{ "Mode","rohc.mode", 
+			{ "Mode","rohc.mode",
 			FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x30,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_sn,
-			{ "SN(lsb)","rohc.sn", 
+			{ "SN(lsb)","rohc.sn",
 			FT_UINT16, BASE_HEX, NULL, 0x0fff,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_fb1_sn,
-			{ "SN","rohc.fb1_sn", 
+			{ "SN","rohc.fb1_sn",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_opt_type,
-			{ "Option type","rohc.rtp.opt_type", 
+			{ "Option type","rohc.rtp.opt_type",
 			FT_UINT8, BASE_DEC, VALS(rohc_rtp_opt_type_vals), 0xf0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_opt_len,
-			{ "Option length","rohc.rtp.opt_length", 
+			{ "Option length","rohc.rtp.opt_length",
 			FT_UINT8, BASE_DEC, NULL, 0x0f,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_crc,
-			{ "CRC","rohc.crc", 
+			{ "CRC","rohc.crc",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_opt_sn,
-			{ "SN","rohc.opt.sn", 
+			{ "SN","rohc.opt.sn",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
@@ -928,193 +928,193 @@ proto_register_rohc(void)
 			}
 		},
 		{ &hf_rohc_profile,
-			{ "Profile","rohc.profile", 
+			{ "Profile","rohc.profile",
 			FT_UINT8, BASE_DEC, VALS(rohc_profile_vals), 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_d_bit,
-			{ "D - Dynamic chain","rohc.d", 
+			{ "D - Dynamic chain","rohc.d",
 			FT_BOOLEAN, 8, TFS(&tfs_present_not_present), 0x01,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_version,
-			{ "Version","rohc.rtp.version", 
+			{ "Version","rohc.rtp.version",
 			FT_UINT8, BASE_DEC, VALS(rohc_rtp_version_vals), 0xf0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_protocol,
-			{ "Protocol","rohc.rtp.protocol", 
+			{ "Protocol","rohc.rtp.protocol",
 			FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&ipproto_val_ext), 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_ipv4_src,
-			{ "Source address","rohc.rtp.ipv4_src", 
+			{ "Source address","rohc.rtp.ipv4_src",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL
 			}
 		},
 		{ &hf_rohc_rtp_ipv4_dst,
-			{ "Destination address","rohc.rtp.ipv4_dst", 
+			{ "Destination address","rohc.rtp.ipv4_dst",
 			FT_IPv4, BASE_NONE, NULL, 0x0,
 			NULL, HFILL
 			}
 		},
 		{ &hf_rohc_rtp_udp_src_port,
-			{ "Source Port","rohc.rtp.udp_src_port", 
+			{ "Source Port","rohc.rtp.udp_src_port",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_udp_dst_port,
-			{ "Destination Port","rohc.rtp.udp_dst_port", 
+			{ "Destination Port","rohc.rtp.udp_dst_port",
 			FT_UINT16, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_ssrc,
-			{ "SSRC","rohc.rtp.ssrc", 
+			{ "SSRC","rohc.rtp.ssrc",
 			FT_UINT32, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_tos,
-			{ "Type of Service","rohc.rtp.tos", 
+			{ "Type of Service","rohc.rtp.tos",
 			FT_UINT8, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_ttl,
-			{ "Time to Live","rohc.rtp.ttl", 
+			{ "Time to Live","rohc.rtp.ttl",
 			FT_UINT8, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_id,
-			{ "Identification","rohc.rtp.rtp.id", 
+			{ "Identification","rohc.rtp.rtp.id",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_df,
-			{ "Don't Fragment(DF)","rohc.rtp.df", 
+			{ "Don't Fragment(DF)","rohc.rtp.df",
 			FT_BOOLEAN, 8, NULL, 0x80,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_rnd,
-			{ "RND(IP-ID behaves randomly)","rohc.rtp.rnd", 
+			{ "RND(IP-ID behaves randomly)","rohc.rtp.rnd",
 			FT_BOOLEAN, 8, NULL, 0x40,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_nbo,
-			{ "Network Byte Order (NBO)","rohc.rtp.nbo", 
+			{ "Network Byte Order (NBO)","rohc.rtp.nbo",
 			FT_BOOLEAN, 8, NULL, 0x20,
 			"Whether the IP-ID is in Network Byte Order" , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_checksum,
-			{ "Checksum","rohc.rtp.checksum", 
+			{ "Checksum","rohc.rtp.checksum",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_dynamic_udp_seqnum,
-			{ "UDP Sequence Number", "rohc.dynamic.udp.seqnum", 
+			{ "UDP Sequence Number", "rohc.dynamic.udp.seqnum",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL, HFILL
 			}
         },
 		{ &hf_rohc_rtp_v,
-			{ "version","rohc.rtp.v", 
+			{ "version","rohc.rtp.v",
 			FT_UINT8, BASE_DEC, NULL, 0xc0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_p,
-			{ "Padding(P)","rohc.rtp.p", 
+			{ "Padding(P)","rohc.rtp.p",
 			FT_BOOLEAN, 8, NULL, 0x20,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_rx,
-			{ "RX","rohc.rtp.rx", 
+			{ "RX","rohc.rtp.rx",
 			FT_BOOLEAN, 8, NULL, 0x10,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_cc,
-			{ "CC","rohc.rtp.cc", 
+			{ "CC","rohc.rtp.cc",
 			FT_UINT8, BASE_DEC, NULL, 0x0f,
 			"CSRC counter from original RTP header" , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_m,
-			{ "Marker Bit (M)","rohc.rtp.m", 
+			{ "Marker Bit (M)","rohc.rtp.m",
 			FT_BOOLEAN, 8,  TFS(&tfs_set_notset), 0x80,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_pt,
-			{ "Payload Type(PT)","rohc.rtp.pt", 
+			{ "Payload Type(PT)","rohc.rtp.pt",
 			FT_UINT8, BASE_DEC|BASE_EXT_STRING, (&rtp_payload_type_vals_ext), 0x7f,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_sn,
-			{ "Sequence Number(SN)","rohc.rtp.sn", 
+			{ "Sequence Number(SN)","rohc.rtp.sn",
 			FT_UINT16, BASE_HEX, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_timestamp,
-			{ "RTP Timestamp","rohc.rtp.timestamp", 
+			{ "RTP Timestamp","rohc.rtp.timestamp",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_x,
-			{ "X","rohc.rtp.x", 
+			{ "X","rohc.rtp.x",
 			FT_BOOLEAN, 8,  TFS(&tfs_set_notset), 0x80,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_mode,
-			{ "Mode","rohc.rtp.mode", 
+			{ "Mode","rohc.rtp.mode",
 			FT_UINT8, BASE_DEC, VALS(rohc_mode_vals), 0x0c,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_tis,
-			{ "TIS","rohc.rtp.tis", 
+			{ "TIS","rohc.rtp.tis",
 			FT_BOOLEAN, 8,  NULL, 0x02,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_tss,
-			{ "TSS","rohc.rtp.tss", 
+			{ "TSS","rohc.rtp.tss",
 			FT_BOOLEAN, 8,  NULL, 0x01,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_ts_stride,
-			{ "TS_Stride","rohc.rtp.ts_stride", 
+			{ "TS_Stride","rohc.rtp.ts_stride",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_rtp_time_stride,
-			{ "Time_Stride","rohc.rtp.time_stride", 
+			{ "Time_Stride","rohc.rtp.time_stride",
 			FT_UINT32, BASE_DEC, NULL, 0x0,
 			NULL , HFILL
 			}
 		},
 		{ &hf_rohc_var_len,
-			{ "Variable length","rohc.var_len", 
+			{ "Variable length","rohc.var_len",
 			FT_UINT8, BASE_DEC, VALS(rohc_var_len_vals), 0x0,
 			NULL , HFILL
 			}

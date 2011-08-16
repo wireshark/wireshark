@@ -2511,7 +2511,7 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   process_mode = tvb_get_guint8(tvb, offset + 5);
   proto_tree_add_text(field_tree, tvb, offset + 5, 1,
                       "Process Mode: %s (0x%02X)",
-                      val_to_str_const(process_mode, lzsdcp_processmode_vals, "Unkown"),
+                      val_to_str_const(process_mode, lzsdcp_processmode_vals, "Unknown"),
                       process_mode);
 }
 
