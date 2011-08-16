@@ -135,7 +135,7 @@ remove_tap_listener_flow_graph(void)
 /* CALLBACKS                                                                */
 /****************************************************************************/
 static void
-flow_graph_on_destroy(GtkObject *object _U_, gpointer user_data _U_)
+flow_graph_on_destroy(GObject *object _U_, gpointer user_data _U_)
 {
 	/* remove_tap_listeners */
 	remove_tap_listener_flow_graph();
