@@ -1307,7 +1307,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, int *p, proto_tree *tree, int ctype, 
                 proto_tree_add_text(subtree, tvb, *p,
                                     1, "Send/Receive: %s (%u)",
                                     val_to_str(orfsendrecv, orf_send_recv_vals,
-                                               "Uknown"), orfsendrecv);
+                                               "Unknown"), orfsendrecv);
                 (*p)++;
             }
             break;

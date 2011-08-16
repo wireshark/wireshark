@@ -172,7 +172,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     proto_item *ti = NULL;
     proto_item *sensor_line = NULL;
     /* sensor type in english */
-    const gchar *type_str = "Uknown sensor";
+    const gchar *type_str = "Unknown sensor";
     const gchar *unit_str = "Unknown unit";
 
     /* bits*/

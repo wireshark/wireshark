@@ -1059,7 +1059,7 @@ static const value_string homeplug_av_tone_map_vals[] = {
 
 static const value_string homeplug_av_tone_map_status_vals[] = {
    { 0x00, "Success" },
-   { 0x01, "Uknown MAC address" },
+   { 0x01, "Unknown MAC address" },
    { 0x02, "Unknown Tone Map slot" },
    { 0, NULL }
 };

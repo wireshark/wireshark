@@ -3604,7 +3604,7 @@ drsuapi_dissect_DsNameFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 
 
 const value_string drsuapi_DsNameFormat_vals[] = {
-    { 0	, "DRSUAPI_DS_NAME_FORMAT_UKNOWN" },
+    { 0	, "DRSUAPI_DS_NAME_FORMAT_UNKNOWN" },
     { 1	, "DRSUAPI_DS_NAME_FORMAT_FQDN_1779" },
     { 2	, "DRSUAPI_DS_NAME_FORMAT_NT4_ACCOUNT" },
     { 3	, "DRSUAPI_DS_NAME_FORMAT_DISPLAY" },

@@ -376,7 +376,7 @@ interface drsuapi
 	} drsuapi_DsNameFlags;
 
 	typedef [v1_enum] enum {
-		DRSUAPI_DS_NAME_FORMAT_UKNOWN			= 0,
+		DRSUAPI_DS_NAME_FORMAT_UNKNOWN			= 0,
 		DRSUAPI_DS_NAME_FORMAT_FQDN_1779		= 1,
 		DRSUAPI_DS_NAME_FORMAT_NT4_ACCOUNT		= 2,
 		DRSUAPI_DS_NAME_FORMAT_DISPLAY			= 3,
