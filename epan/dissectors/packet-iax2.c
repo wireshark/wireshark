@@ -112,6 +112,7 @@ static int hf_iax2_trunk_ncalls = -1;
 static int hf_iax2_trunk_call_len = -1;
 static int hf_iax2_trunk_call_scallno = -1;
 static int hf_iax2_trunk_call_ts = -1;
+static int hf_iax2_trunk_call_data = -1;
 
 static int hf_iax2_cap_g723_1 = -1;
 static int hf_iax2_cap_gsm = -1;
@@ -144,7 +145,7 @@ static int hf_iax2_reassembled_length = -1;
 /* hf_iax2_ies is an array of header fields, one per potential Information
  * Element. It's done this way (rather than having separate variables for each
  * IE) to make the dissection of information elements clearer and more
- * orthoganal.
+ * orthogonal.
  *
  * To add the ability to dissect a new information element, just add an
  * appropriate entry to hf[] in proto_register_iax2(); dissect_ies() will then
@@ -261,7 +262,7 @@ static const value_string iax_iax_subclasses[] = {
   {0,NULL}
 };
 
-/* Subclassess for Control packets */
+/* Subclasses for Control packets */
 static const value_string iax_cmd_subclasses[] = {
   {0, "(0?)"},
   {1, "HANGUP"},
@@ -288,7 +289,7 @@ static const voip_call_state tap_cmd_voip_state[] = {
 };
 #define NUM_TAP_CMD_VOIP_STATES array_length(tap_cmd_voip_state)
 
-/* Subclassess for Modem packets */
+/* Subclasses for Modem packets */
 static const value_string iax_modem_subclasses[] = {
   {0, "(0?)"},
   {1, "T.38"},
@@ -839,7 +840,7 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
     circuit_t *src_circuit;
 
     /* in all other circumstances, the source circuit should already
-     * exist: its absense indicates that we missed the all-important NEW
+     * exist: its absence indicates that we missed the all-important NEW
      * packet.
      */
 
@@ -882,7 +883,7 @@ static iax_call_data *iax_lookup_call( packet_info *pinfo,
   return iax_call;
 }
 
-/* initialise the per-direction parts of an iax_call_data structure */
+/* initialize the per-direction parts of an iax_call_data structure */
 static void init_dir_data(iax_call_dirdata *dirdata)
 {
   dirdata -> current_frag_bytes=0;
@@ -934,7 +935,7 @@ static iax_call_data *iax_new_call( packet_info *pinfo,
 typedef struct iax_packet_data {
   gboolean first_time; /* we're dissecting this packet for the first time; so
                           things like codec and transfer requests should be
-                          propogated into the call data */
+                          propagated into the call data */
   iax_call_data *call_data;
   guint32 codec;
   gboolean reversed;
@@ -1103,7 +1104,6 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       len = dissect_minivideopacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
     case IAX2_TRUNK_PACKET:
-      /* not implemented yet */
       iax2_info->messageName = "TRUNK_PACKET";
       len = dissect_trunkpacket( tvb, offset, scallno, pinfo, full_mini_subtree, tree );
       break;
@@ -1684,7 +1684,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     break;
   }
 
-  /* next time we come to parse this packet, don't propogate the codec into the
+  /* next time we come to parse this packet, don't propagate the codec into the
    * call_data */
   iax_packet->first_time = FALSE;
 
@@ -1764,7 +1764,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 
   dissect_payload(tvb, offset, pinfo, iax2_tree, main_tree, ts, TRUE, iax_packet);
 
-  /* next time we come to parse this packet, don't propogate the codec into the
+  /* next time we come to parse this packet, don't propagate the codec into the
    * call_data */
   iax_packet->first_time = FALSE;
 
@@ -1822,7 +1822,6 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
   proto_item *call_item;
   proto_tree *call_tree;
   guint16 datalen, rlen, ts, scallno;
-
   /*
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |     Data Length (in octets)   |R|     Source Call Number      |
@@ -1833,8 +1832,7 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
    :                                                               :
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  */
-
+   */
   datalen = tvb_get_ntohs(tvb, offset);
   scallno = tvb_get_ntohs(tvb, offset + 2);
   ts = tvb_get_ntohs(tvb, offset + 4);
@@ -1848,9 +1846,8 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_ts, tvb, offset + 4, 2, FALSE);
-
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 6, rlen, FALSE);
   }
-
   offset += 6 + rlen;
 
   return offset;
@@ -1861,7 +1858,6 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
   proto_item *call_item;
   proto_tree *call_tree;
   guint16 datalen, rlen, scallno;
-
   /*
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
    |R|      Source Call Number     |     Data Length (in octets)   |
@@ -1870,8 +1866,7 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
    :                             Data                              :
    |                                                               |
    +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-  */
-
+   */
   scallno = tvb_get_ntohs(tvb, offset);
   datalen = tvb_get_ntohs(tvb, offset + 2);
 
@@ -1883,8 +1878,8 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 4, rlen, FALSE);
   }
-
   offset += 4 + rlen;
 
   return offset;
@@ -1910,7 +1905,6 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
   /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
   /* |                            time-stamp                         | */
   /* +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+ */
-
 
   if( iax2_tree ) {
     /* Meta Command */
@@ -2335,7 +2329,7 @@ proto_register_iax2 (void)
      {"IAX subclass", "iax2.iax.subclass", FT_UINT8, BASE_DEC,
       VALS (iax_iax_subclasses),
       0x0,
-      "IAX subclass gives the command number for IAX signalling packets", HFILL}},
+      "IAX subclass gives the command number for IAX signaling packets", HFILL}},
 
     {&hf_iax2_voice_csub,
      {"Voice Subclass (compressed codec no)", "iax2.voice.subclass", FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2369,7 +2363,7 @@ proto_register_iax2 (void)
 
     {&hf_iax2_trunk_ts,
      {"Timestamp", "iax2.timestamp", FT_UINT32, BASE_DEC, NULL, 0x0,
-      "timestamp is the time, in ms after the start ofCommand data this call, at which this trunk packet was transmitted",
+      "timestamp is the time, in ms after the start of Command data this call, at which this trunk packet was transmitted",
       HFILL}},
 
     {&hf_iax2_trunk_metacmd,
@@ -2397,10 +2391,16 @@ proto_register_iax2 (void)
       "timestamp is the time, in ms after the start of this call, at which this packet was transmitted",
       HFILL}},
 
+    {&hf_iax2_trunk_call_data,
+     {"Data", "iax2.trunk.call.payload", FT_BYTES, BASE_NONE, NULL, 0x0,
+      "Payload carried by this trunked packet.",
+      HFILL}},
+
     {&hf_iax2_trunk_ncalls,
      {"Number of calls", "iax2.trunk.ncalls", FT_UINT16, BASE_DEC, NULL, 0x0,
       "Number of calls in this trunk packet",
       HFILL}},
+
     /*
      * Decoding for the ies
      */
@@ -2640,7 +2640,7 @@ proto_register_iax2 (void)
       0x0, "Raw data for unknown IEs",
       HFILL}},
 
-    /* capablilites */
+    /* capabilities */
     {&hf_iax2_cap_g723_1,
      {"G.723.1 compression", "iax2.cap.g723_1", FT_BOOLEAN, 32,
       TFS(&tfs_supported_not_supported), AST_FORMAT_G723_1,
@@ -2778,7 +2778,7 @@ proto_register_iax2 (void)
     &ett_iax2_trunk_call
   };
 
-  /* initialise the hf_iax2_ies[] array to -1 */
+  /* initialize the hf_iax2_ies[] array to -1 */
   memset(hf_iax2_ies,0xff,sizeof(hf_iax2_ies));
 
   proto_iax2 =
