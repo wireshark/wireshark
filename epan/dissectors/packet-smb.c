@@ -12974,7 +12974,7 @@ dissect_qpi_loi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
     proto_item *item, int offset, guint16 *bcp)
 {
 	smb_info_t *si;
-	gboolean trunc;
+	gboolean trunc = FALSE;
 
 	if(!*bcp){
 		return offset;
