@@ -206,6 +206,12 @@ expand_tree(GtkTreeView *tree_view, GtkTreeIter *iter,
     gtk_tree_model_get(model, iter, 1, &finfo, -1);
     g_assert(finfo);
 
+	/* scroll the expanded item to reduce the need to do a manual scroll down
+	 * and provide faster navigation of deeper trees */
+
+	if(prefs.gui_auto_scroll_on_expand) 
+		gtk_tree_view_scroll_to_cell(tree_view, path, NULL, TRUE, (prefs.gui_auto_scroll_percentage/100.0f), 0.0f);
+
     /*
      * Nodes with "finfo->tree_type" of -1 have no ett_ value, and
      * are thus presumably leaf nodes and cannot be expanded.

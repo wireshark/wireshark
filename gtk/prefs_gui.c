@@ -58,6 +58,8 @@ static gboolean recent_files_count_changed_cb(GtkWidget *recent_files_entry _U_,
 					      GdkEvent *event _U_, gpointer parent_w);
 static gboolean recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 					     GdkEvent *event _U_, gpointer parent_w);
+static gint scroll_percent_changed_cb(GtkWidget *recent_df_entry _U_,
+					  GdkEvent *event _U_, gpointer parent_w);
 #define PLIST_SEL_BROWSE_KEY		"plist_sel_browse"
 #define PTREE_SEL_BROWSE_KEY		"ptree_sel_browse"
 #define GEOMETRY_POSITION_KEY		"geometry_position"
@@ -78,6 +80,8 @@ static gboolean recent_df_entries_changed_cb(GtkWidget *recent_df_entry _U_,
 #define GUI_USE_PREF_SAVE_KEY		"use_pref_save"
 #define GUI_SHOW_VERSION_KEY		"show_version"
 #define GUI_EXPERT_EYECANDY_KEY		"expert_eyecandy"
+#define GUI_AUTO_SCROLL_KEY		"auto_scroll_on_expand"
+#define GUI_SCROLL_PERCENT_KEY		"scroll_percent_on_expand"
 
 static const enum_val_t scrollbar_placement_vals[] _U_ = {
 	{ "FALSE", "Left", FALSE },
@@ -153,6 +157,9 @@ static char recent_df_entries_max_str[128] = "";
 /* Used to contain the string from the Open File preview timeout pref item */
 static char open_file_preview_str[128] = "";
 
+/* Used to contain the string from the Auto Scroll Percentage pref item */
+static char scroll_percent_preview_str[128] = "";
+
 #define GUI_TABLE_ROWS 4
 
 GtkWidget*
@@ -168,6 +175,7 @@ gui_prefs_show(void)
 	GtkWidget *recent_files_count_max_te, *recent_df_entries_max_te, *ask_unsaved_cb, *find_wrap_cb;
 	GtkWidget *use_pref_save_cb;
 	GtkWidget *show_version_cb;
+	GtkWidget *auto_scroll_cb, *scroll_percent_te;
 	GtkWidget *webbrowser_te;
 	GtkWidget *save_position_cb, *save_size_cb, *save_maximized_cb;
 #if defined(HAVE_IGE_MAC_INTEGRATION) || defined(HAVE_GTKOSXAPPLICATION)
@@ -326,6 +334,23 @@ gui_prefs_show(void)
 	    prefs.gui_version_in_start_page );
 	g_object_set_data(G_OBJECT(main_vb), GUI_SHOW_VERSION_KEY, show_version_cb);
 
+	/* Whether to auto scroll when expanding items */
+	auto_scroll_cb = create_preference_check_button(main_tb, pos++,
+		"Auto scroll on expansion:",
+	    "Whether the details view should be automatically scrolled up when expanding an item.",
+	    prefs.gui_auto_scroll_on_expand );
+	g_object_set_data(G_OBJECT(main_vb), GUI_AUTO_SCROLL_KEY, auto_scroll_cb);
+
+	/* Where to auto scroll to when expanding items */
+	scroll_percent_te = create_preference_entry(main_tb, pos++,
+		"Auto scroll percentage:",
+	    "Where to scroll the expanded item to within the view e.g. 0% = top of view, 50% = center of view.",
+	    scroll_percent_preview_str);
+	g_snprintf(current_val_str, sizeof(current_val_str), "%d", prefs.gui_auto_scroll_percentage);
+	gtk_entry_set_text(GTK_ENTRY(scroll_percent_te), current_val_str);
+	g_object_set_data(G_OBJECT(main_vb), GUI_SCROLL_PERCENT_KEY, scroll_percent_te);
+	g_signal_connect(scroll_percent_te, "focus_out_event", G_CALLBACK(scroll_percent_changed_cb), main_vb);
+
 	/* Webbrowser */
 	if (browser_needs_pref()) {
 	    webbrowser_te = create_preference_entry(main_tb, pos++,
@@ -437,6 +462,9 @@ gui_prefs_fetch(GtkWidget *w)
 
 	prefs.gui_version_in_start_page  =
 		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_SHOW_VERSION_KEY));
+
+	prefs.gui_auto_scroll_on_expand = 
+		gtk_toggle_button_get_active(g_object_get_data(G_OBJECT(w), GUI_AUTO_SCROLL_KEY));
 
 	if (browser_needs_pref()) {
 		g_free(prefs.gui_webbrowser);
@@ -647,3 +675,25 @@ fileopen_selected_cb(GtkWidget *mybutton_rb _U_, gpointer parent_w)
 	return;
 }
 
+static gboolean
+scroll_percent_changed_cb(GtkWidget *recent_files_entry _U_, 
+			  GdkEvent *event _U_, gpointer parent_w)
+{
+  GtkWidget *scroll_percent_te;
+  guint newval;
+
+  scroll_percent_te = (GtkWidget*)g_object_get_data(G_OBJECT(parent_w), GUI_SCROLL_PERCENT_KEY);
+
+  /* 
+   * Now, just convert the string to a number and store it in the prefs field ...
+   */
+
+  newval = strtol(gtk_entry_get_text(GTK_ENTRY(scroll_percent_te)), NULL, 10);
+  
+  if (newval <= 100) {
+    prefs.gui_auto_scroll_percentage = newval;
+  }
+
+  /* We really should pop up a dialog box is newval < 0 or > 100 */
+  return FALSE;
+}

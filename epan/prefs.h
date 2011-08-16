@@ -142,6 +142,8 @@ typedef struct _e_prefs {
   gchar   *gui_window_title;
   gchar   *gui_start_title;
   gboolean gui_version_in_start_page;
+  gboolean gui_auto_scroll_on_expand;
+  guint    gui_auto_scroll_percentage;
   layout_type_e gui_layout_type;
   layout_pane_content_e gui_layout_content_1;
   layout_pane_content_e gui_layout_content_2;

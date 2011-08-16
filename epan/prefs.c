@@ -1285,6 +1285,8 @@ init_prefs(void) {
   prefs.gui_window_title           = g_strdup("");
   prefs.gui_start_title            = g_strdup("The World's Most Popular Network Protocol Analyzer");
   prefs.gui_version_in_start_page  = TRUE;
+  prefs.gui_auto_scroll_on_expand  = FALSE;
+  prefs.gui_auto_scroll_percentage = 0;
   prefs.gui_layout_type            = layout_type_5;
   prefs.gui_layout_content_1       = layout_pane_content_plist;
   prefs.gui_layout_content_2       = layout_pane_content_pdetails;
@@ -1838,6 +1840,8 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_GUI_WINDOW_TITLE             "gui.window_title"
 #define PRS_GUI_START_TITLE              "gui.start_title"
 #define PRS_GUI_VERSION_IN_START_PAGE    "gui.version_in_start_page"
+#define PRS_GUI_AUTO_SCROLL              "gui.auto_scroll_on_expand"
+#define PRS_GUI_AUTO_SCROLL_PERCENTAGE   "gui.auto_scroll_percentage"
 #define PRS_GUI_LAYOUT_TYPE              "gui.layout_type"
 #define PRS_GUI_LAYOUT_CONTENT_1         "gui.layout_content_1"
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
@@ -2325,6 +2329,14 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     } else {
 	    prefs.gui_version_in_start_page = FALSE;
     }
+  } else if (strcmp(pref_name, PRS_GUI_AUTO_SCROLL) == 0) {
+    if (g_ascii_strcasecmp(value, "true") == 0) {
+	    prefs.gui_auto_scroll_on_expand = TRUE;
+    } else {
+	    prefs.gui_auto_scroll_on_expand = FALSE;
+    }
+  } else if (strcmp(pref_name, PRS_GUI_AUTO_SCROLL_PERCENTAGE) == 0) {
+    prefs.gui_auto_scroll_percentage = strtoul(value, NULL, 10);
   } else if (strcmp(pref_name, PRS_GUI_LAYOUT_TYPE) == 0) {
     prefs.gui_layout_type = strtoul(value, NULL, 10);
     if (prefs.gui_layout_type == layout_unused ||
@@ -3121,6 +3133,16 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
   fprintf(pf, PRS_GUI_VERSION_IN_START_PAGE ": %s\n",
 	  prefs.gui_version_in_start_page == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# Automatically scroll the recently expanded item.\n");
+  fprintf(pf, "# TRUE or FALSE (case-insensitive).\n");
+  fprintf(pf, PRS_GUI_AUTO_SCROLL ": %s\n",
+	  prefs.gui_auto_scroll_on_expand == TRUE ? "TRUE" : "FALSE");
+
+  fprintf(pf, "\n# The percentage down the view the recently expanded item should be scrolled.\n");
+  fprintf(pf, "# A decimal number (a percentage).\n");
+  fprintf(pf, PRS_GUI_AUTO_SCROLL_PERCENTAGE ": %d\n",
+	  prefs.gui_auto_scroll_percentage);
 
   fprintf (pf, "\n######## User Interface: Layout ########\n");
 
