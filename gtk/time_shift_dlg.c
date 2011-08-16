@@ -672,7 +672,7 @@ timestring2nstime(const gchar *ts, nstime_t *packettime, nstime_t *nstime)
     CHECK_MINUTE(m);
     CHECK_SEC_DEC(f);
   } else {
-    error_message("Could not parse the time: Expected (YY-MM-DD) "
+    error_message("Could not parse the time: Expected (YYYY-MM-DD) "
       "hh:mm:ss(.dec)");
     return(1);
   }
