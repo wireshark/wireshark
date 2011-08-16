@@ -512,7 +512,11 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 	} */ else if (finfo_type == FT_INT8 || finfo_type == FT_INT16 || finfo_type == FT_INT24 || finfo_type == FT_INT32 ||
 			finfo_type == FT_UINT8 || finfo_type == FT_UINT16 || finfo_type == FT_UINT24 || finfo_type == FT_UINT32)
 	{
+#if GTK_CHECK_VERSION(3,0,0)
+		GtkAdjustment *adj;
+#else
 		GtkObject *adj;
+#endif
 		int bitcount = 0;
 
 		if (finfo_type == FT_INT8 || finfo_type == FT_UINT8)
@@ -562,7 +566,12 @@ new_finfo_window(GtkWidget *w, struct FieldinfoWinData *DataPtr)
 
 	} else if (finfo_type == FT_IPv4) {
 		guint32 net_addr = ipv4_get_net_order_addr(fvalue_get(&finfo->value));
-		GtkObject *adj = gtk_adjustment_new((double) (GUINT32_FROM_BE(net_addr)), 0.0, 4294967295.0 /* (2^32)-1 */, 1.0, 256.0, 0);
+#if GTK_CHECK_VERSION(3,0,0)
+		GtkAdjustment *adj;
+#else
+		GtkObject *adj;
+#endif
+		adj = gtk_adjustment_new((double) (GUINT32_FROM_BE(net_addr)), 0.0, 4294967295.0 /* (2^32)-1 */, 1.0, 256.0, 0);
 
 		/* XXX, create four gtk_spin_button_new which takes 0..255 */
 		fvalue_edit = gtk_spin_button_new(GTK_ADJUSTMENT(adj), 1.0, 0);
