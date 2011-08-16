@@ -435,10 +435,6 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   window_present(time_shift_frame_w);
 }
 
-#ifdef _MSC_VER
-#define localtime_r(a, b) memcpy((b), localtime((a)), sizeof(struct tm));
-#endif
-
 static void
 error_message(const gchar *msg)
 {
@@ -634,7 +630,7 @@ timestring2nstime(const gchar *ts, nstime_t *packettime, nstime_t *nstime)
   gchar		*pts;
   int		h, m, Y, M, D;
   long double	f;
-  struct tm	tm, packettm;
+  struct tm	tm, *tmptm;
   time_t	tt;
   long double	offset_float = 0;
 
@@ -681,15 +677,14 @@ timestring2nstime(const gchar *ts, nstime_t *packettime, nstime_t *nstime)
     return(1);
   }
 
-  localtime_r(&(packettime->secs), &packettm);
-
   /* Convert the time entered in an epoch offset */
-  localtime_r(&(packettime->secs), &tm);
-  if (Y == 0) {
-    tm.tm_year = packettm.tm_year;
-    tm.tm_mon = packettm.tm_mon;
-    tm.tm_mday = packettm.tm_mday;
+  tmptm = localtime(&(packettime->secs));
+  if (tmptm) {
+    tm = *tmptm;
   } else {
+    memset (&tm, 0, sizeof (tm));
+  }
+  if (Y != 0) {
     tm.tm_year = Y - 1900;
     tm.tm_mon = M - 1;
     tm.tm_mday = D;
