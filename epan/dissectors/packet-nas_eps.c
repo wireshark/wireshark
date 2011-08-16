@@ -4295,7 +4295,7 @@ disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
     get_nas_esm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
     if(msg_str){
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_str);
     }else{
         proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
         return;
@@ -4368,7 +4368,7 @@ dissect_nas_eps_emm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
     get_nas_emm_msg_params(oct, &msg_str, &ett_tree, &hf_idx, &msg_fcn_p);
 
     if(msg_str){
-        col_append_fstr(pinfo->cinfo, COL_INFO, " %s ", msg_str);
+        col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, msg_str);
     }else{
         proto_tree_add_text(tree, tvb, offset, 1,"Unknown message 0x%x",oct);
         return;
@@ -4466,7 +4466,7 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }else{
         /* SERVICE REQUEST (12)  is not a plain NAS message treat separately */
         if (security_header_type == 12){
-            col_append_fstr(pinfo->cinfo, COL_INFO, " SERVICE REQUEST ");
+            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SERVICE REQUEST");
             nas_emm_service_req(tvb, nas_eps_tree, pinfo, offset, len-offset);
             return;
         }
