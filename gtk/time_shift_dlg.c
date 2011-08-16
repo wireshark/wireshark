@@ -67,10 +67,19 @@
 #define E_UNDO_SELECT               "undo_select"
 #define E_UNDO_SHIFT_KEY            "undo_shift_cb"
 
-static void time_shift_ok_cb(GtkWidget *ok_bt, GtkWindow *parent_w);
 static void time_shift_apply_cb(GtkWidget *ok_bt, GtkWindow *parent_w);
 static void time_shift_close_cb(GtkWidget *close_bt, gpointer parent_w);
 static void time_shift_frame_destroy_cb(GtkWidget *win, gpointer user_data);
+
+static void error_message(const gchar *msg);
+
+#define	SHIFT_POS		0
+#define	SHIFT_NEG		1
+#define	SHIFT_SETTOZERO		1
+#define	SHIFT_KEEPOFFSET	0
+static void modify_time_init(frame_data *fd);
+static void modify_time_perform(frame_data *fd, int neg, nstime_t *offset,
+    int settozero);
 
 /*
  * Keep a static pointer to the current "Time Shift" window, if any, so
@@ -105,9 +114,8 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
 		*timeshift_rb, *settime_rb,
 		*adjtime_rb, *undo_rb,
 
-		*bbox, *ok_bt, *cancel_bt, *help_bt;
+		*bbox, *apply_bt, *close_bt, *help_bt;
  
-
   if (time_shift_frame_w != NULL) {
     /* There's already a "Time Shift" dialog box; reactivate it. */
     reactivate_window(time_shift_frame_w);
@@ -147,6 +155,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   timeshift_rb = gtk_radio_button_new_with_label (NULL, "Shift all packets");
   gtk_box_pack_start(GTK_BOX(timeshift_offset_hb), timeshift_rb, TRUE, TRUE, 0);
   gtk_widget_show(timeshift_rb);
+  gtk_widget_set_tooltip_text(timeshift_rb, "Shift the time on the frames.");
 
   /* Time Shift entry row */
   timeshift_offset_hb = gtk_hbox_new(FALSE, 3);
@@ -161,6 +170,9 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(timeshift_offset_hb), timeshift_offset_text_box,
     TRUE, TRUE, 0);
   gtk_widget_show(timeshift_offset_text_box);
+  gtk_widget_set_tooltip_text(timeshift_offset_text_box,
+    "Enter the time to shift here. The format is "
+    "[+-][[hh:]mm:]ss.[.ddddddddd].");
 
   /*
    * Set Packet Number to Time frame
@@ -188,6 +200,9 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     GTK_RADIO_BUTTON(timeshift_rb)), "Set packet to time");
   gtk_box_pack_start(GTK_BOX(settime_time_hb), settime_rb, TRUE, TRUE, 0);
   gtk_widget_show(settime_rb);
+  gtk_widget_set_tooltip_text(settime_rb,
+    "Set the time of a certain frame and adjust the rest of the frames "
+    "automatically.");
 
   settime_time_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(types_vb), settime_time_hb, FALSE,
@@ -201,8 +216,10 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   settime_packetnumber_text_box = gtk_entry_new();
   gtk_box_pack_start(GTK_BOX(settime_time_hb), settime_packetnumber_text_box,
     TRUE, TRUE, 0);
-  gtk_entry_set_text(GTK_ENTRY(settime_packetnumber_text_box), "1");
+  gtk_entry_set_text(GTK_ENTRY(settime_packetnumber_text_box), "");
   gtk_widget_show(settime_packetnumber_text_box);
+  gtk_widget_set_tooltip_text(settime_packetnumber_text_box,
+    "The frame which will be set to the time.");
 
   /* time shift row */
   settime_time_hb = gtk_hbox_new(FALSE, 3);
@@ -218,6 +235,9 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
   gtk_box_pack_start(GTK_BOX(settime_time_hb), settime_time_text_box, TRUE,
     TRUE, 0);
   gtk_widget_show(settime_time_text_box);
+  gtk_widget_set_tooltip_text(settime_time_text_box,
+    "The time for the frame in the format of [YYYY-MM-DD] "
+    "hh:mm:ss[.ddddddddd]");
  
   /*
    * Set two Packet Numbers to Time frame and extrapolate
@@ -244,6 +264,9 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     GTK_RADIO_BUTTON(timeshift_rb)), "Set packets to time and extrapolate");
   gtk_box_pack_start(GTK_BOX(adjtime_offset_hb), adjtime_rb, TRUE, TRUE, 0);
   gtk_widget_show(adjtime_rb);
+  gtk_widget_set_tooltip_text(adjtime_rb,
+    "Set the time of two frames and adjust the rest of the frames "
+    "automatically.");
 
   adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
   gtk_box_pack_start(GTK_BOX(types_vb), adjtime_offset_hb, FALSE, FALSE, 0);
@@ -258,6 +281,8 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     TRUE, TRUE, 0);
   gtk_entry_set_text(GTK_ENTRY(adjtime_packetnumber1_text_box), "");
   gtk_widget_show(adjtime_packetnumber1_text_box);
+  gtk_widget_set_tooltip_text(adjtime_packetnumber1_text_box,
+    "The frame which will be set to the time.");
 
   /* time shift row */
   adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
@@ -274,6 +299,9 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     TRUE, 0);
   gtk_entry_set_text(GTK_ENTRY(adjtime_time1_text_box), "");
   gtk_widget_show(adjtime_time1_text_box);
+  gtk_widget_set_tooltip_text(adjtime_time1_text_box,
+    "The time for the frame in the format of [YYYY-MM-DD] "
+    "hh:mm:ss[.ddddddddd]");
 
   /* packet number row 2 */
   adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
@@ -290,6 +318,8 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     TRUE, TRUE, 0);
   gtk_entry_set_text(GTK_ENTRY(adjtime_packetnumber2_text_box), "");
   gtk_widget_show(adjtime_packetnumber2_text_box);
+  gtk_widget_set_tooltip_text(adjtime_packetnumber2_text_box,
+    "The frame which will be set to the time.");
 
   /* time shift row */
   adjtime_offset_hb = gtk_hbox_new(FALSE, 3);
@@ -306,6 +336,9 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     TRUE, 0);
   gtk_entry_set_text(GTK_ENTRY(adjtime_time2_text_box), "");
   gtk_widget_show(adjtime_time2_text_box);
+  gtk_widget_set_tooltip_text(adjtime_time2_text_box,
+    "The time for the frame in the format of [YYYY-MM-DD] "
+    "hh:mm:ss[.ddddddddd]");
 
   /*
    * Undo all shifts
@@ -338,30 +371,35 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     GTK_RADIO_BUTTON(timeshift_rb)), "Undo all shifts");
   gtk_box_pack_start(GTK_BOX(undo_offset_hb), undo_rb, TRUE, TRUE, 0);
   gtk_widget_show(undo_rb);
+  gtk_widget_set_tooltip_text(undo_rb,
+    "Undo all the Time Shift offsets on the frames.");
  
   /*
    * Button row
    */
-  bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_APPLY, GTK_STOCK_CANCEL,
-    GTK_STOCK_HELP, NULL);
+  bbox = dlg_button_row_new(GTK_STOCK_APPLY, GTK_STOCK_CLOSE, GTK_STOCK_HELP,
+    NULL);
   gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
   gtk_widget_show(bbox);
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
-  g_signal_connect(ok_bt, "clicked", G_CALLBACK(time_shift_ok_cb),
+  apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
+  g_signal_connect(apply_bt, "clicked", G_CALLBACK(time_shift_apply_cb),
     time_shift_frame_w);
+  gtk_widget_set_tooltip_text(apply_bt,
+    "Apply the Time Shift options to the frame data.");
 
-  ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
-  g_signal_connect(ok_bt, "clicked", G_CALLBACK(time_shift_apply_cb),
+  close_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLOSE);
+  g_signal_connect(close_bt, "clicked", G_CALLBACK(time_shift_close_cb),
     time_shift_frame_w);
-
-  cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-  g_signal_connect(cancel_bt, "clicked", G_CALLBACK(time_shift_close_cb),
-    time_shift_frame_w);
+  gtk_widget_set_tooltip_text(close_bt, "Close this dialogbox.");
 
   help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
   g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb),
     (gpointer)HELP_TIME_SHIFT_DIALOG);
+  gtk_widget_set_tooltip_text(help_bt,
+    "Help on how the Time Shift feature works.");
+
+  /* Link everything together */
 
   g_object_set_data(G_OBJECT(time_shift_frame_w), E_TIMESHIFT_SELECT,
     timeshift_rb);
@@ -383,7 +421,7 @@ time_shift_cb(GtkWidget *w _U_, gpointer d _U_)
     adjtime_packetnumber2_text_box);
   g_object_set_data(G_OBJECT(time_shift_frame_w), E_UNDO_SELECT, undo_rb);
 
-  dlg_set_activate(timeshift_offset_text_box, ok_bt);
+  dlg_set_activate(timeshift_offset_text_box, apply_bt);
 
   /* Give the initial focus to the "offset" entry box. */
   gtk_widget_grab_focus(timeshift_offset_text_box);
@@ -417,6 +455,16 @@ time_shift_apply_cb(GtkWidget *ok_bt _U_, GtkWindow *parent_w)
 {
   GtkWidget *flag_rb;
 
+  if (cfile.state == FILE_CLOSED) {
+    /* Nothing to do here */
+    return;
+  }
+  if (cfile.state == FILE_READ_IN_PROGRESS) {
+    error_message("The Time Shift functions are not available on live captures.");
+    return;
+  }
+
+
   flag_rb = (GtkWidget *)g_object_get_data(G_OBJECT(parent_w),
     E_TIMESHIFT_SELECT);
   if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(flag_rb)) == TRUE) {
@@ -443,13 +491,6 @@ time_shift_apply_cb(GtkWidget *ok_bt _U_, GtkWindow *parent_w)
     action_undo(parent_w);
     return;
   }
-}
-
-static void
-time_shift_ok_cb(GtkWidget *ok_bt, GtkWindow *parent_w)
-{
-  time_shift_apply_cb(ok_bt, parent_w);
-  window_destroy(GTK_WIDGET(parent_w));
 }
 
 #define CHECK_YEARS(Y)							\
@@ -491,7 +532,7 @@ time_shift_ok_cb(GtkWidget *ok_bt, GtkWindow *parent_w)
     return(1);						    \
   }							    \
   offset_float += s
-#define CHECK_SEC_DEC(f)                                      \
+#define CHECK_SEC_DEC(f)                                   \
   if (f < 0) {						   \
     error_message("fractional seconds must be > 0");	   \
     return(1);						   \
@@ -573,17 +614,14 @@ action_timeshift(GtkWindow *parent_w)
   offset_float -= offset.secs;
   offset.nsecs = (int)(offset_float * 1000000000);
 
-  for (i = 1; i <= cfile.count; i++) {
+  if ((fd = frame_data_sequence_find(cfile.frames, 1)) == NULL)
+    return(1); /* Shouldn't happen */
+  modify_time_init(fd);
 
+  for (i = 1; i <= cfile.count; i++) {
     if ((fd = frame_data_sequence_find(cfile.frames, i)) == NULL)
       continue;	/* Shouldn't happen */
-    if (neg) {
-      nstime_subtract(&(fd->abs_ts), &offset);
-      nstime_subtract(&(fd->shift_offset), &offset);
-    } else {
-      nstime_add(&(fd->abs_ts), &offset);
-      nstime_add(&(fd->shift_offset), &offset);
-    }
+    modify_time_perform(fd, neg, &offset, SHIFT_KEEPOFFSET);
   }
   new_packet_list_queue_draw();
   
@@ -701,8 +739,7 @@ action_settime(GtkWindow *parent_w)
    */
   if ((packetfd = frame_data_sequence_find(cfile.frames, packetnumber)) == NULL)
     return;
-  nstime_copy(&packettime, &(packetfd->abs_ts));
-  nstime_subtract(&packettime, &(packetfd->shift_offset));
+  nstime_delta(&packettime, &(packetfd->abs_ts), &(packetfd->shift_offset)); 
 
   if (timestring2nstime(time_text, &packettime, &settime) != 0)
     return;
@@ -712,14 +749,15 @@ action_settime(GtkWindow *parent_w)
 
   /* Up to here nothing is changed */
 
+  if ((fd = frame_data_sequence_find(cfile.frames, 1)) == NULL)
+    return; /* Shouldn't happen */
+  modify_time_init(fd);
+
   /* Set everything back to the original time */
   for (i = 1; i <= cfile.count; i++) {
     if ((fd = frame_data_sequence_find(cfile.frames, i)) == NULL)
       continue;	/* Shouldn't happen */
-    nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
-    nstime_add(&(fd->abs_ts), &difftime);
-    nstime_set_zero(&(fd->shift_offset));
-    nstime_copy(&(fd->shift_offset), &difftime);
+    modify_time_perform(fd, SHIFT_POS, &difftime, SHIFT_SETTOZERO);
   }
 
   new_packet_list_queue_draw();
@@ -758,25 +796,26 @@ calcNT3(nstime_t *OT1, nstime_t *OT3, nstime_t *NT1, nstime_t *NT3,
 {
   long double fnt, fot, f, secs, nsecs;
 
-  fnt = deltaNT->secs + (deltaNT->nsecs / 1000000000.0);
-  fot = deltaOT->secs + (deltaOT->nsecs / 1000000000.0);
+  fnt = (long double)deltaNT->secs + (deltaNT->nsecs / 1000000000.0L);
+  fot = (long double)deltaOT->secs + (deltaOT->nsecs / 1000000000.0L);
   f = fnt / fot;
 
   nstime_copy(NT3, OT3);
   nstime_subtract(NT3, OT1);
-  secs = f * NT3->secs;
-  nsecs = f * NT3->nsecs;
-  NT3->secs = (time_t)secs;
-  secs -= floorl(secs);
-  NT3->nsecs = (int)(nsecs + (secs * 1000000000));
-  while (NT3->nsecs > 1000000000) {
-    NT3->secs += 1;
-    NT3->nsecs -= 1000000000;
+
+  secs = f * (long double)NT3->secs;
+  nsecs = f * (long double)NT3->nsecs;
+  nsecs += (secs - floorl(secs)) * 1000000000.0L;
+  while (nsecs > 1000000000L) {
+    secs += 1;
+    nsecs -= 1000000000L;
   }
-  while (NT3->nsecs < 0) {
-    NT3->secs -= 1;
-    NT3->nsecs += 1000000000;
+  while (nsecs < 0) {
+    secs -= 1;
+    nsecs += 1000000000L;
   }
+  NT3->secs = secs;
+  NT3->nsecs = nsecs;
   nstime_add(NT3, NT1);
 }
 
@@ -856,6 +895,9 @@ action_adjtime(GtkWindow *parent_w _U_)
   nstime_subtract(&dnt, &nt1);
 
   /* Up to here nothing is changed */
+  if ((fd = frame_data_sequence_find(cfile.frames, 1)) == NULL)
+    return; /* Shouldn't happen */
+  modify_time_init(fd);
 
   for (i = 1; i <= cfile.count; i++) {
     if ((fd = frame_data_sequence_find(cfile.frames, i)) == NULL)
@@ -871,8 +913,7 @@ action_adjtime(GtkWindow *parent_w _U_)
     nstime_copy(&d3t, &nt3);
     nstime_subtract(&d3t, &(fd->abs_ts));
 
-    nstime_copy(&(fd->abs_ts), &nt3);
-    nstime_copy(&(fd->shift_offset), &d3t);
+    modify_time_perform(fd, SHIFT_POS, &d3t, SHIFT_SETTOZERO);
   }
 
   new_packet_list_queue_draw();
@@ -883,12 +924,18 @@ action_undo(GtkWindow *parent_w _U_)
 {
   guint32	i;
   frame_data	*fd;
+  nstime_t	nulltime;
+
+  nulltime.secs = nulltime.nsecs = 0;
+
+  if ((fd = frame_data_sequence_find(cfile.frames, 1)) == NULL)
+    return; /* Shouldn't happen */
+  modify_time_init(fd);
 
   for (i = 1; i <= cfile.count; i++) {
     if ((fd = frame_data_sequence_find(cfile.frames, i)) == NULL)
       continue;	/* Shouldn't happen */
-    nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
-    nstime_set_zero(&(fd->shift_offset));
+    modify_time_perform(fd, SHIFT_NEG, &nulltime, SHIFT_SETTOZERO);
   }
   new_packet_list_queue_draw();
 }
@@ -907,3 +954,74 @@ time_shift_frame_destroy_cb(GtkWidget *win _U_, gpointer user_data _U_)
   time_shift_frame_w = NULL;
 }
 
+static void
+modify_time_init(frame_data *fd)
+{
+  modify_time_perform(fd, SHIFT_NEG, NULL, SHIFT_KEEPOFFSET);
+}
+
+static void
+modify_time_perform(frame_data *fd, int neg, nstime_t *offset, int settozero)
+{
+  static frame_data *first_packet = NULL;
+  static frame_data *lastdisplayed_packet = NULL;
+  static frame_data *prevcaptured_packet = NULL;
+  static nstime_t nulltime;
+
+  /* Only for initializing */
+  if (offset == NULL) {
+    first_packet = fd;
+    lastdisplayed_packet = NULL;
+    prevcaptured_packet = NULL;
+    nulltime.secs = nulltime.nsecs = 0;
+    return;
+  }
+  if (first_packet == NULL) {
+    fprintf(stderr, "modify_time_perform: not initialized?\n");
+    return;
+  }
+
+  /* The actual shift */
+
+  if (settozero == SHIFT_SETTOZERO) {
+    nstime_subtract(&(fd->abs_ts), &(fd->shift_offset));
+    nstime_copy(&(fd->shift_offset), &nulltime);
+  }
+
+  if (neg == SHIFT_POS) {
+    nstime_add(&(fd->abs_ts), offset);
+    nstime_add(&(fd->shift_offset), offset);
+  } else if (neg == SHIFT_NEG) {
+    nstime_subtract(&(fd->abs_ts), offset);
+    nstime_subtract(&(fd->shift_offset), offset);
+  } else {
+    fprintf(stderr, "modify_time_perform: neg = %d?\n", neg);
+  }
+
+  /*
+   * rel_ts     - Relative timestamp to first packet
+   * del_dis_ts - Delta timestamp to previous displayed frame
+   * del_cap_ts - Delta timestamp to previous captured frame
+   */
+  if (first_packet != NULL) {
+    nstime_copy(&(fd->rel_ts), &(fd->abs_ts));
+    nstime_subtract(&(fd->rel_ts), &(first_packet->abs_ts));
+  } else
+    nstime_copy(&(fd->rel_ts), &nulltime);
+
+  if (prevcaptured_packet != NULL) {
+    nstime_copy(&(fd->del_cap_ts), &(fd->abs_ts));
+    nstime_subtract(&(fd->del_cap_ts), &(prevcaptured_packet->abs_ts));
+  } else
+    nstime_copy(&(fd->del_cap_ts), &nulltime);
+
+  if (lastdisplayed_packet != NULL) {
+    nstime_copy(&(fd->del_dis_ts), &(fd->abs_ts));
+    nstime_subtract(&(fd->del_dis_ts), &(lastdisplayed_packet->abs_ts));
+  } else
+    nstime_copy(&(fd->del_dis_ts), &nulltime);
+
+  prevcaptured_packet = fd;
+  if (fd->flags.passed_dfilter)
+    lastdisplayed_packet = fd;
+}
