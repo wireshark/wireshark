@@ -651,10 +651,10 @@ proto_register_imf(void)
   static hf_register_info hf[] = {
     { &hf_imf_date,
       { "Date", "imf.date", FT_STRING,  BASE_NONE, NULL, 0x0,
-        "imf.DateTime", HFILL }},
+        "DateTime", HFILL }},
     { &hf_imf_from,
       { "From", "imf.from", FT_STRING,  BASE_NONE, NULL, 0x0,
-        "imf.MailboxList", HFILL }},
+        "MailboxList", HFILL }},
     { &hf_imf_sender,
       { "Sender", "imf.sender", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
