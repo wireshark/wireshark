@@ -11857,67 +11857,67 @@ proto_register_ieee80211 (void)
 
 
     {&hf_ieee80211_pst_timingquality,
-     {"Timing Quality", "pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Timing Quality", "wlan.pst.timingQuality", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Timing Quality", HFILL }},
 
     {&hf_ieee80211_pst_providercount,
-     {"No. of Providers announcing their Services", "pst.providerCount", FT_UINT8, BASE_DEC, NULL, 0,
+     {"No. of Providers announcing their Services", "wlan.pst.providerCount", FT_UINT8, BASE_DEC, NULL, 0,
       "Provider Count", HFILL }},
 
     {&hf_ieee80211_pst_providercap,
-     {"Capabilities of Provider", "pst.providercap", FT_NONE, BASE_NONE, NULL, 0,
+     {"Capabilities of Provider", "wlan.pst.providercap", FT_NONE, BASE_NONE, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_pst_length,
-     {"Provider Service Table Length", "pst.length", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Provider Service Table Length", "wlan.pst.length", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Length", HFILL }},
 
     {&hf_ieee80211_pst_contents,
-     {"Provider Service Table Contents", "pst.contents", FT_UINT8, BASE_HEX, NULL, 0,
+     {"Provider Service Table Contents", "wlan.pst.contents", FT_UINT8, BASE_HEX, NULL, 0,
       "PST Contents", HFILL }},
 
     {&hf_ieee80211_pst_acid,
-     {"Application Class ID (ACID)", "pst.ACID", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Application Class ID (ACID)", "wlan.pst.ACID", FT_UINT8, BASE_DEC, NULL, 0,
       "PST ACID", HFILL }},
 
     {&hf_ieee80211_pst_acm_length,
-     {"Application Context Mask (ACM) Length", "pst.ACM.length", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Application Context Mask (ACM) Length", "wlan.pst.ACM.length", FT_UINT8, BASE_DEC, NULL, 0,
       "PST ACM Length", HFILL }},
 
     {&hf_ieee80211_pst_acm_contents,
-     {"Application Context Mask Contents (ACM)", "pst.ACM.contents", FT_STRING, BASE_NONE, NULL, 0,
+     {"Application Context Mask Contents (ACM)", "wlan.pst.ACM.contents", FT_STRING, BASE_NONE, NULL, 0,
       "PST ACM Contents", HFILL }},
 
     {&hf_ieee80211_pst_acf,
-     {"Application Contents Field (ACF)", "pst.ACF", FT_STRING, BASE_NONE, NULL, 0,
+     {"Application Contents Field (ACF)", "wlan.pst.ACF", FT_STRING, BASE_NONE, NULL, 0,
       "PST ACF", HFILL }},
 
     {&hf_ieee80211_pst_priority,
-     {"Application Priority", "pst.priority", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Application Priority", "wlan.pst.priority", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Priority", HFILL }},
 
     {&hf_ieee80211_pst_ipv6addr,
-     {"Internet Protocol V6 Address", "pst.ipv6addr", FT_IPv6, BASE_NONE, NULL, 0,
-      "IP v6 Addr", HFILL }},
+     {"IPv6 Address", "wlan.pst.ipv6addr", FT_IPv6, BASE_NONE, NULL, 0,
+      "PST IPv6 Address", HFILL }},
 
     {&hf_ieee80211_pst_macaddr,
-     {"Medium Access Control Address (MAC addr)", "pst.macaddr", FT_ETHER, BASE_NONE, NULL, 0,
-      "MAC Address", HFILL }},
+     {"MAC Address", "wlan.pst.macaddr", FT_ETHER, BASE_NONE, NULL, 0,
+      "PST MAC Address", HFILL }},
 
     {&hf_ieee80211_pst_serviceport,
-     {"Service Port", "pst.serviceport", FT_UINT16, BASE_DEC, NULL, 0,
+     {"Service Port", "wlan.pst.serviceport", FT_UINT16, BASE_DEC, NULL, 0,
       "PST Service Port", HFILL }},
 
     {&hf_ieee80211_pst_addressing,
-     {"Addressing", "pst.addressing", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Addressing", "wlan.pst.addressing", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Addressing", HFILL }},
 
     {&hf_ieee80211_pst_channel,
-     {"Service (IEE802.11) Channel", "pst.channel", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Service (IEEE 802.11) Channel", "wlan.pst.channel", FT_UINT8, BASE_DEC, NULL, 0,
       "PST Service Channel", HFILL }},
 
     {&hf_ieee80211_chan_noc,
-     {"Number of Channels", "chan.chan_uknown", FT_UINT8, BASE_DEC, NULL, 0,
+     {"Number of Channels", "chan.num_chans", FT_UINT8, BASE_DEC, NULL, 0,
       NULL, HFILL }},
 
     {&hf_ieee80211_chan_length,
