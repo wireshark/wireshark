@@ -763,21 +763,6 @@ action_settime(GtkWindow *parent_w)
   new_packet_list_queue_draw();
 }
 
-#ifdef NOTDEF
-static char *
-nstime_string(const nstime_t *t)
-{
-  static char s[100];
-  char ts[100];
-  struct tm tm;
-
-  localtime_r(&(t->secs), &tm);
-  strftime(ts, sizeof(ts), "%Y-%m-%d %H:%M:%S", &tm);
-  g_snprintf(s, 100, "%s.%d", ts, t->nsecs);
-  return(s);
-}
-#endif
-
 /*
  * If the line between (OT1, NT1) and (OT2, NT2) is a straight line
  * and (OT3, NT3) is on that line,
