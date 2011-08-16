@@ -814,8 +814,8 @@ calcNT3(nstime_t *OT1, nstime_t *OT3, nstime_t *NT1, nstime_t *NT3,
     secs -= 1;
     nsecs += 1000000000L;
   }
-  NT3->secs = secs;
-  NT3->nsecs = nsecs;
+  NT3->secs = (time_t)secs;
+  NT3->nsecs = (int)nsecs;
   nstime_add(NT3, NT1);
 }
 
