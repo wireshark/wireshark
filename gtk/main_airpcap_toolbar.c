@@ -198,7 +198,7 @@ GtkWidget *airpcap_toolbar_new(void)
 
     /* airpcap toolbar */
     airpcap_tb = gtk_toolbar_new();
-    gtk_toolbar_set_orientation(GTK_TOOLBAR(airpcap_tb),
+    gtk_orientable_set_orientation(GTK_ORIENTABLE(airpcap_tb),
                                 GTK_ORIENTATION_HORIZONTAL);
 
     /* Create the "802.11 Channel:" label */
