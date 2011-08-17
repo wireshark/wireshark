@@ -1245,6 +1245,19 @@ filter_add_expr_bt_cb(GtkWidget *w _U_, gpointer main_w_arg)
 static void
 color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
 {
+#if GTK_CHECK_VERSION(3,0,0)
+    static GdkColor black = { 0, 0, 0, 1.0 };
+	GdkRGBA bg;
+
+    bg.red      = red / 65535.0;
+    bg.green    = green / 65535.0;
+    bg.blue     = blue / 65535.0;
+    bg.alpha    = 1;
+
+    gtk_widget_override_color(w, GTK_STATE_NORMAL, &black);
+    gtk_widget_override_background_color(w, GTK_STATE_NORMAL, &bg);
+	gtk_widget_override_cursor(w, GTK_STATE_NORMAL, &black, &black);
+#else
     static GdkColor black = { 0, 0, 0, 0 };
     GdkColor    bg;
 
@@ -1256,15 +1269,23 @@ color_filter_te(GtkWidget *w, guint16 red, guint16 green, guint16 blue)
     gtk_widget_modify_text(w, GTK_STATE_NORMAL, &black);
     gtk_widget_modify_base(w, GTK_STATE_NORMAL, &bg);
     gtk_widget_modify_cursor(w, &black, &black);
+#endif
 }
 
 void
 colorize_filter_te_as_empty(GtkWidget *w)
 {
-    /* use defaults */
+#if GTK_CHECK_VERSION(3,0,0)
+	/* use defaults */
+    gtk_widget_override_color(w, GTK_STATE_NORMAL, NULL);
+    gtk_widget_override_background_color(w, GTK_STATE_NORMAL, NULL);
+	gtk_widget_override_cursor(w, GTK_STATE_NORMAL, NULL, NULL);
+#else    
+	/* use defaults */
     gtk_widget_modify_text(w, GTK_STATE_NORMAL, NULL);
     gtk_widget_modify_base(w, GTK_STATE_NORMAL, NULL);
     gtk_widget_modify_cursor(w, NULL, NULL);
+#endif
 }
 
 void

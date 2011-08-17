@@ -762,7 +762,7 @@ color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
 static void
 create_new_color_filter(GtkButton *button, const char *filter)
 {
-#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+#if GTK_CHECK_VERSION(3,0,0)
   GtkStyleContext *context;
   GdkRGBA          *rgba_bg_color;
   GdkRGBA          *rgba_fg_color;
@@ -781,7 +781,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gtk_tree_selection_unselect_all (sel);
 
   /* Use the default background and foreground colors as the colors. */
-#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+#if GTK_CHECK_VERSION(3,0,0)
   context = gtk_widget_get_style_context (new_packet_list_get_widget());
   gtk_style_context_get (context, GTK_STATE_NORMAL,
                        "background-color", &rgba_bg_color,
@@ -789,7 +789,10 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gtk_style_context_get (context, GTK_STATE_NORMAL,
                        "forground-color", &rgba_fg_color,
                        NULL);
-/* gdk_rgba_free (rgba_bg_color); */
+  gdkRGBAcolor_to_color_t(&bg_color, rgba_bg_color);
+  gdkRGBAcolor_to_color_t(&fg_color, rgba_fg_color);
+  gdk_rgba_free (rgba_bg_color);
+  gdk_rgba_free (rgba_fg_color);
 
 #else
   style = gtk_widget_get_style(new_packet_list_get_widget());

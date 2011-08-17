@@ -122,7 +122,16 @@ color_t_to_gdkcolor(GdkColor *target, const color_t *source)
 	target->green = source->green;
 	target->blue  = source->blue;
 }
-
+#if GTK_CHECK_VERSION(3,0,0)
+void
+color_t_to_gdkRGBAcolor(GdkRGBA *target, const color_t *source)
+{
+	target->alpha = 1;
+	target->red   = source->red / 65535.0;
+	target->green = source->green / 65535.0;
+	target->blue  = source->blue / 65535.0;
+}
+#endif
 void
 gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 {
@@ -131,3 +140,14 @@ gdkcolor_to_color_t(color_t *target, const GdkColor *source)
 	target->green = source->green;
 	target->blue  = source->blue;
 }
+#if GTK_CHECK_VERSION(3,0,0)
+void
+gdkRGBAcolor_to_color_t(color_t *target, const GdkRGBA *source)
+{
+	target->pixel = 0;
+	target->red   = source->red*65535;
+	target->green = source->green*65535;
+	target->blue  = source->blue*65535;
+}
+#endif
+

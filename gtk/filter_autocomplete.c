@@ -829,7 +829,11 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   filter_autocomplete_enable_sorting(model);
 
   gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
+#if GTK_CHECK_VERSION(3,0,0)
+  gtk_widget_get_preferred_size(list, &requisition, NULL);
+#else
   gtk_widget_size_request(list, &requisition);
+#endif
 
 #if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_get_allocation(popup_win, &popup_win_alloc);
@@ -837,6 +841,7 @@ filter_autocomplete_handle_backspace(GtkWidget *filter_te, GtkWidget *list, GtkW
   popup_win_alloc = popup_win->allocation;
 #endif
 
+  /* XXX use gtk_window_set_default_size()? */
   gtk_widget_set_size_request(popup_win, popup_win_alloc.width,
                               (requisition.height<200? requisition.height+8:200));
   gtk_window_resize(GTK_WINDOW(popup_win), popup_win_alloc.width,

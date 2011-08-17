@@ -98,8 +98,11 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   color_filter_t *colorf;
   GtkWidget      *edit_dialog;
   GtkWidget      *dialog_vbox;
+#if GTK_CHECK_VERSION(3,0,0)
+  GdkRGBA        bg_rgba_color, fg_rgba_color;
+#else
   GdkColor       bg_color, fg_color;
-
+#endif
   GtkWidget *filter_fr;
   GtkWidget *filter_fr_vbox;
   GtkWidget *filter_name_hbox;
@@ -164,12 +167,18 @@ edit_color_filter_dialog(GtkWidget *color_filters,
   filt_name_entry = gtk_entry_new ();
   gtk_entry_set_text(GTK_ENTRY(filt_name_entry), colorf->filter_name);
 
+#if GTK_CHECK_VERSION(3,0,0)
+  color_t_to_gdkRGBAcolor(&bg_rgba_color, &colorf->bg_color);
+  color_t_to_gdkRGBAcolor(&fg_rgba_color, &colorf->fg_color);
+  gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &bg_rgba_color);
+  gtk_widget_override_color(filt_name_entry, GTK_STATE_NORMAL, &fg_rgba_color);
+#else
   color_t_to_gdkcolor(&bg_color, &colorf->bg_color);
   color_t_to_gdkcolor(&fg_color, &colorf->fg_color);
 
   gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &bg_color);
   gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &fg_color);
-
+#endif
   gtk_box_pack_start (GTK_BOX (filter_name_hbox), filt_name_entry, TRUE, TRUE, 0);
   gtk_widget_set_tooltip_text(filt_name_entry, "This is the editable name of the filter. (No @ characters allowed.)");
 
@@ -362,9 +371,15 @@ edit_color_filter_ok_cb                (GtkButton       *button,
                                         gpointer         user_data)
 {
   GtkWidget      *dialog;
+#if GTK_CHECK_VERSION(3,0,0)
+  GtkStyleContext *context;
+  GdkRGBA          *new_rgba_bg_color;
+  GdkRGBA          *new_rgba_fg_color;
+#else
   GtkStyle       *style;
   GdkColor        new_fg_color;
   GdkColor        new_bg_color;
+#endif
   gchar          *filter_name;
   gchar          *filter_text;
   gboolean        filter_disabled;
@@ -376,10 +391,22 @@ edit_color_filter_ok_cb                (GtkButton       *button,
   gchar           fg_str[14], bg_str[14];
 
   dialog = (GtkWidget *)user_data;
+#if GTK_CHECK_VERSION(3,0,0)
+  context = gtk_widget_get_style_context (filt_name_entry);
+  gtk_style_context_get (context, GTK_STATE_NORMAL,
+                       "background-color", &new_rgba_bg_color,
+                       NULL);
+  gtk_style_context_get (context, GTK_STATE_NORMAL,
+                       "forground-color", &new_rgba_fg_color,
+                       NULL);
+/* gdk_rgba_free (rgba_bg_color); */
+
+#else
 
   style = gtk_widget_get_style(filt_name_entry);
   new_bg_color = style->base[GTK_STATE_NORMAL];
   new_fg_color = style->text[GTK_STATE_NORMAL];
+#endif
 
   filter_name = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_name_entry)));
   filter_text = g_strdup(gtk_entry_get_text(GTK_ENTRY(filt_text_entry)));
@@ -410,12 +437,17 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     colorf->filter_text = filter_text;
 
     colorf->disabled = filter_disabled;
+#if GTK_CHECK_VERSION(3,0,0)
+    gdkRGBAcolor_to_color_t(&colorf->fg_color, new_rgba_fg_color);
+    gdkRGBAcolor_to_color_t(&colorf->bg_color, new_rgba_bg_color);
+#else
     gdkcolor_to_color_t(&colorf->fg_color, &new_fg_color);
     gdkcolor_to_color_t(&colorf->bg_color, &new_bg_color);
+#endif
     g_snprintf(fg_str, sizeof(fg_str), "#%04X%04X%04X",
-               new_fg_color.red, new_fg_color.green, new_fg_color.blue);
+               colorf->fg_color.red, colorf->fg_color.green, colorf->fg_color.blue);
     g_snprintf(bg_str, sizeof(bg_str), "#%04X%04X%04X",
-               new_bg_color.red, new_bg_color.green, new_bg_color.blue);
+               colorf->bg_color.red, colorf->bg_color.green, colorf->bg_color.blue);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(color_filters));
     gtk_tree_model_iter_nth_child(model, &iter, NULL, color_dlg_row_selected);
     gtk_list_store_set(GTK_LIST_STORE(model), &iter, 0, filter_name,
@@ -428,6 +460,10 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     /* Destroy the dialog box. */
     window_destroy(dialog);
   }
+#if GTK_CHECK_VERSION(3,0,0)
+  gdk_rgba_free (new_fg_color);
+  gdk_rgba_free (new_bg_color);
+#endif
 }
 
 /* reject new color filter addition */
@@ -535,7 +571,11 @@ static void
 color_sel_ok_cb                        (GtkButton       *button _U_,
                                         gpointer         user_data)
 {
+#if GTK_CHECK_VERSION(3,0,0)
+  GdkRGBA new_rgba_color; /* Color from color selection dialog */
+#else
   GdkColor new_color; /* Color from color selection dialog */
+#endif
   GtkWidget *color_dialog;
   GtkWidget *parent;
   GtkWidget *color_selection_bg;
@@ -543,7 +583,11 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
 
   color_dialog = (GtkWidget *)user_data;
 
+#if GTK_CHECK_VERSION(3,0,0)
+  gtk_color_selection_get_current_rgba(GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_dialog))), &new_rgba_color);
+#else
   gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_dialog))), &new_color);
+#endif
 #if 0
   if ( ! get_color(&new_color) ){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
@@ -560,12 +604,19 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
     is_bg = (color_dialog == color_selection_bg);
 
     color_sel_win_destroy(color_dialog);
-
+#if GTK_CHECK_VERSION(3,0,0)
+    /* now apply the change to the fore/background */
+    if (is_bg)
+      gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &new_rgba_color);
+    else
+      gtk_widget_override_color(filt_name_entry, GTK_STATE_NORMAL, &new_rgba_color);
+#else
     /* now apply the change to the fore/background */
     if (is_bg)
       gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &new_color);
     else
       gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &new_color);
+#endif
 #if 0
   }
 #endif
