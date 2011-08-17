@@ -4923,10 +4923,11 @@ menu_open_filename(gchar *cf_name)
 #endif /* MAIN_MENU_USE_UIMANAGER */
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
+/* callback, if the user pushed a recent file submenu item */
 void
-menu_open_recent_file_cmd(GtkAction *action)
+menu_open_recent_file_cmd(gpointer action)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
     GtkWidget *submenu_recent_files;
     GList *recent_files_list;
     const gchar *cf_name;
@@ -4948,12 +4949,7 @@ menu_open_recent_file_cmd(GtkAction *action)
          */
         recent_changed_cb(ui_manager_main_menubar, NULL);
     }
-}
 #else
-/* callback, if the user pushed a recent file submenu item */
-void
-menu_open_recent_file_cmd(GtkWidget *w)
-{
     GtkWidget   *submenu_recent_files;
     GtkWidget   *menu_item_child;
     const gchar *cf_name;
@@ -4963,7 +4959,7 @@ menu_open_recent_file_cmd(GtkWidget *w)
     submenu_recent_files = gtk_item_factory_get_widget(main_menu_factory, MENU_RECENT_FILES_PATH_OLD);
 
     /* get capture filename from the menu item label */
-    menu_item_child = gtk_bin_get_child(GTK_BIN(w));
+    menu_item_child = gtk_bin_get_child(GTK_BIN(action));
     cf_name = gtk_label_get_text(GTK_LABEL(menu_item_child));
 
     /* open and read the capture file (this will close an existing file) */
@@ -4972,12 +4968,12 @@ menu_open_recent_file_cmd(GtkWidget *w)
     } else {
         /* the capture file apparently no longer exists; remove menu item    */
         /* XXX: ask user to remove item, it's maybe only a temporary problem */
-        remove_menu_recent_capture_file(w, NULL);
+        remove_menu_recent_capture_file(action, NULL);
     }
 
     update_menu_recent_capture_file(submenu_recent_files);
-}
 #endif /* MAIN_MENU_USE_UIMANAGER */
+}
 
 static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
 {
