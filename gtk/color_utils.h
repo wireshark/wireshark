@@ -46,8 +46,9 @@ void colors_init(void);
  * @param new_color the new color
  * @return TRUE if the allocation succeeded
  */
+#if 0
 gboolean get_color(GdkColor *new_color);
-
+#endif
 /** Convert color_t to GdkColor.
  *
  * @param target the GdkColor to be filled

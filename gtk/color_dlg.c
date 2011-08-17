@@ -762,8 +762,14 @@ color_filter_add_cb(color_filter_t *colorf, gpointer user_data)
 static void
 create_new_color_filter(GtkButton *button, const char *filter)
 {
-  color_filter_t   *colorf;
+#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+  GtkStyleContext *context;
+  GdkRGBA          *rgba_bg_color;
+  GdkRGBA          *rgba_fg_color;
+#else
   GtkStyle         *style;
+#endif
+  color_filter_t   *colorf;
   color_t          bg_color, fg_color;
   GtkWidget        *color_filters;
   GtkTreeSelection *sel;
@@ -775,10 +781,21 @@ create_new_color_filter(GtkButton *button, const char *filter)
   gtk_tree_selection_unselect_all (sel);
 
   /* Use the default background and foreground colors as the colors. */
+#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+  context = gtk_widget_get_style_context (new_packet_list_get_widget());
+  gtk_style_context_get (context, GTK_STATE_NORMAL,
+                       "background-color", &rgba_bg_color,
+                       NULL);
+  gtk_style_context_get (context, GTK_STATE_NORMAL,
+                       "forground-color", &rgba_fg_color,
+                       NULL);
+/* gdk_rgba_free (rgba_bg_color); */
+
+#else
   style = gtk_widget_get_style(new_packet_list_get_widget());
   gdkcolor_to_color_t(&bg_color, &style->base[GTK_STATE_NORMAL]);
   gdkcolor_to_color_t(&fg_color, &style->text[GTK_STATE_NORMAL]);
-
+#endif
   colorf = color_filter_new("name", filter, &bg_color, &fg_color, FALSE);
   add_filter_to_list(colorf, color_filters, TRUE);
   select_row(color_filters, 0);

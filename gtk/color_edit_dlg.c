@@ -544,11 +544,12 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
   color_dialog = (GtkWidget *)user_data;
 
   gtk_color_selection_get_current_color(GTK_COLOR_SELECTION(gtk_color_selection_dialog_get_color_selection(GTK_COLOR_SELECTION_DIALOG(color_dialog))), &new_color);
-
+#if 0
   if ( ! get_color(&new_color) ){
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
                   "Could not allocate color.  Try again.");
   } else {
+#endif
     /* Find the "Edit color filter" dialog box with which this is
        associated. */
     parent = (GtkWidget *)g_object_get_data(G_OBJECT(color_dialog), COLOR_SELECTION_PARENT);
@@ -565,7 +566,9 @@ color_sel_ok_cb                        (GtkButton       *button _U_,
       gtk_widget_modify_base(filt_name_entry, GTK_STATE_NORMAL, &new_color);
     else
       gtk_widget_modify_text(filt_name_entry, GTK_STATE_NORMAL, &new_color);
+#if 0
   }
+#endif
 }
 
 /* Don't choose the selected color as the foreground or background

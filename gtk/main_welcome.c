@@ -1106,6 +1106,8 @@ welcome_new(void)
 #endif
 
     /* prepare colors */
+#if 0
+	/* Allocating collor isn't necessary? */
 
     /* "page" background */
     get_color(&welcome_bg);
@@ -1118,12 +1120,14 @@ welcome_new(void)
 
     /* topic content background color */
     get_color(&topic_content_bg);
-
+#endif
     topic_item_idle_bg = topic_content_bg;
 
+#if 0
+	/* Allocating collor isn't necessary? */
     /* topic item entered color */
     get_color(&topic_item_entered_bg);
-
+#endif
     welcome_scrollw = scrolled_window_new(NULL, NULL);
 
     welcome_vb = gtk_vbox_new(FALSE, 0);
