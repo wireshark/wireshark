@@ -487,10 +487,11 @@ ws_init_dll_search_path()
       gboolean dll_dir_set = FALSE;
       wchar_t *program_path_w;
 
-      typedef BOOL (*SetDllDirectoryHandler)(LPCTSTR);
+      typedef BOOL (WINAPI *SetDllDirectoryHandler)(LPCTSTR);
       SetDllDirectoryHandler PSetDllDirectory;
 
-      if (PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW")) {
+      PSetDllDirectory = (SetDllDirectoryHandler) GetProcAddress(GetModuleHandle(_T("kernel32.dll")), "SetDllDirectoryW");
+      if (PSetDllDirectory) {
 	    dll_dir_set = PSetDllDirectory(_T(""));
       }
 
