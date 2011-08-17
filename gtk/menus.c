@@ -4538,17 +4538,11 @@ set_menu_object_data_meat_old(const gchar *path, const gchar *key, gpointer data
         g_object_set_data(G_OBJECT(menu), key, data);
     }
 }
-
-
-void
-set_menu_object_data_old (const gchar *path, const gchar *key, gpointer data) {
-
-    set_menu_object_data_meat_old(path, key, data);
-}
 #endif
+
 void
 set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
-
+#ifdef MAIN_MENU_USE_UIMANAGER
     if (strncmp (path,"/Menubar",8) == 0){
         set_menu_object_data_meat(ui_manager_main_menubar, path, key, data);
     }else if (strncmp (path,"/PacketListMenuPopup",20) == 0){
@@ -4560,6 +4554,9 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
     }else if (strncmp (path,"/ProfilesMenuPopup",18) == 0){
         set_menu_object_data_meat(ui_manager_statusbar_profiles_menu, path, key, data);
     }
+#else
+    set_menu_object_data_meat_old(path, key, data);
+#endif
 }
 
 

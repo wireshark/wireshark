@@ -249,9 +249,8 @@ GtkWidget *filter_toolbar_new(void)
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs
      * that text entry pointer */
-#ifdef MAIN_MENU_USE_UIMANAGER
     set_menu_object_data(MENU_BAR_PATH_FILE_OPEN, E_DFILTER_TE_KEY, filter_te);
-    set_menu_object_data(MENU_BAR_PATH_EDIT_COPY_AS_FLT, E_DFILTER_TE_KEY, 
+    set_menu_object_data(MENU_BAR_PATH_EDIT_COPY_AS_FLT, E_DFILTER_TE_KEY,
                          filter_te);
     set_menu_object_data(MENU_BAR_PATH_ANALYZE_DISPLAY_FLT, E_FILT_TE_PTR_KEY,
                          filter_te);
@@ -285,44 +284,7 @@ GtkWidget *filter_toolbar_new(void)
                          filter_te);
     set_menu_object_data(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL, E_DFILTER_TE_KEY,
                          filter_te);
-#else
-    set_menu_object_data_old(MENU_BAR_PATH_FILE_OPEN, E_DFILTER_TE_KEY, filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_EDIT_COPY_AS_FLT, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_DISPLAY_FLT, E_FILT_TE_PTR_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_FOLLOW_TCP_STREAM, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_FOLLOW_UDP_STREAM, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_FOLLOW_SSL_STREAM, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_APL_AS_FLT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_APL_AS_FLT_NOT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_NOT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_NOT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_NOT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-    set_menu_object_data_old(MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL, E_DFILTER_TE_KEY,
-                         filter_te);
-#endif /* MAIN_MENU_USE_UIMANAGER */
-	
+
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
 
