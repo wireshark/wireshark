@@ -2838,10 +2838,14 @@ main(int argc, char *argv[])
 
   /* read in rc file from global and personal configuration paths. */
   rc_file = get_datafile_path(RC_FILE);
+#if GTK_CHECK_VERSION(3,0,0)
+  /* XXX resolve later */
+#else
   gtk_rc_parse(rc_file);
   g_free(rc_file);
   rc_file = get_persconffile_path(RC_FILE, FALSE, FALSE);
   gtk_rc_parse(rc_file);
+#endif
   g_free(rc_file);
 
   font_init();

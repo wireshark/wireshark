@@ -688,9 +688,15 @@ static GtkWidget *
 add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
              proto_tree *tree, GtkWidget *tree_view)
 {
-    GtkWidget *byte_view, *byte_scrollw, *label;
-    GtkTextBuffer *buf;
-    GtkStyle      *style;
+	GtkWidget *byte_view, *byte_scrollw, *label;
+	GtkTextBuffer *buf;
+#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+	GtkStyleContext *context;
+	GdkRGBA		*rgba_bg_color;
+	GdkRGBA		*rgba_fg_color;
+#else
+	GtkStyle    *style;
+#endif
 
     /* Byte view.  Create a scrolled window for the text. */
     byte_scrollw = scrolled_window_new(NULL, NULL);
@@ -706,7 +712,16 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
+#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+	context = gtk_widget_get_style_context GTK_WIDGET(top_level));
+	gtk_style_context_get (context, GTK_STATE_NORMAL,
+					"background-color", &rgba_bg_color,
+					NULL);
+	gtk_style_context_get (context, GTK_STATE_NORMAL,
+					"forground-color", &rgba_fg_color,
+					NULL);
 
+#else
     style = gtk_widget_get_style(GTK_WIDGET(top_level));
     gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
     gtk_text_buffer_create_tag(buf, "reverse",
@@ -714,7 +729,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                                "foreground-gdk", &style->text[GTK_STATE_SELECTED],
                                "background-gdk", &style->base[GTK_STATE_SELECTED],
                                NULL);
-
+#endif
     gtk_text_buffer_create_tag(buf, "bold", "font-desc", user_font_get_bold(), NULL);
     g_object_set_data(G_OBJECT(byte_view), E_BYTE_VIEW_TVBUFF_KEY, tvb);
     gtk_container_add(GTK_CONTAINER(byte_scrollw), byte_view);
@@ -1792,8 +1807,13 @@ set_ptree_sel_browse_all(gboolean val)
 static void
 set_ptree_font_cb(gpointer data, gpointer user_data)
 {
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_override_font((GtkWidget *)data,
+                           (PangoFontDescription *)user_data);
+#else
     gtk_widget_modify_font((GtkWidget *)data,
                            (PangoFontDescription *)user_data);
+#endif
 }
 
 void
