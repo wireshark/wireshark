@@ -51,6 +51,58 @@
 #include "main_toolbar.h"
 #include "main_filter_toolbar.h"
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+# define MENU_BAR_PATH_FILE_OPEN				"/Menubar/FileMenu/Open"
+# define MENU_BAR_PATH_EDIT_COPY_AS_FLT				"/Menubar/EditMenu/Copy/AsFilter"
+# define MENU_BAR_PATH_ANALYZE_DISPLAY_FLT			"/Menubar/AnalyzeMenu/DisplayFilters"
+# define MENU_BAR_PATH_ANALYZE_FOLLOW_TCP_STREAM		"/Menubar/AnalyzeMenu/FollowTCPStream"
+# define MENU_BAR_PATH_ANALYZE_FOLLOW_UDP_STREAM		"/Menubar/AnalyzeMenu/FollowUDPStream"
+# define MENU_BAR_PATH_ANALYZE_FOLLOW_SSL_STREAM		"/Menubar/AnalyzeMenu/FollowSSLStream"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_SEL			"/Menubar/AnalyzeMenu/ApplyAsFilter/Selected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/NotSelected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/AndSelected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/OrSelected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/AndNotSelected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/OrNotSelected"
+
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_SEL			"/Menubar/AnalyzeMenu/PrepareaFilter/Selected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/NotSelected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/AndSelected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/OrSelected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/AndNotSelected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/OrNotSelected"
+#else
+# define MENU_BAR_PATH_FILE_OPEN				"/File/Open..."
+# define MENU_BAR_PATH_EDIT_COPY_AS_FLT				"/Edit/Copy/As Filter"
+# define MENU_BAR_PATH_ANALYZE_DISPLAY_FLT			"/Analyze/Display Filters..."
+# define MENU_BAR_PATH_ANALYZE_FOLLOW_TCP_STREAM		"/Analyze/Follow TCP Stream"
+# define MENU_BAR_PATH_ANALYZE_FOLLOW_UDP_STREAM		"/Analyze/Follow UDP Stream"
+# define MENU_BAR_PATH_ANALYZE_FOLLOW_SSL_STREAM		"/Analyze/Follow SSL Stream"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_SEL			"/Analyze/Apply as Filter/Selected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_NOT_SEL		"/Analyze/Apply as Filter/Not Selected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_SEL		"/Analyze/Apply as Filter/... and Selected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_SEL		"/Analyze/Apply as Filter/... or Selected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_NOT_SEL		"/Analyze/Apply as Filter/... and not Selected"
+# define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_NOT_SEL		"/Analyze/Apply as Filter/... or not Selected"
+
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_SEL			"/Analyze/Prepare a Filter/Selected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_NOT_SEL		"/Analyze/Prepare a Filter/Not Selected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_SEL		"/Analyze/Prepare a Filter/... and Selected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_SEL		"/Analyze/Prepare a Filter/... or Selected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_NOT_SEL		"/Analyze/Prepare a Filter/... and not Selected"
+# define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_OR_NOT_SEL		"/Analyze/Prepare a Filter/... or not Selected"
+# endif /* MAIN_MENU_USE_UIMANAGER */
+
+#if 0 /* Unused? */
+# define PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_TCP_STREAM	"/PacketListMenuPopup/FollowTCPStream"
+# define PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_UDP_STREAM	"/PacketListMenuPopup/FollowUDPStream"
+# define PACKET_LIST_POPUP_PATH_ANALYZE_FOLLOW_SSL_STREAM	"/PacketListMenuPopup/FollowSSLStream"
+# define PACKET_LIST_POPUP_PATH_CONV_FLT_ETH			"/PacketListMenuPopup/ConversationFilter/Ethernet"
+# define PACKET_LIST_POPUP_PATH_CONV_FLT_IP			"/PacketListMenuPopup/ConversationFilter/IP"
+# define PACKET_LIST_POPUP_PATH_CONV_FLT_TCP			"/PacketListMenuPopup/ConversationFilter/TCP"
+# define PACKET_LIST_POPUP_PATH_CONV_FLT_UDP			"/PacketListMenuPopup/ConversationFilter/UDP"
+# define PACKET_LIST_POPUP_PATH_CONV_FLT_PN_CBA_SERV		"/PacketListMenuPopup/ConversationFilter/PN-CBA"
+#endif
 
 GtkWidget   *main_display_filter_widget=NULL;
 
