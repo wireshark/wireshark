@@ -121,10 +121,10 @@
 static int initialize = TRUE;
 #ifdef MAIN_MENU_USE_UIMANAGER
     GtkActionGroup    *main_menu_bar_action_group;
+static GtkUIManager *ui_manager_main_menubar = NULL;
 #else
 static GtkItemFactory *main_menu_factory = NULL;
 #endif /* MAIN_MENU_USE_UIMANAGER */
-static GtkUIManager *ui_manager_main_menubar = NULL;
 static GtkUIManager *ui_manager_packet_list_heading = NULL;
 static GtkUIManager *ui_manager_packet_list_menu = NULL;
 static GtkUIManager *ui_manager_tree_view_menu = NULL;
@@ -4514,6 +4514,7 @@ set_menu_sensitivity_old(const gchar *path, gint val)
 
 #endif /* MAIN_MENU_USE_UIMANAGER */
 
+#ifdef MAIN_MENU_USE_UIMANAGER
 static void
 set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gchar *key, gpointer data)
 {
@@ -4527,8 +4528,7 @@ set_menu_object_data_meat(GtkUIManager *ui_manager, const gchar *path, const gch
 #endif
     }
 }
-
-#ifndef MAIN_MENU_USE_UIMANAGER
+#else /* MAIN_MENU_USE_UIMANAGER */
 static void
 set_menu_object_data_meat_old(const gchar *path, const gchar *key, gpointer data)
 {
@@ -4538,7 +4538,7 @@ set_menu_object_data_meat_old(const gchar *path, const gchar *key, gpointer data
         g_object_set_data(G_OBJECT(menu), key, data);
     }
 }
-#endif
+#endif /* MAIN_MENU_USE_UI_MANAGER */
 
 void
 set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
