@@ -743,8 +743,11 @@ create_view_and_model(void)
 
 	/*		g_object_unref(packetlist); */ /* Destroy automatically with view for now */ /* XXX - Messes up freezing & thawing */
 
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_override_font(packetlist->view, user_font_get_regular());
+#else
 	gtk_widget_modify_font(packetlist->view, user_font_get_regular());
-
+#endif
 
 	/* We need one extra column to store the entire PacketListRecord */
 	for(i = 0; i < cfile.cinfo.num_cols; i++) {
@@ -1428,7 +1431,11 @@ new_packet_list_set_sel_browse(gboolean val, gboolean force_set)
 void
 new_packet_list_set_font(PangoFontDescription *font)
 {
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_override_font(packetlist->view, font);
+#else
 	gtk_widget_modify_font(packetlist->view, font);
+#endif
 }
 
 

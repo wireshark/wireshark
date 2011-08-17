@@ -181,7 +181,11 @@ static void insert_text(GtkWidget *w, const char *buffer, int nchars)
     GtkTextIter    iter;
 
     gtk_text_buffer_get_end_iter(buf, &iter);
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_override_font(w, user_font_get_regular());
+#else
     gtk_widget_modify_font(w, user_font_get_regular());
+#endif
     if (!g_utf8_validate(buffer, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", buffer);  /* ToDo: Don't use printf ?? */
     gtk_text_buffer_insert(buf, &iter, buffer, nchars);

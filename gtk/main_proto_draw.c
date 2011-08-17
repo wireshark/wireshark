@@ -714,12 +714,19 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
 #if 0/*GTK_CHECK_VERSION(3,0,0)*/
 	context = gtk_widget_get_style_context GTK_WIDGET(top_level));
-	gtk_style_context_get (context, GTK_STATE_NORMAL,
+	gtk_style_context_get (context, GTK_STATE_SELECTED,
 					"background-color", &rgba_bg_color,
 					NULL);
-	gtk_style_context_get (context, GTK_STATE_NORMAL,
+	gtk_style_context_get (context, GTK_STATE_SELECTED,
 					"forground-color", &rgba_fg_color,
 					NULL);
+
+	gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
+    gtk_text_buffer_create_tag(buf, "reverse",
+                               "font-desc", user_font_get_regular(),
+                               "foreground-rgba", &rgba_fg_color,
+                               "background-rgba", &&rgba_bg_color,
+                               NULL);
 
 #else
     style = gtk_widget_get_style(GTK_WIDGET(top_level));
@@ -1999,7 +2006,11 @@ main_tree_view_new(e_prefs *prefs_p, GtkWidget **tree_view_p)
     g_signal_connect(tree_view, "row-collapsed", G_CALLBACK(collapse_tree), NULL);
     gtk_container_add( GTK_CONTAINER(tv_scrollw), tree_view );
     set_ptree_sel_browse(tree_view, prefs_p->gui_ptree_sel_browse);
-    gtk_widget_modify_font(tree_view, user_font_get_regular());
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_override_font(tree_view, user_font_get_regular());
+#else
+	gtk_widget_modify_font(tree_view, user_font_get_regular());
+#endif
     remember_ptree_widget(tree_view);
 
     *tree_view_p = tree_view;
