@@ -75,7 +75,7 @@ void
 register_stat_menu_item(
     const char *name,
     register_stat_group_t group,
-    GtkItemFactoryCallback callback,
+    gpointer callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data);
@@ -194,7 +194,7 @@ extern void register_stat_menu_item_stock(
     const char *name,
     register_stat_group_t group,
     const gchar *stock_id,
-    GtkItemFactoryCallback callback,
+    gpointer callback,
     gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
     gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
     gpointer callback_data);
