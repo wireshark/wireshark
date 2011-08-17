@@ -316,8 +316,11 @@ autocompletion_list_lookup(GtkWidget *filter_te, GtkWidget *popup_win, GtkWidget
     g_free (first);
 
     gtk_tree_view_columns_autosize(GTK_TREE_VIEW(list));
+#if GTK_CHECK_VERSION(3,0,0)
+    gtk_widget_get_preferred_size(list, &requisition, NULL);
+#else
     gtk_widget_size_request(list, &requisition);
-
+#endif
 #if GTK_CHECK_VERSION(2,18,0)
     gtk_widget_get_allocation(popup_win, &popup_win_alloc);
 #else
@@ -757,8 +760,11 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
   g_signal_connect(filter_te, "focus-out-event", G_CALLBACK(filter_te_focus_out_cb), w_toplevel);
   g_signal_connect(popup_win, "destroy", G_CALLBACK(filter_autocomplete_win_destroy_cb), NULL);
 
+#if GTK_CHECK_VERSION(3,0,0)
+  gtk_widget_get_preferred_size(treeview, &requisition, NULL);
+#else
   gtk_widget_size_request(treeview, &requisition);
-
+#endif
 #if GTK_CHECK_VERSION(2,18,0)
   gtk_widget_get_allocation(filter_te, &filter_te_alloc);
 #else

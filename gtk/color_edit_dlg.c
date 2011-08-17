@@ -461,8 +461,8 @@ edit_color_filter_ok_cb                (GtkButton       *button,
     window_destroy(dialog);
   }
 #if GTK_CHECK_VERSION(3,0,0)
-  gdk_rgba_free (new_fg_color);
-  gdk_rgba_free (new_bg_color);
+  gdk_rgba_free (new_rgba_fg_color);
+  gdk_rgba_free (new_rgba_bg_color);
 #endif
 }
 
