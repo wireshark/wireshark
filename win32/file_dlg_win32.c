@@ -184,7 +184,7 @@ win32_open_file (HWND h_wnd) {
      * the open dialog window does not appear.
      * Instead detect Windows version at runtime and choose size accordingly */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -269,7 +269,7 @@ win32_save_as_file(HWND h_wnd, action_after_save_e action_after_save, gpointer a
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -415,7 +415,7 @@ win32_merge_file (HWND h_wnd) {
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -538,7 +538,7 @@ win32_export_file(HWND h_wnd, export_type_e export_type) {
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -662,7 +662,7 @@ win32_export_raw_file(HWND h_wnd) {
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -756,7 +756,7 @@ win32_export_sslkeys_file(HWND h_wnd) {
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -841,7 +841,7 @@ win32_export_color_file(HWND h_wnd, gpointer filter_list) {
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -906,7 +906,7 @@ win32_import_color_file(HWND h_wnd, gpointer color_filters) {
 
     /* see OPENFILENAME comment in win32_open_file */
 #if (_MSC_VER >= 1500)
-    ZeroMemory(&osvi, sizeof(OSVERSIONINFO));
+    SecureZeroMemory(&osvi, sizeof(OSVERSIONINFO));
     osvi.dwOSVersionInfoSize = sizeof(OSVERSIONINFO);
     GetVersionEx(&osvi);
     if (osvi.dwMajorVersion >= 5) {
@@ -2109,4 +2109,3 @@ export_sslkeys_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_p
  * ex: set shiftwidth=4 tabstop=8 expandtab
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-

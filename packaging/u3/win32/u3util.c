@@ -308,9 +308,9 @@ void ExecuteAndWait(char *buffer)
   STARTUPINFO         si;
   PROCESS_INFORMATION pi;
 
-  ZeroMemory(&si, sizeof(si));
+  SecureZeroMemory(&si, sizeof(si));
   si.cb = sizeof(si);
-  ZeroMemory(&pi, sizeof(pi));
+  SecureZeroMemory(&pi, sizeof(pi));
 
   if(CreateProcess(NULL, buffer, NULL, NULL, FALSE, 0, NULL, NULL, &si, &pi)) {
     /* wait for the uninstall to finish */
@@ -378,7 +378,7 @@ void uninstall(char *regkey, char *u3installed, char *uninstall)
 	       buffer,
 	       "Uninstall",
 	       MB_YESNO|MB_TOPMOST|MB_ICONQUESTION);
-#endif 
+#endif
 
     /* we have an uninstall string */
     ExecuteAndWait(buffer);
@@ -394,7 +394,7 @@ void winpcap_auto_start()
   char buffer[BUFSIZ+1];
   int  buflen = 0;
   DWORD startVal = NPF_START_VAL;
-  
+
   if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, WINDOWS_VERSION_KEY, 0, (KEY_READ), &key) == ERROR_SUCCESS) {
 
     if(RegQueryValueEx(key, WINDOWS_VERSION, NULL, NULL, buffer, &buflen) == ERROR_SUCCESS) {
@@ -405,7 +405,7 @@ void winpcap_auto_start()
 	if(RegOpenKeyEx(HKEY_LOCAL_MACHINE, NPF_KEY, 0, (KEY_READ | KEY_WRITE), &npfKey) == ERROR_SUCCESS) {
 
 	  (void)RegSetValueEx(npfKey, NPF_START, 0, REG_DWORD, (BYTE*)&startVal, sizeof(DWORD));
-	  
+
 	  RegCloseKey(npfKey);
 
 	}
@@ -768,7 +768,7 @@ void host_configure(void)
 
     RegCloseKey(key);
 
-  } 
+  }
 
   if(!hasRedist) {
 
@@ -868,10 +868,10 @@ main(int argc, char *argv[])
 {
   DWORD time_out = 0;
   char *u3_is_device_available;
-#if 0 
+#if 0
   char **envptr;
   char *envval;
-# endif 
+# endif
   u3_is_device_available = getenv("U3_IS_DEVICE_AVAILABLE");
 
   if(u3_is_device_available && !strncmp(u3_is_device_available, "true", 4))
