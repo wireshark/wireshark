@@ -567,6 +567,14 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                                              tvb_get_ntohs(tvb, offset + 6),
                                              ip_to_str((guint8 *)&ip4addr2));
                             break ;
+                        case FORMAT_AS4_LOC:
+                            length = 8 + sizeof(ip4addr);
+                            ip4addr = tvb_get_ipv4(tvb, offset + 8);  /* Next Hop   */
+                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u:%u IPv4=%s",
+                                             tvb_get_ntohl(tvb, offset + 2),
+                                             tvb_get_ntohs(tvb, offset + 6),
+                                             ip_to_str((guint8 *)&ip4addr));
+                            break ;
                         default:
                             length = 0 ;
                             ep_strbuf_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv4 address format",rd_type);
