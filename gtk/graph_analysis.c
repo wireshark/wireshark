@@ -1788,7 +1788,11 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 			 G_CALLBACK(v_scrollbar_changed), user_data);
 
 	frame_box = gtk_frame_new(NULL);
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_get_preferred_size(user_data->dlg.v_scrollbar, &scroll_requisition, NULL);
+#else
 	gtk_widget_size_request(user_data->dlg.v_scrollbar, &scroll_requisition);
+#endif
 	gtk_widget_set_size_request(frame_box, 1, scroll_requisition.width+2);
 	gtk_frame_set_shadow_type(GTK_FRAME(frame_box), GTK_SHADOW_NONE);
 	gtk_widget_show(frame_box);
