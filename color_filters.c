@@ -88,50 +88,50 @@ color_filter_new(const gchar *name,    /* The name of the filter to create */
 	colorf->c_colorfilter = NULL;
 	colorf->edit_dialog = NULL;
 	colorf->selected = FALSE;
-        return colorf;
+    return colorf;
 }
 
 /* Add ten empty (temporary) colorfilters for easy coloring */
 static void
 color_filters_add_tmp(GSList **cfl)
 {
-	gchar  *name = NULL;
-	guint32 i;
-        gchar** bg_colors;
-        gchar** fg_colors;
-        unsigned long int cval;
-        color_t bg_color, fg_color;
-        color_filter_t *colorf;
+    gchar  *name = NULL;
+    guint32 i;
+    gchar** bg_colors;
+    gchar** fg_colors;
+    unsigned long int cval;
+    color_t bg_color, fg_color;
+    color_filter_t *colorf;
 
-	g_assert(strlen(prefs.gui_colorized_fg)==69);
-	g_assert(strlen(prefs.gui_colorized_bg)==69);
-        fg_colors = g_strsplit(prefs.gui_colorized_fg, ",", -1);
-        bg_colors = g_strsplit(prefs.gui_colorized_bg, ",", -1);
+    g_assert(strlen(prefs.gui_colorized_fg)==69);
+    g_assert(strlen(prefs.gui_colorized_bg)==69);
+    fg_colors = g_strsplit(prefs.gui_colorized_fg, ",", -1);
+    bg_colors = g_strsplit(prefs.gui_colorized_bg, ",", -1);
 
         for ( i=1 ; i<=10 ; i++ ) {
-                name = g_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
+            name = g_strdup_printf("%s%02d",CONVERSATION_COLOR_PREFIX,i);
 
-		/* retrieve background and foreground colors */
-                cval = strtoul(fg_colors[i-1], NULL, 16);
-                initialize_color(&fg_color, RED_COMPONENT(cval),
-                                            GREEN_COMPONENT(cval),
-                                            BLUE_COMPONENT(cval) );
-                cval = strtoul(bg_colors[i-1], NULL, 16);
-                initialize_color(&bg_color, RED_COMPONENT(cval),
-                                            GREEN_COMPONENT(cval),
-                                            BLUE_COMPONENT(cval) );
-                colorf = color_filter_new(name, NULL, &bg_color, &fg_color, TRUE);
-                colorf->filter_text = g_strdup("frame");
-                colorf->c_colorfilter = NULL;
-                *cfl = g_slist_append(*cfl, colorf);
+            /* retrieve background and foreground colors */
+            cval = strtoul(fg_colors[i-1], NULL, 16);
+            initialize_color(&fg_color, RED_COMPONENT(cval),
+                                        GREEN_COMPONENT(cval),
+                                        BLUE_COMPONENT(cval) );
+            cval = strtoul(bg_colors[i-1], NULL, 16);
+            initialize_color(&bg_color, RED_COMPONENT(cval),
+                                        GREEN_COMPONENT(cval),
+                                        BLUE_COMPONENT(cval) );
+            colorf = color_filter_new(name, NULL, &bg_color, &fg_color, TRUE);
+            colorf->filter_text = g_strdup("frame");
+            colorf->c_colorfilter = NULL;
+            *cfl = g_slist_append(*cfl, colorf);
 
-                g_free(name);
-	}
+            g_free(name);
+    }
 
-        g_strfreev(fg_colors);
-        g_strfreev(bg_colors);
+    g_strfreev(fg_colors);
+    g_strfreev(bg_colors);
 
-	return;
+    return;
 }
 
 static gint
@@ -260,7 +260,7 @@ color_filter_clone(color_filter_t *colorf)
 	new_colorf->edit_dialog = NULL;
 	new_colorf->selected = FALSE;
 
-        return new_colorf;
+    return new_colorf;
 }
 
 static void
@@ -303,13 +303,13 @@ color_filters_init(void)
 void
 color_filters_reload(void)
 {
-        /* "move" old entries to the deleted list
-         * we must keep them until the dissection no longer needs them */
-        color_filter_deleted_list = g_slist_concat(color_filter_deleted_list, color_filter_list);
-        color_filter_list = NULL;
+    /* "move" old entries to the deleted list
+     * we must keep them until the dissection no longer needs them */
+    color_filter_deleted_list = g_slist_concat(color_filter_deleted_list, color_filter_list);
+    color_filter_list = NULL;
 
-        /* start the list with the temporary colorizing rules */
-        color_filters_add_tmp(&color_filter_list);
+    /* start the list with the temporary colorizing rules */
+    color_filters_add_tmp(&color_filter_list);
 
 	/* try to read the users filters */
 	if (!read_users_filters(&color_filter_list))
@@ -320,15 +320,15 @@ color_filters_reload(void)
 void
 color_filters_cleanup(void)
 {
-        /* delete the previously deleted filters */
-        color_filter_list_delete(&color_filter_deleted_list);
+    /* delete the previously deleted filters */
+    color_filter_list_delete(&color_filter_deleted_list);
 }
 
 static void
 color_filters_clone_cb(gpointer filter_arg, gpointer user_data)
 {
 	color_filter_t * new_colorf = color_filter_clone((color_filter_t *)filter_arg);
-        color_filter_add_cb (new_colorf, user_data);
+    color_filter_add_cb (new_colorf, user_data);
 }
 
 void
