@@ -53,6 +53,7 @@ initialize_color(color_t *color, guint16 red, guint16 green, guint16 blue)
 {
 	GdkColor gdk_color;
 
+	gdk_color.pixel = 0;
 	gdk_color.red = red;
 	gdk_color.green = green;
 	gdk_color.blue = blue;
