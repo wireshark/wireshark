@@ -224,7 +224,6 @@ endif()
 if (UI_MANAGER)
 	add_definitions(
 		-DMAIN_MENU_USE_UIMANAGER=1
-		-DGTK_DISABLE_DEPRECATED
 	)
 endif()
 
@@ -243,6 +242,7 @@ if (NOT ENABLE_GTK3)
 		# To verify that your program does not use any deprecated symbols,
 		# you can use defines to remove deprecated symbols from the header files
 		#-DGDK_DISABLE_DEPRECATED
+		-DGTK_DISABLE_DEPRECATED
 	)
 endif()
 
