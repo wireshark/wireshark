@@ -943,6 +943,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 #endif /* PORTAUDIO_API_1 */
 	int i;
 	GtkAllocation widget_alloc;
+	cairo_t *cr;
 
 	if (!rci) return;
 
@@ -969,7 +970,14 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	if (rci->cursor_pixbuf && (rci->cursor_prev>=0)) {
 
 		gdk_draw_pixbuf(rci->pixmap, NULL, rci->cursor_pixbuf, 0, 0, (int) (rci->cursor_prev/MULT), 0, -1, -1, GDK_RGB_DITHER_NONE, 0 ,0);
-
+#if 0
+		cr = gdk_cairo_create (rci->pixmap);
+		gdk_cairo_set_source_pixbuf (cr, rci->cursor_pixbuf, 0, 0);
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_rectangle (cr, rci->cursor_prev/MULT, 0, -1, -1);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+#endif
 		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
 			rci->pixmap,
@@ -984,11 +992,13 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 	if (idx>0 && (rci->cursor_prev>=0)) {
 		rci->cursor_pixbuf = gdk_pixbuf_get_from_drawable(NULL, rci->pixmap, NULL, (int) (idx/MULT), 0, 0, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
 
-		gdk_draw_line(rci->pixmap, gtk_widget_get_style(rci->draw_area)->black_gc,
-			(int) (idx/MULT),
-			0,
-			(int) (idx/MULT),
-			widget_alloc.height-HEIGHT_TIME_LABEL);
+		cr = gdk_cairo_create (rci->pixmap);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr, idx/MULT, 0);
+		cairo_line_to(cr, idx/MULT, widget_alloc.height-HEIGHT_TIME_LABEL);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+		cr=NULL;
 
 		gdk_draw_drawable(gtk_widget_get_window(rci->draw_area),
 			gtk_widget_get_style(rci->draw_area)->fg_gc[gtk_widget_get_state(rci->draw_area)],
@@ -996,6 +1006,14 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 			(int) (idx/MULT), 0,
 			(int) (idx/MULT), 0,
 			1, widget_alloc.height-HEIGHT_TIME_LABEL);
+#if 0
+		cr = gdk_cairo_create (gtk_widget_get_window(rci->draw_area));
+		gdk_cairo_set_source_pixmap (cr, rci->pixmap,idx/MULT, 0);
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_rectangle (cr, idx/MULT, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
+		cairo_fill (cr);
+		cairo_destroy (cr);
+#endif
 	}
 
 	/* Disconnect the scroll bar "value" signal to not be called */
