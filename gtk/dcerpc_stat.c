@@ -598,7 +598,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 #if GTK_CHECK_VERSION(3,0,0)
 		GtkStyleContext *context;
 		GdkRGBA			*new_rgba_fg_color;
-		context = gtk_widget_get_style_context (prog_combo_box());
+		context = gtk_widget_get_style_context (prog_combo_box);
 		gtk_style_context_get (context, GTK_STATE_NORMAL,
 				 "forground-color", &new_rgba_fg_color,
 				  NULL);
