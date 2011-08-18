@@ -245,9 +245,9 @@ static void text_window_append(funnel_text_window_t*  tw, const char *str)
 
     gtk_text_buffer_get_end_iter(buf, &iter);
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_widget_override_font(GTK_WIDGET(txt, user_font_get_regular());
+    gtk_widget_override_font(GTK_WIDGET(txt), user_font_get_regular());
 #else
-	gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
+    gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
 #endif
     if (!g_utf8_validate(str, -1, NULL))
         printf("Invalid utf8 encoding: %s\n", str);
@@ -281,7 +281,7 @@ static void text_window_prepend(funnel_text_window_t*  tw, const char *str _U_) 
 
     gtk_text_buffer_get_start_iter(buf, &iter);
  #if GTK_CHECK_VERSION(3,0,0)
-   gtk_widget_override_font(GTK_WIDGET(txt, user_font_get_regular());
+   gtk_widget_override_font(GTK_WIDGET(txt), user_font_get_regular());
 #else
    gtk_widget_modify_font(GTK_WIDGET(txt), user_font_get_regular());
 #endif
