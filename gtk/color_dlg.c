@@ -787,7 +787,7 @@ create_new_color_filter(GtkButton *button, const char *filter)
                        "background-color", &rgba_bg_color,
                        NULL);
   gtk_style_context_get (context, GTK_STATE_NORMAL,
-                       "forground-color", &rgba_fg_color,
+                       "color", &rgba_fg_color,
                        NULL);
   gdkRGBAcolor_to_color_t(&bg_color, rgba_bg_color);
   gdkRGBAcolor_to_color_t(&fg_color, rgba_fg_color);

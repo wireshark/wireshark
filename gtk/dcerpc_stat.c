@@ -600,7 +600,7 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		GdkRGBA			*new_rgba_fg_color;
 		context = gtk_widget_get_style_context (prog_combo_box);
 		gtk_style_context_get (context, GTK_STATE_NORMAL,
-				 "forground-color", &new_rgba_fg_color,
+				 "color", &new_rgba_fg_color,
 				  NULL);
 
 		g_object_set(cell_renderer,

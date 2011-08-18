@@ -718,7 +718,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
                     "background-color", &rgba_bg_color,
                     NULL);
     gtk_style_context_get (context, GTK_STATE_SELECTED,
-                    "forground-color", &rgba_fg_color,
+                    "color", &rgba_fg_color,
                     NULL);
 
     gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
