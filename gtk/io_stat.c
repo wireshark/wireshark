@@ -2090,11 +2090,14 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
+#if GTK_CHECK_VERSION(3,0,0)
+#else
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &gio->color);
+#endif
 /*	g_signal_connect(gio->display_button, "toggled", G_CALLBACK(filter_callback), gio);*/
 
 

@@ -307,7 +307,7 @@ struct graph {
 						 * temporary
 						 */
 	PangoFontDescription *font;	/* font used for annotations etc. */
-	GdkGC *fg_gc;
+//	GdkGC *fg_gc;
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_surface_t *title_surface;
 	/*cairo_surface_t *surface[2];*/
@@ -315,7 +315,7 @@ struct graph {
 	GdkPixmap *title_pixmap;
 	/*GdkPixmap *pixmap[2];*/
 #endif
-	GdkPixmap *pixmap[2];
+//	GdkPixmap *pixmap[2];
 	int displayed;			/* which of both pixmaps is on screen right now */
 	struct {
 		GtkWidget *control_panel;
@@ -362,7 +362,7 @@ struct graph {
 	} gt;
 };
 
-static GdkGC *xor_gc = NULL;
+//static GdkGC *xor_gc = NULL;
 static int refnum=0;
 
 #define debug(section) if (debugging & section)
@@ -426,8 +426,8 @@ static struct graph *graph_new (void);
 static void graph_destroy (struct graph * );
 static void graph_initialize_values (struct graph * );
 static void graph_init_sequence (struct graph * );
-static void draw_element_line (struct graph * , struct element * );
-static void draw_element_arc (struct graph * , struct element * );
+//static void draw_element_line (struct graph * , struct element * );
+//static void draw_element_arc (struct graph * , struct element * );
 static void graph_display (struct graph * );
 static void graph_pixmaps_create (struct graph * );
 static void graph_pixmaps_switch (struct graph * );
@@ -683,8 +683,8 @@ static void create_gui (struct graph *g)
 
 static void create_drawing_area (struct graph *g)
 {
-	GdkColormap *colormap;
-	GdkColor color;
+//	GdkColormap *colormap;
+//	GdkColor color;
 	char window_title[WINDOW_TITLE_LENGTH];
 	struct segment current;
 	struct tcpheader *thdr;
@@ -787,8 +787,8 @@ static void create_drawing_area (struct graph *g)
 	g->wp.width = widget_alloc.width - g->wp.x - RMARGIN_WIDTH;
 	g->wp.height = widget_alloc.height - g->wp.y - g->x_axis->s.height;
 
+#if 0
     g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
-
 	colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
 	if (!xor_gc) {
 		xor_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
@@ -824,6 +824,7 @@ static void create_drawing_area (struct graph *g)
 	 * !!! NEMLLO BY TO BYT NA KONCI graph_init_sequence()? !!!
 	 *
 	 */
+#endif
 	g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event),
                        NULL);
 
@@ -1731,9 +1732,9 @@ static void graph_destroy (struct graph *g)
 	window_destroy (g->gui.control_panel);
 	window_destroy (g->toplevel);
 	/* window_destroy (g->text); */
-	g_object_unref (g->fg_gc);
-	g_object_unref (g->pixmap[0]);
-	g_object_unref (g->pixmap[1]);
+//	g_object_unref (g->fg_gc);
+//	g_object_unref (g->pixmap[0]);
+//	g_object_unref (g->pixmap[1]);
 	g_free (g->x_axis);
 	g_free (g->y_axis);
 	g_free ( (gpointer) (g->title) );
@@ -2088,19 +2089,19 @@ static void graph_title_pixmap_display (struct graph *g)
 	cairo_destroy (cr);
 }
 
-static void graph_pixmaps_create (struct graph *g)
+static void graph_pixmaps_create (struct graph *g _U_)
 {
 	debug(DBS_FENTRY) puts ("graph_pixmaps_create()");
 
-	if (g->pixmap[0])
-		g_object_unref (g->pixmap[0]);
-	if (g->pixmap[1])
-		g_object_unref (g->pixmap[1]);
-
-	g->pixmap[0] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
-									g->wp.width, g->wp.height, -1);
-	g->pixmap[1] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
-									g->wp.width, g->wp.height, -1);
+//	if (g->pixmap[0])
+//		g_object_unref (g->pixmap[0]);
+//	if (g->pixmap[1])
+//		g_object_unref (g->pixmap[1]);
+//
+//	g->pixmap[0] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
+//									g->wp.width, g->wp.height, -1);
+//	g->pixmap[1] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
+//									g->wp.width, g->wp.height, -1);
 
 	g->displayed = 0;
 }
@@ -2114,8 +2115,9 @@ static void graph_display (struct graph *g)
 	graph_pixmap_display (g);
 }
 
-static void graph_pixmap_display (struct graph *g)
+static void graph_pixmap_display (struct graph *g _U_)
 {
+#if 0
 	cairo_t *cr;
 
 	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
@@ -2127,6 +2129,7 @@ static void graph_pixmap_display (struct graph *g)
     if (g->cross.erase_needed) {
        cross_xor(g, g->cross.x, g->cross.y);
     }
+#endif
 }
 
 static void graph_pixmaps_switch (struct graph *g)
@@ -2134,8 +2137,9 @@ static void graph_pixmaps_switch (struct graph *g)
 	g->displayed = 1 ^ g->displayed;
 }
 
-static void graph_pixmap_draw (struct graph *g)
+static void graph_pixmap_draw (struct graph *g _U_)
 {
+#if 0
 	struct element_list *list;
 	struct element *e;
 	int not_disp;
@@ -2166,8 +2170,9 @@ static void graph_pixmap_draw (struct graph *g)
 				break;
 			}
 		}
+#endif
 }
-
+#if 0
 static void draw_element_line (struct graph *g, struct element *e)
 {
 	int xx1, xx2, yy1, yy2;
@@ -2207,7 +2212,7 @@ static void draw_element_line (struct graph *g, struct element *e)
 	debug(DBS_GRAPH_DRAWING) printf ("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2,yy2);
 
 	g_assert(e->elment_color_p!=NULL);
-	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
+//	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
 	cairo_set_line_width (cr, 1.0);
 	if(e->elment_color_p!=NULL){
 		gdk_cairo_set_source_color (cr, e->elment_color_p);
@@ -2230,8 +2235,8 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	if (xx1<-xx2 || xx1>=g->wp.width || yy1<-yy2 || yy1>=g->wp.height)
 		return;
 	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
-	gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, e->p.arc.filled, xx1,
-					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
+//	gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, e->p.arc.filled, xx1,
+//					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
 
 #if 0
 	/* NOTE the coordinates and angels needs to be recalculated as cairo_arc works differently */
@@ -2255,7 +2260,7 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	g_warning("Drawing arc");
 #endif
 }
-
+#endif
 static void axis_pixmaps_create (struct axis *axis)
 {
 	debug(DBS_FENTRY) puts ("axis_pixmaps_create()");
@@ -2871,11 +2876,11 @@ static void cross_xor (struct graph *g, int x, int y)
 
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
+#if 0
 		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
 						y, g->wp.x + g->wp.width, y);
 		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
 						g->wp.y, x, g->wp.y + g->wp.height);
-#if 0
 		/* Draw horisontal line */
 		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
 		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
@@ -2968,7 +2973,7 @@ static void magnify_create (struct graph *g, int x, int y)
 		}
 	} while (e);
 
-	mg->pixmap[0] = mg->pixmap[1] = NULL;
+//	mg->pixmap[0] = mg->pixmap[1] = NULL;
 	graph_pixmaps_create (mg);
 	magnify_draw (g);
 	g->magnify.active = 1;
@@ -2995,8 +3000,8 @@ static void magnify_destroy (struct graph *g)
 	struct graph *mg = g->magnify.g;
 
 	window_destroy (GTK_WIDGET (mg->drawing_area));
-	g_object_unref (mg->pixmap[0]);
-	g_object_unref (mg->pixmap[1]);
+//	g_object_unref (mg->pixmap[0]);
+//	g_object_unref (mg->pixmap[1]);
 	for (list=mg->elists; list; list=list->next)
 		g_free (list->elements);
 
@@ -3033,8 +3038,9 @@ static void magnify_get_geom (struct graph *g, int x, int y)
 	g->magnify.g->geom.y -= (g->magnify.y - posy);
 }
 
-static void magnify_draw (struct graph *g)
+static void magnify_draw (struct graph *g _U_)
 {
+#if 0
 	cairo_t *cr;
 	int not_disp = 1 ^ g->magnify.g->displayed;
 
@@ -3061,6 +3067,7 @@ static void magnify_draw (struct graph *g)
 
 	graph_pixmaps_switch (g->magnify.g);
 	graph_pixmap_display (g->magnify.g);
+#endif
 
 }
 
