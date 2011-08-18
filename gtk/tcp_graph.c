@@ -299,12 +299,19 @@ struct graph {
 	int flags;
 	GtkWidget *toplevel;	/* keypress handler needs this */
 	GtkWidget *drawing_area;
-        GtkWidget *text;	/* text widget for seg list - probably
-                                 * temporary */
+	GtkWidget *text;	/* text widget for seg list - probably
+						 * temporary
+						 */
 	PangoFontDescription *font;	/* font used for annotations etc. */
 	GdkGC *fg_gc;
 	GdkGC *bg_gc;
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_surface_t *title_surface;
+	/*cairo_surface_t *surface[2];*/
+#else
 	GdkPixmap *title_pixmap;
+	/*GdkPixmap *pixmap[2];*/
+#endif
 	GdkPixmap *pixmap[2];
 	int displayed;			/* which of both pixmaps is on screen right now */
 	struct {
@@ -2026,11 +2033,24 @@ static void graph_element_lists_free (struct graph *g)
 
 static void graph_title_pixmap_create (struct graph *g)
 {
+#if GTK_CHECK_VERSION(2,22,0)
+	if(g->title_surface){
+		cairo_surface_destroy (g->title_surface);
+		g->title_surface = NULL;
+	}
+
+	g->title_surface = gdk_window_create_similar_surface (gtk_widget_get_window(g->drawing_area),
+			CAIRO_CONTENT_COLOR,
+			g->x_axis->p.width, 
+			g->wp.y);
+
+#else
 	if (g->title_pixmap)
 		g_object_unref (g->title_pixmap);
 
 	g->title_pixmap = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
 							g->x_axis->p.width, g->wp.y, -1);
+#endif
 }
 
 static void graph_title_pixmap_draw (struct graph *g)
@@ -2038,7 +2058,11 @@ static void graph_title_pixmap_draw (struct graph *g)
 	int i;
 	cairo_t *cr;
 
+#if GTK_CHECK_VERSION(2,22,0)
+	cr = cairo_create (g->title_surface);
+#else
 	cr = gdk_cairo_create (g->title_pixmap);
+#endif
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_rectangle (cr, 0, 0,  g->x_axis->p.width, g->wp.y);
 	cairo_fill (cr);
@@ -2051,7 +2075,11 @@ static void graph_title_pixmap_draw (struct graph *g)
         layout = gtk_widget_create_pango_layout(g->drawing_area,
                                                 g->title[i]);
         pango_layout_get_pixel_size(layout, &w, &h);
+#if GTK_CHECK_VERSION(2,22,0)
+		cr = cairo_create (g->title_surface);
+#else
 		cr = gdk_cairo_create (g->title_pixmap);
+#endif
 		cairo_move_to (cr, g->wp.width/2 - w/2, 20 + i*(h+3));
 		pango_cairo_show_layout (cr, layout);
 		cairo_destroy (cr);
@@ -2064,7 +2092,11 @@ static void graph_title_pixmap_display (struct graph *g)
 	cairo_t *cr;
 
 	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_set_source_surface (cr, g->title_surface, 0, 0);
+#else
 	gdk_cairo_set_source_pixmap (cr, g->title_pixmap, g->wp.x, 0);
+#endif
 	cairo_rectangle (cr, g->wp.x, 0, g->x_axis->p.width, g->wp.y);
 	cairo_fill (cr);
 	cairo_destroy (cr);
