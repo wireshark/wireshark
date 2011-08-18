@@ -595,12 +595,27 @@ gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
 		        as "grayed out"; The "foreground normal" color is used instead.
 			This may not really be necessary but seems better to me.
 		*/
+#if GTK_CHECK_VERSION(3,0,0)
+		GtkStyleContext *context;
+		GdkRGBA			*new_rgba_fg_color;
+		context = gtk_widget_get_style_context (prog_combo_box());
+		gtk_style_context_get (context, GTK_STATE_NORMAL,
+				 "forground-color", &new_rgba_fg_color,
+				  NULL);
+
+		g_object_set(cell_renderer,
+			     "foreground-rgba", &new_rgba_fg_color,
+			     "foreground-set", TRUE,
+			     NULL);
+
+#else
 		GtkStyle *s;
 		s = gtk_widget_get_style(prog_combo_box);
 		g_object_set(cell_renderer,
 			     "foreground-gdk", &(s->fg[GTK_STATE_NORMAL]),
 			     "foreground-set", TRUE,
 			     NULL);
+#endif
 	}
 
 	current_uuid_key   = NULL;
