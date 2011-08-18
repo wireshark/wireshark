@@ -26,6 +26,11 @@
 # include "config.h"
 #endif
 
+/* XXX - Temporary.  See http://www.wireshark.org/lists/wireshark-dev/201108/msg00373.html discussion */
+#ifdef _WIN32
+#undef GTK_DISABLE_DEPRECATED
+#endif
+
 #include <gtk/gtk.h>
 
 #include <string.h>
@@ -69,7 +74,6 @@
 #include "airpcap_gui_utils.h"
 #endif
 #endif
-
 
 static void     prefs_main_ok_cb(GtkWidget *, gpointer);
 static void     prefs_main_apply_cb(GtkWidget *, gpointer);
