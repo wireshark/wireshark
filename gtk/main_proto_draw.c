@@ -690,7 +690,7 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 {
 	GtkWidget *byte_view, *byte_scrollw, *label;
 	GtkTextBuffer *buf;
-#if 0/*GTK_CHECK_VERSION(3,0,0)*/
+#if GTK_CHECK_VERSION(3,0,0)
 	GtkStyleContext *context;
 	GdkRGBA		*rgba_bg_color;
 	GdkRGBA		*rgba_fg_color;
@@ -712,20 +712,20 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     gtk_text_view_set_editable(GTK_TEXT_VIEW(byte_view), FALSE);
     gtk_text_view_set_cursor_visible(GTK_TEXT_VIEW(byte_view), FALSE);
     buf = gtk_text_view_get_buffer(GTK_TEXT_VIEW(byte_view));
-#if 0/*GTK_CHECK_VERSION(3,0,0)*/
-	context = gtk_widget_get_style_context GTK_WIDGET(top_level));
-	gtk_style_context_get (context, GTK_STATE_SELECTED,
-					"background-color", &rgba_bg_color,
-					NULL);
-	gtk_style_context_get (context, GTK_STATE_SELECTED,
-					"forground-color", &rgba_fg_color,
-					NULL);
+#if GTK_CHECK_VERSION(3,0,0)
+    context = gtk_widget_get_style_context (GTK_WIDGET(top_level));
+    gtk_style_context_get (context, GTK_STATE_SELECTED,
+                    "background-color", &rgba_bg_color,
+                    NULL);
+    gtk_style_context_get (context, GTK_STATE_SELECTED,
+                    "forground-color", &rgba_fg_color,
+                    NULL);
 
-	gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
+    gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
     gtk_text_buffer_create_tag(buf, "reverse",
                                "font-desc", user_font_get_regular(),
                                "foreground-rgba", &rgba_fg_color,
-                               "background-rgba", &&rgba_bg_color,
+                               "background-rgba", &rgba_bg_color,
                                NULL);
 
 #else

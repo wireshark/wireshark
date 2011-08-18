@@ -1103,7 +1103,11 @@ new_packet_list_check_end(void)
 	gboolean at_end = FALSE;
 	GtkAdjustment *adj;
 
+#if GTK_CHECK_VERSION(3,0,0)
+	adj = gtk_scrollable_get_vadjustment (GTK_SCROLLABLE (packetlist->view));
+#else
 	adj = gtk_tree_view_get_vadjustment(GTK_TREE_VIEW(packetlist->view));
+#endif
 	g_return_val_if_fail(adj != NULL, FALSE);
 
 	if (gtk_adjustment_get_value(adj) >= gtk_adjustment_get_upper(adj) - gtk_adjustment_get_page_size(adj)) {

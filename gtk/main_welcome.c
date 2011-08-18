@@ -83,13 +83,21 @@ extern gint if_list_comparator_alph (const void *first_arg, const void *second_a
 static GtkWidget *welcome_hb = NULL;
 static GtkWidget *header_lb = NULL;
 /* Foreground colors are set using Pango markup */
+#if GTK_CHECK_VERSION(3,0,0)
+static GdkRGBA rgba_welcome_bg = { 0.901, 0.901, 0.901, 0.0 };
+static GdkRGBA rgba_header_bar_bg = { 0.094, 0.360, 0.792, 0.0 };
+static GdkRGBA rgba_topic_header_bg = { 0.003, 0.224, 0.745, 0.0 };
+static GdkRGBA rgba_topic_content_bg = { 1, 1, 1, 0 };
+static GdkRGBA rgba_topic_item_idle_bg;
+static GdkRGBA rgba_topic_item_entered_bg =  { 0.827, 0.847, 0.855, 0.0 };
+#else
 static GdkColor welcome_bg = { 0, 0xe6e6, 0xe6e6, 0xe6e6 };
 static GdkColor header_bar_bg = { 0, 0x1818, 0x5c5c, 0xcaca };
 static GdkColor topic_header_bg = { 0, 0x0101, 0x3939, 0xbebe };
 static GdkColor topic_content_bg = { 0, 0xffff, 0xffff, 0xffff };
 static GdkColor topic_item_idle_bg;
 static GdkColor topic_item_entered_bg = { 0, 0xd3d3, 0xd8d8, 0xdada };
-
+#endif
 static GtkWidget *welcome_file_panel_vb = NULL;
 #ifdef HAVE_LIBPCAP
 static GtkWidget *welcome_if_panel_vb = NULL;
@@ -199,8 +207,11 @@ scroll_box_dynamic_reset(GtkWidget *parent_box)
 static gboolean
 welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
-    gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_entered_bg);
-
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &rgba_topic_item_entered_bg);
+#else
+	gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_entered_bg);
+#endif
     return FALSE;
 }
 
@@ -209,8 +220,11 @@ welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_
 static gboolean
 welcome_item_leave_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+#else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
-
+#endif
     return FALSE;
 }
 
@@ -233,7 +247,11 @@ welcome_button(const gchar *stock_item,
     /* event box (for background color and events) */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_hb);
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+#else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
+#endif
     if(tooltip != NULL) {
 		gtk_widget_set_tooltip_text(eb, tooltip);
     }
@@ -327,8 +345,11 @@ welcome_header_new(void)
     /* colorize vbox */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), item_vb);
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_header_bar_bg);
+#else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &header_bar_bg);
-
+#endif
     item_hb = gtk_hbox_new(FALSE, 0);
     gtk_box_pack_start(GTK_BOX(item_vb), item_hb, FALSE, FALSE, 10);
 
@@ -398,8 +419,11 @@ welcome_topic_header_new(const char *header)
     /* colorize vbox */
     eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(eb), w);
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_header_bg);
+#else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_header_bg);
-
+#endif
     return eb;
 }
 
@@ -426,7 +450,11 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     /* colorize vbox (we need an event box for this!) */
     topic_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(topic_eb), topic_vb);
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_content_bg);
+#else
     gtk_widget_modify_bg(topic_eb, GTK_STATE_NORMAL, &topic_content_bg);
+#endif
     *to_fill = layout_vb;
 
     return topic_eb;
@@ -627,7 +655,11 @@ welcome_filename_link_new(const gchar *filename, GtkWidget **label, GObject *men
 
     /* event box */
     eb = gtk_event_box_new();
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_idle_bg);
+#else
     gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_idle_bg);
+#endif
     gtk_container_add(GTK_CONTAINER(eb), w);
     gtk_widget_set_tooltip_text(eb, filename);
 
@@ -1134,8 +1166,11 @@ welcome_new(void)
 
     welcome_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(welcome_eb), welcome_vb);
-    gtk_widget_modify_bg(welcome_eb, GTK_STATE_NORMAL, &welcome_bg);
-
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(welcome_eb, GTK_STATE_NORMAL, &rgba_welcome_bg);
+#else
+	gtk_widget_modify_bg(welcome_eb, GTK_STATE_NORMAL, &welcome_bg);
+#endif
     /* header */
     header = welcome_header_new();
     gtk_box_pack_start(GTK_BOX(welcome_vb), header, FALSE, FALSE, 0);
@@ -1148,7 +1183,11 @@ welcome_new(void)
 
     /* column capture */
     column_vb = gtk_vbox_new(FALSE, 10);
+#if GTK_CHECK_VERSION(3,0,0)
+	gtk_widget_override_background_color(column_vb, GTK_STATE_NORMAL, &rgba_welcome_bg);
+#else
     gtk_widget_modify_bg(column_vb, GTK_STATE_NORMAL, &welcome_bg);
+#endif
     gtk_box_pack_start(GTK_BOX(welcome_hb), column_vb, TRUE, TRUE, 0);
 
     /* capture topic */

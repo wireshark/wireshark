@@ -186,6 +186,8 @@ packet_list_class_init(PacketListClass *klass)
 
 	object_class->finalize = packet_list_finalize;
 
+#if GTK_CHECK_VERSION(3,0,0)
+#else
 	/* XXX this seems to affect TreeView Application wide
 	 * Move to main.c ??? as it's not a bad thing(tm)
 	 */
@@ -196,6 +198,7 @@ packet_list_class_init(PacketListClass *klass)
 		"  GtkTreeView::vertical-separator = 1\n"
 		"} widget_class \"*TreeView*\""
 		" style \"PacketList-style\"");
+#endif
 
 }
 
