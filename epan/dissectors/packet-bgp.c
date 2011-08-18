@@ -620,6 +620,14 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                                              tvb_get_ntohs(tvb, offset + 6),
                                              ip6_to_str(&ip6addr));
                             break ;
+                        case FORMAT_AS4_LOC:
+                            length = 8 + 16;
+                            tvb_get_ipv6(tvb, offset + 8, &ip6addr); /* Next Hop */
+                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u:%u IPv6=%s",
+                                             tvb_get_ntohl(tvb, offset + 2),
+                                             tvb_get_ntohs(tvb, offset + 6),
+                                             ip6_to_str(&ip6addr));
+                            break ;
                         default:
                             length = 0 ;
                             ep_strbuf_printf(strbuf, "Unknown (0x%04x) labeled VPN IPv6 address format",rd_type);
@@ -876,6 +884,41 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
+                    case FORMAT_AS4_LOC: /* Code borrowed from the decode_prefix4 function */
+                        length = ipv4_addr_and_mask(tvb, offset + 8, ip4addr.addr_bytes, plen);
+                        if (length < 0) {
+                            proto_tree_add_text(tree, tvb, start_offset, 1,
+                                                "%s Labeled VPN IPv4 prefix length %u invalid",
+                                                tag, plen + (labnum * 3*8) + 8*8);
+                            return -1;
+                        }
+
+                        ti = proto_tree_add_text(tree, tvb, start_offset,
+                                                 (offset + 8 + length) - start_offset,
+                                                 "Label Stack=%s RD=%u:%u, IPv4=%s/%u",
+                                                 stack_strbuf->str,
+                                                 tvb_get_ntohl(tvb, offset + 2),
+                                                 tvb_get_ntohs(tvb, offset + 6),
+                                                 ip_to_str(ip4addr.addr_bytes), plen);
+                        prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+                        proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
+                                            tag, plen + labnum * 3 * 8 + 8 * 8);
+                        proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
+                                            "%s Label Stack: %s", tag, stack_strbuf->str);
+                        proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
+                                            "%s Route Distinguisher: %u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
+                                            tvb_get_ntohl(tvb, offset + 4));
+                        if (hf_addr4 != -1) {
+                            proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
+                                                offset + 8, length, ip4addr.addr);
+                        } else {
+                            proto_tree_add_text(prefix_tree, tvb, offset + 8,
+                                                length, "%s IPv4 prefix: %s", tag,
+                                                ip_to_str(ip4addr.addr_bytes));
+                        }
+                        total_length = (1 + labnum * 3 + 8) + length;
+                        break;
+
                     default:
                         proto_tree_add_text(tree, tvb, start_offset,
                                             (offset - start_offset) + 2,
@@ -1022,6 +1065,24 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         total_length = (1 + labnum * 3 + 8) + length;
                         break;
 
+                    case FORMAT_AS4_LOC:
+                        length = ipv6_addr_and_mask(tvb, offset + 8, &ip6addr, plen);
+                        if (length < 0) {
+                            proto_tree_add_text(tree, tvb, start_offset, 1,
+                                                "%s Labeled VPN IPv6 prefix length %u invalid",
+                                                tag, plen + (labnum * 3*8) + 8*8);
+                            return -1;
+                        }
+
+                        proto_tree_add_text(tree, tvb, start_offset,
+                                            (offset + 8 + length) - start_offset,
+                                            "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
+                                            stack_strbuf->str,
+                                            tvb_get_ntohl(tvb, offset + 2),
+                                            tvb_get_ntohs(tvb, offset + 6),
+                                            ip6_to_str(&ip6addr), plen);
+                        total_length = (1 + labnum * 3 + 8) + length;
+                        break;
                     default:
                         proto_tree_add_text(tree, tvb, start_offset, 0,
                                             "Unknown labeled VPN IPv6 address format %u", rd_type);
@@ -1081,7 +1142,18 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                             labblk_size,
                                             stack_strbuf->str);
                         break;
-
+                    case FORMAT_AS4_LOC:
+                        proto_tree_add_text(tree, tvb, offset,
+                                            (offset + plen + 1) - start_offset,
+                                            "RD: %u:%u, CE-ID: %u, Label-Block Offset: %u, "
+                                            "Label-Block Size: %u, Label Base %s",
+                                            tvb_get_ntohl(tvb, offset + 4),
+                                            tvb_get_ntohs(tvb, offset + 8),
+                                            ce_id,
+                                            labblk_off,
+                                            labblk_size,
+                                            stack_strbuf->str);
+                        break;
                     default:
                         proto_tree_add_text(tree, tvb, start_offset,
                                             (offset - start_offset) + 2,
