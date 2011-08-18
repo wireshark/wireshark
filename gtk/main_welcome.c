@@ -86,7 +86,7 @@ static GtkWidget *header_lb = NULL;
 #if GTK_CHECK_VERSION(3,0,0)
 static GdkRGBA rgba_welcome_bg = {0xe6e6/0xffff, 0xe6e6/0xffff, 0xe6e6/0xffff, 1.0 };
 static GdkRGBA rgba_header_bar_bg = { 0x1818/0xffff, 0x5c5c/0xffff, 0xcaca/0xffff, 1.0 };
-static GdkRGBA rgba_topic_header_bg = {  0x0101/0xffff, 0x3939/0xffff, xbebe/0xffff, 1.0 };
+static GdkRGBA rgba_topic_header_bg = {  0x0101/0xffff, 0x3939/0xffff, 0xbebe/0xffff, 1.0 };
 static GdkRGBA rgba_topic_content_bg = { 1, 1, 1, 1.0 };
 static GdkRGBA rgba_topic_item_idle_bg;
 static GdkRGBA rgba_topic_item_entered_bg =  { 0xd3d30/0xffff, 0xd8d8/0xffff, 0xdada/0xffff, 1.0 };
