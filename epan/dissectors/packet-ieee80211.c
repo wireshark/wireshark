@@ -5123,7 +5123,7 @@ dissect_vendor_ie_wpawme(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_aifsn, tvb, offset, 1, ENC_NA);
             proto_tree_add_item(aci_aifsn_tree, hf_ieee80211_wfa_ie_wme_acp_reserved, tvb, offset, 1, ENC_NA);
             aci_aifsn = tvb_get_guint8(tvb, offset);
-            proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u", 
+            proto_item_append_text(ac_item, " ACI %u (%s), ACM %s, AIFSN %u",
             (aci_aifsn & 0x60) >> 5, match_strval((aci_aifsn & 0x60) >> 5, ieee80211_wfa_ie_wme_acs_vals),
             (aci_aifsn & 0x10) ? "yes" : "no ", aci_aifsn & 0x0f);
             offset += 1;
@@ -15673,7 +15673,7 @@ proto_register_ieee80211 (void)
   static uat_field_t wep_uat_flds[] = {
 
       UAT_FLD_VS(uat_wep_key_records, key, "Key type", wep_type_vals,
-                        "Decryption key type used"), 
+                        "Decryption key type used"),
       UAT_FLD_CSTRING(uat_wep_key_records, string, "Key",
                         "wep:<wep hexadecimal key>\n"
                         "wpa-pwd:<passphrase>[:<ssid>]\n"
@@ -15858,7 +15858,7 @@ proto_register_ieee80211 (void)
     "Invalid keys will be ignored.",
     "Valid key formats");
 
-    wep_uat = uat_new("WEP Keys",
+    wep_uat = uat_new("WEP and WPA Decryption Keys",
             sizeof(uat_wep_key_record_t),  /* record size */
             "80211_keys",               /* filename */
             TRUE,                       /* from_profile */
@@ -15872,10 +15872,10 @@ proto_register_ieee80211 (void)
             NULL,                       /* post update callback */
             wep_uat_flds);             /* UAT field definitions */
 
-    prefs_register_uat_preference(wlan_module, 
+    prefs_register_uat_preference(wlan_module,
                                    "wep_key_table",
-                                   "WEP Keys",
-                                   "Preconfigured WEP keys",
+                                   "Decryption Keys",
+                                   "WEP and pre-shared WPA keys",
                                    wep_uat);
 }
 
