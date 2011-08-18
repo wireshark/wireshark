@@ -208,7 +208,7 @@ static gboolean
 welcome_item_enter_cb(GtkWidget *eb, GdkEventCrossing *event _U_, gpointer user_data _U_)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_override_background_color(filt_name_entry, GTK_STATE_NORMAL, &rgba_topic_item_entered_bg);
+	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_item_entered_bg);
 #else
 	gtk_widget_modify_bg(eb, GTK_STATE_NORMAL, &topic_item_entered_bg);
 #endif
@@ -451,7 +451,7 @@ welcome_topic_new(const char *header, GtkWidget **to_fill)
     topic_eb = gtk_event_box_new();
     gtk_container_add(GTK_CONTAINER(topic_eb), topic_vb);
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_widget_override_background_color(eb, GTK_STATE_NORMAL, &rgba_topic_content_bg);
+	gtk_widget_override_background_color(topic_eb, GTK_STATE_NORMAL, &rgba_topic_content_bg);
 #else
     gtk_widget_modify_bg(topic_eb, GTK_STATE_NORMAL, &topic_content_bg);
 #endif
@@ -1153,8 +1153,11 @@ welcome_new(void)
     /* topic content background color */
     get_color(&topic_content_bg);
 #endif
+#if GTK_CHECK_VERSION(3,0,0)
+    rgba_topic_item_idle_bg = rgba_topic_content_bg;
+#else
     topic_item_idle_bg = topic_content_bg;
-
+#endif
 #if 0
 	/* Allocating collor isn't necessary? */
     /* topic item entered color */
