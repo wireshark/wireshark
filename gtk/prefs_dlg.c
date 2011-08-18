@@ -26,11 +26,6 @@
 # include "config.h"
 #endif
 
-/* XXX - Temporary.  See http://www.wireshark.org/lists/wireshark-dev/201108/msg00373.html discussion */
-#ifdef _WIN32
-#undef GTK_DISABLE_DEPRECATED
-#endif
-
 #include <gtk/gtk.h>
 
 #include <string.h>
@@ -1100,28 +1095,37 @@ static void
 prefs_airpcap_update(void)
 {
   GtkWidget *decryption_cm;
-  GtkWidget *decryption_en;
+  gint cur_active;
   gboolean wireshark_decryption_was_enabled = FALSE;
   gboolean airpcap_decryption_was_enabled = FALSE;
   gboolean wireshark_decryption_is_now_enabled = FALSE;
 
   decryption_cm = GTK_WIDGET(g_object_get_data(G_OBJECT(airpcap_tb),AIRPCAP_TOOLBAR_DECRYPTION_KEY));
-  decryption_en = GTK_WIDGET(GTK_ENTRY(GTK_COMBO(decryption_cm)->entry));
 
-  if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK) == 0 )
-  {
-    wireshark_decryption_was_enabled = TRUE;
-    airpcap_decryption_was_enabled = FALSE;
+  if (decryption_cm == NULL) {
+    return;
   }
-  else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP) == 0 )
-  {
-    wireshark_decryption_was_enabled = FALSE;
-    airpcap_decryption_was_enabled = TRUE;
+
+  cur_active = gtk_combo_box_get_active(GTK_COMBO_BOX(decryption_cm));
+
+  if (cur_active < 0) {
+    return;
   }
-  else if( g_ascii_strcasecmp(gtk_entry_get_text(GTK_ENTRY(decryption_en)),AIRPCAP_DECRYPTION_TYPE_STRING_NONE) == 0 )
-  {
-    wireshark_decryption_was_enabled = FALSE;
-    airpcap_decryption_was_enabled = FALSE;
+
+  switch(cur_active) {
+    /* XXX - Don't use magic numbers here. cf airpcap_dlg.c:on_decryption_mode_cb_changed() */
+    case 1: /* Wireshark */
+      wireshark_decryption_was_enabled = TRUE;
+      airpcap_decryption_was_enabled = FALSE;
+      break;
+    case 2: /* Driver */
+      wireshark_decryption_was_enabled = FALSE;
+      airpcap_decryption_was_enabled = TRUE;
+      break;
+    default:
+      wireshark_decryption_was_enabled = FALSE;
+      airpcap_decryption_was_enabled = FALSE;
+      break;
   }
 
   wireshark_decryption_is_now_enabled = wireshark_decryption_on();
@@ -1129,24 +1133,24 @@ prefs_airpcap_update(void)
   if(wireshark_decryption_is_now_enabled && airpcap_decryption_was_enabled)
   {
     set_airpcap_decryption(FALSE);
-    gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 1);
   }
   if(wireshark_decryption_is_now_enabled && !airpcap_decryption_was_enabled)
   {
     set_airpcap_decryption(FALSE);
-    gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_WIRESHARK);
+    gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 1);
   }
   else if(!wireshark_decryption_is_now_enabled && wireshark_decryption_was_enabled)
   {
     if(airpcap_decryption_was_enabled)
     {
       set_airpcap_decryption(TRUE);
-      gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_AIRPCAP);
+      gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 2);
     }
     else
     {
       set_airpcap_decryption(FALSE);
-      gtk_entry_set_text(GTK_ENTRY(decryption_en),AIRPCAP_DECRYPTION_TYPE_STRING_NONE);
+      gtk_combo_box_set_active(GTK_COMBO_BOX(decryption_cm), 0);
     }
   }
 }

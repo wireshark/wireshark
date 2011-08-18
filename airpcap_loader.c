@@ -2266,6 +2266,7 @@ test_if_on(pref_t *pref, gpointer ud)
 
 /*
  * Returns TRUE if the Wireshark decryption is active, false otherwise
+ * XXX - Should we just add a routine to packet-ieee80211.c to grab this directly?
  */
 gboolean
 wireshark_decryption_on(void)
