@@ -1268,6 +1268,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='MSUSummary' action='/Telephony/MTP3/MSUSummary'/>\n"
 "      </menu>\n"
 "      <menu name= 'RTPmenu' action='/Telephony/RTP'>\n"
+"        <menuitem name='ShowAllStreams' action='/Telephony/RTP/ShowAllStreams'/>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/RTP/StreamAnalysis'/>\n"
 "      </menu>\n"
 "       <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>\n"
@@ -1684,6 +1685,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/MTP3/MSUSummary",		NULL,						"MSU Summary",				NULL,						NULL,				G_CALLBACK(mtp3_sum_gtk_sum_cb) },
    { "/Telephony/RTP",					NULL,						"R_TP",						NULL, NULL, NULL },
    { "/Telephony/RTP/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(rtp_analysis_cb) },
+   { "/Telephony/RTP/ShowAllStreams",	NULL,						"Show All Streams",			NULL,						NULL,				G_CALLBACK(rtpstream_launch) },
    { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",				NULL,						NULL,				G_CALLBACK(voip_calls_launch) },
 
    { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",		NULL,						NULL,				G_CALLBACK(firewall_rule_cb) },

@@ -1117,7 +1117,11 @@ void rtpstream_dlg_show(GList *list_lcl)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
+#ifdef MAIN_MENU_USE_UIMANAGER
+void rtpstream_launch(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
+#endif
 {
 	/* Register the tap listener */
 	register_tap_listener_rtp_stream();
@@ -1135,6 +1139,9 @@ static void rtpstream_launch(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_rtp_stream_dlg(void)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("_RTP/Show All Streams", REGISTER_STAT_GROUP_TELEPHONY,
 	    rtpstream_launch, NULL, NULL, NULL);
+#endif
 }
