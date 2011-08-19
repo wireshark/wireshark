@@ -421,6 +421,8 @@ static const wslua_ft_types_t ftenums[] = {
     {"FT_INT64",FT_INT64},
     {"FT_FLOAT",FT_FLOAT},
     {"FT_DOUBLE",FT_DOUBLE},
+    {"FT_ABSOLUTE_TIME",FT_ABSOLUTE_TIME},
+    {"FT_RELATIVE_TIME",FT_RELATIVE_TIME},
     {"FT_STRING",FT_STRING},
     {"FT_STRINGZ",FT_STRINGZ},
     {"FT_ETHER",FT_ETHER},
@@ -472,6 +474,10 @@ static const struct base_display_string_t base_displays[] = {
     {"16",16},
     {"24",24},
     {"32",32},
+    /* for FT_ABSOLUTE_TIME use values in absolute_time_display_e */
+    {"LOCAL", ABSOLUTE_TIME_LOCAL},
+    {"UTC", ABSOLUTE_TIME_UTC},
+    {"DOY_UTC", ABSOLUTE_TIME_DOY_UTC},
     {NULL,0}
 };
 
@@ -863,6 +869,61 @@ static int ProtoField_boolean(lua_State* L, enum ftenum type) {
 /* XXX: T/F strings */
 PROTOFIELD_BOOL(bool,FT_BOOLEAN)
 
+static int ProtoField_time(lua_State* L,enum ftenum type) {
+    ProtoField f = g_malloc(sizeof(wslua_field_t));
+    const gchar* abbr = luaL_checkstring(L,1);
+    const gchar* name = luaL_optstring(L,2,abbr);
+    absolute_time_display_e base = luaL_optint(L,3,ABSOLUTE_TIME_LOCAL);
+    const gchar* blob = luaL_optstring(L,4,NULL);
+
+    if (proto_check_field_name(abbr)) {
+      luaL_argerror(L,1,"Invalid char in abbrev");
+      return 0;
+    }
+
+    if (type == FT_ABSOLUTE_TIME) {
+      if (base < ABSOLUTE_TIME_LOCAL || base > ABSOLUTE_TIME_DOY_UTC) {
+        luaL_argerror(L, 3, "Base must be either LOCAL, UTC or DOY_UTC");
+        return 0;
+      }
+    }
+
+    f->hfid = -2;
+    f->ett = -1;
+    f->name = g_strdup(name);
+    f->abbr = g_strdup(abbr);
+    f->type = type;
+    f->vs = NULL;
+    f->base = base;
+    f->mask = 0;
+    if (blob && strcmp(blob, f->name) != 0) {
+      f->blob = g_strdup(blob);
+    } else {
+      f->blob = NULL;
+    }
+
+    pushProtoField(L,f);
+
+    return 1;
+}
+
+#define PROTOFIELD_TIME(lower,FT) static int ProtoField_##lower(lua_State* L) { return ProtoField_time(L,FT); }
+/* _WSLUA_CONSTRUCTOR_ ProtoField_absolute_time */
+/* WSLUA_ARG_Protofield_absolute_time_ABBR Abbreviated name of the field (the string used in filters)  */
+/* WSLUA_OPTARG_Protofield_absolute_time_NAME Actual name of the field (the string that appears in the tree)  */
+/* WSLUA_OPTARG_Protofield_absolute_time_BASE One of base.LOCAL, base.UTC or base.DOY_UTC */
+/* WSLUA_OPTARG_Protofield_absolute_time_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
+
+/* _WSLUA_CONSTRUCTOR_ ProtoField_relative_time */
+/* WSLUA_ARG_Protofield_relative_ABBR Abbreviated name of the field (the string used in filters)  */
+/* WSLUA_OPTARG_Protofield_relative_NAME Actual name of the field (the string that appears in the tree)  */
+/* WSLUA_OPTARG_Protofield_relative_DESC Description of the field  */
+/* _WSLUA_RETURNS_ A protofield item to be added to a ProtoFieldArray */
+
+
+PROTOFIELD_TIME(absolute_time,FT_ABSOLUTE_TIME)
+
 static int ProtoField_other(lua_State* L,enum ftenum type) {
     ProtoField f = g_malloc(sizeof(wslua_field_t));
     const gchar* abbr = luaL_checkstring(L,1);
@@ -972,6 +1033,7 @@ PROTOFIELD_OTHER(ipx,FT_IPXNET)
 PROTOFIELD_OTHER(ether,FT_ETHER)
 PROTOFIELD_OTHER(float,FT_FLOAT)
 PROTOFIELD_OTHER(double,FT_DOUBLE)
+PROTOFIELD_OTHER(relative_time,FT_RELATIVE_TIME)
 PROTOFIELD_OTHER(string,FT_STRING)
 PROTOFIELD_OTHER(stringz,FT_STRINGZ)
 PROTOFIELD_OTHER(bytes,FT_BYTES)
@@ -1031,6 +1093,8 @@ static const luaL_reg ProtoField_methods[] = {
     {"bool",ProtoField_bool},
     {"float",ProtoField_float},
     {"double",ProtoField_double},
+    {"absolute_time",ProtoField_absolute_time},
+    {"relative_time",ProtoField_relative_time},
     {"string",ProtoField_string},
     {"stringz",ProtoField_stringz},
     {"bytes",ProtoField_bytes},

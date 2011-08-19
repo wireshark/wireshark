@@ -67,6 +67,206 @@ Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
 #define PUSH_COLUMN(L,c) {g_ptr_array_add(outstanding_Column,c);pushColumn(L,c);}
 #define PUSH_COLUMNS(L,c) {g_ptr_array_add(outstanding_Columns,c);pushColumns(L,c);}
 
+WSLUA_CLASS_DEFINE(NSTime,NOP,NOP);
+	/* NSTime represents a nstime_t.  This is an object with seconds and nano seconds. */
+
+WSLUA_CONSTRUCTOR NSTime_new(lua_State *L) {
+	/* Creates a new NSTime object */
+#define WSLUA_OPTARG_NSTime_new_SECONDS 1 /* Seconds */
+#define WSLUA_OPTARG_NSTime_new_NSECONDS 2 /* Nano seconds */
+    NSTime time = g_malloc(sizeof(nstime_t));
+
+    if (!time) return 0;
+
+    time->secs = (time_t) luaL_optint(L,WSLUA_OPTARG_NSTime_new_SECONDS,0);
+    time->nsecs = luaL_optint(L,WSLUA_OPTARG_NSTime_new_NSECONDS,0);
+
+    pushNSTime(L,time);
+
+    WSLUA_RETURN(1); /* The new NSTime object. */
+}
+
+WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
+    NSTime nstime = checkNSTime(L,1);
+
+    if (!nstime) return 0;
+
+    lua_pushstring(L,ep_strdup_printf("%ld.%09d", nstime->secs, nstime->nsecs));
+
+    WSLUA_RETURN(1); /* The string representing the nstime. */
+}
+WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
+    NSTime time1 = checkNSTime(L,1);
+    NSTime time2 = checkNSTime(L,2);
+    gboolean result = FALSE;
+
+    if (!time1 || !time2)
+      WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+
+    if (nstime_cmp(time1, time2) == 0)
+        result = TRUE;
+
+    lua_pushboolean(L,result);
+
+    return 1;
+}
+
+WSLUA_METAMETHOD NSTime__le(lua_State* L) { /* Compares two NSTimes */
+    NSTime time1 = checkNSTime(L,1);
+    NSTime time2 = checkNSTime(L,2);
+    gboolean result = FALSE;
+
+    if (!time1 || !time2)
+      WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+
+    if (nstime_cmp(time1, time2) <= 0)
+        result = TRUE;
+
+    lua_pushboolean(L,result);
+
+    return 1;
+}
+
+WSLUA_METAMETHOD NSTime__lt(lua_State* L) { /* Compares two NSTimes */
+    NSTime time1 = checkNSTime(L,1);
+    NSTime time2 = checkNSTime(L,2);
+    gboolean result = FALSE;
+
+    if (!time1 || !time2)
+      WSLUA_ERROR(FieldInfo__eq,"Data source must be the same for both fields");
+
+    if (nstime_cmp(time1, time2) < 0)
+        result = TRUE;
+
+    lua_pushboolean(L,result);
+
+    return 1;
+}
+
+typedef struct {
+    gchar* name;
+    lua_CFunction get;
+    lua_CFunction set;
+} nstime_actions_t;
+
+static int NSTime_get_secs(lua_State* L) {
+    NSTime time = toNSTime(L,1);
+
+    lua_pushnumber (L,(lua_Number)(time->secs));
+
+    return 1;
+}
+
+static int NSTime_set_secs(lua_State* L)
+ {
+    NSTime time = toNSTime(L,1);
+    time_t secs = luaL_checkint(L,3);
+
+    time->secs = secs;
+
+    return 0;
+}
+
+static int NSTime_get_nsecs(lua_State* L) {
+    NSTime time = toNSTime(L,1);
+
+    lua_pushnumber (L,(lua_Number)(time->nsecs));
+
+    return 1;
+}
+
+static int NSTime_set_nsecs(lua_State* L) {
+    NSTime time = toNSTime(L,1);
+    int nsecs = luaL_checkint(L,3);
+
+    time->nsecs = nsecs;
+
+    return 0;
+}
+
+static const nstime_actions_t nstime_actions[] = {
+    /* WSLUA_ATTRIBUTE NSTime_secs RW The NSTime seconds */
+    {"secs", NSTime_get_secs, NSTime_set_secs},
+
+    /* WSLUA_ATTRIBUTE NSTime_nsecs RW The NSTime nano seconds */
+    {"nsecs", NSTime_get_nsecs, NSTime_set_nsecs},
+
+    {NULL,NULL,NULL}
+};
+
+static int NSTime__index(lua_State* L) {
+    NSTime time = checkNSTime(L,1);
+    const gchar* name = luaL_checkstring(L,2);
+    const nstime_actions_t* pa;
+
+    if (! (time && name) ) return 0;
+
+    for (pa = nstime_actions; pa->name; pa++) {
+        if ( g_str_equal(name,pa->name) ) {
+            if (pa->get) {
+                return pa->get(L);
+            } else {
+                luaL_error(L,"You cannot get the `%s' attribute of a nstime",name);
+                return 0;
+            }
+        }
+    }
+
+    luaL_error(L,"A protocol doesn't have a `%s' nstime",name);
+    return 0;
+}
+
+static int NSTime__newindex(lua_State* L) {
+    NSTime time = checkNSTime(L,1);
+    const gchar* name = luaL_checkstring(L,2);
+    const nstime_actions_t* pa;
+
+    if (! (time && name) ) return 0;
+
+    for (pa = nstime_actions; pa->name; pa++) {
+        if ( g_str_equal(name,pa->name) ) {
+            if (pa->set) {
+                return pa->set(L);
+            } else {
+                luaL_error(L,"You cannot set the `%s' attribute of a nstime",name);
+                return 0;
+            }
+        }
+    }
+
+    luaL_error(L,"A protocol doesn't have a `%s' nstime",name);
+    return 0;
+}
+
+static int NSTime__gc(lua_State* L) {
+    NSTime nstime = checkNSTime(L,1);
+
+    if (!nstime) return 0;
+
+    g_free (nstime);
+    return 0;
+}
+
+WSLUA_META NSTime_meta[] = {
+    {"__index", NSTime__index},
+    {"__newindex", NSTime__newindex},
+    {"__tostring", NSTime__tostring},
+    {"__eq", NSTime__eq},
+    {"__le", NSTime__le},
+    {"__lt", NSTime__lt},
+    {"__gc", NSTime__gc},
+    { NULL, NULL}
+};
+
+int NSTime_register(lua_State* L) {
+    WSLUA_REGISTER_META(NSTime);
+
+    lua_pushstring(L, "NSTime");
+    lua_pushcfunction(L, NSTime_new);
+    lua_settable(L, LUA_GLOBALSINDEX);
+    return 1;
+}
+
 WSLUA_CLASS_DEFINE(Address,NOP,NOP); /* Represents an address */
 
 WSLUA_CONSTRUCTOR Address_ip(lua_State* L) {

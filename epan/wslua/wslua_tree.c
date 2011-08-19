@@ -123,6 +123,10 @@ static int TreeItem_add_item_any(lua_State *L, gboolean little_endian) {
                 case FT_DOUBLE:
                     item = proto_tree_add_double(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(double)luaL_checknumber(L,1));
                     break;
+                case FT_ABSOLUTE_TIME:
+                case FT_RELATIVE_TIME:
+                    item = proto_tree_add_time(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,checkNSTime(L,1));
+                    break;
                 case FT_STRING:
                     item = proto_tree_add_string(tree_item->tree,hfid,tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,luaL_checkstring(L,1));
                     break;

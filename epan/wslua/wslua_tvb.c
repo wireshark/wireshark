@@ -996,6 +996,59 @@ WSLUA_METHOD TvbRange_ether(lua_State* L) {
     WSLUA_RETURN(1); /* The Ethernet Address */
 }
 
+WSLUA_METHOD TvbRange_nstime(lua_State* L) {
+	/* Obtain a nstime from a TvbRange */
+    TvbRange tvbr = checkTvbRange(L,1);
+    NSTime nstime = g_malloc (sizeof(nstime_t));
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if (tvbr->len == 4) {
+      nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
+      nstime->nsecs = 0;
+    } else if (tvbr->len == 8) {
+      nstime->secs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset);
+      nstime->nsecs = tvb_get_ntohl(tvbr->tvb->ws_tvb, tvbr->offset + 4);
+    } else {
+      WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
+      return 0;
+    }
+
+    pushNSTime(L, nstime);
+
+    WSLUA_RETURN(1); /* The NSTime */
+}
+
+WSLUA_METHOD TvbRange_le_nstime(lua_State* L) {
+	/* Obtain a nstime from a TvbRange */
+    TvbRange tvbr = checkTvbRange(L,1);
+    NSTime nstime = g_malloc (sizeof(nstime_t));
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    if (tvbr->len == 4) {
+      nstime->secs = tvb_get_letohl(tvbr->tvb->ws_tvb, tvbr->offset);
+      nstime->nsecs = 0;
+    } else if (tvbr->len == 8) {
+      nstime->secs = tvb_get_letohl(tvbr->tvb->ws_tvb, tvbr->offset);
+      nstime->nsecs = tvb_get_letohl(tvbr->tvb->ws_tvb, tvbr->offset + 4);
+    } else {
+      WSLUA_ERROR(TvbRange_nstime,"The range must be 4 or 8 bytes long");
+      return 0;
+    }
+
+    pushNSTime(L, nstime);
+
+    WSLUA_RETURN(1); /* The NSTime */
+}
 
 WSLUA_METHOD TvbRange_string(lua_State* L) {
 	/* Obtain a string from a TvbRange */
@@ -1171,6 +1224,8 @@ static const luaL_reg TvbRange_methods[] = {
     {"ether", TvbRange_ether},
     {"ipv4", TvbRange_ipv4},
     {"le_ipv4", TvbRange_le_ipv4},
+    {"nstime", TvbRange_nstime},
+    {"le_nstime", TvbRange_le_nstime},
     {"string", TvbRange_string},
     {"stringz", TvbRange_stringz},
     {"bytes", TvbRange_bytes},

@@ -131,6 +131,13 @@ WSLUA_METAMETHOD FieldInfo__call(lua_State* L) {
 			pushAddress(L,ipx);
 			return 1;
 		}
+		case FT_ABSOLUTE_TIME:
+		case FT_RELATIVE_TIME: {
+			NSTime nstime = g_malloc(sizeof(nstime_t));
+			*nstime = *(NSTime)fvalue_get(&(fi->value));
+			pushNSTime(L,nstime);
+			return 1;
+		}
 		case FT_STRING:
 		case FT_STRINGZ: {
 			gchar* repr = fvalue_to_string_repr(&fi->value,FTREPR_DISPLAY,NULL);
