@@ -146,6 +146,9 @@ void gtk_rpcstat_cb(GtkAction *action, gpointer user_data);
 void flow_graph_launch(GtkAction *action, gpointer user_data);
 
 void iax2_analysis_cb(GtkAction *action, gpointer user_data);
+void mtp3_stat_gtk_cb(GtkAction *action, gpointer user_data);
+void mtp3_sum_gtk_sum_cb(GtkAction *action, gpointer user_data);
+void rtp_analysis_cb(GtkAction *action, gpointer user_data);
 
 void gui_iostat_cb(GtkAction *action, gpointer user_data);
 

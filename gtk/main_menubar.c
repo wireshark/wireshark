@@ -1261,6 +1261,13 @@ static const char *ui_desc_menubar =
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>\n"
 "      </menu>\n"
+"      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
+"        <menuitem name='MSUs' action='/Telephony/MTP3/MSUs'/>\n"
+"        <menuitem name='MSUSummary' action='/Telephony/MTP3/MSUSummary'/>\n"
+"      </menu>\n"
+"      <menu name= 'RTPmenu' action='/Telephony/RTP'>\n"
+"        <menuitem name='StreamAnalysis' action='/Telephony/RTP/StreamAnalysis'/>\n"
+"      </menu>\n"
 "       <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>\n"
 "    </menu>\n"
 "    <menu name= 'ToolsMenu' action='/Tools'>\n"
@@ -1670,6 +1677,11 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Telephony/IAX2",					NULL,						"IA_X2",					NULL, NULL, NULL },
    { "/Telephony/IAX2/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(iax2_analysis_cb) },
+   { "/Telephony/MTP3",					NULL,						"M_TP3",					NULL, NULL, NULL },
+   { "/Telephony/MTP3/MSUs",			NULL,						"MSUs",						NULL,						NULL,				G_CALLBACK(mtp3_stat_gtk_cb) },
+   { "/Telephony/MTP3/MSUSummary",		NULL,						"MSU Summary",				NULL,						NULL,				G_CALLBACK(mtp3_sum_gtk_sum_cb) },
+   { "/Telephony/RTP",					NULL,						"R_TP",						NULL, NULL, NULL },
+   { "/Telephony/RTP/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(rtp_analysis_cb) },
    { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",				NULL,						NULL,				G_CALLBACK(voip_calls_launch) },
 
    { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",		NULL,						NULL,				G_CALLBACK(firewall_rule_cb) },
