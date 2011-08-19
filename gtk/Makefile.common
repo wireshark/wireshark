@@ -96,6 +96,7 @@ WIRESHARK_GTK_SRC = \
 	main.c		\
 	main_airpcap_toolbar.c	\
 	main_filter_toolbar.c	\
+	main_menubar.c	\
 	manual_addr_resolv.c	\
 	menus.c		\
 	main_proto_draw.c	\
