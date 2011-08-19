@@ -150,6 +150,8 @@ void mtp3_stat_gtk_cb(GtkAction *action, gpointer user_data);
 void mtp3_sum_gtk_sum_cb(GtkAction *action, gpointer user_data);
 void rtp_analysis_cb(GtkAction *action, gpointer user_data);
 void rtpstream_launch(GtkAction *action, gpointer user_data);
+void sctp_analyse_start(GtkAction *action, gpointer user_data);
+void sctp_stat_start(GtkAction *action, gpointer user_data);
 
 void gui_iostat_cb(GtkAction *action, gpointer user_data);
 

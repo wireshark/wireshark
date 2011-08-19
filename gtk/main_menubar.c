@@ -1271,6 +1271,10 @@ static const char *ui_desc_menubar =
 "        <menuitem name='ShowAllStreams' action='/Telephony/RTP/ShowAllStreams'/>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/RTP/StreamAnalysis'/>\n"
 "      </menu>\n"
+"      <menu name= 'SCTPmenu' action='/Telephony/SCTP'>\n"
+"        <menuitem name='AnalysethisAssociation' action='/Telephony/SCTP/AnalysethisAssociation'/>\n"
+"        <menuitem name='ShowAllAssociations' action='/Telephony/SCTP/ShowAllAssociations'/>\n"
+"      </menu>\n"
 "       <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>\n"
 "    </menu>\n"
 "    <menu name= 'ToolsMenu' action='/Tools'>\n"
@@ -1686,6 +1690,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/RTP",					NULL,						"R_TP",						NULL, NULL, NULL },
    { "/Telephony/RTP/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(rtp_analysis_cb) },
    { "/Telephony/RTP/ShowAllStreams",	NULL,						"Show All Streams",			NULL,						NULL,				G_CALLBACK(rtpstream_launch) },
+   { "/Telephony/SCTP",					NULL,						"S_CTP",						NULL, NULL, NULL },
+   { "/Telephony/SCTP/AnalysethisAssociation",	NULL,				"Analyse this Association",	NULL,						NULL,				G_CALLBACK(sctp_analyse_start) },
+   { "/Telephony/SCTP/ShowAllAssociations",	NULL,					"Show All Associations...",	NULL,						NULL,				G_CALLBACK(sctp_stat_start) },
    { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",				NULL,						NULL,				G_CALLBACK(voip_calls_launch) },
 
    { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",		NULL,						NULL,				G_CALLBACK(firewall_rule_cb) },

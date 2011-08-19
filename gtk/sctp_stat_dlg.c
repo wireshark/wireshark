@@ -652,7 +652,11 @@ static void sctp_stat_dlg_show(void)
 }
 
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+void sctp_stat_start(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
+#endif
 {
 	prevent_update = FALSE;
 	filter_applied = FALSE;
@@ -672,8 +676,11 @@ static void sctp_stat_start(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_sctp_stat_dlg(void)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("S_CTP/Show All Associations...", REGISTER_STAT_GROUP_TELEPHONY,
 	    sctp_stat_start, NULL, NULL, NULL);
+#endif
 }
 
 

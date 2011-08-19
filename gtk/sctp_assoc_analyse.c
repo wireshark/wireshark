@@ -954,7 +954,11 @@ struct sctp_analyse * u_data;
 	sctp_set_filter(NULL, u_data);
 }
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+void sctp_analyse_start(GtkAction *action _U_, gpointer user_data _U_)
+#else
 void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
+#endif
 {
 	struct sctp_analyse * u_data;
 
@@ -980,6 +984,9 @@ void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_)
 void
 register_tap_listener_sctp_analyse(void)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("S_CTP/Analyse this Association", REGISTER_STAT_GROUP_TELEPHONY,
 	                       sctp_analyse_start, NULL, NULL, NULL);
+#endif
 }
