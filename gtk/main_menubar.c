@@ -1066,6 +1066,8 @@ static const char *ui_desc_menubar =
 "        <menuitem name='SecondsSinceBeginningofCapture' action='/View/TimeDisplayFormat/SecondsSinceBeginningofCapture'/>\n"
 "        <menuitem name='SecondsSincePreviousCapturedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket'/>\n"
 "        <menuitem name='SecondsSincePreviousDisplayedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket'/>\n"
+"        <menuitem name='UTCDateandTimeofDay' action='/View/TimeDisplayFormat/UTCDateandTimeofDay'/>\n"
+"        <menuitem name='UTCTimeofDay' action='/View/TimeDisplayFormat/UTCTimeofDay'/>\n"
 "        <separator/>\n"
 "        <menuitem name='FileFormatPrecision-Automatic' action='/View/TimeDisplayFormat/FileFormatPrecision-Automatic'/>\n"
 "        <menuitem name='FileFormatPrecision-Seconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Seconds'/>\n"
@@ -1731,8 +1733,6 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 #endif
 };
 
-
-
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 {
 	/* name, stock id, label, accel, tooltip,  value */
@@ -1742,6 +1742,8 @@ static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
 	{ "/View/TimeDisplayFormat/SecondsSinceBeginningofCapture",		NULL, "Seconds Since Beginning of Capture:   123.123456", "<alt><control>4", NULL, TS_RELATIVE },
 	{ "/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket", NULL, "Seconds Since Previous Captured Packet:   1.123456", "<alt><control>5", NULL, TS_DELTA },
 	{ "/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket",NULL, "Seconds Since Previous Displayed Packet:   1.123456", "<alt><control>6", NULL, TS_DELTA_DIS },
+	{ "/View/TimeDisplayFormat/UTCDateandTimeofDay",				NULL, "UTC Date and Time of Day:   1970-01-01 01:02:03.123456", "<alt><control>7", NULL, TS_UTC_WITH_DATE },
+	{ "/View/TimeDisplayFormat/UTCTimeofDay",						NULL, "UTC Time of Day:   01:02:03.123456", "<alt><control>7", NULL, TS_UTC },
 };
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_fileformat_prec_entries [] =
@@ -4484,6 +4486,18 @@ menu_recent_read_finished(void) {
         menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
         if(!menu){
             g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
+        }
+        break;
+    case(TS_UTC_WITH_DATE):
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/UTCDateandTimeofDay");
+        if(!menu){
+            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/UTCDateandTimeofDay");
+        }
+        break;
+    case(TS_UTC):
+        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/UTCTimeofDay");
+        if(!menu){
+            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/UTCTimeofDay");
         }
         break;
     default:
