@@ -307,15 +307,21 @@ struct graph {
 						 * temporary
 						 */
 	PangoFontDescription *font;	/* font used for annotations etc. */
+#if GTK_CHECK_VERSION(3,0,0)
+#else
 	GdkGC *fg_gc;
+#endif
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_surface_t *title_surface;
-	/*cairo_surface_t *surface[2];*/
+#if GTK_CHECK_VERSION(3,0,0)
+	cairo_surface_t *surface[2];
+#else
+	GdkPixmap *pixmap[2];
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 #else
 	GdkPixmap *title_pixmap;
-	/*GdkPixmap *pixmap[2];*/
-#endif
 	GdkPixmap *pixmap[2];
+#endif
 	int displayed;			/* which of both pixmaps is on screen right now */
 	struct {
 		GtkWidget *control_panel;
@@ -362,7 +368,10 @@ struct graph {
 	} gt;
 };
 
+#if GTK_CHECK_VERSION(3,0,0)
+#else
 static GdkGC *xor_gc = NULL;
+#endif
 static int refnum=0;
 
 #define debug(section) if (debugging & section)
@@ -683,8 +692,12 @@ static void create_gui (struct graph *g)
 
 static void create_drawing_area (struct graph *g)
 {
+#if GTK_CHECK_VERSION(3,0,0)
+	  GtkStyleContext *context;
+#else
 	GdkColormap *colormap;
 	GdkColor color;
+#endif
 	char window_title[WINDOW_TITLE_LENGTH];
 	struct segment current;
 	struct tcpheader *thdr;
@@ -787,8 +800,16 @@ static void create_drawing_area (struct graph *g)
 	g->wp.width = widget_alloc.width - g->wp.x - RMARGIN_WIDTH;
 	g->wp.height = widget_alloc.height - g->wp.y - g->x_axis->s.height;
 
-    g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
-
+#if GTK_CHECK_VERSION(3,0,0)
+	context = gtk_widget_get_style_context (g->drawing_area);
+	gtk_style_context_get (context, GTK_STATE_NORMAL,
+					   "font", &g->font,
+					   NULL);
+#else
+	g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
+#endif
+#if GTK_CHECK_VERSION(3,0,0)
+#else
 	colormap = gtk_widget_get_colormap(GTK_WIDGET(g->drawing_area));
 	if (!xor_gc) {
 		xor_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
@@ -824,6 +845,7 @@ static void create_drawing_area (struct graph *g)
 	 * !!! NEMLLO BY TO BYT NA KONCI graph_init_sequence()? !!!
 	 *
 	 */
+#endif
 	g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event),
                        NULL);
 
@@ -1731,9 +1753,27 @@ static void graph_destroy (struct graph *g)
 	window_destroy (g->gui.control_panel);
 	window_destroy (g->toplevel);
 	/* window_destroy (g->text); */
+#if GTK_CHECK_VERSION(3,0,0)
+	/* Hack to allow compilation if GTK 3 */
+#if GTK_CHECK_VERSION(2,22,0)
+	if(g->title_surface){
+		 cairo_surface_destroy (g->title_surface);
+	}
+	if(g->surface[0]){
+		 cairo_surface_destroy (g->surface[0]);
+	}
+	if(g->surface[1]){
+		 cairo_surface_destroy (g->surface[1]);
+	}
+#else
+ 	g_object_unref (g->pixmap[0]);
+ 	g_object_unref (g->pixmap[1]);
+#endif /* GTK_CHECK_VERSION(2,22,0) */ 
+#else /* GTK_CHECK_VERSION(3,0,0)*/
+ 	g_object_unref (g->pixmap[0]);
+ 	g_object_unref (g->pixmap[1]);
 	g_object_unref (g->fg_gc);
-	g_object_unref (g->pixmap[0]);
-	g_object_unref (g->pixmap[1]);
+#endif /* GTK_CHECK_VERSION(3,0,0)*/
 	g_free (g->x_axis);
 	g_free (g->y_axis);
 	g_free ( (gpointer) (g->title) );
@@ -2091,7 +2131,30 @@ static void graph_title_pixmap_display (struct graph *g)
 static void graph_pixmaps_create (struct graph *g)
 {
 	debug(DBS_FENTRY) puts ("graph_pixmaps_create()");
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	if(g->surface[0]){
+		cairo_surface_destroy (g->surface[0]);
+		g->surface[0] = NULL;
+	}
 
+	if(g->surface[1]){
+		cairo_surface_destroy (g->surface[1]);
+		g->surface[1] = NULL;
+	}
+
+	g->surface[0] = gdk_window_create_similar_surface (gtk_widget_get_window(g->drawing_area),
+			CAIRO_CONTENT_COLOR,
+			g->wp.width, 
+			g->wp.height);
+
+	g->surface[1] = gdk_window_create_similar_surface (gtk_widget_get_window(g->drawing_area),
+			CAIRO_CONTENT_COLOR,
+			g->wp.width, 
+			g->wp.height);
+
+	g->displayed = 0;
+#else
 	if (g->pixmap[0])
 		g_object_unref (g->pixmap[0]);
 	if (g->pixmap[1])
@@ -2103,6 +2166,20 @@ static void graph_pixmaps_create (struct graph *g)
 									g->wp.width, g->wp.height, -1);
 
 	g->displayed = 0;
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+#else /* GTK_CHECK_VERSION(3,0,0) */
+	if (g->pixmap[0])
+		g_object_unref (g->pixmap[0]);
+	if (g->pixmap[1])
+		g_object_unref (g->pixmap[1]);
+
+	g->pixmap[0] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
+									g->wp.width, g->wp.height, -1);
+	g->pixmap[1] = gdk_pixmap_new (gtk_widget_get_window(g->drawing_area),
+									g->wp.width, g->wp.height, -1);
+
+	g->displayed = 0;
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 }
 
 static void graph_display (struct graph *g)
@@ -2119,7 +2196,15 @@ static void graph_pixmap_display (struct graph *g)
 	cairo_t *cr;
 
 	cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	cairo_set_source_surface (cr, g->surface[g->displayed], g->wp.x, g->wp.y);
+#else
 	gdk_cairo_set_source_pixmap (cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+#else 
+	gdk_cairo_set_source_pixmap (cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 	cairo_rectangle (cr, g->wp.x, g->wp.y, g->wp.width, g->wp.height);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -2144,7 +2229,15 @@ static void graph_pixmap_draw (struct graph *g)
 	debug(DBS_FENTRY) puts ("graph_display()");
 	not_disp = 1 ^ g->displayed;
 
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	cr = cairo_create (g->surface[not_disp]);
+#else
 	cr = gdk_cairo_create (g->pixmap[not_disp]);
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+#else
+	cr = gdk_cairo_create (g->pixmap[not_disp]);
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 	cairo_set_source_rgb (cr, 1, 1, 1);
 	cairo_rectangle (cr, 0, 0, g->wp.width, g->wp.height);
 	cairo_fill (cr);
@@ -2207,7 +2300,16 @@ static void draw_element_line (struct graph *g, struct element *e)
 	debug(DBS_GRAPH_DRAWING) printf ("line: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2,yy2);
 
 	g_assert(e->elment_color_p!=NULL);
+
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	cr = cairo_create (g->surface[1^g->displayed]);
+#else
 	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
+#endif
+#else
+	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 	cairo_set_line_width (cr, 1.0);
 	if(e->elment_color_p!=NULL){
 		gdk_cairo_set_source_color (cr, e->elment_color_p);
@@ -2221,8 +2323,9 @@ static void draw_element_line (struct graph *g, struct element *e)
 static void draw_element_arc (struct graph *g, struct element *e)
 {
 	int xx1, xx2, yy1, yy2;
-	/*cairo_t *cr;*/
-
+#if GTK_CHECK_VERSION(3,0,0)
+	cairo_t *cr;
+#endif
 	xx1 = (int )rint (e->p.arc.dim.x + g->geom.x - g->wp.x);
 	xx2 = (int )e->p.arc.dim.width;
 	yy1 = (int )rint (g->geom.height-1 - e->p.arc.dim.y + g->geom.y - g->wp.y);
@@ -2230,12 +2333,8 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	if (xx1<-xx2 || xx1>=g->wp.width || yy1<-yy2 || yy1>=g->wp.height)
 		return;
 	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
-	gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, e->p.arc.filled, xx1,
-					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
-
-#if 0
-	/* NOTE the coordinates and angels needs to be recalculated as cairo_arc works differently */
-	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
+#if GTK_CHECK_VERSION(3,0,0)
+	cr = cairo_create (g->surface[1^g->displayed]);
 	cairo_set_line_width (cr, 1.0);
 	if(e->elment_color_p!=NULL){
 		gdk_cairo_set_source_color (cr, e->elment_color_p);
@@ -2243,7 +2342,7 @@ static void draw_element_arc (struct graph *g, struct element *e)
 	/* The arc is centered at (xc, yc)
 	 * begins at angle1 and proceeds in the direction of increasing angles to end at angle2
 	 */
-	cairo_arc(cr, xx1, yy1, e->p.arc.dim.width/2, /*e->p.arc.angle1*/0, /*e->p.arc.angle2*/2 * G_PI);
+	cairo_arc(cr, xx1-xx2, yy1-yy2, e->p.arc.dim.width/2, /*e->p.arc.angle1*/0, /*e->p.arc.angle2*/2 * G_PI);
 
 	if(e->p.arc.filled){
 		cairo_fill(cr);
@@ -2251,9 +2350,11 @@ static void draw_element_arc (struct graph *g, struct element *e)
 		cairo_stroke(cr);
 	}
 	cairo_destroy(cr);
-
-	g_warning("Drawing arc");
+#else
+gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, e->p.arc.filled, xx1,
+					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
 #endif
+	/* NOTE the coordinates and angels needs to be recalculated as cairo_arc works differently */
 }
 
 static void axis_pixmaps_create (struct axis *axis)
@@ -2864,10 +2965,34 @@ static int arc_detect_collision (struct element *e, int x, int y)
 
 static void cross_xor (struct graph *g, int x, int y)
 {
-#if 0
+#if GTK_CHECK_VERSION(3,0,0)
 	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
 	cairo_t *cr;
-#endif
+
+	/* XXX Fix me: lines do not disapere */
+	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
+				y >= g->wp.y && y < g->wp.y+g->wp.height) {
+		/* Draw horisontal line */
+		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
+		gdk_cairo_set_source_color (cr, &color_gray15);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr,  g->wp.x, y);
+		cairo_line_to(cr,  g->wp.x + g->wp.width, y);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+		/* draw vertical line */
+		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
+		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
+		gdk_cairo_set_source_color (cr, &color_gray15);
+		cairo_set_line_width (cr, 1.0);
+		cairo_move_to(cr,  x, g->wp.y);
+		cairo_line_to(cr,  x, g->wp.y + g->wp.height);
+		cairo_stroke(cr);
+		cairo_destroy(cr);
+	}
+
+#else
 
 	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
 				y >= g->wp.y && y < g->wp.y+g->wp.height) {
@@ -2875,18 +3000,8 @@ static void cross_xor (struct graph *g, int x, int y)
 						y, g->wp.x + g->wp.width, y);
 		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
 						g->wp.y, x, g->wp.y + g->wp.height);
-#if 0
-		/* Draw horisontal line */
-		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
-		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
-		gdk_cairo_set_source_color (cr, &gray15);
-		cairo_set_line_width (cr, 1.0);
-		cairo_move_to(cr,  g->wp.x, y);
-		cairo_line_to(cr,  g->wp.x + g->wp.width, y);
-		cairo_stroke(cr);
-		cairo_destroy(cr);
-#endif
 	}
+#endif
 }
 
 static void cross_draw (struct graph *g, int x, int y)
@@ -2968,7 +3083,15 @@ static void magnify_create (struct graph *g, int x, int y)
 		}
 	} while (e);
 
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	mg->surface[0] = mg->surface[1] = NULL;
+#else
 	mg->pixmap[0] = mg->pixmap[1] = NULL;
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+#else
+	mg->pixmap[0] = mg->pixmap[1] = NULL;
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 	graph_pixmaps_create (mg);
 	magnify_draw (g);
 	g->magnify.active = 1;
@@ -2995,8 +3118,23 @@ static void magnify_destroy (struct graph *g)
 	struct graph *mg = g->magnify.g;
 
 	window_destroy (GTK_WIDGET (mg->drawing_area));
+
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	if(mg->surface[0]){
+		 cairo_surface_destroy (mg->surface[0]);
+	}
+	if(mg->surface[1]){
+		 cairo_surface_destroy (mg->surface[1]);
+	}
+#else
 	g_object_unref (mg->pixmap[0]);
 	g_object_unref (mg->pixmap[1]);
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+#else
+	g_object_unref (mg->pixmap[0]);
+	g_object_unref (mg->pixmap[1]);
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 	for (list=mg->elists; list; list=list->next)
 		g_free (list->elements);
 
@@ -3040,7 +3178,15 @@ static void magnify_draw (struct graph *g)
 
 	graph_pixmap_draw (g->magnify.g);
 	/* graph pixmap is almost ready, just add border */
+#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
+	cr = cairo_create (g->magnify.g->surface[not_disp]);
+#else
 	cr = gdk_cairo_create (g->magnify.g->pixmap[not_disp]);
+#endif /* GTK_CHECK_VERSION(2,22,0) */
+#else
+	cr = gdk_cairo_create (g->magnify.g->pixmap[not_disp]);
+#endif /* GTK_CHECK_VERSION(3,0,0) */
 	cairo_set_line_width (cr, 1.0);
 	cairo_move_to(cr, 0, 0);
 	cairo_line_to(cr, g->magnify.width - 1, 0);
