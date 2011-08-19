@@ -1605,12 +1605,15 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
+#if GTK_CHECK_VERSION(3,0,0)
+	/* Fix me: Add the GTK 3.0 equivalents */
+#else	
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_PRELIGHT, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_SELECTED, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_INSENSITIVE, &dgg->color);
-
+#endif
 	return;
 }
 
