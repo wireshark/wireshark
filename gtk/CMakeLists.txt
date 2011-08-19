@@ -72,6 +72,7 @@ set(WIRESHARK_GTK_SRC
 	main.c
 	main_airpcap_toolbar.c
 	main_filter_toolbar.c
+	main_menubar.c
 	main_proto_draw.c
 	main_statusbar.c
 	main_toolbar.c
