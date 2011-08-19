@@ -387,6 +387,10 @@ GtkWidget *get_chunk_stat_dlg(void);
 
 void update_analyse_dlg(struct sctp_analyse* u_data);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
+void sctp_analyse_start(GtkWidget *w _U_, gpointer data _U_);
+#endif
 void increase_childcount(struct sctp_analyse *parent);
 
 void decrease_childcount(struct sctp_analyse *parent);
