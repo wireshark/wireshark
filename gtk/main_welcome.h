@@ -44,7 +44,9 @@ typedef struct displayed_interface_s {
 	gchar *name;
 	gchar *descr;
 	GtkWidget *icon;
-    remote_options remote_opts;
+#ifdef HAVE_PCAP_REMOTE
+	remote_options remote_opts;
+#endif
 } displayed_interface;
 
 GtkWidget *welcome_new(void);
@@ -83,6 +85,8 @@ void change_interface_selection(gchar* name, gboolean activate);
 
 void change_selection_for_all(gboolean enable);
 
+#ifdef HAVE_PCAP_REMOTE
 void add_interface_to_list(gchar *name, gchar *descr, remote_options *remote_opts);
+#endif
 
 #endif /* __MAIN_WELCOME_H__ */

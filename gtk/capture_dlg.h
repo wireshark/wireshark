@@ -73,7 +73,9 @@ typedef struct row_options_tag {
 #if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
     gint buffer;
 #endif
+#ifdef HAVE_PCAP_REMOTE
     remote_options remote_opts;
+#endif
 } interface_row;
 
 typedef struct link_row_tag {
