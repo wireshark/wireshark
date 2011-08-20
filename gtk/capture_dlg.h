@@ -44,18 +44,16 @@ struct remote_host {
     gboolean nocap_rpcap;
     gboolean nocap_local;
 };
-#endif
 
 typedef struct remote_options_tag {
-#ifdef HAVE_PCAP_REMOTE
     capture_source src_type;
     struct remote_host remote_host_opts;
-#endif
 #ifdef HAVE_PCAP_SETSAMPLING
     capture_sampling sampling_method;
     int sampling_param;
 #endif
 } remote_options;
+#endif /* HAVE_PCAP_REMOTE */
 
 typedef struct row_options_tag {
     gchar *name;
