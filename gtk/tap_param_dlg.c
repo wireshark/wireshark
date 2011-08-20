@@ -75,8 +75,16 @@ static void tap_param_dlg_cb(GtkWidget *w, gpointer data);
  * We register it both as a command-line stat and a menu item stat.
  */
 void
-register_dfilter_stat(tap_param_dlg *info, const char *name,
-    register_stat_group_t group)
+register_dfilter_stat(tap_param_dlg *info,
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+    const char *name _U_,
+    register_stat_group_t group _U_
+#else
+    const char *name,
+    register_stat_group_t group
+#endif
+    )
 {
 #ifdef MAIN_MENU_USE_UIMANAGER
     register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
