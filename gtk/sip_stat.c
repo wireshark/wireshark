@@ -740,3 +740,10 @@ register_tap_listener_gtksipstat(void)
 {
     register_dfilter_stat(&sip_stat_dlg, "_SIP", REGISTER_STAT_GROUP_TELEPHONY);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void sipstat_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &sip_stat_dlg);
+}
+#endif

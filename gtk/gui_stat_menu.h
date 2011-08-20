@@ -175,6 +175,9 @@ void gsm_a_stat_gtk_dtap_ss_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action, gpointer user_data);
 void mac_lte_stat_cb(GtkAction *action, gpointer user_data);
+void rlc_lte_stat_cb(GtkAction *action, gpointer user_data);
+void sipstat_cb(GtkAction *action, gpointer user_data);
+void wsp_stat_cb(GtkAction *action, gpointer user_data);
 
 void gsm_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
@@ -188,6 +191,12 @@ void gtp_srt_cb(GtkAction *action, gpointer user_data);
 void h225_srt_cb(GtkAction *action, gpointer user_data);
 void ldap_srt_cb(GtkAction *action, gpointer user_data);
 void megaco_srt_cb(GtkAction *action, gpointer user_data);
+void mgcp_srt_cb(GtkAction *action, gpointer user_data);
+void ncp_srt_cb(GtkAction *action, gpointer user_data);
+void radius_srt_cb(GtkAction *action, gpointer user_data);
+void scsi_srt_cb(GtkAction *action, gpointer user_data);
+void smb2_srt_cb(GtkAction *action, gpointer user_data);
+void smb_srt_cb(GtkAction *action, gpointer user_data);
 
 void tcp_graph_cb (GtkAction *action, gpointer user_data);
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_);

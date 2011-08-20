@@ -319,9 +319,13 @@ static tap_param_dlg mgcp_srt_dlg = {
 void
 register_tap_listener_gtkmgcpstat(void)
 {
-	/* We don't register this tap, if we don't have the mgcp plugin loaded.*/
-	if (find_tap_id("mgcp")) {
-		register_dfilter_stat(&mgcp_srt_dlg, "MGCP",
-		    REGISTER_STAT_GROUP_RESPONSE_TIME);
-	}
+	register_dfilter_stat(&mgcp_srt_dlg, "MGCP",
+	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+#ifdef MAIN_MENU_USE_UIMANAGER
+void mgcp_srt_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &mgcp_srt_dlg);
+}
+#endif
+

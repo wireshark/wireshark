@@ -439,3 +439,10 @@ register_tap_listener_gtkwspstat(void)
 	register_dfilter_stat(&wsp_stat_dlg, "_WAP-WSP",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void wsp_stat_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &wsp_stat_dlg);
+}
+#endif
