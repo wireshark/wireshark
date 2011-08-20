@@ -216,3 +216,10 @@ register_tap_listener_gtkafpstat(void)
 	register_dfilter_stat(&afp_stat_dlg, "AFP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void afp_srt_stat_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &afp_stat_dlg);
+}
+#endif

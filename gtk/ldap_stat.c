@@ -255,3 +255,9 @@ register_tap_listener_gtkldapstat(void)
 	register_dfilter_stat(&ldap_stat_dlg, "LDAP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+#ifdef MAIN_MENU_USE_UIMANAGER
+void ldap_srt_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &ldap_stat_dlg);
+}
+#endif

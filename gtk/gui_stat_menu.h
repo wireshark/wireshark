@@ -151,6 +151,7 @@ void mtp3_sum_gtk_sum_cb(GtkAction *action, gpointer user_data);
 void rtp_analysis_cb(GtkAction *action, gpointer user_data);
 void rtpstream_launch(GtkAction *action, gpointer user_data);
 void sctp_analyse_start(GtkAction *action, gpointer user_data);
+void sctp_chunk_counter_cb(GtkAction *action, gpointer user_data);
 void sctp_stat_start(GtkAction *action, gpointer user_data);
 
 void gui_iostat_cb(GtkAction *action, gpointer user_data);
@@ -161,6 +162,8 @@ void ansi_a_stat_gtk_bsmap_cb(GtkAction *action, gpointer user_data);
 void ansi_a_stat_gtk_dtap_cb(GtkAction *action, gpointer user_data);
 void ansi_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 
+void camel_counter_cb(GtkAction *action, gpointer user_data);
+void h225_counter_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_bssmap_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data);
@@ -171,9 +174,20 @@ void gsm_a_stat_gtk_dtap_sm_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_ss_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data);
 void gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action, gpointer user_data);
+void mac_lte_stat_cb(GtkAction *action, gpointer user_data);
 
 void gsm_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
+
+void afp_srt_stat_cb(GtkAction *action, gpointer user_data);
+void bootp_srt_stat_cb(GtkAction *action, gpointer user_data);
+void camel_srt_cb(GtkAction *action, gpointer user_data);
+void diameter_srt_cb(GtkAction *action, gpointer user_data);
+void fc_srt_cb(GtkAction *action, gpointer user_data);
+void gtp_srt_cb(GtkAction *action, gpointer user_data);
+void h225_srt_cb(GtkAction *action, gpointer user_data);
+void ldap_srt_cb(GtkAction *action, gpointer user_data);
+void megaco_srt_cb(GtkAction *action, gpointer user_data);
 
 void tcp_graph_cb (GtkAction *action, gpointer user_data);
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_);

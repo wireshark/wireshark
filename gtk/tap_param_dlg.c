@@ -66,9 +66,10 @@ static tap_param_dlg_list_item *start_dlg_list=NULL;
 static tap_param_dlg_list_item *end_dlg_list=NULL;
 static tap_param_dlg_list_item *current_dlg = NULL;
 
-static void
-tap_param_dlg_cb(GtkWidget *w, gpointer data);
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
+static void tap_param_dlg_cb(GtkWidget *w, gpointer data);
+#endif
 /*
  * Register a stat that has a parameter dialog.
  * We register it both as a command-line stat and a menu item stat.
@@ -77,10 +78,12 @@ void
 register_dfilter_stat(tap_param_dlg *info, const char *name,
     register_stat_group_t group)
 {
+#ifdef MAIN_MENU_USE_UIMANAGER
+    register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
+#else
     char *full_name;
 
     register_stat_cmd_arg(info->init_string, info->tap_init_cb, NULL);
-
     /*
      * This menu item will pop up a dialog box, so append "..."
      * to it.
@@ -89,6 +92,7 @@ register_dfilter_stat(tap_param_dlg *info, const char *name,
     register_stat_menu_item(full_name, group, tap_param_dlg_cb, NULL,
                             NULL, info);
     /* tap_menu_item_add() uses the name later on. Leave it allocated. */
+#endif
 }
 
 void tap_param_dlg_update (void)
@@ -145,9 +149,13 @@ tap_param_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
     g_string_free(params, TRUE);
 }
 
-
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+tap_param_dlg_cb(GtkAction *action _U_, gpointer data)
+#else
 static void
 tap_param_dlg_cb(GtkWidget *w _U_, gpointer data)
+#endif
 {
     const char *filter;
     char *title;

@@ -1215,8 +1215,17 @@ static const char *ui_desc_menubar =
 "        <menuitem name='USB' action='/Analyze/ConversationList/USB'/>\n"
 "        <menuitem name='WLAN' action='/Analyze/ConversationList/WLAN'/>\n"
 "      </menu>\n"
-"      <menu name= 'ServiceResponseTimeMenu' action='/Analyze/ServiceResponseTime'>\n"
+"      <menu name='ServiceResponseTimeMenu' action='/Analyze/ServiceResponseTime'>\n"
+"        <menuitem name='AFP' action='/Analyze/ServiceResponseTime/AFP'/>\n"
 "        <menuitem name='ONC-RPC' action='/Analyze/ServiceResponseTime/ONC-RPC'/>\n"
+"        <menuitem name='BOOTP-DHCP' action='/Analyze/ServiceResponseTime/BOOTP-DHCP'/>\n"
+"        <menuitem name='Camel' action='/Analyze/ServiceResponseTime/Camel'/>\n"
+"        <menuitem name='Diameter' action='/Analyze/ServiceResponseTime/Diameter'/>\n"
+"        <menuitem name='FibreChannel' action='/Analyze/ServiceResponseTime/FibreChannel'/>\n"
+"        <menuitem name='GTP' action='/Analyze/ServiceResponseTime/GTP'/>\n"
+"        <menuitem name='H225' action='/Analyze/ServiceResponseTime/H225'/>\n"
+"        <menuitem name='LDAP' action='/Analyze/ServiceResponseTime/LDAP'/>\n"
+"        <menuitem name='MEGACO' action='/Analyze/ServiceResponseTime/MEGACO'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <placeholder name='ANCP'/>\n"
@@ -1244,6 +1253,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='DTAP' action='/Telephony/ANSI/DTAP'/>\n"
 "        <menuitem name='MAP-OP' action='/Telephony/ANSI/MAP-OP'/>\n"
 "      </menu>\n"
+"      <menuitem name='H225' action='/Telephony/H225'/>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
 "        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>\n"
 "        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>\n"
@@ -1263,6 +1273,7 @@ static const char *ui_desc_menubar =
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>\n"
 "      </menu>\n"
+"      <menuitem name='LTE_MAC' action='/Telephony/LTE_MAC'/>\n"
 "      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
 "        <menuitem name='MSUs' action='/Telephony/MTP3/MSUs'/>\n"
 "        <menuitem name='MSUSummary' action='/Telephony/MTP3/MSUSummary'/>\n"
@@ -1274,6 +1285,7 @@ static const char *ui_desc_menubar =
 "      <menu name= 'SCTPmenu' action='/Telephony/SCTP'>\n"
 "        <menuitem name='AnalysethisAssociation' action='/Telephony/SCTP/AnalysethisAssociation'/>\n"
 "        <menuitem name='ShowAllAssociations' action='/Telephony/SCTP/ShowAllAssociations'/>\n"
+"        <menuitem name='ChunkCounter' action='/Telephony/SCTP/ChunkCounter'/>\n"
 "      </menu>\n"
 "       <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>\n"
 "    </menu>\n"
@@ -1638,6 +1650,15 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Analyze/ServiceResponseTime",						NULL,				"Service _Response Time",		NULL, NULL, NULL },
    { "/Analyze/ServiceResponseTime/ONC-RPC",	WIRESHARK_STOCK_TIME,			"ONC-RPC...",					NULL, NULL,	G_CALLBACK(gtk_rpcstat_cb) },
+   { "/Analyze/ServiceResponseTime/AFP",		WIRESHARK_STOCK_TIME,			"AFP...",						NULL, NULL,	G_CALLBACK(afp_srt_stat_cb) },
+   { "/Analyze/ServiceResponseTime/BOOTP-DHCP",	WIRESHARK_STOCK_TIME,			"BOOTP-DHCP...",				NULL, NULL,	G_CALLBACK(bootp_srt_stat_cb) },
+   { "/Analyze/ServiceResponseTime/Camel",		WIRESHARK_STOCK_TIME,			"Camel...",						NULL, NULL,	G_CALLBACK(camel_srt_cb) },
+   { "/Analyze/ServiceResponseTime/Diameter",	WIRESHARK_STOCK_TIME,			"Diameter...",					NULL, NULL,	G_CALLBACK(diameter_srt_cb) },
+   { "/Analyze/ServiceResponseTime/FibreChannel",	WIRESHARK_STOCK_TIME,		"Fibre Channel...",				NULL, NULL,	G_CALLBACK(fc_srt_cb) },
+   { "/Analyze/ServiceResponseTime/GTP",		WIRESHARK_STOCK_TIME,			"GTP...",						NULL, NULL,	G_CALLBACK(gtp_srt_cb) },
+   { "/Analyze/ServiceResponseTime/H225",		WIRESHARK_STOCK_TIME,			"H225...",						NULL, NULL,	G_CALLBACK(h225_srt_cb) },
+   { "/Analyze/ServiceResponseTime/LDAP",		WIRESHARK_STOCK_TIME,			"LDAP...",						NULL, NULL,	G_CALLBACK(ldap_srt_cb) },
+   { "/Analyze/ServiceResponseTime/MEGACO",		WIRESHARK_STOCK_TIME,			"MEGACO...",					NULL, NULL,	G_CALLBACK(megaco_srt_cb) },
 
    { "/Analyze/BACnet",										NULL,				"BACnet",						NULL, NULL, NULL },
 
@@ -1665,7 +1686,10 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/ANSI/DTAP",			NULL,						"A-Interface DTAP",			NULL,						NULL,				G_CALLBACK(ansi_a_stat_gtk_dtap_cb) },
    { "/Telephony/ANSI/MAP-OP",			NULL,						"MAP Operation",			NULL,						NULL,				G_CALLBACK(ansi_map_stat_gtk_cb) },
 
+   { "/Telephony/H225",					NULL,						"_H.225...",				NULL,						NULL,				G_CALLBACK(h225_counter_cb) },
+
    { "/Telephony/GSM",					NULL,						"GSM",						NULL, NULL, NULL },
+   { "/Telephony/GSM/CAMEL",			NULL,						"CAMEL Messages and Response Status",	NULL,			NULL,				G_CALLBACK(camel_counter_cb) },
    { "/Telephony/GSM/BSSMAP",			NULL,						"_GSM/A-Interface BSSMAP",	NULL,						NULL,				G_CALLBACK(gsm_a_stat_gtk_bssmap_cb) },
 
    { "/Telephony/GSM/DTAP",				NULL,						"_GSM/A-Interface DTAP",	NULL, NULL, NULL },
@@ -1684,6 +1708,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Telephony/IAX2",					NULL,						"IA_X2",					NULL, NULL, NULL },
    { "/Telephony/IAX2/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(iax2_analysis_cb) },
+   { "/Telephony/LTE_MAC",				NULL,						"_LTE/_MAC...",				NULL,						NULL,				G_CALLBACK(mac_lte_stat_cb) },
    { "/Telephony/MTP3",					NULL,						"M_TP3",					NULL, NULL, NULL },
    { "/Telephony/MTP3/MSUs",			NULL,						"MSUs",						NULL,						NULL,				G_CALLBACK(mtp3_stat_gtk_cb) },
    { "/Telephony/MTP3/MSUSummary",		NULL,						"MSU Summary",				NULL,						NULL,				G_CALLBACK(mtp3_sum_gtk_sum_cb) },
@@ -1693,6 +1718,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/SCTP",					NULL,						"S_CTP",						NULL, NULL, NULL },
    { "/Telephony/SCTP/AnalysethisAssociation",	NULL,				"Analyse this Association",	NULL,						NULL,				G_CALLBACK(sctp_analyse_start) },
    { "/Telephony/SCTP/ShowAllAssociations",	NULL,					"Show All Associations...",	NULL,						NULL,				G_CALLBACK(sctp_stat_start) },
+   { "/Telephony/SCTP/ChunkCounter",		NULL,					"Chunk Counter",			NULL,						NULL,				G_CALLBACK(sctp_chunk_counter_cb) },
+
    { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",				NULL,						NULL,				G_CALLBACK(voip_calls_launch) },
 
    { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",		NULL,						NULL,				G_CALLBACK(firewall_rule_cb) },

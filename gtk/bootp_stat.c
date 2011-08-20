@@ -291,3 +291,11 @@ register_tap_listener_gtkdhcpstat(void)
 	register_dfilter_stat(&dhcp_stat_dlg, "BOOTP-DHCP",
 	    REGISTER_STAT_GROUP_UNSORTED);
 }
+
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void bootp_srt_stat_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &dhcp_stat_dlg);
+}
+#endif

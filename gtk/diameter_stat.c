@@ -238,3 +238,10 @@ register_tap_listener_gtkdiameterstat(void)
 	register_dfilter_stat(&diameter_stat_dlg, "Diameter",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void diameter_srt_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &diameter_stat_dlg);
+}
+#endif

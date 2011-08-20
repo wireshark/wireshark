@@ -94,6 +94,10 @@ typedef struct _tap_param_dlg {
 void register_dfilter_stat(tap_param_dlg *info, const char *name,
     register_stat_group_t group);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+void tap_param_dlg_cb(GtkAction *action, gpointer user_data);
+#endif
+
 /* This will update the titles of the dialog windows when we load a new capture file. */
 void tap_param_dlg_update (void);
 

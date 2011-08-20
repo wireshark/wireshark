@@ -232,9 +232,13 @@ static tap_param_dlg megaco_srt_dlg = {
 void
 register_tap_listener_gtkmegacostat(void)
 {
-	/* We don't register this tap, if we don't have the megaco plugin loaded.*/
-	if (find_tap_id("megaco")) {
-		register_dfilter_stat(&megaco_srt_dlg, "MEGACO",
-		    REGISTER_STAT_GROUP_RESPONSE_TIME);
-	}
+	register_dfilter_stat(&megaco_srt_dlg, "MEGACO",
+	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void megaco_srt_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &megaco_srt_dlg);
+}
+#endif

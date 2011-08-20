@@ -234,3 +234,10 @@ register_tap_listener_gtk_camelcounter(void)
   			REGISTER_STAT_GROUP_TELEPHONY);
 
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void camel_counter_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &camel_counter_dlg);
+}
+#endif

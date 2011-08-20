@@ -241,3 +241,10 @@ register_tap_listener_gtkgtpstat(void)
 	register_dfilter_stat(&gtp_stat_dlg, "GTP",
 	    REGISTER_STAT_GROUP_RESPONSE_TIME);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void gtp_srt_cb(GtkAction *action, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &gtp_stat_dlg);
+}
+#endif

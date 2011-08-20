@@ -331,3 +331,10 @@ register_tap_listener_sctpstat(void)
 	register_dfilter_stat(&sctp_stat_dlg, "S_CTP/Chunk Counter",
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void sctp_chunk_counter_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+	tap_param_dlg_cb(action, &sctp_stat_dlg);
+}
+#endif
