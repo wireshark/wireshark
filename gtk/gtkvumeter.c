@@ -16,6 +16,10 @@
  *  but may be distributed under any other open source license
  ****************************************************************************/
 
+#if defined(GDK_DISABLE_DEPRECATED)
+# undef GDK_DISABLE_DEPRECATED
+#endif
+
 #include <math.h>
 #include <gtk/gtk.h>
 #include "gtk/gtkvumeter.h"

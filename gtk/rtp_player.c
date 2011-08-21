@@ -60,6 +60,10 @@
 #include <string.h>
 #include "portaudio.h"
 
+#if defined(GDK_DISABLE_DEPRECATED)
+# undef GDK_DISABLE_DEPRECATED
+#endif
+
 #include <gtk/gtk.h>
 
 #include <epan/stats_tree.h>
