@@ -1228,7 +1228,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='MEGACO' action='/Analyze/ServiceResponseTime/MEGACO'/>\n"
 "        <menuitem name='MGCP' action='/Analyze/ServiceResponseTime/MGCP'/>\n"
 "        <menuitem name='NCP' action='/Analyze/ServiceResponseTime/NCP'/>\n"
-"        <menuitem name='RADIUS' action='/Analyze/ServiceResponseTime/RADISU'/>\n"
+"        <menuitem name='RADIUS' action='/Analyze/ServiceResponseTime/RADIUS'/>\n"
 "        <menuitem name='SCSI' action='/Analyze/ServiceResponseTime/SCSI'/>\n"
 "        <menuitem name='SMB2' action='/Analyze/ServiceResponseTime/SMB2'/>\n"
 "      </menu>\n"
