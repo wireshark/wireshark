@@ -1,6 +1,6 @@
 PRIVATE ENTERPRISE NUMBERS
 
-(last updated 2011-08-12)
+(last updated 2011-08-20)
 
 SMI Network Management Private Enterprise Codes:
 
@@ -738,9 +738,9 @@ Decimal
     Russell G. Wilson
       rwilson&oodis01.af.mil
 181
-  ADC Kentrox
-    Mike Witt
-      mwitt&kentrox.com
+  Kentrox
+    Engineering MIB Administrator
+      snmp&kentrox.com
 182
   Japan Radio Co.
     Nagayuki Kojima
@@ -2170,9 +2170,9 @@ Decimal
     Jeff Gear
       jjg&infores.com
 539
-  Applied Innovation Inc.
-    Engineering MIB Administrator
-      snmp&aiinet.com
+  Kentrox
+    Ken Huffman
+      snmp&kentrox.com
 540
   Crypto AG
     Roland Luthi
@@ -14246,9 +14246,9 @@ Decimal
     Jerry Iwanski
       jerryi&spherelogic.com
 3561
-  ADSL Forum
-    Gregory Bathrick
-      bathricg&agcs.com
+  The Broadband Forum (previous was 'ADSL Forum')
+    Christine Corby
+      ccorby&broadband-forum.org
 3562
   Selway Moore Limited
     Jim Marsden
@@ -62479,9 +62479,9 @@ da Faculdade de Ciências e Tecnologia da Universidade Nova de Lisboa
     Igor Kravchenko
       igor&easypax.com
 15732
-  uSysCom
-    José Miguel Arzuaga
-      t.arzuaga&ziv.es
+  ZIV Aplicaciones y Tecnología S.A. (previous was 'uSysCom')
+    Miguel Ángel Álvarez Cabanes
+      ma.alvarez&ziv.es
 15733
   Washington State University
     Rick Wegner
@@ -116157,9 +116157,9 @@ Decentralization / Helenic Public Administra
     Gabor Kiss
       cableworld&cableworld.hu
 29144
-  Kevenaar.net
-    Wouter Kevenaar
-      iana.prive&kevenaar.net
+  Unassigned
+    Removed 2011-08-16
+      ---none---
 29145
   K&P Computer GmbH
     Roland Weckwerth
@@ -129375,8 +129375,8 @@ Decentralization / Helenic Public Administra
       Frank.Offermanns&caseris.de
 32448
   Addition IT Sweden AB
-    Tim Nilimaa
-      tim.nilimaa&addition-it.se
+    Jesper Lönnqvist
+      jesper.lonnqvist&addition-it.se
 32449
   Cuatrecasas Abogados
     Jaume Echevarria
@@ -153403,6 +153403,150 @@ Decentralization / Helenic Public Administra
   Adpuntum GmbH
     DI Mandl Alexander
       alexander.mandl&adpunctum.com
+38455
+  Cyberware Inc.
+    Takafumi Hiraka
+      hiraka&exm.cyberware.co.jp
+38456
+  IC "ISKRA" Ltd.
+    Prodayvoda Vitaly
+      Prodayvoda_V&uckpa.ru
+38457
+  ecvision
+    Billy Chan
+      billychan&ecvision.com
+38458
+  Nachtwacht
+    W.P. Snel
+      walters&nachtwacht.org
+38459
+  SBIT GmbH
+    Mark Becker
+      mark.becker&sbit-gmbh.de
+38460
+  Gemtek Technology Co., Ltd.
+    Masu Lin
+      masu_lin&gemtek.com.tw
+38461
+  ragenet llc
+    Dan Theisen
+      admin&ragenet.us
+38462
+  Pt Magnar Nugraha
+    Wawan Wiratno
+      wawan_wiratno&yahoo.com
+38463
+  Data Service Integration
+    DESSAI Imrane
+      dessai.imrane&dsi-oi.com
+38464
+  Snoerf.org
+    Veli-Matti Lammentausta
+      velkka&snoerf.org
+38465
+  Avalcom Sp. z o.o.
+    Jacek Bilski
+      jacek.bilski&avalcom.pl
+38466
+  Max-Planck-Institut für Molekulare Genetik
+    Donald Buczek
+      buczek&molgen.mpg.de
+38467
+  Carl Edelmann GmbH
+    Frank Maurer
+      f.maurer&edelmann.de
+38468
+  Garage Center for Contemporary Culture
+    Alexey Bykov
+      gd&gccc.ru
+38469
+  Axtion Sdn Bhd
+    Lam Chang Jium
+      cjlam&axtion.com.my
+38470
+  Bison Schweiz AG
+    Patrick Reinhart
+      patrick.reinhart&bison-group.com
+38471
+  Multimediakontor Hamburg GmbH
+    Uwe Carsten Krause
+      ukrause&maintainet.de
+38472
+  Kevin Mullet
+    Kevin Mullet
+      kwm&themullets.net
+38473
+  Ellis Hospital
+    Derek Dzimiera
+      dzimierad&ellismedicine.org
+38474
+  Blackridge Technology
+    Charles M. Tellechea, Jr.
+      ctellechea&blackridge.us
+38475
+  Global SATCOM Technology, Inc.
+    Cecil Lo
+      cecil.lo&globalsatcom.com
+38476
+  prosozial GmbH
+    Holger Schmidt
+      itinfo&prosozial.de
+38477
+  Aaxeon Technologies, LLC.
+    Peter Szyszko
+      peter.szyszko&aaxeon.com
+38478
+  VerticalCue Design LLC
+    John Vrbanac
+      info&verticalcue.com
+38479
+  Seluxit
+    Daniel Lux
+      daniel&seluxit.com
+38480
+  ABPM
+    Marek Ciszynski
+      marekc&abpm.com.pl
+38481
+  M Financial Group
+    Preston Schram
+      preston.schram&mfin.com
+38482
+  MetaStack Solutions Ltd.
+    David Allsopp
+      administration&metastack.com
+38483
+  netmonitor
+    Sandra Puffing
+      office&netmonitor.at
+38484
+  Innerdive Solutions, LLC.
+    Victor Fedoseev
+      vvf&innerdive.com
+38485
+  Westchester Digestive Disease Group LLP
+    Dr. Peter Wayne
+      drpwayne&gmail.com
+38486
+  Eurotec Information Systems K.K.
+    Hideo GOTO
+      gotoh&eis.co.jp
+38487
+  Quadro Systems
+    Aleksander Protsenko
+      support&quadrosystems.com
+38488
+  Exceptional Innovation, LLC.
+    Geoffrey Carr
+      gcarr&life-ware.com
+38489
+  WD-40 Company
+    Matthew DiSabatino
+      mdisabatino&wd40.com
+38490
+  Nebula, Inc.
+    Devin Tres
+      iana&nebula.com
 
 
 End of Document
