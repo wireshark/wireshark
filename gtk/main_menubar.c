@@ -1233,9 +1233,8 @@ static const char *ui_desc_menubar =
 "        <menuitem name='SMB2' action='/Analyze/ServiceResponseTime/SMB2'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
-"      <placeholder name='ANCP'/>\n"
-"      <menu name= 'BACnetMenu' action='/Analyze/BACnet'>\n"
-"        <placeholder name='BACnet-List-item'/>\n"
+"      <menu name= 'BACnetMenu' action='/Analyze/StatisticsMenu/BACnet'>\n"
+"        <menuitem name='bacapp_service' action='/Analyze/StatisticsMenu/BACnet/bacapp_service'/>\n"
 "      </menu>\n"
 "      <menuitem name='FlowGraph' action='/Analyze/StatisticsMenu/FlowGraph'/>\n"
 "      <menu name= 'HTTPMenu' action='/Analyze/StatisticsMenu/HTTP'>\n"
@@ -1676,7 +1675,8 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ServiceResponseTime/SMB",		WIRESHARK_STOCK_TIME,			"SMB...",						NULL, NULL,	G_CALLBACK(smb_srt_cb) },
    { "/Analyze/ServiceResponseTime/SMB2",		WIRESHARK_STOCK_TIME,			"SMB2...",						NULL, NULL,	G_CALLBACK(smb2_srt_cb) },
 
-   { "/Analyze/BACnet",										NULL,				"BACnet",						NULL, NULL, NULL },
+   { "/Analyze/StatisticsMenu/BACnet",			NULL,							"BACnet",						NULL, NULL, NULL },
+   { "/Analyze/StatisticsMenu/BACnet/bacapp_service", NULL,						"Packets sorted by Service",	NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
 
    { "/Analyze/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,		"Flo_w Graph...",				NULL, NULL,	G_CALLBACK(flow_graph_launch) },
    { "/Analyze/StatisticsMenu/HTTP",			NULL,				"HTTP",							NULL, NULL, NULL },

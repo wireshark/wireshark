@@ -352,7 +352,10 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	cfg->pr->stat_dlg->nparams = G_N_ELEMENTS(tree_stat_params);
 	cfg->pr->stat_dlg->params = tree_stat_params;
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name, cfg->stat_group);
+#endif
 }
 
 static void
@@ -376,3 +379,31 @@ register_tap_listener_stats_tree_stat(void)
 				NULL,
 				NULL);
 }
+
+#ifdef MAIN_MENU_USE_UIMANAGER
+void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
+{
+	const gchar *action_name; 
+	gchar *abbr;
+	stats_tree_cfg* cfg = NULL;
+
+	action_name = gtk_action_get_name (action);
+	abbr = strrchr(action_name,'/');
+	if(abbr){
+		abbr = abbr+1;
+	}else{
+		abbr = g_strdup_printf("%s",action_name);
+	}
+	cfg = stats_tree_get_cfg_by_abbr(abbr);
+	if(cfg){
+		g_warning("init_string %s",cfg->pr->stat_dlg->init_string);
+		tap_param_dlg_cb(action, cfg->pr->stat_dlg);
+	}else{
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Failed to find the stat tree named %s",
+                      abbr);
+		return;
+	}
+
+}
+#endif
