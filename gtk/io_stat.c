@@ -292,7 +292,7 @@ tap_iostat_packet(void *g, packet_info *pinfo, epan_dissect_t *edt, const void *
 
 	/* set start time */
 	if(git->io->start_time.secs == 0 && git->io->start_time.nsecs == 0) {
-		nstime_diff (&git->io->start_time, &pinfo->fd->abs_ts, &pinfo->fd->rel_ts);
+		nstime_delta (&git->io->start_time, &pinfo->fd->abs_ts, &pinfo->fd->rel_ts);
 	}
 
 	/* set first and last frame num in current interval */
