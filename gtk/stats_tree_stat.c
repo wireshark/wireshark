@@ -396,7 +396,6 @@ void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
 	}
 	cfg = stats_tree_get_cfg_by_abbr(abbr);
 	if(cfg){
-		g_warning("init_string %s",cfg->pr->stat_dlg->init_string);
 		tap_param_dlg_cb(action, cfg->pr->stat_dlg);
 	}else{
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,

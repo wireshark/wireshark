@@ -142,6 +142,8 @@ void gtk_usb_hostlist_cb(GtkAction *action, gpointer user_data);
 void gtk_wlan_hostlist_cb(GtkAction *action, gpointer user_data);
 
 void gtk_rpcstat_cb(GtkAction *action, gpointer user_data);
+void bootp_dhcp_stat_cb(GtkAction *action, gpointer user_data);
+void gtk_comparestat_cb(GtkAction *action, gpointer user_data);
 
 void flow_graph_launch(GtkAction *action, gpointer user_data);
 
@@ -183,7 +185,6 @@ void gsm_map_stat_gtk_cb(GtkAction *action, gpointer user_data);
 void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
 
 void afp_srt_stat_cb(GtkAction *action, gpointer user_data);
-void bootp_srt_stat_cb(GtkAction *action, gpointer user_data);
 void camel_srt_cb(GtkAction *action, gpointer user_data);
 void diameter_srt_cb(GtkAction *action, gpointer user_data);
 void fc_srt_cb(GtkAction *action, gpointer user_data);

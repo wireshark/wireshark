@@ -882,8 +882,13 @@ dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
 /* create and show first view of this module
  */
+#ifdef MAIN_MENU_USE_UIMANAGER
+void
+gtk_comparestat_cb(GtkAction *action _U_, gpointer user_data _U_)
+#else
 static void
 gtk_comparestat_cb(GtkWidget *w _U_, gpointer d _U_)
+#endif
 {
 	GtkAdjustment *start_integer, *stop_integer, *var_integer;
 	GtkWidget *dlg_box;
@@ -1069,5 +1074,8 @@ register_tap_listener_gtkcomparestat(void)
 {
 	register_stat_cmd_arg("compare", gtk_comparestat_init, NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("Compare...", REGISTER_STAT_GROUP_UNSORTED, gtk_comparestat_cb, NULL, NULL, NULL);
+#endif
 }

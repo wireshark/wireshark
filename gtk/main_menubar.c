@@ -1182,6 +1182,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='ProtocolHierarchy' action='/Statistics/ProtocolHierarchy'/>\n"
 "      <menuitem name='Conversations' action='/Statistics/Conversations'/>\n"
 "      <menuitem name='Endpoints' action='/Statistics/Endpoints'/>\n"
+"      <menuitem name='PacketLengths' action='/Statistics/plen'/>\n"
 "      <menuitem name='IOGraphs' action='/Statistics/IOGraphs'/>\n"
 "      <separator/>\n"
 "      <menu name= 'ConversationListMenu' action='/Analyze/ConversationList'>\n"
@@ -1218,7 +1219,6 @@ static const char *ui_desc_menubar =
 "      <menu name='ServiceResponseTimeMenu' action='/Analyze/ServiceResponseTime'>\n"
 "        <menuitem name='AFP' action='/Analyze/ServiceResponseTime/AFP'/>\n"
 "        <menuitem name='ONC-RPC' action='/Analyze/ServiceResponseTime/ONC-RPC'/>\n"
-"        <menuitem name='BOOTP-DHCP' action='/Analyze/ServiceResponseTime/BOOTP-DHCP'/>\n"
 "        <menuitem name='Camel' action='/Analyze/ServiceResponseTime/Camel'/>\n"
 "        <menuitem name='Diameter' action='/Analyze/ServiceResponseTime/Diameter'/>\n"
 "        <menuitem name='FibreChannel' action='/Analyze/ServiceResponseTime/FibreChannel'/>\n"
@@ -1233,23 +1233,38 @@ static const char *ui_desc_menubar =
 "        <menuitem name='SMB2' action='/Analyze/ServiceResponseTime/SMB2'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
-"      <menu name= 'BACnetMenu' action='/Analyze/StatisticsMenu/BACnet'>\n"
-"        <menuitem name='bacapp_service' action='/Analyze/StatisticsMenu/BACnet/bacapp_service'/>\n"
+"      <menuitem name='ANCP' action='/StatisticsMenu/ancp'/>\n"
+"      <menu name= 'BACnetMenu' action='/StatisticsMenu/BACnet'>\n"
+"        <menuitem name='bacapp_instanceid' action='/StatisticsMenu/BACnet/bacapp_instanceid'/>\n"
+"        <menuitem name='bacapp_ip' action='/StatisticsMenu/BACnet/bacapp_ip'/>\n"
+"        <menuitem name='bacapp_objectid' action='/StatisticsMenu/BACnet/bacapp_objectid'/>\n"
+"        <menuitem name='bacapp_service' action='/StatisticsMenu/BACnet/bacapp_service'/>\n"
 "      </menu>\n"
-"      <menuitem name='FlowGraph' action='/Analyze/StatisticsMenu/FlowGraph'/>\n"
-"      <menu name= 'HTTPMenu' action='/Analyze/StatisticsMenu/HTTP'>\n"
-"        <placeholder name='HTTP-List-item'/>\n"
+"      <menuitem name='BOOTP-DHCP' action='/StatisticsMenu/BOOTP-DHCP'/>\n"
+"      <menuitem name='Collectd' action='/StatisticsMenu/collectd'/>\n"
+"      <menuitem name='Compare' action='/StatisticsMenu/compare'/>\n"
+"      <menuitem name='FlowGraph' action='/StatisticsMenu/FlowGraph'/>\n"
+"      <menu name= 'HTTPMenu' action='/StatisticsMenu/HTTP'>\n"
+"        <menuitem name='http' action='/StatisticsMenu/HTTP/http'/>\n"
+"        <menuitem name='http_req' action='/StatisticsMenu/HTTP/http_req'/>\n"
+"        <menuitem name='http_srv' action='/StatisticsMenu/HTTP/http_srv'/>\n"
 "      </menu>\n"
-"      <menu name= 'TCPStreamGraphMenu' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu'>\n"
-"        <menuitem name='Sequence-Graph-Stevens' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
-"        <menuitem name='Sequence-Graph-tcptrace' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace'/>\n"
-"        <menuitem name='Throughput-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph'/>\n"
-"        <menuitem name='RTT-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph'/>\n"
-"        <menuitem name='Window-Scaling-Graph' action='/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph'/>\n"
+"      <menuitem name='IPAddresses' action='/StatisticsMenu/ip_hosts'/>\n"
+"      <menuitem name='IPDestinations' action='/StatisticsMenu/dests'/>\n"
+"      <menuitem name='IPptype' action='/StatisticsMenu/ptype'/>\n"
+"      <menuitem name='ONC-RPC-Programs' action='/StatisticsMenu/ONC-RPC-Programs'/>\n"
+"      <menu name= 'SametimeMenu' action='/StatisticsMenu/Sametime'>\n"
+"        <menuitem name='sametime' action='/StatisticsMenu/Sametime/sametime'/>\n"
 "      </menu>\n"
-"      <menuitem name='ONC-RPC-Programs' action='/Analyze/StatisticsMenu/ONC-RPC-Programs'/>\n"
-"      <menuitem name='UDPMulticastStreams' action='/Analyze/StatisticsMenu/UDPMulticastStreams'/>\n"
-"      <menuitem name='WLANTraffic' action='/Analyze/StatisticsMenu/WLANTraffic'/>\n"
+"      <menu name= 'TCPStreamGraphMenu' action='/StatisticsMenu/TCPStreamGraphMenu'>\n"
+"        <menuitem name='Sequence-Graph-Stevens' action='/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>\n"
+"        <menuitem name='Sequence-Graph-tcptrace' action='/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace'/>\n"
+"        <menuitem name='Throughput-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph'/>\n"
+"        <menuitem name='RTT-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph'/>\n"
+"        <menuitem name='Window-Scaling-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph'/>\n"
+"      </menu>\n"
+"      <menuitem name='UDPMulticastStreams' action='/StatisticsMenu/UDPMulticastStreams'/>\n"
+"      <menuitem name='WLANTraffic' action='/StatisticsMenu/WLANTraffic'/>\n"
 "    </menu>\n"
 "    <menu name= 'TelephonyMenu' action='/Telephony'>\n"
 "      <menu name= 'ANSI' action='/Telephony/ANSI'>\n"
@@ -1257,7 +1272,6 @@ static const char *ui_desc_menubar =
 "        <menuitem name='DTAP' action='/Telephony/ANSI/DTAP'/>\n"
 "        <menuitem name='MAP-OP' action='/Telephony/ANSI/MAP-OP'/>\n"
 "      </menu>\n"
-"      <menuitem name='H225' action='/Telephony/H225'/>\n"
 "      <menu name= 'GSM' action='/Telephony/GSM'>\n"
 "        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>\n"
 "        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>\n"
@@ -1274,9 +1288,11 @@ static const char *ui_desc_menubar =
 "        <menuitem name='MAP-OP' action='/Telephony/GSM/MAP-OP'/>\n"
 "        <menuitem name='MAP-Summary' action='/Telephony/GSM/MAPSummary'/>\n"
 "      </menu>\n"
+"      <menuitem name='H225' action='/Telephony/H225'/>\n"
 "      <menu name= 'IAX2menu' action='/Telephony/IAX2'>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>\n"
 "      </menu>\n"
+"      <menuitem name='ISUP' action='/Telephony/isup_msg'/>\n"
 "      <menu name= 'LTEmenu' action='/Telephony/LTE'>\n"
 "        <menuitem name='LTE_MAC' action='/Telephony/LTE/MAC'/>\n"
 "        <menuitem name='LTE_MAC' action='/Telephony/LTE/RLC'/>\n"
@@ -1289,12 +1305,17 @@ static const char *ui_desc_menubar =
 "        <menuitem name='ShowAllStreams' action='/Telephony/RTP/ShowAllStreams'/>\n"
 "        <menuitem name='StreamAnalysis' action='/Telephony/RTP/StreamAnalysis'/>\n"
 "      </menu>\n"
+"      <menu name= 'RTSPmenu' action='/Telephony/RTSP'>\n"
+"        <menuitem name='rtsp' action='/Telephony/RTSP/rtsp'/>\n"
+"      </menu>\n"
 "      <menu name= 'SCTPmenu' action='/Telephony/SCTP'>\n"
 "        <menuitem name='AnalysethisAssociation' action='/Telephony/SCTP/AnalysethisAssociation'/>\n"
 "        <menuitem name='ShowAllAssociations' action='/Telephony/SCTP/ShowAllAssociations'/>\n"
 "        <menuitem name='ChunkCounter' action='/Telephony/SCTP/ChunkCounter'/>\n"
 "      </menu>\n"
-"      <menuitem name='SIP' action='/Telephony/SIP'/>\n"
+"      <menuitem name='SIP' action='/Telephony/SIP'/>\n" 
+"      <menuitem name='SMPP' action='/Telephony/smpp_commands'/>\n" 
+"      <menuitem name='UCP' action='/Telephony/ucp_messages'/>\n" 
 "      <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>\n"
 "      <menuitem name='WSP' action='/Telephony/WSP'/>\n"
 "    </menu>\n"
@@ -1660,7 +1681,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ServiceResponseTime",						NULL,				"Service _Response Time",		NULL, NULL, NULL },
    { "/Analyze/ServiceResponseTime/ONC-RPC",	WIRESHARK_STOCK_TIME,			"ONC-RPC...",					NULL, NULL,	G_CALLBACK(gtk_rpcstat_cb) },
    { "/Analyze/ServiceResponseTime/AFP",		WIRESHARK_STOCK_TIME,			"AFP...",						NULL, NULL,	G_CALLBACK(afp_srt_stat_cb) },
-   { "/Analyze/ServiceResponseTime/BOOTP-DHCP",	WIRESHARK_STOCK_TIME,			"BOOTP-DHCP...",				NULL, NULL,	G_CALLBACK(bootp_srt_stat_cb) },
    { "/Analyze/ServiceResponseTime/Camel",		WIRESHARK_STOCK_TIME,			"Camel...",						NULL, NULL,	G_CALLBACK(camel_srt_cb) },
    { "/Analyze/ServiceResponseTime/Diameter",	WIRESHARK_STOCK_TIME,			"Diameter...",					NULL, NULL,	G_CALLBACK(diameter_srt_cb) },
    { "/Analyze/ServiceResponseTime/FibreChannel",	WIRESHARK_STOCK_TIME,		"Fibre Channel...",				NULL, NULL,	G_CALLBACK(fc_srt_cb) },
@@ -1675,34 +1695,49 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ServiceResponseTime/SMB",		WIRESHARK_STOCK_TIME,			"SMB...",						NULL, NULL,	G_CALLBACK(smb_srt_cb) },
    { "/Analyze/ServiceResponseTime/SMB2",		WIRESHARK_STOCK_TIME,			"SMB2...",						NULL, NULL,	G_CALLBACK(smb2_srt_cb) },
 
-   { "/Analyze/StatisticsMenu/BACnet",			NULL,							"BACnet",						NULL, NULL, NULL },
-   { "/Analyze/StatisticsMenu/BACnet/bacapp_service", NULL,						"Packets sorted by Service",	NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/ancp",							NULL,		"ANCP",								NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/BACnet",							NULL,		"BACnet",							NULL, NULL, NULL },
+   { "/StatisticsMenu/BACnet/bacapp_instanceid",		NULL,		"Packets sorted by Instance ID",	NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/BACnet/bacapp_ip",				NULL,		"Packets sorted by IP",				NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/BACnet/bacapp_objectid",			NULL,		"Packets sorted by Object Type",	NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/BACnet/bacapp_service",			NULL,		"Packets sorted by Service",		NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/BOOTP-DHCP",						NULL,		"BOOTP-DHCP...",					NULL, NULL,	G_CALLBACK(bootp_dhcp_stat_cb) },
 
-   { "/Analyze/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,		"Flo_w Graph...",				NULL, NULL,	G_CALLBACK(flow_graph_launch) },
-   { "/Analyze/StatisticsMenu/HTTP",			NULL,				"HTTP",							NULL, NULL, NULL },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu",	NULL,			"TCP StreamGraph",							NULL, NULL, NULL },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",	NULL, "Time-Sequence Graph (Stevens)",	NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace",	NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph",				NULL, "Throughput Graph",				NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph",					NULL, "Round Trip Time Graph",			NULL, NULL, G_CALLBACK(tcp_graph_cb) },
-   { "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph",			NULL, "Window Scaling Graph",			NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/StatisticsMenu/collectd",						NULL,		"Collectd...",						NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/compare",							NULL,		"Compare...",						NULL, NULL,	G_CALLBACK(gtk_comparestat_cb) },
+   { "/StatisticsMenu/FlowGraph",		WIRESHARK_STOCK_FLOW_GRAPH,	"Flo_w Graph...",					NULL, NULL,	G_CALLBACK(flow_graph_launch) },
+   { "/StatisticsMenu/HTTP",							NULL,		"HTTP",								NULL, NULL, NULL },
+   { "/StatisticsMenu/HTTP/http",						NULL,		"Packet Counter",					NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/HTTP/http_req",					NULL,		"Requests",							NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/HTTP/http_srv",					NULL,		"Load Distribution",				NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   
+   { "/StatisticsMenu/ip_hosts",						NULL,		"IP Addresses...",					NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/dests",							NULL,		"IP Destinations...",				NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/ptype",							NULL,		"IP Protocol Types..",				NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/ONC-RPC-Programs",				NULL,		"ONC-RPC Programs",					NULL, NULL,	G_CALLBACK(gtk_rpcprogs_cb) },
+   { "/StatisticsMenu/Sametime",						NULL,		"Sametime",							NULL, NULL, NULL },
+   { "/StatisticsMenu/Sametime/sametime",				NULL,		"Messages",							NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
+   { "/StatisticsMenu/TCPStreamGraphMenu",	NULL,			"TCP StreamGraph",							NULL, NULL, NULL },
+   { "/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens",	NULL, "Time-Sequence Graph (Stevens)",	NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace",	NULL, "Time-Sequence Graph (tcptrace)", NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph",				NULL, "Throughput Graph",				NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph",					NULL, "Round Trip Time Graph",			NULL, NULL, G_CALLBACK(tcp_graph_cb) },
+   { "/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph",			NULL, "Window Scaling Graph",			NULL, NULL, G_CALLBACK(tcp_graph_cb) },
 
-   { "/Analyze/StatisticsMenu/ONC-RPC-Programs",								NULL, "ONC-RPC Programs",				NULL, NULL,	G_CALLBACK(gtk_rpcprogs_cb) },
-   { "/Analyze/StatisticsMenu/UDPMulticastStreams",								NULL, "UDP Multicast Streams",			NULL, NULL,	G_CALLBACK(mcaststream_launch) },
-   { "/Analyze/StatisticsMenu/WLANTraffic",										NULL, "WLAN Traffic",					NULL, NULL,	G_CALLBACK(wlanstat_launch) },
+   { "/StatisticsMenu/UDPMulticastStreams",								NULL, "UDP Multicast Streams",			NULL, NULL,	G_CALLBACK(mcaststream_launch) },
+   { "/StatisticsMenu/WLANTraffic",										NULL, "WLAN Traffic",					NULL, NULL,	G_CALLBACK(wlanstat_launch) },
 
    { "/Statistics/Summary",						GTK_STOCK_PROPERTIES,			"_Summary",						NULL, NULL,	G_CALLBACK(summary_open_cb) },
    { "/Statistics/ProtocolHierarchy",			NULL,							"_Protocol Hierarchy",			NULL, NULL, G_CALLBACK(proto_hier_stats_cb) },
    { "/Statistics/Conversations",	WIRESHARK_STOCK_CONVERSATIONS,	"Conversations",			NULL,						NULL,				G_CALLBACK(init_conversation_notebook_cb) },
    { "/Statistics/Endpoints",		WIRESHARK_STOCK_ENDPOINTS,		"Endpoints",				NULL,						NULL,				G_CALLBACK(init_hostlist_notebook_cb) },
    { "/Statistics/IOGraphs",			WIRESHARK_STOCK_GRAPHS,		"_IO Graph",				NULL,						NULL,				G_CALLBACK(gui_iostat_cb) },
+   { "/Statistics/plen",						NULL,				"Packet Lengths...",		NULL,						NULL,				G_CALLBACK(gtk_stats_tree_cb) },
 
    { "/Telephony/ANSI",					NULL,						"_ANSI",					NULL, NULL, NULL },
    { "/Telephony/ANSI/BSMAP",			NULL,						"A-Interface BSMAP",		NULL,						NULL,				G_CALLBACK(ansi_a_stat_gtk_bsmap_cb) },
    { "/Telephony/ANSI/DTAP",			NULL,						"A-Interface DTAP",			NULL,						NULL,				G_CALLBACK(ansi_a_stat_gtk_dtap_cb) },
    { "/Telephony/ANSI/MAP-OP",			NULL,						"MAP Operation",			NULL,						NULL,				G_CALLBACK(ansi_map_stat_gtk_cb) },
-
-   { "/Telephony/H225",					NULL,						"_H.225...",				NULL,						NULL,				G_CALLBACK(h225_counter_cb) },
 
    { "/Telephony/GSM",					NULL,						"_GSM",						NULL, NULL, NULL },
    { "/Telephony/GSM/CAMEL",			NULL,						"CAMEL Messages and Response Status",	NULL,			NULL,				G_CALLBACK(camel_counter_cb) },
@@ -1722,8 +1757,13 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/GSM/MAP-OP",			NULL,						"_GSM/MAP Operation",		NULL,						NULL,				G_CALLBACK(gsm_map_stat_gtk_cb) },
    { "/Telephony/GSM/MAPSummary",		NULL,						"MAP Summary",				NULL,						NULL,				G_CALLBACK(gsm_map_stat_gtk_sum_cb) },
 
+   { "/Telephony/H225",					NULL,						"_H.225...",				NULL,						NULL,				G_CALLBACK(h225_counter_cb) },
+
    { "/Telephony/IAX2",					NULL,						"IA_X2",					NULL, NULL, NULL },
    { "/Telephony/IAX2/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(iax2_analysis_cb) },
+
+   { "/Telephony/isup_msg",				NULL,						"_ISUP Messages",			NULL,						NULL,				G_CALLBACK(gtk_stats_tree_cb) },
+
    { "/Telephony/LTE",					NULL,						"_LTE",						NULL, NULL, NULL },
    { "/Telephony/LTE/MAC",				NULL,						"_MAC...",					NULL,						NULL,				G_CALLBACK(mac_lte_stat_cb) },
    { "/Telephony/LTE/RLC",				NULL,						"_RLC...",					NULL,						NULL,				G_CALLBACK(rlc_lte_stat_cb) },
@@ -1733,11 +1773,15 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/RTP",					NULL,						"_RTP",						NULL, NULL, NULL },
    { "/Telephony/RTP/StreamAnalysis",	NULL,						"Stream Analysis...",		NULL,						NULL,				G_CALLBACK(rtp_analysis_cb) },
    { "/Telephony/RTP/ShowAllStreams",	NULL,						"Show All Streams",			NULL,						NULL,				G_CALLBACK(rtpstream_launch) },
+   { "/Telephony/RTSP",					NULL,						"RTSP",						NULL, NULL, NULL },
+   { "/Telephony/RTSP/rtsp",			NULL,						"Packet Counter",			NULL,						NULL,				G_CALLBACK(gtk_stats_tree_cb) },
    { "/Telephony/SCTP",					NULL,						"S_CTP",						NULL, NULL, NULL },
    { "/Telephony/SCTP/AnalysethisAssociation",	NULL,				"Analyse this Association",	NULL,						NULL,				G_CALLBACK(sctp_analyse_start) },
-   { "/Telephony/SCTP/ShowAllAssociations",	NULL,					"Show All Associations...",	NULL,						NULL,				G_CALLBACK(sctp_stat_start) },
-   { "/Telephony/SCTP/ChunkCounter",		NULL,					"Chunk Counter",			NULL,						NULL,				G_CALLBACK(sctp_chunk_counter_cb) },
+   { "/Telephony/SCTP/ShowAllAssociations",		NULL,				"Show All Associations...",	NULL,						NULL,				G_CALLBACK(sctp_stat_start) },
+   { "/Telephony/SCTP/ChunkCounter",			NULL,				"Chunk Counter",			NULL,						NULL,				G_CALLBACK(sctp_chunk_counter_cb) },
    { "/Telephony/SIP",					NULL,						"_SIP...",					NULL,						NULL,				G_CALLBACK(sipstat_cb) },
+   { "/Telephony/smpp_commands",		NULL,						"SM_PPOperations",			NULL,						NULL,				G_CALLBACK(gtk_stats_tree_cb) },
+   { "/Telephony/ucp_messages",			NULL,						"_UCP Messages",			NULL,						NULL,				G_CALLBACK(gtk_stats_tree_cb) },
    { "/Telephony/VoIPCalls",			WIRESHARK_STOCK_TELEPHONE,	"_VoIP Calls",				NULL,						NULL,				G_CALLBACK(voip_calls_launch) },
    { "/Telephony/WSP",					NULL,						"_WAP-WSP...",				NULL,						NULL,				G_CALLBACK(wsp_stat_cb) },
 
