@@ -2338,7 +2338,7 @@ static void draw_element_ellipse (struct graph *g, struct element *e)
 		gdk_cairo_set_source_color (cr, e->elment_color_p);
 	}
 	/* Elipse is inside box */
-	cairo_arc(cr, xx1-xx2, yy1-yy2, e->p.arc.dim.width/2, 0, 2 * G_PI);
+	cairo_arc(cr, xx1-xx2, yy1-yy2, e->p.ellipse.dim.width/2, 0, 2 * G_PI);
 
 	cairo_fill(cr);
 	cairo_destroy(cr);
