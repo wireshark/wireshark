@@ -125,7 +125,7 @@ typedef enum {
 	ELMT_NONE=0,
 	ELMT_RECT=1,
 	ELMT_LINE=2,
-	ELMT_ARC=3
+	ELMT_ELLIPSE=3
 } ElementType;
 
 struct rect_params {
@@ -137,10 +137,8 @@ struct line_params {
 	struct line dim;
 };
 
-struct arc_params {
+struct ellipse_params {
 	struct rect dim;
-	gint filled;
-	gint angle1, angle2;
 };
 
 struct element {
@@ -148,7 +146,7 @@ struct element {
 	GdkColor *elment_color_p;
 	struct segment *parent;
 	union {
-		struct arc_params arc;
+		struct ellipse_params ellipse;
 		struct rect_params rect;
 		struct line_params line;
 	} p;
@@ -436,7 +434,7 @@ static void graph_destroy (struct graph * );
 static void graph_initialize_values (struct graph * );
 static void graph_init_sequence (struct graph * );
 static void draw_element_line (struct graph * , struct element * );
-static void draw_element_arc (struct graph * , struct element * );
+static void draw_element_ellipse (struct graph * , struct element * );
 static void graph_display (struct graph * );
 static void graph_pixmaps_create (struct graph * );
 static void graph_pixmaps_switch (struct graph * );
@@ -452,7 +450,7 @@ static void graph_segment_list_get (struct graph * );
 static void graph_segment_list_free (struct graph * );
 static void graph_select_segment (struct graph * , int , int );
 static int line_detect_collision (struct element * , int , int );
-static int arc_detect_collision (struct element * , int , int );
+static int ellipse_detect_collision (struct element * , int , int );
 static void axis_pixmaps_create (struct axis * );
 static void axis_pixmaps_switch (struct axis * );
 static void axis_display (struct axis * );
@@ -2252,8 +2250,8 @@ static void graph_pixmap_draw (struct graph *g)
 			case ELMT_LINE:
 				draw_element_line (g, e);
 				break;
-			case ELMT_ARC:
-				draw_element_arc (g, e);
+			case ELMT_ELLIPSE:
+				draw_element_ellipse (g, e);
 				break;
 			default:
 				break;
@@ -2320,39 +2318,33 @@ static void draw_element_line (struct graph *g, struct element *e)
 	cairo_destroy(cr);
 }
 
-static void draw_element_arc (struct graph *g, struct element *e)
+static void draw_element_ellipse (struct graph *g, struct element *e)
 {
 	int xx1, xx2, yy1, yy2;
 #if GTK_CHECK_VERSION(3,0,0)
 	cairo_t *cr;
 #endif
-	xx1 = (int )rint (e->p.arc.dim.x + g->geom.x - g->wp.x);
-	xx2 = (int )e->p.arc.dim.width;
-	yy1 = (int )rint (g->geom.height-1 - e->p.arc.dim.y + g->geom.y - g->wp.y);
-	yy2 = (int )e->p.arc.dim.height;
+	xx1 = (int )rint (e->p.ellipse.dim.x + g->geom.x - g->wp.x);
+	xx2 = (int )e->p.ellipse.dim.width;
+	yy1 = (int )rint (g->geom.height-1 - e->p.ellipse.dim.y + g->geom.y - g->wp.y);
+	yy2 = (int )e->p.ellipse.dim.height;
 	if (xx1<-xx2 || xx1>=g->wp.width || yy1<-yy2 || yy1>=g->wp.height)
 		return;
-	debug(DBS_GRAPH_DRAWING) printf ("arc: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
+	debug(DBS_GRAPH_DRAWING) printf ("ellipse: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
 #if GTK_CHECK_VERSION(3,0,0)
 	cr = cairo_create (g->surface[1^g->displayed]);
 	cairo_set_line_width (cr, 1.0);
 	if(e->elment_color_p!=NULL){
 		gdk_cairo_set_source_color (cr, e->elment_color_p);
 	}
-	/* The arc is centered at (xc, yc)
-	 * begins at angle1 and proceeds in the direction of increasing angles to end at angle2
-	 */
-	cairo_arc(cr, xx1-xx2, yy1-yy2, e->p.arc.dim.width/2, /*e->p.arc.angle1*/0, /*e->p.arc.angle2*/2 * G_PI);
+	/* Elipse is inside box */
+	cairo_arc(cr, xx1-xx2, yy1-yy2, e->p.arc.dim.width/2, 0, 2 * G_PI);
 
-	if(e->p.arc.filled){
-		cairo_fill(cr);
-	}else{
-		cairo_stroke(cr);
-	}
+	cairo_fill(cr);
 	cairo_destroy(cr);
 #else
-gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, e->p.arc.filled, xx1,
-					yy1, xx2, yy2, e->p.arc.angle1, e->p.arc.angle2);
+	gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, TRUE, xx1,
+					yy1, xx2, yy2, 0, 23040);
 #endif
 	/* NOTE the coordinates and angels needs to be recalculated as cairo_arc works differently */
 }
@@ -2902,8 +2894,8 @@ static void graph_select_segment (struct graph *g, int x, int y)
 					num = e->parent->num;
 				}
 				break;
-			case ELMT_ARC:
-				if (arc_detect_collision (e, x, y)) {
+			case ELMT_ELLIPSE:
+				if (ellipse_detect_collision (e, x, y)) {
 					num = e->parent->num;
 				}
 				break;
@@ -2946,16 +2938,16 @@ static int line_detect_collision (struct element *e, int x, int y)
 		return FALSE;
 }
 
-static int arc_detect_collision (struct element *e, int x, int y)
+static int ellipse_detect_collision (struct element *e, int x, int y)
 {
 	int xx1, yy1, xx2, yy2;
 
-	xx1 = (int )rint (e->p.arc.dim.x);
-	xx2 = (int )rint (e->p.arc.dim.x + e->p.arc.dim.width);
-	yy1 = (int )rint (e->p.arc.dim.y - e->p.arc.dim.height);
-	yy2 = (int )rint (e->p.arc.dim.y);
+	xx1 = (int )rint (e->p.ellipse.dim.x);
+	xx2 = (int )rint (e->p.ellipse.dim.x + e->p.ellipse.dim.width);
+	yy1 = (int )rint (e->p.ellipse.dim.y - e->p.ellipse.dim.height);
+	yy2 = (int )rint (e->p.ellipse.dim.y);
 	/*
-	printf ("arc: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
+	printf ("ellipse: (%d,%d)->(%d,%d), clicked: (%d,%d)\n", xx1, yy1, xx2, yy2, x, y);
 	 */
 	if (xx1<=x && x<=xx2 && yy1<=y && y<=yy2)
 		return TRUE;
@@ -4030,15 +4022,12 @@ static void tseq_stevens_make_elmtlist (struct graph *g)
 		secs = g->zoom.x * (tmp->rel_secs + tmp->rel_usecs / 1000000.0 - xx0);
 		seqno = g->zoom.y * seq_cur;
 
-		e->type = ELMT_ARC;
+		e->type = ELMT_ELLIPSE;
 		e->parent = tmp;
-		e->p.arc.dim.width = g->s.tseq_stevens.seq_width;
-		e->p.arc.dim.height = g->s.tseq_stevens.seq_height;
-		e->p.arc.dim.x = secs - g->s.tseq_stevens.seq_width/2.0;
-		e->p.arc.dim.y = seqno + g->s.tseq_stevens.seq_height/2.0;
-		e->p.arc.filled = TRUE;
-		e->p.arc.angle1 = 0;
-		e->p.arc.angle2 = 23040;
+		e->p.ellipse.dim.width = g->s.tseq_stevens.seq_width;
+		e->p.ellipse.dim.height = g->s.tseq_stevens.seq_height;
+		e->p.ellipse.dim.x = secs - g->s.tseq_stevens.seq_width/2.0;
+		e->p.ellipse.dim.y = seqno + g->s.tseq_stevens.seq_height/2.0;
 		e++;
 	}
 	e->type = ELMT_NONE;
@@ -4298,15 +4287,12 @@ static void tput_make_elmtlist (struct graph *g)
 		tput = sum / dtime;
 		/* debug(DBS_TPUT_ELMTS) printf ("tput=%f\n", tput); */
 
-		e->type = ELMT_ARC;
+		e->type = ELMT_ELLIPSE;
 		e->parent = tmp;
-		e->p.arc.dim.width = g->s.tput.width;
-		e->p.arc.dim.height = g->s.tput.height;
-		e->p.arc.dim.x = g->zoom.x*(time_val - g->bounds.x0) - g->s.tput.width/2.0;
-		e->p.arc.dim.y = g->zoom.y*tput + g->s.tput.height/2.0;
-		e->p.arc.filled = TRUE;
-		e->p.arc.angle1 = 0;
-		e->p.arc.angle2 = 23040;
+		e->p.ellipse.dim.width = g->s.tput.width;
+		e->p.ellipse.dim.height = g->s.tput.height;
+		e->p.ellipse.dim.x = g->zoom.x*(time_val - g->bounds.x0) - g->s.tput.width/2.0;
+		e->p.ellipse.dim.y = g->zoom.y*tput + g->s.tput.height/2.0;
 		e++;
 	}
 	e->type = ELMT_NONE;
@@ -4569,15 +4555,12 @@ static void rtt_make_elmtlist (struct graph *g)
 				if (ackno > u->seqno) {
 					double rtt = time_val - u->time;
 
-					e->type = ELMT_ARC;
+					e->type = ELMT_ELLIPSE;
 					e->parent = tmp;
-					e->p.arc.dim.width = g->s.rtt.width;
-					e->p.arc.dim.height = g->s.rtt.height;
-					e->p.arc.dim.x = g->zoom.x * u->seqno - g->s.rtt.width/2.0;
-					e->p.arc.dim.y = g->zoom.y * rtt + g->s.rtt.height/2.0;
-					e->p.arc.filled = TRUE;
-					e->p.arc.angle1 = 0;
-					e->p.arc.angle2 = 23040;
+					e->p.ellipse.dim.width = g->s.rtt.width;
+					e->p.ellipse.dim.height = g->s.rtt.height;
+					e->p.ellipse.dim.x = g->zoom.x * u->seqno - g->s.rtt.width/2.0;
+					e->p.ellipse.dim.y = g->zoom.y * rtt + g->s.rtt.height/2.0;
 					e++;
 
 					v=u->next;
@@ -4717,15 +4700,12 @@ static void wscale_make_elmtlist(struct graph* g)
 			/* only data or ack segments */
 			if ( (flags & (TH_SYN|TH_RST)) == 0 )
 			{
-				e->type = ELMT_ARC;
+				e->type = ELMT_ELLIPSE;
 				e->parent = segm;
-				e->p.arc.dim.width = g->s.wscale.win_width;
-				e->p.arc.dim.height = g->s.wscale.win_height;
-				e->p.arc.dim.x = g->zoom.x * (sec - sec_base) - g->s.wscale.win_width / 2.0;
-				e->p.arc.dim.y = g->zoom.y * wsize - g->s.wscale.win_height / 2.0;
-				e->p.arc.filled = TRUE;
-				e->p.arc.angle1 = 0;
-				e->p.arc.angle2 = 0x5A00;
+				e->p.ellipse.dim.width = g->s.wscale.win_width;
+				e->p.ellipse.dim.height = g->s.wscale.win_height;
+				e->p.ellipse.dim.x = g->zoom.x * (sec - sec_base) - g->s.wscale.win_width / 2.0;
+				e->p.ellipse.dim.y = g->zoom.y * wsize - g->s.wscale.win_height / 2.0;
 				e++;
 			}
 		}
