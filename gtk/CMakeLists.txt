@@ -63,7 +63,6 @@ set(WIRESHARK_GTK_SRC
 	font_utils.c
 	goto_dlg.c
 	graph_analysis.c
-	gtkvumeter.c
 	gui_stat_util.c
 	gui_utils.c
 	help_dlg.c
@@ -253,6 +252,13 @@ if (WANT_PACKET_EDITOR)
 	)
 endif()
 
+if(WIN32)
+	set(PLATFORM_UI_SRC
+		capture_if_details_dlg_win32.c
+		gtkvumeter.c
+	)
+endif()
+
 register_tap_files(wireshark-tap-register.c
 	${WIRESHARK_TAP_SRC}
 )
@@ -260,6 +266,7 @@ register_tap_files(wireshark-tap-register.c
 add_library(ui STATIC
 	${WIRESHARK_GTK_SRC}
 	${WIRESHARK_TAP_SRC}
+	${PLATFORM_UI_SRC}
 	wireshark-tap-register.c
 )
 set_target_properties(ui PROPERTIES LINK_FLAGS "${WS_LINK_FLAGS}")
