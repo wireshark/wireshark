@@ -95,6 +95,39 @@ WSLUA_METAMETHOD NSTime__tostring(lua_State* L) {
 
     WSLUA_RETURN(1); /* The string representing the nstime. */
 }
+WSLUA_METAMETHOD NSTime__add(lua_State* L) { /* Calculates the sum of two NSTimes */
+    NSTime time1 = checkNSTime(L,1);
+    NSTime time2 = checkNSTime(L,2);
+    NSTime time3 = g_malloc (sizeof (nstime_t));
+
+    nstime_sum (time3, time1, time2);
+    pushNSTime (L, time3);
+
+    return 1;
+}
+
+WSLUA_METAMETHOD NSTime__sub(lua_State* L) { /* Calculates the diff of two NSTimes */
+    NSTime time1 = checkNSTime(L,1);
+    NSTime time2 = checkNSTime(L,2);
+    NSTime time3 = g_malloc (sizeof (nstime_t));
+
+    nstime_delta (time3, time1, time2);
+    pushNSTime (L, time3);
+
+    return 1;
+}
+
+WSLUA_METAMETHOD NSTime__unm(lua_State* L) { /* Calculates the negative NSTime */
+    NSTime time1 = checkNSTime(L,1);
+    NSTime time2 = g_malloc (sizeof (nstime_t));
+
+    nstime_set_zero (time2);
+    nstime_subtract (time2, time1);
+    pushNSTime (L, time2);
+
+    return 1;
+}
+
 WSLUA_METAMETHOD NSTime__eq(lua_State* L) { /* Compares two NSTimes */
     NSTime time1 = checkNSTime(L,1);
     NSTime time2 = checkNSTime(L,2);
@@ -251,6 +284,9 @@ WSLUA_META NSTime_meta[] = {
     {"__index", NSTime__index},
     {"__newindex", NSTime__newindex},
     {"__tostring", NSTime__tostring},
+    {"__add", NSTime__add},
+    {"__sub", NSTime__sub},
+    {"__unm", NSTime__unm},
     {"__eq", NSTime__eq},
     {"__le", NSTime__le},
     {"__lt", NSTime__lt},
