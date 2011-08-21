@@ -141,24 +141,6 @@ void nstime_sum(nstime_t *sum, const nstime_t *a, const nstime_t *b)
 }
 
 /*
- * function: nstime_diff
- * diff = a - b
- */
-
-void nstime_diff(nstime_t *diff, const nstime_t *a, const nstime_t *b)
-{
-    diff->secs = a->secs - b->secs;
-    diff->nsecs = a->nsecs - b->nsecs;
-    if(diff->nsecs>=NS_PER_S || (diff->nsecs>0 && diff->secs<0)){
-        diff->nsecs-=NS_PER_S;
-        diff->secs++;
-    } else if(diff->nsecs<=-NS_PER_S || (diff->nsecs<0 && diff->secs>0)) {
-        diff->nsecs+=NS_PER_S;
-        diff->secs--;
-    }
-}
-
-/*
  * function: nstime_cmp
  *
  * a > b : > 0

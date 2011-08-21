@@ -662,7 +662,6 @@ next_tvb_call
 nstime_cmp
 nstime_copy
 nstime_delta
-nstime_diff
 nstime_is_unset
 nstime_is_zero
 nstime_set_unset

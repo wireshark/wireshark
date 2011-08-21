@@ -80,20 +80,11 @@ extern void nstime_delta(nstime_t *delta, const nstime_t *b, const nstime_t *a )
  */
 extern void nstime_sum(nstime_t *sum, const nstime_t *b, const nstime_t *a );
 
-/** calculate the difference between two times
- *
- * diff = a-b
- *
- * Note that it is acceptable for two or more of the arguments to point at the
- * same structure.
- */
-extern void nstime_diff(nstime_t *diff, const nstime_t *b, const nstime_t *a );
-
 /** sum += a */
 #define nstime_add(sum, a) nstime_sum(sum, sum, a)
 
 /** sum -= a */
-#define nstime_subtract(sum, a) nstime_diff(sum, sum, a)
+#define nstime_subtract(sum, a) nstime_delta(sum, sum, a)
 
 /** compare two times are return a value similar to memcmp() or strcmp().
  *
