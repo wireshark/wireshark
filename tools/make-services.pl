@@ -32,8 +32,11 @@ my @exclude_pats = qw(
 	^spl-itunes
 	^shilp
 );
+my $iana_port_url = "http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.txt";
 
-$in = "http://www.iana.org/assignments/port-numbers" unless(defined $in);
+# As of August 2011, the page linked from http://www.iana.org/protocols/
+# is XML. Perhaps we should parse that instead.
+$in = $iana_port_url unless(defined $in);
 
 my $body = "";
 
@@ -102,7 +105,7 @@ if (length($body) < $min_size * 0.9) {
 
 open OUT, "> $svc_file";
 
-print OUT <<"_SMINMPEC";
+print OUT <<"_HEADER";
 # This is a local copy of the IANA port-numbers file.
 #
 # \$Id\$
@@ -114,9 +117,9 @@ print OUT <<"_SMINMPEC";
 # http://www.wireshark.org/lists/wireshark-dev/200708/msg00160.html
 #
 # The original file can be found at:
-# http://www.iana.org/assignments/port-numbers
+# $iana_port_url
 #
 $body
-_SMINMPEC
+_HEADER
 
 close OUT;
