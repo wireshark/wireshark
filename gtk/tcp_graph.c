@@ -693,7 +693,7 @@ static void create_gui (struct graph *g)
 static void create_drawing_area (struct graph *g)
 {
 #if GTK_CHECK_VERSION(3,0,0)
-	  GtkStyleContext *context;
+	GtkStyleContext *context;
 #else
 	GdkColormap *colormap;
 	GdkColor color;
@@ -704,7 +704,7 @@ static void create_drawing_area (struct graph *g)
 	GtkAllocation widget_alloc;
 #if 0
 	/* Prep. to include the controls in the graph window */
-	GtkWidget *frame; 
+	GtkWidget *frame;
 	GtkWidget *vbox;
 	GtkWidget *hbox;
 #endif
@@ -1766,12 +1766,12 @@ static void graph_destroy (struct graph *g)
 		 cairo_surface_destroy (g->surface[1]);
 	}
 #else
- 	g_object_unref (g->pixmap[0]);
- 	g_object_unref (g->pixmap[1]);
-#endif /* GTK_CHECK_VERSION(2,22,0) */ 
+	g_object_unref (g->pixmap[0]);
+	g_object_unref (g->pixmap[1]);
+#endif /* GTK_CHECK_VERSION(2,22,0) */
 #else /* GTK_CHECK_VERSION(3,0,0)*/
- 	g_object_unref (g->pixmap[0]);
- 	g_object_unref (g->pixmap[1]);
+	g_object_unref (g->pixmap[0]);
+	g_object_unref (g->pixmap[1]);
 	g_object_unref (g->fg_gc);
 #endif /* GTK_CHECK_VERSION(3,0,0)*/
 	g_free (g->x_axis);
@@ -2067,7 +2067,7 @@ static void graph_title_pixmap_create (struct graph *g)
 
 	g->title_surface = gdk_window_create_similar_surface (gtk_widget_get_window(g->drawing_area),
 			CAIRO_CONTENT_COLOR,
-			g->x_axis->p.width, 
+			g->x_axis->p.width,
 			g->wp.y);
 
 #else
@@ -2145,12 +2145,12 @@ static void graph_pixmaps_create (struct graph *g)
 
 	g->surface[0] = gdk_window_create_similar_surface (gtk_widget_get_window(g->drawing_area),
 			CAIRO_CONTENT_COLOR,
-			g->wp.width, 
+			g->wp.width,
 			g->wp.height);
 
 	g->surface[1] = gdk_window_create_similar_surface (gtk_widget_get_window(g->drawing_area),
 			CAIRO_CONTENT_COLOR,
-			g->wp.width, 
+			g->wp.width,
 			g->wp.height);
 
 	g->displayed = 0;
@@ -2202,7 +2202,7 @@ static void graph_pixmap_display (struct graph *g)
 #else
 	gdk_cairo_set_source_pixmap (cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
 #endif /* GTK_CHECK_VERSION(2,22,0) */
-#else 
+#else
 	gdk_cairo_set_source_pixmap (cr, g->pixmap[g->displayed], g->wp.x, g->wp.y);
 #endif /* GTK_CHECK_VERSION(3,0,0) */
 	cairo_rectangle (cr, g->wp.x, g->wp.y, g->wp.width, g->wp.height);
