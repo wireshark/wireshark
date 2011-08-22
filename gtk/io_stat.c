@@ -69,6 +69,12 @@
 #define DEFAULT_YSCALE_INDEX 1
 static guint32 yscale_max[MAX_YSCALE] = {LOGARITHMIC_YSCALE, AUTO_MAX_YSCALE, 10, 20, 50, 100, 200, 500, 1000, 2000, 5000, 10000, 20000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000, 20000000, 50000000, 100000000, 200000000, 500000000, 1000000000, 2000000000};
 
+#define NO_FILTER_ORDER 0
+#define MAX_MOVING_AVERAGE_ORDER 10
+static guint32 moving_average_orders[MAX_MOVING_AVERAGE_ORDER] = {NO_FILTER_ORDER, 2, 5, 10, 20, 50, 100, 250, 500, 1000};
+#define NO_FILTER 0
+#define MOVING_AVERAGE_FILTER 1
+
 #define MAX_PIXELS_PER_TICK 4
 #define DEFAULT_PIXELS_PER_TICK_INDEX 2
 static guint32 pixels_per_tick[MAX_PIXELS_PER_TICK] = {1, 2, 5, 10};
@@ -180,6 +186,9 @@ typedef struct _io_stat_t {
 	int pixels_per_tick;
 	int max_y_units;
 	int count_type;
+
+	guint32 filter_order;
+	int filter_type;
 } io_stat_t;
 
 
@@ -1080,6 +1089,10 @@ io_stat_draw(io_stat_t *io)
 	for(i=MAX_GRAPHS-1;i>=0;i--){
 		guint64 val;
 		guint32 interval, x_pos, y_pos, prev_x_pos, prev_y_pos;
+		/* Moving average variables */
+		guint32 mavg_in_average_count;
+		guint64 mavg_cumulated;
+		guint32 mavg_to_remove;
 
 		if(!io->graphs[i].display){
 			continue;
@@ -1099,11 +1112,27 @@ io_stat_draw(io_stat_t *io)
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 		}
+		/* Moving average initialization */
+		mavg_to_remove = first_interval;
+		mavg_in_average_count = 0;
+		mavg_cumulated = 0;
 
 		for(interval=first_interval;interval<last_interval;interval+=io->interval){
 			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval)+io->left_x_border;
 
 			val=get_it_value(io, i, interval/io->interval);
+			/* Moving average calculation */
+			if(io->filter_type == MOVING_AVERAGE_FILTER){
+				mavg_cumulated += val;
+				mavg_in_average_count++;
+				if(mavg_in_average_count > io->filter_order){
+					mavg_in_average_count--;
+					mavg_cumulated -= get_it_value(io, i, mavg_to_remove/io->interval);
+					mavg_to_remove += io->interval;
+				}
+				val = mavg_cumulated / mavg_in_average_count;
+			}
+
 			if(val>max_y){
 				y_pos=0;
 			} else if(io->max_y_units==LOGARITHMIC_YSCALE){
@@ -1657,6 +1686,23 @@ yscale_select(GtkWidget *item, gpointer user_data)
 	io_stat_redraw(io);
 }
 
+static void
+filter_select(GtkWidget *item, gpointer user_data)
+{
+	io_stat_t *io = user_data;
+	int i;
+
+	i = gtk_combo_box_get_active (GTK_COMBO_BOX(item));
+
+	if(i==NO_FILTER_ORDER){
+		io->filter_type = NO_FILTER;
+	} else {
+		io->filter_type = MOVING_AVERAGE_FILTER;
+		io->filter_order = moving_average_orders[i];
+	}
+	io_stat_redraw(io);
+}
+
 static GtkWidget *
 create_tick_interval_menu_items(io_stat_t *io)
 {
@@ -1706,6 +1752,28 @@ create_yscale_max_menu_items(io_stat_t *io)
 	}
 	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), DEFAULT_YSCALE_INDEX);
 	g_signal_connect(combo_box, "changed", G_CALLBACK(yscale_select), io);
+	return combo_box;
+}
+
+static GtkWidget *
+create_filter_menu_items(io_stat_t *io)
+{
+	char str[15];
+	GtkWidget *combo_box;
+	int i;
+
+	combo_box = gtk_combo_box_text_new ();
+
+	for(i=0;i<MAX_MOVING_AVERAGE_ORDER;i++){
+		if(i==NO_FILTER_ORDER){
+			g_strlcpy(str, "No filter", 15);
+		} else {
+			g_snprintf(str, 15, "M.avg %u", moving_average_orders[i]);
+		}
+		gtk_combo_box_text_append_text (GTK_COMBO_BOX_TEXT (combo_box), str);
+	}
+	gtk_combo_box_set_active(GTK_COMBO_BOX(combo_box), 0);
+	g_signal_connect(combo_box, "changed", G_CALLBACK(filter_select), io);
 	return combo_box;
 }
 
@@ -1834,6 +1902,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
 	create_ctrl_menu(io, vbox, "Scale:", create_yscale_max_menu_items);
+	create_ctrl_menu(io, vbox, "Filter:", create_filter_menu_items);
 
 	return;
 }
