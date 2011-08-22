@@ -522,7 +522,7 @@ dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-void gtk_dcerpcstat_cb(GtkAction *action, gpointer user_data _U_)
+void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
 #else
 static void
 gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
