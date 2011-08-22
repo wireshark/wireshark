@@ -3111,6 +3111,7 @@ main_menu_new(GtkAccelGroup ** table) {
     return menubar;
 }
 
+#if 0
 static void
 menu_dissector_filter_cb(  GtkAction *action _U_,  gpointer callback_data)
 {
@@ -3142,6 +3143,7 @@ static gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t 
     /* e.g. "Update list of packets in real time" won't work correct */
     return (edt != NULL) ? filter_entry->is_filter_valid(&edt->pi) : FALSE;
 }
+#endif
 
 static void menu_dissector_filter(void) {
     GList *list_entry = dissector_filter_list;
