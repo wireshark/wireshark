@@ -133,7 +133,6 @@ static GtkAccelGroup *grp;
 
 GtkWidget *popup_menu_object;
 
-static void merge_all_tap_menus(GList *node);
 static void menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_ );
 static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 
