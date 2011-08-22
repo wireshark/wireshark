@@ -4858,63 +4858,6 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
     set_toolbar_for_captured_packets(have_captured_packets);
 }
 
-/* Enable or disable menu items based on whether a packet is selected and,
-   if so, on the properties of the packet. */
-static gboolean
-walk_menu_tree_for_selected_packet(GList *node, frame_data *fd,
-    epan_dissect_t *edt)
-{
-    gboolean is_enabled;
-    GList *child;
-    menu_item_t *node_data = node->data;
-
-    /*
-     * Is this a leaf node or an interior node?
-     */
-    if (node_data->children == NULL) {
-        /*
-         * It's a leaf node.
-         *
-         * If it has no "selected_packet_enabled()" routine,
-         * leave its enabled/disabled status alone - it
-         * doesn't depend on whether we have a packet selected
-         * or not or on the selected packet.
-         *
-         * If it has a "selected_packet_enabled()" routine,
-         * call it and set the item's enabled/disabled status
-         * based on its return value.
-         */
-        if (node_data->selected_packet_enabled != NULL)
-            node_data->enabled = node_data->selected_packet_enabled(fd, edt, node_data->callback_data);
-    } else {
-        /*
-         * It's an interior node; call
-         * "walk_menu_tree_for_selected_packet()" on all its
-         * children and, if any of them are enabled, enable
-         * this node, otherwise disable it.
-         *
-         * XXX - should we just leave all interior nodes enabled?
-         * Which is a better UI choice?
-         */
-        is_enabled = FALSE;
-        for (child = node_data->children; child != NULL; child =
-                 child->next) {
-            if (walk_menu_tree_for_selected_packet(child, fd, edt))
-                is_enabled = TRUE;
-        }
-        node_data->enabled = is_enabled;
-    }
-
-    /*
-     * The root node doesn't correspond to a menu tree item; it
-     * has a null name pointer.
-     */
-    if (node_data->gui_path != NULL) {
-        set_menu_sensitivity(ui_manager_main_menubar, node_data->gui_path,
-                              node_data->enabled);
-    }
-    return node_data->enabled;
-}
 
 gboolean
 packet_is_ssl(epan_dissect_t* edt)
@@ -5082,68 +5025,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
                          tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
-
-
-    walk_menu_tree_for_selected_packet(tap_menu_tree_root, cf->current_frame,
-                                       cf->edt);
 }
 
-/* Enable or disable menu items based on whether a tree row is selected
-   and, if so, on the properties of the tree row. */
-static gboolean
-walk_menu_tree_for_selected_tree_row(GList *node, field_info *fi)
-{
-    gboolean is_enabled;
-    GList *child;
-    menu_item_t *node_data = node->data;
-
-    /*
-     * Is this a leaf node or an interior node?
-     */
-    if (node_data->children == NULL) {
-        /*
-         * It's a leaf node.
-         *
-         * If it has no "selected_tree_row_enabled()" routine,
-         * leave its enabled/disabled status alone - it
-         * doesn't depend on whether we have a tree row selected
-         * or not or on the selected tree row.
-         *
-         * If it has a "selected_tree_row_enabled()" routine,
-         * call it and set the item's enabled/disabled status
-         * based on its return value.
-         */
-        if (node_data->selected_tree_row_enabled != NULL)
-            node_data->enabled = node_data->selected_tree_row_enabled(fi, node_data->callback_data);
-    } else {
-        /*
-         * It's an interior node; call
-         * "walk_menu_tree_for_selected_tree_row()" on all its
-         * children and, if any of them are enabled, enable
-         * this node, otherwise disable it.
-         *
-         * XXX - should we just leave all interior nodes enabled?
-         * Which is a better UI choice?
-         */
-        is_enabled = FALSE;
-        for (child = node_data->children; child != NULL; child =
-                 child->next) {
-            if (walk_menu_tree_for_selected_tree_row(child, fi))
-                is_enabled = TRUE;
-        }
-        node_data->enabled = is_enabled;
-    }
-
-    /*
-     * The root node doesn't correspond to a menu tree item; it
-     * has a null name pointer.
-     */
-    if (node_data->gui_path != NULL) {
-        set_menu_sensitivity(ui_manager_main_menubar, node_data->gui_path,
-                             node_data->enabled);
-    }
-    return node_data->enabled;
-}
 
 static void
 menu_prefs_toggle_bool (GtkWidget *w, gpointer data)
@@ -5696,8 +5579,6 @@ set_menus_for_selected_tree_row(capture_file *cf)
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/PrepareaFilter", FALSE);
         set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/ExpandSubtrees", FALSE);
     }
-
-    walk_menu_tree_for_selected_tree_row(tap_menu_tree_root, cf->finfo_selected);
 }
 
 void set_menus_for_packet_history(gboolean back_history, gboolean forward_history) {
