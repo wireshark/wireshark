@@ -3708,8 +3708,8 @@ add_recent_items (guint merge_id, GtkUIManager *ui_manager)
                  NULL);
       g_signal_connect (action, "activate",
                         G_CALLBACK (menu_open_recent_file_cmd_cb), NULL);
-#if GTK_CHECK_VERSION(2,16,0)
-	  g_object_set_data (G_OBJECT (action), "FileName", item_name);
+#if !GTK_CHECK_VERSION(2,16,0)
+      g_object_set_data (G_OBJECT (action), "FileName", item_name);
 #endif
       gtk_action_group_add_action (action_group, action);
       g_object_unref (action);
@@ -3796,9 +3796,9 @@ menu_open_recent_file_cmd(gpointer action)
     int         err;
 
 #if GTK_CHECK_VERSION(2,16,0)
-	cf_name = g_object_get_data(G_OBJECT(action), "FileName");
-#else
     cf_name = gtk_action_get_label(action);
+#else
+    cf_name = g_object_get_data(G_OBJECT(action), "FileName");
 #endif
 
     /* open and read the capture file (this will close an existing file) */
