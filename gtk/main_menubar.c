@@ -119,6 +119,22 @@
 #include <igemacintegration/gtkosxapplication.h>
 #endif
 
+
+/* Put here temporarry while removing unused code */
+static void register_stat_menu_item_stock(
+    register_stat_group_t group,
+    const char   *gui_path,
+    const char   *name,
+    const gchar  *stock_id,
+    const char   *label,
+    const char   *accelerator,
+    const gchar  *tooltip,
+    GCallback    callback,
+    gboolean     enabled,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
+    gpointer callback_data);
+
 static int initialize = TRUE;
 GtkActionGroup    *main_menu_bar_action_group;
 static GtkUIManager *ui_manager_main_menubar = NULL;
@@ -3504,7 +3520,7 @@ static GList * tap_menu_item_add(
  * is selected and, if one is, on the tree row) and FALSE if not.
  */
 
-void
+static void
 register_stat_menu_item_stock(
     register_stat_group_t group,
     const char *gui_path,

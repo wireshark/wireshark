@@ -201,19 +201,6 @@ void gtk_rpcprogs_cb(GtkWidget *w, gpointer data);
 void mcaststream_launch(GtkAction *action, gpointer user_data);
 void wlanstat_launch(GtkAction *action, gpointer user_data);
 
-extern void register_stat_menu_item_stock(
-    register_stat_group_t group,
-    const char   *gui_path,
-    const char   *name,
-    const gchar  *stock_id,
-    const char   *label,
-    const char   *accelerator,
-    const gchar  *tooltip,
-    GCallback    callback,
-    gboolean     enabled,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
-    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
-    gpointer callback_data);
 #else
 extern void register_stat_menu_item_stock(
     const char *name,
