@@ -28,9 +28,7 @@
 #ifndef MAIN_MENU_USE_UIMANAGER
 /* UIManager code is in main_menubar.c */
 
-#if defined(GTK_DISABLE_DEPRECATED) && !defined(MAIN_MENU_USE_UIMANAGER)
-# undef GTK_DISABLE_DEPRECATED
-#endif
+#undef GTK_DISABLE_DEPRECATED
 
 #include <gtk/gtk.h>
 

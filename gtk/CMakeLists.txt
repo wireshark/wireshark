@@ -242,7 +242,13 @@ endif()
 
 if (WANT_PACKET_EDITOR)
 	add_definitions(
-		-DWANT_PACKET_EDITOR=1
+		-DWANT_PACKET_EDITOR
+	)
+endif()
+
+if (ENABLE_UI_MANAGER)
+	add_definitions(
+		-DMAIN_MENU_USE_UIMANAGER
 	)
 endif()
 
