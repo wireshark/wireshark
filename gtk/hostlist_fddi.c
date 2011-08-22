@@ -94,8 +94,11 @@ register_tap_listener_fddi_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,fddi", gtk_fddi_hostlist_init,NULL);
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+#else
 	register_stat_menu_item("FDDI", REGISTER_STAT_GROUP_ENDPOINT_LIST,
 	    gtk_fddi_hostlist_cb, NULL, NULL, NULL);
+#endif;
 
 	register_hostlist_table(TRUE, "FDDI", "fddi", NULL /*filter*/, fddi_hostlist_packet);
 }

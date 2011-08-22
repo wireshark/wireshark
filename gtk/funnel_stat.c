@@ -613,7 +613,11 @@ static void register_menu_cb(const char *name,
     mcb->callback_data = callback_data;
     mcb->retap = retap;
 
+#ifdef MAIN_MENU_USE_UIMANAGER
+	g_warning("funnel_stat.c This functionality is broken, menu item %s will not be available",name);
+#else
     register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
+#endif
 
 }
 

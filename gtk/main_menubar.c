@@ -1220,6 +1220,7 @@ static const char *ui_desc_menubar =
 "        <menuitem name='AFP' action='/Analyze/ServiceResponseTime/AFP'/>\n"
 "        <menuitem name='ONC-RPC' action='/Analyze/ServiceResponseTime/ONC-RPC'/>\n"
 "        <menuitem name='Camel' action='/Analyze/ServiceResponseTime/Camel'/>\n"
+"        <menuitem name='DCE-RPC' action='/Analyze/ServiceResponseTime/DCE-RPC'/>\n"
 "        <menuitem name='Diameter' action='/Analyze/ServiceResponseTime/Diameter'/>\n"
 "        <menuitem name='FibreChannel' action='/Analyze/ServiceResponseTime/FibreChannel'/>\n"
 "        <menuitem name='GTP' action='/Analyze/ServiceResponseTime/GTP'/>\n"
@@ -1682,6 +1683,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ServiceResponseTime/ONC-RPC",	WIRESHARK_STOCK_TIME,			"ONC-RPC...",					NULL, NULL,	G_CALLBACK(gtk_rpcstat_cb) },
    { "/Analyze/ServiceResponseTime/AFP",		WIRESHARK_STOCK_TIME,			"AFP...",						NULL, NULL,	G_CALLBACK(afp_srt_stat_cb) },
    { "/Analyze/ServiceResponseTime/Camel",		WIRESHARK_STOCK_TIME,			"Camel...",						NULL, NULL,	G_CALLBACK(camel_srt_cb) },
+   { "/Analyze/ServiceResponseTime/DCE-RPC",	WIRESHARK_STOCK_TIME,			"DCE-RPC...",					NULL, NULL,	G_CALLBACK(gtk_dcerpcstat_cb) },
    { "/Analyze/ServiceResponseTime/Diameter",	WIRESHARK_STOCK_TIME,			"Diameter...",					NULL, NULL,	G_CALLBACK(diameter_srt_cb) },
    { "/Analyze/ServiceResponseTime/FibreChannel",	WIRESHARK_STOCK_TIME,		"Fibre Channel...",				NULL, NULL,	G_CALLBACK(fc_srt_cb) },
    { "/Analyze/ServiceResponseTime/GTP",		WIRESHARK_STOCK_TIME,			"GTP...",						NULL, NULL,	G_CALLBACK(gtp_srt_cb) },

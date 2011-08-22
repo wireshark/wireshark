@@ -186,6 +186,7 @@ void gsm_map_stat_gtk_sum_cb(GtkAction *action, gpointer user_data);
 
 void afp_srt_stat_cb(GtkAction *action, gpointer user_data);
 void camel_srt_cb(GtkAction *action, gpointer user_data);
+void gtk_dcerpcstat_cb(GtkAction *action, gpointer user_data);
 void diameter_srt_cb(GtkAction *action, gpointer user_data);
 void fc_srt_cb(GtkAction *action, gpointer user_data);
 void gtp_srt_cb(GtkAction *action, gpointer user_data);
