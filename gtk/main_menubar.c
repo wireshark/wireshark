@@ -3093,19 +3093,20 @@ main_menu_new(GtkAccelGroup ** table) {
         gtk_osxapplication_set_use_quartz_accelerators(theApp, TRUE);
 
         group = gtk_osxapplication_add_app_menu_group (theApp);
-        item = gtk_item_factory_get_item(main_menu_factory,"/Help/About Wireshark");
+        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu/AboutWireshark");
         gtk_osxapplication_add_app_menu_item(theApp, group,GTK_MENU_ITEM (item));
 
         group = gtk_osxapplication_add_app_menu_group (theApp);
-        item = gtk_item_factory_get_item(main_menu_factory,"/Edit/Preferences...");
+        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/EditMenu/Preferences");
         gtk_osxapplication_add_app_menu_item(theApp, group,GTK_MENU_ITEM (item));
 
         group = gtk_osxapplication_add_app_menu_group (theApp);
-        item = gtk_item_factory_get_item(main_menu_factory,"/Help");
+        item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu");
         gtk_osxapplication_set_help_menu(theApp,GTK_MENU_ITEM(item));
 
         /* Quit item is not needed */
-        gtk_item_factory_delete_item(main_menu_factory,"/File/Quit");
+		/* XXXX FIX ME */
+        /*gtk_item_factory_delete_item(main_menu_factory,"/File/Quit");*/
     }
 
     /* generate dock menu */
