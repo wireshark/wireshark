@@ -63,8 +63,8 @@
    See http://developer.gnome.org/gtk/2.24/GtkItemFactory.html: "As of GTK+ 2.4,
    GtkItemFactory has been deprecated in favour of GtkUIManager."
    This needs to be rewritten by the people who added this code or some other
-   volunteers. Otherwise this functionality will be lost once the UI_MANAGER
-   stuff becomes default.
+   volunteers. Otherwise this functionality will be lost once the non UI_MANAGER
+   stuff gets removed it isn't built by default any more.
  */
 #ifdef MAIN_MENU_USE_UIMANAGER
 void proto_help_menu_modify(GtkTreeSelection *selection _U_, capture_file *cf _U_) {}

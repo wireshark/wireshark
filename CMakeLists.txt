@@ -431,6 +431,9 @@ add_subdirectory( wsutil )
 
 if(BUILD_wireshark AND GTK_FOUND)
 	add_subdirectory( gtk )
+	if (ENABLE_UI_MANAGER)
+		set(MAIN_MENU_USE_UIMANAGER 1)
+	endif()
 endif()
 
 # Basedir where to install guides

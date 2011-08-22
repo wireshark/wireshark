@@ -18,6 +18,7 @@ option(AUTOGEN_pidl      "Autogenerate pidl dissectors" OFF)
 option(DISABLE_WERROR    "Do not treat Warnings as errors" OFF)
 option(ENABLE_EXTRA_GCC_CHECKS "Do additional -W checks in GCC (disables -Werror)" OFF)
 option(ENABLE_GTK3       "Use GTK3 instead of GTK2 (does not compile yet)" OFF)
+option(ENABLE_UI_MANAGER) "Build GTK UI with the new UI-Manager API" ON)
 #
 # Do not make this the default on UN*X; AirPcap support is available
 # only on Windows.  It might be nice to have it, on Windows, check
@@ -37,7 +38,7 @@ option(ENABLE_PCRE       "Build with pcre support" OFF)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_LUA        "Build with lua dissector support" ON)
-option(ENABLE_PYTHON     "Build with python dissector support" OFF)
+option(ENABLE_PYTHON     "Build with python dissector support" ON)
 option(ENABLE_SMI        "Build with smi snmp support" ON)
 option(ENABLE_GNUTLS     "Build with GNU TLS support" ON)
 option(ENABLE_GCRYPT     "Build with GNU crypto support" ON)

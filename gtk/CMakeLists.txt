@@ -221,12 +221,6 @@ if (WERROR)
 	)
 endif()
 
-if (UI_MANAGER)
-	add_definitions(
-		-DMAIN_MENU_USE_UIMANAGER=1
-	)
-endif()
-
 if (NOT ENABLE_GTK3)
 	add_definitions(
 		# We are only allowed to include gtk/gtk.h, no other files. When
