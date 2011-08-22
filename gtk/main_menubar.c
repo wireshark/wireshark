@@ -2563,7 +2563,7 @@ static const GtkActionEntry packet_list_heading_menu_popup_action_entries[] = {
   { "/Align Center",					GTK_STOCK_JUSTIFY_CENTER,			"Align Center",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_center_cb) },
   { "/Align Right",						GTK_STOCK_JUSTIFY_RIGHT,			"Align Right",				NULL,	NULL,	G_CALLBACK(packet_list_heading_align_right_cb) },
   { "/Column Preferences",				GTK_STOCK_PREFERENCES,				"Column Preferences...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_col_pref_cb) },
-  { "/Edit Column Details",				WIRESHARK_STOCK_EDIT,			"Edit Column Details...",	NULL,	NULL,	G_CALLBACK(packet_list_heading_change_col_cb) },
+  { "/Edit Column Details",				WIRESHARK_STOCK_EDIT,			"Edit Column Details...",		NULL,	NULL,	G_CALLBACK(packet_list_heading_change_col_cb) },
   { "/Resize Column",					WIRESHARK_STOCK_RESIZE_COLUMNS,		"Resize Column",			NULL,	NULL,	G_CALLBACK(packet_list_heading_resize_col_cb) },
   { "/Displayed Columns",				NULL,								"Displayed Columns",		NULL,	NULL,	NULL },
   { "/Displayed Columns/Display All",				NULL,					"Display All",				NULL,	NULL,	G_CALLBACK(packet_list_heading_activate_all_columns_cb) },
@@ -3111,7 +3111,6 @@ main_menu_new(GtkAccelGroup ** table) {
     return menubar;
 }
 
-#if 0
 static void
 menu_dissector_filter_cb(  GtkAction *action _U_,  gpointer callback_data)
 {
@@ -3143,34 +3142,78 @@ static gboolean menu_dissector_filter_spe_cb(frame_data *fd _U_, epan_dissect_t 
     /* e.g. "Update list of packets in real time" won't work correct */
     return (edt != NULL) ? filter_entry->is_filter_valid(&edt->pi) : FALSE;
 }
-#endif
 
-static void menu_dissector_filter(void) {
+static void menu_dissector_filter(capture_file *cf) {
     GList *list_entry = dissector_filter_list;
     dissector_filter_t *filter_entry;
 
-    while(list_entry != NULL) {
-        filter_entry = list_entry->data;
+	guint merge_id;
+    GtkActionGroup *action_group;
+    GtkAction *action;
+    GtkWidget *submenu_dissector_filters;
+	gchar *action_name;
+	guint i = 0;
 
-#if 0
-	register_stat_menu_item_stock(
-		REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER,	  /* Group */
-		"/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters", /* GUI path */
-		filter_entry->name,                           /* Name */
-		NULL,                                         /* stock_id */
-		filter_entry->name,                           /* label */
-		NULL,                                         /* accelerator */
-		NULL,                                         /* tooltip */
-		G_CALLBACK(menu_dissector_filter_cb),         /* callback */
-		FALSE,                                        /* enabled */
-		menu_dissector_filter_spe_cb,                 /* selected_packet_enabled */
-		NULL,                                         /* selected_tree_row_enabled */
-		filter_entry);                                /* callback_data */
-#endif
+
+	merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+
+    action_group = gtk_action_group_new ("diessector-filters-group");
+
+    submenu_dissector_filters = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ConversationFilterMenu");
+    if(!submenu_dissector_filters){
+        g_warning("add_recent_items: No submenu_dissector_filters found, path= /Menubar/AnalyzeMenu/ConversationFilterMenu");
+    }
+
+    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+    g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+                     "diessector-filters-merge-id", GUINT_TO_POINTER (merge_id));
+
+    /* no items */
+    if (!list_entry){
+
+      action = g_object_new (GTK_TYPE_ACTION,
+                 "name", "filter-list-empty",
+                 "label", "No fileters",
+                 "sensitive", FALSE,
+                 NULL);
+      gtk_action_group_add_action (action_group, action);
+      gtk_action_set_sensitive(action, FALSE);
+      g_object_unref (action);
+
+      gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+                 "/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters",
+                 "filter-list-empty",
+                 "filter-list-empty",
+                 GTK_UI_MANAGER_MENUITEM,
+                 FALSE);
+
+      return;
+    }
+
+	while(list_entry != NULL) {
+        filter_entry = list_entry->data;
+		action_name = g_strdup_printf ("filter-%u", i);
+		/*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
+		action = g_object_new (GTK_TYPE_ACTION,
+				 "name", action_name,
+				 "label", filter_entry->name,
+				 "sensitive", menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry),
+				 NULL);
+		g_signal_connect (action, "activate",
+						G_CALLBACK (menu_dissector_filter_cb), filter_entry);
+		gtk_action_group_add_action (action_group, action);
+		g_object_unref (action);
+
+		gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+				 "/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters",
+				 action_name,
+				 action_name,
+				 GTK_UI_MANAGER_MENUITEM,
+				 FALSE);
+		i++;
         list_entry = g_list_next(list_entry);
     }
 }
-
 
 static void
 menus_init(void) {
@@ -3389,7 +3432,7 @@ menus_init(void) {
 
         popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_statusbar_profiles_menu);
 
-        menu_dissector_filter();
+        menu_dissector_filter(&cfile);
 
         /* Initialize enabled/disabled state of menu items */
         set_menus_for_capture_file(NULL);
@@ -3524,7 +3567,6 @@ set_menu_object_data (const gchar *path, const gchar *key, gpointer data) {
  * of the current path.
  * They are only stored inside the labels of the submenu (no separate list). */
 
-#define MENU_RECENT_FILES_PATH_OLD "/File/Open Recent"
 #define MENU_RECENT_FILES_PATH "/Menubar/FileMenu/OpenRecent"
 #define MENU_RECENT_FILES_KEY "Recent File Name"
 
@@ -4473,6 +4515,8 @@ packet_is_ssl(epan_dissect_t* edt)
 void
 set_menus_for_selected_packet(capture_file *cf)
 {
+	GList *list_entry = dissector_filter_list;
+	guint i = 0;
     /* Making the menu context-sensitive allows for easier selection of the
        desired item and has the added benefit, with large captures, of
        avoiding needless looping through huge lists for marked, ignored,
@@ -4618,6 +4662,19 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/TCPStreamGraphMenu",
                          tcp_graph_selected_packet_enabled(cf->current_frame,cf->edt, NULL));
+
+	while(list_entry != NULL) {
+		dissector_filter_t *filter_entry;
+		gchar *path;
+
+		filter_entry = list_entry->data;
+		path = g_strdup_printf("/Menubar/AnalyzeMenu/ConversationFilterMenu/filter-%u", i);
+
+		set_menu_sensitivity(ui_manager_main_menubar, path,
+			menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry));
+		i++;
+        list_entry = g_list_next(list_entry);
+	}
 }
 
 
