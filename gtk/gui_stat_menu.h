@@ -62,14 +62,6 @@ extern "C" {
  * @param callback_data data for callback function
  */
 #ifdef MAIN_MENU_USE_UIMANAGER
-void
-register_stat_menu_item(
-    const char *name _U_,
-    register_stat_group_t group _U_,
-    gpointer callback _U_,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data) _U_,
-    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data) _U_,
-    gpointer callback_data _U_);
 #else
 void
 register_stat_menu_item(
