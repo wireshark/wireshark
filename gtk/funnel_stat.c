@@ -596,11 +596,13 @@ typedef struct _menu_cb_t {
     gboolean retap;
 } menu_cb_t;
 
+#ifndef MAIN_MENU_USE_UIMANAGER
 static void our_menu_callback(void* unused _U_, gpointer data) {
     menu_cb_t* mcb = data;
     mcb->callback(mcb->callback_data);
     if (mcb->retap) cf_retap_packets(&cfile);
 }
+#endif
 
 static void register_menu_cb(const char *name,
                              register_stat_group_t group _U_,
@@ -614,7 +616,7 @@ static void register_menu_cb(const char *name,
     mcb->retap = retap;
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-	g_warning("funnel_stat.c This functionality is broken, menu item %s will not be available",name);
+    g_warning("funnel_stat.c This functionality is broken, menu item %s will not be available", name);
 #else
     register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
 #endif
