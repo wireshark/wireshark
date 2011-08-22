@@ -603,7 +603,7 @@ static void our_menu_callback(void* unused _U_, gpointer data) {
 }
 
 static void register_menu_cb(const char *name,
-                             register_stat_group_t group,
+                             register_stat_group_t group _U_,
                              void (*callback)(gpointer),
                              gpointer callback_data,
                              gboolean retap) {
