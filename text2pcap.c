@@ -204,6 +204,9 @@ static guint32 ts_usec = 0;
 static char *ts_fmt = NULL;
 static struct tm timecode_default;
 
+static char new_date_fmt = 0;
+static char* pkt_lnstart;
+
 /* Input file */
 static const char *input_filename;
 static FILE *input_file = NULL;
@@ -912,6 +915,12 @@ void
 parse_token (token_t token, char *str)
 {
     unsigned long num;
+    int by_eol;
+    int rollback = 0;
+    int line_size;
+    int i;
+    char* s2;
+    char tmp_str[3];
 
     /*
      * This is implemented as a simple state machine of five states.
@@ -926,6 +935,14 @@ parse_token (token_t token, char *str)
 
         fprintf(stderr, "(%s, %s \"%s\") -> (",
                 state_str[state], token_str[token], str ? str : "");
+    }
+    
+    /* First token must be treated as a timestamp if time strip format is
+       not empty */
+    if (state == INIT || state == START_OF_LINE) {
+        if (ts_fmt != NULL && new_date_fmt) {
+            token = T_TEXT;
+        }
     }
 
     switch(state) {
@@ -945,7 +962,14 @@ parse_token (token_t token, char *str)
                 /* New packet starts here */
                 start_new_packet();
                 state = READ_OFFSET;
+                pkt_lnstart = packet_buf + num;
             }
+            break;
+        case T_EOL:
+            /* Some describing text may be parsed as offset, but the invalid
+               offset will be checked in the state of START_OF_LINE, so
+               we add this transition to gain flexibility */
+            state = START_OF_LINE;
             break;
         default:
             break;
@@ -991,6 +1015,10 @@ parse_token (token_t token, char *str)
                 }
             } else
                 state = READ_OFFSET;
+                pkt_lnstart = packet_buf + num;
+            break;
+        case T_EOL:
+            state = START_OF_LINE;
             break;
         default:
             break;
@@ -1028,10 +1056,58 @@ parse_token (token_t token, char *str)
         case T_TEXT:
         case T_DIRECTIVE:
         case T_OFFSET:
-            state = READ_TEXT;
-            break;
         case T_EOL:
-            state = START_OF_LINE;
+            by_eol = 0;
+            state = READ_TEXT;
+            if (token == T_EOL) {
+                by_eol = 1;
+                state = START_OF_LINE;
+            }
+            /* Here a line of pkt bytes reading is finished
+               compare the ascii and hex to avoid such situation:
+               "61 62 20 ab ", when ab is ascii dump then it should 
+               not be treat as byte */
+            rollback = 0;
+            /* s2 is the ASCII string, s1 is the HEX string, e.g, when 
+               s2 = "ab ", s1 = "616220" 
+               we should find out the largest tail of s1 matches the head
+               of s2, it means the matched part in tail is the ASCII dump
+               of the head byte. These matched should be rollback */
+            line_size = curr_offset-((int)pkt_lnstart-(int)packet_buf);
+            s2 = (char*)malloc((line_size+1)/4+1);
+            /* gather the possible pattern */
+            for(i=0; i<(line_size+1)/4; i++) {
+                tmp_str[0] = pkt_lnstart[i*3];
+                tmp_str[1] = pkt_lnstart[i*3+1];
+                tmp_str[2] = '\0';
+                /* it is a valid convertable string */
+                if (!isxdigit(tmp_str[0]) || !isxdigit(tmp_str[0])) {
+                    break;
+                }
+                s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
+                rollback++;
+                /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
+                if (!(pkt_lnstart[i*3+2] == ' ')) {
+                    if (by_eol != 1)
+                        rollback--;
+                    break;
+                }
+            }
+            /* If packet line start contains possible byte pattern, the line end
+               should contain the matched pattern if the user open the -a flag.
+               The packet will be possible invalid if the byte pattern cannot find 
+               a matched one in the line of packet buffer.*/
+            if (rollback > 0) {
+                if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
+                    unwrite_bytes(rollback);
+                }
+                /* Not matched. This line contains invalid packet bytes, so
+                   discard the whole line */
+                else {
+                    unwrite_bytes(line_size);
+                }
+            }
+            free(s2);
             break;
         default:
             break;
@@ -1153,10 +1229,11 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "dhqe:i:l:m:o:u:s:S:t:T:")) != -1) {
+    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:o:u:s:S:t:T:")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
+        case 'D': new_date_fmt = 1; break;
         case 'd': if (!quiet) debug++; break;
         case 'q': quiet = TRUE; debug = FALSE; break;
         case 'l': pcap_link_type = strtol(optarg, NULL, 0); break;
