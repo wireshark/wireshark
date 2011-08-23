@@ -2937,7 +2937,7 @@ static void cross_xor (struct graph *g, int x, int y)
 		/* Draw horisontal line */
 		cr = gdk_cairo_create (gtk_widget_get_window(g->drawing_area));
 		cairo_set_operator (cr, CAIRO_OPERATOR_XOR);
-		gdk_cairo_set_source_color (cr, &GRAY_15);
+		gdk_cairo_set_source_color (cr, &color_gray15);
 		cairo_set_line_width (cr, 1.0);
 		cairo_move_to(cr,  g->wp.x, y);
 		cairo_line_to(cr,  g->wp.x + g->wp.width, y);
