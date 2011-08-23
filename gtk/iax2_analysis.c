@@ -134,6 +134,9 @@ typedef struct _dialog_graph_graph_t {
 	gboolean display;
 	GtkWidget *display_button;
 	int hf_index;
+#if GTK_CHECK_VERSION(3,0,0)
+	GdkRGBA rgba_color;
+#endif
 	GdkColor color;
 	gchar title[100];
 } dialog_graph_graph_t;
@@ -1403,6 +1406,21 @@ static void draw_area_destroy_cb(GtkWidget *widget _U_, gpointer data)
 }
 
 /****************************************************************************/
+#if GTK_CHECK_VERSION(3,0,0)
+static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+	user_data_t *user_data = data;
+	GtkAllocation allocation;
+
+	gtk_widget_get_allocation (widget, &allocation);
+
+	cairo_set_source_surface (cr, user_data->dlg.dialog_graph.surface, 0, 0); 
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
+	cairo_fill (cr);
+
+	return FALSE;
+}
+#else
 static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
 	user_data_t *user_data = data;
@@ -1420,7 +1438,7 @@ static gboolean draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event,
 
 	return FALSE;
 }
-
+#endif
 /****************************************************************************/
 static gboolean draw_area_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
@@ -1497,7 +1515,11 @@ static void create_draw_area(user_data_t* user_data, GtkWidget *box)
 	gtk_widget_set_size_request(user_data->dlg.dialog_graph.draw_area, user_data->dlg.dialog_graph.surface_width, user_data->dlg.dialog_graph.surface_height);
 
 	/* signals needed to handle backing pixmap */
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(user_data->dlg.dialog_graph.draw_area, "draw", G_CALLBACK(draw_area_draw), user_data);
+#else
 	g_signal_connect(user_data->dlg.dialog_graph.draw_area, "expose_event", G_CALLBACK(draw_area_expose_event), user_data);
+#endif
 	g_signal_connect(user_data->dlg.dialog_graph.draw_area, "configure_event", G_CALLBACK(draw_area_configure_event), user_data);
 
 	gtk_widget_show(user_data->dlg.dialog_graph.draw_area);
@@ -1563,7 +1585,11 @@ static void create_filter_box(dialog_graph_graph_t *dgg, GtkWidget *box, int num
 	gtk_widget_show(label);
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 #if GTK_CHECK_VERSION(3,0,0)
-	/* Fix me: Add the GTK 3.0 equivalents */
+	gtk_widget_override_color(label, GTK_STATE_NORMAL, &dgg->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_ACTIVE, &dgg->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &dgg->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_SELECTED, &dgg->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_INSENSITIVE, &dgg->rgba_color);
 #else
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &dgg->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &dgg->color);
@@ -3479,6 +3505,15 @@ void iax2_analysis(
 		{0,     0x0000, 0xffff, 0x0000},
 		{0,     0x0000, 0x0000, 0xffff}
 	};
+#if GTK_CHECK_VERSION(3,0,0)
+	static GdkRGBA rgba_col[MAX_GRAPHS] = {
+		{0.0, 0.0,   0.0,   1.0}, /* Black */
+		{1.0, 0.0,   0.1,   1.0}, /* Red */
+		{0.0, 1.0,   0.0,   1.0}, /* Green */
+		{0.0, 0.0,   1.0,   1.0}, /* Blue */
+	};
+#endif
+
 	char *tempname;
 
 	/* init */
@@ -3536,6 +3571,12 @@ void iax2_analysis(
 		user_data->dlg.dialog_graph.graph[i].color.red=col[i].red;
 		user_data->dlg.dialog_graph.graph[i].color.green=col[i].green;
 		user_data->dlg.dialog_graph.graph[i].color.blue=col[i].blue;
+#if GTK_CHECK_VERSION(3,0,0)
+		user_data->dlg.dialog_graph.graph[i].rgba_color.red=rgba_col[i].red;
+		user_data->dlg.dialog_graph.graph[i].rgba_color.green=rgba_col[i].green;
+		user_data->dlg.dialog_graph.graph[i].rgba_color.blue=rgba_col[i].blue;
+		user_data->dlg.dialog_graph.graph[i].rgba_color.alpha=rgba_col[i].alpha;
+#endif
 		user_data->dlg.dialog_graph.graph[i].display=TRUE;
 		user_data->dlg.dialog_graph.graph[i].display_button=NULL;
 		user_data->dlg.dialog_graph.graph[i].ud=user_data;

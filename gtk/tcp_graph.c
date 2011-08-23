@@ -58,7 +58,6 @@
 #include "gtk/gui_utils.h"
 #include "gtk/dlg_utils.h"
 #include "gtk/gui_stat_menu.h"
-#include "gtk/color_utils.h"
 
 #include "gtk/old-gtk-compat.h"
 
@@ -2928,8 +2927,8 @@ static int ellipse_detect_collision (struct element *e, int x, int y)
 
 static void cross_xor (struct graph *g, int x, int y)
 {
-//#if GTK_CHECK_VERSION(3,0,0)
-	//GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
+#if GTK_CHECK_VERSION(3,0,0)
+	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
 	cairo_t *cr;
 
 	/* XXX Fix me: lines do not disapere */
@@ -2955,16 +2954,16 @@ static void cross_xor (struct graph *g, int x, int y)
 		cairo_destroy(cr);
 	}
 
-//#else
-//
-//	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
-//				y >= g->wp.y && y < g->wp.y+g->wp.height) {
-//		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
-//						y, g->wp.x + g->wp.width, y);
-//		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
-//						g->wp.y, x, g->wp.y + g->wp.height);
-//	}
-//#endif
+#else
+
+	if (x > g->wp.x && x < g->wp.x+g->wp.width &&
+				y >= g->wp.y && y < g->wp.y+g->wp.height) {
+		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, g->wp.x,
+						y, g->wp.x + g->wp.width, y);
+		gdk_draw_line (gtk_widget_get_window(g->drawing_area), xor_gc, x,
+						g->wp.y, x, g->wp.y + g->wp.height);
+	}
+#endif
 }
 
 static void cross_draw (struct graph *g, int x, int y)
