@@ -23,8 +23,8 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef _STAT_H_
-#define _STAT_H_
+#ifndef __STAT_CMD_ARGS_H__
+#define __STAT_CMD_ARGS_H__
 
 extern void register_stat_cmd_arg(const char *cmd,
     void (*func)(const char *arg,void* userdata), void* userdata);
