@@ -84,12 +84,12 @@ static GtkWidget *welcome_hb = NULL;
 static GtkWidget *header_lb = NULL;
 /* Foreground colors are set using Pango markup */
 #if GTK_CHECK_VERSION(3,0,0)
-static GdkRGBA rgba_welcome_bg = {0xe6e6/0xffff, 0xe6e6/0xffff, 0xe6e6/0xffff, 1.0 };
-static GdkRGBA rgba_header_bar_bg = { 0x1818/0xffff, 0x5c5c/0xffff, 0xcaca/0xffff, 1.0 };
-static GdkRGBA rgba_topic_header_bg = {  0x0101/0xffff, 0x3939/0xffff, 0xbebe/0xffff, 1.0 };
+static GdkRGBA rgba_welcome_bg = {0.901, 0.901, 0.901, 1.0 };
+static GdkRGBA rgba_header_bar_bg = { 0.094, 0.360, 0.792, 1.0 };
+static GdkRGBA rgba_topic_header_bg = {  0.004, 0.224, 0.745, 1.0 };
 static GdkRGBA rgba_topic_content_bg = { 1, 1, 1, 1.0 };
 static GdkRGBA rgba_topic_item_idle_bg;
-static GdkRGBA rgba_topic_item_entered_bg =  { 0xd3d30/0xffff, 0xd8d8/0xffff, 0xdada/0xffff, 1.0 };
+static GdkRGBA rgba_topic_item_entered_bg =  { 0.827, 0.847, 0.854, 1.0 };
 #else
 static GdkColor welcome_bg = { 0, 0xe6e6, 0xe6e6, 0xe6e6 };
 static GdkColor header_bar_bg = { 0, 0x1818, 0x5c5c, 0xcaca };
