@@ -71,7 +71,7 @@ static guint32 yscale_max[MAX_YSCALE] = {LOGARITHMIC_YSCALE, AUTO_MAX_YSCALE, 10
 
 #define NO_FILTER_ORDER 0
 #define MAX_MOVING_AVERAGE_ORDER 10
-static guint32 moving_average_orders[MAX_MOVING_AVERAGE_ORDER] = {NO_FILTER_ORDER, 2, 5, 10, 20, 50, 100, 250, 500, 1000};
+static guint32 moving_average_orders[MAX_MOVING_AVERAGE_ORDER] = {NO_FILTER_ORDER, 4, 8, 16, 32, 64, 128, 256, 512, 1024};
 #define NO_FILTER 0
 #define MOVING_AVERAGE_FILTER 1
 
@@ -1093,17 +1093,51 @@ io_stat_draw(io_stat_t *io)
 		guint64 val;
 		guint32 interval, x_pos, y_pos, prev_x_pos, prev_y_pos;
 		/* Moving average variables */
-		guint32 mavg_in_average_count;
-		guint64 mavg_cumulated;
-		guint32 mavg_to_remove;
+		guint32 mavg_in_average_count = 0, mavg_left = 0, mavg_right = 0;
+		guint64 mavg_cumulated = 0;
+		guint32 mavg_to_remove = 0, mavg_to_add = 0;
 
 		if(!io->graphs[i].display){
 			continue;
 		}
 
+		if(io->filter_type == MOVING_AVERAGE_FILTER){
+			/* "Warm-up phase" - calculate average on some data not displayed;
+			   just to make sure average on leftmost and rightmost displayed 
+			   values is as reliable as possible 
+			*/
+			guint32 warmup_interval;
+
+			if(first_interval/io->interval > io->filter_order/2){
+				warmup_interval = first_interval/io->interval - io->filter_order/2;
+				warmup_interval*= io->interval;
+			} else {
+				warmup_interval = 0;
+			}
+			mavg_to_remove = warmup_interval;
+			for(;warmup_interval<first_interval;warmup_interval+=io->interval){
+				mavg_cumulated += get_it_value(io, i, warmup_interval/io->interval);
+				mavg_in_average_count++;
+				mavg_left++;
+			}
+			mavg_cumulated += get_it_value(io, i, warmup_interval/io->interval);
+			mavg_in_average_count++;
+			for(warmup_interval+=io->interval;warmup_interval<(first_interval+(io->filter_order/2)*io->interval)&&(warmup_interval<=(io->num_items*io->interval));warmup_interval+=io->interval){
+				mavg_cumulated += get_it_value(io, i, warmup_interval/io->interval);
+				mavg_in_average_count++;
+				mavg_right++;
+			}
+			mavg_to_add = warmup_interval;
+		}
+
 		/* initialize prev x/y to the value of the first interval */
 		prev_x_pos=draw_width-1-io->pixels_per_tick*((last_interval-first_interval)/io->interval)+io->left_x_border;
 		val=get_it_value(io, i, first_interval/io->interval);
+		if(io->filter_type == MOVING_AVERAGE_FILTER){
+			if(mavg_in_average_count>0){
+				val = mavg_cumulated/mavg_in_average_count;
+			}
+		}
 		if(val>max_y){
 			prev_y_pos=0;
 		} else if(io->max_y_units==LOGARITHMIC_YSCALE){
@@ -1115,10 +1149,6 @@ io_stat_draw(io_stat_t *io)
 		} else {
 			prev_y_pos=(guint32)(draw_height-1-(val*draw_height)/max_y+top_y_border);
 		}
-		/* Moving average initialization */
-		mavg_to_remove = first_interval;
-		mavg_in_average_count = 0;
-		mavg_cumulated = 0;
 
 		for(interval=first_interval;interval<last_interval;interval+=io->interval){
 			x_pos=draw_width-1-io->pixels_per_tick*((last_interval-interval)/io->interval)+io->left_x_border;
@@ -1126,12 +1156,21 @@ io_stat_draw(io_stat_t *io)
 			val=get_it_value(io, i, interval/io->interval);
 			/* Moving average calculation */
 			if(io->filter_type == MOVING_AVERAGE_FILTER){
-				mavg_cumulated += val;
-				mavg_in_average_count++;
-				if(mavg_in_average_count > io->filter_order){
-					mavg_in_average_count--;
-					mavg_cumulated -= get_it_value(io, i, mavg_to_remove/io->interval);
-					mavg_to_remove += io->interval;
+				if(interval!=first_interval){
+					mavg_left++;
+					if(mavg_left > io->filter_order/2){
+						mavg_left--;
+						mavg_in_average_count--;
+						mavg_cumulated -= get_it_value(io, i, mavg_to_remove/io->interval);
+						mavg_to_remove += io->interval;
+					}
+					if(mavg_to_add<=io->num_items*io->interval){
+						mavg_in_average_count++;
+						mavg_cumulated += get_it_value(io, i, mavg_to_add/io->interval);
+						mavg_to_add += io->interval;
+					}else{
+						mavg_right--;
+					}
 				}
 				val = mavg_cumulated / mavg_in_average_count;
 			}
@@ -1938,7 +1977,7 @@ create_ctrl_area(io_stat_t *io, GtkWidget *box)
 
 	create_ctrl_menu(io, vbox, "Unit:", create_frames_or_bytes_menu_items);
 	create_ctrl_menu(io, vbox, "Scale:", create_yscale_max_menu_items);
-	create_ctrl_menu(io, vbox, "Filter:", create_filter_menu_items);
+	create_ctrl_menu(io, vbox, "Smooth:", create_filter_menu_items);
 
 	return;
 }
