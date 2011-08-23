@@ -2473,6 +2473,9 @@ follow_stream_cb(GtkWidget *follow_stream_bt, gpointer data _U_)
     gchar *filter;
     conv_t *conv;
 
+    if (!ct)
+        return;
+
     sel = gtk_tree_view_get_selection (GTK_TREE_VIEW(ct->table));
     if (!gtk_tree_selection_get_selected(sel, &model, &iter)) {
         simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "No conversation selected");
