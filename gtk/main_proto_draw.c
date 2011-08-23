@@ -694,6 +694,8 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
 	GtkStyleContext *context;
 	GdkRGBA		*rgba_bg_color;
 	GdkRGBA		*rgba_fg_color;
+	GdkColor	bg_color;
+	GdkColor	fg_color;
 #else
 	GtkStyle    *style;
 #endif
@@ -720,12 +722,20 @@ add_byte_tab(GtkWidget *byte_nb, const char *name, tvbuff_t *tvb,
     gtk_style_context_get (context, GTK_STATE_SELECTED,
                     "color", &rgba_fg_color,
                     NULL);
+	/* Hack */
+	bg_color.red   = rgba_bg_color->red * 65535;
+	bg_color.green = rgba_bg_color->green * 65535;
+	bg_color.blue  = rgba_bg_color->blue * 65535;
+
+	fg_color.red   = rgba_fg_color->red * 65535;
+	fg_color.green = rgba_fg_color->green * 65535;
+	fg_color.blue  = rgba_fg_color->blue * 65535;
 
     gtk_text_buffer_create_tag(buf, "plain", "font-desc", user_font_get_regular(), NULL);
     gtk_text_buffer_create_tag(buf, "reverse",
                                "font-desc", user_font_get_regular(),
-                               "foreground-rgba", &rgba_fg_color,
-                               "background-rgba", &rgba_bg_color,
+                               "foreground-gdk", &fg_color,
+                               "background-gdk", &bg_color,
                                NULL);
 
 #else
