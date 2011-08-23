@@ -1592,7 +1592,7 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 }
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean
-draw_area_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
 	io_stat_t *io = user_data;
 	GtkAllocation allocation;
@@ -1635,7 +1635,7 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 
 	/* signals needed to handle backing pixmap */
 #if GTK_CHECK_VERSION(3,0,0)
-	g_signal_connect(io->draw_area, "draw", G_CALLBACK(draw_area_draw_event), io);
+	g_signal_connect(io->draw_area, "draw", G_CALLBACK(draw_area_draw), io);
 #else
 	g_signal_connect(io->draw_area, "expose-event", G_CALLBACK(draw_area_expose_event), io);
 #endif
@@ -2196,7 +2196,6 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 	gtk_box_pack_start(GTK_BOX(hbox), label, FALSE, FALSE, 0);
 
 #if GTK_CHECK_VERSION(3,0,0)
-	/* Fix me: Add the GTK 3.0 equivalents */
 	gtk_widget_override_color(label, GTK_STATE_NORMAL, &gio->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_ACTIVE, &gio->rgba_color);
 	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &gio->rgba_color);
