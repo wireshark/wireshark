@@ -108,9 +108,6 @@
 /* Define to use libpcap library */
 #cmakedefine HAVE_LIBPCAP 1
 
-/* Define to use libpcre library */
-#cmakedefine HAVE_LIBPCRE 1
-
 /* Define to use dbus-glib library */
 #cmakedefine HAVE_LIBDBUS 1
 

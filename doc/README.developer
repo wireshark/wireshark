@@ -746,17 +746,7 @@ protocol, followed by ".h"; any dissector file that calls your dissector
 should be changed to include that file.
 
 You may not need to include all the headers listed in the skeleton
-below, and you may need to include additional headers.  For example, the
-code inside
-
-	#ifdef HAVE_LIBPCRE
-
-		...
-
-	#endif
-
-is needed only if you are using a function from libpcre, e.g. the
-"pcre_compile()" function.
+below, and you may need to include additional headers.
 
 The stdio.h, stdlib.h and string.h header files should be included only as needed.
 

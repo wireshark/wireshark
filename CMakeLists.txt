@@ -271,11 +271,6 @@ if(ENABLE_GNUTLS)
 	set(PACKAGELIST ${PACKAGELIST} GNUTLS)
 endif()
 
-# Regular expressions lib
-if(ENABLE_PCRE)
-	set(PACKAGELIST ${PACKAGELIST} PCRE)
-endif()
-
 # Kerberos
 if(ENABLE_KERBEROS)
 	set(PACKAGELIST ${PACKAGELIST} KERBEROS)
@@ -650,7 +645,6 @@ set(LIBEPAN_LIBS
 #		@SSL_LIBS@	# -lcrypto
 		epan
 #		$(plugin_ldadd)	# in case of static
-		${PCRE_LIBRARIES}
 		${PCAP_LIBRARIES}
 		${CARES_LIBRARIES}
 		${ADNS_LIBRARIES}

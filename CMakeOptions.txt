@@ -34,7 +34,6 @@ option(ENABLE_PCAP_NG_DEFAULT	"Enable pcap-ng as default file format" ON)
 option(ENABLE_THREADS    "Build with threads support" ON)
 
 option(ENABLE_ADNS       "Build with adns support" ON)
-option(ENABLE_PCRE       "Build with pcre support" OFF)
 option(ENABLE_PORTAUDIO  "Build with portaudio support" ON)
 option(ENABLE_ZLIB       "Build with zlib compression support" ON)
 option(ENABLE_LUA        "Build with lua dissector support" ON)

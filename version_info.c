@@ -37,10 +37,6 @@
 #include <zlib.h>	/* to get the libz version number */
 #endif
 
-#ifdef HAVE_LIBPCRE
-#include <pcre.h>	/* to get the libpcre version number */
-#endif /* HAVE_LIBPCRE */
-
 #ifdef HAVE_SYS_UTSNAME_H
 #include <sys/utsname.h>
 #endif

@@ -329,7 +329,6 @@ wireshark_LDADD = \
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@ 			\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
 	@PCAP_LIBS@			\
 	@GTK_LIBS@ -lm			\
 	@C_ARES_LIBS@			\
@@ -357,7 +356,6 @@ tshark_LDADD = \
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
@@ -385,7 +383,6 @@ rawshark_LDADD = \
 	wsutil/libwsutil.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
@@ -452,7 +449,6 @@ dftest_LDADD = \
 	epan/libwireshark.la		\
 	@SSL_LIBS@			\
 	$(plugin_ldadd)			\
-	@PCRE_LIBS@			\
 	@GLIB_LIBS@ -lm			\
 	@PCAP_LIBS@			\
 	@SOCKET_LIBS@			\
@@ -846,7 +842,6 @@ EXTRA_DIST = \
 	cmake/modules/FindLYNX.cmake		\
 	cmake/modules/FindM.cmake		\
 	cmake/modules/FindPCAP.cmake		\
-	cmake/modules/FindPCRE.cmake		\
 	cmake/modules/FindPOD.cmake		\
 	cmake/modules/FindPORTAUDIO.cmake	\
 	cmake/modules/FindPYTHON.cmake		\

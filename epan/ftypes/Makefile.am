@@ -40,7 +40,7 @@ INCLUDES = -I$(srcdir)/../.. -I$(srcdir)/..
 
 libftypes_la_SOURCES = $(NONGENERATED_C_FILES) $(NONGENERATED_HEADER_FILES)
 
-libftypes_la_LIBADD = @GLIB_LIBS@ @PCRE_LIBS@
+libftypes_la_LIBADD = @GLIB_LIBS@
 
 EXTRA_DIST = \
 	Makefile.common		\

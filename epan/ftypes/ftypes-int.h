@@ -26,19 +26,6 @@
 #include <epan/packet.h>
 #include "ftypes.h"
 
-#ifdef HAVE_LIBPCRE
-#include <pcre.h>
-#endif /* HAVE_LIBPCRE */
-
-
-#ifdef HAVE_LIBPCRE
-struct _pcre_tuple_t {
-    char *string;
-    pcre *re;
-    pcre_extra *ex;
-    char *error;
-};
-#endif /* HAVE_LIBPCRE */
 
 void
 ftype_register(enum ftenum ftype, ftype_t *ft);

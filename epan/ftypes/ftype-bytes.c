@@ -32,9 +32,6 @@
 #include <epan/strutil.h>
 #include <epan/oids.h>
 
-#ifdef HAVE_LIBPCRE
-# include <pcre.h>
-#endif
 #define CMP_MATCHES cmp_matches
 
 static void
@@ -467,42 +464,6 @@ cmp_contains(fvalue_t *fv_a, fvalue_t *fv_b)
 	}
 }
 
-#ifdef HAVE_LIBPCRE
-static gboolean
-cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
-{
-	GByteArray *a = fv_a->value.bytes;
-	pcre_tuple_t *pcre_t = fv_b->value.re;
-	int options = 0;
-	int rc;
-
-	/* fv_b is always a FT_PCRE, otherwise the dfilter semcheck() would have
-	 * warned us. For the same reason (and because we're using g_malloc()),
-	 * fv_b->value.re is not NULL.
-	 */
-	if (strcmp(fv_b->ftype->name, "FT_PCRE") != 0) {
-		return FALSE;
-	}
-	if (! pcre_t) {
-		return FALSE;
-	}
-	rc = pcre_exec(
-		pcre_t->re,	/* Compiled PCRE */
-		pcre_t->ex,	/* PCRE extra from pcre_study() */
-		a->data,		/* The data to check for the pattern... */
-		(int)a->len,	/* ... and its length */
-		0,			/* Start offset within data */
-		options,	/* PCRE options */
-		NULL,		/* We are not interested in the matched string */
-		0			/* of the pattern; only in success or failure. */
-		);
-	/* NOTE - DO NOT g_free(data) */
-	if (rc == 0) {
-		return TRUE;
-	}
-	return FALSE;
-}
-#else /* GRegex */
 static gboolean
 cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 {
@@ -530,7 +491,6 @@ cmp_matches(fvalue_t *fv_a, fvalue_t *fv_b)
 		);
 	/* NOTE - DO NOT g_free(data) */
 }
-#endif /* HAVE_LIBPCRE / GRegex */
 
 void
 ftype_register_bytes(void)

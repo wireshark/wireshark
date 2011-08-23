@@ -90,10 +90,6 @@ enum ftrepr {
 
 typedef enum ftrepr ftrepr_t;
 
-#ifdef HAVE_LIBPCRE
-typedef struct _pcre_tuple_t pcre_tuple_t;
-#endif /* HAVE_LIBPCRE */
-
 /* Initialize the ftypes subsytem. Called once. */
 void
 ftypes_initialize(void);
@@ -168,11 +164,7 @@ typedef struct _fvalue_t {
 		e_guid_t	guid;
 		nstime_t	time;
 		tvbuff_t	*tvb;
-#ifdef HAVE_LIBPCRE
-		pcre_tuple_t	*re;
-#else /* Try falling back to GRegex. */
 		GRegex	        *re;
-#endif /* HAVE_LIBPCRE */
 	} value;
 
 	/* The following is provided for private use

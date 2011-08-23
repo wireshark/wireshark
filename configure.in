@@ -663,7 +663,7 @@ if test "x$ac_cv_enable_usr_local" = "xyes" ; then
 		#
 		# Arrange that we search for header files in the source directory
 		# and in its "wiretap" subdirectory, as well as in "/usr/local/include",
-		# as various packages we use ("libpcap", "zlib", "adns", "pcre")
+		# as various packages we use ("libpcap", "zlib", "adns")
 		# may have been installed under "/usr/local/include".
 		#
 		CFLAGS="$CFLAGS -I/usr/local/include"
@@ -1316,38 +1316,6 @@ else
 		fi
 	fi
 fi
-
-dnl pcre check
-AC_MSG_CHECKING(whether to use libpcre for regular expressions in dfilters)
-
-AC_ARG_WITH(pcre,
-  AC_HELP_STRING( [--with-pcre@<:@=DIR@:>@],
-                  [use libpcre (located in directory DIR, if supplied) to use in dfilter regular expressions. Not needed if you have GLib 2.14 or later @<:@default=no@:>@]),
-[
-	if test $withval = no
-	then
-		want_pcre=no
-	elif test $withval = yes
-	then
-		want_pcre=yes
-	else
-		want_pcre=yes
-		pcre_dir=$withval
-	fi
-],[
-	want_pcre=no
-	pcre_dir=
-])
-if test "x$want_pcre" = "xno" ; then
-        AC_MSG_RESULT(no)
-else
-        AC_MSG_RESULT(yes)
-        AC_WIRESHARK_LIBPCRE_CHECK
-	if test "x$want_pcre" = "xno" ; then
-		AC_MSG_RESULT(libpcre not found)
-	fi
-fi
-
 
 dnl Lua check
 AC_MSG_CHECKING(whether to use liblua for the Lua scripting plugin)
@@ -2096,12 +2064,6 @@ else
 	zlib_message="yes"
 fi
 
-if test "x$want_pcre" = "xno" ; then
-	pcre_message="no (using GRegex instead)"
-else
-	pcre_message="yes"
-fi
-
 if test "x$want_lua" = "xyes" ; then
 	lua_message="yes"
 else
@@ -2186,7 +2148,6 @@ echo "                        Use threads : $enable_threads"
 echo "             Build profile binaries : $enable_profile_build"
 echo "                   Use pcap library : $want_pcap"
 echo "                   Use zlib library : $zlib_message"
-echo "                   Use pcre library : $pcre_message"
 echo "               Use kerberos library : $krb5_message"
 echo "                 Use c-ares library : $c_ares_message"
 echo "               Use GNU ADNS library : $adns_message"

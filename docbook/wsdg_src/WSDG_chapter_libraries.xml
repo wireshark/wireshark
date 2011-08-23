@@ -305,38 +305,6 @@ utilities."
   </section>
 
 
-  <section id="ChLibsPCRE">
-	<title>PCRE (optional)</title>
-	<para>
-	"Perl compatible regular expressions". PCRE provides the pattern matching
-	functionality required for the "matches" display filter operator.
-	</para>
-	<para>
-	You probably don't need this. GRegex, part of GLib 2.14 and later is a
-	wrapper around PCRE. Wireshark's configure script will use it instead of
-	PCRE if it is present.
-	</para>
-
-	<section id="ChLibsUnixPCRE">
-	<title>Unix</title>
-	<para>
-	If this library isn't already installed or available as a
-	package for your platform, you can get it at:
-	<ulink url="http://www.pcre.org/"/>.
-	</para>
-	</section>
-
-	<section id="ChLibsWin32PCRE">
-	<title>Win32 MSVC</title>
-	<para>
-	You can get the latest version at:
-	<ulink url="http://gnuwin32.sourceforge.net/packages/pcre.htm"/>
-	</para>
-	</section>
-
-  </section>
-
-
   <section id="ChLibsZlib">
 	<title>zlib (optional)</title>
 	<para>

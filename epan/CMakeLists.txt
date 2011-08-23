@@ -1288,7 +1288,6 @@ set(epan_LIBS
 	wiretap
 	wsutil
 #	@SSL_LIBS@
-	${PCRE_LIBRARIES}
 	${GLIB2_LIBRARIES}
 	${PCAP_LIBRARIES}
 #	@SOCKET_LIBS@

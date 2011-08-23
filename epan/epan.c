@@ -256,23 +256,6 @@ epan_dissect_fill_in_columns(epan_dissect_t *edt, const gboolean fill_col_exprs,
 void
 epan_get_compiled_version_info(GString *str)
 {
-        /* PCRE */
-	g_string_append(str, ", ");
-#ifdef HAVE_LIBPCRE
-	g_string_append(str, "with libpcre ");
-#ifdef PCRE_MAJOR
-#ifdef PCRE_MINOR
-	g_string_append_printf(str, "%u.%u", PCRE_MAJOR, PCRE_MINOR);
-#else			/* PCRE_MINOR */
-	g_string_append_printf(str, "%u", PCRE_MAJOR);
-#endif			/* PCRE_MINOR */
-#else		/* PCRE_MAJOR */
-	g_string_append(str, "(version unknown)");
-#endif		/* PCRE_MAJOR */
-#else	/* HAVE_LIBPCRE */
-	g_string_append(str, "without libpcre");
-#endif	/* HAVE_LIBPCRE */
-
         /* SNMP */
 	g_string_append(str, ", ");
 #ifdef HAVE_LIBSMI
