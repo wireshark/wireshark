@@ -153,6 +153,9 @@ typedef struct _io_stat_graph_t {
 	int hf_index;
 	GtkWidget *calc_field;
 	GdkColor color;
+#if GTK_CHECK_VERSION(3,0,0)
+	GdkRGBA rgba_color;
+#endif
 	construct_args_t *args;
 	GtkWidget *filter_bt;
 } io_stat_graph_t;
@@ -1342,12 +1345,21 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 	io_stat_t *io;
 	int i=0;
 	static GdkColor col[MAX_GRAPHS] = {
-		{0,	0x0000,	0x0000,	0x0000},
-		{0,	0xffff,	0x0000,	0x0000},
-		{0,	0x0000,	0xffff,	0x0000},
-		{0,	0x0000,	0x0000,	0xffff},
-		{0,	0xffff,	0x5000,	0xffff}
+		{0,	0x0000,	0x0000,	0x0000}, /* Black */
+		{0,	0xffff,	0x0000,	0x0000}, /* Red */
+		{0,	0x0000,	0xffff,	0x0000}, /* Green */
+		{0,	0x0000,	0x0000,	0xffff}, /* Blue */
+		{0,	0xffff,	0x5000,	0xffff}  /* Light brilliant magenta */
 	};
+#if GTK_CHECK_VERSION(3,0,0)
+	static GdkRGBA rgba_col[MAX_GRAPHS] = {
+		{0.0, 0.0,   0.0,   1.0}, /* Black */
+		{1.0, 0.0,   0.1,   1.0}, /* Red */
+		{0.0, 1.0,   0.0,   1.0}, /* Green */
+		{0.0, 0.0,   1.0,   1.0}, /* Blue */
+		{1.0, 0.314, 1.0,   1.0}  /* Light brilliant magenta */
+	};
+#endif
 	GString *error_string;
 
 	io=g_malloc(sizeof(io_stat_t));
@@ -1381,6 +1393,12 @@ iostat_init(const char *optarg _U_, void* userdata _U_)
 		io->graphs[i].color.red=col[i].red;
 		io->graphs[i].color.green=col[i].green;
 		io->graphs[i].color.blue=col[i].blue;
+#if GTK_CHECK_VERSION(3,0,0)
+		io->graphs[i].rgba_color.red=rgba_col[i].red;
+		io->graphs[i].rgba_color.green=rgba_col[i].green;
+		io->graphs[i].rgba_color.blue=rgba_col[i].blue;
+		io->graphs[i].rgba_color.alpha=rgba_col[i].alpha;
+#endif
 		io->graphs[i].display=0;
 		io->graphs[i].display_button=NULL;
 		io->graphs[i].filter_field=NULL;
@@ -1572,7 +1590,21 @@ scrollbar_changed(GtkWidget *widget _U_, gpointer user_data)
 
 	return;
 }
+#if GTK_CHECK_VERSION(3,0,0)
+static gboolean
+draw_area_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+{
+	io_stat_t *io = user_data;
+	GtkAllocation allocation;
 
+	gtk_widget_get_allocation (widget, &allocation);
+	cairo_set_source_surface (cr, io->surface, 0, 0); 
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.width);
+	cairo_fill (cr);
+
+	return FALSE;
+}
+#else
 /* redraw the screen from the backing pixmap */
 static gboolean
 draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
@@ -1592,7 +1624,7 @@ draw_area_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_d
 
 	return FALSE;
 }
-
+#endif
 static void
 create_draw_area(io_stat_t *io, GtkWidget *box)
 {
@@ -1602,7 +1634,11 @@ create_draw_area(io_stat_t *io, GtkWidget *box)
 	gtk_widget_set_size_request(io->draw_area, io->pixmap_width, io->pixmap_height);
 
 	/* signals needed to handle backing pixmap */
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(io->draw_area, "draw", G_CALLBACK(draw_area_draw_event), io);
+#else
 	g_signal_connect(io->draw_area, "expose-event", G_CALLBACK(draw_area_expose_event), io);
+#endif
 	g_signal_connect(io->draw_area, "configure-event", G_CALLBACK(draw_area_configure_event), io);
 	gtk_widget_add_events (io->draw_area, GDK_BUTTON_PRESS_MASK);
 	g_signal_connect(io->draw_area, "button-press-event", G_CALLBACK(pixmap_clicked_event), io);
@@ -2161,6 +2197,11 @@ create_filter_box(io_stat_graph_t *gio, GtkWidget *box, int num)
 
 #if GTK_CHECK_VERSION(3,0,0)
 	/* Fix me: Add the GTK 3.0 equivalents */
+	gtk_widget_override_color(label, GTK_STATE_NORMAL, &gio->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_ACTIVE, &gio->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_PRELIGHT, &gio->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_SELECTED, &gio->rgba_color);
+	gtk_widget_override_color(label, GTK_STATE_INSENSITIVE, &gio->rgba_color);
 #else	
 	gtk_widget_modify_fg(label, GTK_STATE_NORMAL, &gio->color);
 	gtk_widget_modify_fg(label, GTK_STATE_ACTIVE, &gio->color);
