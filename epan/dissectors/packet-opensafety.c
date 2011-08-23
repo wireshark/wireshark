@@ -1682,7 +1682,6 @@ proto_reg_handoff_opensafety(void)
              * the ethernet subdissector list. No PNIO specific data will be dissected
              * and a warning will be displayed, recognizing the missing dissector plugin.
              */
-            g_warning ( "openSAFETY - Profinet IO heuristic dissector cannot be registered, openSAFETY/PNIO native dissection." );
             dissector_add_uint("ethertype", ETHERTYPE_PROFINET, find_dissector("opensafety_pnio"));
         }
     }
