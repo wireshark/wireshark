@@ -1618,6 +1618,8 @@ sync_pipe_input_cb(gint source, gpointer user_data)
                we can't do much more than telling the child to stop
                (this is the "emergency brake" if user e.g. wants to switch files every second) */
             sync_pipe_stop(capture_opts);
+            capture_input_closed(capture_opts, NULL);
+            return FALSE;
         }
         break;
     case SP_PACKET_COUNT:
