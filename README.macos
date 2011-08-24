@@ -9,10 +9,6 @@ developer.apple.com and, for Lion, from the Mac App Store. See
 
 	http://guide.macports.org/chunked/installing.xcode.html
 
-and
-
-	http://developer.apple.com/xcode/index.php
-
 for details.
 
 You must have X11 and the X11 developer headers and libraries installed;
