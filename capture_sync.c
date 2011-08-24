@@ -1612,11 +1612,19 @@ sync_pipe_input_cb(gint source, gpointer user_data)
                alerted. Close the sync pipe. */
             ws_close(source);
 
-            /* the child has send us a filename which we couldn't open.
-               this probably means, the child is creating files faster than we can handle it.
-               this should only be the case for very fast file switches
-               we can't do much more than telling the child to stop
-               (this is the "emergency brake" if user e.g. wants to switch files every second) */
+            /* The child has sent us a filename which we couldn't open.
+
+               This could mean that the child is creating files faster
+	       than we can handle it.  (XXX - why would that result in
+	       a failure to open the file?)
+
+               That should only be the case for very fast file switches;
+               We can't do much more than telling the child to stop.
+               (This is the "emergency brake" if the user e.g. wants to
+	       switch files every second). */
+
+               This can also happen if the user specified "-", meaning
+               "standard output", as the capture file. */
             sync_pipe_stop(capture_opts);
             capture_input_closed(capture_opts, NULL);
             return FALSE;
