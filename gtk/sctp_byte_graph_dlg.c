@@ -1401,7 +1401,7 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 	g_signal_connect(io->draw_area, "draw", G_CALLBACK(on_draw), u_data->io);
 #else
 	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(on_expose_event), u_data->io);
-#else
+#endif
 	g_signal_connect(u_data->io->draw_area, "configure_event", G_CALLBACK(on_configure_event), u_data);
 
 	gtk_widget_show(u_data->io->draw_area);
