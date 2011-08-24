@@ -616,15 +616,15 @@ void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 	guint graph_type;
 
 	name = gtk_action_get_name (action);
-	if(strcmp(name, "Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens") == 0){
+	if(strcmp(name, "/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens") == 0){
 		graph_type = GRAPH_TSEQ_STEVENS;
-	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace") == 0){
+	}else if(strcmp(name, "/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace") == 0){
 		graph_type = GRAPH_TSEQ_TCPTRACE;
-	}else if(strcmp(name, "StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph") == 0){
+	}else if(strcmp(name, "/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph") == 0){
 		graph_type = GRAPH_THROUGHPUT;
-	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph") == 0){
+	}else if(strcmp(name, "/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph") == 0){
 		graph_type = GRAPH_RTT;
-	}else if(strcmp(name, "/Analyze/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph") == 0){
+	}else if(strcmp(name, "/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph") == 0){
 		graph_type = GRAPH_WSCALE;
 	}else{
 		return;
