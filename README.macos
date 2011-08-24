@@ -4,9 +4,14 @@ This file tries to help building Wireshark for Mac OS X (Wireshark does
 not work on earlier versions of Mac OS).
 
 You must have the developer tools (called Xcode) installed. Xcode 3 should
-be available on the install DVD. See
+be available on the install DVD; Xcode 4 is available for download from
+developer.apple.com and, for Lion, from the Mac App Store. See
 
 	http://guide.macports.org/chunked/installing.xcode.html
+
+and
+
+	http://developer.apple.com/xcode/index.php
 
 for details.
 
@@ -22,7 +27,10 @@ which they depend; it will, by default, also install other libraries
 that can be used by Wireshark and TShark.  The versions of libraries to
 download are specified by variables set early in the script; you can
 comment out the settings of optional libraries if you don't want them
-downloaded and installed.
+downloaded and installed.  Before running the macosx-setup.sh script,
+and before attempting to build Wireshark, make sure your PKG_CONFIG_PATH
+environment variable's setting includes both /usr/X11/lib/pkgconfig
+and /usr/local/lib/pkgconfig.
 
 After you have installed those libraries:
 
