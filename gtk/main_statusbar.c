@@ -419,7 +419,6 @@ info_bar_new(void)
     help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
     filter_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "filter");
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_window_set_has_resize_grip(GTK_WINDOW(info_bar), FALSE);
 #else
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
 #endif

@@ -1977,7 +1977,6 @@ decode_streams(void)
 	gtk_statusbar_push((GtkStatusbar *) info_bar, statusbar_context, "  Decoding RTP packets...");
 
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_window_set_has_resize_grip(GTK_WINDOW(info_bar), FALSE);
 #else
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
 #endif
