@@ -1073,7 +1073,7 @@ parse_token (token_t token, char *str)
                we should find out the largest tail of s1 matches the head
                of s2, it means the matched part in tail is the ASCII dump
                of the head byte. These matched should be rollback */
-            line_size = curr_offset-(pkt_lnstart-packet_buf);
+            line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
             s2 = (char*)malloc((line_size+1)/4+1);
             /* gather the possible pattern */
             for(i=0; i<(line_size+1)/4; i++) {
