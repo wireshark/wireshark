@@ -186,8 +186,7 @@ packet_list_class_init(PacketListClass *klass)
 
 	object_class->finalize = packet_list_finalize;
 
-#if GTK_CHECK_VERSION(3,0,0)
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
 	/* XXX this seems to affect TreeView Application wide
 	 * Move to main.c ??? as it's not a bad thing(tm)
 	 */

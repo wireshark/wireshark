@@ -1976,8 +1976,7 @@ decode_streams(void)
 	statusbar_context = gtk_statusbar_get_context_id((GtkStatusbar *) info_bar, "main");
 	gtk_statusbar_push((GtkStatusbar *) info_bar, statusbar_context, "  Decoding RTP packets...");
 
-#if GTK_CHECK_VERSION(3,0,0)
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
 #endif
 	/* reset the number of packet to be decoded, this is used for the progress bar */
@@ -2024,8 +2023,7 @@ decode_streams(void)
 	gtk_widget_show_all(main_scrolled_window);
 
 	gtk_widget_destroy(progress_bar);
-#if GTK_CHECK_VERSION(3,0,0)
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), TRUE);
 #endif
 	gtk_statusbar_pop((GtkStatusbar *) info_bar, statusbar_context);
@@ -2239,8 +2237,7 @@ rtp_player_dlg_create(void)
 
 	/* statusbar */
 	info_bar = gtk_statusbar_new();
-#if GTK_CHECK_VERSION(3,0,0)
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), TRUE);
 #endif
 	gtk_box_pack_start(GTK_BOX(stat_hbox), info_bar, TRUE, TRUE, 0);

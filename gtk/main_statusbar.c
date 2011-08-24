@@ -418,8 +418,7 @@ info_bar_new(void)
     file_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "file");
     help_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "help");
     filter_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(info_bar), "filter");
-#if GTK_CHECK_VERSION(3,0,0)
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), FALSE);
 #endif
     gtk_statusbar_push(GTK_STATUSBAR(info_bar), main_ctx, DEF_READY_MESSAGE);
@@ -437,8 +436,7 @@ packets_bar_new(void)
     packets_bar = gtk_statusbar_new();
     packets_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(packets_bar), "packets");
     packets_bar_update();
-#if GTK_CHECK_VERSION(3,0,0)
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(packets_bar), FALSE);
 #endif
 
