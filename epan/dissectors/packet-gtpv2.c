@@ -1044,7 +1044,7 @@ static void
 dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     int     offset = 0;
-    guint8  ms_class;
+    guint8  elm_len;
     proto_tree *ms_tree, *fi;
 
     proto_tree_add_item(tree, hf_gtpv2_ksi, tvb, offset, 1, FALSE);
@@ -1060,31 +1060,31 @@ dissect_gtpv2_mm_con_utran_srvcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     offset++;
 
     /*Length of Mobile Station Classmark2  */
-    ms_class = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark2, tvb, offset, 1, FALSE);
     offset++;
-    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Mobile Station Classmark2  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    fi = proto_tree_add_text(tree, tvb, offset, elm_len, "Mobile Station Classmark2  %s", tvb_bytes_to_str(tvb, offset, elm_len));
     ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
-    de_ms_cm_2(tvb, ms_tree, pinfo, offset, length, NULL, 0);
-    offset = offset+ms_class;
+    de_ms_cm_2(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+    offset = offset+elm_len;
 
     /*Length of Mobile Station Classmark3  */
-    ms_class = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_ms_classmark3, tvb, offset, 1, FALSE);
     offset++;
-    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Mobile Station Classmark3  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    fi = proto_tree_add_text(tree, tvb, offset, elm_len, "Mobile Station Classmark3  %s", tvb_bytes_to_str(tvb, offset, elm_len));
     ms_tree = proto_item_add_subtree(fi, ett_gtpv2_ms_mark);
-    de_ms_cm_3(tvb, ms_tree, pinfo, offset, length, NULL, 0);
-    offset = offset+ms_class;
+    de_ms_cm_3(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+    offset = offset+elm_len;
 
     /*Length of Supported Codec List  */
-    ms_class = tvb_get_guint8(tvb, offset);
+    elm_len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(tree, hf_gtpv2_len_supp_codec_list, tvb, offset, 1, FALSE);
     offset++;
-    fi = proto_tree_add_text(tree, tvb, offset, ms_class, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, ms_class));
+    fi = proto_tree_add_text(tree, tvb, offset, elm_len, "Supported Codec List  %s", tvb_bytes_to_str(tvb, offset, elm_len));
     ms_tree = proto_item_add_subtree(fi, ett_gtpv2_supp_codec_list);
-    de_sup_codec_list(tvb, ms_tree, pinfo, offset, length, NULL, 0);
-    offset = offset+ms_class;
+    de_sup_codec_list(tvb, ms_tree, pinfo, offset, elm_len, NULL, 0);
+    offset = offset+elm_len;
 
 }
 
