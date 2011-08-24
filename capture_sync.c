@@ -1621,7 +1621,7 @@ sync_pipe_input_cb(gint source, gpointer user_data)
                That should only be the case for very fast file switches;
                We can't do much more than telling the child to stop.
                (This is the "emergency brake" if the user e.g. wants to
-	       switch files every second). */
+	       switch files every second).
 
                This can also happen if the user specified "-", meaning
                "standard output", as the capture file. */
