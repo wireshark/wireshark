@@ -838,7 +838,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint time title background */
 	cr = cairo_create (user_data->dlg.surface_time);
 	gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 	cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -846,7 +846,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint main title background */
 	cr = cairo_create (user_data->dlg.surface_main);
 	gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 	cairo_rectangle (cr, 0, 0, draw_area_alloc.width, top_y_border);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -854,7 +854,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Paint main comment background */
 	cr = cairo_create (user_data->dlg.surface_comments);
 	gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+	cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 	cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, top_y_border);
 	cairo_fill (cr);
 	cairo_destroy (cr);
@@ -863,7 +863,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_time) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_time);
 		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 		cairo_rectangle (cr, 0, 0, draw_area_time_alloc.width, top_y_border);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -873,7 +873,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_main) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_main);
 		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 		cairo_rectangle (cr, 0, 0, draw_area_alloc.width, top_y_border);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -883,7 +883,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if ( GDK_IS_DRAWABLE(user_data->dlg.pixmap_comments) ){
 		cr = gdk_cairo_create (user_data->dlg.pixmap_comments);
 		gdk_cairo_set_source_pixbuf (cr, bg_pixbuf, 0, 0);
-		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT); 
+		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 		cairo_rectangle (cr, 0, 0, draw_area_comments_alloc.width, top_y_border);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -931,7 +931,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 #if GTK_CHECK_VERSION(2,22,0)
 		/* Paint background */
 		cr = cairo_create (user_data->dlg.surface_main);
-		gdk_cairo_set_source_color (cr, bg_color_p); 
+		gdk_cairo_set_source_color (cr, bg_color_p);
 		cairo_rectangle (cr, left_x_border, top_y_border+current_item*ITEM_HEIGHT, draw_width, ITEM_HEIGHT);
 		cairo_fill (cr);
 		cairo_destroy (cr);
@@ -939,7 +939,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_main)) {
 			/* Paint background */
 			cr = gdk_cairo_create (user_data->dlg.pixmap_main);
-			gdk_cairo_set_source_color (cr, bg_color_p); 
+			gdk_cairo_set_source_color (cr, bg_color_p);
 			cairo_rectangle (cr, left_x_border, top_y_border+current_item*ITEM_HEIGHT, draw_width, ITEM_HEIGHT);
 			cairo_fill (cr);
 			cairo_destroy (cr);
@@ -1249,7 +1249,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if (gtk_widget_is_drawable(user_data->dlg.draw_area_time) ){
 		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_time));
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_time, 0, 0); 
+		cairo_set_source_surface (cr, user_data->dlg.surface_time, 0, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_time, 0, 0);
 #endif
@@ -1262,7 +1262,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if (gtk_widget_is_drawable(user_data->dlg.draw_area) ){
 		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area));
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0); 
+		cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, 0, 0);
 #endif
@@ -1275,7 +1275,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	if (gtk_widget_is_drawable(user_data->dlg.draw_area_comments) ){
 		cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_comments));
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0); 
+		cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments, 0, 0);
 #endif
@@ -1391,14 +1391,14 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 }
 #if GTK_CHECK_VERSION(3,0,0)
 /****************************************************************************/
-static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
 	GtkAllocation allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
-	cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0); 
-	cairo_rectangle (cr, 0, 0, allocation.width, allocationarea.height);
+	cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0);
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill (cr);
 
 
@@ -1413,7 +1413,7 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 
 	if (gtk_widget_is_drawable(widget)){
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_main, event->area.x, event->area.y); 
+		cairo_set_source_surface (cr, user_data->dlg.surface_main, event->area.x, event->area.y);
 #else
 		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, event->area.x, event->area.y);
 #endif
@@ -1436,7 +1436,7 @@ static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 	gtk_widget_get_allocation (widget, &allocation);
 
-	cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0); 
+	cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0);
 	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill (cr);
 
@@ -1452,7 +1452,7 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, 
 
 	if (gtk_widget_is_drawable(widget)){
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_comments, event->area.x, event->area.y); 
+		cairo_set_source_surface (cr, user_data->dlg.surface_comments, event->area.x, event->area.y);
 #else
 		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments, event->area.x, event->area.y);
 #endif
@@ -1475,7 +1475,7 @@ static gboolean draw_time(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 	gtk_widget_get_allocation (widget, &allocation);
 
-	cairo_set_source_surface (cr, user_data->dlg.surface_time, 0, 0); 
+	cairo_set_source_surface (cr, user_data->dlg.surface_time, 0, 0);
 	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill (cr);
 
@@ -1490,7 +1490,7 @@ static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpoi
 
 	if (gtk_widget_is_drawable(widget) ){
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, user_data->dlg.surface_time, event->area.x, event->area.y); 
+		cairo_set_source_surface (cr, user_data->dlg.surface_time, event->area.x, event->area.y);
 #else
 		gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_time, event->area.x, event->area.y);
 #endif
