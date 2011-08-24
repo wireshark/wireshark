@@ -180,11 +180,11 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 #endif
 			gdk_cairo_set_source_color (cr, &red_color);
 			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5, 
+			cairo_move_to(cr,
+				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5,
 				u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval)+0.5);
-			cairo_line_to(cr, 
-				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5, 
+			cairo_line_to(cr,
+				LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5,
 				u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)+0.5);
 				cairo_stroke(cr);
 				cairo_destroy(cr);			
@@ -197,11 +197,11 @@ static void draw_sack_graph(struct sctp_udata *u_data)
 #endif
 				gdk_cairo_set_source_color (cr, &green_color);
 				cairo_set_line_width (cr, 1.0);
-				cairo_move_to(cr, 
-					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5, 
+				cairo_move_to(cr,
+					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff+0.5,
 					u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval)+0.5);
-				cairo_line_to(cr, 
-					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff, 
+				cairo_line_to(cr,
+					LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff,
 					u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end+10,min_tsn))*u_data->io->y_interval)+0.5);
 				cairo_stroke(cr);
 				cairo_destroy(cr);
@@ -267,11 +267,11 @@ cairo_t *cr;
 			cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
 			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff)+0.5, 
+			cairo_move_to(cr,
+				(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff)+0.5,
 				(u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(start,min_tsn))*u_data->io->y_interval))+0.5);
-			cairo_line_to(cr, 
-				(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff)+0.5, 
+			cairo_line_to(cr,
+				(LEFT_BORDER+u_data->io->offset+u_data->io->x_interval*diff)+0.5,
 				(u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset-((SUB_32(end,min_tsn))*u_data->io->y_interval))+0.5);
 			cairo_stroke(cr);
 			cairo_destroy(cr);
@@ -493,7 +493,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 #else
 				cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-				cairo_move_to (cr, 
+				cairo_move_to (cr,
 					LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval - lwidth / 2,
 					u_data->io->surface_height - BOTTOM_BORDER + 10);
 				pango_cairo_show_layout (cr, layout);
@@ -506,11 +506,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
 			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5, 
+			cairo_move_to(cr,
+				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5,
 				u_data->io->surface_height - BOTTOM_BORDER + 0.5);
-			cairo_line_to(cr, 
-				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5, 
+			cairo_line_to(cr,
+				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5,
 				u_data->io->surface_height - BOTTOM_BORDER + length + 0.5);
 			cairo_stroke(cr);
 			cairo_destroy(cr);
@@ -540,11 +540,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 			cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
 			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5, 
+			cairo_move_to(cr,
+				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5,
 				u_data->io->surface_height - BOTTOM_BORDER + 0.5);
-			cairo_line_to(cr, 
-				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5, 
+			cairo_line_to(cr,
+				LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval + 0.5,
 				u_data->io->surface_height - BOTTOM_BORDER + 10 + 0.5);
 			cairo_stroke(cr);
 			cairo_destroy(cr);
@@ -558,7 +558,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 #else
 			cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-			cairo_move_to (cr, 
+			cairo_move_to (cr,
 				(LEFT_BORDER + u_data->io->offset + (i - u_data->io->min_x) * u_data->io->x_interval-10),
 				u_data->io->surface_height - BOTTOM_BORDER + 20);
 			pango_cairo_show_layout (cr, layout);
@@ -579,7 +579,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 #else
 	cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-	cairo_move_to (cr, 
+	cairo_move_to (cr,
 		u_data->io->surface_width - RIGHT_BORDER - 10,
 		u_data->io->surface_height - BOTTOM_BORDER + 30);
 	pango_cairo_show_layout (cr, layout);
@@ -597,8 +597,8 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 	cairo_set_line_width (cr, 1.0);
 	cairo_move_to(cr, LEFT_BORDER + 0.5, TOP_BORDER - u_data->io->offset + 0.5);
 	cairo_line_to(cr, LEFT_BORDER + 0.5, u_data->io->surface_height - BOTTOM_BORDER - u_data->io->offset + 0.5);
- 
-	cairo_move_to(cr, LEFT_BORDER + 0.5, TOP_BORDER - u_data->io->offset + 0.5); 
+
+	cairo_move_to(cr, LEFT_BORDER + 0.5, TOP_BORDER - u_data->io->offset + 0.5);
 	cairo_line_to(cr, LEFT_BORDER - 5 + 0.5, TOP_BORDER - u_data->io->offset + 5 + 0.5);
 
 	cairo_move_to(cr, LEFT_BORDER + 0.5, TOP_BORDER - u_data->io->offset + 0.5);
@@ -645,7 +645,7 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 #else
 					cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
-					cairo_move_to (cr, 
+					cairo_move_to (cr,
 						LEFT_BORDER - length - lwidth - 5,
 						u_data->io->surface_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval - 3);
 					pango_cairo_show_layout (cr, layout);
@@ -658,11 +658,11 @@ static void sctp_graph_draw(struct sctp_udata *u_data)
 				cr = gdk_cairo_create (u_data->io->pixmap);
 #endif
 				cairo_set_line_width (cr, 1.0);
-				cairo_move_to(cr, 
-					LEFT_BORDER - length + 0.5, 
+				cairo_move_to(cr,
+					LEFT_BORDER - length + 0.5,
 					u_data->io->surface_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval + 0.5);
-				cairo_line_to(cr, 
-					LEFT_BORDER + 0.5, 
+				cairo_line_to(cr,
+					LEFT_BORDER + 0.5,
 					u_data->io->surface_height - BOTTOM_BORDER - u_data->io->offset - (i - u_data->io->min_y) * u_data->io->y_interval + 0.5);
 				cairo_stroke(cr);
 				cairo_destroy(cr);
@@ -705,7 +705,7 @@ static void sctp_graph_redraw(struct sctp_udata *u_data)
 	cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
 
 #if GTK_CHECK_VERSION(2,22,0)
-	cairo_set_source_surface (cr, ios->surface, 0, 0); 
+	cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
 	gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
@@ -797,13 +797,13 @@ on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer use
 
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean
-draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+on_draw_area_draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
 	sctp_graph_t *ios = user_data;
 	GtkAllocation allocation;
 
 	gtk_widget_get_allocation (widget, &allocation);
-	cairo_set_source_surface (cr, iso->surface, 0, 0); 
+	cairo_set_source_surface (cr, ios->surface, 0, 0);
 	cairo_rectangle (cr, 0, 0, allocation.width, allocation.width);
 	cairo_fill (cr);
 
@@ -821,7 +821,7 @@ on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 	cr = gdk_cairo_create (gtk_widget_get_window(widget));
 
 #if GTK_CHECK_VERSION(2,22,0)
-	cairo_set_source_surface (cr, ios->surface, 0, 0); 
+	cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
 	gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
@@ -968,11 +968,11 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 		cr = cairo_create (u_data->io->surface);
 #else
 		cr = gdk_cairo_create (u_data->io->pixmap);
-#endif 
-		cairo_rectangle (cr, 
-			floor(MIN(u_data->io->x_old,u_data->io->x_new)), 
-			floor(MIN(u_data->io->y_old,u_data->io->y_new)), 
-			abs((long)(u_data->io->x_new-u_data->io->x_old)), 
+#endif
+		cairo_rectangle (cr,
+			floor(MIN(u_data->io->x_old,u_data->io->x_new)),
+			floor(MIN(u_data->io->y_old,u_data->io->y_new)),
+			abs((long)(u_data->io->x_new-u_data->io->x_old)),
 			abs((long)(u_data->io->y_new-u_data->io->y_old)));
 		cairo_set_source_rgb (cr, 1, 1, 1);
 		cairo_stroke (cr);
@@ -985,7 +985,7 @@ on_button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer us
 		cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
 
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, ios->surface, 0, 0); 
+		cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
@@ -1046,11 +1046,11 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		cr = cairo_create (u_data->io->surface);
 #else
 		cr = gdk_cairo_create (u_data->io->pixmap);
-#endif 
-		cairo_rectangle (cr, 
-			u_data->io->rect_x_min+0.5, 
-			u_data->io->rect_y_min+0.5, 
-			u_data->io->rect_x_max - u_data->io->rect_x_min, 
+#endif
+		cairo_rectangle (cr,
+			u_data->io->rect_x_min+0.5,
+			u_data->io->rect_y_min+0.5,
+			u_data->io->rect_x_max - u_data->io->rect_x_min,
 			u_data->io->rect_y_max - u_data->io->rect_y_min);
 		cairo_set_line_width (cr, 1.0);
 		cairo_stroke (cr);
@@ -1062,7 +1062,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 		cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
 
 #if GTK_CHECK_VERSION(2,22,0)
-		cairo_set_source_surface (cr, ios->surface, 0, 0); 
+		cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
 		gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
@@ -1176,13 +1176,13 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			cr = cairo_create (u_data->io->surface);
 #else
 			cr = gdk_cairo_create (u_data->io->pixmap);
-#endif 
+#endif
 			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				(event->x-2)+0.5, 
+			cairo_move_to(cr,
+				(event->x-2)+0.5,
 				(event->y)+0.5);
-			cairo_line_to(cr, 
-				(event->x+2)+0.5, 
+			cairo_line_to(cr,
+				(event->x+2)+0.5,
 				(event->y)+0.5);
 			cairo_stroke(cr);
 			cairo_destroy(cr);
@@ -1191,13 +1191,13 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			cr = cairo_create (u_data->io->surface);
 #else
 			cr = gdk_cairo_create (u_data->io->pixmap);
-#endif 
+#endif
 			cairo_set_line_width (cr, 1.0);
-			cairo_move_to(cr, 
-				(event->x)+0.5, 
+			cairo_move_to(cr,
+				(event->x)+0.5,
 				(event->y-2)+0.5);
-			cairo_line_to(cr, 
-				(event->x)+0.5, 
+			cairo_line_to(cr,
+				(event->x)+0.5,
 				(event->y+2)+0.5);
 			cairo_stroke(cr);
 			cairo_destroy(cr);
@@ -1214,8 +1214,8 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			cr = cairo_create (u_data->io->surface);
 #else
 			cr = gdk_cairo_create (u_data->io->pixmap);
-#endif 
-			cairo_move_to (cr, 
+#endif
+			cairo_move_to (cr,
 				position,
 				event->y-10);
 			pango_cairo_show_layout (cr, layout);
@@ -1228,7 +1228,7 @@ on_button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer 
 			cr = gdk_cairo_create (gtk_widget_get_window(u_data->io->draw_area));
 
 #if GTK_CHECK_VERSION(2,22,0)
-			cairo_set_source_surface (cr, ios->surface, 0, 0); 
+			cairo_set_source_surface (cr, ios->surface, 0, 0);
 #else
 			gdk_cairo_set_source_pixmap (cr, ios->pixmap, 0, 0);
 #endif
@@ -1398,7 +1398,7 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 
 	/* signals needed to handle backing pixmap */
 #if GTK_CHECK_VERSION(3,0,0)
-	g_signal_connect(io->draw_area, "draw", G_CALLBACK(on_draw), u_data->io);
+	g_signal_connect(u_data->io->draw_area, "draw", G_CALLBACK(on_draw_area_draw_event), u_data->io);
 #else
 	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(on_expose_event), u_data->io);
 #endif
