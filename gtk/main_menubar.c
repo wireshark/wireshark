@@ -1014,9 +1014,9 @@ static const char *ui_desc_menubar =
 "        <separator/>\n"
 "        <menuitem name='SetTimeReference' action='/Edit/SetTimeReference'/>\n"
 "        <menuitem name='Un-TimeReferenceAllPackets' action='/Edit/Un-TimeReferenceAllPackets'/>\n"
-"        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>\n"
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
+"        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <separator/>\n"
 #ifdef WANT_PACKET_EDITOR
 "        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
@@ -1529,9 +1529,9 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Edit/Un-IgnoreAllPackets",		NULL,				"U_n-Ignore All Packets",				"<shift><control>X",		NULL,			G_CALLBACK(new_packet_list_unignore_all_frames_cb) },
    { "/Edit/SetTimeReference",			WIRESHARK_STOCK_TIME,	"Set Time Reference (toggle)",			"<control>T",			NULL,			G_CALLBACK(set_reftime_cb) },
    { "/Edit/Un-TimeReferenceAllPackets",NULL,				"Un-Time Reference All Packets",		"<alt><control>T",			NULL,			G_CALLBACK(new_packet_list_untime_reference_all_frames_cb) },
-   { "/Edit/TimeShift",				NULL,				"Time Shift...",							NULL,				NULL,			G_CALLBACK(time_shift_cb) },
    { "/Edit/FindNextTimeReference",		NULL,				"Find Next Time Reference",				"<alt><control>N",			NULL,			G_CALLBACK(find_next_ref_time_cb) },
    { "/Edit/FindPreviousTimeReference",	NULL,				"Find Previous Time Reference",			"<alt><control>B",			NULL,			G_CALLBACK(find_previous_ref_time_cb) },
+   { "/Edit/TimeShift",				WIRESHARK_STOCK_TIME,	"Time Shift...",				"<shift><control>T",				NULL,			G_CALLBACK(time_shift_cb) },
 
    { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(menus_prefs_cb) },
@@ -4578,6 +4578,8 @@ set_menus_for_selected_packet(capture_file *cf)
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/Un-TimeReferenceAllPackets",
                          have_time_ref);
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/TimeShift",
+                         cf->count > 0);
     set_menu_sensitivity(ui_manager_packet_list_menu, "/PacketListMenuPopup/SetTimeReference",
                          frame_selected);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/EditMenu/FindNextTimeReference",
