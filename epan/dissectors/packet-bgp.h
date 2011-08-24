@@ -119,6 +119,7 @@ struct bgp_attr {
 #define BGP_CAPABILITY_GRACEFUL_RESTART         0x40   /* draft-ietf-idr-restart-05  */
 #define BGP_CAPABILITY_4_OCTET_AS_NUMBER	0x41   /* draft-ietf-idr-as4bytes-06 */
 #define BGP_CAPABILITY_DYNAMIC_CAPABILITY	0x42   /* draft-ietf-idr-dynamic-cap-03 */
+#define BGP_CAPABILITY_ADDITIONAL_PATHS         0x45   /* draft-ietf-idr-add-paths */
 #define BGP_CAPABILITY_ORF_CISCO	        0x82   /* Cisco */
 #define BGP_CAPABILITY_ROUTE_REFRESH_CISCO      0x80   /* Cisco */
 
@@ -226,6 +227,11 @@ struct bgp_attr {
 #define SAFNUM_LAB_VPNUNICAST  128     /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST  129
 #define SAFNUM_LAB_VPNUNIMULC  130
+
+/* BGP Additional Paths Capability */
+#define BGP_ADDPATH_RECEIVE  0x01
+#define BGP_ADDPATH_SEND     0x02
+
 
 #ifndef offsetof
 #define offsetof(type, member)  ((size_t)(&((type *)0)->member))
