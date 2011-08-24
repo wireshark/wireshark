@@ -1705,13 +1705,34 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         asn_len = 4;
                     else {
                         if (bgp_asn_len == 0) {
+                            guint unknown_segment_type = 0;
+                            guint asn_is_null = 0;
+                            guint d;
+                            asn_len = 2;
                             k = q;
-                            while (k < end) {
-                                k++;
+                            while (k < end)
+                            {
+                                type = tvb_get_guint8(tvb, k++);
+
+                                /* type of segment is unknown */
+                                if (type != AS_SET &&
+                                    type != AS_SEQUENCE &&
+                                    type != AS_CONFED_SEQUENCE &&
+                                    type != AS_CONFED_SEQUENCE)
+                                    unknown_segment_type = 1;
+
                                 length = tvb_get_guint8(tvb, k++);
-                                k += length * 2;
-                            }
-                            asn_len = (k == end) ? 2 : 4;
+
+                                /* Check for invalid ASN */
+                                for (d = 0; d < length; d++) 
+                                {
+                                    if(tvb_get_ntohs(tvb, k) == 0)
+                                        asn_is_null = 1;
+                                    k += 2;
+                                }
+                            }                        
+                            if(k != end || unknown_segment_type || asn_is_null)
+                                asn_len = 4;
                         }
                         else {
                             asn_len = bgp_asn_len;
