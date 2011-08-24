@@ -714,38 +714,36 @@ static void create_drawing_area (struct graph *g)
 	g->toplevel = dlg_window_new ("Tcp Graph");
 	gtk_window_set_title(GTK_WINDOW(g->toplevel), window_title);
 	gtk_widget_set_name (g->toplevel, "Test Graph");
-	g_object_set_data(G_OBJECT(g->toplevel), "graph", g);
 
 	/* Create the drawing area */
 	g->drawing_area = gtk_drawing_area_new ();
-	g_object_set_data(G_OBJECT(g->drawing_area), "graph", g);
 	g->x_axis->drawing_area = g->y_axis->drawing_area = g->drawing_area;
 	gtk_widget_set_size_request (g->drawing_area,
 					g->wp.width + g->wp.x + RMARGIN_WIDTH,
 					g->wp.height + g->wp.y + g->x_axis->s.height);
 	gtk_widget_show (g->drawing_area);
 
-	g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), NULL);
+	g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), g);
 	/* this has to be done later, after the widget has been shown */
 	/*
 	g_signal_connect(g->drawing_area,"configure_event", G_CALLBACK(configure_event),
-        NULL);
+        g);
 	 */
 	g_signal_connect(g->drawing_area, "motion_notify_event",
-                       G_CALLBACK(motion_notify_event), NULL);
+                       G_CALLBACK(motion_notify_event), g);
 	g_signal_connect(g->drawing_area, "button_press_event",
-                       G_CALLBACK(button_press_event), NULL);
+                       G_CALLBACK(button_press_event), g);
 	g_signal_connect(g->drawing_area, "button_release_event",
-                       G_CALLBACK(button_release_event), NULL);
+                       G_CALLBACK(button_release_event), g);
 	g_signal_connect(g->drawing_area, "leave_notify_event",
-                       G_CALLBACK(leave_notify_event), NULL);
+                       G_CALLBACK(leave_notify_event), g);
 	g_signal_connect(g->drawing_area, "enter_notify_event",
-                       G_CALLBACK(enter_notify_event), NULL);
+                       G_CALLBACK(enter_notify_event), g);
 	g_signal_connect(g->toplevel, "destroy", G_CALLBACK(callback_toplevel_destroy), g);
 	/* why doesn't drawing area send key_press_signals? */
-	g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), NULL);
+	g_signal_connect(g->toplevel, "key_press_event", G_CALLBACK(key_press_event), g);
 	g_signal_connect(g->toplevel, "key_release_event", G_CALLBACK(key_release_event),
-                       NULL);
+                       g);
 	gtk_widget_set_events(g->toplevel,
                               GDK_KEY_PRESS_MASK|GDK_KEY_RELEASE_MASK);
 
@@ -838,7 +836,7 @@ static void create_drawing_area (struct graph *g)
 	 */
 #endif
 	g_signal_connect(g->drawing_area, "configure_event", G_CALLBACK(configure_event),
-                       NULL);
+                       g);
 
 	/* puts ("exiting create_drawing_area()"); */
 }
@@ -3140,9 +3138,9 @@ static void magnify_draw (struct graph *g)
 
 }
 
-static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer user_data _U_)
+static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 	struct {
 		double x, y;
 	} zoom;
@@ -3199,9 +3197,9 @@ static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gp
 	return TRUE;
 }
 
-static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_)
+static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
-    struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
     cairo_t *cr;
 
 	debug(DBS_FENTRY) puts ("expose_event()");
@@ -3463,9 +3461,9 @@ static void do_key_motion_right (struct graph *g, int step)
 	do_key_motion (g);
 }
 
-static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data _U_)
+static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 
 	debug(DBS_FENTRY) puts ("button_press_event()");
 
@@ -3500,9 +3498,9 @@ static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gp
 	return TRUE;
 }
 
-static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer user_data _U_)
+static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 	int x, y;
 	GdkModifierType state;
 
@@ -3557,9 +3555,9 @@ static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, g
 	return TRUE;
 }
 
-static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data _U_)
+static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 
 	debug(DBS_FENTRY) puts ("button_release_event()");
 
@@ -3571,9 +3569,9 @@ static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, 
 	return TRUE;
 }
 
-static gboolean key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data _U_)
+static gboolean key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 	int step;
 
 	debug(DBS_FENTRY) puts ("key_press_event()");
@@ -3651,9 +3649,9 @@ static gboolean key_press_event (GtkWidget *widget, GdkEventKey *event, gpointer
 	return TRUE;
 }
 
-static gboolean key_release_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data _U_)
+static gboolean key_release_event (GtkWidget *widget, GdkEventKey *event, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 
 	debug(DBS_FENTRY) puts ("key_release_event()");
 
@@ -3664,9 +3662,9 @@ static gboolean key_release_event (GtkWidget *widget, GdkEventKey *event, gpoint
 	return TRUE;
 }
 
-static gboolean leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data _U_)
+static gboolean leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 
 	if (g->cross.erase_needed)
 		cross_erase (g);
@@ -3674,9 +3672,9 @@ static gboolean leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 	return TRUE;
 }
 
-static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data _U_)
+static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data)
 {
-        struct graph *g = (struct graph *) g_object_get_data(G_OBJECT(widget), "graph");
+    struct graph *g = user_data;
 
 	/* graph_pixmap_display (g); */
 	if (g->cross.draw) {
