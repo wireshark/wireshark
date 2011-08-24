@@ -309,9 +309,6 @@ struct graph {
 						 * temporary
 						 */
 	PangoFontDescription *font;	/* font used for annotations etc. */
-#if !GTK_CHECK_VERSION(3,0,0)
-	GdkGC *fg_gc;
-#endif
 #if GTK_CHECK_VERSION(2,22,0)
 	cairo_surface_t *title_surface;
 	cairo_surface_t *surface[2];
@@ -825,7 +822,6 @@ static void create_drawing_area (struct graph *g)
 		}
 		gdk_gc_set_foreground (xor_gc, &color);
 	}
-	g->fg_gc = gdk_gc_new (gtk_widget_get_window(g->drawing_area));
 
 	/* this is probably quite an ugly way to get rid of the first configure
 	 * event
@@ -2284,7 +2280,6 @@ static void draw_element_line (struct graph *g, struct element *e)
 
 static void draw_element_ellipse (struct graph *g, struct element *e)
 {
-#if GTK_CHECK_VERSION(2,22,0)
 	cairo_t *cr;
 	gdouble w = e->p.ellipse.dim.width;
 	gdouble h = e->p.ellipse.dim.height;
@@ -2293,27 +2288,16 @@ static void draw_element_ellipse (struct graph *g, struct element *e)
 
 	debug(DBS_GRAPH_DRAWING) printf ("ellipse: (x, y) -> (w, h): (%f, %f) -> (%f, %f)\n", x, y, w, h);
 
+#if GTK_CHECK_VERSION(2,22,0)
 	cr = cairo_create (g->surface[1^g->displayed]);
+#else
+	cr = cairo_create (g->pixmap[1^g->displayed]);
+#endif
 	cairo_translate (cr, x + w / 2., y + h / 2.);
 	cairo_scale (cr, w / 2., h / 2.);
 	cairo_arc (cr, 0., 0., 1., 0., 2 * G_PI);
 	cairo_fill(cr);
 	cairo_destroy(cr);
-#else
-	int xx1, xx2, yy1, yy2;
-
-	xx1 = (int )rint (e->p.ellipse.dim.x + g->geom.x - g->wp.x);
-	xx2 = (int )e->p.ellipse.dim.width;
-	yy1 = (int )rint (g->geom.height-1 - e->p.ellipse.dim.y + g->geom.y - g->wp.y);
-	yy2 = (int )e->p.ellipse.dim.height;
-	if (xx1<-xx2 || xx1>=g->wp.width || yy1<-yy2 || yy1>=g->wp.height)
-		return;
-	debug(DBS_GRAPH_DRAWING) printf ("ellipse: (%d,%d)->(%d,%d)\n", xx1, yy1, xx2, yy2);
-
-	gdk_draw_arc (g->pixmap[1^g->displayed], g->fg_gc, TRUE, xx1,
-					yy1, xx2, yy2, 0, 23040);
-#endif
-	/* NOTE the coordinates and angels needs to be recalculated as cairo_arc works differently */
 }
 
 static void axis_pixmaps_create (struct axis *axis)
