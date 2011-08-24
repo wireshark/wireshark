@@ -3228,7 +3228,7 @@ draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 	return FALSE;
 }
 #else
-static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+static gboolean expose_event (GtkWidget *widget _U_, GdkEventExpose *event, gpointer user_data)
 {
     struct graph *g = user_data;
     cairo_t *cr;
@@ -3492,7 +3492,7 @@ static void do_key_motion_right (struct graph *g, int step)
 	do_key_motion (g);
 }
 
-static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+static gboolean button_press_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
     struct graph *g = user_data;
 
@@ -3529,7 +3529,7 @@ static gboolean button_press_event (GtkWidget *widget, GdkEventButton *event, gp
 	return TRUE;
 }
 
-static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, gpointer user_data)
+static gboolean motion_notify_event (GtkWidget *widget _U_, GdkEventMotion *event, gpointer user_data)
 {
     struct graph *g = user_data;
 	int x, y;
@@ -3586,7 +3586,7 @@ static gboolean motion_notify_event (GtkWidget *widget, GdkEventMotion *event, g
 	return TRUE;
 }
 
-static gboolean button_release_event (GtkWidget *widget, GdkEventButton *event, gpointer user_data)
+static gboolean button_release_event (GtkWidget *widget _U_, GdkEventButton *event, gpointer user_data)
 {
     struct graph *g = user_data;
 
@@ -3693,7 +3693,7 @@ static gboolean key_release_event (GtkWidget *widget, GdkEventKey *event, gpoint
 	return TRUE;
 }
 
-static gboolean leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data)
+static gboolean leave_notify_event (GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpointer user_data)
 {
     struct graph *g = user_data;
 
@@ -3703,7 +3703,7 @@ static gboolean leave_notify_event (GtkWidget *widget, GdkEventCrossing *event _
 	return TRUE;
 }
 
-static gboolean enter_notify_event (GtkWidget *widget, GdkEventCrossing *event _U_, gpointer user_data)
+static gboolean enter_notify_event (GtkWidget *widget _U_, GdkEventCrossing *event _U_, gpointer user_data)
 {
     struct graph *g = user_data;
 
