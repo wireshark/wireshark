@@ -777,7 +777,12 @@ filter_autocomplete_new(GtkWidget *filter_te, const gchar *protocol_name,
                     (requisition.height<200? requisition.height+8:200));
 
   gdk_window_get_origin(gtk_widget_get_window(filter_te), &x_pos, &y_pos);
-  y_pos = y_pos + filter_te_alloc.height;
+#if GTK_CHECK_VERSION(3,0,0)
+  x_pos += filter_te_alloc.x;
+  y_pos += (filter_te_alloc.y + filter_te_alloc.height);
+#else
+  y_pos += filter_te_alloc.height;
+#endif
   gtk_window_move(GTK_WINDOW(popup_win), x_pos, y_pos);
 
   gtk_widget_show_all (popup_win);
