@@ -3142,7 +3142,7 @@ static void magnify_draw (struct graph *g)
 
 }
 
-static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gpointer user_data)
+static gboolean configure_event (GtkWidget *widget _U_, GdkEventConfigure *event, gpointer user_data)
 {
     struct graph *g = user_data;
 	struct {
