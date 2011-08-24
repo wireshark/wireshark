@@ -723,7 +723,11 @@ static void create_drawing_area (struct graph *g)
 					g->wp.height + g->wp.y + g->x_axis->s.height);
 	gtk_widget_show (g->drawing_area);
 
-	g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), g);
+#if GTK_CHECK_VERSION(3,0,0)
+    g_signal_connect(g->drawing_area, "draw", G_CALLBACK(draw_event), g);
+#else
+    g_signal_connect(g->drawing_area, "expose_event", G_CALLBACK(expose_event), g);
+#endif
 	/* this has to be done later, after the widget has been shown */
 	/*
 	g_signal_connect(g->drawing_area,"configure_event", G_CALLBACK(configure_event),
@@ -3196,7 +3200,40 @@ static gboolean configure_event (GtkWidget *widget, GdkEventConfigure *event, gp
 	axis_pixmaps_switch (g->y_axis);
 	return TRUE;
 }
+#if GTK_CHECK_VERSION(3,0,0)
+static gboolean
+draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+{
+    struct graph *g = user_data;
 
+	debug(DBS_FENTRY) puts ("expose_event()");
+
+	if (event->count)
+		return TRUE;
+
+	/* lower left corner */
+	cairo_set_source_rgb (cr, 1, 1, 1);
+	cairo_rectangle (cr, 0, g->wp.y + g->wp.height, g->y_axis->p.width, g->x_axis->p.height);
+	cairo_fill (cr);
+
+	/* right margin */
+	cairo_rectangle (cr, g->wp.x + g->wp.width, g->wp.y, RMARGIN_WIDTH, g->wp.height);
+	cairo_fill (cr);
+
+	cairo_destroy(cr);
+	cr = NULL;
+
+	/* Should these routines be copied here, or be given the cairo_t ?? 
+	 * In that case cr shouldn't be destroyed abowe
+	 */
+	graph_pixmap_display (g);
+	graph_title_pixmap_display (g);
+	axis_pixmap_display (g->x_axis);
+	axis_pixmap_display (g->y_axis);
+
+	return TRUE;
+}
+#else
 static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
 {
     struct graph *g = user_data;
@@ -3230,6 +3267,7 @@ static gboolean expose_event (GtkWidget *widget, GdkEventExpose *event, gpointer
 
 	return TRUE;
 }
+#endif
 
 static void do_zoom_mouse (struct graph *g, GdkEventButton *event)
 {
