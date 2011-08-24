@@ -795,13 +795,27 @@ on_configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer use
 	return TRUE;
 }
 
+#if GTK_CHECK_VERSION(3,0,0)
 static gboolean
-on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_)
+draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
 {
-	sctp_graph_t *ios;
+	sctp_graph_t *ios = user_data;
+	GtkAllocation allocation;
+
+	gtk_widget_get_allocation (widget, &allocation);
+	cairo_set_source_surface (cr, iso->surface, 0, 0); 
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.width);
+	cairo_fill (cr);
+
+	return FALSE;
+}
+#else
+static gboolean
+on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data)
+{
+	sctp_graph_t *ios = user_data;
 	cairo_t *cr;
 
-	ios=(sctp_graph_t *)g_object_get_data(G_OBJECT(widget), "sctp_graph_t");
 	g_assert(ios != NULL);
 
 	cr = gdk_cairo_create (gtk_widget_get_window(widget));
@@ -818,7 +832,7 @@ on_expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer user_data _U_
 
 	return FALSE;
 }
-
+#endif
 
 static void
 on_zoomin_bt (GtkWidget *widget _U_, struct sctp_udata *u_data)
@@ -1379,12 +1393,15 @@ static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 {
 	u_data->io->draw_area=gtk_drawing_area_new();
 	g_signal_connect(u_data->io->draw_area, "destroy", G_CALLBACK(quit), u_data);
-	g_object_set_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t", u_data->io);
 
 	gtk_widget_set_size_request(u_data->io->draw_area, u_data->io->surface_width, u_data->io->surface_height);
 
 	/* signals needed to handle backing pixmap */
-	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(on_expose_event), NULL);
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(io->draw_area, "draw", G_CALLBACK(on_draw), u_data->io);
+#else
+	g_signal_connect(u_data->io->draw_area, "expose_event", G_CALLBACK(on_expose_event), u_data->io);
+#else
 	g_signal_connect(u_data->io->draw_area, "configure_event", G_CALLBACK(on_configure_event), u_data);
 
 	gtk_widget_show(u_data->io->draw_area);
