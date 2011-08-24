@@ -438,7 +438,6 @@ packets_bar_new(void)
     packets_ctx = gtk_statusbar_get_context_id(GTK_STATUSBAR(packets_bar), "packets");
     packets_bar_update();
 #if GTK_CHECK_VERSION(3,0,0)
-    gtk_window_set_has_resize_grip(GTK_WINDOW(packets_bar), FALSE);
 #else
     gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(packets_bar), FALSE);
 #endif

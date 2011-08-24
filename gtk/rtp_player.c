@@ -2025,7 +2025,6 @@ decode_streams(void)
 
 	gtk_widget_destroy(progress_bar);
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_window_set_has_resize_grip(GTK_WINDOW(info_bar), TRUE);
 #else
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), TRUE);
 #endif
@@ -2241,7 +2240,6 @@ rtp_player_dlg_create(void)
 	/* statusbar */
 	info_bar = gtk_statusbar_new();
 #if GTK_CHECK_VERSION(3,0,0)
-	gtk_window_set_has_resize_grip(GTK_WINDOW(info_bar), TRUE);
 #else
 	gtk_statusbar_set_has_resize_grip(GTK_STATUSBAR(info_bar), TRUE);
 #endif
