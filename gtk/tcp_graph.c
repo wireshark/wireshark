@@ -2291,7 +2291,7 @@ static void draw_element_ellipse (struct graph *g, struct element *e)
 #if GTK_CHECK_VERSION(2,22,0)
 	cr = cairo_create (g->surface[1^g->displayed]);
 #else
-	cr = cairo_create (g->pixmap[1^g->displayed]);
+	cr = gdk_cairo_create (g->pixmap[1^g->displayed]);
 #endif
 	cairo_translate (cr, x + w / 2., y + h / 2.);
 	cairo_scale (cr, w / 2., h / 2.);
