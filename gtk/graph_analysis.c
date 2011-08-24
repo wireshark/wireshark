@@ -1389,7 +1389,22 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 
 	return TRUE;
 }
+#if GTK_CHECK_VERSION(3,0,0)
+/****************************************************************************/
+static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer user_data)
+{
+	graph_analysis_data_t *user_data = data;
+	GtkAllocation allocation;
 
+	gtk_widget_get_allocation (widget, &allocation);
+	cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0); 
+	cairo_rectangle (cr, 0, 0, allocation.width, allocationarea.height);
+	cairo_fill (cr);
+
+
+	return FALSE;
+}
+#else
 /****************************************************************************/
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -1410,7 +1425,25 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 
 	return FALSE;
 }
+#endif
 
+#if GTK_CHECK_VERSION(3,0,0)
+/****************************************************************************/
+static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+	graph_analysis_data_t *user_data = data;
+	GtkAllocation allocation;
+
+	gtk_widget_get_allocation (widget, &allocation);
+
+	cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0); 
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
+	cairo_fill (cr);
+
+
+	return FALSE;
+}
+#else
 /****************************************************************************/
 static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -1431,7 +1464,24 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, 
 
 	return FALSE;
 }
+#endif
 
+#if GTK_CHECK_VERSION(3,0,0)
+/****************************************************************************/
+static gboolean draw_time(GtkWidget *widget, cairo_t *cr, gpointer data)
+{
+	graph_analysis_data_t *user_data = data;
+	GtkAllocation allocation;
+
+	gtk_widget_get_allocation (widget, &allocation);
+
+	cairo_set_source_surface (cr, user_data->dlg.surface_time, 0, 0); 
+	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
+	cairo_fill (cr);
+
+	return FALSE;
+}
+#else
 /****************************************************************************/
 static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -1452,7 +1502,7 @@ static gboolean expose_event_time(GtkWidget *widget, GdkEventExpose *event, gpoi
 
 	return FALSE;
 }
-
+#endif
 /****************************************************************************/
 static gboolean configure_event(GtkWidget *widget, GdkEventConfigure *event _U_, gpointer data)
 {
@@ -1740,15 +1790,27 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_widget_grab_focus(user_data->dlg.draw_area);
 
 	/* signals needed to handle backing pixmap */
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(user_data->dlg.draw_area, "draw", G_CALLBACK(draw_area_draw), user_data);
+#else
 	g_signal_connect(user_data->dlg.draw_area, "expose_event", G_CALLBACK(expose_event), user_data);
+#endif
 	g_signal_connect(user_data->dlg.draw_area, "configure_event", G_CALLBACK(configure_event), user_data);
 
 	/* signals needed to handle backing pixmap comments */
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(user_data->dlg.draw_area_comments, "draw", G_CALLBACK(draw_comments), user_data);
+#else
 	g_signal_connect(user_data->dlg.draw_area_comments, "expose_event", G_CALLBACK(expose_event_comments), user_data);
+#endif
 	g_signal_connect(user_data->dlg.draw_area_comments, "configure_event", G_CALLBACK(configure_event_comments), user_data);
 
 	/* signals needed to handle backing pixmap time */
+#if GTK_CHECK_VERSION(3,0,0)
+	g_signal_connect(user_data->dlg.draw_area_time, "draw", G_CALLBACK(draw_time), user_data);
+#else
 	g_signal_connect(user_data->dlg.draw_area_time, "expose_event", G_CALLBACK(expose_event_time), user_data);
+#endif
 	g_signal_connect(user_data->dlg.draw_area_time, "configure_event", G_CALLBACK(configure_event_time), user_data);
 
 	gtk_widget_add_events (user_data->dlg.draw_area, GDK_BUTTON_PRESS_MASK);
