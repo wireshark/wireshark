@@ -37,6 +37,7 @@
  * draft-ietf-idr-bgp-ext-communities-05
  * draft-knoll-idr-qos-attribute-03
  * draft-nalawade-kapoor-tunnel-safi-05
+ * draft-ietf-idr-add-paths-04 Additional-Path for BGP-4
  *
  * TODO:
  * Destination Preference Attribute for BGP (work in progress)
@@ -316,6 +317,7 @@ static const value_string capability_vals[] = {
     { BGP_CAPABILITY_GRACEFUL_RESTART, "Graceful Restart capability" },
     { BGP_CAPABILITY_4_OCTET_AS_NUMBER, "Support for 4-octet AS number capability" },
     { BGP_CAPABILITY_DYNAMIC_CAPABILITY, "Support for Dynamic capability" },
+    { BGP_CAPABILITY_ADDITIONAL_PATHS, "Support for Additional Paths" },
     { BGP_CAPABILITY_ROUTE_REFRESH_CISCO, "Route refresh capability" },
     { BGP_CAPABILITY_ORF_CISCO, "Cooperative route filtering capability" },
     { 0, NULL }
@@ -361,6 +363,7 @@ static int hf_bgp_mp_unreach_nlri_ipv4_prefix = -1;
 static int hf_bgp_mp_nlri_tnl_id = -1;
 static int hf_bgp_withdrawn_prefix = -1;
 static int hf_bgp_nlri_prefix = -1;
+static int hf_bgp_nlri_path_id = -1;
 
 static gint ett_bgp = -1;
 static gint ett_bgp_prefix = -1;
@@ -395,6 +398,108 @@ static gint ett_bgp_orf_entry = -1;     /* orf entry tree */
 static gboolean bgp_desegment = TRUE;
 
 static gint bgp_asn_len = 0;
+
+/*
+ * Detect IPv4 prefixes  conform to BGP Additional Path but NOT conform to standard BGP
+ *
+ * A real BGP speaker would rely on the BGP Additional Path in the BGP Open messages.
+ * But it is not suitable for a packet analyse because the BGP sessions are not supposed to 
+ * restart very often, and Open messages from both sides of the session would be needed
+ * to determine the result of the capability negociation.
+ * Code inspired from the decode_prefix4 function
+ */
+static int
+detect_add_path_prefix4(tvbuff_t *tvb, gint offset, gint end) {
+    guint32 addr_len;
+    guint8 prefix_len;
+    gint o;
+    /* Must be compatible with BGP Additional Path  */
+    for (o = offset + 4; o < end; o += 4) {
+        prefix_len = tvb_get_guint8(tvb, o);
+        if( prefix_len > 32) {
+            return 0; /* invalid prefix lenght - not BGP add-path */
+        }
+        addr_len = (prefix_len + 7) / 8;
+        o += 1 + addr_len;
+        if( o > end ) {
+            return 0; /* invalid offset - not BGP add-path */
+        }
+        if (prefix_len % 8) {
+            /* detect bits set after the end of the prefix */
+            if( tvb_get_guint8(tvb, o - 1 )  & (0xFF >> (prefix_len % 8)) ) {
+                return 0; /* invalid prefix content - not BGP add-path */
+            }
+        }
+    }
+    /* Must NOT be compatible with standard BGP */
+    for (o = offset; o < end; ) {
+        prefix_len = tvb_get_guint8(tvb, o);
+        if( prefix_len > 32) {
+            return 1; /* invalid prefix lenght - may be BGP add-path */
+        }
+        addr_len = (prefix_len + 7) / 8;
+        o += 1 + addr_len;
+        if( o > end ) {
+            return 1; /* invalid offset - may be BGP add-path */
+        }
+        if (prefix_len % 8) {
+            /* detect bits set after the end of the prefix */
+            if( tvb_get_guint8(tvb, o - 1 ) & (0xFF >> (prefix_len % 8)) ) {
+                return 1; /* invalid prefix content - may be BGP add-path (or a bug) */
+            }
+        }
+    }
+    return 0; /* valid - do not assume Additional Path */
+}
+/*
+ * Decode an IPv4 prefix with Path Identifier
+ * Code inspired from the decode_prefix4 function
+ */
+static int
+decode_path_prefix4(proto_tree *tree, int hf_path_id, int hf_addr, tvbuff_t *tvb, gint offset,
+                    const char *tag)
+{
+    proto_item *ti;
+    proto_tree *prefix_tree;
+    union {
+       guint8 addr_bytes[4];
+       guint32 addr;
+    } ip_addr;        /* IP address                         */
+    guint8 plen;      /* prefix length                      */
+    int    length;    /* number of octets needed for prefix */
+    guint32 path_identifier;
+    /* snarf path identifier length and prefix */
+    path_identifier = tvb_get_ntohl(tvb, offset);
+    plen = tvb_get_guint8(tvb, offset + 4);
+    length = ipv4_addr_and_mask(tvb, offset + 4 + 1, ip_addr.addr_bytes, plen);
+    if (length < 0) {
+        proto_tree_add_text(tree, tvb, offset + 4 , 1, "%s length %u invalid (> 32)",
+            tag, plen);
+        return -1;
+    }
+    /* put prefix into protocol tree */
+    ti = proto_tree_add_text(tree, tvb, offset,
+                             4 + 1 + length, "%s/%u PathId %u ",
+                            ip_to_str(ip_addr.addr_bytes), plen, path_identifier);
+    prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
+    if (hf_path_id != -1) {
+        proto_tree_add_uint(prefix_tree, hf_path_id, tvb, offset, 4,
+                            path_identifier);
+    } else {
+        proto_tree_add_text(prefix_tree, tvb, offset, 4,
+                            "%s Path Id: %u", tag, path_identifier);
+    }
+    proto_tree_add_text(prefix_tree, tvb, offset + 4, 1, "%s prefix length: %u",
+                        tag, plen);
+    if (hf_addr != -1) {
+        proto_tree_add_ipv4(prefix_tree, hf_addr, tvb, offset + 4 + 1, length,
+            ip_addr.addr);
+    } else {
+        proto_tree_add_text(prefix_tree, tvb, offset + 4 + 1, length,
+            "%s prefix: %s", tag, ip_to_str(ip_addr.addr_bytes));
+    }
+    return(4 + 1 + length);
+}
 
 /*
  * Decode an IPv4 prefix.
@@ -1377,6 +1482,48 @@ dissect_bgp_capability_item(tvbuff_t *tvb, int *p, proto_tree *tree, int ctype, 
                 }
             }
             break;
+        case BGP_CAPABILITY_ADDITIONAL_PATHS:
+            proto_tree_add_text(tree, tvb, *p - 2, 1,
+                                "Capability code: %s (%d)", val_to_str(ctype,
+                                                                       capability_vals, "Unknown capability"), ctype);
+            if (clen != 4) {
+                proto_tree_add_text(tree, tvb, *p,
+                                    clen, "Capability value: Invalid");
+                proto_tree_add_text(tree, tvb, *p,
+                                    clen, "Capability value: Unknown");
+            }
+            else { /* AFI SAFI Send-receive*/
+                proto_tree_add_text(tree, tvb, *p - 1,
+                                    1, "Capability length: %u byte%s", clen,
+                                    plurality(clen, "", "s"));
+                ti = proto_tree_add_text(tree, tvb, *p, clen, "Capability value");
+                subtree = proto_item_add_subtree(ti, ett_bgp_option);
+               /* AFI */
+                i = tvb_get_ntohs(tvb, *p);
+                proto_tree_add_text(subtree, tvb, *p,
+                                    2, "Address family identifier: %s (%u)",
+                                    val_to_str(i, afn_vals, "Unknown"), i);
+                *p += 2;
+                /* SAFI */
+                i = tvb_get_guint8(tvb, *p);
+                proto_tree_add_text(subtree, tvb, *p,
+                                    1, "Subsequent address family identifier: %s (%u)",
+                                    val_to_str(i, bgpattr_nlri_safi,
+                                               i >= 128 ? "Vendor specific" : "Unknown"), i);
+                (*p)++;
+                /* Send-Receive */
+                i = tvb_get_guint8(tvb, *p);
+                proto_tree_add_text(subtree, tvb, *p, 1,
+                                    "Flags: 0x%02x (%sSend,%sReceive)", i,
+                                    ((i&BGP_ADDPATH_SEND)? "":"Dont"),
+                                    ((i&BGP_ADDPATH_RECEIVE)? "":"Dont"));
+                 /* Note: flags may be provided as a bitfield subtree */
+               (*p)++;
+
+            }
+            *p += clen;
+            break;
+
         case BGP_CAPABILITY_ROUTE_REFRESH_CISCO:
         case BGP_CAPABILITY_ROUTE_REFRESH:
             proto_tree_add_text(tree, tvb, *p - 2, 1,
@@ -1630,17 +1777,28 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
     if (len > 0) {
         ti = proto_tree_add_text(tree, tvb, o, len, "Withdrawn routes:");
         subtree = proto_item_add_subtree(ti, ett_bgp_unfeas);
-
         /* parse each prefix */
-        end = o + len;
-        while (o < end) {
-            i = decode_prefix4(subtree, hf_bgp_withdrawn_prefix, tvb, o, len,
-                "Withdrawn route");
-            if (i < 0)
-                return;
-            o += i;
+                end = o + len;
+        /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
+        if( detect_add_path_prefix4(tvb, o, end) ) {
+            /* IPv4 prefixes with Path Id */
+            while (o < end) {
+                i = decode_path_prefix4(subtree, hf_bgp_nlri_path_id, hf_bgp_withdrawn_prefix, tvb, o, 
+                    "Withdrawn route");
+                if (i < 0)
+                    return;
+                o += i;
+            }
+        } else {
+            while (o < end) {
+                i = decode_prefix4(subtree, hf_bgp_withdrawn_prefix, tvb, o, len,
+                    "Withdrawn route");
+                if (i < 0)
+                    return;
+                o += i;
+            }
         }
-    }
+   }
 
     /* check for advertisements */
     len = tvb_get_ntohs(tvb, o);
@@ -2655,12 +2813,25 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                    plurality(len, "", "s"));
             subtree = proto_item_add_subtree(ti, ett_bgp_nlri);
             end = o + len;
-            while (o < end) {
-                i = decode_prefix4(subtree, hf_bgp_nlri_prefix, tvb, o, 0,
-                    "NLRI");
-                if (i < 0)
-                    return;
-                o += i;
+            /* Heuristic to detect if IPv4 prefix are using Path Identifiers */
+            if( detect_add_path_prefix4(tvb, o, end) ) {
+                /* IPv4 prefixes with Path Id */
+                while (o < end) {
+                    i = decode_path_prefix4(subtree, hf_bgp_nlri_path_id, hf_bgp_nlri_prefix, tvb, o, 
+                                            "NLRI");
+                    if (i < 0)
+                       return;
+                    o += i;
+                }
+            } else {
+                /* Standard prefixes */
+                while (o < end) {
+                    i = decode_prefix4(subtree, hf_bgp_nlri_prefix, tvb, o, 0,
+                           "NLRI");
+                    if (i < 0)
+                        return;
+                    o += i;
+                }
             }
         }
     }
@@ -3211,6 +3382,9 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_nlri_prefix,
         { "NLRI prefix", "bgp.nlri_prefix", FT_IPv4, BASE_NONE,
+          NULL, 0x0, NULL, HFILL}},
+      { &hf_bgp_nlri_path_id,
+        { "NLRI path id", "bgp.nlri_path_id", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_origin,
         { "Origin", "bgp.origin", FT_UINT8, BASE_DEC,
