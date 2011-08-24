@@ -58,7 +58,18 @@ GEOIP_VERSION=1.4.8
 # You need Xcode installed to get the compilers.
 #
 if [ ! -x /usr/bin/xcodebuild ]; then
-	echo "Please install Xcode first (should be available on DVD)."
+	echo "Please install Xcode first (should be available on DVD or from http://developer.apple.com/xcode/index.php)."
+	exit 1
+fi
+
+#
+# You also need the X11 SDK; with at least some versions of OS X and
+# Xcode, that is, I think, an optional install.  (Or it might be
+# installed with X11, but I think *that* is an optional install on
+# at least some versions of OS X.)
+#
+if [ ! -d /usr/X11/include ]; then
+	echo "Please install X11 and the X11 SDK first."
 	exit 1
 fi
 
