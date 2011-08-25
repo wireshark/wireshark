@@ -1163,53 +1163,53 @@ static const char *ui_desc_menubar =
 "      <menuitem name='PacketLengths' action='/Statistics/plen'/>\n"
 "      <menuitem name='IOGraphs' action='/Statistics/IOGraphs'/>\n"
 "      <separator/>\n"
-"      <menu name= 'ConversationListMenu' action='/Analyze/ConversationList'>\n"
-"        <menuitem name='Ethernet' action='/Analyze/ConversationList/Ethernet'/>\n"
-"        <menuitem name='FibreChannel' action='/Analyze/ConversationList/FibreChannel'/>\n"
-"        <menuitem name='FDDI' action='/Analyze/ConversationList/FDDI'/>\n"
-"        <menuitem name='IP' action='/Analyze/ConversationList/IP'/>\n"
-"        <menuitem name='IPv6' action='/Analyze/ConversationList/IPv6'/>\n"
-"        <menuitem name='JXTA' action='/Analyze/ConversationList/JXTA'/>\n"
-"        <menuitem name='NCP' action='/Analyze/ConversationList/NCP'/>\n"
-"        <menuitem name='RSVP' action='/Analyze/ConversationList/RSVP'/>\n"
-"        <menuitem name='SCTP' action='/Analyze/ConversationList/SCTP'/>\n"
-"        <menuitem name='TCPIP' action='/Analyze/ConversationList/TCPIP'/>\n"
-"        <menuitem name='TR' action='/Analyze/ConversationList/TR'/>\n"
-"        <menuitem name='UDPIP' action='/Analyze/ConversationList/UDPIP'/>\n"
-"        <menuitem name='USB' action='/Analyze/ConversationList/USB'/>\n"
-"        <menuitem name='WLAN' action='/Analyze/ConversationList/WLAN'/>\n"
+"      <menu name= 'ConversationListMenu' action='/Stataistics/ConversationList'>\n"
+"        <menuitem name='Ethernet' action='/Stataistics/ConversationList/Ethernet'/>\n"
+"        <menuitem name='FibreChannel' action='/Stataistics/ConversationList/FibreChannel'/>\n"
+"        <menuitem name='FDDI' action='/Stataistics/ConversationList/FDDI'/>\n"
+"        <menuitem name='IP' action='/Stataistics/ConversationList/IP'/>\n"
+"        <menuitem name='IPv6' action='/Stataistics/ConversationList/IPv6'/>\n"
+"        <menuitem name='JXTA' action='/Stataistics/ConversationList/JXTA'/>\n"
+"        <menuitem name='NCP' action='/Stataistics/ConversationList/NCP'/>\n"
+"        <menuitem name='RSVP' action='/Stataistics/ConversationList/RSVP'/>\n"
+"        <menuitem name='SCTP' action='/Stataistics/ConversationList/SCTP'/>\n"
+"        <menuitem name='TCPIP' action='/Stataistics/ConversationList/TCPIP'/>\n"
+"        <menuitem name='TR' action='/Stataistics/ConversationList/TR'/>\n"
+"        <menuitem name='UDPIP' action='/Stataistics/ConversationList/UDPIP'/>\n"
+"        <menuitem name='USB' action='/Stataistics/ConversationList/USB'/>\n"
+"        <menuitem name='WLAN' action='/Stataistics/ConversationList/WLAN'/>\n"
 "      </menu>\n"
-"      <menu name= 'EndpointListMenu' action='/Analyze/EndpointList'>\n"
-"        <menuitem name='Ethernet' action='/Analyze/EndpointList/Ethernet'/>\n"
-"        <menuitem name='FibreChannel' action='/Analyze/EndpointList/FibreChannel'/>\n"
-"        <menuitem name='FDDI' action='/Analyze/EndpointList/FDDI'/>\n"
-"        <menuitem name='IP' action='/Analyze/EndpointList/IP'/>\n"
-"        <menuitem name='IPv6' action='/Analyze/EndpointList/IPv6'/>\n"
-"        <menuitem name='JXTA' action='/Analyze/EndpointList/JXTA'/>\n"
-"        <menuitem name='RSVP' action='/Analyze/EndpointList/RSVP'/>\n"
-"        <menuitem name='SCTP' action='/Analyze/ConversationList/SCTP'/>\n"
-"        <menuitem name='TCPIP' action='/Analyze/ConversationList/TCPIP'/>\n"
-"        <menuitem name='TR' action='/Analyze/ConversationList/TR'/>\n"
-"        <menuitem name='UDPIP' action='/Analyze/ConversationList/UDPIP'/>\n"
-"        <menuitem name='USB' action='/Analyze/ConversationList/USB'/>\n"
-"        <menuitem name='WLAN' action='/Analyze/ConversationList/WLAN'/>\n"
+"      <menu name= 'EndpointListMenu' action='/Statistics/EndpointList'>\n"
+"        <menuitem name='Ethernet' action='/Statistics/EndpointList/Ethernet'/>\n"
+"        <menuitem name='FibreChannel' action='/Statistics/EndpointList/FibreChannel'/>\n"
+"        <menuitem name='FDDI' action='/Statistics/EndpointList/FDDI'/>\n"
+"        <menuitem name='IP' action='/Statistics/EndpointList/IP'/>\n"
+"        <menuitem name='IPv6' action='/Statistics/EndpointList/IPv6'/>\n"
+"        <menuitem name='JXTA' action='/Statistics/EndpointList/JXTA'/>\n"
+"        <menuitem name='RSVP' action='/Statistics/EndpointList/RSVP'/>\n"
+"        <menuitem name='SCTP' action='/Statistics/EndpointList/SCTP'/>\n"
+"        <menuitem name='TCPIP' action='/Statistics/EndpointList/TCPIP'/>\n"
+"        <menuitem name='TR' action='/Statistics/EndpointList/TR'/>\n"
+"        <menuitem name='UDPIP' action='/Statistics/EndpointList/UDPIP'/>\n"
+"        <menuitem name='USB' action='/Statistics/EndpointList/USB'/>\n"
+"        <menuitem name='WLAN' action='/Statistics/EndpointList/WLAN'/>\n"
 "      </menu>\n"
-"      <menu name='ServiceResponseTimeMenu' action='/Analyze/ServiceResponseTime'>\n"
-"        <menuitem name='AFP' action='/Analyze/ServiceResponseTime/AFP'/>\n"
-"        <menuitem name='ONC-RPC' action='/Analyze/ServiceResponseTime/ONC-RPC'/>\n"
-"        <menuitem name='Camel' action='/Analyze/ServiceResponseTime/Camel'/>\n"
-"        <menuitem name='DCE-RPC' action='/Analyze/ServiceResponseTime/DCE-RPC'/>\n"
-"        <menuitem name='Diameter' action='/Analyze/ServiceResponseTime/Diameter'/>\n"
-"        <menuitem name='FibreChannel' action='/Analyze/ServiceResponseTime/FibreChannel'/>\n"
-"        <menuitem name='GTP' action='/Analyze/ServiceResponseTime/GTP'/>\n"
-"        <menuitem name='H225' action='/Analyze/ServiceResponseTime/H225'/>\n"
-"        <menuitem name='LDAP' action='/Analyze/ServiceResponseTime/LDAP'/>\n"
-"        <menuitem name='MEGACO' action='/Analyze/ServiceResponseTime/MEGACO'/>\n"
-"        <menuitem name='MGCP' action='/Analyze/ServiceResponseTime/MGCP'/>\n"
-"        <menuitem name='NCP' action='/Analyze/ServiceResponseTime/NCP'/>\n"
-"        <menuitem name='RADIUS' action='/Analyze/ServiceResponseTime/RADIUS'/>\n"
-"        <menuitem name='SCSI' action='/Analyze/ServiceResponseTime/SCSI'/>\n"
-"        <menuitem name='SMB2' action='/Analyze/ServiceResponseTime/SMB2'/>\n"
+"      <menu name='ServiceResponseTimeMenu' action='/Statistics/ServiceResponseTime'>\n"
+"        <menuitem name='AFP' action='/Statistics/ServiceResponseTime/AFP'/>\n"
+"        <menuitem name='ONC-RPC' action='/Statistics/ServiceResponseTime/ONC-RPC'/>\n"
+"        <menuitem name='Camel' action='/Statistics/ServiceResponseTime/Camel'/>\n"
+"        <menuitem name='DCE-RPC' action='/Statistics/ServiceResponseTime/DCE-RPC'/>\n"
+"        <menuitem name='Diameter' action='/Statistics/ServiceResponseTime/Diameter'/>\n"
+"        <menuitem name='FibreChannel' action='/Statistics/ServiceResponseTime/FibreChannel'/>\n"
+"        <menuitem name='GTP' action='/Statistics/ServiceResponseTime/GTP'/>\n"
+"        <menuitem name='H225' action='/Statistics/ServiceResponseTime/H225'/>\n"
+"        <menuitem name='LDAP' action='/Statistics/ServiceResponseTime/LDAP'/>\n"
+"        <menuitem name='MEGACO' action='/Statistics/ServiceResponseTime/MEGACO'/>\n"
+"        <menuitem name='MGCP' action='/Statistics/ServiceResponseTime/MGCP'/>\n"
+"        <menuitem name='NCP' action='/Statistics/ServiceResponseTime/NCP'/>\n"
+"        <menuitem name='RADIUS' action='/Statistics/ServiceResponseTime/RADIUS'/>\n"
+"        <menuitem name='SCSI' action='/Statistics/ServiceResponseTime/SCSI'/>\n"
+"        <menuitem name='SMB2' action='/Statistics/ServiceResponseTime/SMB2'/>\n"
 "      </menu>\n"
 "      <separator/>\n"
 "      <menuitem name='ANCP' action='/StatisticsMenu/ancp'/>\n"
@@ -1300,6 +1300,9 @@ static const char *ui_desc_menubar =
 "    </menu>\n"
 "    <menu name= 'ToolsMenu' action='/Tools'>\n"
 "      <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>\n"
+"      <menu name='LUA' action='/Tools/LUA'>\n"
+"         <placeholder name='LUA-menu-items'/>\n"
+"      </menu>\n"
 "    </menu>\n"
 "    <menu name= 'InternalsMenu' action='/Internals'>\n"
 "      <menuitem name='Dissectortables' action='/Internals/Dissectortables'/>\n"
@@ -1623,57 +1626,59 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/ExpertInfoComposite",WIRESHARK_STOCK_EXPERT_INFO,		"Expert Info _Composite",				NULL, NULL, G_CALLBACK(expert_comp_dlg_launch) },
 
    { "/Analyze/ConversationFilter",							NULL,		"Conversation Filter",					NULL, NULL, NULL },
-   { "/Analyze/ConversationList",							NULL,		"_Conversation List",					NULL, NULL, NULL },
-   { "/Analyze/ConversationList/Ethernet",		WIRESHARK_STOCK_CONVERSATIONS,	"Ethernet",						NULL, NULL,	G_CALLBACK(eth_endpoints_cb) },
-   { "/Analyze/ConversationList/FibreChannel",	WIRESHARK_STOCK_CONVERSATIONS,	"Fibre Channel",				NULL, NULL,	G_CALLBACK(fc_endpoints_cb) },
-   { "/Analyze/ConversationList/FDDI",			WIRESHARK_STOCK_CONVERSATIONS,	"FDDI",							NULL, NULL,	G_CALLBACK(fddi_endpoints_cb) },
-   { "/Analyze/ConversationList/IP",			WIRESHARK_STOCK_CONVERSATIONS,	"IPv4",							NULL, NULL,	G_CALLBACK(ip_endpoints_cb) },
-   { "/Analyze/ConversationList/IPv6",			WIRESHARK_STOCK_CONVERSATIONS,	"IPv6",							NULL, NULL,	G_CALLBACK(ipv6_endpoints_cb) },
-   { "/Analyze/ConversationList/IPX",			WIRESHARK_STOCK_CONVERSATIONS,	"IPX",							NULL, NULL,	G_CALLBACK(ipx_endpoints_cb) },
-   { "/Analyze/ConversationList/JXTA",			WIRESHARK_STOCK_CONVERSATIONS,	"JXTA",							NULL, NULL,	G_CALLBACK(jxta_conversation_cb) },
-   { "/Analyze/ConversationList/NCP",			WIRESHARK_STOCK_CONVERSATIONS,	"NCP",							NULL, NULL,	G_CALLBACK(ncp_endpoints_cb) },
-   { "/Analyze/ConversationList/RSVP",			WIRESHARK_STOCK_CONVERSATIONS,	"RSVP",							NULL, NULL,	G_CALLBACK(rsvp_endpoints_cb) },
-   { "/Analyze/ConversationList/SCTP",			WIRESHARK_STOCK_CONVERSATIONS,	"SCTP",							NULL, NULL,	G_CALLBACK(sctp_conversation_cb) },
-   { "/Analyze/ConversationList/TCPIP",			WIRESHARK_STOCK_CONVERSATIONS,	"TCP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(tcpip_conversation_cb) },
-   { "/Analyze/ConversationList/TR",			WIRESHARK_STOCK_CONVERSATIONS,	"Token Ring",					NULL, NULL,	G_CALLBACK(tr_conversation_cb) },
-   { "/Analyze/ConversationList/UDPIP",			WIRESHARK_STOCK_CONVERSATIONS,	"UDP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(udpip_conversation_cb) },
-   { "/Analyze/ConversationList/USB",			WIRESHARK_STOCK_CONVERSATIONS,	"USB",							NULL, NULL,	G_CALLBACK(usb_endpoints_cb) },
-   { "/Analyze/ConversationList/WLAN",			WIRESHARK_STOCK_CONVERSATIONS,	"WLAN",							NULL, NULL,	G_CALLBACK(wlan_endpoints_cb) },
 
-   { "/Analyze/EndpointList",								NULL,				"_Endpoint List",				NULL, NULL, NULL },
-   { "/Analyze/EndpointList/Ethernet",			WIRESHARK_STOCK_ENDPOINTS,		"Ethernet",						NULL, NULL,	G_CALLBACK(gtk_eth_hostlist_cb) },
-   { "/Analyze/EndpointList/FibreChannel",		WIRESHARK_STOCK_ENDPOINTS,		"Fibre Channel",				NULL, NULL,	G_CALLBACK(gtk_fc_hostlist_cb) },
-   { "/Analyze/EndpointList/FDDI",				WIRESHARK_STOCK_ENDPOINTS,		"FDDI",							NULL, NULL,	G_CALLBACK(gtk_fddi_hostlist_cb) },
-   { "/Analyze/EndpointList/IP",				WIRESHARK_STOCK_ENDPOINTS,		"IPv4",							NULL, NULL,	G_CALLBACK(gtk_ip_hostlist_cb) },
-   { "/Analyze/EndpointList/IPv6",				WIRESHARK_STOCK_ENDPOINTS,		"IPv6",							NULL, NULL,	G_CALLBACK(gtk_ipv6_hostlist_cb) },
-   { "/Analyze/EndpointList/IPX",				WIRESHARK_STOCK_ENDPOINTS,		"IPX",							NULL, NULL,	G_CALLBACK(gtk_ipx_hostlist_cb) },
-   { "/Analyze/EndpointList/JXTA",				WIRESHARK_STOCK_ENDPOINTS,		"JXTA",							NULL, NULL,	G_CALLBACK(gtk_jxta_hostlist_cb) },
-   { "/Analyze/EndpointList/NCP",				WIRESHARK_STOCK_ENDPOINTS,		"NCP",							NULL, NULL,	G_CALLBACK(gtk_ncp_hostlist_cb) },
-   { "/Analyze/EndpointList/RSVP",				WIRESHARK_STOCK_ENDPOINTS,		"RSVP",							NULL, NULL,	G_CALLBACK(gtk_rsvp_hostlist_cb) },
-   { "/Analyze/EndpointList/SCTP",				WIRESHARK_STOCK_ENDPOINTS,		"SCTP",							NULL, NULL,	G_CALLBACK(gtk_sctp_hostlist_cb) },
-   { "/Analyze/EndpointList/TCPIP",				WIRESHARK_STOCK_ENDPOINTS,		"TCP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(gtk_tcpip_hostlist_cb) },
-   { "/Analyze/EndpointList/TR",				WIRESHARK_STOCK_ENDPOINTS,		"Token Ring",					NULL, NULL,	G_CALLBACK(gtk_tr_hostlist_cb) },
-   { "/Analyze/EndpointList/UDPIP",				WIRESHARK_STOCK_ENDPOINTS,		"UDP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(gtk_udpip_hostlist_cb) },
-   { "/Analyze/EndpointList/USB",				WIRESHARK_STOCK_ENDPOINTS,		"USB",							NULL, NULL,	G_CALLBACK(gtk_usb_hostlist_cb) },
-   { "/Analyze/EndpointList/WLAN",				WIRESHARK_STOCK_ENDPOINTS,		"WLAN",							NULL, NULL,	G_CALLBACK(gtk_wlan_hostlist_cb) },
 
-   { "/Analyze/ServiceResponseTime",						NULL,				"Service _Response Time",		NULL, NULL, NULL },
-   { "/Analyze/ServiceResponseTime/ONC-RPC",	WIRESHARK_STOCK_TIME,			"ONC-RPC...",					NULL, NULL,	G_CALLBACK(gtk_rpcstat_cb) },
-   { "/Analyze/ServiceResponseTime/AFP",		WIRESHARK_STOCK_TIME,			"AFP...",						NULL, NULL,	G_CALLBACK(afp_srt_stat_cb) },
-   { "/Analyze/ServiceResponseTime/Camel",		WIRESHARK_STOCK_TIME,			"Camel...",						NULL, NULL,	G_CALLBACK(camel_srt_cb) },
-   { "/Analyze/ServiceResponseTime/DCE-RPC",	WIRESHARK_STOCK_TIME,			"DCE-RPC...",					NULL, NULL,	G_CALLBACK(gtk_dcerpcstat_cb) },
-   { "/Analyze/ServiceResponseTime/Diameter",	WIRESHARK_STOCK_TIME,			"Diameter...",					NULL, NULL,	G_CALLBACK(diameter_srt_cb) },
-   { "/Analyze/ServiceResponseTime/FibreChannel",	WIRESHARK_STOCK_TIME,		"Fibre Channel...",				NULL, NULL,	G_CALLBACK(fc_srt_cb) },
-   { "/Analyze/ServiceResponseTime/GTP",		WIRESHARK_STOCK_TIME,			"GTP...",						NULL, NULL,	G_CALLBACK(gtp_srt_cb) },
-   { "/Analyze/ServiceResponseTime/H225",		WIRESHARK_STOCK_TIME,			"H225...",						NULL, NULL,	G_CALLBACK(h225_srt_cb) },
-   { "/Analyze/ServiceResponseTime/LDAP",		WIRESHARK_STOCK_TIME,			"LDAP...",						NULL, NULL,	G_CALLBACK(ldap_srt_cb) },
-   { "/Analyze/ServiceResponseTime/MEGACO",		WIRESHARK_STOCK_TIME,			"MEGACO...",					NULL, NULL,	G_CALLBACK(megaco_srt_cb) },
-   { "/Analyze/ServiceResponseTime/MGCP",		WIRESHARK_STOCK_TIME,			"MGCP...",						NULL, NULL,	G_CALLBACK(mgcp_srt_cb) },
-   { "/Analyze/ServiceResponseTime/NCP",		WIRESHARK_STOCK_TIME,			"NCP...",						NULL, NULL,	G_CALLBACK(ncp_srt_cb) },
-   { "/Analyze/ServiceResponseTime/RADIUS",		WIRESHARK_STOCK_TIME,			"RADIUS...",					NULL, NULL,	G_CALLBACK(radius_srt_cb) },
-   { "/Analyze/ServiceResponseTime/SCSI",		WIRESHARK_STOCK_TIME,			"SCSI...",						NULL, NULL,	G_CALLBACK(scsi_srt_cb) },
-   { "/Analyze/ServiceResponseTime/SMB",		WIRESHARK_STOCK_TIME,			"SMB...",						NULL, NULL,	G_CALLBACK(smb_srt_cb) },
-   { "/Analyze/ServiceResponseTime/SMB2",		WIRESHARK_STOCK_TIME,			"SMB2...",						NULL, NULL,	G_CALLBACK(smb2_srt_cb) },
+   { "/Stataistics/ConversationList",							NULL,		"_Conversation List",					NULL, NULL, NULL },
+   { "/Stataistics/ConversationList/Ethernet",		WIRESHARK_STOCK_CONVERSATIONS,	"Ethernet",						NULL, NULL,	G_CALLBACK(eth_endpoints_cb) },
+   { "/Stataistics/ConversationList/FibreChannel",	WIRESHARK_STOCK_CONVERSATIONS,	"Fibre Channel",				NULL, NULL,	G_CALLBACK(fc_endpoints_cb) },
+   { "/Stataistics/ConversationList/FDDI",			WIRESHARK_STOCK_CONVERSATIONS,	"FDDI",							NULL, NULL,	G_CALLBACK(fddi_endpoints_cb) },
+   { "/Stataistics/ConversationList/IP",			WIRESHARK_STOCK_CONVERSATIONS,	"IPv4",							NULL, NULL,	G_CALLBACK(ip_endpoints_cb) },
+   { "/Stataistics/ConversationList/IPv6",			WIRESHARK_STOCK_CONVERSATIONS,	"IPv6",							NULL, NULL,	G_CALLBACK(ipv6_endpoints_cb) },
+   { "/Stataistics/ConversationList/IPX",			WIRESHARK_STOCK_CONVERSATIONS,	"IPX",							NULL, NULL,	G_CALLBACK(ipx_endpoints_cb) },
+   { "/Stataistics/ConversationList/JXTA",			WIRESHARK_STOCK_CONVERSATIONS,	"JXTA",							NULL, NULL,	G_CALLBACK(jxta_conversation_cb) },
+   { "/Stataistics/ConversationList/NCP",			WIRESHARK_STOCK_CONVERSATIONS,	"NCP",							NULL, NULL,	G_CALLBACK(ncp_endpoints_cb) },
+   { "/Stataistics/ConversationList/RSVP",			WIRESHARK_STOCK_CONVERSATIONS,	"RSVP",							NULL, NULL,	G_CALLBACK(rsvp_endpoints_cb) },
+   { "/Stataistics/ConversationList/SCTP",			WIRESHARK_STOCK_CONVERSATIONS,	"SCTP",							NULL, NULL,	G_CALLBACK(sctp_conversation_cb) },
+   { "/Stataistics/ConversationList/TCPIP",			WIRESHARK_STOCK_CONVERSATIONS,	"TCP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(tcpip_conversation_cb) },
+   { "/Stataistics/ConversationList/TR",			WIRESHARK_STOCK_CONVERSATIONS,	"Token Ring",					NULL, NULL,	G_CALLBACK(tr_conversation_cb) },
+   { "/Stataistics/ConversationList/UDPIP",			WIRESHARK_STOCK_CONVERSATIONS,	"UDP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(udpip_conversation_cb) },
+   { "/Stataistics/ConversationList/USB",			WIRESHARK_STOCK_CONVERSATIONS,	"USB",							NULL, NULL,	G_CALLBACK(usb_endpoints_cb) },
+   { "/Stataistics/ConversationList/WLAN",			WIRESHARK_STOCK_CONVERSATIONS,	"WLAN",							NULL, NULL,	G_CALLBACK(wlan_endpoints_cb) },
+
+   { "/Statistics/EndpointList",								NULL,				"_Endpoint List",				NULL, NULL, NULL },
+   { "/Statistics/EndpointList/Ethernet",			WIRESHARK_STOCK_ENDPOINTS,		"Ethernet",						NULL, NULL,	G_CALLBACK(gtk_eth_hostlist_cb) },
+   { "/Statistics/EndpointList/FibreChannel",		WIRESHARK_STOCK_ENDPOINTS,		"Fibre Channel",				NULL, NULL,	G_CALLBACK(gtk_fc_hostlist_cb) },
+   { "/Statistics/EndpointList/FDDI",				WIRESHARK_STOCK_ENDPOINTS,		"FDDI",							NULL, NULL,	G_CALLBACK(gtk_fddi_hostlist_cb) },
+   { "/Statistics/EndpointList/IP",					WIRESHARK_STOCK_ENDPOINTS,		"IPv4",							NULL, NULL,	G_CALLBACK(gtk_ip_hostlist_cb) },
+   { "/Statistics/EndpointList/IPv6",				WIRESHARK_STOCK_ENDPOINTS,		"IPv6",							NULL, NULL,	G_CALLBACK(gtk_ipv6_hostlist_cb) },
+   { "/Statistics/EndpointList/IPX",				WIRESHARK_STOCK_ENDPOINTS,		"IPX",							NULL, NULL,	G_CALLBACK(gtk_ipx_hostlist_cb) },
+   { "/Statistics/EndpointList/JXTA",				WIRESHARK_STOCK_ENDPOINTS,		"JXTA",							NULL, NULL,	G_CALLBACK(gtk_jxta_hostlist_cb) },
+   { "/Statistics/EndpointList/NCP",				WIRESHARK_STOCK_ENDPOINTS,		"NCP",							NULL, NULL,	G_CALLBACK(gtk_ncp_hostlist_cb) },
+   { "/Statistics/EndpointList/RSVP",				WIRESHARK_STOCK_ENDPOINTS,		"RSVP",							NULL, NULL,	G_CALLBACK(gtk_rsvp_hostlist_cb) },
+   { "/Statistics/EndpointList/SCTP",				WIRESHARK_STOCK_ENDPOINTS,		"SCTP",							NULL, NULL,	G_CALLBACK(gtk_sctp_hostlist_cb) },
+   { "/Statistics/EndpointList/TCPIP",				WIRESHARK_STOCK_ENDPOINTS,		"TCP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(gtk_tcpip_hostlist_cb) },
+   { "/Statistics/EndpointList/TR",					WIRESHARK_STOCK_ENDPOINTS,		"Token Ring",					NULL, NULL,	G_CALLBACK(gtk_tr_hostlist_cb) },
+   { "/Statistics/EndpointList/UDPIP",				WIRESHARK_STOCK_ENDPOINTS,		"UDP (IPv4 & IPv6)",			NULL, NULL,	G_CALLBACK(gtk_udpip_hostlist_cb) },
+   { "/Statistics/EndpointList/USB",				WIRESHARK_STOCK_ENDPOINTS,		"USB",							NULL, NULL,	G_CALLBACK(gtk_usb_hostlist_cb) },
+   { "/Statistics/EndpointList/WLAN",				WIRESHARK_STOCK_ENDPOINTS,		"WLAN",							NULL, NULL,	G_CALLBACK(gtk_wlan_hostlist_cb) },
+
+   { "/Statistics/ServiceResponseTime",						NULL,				"Service _Response Time",		NULL, NULL, NULL },
+   { "/Statistics/ServiceResponseTime/ONC-RPC",	WIRESHARK_STOCK_TIME,			"ONC-RPC...",					NULL, NULL,	G_CALLBACK(gtk_rpcstat_cb) },
+   { "/Statistics/ServiceResponseTime/AFP",		WIRESHARK_STOCK_TIME,			"AFP...",						NULL, NULL,	G_CALLBACK(afp_srt_stat_cb) },
+   { "/Statistics/ServiceResponseTime/Camel",		WIRESHARK_STOCK_TIME,			"Camel...",						NULL, NULL,	G_CALLBACK(camel_srt_cb) },
+   { "/Statistics/ServiceResponseTime/DCE-RPC",	WIRESHARK_STOCK_TIME,			"DCE-RPC...",					NULL, NULL,	G_CALLBACK(gtk_dcerpcstat_cb) },
+   { "/Statistics/ServiceResponseTime/Diameter",	WIRESHARK_STOCK_TIME,			"Diameter...",					NULL, NULL,	G_CALLBACK(diameter_srt_cb) },
+   { "/Statistics/ServiceResponseTime/FibreChannel",	WIRESHARK_STOCK_TIME,		"Fibre Channel...",				NULL, NULL,	G_CALLBACK(fc_srt_cb) },
+   { "/Statistics/ServiceResponseTime/GTP",		WIRESHARK_STOCK_TIME,			"GTP...",						NULL, NULL,	G_CALLBACK(gtp_srt_cb) },
+   { "/Statistics/ServiceResponseTime/H225",		WIRESHARK_STOCK_TIME,			"H225...",						NULL, NULL,	G_CALLBACK(h225_srt_cb) },
+   { "/Statistics/ServiceResponseTime/LDAP",		WIRESHARK_STOCK_TIME,			"LDAP...",						NULL, NULL,	G_CALLBACK(ldap_srt_cb) },
+   { "/Statistics/ServiceResponseTime/MEGACO",		WIRESHARK_STOCK_TIME,			"MEGACO...",					NULL, NULL,	G_CALLBACK(megaco_srt_cb) },
+   { "/Statistics/ServiceResponseTime/MGCP",		WIRESHARK_STOCK_TIME,			"MGCP...",						NULL, NULL,	G_CALLBACK(mgcp_srt_cb) },
+   { "/Statistics/ServiceResponseTime/NCP",		WIRESHARK_STOCK_TIME,			"NCP...",						NULL, NULL,	G_CALLBACK(ncp_srt_cb) },
+   { "/Statistics/ServiceResponseTime/RADIUS",		WIRESHARK_STOCK_TIME,			"RADIUS...",					NULL, NULL,	G_CALLBACK(radius_srt_cb) },
+   { "/Statistics/ServiceResponseTime/SCSI",		WIRESHARK_STOCK_TIME,			"SCSI...",						NULL, NULL,	G_CALLBACK(scsi_srt_cb) },
+   { "/Statistics/ServiceResponseTime/SMB",		WIRESHARK_STOCK_TIME,			"SMB...",						NULL, NULL,	G_CALLBACK(smb_srt_cb) },
+   { "/Statistics/ServiceResponseTime/SMB2",		WIRESHARK_STOCK_TIME,			"SMB2...",						NULL, NULL,	G_CALLBACK(smb2_srt_cb) },
 
    { "/StatisticsMenu/ancp",							NULL,		"ANCP",								NULL, NULL,	G_CALLBACK(gtk_stats_tree_cb) },
    { "/StatisticsMenu/BACnet",							NULL,		"BACnet",							NULL, NULL, NULL },
@@ -1766,6 +1771,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/WSP",					NULL,						"_WAP-WSP...",				NULL,						NULL,				G_CALLBACK(wsp_stat_cb) },
 
    { "/Tools/FirewallACLRules",		NULL,							"Firewall ACL Rules",		NULL,						NULL,				G_CALLBACK(firewall_rule_cb) },
+   { "/Tools/LUA",					NULL,							"LUA",						NULL, NULL, NULL },
 
    { "/Internals/Dissectortables",	NULL,							"_Dissector tables",		NULL,						NULL,				G_CALLBACK(dissector_tables_dlg_cb) },
    { "/Internals/SupportedProtocols", NULL,					"_Supported Protocols (slow!)",		NULL,						NULL,				G_CALLBACK(supported_cb) },
