@@ -6612,7 +6612,6 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
     int i, offset, length, gtp_prime, checked_field, mandatory;
     int seq_no=0, flow_label=0;
     guint8 pdu_no, next_hdr = 0, ext_hdr_val, noOfExtHdrs = 0, ext_hdr_length;
-    guint16 pdcpsn;
     gchar *tid_str;
     guint32 teid = 0;
     tvbuff_t *next_tvb;
@@ -6770,7 +6769,7 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                          *  When used between two eNBs at the X2 interface in E-UTRAN, bits 5-8 of octet 2 are spare.
                          *  The meaning of the spare bits shall be set to zero.
                          *
-                         *
+                         * Wireshark Note: TS 29.060 does not define bit 5-6 as spare, so no check is possible unless a preference is used.
 						 */
                         if (next_hdr == GTP_EXT_HDR_PDCP_SN) {
                                                                                   
@@ -6779,24 +6778,15 @@ static void dissect_gtp_common(tvbuff_t * tvb, packet_info * pinfo, proto_tree *
                         	if (ext_hdr_length != 1) {
                         		expert_add_info_format(pinfo, ext_tree, PI_PROTOCOL, PI_WARN, "The length field for the PDCP SN Extension header should be 1.");
                         	}
-                        	item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
-
+                        	proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_length, tvb, offset,1, ENC_BIG_ENDIAN);
                             offset++;
 
-                            /* Second and third bytes are PDCP SN, bits 5-8 of first byte should be 0. */
-                            pdcpsn = tvb_get_ntohs(tvb,offset);
-
-                            item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, pdcpsn & 0x0FFF);
-
-                            if (pdcpsn & 0xF000) {
-                            	expert_add_info_format(pinfo, item, PI_PROTOCOL, PI_WARN, "Reserved bits should be zero.");
-                            }
-
+                            proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_pdcpsn, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                             
                             /* Last is next_hdr */
                             next_hdr = tvb_get_guint8(tvb, offset);
-                            item = proto_tree_add_uint(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, next_hdr);
+                            item = proto_tree_add_item(ext_tree, hf_gtp_ext_hdr_next, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                             if (next_hdr) {
                             	expert_add_info_format(pinfo, item, PI_UNDECODED, PI_WARN, "Can't decode more than one extension header.");
@@ -7038,7 +7028,7 @@ void proto_register_gtp(void)
         {&hf_gtp_flags, {"Flags", "gtp.flags", FT_UINT8, BASE_HEX, NULL, 0, "Ver/PT/Spare...", HFILL}},
         {&hf_gtp_ext_hdr, {"Extension header", "gtp.ext_hdr", FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0, NULL, HFILL}},
         {&hf_gtp_ext_hdr_next, {"Next extension header", "gtp.ext_hdr.next", FT_UINT8, BASE_HEX, VALS(next_extension_header_fieldvals), 0, NULL, HFILL}},
-        {&hf_gtp_ext_hdr_pdcpsn, {"PDCP Sequence Number", "gtp.ext_hdr.pdcp_sn", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
+        {&hf_gtp_ext_hdr_pdcpsn, {"PDCP Sequence Number", "gtp.ext_hdr.pdcp_sn", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_gtp_ext_hdr_length, {"Extension Header Length", "gtp.ext_hdr.length", FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL}},
         {&hf_gtp_flags_ver,
          {"Version", "gtp.flags.version",
