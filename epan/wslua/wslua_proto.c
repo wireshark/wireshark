@@ -1278,6 +1278,12 @@ static int Proto_get_name(lua_State* L) {
     return 1;
 }
 
+static int Proto_get_description(lua_State* L) {
+    Proto proto = toProto(L,1);
+    lua_pushstring(L,proto->desc);
+    return 1;
+}
+
 static int Proto_get_fields(lua_State* L) {
     Proto proto = toProto(L,1);
     lua_rawgeti(L, LUA_REGISTRYINDEX, proto->fields);
@@ -1344,6 +1350,10 @@ static const proto_actions_t proto_actions[] = {
 
     /* WSLUA_ATTRIBUTE Proto_name RO The name given to this dissector */
     {"name",Proto_get_name,NULL},
+
+    /* WSLUA_ATTRIBUTE Proto_description RO The description given to this dissector */
+    {"description",Proto_get_description,NULL},
+
     {NULL,NULL,NULL}
 };
 
