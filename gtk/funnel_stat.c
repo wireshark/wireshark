@@ -29,6 +29,11 @@
 /*
  * Most of the code here has been harvested from other Wireshark gtk modules.
  * most from prefs_dlg.c and about_dlg.c
+ *
+ * (From original checkin message:
+ * The funneled GUI mini API.
+ * A very reduced set of gui ops (by now just a text window) 
+ * that can be funneled to dissectors (even plugins) via epan.
  */
 
 #ifdef HAVE_CONFIG_H
@@ -596,13 +601,11 @@ typedef struct _menu_cb_t {
     gboolean retap;
 } menu_cb_t;
 
-#ifndef MAIN_MENU_USE_UIMANAGER
 static void our_menu_callback(void* unused _U_, gpointer data) {
     menu_cb_t* mcb = data;
     mcb->callback(mcb->callback_data);
     if (mcb->retap) cf_retap_packets(&cfile);
 }
-#endif
 
 static void register_menu_cb(const char *name,
                              register_stat_group_t group _U_,
@@ -616,7 +619,18 @@ static void register_menu_cb(const char *name,
     mcb->retap = retap;
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-    g_warning("funnel_stat.c This functionality is broken, menu item %s will not be available", name);
+	register_lua_menu_bar_menu_items(
+		"/Menubar/ToolsMenu/LUA/LUA-menu-items", /* GUI path to the place holder in the menu */
+		name, /* Action mame */
+		NULL, /* Stock id */
+		name, /* label */
+		NULL, /* Accelerator */
+		NULL, /* Tooltip */
+		our_menu_callback, /* Callback */
+		mcb,               /* callback data */
+		TRUE,              /* enabled */
+		NULL,
+		NULL);
 #else
     register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
 #endif

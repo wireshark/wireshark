@@ -74,6 +74,9 @@ register_stat_menu_item(
 #endif
 
 /**
+ * XXX TODO: Rewrite me
+ * NOTE comments refere to old menus.c implementation.
+ *
  * Same as register_stat_menu_item() but with optional stock item.
  *
  * @param name the menu label
@@ -101,6 +104,19 @@ register_stat_menu_item(
  * @param callback_data data for callback function
  */
 #ifdef MAIN_MENU_USE_UIMANAGER
+void register_lua_menu_bar_menu_items(
+    const char   *gui_path,
+    const char   *name,
+    const gchar  *stock_id,
+    const char   *label,
+    const char   *accelerator,
+    const gchar  *tooltip,
+    gpointer     callback,
+    gpointer	 callback_data,
+    gboolean     enabled,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data));
+
 void eth_endpoints_cb(GtkAction *action, gpointer user_data);
 void fc_endpoints_cb(GtkAction *action, gpointer user_data);
 void fddi_endpoints_cb(GtkAction *action, gpointer user_data);

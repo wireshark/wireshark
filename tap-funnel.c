@@ -189,6 +189,7 @@ void
 register_tap_listener_gtkfunnel(void)
 {
 #if 0
+	/* #if 0 at least since Revision Rev 17396 */
     funnel_register_all_menus(register_menu_cb);
 #endif
 }

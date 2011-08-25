@@ -131,12 +131,15 @@ static GSList *popup_menu_list = NULL;
 
 static GtkAccelGroup *grp;
 
+static GList *merge_lua_menu_items_list = NULL;
+
 GtkWidget *popup_menu_object;
 
 static void menu_open_recent_file_cmd_cb(GtkAction *action, gpointer data _U_ );
 static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 
 static void menus_init(void);
+static void merge_lua_menu_items(GList *node);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
 static void timestamp_seconds_time_cb(GtkWidget *w, gpointer d, gint action);
@@ -1274,7 +1277,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='ISUP' action='/Telephony/isup_msg'/>\n"
 "      <menu name= 'LTEmenu' action='/Telephony/LTE'>\n"
 "        <menuitem name='LTE_MAC' action='/Telephony/LTE/MAC'/>\n"
-"        <menuitem name='LTE_MAC' action='/Telephony/LTE/RLC'/>\n"
+"        <menuitem name='LTE_RLC' action='/Telephony/LTE/RLC'/>\n"
 "      </menu>\n"
 "      <menu name= 'MTP3menu' action='/Telephony/MTP3'>\n"
 "        <menuitem name='MSUs' action='/Telephony/MTP3/MSUs'/>\n"
@@ -3439,6 +3442,8 @@ menus_init(void) {
         popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_statusbar_profiles_menu);
 
         menu_dissector_filter(&cfile);
+		/* Only LUA uses this currently. NOTE that "placeholders" must exist in the GUI description */
+		merge_lua_menu_items(merge_lua_menu_items_list);
 
         /* Initialize enabled/disabled state of menu items */
         set_menus_for_capture_file(NULL);
@@ -3459,9 +3464,170 @@ menus_init(void) {
     }
 }
 
+typedef struct _menu_item {
+    const char   *gui_path;
+    const char   *name;
+    const char   *stock_id;
+    const char   *label;
+    const char   *accelerator;
+    const gchar  *tooltip;
+    GCallback    callback;
+    gpointer	 callback_data;
+	gboolean     enabled;
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data);
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data);
+} menu_item_t;
+
+void register_lua_menu_bar_menu_items(
+    const char   *gui_path,
+    const char   *name,
+    const gchar  *stock_id,
+    const char   *label,
+    const char   *accelerator,
+    const gchar  *tooltip,
+    gpointer     callback,
+    gpointer	 callback_data,
+    gboolean     enabled,
+    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
+    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data))
+{
+	menu_item_t *menu_item_data;
+
+    menu_item_data = g_malloc0(sizeof (menu_item_t));
+    menu_item_data->gui_path         = gui_path;
+    menu_item_data->name             = name;
+    menu_item_data->label            = label;
+    menu_item_data->stock_id         = stock_id;
+    menu_item_data->accelerator      = accelerator;
+    menu_item_data->tooltip          = tooltip;
+    menu_item_data->callback         = callback;
+    menu_item_data->callback_data    = callback_data;
+	menu_item_data->enabled          = enabled;
+    menu_item_data->selected_packet_enabled = selected_packet_enabled;
+    menu_item_data->selected_tree_row_enabled = selected_tree_row_enabled;
+
+    merge_lua_menu_items_list = g_list_append(merge_lua_menu_items_list, menu_item_data);
+
+}
+
+static void
+merge_lua_menu_items(GList *merge_lua_menu_items_list)
+{
+	guint merge_id;
+    GtkActionGroup *action_group;
+    GtkAction *action;
+	GtkWidget *lua_submenu;
+	gchar *action_name;
+	guint i = 0;
+	menu_item_t *menu_item_data;
+
+	merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
+
+    action_group = gtk_action_group_new ("LUA-action-group");
+
+    lua_submenu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ToolsMenu/LUA");
+    if(!lua_submenu){
+        g_warning("lua_submenu: No submenu for LUA found, path= /Menubar/ToolsMenu/LUA");
+    }
+
+    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+
+	while(merge_lua_menu_items_list != NULL) {
+        menu_item_data = merge_lua_menu_items_list->data;
+		action_name = g_strdup_printf ("LUA-menuitem-%u", i);
+		/*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
+		action = g_object_new (GTK_TYPE_ACTION,
+				 "name", action_name,
+				 "label", menu_item_data->name,
+                 "stock-id", menu_item_data->stock_id,
+				 "tooltip", menu_item_data->tooltip,
+				 "sensitive", menu_item_data->enabled,
+				 NULL);
+		g_signal_connect (action, "activate",
+						G_CALLBACK (menu_item_data->callback), menu_item_data->callback_data);
+		gtk_action_group_add_action (action_group, action);
+		g_object_unref (action);
+
+		gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+				 "/Menubar/ToolsMenu/LUA/LUA-menu-items",
+				 action_name,
+				 action_name,
+				 GTK_UI_MANAGER_MENUITEM,
+				 FALSE);
+		i++;
+        merge_lua_menu_items_list = g_list_next(merge_lua_menu_items_list);
+    }
+
+#if 0
+	guint merge_id;
+    GtkActionGroup *action_group;
+    GtkAction *action;
+    GtkWidget *submenu_dissector_filters;
+	gchar *action_name;
+	guint i = 0;
 
 
+	merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
 
+    action_group = gtk_action_group_new ("diessector-filters-group");
+
+    submenu_dissector_filters = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ConversationFilterMenu");
+    if(!submenu_dissector_filters){
+        g_warning("add_recent_items: No submenu_dissector_filters found, path= /Menubar/AnalyzeMenu/ConversationFilterMenu");
+    }
+
+    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+    g_object_set_data (G_OBJECT (ui_manager_main_menubar),
+                     "diessector-filters-merge-id", GUINT_TO_POINTER (merge_id));
+
+    /* no items */
+    if (!list_entry){
+
+      action = g_object_new (GTK_TYPE_ACTION,
+                 "name", "filter-list-empty",
+                 "label", "No fileters",
+                 "sensitive", FALSE,
+                 NULL);
+      gtk_action_group_add_action (action_group, action);
+      gtk_action_set_sensitive(action, FALSE);
+      g_object_unref (action);
+
+      gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+                 "/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters",
+                 "filter-list-empty",
+                 "filter-list-empty",
+                 GTK_UI_MANAGER_MENUITEM,
+                 FALSE);
+
+      return;
+    }
+
+	while(list_entry != NULL) {
+        filter_entry = list_entry->data;
+		action_name = g_strdup_printf ("filter-%u", i);
+		/*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
+		action = g_object_new (GTK_TYPE_ACTION,
+				 "name", action_name,
+				 "label", filter_entry->name,
+				 "sensitive", menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry),
+				 NULL);
+		g_signal_connect (action, "activate",
+						G_CALLBACK (menu_dissector_filter_cb), filter_entry);
+		gtk_action_group_add_action (action_group, action);
+		g_object_unref (action);
+
+		gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
+				 "/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters",
+				 action_name,
+				 action_name,
+				 GTK_UI_MANAGER_MENUITEM,
+				 FALSE);
+		i++;
+        list_entry = g_list_next(list_entry);
+    }
+
+#endif
+}
 
 #if 0
 static void
