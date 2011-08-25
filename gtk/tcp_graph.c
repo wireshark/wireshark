@@ -473,7 +473,7 @@ static void magnify_get_geom (struct graph * , int , int );
 static gboolean configure_event (GtkWidget * , GdkEventConfigure * , gpointer );
 #if GTK_CHECK_VERSION(3,0,0)
 static gboolean draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
-#endif
+#else
 static gboolean expose_event (GtkWidget * , GdkEventExpose * , gpointer );
 #endif
 static gboolean button_press_event (GtkWidget * , GdkEventButton * , gpointer );
