@@ -471,7 +471,9 @@ static void magnify_destroy (struct graph * );
 static void magnify_draw (struct graph * );
 static void magnify_get_geom (struct graph * , int , int );
 static gboolean configure_event (GtkWidget * , GdkEventConfigure * , gpointer );
-#if !GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(3,0,0)
+static gboolean draw_event(GtkWidget *widget, cairo_t *cr, gpointer user_data);
+#endif
 static gboolean expose_event (GtkWidget * , GdkEventExpose * , gpointer );
 #endif
 static gboolean button_press_event (GtkWidget * , GdkEventButton * , gpointer );
@@ -3140,12 +3142,7 @@ draw_event(GtkWidget *widget _U_, cairo_t *cr, gpointer user_data)
 	cairo_rectangle (cr, g->wp.x + g->wp.width, g->wp.y, RMARGIN_WIDTH, g->wp.height);
 	cairo_fill (cr);
 
-	cairo_destroy(cr);
-	cr = NULL;
-
-	/* Should these routines be copied here, or be given the cairo_t ?? 
-	 * In that case cr shouldn't be destroyed abowe
-	 */
+	/* Should these routines be copied here, or be given the cairo_t ??  */
 	graph_pixmap_display (g);
 	graph_title_pixmap_display (g);
 	axis_pixmap_display (g->x_axis);
