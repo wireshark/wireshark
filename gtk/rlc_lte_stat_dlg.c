@@ -1533,7 +1533,7 @@ static void gtk_rlc_lte_stat_init(const char *optarg, void *userdata _U_)
 
 
 static tap_param rlc_lte_stat_params[] = {
-	{ PARAM_FILTER, "Filter", NULL }
+    { PARAM_FILTER, "Filter", NULL }
 };
 
 static tap_param_dlg rlc_lte_stat_dlg = {
@@ -1552,6 +1552,7 @@ register_tap_listener_rlc_lte_stat(void)
 {
     register_dfilter_stat(&rlc_lte_stat_dlg, "_LTE/_RLC", REGISTER_STAT_GROUP_TELEPHONY);
 }
+
 #ifdef MAIN_MENU_USE_UIMANAGER
 void rlc_lte_stat_cb(GtkAction *action, gpointer user_data _U_)
 {
