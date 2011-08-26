@@ -1019,7 +1019,7 @@ draw_channel_cursor(rtp_channel_info_t *rci, guint32 start_index)
 #if GTK_CHECK_VERSION(2,22,0)
 		cairo_set_source_surface (cr, rci->surface, idx/MULT, 0);
 #else
-		gdk_cairo_set_source_pixmap (cr, rci->pixmap, idx/MULT, 0)
+		gdk_cairo_set_source_pixmap (cr, rci->pixmap, idx/MULT, 0);
 #endif;
 		cairo_pattern_set_extend (cairo_get_source (cr), CAIRO_EXTEND_REPEAT);
 		cairo_rectangle (cr, idx/MULT, 0, 1, widget_alloc.height-HEIGHT_TIME_LABEL);
