@@ -612,18 +612,27 @@ static void register_menu_cb(const char *name,
                              void (*callback)(gpointer),
                              gpointer callback_data,
                              gboolean retap) {
+
+#ifdef MAIN_MENU_USE_UIMANAGER
     menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
+	const char *label = NULL, *str = NULL;
 
     mcb->callback = callback;
     mcb->callback_data = callback_data;
     mcb->retap = retap;
 
-#ifdef MAIN_MENU_USE_UIMANAGER
+	str = strrchr(name,'/');
+	if(str){
+		label = str+1;
+	}else{
+		label = name;
+	}
+
 	register_lua_menu_bar_menu_items(
 		"/Menubar/ToolsMenu/LUA/LUA-menu-items", /* GUI path to the place holder in the menu */
 		name, /* Action mame */
 		NULL, /* Stock id */
-		name, /* label */
+		label, /* label */
 		NULL, /* Accelerator */
 		NULL, /* Tooltip */
 		our_menu_callback, /* Callback */
@@ -632,7 +641,13 @@ static void register_menu_cb(const char *name,
 		NULL,
 		NULL);
 #else
-    register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
+    menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
+
+    mcb->callback = callback;
+    mcb->callback_data = callback_data;
+    mcb->retap = retap;
+
+	register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
 #endif
 
 }

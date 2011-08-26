@@ -3538,7 +3538,7 @@ merge_lua_menu_items(GList *merge_lua_menu_items_list)
 		/*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
 		action = g_object_new (GTK_TYPE_ACTION,
 				 "name", action_name,
-				 "label", menu_item_data->name,
+				 "label", menu_item_data->label,
                  "stock-id", menu_item_data->stock_id,
 				 "tooltip", menu_item_data->tooltip,
 				 "sensitive", menu_item_data->enabled,
