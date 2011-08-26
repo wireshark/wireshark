@@ -130,6 +130,7 @@ static int hf_gtpv2_uli_tai_flg = -1;
 static int hf_gtpv2_uli_rai_flg = -1;
 static int hf_gtpv2_uli_sai_flg = -1;
 static int hf_gtpv2_uli_cgi_flg = -1;
+static int hf_gtpv2_glt = -1;
 static int hf_gtpv2_cng_rep_act = -1;
 
 static int hf_gtpv2_selec_mode = -1;
@@ -1670,7 +1671,7 @@ dissect_gtpv2_tad(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
 static void
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item *item, guint16 length, guint8 instance _U_, guint flags)
 {
-    int offset = 1;
+    int offset = 1; /* flags are already dissected */
     proto_item  *fi;
     proto_tree  *part_tree;
 
@@ -1831,6 +1832,17 @@ dissect_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_ite
  * 131-255  Spare for future use
  */
 
+
+static const value_string geographic_location_type_vals[] = {
+    {0,   "CGI"},
+    {1,   "SAI"},
+    {2,   "RAI"},
+    {128, "TAI"},
+    {129, "ECGI"},
+    {130, "TAI and ECGI"},
+    {0, NULL}
+};
+
 static int
 dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
@@ -1841,8 +1853,22 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length = tvb_length(tvb);
     flags_3gpp = tvb_get_guint8(tvb,offset);
 
+	proto_tree_add_item(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN);
+
     switch(flags_3gpp)
     {
+	case 0:
+        /* CGI */
+        flags = GTPv2_ULI_CGI_MASK;
+		break;
+	case 1:
+        /* SAI */
+        flags = GTPv2_ULI_SAI_MASK;
+		break;
+	case 2:
+        /* RAI */
+        flags = GTPv2_ULI_RAI_MASK;
+		break;
     case 128:
         /* TAI */
         flags = GTPv2_ULI_TAI_MASK;
@@ -1856,8 +1882,8 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         flags = GTPv2_ULI_TAI_MASK + GTPv2_ULI_ECGI_MASK;
         break;
     default:
-        flags = flags_3gpp;
-        break;
+		proto_tree_add_text(tree, tvb, 1, -1, "Geographic Location");
+        return length;
     }
 
     decode_gtpv2_uli(tvb, pinfo, tree, NULL, length, 0, flags);
@@ -4571,33 +4597,38 @@ void proto_register_gtpv2(void)
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_ecgi_flg,
-          {"ECGI Present Flag)", "gtpv2.uli_ecgi_flg",
+          {"ECGI Present Flag", "gtpv2.uli_ecgi_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_ECGI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_lai_flg,
-          {"LAI Present Flag)", "gtpv2.uli_lai_flg",
+          {"LAI Present Flag", "gtpv2.uli_lai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_LAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_tai_flg,
-          {"TAI Present Flag)", "gtpv2.uli_tai_flg",
+          {"TAI Present Flag", "gtpv2.uli_tai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_TAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_rai_flg,
-          {"RAI Present Flag)", "gtpv2.uli_rai_flg",
+          {"RAI Present Flag", "gtpv2.uli_rai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_RAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_sai_flg,
-          {"SAI Present Flag)", "gtpv2.uli_sai_flg",
+          {"SAI Present Flag", "gtpv2.uli_sai_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_SAI_MASK,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_cgi_flg,
-          {"CGI Present Flag)", "gtpv2.uli_cgi_flg",
+          {"CGI Present Flag", "gtpv2.uli_cgi_flg",
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_CGI_MASK,
+           NULL, HFILL}
+        },
+		{ &hf_gtpv2_glt,
+          {"Geographic Location Type", "gtpv2.glt",
+           FT_UINT8, BASE_DEC, VALS(geographic_location_type_vals), 0x0,
            NULL, HFILL}
         },
         { &hf_gtpv2_uli_cgi_lac,
