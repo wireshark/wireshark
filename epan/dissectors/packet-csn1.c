@@ -1174,10 +1174,24 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
         no_of_bits += pDescr->i;/* size adjusted by offset */
 
         if (no_of_bits > 0)
-        { /* a non empty bitmap */
-          proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
-                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits8(tvb, bit_offset, no_of_bits)),
+        {
+          if (no_of_bits <= 32)
+          {
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits32(tvb, bit_offset, no_of_bits, FALSE)),
                                      pDescr->sz);
+          }
+          else if (no_of_bits <= 64)
+          {
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %s",
+                                     decode_bits_in_field(bit_offset, no_of_bits, tvb_get_bits64(tvb, bit_offset, no_of_bits, FALSE)),
+                                     pDescr->sz);
+          }
+          else
+          {
+            proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s %u bits",
+                                     pDescr->sz, no_of_bits);
+          }
           remaining_bits_len -= no_of_bits;
 
           if (remaining_bits_len < 0)
