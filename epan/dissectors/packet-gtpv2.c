@@ -47,6 +47,7 @@
 
 /*GTPv2 Message->GTP Header(SB)*/
 static int proto_gtpv2 = -1;
+static int hf_gtpv2_spare_bits = -1;
 static int hf_gtpv2_flags = -1;
 static int hf_gtpv2_version = -1;
 static int hf_gtpv2_p = -1;
@@ -87,15 +88,19 @@ static int hf_gtpv2_pdn_ipv6 = -1;
 
 static int hf_gtpv2_rat_type = -1;
 static int hf_gtpv2_uli_ecgi_flg = -1;
+static int hf_gtpv2_uli_lai_flg = -1;
 static int hf_gtpv2_uli_tai_flg = -1;
 static int hf_gtpv2_uli_rai_flg = -1;
 static int hf_gtpv2_uli_sai_flg = -1;
 static int hf_gtpv2_uli_cgi_flg = -1;
+static int hf_gtpv2_glt = -1;
 static int hf_gtpv2_cng_rep_act = -1;
 
 static gint ett_gtpv2 = -1;
 static gint ett_gtpv2_flags = -1;
 static gint ett_gtpv2_ie = -1;
+static gint ett_gtpv2_uli_flags = -1;
+static gint ett_gtpv2_uli_field = -1;
 static gint ett_gtpv2_bearer_ctx = -1;
 static gint ett_gtpv2_PDN_conn = -1;
 
@@ -855,6 +860,8 @@ static void
 decode_gtpv2_uli(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length _U_, guint8 instance _U_, guint flags)
 {
     int offset = 1;
+    proto_item  *fi;
+    proto_tree  *part_tree;
 
     /* 8.22.1 CGI field  */
     if (flags & GTPv2_ULI_CGI_MASK)
@@ -1773,6 +1780,11 @@ dissect_gtpv2(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 void proto_register_gtpv2(void)
 {
     static hf_register_info hf_gtpv2[] = {
+        { &hf_gtpv2_spare_bits,
+          {"Spare bit(s)", "gtpv2.spare_bits",
+           FT_UINT8, BASE_DEC, NULL, 0x0,
+           NULL, HFILL }
+        },
         {&hf_gtpv2_flags,
         {"Flags", "gtpv2.flags",
         FT_UINT8, BASE_DEC, NULL, 0x0,
@@ -2037,6 +2049,11 @@ void proto_register_gtpv2(void)
         FT_BOOLEAN, 8, NULL, GTPv2_ULI_ECGI_MASK,
         NULL, HFILL}
         },
+        { &hf_gtpv2_uli_lai_flg,
+          {"LAI Present Flag)", "gtpv2.uli_lai_flg",
+           FT_BOOLEAN, 8, NULL, GTPv2_ULI_LAI_MASK,
+           NULL, HFILL}
+        },
         { &hf_gtpv2_uli_tai_flg,
         {"TAI Present Flag)", "gtpv2.uli_tai_flg",
         FT_BOOLEAN, 8, NULL, GTPv2_ULI_TAI_MASK,
@@ -2260,6 +2277,8 @@ void proto_register_gtpv2(void)
         &ett_gtpv2,
         &ett_gtpv2_flags,
         &ett_gtpv2_ie,
+        &ett_gtpv2_uli_flags,
+        &ett_gtpv2_uli_field,
         &ett_gtpv2_bearer_ctx,
 		&ett_gtpv2_PDN_conn,
     };
