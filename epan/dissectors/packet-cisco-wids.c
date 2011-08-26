@@ -86,23 +86,23 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	cwids_tree = NULL;
 
 	while(tvb_length_remaining(tvb, offset) > 0) {
-		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, FALSE);
+		ti = proto_tree_add_item(tree, proto_cwids, tvb, offset, 28, ENC_BIG_ENDIAN);
 		cwids_tree = proto_item_add_subtree(ti, ett_cwids);
 
-		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown1, tvb, offset, 7, ENC_BIG_ENDIAN);
 		offset += 7;
-		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(cwids_tree, hf_cwids_unknown2, tvb, offset, 6, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown2, tvb, offset, 6, ENC_BIG_ENDIAN);
 		offset += 6;
-		proto_tree_add_item(cwids_tree, hf_cwids_reallength, tvb, offset, 2, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_reallength, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		capturelen = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(cwids_tree, hf_cwids_capturelen, tvb, offset, 2, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_capturelen, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(cwids_tree, hf_cwids_unknown3, tvb, offset, 8, FALSE);
+		proto_tree_add_item(cwids_tree, hf_cwids_unknown3, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 
 		wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);

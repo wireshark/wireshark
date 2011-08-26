@@ -374,7 +374,7 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 	 *  Auto MDI-X
 	 */
 	proto_tree_add_item(port_tree, hf_njack_tlv_data,
-		tvb, offset, 8, FALSE);
+		tvb, offset, 8, ENC_BIG_ENDIAN);
 	return offset;
 }
 
@@ -391,13 +391,13 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		/* Special cases that don't have a length field */
 		if (tlv_type == NJACK_CMD_ENDOFPACKET) {
 			proto_tree_add_item(njack_tree, hf_njack_tlv_type,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		}
 		if (tlv_type == NJACK_CMD_GETALLPARMAMS) {
 			proto_tree_add_item(njack_tree, hf_njack_tlv_type,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			continue;
 		}
@@ -411,63 +411,63 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		tlv_tree = proto_item_add_subtree(tlv_item,
 			ett_njack_tlv_header);
 		proto_tree_add_item(tlv_tree, hf_njack_tlv_type,
-			tvb, offset, 1, FALSE);
+			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tlv_tree, hf_njack_tlv_length,
-			tvb, offset, 1, FALSE);
+			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		switch (tlv_type) {
 		case NJACK_CMD_STARTOFPARAMS:
 			break;
 		case NJACK_CMD_COUNTERMODE:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_countermode,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_QUEUEING:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_scheduling,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_ADDTAGSCHEME:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_addtagscheme,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_REMOVETAG:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_portingressmode,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_MAXFRAMESIZE:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_maxframesize,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_ENABLESNMPWRITE:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_snmpwrite,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_POWERFORWARDING:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_powerforwarding,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_DHCPCONTROL:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_dhcpcontrol,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_CMD_MACADDRESS:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_devicemac,
-				tvb, offset, 6, FALSE);
+				tvb, offset, 6, ENC_BIG_ENDIAN);
 			offset += 6;
 			break;
 		case NJACK_CMD_VERSION:
 			/* XXX Don't misuse ip address printing here */
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_version,
-				tvb, offset, 4, TRUE);
+				tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			break;
 		case NJACK_CMD_IPADDRESS:
@@ -475,7 +475,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		case NJACK_CMD_MASK:
 		case NJACK_CMD_IPGATEWAY:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typeip,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 		case NJACK_CMD_GROUP:
@@ -487,7 +487,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		case NJACK_CMD_PRODUCTNAME:
 		case NJACK_CMD_SERIALNO:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typestring,
-				tvb, offset, tlv_length, FALSE);
+				tvb, offset, tlv_length, ENC_BIG_ENDIAN);
 			offset += tlv_length;
 			break;
 		case NJACK_CMD_PORT1:
@@ -502,7 +502,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		default:
 			if (tlv_length != 0) {
 				proto_tree_add_item(tlv_tree, hf_njack_tlv_data,
-					tvb, offset, tlv_length, FALSE);
+					tvb, offset, tlv_length, ENC_BIG_ENDIAN);
 				offset += tlv_length;
 			}
 			break;
@@ -581,27 +581,27 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_njack, tvb, offset, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		njack_tree = proto_item_add_subtree(ti, ett_njack);
 
 		proto_tree_add_item(njack_tree, hf_njack_magic, tvb, offset, 5,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 5;
 
 		proto_tree_add_item(njack_tree, hf_njack_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 		switch (packet_type) {
 		case NJACK_TYPE_SET:
 			/* Type 0x07: S -> M, Magic, type, length (16 bit be) */
 			proto_tree_add_item(njack_tree, hf_njack_set_length, tvb, offset,
-				2, FALSE);
+				2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(njack_tree, hf_njack_set_salt, tvb, offset,
-				4, TRUE);
+				4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(njack_tree, hf_njack_set_authdata, tvb, offset,
-				16, FALSE);
+				16, ENC_BIG_ENDIAN);
 			offset += 16;
 			offset = dissect_tlvs(tvb, njack_tree, offset);
 			break;
@@ -609,7 +609,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Type 0x08: M -> S, Magic, type, setresult (8 bit) */
 			setresult = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(njack_tree, hf_njack_setresult, tvb, offset,
-				1, FALSE);
+				1, ENC_BIG_ENDIAN);
 			offset += 1;
 			col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
 					val_to_str(setresult, njack_setresult_vals, "[0x%02x]"));
@@ -624,7 +624,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Type 0x0c: M -> S, Magic, type, T(8 bit) L(8 bit) V(L bytes) */
 			offset = dissect_tlvs(tvb, njack_tree, offset);
 			proto_tree_add_item(njack_tree, hf_njack_getresp_unknown1, tvb, offset,
-				1, FALSE);
+				1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case NJACK_TYPE_DHCPINFO: /* not completely understood */
@@ -633,7 +633,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			remaining = tvb_reported_length_remaining(tvb, offset);
 			if (remaining > 0) {
 				proto_tree_add_item(njack_tree, hf_njack_tlv_data,
-					tvb, offset, remaining, FALSE);
+					tvb, offset, remaining, ENC_BIG_ENDIAN);
 				offset += remaining;
 			}
 			break;

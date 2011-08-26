@@ -130,12 +130,12 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_erspan, tvb, offset, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		erspan_tree = proto_item_add_subtree(ti, ett_erspan);
 
 		version = tvb_get_ntohs(tvb, offset) >> 12;
 		proto_tree_add_item(erspan_tree, hf_erspan_version, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		if ((version != 1) && (version != 2 )) {
 			unknown_version = proto_tree_add_text(erspan_tree, tvb, 0, 0,
 				"Unknown version, please report");
@@ -143,46 +143,46 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 	return;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_vlan, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(erspan_tree, hf_erspan_priority, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		proto_tree_add_item(erspan_tree, hf_erspan_unknown2, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		if (version == 1)
 			proto_tree_add_item(erspan_tree, hf_erspan_direction, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 		else /* version = 2 */
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown3, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(erspan_tree, hf_erspan_truncated, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		proto_tree_add_item(erspan_tree, hf_erspan_spanid, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 
 		if (version == 2) {
 			proto_tree_add_item(erspan_tree, hf_erspan_timestamp, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_direction2, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown5, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown6, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_unknown7, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	else {

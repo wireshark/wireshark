@@ -153,7 +153,7 @@ static int
 dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_discover_tree, guint32 offset, gint remaining)
 {
 	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_switchip, tvb, offset, 4,
-		FALSE);
+		ENC_BIG_ENDIAN);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_append_fstr(pinfo->cinfo, COL_INFO, ", Switch: %s",
@@ -162,16 +162,16 @@ dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_
 	offset += 4;
 
 	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_unused, tvb, offset, 1,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_bias, tvb, offset, 1,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	offset += 1;
 
 	remaining -= 6;
 	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_pad, tvb, offset, remaining,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	offset += remaining;
 
 	return offset;
@@ -206,18 +206,18 @@ dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_di
 		tapa_discover_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_pad, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_length, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_value, tvb, offset, item_length,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += item_length;
 
 		remaining -= (item_length + 4);
@@ -260,23 +260,23 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		tapa_discover_item_tree = proto_item_add_subtree(item, ett_tapa_discover_req);
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_pad, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_length, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 
 		if (is_ascii)
 			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuetext,
-				tvb, offset, item_length, FALSE);
+				tvb, offset, item_length, ENC_BIG_ENDIAN);
 		else
 			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuehex,
-				tvb, offset, item_length, FALSE);
+				tvb, offset, item_length, ENC_BIG_ENDIAN);
 		offset += item_length;
 
 		remaining -= (item_length + 4);
@@ -305,19 +305,19 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		tapa_discover_tree = proto_item_add_subtree(ti, ett_tapa_discover);
 
 		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_flags, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_length, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 
 		switch (packet_type) {
@@ -334,7 +334,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_unknown, tvb, offset,
-					remaining, FALSE);
+					remaining, ENC_BIG_ENDIAN);
 		offset += 1;
 
 			break;
@@ -364,49 +364,49 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_tapa, tvb, offset, -1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		tapa_tunnel_tree = proto_item_add_subtree(ti, ett_tapa_tunnel);
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_version, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_five, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_zero, tvb, offset, 8,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 8;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_dmac, tvb, offset, 6,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 6;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_smac, tvb, offset, 6,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 6;
 
 		switch (type) {
 		case TAPA_TUNNEL_TYPE_0:
 			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_0804, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_tagsetc, tvb, offset, 6,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 6;
 
 			break;
 		case TAPA_TUNNEL_TYPE_1:
 			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_seqno, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_length, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 			break;
 		default:
@@ -416,7 +416,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* FIXME: This is just to help figuring out what the bytes mean */
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_remaining, tvb,
-			offset, remaining - offset, FALSE);
+			offset, remaining - offset, ENC_BIG_ENDIAN);
 		offset = remaining;
 
 	}

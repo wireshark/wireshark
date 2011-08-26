@@ -138,9 +138,9 @@ tftp_dissect_options(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 	  opt_tree = proto_item_add_subtree(opt_item, ett_tftp_option);
 	  proto_tree_add_item(opt_tree, hf_tftp_option_name, tvb, offset,
-		option_len, FALSE);
+		option_len, ENC_BIG_ENDIAN);
 	  proto_tree_add_item(opt_tree, hf_tftp_option_value, tvb, value_offset,
-		value_len, FALSE);
+		value_len, ENC_BIG_ENDIAN);
 
 	  offset += option_len + value_len;
 
@@ -182,7 +182,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 		    val_to_str(opcode, tftp_opcode_vals, "Unknown (0x%04x)"));
 
 	if (tree) {
-	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, FALSE);
+	  ti = proto_tree_add_item(tree, proto_tftp, tvb, offset, -1, ENC_BIG_ENDIAN);
 	  tftp_tree = proto_item_add_subtree(ti, ett_tftp);
 
 	  if (tftp_info->source_file) {
@@ -207,7 +207,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	case TFTP_RRQ:
 	  i1 = tvb_strsize(tvb, offset);
 	  proto_tree_add_item(tftp_tree, hf_tftp_source_file,
-			      tvb, offset, i1, FALSE);
+			      tvb, offset, i1, ENC_BIG_ENDIAN);
 
 	  tftp_info->source_file = tvb_get_seasonal_string(tvb, offset, i1);
 
@@ -218,7 +218,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	  i1 = tvb_strsize(tvb, offset);
 	  proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
-			      tvb, offset, i1, FALSE);
+			      tvb, offset, i1, ENC_BIG_ENDIAN);
 
 	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
 			  tvb_format_stringzpad(tvb, offset, i1));
@@ -232,7 +232,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 	case TFTP_WRQ:
 	  i1 = tvb_strsize(tvb, offset);
 	  proto_tree_add_item(tftp_tree, hf_tftp_destination_file,
-			      tvb, offset, i1, FALSE);
+			      tvb, offset, i1, ENC_BIG_ENDIAN);
 
 	  tftp_info->destination_file =
 	    tvb_get_seasonal_string(tvb, offset, i1);
@@ -244,7 +244,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	  i1 = tvb_strsize(tvb, offset);
 	  proto_tree_add_item(tftp_tree, hf_tftp_transfer_type,
-			           tvb, offset, i1, FALSE);
+			           tvb, offset, i1, ENC_BIG_ENDIAN);
 
 	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Transfer type: %s",
 			  tvb_format_stringzpad(tvb, offset, i1));
@@ -300,7 +300,7 @@ static void dissect_tftp_message(tftp_conv_info_t *tftp_info,
 
 	  i1 = tvb_strsize(tvb, offset);
 	  proto_tree_add_item(tftp_tree, hf_tftp_error_string, tvb, offset,
-			      i1, FALSE);
+			      i1, ENC_BIG_ENDIAN);
 
 	  col_append_fstr(pinfo->cinfo, COL_INFO, ", Message: %s",
 			  tvb_format_stringzpad(tvb, offset, i1));

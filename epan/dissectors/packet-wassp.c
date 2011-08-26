@@ -775,7 +775,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tvbuff_t *snmp_tvb;
 
 	/* Don't add SNMP stuff to the info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_writable(pinfo->cinfo, FALSE);
 
 	snmp_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -792,7 +792,7 @@ dissect_snmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 				" [Malformed or short SNMP subpacket] " );
 	} ENDTRY;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_writable(pinfo->cinfo, TRUE);
 
 	offset += length;
@@ -807,7 +807,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tvbuff_t *ieee80211_tvb;
 
 	/* Don't add IEEE 802.11 stuff to the info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_writable(pinfo->cinfo, FALSE);
 
 	ieee80211_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -824,7 +824,7 @@ dissect_ieee80211(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 				" [Malformed or short IEEE 802.11 subpacket] " );
 	} ENDTRY;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) 
+	if (check_col(pinfo->cinfo, COL_INFO))
 		col_set_writable(pinfo->cinfo, TRUE);
 
 	offset += length;
@@ -856,13 +856,13 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	tlv_tree = proto_item_add_subtree(tlv_item,
 		ett_wassp_tlv_header);
 	type_item = proto_tree_add_item(tlv_tree, hf_wassp_tlv_type,
-		tvb, offset, 2, FALSE);
+		tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(type_item, " = %s",
 		extval_to_str_idx(tlv_type, value_array,
 			&type_index, "Unknown"));
 	offset += 2;
 	proto_tree_add_item(tlv_tree, hf_wassp_tlv_length,
-		tvb, offset, 2, FALSE);
+		tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	tlv_length -= 4;
@@ -876,10 +876,10 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 	if ( type_index != -1 && value_array[type_index].hf_element) {
 		proto_tree_add_item(tlv_tree,
 			*(value_array[type_index].hf_element),
-			tvb, offset, tlv_length, FALSE);
+			tvb, offset, tlv_length, ENC_BIG_ENDIAN);
 	} else {
 		proto_tree_add_item(tlv_tree, hf_wassp_tlv_data,
-			tvb, offset, tlv_length, FALSE);
+			tvb, offset, tlv_length, ENC_BIG_ENDIAN);
 	}
 	if ( type_index != -1 && value_array[type_index].specialfunction ) {
 		guint32 newoffset;
@@ -915,62 +915,62 @@ dissect_wassp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		/* Header dissection */
 		ti = proto_tree_add_item(tree, proto_wassp, tvb, offset, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		wassp_tree = proto_item_add_subtree(ti, ett_wassp);
 
 		proto_tree_add_item(wassp_tree, hf_wassp_version, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(wassp_tree, hf_wassp_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 
 		switch (packet_type) {
 		case 1: /* Discover ??? */
 			proto_tree_add_item(wassp_tree, hf_wassp_discover1, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 			packet_length = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(wassp_tree, hf_wassp_length, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(wassp_tree, hf_wassp_discover2, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 			subtype = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(wassp_tree, hf_wassp_subtype, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 			switch (subtype) {
 			case 1:
 				proto_tree_add_item(wassp_tree, hf_wassp_ether, tvb, offset, 6,
-					FALSE);
+					ENC_BIG_ENDIAN);
 				offset += 6;
 				break;
 			case 2:
 				proto_tree_add_item(wassp_tree, hf_wassp_discover3, tvb, offset, 2,
-					FALSE);
+					ENC_BIG_ENDIAN);
 				offset += 2;
 				break;
 			}
 			break;
 		default:
 			proto_tree_add_item(wassp_tree, hf_wassp_seqno, tvb, offset, 1,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 1;
 	
 			proto_tree_add_item(wassp_tree, hf_wassp_flags, tvb, offset, 1,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 1;
 	
 			proto_tree_add_item(wassp_tree, hf_wassp_sessionid, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 
 			packet_length = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_item(wassp_tree, hf_wassp_length, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 2;
 
 			break;

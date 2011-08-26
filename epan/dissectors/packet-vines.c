@@ -213,7 +213,7 @@ dissect_vines_frp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_frp, tvb, 0, 2,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		vines_frp_tree = proto_item_add_subtree(ti, ett_vines_frp);
 
 		vines_frp_ctrl = tvb_get_guint8(tvb, 0);
@@ -315,7 +315,7 @@ dissect_vines_llc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		      "Unknown protocol 0x%02x"));
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_llc, tvb, 0, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		vines_llc_tree = proto_item_add_subtree(ti, ett_vines_llc);
 
 		proto_tree_add_text(vines_llc_tree, tvb, 0, 1,
@@ -429,7 +429,7 @@ dissect_vines_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_ip, tvb,
 					 offset, viph.vip_pktlen,
-					 FALSE);
+					 ENC_BIG_ENDIAN);
 		vip_tree = proto_item_add_subtree(ti, ett_vines_ip);
 		proto_tree_add_text(vip_tree, tvb, offset,      2,
 				    "Packet checksum: 0x%04x",
@@ -539,7 +539,7 @@ dissect_vines_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_echo, tvb, 0, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		vines_echo_tree = proto_item_add_subtree(ti, ett_vines_echo);
 		proto_tree_add_text(vines_echo_tree, tvb, 0, -1, "Data");
 	}
@@ -665,7 +665,7 @@ dissect_vines_ipc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_ipc, tvb, offset,
-		    sizeof(viph), FALSE);
+		    sizeof(viph), ENC_BIG_ENDIAN);
 		vipc_tree = proto_item_add_subtree(ti, ett_vines_ipc);
 		proto_tree_add_text(vipc_tree, tvb, offset,      2,
 				    "Source port: 0x%04x", viph.vipc_sport);
@@ -836,7 +836,7 @@ dissect_vines_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_spp, tvb, offset,
-		    sizeof(viph), FALSE);
+		    sizeof(viph), ENC_BIG_ENDIAN);
 		vspp_tree = proto_item_add_subtree(ti, ett_vines_spp);
 		proto_tree_add_text(vspp_tree, tvb, offset,      2,
 				    "Source port: 0x%04x", viph.vspp_sport);
@@ -960,7 +960,7 @@ dissect_vines_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_arp, tvb, 0, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		vines_arp_tree = proto_item_add_subtree(ti, ett_vines_arp);
 	}
 
@@ -1138,7 +1138,7 @@ dissect_vines_rtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_rtp, tvb, 0, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		vines_rtp_tree = proto_item_add_subtree(ti, ett_vines_rtp);
 	}
 
@@ -1643,7 +1643,7 @@ dissect_vines_icp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_vines_icp, tvb, 0, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		vines_icp_tree = proto_item_add_subtree(ti, ett_vines_icp);
 	}
 

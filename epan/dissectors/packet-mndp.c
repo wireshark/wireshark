@@ -168,13 +168,13 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	tlv_tree = proto_item_add_subtree(tlv_item,
 		ett_mndp_tlv_header);
 	type_item = proto_tree_add_item(tlv_tree, hf_mndp_tlv_type,
-		tvb, offset, 2, FALSE);
+		tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_item_append_text(type_item, " = %s",
 		extval_to_str_idx(tlv_type, value_array,
 			&type_index, "Unknown"));
 	offset += 2;
 	proto_tree_add_item(tlv_tree, hf_mndp_tlv_length,
-		tvb, offset, 2, FALSE);
+		tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* tlv_length -= 4; */
@@ -185,6 +185,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 	tlv_end = offset + tlv_length;
 
 	/* Make hf_ handling independent of specialfuncion */
+	/* FIXME: Properly handle encoding info */
 	if ( type_index != -1
 		 && !value_array[type_index].specialfunction
 		 && value_array[type_index].evs != NULL
@@ -199,7 +200,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 			tvb, offset, tlv_length, encoding_info);
 	} else {
 		proto_tree_add_item(tlv_tree, hf_mndp_tlv_data,
-			tvb, offset, tlv_length, FALSE);
+			tvb, offset, tlv_length, ENC_BIG_ENDIAN);
 	}
 	if ( type_index != -1 && value_array[type_index].specialfunction ) {
 		guint32 newoffset;
@@ -231,14 +232,14 @@ dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 		/* Header dissection */
 		ti = proto_tree_add_item(tree, proto_mndp, tvb, offset, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		mndp_tree = proto_item_add_subtree(ti, ett_mndp);
 
 		proto_tree_add_item(mndp_tree, hf_mndp_header_unknown, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(mndp_tree, hf_mndp_header_seqno, tvb, offset, 2,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 2;
 
 		while (offset < packet_length)
