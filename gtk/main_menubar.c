@@ -2068,7 +2068,7 @@ packet_list_menu_color_conv_ethernet_color1_cb(GtkAction *action, gpointer user_
 static void
 packet_list_menu_color_conv_ethernet_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( action, user_data, CONV_ETHER+1*256);
+	colorize_conversation_cb( action, user_data, CONV_ETHER+2*256);
 }
 
 static void
@@ -2136,7 +2136,7 @@ packet_list_menu_color_conv_ip_color1_cb(GtkAction *action, gpointer user_data)
 static void
 packet_list_menu_color_conv_ip_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( action , user_data, CONV_IP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+2*256);
 }
 
 static void
@@ -2272,7 +2272,7 @@ packet_list_menu_color_conv_udp_color1_cb(GtkAction *action, gpointer user_data)
 static void
 packet_list_menu_color_conv_udp_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( action , user_data, CONV_UDP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+2*256);
 }
 
 static void
@@ -2340,7 +2340,7 @@ packet_list_menu_color_conv_cba_color1_cb(GtkAction *action, gpointer user_data)
 static void
 packet_list_menu_color_conv_cba_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( action , user_data, CONV_CBA+1*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+2*256);
 }
 
 static void
