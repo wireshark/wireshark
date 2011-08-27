@@ -4652,7 +4652,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/ViewMenu/NormalSize",
                          have_captured_packets);
-    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/GotoCorrespondingPacket",
+    set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/Goto",
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/GoMenu/PreviousPacket",
                          have_captured_packets);
@@ -4670,6 +4670,7 @@ set_menus_for_captured_packets(gboolean have_captured_packets)
                          have_captured_packets);
     set_menu_sensitivity(ui_manager_main_menubar, "/Menubar/StatisticsMenu/ProtocolHierarchy",
                          have_captured_packets);
+    set_toolbar_for_captured_packets(have_captured_packets);
 }
 
 
