@@ -2,7 +2,7 @@
  *
  * Dissector for the Skinny Client Control Protocol
  *   (The "D-Channel"-Protocol for Cisco Systems' IP-Phones)
- * Copyright 2001, Joerg Mayer (email: see AUTHORS file)
+ * Copyright 2001, Joerg Mayer (see AUTHORS file)
  *
  * Paul E. Erkkila (pee@erkkila.org) - fleshed out the decode
  * skeleton to report values for most message/message fields.
