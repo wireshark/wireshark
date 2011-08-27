@@ -893,7 +893,7 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   gint offset = 0;
   guint8 version, msg_type;
   guint16 msg_value;
-  guint32 plen, len;
+  guint32 plen, len, caplen;
 
   if (tvb_length (tvb) < 8)
     /* Too short */
@@ -928,6 +928,10 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   offset += 2;
 
   plen = tvb_get_ntohl (tvb, offset);
+  /* FIXME: What is the maximum value that can really be seen here? */
+  if (plen > 10000)
+    return FALSE;
+
   offset += 4;
   len = (guint32) tvb_length_remaining (tvb, offset);
 
@@ -966,7 +970,9 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
       return FALSE;
 
     /* Check if capture length is valid */
-    if (tvb_get_ntohl (tvb, offset+8) > len)
+    caplen = tvb_get_ntohl (tvb, offset+8);
+    /* FIXME: Are there cases where a length of 0 may be valid? */
+    if (caplen > len || caplen == 0)
       return FALSE;
     break;
 
