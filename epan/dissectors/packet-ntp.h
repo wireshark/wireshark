@@ -1,14 +1,11 @@
 /* packet-ntp.h
  * Definitions for packet disassembly structures and routines
- * Joerg Mayer <jmayer@loplof.de>
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
- * This is from yahoolib.h from gtkyahoo
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
