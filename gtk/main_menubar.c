@@ -378,15 +378,15 @@ conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
 }
 
 static void
-colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
+colorize_conversation_cb(GtkAction *action _U_, gpointer data _U_, int action_num)
 {
     gchar        *filter = NULL;
 
-    if( (action>>8) == 255 ) {
+    if( (action_num>>8) == 255 ) {
         color_filters_reset_tmp();
         new_packet_list_colorize_packets();
     } else if (cfile.current_frame) {
-        if( (action&0xff) == 0 ) {
+        if( (action_num&0xff) == 0 ) {
             /* colorize_conversation_cb was called from the window-menu
              * or through an accelerator key. Try to build a conversation
              * filter in the order TCP, UDP, IP, Ethernet and apply the
@@ -403,16 +403,16 @@ colorize_conversation_cb(GtkWidget * w _U_, gpointer data _U_, int action)
                 return;
             }
         } else {
-            /* create a filter-string based on the selected packet and action */
-            filter = build_conversation_filter(action&0xff, TRUE);
+            /* create a filter-string based on the selected packet and action_num */
+            filter = build_conversation_filter(action_num&0xff, TRUE);
         }
 
-        if( (action>>8) == 0) {
+        if( (action_num>>8) == 0) {
             /* Open the "new coloring filter" dialog with the filter */
             color_display_with_filter(filter);
         } else {
             /* Set one of the temporary coloring filters */
-            color_filters_set_tmp((guint8)(action>>8),filter,FALSE);
+            color_filters_set_tmp((guint8)(action_num>>8),filter,FALSE);
             new_packet_list_colorize_packets();
         }
 
@@ -790,79 +790,79 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 #endif
 
 static void
-view_menu_color_conv_color1_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color1_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_*/ , user_data, 1*256);
+	colorize_conversation_cb(action , user_data, 1*256);
 }
 
 static void
-view_menu_color_conv_color2_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 2*256);
+	colorize_conversation_cb( action , user_data, 2*256);
 }
 
 static void
-view_menu_color_conv_color3_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color3_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 3*256);
+	colorize_conversation_cb( action , user_data, 3*256);
 }
 
 static void
-view_menu_color_conv_color4_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color4_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 4*256);
+	colorize_conversation_cb( action , user_data, 4*256);
 }
 
 static void
-view_menu_color_conv_color5_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color5_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 5*256);
+	colorize_conversation_cb( action , user_data, 5*256);
 }
 
 static void
-view_menu_color_conv_color6_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color6_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 6*256);
+	colorize_conversation_cb( action , user_data, 6*256);
 }
 
 static void
-view_menu_color_conv_color7_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color7_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 7*256);
+	colorize_conversation_cb( action , user_data, 7*256);
 }
 
 static void
-view_menu_color_conv_color8_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color8_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 8*256);
+	colorize_conversation_cb( action , user_data, 8*256);
 }
 
 static void
-view_menu_color_conv_color9_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color9_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 9*256);
+	colorize_conversation_cb( action , user_data, 9*256);
 }
 
 static void
-view_menu_color_conv_color10_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_color10_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 10*256);
+	colorize_conversation_cb( action , user_data, 10*256);
 }
 
 static void
-view_menu_color_conv_new_rule_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_color_conv_new_rule_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 0);
+	colorize_conversation_cb( action , user_data, 0);
 }
 
 static void
-view_menu_reset_coloring_cb(GtkAction *action _U_, gpointer user_data)
+view_menu_reset_coloring_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb(  NULL /* widget _U_*/ , user_data, 255*256);
+	colorize_conversation_cb( action , user_data, 255*256);
 }
 
 static void
-help_menu_cont_cb(GtkAction *action _U_, gpointer user_data _U_)
+help_menu_cont_cb(GtkAction *action, gpointer user_data _U_)
 {
 	topic_menu_cb(NULL/*widget _U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(HELP_CONTENT));
 }
@@ -2060,341 +2060,341 @@ packet_list_menu_conversation_pn_cba_cb(GtkAction *action _U_, gpointer user_dat
 /* Ethernet */
 
 static void
-packet_list_menu_color_conv_ethernet_color1_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color1_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */, user_data, CONV_ETHER+1*256);
+	colorize_conversation_cb( action, user_data, CONV_ETHER+1*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color2_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL/* widget _U_ */ , user_data, CONV_ETHER+1*256);
+	colorize_conversation_cb( action, user_data, CONV_ETHER+1*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color3_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color3_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+3*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+3*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color4_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color4_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+4*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+4*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color5_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color5_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+5*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+5*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color6_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color6_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+6*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+6*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color7_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color7_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+7*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+7*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color8_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color8_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+8*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+8*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color9_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color9_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+9*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+9*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_color10_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_color10_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER+10*256);
+	colorize_conversation_cb( action , user_data, CONV_ETHER+10*256);
 }
 
 static void
-packet_list_menu_color_conv_ethernet_new_rule_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ethernet_new_rule_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_ETHER);
+	colorize_conversation_cb( action , user_data, CONV_ETHER);
 }
 
 /* IP */
 
 static void
-packet_list_menu_color_conv_ip_color1_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color1_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+1*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color2_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+1*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color3_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color3_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+3*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+3*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color4_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color4_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+4*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+4*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color5_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color5_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+5*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+5*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color6_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color6_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+6*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+6*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color7_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color7_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+7*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+7*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color8_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color8_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+8*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+8*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color9_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color9_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+9*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+9*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_color10_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_color10_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_IP+10*256);
+	colorize_conversation_cb( action , user_data, CONV_IP+10*256);
 }
 
 static void
-packet_list_menu_color_conv_ip_new_rule_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_ip_new_rule_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP);
+	colorize_conversation_cb( action , user_data, CONV_TCP);
 }
 
 /* TCP */
 
 static void
-packet_list_menu_color_conv_tcp_color1_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color1_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+1*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color2_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+2*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color3_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color3_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+3*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+3*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color4_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color4_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+4*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+4*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color5_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color5_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+5*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+5*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color6_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color6_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+6*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+6*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color7_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color7_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+7*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+7*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color8_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color8_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+8*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+8*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color9_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color9_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+9*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+9*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_color10_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_color10_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP+10*256);
+	colorize_conversation_cb( action , user_data, CONV_TCP+10*256);
 }
 
 static void
-packet_list_menu_color_conv_tcp_new_rule_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_tcp_new_rule_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_TCP);
+	colorize_conversation_cb( action , user_data, CONV_TCP);
 }
 
 /* UDP */
 
 static void
-packet_list_menu_color_conv_udp_color1_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color1_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+1*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color2_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+1*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+1*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color3_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color3_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+3*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+3*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color4_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color4_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+4*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+4*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color5_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color5_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+5*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+5*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color6_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color6_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+6*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+6*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color7_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color7_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+7*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+7*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color8_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color8_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+8*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+8*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color9_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color9_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+9*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+9*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_color10_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_color10_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP+10*256);
+	colorize_conversation_cb( action , user_data, CONV_UDP+10*256);
 }
 
 static void
-packet_list_menu_color_conv_udp_new_rule_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_udp_new_rule_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_UDP);
+	colorize_conversation_cb( action , user_data, CONV_UDP);
 }
 
 /* CONV_CBA */
 
 static void
-packet_list_menu_color_conv_cba_color1_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color1_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+1*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+1*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color2_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color2_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+1*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+1*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color3_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color3_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+3*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+3*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color4_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color4_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+4*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+4*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color5_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color5_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+5*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+5*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color6_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color6_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+6*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+6*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color7_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color7_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+7*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+7*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color8_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color8_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+8*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+8*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color9_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color9_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+9*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+9*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_color10_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_color10_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA+10*256);
+	colorize_conversation_cb( action , user_data, CONV_CBA+10*256);
 }
 
 static void
-packet_list_menu_color_conv_cba_new_rule_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_menu_color_conv_cba_new_rule_cb(GtkAction *action, gpointer user_data)
 {
-	colorize_conversation_cb( NULL /* widget _U_ */ , user_data, CONV_CBA);
+	colorize_conversation_cb( action , user_data, CONV_CBA);
 }
 
 static void
