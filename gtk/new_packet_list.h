@@ -133,7 +133,7 @@ typedef enum {
  *  @param data Not used.
  *  @param copy_type Mode in which to copy data (e.g. tab-separated, CSV)
  */
-void new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type);
+void new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type);
 
 /** Write all packet list geometry values to the recent file.
  *

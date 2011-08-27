@@ -1653,7 +1653,7 @@ get_col_text_from_record( PacketListRecord *record, gint col_num, gchar** cell_t
 }
 
 void
-new_packet_list_copy_summary_cb(GtkWidget * w _U_, gpointer data _U_, copy_summary_type copy_type)
+new_packet_list_copy_summary_cb(gpointer data _U_, copy_summary_type copy_type)
 {
 	gint col;
 	gchar *celltext;

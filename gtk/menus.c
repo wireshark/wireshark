@@ -1585,13 +1585,13 @@ packet_list_menu_color_conv_cba_new_rule_cb(GtkAction *action _U_, gpointer user
 static void
 packet_list_menu_copy_sum_txt(GtkAction *action _U_, gpointer user_data)
 {
-	new_packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_TEXT);
+	new_packet_list_copy_summary_cb(user_data, CS_TEXT);
 }
 
 static void
 packet_list_menu_copy_sum_csv(GtkAction *action _U_, gpointer user_data)
 {
-	new_packet_list_copy_summary_cb( NULL /* widget _U_ */ , user_data, CS_CSV);
+	new_packet_list_copy_summary_cb(user_data, CS_CSV);
 }
 
 static void
