@@ -22,6 +22,7 @@ my %u3locs = qw(
 	$INSTDIR\radius device
 	$INSTDIR\snmp\mibs device
 	$INSTDIR\tpncp device
+	$INSTDIR\ui device
 	$INSTDIR\wimaxasncp device
 	);
 
