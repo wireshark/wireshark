@@ -1,0 +1,386 @@
+<!-- 
+$Id$ 
+xml description of Wiresahrks main menubar, loaded from main_menubar.c in the gtk directory.
+-->
+<ui>
+  <menubar name ='Menubar'>
+    <menu name= 'FileMenu' action='/File'>
+      <menuitem name='Open' action='/File/Open'/>
+      <menu name='OpenRecent' action='/File/OpenRecent'>
+        <placeholder name='RecentFiles'/>
+      </menu>
+      <menuitem name='Merge' action='/File/Merge'/>
+      <menuitem name='Import' action='/File/Import'/>
+      <menuitem name='Close' action='/File/Close'/>
+      <separator/>
+      <menuitem name='Save' action='/File/Save'/>
+      <menuitem name='SaveAs' action='/File/SaveAs'/>
+      <separator/>
+      <menu name= 'Set' action='/File/Set'>
+        <menuitem name='ListFiles' action='/File/Set/ListFiles'/>
+        <menuitem name='NextFile' action='/File/Set/NextFile'/>
+        <menuitem name='PreviousFile' action='/File/Set/PreviousFile'/>
+      </menu>
+      <separator/>
+      <menu name= 'Export' action='/File/Export'>
+        <menu name= 'File' action='/File/Export/File'>
+          <menuitem name='AsTxt' action='/File/Export/File/Text'/>
+          <menuitem name='AsPostScript' action='/File/Export/File/PostScript'/>
+          <menuitem name='AsCSV' action='/File/Export/File/CSV'/>
+          <menuitem name='AsCArrays' action='/File/Export/File/CArrays'/>
+          <separator/>
+          <menuitem name='AsPSML' action='/File/Export/File/PSML'/>
+          <menuitem name='AsPDML' action='/File/Export/File/PDML'/>
+          <separator/>
+        </menu>
+        <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>
+        <menu name= 'Objects' action='/File/Export/Objects'>
+          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>
+          <menuitem name='DICOM' action='/File/Export/Objects/DICOM'/>
+          <menuitem name='SMB' action='/File/Export/Objects/SMB'/>
+        </menu>
+      </menu>
+      <separator/>
+      <menuitem name='Print' action='/File/Print'/>
+      <separator/>
+      <menuitem name='Quit' action='/File/Quit'/>
+    </menu>
+    <menu name= 'EditMenu' action='/Edit'>
+      <menu name= 'Copy' action='/Edit/Copy'>
+        <menuitem name='Description' action='/Edit/Copy/Description'/>
+        <menuitem name='Fieldname' action='/Edit/Copy/Fieldname'/>
+        <menuitem name='Value' action='/Edit/Copy/Value'/>
+        <separator/>
+        <menuitem name='AsFilter' action='/Edit/Copy/AsFilter'/>
+      </menu>
+        <menuitem name='FindPacket' action='/Edit/FindPacket'/>
+        <menuitem name='FindNext' action='/Edit/FindNext'/>
+        <menuitem name='FindPrevious' action='/Edit/FindPrevious'/>
+        <separator/>
+        <menuitem name='MarkPacket' action='/Edit/MarkPacket'/>
+        <menuitem name='MarkAllDisplayedPackets' action='/Edit/MarkAllDisplayedPackets'/>
+        <menuitem name='UnmarkAllDisplayedPackets' action='/Edit/UnmarkAllDisplayedPackets'/>
+        <menuitem name='FindNextMark' action='/Edit/FindNextMark'/>
+        <menuitem name='FindPreviousMark' action='/Edit/FindPreviousMark'/>
+        <separator/>
+        <menuitem name='IgnorePacket' action='/Edit/IgnorePacket'/>
+        <menuitem name='IgnoreAllDisplayedPackets' action='/Edit/IgnoreAllDisplayedPackets'/>
+        <menuitem name='Un-IgnoreAllPackets' action='/Edit/Un-IgnoreAllPackets'/>
+        <separator/>
+        <menuitem name='SetTimeReference' action='/Edit/SetTimeReference'/>
+        <menuitem name='Un-TimeReferenceAllPackets' action='/Edit/Un-TimeReferenceAllPackets'/>
+        <menuitem name='FindNextTimeReference' action='/Edit/FindNextTimeReference'/>
+        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>
+        <menuitem name='TimeShift' action='/Edit/TimeShift'/>
+        <separator/>
+        <menuitem name='EditPacket' action='/Edit/EditPacket'/>
+        <separator/>
+        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>
+        <menuitem name='Preferences' action='/Edit/Preferences'/>
+    </menu>
+    <menu name= 'ViewMenu' action='/View'>
+      <menuitem name='MainToolbar' action='/View/MainToolbar'/>
+      <menuitem name='FilterToolbar' action='/View/FilterToolbar'/>
+      <menuitem name='WirelessToolbar' action='/View/WirelessToolbar'/>
+      <menuitem name='Statusbar' action='/View/Statusbar'/>
+      <separator/>
+      <menuitem name='PacketList' action='/View/PacketList'/>
+      <menuitem name='PacketDetails' action='/View/PacketDetails'/>
+      <menuitem name='PacketBytes' action='/View/PacketBytes'/>
+      <separator/>
+      <menu name= 'TimeDisplayFormat' action='/View/TimeDisplayFormat'>
+        <menuitem name='DateandTimeofDay' action='/View/TimeDisplayFormat/DateandTimeofDay'/>
+        <menuitem name='TimeofDay' action='/View/TimeDisplayFormat/TimeofDay'/>
+        <menuitem name='SecondsSinceEpoch' action='/View/TimeDisplayFormat/SecondsSinceEpoch'/>
+        <menuitem name='SecondsSinceBeginningofCapture' action='/View/TimeDisplayFormat/SecondsSinceBeginningofCapture'/>
+        <menuitem name='SecondsSincePreviousCapturedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousCapturedPacket'/>
+        <menuitem name='SecondsSincePreviousDisplayedPacket' action='/View/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket'/>
+        <menuitem name='UTCDateandTimeofDay' action='/View/TimeDisplayFormat/UTCDateandTimeofDay'/>
+        <menuitem name='UTCTimeofDay' action='/View/TimeDisplayFormat/UTCTimeofDay'/>
+        <separator/>
+        <menuitem name='FileFormatPrecision-Automatic' action='/View/TimeDisplayFormat/FileFormatPrecision-Automatic'/>
+        <menuitem name='FileFormatPrecision-Seconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Seconds'/>
+        <menuitem name='FileFormatPrecision-Deciseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Deciseconds'/>
+        <menuitem name='FileFormatPrecision-Centiseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Centiseconds'/>
+        <menuitem name='FileFormatPrecision-Milliseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Milliseconds'/>
+        <menuitem name='FileFormatPrecision-Microseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Microseconds'/>
+        <menuitem name='FileFormatPrecision-Nanoseconds' action='/View/TimeDisplayFormat/FileFormatPrecision-Nanoseconds'/>
+        <separator/>
+        <menuitem name='DisplaySecondsWithHoursAndMinutes' action='/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes'/>
+      </menu>
+      <menu name= 'NameResolution' action='/View/NameResolution'>
+        <menuitem name='ResolveName' action='/View/NameResolution/ResolveName'/>
+        <separator/>
+        <menuitem name='EnableforMACLayer' action='/View/NameResolution/EnableforMACLayer'/>
+        <menuitem name='EnableforNetworkLayer' action='/View/NameResolution/EnableforNetworkLayer'/>
+        <menuitem name='EnableforTransportLayer' action='/View/NameResolution/EnableforTransportLayer'/>
+      </menu>
+      <menuitem name='ColorizePacketList' action='/View/ColorizePacketList'/>
+      <menuitem name='AutoScrollinLiveCapture' action='/View/AutoScrollinLiveCapture'/>
+      <separator/>
+      <menuitem name='ZoomIn' action='/View/ZoomIn'/>
+      <menuitem name='ZoomOut' action='/View/ZoomOut'/>
+      <menuitem name='NormalSize' action='/View/NormalSize'/>
+      <separator/>
+      <menuitem name='ResizeAllColumns' action='/View/ResizeAllColumns'/>
+      <menuitem name='DisplayedColumns' action='/View/DisplayedColumns'/>
+      <separator/>
+      <menuitem name='ExpandSubtrees' action='/View/ExpandSubtrees'/>
+      <menuitem name='ExpandAll' action='/View/ExpandAll'/>
+      <menuitem name='CollapseAll' action='/View/CollapseAll'/>
+      <separator/>
+      <menu name= 'ColorizeConversation' action='/View/ColorizeConversation'>
+        <menuitem name='Color1' action='/View/ColorizeConversation/Color 1'/>
+        <menuitem name='Color2' action='/View/ColorizeConversation/Color 2'/>
+        <menuitem name='Color3' action='/View/ColorizeConversation/Color 3'/>
+        <menuitem name='Color4' action='/View/ColorizeConversation/Color 4'/>
+        <menuitem name='Color5' action='/View/ColorizeConversation/Color 5'/>
+        <menuitem name='Color6' action='/View/ColorizeConversation/Color 6'/>
+        <menuitem name='Color7' action='/View/ColorizeConversation/Color 7'/>
+        <menuitem name='Color8' action='/View/ColorizeConversation/Color 8'/>
+        <menuitem name='Color9' action='/View/ColorizeConversation/Color 9'/>
+        <menuitem name='Color10' action='/View/ColorizeConversation/Color 10'/>
+        <menuitem name='NewColoringRule' action='/View/ColorizeConversation/NewColoringRule'/>
+      </menu>
+      <separator/>
+      <menuitem name='ResetColoring1-10' action='/View/ResetColoring1-10'/>
+      <menuitem name='ColoringRules' action='/View/ColoringRules'/>
+      <separator/>
+      <menuitem name='ShowPacketinNewWindow' action='/View/ShowPacketinNewWindow'/>
+      <menuitem name='Reload' action='/View/Reload'/>
+    </menu>
+    <menu name= 'GoMenu' action='/Go'>
+      <menuitem name='Back' action='/Go/Back'/>
+      <menuitem name='Forward' action='/Go/Forward'/>
+      <menuitem name='Goto' action='/Go/Goto'/>
+      <menuitem name='GotoCorrespondingPacket' action='/Go/GotoCorrespondingPacket'/>
+      <separator/>
+      <menuitem name='PreviousPacket' action='/Go/PreviousPacket'/>
+      <menuitem name='NextPacket' action='/Go/NextPacket'/>
+      <menuitem name='FirstPacket' action='/Go/FirstPacket'/>
+      <menuitem name='LastPacket' action='/Go/LastPacket'/>
+      <menuitem name='PreviousPacketInConversation' action='/Go/PreviousPacketInConversation'/>
+      <menuitem name='NextPacketInConversation' action='/Go/NextPacketInConversation'/>
+    </menu>
+    <menu name= 'CaptureMenu' action='/Capture'>
+      <menuitem name='Interfaces' action='/Capture/Interfaces'/>
+      <menuitem name='Options' action='/Capture/Options'/>
+      <menuitem name='Start' action='/Capture/Start'/>
+      <menuitem name='Stop' action='/Capture/Stop'/>
+      <menuitem name='Restart' action='/Capture/Restart'/>
+      <menuitem name='CaptureFilters' action='/Capture/CaptureFilters'/>
+    </menu>
+    <menu name= 'AnalyzeMenu' action='/Analyze'>
+      <menuitem name='DisplayFilters' action='/Analyze/DisplayFilters'/>
+      <menuitem name='DisplayFilterMacros' action='/Analyze/DisplayFilterMacros'/>
+      <separator/>
+      <menuitem name='ApplyasColumn' action='/Analyze/ApplyasColumn'/>
+      <menu name= 'ApplyAsFilter' action='/Analyze/ApplyasFilter'>
+        <menuitem name='Selected' action='/Analyze/ApplyasFilter/Selected'/>
+        <menuitem name='NotSelected' action='/Analyze/ApplyasFilter/NotSelected'/>
+        <menuitem name='AndSelected' action='/Analyze/ApplyasFilter/AndSelected'/>
+        <menuitem name='OrSelected' action='/Analyze/ApplyasFilter/OrSelected'/>
+        <menuitem name='AndNotSelected' action='/Analyze/ApplyasFilter/AndNotSelected'/>
+        <menuitem name='OrNotSelected' action='/Analyze/ApplyasFilter/OrNotSelected'/>
+      </menu>
+      <menu name= 'PrepareaFilter' action='/Analyze/PrepareaFilter'>
+        <menuitem name='Selected' action='/Analyze/PrepareaFilter/Selected'/>
+        <menuitem name='NotSelected' action='/Analyze/PrepareaFilter/NotSelected'/>
+        <menuitem name='AndSelected' action='/Analyze/PrepareaFilter/AndSelected'/>
+        <menuitem name='OrSelected' action='/Analyze/PrepareaFilter/OrSelected'/>
+        <menuitem name='AndNotSelected' action='/Analyze/PrepareaFilter/AndNotSelected'/>
+        <menuitem name='OrNotSelected' action='/Analyze/PrepareaFilter/OrNotSelected'/>
+      </menu>
+      <separator/>
+      <menuitem name='EnabledProtocols' action='/Analyze/EnabledProtocols'/>
+      <menuitem name='DecodeAs' action='/Analyze/DecodeAs'/>
+      <menuitem name='UserSpecifiedDecodes' action='/Analyze/UserSpecifiedDecodes'/>
+      <separator/>
+      <menuitem name='FollowTCPStream' action='/Analyze/FollowTCPStream'/>
+      <menuitem name='FollowUDPStream' action='/Analyze/FollowUDPStream'/>
+      <menuitem name='FollowSSLStream' action='/Analyze/FollowSSLStream'/>
+      <menuitem name='ExpertInfoComposite' action='/Analyze/ExpertInfoComposite'/>
+      <menu name= 'ConversationFilterMenu' action='/Analyze/ConversationFilter'>
+        <placeholder name='Filters'/>
+      </menu>
+    </menu>
+    <menu name= 'StatisticsMenu' action='/Statistics'>
+      <menuitem name='Summary' action='/Statistics/Summary'/>
+      <menuitem name='ProtocolHierarchy' action='/Statistics/ProtocolHierarchy'/>
+      <menuitem name='Conversations' action='/Statistics/Conversations'/>
+      <menuitem name='Endpoints' action='/Statistics/Endpoints'/>
+      <menuitem name='PacketLengths' action='/Statistics/plen'/>
+      <menuitem name='IOGraphs' action='/Statistics/IOGraphs'/>
+      <separator/>
+      <menu name= 'ConversationListMenu' action='/Stataistics/ConversationList'>
+        <menuitem name='Ethernet' action='/Stataistics/ConversationList/Ethernet'/>
+        <menuitem name='FibreChannel' action='/Stataistics/ConversationList/FibreChannel'/>
+        <menuitem name='FDDI' action='/Stataistics/ConversationList/FDDI'/>
+        <menuitem name='IP' action='/Stataistics/ConversationList/IP'/>
+        <menuitem name='IPv6' action='/Stataistics/ConversationList/IPv6'/>
+        <menuitem name='JXTA' action='/Stataistics/ConversationList/JXTA'/>
+        <menuitem name='NCP' action='/Stataistics/ConversationList/NCP'/>
+        <menuitem name='RSVP' action='/Stataistics/ConversationList/RSVP'/>
+        <menuitem name='SCTP' action='/Stataistics/ConversationList/SCTP'/>
+        <menuitem name='TCPIP' action='/Stataistics/ConversationList/TCPIP'/>
+        <menuitem name='TR' action='/Stataistics/ConversationList/TR'/>
+        <menuitem name='UDPIP' action='/Stataistics/ConversationList/UDPIP'/>
+        <menuitem name='USB' action='/Stataistics/ConversationList/USB'/>
+        <menuitem name='WLAN' action='/Stataistics/ConversationList/WLAN'/>
+      </menu>
+      <menu name= 'EndpointListMenu' action='/Statistics/EndpointList'>
+        <menuitem name='Ethernet' action='/Statistics/EndpointList/Ethernet'/>
+        <menuitem name='FibreChannel' action='/Statistics/EndpointList/FibreChannel'/>
+        <menuitem name='FDDI' action='/Statistics/EndpointList/FDDI'/>
+        <menuitem name='IP' action='/Statistics/EndpointList/IP'/>
+        <menuitem name='IPv6' action='/Statistics/EndpointList/IPv6'/>
+        <menuitem name='JXTA' action='/Statistics/EndpointList/JXTA'/>
+        <menuitem name='RSVP' action='/Statistics/EndpointList/RSVP'/>
+        <menuitem name='SCTP' action='/Statistics/EndpointList/SCTP'/>
+        <menuitem name='TCPIP' action='/Statistics/EndpointList/TCPIP'/>
+        <menuitem name='TR' action='/Statistics/EndpointList/TR'/>
+        <menuitem name='UDPIP' action='/Statistics/EndpointList/UDPIP'/>
+        <menuitem name='USB' action='/Statistics/EndpointList/USB'/>
+        <menuitem name='WLAN' action='/Statistics/EndpointList/WLAN'/>
+      </menu>
+      <menu name='ServiceResponseTimeMenu' action='/Statistics/ServiceResponseTime'>
+        <menuitem name='AFP' action='/Statistics/ServiceResponseTime/AFP'/>
+        <menuitem name='ONC-RPC' action='/Statistics/ServiceResponseTime/ONC-RPC'/>
+        <menuitem name='Camel' action='/Statistics/ServiceResponseTime/Camel'/>
+        <menuitem name='DCE-RPC' action='/Statistics/ServiceResponseTime/DCE-RPC'/>
+        <menuitem name='Diameter' action='/Statistics/ServiceResponseTime/Diameter'/>
+        <menuitem name='FibreChannel' action='/Statistics/ServiceResponseTime/FibreChannel'/>
+        <menuitem name='GTP' action='/Statistics/ServiceResponseTime/GTP'/>
+        <menuitem name='H225' action='/Statistics/ServiceResponseTime/H225'/>
+        <menuitem name='LDAP' action='/Statistics/ServiceResponseTime/LDAP'/>
+        <menuitem name='MEGACO' action='/Statistics/ServiceResponseTime/MEGACO'/>
+        <menuitem name='MGCP' action='/Statistics/ServiceResponseTime/MGCP'/>
+        <menuitem name='NCP' action='/Statistics/ServiceResponseTime/NCP'/>
+        <menuitem name='RADIUS' action='/Statistics/ServiceResponseTime/RADIUS'/>
+        <menuitem name='SCSI' action='/Statistics/ServiceResponseTime/SCSI'/>
+        <menuitem name='SMB2' action='/Statistics/ServiceResponseTime/SMB2'/>
+      </menu>
+      <separator/>
+      <menuitem name='ANCP' action='/StatisticsMenu/ancp'/>
+      <menu name= 'BACnetMenu' action='/StatisticsMenu/BACnet'>
+        <menuitem name='bacapp_instanceid' action='/StatisticsMenu/BACnet/bacapp_instanceid'/>
+        <menuitem name='bacapp_ip' action='/StatisticsMenu/BACnet/bacapp_ip'/>
+        <menuitem name='bacapp_objectid' action='/StatisticsMenu/BACnet/bacapp_objectid'/>
+        <menuitem name='bacapp_service' action='/StatisticsMenu/BACnet/bacapp_service'/>
+      </menu>
+      <menuitem name='BOOTP-DHCP' action='/StatisticsMenu/BOOTP-DHCP'/>
+      <menuitem name='Collectd' action='/StatisticsMenu/collectd'/>
+      <menuitem name='Compare' action='/StatisticsMenu/compare'/>
+      <menuitem name='FlowGraph' action='/StatisticsMenu/FlowGraph'/>
+      <menu name= 'HTTPMenu' action='/StatisticsMenu/HTTP'>
+        <menuitem name='http' action='/StatisticsMenu/HTTP/http'/>
+        <menuitem name='http_req' action='/StatisticsMenu/HTTP/http_req'/>
+        <menuitem name='http_srv' action='/StatisticsMenu/HTTP/http_srv'/>
+      </menu>
+      <menuitem name='IPAddresses' action='/StatisticsMenu/ip_hosts'/>
+      <menuitem name='IPDestinations' action='/StatisticsMenu/dests'/>
+      <menuitem name='IPptype' action='/StatisticsMenu/ptype'/>
+      <menuitem name='ONC-RPC-Programs' action='/StatisticsMenu/ONC-RPC-Programs'/>
+      <menu name= 'SametimeMenu' action='/StatisticsMenu/Sametime'>
+        <menuitem name='sametime' action='/StatisticsMenu/Sametime/sametime'/>
+      </menu>
+      <menu name= 'TCPStreamGraphMenu' action='/StatisticsMenu/TCPStreamGraphMenu'>
+        <menuitem name='Sequence-Graph-Stevens' action='/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-Stevens'/>
+        <menuitem name='Sequence-Graph-tcptrace' action='/StatisticsMenu/TCPStreamGraphMenu/Time-Sequence-Graph-tcptrace'/>
+        <menuitem name='Throughput-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/Throughput-Graph'/>
+        <menuitem name='RTT-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/RTT-Graph'/>
+        <menuitem name='Window-Scaling-Graph' action='/StatisticsMenu/TCPStreamGraphMenu/Window-Scaling-Graph'/>
+      </menu>
+      <menuitem name='UDPMulticastStreams' action='/StatisticsMenu/UDPMulticastStreams'/>
+      <menuitem name='WLANTraffic' action='/StatisticsMenu/WLANTraffic'/>
+    </menu>
+    <menu name= 'TelephonyMenu' action='/Telephony'>
+      <menu name= 'ANSI' action='/Telephony/ANSI'>
+        <menuitem name='BSMAP' action='/Telephony/ANSI/BSMAP'/>
+        <menuitem name='DTAP' action='/Telephony/ANSI/DTAP'/>
+        <menuitem name='MAP-OP' action='/Telephony/ANSI/MAP-OP'/>
+   </menu>
+      <menu name= 'GSM' action='/Telephony/GSM'>
+        <menuitem name='BSSMAP' action='/Telephony/GSM/BSSMAP'/>
+        <menu name='GSM-DTAP' action='/Telephony/GSM/DTAP'>
+          <menuitem name='CallControl' action='/Telephony/GSM/DTAP/CC'/>
+          <menuitem name='GPRS-MM' action='/Telephony/GSM/DTAP/GMM'/>
+          <menuitem name='GPRS-SM' action='/Telephony/GSM/DTAP/SM'/>
+          <menuitem name='MM' action='/Telephony/GSM/DTAP/MM'/>
+          <menuitem name='RR' action='/Telephony/GSM/DTAP/RR'/>
+          <menuitem name='SMS' action='/Telephony/GSM/DTAP/SMS'/>
+          <menuitem name='TP' action='/Telephony/GSM/DTAP/TP'/>
+          <menuitem name='SS' action='/Telephony/GSM/DTAP/SS'/>
+        </menu>
+          <menuitem name='SACCH' action='/Telephony/GSM/SACCH'/>
+          <menuitem name='MAP-OP' action='/Telephony/GSM/MAP-OP'/>
+          <menuitem name='MAP-Summary' action='/Telephony/GSM/MAPSummary'/>
+      </menu>
+      <menuitem name='H225' action='/Telephony/H225'/>
+      <menu name= 'IAX2menu' action='/Telephony/IAX2'>
+        <menuitem name='StreamAnalysis' action='/Telephony/IAX2/StreamAnalysis'/>
+      </menu>
+      <menuitem name='ISUP' action='/Telephony/isup_msg'/>
+      <menu name= 'LTEmenu' action='/Telephony/LTE'>
+        <menuitem name='LTE_MAC' action='/Telephony/LTE/MAC'/>
+        <menuitem name='LTE_RLC' action='/Telephony/LTE/RLC'/>
+      </menu>
+      <menu name= 'MTP3menu' action='/Telephony/MTP3'>
+        <menuitem name='MSUs' action='/Telephony/MTP3/MSUs'/>
+        <menuitem name='MSUSummary' action='/Telephony/MTP3/MSUSummary'/>
+      </menu>
+      <menu name= 'RTPmenu' action='/Telephony/RTP'>
+        <menuitem name='ShowAllStreams' action='/Telephony/RTP/ShowAllStreams'/>
+        <menuitem name='StreamAnalysis' action='/Telephony/RTP/StreamAnalysis'/>
+      </menu>
+      <menu name= 'RTSPmenu' action='/Telephony/RTSP'>
+        <menuitem name='rtsp' action='/Telephony/RTSP/rtsp'/>
+      </menu>
+      <menu name= 'SCTPmenu' action='/Telephony/SCTP'>
+        <menuitem name='AnalysethisAssociation' action='/Telephony/SCTP/AnalysethisAssociation'/>
+        <menuitem name='ShowAllAssociations' action='/Telephony/SCTP/ShowAllAssociations'/>
+        <menuitem name='ChunkCounter' action='/Telephony/SCTP/ChunkCounter'/>
+      </menu>
+      <menuitem name='SIP' action='/Telephony/SIP'/>
+      <menuitem name='SMPP' action='/Telephony/smpp_commands'/>
+      <menuitem name='UCP' action='/Telephony/ucp_messages'/>
+      <menuitem name='VoIPCalls' action='/Telephony/VoIPCalls'/>
+      <menuitem name='WSP' action='/Telephony/WSP'/>
+    </menu>
+    <menu name= 'ToolsMenu' action='/Tools'>
+      <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>
+      <menu name='LUA' action='/Tools/LUA'>
+        <placeholder name='LUA-menu-items'/>
+      </menu>
+    </menu>
+    <menu name= 'InternalsMenu' action='/Internals'>
+      <menuitem name='Dissectortables' action='/Internals/Dissectortables'/>
+      <menuitem name='SupportedProtocols' action='/Internals/SupportedProtocols'/>
+    </menu>
+    <menu name= 'HelpMenu' action='/Help'>
+      <menuitem name='Contents' action='/Help/Contents'/>
+      <menu name= 'ManualPages' action='/Help/ManualPages'>
+        <menuitem name='Wireshark' action='/Help/ManualPages/Wireshark'/>
+        <menuitem name='WiresharkFilter' action='/Help/ManualPages/WiresharkFilter'/>
+        <separator/>
+        <menuitem name='TShark' action='/Help/ManualPages/TShark'/>
+        <menuitem name='RawShark' action='/Help/ManualPages/RawShark'/>
+        <menuitem name='Dumpcap' action='/Help/ManualPages/Dumpcap'/>
+        <menuitem name='Mergecap' action='/Help/ManualPages/Mergecap'/>
+        <menuitem name='Editcap' action='/Help/ManualPages/Editcap'/>
+        <menuitem name='Text2pcap' action='/Help/ManualPages/Text2pcap'/>
+      </menu>
+      <separator/>
+      <menuitem name='Website' action='/Help/Website'/>
+      <menuitem name='FAQs' action='/Help/FAQs'/>
+      <menuitem name='Downloads' action='/Help/Downloads'/>
+      <separator/>
+      <menuitem name='Wiki' action='/Help/Wiki'/>
+      <menuitem name='SampleCaptures' action='/Help/SampleCaptures'/>
+      <separator/>
+      <menuitem name='AboutWireshark' action='/Help/AboutWireshark'/>
+    </menu>
+  </menubar>
+</ui>
+
+

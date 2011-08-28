@@ -269,6 +269,7 @@ tpncp_DATA = \
 #
 uidir = $(pkgdatadir)/ui
 ui_DATA = \
+	gtk/ui/main-menubar-ui.xml
 	gtk/ui/tree-view-ui.xml
 	gtk/ui/bytes-view-ui.xml
 
