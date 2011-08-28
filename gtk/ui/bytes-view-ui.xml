@@ -1,0 +1,12 @@
+<!-- 
+$Id$ 
+xml description of Wiresahrks byte view popup menu, loaded from main_menubar.c in the gtk directory.
+-->
+<ui>
+
+<popup name="BytesMenuPopup" action="PopupAction">
+  <menuitem name='HexView' action="/HexView"/>
+  <menuitem name='BitsView' action="/BitsView"/>
+</popup>
+
+</ui>
