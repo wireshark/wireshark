@@ -14,7 +14,7 @@
                                                Service Name and Transport Protocol Port Number Registry
 
    Last Updated
-           2011-08-19
+           2011-08-26
 
    Note
 
@@ -12196,8 +12196,7 @@ xdsxdm             6558        udp                                 [Brian_Tacket
                  6559-6565            Unassigned
 sane-port          6566        tcp    SANE Control Port            [Henning_Meier_Geinit]              [Henning_Meier_Geinit]                                    2002-10
 sane-port          6566        udp    SANE Control Port            [Henning_Meier_Geinit]              [Henning_Meier_Geinit]                                    2002-10
-esp                6567        tcp    eSilo Storage Protocol       [Andrew_Chernow]                    [Andrew_Chernow]                                          2007-01
-esp                6567        udp    eSilo Storage Protocol       [Andrew_Chernow]                    [Andrew_Chernow]                                          2007-01
+                   6567               Reserved                                                                                                                   2007-01      2011-08-26                                                                        This entry has been removed on 2011-08-26.
                                       CanIt Storage Manager
 
 canit-store        6568        tcp    IANA assigned this           [David_F_Skoll]                     [David_F_Skoll]                                           2009-04-22
@@ -15619,6 +15618,7 @@ embrace                               DataEnvoy                    [Rob_MacGrego
                                       Endpoint Protocol (EP) for
 ep                                    use in Home Automation       [Tommy_van_der_Vorst]               [Tommy_van_der_Vorst]                                                                                                                                    Defined TXT keys: dns-sd_mdns
                                       systems
+esp                            tcp    Extensis Server Protocol     [Loren_Barr]                        [Loren_Barr]                                              2006-12                                                                                        Defined TXT keys: none
 eucalyptus                            Eucalyptus Discovery         [Support_Team]                      [Support_Team]                                                                                                                                           Defined TXT keys: Eucalyptus-DNS-SD
 eventserver                           Now Up-to-Date                                                                                                                                                                                                            Defined TXT keys: None
 evs-notif                             EVS Notification Center      [Eric_Gillet]                       [Eric_Gillet]                                                                                                                                            Defined TXT keys: ID, Address
@@ -15916,7 +15916,7 @@ olpc-activity1                 udp    One Laptop per Child         [One_Laptop_p
 oma-bcast-sg                          OMA BCAST Service Guide      [Stefan_Ekenberg]                   [Stefan_Ekenberg]                                                                                                                                        Defined TXT keys: None
                                       Discovery Service
                                       Open Mobile Alliance (OMA)
-omadm-Bootstrap                tcp    Device Management (DM)       [Open_Mobile_Alliance]              [Open_Mobile_Alliance_Device_Management_DM_Working_Group] 2011-08-19                                                                                     Defined TXT keys: None
+omadm-bootstrap                tcp    Device Management (DM)       [Open_Mobile_Alliance]              [Open_Mobile_Alliance_Device_Management_DM_Working_Group] 2011-08-19                                                                                     Defined TXT keys: None
                                       Bootstrap Server Discovery
                                       Service
 omni-bookmark                         OmniWeb                      [The_Omni_Group]                    [The_Omni_Group]                                                                                                                                         Defined TXT keys: None
@@ -16003,6 +16003,7 @@ raop                                  Remote Audio Output Protocol [Rob_Newberry
 rbr                                   RBR Instrument Communication [Greg_Johnson]                      [Greg_Johnson]                                                                                                                                           Defined TXT keys: None
 rce                                   PowerCard                    [DeVoeSquared]                      [DeVoeSquared]                                                                                                                                           Defined TXT keys: None
 realplayfavs                          RealPlayer Shared Favorites  [RealNetworks]                      [RealNetworks]                                                                                                                                           Defined TXT keys: None
+recipe-box                     tcp    The Recipe Box Exchange      [Corpus_Collusion]                  [Kathy_Tafel]                                             2011-08-23                                                                                     Defined TXT keys: txtvers
                                       Remote Device Control                                                                                                                                                                                                     Defined TXT keys: txtvers=<TXT record version tag>
 remote                                Protocol                     [Gregory_Dudek]                     [Gregory_Dudek]                                                                                                                                          protovers=<protocol vesion number> forground=<primary device
                                                                                                                                                                                                                                                                 or system> version=<firmware/instrument controller version>
@@ -17061,6 +17062,8 @@ Footnotes
 [Corey_Corrick]                                           Corey Corrick                             mailto:corey.corrick&flamenconetworks.com
 [Corey_Leong]                                             Corey Leong                               mailto:cleong&gr8c.org                                        2010-10-11
 [Cormac_Long]                                             Cormac Long                               mailto:webmaster&smsforum.net                                 2002-07
+[Corpus_Collusion]                                                                  Corpus          mailto:developer&corpuscollusion.com                          2011-08-23
+                                                                                    Collusion
 [Craig_Calef]                                             Craig Calef                               mailto:craig&katmango.com
 [Craig_Ching]                                             Craig Ching                               mailto:cching&mqsoftware.com
 [Craig_Everhart]                                          Craig Everhart                            mailto:Craig.Everhart&netapp.com                              2010-07-06
@@ -18478,6 +18481,8 @@ Footnotes
 [Karl_Timmermann]                                         Karl Timmermann                           mailto:timmerk&gmail.com
 [Katherine_Wattwood]                                      Katherine Wattwood                        mailto:katherine.wattwood&veritas.com                         2002-06
 [Kathy_Huber]                                             Kathy Huber                               mailto:khuber&bbn.com
+[Kathy_Tafel]                                             Kathy Tafel               Corpus          mailto:kt&corpuscollusion.com                                 2011-08-23
+                                                                                    Collusion
 [Katsuaki_Naoi]                                           Katsuaki Naoi                             mailto:naoi&pfu.co.jp
 [Katsuhiko_Abe]                                           Katsuhiko Abe                             mailto:kabe&hst.fujitsu.co.jp
 [Katsuhito_Muroi]                                         Katsuhito Muroi                           mailto:muroi&pfu.co.jp
@@ -18706,6 +18711,7 @@ Footnotes
 [Liu_Changchun]                                           Liu Changchun                             mailto:blzhang&infospark.cn                                   2008-11-05
 [Lloyd_Wood]                                              Lloyd Wood                                mailto:lwood&cisco.com                                        2007-05
 [Logan_Bruns]                                             Logan Bruns                               mailto:logan&andromedia.com
+[Loren_Barr]                                              Loren Barr                                mailto:lbarr&extensis.com                                     2006-12
 [Lori_Tassin]                                             Lori Tassin                               mailto:Ramsey&network-1.com
 [Lou_Berger]                                              Lou Berger                                mailto:lberger&movaz.com                                      2004-11
 [Lou_Harris]                                              Lou Harris                                mailto:lharris&outlx.bandl.com
