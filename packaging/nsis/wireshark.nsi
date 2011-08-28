@@ -676,6 +676,7 @@ File "..\..\tpncp\tpncp.dat"
 ; of the installation directory.
 ;
 SetOutPath $INSTDIR\ui
+File "..\..\gtk\ui\tree-view-ui.xml"
 File "..\..\gtk\ui\bytes-view-ui.xml"
 SetOutPath $INSTDIR
 
