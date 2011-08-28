@@ -263,6 +263,13 @@ tpncpdir = $(pkgdatadir)/tpncp
 tpncp_DATA = \
 	tpncp/tpncp.dat
 
+#
+# Install the ui directory files in the "ui" subdirectory
+# of that directory
+#
+uidir = $(pkgdatadir)/ui
+ui_DATA = \
+	gtk/ui/bytes-view-ui.xml
 
 #
 # Install the wimaxasncp directory files in the "wimaxasncp" subdirectory
@@ -803,6 +810,7 @@ EXTRA_DIST = \
 	$(dtds_DATA)		\
 	$(radius_DATA)		\
 	$(tpncp_DATA)		\
+	$(ui_DATA)			\
 	$(wimaxasncp_DATA)	\
 	randpkt.c		\
 	smi_modules		\

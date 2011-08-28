@@ -672,6 +672,14 @@ SetOutPath $INSTDIR\tpncp
 File "..\..\tpncp\tpncp.dat"
 
 ;
+; Install the GUI XML files in the "ui" subdirectory
+; of the installation directory.
+;
+SetOutPath $INSTDIR\ui
+File "..\..\gtk\ui\bytes-view-ui.xml"
+SetOutPath $INSTDIR
+
+;
 ; install the wimaxasncp TLV definitions in the wimaxasncp subdirectory
 ;
 SetOutPath $INSTDIR\wimaxasncp
@@ -1097,6 +1105,7 @@ Delete "$INSTDIR\diameter\*.*"
 Delete "$INSTDIR\snmp\mibs\*.*"
 Delete "$INSTDIR\snmp\*.*"
 Delete "$INSTDIR\tpncp\*.*"
+Delete "$INSTDIR\ui\*.*"
 Delete "$INSTDIR\wimaxasncp\*.*"
 Delete "$INSTDIR\*.exe"
 Delete "$INSTDIR\*.dll"
@@ -1161,6 +1170,7 @@ RMDir "$INSTDIR\snmp"
 RMDir "$INSTDIR\radius"
 RMDir "$INSTDIR\dtds"
 RMDir "$INSTDIR\tpncp"
+RMDir "$INSTDIR\ui"
 RMDir "$INSTDIR\wimaxasncp"
 RMDir "$INSTDIR"
 

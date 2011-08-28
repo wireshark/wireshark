@@ -1011,6 +1011,8 @@ install-generated-files:
 	cd plugins
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake install-plugins
 	cd ..
+	if not exist $(INSTALL_DIR)\ui mkdir $(INSTALL_DIR)\ui
+	xcopy "gtk\ui\*.xml" $(INSTALL_DIR)\ui /d
 
 # "install-all" will copy all files needed to run Wireshark/Tshark
 # to the INSTALL_DIR, so you can run/debug Wireshark/Tshark from there.
