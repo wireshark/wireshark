@@ -46,6 +46,8 @@
 #include <epan/epan_dissect.h>
 #include <epan/column.h>
 
+#include <epan/filesystem.h>
+
 #include "../print.h"
 #include "../ui_util.h"
 #include "../simple_dialog.h"
@@ -967,9 +969,6 @@ static const char *ui_desc_menubar =
 "      </menu>\n"
 "      <separator/>\n"
 "      <menu name= 'Export' action='/File/Export'>\n"
-#if _WIN32
-"        <menuitem name='File' action='/File/Export/File'/>\n"
-#else
 "        <menu name= 'File' action='/File/Export/File'>\n"
 "          <menuitem name='AsTxt' action='/File/Export/File/Text'/>\n"
 "          <menuitem name='AsPostScript' action='/File/Export/File/PostScript'/>\n"
@@ -980,7 +979,6 @@ static const char *ui_desc_menubar =
 "          <menuitem name='AsPDML' action='/File/Export/File/PDML'/>\n"
 "          <separator/>\n"
 "        </menu>\n"
-#endif /* _WIN32 */
 "      <menuitem name='SelectedPacketBytes' action='/File/Export/SelectedPacketBytes'/>\n"
 "        <menu name= 'Objects' action='/File/Export/Objects'>\n"
 "          <menuitem name='HTTP' action='/File/Export/Objects/HTTP'/>\n"
@@ -1427,11 +1425,10 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/File/Set/NextFile",	WIRESHARK_STOCK_FILE_SET_NEXT,	"Next File",		NULL,					NULL,			G_CALLBACK(fileset_next_cb) },
   { "/File/Set/PreviousFile",WIRESHARK_STOCK_FILE_SET_PREVIOUS,	"Previous File",	NULL,				NULL,			G_CALLBACK(fileset_previous_cb) },
 
-#if _WIN32
-  { "/File/Export/File",				NULL,		"File...",						NULL,					NULL,			G_CALLBACK(export_text_cmd_cb) },
-#else
-  { "/File/Export/File",				NULL,		"File...",						NULL,					NULL,			NULL },
+  { "/File/Export/File",				NULL,		"File",							NULL,					NULL,			NULL },
   { "/File/Export/File/Text",			NULL,		"as \"Plain _Text\" file...",	NULL,					NULL,			G_CALLBACK(export_text_cmd_cb) },
+#if _WIN32
+#else
   { "/File/Export/File/PostScript",		NULL,		"as \"_PostScript\" file...",	NULL,					NULL,			G_CALLBACK(export_ps_cmd_cb) },
   { "/File/Export/File/CSV",			NULL,		"as \"_CSV\" (Comma Separated Values packet summary) file...",
 																					NULL,					NULL,			G_CALLBACK(export_csv_cmd_cb) },
@@ -3231,6 +3228,7 @@ menus_init(void) {
         *statusbar_profiles_action_group;
     GError *error = NULL;
     guint merge_id;
+	/*char *gui_desc_file_name;*/
 
     if (initialize) {
         initialize = FALSE;
@@ -3313,6 +3311,8 @@ menus_init(void) {
             0); /* the position at which the group will be inserted.  */
 
         gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error);
+		/*gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "tree-view-ui.xml", get_datafile_dir());
+		gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name, &error);*/
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building TreeWiew Pop-Up menu failed: %s\n",
@@ -3320,6 +3320,7 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
+		/*g_free (gui_desc_file_name);*/
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
                          gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
@@ -3348,6 +3349,8 @@ menus_init(void) {
             0); /* the position at which the group will be inserted.  */
 
         gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error);
+		/*gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "bytes-view-ui.xml", get_datafile_dir());
+		gtk_ui_manager_add_ui_from_file ( ui_manager_bytes_menu, gui_desc_file_name, &error);*/
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building Bytes Pop-Up menu failed: %s\n",
@@ -3355,6 +3358,7 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
+		/*g_free (gui_desc_file_name);*/
 
         g_object_unref(packet_list_byte_menu_action_group);
 
@@ -3394,6 +3398,9 @@ menus_init(void) {
         ui_manager_main_menubar = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_main_menubar, main_menu_bar_action_group, 0);
         gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error);
+		/*gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "main-menubar-ui.xml", get_datafile_dir());
+		gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name, &error);*/
+
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building main menubar failed: %s\n",
@@ -3401,6 +3408,7 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
+		/*g_free (gui_desc_file_name);*/
         g_object_unref(main_menu_bar_action_group);
         gtk_window_add_accel_group (GTK_WINDOW(top_level),
                                 gtk_ui_manager_get_accel_group(ui_manager_main_menubar));
