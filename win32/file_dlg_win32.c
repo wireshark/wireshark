@@ -150,6 +150,12 @@ static print_args_t   print_args;
 static HWND           g_sf_hwnd = NULL;
 static char *dfilter_str = NULL;
 
+/*
+ * According to http://msdn.microsoft.com/en-us/library/bb776913.aspx
+ * we should use IFileOpenDialog and IFileSaveDialog on Windows Vista
+ * and later.
+ */
+
 gboolean
 win32_open_file (HWND h_wnd) {
     OPENFILENAME *ofn;
