@@ -32,7 +32,6 @@
 #include "gtk/stock_icons.h"
 
 /* these icons are derived from the original stock icons */
-#ifdef HAVE_LIBPCAP
 #include "../image/toolbar/capture_interfaces_24.xpm"
 #include "../image/toolbar/capture_options_24.xpm"
 #include "../image/toolbar/capture_start_24.xpm"
@@ -40,7 +39,6 @@
 #include "../image/toolbar/capture_restart_24.xpm"
 #include "../image/toolbar/capture_filter_24.xpm"
 #include "../image/toolbar/capture_details_24.xpm"
-#endif /* HAVE_LIBPCAP */
 #include "../image/toolbar/display_filter_24.xpm"
 #include "../image/wsicon16.xpm"
 #include "../image/toolbar/colorize_24.xpm"
@@ -93,7 +91,6 @@ void stock_icons_init(void) {
 
     /* register non-standard pixmaps with the gtk-stock engine */
     static const GtkStockItem stock_items[] = {
-#ifdef HAVE_LIBPCAP
         { WIRESHARK_STOCK_CAPTURE_INTERFACES,    "_Interfaces",    0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_OPTIONS,       "_Options",       0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_START,         "_Start",         0, 0, NULL },
@@ -102,7 +99,6 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_CAPTURE_FILTER,        "_Capture Filter",   0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  "_Capture Filter:",  0, 0, NULL },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       "_Details",       0, 0, NULL },
-#endif
 #ifdef HAVE_GEOIP
         { WIRESHARK_STOCK_MAP,                   "Map",                   0, 0, NULL },
 #endif
@@ -162,7 +158,6 @@ void stock_icons_init(void) {
     };
 
     static const stock_pixmap_t pixmaps[] = {
-#ifdef HAVE_LIBPCAP
         { WIRESHARK_STOCK_CAPTURE_INTERFACES,    capture_interfaces_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_OPTIONS,       capture_options_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_START,         capture_start_24_xpm },
@@ -171,7 +166,6 @@ void stock_icons_init(void) {
         { WIRESHARK_STOCK_CAPTURE_FILTER,        capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY,  capture_filter_24_xpm },
         { WIRESHARK_STOCK_CAPTURE_DETAILS,       capture_details_24_xpm },
-#endif
 #ifdef HAVE_GEOIP
         { WIRESHARK_STOCK_MAP,                   internet_24_xpm},
 #endif
