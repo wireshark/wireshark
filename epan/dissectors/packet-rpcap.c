@@ -159,6 +159,15 @@ static int hf_nitems = -1;
 
 static int hf_filterbpf_insn = -1;
 static int hf_code = -1;
+static int hf_code_class = -1;
+static int hf_code_fields = -1;
+static int hf_code_ld_size = -1;
+static int hf_code_ld_mode = -1;
+static int hf_code_alu_op = -1;
+static int hf_code_jmp_op = -1;
+static int hf_code_src = -1;
+static int hf_code_rval = -1;
+static int hf_code_misc_op = -1;
 static int hf_jt = -1;
 static int hf_jf = -1;
 static int hf_instr_value = -1;
@@ -205,6 +214,7 @@ static gint ett_startcap_reply = -1;
 static gint ett_startcap_flags = -1;
 static gint ett_filter = -1;
 static gint ett_filterbpf_insn = -1;
+static gint ett_filterbpf_insn_code = -1;
 static gint ett_stats_reply = -1;
 static gint ett_findalldevs_reply = -1;
 static gint ett_findalldevs_if = -1;
@@ -288,6 +298,76 @@ static const value_string address_family[] = {
   { AF_UNSPEC, "AF_UNSPEC" },
   { AF_INET,   "AF_INET"   },
   { 0,   NULL }
+};
+
+static const value_string bpf_class[] = {
+  { 0x00, "ld"   },
+  { 0x01, "ldx"  },
+  { 0x02, "st"   },
+  { 0x03, "stx"  },
+  { 0x04, "alu"  },
+  { 0x05, "jmp"  },
+  { 0x06, "ret"  },
+  { 0x07, "misc" },
+  { 0, NULL }
+};
+
+static const value_string bpf_size[] = {
+  { 0x00, "w" },
+  { 0x01, "h" },
+  { 0x02, "b" },
+  { 0, NULL }
+};
+
+static const value_string bpf_mode[] = {
+  { 0x00, "imm" },
+  { 0x01, "abs" },
+  { 0x02, "ind" },
+  { 0x03, "mem" },
+  { 0x04, "len" },
+  { 0x05, "msh" },
+  { 0, NULL }
+};
+
+static const value_string bpf_alu_op[] = {
+  { 0x00, "add" },
+  { 0x01, "sub" },
+  { 0x02, "mul" },
+  { 0x03, "div" },
+  { 0x04, "or"  },
+  { 0x05, "and" },
+  { 0x06, "lsh" },
+  { 0x07, "rsh" },
+  { 0x08, "neg" },
+  { 0, NULL }
+};
+
+static const value_string bpf_jmp_op[] = {
+  { 0x00, "ja"   },
+  { 0x01, "jeq"  },
+  { 0x02, "jgt"  },
+  { 0x03, "jge"  },
+  { 0x04, "jset" },
+  { 0, NULL }
+};
+
+static const value_string bpf_src[] = {
+  { 0x00, "k" },
+  { 0x01, "x" },
+  { 0, NULL }
+};
+
+static const value_string bpf_rval[] = {
+  { 0x00, "k" },
+  { 0x01, "x" },
+  { 0x02, "a" },
+  { 0, NULL }
+};
+
+static const value_string bpf_misc_op[] = {
+  { 0x00, "tax" },
+  { 0x10, "txa" },
+  { 0, NULL }
 };
 
 
@@ -469,13 +549,42 @@ static gint
 dissect_rpcap_filterbpf_insn (tvbuff_t *tvb, packet_info *pinfo _U_,
 			      proto_tree *parent_tree, gint offset)
 {
-  proto_tree *tree;
-  proto_item *ti;
+  proto_tree *tree, *code_tree;
+  proto_item *ti, *code_ti;
+  guint8 class;
 
   ti = proto_tree_add_item (parent_tree, hf_filterbpf_insn, tvb, offset, 8, ENC_NA);
   tree = proto_item_add_subtree (ti, ett_filterbpf_insn);
 
-  proto_tree_add_item (tree, hf_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+  code_ti = proto_tree_add_item (tree, hf_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+  code_tree = proto_item_add_subtree (code_ti, ett_filterbpf_insn_code);
+  proto_tree_add_item (code_tree, hf_code_class, tvb, offset, 2, ENC_BIG_ENDIAN);
+  class = tvb_get_guint8 (tvb, offset + 1) & 0x07;
+  proto_item_append_text (ti, ": %s", val_to_str (class, bpf_class, ""));
+  switch (class) {
+  case 0x00: /* ld */
+  case 0x01: /* ldx */
+    proto_tree_add_item (code_tree, hf_code_ld_size, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (code_tree, hf_code_ld_mode, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  case 0x04: /* alu */
+    proto_tree_add_item (code_tree, hf_code_src, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (code_tree, hf_code_alu_op, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  case 0x05: /* jmp */
+    proto_tree_add_item (code_tree, hf_code_src, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (code_tree, hf_code_jmp_op, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  case 0x06: /* ret */
+    proto_tree_add_item (code_tree, hf_code_rval, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  case 0x07: /* misc */
+    proto_tree_add_item (code_tree, hf_code_misc_op, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  default:
+    proto_tree_add_item (code_tree, hf_code_fields, tvb, offset, 2, ENC_BIG_ENDIAN);
+    break;
+  }
   offset += 2;
 
   proto_tree_add_item (tree, hf_jt, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1168,8 +1277,35 @@ proto_register_rpcap (void)
       { "Filter BPF instruction", "rpcap.filterbpf_insn", FT_NONE, BASE_NONE,
 	NULL, 0x0, NULL, HFILL } },
     { &hf_code,
-      { "Op code", "rpcap.opcode", FT_UINT16, BASE_DEC,
+      { "Op code", "rpcap.opcode", FT_UINT16, BASE_HEX,
 	NULL, 0x0, "Operation code", HFILL } },
+    { &hf_code_class,
+      { "Class", "rpcap.opcode.class", FT_UINT16, BASE_HEX,
+	VALS(bpf_class), 0x07, "Instruction Class", HFILL } },
+    { &hf_code_fields,
+      { "Fields", "rpcap.opcode.fields", FT_UINT16, BASE_HEX,
+	NULL, 0xF8, "Class Fields", HFILL } },
+    { &hf_code_ld_size,
+      { "Size", "rpcap.opcode.size", FT_UINT16, BASE_HEX,
+	VALS(bpf_size), 0x18, NULL, HFILL } },
+    { &hf_code_ld_mode,
+      { "Mode", "rpcap.opcode.mode", FT_UINT16, BASE_HEX,
+	VALS(bpf_mode), 0xE0, NULL, HFILL } },
+    { &hf_code_alu_op,
+      { "Op", "rpcap.opcode.aluop", FT_UINT16, BASE_HEX,
+	VALS(bpf_alu_op), 0xF0, NULL, HFILL } },
+    { &hf_code_jmp_op,
+      { "Op", "rpcap.opcode.jmpop", FT_UINT16, BASE_HEX,
+	VALS(bpf_jmp_op), 0xF0, NULL, HFILL } },
+    { &hf_code_src,
+      { "Src", "rpcap.opcode.src", FT_UINT16, BASE_HEX,
+	VALS(bpf_src), 0x08, NULL, HFILL } },
+    { &hf_code_rval,
+      { "Rval", "rpcap.opcode.rval", FT_UINT16, BASE_HEX,
+	VALS(bpf_rval), 0x18, NULL, HFILL } },
+    { &hf_code_misc_op,
+      { "Op", "rpcap.opcode.miscop", FT_UINT16, BASE_HEX,
+	VALS(bpf_misc_op), 0xF8, NULL, HFILL } },
     { &hf_jt,
       { "JT", "rpcap.jt", FT_UINT8, BASE_DEC,
 	NULL, 0x0, NULL, HFILL } },
@@ -1284,6 +1420,7 @@ proto_register_rpcap (void)
     &ett_startcap_flags,
     &ett_filter,
     &ett_filterbpf_insn,
+    &ett_filterbpf_insn_code,
     &ett_stats_reply,
     &ett_findalldevs_reply,
     &ett_findalldevs_if,
