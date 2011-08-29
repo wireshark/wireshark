@@ -428,7 +428,7 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   for (i = 0; i < naddr; i++) {
     offset = dissect_rpcap_findalldevs_ifaddr (tvb, pinfo, tree, offset);
-    if (tvb_length_remaining (tvb, offset) <= 0) {
+    if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
       expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR, "No more data in packet");
       break;
@@ -454,7 +454,7 @@ dissect_rpcap_findalldevs_reply (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   for (i = 0; i < no_devs; i++) {
     offset = dissect_rpcap_findalldevs_if (tvb, pinfo, tree, offset);
-    if (tvb_length_remaining (tvb, offset) <= 0) {
+    if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
       expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR, "No more data in packet");
       break;
@@ -514,7 +514,7 @@ dissect_rpcap_filter (tvbuff_t *tvb, packet_info *pinfo,
 
   for (i = 0; i < nitems; i++) {
     offset = dissect_rpcap_filterbpf_insn (tvb, pinfo, tree, offset);
-    if (tvb_length_remaining (tvb, offset) <= 0) {
+    if (tvb_length_remaining (tvb, offset) < 0) {
       /* No more data in packet */
       expert_add_info_format (pinfo, ti, PI_MALFORMED, PI_ERROR, "No more data in packet");
       break;
@@ -928,10 +928,6 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
   offset += 2;
 
   plen = tvb_get_ntohl (tvb, offset);
-  /* FIXME: What is the maximum value that can really be seen here? */
-  if (plen > 10000)
-    return FALSE;
-
   offset += 4;
   len = (guint32) tvb_length_remaining (tvb, offset);
 
@@ -971,14 +967,12 @@ check_rpcap_heur (tvbuff_t *tvb, gboolean tcp)
 
     /* Check if capture length is valid */
     caplen = tvb_get_ntohl (tvb, offset+8);
-    /* FIXME: Are there cases where a length of 0 may be valid? */
-    if (caplen > len || caplen == 0)
+    /* Always 20 bytes less than packet length */
+    if (caplen != (plen - 20) || caplen > 65535)
       return FALSE;
     break;
 
   case RPCAP_MSG_FINDALLIF_REPLY:
-    /* May be empty */
-    break;
   case RPCAP_MSG_ERROR:
   case RPCAP_MSG_OPEN_REQ:
   case RPCAP_MSG_STARTCAP_REQ:
