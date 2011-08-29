@@ -4105,6 +4105,7 @@ main(int argc, char *argv[])
             break;
         default:
             cmdarg_err("Invalid Option: %s", argv[optind-1]);
+            /* FALLTHROUGH */
         case '?':        /* Bad flag - print usage message */
             arg_error = TRUE;
             break;
