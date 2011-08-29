@@ -722,14 +722,14 @@ REQUIRED_TOOLS=\
 	$(LINK) \
 	nmake \
 !IFDEF MANIFEST_INFO_REQUIRED
-	mt \
+	--windowsonly mt	\
 !ENDIF
 	$(SH_PROG)	\
 	$(YACC)	\
 	$(LEX)	\
 	env	\
 	grep	\
-	/usr/bin/find	\
+	--cygwinonly /usr/bin/find	\
 	$(PERL)	\
 	$(PYTHON)	\
 	sed	\

@@ -13,11 +13,11 @@
 # Save previous tag.
 
 if [ -z "$DOWNLOAD_TAG" ]; then
-    err_exit "DOWNLOAD_TAG not defined (internal error)"
+	err_exit "DOWNLOAD_TAG not defined (internal error)"
 fi
 
 if [ -z "$WIRESHARK_TARGET_PLATFORM" ]; then
-    err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
+	err_exit "WIRESHARK_TARGET_PLATFORM not defined (internal error)"
 fi
 
 # Set DOWNLOAD_PREFIX to /packages to test uploads before creating the tag.
@@ -31,7 +31,7 @@ err_exit () {
 	echo "ERROR: $1"
 	shift
 	for str in "$@" ; do
-	    echo "$str"
+		echo "$str"
 	done
 	echo ""
 	exit 1
@@ -97,26 +97,45 @@ find_proxy() {
 case "$1" in
 --appverify)
 	shift
+
 	if [ -z "$*" ] ; then
 		usage
 	fi
+
 	echo "Checking for required applications:"
 	which which > /dev/null 2>&1 || \
 		err_exit "Can't find 'which'.  Unable to proceed."
 
 	MISSING_APPS=
+	PATH_RE=""
 	for APP in $* ; do
-		APP_PATH=`cygpath --unix $APP`
+
+		case "$APP" in
+			--windowsonly)
+				PATH_RE="^/cygdrive/.*/"
+				continue
+				;;
+			--cygwinonly)
+				PATH_RE="^/usr/.*/"
+				continue
+				;;
+		esac
+
+		APP_PATH=`cygpath --unix "$APP"`
 		if [ -x "$APP_PATH" -a ! -d "$APP_PATH" ] ; then
 			APP_LOC="$APP_PATH"
 		else
 			APP_LOC=`which $APP_PATH 2> /dev/null`
 		fi
-		if [ "$APP_LOC" = "" ] ; then
+		echo "$APP_LOC" | grep "$PATH_RE" > /dev/null 2>&1
+		IN_PATH=$?
+		if [ "$APP_LOC" = "" -o $IN_PATH -ne 0 ] ; then
 			MISSING_APPS="$MISSING_APPS $APP"
 		else
 			echo "	$APP: $APP_LOC $res"
 		fi
+
+		PATH_RE=""
 	done
 
 	if [ -n "$MISSING_APPS" ]; then
@@ -134,7 +153,7 @@ case "$1" in
 	PACKAGE_PATH=$4
 	PACKAGE=`basename "$PACKAGE_PATH"`
 	if [ ! -e $DEST_PATH/$PACKAGE ] ; then
-	    err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'nmake -f ... setup' required ?"
+		err_exit "Package $PACKAGE is needed but is apparently not downloaded; 'nmake -f ... setup' required ?"
 	fi
 	;;
 --download)
