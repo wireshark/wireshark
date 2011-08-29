@@ -1,6 +1,6 @@
-<!-- 
-$Id$ 
-xml description of Wiresahrks tree view popup menu, loaded from main_menubar.c in the gtk directory.
+<!--
+$Id$
+xml description of Wireshark's tree view popup menu, loaded from main_menubar.c in the gtk directory.
 -->
 <ui>
   <popup name='TreeViewPopup' action='PopupAction'>
@@ -25,7 +25,7 @@ xml description of Wiresahrks tree view popup menu, loaded from main_menubar.c i
       <menuitem name='OrSelected' action='/Prepare a Filter/OrSelected'/>
       <menuitem name='AndNotSelected' action='/Prepare a Filter/AndNotSelected'/>
       <menuitem name='OrNotSelected' action='/Prepare a Filter/OrNotSelected'/>
-    </menu> 
+    </menu>
     <menu name= 'ColorizewithFilter' action='/Colorize with Filter'>
       <menuitem name='Color1' action='/Colorize with Filter/Color 1'/>
       <menuitem name='Color2' action='/Colorize with Filter/Color 2'/>

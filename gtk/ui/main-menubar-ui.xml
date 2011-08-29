@@ -1,6 +1,6 @@
-<!-- 
-$Id$ 
-xml description of Wiresahrks main menubar, loaded from main_menubar.c in the gtk directory.
+<!--
+$Id$
+xml description of Wireshark's main menubar, loaded from main_menubar.c in the gtk directory.
 -->
 <ui>
   <menubar name ='Menubar'>

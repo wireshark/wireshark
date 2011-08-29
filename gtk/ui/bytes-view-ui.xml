@@ -1,6 +1,6 @@
 <!-- 
 $Id$ 
-xml description of Wiresahrks byte view popup menu, loaded from main_menubar.c in the gtk directory.
+xml description of Wireshark's byte view popup menu, loaded from main_menubar.c in the gtk directory.
 -->
 <ui>
 
