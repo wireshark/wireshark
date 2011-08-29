@@ -380,6 +380,8 @@ const value_string gsm_rr_rest_octets_elem_strings[] = {
     { 0, "Packet Uplink Assignment" },
     { 0, "Packet Downlink Assignment" },
     { 0, "Second Part Packet Assignment" },
+    { 0, "REPORTING QUANTITY" },
+    { 0, "E-UTRAN Measurement Report" },
     { 0, NULL }
 };
 
@@ -725,6 +727,12 @@ static int hf_gsm_a_rr_gprs_cs = -1;
 static int hf_gsm_a_rr_rlc_mode = -1;
 static int hf_gsm_a_rr_ta_valid = -1;
 static int hf_gsm_a_rr_link_quality_meas_mode = -1;
+static int hf_gsm_a_rr_emr_bitmap_length = -1;
+static int hf_gsm_a_rr_eutran_mr_n_eutran = -1;
+static int hf_gsm_a_rr_eutran_mr_freq_idx = -1;
+static int hf_gsm_a_rr_eutran_mr_cell_id = -1;
+static int hf_gsm_a_rr_eutran_mr_rpt_quantity = -1;
+
 
 
 
@@ -859,6 +867,8 @@ typedef enum
     DE_RR_REST_OCTETS_PACKET_UPLINK_ASSIGNMENT,
     DE_RR_REST_OCTETS_PACKET_DOWNLINK_ASSIGNMENT,
     DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT,
+    DE_RR_REST_OCTETS_REPORTING_QUANTITY,
+    DE_RR_REST_OCTETS_EUTRAN_MEASUREMENT_REPORT,
     DE_RR_REST_OCTETS_NONE
 }
 rr_rest_octets_elem_idx_t;
@@ -10332,6 +10342,38 @@ sacch_rr_meas_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     }
 }
 
+static guint32
+sacch_rr_eutran_meas_report(tvbuff_t *tvb, proto_tree *tree, guint32 bit_offset, guint len_in_bit _U_)
+{
+    proto_tree *subtree;
+    proto_item *item;
+    gint curr_bit_offset;
+    gint8 n_eutran;
+
+    curr_bit_offset = bit_offset;
+
+    item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_EUTRAN_MEASUREMENT_REPORT].strptr);
+    subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_EUTRAN_MEASUREMENT_REPORT]);
+
+    n_eutran = tvb_get_bits8(tvb,curr_bit_offset,2);
+    n_eutran += 1;
+    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_mr_n_eutran, tvb, curr_bit_offset, 2, FALSE);
+    curr_bit_offset += 2;
+
+    while ( (n_eutran > 0) && (curr_bit_offset - bit_offset < len_in_bit) )
+    {
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_mr_freq_idx, tvb, curr_bit_offset, 3, FALSE);
+        curr_bit_offset += 3;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_mr_cell_id, tvb, curr_bit_offset, 9, FALSE);
+        curr_bit_offset += 9;
+        proto_tree_add_bits_item(subtree, hf_gsm_a_rr_eutran_mr_rpt_quantity, tvb, curr_bit_offset, 6, FALSE);
+        curr_bit_offset += 6;
+        n_eutran -= 1;
+    }
+
+    return curr_bit_offset - bit_offset;
+}
+
 /*
  * [4] 9.1.55 Enhanced Measurement Information
  */
@@ -10401,6 +10443,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     guint32 curr_offset;
     gint bit_offset, bit_offset_sav;
     guint8 value, idx;
+    gboolean flag;
 
     curr_offset = offset;
     bit_offset = curr_offset << 3;
@@ -10470,6 +10513,45 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
                 bit_offset += 6;
             }
             idx += 1;
+        }
+    }
+    if ((guint)(bit_offset>>3) <= (offset + len))
+    {
+        flag = gsm_a_rr_is_bit_high(tvb, bit_offset);
+        bit_offset += 1;
+        if (flag)
+        {
+            gint8  bitmap_length;
+            item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_REPORTING_QUANTITY].strptr);
+            subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_REPORTING_QUANTITY]);
+            
+            bitmap_length = tvb_get_bits8(tvb,bit_offset,7);
+            bitmap_length += 1;
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_emr_bitmap_length, tvb, bit_offset, 7, FALSE);
+            bit_offset += 7;
+
+            /* REPORTING_QUANTITY */
+            idx = 0;
+            while ((guint)(bit_offset>>3) <= (offset + len) && (idx < bitmap_length) )
+            {
+                value  = tvb_get_bits8(tvb,bit_offset,1);
+                bit_offset += 1;
+                if (value)
+                {
+                    proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "Neighbour Cell List index: %u", idx);
+                    proto_tree_add_bits_item(subtree, hf_gsm_a_rr_reporting_quantity, tvb, bit_offset, 6, FALSE);
+                    bit_offset += 6;
+                }
+                idx += 1;
+            }
+
+            /* E-UTRAN Measurement Report */
+            value  = tvb_get_bits8(tvb,bit_offset,1);
+            bit_offset += 1;
+            if (value)
+            {
+                bit_offset += sacch_rr_eutran_meas_report(tvb, subtree, bit_offset, len*8-(bit_offset-offset*8));
+            }
         }
     }
 }
@@ -12679,7 +12761,31 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_DEC, VALS(&gsm_a_link_quality_meas_mode_vals), 0x00,
                 NULL, HFILL }
             },
-            
+            { &hf_gsm_a_rr_emr_bitmap_length,
+              { "BITMAP_LENGTH", "gsm_a.rr.emr_bitmap_len",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_mr_n_eutran,
+              { "N_E-UTRAN", "gsm_a.rr.eutran_mr_n_eutran",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_mr_freq_idx,
+              { "E-UTRAN_FREQUENCY_INDEX", "gsm_a.rr.eutran_mr_freq_idx",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_mr_cell_id,
+              { "CELL IDENTITY", "gsm_a.rr.eutran_mr_cell_id",
+                FT_UINT16, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
+            { &hf_gsm_a_rr_eutran_mr_rpt_quantity,
+              { "REPORTING_QUANTITY", "gsm_a.rr.eutran_mr_rpt_quantity",
+                FT_UINT8, BASE_DEC, NULL, 0x00,
+                NULL, HFILL }
+            },
         };
 
     static hf_register_info hf_sacch[] =
