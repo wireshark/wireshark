@@ -731,7 +731,7 @@ if test "$HAVE_GNU_SED" = no ; then
 	esac
 fi
 
-# Enable/disable tshark
+# Enable/disable wireshark
 
 AC_ARG_ENABLE(wireshark,
   AC_HELP_STRING( [--enable-wireshark],
