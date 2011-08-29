@@ -948,6 +948,7 @@ help_menu_SampleCaptures_cb(GtkAction *action _U_, gpointer user_data _U_)
  	topic_menu_cb( NULL/* widget_U_ */, NULL /*GdkEventButton *event _U_*/, GINT_TO_POINTER(ONLINEPAGE_SAMPLE_FILES));
 }
 
+#ifndef NEW_MENU_CODE
 static const char *ui_desc_menubar =
 "<ui>\n"
 "  <menubar name ='Menubar'>\n"
@@ -1329,6 +1330,7 @@ static const char *ui_desc_menubar =
 "    </menu>\n"
 "  </menubar>\n"
 "</ui>\n";
+#endif
 
 
 /*
@@ -2827,6 +2829,7 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
 
 };
 
+#ifndef NEW_MENU_CODE
 static const char *ui_desc_tree_view_menu_popup =
 "<ui>\n"
 "  <popup name='TreeViewPopup' action='PopupAction'>\n"
@@ -2898,6 +2901,7 @@ static const char *ui_desc_tree_view_menu_popup =
 "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
 "  </popup>\n"
 "</ui>\n";
+#endif
 
 static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/ExpandSubtrees",					NULL,							"Expand Subtrees",		NULL,					NULL,			G_CALLBACK(expand_tree_cb) },
@@ -2965,6 +2969,7 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/GotoCorrespondingPacket",						NULL,		"_Go to Corresponding Packet",			NULL, NULL, G_CALLBACK(goto_framenum_cb) },
 };
 
+#ifndef NEW_MENU_CODE
 static const char *ui_desc_bytes_menu_popup =
 "<ui>\n"
 "  <popup name='BytesMenuPopup' action='PopupAction'>\n"
@@ -2972,6 +2977,8 @@ static const char *ui_desc_bytes_menu_popup =
 "     <menuitem name='BitsView' action='/BitsView'/>\n"
 "  </popup>\n"
 "</ui>\n";
+#endif
+
 static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 {
 	/* name,	stock id,	label,		accel,	tooltip,  value */
@@ -3212,7 +3219,9 @@ menus_init(void) {
         *statusbar_profiles_action_group;
     GError *error = NULL;
     guint merge_id;
-	/*char *gui_desc_file_name;*/
+#ifdef NEW_MENU_CODE
+    char *gui_desc_file_name;
+#endif
 
     if (initialize) {
         initialize = FALSE;
@@ -3293,10 +3302,12 @@ menus_init(void) {
         gtk_ui_manager_insert_action_group (ui_manager_tree_view_menu,
             packet_list_details_action_group,
             0); /* the position at which the group will be inserted.  */
-
+#ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error);
-		/*gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "tree-view-ui.xml", get_datafile_dir());
-		gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name, &error);*/
+#else
+        gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "tree-view-ui.xml", get_datafile_dir());
+        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name, &error);
+#endif
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building TreeWiew Pop-Up menu failed: %s\n",
@@ -3304,7 +3315,9 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
-		/*g_free (gui_desc_file_name);*/
+#ifdef NEW_MENU_CODE
+        g_free (gui_desc_file_name);
+#endif
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
                          gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
@@ -3331,10 +3344,12 @@ menus_init(void) {
         gtk_ui_manager_insert_action_group (ui_manager_bytes_menu,
             packet_list_byte_menu_action_group,
             0); /* the position at which the group will be inserted.  */
-
+#ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error);
-		/*gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "bytes-view-ui.xml", get_datafile_dir());
-		gtk_ui_manager_add_ui_from_file ( ui_manager_bytes_menu, gui_desc_file_name, &error);*/
+#else
+        gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "bytes-view-ui.xml", get_datafile_dir());
+        gtk_ui_manager_add_ui_from_file ( ui_manager_bytes_menu, gui_desc_file_name, &error);
+#endif
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building Bytes Pop-Up menu failed: %s\n",
@@ -3342,8 +3357,9 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
-		/*g_free (gui_desc_file_name);*/
-
+#ifdef NEW_MENU_CODE
+        g_free (gui_desc_file_name);
+#endif
         g_object_unref(packet_list_byte_menu_action_group);
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
@@ -3381,10 +3397,12 @@ menus_init(void) {
 
         ui_manager_main_menubar = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_main_menubar, main_menu_bar_action_group, 0);
+#ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error);
-		/*gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "main-menubar-ui.xml", get_datafile_dir());
-		gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name, &error);*/
-
+#else
+		gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "main-menubar-ui.xml", get_datafile_dir());
+		gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name, &error);
+#endif
         if (error != NULL)
         {
             fprintf (stderr, "Warning: building main menubar failed: %s\n",
@@ -3392,7 +3410,9 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
-		/*g_free (gui_desc_file_name);*/
+#ifdef NEW_MENU_CODE
+        g_free (gui_desc_file_name);
+#endif
         g_object_unref(main_menu_bar_action_group);
         gtk_window_add_accel_group (GTK_WINDOW(top_level),
                                 gtk_ui_manager_get_accel_group(ui_manager_main_menubar));
