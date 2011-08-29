@@ -1548,6 +1548,7 @@ dissect_ber_integer64(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree,
 	guint32 len;
 	gint64 val;
 	guint32 i;
+	gboolean used_too_many_bytes = FALSE;
 
 #ifdef DEBUG_BER
 {
@@ -1603,8 +1604,17 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 	val=0;
 	if(len > 0) {
 		/* extend sign bit */
-		if(tvb_get_guint8(tvb, offset)&0x80){
+		guint8 first = tvb_get_guint8(tvb, offset);
+		if(first & 0x80){
 			val=-1;
+		}
+		if(len > 1) {
+			guint8 second = tvb_get_guint8(tvb, offset+1);
+			if((first == 0x00 && (second & 0x80) == 0) ||
+			   (first == 0xff && (second & 0x80)))
+			{
+				used_too_many_bytes = TRUE;
+			}
 		}
 		for(i=0;i<len;i++){
 			val=(val<<8)|tvb_get_guint8(tvb, offset);
@@ -1644,6 +1654,11 @@ printf("INTEGERnew dissect_ber_integer(%s) entered implicit_tag:%d \n",name,impl
 				break;
 			default:
 				DISSECTOR_ASSERT_NOT_REACHED();
+			}
+
+			if (used_too_many_bytes) {
+				expert_add_info_format(actx->pinfo, actx->created_item, PI_PROTOCOL, PI_WARN, 
+						       "Value is encoded with too many bytes");
 			}
 		}
 	}
