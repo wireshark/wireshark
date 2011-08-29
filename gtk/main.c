@@ -1155,7 +1155,6 @@ print_usage(gboolean print_ver) {
   fprintf(output, "  -s <snaplen>             packet snapshot length (def: 65535)\n");
   fprintf(output, "  -p                       don't capture in promiscuous mode\n");
   fprintf(output, "  -k                       start capturing immediately (def: do nothing)\n");
-  fprintf(output, "  -Q                       quit Wireshark after capturing\n");
   fprintf(output, "  -S                       update packet display when new packets are captured\n");
   fprintf(output, "  -l                       turn on automatic scrolling while -S is in use\n");
 #ifdef HAVE_PCAP_CREATE
@@ -2071,7 +2070,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pQr:R:Ss:t:u:vw:X:y:z:"
+#define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:z:"
 
   static const char optstring[] = OPTSTRING;
 
@@ -2452,7 +2451,6 @@ main(int argc, char *argv[])
 #ifdef HAVE_PCAP_CREATE
       case 'I':        /* Capture in monitor mode, if available */
 #endif
-      case 'Q':        /* Quit after capture (just capture to file) */
       case 's':        /* Set the snapshot (capture) length */
       case 'S':        /* "Sync" mode: used for following file ala tail -f */
       case 'w':        /* Write to capture file xxx */

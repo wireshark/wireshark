@@ -80,6 +80,9 @@ if [ "$WS_SYSTEM" != "Windows" ] && which mkfifo &>/dev/null ; then
     TEST_FIFO=1
 fi
 
+# Tell Wireshark to quit after capuring packets.
+export WIRESHARK_QUIT_AFTER_CAPTURE="True"
+
 # Display our environment
 
 ##printf "\n ------- Info =-----------------\n"

@@ -93,7 +93,7 @@ capture_opts_init(capture_options *capture_opts, void *cf)
 #endif
   capture_opts->real_time_mode                  = TRUE;
   capture_opts->show_info                       = TRUE;
-  capture_opts->quit_after_cap                  = FALSE;
+  capture_opts->quit_after_cap                  = getenv("WIRESHARK_QUIT_AFTER_CAPTURE") ? TRUE : FALSE;
   capture_opts->restart                         = FALSE;
 
   capture_opts->multi_files_on                  = FALSE;
@@ -637,10 +637,6 @@ capture_opts_add_opt(capture_options *capture_opts, int opt, const char *optarg_
         break;
     case 'P':        /* Use pcap format */
         capture_opts->use_pcapng = FALSE;
-        break;
-    case 'Q':        /* Quit after capture (just capture to file) */
-        capture_opts->quit_after_cap  = TRUE;
-        *start_capture   = TRUE;  /*** -Q implies -k !! ***/
         break;
 #ifdef HAVE_PCAP_REMOTE
     case 'r':

@@ -386,8 +386,9 @@ capture_step_snapshot() {
 }
 
 wireshark_capture_suite() {
-	# Q: quit after cap, k: start capture immediately
-	DUT="$WIRESHARK -Q -k"
+	# k: start capture immediately
+	# WIRESHARK_QUIT_AFTER_CAPTURE needs to be set.
+	DUT="$WIRESHARK -k"
 	test_step_add "Capture 10 packets" capture_step_10packets
 	# piping to stdout doesn't work with Wireshark and capturing!
 	#test_step_add "Capture 10 packets using stdout: -w -" capture_step_10packets_stdout

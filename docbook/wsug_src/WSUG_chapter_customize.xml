@@ -50,67 +50,70 @@
 	<example id="ChCustEx1">
 	  <title>Help information available from Wireshark</title>
 	  <programlisting>
-Wireshark 1.3.2
+Wireshark 1.7.0 (SVN Rev 38783 from /trunk)
 Interactively dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
-Copyright 1998-2009 Gerald Combs &lt;gerald@wireshark.org> and contributors.
+Copyright 1998-2011 Gerald Combs &lt;gerald@wireshark.org&gt; and contributors.
 This is free software; see the source for copying conditions. There is NO
 warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-Usage: wireshark [options] ... [ &lt;infile> ]
+Usage: wireshark [options] ... [ &lt;infile&gt; ]
 
 Capture interface:
-  -i &lt;interface>           name or idx of interface (def: first non-loopback)
-  -f &lt;capture filter>      packet filter in libpcap filter syntax
-  -s &lt;snaplen>             packet snapshot length (def: 65535)
+  -i &lt;interface&gt;           name or idx of interface (def: first non-loopback)
+  -f &lt;capture filter&gt;      packet filter in libpcap filter syntax
+  -s &lt;snaplen&gt;             packet snapshot length (def: 65535)
   -p                       don't capture in promiscuous mode
   -k                       start capturing immediately (def: do nothing)
-  -Q                       quit Wireshark after capturing
   -S                       update packet display when new packets are captured
   -l                       turn on automatic scrolling while -S is in use
-  -B &lt;buffer size>         size of kernel buffer (def: 1MB)
-  -y &lt;link type>           link layer type (def: first appropriate)
+  -I                       capture in monitor mode, if available
+  -B &lt;buffer size&gt;         size of kernel buffer (def: 1MB)
+  -y &lt;link type&gt;           link layer type (def: first appropriate)
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
 
 Capture stop conditions:
-  -c &lt;packet count>        stop after n packets (def: infinite)
-  -a &lt;autostop cond.> ...  duration:NUM - stop after NUM seconds
+  -c &lt;packet count&gt;        stop after n packets (def: infinite)
+  -a &lt;autostop cond.&gt; ...  duration:NUM - stop after NUM seconds
                            filesize:NUM - stop this file after NUM KB
                               files:NUM - stop after NUM files
 Capture output:
-  -b &lt;ringbuffer opt.> ... duration:NUM - switch to next file after NUM secs
+  -b &lt;ringbuffer opt.&gt; ... duration:NUM - switch to next file after NUM secs
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
 Input file:
-  -r &lt;infile>              set the filename to read from (no pipes or stdin!)
+  -r &lt;infile&gt;              set the filename to read from (no pipes or stdin!)
 
 Processing:
-  -R &lt;read filter>         packet filter in Wireshark display filter syntax
+  -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
-  -N &lt;name resolve flags>  enable specific name resolution(s): "mntC"
+  -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
 
 User interface:
-  -C &lt;config profile>      start with specified configuration profile
-  -g &lt;packet number>       go to specified packet number after "-r"
-  -J &lt;jump filter>         jump to the first packet matching the (display) filter
+  -C &lt;config profile&gt;      start with specified configuration profile
+  -g &lt;packet number&gt;       go to specified packet number after "-r"
+  -J &lt;jump filter&gt;         jump to the first packet matching the (display)
+                           filter
   -j                       search backwards for a matching packet after "-J"
-  -m &lt;font>                set the font name used for most text
+  -m &lt;font&gt;                set the font name used for most text
   -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
-  -X &lt;key>:&lt;value>         eXtension options, see man page for details
-  -z &lt;statistics>          show various statistics, see man page for details
+  -u s|hms                 output format of seconds (def: s: seconds)
+  -X &lt;key&gt;:&lt;value&gt;         eXtension options, see man page for details
+  -z &lt;statistics&gt;          show various statistics, see man page for details
 
 Output:
-  -w &lt;outfile|->           set the output filename (or '-' for stdout)
+  -w &lt;outfile|-&gt;           set the output filename (or '-' for stdout)
 
 Miscellaneous:
   -h                       display this help and exit
   -v                       display version info and exit
-  -P &lt;key>:&lt;path>          persconf:path - personal configuration files
+  -P &lt;key&gt;:&lt;path&gt;          persconf:path - personal configuration files
                            persdata:path - personal data files
-  -o &lt;name>:&lt;value> ...    override preference or recent setting
-  -K &lt;keytab>              keytab file to use for kerberos decryption
+  -o &lt;name&gt;:&lt;value&gt; ...    override preference or recent setting
+  -K &lt;keytab&gt;              keytab file to use for kerberos decryption
+  --display=DISPLAY        X display to use
 
 </programlisting>
 	</example>
@@ -1400,10 +1403,10 @@ standard libpcap format.
     Many protocols that use ASN.1 use Object Identifiers (OIDs) to uniquely identify certain pieces of information. In many cases, they are used in an extension mechanism so that new object identifiers (and associated values) may be defined without needing to change the base standard.
   </para>
   <para>
-    Whilst Wireshark has knowledge about many of the OIDs and the syntax of their associated values, the extensibility means that other values may be encountered. 
+    Whilst Wireshark has knowledge about many of the OIDs and the syntax of their associated values, the extensibility means that other values may be encountered.
   </para>
   <para>
-    Wireshark uses this table to allow the user to define the name and syntax of Object Identifiers that Wireshark does not know about (for example, a privately defined X.400 extension). It also allows the user to override the name and syntax of Object Identifiers that Wireshark does know about (e.g. changing the name "id-at-countryName" to just "c"). 
+    Wireshark uses this table to allow the user to define the name and syntax of Object Identifiers that Wireshark does not know about (for example, a privately defined X.400 extension). It also allows the user to override the name and syntax of Object Identifiers that Wireshark does know about (e.g. changing the name "id-at-countryName" to just "c").
   </para>
   <para>
     This table is handled by an <xref linkend="ChUserTable"/> with the following fields.
@@ -1723,5 +1726,3 @@ standard libpcap format.
 
 </chapter>
 <!-- End of WSUG Chapter Customizing -->
-
-
