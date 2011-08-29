@@ -2758,10 +2758,11 @@ auditing code.
 
 =item WIRESHARK_QUIT_AFTER_CAPTURE
 
-Cause B<Wireshark> to exit after the end of capture session (useful in
-batch mode with B<-c> option for instance). This doesn't automatically
-start a capture; you must still use B<-k> to do that. You must also
-specify an autostop condition, e.g. B<-c> or B<-a duration:...>.
+Cause B<Wireshark> to exit after the end of the capture session.  This
+doesn't automatically start a capture; you must still use B<-k> to do
+that.  You must also specify an autostop condition, e.g.  B<-c> or B<-a
+duration:...>.  This means that you will not be able to see the results
+of the capture after it stops; it's primarily useful for testing.
 
 =back
 
