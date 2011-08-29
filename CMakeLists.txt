@@ -720,7 +720,7 @@ if(BUILD_tshark)
 	install(TARGETS tshark RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if(BUILD_rawshark)
+if(BUILD_rawshark AND PCAP_FOUND)
 	set(rawshark_LIBS
 		${LIBEPAN_LIBS}
 		${APPLE_COCOA_LIBRARY}
@@ -845,7 +845,7 @@ if(BUILD_editcap)
 	install(TARGETS editcap RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR})
 endif()
 
-if(BUILD_dumpcap)
+if(BUILD_dumpcap AND PCAP_FOUND)
 	set(dumpcap_LIBS
 #		@INET_NTOP_LO@
 		wsutil
