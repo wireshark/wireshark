@@ -31,7 +31,6 @@ S<[ B<-N> E<lt>name resolving flagsE<gt> ] >
 S<[ B<-o> E<lt>preference/recent settingE<gt> ] ...>
 S<[ B<-p> ]>
 S<[ B<-P> E<lt>path settingE<gt>]>
-S<[ B<-Q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-S> ]>
@@ -479,12 +478,6 @@ preferences files.
 B<persdata>:I<path> path of personal data files, it's the folder initially
 opened. After the very first initialization, the recent file will keep the
 folder last used.
-
-=item -Q
-
-Cause B<Wireshark> to exit after the end of capture session (useful in
-batch mode with B<-c> option for instance); this option requires the
-B<-i> and B<-w> parameters.
 
 =item -r  E<lt>infileE<gt>
 
@@ -2763,6 +2756,13 @@ audited to ensure they do not point to memory that is deallocated after when
 a capture file is closed.  This can be useful to developers writing or
 auditing code.
 
+=item WIRESHARK_QUIT_AFTER_CAPTURE
+
+Cause B<Wireshark> to exit after the end of capture session (useful in
+batch mode with B<-c> option for instance). This doesn't automatically
+start a capture; you must still use B<-k> to do that. You must also
+specify an autostop condition, e.g. B<-c> or B<-a duration:...>.
+
 =back
 
 =head1 SEE ALSO
@@ -2779,5 +2779,3 @@ HTML versions of the Wireshark project man pages are available at:
 L<http://www.wireshark.org/docs/man-pages>.
 
 =head1 AUTHORS
-
-
