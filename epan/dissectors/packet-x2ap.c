@@ -2689,18 +2689,15 @@ dissect_x2ap_ReportCharacteristics(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t
 
 static int
 dissect_x2ap_RRC_Context(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 136 "../../asn1/x2ap/x2ap.cnf"
+#line 135 "../../asn1/x2ap/x2ap.cnf"
   tvbuff_t *parameter_tvb=NULL;
-  gint32 start_offset;
-  
-  start_offset = offset;
-  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       NO_BOUND, NO_BOUND, FALSE, NULL);
 
-  parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);	
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &parameter_tvb);
+
   if (!parameter_tvb)
     return offset;
-  dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
+  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, tree);
 
 
 

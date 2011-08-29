@@ -127,21 +127,17 @@ ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(x2ap_Prot
 		 proto_tree_add_item(subtree, hf_x2ap_transportLayerAddressIPv6, parameter_tvb, 0, tvb_len, FALSE);
 	}
 
-#.FN_BODY RRC-Context 
-#VAL_PTR = &parameter_tvb
+#.FN_BODY RRC-Context VAL_PTR = &parameter_tvb
 # Includes the RRC Handover Preparation Information message as defined in
 # subclause 10.2.2 of [9].
 # [9] 3GPP TS 36.331: "Evolved Universal Terrestrial Radio Access (E-UTRAN); Radio Resource
 # Control (RRC) Protocol Specification".
   tvbuff_t *parameter_tvb=NULL;
-  gint32 start_offset;
-  
-  start_offset = offset;
+
 %(DEFAULT_BODY)s
-  parameter_tvb = tvb_new_subset(tvb, start_offset>>3, -1, -1);	
   if (!parameter_tvb)
     return offset;
-  dissect_lte_rrc_HandoverCommand_PDU(parameter_tvb, actx->pinfo, tree);
+  dissect_lte_rrc_HandoverPreparationInformation_PDU(parameter_tvb, actx->pinfo, tree);
 
 #.ASSIGN_VALUE_TO_TYPE  # X2AP does not have constants assigned to types, they are pure INTEGER
 # ProcedureCode
