@@ -143,6 +143,7 @@ static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 static void menus_init(void);
 static void merge_lua_menu_items(GList *node);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
+static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
 static void timestamp_seconds_time_cb(GtkWidget *w, gpointer d, gint action);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
@@ -350,13 +351,13 @@ new_window_cb(GtkWidget *widget)
 	new_packet_window(widget, FALSE);
 }
 
-#ifdef WANT_PACKET_EDITOR
 static void
-edit_window_cb(GtkWidget *widget)
+edit_window_cb(GtkWidget *widget _U_)
 {
+#ifdef WANT_PACKET_EDITOR
 	new_packet_window(widget, TRUE);
-}
 #endif
+}
 
 static void
 conversation_cb(GtkAction *a _U_, gpointer data _U_, int action)
@@ -628,18 +629,18 @@ filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data)
 	}
 }
 
-#ifdef HAVE_AIRPCAP
 static void
-wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
+wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
+#ifdef HAVE_AIRPCAP
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
 	if (!widget){
 		g_warning("wireless_toolbar_show_hide_cb: No widget found");
 	}else{
 		show_hide_cb( widget, user_data, SHOW_HIDE_AIRPCAP_TOOLBAR);
 	}
-}
 #endif /* HAVE_AIRPCAP */
+}
 
 static void
 status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
@@ -777,10 +778,10 @@ view_menu_colorize_pkt_lst_cb(GtkAction *action _U_, gpointer user_data)
 
 }
 
-#ifdef HAVE_LIBPCAP
 static void
 view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
+#ifdef HAVE_LIBPCAP
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
 
 	if (!widget){
@@ -788,8 +789,8 @@ view_menu_auto_scroll_live_cb(GtkAction *action _U_, gpointer user_data _U_)
 	}else{
 		menu_auto_scroll_live_changed(gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget)));
 	}
-}
 #endif
+}
 
 static void
 view_menu_color_conv_color1_cb(GtkAction *action, gpointer user_data)
@@ -1019,19 +1020,15 @@ static const char *ui_desc_menubar =
 "        <menuitem name='FindPreviousTimeReference' action='/Edit/FindPreviousTimeReference'/>\n"
 "        <menuitem name='TimeShift' action='/Edit/TimeShift'/>\n"
 "        <separator/>\n"
-#ifdef WANT_PACKET_EDITOR
 "        <menuitem name='EditPacket' action='/Edit/EditPacket'/>\n"
 "        <separator/>\n"
-#endif
 "        <menuitem name='ConfigurationProfiles' action='/Edit/ConfigurationProfiles'/>\n"
 "        <menuitem name='Preferences' action='/Edit/Preferences'/>\n"
 "    </menu>\n"
 "    <menu name= 'ViewMenu' action='/View'>\n"
 "      <menuitem name='MainToolbar' action='/View/MainToolbar'/>\n"
 "      <menuitem name='FilterToolbar' action='/View/FilterToolbar'/>\n"
-#ifdef HAVE_AIRPCAP
 "      <menuitem name='WirelessToolbar' action='/View/WirelessToolbar'/>\n"
-#endif
 "      <menuitem name='Statusbar' action='/View/Statusbar'/>\n"
 "      <separator/>\n"
 "      <menuitem name='PacketList' action='/View/PacketList'/>\n"
@@ -1112,7 +1109,6 @@ static const char *ui_desc_menubar =
 "      <menuitem name='PreviousPacketInConversation' action='/Go/PreviousPacketInConversation'/>\n"
 "      <menuitem name='NextPacketInConversation' action='/Go/NextPacketInConversation'/>\n"
 "    </menu>\n"
-#ifdef HAVE_LIBPCAP
 "    <menu name= 'CaptureMenu' action='/Capture'>\n"
 "      <menuitem name='Interfaces' action='/Capture/Interfaces'/>\n"
 "      <menuitem name='Options' action='/Capture/Options'/>\n"
@@ -1121,7 +1117,6 @@ static const char *ui_desc_menubar =
 "      <menuitem name='Restart' action='/Capture/Restart'/>\n"
 "      <menuitem name='CaptureFilters' action='/Capture/CaptureFilters'/>\n"
 "    </menu>\n"
-#endif /* HAVE_LIBPCAP */
 "    <menu name= 'AnalyzeMenu' action='/Analyze'>\n"
 "      <menuitem name='DisplayFilters' action='/Analyze/DisplayFilters'/>\n"
 "      <menuitem name='DisplayFilterMacros' action='/Analyze/DisplayFilterMacros'/>\n"
@@ -1397,9 +1392,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
   { "/Edit",					NULL,							"_Edit",			NULL,					NULL,			NULL },
   { "/View",					NULL,							"_View",			NULL,					NULL,			NULL },
   { "/Go",						NULL,							"_Go",				NULL,					NULL,			NULL },
-#ifdef HAVE_LIBPCAP
   { "/Capture",					NULL,							"_Capture",			NULL,					NULL,			NULL },
-#endif
   { "/Analyze",					NULL,							"_Analyze",			NULL,					NULL,			NULL },
   { "/Statistics",				NULL,							"_Statistics",		NULL,					NULL,			NULL },
   { "/Telephony",				NULL,							"Telephon_y",		NULL,					NULL,			NULL },
@@ -1538,10 +1531,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
    { "/Edit/ConfigurationProfiles",	NULL,					"_Configuration Profiles...",			"<shift><control>A",		NULL,			G_CALLBACK(profile_dialog_cb) },
    { "/Edit/Preferences",			GTK_STOCK_PREFERENCES,	"_Preferences...",						"<shift><control>P",		NULL,			G_CALLBACK(menus_prefs_cb) },
-#ifdef WANT_PACKET_EDITOR
    { "/Edit/EditPacket",				NULL,				"_Edit Packet",							NULL,						NULL,			G_CALLBACK(edit_window_cb) },
-#endif
-
 
    { "/View/TimeDisplayFormat",		NULL,					"_Time Display Format",					NULL,						NULL,			NULL },
 
@@ -1585,7 +1575,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Go/PreviousPacketInConversation",			GTK_STOCK_GO_UP,		"Previous Packet In Conversation",					"<control>comma",					NULL,				G_CALLBACK(goto_previous_frame_conversation_cb) },
    { "/Go/NextPacketInConversation",				GTK_STOCK_GO_DOWN,		"Next Packet In Conversation",						"<control>period",				NULL,				G_CALLBACK(goto_next_frame_conversation_cb) },
 
-#ifdef HAVE_LIBPCAP
    { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_if_cb) },
    { "/Capture/Options",			WIRESHARK_STOCK_CAPTURE_OPTIONS,	"_Options...",			"<control>K",					NULL,				G_CALLBACK(capture_prep_cb) },
    { "/Capture/Start",				WIRESHARK_STOCK_CAPTURE_START,		"_Start",				"<control>E",					NULL,				G_CALLBACK(capture_start_cb) },
@@ -1593,7 +1582,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Capture/Restart",			WIRESHARK_STOCK_CAPTURE_RESTART,	"_Restart",				"<control>R",					NULL,				G_CALLBACK(capture_restart_cb) },
    { "/Capture/CaptureFilters",		WIRESHARK_STOCK_CAPTURE_FILTER,		"Capture _Filters...",	NULL,							NULL,				G_CALLBACK(cfilter_dialog_cb) },
 
-#endif /* HAVE_LIBPCAP */
    { "/Analyze/DisplayFilters",		WIRESHARK_STOCK_DISPLAY_FILTER,		"_Display Filters...",	NULL,							NULL,				G_CALLBACK(dfilter_dialog_cb) },
 
    { "/Analyze/DisplayFilterMacros",			NULL,					"Display Filter _Macros...",	NULL,					NULL,				G_CALLBACK(macros_dialog_cb) },
@@ -1800,9 +1788,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 	/* name, stock id, label, accel, tooltip, callback, is_active */
 	{"/View/MainToolbar",	NULL, "_Main Toolbar",	NULL, NULL,	G_CALLBACK(main_toolbar_show_hide_cb), TRUE},
 	{"/View/FilterToolbar", NULL, "_FilterToolbar", NULL, NULL,	G_CALLBACK(filter_toolbar_show_hide_cb), TRUE},
-#ifdef HAVE_AIRPCAP
-	{"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL,	G_CALLBACK(wireless_toolbar_show_hide_cb), TRUE},
-#endif /* HAVE_AIRPCAP */
+	{"/View/WirelessToolbar", NULL, "_WirelessToolbar", NULL, NULL,	G_CALLBACK(wireless_toolbar_show_hide_cb), FALSE},
 	{"/View/Statusbar",		NULL, "_Statusbar", NULL, NULL,	G_CALLBACK(status_bar_show_hide_cb), TRUE},
 	{"/View/PacketList",	NULL, "Packet _List", NULL, NULL,	G_CALLBACK(packet_list_show_hide_cb), TRUE},
 	{"/View/PacketDetails",	NULL, "Packet _Details", NULL, NULL,	G_CALLBACK(packet_details_show_hide_cb), TRUE},
@@ -1813,9 +1799,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
 	{"/View/NameResolution/EnableforNetworkLayer",					NULL, "Enable for _Network Layer",				NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
 	{"/View/NameResolution/EnableforTransportLayer",				NULL, "Enable for _Transport Layer",			NULL, NULL, G_CALLBACK(view_menu_en_for_transport_cb), TRUE },
 	{"/View/ColorizePacketList",									NULL, "Colorize Packet List",					NULL, NULL, G_CALLBACK(view_menu_colorize_pkt_lst_cb), TRUE },
-#ifdef HAVE_LIBPCAP
 	{"/View/AutoScrollinLiveCapture",								NULL, "Auto Scroll in Li_ve Capture",			NULL, NULL, G_CALLBACK(view_menu_auto_scroll_live_cb), TRUE },
-#endif
 };
 
 static const GtkRadioActionEntry main_menu_bar_radio_view_time_entries [] =
@@ -3462,7 +3446,17 @@ menus_init(void) {
         set_menu_sensitivity_old("/Edit/Copy", FALSE);
         set_menu_sensitivity_old("/Edit/Paste", FALSE);
 #endif
+       /* Hide not usable menus */
+#ifndef WANT_PACKET_EDITOR
+	    set_menu_visible(ui_manager_main_menubar, "/Menubar/EditMenu/EditPacket", FALSE);
+#endif /* WANT_PACKET_EDITOR */
+#ifndef HAVE_AIRPCAP
+	    set_menu_visible(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar", FALSE);
+#endif /* HAVE_AIRPCAP */
 
+#ifndef HAVE_LIBPCAP
+		set_menu_visible(ui_manager_main_menubar, "/Menubar/CaptureMenu", FALSE);
+#endif
         set_menus_for_captured_packets(FALSE);
         set_menus_for_selected_packet(&cfile);
         set_menus_for_selected_tree_row(&cfile);
@@ -3701,13 +3695,26 @@ set_menu_sensitivity(GtkUIManager *ui_manager, const gchar *path, gint val)
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
 #if 0
-        fprintf (stderr, "Warning: couldn't find action path= %s\n",
+        fprintf (stderr, "Warning: set_menu_sensitivity couldn't find action path= %s\n",
                 path);
 #endif
         return;
     }
-    gtk_action_set_sensitive (action,
-        val); /* TRUE to make the action sensitive */
+    gtk_action_set_sensitive (action, val); /* TRUE to make the action sensitive */
+}
+
+static void
+set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val)
+{
+    GtkAction *action;
+
+    action = gtk_ui_manager_get_action(ui_manager, path);
+    if(!action){
+        fprintf (stderr, "Warning: set_menu_vissible couldn't find action path= %s\n",
+                path);
+        return;
+    }
+    gtk_action_set_visible (action, val); /* TRUE to make the action visible */
 }
 
 
@@ -4239,7 +4246,6 @@ name_resolution_cb(GtkWidget *w, gpointer d _U_, gint action)
     }
 }
 
-#ifdef HAVE_LIBPCAP
 void
 menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
     GtkWidget *menu;
@@ -4254,8 +4260,10 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live_in);
     }
 
+#ifdef HAVE_LIBPCAP
     /* tell toolbar about it */
     toolbar_auto_scroll_live_changed(auto_scroll_live_in);
+#endif /*HAVE_LIBPCAP */
 
     /* change auto scroll */
     if(auto_scroll_live_in != auto_scroll_live) {
@@ -4264,7 +4272,6 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 }
 
 
-#endif /*HAVE_LIBPCAP */
 
 
 void
@@ -4363,14 +4370,12 @@ menu_recent_read_finished(void) {
 
     menu_name_resolution_changed();
 
-#ifdef HAVE_LIBPCAP
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
     if(!menu){
         g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/AutoScrollinLiveCapture");
     }else{
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
     }
-#endif /* HAVE_LIBPCAP */
 
     main_widgets_rearrange();
 
