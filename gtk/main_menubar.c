@@ -165,7 +165,6 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     currently opened/captured file only.
 */
 
-
 #ifdef NEW_MENU_CODE
 static gchar *
 get_ui_file_path(const char *filename)
@@ -3398,7 +3397,7 @@ menus_init(void) {
         gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error);
 #else
 		gui_desc_file_name_and_path = get_ui_file_path("bytes-view-ui.xml");
-        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
+        gtk_ui_manager_add_ui_from_file ( ui_manager_bytes_menu, gui_desc_file_name_and_path, &error);
 		g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
@@ -3446,10 +3445,12 @@ menus_init(void) {
         ui_manager_main_menubar = gtk_ui_manager_new ();
         gtk_ui_manager_insert_action_group (ui_manager_main_menubar, main_menu_bar_action_group, 0);
 #ifndef NEW_MENU_CODE
+		
         gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error);
 #else
 		gui_desc_file_name_and_path = get_ui_file_path("main-menubar-ui.xml");
-        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
+        gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name_and_path, &error);
+		g_warning("gui_desc_file_name_and_path %s",gui_desc_file_name_and_path);
 		g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
@@ -3502,7 +3503,6 @@ menus_init(void) {
         menu_dissector_filter(&cfile);
 		/* Only LUA uses this currently. NOTE that "placeholders" must exist in the GUI description */
 		merge_lua_menu_items(merge_lua_menu_items_list);
-
         /* Initialize enabled/disabled state of menu items */
         set_menus_for_capture_file(NULL);
 #if 0
@@ -3579,8 +3579,9 @@ void register_lua_menu_bar_menu_items(
 }
 
 static void
-merge_lua_menu_items(GList *merge_lua_menu_items_list)
+merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
 {
+#ifdef HAVE_LUA
 	guint merge_id;
     GtkActionGroup *action_group;
     GtkAction *action;
@@ -3625,75 +3626,6 @@ merge_lua_menu_items(GList *merge_lua_menu_items_list)
 		i++;
         merge_lua_menu_items_list = g_list_next(merge_lua_menu_items_list);
     }
-
-#if 0
-	guint merge_id;
-    GtkActionGroup *action_group;
-    GtkAction *action;
-    GtkWidget *submenu_dissector_filters;
-	gchar *action_name;
-	guint i = 0;
-
-
-	merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-
-    action_group = gtk_action_group_new ("diessector-filters-group");
-
-    submenu_dissector_filters = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/AnalyzeMenu/ConversationFilterMenu");
-    if(!submenu_dissector_filters){
-        g_warning("add_recent_items: No submenu_dissector_filters found, path= /Menubar/AnalyzeMenu/ConversationFilterMenu");
-    }
-
-    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
-    g_object_set_data (G_OBJECT (ui_manager_main_menubar),
-                     "diessector-filters-merge-id", GUINT_TO_POINTER (merge_id));
-
-    /* no items */
-    if (!list_entry){
-
-      action = g_object_new (GTK_TYPE_ACTION,
-                 "name", "filter-list-empty",
-                 "label", "No fileters",
-                 "sensitive", FALSE,
-                 NULL);
-      gtk_action_group_add_action (action_group, action);
-      gtk_action_set_sensitive(action, FALSE);
-      g_object_unref (action);
-
-      gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
-                 "/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters",
-                 "filter-list-empty",
-                 "filter-list-empty",
-                 GTK_UI_MANAGER_MENUITEM,
-                 FALSE);
-
-      return;
-    }
-
-	while(list_entry != NULL) {
-        filter_entry = list_entry->data;
-		action_name = g_strdup_printf ("filter-%u", i);
-		/*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
-		action = g_object_new (GTK_TYPE_ACTION,
-				 "name", action_name,
-				 "label", filter_entry->name,
-				 "sensitive", menu_dissector_filter_spe_cb(/* frame_data *fd _U_*/ NULL, cf->edt, filter_entry),
-				 NULL);
-		g_signal_connect (action, "activate",
-						G_CALLBACK (menu_dissector_filter_cb), filter_entry);
-		gtk_action_group_add_action (action_group, action);
-		g_object_unref (action);
-
-		gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
-				 "/Menubar/AnalyzeMenu/ConversationFilterMenu/Filters",
-				 action_name,
-				 action_name,
-				 GTK_UI_MANAGER_MENUITEM,
-				 FALSE);
-		i++;
-        list_entry = g_list_next(list_entry);
-    }
-
 #endif
 }
 
@@ -3776,7 +3708,7 @@ set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val)
 
     action = gtk_ui_manager_get_action(ui_manager, path);
     if(!action){
-        fprintf (stderr, "Warning: set_menu_vissible couldn't find action path= %s\n",
+        fprintf (stderr, "Warning: set_menu_visible couldn't find action path= %s\n",
                 path);
         return;
     }
