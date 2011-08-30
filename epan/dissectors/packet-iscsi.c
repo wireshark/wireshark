@@ -49,7 +49,7 @@
 #include <epan/nstime.h>
 #include <epan/emem.h>
 #include <epan/range.h>
-#include <wsutil/crc32.h>
+#include <epan/crc32.h>
 
 /* the absolute values of these constants don't matter as long as
  * latter revisions of the protocol are assigned a larger number */

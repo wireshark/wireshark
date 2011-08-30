@@ -46,7 +46,7 @@ wspython_dist_dir = wspython
 py_dissectors_dir = -DPYTHONDIR=
 endif
 
-SUBDIRS = crypt ftypes dfilter dissectors $(wslua_dir) $(wspython_dir)
+SUBDIRS = crc crypt ftypes dfilter dissectors $(wslua_dir) $(wspython_dir)
 
 DIST_SUBDIRS = $(SUBDIRS) $(wslua_dist_dir) $(wspython_dist_dir)
 
@@ -133,7 +133,7 @@ MAINTAINERCLEANFILES = \
 #
 libwireshark_la_LIBADD = \
 	libwireshark_generated.la \
-	libwireshark_asmopt.la crypt/libairpdcap.la \
+	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) @SOCKET_LIBS@ @NSL_LIBS@ \
 	@C_ARES_LIBS@ @ADNS_LIBS@ @LIBGCRYPT_LIBS@ @LIBGNUTLS_LIBS@ \
@@ -143,7 +143,7 @@ libwireshark_la_LIBADD = \
 
 libwireshark_la_DEPENDENCIES = \
 	libwireshark_generated.la \
-	libwireshark_asmopt.la crypt/libairpdcap.la \
+	libwireshark_asmopt.la crc/libcrc.la crypt/libairpdcap.la \
 	ftypes/libftypes.la dfilter/libdfilter.la dissectors/libdissectors.la \
 	dissectors/libdirtydissectors.la $(wslua_lib) $(wspython_lib) \
 	${top_builddir}/wsutil/libwsutil.la \

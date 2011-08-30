@@ -43,7 +43,7 @@
 #include <epan/etypes.h>
 #include <epan/expert.h>
 #include <epan/dissectors/packet-dcerpc.h>
-#include <wsutil/crc16.h>
+#include <epan/crc16.h>
 
 #include "packet-pn.h"
 

@@ -43,8 +43,8 @@
 #include "packet-ipx.h"
 #include "packet-vines.h"
 #include <epan/nlpid.h>
-#include <wsutil/crc16.h>
-#include <wsutil/crc32.h>
+#include <epan/crc16.h>
+#include <epan/crc32.h>
 #include <epan/ipproto.h>
 #include "packet-usb.h"
 #include "packet-sll.h"

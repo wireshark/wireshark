@@ -29,7 +29,7 @@
 #endif
 
 #include <epan/packet.h>
-#include <wsutil/crc16.h>
+#include <epan/crc16.h>
 
 /** Serial infrared port. */
 #define TCP_PORT_SIR 6417

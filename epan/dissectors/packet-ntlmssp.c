@@ -53,7 +53,7 @@
 #include <epan/crypt/crypt-des.h>
 #include "packet-dcerpc.h"
 #include "packet-gssapi.h"
-#include <wsutil/crc32.h>
+#include <epan/crc32.h>
 
 #include "packet-ntlmssp.h"
 

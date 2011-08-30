@@ -52,6 +52,7 @@ libwireshark_LIBS = \
 	$(GEOIP_LIBS) \
 	..\wsutil\libwsutil.lib \
 	..\wiretap\wiretap-$(WTAP_VERSION).lib \
+	crc\crc.lib \
 	crypt\airpdcap.lib \
 	ftypes\ftypes.lib \
 	dfilter\dfilter.lib \
@@ -76,17 +77,17 @@ DOXYGEN_DEP=doxygen
 !ENDIF
 
 !IFDEF ENABLE_LIBWIRESHARK
-all: crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors libwireshark.dll
+all: crc crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors libwireshark.dll
 !ELSE
-all: crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors libwireshark.lib
+all: crc crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors libwireshark.lib
 !ENDIF
 
 # For use when making libwireshark.dll
 libwireshark.lib: libwireshark.dll
 libwireshark.exp: libwireshark.dll
 
-libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                 crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
+libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crc crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                 crc\crc.lib crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib dissectors\dissectors.lib $(WSLUA_LIB) $(WSPYTHON_LIB) ..\image\libwireshark.res
 	@echo Linking libwireshark.dll
 	$(link) $(dlllflags) $(conlibsdll) shell32.lib \
 		$(LOCAL_LDFLAGS) $(DLL_LDFLAGS) \
@@ -96,8 +97,8 @@ libwireshark.dll: ..\config.h $(LIBWIRESHARK_OBJECTS) libwireshark.def crypt fty
 		dissectors\register.obj \
 		$(EXTRA_OBJECTS)
 
-libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
-                  crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib $(WSLUA_LIB) $(WSPYTHON_LIB) dissectors\dissectors.lib
+libwireshark.lib	: ..\config.h $(LIBWIRESHARK_OBJECTS) crc crypt ftypes dfilter $(WSLUA_DIR) $(WSPYTHON_DIR) dissectors $(DOXYGEN_DEP) $(EXTRA_OBJECTS) \
+                  crc\crc.lib crypt\airpdcap.lib ftypes\ftypes.lib dfilter\dfilter.lib $(WSLUA_LIB) $(WSPYTHON_LIB) dissectors\dissectors.lib
 	link /lib /out:libwireshark.lib $(LIBWIRESHARK_OBJECTS) \
 		$(EXTRA_OBJECTS)
 
@@ -114,6 +115,8 @@ clean-local:
 	if exist html rm -rf html
 
 clean:  clean-local
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ftypes
@@ -146,6 +149,8 @@ distclean-local: clean-local
 		dtd_grammar.out	sminmpec.c
 
 distclean: distclean-local
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ftypes
@@ -163,6 +168,8 @@ distclean: distclean-local
 maintainer-clean-local: distclean-local
 
 maintainer-clean: maintainer-clean-local
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../ftypes
@@ -175,6 +182,11 @@ maintainer-clean: maintainer-clean-local
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../wspython
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
+	cd ..
+
+crc:: ..\config.h
+	cd crc
+	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake
 	cd ..
 
 crypt:: ..\config.h

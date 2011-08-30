@@ -46,7 +46,7 @@
 #include <epan/packet.h>
 #include <epan/conversation.h>
 #include <epan/xdlc.h>
-#include <wsutil/crc16.h>
+#include <epan/crc16.h>
 #include <epan/prefs.h>
 #include <epan/lapd_sapi.h>
 

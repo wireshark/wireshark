@@ -50,7 +50,7 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
-#include <wsutil/crc16.h>
+#include <epan/crc16.h>
 #include <epan/asn1.h>
 #include <epan/strutil.h>
 #include <epan/uat.h>

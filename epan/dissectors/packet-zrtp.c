@@ -34,7 +34,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/strutil.h>
-#include <wsutil/crc32.h>
+#include <epan/crc32.h>
 #include "packet-rtp.h"
 #include "packet-rtcp.h"
 

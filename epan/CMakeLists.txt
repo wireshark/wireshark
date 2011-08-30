@@ -39,6 +39,10 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/wspython
 )
 
+set(CRC_FILES 	 
+	crc/crc-16-plain.c 	 
+)
+
 set(CRYPT_FILES
 	crypt/airpdcap.c
 	crypt/airpdcap_ccmp.c
@@ -1205,6 +1209,12 @@ set(LIBWIRESHARK_FILES
 	column.c
 	column-utils.c
 	conversation.c
+	crc10.c
+	crc16.c
+	crc32.c
+	crc6.c
+	crc8.c
+	crcdrm.c
 	dissector_filters.c
 	emem.c
 	epan.c

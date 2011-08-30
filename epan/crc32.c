@@ -35,7 +35,7 @@
 
 #include <glib.h>
 #include <epan/tvbuff.h>
-#include <wsutil/crc32.h>
+#include <epan/crc32.h>
 
 /*****************************************************************/
 /*                                                               */

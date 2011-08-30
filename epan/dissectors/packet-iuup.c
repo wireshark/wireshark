@@ -40,8 +40,8 @@
 #include <epan/prefs.h>
 #include <epan/emem.h>
 #include <epan/expert.h>
-#include <wsutil/crc10.h>
-#include <wsutil/crc6.h>
+#include <epan/crc10.h>
+#include <epan/crc6.h>
 
 
 typedef struct _iuup_rfci_t {

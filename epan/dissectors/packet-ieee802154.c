@@ -75,7 +75,7 @@
 
 #include <epan/emem.h>
 #include <epan/packet.h>
-#include <wsutil/crc16.h>
+#include <epan/crc16.h>
 #include <epan/expert.h>
 #include <epan/addr_resolv.h>
 #include <epan/prefs.h>

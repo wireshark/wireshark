@@ -38,7 +38,7 @@
 #include "packet-llc.h"
 #include "packet-sll.h"
 #include "packet-usb.h"
-#include <wsutil/crc32.h>
+#include <epan/crc32.h>
 #include <epan/tap.h>
 #include <epan/expert.h>
 

@@ -40,7 +40,7 @@
 
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <wsutil/crc32.h>
+#include <epan/crc32.h>
 #include <epan/etypes.h>
 #include <epan/expert.h>
 

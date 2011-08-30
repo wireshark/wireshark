@@ -1,5 +1,5 @@
 /**
- * \file crc16-plain.c
+ * \file crc-16-plain.c
  * Functions and types for CRC checks.
  *
  * Generated on Wed Mar 18 14:12:09 2009,
@@ -18,7 +18,7 @@
  * appears not to have it; we're using GLib types, instead.
  *****************************************************************************/
 #include "glib.h"
-#include "crc16-plain.h"
+#include "crc-16-plain.h"
 #include <stdlib.h>
 
 /**

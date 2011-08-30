@@ -112,6 +112,16 @@ convert_string_to_hex
 copy_file_binary_mode
 copy_persconffile_profile
 copy_prefs
+crc16_ccitt_tvb
+crc16_plain_tvb_offset
+crc32c_calculate
+crc32_ccitt
+crc32_ccitt_seed
+crc32_ccitt_tvb
+crc32_ccitt_tvb_offset
+crc32_ccitt_tvb_seed
+crc32_ccitt_tvb_offset_seed
+crc32_802_tvb
 create_dissector_handle
 create_persconffile_dir
 create_persconffile_profile
