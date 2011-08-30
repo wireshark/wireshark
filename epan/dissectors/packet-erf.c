@@ -85,6 +85,21 @@ static int hf_erf_ehdr_bfs_hash = -1;
 static int hf_erf_ehdr_bfs_color = -1;
 static int hf_erf_ehdr_bfs_raw_hash = -1;
 
+/* Channelised extension header */
+static int hf_erf_ehdr_chan_morebits = -1;
+static int hf_erf_ehdr_chan_morefrag = -1;
+static int hf_erf_ehdr_chan_seqnum = -1;
+static int hf_erf_ehdr_chan_res = -1;
+static int hf_erf_ehdr_chan_virt_container_id = -1;
+static int hf_erf_ehdr_chan_assoc_virt_container_size = -1;
+static int hf_erf_ehdr_chan_speed = -1;
+static int hf_erf_ehdr_chan_type = -1;
+
+/* New BFS extension header */
+static int hf_erf_ehdr_new_bfs_payload_hash = -1;
+static int hf_erf_ehdr_new_bfs_color = -1;
+static int hf_erf_ehdr_new_bfs_flow_hash = -1;
+
 /* Unknown extension header */
 static int hf_erf_ehdr_unk = -1;
 
@@ -355,6 +370,8 @@ static const value_string ehdr_type_vals[] = {
   { EXT_HDR_TYPE_INTERCEPTID, "InterceptID"},
   { EXT_HDR_TYPE_RAW_LINK, "Raw Link"},
   { EXT_HDR_TYPE_BFS, "BFS Filter/Hash"},
+  { EXT_HDR_TYPE_CHANNELISED, "Channelised"},
+  { EXT_HDR_TYPE_NEW_BFS, "New BFS Filter/Hash"},
   { 0, NULL }
 };
 
@@ -372,6 +389,37 @@ static const value_string raw_link_rates[] = {
   { 0x03, "oc48/stm16"},
   { 0x04, "oc192/stm64"},
   { 0, NULL },
+};
+
+static const value_string channelised_assoc_virt_container_size[] = {
+  { 0x00, "unused field"},
+  { 0x01, "VC-3 / STS-1"},
+  { 0x02, "VC-4 / STS-3"},
+  { 0x03, "VC-4-4c / STS-12"},
+  { 0x04, "VC-4-16c / STS-48"},
+  { 0x05, "VC-4-64c / STS-192"},
+  { 0, NULL }
+};
+
+static const value_string channelised_speed[] = {
+  { 0x00, "Reserved"},
+  { 0x01, "STM-0 / STS-1"},
+  { 0x02, "STM-1 / STS-3"},
+  { 0x03, "STM-4 / STS-12"},
+  { 0x04, "STM-16 / STS-48"},
+  { 0x05, "STM-64 / STS-192"},
+  { 0, NULL}
+};
+
+static const value_string channelised_type[] = {
+  { 0x00, "SOH / TOH"},
+  { 0x01, "POH"},
+  { 0x02, "Container"},
+  { 0x03, "POS Packet"},
+  { 0x04, "ATM Cell"},
+  { 0x05, "Positive justification bytes"},
+  { 0x06, "Raw demultiplexed channel"},
+  { 0, NULL}
 };
 
 
@@ -565,6 +613,153 @@ dissect_bfs_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr
     proto_tree_add_uint(int_tree, hf_erf_ehdr_bfs_raw_hash, tvb, 0, 0, (guint32)(hdr & 0xFFFFFFFF));
   }
 }
+
+static int
+channelised_fill_sdh_g707_format(sdh_g707_format_t* in_fmt, guint16 bit_flds, guint8 vc_size, guint8 speed)
+{
+  int i = 0; /* i = 4 --> ITU-T letter #E - index of AUG-64
+        * i = 3 --> ITU-T letter #D - index of AUG-16
+        * i = 2 --> ITU-T letter #C - index of AUG-4,
+        * i = 1 --> ITU-T letter #B  -index of AUG-1
+        * i = 0 --> ITU-T letter #A  - index of AU3*/
+
+  if (0 == vc_size)
+  {
+    /* unknown / unsed container size*/
+    return -1;
+  }
+  in_fmt->m_vc_size = vc_size;
+  in_fmt->m_sdh_line_rate = speed;
+  memset(&(in_fmt->m_vc_index_array[0]), 0xff, DECHAN_MAX_AUG_INDEX);
+
+  /* for STM64 traffic, start from #E index shoud be 0 */
+  in_fmt->m_vc_index_array[ speed - 1] = 0;
+  /* for STM64 traffic,from #D and so on .. */
+    for (i = (speed - 2); i >= 0; i--)
+  {
+    guint8 aug_n_index = 0;
+
+    /*if AUG-n is bigger than vc-size*/
+    if ( i >= (vc_size - 1))
+    {
+      /* check the value in bit flds */
+      aug_n_index = ((bit_flds >> (2 *i))& 0x3) +1;
+    }
+    else                                                                                                                           
+    {
+      aug_n_index = 0;
+    }
+    in_fmt->m_vc_index_array[i] = aug_n_index;
+  }
+  return 0;
+}
+
+static void
+channelised_fill_vc_id_string(char* out_string, int maxstrlen, sdh_g707_format_t* in_fmt)
+{
+  int i = 0;
+  int cur_len = 0, print_index = 0;
+  guint8 is_printed = 0;
+  static char* g_vc_size_strings[] =  { 
+                  "unknown", /* 0x0 */
+                  "VC3", /*0x1*/
+                  "VC4", /*0x2*/
+                  "VC4-4c", /*0x3*/
+                  "VC4-16c", /*0x4*/
+                  "VC4-64c", /*0x5*/
+                  "VC4-256c", /*0x6*/};
+
+  print_index = g_snprintf(out_string, maxstrlen,"%s(",g_vc_size_strings[in_fmt->m_vc_size]);
+
+  if (in_fmt->m_sdh_line_rate <= 0 )
+  {
+    /* line rate is not given */
+    for (i = (DECHAN_MAX_AUG_INDEX -1); i >= 0; i--)
+    {
+      if ( (in_fmt->m_vc_index_array[i] > 0) || (is_printed) )
+      {
+        cur_len = g_snprintf(out_string+print_index, maxstrlen,"%s%d",((is_printed)?", ":""),     in_fmt->m_vc_index_array[i]);
+        print_index += cur_len;
+        is_printed = 1;
+      }
+    }
+
+  }
+  else
+  {
+    for (i = in_fmt->m_sdh_line_rate - 2; i >= 0; i--)
+    {
+      cur_len = g_snprintf(out_string+print_index, maxstrlen,"%s%d",((is_printed)?", ":""),     in_fmt->m_vc_index_array[i]);
+      print_index += cur_len;
+      is_printed = 1;
+    }
+  }
+  if ( ! is_printed )
+  {
+    /* Not printed . possibly its a ocXc packet with (0,0,0...) */
+    for ( i =0; i < in_fmt->m_vc_size - 2; i++)
+    {
+      cur_len = g_snprintf(out_string+print_index, maxstrlen,"%s0",((is_printed)?", ":""));
+      print_index += cur_len;
+      is_printed = 1;
+    }
+  }
+  g_snprintf(out_string+print_index, maxstrlen, ")");
+  return;
+} 
+
+static void
+dissect_channelised_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *int_item = NULL;
+  proto_item *int_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+  sdh_g707_format_t g707_format;
+  char vc_id_string[64] = {0};
+  guint8 vc_id = (guint8)((hdr >> 24) & 0xFF);
+  guint8 vc_size = (guint8)((hdr >> 16) & 0xFF);
+  guint8 line_speed = (guint8)((hdr >> 8) & 0xFF);
+
+  channelised_fill_sdh_g707_format(&g707_format, vc_id, vc_size, line_speed);
+  channelised_fill_vc_id_string(vc_id_string, 64, &g707_format);
+
+  if (pseudo_hdr_tree){
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "Channelised");
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
+    PROTO_ITEM_SET_GENERATED(int_item);
+
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_t, tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    proto_tree_add_boolean(int_tree, hf_erf_ehdr_chan_morebits, tvb, 0, 0, (guint8)((hdr >> 63) & 0x1));
+    proto_tree_add_boolean(int_tree, hf_erf_ehdr_chan_morefrag, tvb, 0, 0, (guint8)((hdr >> 55) & 0x1));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_seqnum, tvb, 0, 0, (guint16)((hdr >> 40) & 0x7FFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_res, tvb, 0, 0, (guint8)((hdr >> 32) & 0xFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_virt_container_id, tvb, 0, 0, vc_id);
+    proto_tree_add_text(int_tree, tvb, 0, 0, "Virtual Container ID (g.707): %s", vc_id_string);
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_assoc_virt_container_size, tvb, 0, 0, vc_size);
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_speed, tvb, 0, 0, line_speed);
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_chan_type, tvb, 0, 0, (guint8)((hdr >> 0) & 0xFF));
+  }
+}
+
+static void
+dissect_new_bfs_ex_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
+{
+  proto_item *int_item = NULL;
+  proto_item *int_tree = NULL;
+  guint64 hdr = pinfo->pseudo_header->erf.ehdr_list[idx].ehdr;
+
+  if(pseudo_hdr_tree){
+    int_item = proto_tree_add_text(pseudo_hdr_tree, tvb, 0, 0, "New BFS Filter/Hash");
+    int_tree = proto_item_add_subtree(int_item, ett_erf_pseudo_hdr);
+    PROTO_ITEM_SET_GENERATED(int_item);
+
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_t, tvb, 0, 0, (guint8)((hdr >> 56) & 0x7F));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_new_bfs_payload_hash, tvb, 0, 0, (guint32)((hdr >> 32) & 0xFFFFFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_new_bfs_color, tvb, 0, 0, (guint8)((hdr >> 24) & 0xFF));
+    proto_tree_add_uint(int_tree, hf_erf_ehdr_new_bfs_flow_hash, tvb, 0, 0, (guint32)(hdr & 0xFFFFFF));
+  }
+}
+
 
 static void
 dissect_unknown_ex_header(tvbuff_t *tvb,  packet_info *pinfo, proto_tree *pseudo_hdr_tree, int idx)
@@ -880,6 +1075,12 @@ dissect_erf_pseudo_extension_header(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       break;
     case EXT_HDR_TYPE_BFS:
       dissect_bfs_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+      break;
+	  case EXT_HDR_TYPE_CHANNELISED:
+      dissect_channelised_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
+	    break;
+    case EXT_HDR_TYPE_NEW_BFS:
+      dissect_new_bfs_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
       break;
     default:
       dissect_unknown_ex_header(tvb, pinfo, pseudo_hdr_tree, i);
@@ -1252,6 +1453,21 @@ proto_register_erf(void)
     { &hf_erf_ehdr_bfs_hash, { "Hash", "erf.ehdr.bfs.hash", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_erf_ehdr_bfs_color, { "Filter Color", "erf.ehdr.bfs.color", FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL } },
     { &hf_erf_ehdr_bfs_raw_hash, { "Raw Hash", "erf.ehdr.bfs.rawhash", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL } },
+
+    /* Channelised Extension Header */
+    { &hf_erf_ehdr_chan_morebits, { "More Bits", "erf.ehdr.chan.morebits", FT_BOOLEAN, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_morefrag, { "More Fragments", "erf.ehdr.chan.morefrag", FT_BOOLEAN, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_seqnum, { "Sequence Number", "erf.ehdr.chan.seqnum", FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_res, { "Reserved", "erf.ehdr.chan.res", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_virt_container_id, { "Virtual Container ID", "erf.ehdr.chan.vcid", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_assoc_virt_container_size, { "Associated Virtual Container Size", "erf.ehdr.chan.vcsize", FT_UINT8, BASE_HEX, VALS(channelised_assoc_virt_container_size), 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_speed, { "Origin Line Type/Rate", "erf.ehdr.chan.rate", FT_UINT8, BASE_HEX, VALS(channelised_speed), 0, NULL, HFILL } },
+    { &hf_erf_ehdr_chan_type, { "Frame Part Type", "erf.ehdr.chan.type", FT_UINT8, BASE_HEX, VALS(channelised_type), 0, NULL, HFILL } },
+
+    /* New BFS Extension Header */
+    { &hf_erf_ehdr_new_bfs_payload_hash, { "Payload Hash", "erf.hdr.newbfs.payloadhash", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_new_bfs_color, { "Filter Color", "erf.hdr.newbfs.color", FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL } },
+    { &hf_erf_ehdr_new_bfs_flow_hash, { "Flow Hash", "erf.hdr.newbfs.flowhash", FT_UINT24, BASE_HEX, NULL, 0, NULL, HFILL } },
 
     /* Unknown Extension Header */
     { &hf_erf_ehdr_unk, { "Data", "erf.ehdr.unknown.data", FT_UINT64, BASE_HEX, NULL, 0x0, NULL, HFILL } },

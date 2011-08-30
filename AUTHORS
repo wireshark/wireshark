@@ -3295,6 +3295,11 @@ Allison			<aobourn [AT] isilon.com> {
 Edwin Groothuis		<wireshark [AT] mavetju.org> {
 	Time Shift functionality
 }
+
+Andrew Kampjes		<andrew.kampjes [AT] endace.com> {
+	Endace ERF channelisation and "New BFS" extension header support
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

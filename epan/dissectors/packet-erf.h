@@ -28,6 +28,10 @@
 #define EXT_HDR_TYPE_INTERCEPTID    4 
 #define EXT_HDR_TYPE_RAW_LINK       5 
 #define EXT_HDR_TYPE_BFS            6 
+#define EXT_HDR_TYPE_CHANNELISED	12
+#define EXT_HDR_TYPE_NEW_BFS  14 
+
+#define DECHAN_MAX_AUG_INDEX 4
 
 void proto_reg_handoff_erf(void);
 void proto_register_erf(void);
@@ -78,5 +82,17 @@ struct erf_eth_hdrx {
   guint8 byte0;
   guint8 byte1;
 };
+
+typedef struct sdh_g707_format_s                                                                              
+{
+  guint8 m_sdh_line_rate;
+  guint8 m_vc_size ;
+    gint8 m_vc_index_array[DECHAN_MAX_AUG_INDEX];
+        /*  i = 4 --> ITU-T letter #E - index of AUG-64
+        * i = 3 --> ITU-T letter #D - index of AUG-16
+        * i = 2 --> ITU-T letter #C - index of AUG-4,
+        * i = 1 --> ITU-T letter #B  -index of AUG-1
+        * i = 0 --> ITU-T letter #A  - index of AU3*/
+}sdh_g707_format_t;
 
 #endif
