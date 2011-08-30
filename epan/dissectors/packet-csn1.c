@@ -660,7 +660,6 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
           case CSN_BIT:
           {
             pui8  = pui8DATA(data, pDescr->offset);
-            pDescr++;
 
             proto_tree_add_text(tree, tvb, bit_offset>>3, 1, "%s %s",
                                    decode_bits_in_field(bit_offset, 1, tvb_get_bits8(tvb, bit_offset, 1)),
@@ -673,6 +672,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             }
             remaining_bits_len -= 1;
             bit_offset++;
+            pDescr++;
             break;
           }
 
