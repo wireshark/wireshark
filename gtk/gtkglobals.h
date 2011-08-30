@@ -51,4 +51,7 @@ extern GtkWidget *byte_nb_ptr_gbl;
 /** The filter text entry in the filter toolbar. */
 extern GtkWidget   *main_display_filter_widget;
 
+/** If autoscroll in live captures is active or not */
+extern gboolean     auto_scroll_live;
+
 #endif
