@@ -27,7 +27,6 @@
 #define __STOCK_ICONS_H__
 
 
-#ifdef HAVE_LIBPCAP
 #define WIRESHARK_STOCK_CAPTURE_INTERFACES       "Wireshark_Stock_CaptureInterfaces"
 #define WIRESHARK_STOCK_CAPTURE_OPTIONS          "Wireshark_Stock_CaptureOptionss"
 #define WIRESHARK_STOCK_CAPTURE_START            "Wireshark_Stock_CaptureStart"
@@ -36,7 +35,6 @@
 #define WIRESHARK_STOCK_CAPTURE_FILTER           "Wireshark_Stock_CaptureFilter"
 #define WIRESHARK_STOCK_CAPTURE_FILTER_ENTRY     "Wireshark_Stock_CaptureFilter_Entry"
 #define WIRESHARK_STOCK_CAPTURE_DETAILS          "Wireshark_Stock_CaptureDetails"
-#endif
 #ifdef HAVE_GEOIP
 #define WIRESHARK_STOCK_MAP                      "Wireshark_Stock_Map"
 #endif

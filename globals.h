@@ -33,10 +33,8 @@ extern "C" {
 #include <epan/timestamp.h>
 
 extern capture_file cfile;
-#ifdef HAVE_LIBPCAP
 /** @todo move this to the gtk dir */
 extern gboolean     auto_scroll_live;
-#endif
 
 #ifdef __cplusplus
 }

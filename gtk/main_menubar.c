@@ -1576,14 +1576,13 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Go/LastPacket",				GTK_STOCK_GOTO_BOTTOM,	"_Last Packet",						"<control>End",					NULL,				G_CALLBACK(goto_bottom_frame_cb) },
    { "/Go/PreviousPacketInConversation",			GTK_STOCK_GO_UP,		"Previous Packet In Conversation",					"<control>comma",					NULL,				G_CALLBACK(goto_previous_frame_conversation_cb) },
    { "/Go/NextPacketInConversation",				GTK_STOCK_GO_DOWN,		"Next Packet In Conversation",						"<control>period",				NULL,				G_CALLBACK(goto_next_frame_conversation_cb) },
-#ifdef HAVE_LIBPCAP
+
    { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_if_cb) },
    { "/Capture/Options",			WIRESHARK_STOCK_CAPTURE_OPTIONS,	"_Options...",			"<control>K",					NULL,				G_CALLBACK(capture_prep_cb) },
    { "/Capture/Start",				WIRESHARK_STOCK_CAPTURE_START,		"_Start",				"<control>E",					NULL,				G_CALLBACK(capture_start_cb) },
    { "/Capture/Stop",				WIRESHARK_STOCK_CAPTURE_STOP,		"S_top",				"<control>E",					NULL,				G_CALLBACK(capture_stop_cb) },
    { "/Capture/Restart",			WIRESHARK_STOCK_CAPTURE_RESTART,	"_Restart",				"<control>R",					NULL,				G_CALLBACK(capture_restart_cb) },
    { "/Capture/CaptureFilters",		WIRESHARK_STOCK_CAPTURE_FILTER,		"Capture _Filters...",	NULL,							NULL,				G_CALLBACK(cfilter_dialog_cb) },
-#endif /* HAVE_LIBPCAP */
 
    { "/Analyze/DisplayFilters",		WIRESHARK_STOCK_DISPLAY_FILTER,		"_Display Filters...",	NULL,							NULL,				G_CALLBACK(dfilter_dialog_cb) },
 
@@ -4284,12 +4283,12 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 #ifdef HAVE_LIBPCAP
     /* tell toolbar about it */
     toolbar_auto_scroll_live_changed(auto_scroll_live_in);
+#endif /*HAVE_LIBPCAP */
 
     /* change auto scroll */
     if(auto_scroll_live_in != auto_scroll_live) {
         auto_scroll_live  = auto_scroll_live_in;
     }
-#endif /*HAVE_LIBPCAP */
 }
 
 
@@ -4391,15 +4390,12 @@ menu_recent_read_finished(void) {
 
     menu_name_resolution_changed();
 
-
-#ifdef HAVE_LIBPCAP
     menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
     if(!menu){
         g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/AutoScrollinLiveCapture");
     }else{
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
     }
-#endif /* HAVE_LIBPCAP */
 
     main_widgets_rearrange();
 
