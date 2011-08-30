@@ -38,7 +38,7 @@
 
 #include <glib.h>
 #include <epan/tvbuff.h>
-#include <epan/crc8.h>
+#include <wsutil/crc8.h>
 
 /**
  * Reversed CRC table

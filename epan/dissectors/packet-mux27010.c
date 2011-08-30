@@ -30,7 +30,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/crc8.h>
+#include <wsutil/crc8.h>
 #include <expert.h>
 
 #include <string.h>

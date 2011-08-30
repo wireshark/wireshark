@@ -116,7 +116,7 @@
 #include <epan/etypes.h>
 #include <epan/greproto.h>
 #include <epan/oui.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/tap.h>
 #include <epan/emem.h>
 #include <epan/crypt/wep-wpadefs.h>

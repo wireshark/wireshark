@@ -40,10 +40,10 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/expert.h>
 
-#include <epan/crc16.h>
+#include <wsutil/crc16.h>
 #include <glib.h>
 #include <glib/gprintf.h>
 

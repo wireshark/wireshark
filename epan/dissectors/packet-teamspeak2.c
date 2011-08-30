@@ -29,7 +29,7 @@
 #endif
 
 #include <epan/packet.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/reassemble.h>
 #include <epan/conversation.h>
 #include <stdlib.h>

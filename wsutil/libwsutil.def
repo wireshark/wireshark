@@ -9,6 +9,38 @@
 ;
 EXPORTS
 
+; crc6.c
+update_crc6_by_bytes
+
+; crc8.c
+check_fcs
+
+; crc10.c
+update_crc10_by_bytes
+
+; crc16.c
+crc16_ccitt
+crc16_ccitt_seed
+crc16_ccitt_tvb
+crc16_plain_tvb_offset
+crc16_ccitt_tvb_offset
+crc16_ccitt_tvb_offset_seed
+crc16_ccitt_tvb_seed
+crc16_x25_ccitt
+crc16_x25_ccitt_tvb
+
+; crc32.c
+crc32_802_tvb
+crc32_ccitt
+crc32_ccitt_seed
+crc32_ccitt_table DATA
+crc32_ccitt_tvb
+crc32_ccitt_tvb_offset
+crc32_ccitt_tvb_seed
+crc32_ccitt_tvb_offset_seed
+crc32c_calculate
+crc32c_table DATA
+
 ; file_util.c
 getenv_utf8
 ws_stdio_fopen

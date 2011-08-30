@@ -35,7 +35,7 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
-#include <epan/crc16.h>
+#include <wsutil/crc16.h>
 #include <epan/expert.h>
 
 /* Initialize the protocol and registered fields */

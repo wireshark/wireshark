@@ -3213,7 +3213,7 @@ static mfgFieldDissectorParser_t r3upstreammfgfield_dissect [] =
 /*
  * ***************************************************************************
  *
- *  Cannot use epan/crc routines as ccitt-x25 uses a starting value of 0xffff
+ *  Cannot use wsutil/crc routines as ccitt-x25 uses a starting value of 0xffff
  *  and we use 0x0000 (legacy compatibility).  If an override method to set
  *  the starting value existed, these could be replaced.
  */

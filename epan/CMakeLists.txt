@@ -1209,12 +1209,6 @@ set(LIBWIRESHARK_FILES
 	column.c
 	column-utils.c
 	conversation.c
-	crc10.c
-	crc16.c
-	crc32.c
-	crc6.c
-	crc8.c
-	crcdrm.c
 	dissector_filters.c
 	emem.c
 	epan.c

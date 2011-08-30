@@ -39,8 +39,8 @@
 
 #include <glib.h>
 #include <epan/tvbuff.h>
-#include <epan/crc16.h>
-#include <epan/crc/crc-16-plain.h>
+#include <wsutil/crc16.h>
+#include <wsutil/crc16-plain.h>
 
 
 /*****************************************************************/

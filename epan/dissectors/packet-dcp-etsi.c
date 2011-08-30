@@ -32,7 +32,7 @@
 
 #include <epan/packet.h>
 #include <epan/reassemble.h>
-#include <epan/crcdrm.h>
+#include <wsutil/crcdrm.h>
 #include <epan/reedsolomon.h>
 #include <epan/emem.h>
 #include <string.h>

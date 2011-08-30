@@ -1988,7 +1988,6 @@ AC_OUTPUT(
   doc/Makefile
   docbook/Makefile
   epan/Makefile
-  epan/crc/Makefile
   epan/crypt/Makefile
   epan/doxygen.cfg
   epan/dfilter/Makefile
