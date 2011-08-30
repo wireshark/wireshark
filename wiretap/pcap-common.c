@@ -1671,8 +1671,6 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 	case WTAP_ENCAP_ERF:
 	        hdrsize = (int)sizeof (struct erf_phdr);
-		if (pseudo_header->erf.phdr.type & 0x80)
-			hdrsize += 8;
 		switch (pseudo_header->erf.phdr.type & 0x7F) {
 
 		case ERF_TYPE_MC_HDLC:
@@ -1693,6 +1691,22 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 		default:
 			break;
+		}
+
+		/*
+		 * Add in the lengths of the extension headers.
+		 */
+		if (pseudo_header->erf.phdr.type & 0x80) {
+			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+			guint8 erf_exhdr[8];
+			guint8 type;
+
+			do {
+				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				type = erf_exhdr[0];
+				hdrsize += 8;
+				i++;
+			} while (type & 0x80 && i < max);
 		}
 		break;
 
@@ -1831,7 +1845,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		break;
 
 	case WTAP_ENCAP_ERF:
-	         /*
+		/*
 		 * Write the ERF header.
 		 */
 	        memset(&erf_hdr, 0, sizeof(erf_hdr));
@@ -1866,6 +1880,24 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
 			return FALSE;
 		wdh->bytes_dumped += size;
+
+		/*
+		 * Now write out the extension headers.
+		 */
+		if (pseudo_header->erf.phdr.type & 0x80) {
+			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+			guint8 erf_exhdr[8];
+			guint8 type;
+
+			do {
+				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				type = erf_exhdr[0];
+				if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
+					return FALSE;
+				wdh->bytes_dumped += 8;
+				i++;
+			} while (type & 0x80 && i < max);
+		}
 		break;
 
 	case WTAP_ENCAP_I2C:
