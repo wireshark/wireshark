@@ -165,6 +165,18 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
                     currently opened/captured file only.
 */
 
+
+
+static gchar *
+get_ui_file_path(const char *filename)
+{
+    gchar *gui_desc_file_name;
+
+    gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s" G_DIR_SEPARATOR_S "%s", get_datafile_dir(),
+        running_in_build_directory() ? "gtk/ui" : "ui", filename);
+    return gui_desc_file_name;
+}
+
 typedef enum {
     SHOW_HIDE_MAIN_TOOLBAR = 1,
     SHOW_HIDE_FILTER_TOOLBAR,
@@ -1462,8 +1474,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 
   { "/File/Export/File",				NULL,		"File",							NULL,					NULL,			NULL },
   { "/File/Export/File/Text",			NULL,		"as \"Plain _Text\" file...",	NULL,					NULL,			G_CALLBACK(export_text_cmd_cb) },
-#if _WIN32
-#else
   { "/File/Export/File/PostScript",		NULL,		"as \"_PostScript\" file...",	NULL,					NULL,			G_CALLBACK(export_ps_cmd_cb) },
   { "/File/Export/File/CSV",			NULL,		"as \"_CSV\" (Comma Separated Values packet summary) file...",
 																					NULL,					NULL,			G_CALLBACK(export_csv_cmd_cb) },
@@ -1473,7 +1483,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
 																					NULL,					NULL,			G_CALLBACK(export_psml_cmd_cb) },
   { "/File/Export/File/PDML",			NULL,		"as XML - \"P_DML\" (packet details) file...",
 																					NULL,					NULL,			G_CALLBACK(export_pdml_cmd_cb) },
-#endif /* _WIN32 */
   { "/File/Export/SelectedPacketBytes",	NULL,		"Selected Packet _Bytes...",	"<control>H",			NULL,			G_CALLBACK(savehex_cb) },
   { "/File/Export/SslSessionKeys",	NULL,		"SSL Session Keys...",	NULL,			NULL,			G_CALLBACK(savesslkeys_cb) },
   { "/File/Export/Objects",				NULL,		"Objects",						NULL,					NULL,			NULL },
@@ -1542,11 +1551,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
                              0, "<StockItem>", GTK_STOCK_PASTE,},
     {"/Edit/<separator>", NULL, NULL, 0, "<Separator>", NULL,},
     {"/Edit/Select _All", "<control>A", NULL, 0,
-#ifdef GTK_STOCK_SELECT_ALL	/* first appeared in 2.10 */
-                             "<StockItem>", GTK_STOCK_SELECT_ALL,
-#else
-                             NULL, NULL,
-#endif /* GTK_STOCK_SELECT_ALL */
+                             "<StockItem>", GTK_STOCK_SELECT_ALL,},
 #endif /* 0 */
    { "/Edit/FindPacket",				GTK_STOCK_FIND,		"_Find Packet...",						"<control>F",			NULL,			G_CALLBACK(find_frame_cb) },
    { "/Edit/FindNext",					NULL,				"Find Ne_xt",							"<control>N",			NULL,			G_CALLBACK(find_next_cb) },
@@ -3265,10 +3270,10 @@ menus_init(void) {
         *statusbar_profiles_action_group;
     GError *error = NULL;
     guint merge_id;
-#ifdef NEW_MENU_CODE
-    char *gui_desc_file_name;
-#endif
 
+#ifdef NEW_MENU_CODE
+	gchar* gui_desc_file_name_and_path;
+#endif
     if (initialize) {
         initialize = FALSE;
 
@@ -3351,8 +3356,9 @@ menus_init(void) {
 #ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error);
 #else
-        gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "tree-view-ui.xml", get_datafile_dir());
-        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name, &error);
+		gui_desc_file_name_and_path = get_ui_file_path("tree-view-ui.xml");
+        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
+		g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
         {
@@ -3361,9 +3367,6 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
-#ifdef NEW_MENU_CODE
-        g_free (gui_desc_file_name);
-#endif
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_TREE_VIEW_KEY,
                          gtk_ui_manager_get_widget(ui_manager_tree_view_menu, "/TreeViewPopup"));
@@ -3393,8 +3396,9 @@ menus_init(void) {
 #ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error);
 #else
-        gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "bytes-view-ui.xml", get_datafile_dir());
-        gtk_ui_manager_add_ui_from_file ( ui_manager_bytes_menu, gui_desc_file_name, &error);
+		gui_desc_file_name_and_path = get_ui_file_path("bytes-view-ui.xml");
+        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
+		g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
         {
@@ -3403,9 +3407,6 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
-#ifdef NEW_MENU_CODE
-        g_free (gui_desc_file_name);
-#endif
         g_object_unref(packet_list_byte_menu_action_group);
 
         g_object_set_data(G_OBJECT(popup_menu_object), PM_BYTES_VIEW_KEY,
@@ -3446,8 +3447,9 @@ menus_init(void) {
 #ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar,ui_desc_menubar, -1, &error);
 #else
-		gui_desc_file_name = g_strdup_printf("%s" G_DIR_SEPARATOR_S "ui" G_DIR_SEPARATOR_S "main-menubar-ui.xml", get_datafile_dir());
-		gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name, &error);
+		gui_desc_file_name_and_path = get_ui_file_path("main-menubar-ui.xml");
+        gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
+		g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
         {
@@ -3456,9 +3458,6 @@ menus_init(void) {
             g_error_free (error);
             error = NULL;
         }
-#ifdef NEW_MENU_CODE
-        g_free (gui_desc_file_name);
-#endif
         g_object_unref(main_menu_bar_action_group);
         gtk_window_add_accel_group (GTK_WINDOW(top_level),
                                 gtk_ui_manager_get_accel_group(ui_manager_main_menubar));
