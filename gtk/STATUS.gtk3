@@ -11,25 +11,31 @@ There are two ways to make the Wireshark code gtk3 ready:
 1) CMake and configure options to build with gtk3 instead of gtk2:
   cmake:     ENABLE_GTK3=ON
   configure: --with-gtk3
-  This will only work if building without gtkvumeter.c
-  and rtp_player.c (disable portaudio). It also requires GTK3 to be installed.
-  GTK3 is available for Windows as a mingw build only, see
+  This will only work if building without gtkvumeter.c. It also requires GTK3
+  to be installed.  GTK3 is available for Windows as a mingw build only, see
   http://lists-archives.org/gtk-devel/13233-fwd-precompiled-gtk3-for-windows.html
 
 2) The compat flags in GTK2:
   -DGTK_DISABLE_SINGLE_INCLUDES [works and is enabled]
   -DGSEAL_ENABLE [works and is enabled]
-  -DGDK_DISABLE_DEPRECATED [works for most files and is enabled, see below]
-  -DGTK_DISABLE_DEPRECATED [works for most files and is enabled, see below]
+  -DGDK_DISABLE_DEPRECATED [works for most files and is globally enabled, see below]
+  -DGTK_DISABLE_DEPRECATED [works for most files and is globally enabled, see below]
 
 A large part of the GTK3 porting work as been done.
 
 The following files will not yet compile either with GTK2 and GxK_DISABLE_DEPRECATED
 or GDK3/GTK3 or have code in them to disable functionality in order to be able to build:
     gtkvumeter.c (windows only, fails, still using deprecated functions.)
-    rtp_player.c (fails, still using GdkPixmap)
     proto_help.c (not ported to UI-MANAGER)
-    funnel_stat.c (?) (the lua menu items fail at runtime)
+    tcp_graph.c (see below)
 plus maybe some other code that is outside the tested #ifdef combinations.
 
+tcp_graph.c with GTK2 and GDK_DISABLE_DEPRECATED:
 
+gtk/tcp_graph.c: In function ‘create_drawing_area’:
+gtk/tcp_graph.c:813:3: error: implicit declaration of function ‘gdk_gc_new’
+gtk/tcp_graph.c:813:10: error: assignment makes pointer from integer without a cast
+gtk/tcp_graph.c:814:3: error: implicit declaration of function ‘gdk_gc_set_function’
+gtk/tcp_graph.c:829:3: error: implicit declaration of function ‘gdk_gc_set_foreground’
+gtk/tcp_graph.c: In function ‘cross_xor’:
+gtk/tcp_graph.c:2869:3: error: implicit declaration of function ‘gdk_draw_line’
