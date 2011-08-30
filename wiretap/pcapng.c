@@ -1958,7 +1958,8 @@ static gboolean pcapng_dump(wtap_dumper *wdh,
 		wblock.file_encap              = NULL;
 		wblock.type                    = BLOCK_TYPE_IDB;
 		wblock.data.if_descr.link_type = wtap_wtap_encap_to_pcap_encap(phdr->pkt_encap);
-		wblock.data.if_descr.snap_len  = wdh->snaplen; /* XXX */
+		wblock.data.if_descr.snap_len = (wdh->snaplen != 0) ? wdh->snaplen :
+								      WTAP_MAX_PACKET_SIZE; /* XXX */
 
 		/* XXX - options unused */
 		wblock.data.if_descr.if_speed   = -1;
