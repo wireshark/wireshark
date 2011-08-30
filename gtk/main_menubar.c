@@ -863,6 +863,46 @@ view_menu_reset_coloring_cb(GtkAction *action, gpointer user_data)
 {
 	colorize_conversation_cb(action, user_data, 255*256);
 }
+/*
+ * TODO Move this menu to capture_if_dlg.c ?
+ */
+static void
+capture_cb(GtkAction *action _U_, gpointer user_data _U_)
+{
+#ifdef HAVE_LIBPCAP
+	const gchar *action_name;
+	gchar *name;
+
+	action_name = gtk_action_get_name (action);
+	name = strrchr(action_name,'/');
+	if(name){
+		name = name+1;
+	}else{
+		name = g_strdup_printf("%s",action_name);
+	}
+	if(strcmp(name, "Interfaces") == 0){
+		capture_if_cb(NULL /* GtkWidget *w _U_ */, user_data);
+		return;
+	}else if(strcmp(name, "Options") == 0){
+		capture_prep_cb(NULL /* GtkWidget *w _U_ */, user_data);
+		return;
+	}else if(strcmp(name, "Start") == 0){
+		capture_start_cb(NULL /* GtkWidget *w _U_ */, user_data);
+		return;
+	}else if(strcmp(name, "Stop") == 0){
+		capture_stop_cb(NULL /* GtkWidget *w _U_ */, user_data);
+		return;
+	}else if(strcmp(name, "Restart") == 0){
+		capture_restart_cb(NULL /* GtkWidget *w _U_ */, user_data);
+		return;
+	}else if(strcmp(name, "CaptureFilters") == 0){
+		cfilter_dialog_cb(NULL /* GtkWidget *w _U_ */);
+		return;
+	}
+
+	fprintf (stderr, "Warning capture_cb unknown action: %s/n",action_name);
+#endif /* HAVE_LIBPCAP */		
+}
 
 static void
 help_menu_cont_cb(GtkAction *action _U_, gpointer user_data _U_)
@@ -1577,12 +1617,18 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Go/PreviousPacketInConversation",			GTK_STOCK_GO_UP,		"Previous Packet In Conversation",					"<control>comma",					NULL,				G_CALLBACK(goto_previous_frame_conversation_cb) },
    { "/Go/NextPacketInConversation",				GTK_STOCK_GO_DOWN,		"Next Packet In Conversation",						"<control>period",				NULL,				G_CALLBACK(goto_next_frame_conversation_cb) },
 
-   { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_if_cb) },
-   { "/Capture/Options",			WIRESHARK_STOCK_CAPTURE_OPTIONS,	"_Options...",			"<control>K",					NULL,				G_CALLBACK(capture_prep_cb) },
-   { "/Capture/Start",				WIRESHARK_STOCK_CAPTURE_START,		"_Start",				"<control>E",					NULL,				G_CALLBACK(capture_start_cb) },
-   { "/Capture/Stop",				WIRESHARK_STOCK_CAPTURE_STOP,		"S_top",				"<control>E",					NULL,				G_CALLBACK(capture_stop_cb) },
-   { "/Capture/Restart",			WIRESHARK_STOCK_CAPTURE_RESTART,	"_Restart",				"<control>R",					NULL,				G_CALLBACK(capture_restart_cb) },
-   { "/Capture/CaptureFilters",		WIRESHARK_STOCK_CAPTURE_FILTER,		"Capture _Filters...",	NULL,							NULL,				G_CALLBACK(cfilter_dialog_cb) },
+/*
+ * TODO Move this menu to capture_if_dlg.c 
+ * eg put a "place holder" in the UI description and
+ * make a call from main_menubar.c i.e build_capture_menu()
+ * ad do the UI stuff there.
+ */
+   { "/Capture/Interfaces",			WIRESHARK_STOCK_CAPTURE_INTERFACES,	"_Interfaces...",		"<control>I",					NULL,				G_CALLBACK(capture_cb) },
+   { "/Capture/Options",			WIRESHARK_STOCK_CAPTURE_OPTIONS,	"_Options...",			"<control>K",					NULL,				G_CALLBACK(capture_cb) },
+   { "/Capture/Start",				WIRESHARK_STOCK_CAPTURE_START,		"_Start",				"<control>E",					NULL,				G_CALLBACK(capture_cb) },
+   { "/Capture/Stop",				WIRESHARK_STOCK_CAPTURE_STOP,		"S_top",				"<control>E",					NULL,				G_CALLBACK(capture_cb) },
+   { "/Capture/Restart",			WIRESHARK_STOCK_CAPTURE_RESTART,	"_Restart",				"<control>R",					NULL,				G_CALLBACK(capture_cb) },
+   { "/Capture/CaptureFilters",		WIRESHARK_STOCK_CAPTURE_FILTER,		"Capture _Filters...",	NULL,							NULL,				G_CALLBACK(capture_cb) },
 
    { "/Analyze/DisplayFilters",		WIRESHARK_STOCK_DISPLAY_FILTER,		"_Display Filters...",	NULL,							NULL,				G_CALLBACK(dfilter_dialog_cb) },
 
