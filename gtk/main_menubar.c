@@ -166,7 +166,7 @@ File/Close:         the Gnome HIG suggests putting this item just above the Quit
 */
 
 
-
+#ifdef NEW_MENU_CODE
 static gchar *
 get_ui_file_path(const char *filename)
 {
@@ -176,6 +176,7 @@ get_ui_file_path(const char *filename)
         running_in_build_directory() ? "gtk/ui" : "ui", filename);
     return gui_desc_file_name;
 }
+#endif
 
 typedef enum {
     SHOW_HIDE_MAIN_TOOLBAR = 1,
@@ -3356,9 +3357,9 @@ menus_init(void) {
 #ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error);
 #else
-		gui_desc_file_name_and_path = get_ui_file_path("tree-view-ui.xml");
+        gui_desc_file_name_and_path = get_ui_file_path("tree-view-ui.xml");
         gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
-		g_free (gui_desc_file_name_and_path);
+        g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
         {
