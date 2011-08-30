@@ -39,10 +39,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/wspython
 )
 
-set(CRC_FILES
-	crc/crc-16-plain.c
-)
-
 set(CRYPT_FILES
 	crypt/airpdcap.c
 	crypt/airpdcap_ccmp.c
