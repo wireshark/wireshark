@@ -4329,12 +4329,12 @@ menu_auto_scroll_live_changed(gboolean auto_scroll_live_in) {
 #ifdef HAVE_LIBPCAP
     /* tell toolbar about it */
     toolbar_auto_scroll_live_changed(auto_scroll_live_in);
-#endif /*HAVE_LIBPCAP */
 
     /* change auto scroll */
     if(auto_scroll_live_in != auto_scroll_live) {
         auto_scroll_live  = auto_scroll_live_in;
     }
+#endif /*HAVE_LIBPCAP */
 }
 
 
@@ -4436,13 +4436,14 @@ menu_recent_read_finished(void) {
 
     menu_name_resolution_changed();
 
-    menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
+#ifdef HAVE_LIBPCAP
+	menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/AutoScrollinLiveCapture");
     if(!menu){
         g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/AutoScrollinLiveCapture");
     }else{
         gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), auto_scroll_live);
     }
-
+#endif
     main_widgets_rearrange();
 
     /* don't change the time format, if we had a command line value */
