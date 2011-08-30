@@ -1731,14 +1731,15 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
 
 static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
 {
-  GtkWidget     *caller, *window,
+  GtkWidget     *caller, *window, *swindow=NULL, *if_view,
                 *main_vb, *if_hb, *if_lb, *if_lb_name,
                 *main_hb, *left_vb,
 #if defined (HAVE_AIRPCAP) || defined (HAVE_PCAP_REMOTE) || defined (HAVE_PCAP_CREATE)
                 *right_vb,
 #endif
                 *capture_fr, *capture_vb,
-                *if_ip_hb, *if_ip_lb, *if_ip_eb,
+                *if_ip_hb, *if_ip_lb = NULL, *if_ip_name,
+                *if_vb_left, *if_vb_right,
                 *linktype_hb, *linktype_lb, *linktype_combo_box,
                 *snap_hb, *snap_cb, *snap_sb, *snap_lb,
                 *promisc_cb,
@@ -1767,9 +1768,11 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   GtkTreeModel  *model;
   GtkTreeIter   iter;
   link_row      *temp;
-  GString       *ip_str = g_string_new("IP address: ");
   gboolean      found = FALSE;
   gint          num_supported_link_types;
+  gchar         *tok;
+  GtkCellRenderer *renderer;
+  GtkListStore    *store;
 
   window = (GtkWidget *)userdata;
   caller = gtk_widget_get_toplevel(GTK_WIDGET(window));
@@ -1802,7 +1805,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
 
   /* Interface row */
   if_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(capture_vb), if_hb);
+  gtk_box_pack_start(GTK_BOX(capture_vb), if_hb, FALSE, FALSE, 3);
 
   if_lb = gtk_label_new("Interface:  ");
   gtk_box_pack_start(GTK_BOX(if_hb), if_lb, FALSE, FALSE, 3);
@@ -1812,30 +1815,50 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
 
   /* IP addresses row */
   if_ip_hb = gtk_hbox_new(FALSE, 3);
-  gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, FALSE, FALSE, 0);
 
-  if_ip_eb = gtk_event_box_new();
-  gtk_event_box_set_visible_window (GTK_EVENT_BOX(if_ip_eb), FALSE);
-  gtk_box_pack_start(GTK_BOX(if_ip_hb), if_ip_eb, TRUE, TRUE, 3);
-  gtk_widget_set_tooltip_text(if_ip_eb, "Lists the IP address(es) "
-                       "assigned to the selected interface.  If there are "
-                       "more addresses than will fit in the window, the "
-                       "first few and the last few will be shown with \"...\" "
-                       "between them.");
+  gtk_widget_set_tooltip_text(if_ip_hb, "Lists the IP address(es) "
+                       "assigned to the selected interface. ");
+  if_vb_left = gtk_vbox_new(FALSE, 3);
+  gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_left, FALSE, FALSE, 3);
+  if_vb_right = gtk_vbox_new(FALSE, 3);
 
-  if_ip_lb = gtk_label_new("");
+  if_ip_lb = gtk_label_new("IP address:");
   gtk_misc_set_alignment(GTK_MISC(if_ip_lb), 0, 0); /* Left justified */
-  gtk_container_add(GTK_CONTAINER(if_ip_eb), if_ip_lb);
+  gtk_box_pack_start(GTK_BOX(if_vb_left), if_ip_lb, FALSE, FALSE, 0);
 
   if (row.no_addresses > 0) {
-    g_string_append(ip_str, row.addresses);
+    gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, TRUE, TRUE, 0);
+    gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, TRUE, TRUE, 3);
+    swindow = gtk_scrolled_window_new (NULL, NULL);
+    gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(swindow), GTK_SHADOW_IN);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(swindow), GTK_POLICY_AUTOMATIC, GTK_POLICY_AUTOMATIC);
+    gtk_widget_set_size_request(GTK_WIDGET(swindow),-1, 50);
+    if_view = gtk_tree_view_new ();
+    g_object_set(G_OBJECT(if_view), "headers-visible", FALSE, NULL);
+    renderer = gtk_cell_renderer_text_new();
+    column = gtk_tree_view_column_new_with_attributes ("",
+                    GTK_CELL_RENDERER(renderer),
+                    "text", 0,
+                    NULL);
+    gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
+    store = gtk_list_store_new(1, G_TYPE_STRING);
+    for (tok = strtok (row.addresses, "\n"); tok; tok = strtok(NULL, "\n")) {
+      gtk_list_store_append (store, &iter);
+      gtk_list_store_set (store, &iter, 0, tok, -1);
+    }
+    gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
+    gtk_container_add (GTK_CONTAINER (swindow), if_view);
+    gtk_box_pack_start(GTK_BOX(if_vb_right), swindow, TRUE, TRUE, 0);
   } else {
-    g_string_append(ip_str, "none");
+    gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, FALSE, FALSE, 0);
+    gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, FALSE, FALSE, 3);
+    if_ip_name = gtk_label_new("none");
+    gtk_misc_set_alignment(GTK_MISC(if_ip_name), 0, 0); /* Left justified */
+    gtk_box_pack_start(GTK_BOX(if_vb_right), if_ip_name, FALSE, FALSE, 0);
   }
-  gtk_label_set_text(GTK_LABEL(if_ip_lb), ip_str->str);
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 0);
-  gtk_container_add(GTK_CONTAINER(capture_vb), main_hb);
+  gtk_box_pack_start(GTK_BOX(capture_vb), main_hb, FALSE, FALSE, 3);
 
   left_vb = gtk_vbox_new(FALSE, 0);
   gtk_container_set_border_width(GTK_CONTAINER(left_vb), 0);
@@ -1912,7 +1935,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
     "Usually a network adapter will only capture the traffic sent to its own network address. "
     "If you want to capture all traffic that the network adapter can \"see\", mark this option. "
     "See the FAQ for some more details of capturing packets from a switched network.");
-  gtk_container_add(GTK_CONTAINER(left_vb), promisc_cb);
+  gtk_box_pack_start (GTK_BOX(left_vb), promisc_cb, FALSE, FALSE, 0);
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_PROMISC_KEY, promisc_cb);
 
 #ifdef HAVE_PCAP_CREATE
@@ -1928,7 +1951,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
     "In order to see IEEE 802.11 headers or to see radio information for captured packets,"
     "it might be necessary to turn this option on.\n\n"
     "Note that, in monitor mode, the adapter might disassociate from the network to which it's associated.");
-  gtk_container_add(GTK_CONTAINER(left_vb), monitor_cb);
+  gtk_box_pack_start (GTK_BOX(left_vb), monitor_cb, FALSE, FALSE, 0);
 
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_MONITOR_KEY, monitor_cb);
 #endif
@@ -1941,7 +1964,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
 
   /* Capture length row */
   snap_hb = gtk_hbox_new(FALSE, 3);
-  gtk_container_add(GTK_CONTAINER(left_vb), snap_hb);
+  gtk_box_pack_start (GTK_BOX(left_vb), snap_hb, FALSE, FALSE, 0);
 
   snap_cb = gtk_check_button_new_with_mnemonic("_Limit each packet to");
   gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(snap_cb),
@@ -2036,6 +2059,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   g_object_set_data(G_OBJECT(opt_edit_w), E_CAP_BUFFER_SIZE_SB_KEY, buffer_size_sb);
   buffer_size_lb = gtk_label_new("megabyte(s)");
   gtk_box_pack_start (GTK_BOX(buffer_size_hb), buffer_size_lb, FALSE, FALSE, 3);
+  gtk_misc_set_alignment(GTK_MISC(buffer_size_lb), 1, 0);
 #ifdef HAVE_PCAP_REMOTE
   gtk_box_pack_start (GTK_BOX(left_vb), buffer_size_hb, FALSE, FALSE, 0);
 #else
@@ -2048,14 +2072,14 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   gtk_widget_set_tooltip_text(remote_bt, "Various settings for remote capture.");
 
   /* Both the callback and the data are global */
-  g_signal_connect(remote_bt,"clicked", G_CALLBACK(options_remote_cb),NULL);
+  g_signal_connect(remote_bt, "clicked", G_CALLBACK(options_remote_cb), NULL);
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_REMOTE_BT_KEY, remote_bt);
   if (strncmp (row.name, "rpcap://", 8) == 0)  {
     gtk_widget_set_sensitive(remote_bt, TRUE);
   } else {
     gtk_widget_set_sensitive(remote_bt, FALSE);
   }
-  gtk_box_pack_start(GTK_BOX(right_vb),remote_bt,FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(right_vb), remote_bt, FALSE, FALSE, 0);
   gtk_widget_show(remote_bt);
 #endif
   /* advanced row */
@@ -2072,7 +2096,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
     gtk_widget_set_sensitive(advanced_bt,FALSE);
   }
 
-  gtk_box_pack_start(GTK_BOX(right_vb),advanced_bt,FALSE,FALSE,0);
+  gtk_box_pack_start(GTK_BOX(right_vb), advanced_bt, FALSE, FALSE, 0);
   gtk_widget_show(advanced_bt);
 #endif
 
@@ -2096,7 +2120,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   dlg_set_activate(filter_te, ok_bt);
   g_signal_connect(opt_edit_w, "delete_event", G_CALLBACK(window_delete_event_cb), NULL);
   g_signal_connect(opt_edit_w, "destroy", G_CALLBACK(options_edit_destroy_cb), NULL);
-    gtk_widget_show_all(opt_edit_w);
+  gtk_widget_show_all(opt_edit_w);
   window_present(opt_edit_w);
 }
 
