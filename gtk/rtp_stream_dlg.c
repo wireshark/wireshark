@@ -484,6 +484,7 @@ rtpstream_on_copy_as_csv(GtkWindow *win _U_, gpointer data _U_)
 				if (j<NUM_COLS-2) g_string_append(CSV_str,",");
 			}
 			g_string_append(CSV_str,"\n");
+			gtk_tree_model_iter_next (GTK_TREE_MODEL(list_store),&iter);
 		}
 	}
 
