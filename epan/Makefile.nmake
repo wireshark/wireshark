@@ -114,7 +114,7 @@ clean-local:
 	if exist html rm -rf html
 
 clean:  clean-local
-	cd ../crypt
+	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake clean
