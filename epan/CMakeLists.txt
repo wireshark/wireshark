@@ -39,10 +39,6 @@ include_directories(
 	${CMAKE_CURRENT_SOURCE_DIR}/wspython
 )
 
-set(CRC_FILES 	 
-	crc/crc-16-plain.c 	 
-)
-
 set(CRYPT_FILES
 	crypt/airpdcap.c
 	crypt/airpdcap_ccmp.c
@@ -1209,12 +1205,9 @@ set(LIBWIRESHARK_FILES
 	column.c
 	column-utils.c
 	conversation.c
-	crc10.c
-	crc16.c
-	crc32.c
-	crc6.c
-	crc8.c
-	crcdrm.c
+	crc16-tvb.c
+	crc32-tvb.c
+	crc8-tvb.c
 	dissector_filters.c
 	emem.c
 	epan.c
@@ -1310,7 +1303,6 @@ set(CLEAN_FILES
 	#x11-declarations.h
 	#x11-register-info.h
 	${LIBWIRESHARK_CLEAN_FILES}
-	${CRC_FILES}
 	${CRYPT_FILES}
 	${DFILTER_CLEAN_FILES}
 	${FTYPE_FILES}
@@ -1339,7 +1331,6 @@ add_library(epan ${LINK_MODE_LIB}
 	#x11-declarations.h
 	#x11-register-info.h
 	${LIBWIRESHARK_FILES}
-	${CRC_FILES}
 	${CRYPT_FILES}
 	${DFILTER_FILES}
 	${FTYPE_FILES}

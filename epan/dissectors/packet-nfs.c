@@ -33,6 +33,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <glib.h>
 
 #include "packet-rpc.h"
 #include "packet-nfs.h"
@@ -40,12 +41,10 @@
 #include <epan/packet.h>
 #include <epan/emem.h>
 #include <epan/strutil.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/expert.h>
 
-#include <epan/crc16.h>
-#include <glib.h>
-#include <glib/gprintf.h>
+#include <wsutil/crc16.h>
 
 static int proto_nfs = -1;
 static int hf_nfs_access_check  = -1;

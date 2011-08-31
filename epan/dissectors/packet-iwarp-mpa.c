@@ -36,7 +36,7 @@
 #include <epan/conversation.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/expert.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 
 /* DEFINES */
 

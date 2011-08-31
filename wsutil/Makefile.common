@@ -29,6 +29,12 @@
 # generated from YACC or Lex files (as Automake doesn't want them in
 # _SOURCES variables).
 LIBWSUTIL_SRC = 	\
+	crc10.c		\
+	crc16.c		\
+	crc16-plain.c	\
+	crc32.c		\
+	crc6.c		\
+	crcdrm.c	\
 	mpeg-audio.c	\
 	privileges.c	\
 	str_util.c	\
@@ -36,6 +42,12 @@ LIBWSUTIL_SRC = 	\
 
 # Header files that are not generated from other files
 LIBWSUTIL_INCLUDES = 	\
+	crc6.h		\
+	crc10.h		\
+	crc16.h		\
+	crc16-plain.h	\
+	crc32.h		\
+	crcdrm.h	\
 	mpeg-audio.h	\
 	privileges.h	\
 	str_util.h	\

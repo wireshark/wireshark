@@ -44,7 +44,7 @@
 #include "sigcomp-udvm.h"
 #include "sigcomp_state_hdlr.h"
 #include "crypt/crypt-sha1.h"
-#include "crc16.h"
+#include "wsutil/crc16.h"
 #include "except.h"
 
 #define	SIGCOMP_INSTR_DECOMPRESSION_FAILURE     0

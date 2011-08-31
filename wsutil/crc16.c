@@ -6,10 +6,8 @@
  * $Id$
  *
  * Wireshark - Network traffic analyzer
- * By Gerald Combs <gerald@xxxxxxxxxxxx>
+ * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
- * Copied from README.developer
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -38,9 +36,8 @@
 #endif
 
 #include <glib.h>
-#include <epan/tvbuff.h>
-#include <epan/crc16.h>
-#include <epan/crc/crc-16-plain.h>
+#include <wsutil/crc16.h>
+#include <wsutil/crc16-plain.h>
 
 
 /*****************************************************************/
@@ -204,51 +201,5 @@ guint16 crc16_ccitt_seed(const guint8 *buf, guint len, guint16 seed)
 {
     return crc16_reflected(buf,len,seed,crc16_ccitt_table_reverse)
        ^ crc16_ccitt_xorout;
-}
-
-guint16 crc16_ccitt_tvb(tvbuff_t *tvb, guint len)
-{
-    const guint8* buf = tvb_get_ptr(tvb, 0, len);
-
-    return crc16_ccitt(buf, len);
-}
-
-guint16 crc16_x25_ccitt_tvb(tvbuff_t *tvb, guint len)
-{
-    const guint8* buf = tvb_get_ptr(tvb, 0, len);
-
-    return crc16_x25_ccitt(buf, len);
-}
-
-guint16 crc16_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
-{
-    const guint8* buf = tvb_get_ptr(tvb, offset, len);
-
-    return crc16_ccitt(buf, len);
-}
-
-guint16 crc16_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint16 seed)
-{
-    const guint8* buf = tvb_get_ptr(tvb, 0, len);
-
-    return crc16_ccitt_seed(buf, len, seed);
-}
-
-guint16 crc16_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len, guint16 seed)
-{
-    const guint8* buf = tvb_get_ptr(tvb, offset, len);
-
-    return crc16_ccitt_seed(buf, len, seed);
-}
-
-guint16 crc16_plain_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
-{
-    guint16 crc = crc16_plain_init();
-    
-    const guint8* buf = tvb_get_ptr(tvb, offset, len);
-
-    crc = crc16_plain_update(crc, buf, len);
-    
-    return crc16_plain_finalize(crc);
 }
 

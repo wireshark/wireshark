@@ -65,7 +65,7 @@
 #include <epan/emem.h>
 #include <epan/expert.h>
 #include <packet-frame.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/adler32.h>
 
 #define LT(x, y) ((gint32)((x) - (y)) < 0)

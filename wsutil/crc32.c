@@ -7,8 +7,6 @@
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
  *
- * Copied from README.developer
- *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
@@ -34,8 +32,7 @@
 #endif
 
 #include <glib.h>
-#include <epan/tvbuff.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 
 /*****************************************************************/
 /*                                                               */
@@ -173,7 +170,6 @@ const guint32 crc32_ccitt_table[256] = {
         0x2d02ef8d
 };
 
-#define CRC32_CCITT_SEED    0xFFFFFFFF
 
 guint32
 crc32c_calculate(const void *buf, int len, guint32 crc)
@@ -202,74 +198,4 @@ crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed)
 		crc32 = crc32_ccitt_table[(crc32 ^ buf[i]) & 0xff] ^ (crc32 >> 8);
 
 	return ( ~crc32 );
-}
-
-guint32
-crc32_ccitt_tvb(tvbuff_t *tvb, guint len)
-{
-	const guint8* buf;
-
-	tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
-	buf = tvb_get_ptr(tvb, 0, len);
-
-	return ( crc32_ccitt_seed(buf, len, CRC32_CCITT_SEED) );
-}
-
-guint32
-crc32_ccitt_tvb_offset(tvbuff_t *tvb, guint offset, guint len)
-{
-	const guint8* buf;
-
-	tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
-	buf = tvb_get_ptr(tvb, offset, len);
-
-	return ( crc32_ccitt(buf, len) );
-}
-
-guint32
-crc32_ccitt_tvb_seed(tvbuff_t *tvb, guint len, guint32 seed)
-{
-	const guint8* buf;
-
-	tvb_ensure_bytes_exist(tvb, 0, len);  /* len == -1 not allowed */
-	buf = tvb_get_ptr(tvb, 0, len);
-
-	return ( crc32_ccitt_seed(buf, len, seed) );
-}
-
-guint32
-crc32_ccitt_tvb_offset_seed(tvbuff_t *tvb, guint offset, guint len,
-			    guint32 seed)
-{
-	const guint8* buf;
-
-	tvb_ensure_bytes_exist(tvb, offset, len);  /* len == -1 not allowed */
-	buf = tvb_get_ptr(tvb, offset, len);
-
-	return ( crc32_ccitt_seed(buf, len, seed) );
-}
-
-/*
- * IEEE 802.x version (Ethernet and 802.11, at least) - byte-swap
- * the result of "crc32()".
- *
- * XXX - does this mean we should fetch the Ethernet and 802.11
- * FCS with "tvb_get_letohl()" rather than "tvb_get_ntohl()",
- * or is fetching it big-endian and byte-swapping the CRC done
- * to cope with 802.x sending stuff out in reverse bit order?
- */
-guint32
-crc32_802_tvb(tvbuff_t *tvb, guint len)
-{
-	guint32 c_crc;
-
-	c_crc = crc32_ccitt_tvb(tvb, len);
-
-	/* Byte reverse. */
-	c_crc = ((unsigned char)(c_crc>>0)<<24) |
-		((unsigned char)(c_crc>>8)<<16) |
-		((unsigned char)(c_crc>>16)<<8) |
-		((unsigned char)(c_crc>>24)<<0);
-
-	return ( c_crc );
 }

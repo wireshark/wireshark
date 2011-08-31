@@ -1,5 +1,5 @@
 /*
- *  crc10.h
+ *  crc6.h
  *
  * $Id$
  *
@@ -20,8 +20,11 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301, USA.
- *
  */
 
-/* update the data block's CRC-10 remainder one byte at a time */
-extern guint16 update_crc10_by_bytes(guint16 crc10, const guint8 *data_blk_ptr, int data_blk_size);
+#ifndef __CRC6_H__
+#define __CRC6_H__
+
+extern guint16 update_crc6_by_bytes(guint16 crc6, guint8 byte1, guint8 byte2);
+
+#endif /* __CRC6_H__ */

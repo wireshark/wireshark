@@ -41,4 +41,10 @@
  * \param received_fcs The received FCS.
  * \return     Returns TRUE if the checksum is correct, FALSE if it is not correct
  *****************************************************************************/
+
+#ifndef __CRC8_TVB_H__
+#define __CRC8_TVB_H__
+
 extern gboolean check_fcs(tvbuff_t *p, guint8 len, guint8 offset, guint8 received_fcs);
+
+#endif /* __CRC8_TVB_H__ */

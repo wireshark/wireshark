@@ -41,7 +41,7 @@
 #endif
 
 #include <epan/tvbuff.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/strutil.h>
 #include <epan/emem.h>
 #include <epan/pint.h>

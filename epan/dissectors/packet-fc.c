@@ -53,7 +53,7 @@
 #include "packet-fcbls.h"
 #include <epan/tap.h>
 #include <epan/emem.h>
-#include <epan/crc32.h>
+#include <epan/crc32-tvb.h>
 #include <epan/expert.h>
 
 #define FC_HEADER_SIZE         24

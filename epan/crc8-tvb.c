@@ -33,12 +33,12 @@
 */
 
 #ifdef HAVE_CONFIG_H
-	# include "config.h"
+# include "config.h"
 #endif
 
 #include <glib.h>
 #include <epan/tvbuff.h>
-#include <epan/crc8.h>
+#include <epan/crc8-tvb.h>
 
 /**
  * Reversed CRC table

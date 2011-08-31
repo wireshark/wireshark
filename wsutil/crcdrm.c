@@ -23,8 +23,9 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
+#include <stdlib.h>
 
-#include "crcdrm.h"
+#include <wsutil/crcdrm.h>
 
 unsigned long crc_drm(const char *data, size_t bytesize,
 	unsigned short num_crc_bits, unsigned long crc_gen, int invert)

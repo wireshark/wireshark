@@ -35,6 +35,12 @@ set(WSUTIL_FILES
 #		@INET_PTON_LO@	# inet_pton.c
 #		@STRNCASECMP_LO@ # strncasecmp.c
 #		@STRPTIME_LO@	# strptime.c
+  crc10.c
+  crc16.c
+  crc16-plain.c
+  crc32.c
+  crc6.c
+  crcdrm.c
   mpeg-audio.c
   privileges.c
   str_util.c

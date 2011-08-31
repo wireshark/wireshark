@@ -124,7 +124,7 @@
 #include <assert.h>
 
 #include <epan/tvbuff.h>
-#include <epan/crc32.h>
+#include <wsutil/crc32.h>
 #include <epan/in_cksum.h>
 
 #ifdef NEED_STRPTIME_H

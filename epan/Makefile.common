@@ -40,12 +40,9 @@ LIBWIRESHARK_SRC = 		\
 	column.c		\
 	column-utils.c		\
 	conversation.c		\
-	crc10.c			\
-	crc16.c			\
-	crc32.c			\
-	crc6.c			\
-	crc8.c			\
-	crcdrm.c		\
+	crc16-tvb.c		\
+	crc32-tvb.c		\
+	crc8-tvb.c		\
 	dissector_filters.c	\
 	emem.c			\
 	epan.c			\
@@ -150,12 +147,9 @@ LIBWIRESHARK_INCLUDES = 	\
 	column_info.h		\
 	column-utils.h		\
 	conversation.h		\
-	crc6.h			\
-	crc8.h			\
-	crc10.h			\
-	crc16.h			\
-	crc32.h			\
-	crcdrm.h		\
+	crc16-tvb.h		\
+	crc32-tvb.h		\
+	crc8-tvb.h		\
 	diam_dict.h		\
 	dissector_filters.h	\
 	dtd.h			\

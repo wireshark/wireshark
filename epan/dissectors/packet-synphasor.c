@@ -30,7 +30,7 @@
 
 #include <glib.h>
 #include <epan/conversation.h>
-#include <epan/crc16.h>
+#include <epan/crc16-tvb.h>
 #include <epan/dissectors/packet-tcp.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>

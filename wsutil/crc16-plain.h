@@ -1,5 +1,5 @@
 /**
- * \file crc-16-plain.h
+ * \file crc16-plain.h
  * Functions and types for CRC checks.
  *
  * Generated on Wed Mar 18 14:12:15 2009,

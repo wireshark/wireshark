@@ -1,13 +1,11 @@
-/* crc32.h
- * Declaration of CRC-32 routine and table
+/* crc32-tvb.h
+ * Declaration of CRC-32 tvbuff routines
  *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
  * By Gerald Combs <gerald@wireshark.org>
  * Copyright 1998 Gerald Combs
- *
- * Copied from README.developer
  *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
@@ -24,51 +22,12 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
-#ifndef __CRC32_H_
-#define __CRC32_H_
+#ifndef __CRC32_TVB_H__
+#define __CRC32_TVB_H__
 
 #ifdef __cplusplus
 extern "C" {
 #endif /* __cplusplus */
-
-#define CRC32C_PRELOAD 0xffffffff
-
-/*
- * Byte swap fix contributed by Dave Wysochanski <davidw@netapp.com>.
- */
-#define CRC32C_SWAP(crc32c_value)				\
-	(((crc32c_value & 0xff000000) >> 24)	|	\
-	 ((crc32c_value & 0x00ff0000) >>  8)	|	\
-	 ((crc32c_value & 0x0000ff00) <<  8)	|	\
-	 ((crc32c_value & 0x000000ff) << 24))
-
-#define CRC32C(c,d) (c=(c>>8)^crc32c_table[(c^(d))&0xFF])
-
-extern const guint32 crc32c_table[256];
-
-/** Compute CRC32C checksum of a buffer of data.
- @param buf The buffer containing the data.
- @param len The number of bytes to include in the computation.
- @param crc The preload value for the CRC32C computation.
- @return The CRC32C checksum. */
-extern guint32 crc32c_calculate(const void *buf, int len, guint32 crc);
-
-extern const guint32 crc32_ccitt_table[256];
-
-/** Compute CRC32 CCITT checksum of a buffer of data.
- @param buf The buffer containing the data.
- @param len The number of bytes to include in the computation.
- @return The CRC32 CCITT checksum. */
-extern guint32 crc32_ccitt(const guint8 *buf, guint len);
-
-/** Compute CRC32 CCITT checksum of a buffer of data.  If computing the
- *  checksum over multiple buffers and you want to feed the partial CRC32
- *  back in, remember to take the 1's complement of the partial CRC32 first.
- @param buf The buffer containing the data.
- @param len The number of bytes to include in the computation.
- @param seed The seed to use.
- @return The CRC32 CCITT checksum (using the given seed). */
-extern guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
 
 /** Compute CRC32 CCITT checksum of a tv buffer.
  @param tvb The tv buffer containing the data.
@@ -113,4 +72,4 @@ extern guint32 crc32_802_tvb(tvbuff_t *tvb, guint len);
 }
 #endif /* __cplusplus */
 
-#endif /* crc32.h */
+#endif /* crc32-tvb.h */
