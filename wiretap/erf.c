@@ -560,7 +560,7 @@ static gboolean erf_dump(
   union wtap_pseudo_header other_phdr;
   int newencap = -1;
   int encap;
-  int alignbytes = 0;
+  gint64 alignbytes = 0;
   int i;
   guint32 crc32 = 0x00000000;
 
