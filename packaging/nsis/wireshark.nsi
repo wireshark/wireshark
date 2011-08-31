@@ -677,8 +677,6 @@ File "..\..\tpncp\tpncp.dat"
 ;
 SetOutPath $INSTDIR\ui
 File "..\..\gtk\ui\main-menubar-ui.xml"
-File "..\..\gtk\ui\tree-view-ui.xml"
-File "..\..\gtk\ui\bytes-view-ui.xml"
 SetOutPath $INSTDIR
 
 ;
