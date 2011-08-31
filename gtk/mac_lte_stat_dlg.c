@@ -77,6 +77,7 @@ enum {
     DL_CRC_FAILED_COLUMN,
     DL_CRC_HIGH_CODE_RATE_COLUMN,
     DL_CRC_PDSCH_LOST_COLUMN,
+    DL_CRC_DUPLICATE_NONZERO_RV,
     DL_RETX_FRAMES_COLUMN,
     TABLE_COLUMN,
     NUM_UE_COLUMNS
@@ -100,7 +101,7 @@ enum {
 
 static const gchar *ue_titles[] = { "RNTI", "Type", "UEId",
                                     "UL Frames", "UL Bytes", "UL MBit/sec", "UL Padding %", "UL ReTX",
-                                    "DL Frames", "DL Bytes", "DL MBit/sec", "DL CRC Failed", "DL CRC High Code Rate", "DL CRC PDSCH Lost", "DL ReTX"};
+                                    "DL Frames", "DL Bytes", "DL MBit/sec", "DL CRC Failed", "DL CRC High Code Rate", "DL CRC PDSCH Lost", "DL CRC Dup NonZero RV", "DL ReTX"};
 
 static const gchar *channel_titles[] = { "CCCH",
                                          "LCID 1", "LCID 2", "LCID 3", "LCID 4", "LCID 5",
@@ -133,6 +134,7 @@ typedef struct mac_lte_row_data {
     guint32  DL_CRC_failures;
     guint32  DL_CRC_high_code_rate;
     guint32  DL_CRC_PDSCH_lost;
+    guint32  DL_CRC_Duplicate_Nonzero_rv;
     guint32  DL_retx_frames;
 
     guint32  UL_bytes_for_lcid[11];
@@ -294,6 +296,7 @@ static mac_lte_ep_t* alloc_mac_lte_ep(struct mac_lte_tap_info *si, packet_info *
     ep->stats.DL_CRC_failures = 0;
     ep->stats.DL_CRC_high_code_rate = 0;
     ep->stats.DL_CRC_PDSCH_lost = 0;
+    ep->stats.DL_CRC_Duplicate_Nonzero_rv = 0;
     ep->stats.UL_retx_frames = 0;
     ep->stats.DL_retx_frames = 0;
 
@@ -487,6 +490,10 @@ mac_lte_stat_packet(void *phs, packet_info *pinfo, epan_dissect_t *edt _U_,
                 case crc_pdsch_lost:
                     te->stats.DL_CRC_PDSCH_lost++;
                     break;
+                case crc_duplicate_nonzero_rv:
+                    te->stats.DL_CRC_Duplicate_Nonzero_rv++;
+                    break;
+
                 default:
                     /* Something went wrong! */
                     break;
@@ -725,6 +732,7 @@ mac_lte_stat_draw(void *phs)
                            DL_CRC_FAILED_COLUMN, tmp->stats.DL_CRC_failures,
                            DL_CRC_HIGH_CODE_RATE_COLUMN, tmp->stats.DL_CRC_high_code_rate,
                            DL_CRC_PDSCH_LOST_COLUMN, tmp->stats.DL_CRC_PDSCH_lost,
+                           DL_CRC_DUPLICATE_NONZERO_RV, tmp->stats.DL_CRC_Duplicate_Nonzero_rv,
                            DL_RETX_FRAMES_COLUMN, tmp->stats.DL_retx_frames,
                            TABLE_COLUMN, tmp,
                            -1);
@@ -1101,7 +1109,7 @@ static void gtk_mac_lte_stat_init(const char *optarg, void *userdata _U_)
     /* Create the table of UE data */
     store = gtk_list_store_new(NUM_UE_COLUMNS, G_TYPE_INT, G_TYPE_STRING, G_TYPE_INT,
                                G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_FLOAT, G_TYPE_INT, /* UL */
-                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  G_TYPE_INT, /* DL */
+                               G_TYPE_INT, G_TYPE_INT, G_TYPE_FLOAT, G_TYPE_INT, G_TYPE_INT, G_TYPE_INT,  G_TYPE_INT, G_TYPE_INT, /* DL */
                                G_TYPE_POINTER);
     hs->ue_table = GTK_TREE_VIEW(tree_view_new(GTK_TREE_MODEL(store)));
     gtk_container_add(GTK_CONTAINER (ues_scrolled_window), GTK_WIDGET(hs->ue_table));
