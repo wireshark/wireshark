@@ -116,4 +116,5 @@ EXTRA_DIST = \
 	main_airpcap_toolbar.c		\
 	Makefile.common			\
 	Makefile.nmake			\
-	CMakeLists.txt
+	CMakeLists.txt			\
+	Makefile_custom.common

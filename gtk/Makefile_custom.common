@@ -1,0 +1,13 @@
+# 
+# $Id:$
+# You can add custom GUI files here
+#
+
+#Add GUI source files here
+WIRESHARK_CUSTOM_GTK_SRC = \
+
+#Add your tap source files here:
+WIRESHARK_CUSTOM_TAP_SRC = \
+
+#Add headers here:
+WIRESHARK_CUSTOM_HEADERS = \
