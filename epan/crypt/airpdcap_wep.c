@@ -80,7 +80,7 @@ INT AirPDcapWepDecrypt(
 		j = (j + S[i]) & 0xff;
 		S_SWAP(i, j);
 		*cypher_text ^= S[(S[i] + S[j]) & 0xff];
-		crc = crc32_ccitt_table[(crc ^ *cypher_text) & 0xff] ^ (crc >> 8);
+		crc = crc32_ccitt_table_lookup((crc ^ *cypher_text) & 0xff) ^ (crc >> 8);
 		cypher_text++;
 	}
 

@@ -53,7 +53,7 @@
 /* in the FTP archive "ftp.adelaide.edu.au/pub/rocksoft".        */
 /*                                                               */
 /*****************************************************************/
-const guint32 crc32c_table[256] = {
+static const guint32 crc32c_table[256] = {
 		0x00000000L, 0xF26B8303L, 0xE13B70F7L, 0x1350F3F4L, 0xC79A971FL,
 		0x35F1141CL, 0x26A1E7E8L, 0xD4CA64EBL, 0x8AD958CFL, 0x78B2DBCCL,
 		0x6BE22838L, 0x9989AB3BL, 0x4D43CFD0L, 0xBF284CD3L, 0xAC78BF27L,
@@ -115,7 +115,7 @@ const guint32 crc32c_table[256] = {
  *  x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^8 + x^7 +
  *      x^5 + x^4 + x^2 + x + 1
  */
-const guint32 crc32_ccitt_table[256] = {
+static const guint32 crc32_ccitt_table[256] = {
         0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
         0x706af48f, 0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4,
         0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07,
@@ -170,6 +170,17 @@ const guint32 crc32_ccitt_table[256] = {
         0x2d02ef8d
 };
 
+guint32
+crc32c_table_lookup (guchar pos)
+{
+  return crc32_ccitt_table[pos];
+}
+
+guint32
+crc32_ccitt_table_lookup (guchar pos)
+{
+  return crc32_ccitt_table[pos];
+}
 
 guint32
 crc32c_calculate(const void *buf, int len, guint32 crc)
