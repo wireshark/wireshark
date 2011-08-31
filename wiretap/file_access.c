@@ -486,7 +486,7 @@ static const struct file_type_info dump_open_table_base[] = {
 
 	/* WTAP_FILE_ERF */
 	{ "Endace ERF capture", "erf", "*.erf", ".erf", FALSE, FALSE,
-	  NULL, NULL },
+	  erf_dump_can_write_encap, erf_dump_open },
 
 	/* WTAP_FILE_EYESDN */
 	{ "EyeSDN USB S0/E1 ISDN trace format", "eyesdn", "*.trc", ".trc", FALSE, FALSE,

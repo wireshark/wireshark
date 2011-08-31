@@ -50,12 +50,13 @@
 #include <stdlib.h>
 #include <string.h>
 
+#include <wsutil/crc32.c>
+
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
 #include "atm.h"
 #include "erf.h"
-
 
 static int erf_read_header(FILE_T fh,
 			   struct wtap_pkthdr *phdr,
@@ -70,6 +71,22 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
 			      union wtap_pseudo_header *pseudo_header, guchar *pd,
 			      int length, int *err, gchar **err_info);
+
+static const struct {
+  int erf_encap_value;
+  int wtap_encap_value;
+} erf_to_wtap_map[] = {
+  { ERF_TYPE_HDLC_POS,  WTAP_ENCAP_CHDLC },
+  { ERF_TYPE_HDLC_POS,  WTAP_ENCAP_HHDLC },
+  { ERF_TYPE_HDLC_POS,  WTAP_ENCAP_CHDLC_WITH_PHDR },
+  { ERF_TYPE_HDLC_POS,  WTAP_ENCAP_PPP },
+  { ERF_TYPE_HDLC_POS,  WTAP_ENCAP_FRELAY },
+  { ERF_TYPE_HDLC_POS,  WTAP_ENCAP_MTP2 },
+  { ERF_TYPE_ETH,       WTAP_ENCAP_ETHERNET },
+  { 99,       WTAP_ENCAP_ERF }, /*this type added so WTAP_ENCAP_ERF will work and then be treated at ERF->ERF*/
+};
+
+#define NUM_ERF_ENCAPS (sizeof erf_to_wtap_map / sizeof erf_to_wtap_map[0])
 
 extern int erf_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -452,5 +469,198 @@ static int erf_read_header(FILE_T fh,
     phdr->caplen = MIN( g_htons(erf_header->wlen),
 			g_htons(erf_header->rlen) - (guint32)sizeof(*erf_header) - skiplen );
   }
+  return TRUE;
+}
+
+static int wtap_wtap_encap_to_erf_encap(int encap)
+{
+  unsigned int i;
+  for(i = 0; i < NUM_ERF_ENCAPS; i++){
+    if(erf_to_wtap_map[i].wtap_encap_value == encap)
+      return erf_to_wtap_map[i].erf_encap_value;
+  }
+  return -1;
+}
+
+static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pseudo_header, int * err)
+{
+  guint8 erf_hdr[sizeof(struct erf_mc_phdr)];
+  guint8 erf_subhdr[((sizeof(struct erf_mc_hdr) > sizeof(struct erf_eth_hdr))?
+    sizeof(struct erf_mc_hdr) : sizeof(struct erf_eth_hdr))];
+  guint8 ehdr[8*MAX_ERF_EHDR];
+  size_t size = 0;
+  size_t subhdr_size = 0;
+  int i = 0;
+
+  switch(encap){
+    case WTAP_ENCAP_ERF:
+      memset(&erf_hdr, 0, sizeof(erf_hdr));
+      pletonll(&erf_hdr[0], pseudo_header->erf.phdr.ts);
+      erf_hdr[8] = pseudo_header->erf.phdr.type;
+      erf_hdr[9] = pseudo_header->erf.phdr.flags;
+      phtons(&erf_hdr[10], pseudo_header->erf.phdr.rlen);
+      phtons(&erf_hdr[12], pseudo_header->erf.phdr.lctr);
+      phtons(&erf_hdr[14], pseudo_header->erf.phdr.wlen);
+      size = sizeof(struct erf_phdr);
+
+      switch(pseudo_header->erf.phdr.type & 0x7F) {
+        case ERF_TYPE_MC_HDLC:
+        case ERF_TYPE_MC_RAW:
+        case ERF_TYPE_MC_ATM:
+        case ERF_TYPE_MC_RAW_CHANNEL:
+        case ERF_TYPE_MC_AAL5:
+        case ERF_TYPE_MC_AAL2:
+        case ERF_TYPE_COLOR_MC_HDLC_POS:
+          phtonl(&erf_subhdr[0], pseudo_header->erf.subhdr.mc_hdr);
+          subhdr_size += (int)sizeof(struct erf_mc_hdr);
+          break;
+        case ERF_TYPE_ETH:
+        case ERF_TYPE_COLOR_ETH:
+        case ERF_TYPE_DSM_COLOR_ETH:
+          phtons(&erf_subhdr[0], pseudo_header->erf.subhdr.eth_hdr);
+          subhdr_size += (int)sizeof(struct erf_eth_hdr);
+          break;
+        default:
+          break;
+      }
+      break;
+    default:
+      return FALSE;
+
+  }
+  if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
+    return FALSE;
+  wdh->bytes_dumped += size;
+
+  /*write out up to MAX_ERF_EHDR extension headers*/
+  if((pseudo_header->erf.phdr.type & 0x80) != 0){  /*we have extension headers*/
+    do{
+      phtonll(ehdr+(i*8), pseudo_header->erf.ehdr_list[i].ehdr);
+      if(i == MAX_ERF_EHDR-1) ehdr[i*8] = ehdr[i*8] & 0x7F;
+      i++;
+    }while((ehdr[0] & 0x80) != 0 && i < MAX_ERF_EHDR);
+    wtap_dump_file_write(wdh, ehdr, MAX_ERF_EHDR*i, err);
+    wdh->bytes_dumped += MAX_ERF_EHDR*i;
+  }
+
+  if(!wtap_dump_file_write(wdh, erf_subhdr, subhdr_size, err))
+    return FALSE;
+  wdh->bytes_dumped += subhdr_size;
+
+  return TRUE;
+}
+
+static gboolean erf_dump(
+    wtap_dumper *wdh,
+    const struct wtap_pkthdr *phdr,
+    const union wtap_pseudo_header *pseudo_header,
+    const guchar *pd,
+    int *err)
+{
+  union wtap_pseudo_header other_phdr;
+  int newencap = -1;
+  int encap;
+  int alignbytes = 0;
+  int i;
+  guint32 crc32 = 0x00000000;
+
+  if(wdh->encap == WTAP_ENCAP_PER_PACKET){
+    encap = phdr->pkt_encap;
+  }else{
+    encap = wdh->encap;
+  }
+
+  switch(encap){
+    case WTAP_ENCAP_ERF:
+      alignbytes = wdh->bytes_dumped + pseudo_header->erf.phdr.rlen;
+
+      if(!erf_write_phdr(wdh, encap, pseudo_header, err)) return FALSE;
+
+      if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
+      wdh->bytes_dumped += phdr->caplen;
+
+      while(wdh->bytes_dumped < alignbytes){
+        if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
+        wdh->bytes_dumped++;
+      }
+      break;
+    default:  /*deal with generic wtap format*/
+      /*generate a fake header in other_phdr using data that we know*/
+      /*covert time erf timestamp format*/
+      other_phdr.erf.phdr.ts = ((guint64) phdr->ts.secs << 32) + (((guint64) phdr->ts.nsecs <<32) / 1000 / 1000 / 1000);
+      newencap = other_phdr.erf.phdr.type = wtap_wtap_encap_to_erf_encap(encap);
+      other_phdr.erf.phdr.flags = 0x4;  /*vlen flag set because we're creating variable length records*/
+      other_phdr.erf.phdr.lctr = 0;
+      /*now we work out rlen, accounting for all the different headers and missing fcs(eth)*/
+      other_phdr.erf.phdr.rlen = phdr->caplen+16;
+      other_phdr.erf.phdr.wlen = phdr->caplen;
+      switch(other_phdr.erf.phdr.type){
+        case ERF_TYPE_ETH:
+          crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+          other_phdr.erf.phdr.rlen += 2;  /*2 bytes for erf eth_type*/
+          other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
+          other_phdr.erf.phdr.wlen += 4;
+          break;
+        case ERF_TYPE_HDLC_POS:
+          /*we assume that it's missing a FCS checksum, make one up*/
+          crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+          other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
+          other_phdr.erf.phdr.wlen += 4;
+          break;
+        default:
+          break;
+      }
+
+      alignbytes = (8 - (other_phdr.erf.phdr.rlen % 8)) % 8;  /*calculate how much padding will be required */
+      other_phdr.erf.phdr.rlen += alignbytes;
+
+      if(!erf_write_phdr(wdh, WTAP_ENCAP_ERF, &other_phdr, err)) return FALSE;
+      if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
+      wdh->bytes_dumped += phdr->caplen;
+
+      /*add the 4 byte checksum if type eth*/
+      if(newencap == ERF_TYPE_ETH || newencap == ERF_TYPE_HDLC_POS){
+        if(!wtap_dump_file_write(wdh, &crc32, 4, err)) return FALSE;
+        wdh->bytes_dumped += 4;
+      }
+      /*records should be 8byte aligned, so we add padding*/
+      for(i = alignbytes; i > 0; i--){
+        if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
+        wdh->bytes_dumped++;
+      }
+
+      break;
+  }
+
+  return TRUE;
+}
+
+int erf_dump_can_write_encap(int encap)
+{
+
+  if(encap == WTAP_ENCAP_PER_PACKET)
+    return 0;
+
+  if (wtap_wtap_encap_to_erf_encap(encap) == -1)
+    return WTAP_ERR_UNSUPPORTED_ENCAP;
+
+  return 0;
+}
+
+int erf_dump_open(wtap_dumper *wdh, int *err)
+{
+  wdh->subtype_write = erf_dump;
+  wdh->subtype_close = NULL;
+
+  switch(wdh->file_type){
+    case WTAP_FILE_ERF:
+      wdh->tsprecision = WTAP_FILE_TSPREC_NSEC;
+      break;
+    default:
+      *err = WTAP_ERR_UNSUPPORTED_FILE_TYPE;
+      return FALSE;
+      break;
+  }
+
   return TRUE;
 }

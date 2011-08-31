@@ -665,9 +665,12 @@ struct erf_ehdr {
  * ERF pseudo header with optional subheader
  * (Multichannel or Ethernet)
  */
+
+#define MAX_ERF_EHDR 8
+
 struct erf_mc_phdr {
   struct erf_phdr phdr;
-  struct erf_ehdr ehdr_list[8];
+  struct erf_ehdr ehdr_list[MAX_ERF_EHDR];
   union
   {
     guint16 eth_hdr;
