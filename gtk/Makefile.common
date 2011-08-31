@@ -342,5 +342,5 @@ noinst_HEADERS = \
 	voip_calls.h	\
 	voip_calls_dlg.h \
 	webbrowser.h	\
-	$(WIRESHARK_CUSTOM_HEADERS)
+	$(WIRESHARK_CUSTOM_HDRS)
 
