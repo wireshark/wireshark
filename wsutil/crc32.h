@@ -43,8 +43,13 @@ extern "C" {
 
 #define CRC32C(c,d) (c=(c>>8)^crc32c_table_lookup((c^(d))&0xFF))
 
-guint32 crc32c_table_lookup (guchar pos);
-guint32 crc32_ccitt_table_lookup (guchar pos);
+/** Lookup the crc value in the crc32c_table
+ @param pos Position in the table. */
+extern guint32 crc32c_table_lookup (guchar pos);
+
+/** Lookup the crc value in the crc32_ccitt_table
+ @param pos Position in the table. */
+extern guint32 crc32_ccitt_table_lookup (guchar pos);
 
 /** Compute CRC32C checksum of a buffer of data.
  @param buf The buffer containing the data.

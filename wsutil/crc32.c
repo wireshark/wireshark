@@ -173,7 +173,7 @@ static const guint32 crc32_ccitt_table[256] = {
 guint32
 crc32c_table_lookup (guchar pos)
 {
-  return crc32_ccitt_table[pos];
+  return crc32c_table[pos];
 }
 
 guint32
