@@ -43,7 +43,7 @@ extern "C" {
 
 #define CRC32C(c,d) (c=(c>>8)^crc32c_table[(c^(d))&0xFF])
 
-extern const guint32 crc32c_table[256];
+WS_VAR_IMPORT const guint32 crc32c_table[256];
 
 /** Compute CRC32C checksum of a buffer of data.
  @param buf The buffer containing the data.
@@ -52,7 +52,7 @@ extern const guint32 crc32c_table[256];
  @return The CRC32C checksum. */
 extern guint32 crc32c_calculate(const void *buf, int len, guint32 crc);
 
-extern const guint32 crc32_ccitt_table[256];
+WS_VAR_IMPORT const guint32 crc32_ccitt_table[256];
 
 /** Compute CRC32 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.
