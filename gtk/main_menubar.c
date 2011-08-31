@@ -26,7 +26,6 @@
 #endif
 
 #ifdef MAIN_MENU_USE_UIMANAGER
-
 #include <gtk/gtk.h>
 
 #include <stdio.h>
@@ -2880,7 +2879,6 @@ static const GtkActionEntry packet_list_menu_popup_action_entries[] = {
 
 };
 
-#ifndef NEW_MENU_CODE
 static const char *ui_desc_tree_view_menu_popup =
 "<ui>\n"
 "  <popup name='TreeViewPopup' action='PopupAction'>\n"
@@ -2952,7 +2950,6 @@ static const char *ui_desc_tree_view_menu_popup =
 "     <menuitem name='GotoCorrespondingPacket' action='/GotoCorrespondingPacket'/>\n"
 "  </popup>\n"
 "</ui>\n";
-#endif
 
 static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/ExpandSubtrees",					NULL,							"Expand Subtrees",		NULL,					NULL,			G_CALLBACK(expand_tree_cb) },
@@ -3020,7 +3017,6 @@ static const GtkActionEntry tree_view_menu_popup_action_entries[] = {
   { "/GotoCorrespondingPacket",						NULL,		"_Go to Corresponding Packet",			NULL, NULL, G_CALLBACK(goto_framenum_cb) },
 };
 
-#ifndef NEW_MENU_CODE
 static const char *ui_desc_bytes_menu_popup =
 "<ui>\n"
 "  <popup name='BytesMenuPopup' action='PopupAction'>\n"
@@ -3028,7 +3024,6 @@ static const char *ui_desc_bytes_menu_popup =
 "     <menuitem name='BitsView' action='/BitsView'/>\n"
 "  </popup>\n"
 "</ui>\n";
-#endif
 
 static const GtkRadioActionEntry bytes_menu_radio_action_entries [] =
 {
@@ -3353,9 +3348,9 @@ menus_init(void) {
         gtk_ui_manager_insert_action_group (ui_manager_tree_view_menu,
             packet_list_details_action_group,
             0); /* the position at which the group will be inserted.  */
-#ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_tree_view_menu, ui_desc_tree_view_menu_popup, -1, &error);
-#else
+#if 0
+		/* If we want to load the treewiew popup UI description from file */
         gui_desc_file_name_and_path = get_ui_file_path("tree-view-ui.xml");
         gtk_ui_manager_add_ui_from_file ( ui_manager_tree_view_menu, gui_desc_file_name_and_path, &error);
         g_free (gui_desc_file_name_and_path);
@@ -3393,9 +3388,9 @@ menus_init(void) {
         gtk_ui_manager_insert_action_group (ui_manager_bytes_menu,
             packet_list_byte_menu_action_group,
             0); /* the position at which the group will be inserted.  */
-#ifndef NEW_MENU_CODE
         gtk_ui_manager_add_ui_from_string (ui_manager_bytes_menu, ui_desc_bytes_menu_popup, -1, &error);
-#else
+#if 0
+		/* If we want to load the bytesview poupup UI description from file */
 		gui_desc_file_name_and_path = get_ui_file_path("bytes-view-ui.xml");
         gtk_ui_manager_add_ui_from_file ( ui_manager_bytes_menu, gui_desc_file_name_and_path, &error);
 		g_free (gui_desc_file_name_and_path);
@@ -3450,7 +3445,6 @@ menus_init(void) {
 #else
 		gui_desc_file_name_and_path = get_ui_file_path("main-menubar-ui.xml");
         gtk_ui_manager_add_ui_from_file ( ui_manager_main_menubar, gui_desc_file_name_and_path, &error);
-		g_warning("gui_desc_file_name_and_path %s",gui_desc_file_name_and_path);
 		g_free (gui_desc_file_name_and_path);
 #endif
         if (error != NULL)
