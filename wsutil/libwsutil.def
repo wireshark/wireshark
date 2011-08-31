@@ -26,7 +26,9 @@ crc16_plain_update
 ; crc32.c
 crc32_ccitt
 crc32_ccitt_seed
+crc32_ccitt_table_lookup
 crc32c_calculate
+crc32c_table_lookup
 
 ; crcdrm.c
 crc_drm
