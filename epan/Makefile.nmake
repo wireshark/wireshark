@@ -146,7 +146,7 @@ distclean-local: clean-local
 		dtd_grammar.out	sminmpec.c
 
 distclean: distclean-local
-	cd ../crypt
+	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake distclean
@@ -163,7 +163,7 @@ distclean: distclean-local
 maintainer-clean-local: distclean-local
 
 maintainer-clean: maintainer-clean-local
-	cd ../crypt
+	cd crypt
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
 	cd ../ftypes
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake maintainer-clean
