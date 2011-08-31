@@ -1,5 +1,4 @@
 /*
- *
  * Copyright (c) 2003 Endace Technology Ltd, Hamilton, New Zealand.
  * All rights reserved.
  *
@@ -612,7 +611,7 @@ static gboolean erf_dump(
       }
 
       alignbytes = (8 - (other_phdr.erf.phdr.rlen % 8)) % 8;  /*calculate how much padding will be required */
-      other_phdr.erf.phdr.rlen += alignbytes;
+      other_phdr.erf.phdr.rlen += (gint16)alignbytes;
 
       if(!erf_write_phdr(wdh, WTAP_ENCAP_ERF, &other_phdr, err)) return FALSE;
       if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
@@ -624,7 +623,7 @@ static gboolean erf_dump(
         wdh->bytes_dumped += 4;
       }
       /*records should be 8byte aligned, so we add padding*/
-      for(i = alignbytes; i > 0; i--){
+      for(i = (gint16)alignbytes; i > 0; i--){
         if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
         wdh->bytes_dumped++;
       }
