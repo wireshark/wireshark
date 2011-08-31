@@ -26,7 +26,7 @@ use English;
 
 my $svc_file = "services";
 my $in = shift;
-my $min_size = 800000; # Size was 833397 on 2010-10-04
+my $min_size = 2000000; # Size was 2654612 on 2011-08-31
 my @exclude_pats = qw(
 	^spr-itunes
 	^spl-itunes
@@ -67,23 +67,28 @@ if($in =~ m/^http:/i) {
 		my $line;
 		my $pat;
 		foreach $line (@in_lines) {
-			chomp($line);
+			$prefix = "# ";
 			$exclude_match = 0;
-			foreach $pat (@exclude_pats) {
-				if ($line =~ $pat) {
-					$exclude_match = 1;
-					last;
+
+			if ($line =~ /^(\S+)\s+(\d+)\s+(tcp|udp|sctp|dccp)\s+(\S.*)/) {
+				$line = "$1	$2/$3	# $4";
+
+				foreach $pat (@exclude_pats) {
+					if ($line =~ $pat) {
+						$exclude_match = 1;
+						last;
+					}
 				}
-			}
-			if ($exclude_match) {
-				if ($prefix eq "") {
+
+				if ($exclude_match) {
 					$body .= "# Excluded by $PROGRAM_NAME\n";
+				} else {
+					$prefix = "";
 				}
-				$prefix = "# ";
-			} else {
-				$prefix = "";
 			}
-			
+
+			$line =~ s/^\s+|\s+$//g;
+
 			$body .= $prefix . $line . "\n";
 		}
 	} elsif ($result->code eq 304) {
