@@ -597,6 +597,15 @@ static const value_string v9_v10_template_types[] = {
 	{ 344, "informationElementSemantics" },
 	{ 345, "informationElementUnits" },
 	{ 346, "privateEnterpriseNumber" },
+	/* Ericsson NAT Logging */
+	{ 24628, "NAT_LOG_FIELD_IDX_CONTEXT_ID" },
+	{ 24629, "NAT_LOG_FIELD_IDX_CONTEXT_NAME" },
+	{ 24630, "NAT_LOG_FIELD_IDX_ASSIGN_TS_SEC" },
+	{ 24631, "NAT_LOG_FIELD_IDX_UNASSIGN_TS_SEC" },
+	{ 24632, "NAT_LOG_FIELD_IDX_IPV4_INT_ADDR" },
+	{ 24633, "NAT_LOG_FIELD_IDX_IPV4_EXT_ADDR" },
+	{ 24634, "NAT_LOG_FIELD_IDX_EXT_PORT_FIRST" },
+	{ 24635, "NAT_LOG_FIELD_IDX_EXT_PORT_LAST" },
 	/* Cisco ASA5500 Series NetFlow */
 	{ 33000, "INGRESS_ACL_ID" },
 	{ 33001, "EGRESS_ACL_ID" },
@@ -1323,6 +1332,16 @@ static int	hf_cflow_transport_rtp_jitter_min            = -1;	/* ID: 37024 */
 static int	hf_cflow_transport_rtp_jitter_min_string     = -1;	/* ID: 37024 */
 static int	hf_cflow_transport_rtp_jitter_max            = -1;	/* ID: 37025 */
 static int	hf_cflow_transport_rtp_jitter_max_string     = -1;	/* ID: 37025 */
+
+/* Ericsson SE NAT Logging */
+static int	hf_cflow_nat_context_id		= -1;	/* ID: 24628 */
+static int	hf_cflow_nat_context_name	= -1;	/* ID: 24629 */
+static int	hf_cflow_nat_assign_time	= -1;	/* ID: 24630 */
+static int	hf_cflow_nat_unassign_time	= -1;	/* ID: 24631 */
+static int	hf_cflow_nat_int_addr		= -1;	/* ID: 24632 */
+static int	hf_cflow_nat_ext_addr		= -1;	/* ID: 24633 */
+static int	hf_cflow_nat_ext_port_first	= -1;	/* ID: 24634 */
+static int	hf_cflow_nat_ext_port_last	= -1;	/* ID: 24635 */
 
 
 /* Cisco ASA 5500 Series */
@@ -4404,7 +4423,43 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 
 
-
+		/* Ericsson SE NAT Logging */
+		case 24628: /* natContextId */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_context_id,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 24629: /* natContextName */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_context_name,
+				tvb, offset, length, ENC_UTF_8);
+			break;
+		case 24630: /* natAssignTime */
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			ti = proto_tree_add_time(pdutree, hf_cflow_nat_assign_time,
+				tvb, offset, length, &ts);
+			break;
+		case 24631: /* natUnAssignTime */
+			ts.secs = tvb_get_ntohl(tvb, offset);
+			ts.nsecs = 0;
+			ti = proto_tree_add_time(pdutree, hf_cflow_nat_unassign_time,
+				tvb, offset, length, &ts);
+			break;
+		case 24632: /* natInternalAddr */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_int_addr,
+				tvb, offset, length, ENC_NA);
+			break;
+		case 24633: /* natExternalAddr */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_ext_addr,
+				tvb, offset, length, ENC_NA);
+			break;
+		case 24634: /* natExternalPortFirst */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_ext_port_first,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
+		case 24635: /* natExternalPortLast */
+			ti = proto_tree_add_item(pdutree, hf_cflow_nat_ext_port_last,
+				tvb, offset, length, ENC_BIG_ENDIAN);
+			break;
 
 		/* Cisco ASA 5500 Series */
 		case 33000: /* NF_F_INGRESS_ACL_ID */
@@ -7356,6 +7411,47 @@ proto_register_netflow(void)
 		  "cflow.transport_jitter_max",
 		  FT_UINT32, BASE_HEX, VALS(performance_monitor_specials), 0x0,
 		  NULL, HFILL}
+		},
+		/* Ericsson SE NAT Logging */
+		{&hf_cflow_nat_context_id,
+		 {"NAT Context ID", "cflow.nat_context_id",
+		  FT_UINT32, BASE_DEC, NULL, 0x0,
+		  "Internal context ID", HFILL}
+		},
+		{&hf_cflow_nat_context_name,
+		 {"NAT Context Name", "cflow.nat_context_name",
+		  FT_STRINGZ, BASE_NONE, NULL, 0x0,
+		  "Zero terminated context Name", HFILL}
+		},
+		{&hf_cflow_nat_assign_time,
+		 {"NAT Assign Time", "cflow.nat_assign_time",
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  "Seconds of UNIX timestamp for assign", HFILL}
+		},
+		{&hf_cflow_nat_unassign_time,
+		 {"NAT Unassign Time", "cflow.nat_unassign_time",
+		  FT_ABSOLUTE_TIME, ABSOLUTE_TIME_LOCAL, NULL, 0x0,
+		  "Seconds of UNIX timestamp for unassign", HFILL}
+		},
+		{&hf_cflow_nat_int_addr,
+		 {"Internal IPv4 address", "cflow.nat_int_addr",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "Internal IPv4 address ", HFILL}
+		},
+		{&hf_cflow_nat_ext_addr,
+		 {"External IPv4 address", "cflow.nat_ext_addr",
+		  FT_IPv4, BASE_NONE, NULL, 0x0,
+		  "External IPv4 address ", HFILL}
+		},
+		{&hf_cflow_nat_ext_port_first,
+		 {"NAT port start", "cflow.nat_ext_port_first",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "External L4 port start ", HFILL}
+		},
+		{&hf_cflow_nat_ext_port_last,
+		 {"NAT port end", "cflow.nat_ext_port_last",
+		  FT_UINT16, BASE_DEC, NULL, 0x0,
+		  "External L4 port end", HFILL}
 		},
 		/* Cisco ASA 5500 Series */
 		{&hf_cflow_ingress_acl_id,
