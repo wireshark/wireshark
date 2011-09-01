@@ -220,6 +220,9 @@ capture_dlg_prep(gpointer parent_w);
 
 extern gint if_list_comparator_alph (const void *first_arg, const void *second_arg);
 
+static void
+make_and_fill_rows(void);
+
 /* stop the currently running capture */
 void
 capture_stop_cb(GtkWidget *w _U_, gpointer d _U_)
@@ -1591,11 +1594,6 @@ update_options_table(gint index)
 #endif
     g_array_append_val(global_capture_opts.ifaces, interface_opts);
   }
-  path_str = g_strdup_printf("%d", index);
-  path = gtk_tree_path_new_from_string(path_str);
-  if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
-  model = gtk_tree_view_get_model(if_cb);
-  gtk_tree_model_get_iter (model, &iter, path);
   if (row.no_addresses == 0) {
     temp = g_strdup_printf("<b>%s</b>", row.display_name);
   } else {
@@ -1608,30 +1606,39 @@ update_options_table(gint index)
       break;
     }
   }
-  gtk_tree_model_get(model, &iter, CAPTURE, &enabled, -1);
-  if (enabled == FALSE) {
-    num_selected++;
-  }
   if (row.has_snaplen) {
     snaplen_string = g_strdup_printf("%d", row.snaplen);
   } else {
     snaplen_string = g_strdup("default");
   }
+  if (cap_open_w) {
+    if_cb      = (GtkTreeView *) g_object_get_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY);
+    path_str = g_strdup_printf("%d", marked_row);
+    path = gtk_tree_path_new_from_string(path_str);
+    model = gtk_tree_view_get_model(if_cb);
+    gtk_tree_model_get_iter (model, &iter, path);
+    gtk_tree_model_get(model, &iter, CAPTURE, &enabled, -1);
+    if (enabled == FALSE) {
+      num_selected++;
+    }
+
 #if defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
 #elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
 #else
-  gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
+    gtk_list_store_set (GTK_LIST_STORE(model), &iter, CAPTURE, TRUE, INTERFACE, temp,LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
 #ifdef USE_THREADS
-  if (num_selected > 0) {
+    if (num_selected > 0) {
 #else
-  if (num_selected == 1) {
+    if (num_selected == 1) {
 #endif
-    gtk_widget_set_sensitive(ok_bt, TRUE);
-  } else {
-    gtk_widget_set_sensitive(ok_bt, FALSE);
+      gtk_widget_set_sensitive(ok_bt, TRUE);
+    } else {
+      gtk_widget_set_sensitive(ok_bt, FALSE);
+    }
+    gtk_tree_path_free (path);
   }
   if (interfaces_dialog_window_present()) {
     update_selected_interface(g_strdup(row.name), TRUE);
@@ -1639,7 +1646,6 @@ update_options_table(gint index)
   if (get_welcome_window() != NULL) {
     change_interface_selection(g_strdup(row.name), TRUE);
   }
-  gtk_tree_path_free (path);
 }
 
 static void
@@ -1729,7 +1735,7 @@ adjust_snap_sensitivity(GtkWidget *tb _U_, gpointer parent_w _U_)
   g_array_insert_val(rows, marked_row, row);
 }
 
-static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
+void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata)
 {
   GtkWidget     *caller, *window, *swindow=NULL, *if_view,
                 *main_vb, *if_hb, *if_lb, *if_lb_name,
@@ -1765,11 +1771,13 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   GtkWidget     *advanced_bt;
 #endif
   interface_row row;
+  displayed_interface d_interface;
   GtkTreeModel  *model;
   GtkTreeIter   iter;
   link_row      *temp;
   gboolean      found = FALSE;
   gint          num_supported_link_types;
+  guint         i;
   gchar         *tok;
   GtkCellRenderer *renderer;
   GtkListStore    *store;
@@ -1782,11 +1790,38 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
     return;
   }
 
+  row.display_name = NULL;
+  row.no_addresses = 0;
+  row.addresses = NULL;
+  row.links = NULL;
+  row.active_dlt = -1;
+  row.pmode = FALSE;
+  row.monitor_mode_enabled = FALSE;
+  row.monitor_mode_supported = FALSE;
+  row.has_snaplen = FALSE;
+  row.snaplen = 65535;
+  row.cfilter = NULL;
+  row.buffer = 1;
+  
   model = gtk_tree_view_get_model(view);
   gtk_tree_model_get_iter (model, &iter, path);
   marked_row = atoi(gtk_tree_path_to_string(path));
-  row = g_array_index(rows, interface_row, marked_row);
 
+  if (cap_open_w) {
+    row = g_array_index(rows, interface_row, marked_row);
+  } else if (get_welcome_window() != NULL) {
+    d_interface = get_interface_data(marked_row);
+    if (!rows || rows->len == 0) {
+      make_and_fill_rows();
+    }
+    for (i = 0; i < rows->len; i++) {
+     row = g_array_index(rows, interface_row, i);
+     if (strcmp(row.name, (char*)d_interface.name)==0) {
+       marked_row = i; 
+       break;
+     }
+    } 
+  }
   opt_edit_w = dlg_window_new("Edit Interface Settings");
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_EDIT_CALLER_PTR_KEY, caller);
   g_object_set_data(G_OBJECT(caller), E_OPT_EDIT_DIALOG_PTR_KEY, opt_edit_w);
@@ -1827,6 +1862,7 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
   gtk_box_pack_start(GTK_BOX(if_vb_left), if_ip_lb, FALSE, FALSE, 0);
 
   if (row.no_addresses > 0) {
+    gchar *temp_addresses = g_strdup(row.addresses);
     gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, TRUE, TRUE, 0);
     gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, TRUE, TRUE, 3);
     swindow = gtk_scrolled_window_new (NULL, NULL);
@@ -1842,13 +1878,14 @@ static void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeVi
                     NULL);
     gtk_tree_view_append_column(GTK_TREE_VIEW(if_view), column);
     store = gtk_list_store_new(1, G_TYPE_STRING);
-    for (tok = strtok (row.addresses, "\n"); tok; tok = strtok(NULL, "\n")) {
+    for (tok = strtok (temp_addresses, "\n"); tok; tok = strtok(NULL, "\n")) {
       gtk_list_store_append (store, &iter);
       gtk_list_store_set (store, &iter, 0, tok, -1);
     }
     gtk_tree_view_set_model(GTK_TREE_VIEW(if_view), GTK_TREE_MODEL (store));
     gtk_container_add (GTK_CONTAINER (swindow), if_view);
     gtk_box_pack_start(GTK_BOX(if_vb_right), swindow, TRUE, TRUE, 0);
+    g_free(temp_addresses);
   } else {
     gtk_box_pack_start(GTK_BOX(capture_vb), if_ip_hb, FALSE, FALSE, 0);
     gtk_box_pack_start(GTK_BOX(if_ip_hb), if_vb_right, FALSE, FALSE, 3);
@@ -2559,6 +2596,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
     g_free(err_str);
   }
+  if_list = g_list_sort (if_list, if_list_comparator_alph);
 #ifdef HAVE_AIRPCAP
   /* update airpcap interface list */
 
@@ -2653,7 +2691,7 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   column = gtk_tree_view_column_new_with_attributes("Capture Filter", renderer, "text", FILTER, NULL);
   gtk_tree_view_append_column(GTK_TREE_VIEW(view), column);
   gtk_tree_view_column_set_alignment(column, 0.5);
-  create_and_fill_model(if_list, TRUE, GTK_TREE_VIEW(view));
+  create_and_fill_model(GTK_TREE_VIEW(view));
   selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(view));
   gtk_tree_selection_set_mode(selection, GTK_SELECTION_SINGLE);
   gtk_container_add (GTK_CONTAINER (swindow), view);
@@ -3498,29 +3536,177 @@ capture_dlg_prep(gpointer parent_w) {
   return TRUE;
 }
 
-GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeView *view)
+static void
+make_and_fill_rows(void)
 {
-  GtkListStore *store;
-  GtkTreeIter iter;
-  GList *if_entry, *list;
+  GList *if_entry, *if_list;
   if_info_t *if_info;
-  char *if_string="", *temp="", *snaplen_string;
+  char *if_string="", *temp="";
   gchar *descr;
   if_capabilities_t *caps=NULL;
   gint linktype_count;
   cap_settings_t cap_settings;
   GSList *curr_addr;
-  int ips = 0;
-  guint i, j;
+  int ips = 0, err;
+  guint i;
   if_addr_t *addr;
   GList *lt_entry;
   link_row *link = NULL;
   data_link_info_t *data_link_info;
-  gchar *str, *link_type_name = NULL;
+  gchar *str, *err_str = NULL, *link_type_name = NULL;
   interface_row row;
   interface_options interface_opts;
   gboolean found = FALSE;
   GString *ip_str;
+
+  rows = g_array_new(TRUE, TRUE, sizeof(interface_row));
+  /* Scan through the list and build a list of strings to display. */
+  if_list = capture_interface_list(&err, &err_str);
+  if_list = g_list_sort (if_list, if_list_comparator_alph);
+  if (if_list == NULL && err == CANT_GET_INTERFACE_LIST) {
+    simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK, "%s", err_str);
+    g_free(err_str);
+    return;
+  } else if (err_str) {
+    g_free(err_str);
+  }
+  for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
+    if_info = if_entry->data;
+    ip_str = g_string_new("");
+    str = "";
+    ips = 0;
+    row.name = g_strdup(if_info->name);
+    /* Is this interface hidden and, if so, should we include it anyway? */
+    if (!prefs_is_capture_device_hidden(if_info->name)) {
+      /* It's not hidden, or it is but we should include it in the list. */
+      /* Do we have a user-supplied description? */
+      descr = capture_dev_user_descr_find(if_info->name);
+      if (descr != NULL) {
+        /* Yes, we have a user-supplied description; use it. */
+        if_string = g_strdup_printf("%s: %s", descr, if_info->name);
+        g_free(descr);
+      } else {
+        /* No, we don't have a user-supplied description; did we get
+           one from the OS or libpcap? */
+        if (if_info->description != NULL) {
+          /* Yes - use it. */
+          if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
+        } else {
+          /* No. */
+          if_string = g_strdup(if_info->name);
+        }
+      }
+      if (if_info->loopback) {
+        row.display_name = g_strdup_printf("%s (loopback)", if_string);
+      } else {
+        row.display_name = g_strdup(if_string);
+      }
+      found = FALSE;
+      for (i = 0; i < global_capture_opts.ifaces->len; i++) {
+        interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
+        if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
+          continue;
+        } else {
+          found = TRUE;
+          break;
+        }
+      }
+      if (found) {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        row.buffer = interface_opts.buffer_size;
+#endif
+        row.pmode = interface_opts.promisc_mode;
+        row.has_snaplen = interface_opts.has_snaplen;
+        row.snaplen = interface_opts.snaplen;
+        row.cfilter = g_strdup(interface_opts.cfilter);
+      } else {
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
+        row.buffer = global_capture_opts.default_options.buffer_size;
+#endif
+        row.pmode = global_capture_opts.default_options.promisc_mode;
+        row.has_snaplen = global_capture_opts.default_options.has_snaplen;
+        row.snaplen = global_capture_opts.default_options.snaplen;
+        row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
+      }
+      cap_settings = capture_get_cap_settings(if_info->name);
+      caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
+      for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
+        if (ips != 0) {
+          g_string_append(ip_str, "\n");
+        }
+        addr = (if_addr_t *)curr_addr->data;
+        switch (addr->ifat_type) {
+          case IF_AT_IPv4:
+            g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
+            break;
+          case IF_AT_IPv6:
+            g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
+            break;
+          default:
+            /* In case we add non-IP addresses */
+            break;
+        }
+      }
+      linktype_count = 0;
+      row.links = NULL;
+      if (caps != NULL) {
+#ifdef HAVE_PCAP_CREATE
+        row.monitor_mode_enabled = cap_settings.monitor_mode;
+        row.monitor_mode_supported = caps->can_set_rfmon;
+#endif
+        for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
+          data_link_info = lt_entry->data;
+          if (data_link_info->description != NULL) {
+            str = g_strdup_printf("%s", data_link_info->description);
+          } else {
+            str = g_strdup_printf("%s (not supported)", data_link_info->name);
+          }
+          if (linktype_count == 0) {
+            link_type_name = g_strdup(str);
+            row.active_dlt = data_link_info->dlt;
+          }
+          link = (link_row *)g_malloc(sizeof(link_row));
+          link->dlt = data_link_info->dlt;
+          link->name = g_strdup(str);
+          row.links = g_list_append(row.links, link);
+          linktype_count++;
+        }
+      } else {
+        cap_settings.monitor_mode = FALSE;
+#ifdef HAVE_PCAP_CREATE
+        row.monitor_mode_enabled = FALSE;
+        row.monitor_mode_supported = FALSE;
+#endif
+        row.active_dlt = -1;
+        link_type_name = g_strdup("default");
+      }
+      row.addresses = g_strdup(ip_str->str);
+      row.no_addresses = ips;
+      if (ips == 0) {
+        temp = g_strdup_printf("<b>%s</b>", row.display_name);
+      } else {
+        temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
+      }
+      g_array_append_val(rows, row);
+      if (caps != NULL) {
+        free_if_capabilities(caps);
+      }
+    }
+    g_string_free(ip_str, TRUE);
+  }
+}
+
+GtkTreeModel *create_and_fill_model(GtkTreeView *view)
+{
+  GtkListStore *store;
+  GtkTreeIter iter;
+  GList *list;
+  char *temp="", *snaplen_string;
+  guint i, j;
+  link_row *link = NULL;
+  interface_row row;
+  interface_options interface_opts;
+  gboolean found = FALSE;
 
 #if defined(HAVE_PCAP_CREATE)
   store = gtk_list_store_new (8, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_UINT, G_TYPE_STRING, G_TYPE_STRING);
@@ -3530,6 +3716,9 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
   store = gtk_list_store_new (6, G_TYPE_BOOLEAN, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING, G_TYPE_STRING);
 #endif
 
+  if (!rows || rows->len == 0) {
+    make_and_fill_rows();
+  }
   if (rows && rows->len > 0) {
     for (i = 0; i < rows->len; i++) {
       row = g_array_index(rows, interface_row, i);
@@ -3568,147 +3757,6 @@ GtkTreeModel *create_and_fill_model(GList *if_list, gboolean do_hide, GtkTreeVie
 #else
       gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link->name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
 #endif
-    }
-  } else {
-    rows = g_array_new(TRUE, TRUE, sizeof(interface_row));
-    /* Scan through the list and build a list of strings to display. */
-    for (if_entry = if_list; if_entry != NULL; if_entry = g_list_next(if_entry)) {
-      if_info = if_entry->data;
-      ip_str = g_string_new("");
-      str = "";
-      ips = 0;
-      row.name = g_strdup(if_info->name);
-      /* Is this interface hidden and, if so, should we include it anyway? */
-      if (!prefs_is_capture_device_hidden(if_info->name) || !do_hide) {
-        /* It's not hidden, or it is but we should include it in the list. */
-        /* Do we have a user-supplied description? */
-        descr = capture_dev_user_descr_find(if_info->name);
-        if (descr != NULL) {
-          /* Yes, we have a user-supplied description; use it. */
-          if_string = g_strdup_printf("%s: %s", descr, if_info->name);
-          g_free(descr);
-        } else {
-          /* No, we don't have a user-supplied description; did we get
-             one from the OS or libpcap? */
-          if (if_info->description != NULL) {
-            /* Yes - use it. */
-            if_string = g_strdup_printf("%s: %s", if_info->description, if_info->name);
-          } else {
-            /* No. */
-            if_string = g_strdup(if_info->name);
-          }
-        }
-        if (if_info->loopback) {
-          row.display_name = g_strdup_printf("%s (loopback)", if_string);
-        } else {
-          row.display_name = g_strdup(if_string);
-        }
-        found = FALSE;
-        for (i = 0; i < global_capture_opts.ifaces->len; i++) {
-          interface_opts = g_array_index(global_capture_opts.ifaces, interface_options, i);
-          if (!interface_opts.name || strcmp(interface_opts.name, (char*)row.name)!=0) {
-            continue;
-          } else {
-            found = TRUE;
-            num_selected++;
-            break;
-          }
-        }
-        if (found) {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-          row.buffer = interface_opts.buffer_size;
-#endif
-          row.pmode = interface_opts.promisc_mode;
-          row.has_snaplen = interface_opts.has_snaplen;
-          row.snaplen = interface_opts.snaplen;
-          row.cfilter = g_strdup(interface_opts.cfilter);
-        } else {
-#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
-          row.buffer = global_capture_opts.default_options.buffer_size;
-#endif
-          row.pmode = global_capture_opts.default_options.promisc_mode;
-          row.has_snaplen = global_capture_opts.default_options.has_snaplen;
-          row.snaplen = global_capture_opts.default_options.snaplen;
-          row.cfilter = g_strdup(global_capture_opts.default_options.cfilter);
-        }
-        cap_settings = capture_get_cap_settings(if_info->name);
-        gtk_list_store_append (store, &iter);
-        caps = capture_get_if_capabilities(if_info->name, cap_settings.monitor_mode, NULL);
-        for (; (curr_addr = g_slist_nth(if_info->addrs, ips)) != NULL; ips++) {
-          if (ips != 0) {
-            g_string_append(ip_str, "\n");
-          }
-          addr = (if_addr_t *)curr_addr->data;
-          switch (addr->ifat_type) {
-            case IF_AT_IPv4:
-              g_string_append(ip_str, ip_to_str((guint8 *)&addr->addr.ip4_addr));
-              break;
-            case IF_AT_IPv6:
-              g_string_append(ip_str,  ip6_to_str((struct e_in6_addr *)&addr->addr.ip6_addr));
-              break;
-            default:
-              /* In case we add non-IP addresses */
-              break;
-          }
-        }
-        linktype_count = 0;
-        row.links = NULL;
-        if (caps != NULL) {
-#ifdef HAVE_PCAP_CREATE
-          row.monitor_mode_enabled = cap_settings.monitor_mode;
-          row.monitor_mode_supported = caps->can_set_rfmon;
-#endif
-          for (lt_entry = caps->data_link_types; lt_entry != NULL; lt_entry = g_list_next(lt_entry)) {
-            data_link_info = lt_entry->data;
-            if (data_link_info->description != NULL) {
-              str = g_strdup_printf("%s", data_link_info->description);
-            } else {
-              str = g_strdup_printf("%s (not supported)", data_link_info->name);
-            }
-            if (linktype_count == 0) {
-              link_type_name = g_strdup(str);
-              row.active_dlt = data_link_info->dlt;
-            }
-            link = (link_row *)g_malloc(sizeof(link_row));
-            link->dlt = data_link_info->dlt;
-            link->name = g_strdup(str);
-            row.links = g_list_append(row.links, link);
-            linktype_count++;
-          }
-        } else {
-          cap_settings.monitor_mode = FALSE;
-#ifdef HAVE_PCAP_CREATE
-          row.monitor_mode_enabled = FALSE;
-          row.monitor_mode_supported = FALSE;
-#endif
-          row.active_dlt = -1;
-          link_type_name = g_strdup("default");
-        }
-        row.addresses = g_strdup(ip_str->str);
-        row.no_addresses = ips;
-        if (ips == 0) {
-          temp = g_strdup_printf("<b>%s</b>", row.display_name);
-        } else {
-          temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
-        }
-        g_array_append_val(rows, row);
-        if (row.has_snaplen) {
-          snaplen_string = g_strdup_printf("%d", row.snaplen);
-        } else {
-          snaplen_string = g_strdup("default");
-        }
-#if defined(HAVE_PCAP_CREATE)
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, MONITOR, row.monitor_mode_supported?(row.monitor_mode_enabled?"enabled":"disabled"):"n/a", FILTER, row.cfilter, -1);
-#elif defined(_WIN32) && !defined(HAVE_PCAP_CREATE)
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, BUFFER, (guint) row.buffer, FILTER, row.cfilter, -1);
-#else
-        gtk_list_store_set (store, &iter, CAPTURE, found, INTERFACE, temp, LINK, link_type_name,  PMODE, row.pmode?"enabled":"disabled", SNAPLEN, snaplen_string, FILTER, row.cfilter, -1);
-#endif
-        if (caps != NULL) {
-          free_if_capabilities(caps);
-        }
-      }
-      g_string_free(ip_str, TRUE);
     }
   }
   gtk_tree_view_set_model(GTK_TREE_VIEW(view), GTK_TREE_MODEL(store));

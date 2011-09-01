@@ -161,7 +161,7 @@ cap_settings_t
 capture_get_cap_settings (gchar *if_name);
 
 GtkTreeModel* 
-create_and_fill_model (GList *if_list, gboolean do_hide, GtkTreeView *view);
+create_and_fill_model (GtkTreeView *view);
 
 gboolean 
 query_tooltip_tree_view_cb (GtkWidget  *widget,
@@ -199,5 +199,8 @@ dlg_window_present(void);
 
 void
 enable_selected_interface(gchar *name, gboolean enable);
+
+void
+options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColumn *column _U_, gpointer userdata);
 
 #endif /* capture_dlg.h */

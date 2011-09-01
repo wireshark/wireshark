@@ -1214,6 +1214,7 @@ welcome_new(void)
 
         if_view = gtk_tree_view_new ();
         g_object_set(G_OBJECT(if_view), "headers-visible", FALSE, NULL);
+        g_signal_connect(if_view, "row-activated", G_CALLBACK(options_interface_cb), (gpointer)welcome_hb);
         g_object_set_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES, if_view);
         renderer = gtk_cell_renderer_pixbuf_new();
         column = gtk_tree_view_column_new_with_attributes ("",
@@ -1426,5 +1427,10 @@ welcome_new(void)
 GtkWidget* get_welcome_window(void)
 {
   return welcome_hb;
+}
+
+displayed_interface get_interface_data(gint index)
+{
+  return g_array_index(interfaces, displayed_interface, index);
 }
 

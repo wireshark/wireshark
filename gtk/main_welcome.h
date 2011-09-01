@@ -89,4 +89,6 @@ void change_selection_for_all(gboolean enable);
 void add_interface_to_list(gchar *name, gchar *descr, remote_options *remote_opts);
 #endif
 
+displayed_interface get_interface_data(gint index);
+
 #endif /* __MAIN_WELCOME_H__ */
