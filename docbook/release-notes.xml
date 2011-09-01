@@ -51,6 +51,8 @@ Wireshark Info
           </para>
         </listitem>
 
+      </itemizedlist>
+
     </para>
 
     <para>
@@ -68,6 +70,66 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
+
+        <listitem><para>
+	  Editcap could create invalid pcap files when converting from JPEG.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6010">Bug
+          6010</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  BACnet who-is request device range values are not decoded correctly in the packet details window.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5769">Bug
+          5769</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Timestamp is incorrectly decoded for ICMP Timestamp Response packets from MS Windows.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6114">Bug
+          6114</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wrong display of CSN_BIT in CSN.1.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6151">Bug
+          6151</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Fix CSN_RECURSIVE_TARRAY last bit error in packet-csn1.c.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6166">Bug
+          6166</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
+          .</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
+          .</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
+          .</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
+          .</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  .
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
+          .</ulink>)
+        </para></listitem>
 
       </itemizedlist>
 

@@ -997,6 +997,12 @@ static gboolean libpcap_dump(wtap_dumper *wdh,
 	}
 	rec_hdr.hdr.incl_len = phdr->caplen + phdrsize;
 	rec_hdr.hdr.orig_len = phdr->len + phdrsize;
+
+	if (rec_hdr.hdr.incl_len > WTAP_MAX_PACKET_SIZE || rec_hdr.hdr.orig_len > WTAP_MAX_PACKET_SIZE) {
+		*err = WTAP_ERR_BAD_RECORD;
+		return FALSE;
+	}
+
 	switch (wdh->file_type) {
 
 	case WTAP_FILE_PCAP:
