@@ -622,12 +622,36 @@ get_datafile_dir(void)
 		}
 	}
 #else
+	if (running_in_build_directory_flag) {
+		/*
+		 * We're (probably) being run from the build directory and
+		 * weren't started with special privileges.
+		 *
+		 * The data files we want are the ones from the source
+		 * directory; to handle builds out of the source tree,
+		 * we check whether WIRESHARK_SRC_DIR is set and, if so,
+		 * use that as the source directory.
+		 */
+		datafile_dir = getenv("WIRESHARK_SRC_DIR");
+		if (datafile_dir != NULL)
+			return datafile_dir;
+	}
+
+	/*
+	 * Well, that didn't work.
+	 * Check again whether we were (probably) run from the build
+	 * directory and started without special privileges, and also
+	 * check whether we were able to determine the directory in
+	 * which the program was found.
+	 */
 	if (running_in_build_directory_flag && progfile_dir != NULL) {
 		/*
 		 * We're (probably) being run from the build directory and
 		 * weren't started with special privileges, and we were
 		 * able to determine the directory in which the program
-		 * was found, so use that.
+		 * was found.  Assume that directory is the build
+		 * directory and that it's the same as the source
+		 * directory.
 		 */
 		datafile_dir = progfile_dir;
 	} else {
