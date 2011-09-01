@@ -241,8 +241,9 @@ dissect_diameter_3gpp_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	proto_tree *sub_tree;
 	int offset = 0;
 	const char     *digit_str;
+	int length = tvb_length(tvb);
 
-	item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, 6, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_msisdn, tvb, offset, length, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(item,diameter_3gpp_msisdn_ett);
 
 	dissect_e164_cc(tvb, sub_tree, offset, TRUE);

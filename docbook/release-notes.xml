@@ -102,9 +102,9 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
-          .</ulink>)
+	  Wireshark cannot display Reachable time &amp; Retrans timer in IPv6 RA messages.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6168">Bug
+          6168</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -157,13 +157,19 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+CSN.1,
+ICMP,
+ICMPv6,
+OpenSafety,
+MSISDN,
+
     </para>
     </section>
 
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-Network Monitor.
+JPEG.
 
     </para>
     </section>

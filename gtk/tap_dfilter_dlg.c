@@ -87,27 +87,27 @@ register_dfilter_stat(tap_dfilter_dlg *info, const char *name,
 	full_name = g_strdup_printf("%s...", name);
 	register_stat_menu_item(full_name, group, tap_dfilter_dlg_cb, NULL,
 	    NULL, info);
-	g_free(full_name);
-}              
+    /* tap_menu_item_add() uses the name later on. Leave it allocated. */
+}
 
 void tap_dfilter_dlg_update (void)
 {
 	tap_dfilter_dlg_list_item *dialog = start_dlg_list;
 	char *title;
-	
+
 	while(dialog != NULL) {
 		if(dialog->dlg) {
 			title = g_strdup_printf("Wireshark: %s: %s", dialog->cont.win_title , cf_get_display_name(&cfile));
 			gtk_window_set_title(GTK_WINDOW(dialog->dlg), title);
 			g_free(title);
 		}
-		dialog = dialog->next;		
+		dialog = dialog->next;
 	}
 }
 
 static void
 dlg_destroy_cb(GtkWidget *item _U_, gpointer dialog_data)
-{	
+{
 	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
 	dlg_data->dlg = NULL;
 }
@@ -117,7 +117,7 @@ tap_dfilter_dlg_start_button_clicked(GtkWidget *item _U_, gpointer dialog_data)
 {
 	const char *filter;
 	char *str;
-	
+
 	tap_dfilter_dlg_list_item *dlg_data = (tap_dfilter_dlg_list_item *) dialog_data;
 
 	filter=gtk_entry_get_text(GTK_ENTRY(dlg_data->filter_entry));
@@ -141,12 +141,12 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	GtkWidget *dlg_box;
 	GtkWidget *filter_box, *filter_bt;
 	GtkWidget *bbox, *start_button, *cancel_button;
-	
-	tap_dfilter_dlg *dlg_data = (tap_dfilter_dlg *) data;	
+
+	tap_dfilter_dlg *dlg_data = (tap_dfilter_dlg *) data;
 
 	if(dlg_data==NULL)
 		return;
-		
+
 	if(dlg_data->index==-1) {
 		/* Dialog is not registered */
 		if(start_dlg_list==NULL) {
@@ -219,7 +219,7 @@ tap_dfilter_dlg_cb(GtkWidget *w _U_, gpointer data)
 	/* filter prefs dialog */
         g_object_set_data(G_OBJECT(filter_bt), E_FILT_TE_PTR_KEY, current_dlg->filter_entry);
 	/* filter prefs dialog */
-	
+
 	gtk_box_pack_start(GTK_BOX(filter_box), current_dlg->filter_entry, TRUE, TRUE, 0);
 	filter=gtk_entry_get_text(GTK_ENTRY(main_display_filter_widget));
 	if(filter){
