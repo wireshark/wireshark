@@ -12,7 +12,7 @@
  *   Note that the division of the Japan SLS into the SLC and A/B bit is not
  *   done.
  *
- * Copyright 2003, Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ * Copyright 2003, Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
  * $Id$
  *

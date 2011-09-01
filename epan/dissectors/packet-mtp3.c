@@ -12,7 +12,7 @@
  *
  * Copyright 2001, Michael Tuexen <tuexen [AT] fh-muenster.de>
  * Updated for ANSI, Chinese ITU, and Japan support by
- *  Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ *  Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
  * $Id$
  *
@@ -222,7 +222,7 @@ static dissector_handle_t data_handle;
  * helper routine to format a point code in structured form
  */
 
-void 
+void
 mtp3_pc_to_str_buf(const guint32 pc, gchar *buf, int buf_len)
 {
   switch (mtp3_standard)
@@ -276,7 +276,7 @@ gchar *
 mtp3_pc_to_str(const guint32 pc)
 {
   gchar *str;
-  
+
   str=ep_alloc(MAX_STRUCTURED_PC_LENGTH);
   mtp3_pc_to_str_buf(pc, str, MAX_STRUCTURED_PC_LENGTH);
   return str;
@@ -296,7 +296,7 @@ mtp3_pc_structured(void)
 /*
  * helper routine to format address to string
  */
- 
+
 void
 mtp3_addr_to_str_buf(
   const mtp3_addr_pc_t  *addr_pc_p,
@@ -380,7 +380,7 @@ mtp3_addr_to_str_buf(
 
 guint32 mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
 	guint32 pc;
-	
+
 	switch (addr_pc_p->type)
 	{
 		case ITU_STANDARD:
@@ -391,7 +391,7 @@ guint32 mtp3_pc_hash(const mtp3_addr_pc_t *addr_pc_p) {
 			pc = (addr_pc_p->pc & ANSI_PC_MASK) | ((addr_pc_p->ni) << 24) ;
 			break;
 	}
-	
+
 	return pc;
 }
 
@@ -517,7 +517,7 @@ dissect_mtp3_routing_label(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mtp3_t
       pc_subtree = proto_item_add_subtree(label_dpc_item, ett_mtp3_label_dpc);
       analyze_q708_ispc(tvb, pc_subtree, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, dpc);
 	}
-      
+
 
     label_opc_item = proto_tree_add_uint(label_tree, hf_mtp3_itu_opc, tvb, ROUTING_LABEL_OFFSET, ITU_ROUTING_LABEL_LENGTH, label);
     if (mtp3_pc_structured())
@@ -670,7 +670,7 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case JAPAN_STANDARD:
         col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
         break;
-    };      
+    };
 
   if (tree) {
     /* create display subtree for the protocol */
@@ -789,7 +789,7 @@ proto_register_mtp3(void)
     { "3-4-4-5",      "3-4-4-5",      JAPAN_PC_STRUCTURE_3_4_4_5 },
     { NULL,           NULL,           0 }
   };
-  
+
  /* Register the protocol name and description */
   proto_mtp3 = proto_register_protocol("Message Transfer Part Level 3",
                                        "MTP3", "mtp3");
@@ -843,11 +843,11 @@ proto_register_mtp3(void)
 void
 proto_reg_handoff_mtp3(void)
 {
-  dissector_handle_t mtp3_handle;        
-         
-  mtp3_handle = find_dissector("mtp3");               
-  dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);     
+  dissector_handle_t mtp3_handle;
+
+  mtp3_handle = find_dissector("mtp3");
+  dissector_add_uint("wtap_encap", WTAP_ENCAP_MTP3, mtp3_handle);
   dissector_add_string("tali.opcode", "mtp3", mtp3_handle);
-                 
+
   data_handle = find_dissector("data");
 }

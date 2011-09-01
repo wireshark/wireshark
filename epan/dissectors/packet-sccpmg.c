@@ -10,7 +10,7 @@
  *   Note that NTT Annex E (SCCP Management Procedure (Global Title Status
  *   Management)) is not implemented (yet)
  *
- * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ * Copyright 2002, Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
  * $Id$
  *
@@ -276,7 +276,7 @@ dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case CHINESE_ITU_STANDARD:
 			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Chin. ITU)");
 			break;
-		};      
+		};
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	   necessary to generate protocol tree items. */

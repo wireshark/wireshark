@@ -5,7 +5,7 @@
  *
  * Support for passing SS7 MSUs (from the Cisco ITP Packet Logging
  * facility) to the MTP3 dissector by Abhik Sarkar <sarkar.abhik[AT]gmail.com>
- * with some rework by Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ * with some rework by Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
  * $Id$
  *

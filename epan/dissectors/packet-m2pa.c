@@ -5,7 +5,7 @@
  * http://www.ietf.org/internet-drafts/draft-ietf-sigtran-m2pa-08.txt
  * http://tools.ietf.org/rfc/rfc4165.txt
  *
- * Copyright 2001, 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>,
+ * Copyright 2001, 2002, Jeff Morriss <jeff.morriss.ws [AT] gmail.com>,
  * updated by Michael Tuexen <tuexen [AT] fh-muenster.de>
  *
  * $Id$

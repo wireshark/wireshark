@@ -1,6 +1,6 @@
 /* packet-sscf-nni.c
  * Routines for SSCF-NNI (Q.2140) frame disassembly
- * Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ * Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
  * $Id$
  *
@@ -98,7 +98,7 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       col_add_fstr(pinfo->cinfo, COL_INFO, "STATUS (%s) ",
 		   val_to_str(sscf_status, sscf_status_vals, "Unknown"));
 
-    
+
     proto_tree_add_item(sscf_tree, hf_status, tvb, SSCF_STATUS_OFFSET,
 			SSCF_STATUS_LENGTH, FALSE);
     proto_tree_add_item(sscf_tree, hf_spare, tvb, SSCF_SPARE_OFFSET,
@@ -110,7 +110,7 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_sscf(void)
 {
-  static hf_register_info hf[] = 
+  static hf_register_info hf[] =
   { { &hf_status, { "Status", "sscf-nni.status", FT_UINT8, BASE_HEX,
 		    VALS(sscf_status_vals), 0x0, NULL, HFILL} },
     { &hf_spare, { "Spare", "sscf-nni.spare", FT_UINT24, BASE_HEX,

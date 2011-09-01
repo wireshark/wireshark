@@ -10,7 +10,7 @@
  *   Note that Japan-specific GTT is incomplete; in particular, the specific
  *   TTs that are defined in TTC and NTT are not decoded in detail.
  *
- * Copyright 2002, Jeff Morriss <jeff.morriss[AT]ulticom.com>
+ * Copyright 2002, Jeff Morriss <jeff.morriss.ws [AT] gmail.com>
  *
  * $Id$
  *
@@ -864,9 +864,9 @@ get_sccp_assoc(packet_info* pinfo, guint offset, guint32 src_lr, guint32 dst_lr,
         {
             /* CR contains the opc,dpc,dlr key of backward messages swapped as dpc,opc,slr  */
             emem_tree_key_t bw_key[] = {
-                {1, &dpck}, 
-		{1, &opck}, 
-		{1, &src_lr}, 
+                {1, &dpck},
+		{1, &opck},
+		{1, &src_lr},
 		{0, NULL}
             };
 
