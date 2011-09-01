@@ -673,12 +673,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
-	pcap_fill_in_pseudo_header(wth->file_type, wth->file_encap,
-	    buffer_start_ptr(wth->frame_buffer), wth->phdr.caplen,
-	    &wth->pseudo_header, -1);
-
-	pcap_read_post_process(wth->file_encap, wth->phdr.caplen,
-	    libpcap->byte_swapped, buffer_start_ptr(wth->frame_buffer));
+	pcap_read_post_process(wth->file_type, wth->file_encap,
+	    &wth->pseudo_header, buffer_start_ptr(wth->frame_buffer),
+	    wth->phdr.caplen, libpcap->byte_swapped, -1);
 	return TRUE;
 }
 
@@ -705,11 +702,8 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;	/* failed */
 
-	pcap_fill_in_pseudo_header(wth->file_type, wth->file_encap, pd,
-	    length, pseudo_header, -1);
-
-	pcap_read_post_process(wth->file_encap, length,
-	    libpcap->byte_swapped, pd);
+	pcap_read_post_process(wth->file_type, wth->file_encap,
+	    pseudo_header, pd, length, libpcap->byte_swapped, -1);
 	return TRUE;
 }
 

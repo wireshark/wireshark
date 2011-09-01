@@ -1623,8 +1623,9 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 }
 
 void
-pcap_fill_in_pseudo_header(int file_type, int wtap_encap, guint8 *pd, int length,
-    union wtap_pseudo_header *pseudo_header, int fcs_len)
+pcap_read_post_process(int file_type, int wtap_encap,
+    union wtap_pseudo_header *pseudo_header,
+    guint8 *pd, guint packet_size, gboolean bytes_swapped, int fcs_len)
 {
 	switch (wtap_encap) {
 
@@ -1636,7 +1637,7 @@ pcap_fill_in_pseudo_header(int file_type, int wtap_encap, guint8 *pd, int length
 			 * Guess the traffic type based on the packet
 			 * contents.
 			 */
-			atm_guess_traffic_type(pd, length, pseudo_header);
+			atm_guess_traffic_type(pd, packet_size, pseudo_header);
 		} else {
 			/*
 			 * SunATM.
@@ -1646,24 +1647,14 @@ pcap_fill_in_pseudo_header(int file_type, int wtap_encap, guint8 *pd, int length
 			 * contents.
 			 */
 			if (pseudo_header->atm.type == TRAF_LANE)
-				atm_guess_lane_type(pd, length, pseudo_header);
+				atm_guess_lane_type(pd, packet_size,
+				    pseudo_header);
 		}
 		break;
 
 	case WTAP_ENCAP_ETHERNET:
 		pseudo_header->eth.fcs_len = fcs_len;
 		break;
-
-	default:
-		break;
-	}
-}
-
-void
-pcap_read_post_process(int wtap_encap, guint packet_size,
-    gboolean bytes_swapped, guint8 *pd)
-{
-	switch (wtap_encap) {
 
 	case WTAP_ENCAP_USB_LINUX:
 		pcap_process_linux_usb_pseudoheader(packet_size,
