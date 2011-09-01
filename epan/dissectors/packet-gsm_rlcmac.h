@@ -1535,7 +1535,12 @@ typedef struct
 /* TDD Target cell not implemented */
 typedef struct
 {
-  guint8 Complete_This;
+  guint16 TDD_ARFCN;
+  guint8  DIVERSITY_TDD;
+  guint8 Exist_Bandwith_TDD;
+  guint8  BANDWITH_TDD;
+  guint16 CELL_PARAMETER;
+  guint8  Sync_Case_TSTD;
 } TDD_Target_Cell_t;
 
 typedef struct
@@ -3227,12 +3232,111 @@ typedef struct
 
 typedef struct
 {
+  guint16 TDD_ARFCN;
+  guint8 Exist_Bandwith_TDD;
+  guint8  BANDWITH_TDD;
+  guint8  CELL_PARAMETER;
+  guint8  Sync_Case_TSTD;
+}TDD_Target_Cell_Notif_t;
+
+typedef struct
+{
   guint8 Exist_FDD_Description;
   FDD_Target_Cell_Notif_t FDD_Target_Cell_Notif;
   guint8 Exist_TDD_Description;
-  TDD_Target_Cell_t TDD_Target_Cell;
+  TDD_Target_Cell_Notif_t TDD_Target_Cell;
   guint8 REPORTING_QUANTITY;
 } Target_Cell_3G_Notif_t;
+
+typedef struct
+{
+  guint16 EARFCN;
+  guint8 Exist_Measurement_Bandwidth;
+  guint8 Measurement_Bandwidth;
+  guint16 Physical_Layer_Cell_Identity;
+  guint8 Reporting_Quantity;
+}Target_EUTRAN_Cell_Notif_t;
+
+typedef struct
+{
+  guint8  EUTRAN_FREQUENCY_INDEX;
+  guint16 CELL_IDENTITY;
+  guint8  REPORTING_QUANTITY;
+}Eutran_Ccn_Measurement_Report_Cell_t;
+
+typedef struct
+{
+  gboolean  ThreeG_BA_USED;
+  guint8    N_EUTRAN;
+  Eutran_Ccn_Measurement_Report_Cell_t Eutran_Ccn_Measurement_Report_Cell[4];
+}Eutran_Ccn_Measurement_Report_t;
+
+typedef struct
+{
+  guint8 Exist_Arfcn;
+  guint16 Arfcn;
+  guint8  bsic;
+  guint8 Exist_3G_Target_Cell;
+  Target_Cell_3G_Notif_t Target_Cell_3G_Notif;
+  guint8 Exist_Eutran_Target_Cell;
+  Target_EUTRAN_Cell_Notif_t Target_EUTRAN_Cell;
+  guint8 Exist_Eutran_Ccn_Measurement_Report;
+  Eutran_Ccn_Measurement_Report_t Eutran_Ccn_Measurement_Report;
+}Target_Cell_4G_Notif_t;
+
+typedef struct
+{
+  guint32  UTRAN_CGI;
+  guint8 Exist_PLMN_ID;
+  PLMN_t   Plmn_ID;
+  guint32  CSG_ID;
+  gboolean Access_Mode;
+  guint8   REPORTING_QUANTITY;
+}UTRAN_CSG_Measurement_Report_t;
+
+typedef struct
+{
+  guint32  EUTRAN_CGI;
+  guint16  Tracking_Area_Code;
+  guint8 Exist_PLMN_ID;
+  PLMN_t   Plmn_ID;
+  guint32  CSG_ID;
+  gboolean Access_Mode;
+  guint8   REPORTING_QUANTITY;
+}EUTRAN_CSG_Measurement_Report_t;
+
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    UTRAN_CSG_Measurement_Report_t UTRAN_CSG_Measurement_Report;
+    EUTRAN_CSG_Measurement_Report_t EUTRAN_CSG_Measurement_Report;
+  } u;
+  guint8 Exist_Eutran_Ccn_Measurement_Report;
+  Eutran_Ccn_Measurement_Report_t Eutran_Ccn_Measurement_Report;
+}Target_Cell_CSG_Notif_t;
+
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    Target_Cell_4G_Notif_t Target_Cell_4G_Notif;
+    Target_Cell_CSG_Notif_t Target_Cell_CSG_Notif;
+  } u;
+}Target_Other_RAT_2_Notif_t;
+
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    Target_Cell_3G_Notif_t Target_Cell_3G_Notif;
+    Target_Other_RAT_2_Notif_t Target_Other_RAT_2_Notif;
+  } u;
+  
+}Target_Other_RAT_Notif_t;
 
 typedef struct
 {
@@ -3240,7 +3344,7 @@ typedef struct
   union
   {
     Target_Cell_GSM_Notif_t Target_Cell_GSM_Notif;
-    Target_Cell_3G_Notif_t Target_Cell_3G_Notif;
+    Target_Other_RAT_Notif_t Target_Other_RAT_Notif;
   } u;
 } Target_Cell_t;
 
@@ -3787,13 +3891,220 @@ typedef struct
 
 typedef struct
 {
+  guint8  PSC_Pattern_length;
+  guint8  PSC_Pattern;
+  gboolean PSC_Pattern_sense;
+}PSC_Pattern_t;
+
+typedef struct
+{
+  guint8  PSC_Count;
+  guint16 PSC[32];
+  guint8  PSC_Pattern_Count;
+  PSC_Pattern_t PSC_Pattern[32];
+}PSC_Group_t;
+
+typedef struct
+{
+  PSC_Group_t CSG_PSC_SPLIT;
+  guint8      Count;
+  guint8      UTRAN_FREQUENCY_INDEX[32];
+}ThreeG_CSG_Description_Body_t;
+
+typedef struct
+{
+  guint8  Count;
+  ThreeG_CSG_Description_Body_t  ThreeG_CSG_Description_Body[32];
+}ThreeG_CSG_Description_t;
+
+typedef struct
+{
+  PSC_Group_t CSG_PCI_SPLIT;
+  guint8  Count;
+  guint8  EUTRAN_FREQUENCY_INDEX[32];
+}EUTRAN_CSG_Description_Body_t;
+
+typedef struct
+{
+  guint8  Count;
+  EUTRAN_CSG_Description_Body_t EUTRAN_CSG_Description_Body[32];
+}EUTRAN_CSG_Description_t;
+
+typedef struct
+{
+  gboolean  existMeasurement_Control_EUTRAN;
+  gboolean  Measurement_Control_EUTRAN;
+  guint8    EUTRAN_FREQUENCY_INDEX_top;
+  guint8    Count_EUTRAN_FREQUENCY_INDEX;
+  guint8    EUTRAN_FREQUENCY_INDEX[32];
+  
+  gboolean  existMeasurement_Control_UTRAN;
+  gboolean  Measurement_Control_UTRAN;
+  guint8    UTRAN_FREQUENCY_INDEX_top;
+  guint8    Count_UTRAN_FREQUENCY_INDEX;
+  guint8    UTRAN_FREQUENCY_INDEX[32];
+}Meas_Ctrl_Param_Desp_t;
+
+typedef struct
+{
+  guint8    THRESH_EUTRAN_high_Q;
+  gboolean existTHRESH_EUTRAN_low_Q;
+  guint8    THRESH_EUTRAN_low_Q;
+  gboolean existEUTRAN_QQUALMIN;
+  guint8    EUTRAN_QQUALMIN;
+  gboolean existEUTRAN_RSRPmin;
+  guint8    EUTRAN_RSRPmin;
+}Reselection_Based_On_RSRQ_t;
+
+typedef struct
+{
+  guint8  Count_EUTRAN_FREQUENCY_INDEX;
+  guint8  EUTRAN_FREQUENCY_INDEX[32];
+  guint8 UnionType;
+  union
+  {
+    guint8           EUTRAN_Qmin;
+    Reselection_Based_On_RSRQ_t Reselection_Based_On_RSRQ;
+  } u;
+}Rept_EUTRAN_Enh_Cell_Resel_Param_t;
+
+typedef struct
+{
+  guint8 Count;
+  Rept_EUTRAN_Enh_Cell_Resel_Param_t Repeated_EUTRAN_Enhanced_Cell_Reselection_Parameters[32];
+}Enh_Cell_Reselect_Param_Desp_t;
+
+typedef struct
+{
+  gboolean  existUTRAN_CSG_FDD_REPORTING_THRESHOLD;
+  guint8     UTRAN_CSG_FDD_REPORTING_THRESHOLD;
+  guint8     UTRAN_CSG_FDD_REPORTING_THRESHOLD_2;
+  gboolean  existUTRAN_CSG_TDD_REPORTING_THRESHOLD;
+  guint8     UTRAN_CSG_TDD_REPORTING_THRESHOLD;
+}UTRAN_CSG_Cells_Reporting_Desp_t;
+
+typedef struct
+{
+  gboolean  existEUTRAN_CSG_FDD_REPORTING_THRESHOLD;
+  guint8     EUTRAN_CSG_FDD_REPORTING_THRESHOLD;
+  guint8     EUTRAN_CSG_FDD_REPORTING_THRESHOLD_2;
+  gboolean  existEUTRAN_CSG_TDD_REPORTING_THRESHOLD;
+  guint8     EUTRAN_CSG_TDD_REPORTING_THRESHOLD;
+  guint8     EUTRAN_CSG_TDD_REPORTING_THRESHOLD_2;
+}EUTRAN_CSG_Cells_Reporting_Desp_t;
+
+typedef struct
+{
+  gboolean  existUTRAN_CSG_Cells_Reporting_Description;
+  UTRAN_CSG_Cells_Reporting_Desp_t UTRAN_CSG_Cells_Reporting_Description;
+  gboolean  existEUTRAN_CSG_Cells_Reporting_Description;
+  EUTRAN_CSG_Cells_Reporting_Desp_t EUTRAN_CSG_Cells_Reporting_Description;
+}CSG_Cells_Reporting_Desp_t;
+
+typedef struct
+{
+  gboolean                       existEnhanced_Cell_Reselection_Parameters_Description;
+  Enh_Cell_Reselect_Param_Desp_t  Enhanced_Cell_Reselection_Parameters_Description;
+  
+  gboolean                       existCSG_Cells_Reporting_Description;
+  CSG_Cells_Reporting_Desp_t      CSG_Cells_Reporting_Description;
+}PMO_AdditionsR9_t;
+
+typedef struct
+{
+  guint8 dummy;
+}Delete_All_Stored_Individual_Priorities_t;
+
+typedef struct
+{
+  guint8  Count;
+  guint16 FDD_ARFCN[32];
+}Individual_UTRAN_Priority_FDD_t;
+
+typedef struct
+{
+  guint8  Count;
+  guint16 TDD_ARFCN[32];
+}Individual_UTRAN_Priority_TDD_t;
+
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    Individual_UTRAN_Priority_FDD_t Individual_UTRAN_Priority_FDD;
+    Individual_UTRAN_Priority_TDD_t Individual_UTRAN_Priority_TDD;
+  } u;
+  guint8 UTRAN_PRIORITY;
+}Repeated_Individual_UTRAN_Priority_Parameters_t;
+
+typedef struct
+{
+  guint8 Exist_DEFAULT_UTRAN_PRIORITY;
+  guint8 DEFAULT_UTRAN_PRIORITY;
+  guint8 Repeated_Individual_UTRAN_Priority_Parameters_Count;
+  Repeated_Individual_UTRAN_Priority_Parameters_t Repeated_Individual_UTRAN_Priority_Parameters[32];
+}ThreeG_Individual_Priority_Parameters_Description_t;
+
+typedef struct
+{
+  guint8 Count;
+  guint16 EARFCN[32];
+  guint8 EUTRAN_PRIORITY;
+}Repeated_Individual_EUTRAN_Priority_Parameters_t;
+
+typedef struct
+{
+  guint8 Exist_DEFAULT_EUTRAN_PRIORITY;
+  guint8 DEFAULT_EUTRAN_PRIORITY;
+  guint8 Count;
+  Repeated_Individual_EUTRAN_Priority_Parameters_t Repeated_Individual_EUTRAN_Priority_Parameters[32];
+}EUTRAN_Individual_Priority_Parameters_Description_t;
+
+typedef struct
+{
+  guint8 GERAN_PRIORITY;
+  guint8 Exist_3G_Individual_Priority_Parameters_Description;
+  ThreeG_Individual_Priority_Parameters_Description_t ThreeG_Individual_Priority_Parameters_Description;
+  guint8 Exist_EUTRAN_Individual_Priority_Parameters_Description;
+  EUTRAN_Individual_Priority_Parameters_Description_t EUTRAN_Individual_Priority_Parameters_Description;
+  guint8 Exist_T3230_timeout_value;
+  guint8 T3230_timeout_value;
+}Provide_Individual_Priorities_t;
+
+typedef struct
+{
+  guint8 UnionType;
+  union
+  {
+    Delete_All_Stored_Individual_Priorities_t Delete_All_Stored_Individual_Priorities;
+    Provide_Individual_Priorities_t Provide_Individual_Priorities;
+  } u;
+}Individual_Priorities_t;
+
+typedef struct
+{
   gboolean          existBA_IND_3G_PMO_IND;
   guint8            BA_IND_3G;
   guint8            PMO_IND;
 
   gboolean          existPriorityAndEUTRAN_ParametersDescription_PMO;
   PriorityAndEUTRAN_ParametersDescription_PMO_t PriorityAndEUTRAN_ParametersDescription_PMO;
-  /* TBD: add the rest of the message: individual priorities, etc */
+
+  gboolean          existIndividualPriorities_PMO;
+  Individual_Priorities_t  IndividualPriorities_PMO;
+
+  gboolean          existThreeG_CSG_Description;
+  ThreeG_CSG_Description_t  ThreeG_CSG_Description_PMO;
+
+  gboolean          existEUTRAN_CSG_Description;
+  EUTRAN_CSG_Description_t  EUTRAN_CSG_Description_PMO;
+
+  gboolean          existMeasurement_Control_Parameters_Description;
+  Meas_Ctrl_Param_Desp_t Measurement_Control_Parameters_Description_PMO;
+
+  gboolean          existAdditionsR9;
+  PMO_AdditionsR9_t AdditionsR9;
 } PMO_AdditionsR8_t;
 
 typedef struct
@@ -3918,12 +4229,38 @@ typedef struct
 
 typedef struct
 {
+  guint16 EARFCN;
+  guint8 Exist_Measurement_Bandwidth;
+  guint8 Measurement_Bandwidth;
+  guint16 Physical_Layer_Cell_Identity;
+}EUTRAN_Target_Cell_t;
+
+typedef struct
+{
+  guint8 Exist_EUTRAN_Target_Cell;
+  EUTRAN_Target_Cell_t EUTRAN_Target_Cell;
+  guint8 Exist_Individual_Priorities;
+  Individual_Priorities_t Individual_Priorities;
+}Target_Cell_3G_AdditionsR8_t;
+
+typedef struct
+{
+  guint8 Exist_G_RNTI_Extention;
+  guint8 G_RNTI_Extention;
+  guint8 Exist_AdditionsR8;
+  Target_Cell_3G_AdditionsR8_t AdditionsR8;
+}Target_Cell_3G_AdditionsR5_t;
+
+typedef struct
+{
   /* 00 -- Message escape */
   guint8 IMMEDIATE_REL;
   guint8 Exist_FDD_Description;
   FDD_Target_Cell_t FDD_Target_Cell;
   guint8 Exist_TDD_Description;
   TDD_Target_Cell_t TDD_Target_Cell;
+  guint8 Exist_AdditionsR5;
+  Target_Cell_3G_AdditionsR5_t AdditionsR5;
 } Target_Cell_3G_t;
 
 #define TARGET_CELL_GSM 0

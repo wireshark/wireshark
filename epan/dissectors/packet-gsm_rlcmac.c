@@ -440,7 +440,12 @@ static int hf_fddarget_cell_t_fdd_arfcn;
 static int hf_fddarget_cell_t_diversity;
 static int hf_fddarget_cell_t_bandwith_fdd;
 static int hf_fddarget_cell_t_scrambling_code;
-static int hf_tddarget_cell_t_complete_this;
+static int hf_tddarget_cell_t_tdd_arfcn;
+static int hf_tddarget_cell_t_diversity;
+static int hf_tddarget_cell_t_bandwith_tdd;
+static int hf_tddarget_cell_t_cell_parameter;
+static int hf_tddarget_cell_t_sync_case_tstd;
+
 
 /*< Packet Cell Change Failure message content > */
 static int hf_packet_cell_change_failure_payloadtype;
@@ -804,6 +809,27 @@ static int hf_pcid_pattern_pcid_pattern_sense;
 static int hf_pcid_group_ie_pcid_bitmap_group;
 static int hf_eutran_frequency_index_eutran_frequency_index;
 static int hf_eutran_parametersdescription_pmo_eutran_ccn_active;
+static int hf_psc_pattern_sense;
+static int hf_psc_pattern_length;
+static int hf_meas_ctrl_param_meas_ctrl_eutran;
+static int hf_meas_ctrl_param_eutran_freq_idx;
+static int hf_meas_ctrl_param_meas_ctrl_utran;
+static int hf_meas_ctrl_param_utran_freq_idx;
+static int hf_rept_eutran_enh_cell_resel_param_eutran_qmin;
+static int hf_rept_eutran_enh_cell_resel_param_thresh_eutran_high_q;
+static int hf_rept_eutran_enh_cell_resel_param_thresh_eutran_low_q;
+static int hf_rept_eutran_enh_cell_resel_param_thresh_eutran_qqualmin;
+static int hf_rept_eutran_enh_cell_resel_param_thresh_eutran_rsrpmin;
+
+static int hf_utran_csg_fdd_reporting_threshold;
+static int hf_utran_csg_fdd_reporting_threshold2;
+static int hf_utran_csg_tdd_reporting_threshold;
+static int hf_eutran_csg_fdd_reporting_threshold;
+static int hf_eutran_csg_fdd_reporting_threshold2;
+static int hf_eutran_csg_tdd_reporting_threshold;
+static int hf_eutran_csg_tdd_reporting_threshold2;
+
+
 static int hf_pmo_additionsr8_ba_ind_3g;
 static int hf_pmo_additionsr8_pmo_ind;
 static int hf_pmo_additionsr7_reporting_offset_700;
@@ -826,6 +852,18 @@ static int hf_target_cell_gsm_bsic;
 static int hf_target_cell_3g_immediate_rel;
 static int hf_packet_cell_change_order_message_type;
 static int hf_packet_cell_change_order_page_mode;
+static int hf_target_cell_eutran_earfcn;
+static int hf_target_cell_eutran_measurement_bandwidth;
+static int hf_target_cell_eutran_pl_cell_id;
+static int hf_idvd_default_utran_priority;
+static int hf_idvd_utran_priority;
+static int hf_idvd_default_eutran_priority;
+static int hf_idvd_eutran_priority;
+static int hf_idvd_prio_geran_priority;
+static int hf_idvd_prio_t3230_timeout_value;
+static int hf_target_cell_g_rnti_ext;
+
+
 
 /*< Packet (Enhanced) Measurement Report message contents > */
 static int hf_ba_used_ba_used;
@@ -909,6 +947,22 @@ static int hf_packet_cell_change_notification_ba_ind;
 static int hf_packet_cell_change_notification_psi3_change_mark;
 static int hf_packet_cell_change_notification_pmo_used;
 static int hf_packet_cell_change_notification_pccn_sending;
+static int hf_packet_cell_change_notification_lte_reporting_quantity;
+static int hf_eutran_ccn_meas_rpt_3g_ba_used;
+static int hf_eutran_ccn_meas_rpt_freq_idx;
+static int hf_eutran_ccn_meas_cell_id;
+static int hf_eutran_ccn_meas_rpt_quantity;
+static int hf_utran_csg_meas_rpt_cgi;
+static int hf_utran_csg_meas_rpt_csg_id;
+static int hf_utran_csg_meas_rpt_access_mode;
+static int hf_utran_csg_meas_rpt_quantity;
+static int hf_eutran_csg_meas_rpt_cgi;
+static int hf_eutran_csg_meas_rpt_ta;
+static int hf_eutran_csg_meas_rpt_csg_id;
+static int hf_eutran_csg_meas_rpt_access_mode;
+static int hf_eutran_csg_meas_rpt_quantity;
+
+
 
 /*< Packet Cell Change Continue message contents > */
 static int hf_packet_cell_change_continue_message_type;
@@ -1170,6 +1224,16 @@ static int hf_si6_restoctet_bandindicator;
 
 /* CSN1 structures */
 /*(not all parts of CSN_DESCR structure are always initialized.)*/
+static const
+CSN_DESCR_BEGIN(PLMN_t)
+  M_UINT       (PLMN_t,  MCC2,  4, &hf_packet_plmn_mcc2),
+  M_UINT       (PLMN_t,  MCC1,  4, &hf_packet_plmn_mcc1),
+  M_UINT       (PLMN_t,  MNC3,  4, &hf_packet_plmn_mnc3),
+  M_UINT       (PLMN_t,  MCC3,  4, &hf_packet_plmn_mcc3),
+  M_UINT       (PLMN_t,  MNC2,  4, &hf_packet_plmn_mnc2),
+  M_UINT       (PLMN_t,  MNC1,  4, &hf_packet_plmn_mnc1),
+CSN_DESCR_END  (PLMN_t)
+
 static const
 CSN_DESCR_BEGIN(StartingTime_t)
   M_UINT       (StartingTime_t,  N32,  5, &hf_startingtime_n32),
@@ -2370,11 +2434,14 @@ CSN_DESCR_BEGIN(FDD_Target_Cell_t)
   M_UINT       (FDD_Target_Cell_t,  SCRAMBLING_CODE,  9, &hf_fddarget_cell_t_scrambling_code),
 CSN_DESCR_END  (FDD_Target_Cell_t)
 
-/* TDD cell not implemented */
 static const
 CSN_DESCR_BEGIN(TDD_Target_Cell_t)
-  M_UINT       (TDD_Target_Cell_t,  Complete_This,  1, &hf_tddarget_cell_t_complete_this),
-  CSN_ERROR    (TDD_Target_Cell_t, "Not Implemented", CSN_ERROR_STREAM_NOT_SUPPORTED),
+  M_UINT       (TDD_Target_Cell_t,  TDD_ARFCN,  14, &hf_tddarget_cell_t_tdd_arfcn),
+  M_UINT       (TDD_Target_Cell_t,  DIVERSITY_TDD,  1, &hf_tddarget_cell_t_diversity),
+  M_NEXT_EXIST (TDD_Target_Cell_t, Exist_Bandwith_TDD, 1),
+  M_UINT       (TDD_Target_Cell_t,  BANDWITH_TDD,  3, &hf_tddarget_cell_t_bandwith_tdd),
+  M_UINT       (TDD_Target_Cell_t,  CELL_PARAMETER,  9, &hf_tddarget_cell_t_cell_parameter),
+  M_UINT       (TDD_Target_Cell_t,  Sync_Case_TSTD,  1, &hf_tddarget_cell_t_sync_case_tstd),
 CSN_DESCR_END  (TDD_Target_Cell_t)
 
 static const
@@ -2382,7 +2449,7 @@ CSN_DESCR_BEGIN(PCCF_AdditionsR99_t)
   M_NEXT_EXIST (PCCF_AdditionsR99_t, Exist_FDD_Description, 1),
   M_TYPE       (PCCF_AdditionsR99_t, FDD_Target_Cell, FDD_Target_Cell_t),
   M_NEXT_EXIST (PCCF_AdditionsR99_t, Exist_TDD_Description, 1),
-  M_TYPE       (PCCF_AdditionsR99_t, TDD_Target_Cell, TDD_Target_Cell_t),  /* not implemented */
+  M_TYPE       (PCCF_AdditionsR99_t, TDD_Target_Cell, TDD_Target_Cell_t),
 CSN_DESCR_END  (PCCF_AdditionsR99_t)
 
 /*< Packet Cell Change Failure message content > */
@@ -3944,6 +4011,105 @@ CSN_DESCR_BEGIN(EUTRAN_ParametersDescription_PMO_t)
 CSN_DESCR_END  (EUTRAN_ParametersDescription_PMO_t)
 
 static const
+CSN_DESCR_BEGIN(PSC_Pattern_t)
+  M_UINT       (PSC_Pattern_t,  PSC_Pattern_length,  3, &hf_psc_pattern_length),
+  M_VAR_BITMAP (PSC_Pattern_t,  PSC_Pattern, PSC_Pattern_length, 1),
+  M_BIT        (PSC_Pattern_t,  PSC_Pattern_sense, &hf_psc_pattern_sense),
+CSN_DESCR_END  (PSC_Pattern_t)
+
+static const
+CSN_DESCR_BEGIN(PSC_Group_t)
+  M_REC_ARRAY  (PSC_Group_t, PSC, PSC_Count, 9),
+  M_REC_TARRAY (PSC_Group_t, PSC_Pattern, PSC_Pattern_t, PSC_Pattern_Count),
+CSN_DESCR_END  (PSC_Group_t)
+
+static const
+CSN_DESCR_BEGIN(ThreeG_CSG_Description_Body_t)
+  M_TYPE       (ThreeG_CSG_Description_Body_t, CSG_PSC_SPLIT, PSC_Group_t),
+  M_REC_ARRAY  (ThreeG_CSG_Description_Body_t, UTRAN_FREQUENCY_INDEX, Count, 5),
+CSN_DESCR_END  (ThreeG_CSG_Description_Body_t)
+
+static const
+CSN_DESCR_BEGIN(ThreeG_CSG_Description_t)
+  M_REC_TARRAY (ThreeG_CSG_Description_t, ThreeG_CSG_Description_Body, ThreeG_CSG_Description_Body_t, Count),
+CSN_DESCR_END  (ThreeG_CSG_Description_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_CSG_Description_Body_t)
+  M_TYPE       (EUTRAN_CSG_Description_Body_t, CSG_PCI_SPLIT, PSC_Group_t),
+  M_REC_ARRAY  (EUTRAN_CSG_Description_Body_t, EUTRAN_FREQUENCY_INDEX, Count, 3),
+CSN_DESCR_END  (EUTRAN_CSG_Description_Body_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_CSG_Description_t)
+  M_REC_TARRAY (EUTRAN_CSG_Description_t, EUTRAN_CSG_Description_Body, EUTRAN_CSG_Description_Body_t, Count),
+CSN_DESCR_END  (EUTRAN_CSG_Description_t)
+
+static const
+CSN_DESCR_BEGIN(Meas_Ctrl_Param_Desp_t)
+  M_NEXT_EXIST (Meas_Ctrl_Param_Desp_t, existMeasurement_Control_EUTRAN, 3),
+  M_BIT        (Meas_Ctrl_Param_Desp_t,  Measurement_Control_EUTRAN, &hf_meas_ctrl_param_meas_ctrl_eutran),
+  M_UINT       (Meas_Ctrl_Param_Desp_t,  EUTRAN_FREQUENCY_INDEX_top,  3, &hf_meas_ctrl_param_eutran_freq_idx),
+  M_REC_ARRAY  (Meas_Ctrl_Param_Desp_t,  EUTRAN_FREQUENCY_INDEX, Count_EUTRAN_FREQUENCY_INDEX, 3),
+  M_NEXT_EXIST (Meas_Ctrl_Param_Desp_t, existMeasurement_Control_UTRAN, 1),
+  M_BIT        (Meas_Ctrl_Param_Desp_t,  Measurement_Control_UTRAN, &hf_meas_ctrl_param_meas_ctrl_utran),
+  M_UINT       (Meas_Ctrl_Param_Desp_t,  UTRAN_FREQUENCY_INDEX_top,  5, &hf_meas_ctrl_param_utran_freq_idx),
+  M_REC_ARRAY  (Meas_Ctrl_Param_Desp_t,  UTRAN_FREQUENCY_INDEX, Count_UTRAN_FREQUENCY_INDEX, 5),
+CSN_DESCR_END  (Meas_Ctrl_Param_Desp_t)
+
+static const
+CSN_DESCR_BEGIN(Reselection_Based_On_RSRQ_t)
+  M_UINT       (Reselection_Based_On_RSRQ_t,  THRESH_EUTRAN_high_Q,  5, &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_high_q),
+  M_NEXT_EXIST (Reselection_Based_On_RSRQ_t, existTHRESH_EUTRAN_low_Q, 1),
+  M_UINT       (Reselection_Based_On_RSRQ_t,  THRESH_EUTRAN_low_Q,  5, &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_low_q),
+  M_NEXT_EXIST (Reselection_Based_On_RSRQ_t, existEUTRAN_QQUALMIN, 1),
+  M_UINT       (Reselection_Based_On_RSRQ_t,  EUTRAN_QQUALMIN,  4, &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_qqualmin),
+  M_NEXT_EXIST (Reselection_Based_On_RSRQ_t, existEUTRAN_RSRPmin, 1),
+  M_UINT       (Reselection_Based_On_RSRQ_t,  EUTRAN_RSRPmin,  5, &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_rsrpmin),
+CSN_DESCR_END  (Reselection_Based_On_RSRQ_t)
+
+static const
+CSN_DESCR_BEGIN(Rept_EUTRAN_Enh_Cell_Resel_Param_t)
+  M_REC_ARRAY  (Rept_EUTRAN_Enh_Cell_Resel_Param_t,  EUTRAN_FREQUENCY_INDEX, Count_EUTRAN_FREQUENCY_INDEX, 3),
+  M_UNION      (Rept_EUTRAN_Enh_Cell_Resel_Param_t, 2),
+  M_UINT       (Rept_EUTRAN_Enh_Cell_Resel_Param_t,  u.EUTRAN_Qmin,  4, &hf_rept_eutran_enh_cell_resel_param_eutran_qmin),
+  M_TYPE       (Rept_EUTRAN_Enh_Cell_Resel_Param_t,  u.Reselection_Based_On_RSRQ, Reselection_Based_On_RSRQ_t),
+CSN_DESCR_END  (Rept_EUTRAN_Enh_Cell_Resel_Param_t)
+
+static const
+CSN_DESCR_BEGIN(Enh_Cell_Reselect_Param_Desp_t)
+  M_REC_TARRAY (Enh_Cell_Reselect_Param_Desp_t, Repeated_EUTRAN_Enhanced_Cell_Reselection_Parameters, Rept_EUTRAN_Enh_Cell_Resel_Param_t, Count),
+CSN_DESCR_END  (Enh_Cell_Reselect_Param_Desp_t)
+
+static const
+CSN_DESCR_BEGIN(UTRAN_CSG_Cells_Reporting_Desp_t)
+  M_NEXT_EXIST (UTRAN_CSG_Cells_Reporting_Desp_t, existUTRAN_CSG_FDD_REPORTING_THRESHOLD, 2),
+  M_UINT       (UTRAN_CSG_Cells_Reporting_Desp_t, UTRAN_CSG_FDD_REPORTING_THRESHOLD, 3, &hf_utran_csg_fdd_reporting_threshold),
+  M_UINT       (UTRAN_CSG_Cells_Reporting_Desp_t, UTRAN_CSG_FDD_REPORTING_THRESHOLD_2, 6, &hf_utran_csg_fdd_reporting_threshold2),
+  M_NEXT_EXIST (UTRAN_CSG_Cells_Reporting_Desp_t, existUTRAN_CSG_TDD_REPORTING_THRESHOLD, 1),
+  M_UINT       (UTRAN_CSG_Cells_Reporting_Desp_t, UTRAN_CSG_TDD_REPORTING_THRESHOLD, 3, &hf_utran_csg_tdd_reporting_threshold),
+CSN_DESCR_END  (UTRAN_CSG_Cells_Reporting_Desp_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_CSG_Cells_Reporting_Desp_t)
+  M_NEXT_EXIST (EUTRAN_CSG_Cells_Reporting_Desp_t, existEUTRAN_CSG_FDD_REPORTING_THRESHOLD, 2),
+  M_UINT       (EUTRAN_CSG_Cells_Reporting_Desp_t, EUTRAN_CSG_FDD_REPORTING_THRESHOLD, 3, &hf_eutran_csg_fdd_reporting_threshold),
+  M_UINT       (EUTRAN_CSG_Cells_Reporting_Desp_t, EUTRAN_CSG_FDD_REPORTING_THRESHOLD_2, 6, &hf_eutran_csg_fdd_reporting_threshold2),
+  M_NEXT_EXIST (EUTRAN_CSG_Cells_Reporting_Desp_t, existEUTRAN_CSG_TDD_REPORTING_THRESHOLD, 2),
+  M_UINT       (EUTRAN_CSG_Cells_Reporting_Desp_t, EUTRAN_CSG_TDD_REPORTING_THRESHOLD, 3, &hf_eutran_csg_tdd_reporting_threshold),
+  M_UINT       (EUTRAN_CSG_Cells_Reporting_Desp_t, EUTRAN_CSG_TDD_REPORTING_THRESHOLD_2, 6, &hf_eutran_csg_tdd_reporting_threshold2),
+CSN_DESCR_END  (EUTRAN_CSG_Cells_Reporting_Desp_t)
+
+
+static const
+CSN_DESCR_BEGIN(CSG_Cells_Reporting_Desp_t)
+  M_NEXT_EXIST (CSG_Cells_Reporting_Desp_t, existUTRAN_CSG_Cells_Reporting_Description, 1),
+  M_TYPE       (CSG_Cells_Reporting_Desp_t, UTRAN_CSG_Cells_Reporting_Description, UTRAN_CSG_Cells_Reporting_Desp_t),
+  M_NEXT_EXIST (CSG_Cells_Reporting_Desp_t, existEUTRAN_CSG_Cells_Reporting_Description, 1),
+  M_TYPE       (CSG_Cells_Reporting_Desp_t, EUTRAN_CSG_Cells_Reporting_Description, EUTRAN_CSG_Cells_Reporting_Desp_t),
+CSN_DESCR_END  (CSG_Cells_Reporting_Desp_t)
+
+static const
 CSN_DESCR_BEGIN        (PriorityAndEUTRAN_ParametersDescription_PMO_t)
   M_NEXT_EXIST         (PriorityAndEUTRAN_ParametersDescription_PMO_t, existServingCellPriorityParametersDescription, 1),
   M_TYPE               (PriorityAndEUTRAN_ParametersDescription_PMO_t, ServingCellPriorityParametersDescription, ServingCellPriorityParametersDescription_t),
@@ -3953,6 +4119,76 @@ CSN_DESCR_BEGIN        (PriorityAndEUTRAN_ParametersDescription_PMO_t)
   M_TYPE               (PriorityAndEUTRAN_ParametersDescription_PMO_t, EUTRAN_ParametersDescription_PMO, EUTRAN_ParametersDescription_PMO_t),
 CSN_DESCR_END          (PriorityAndEUTRAN_ParametersDescription_PMO_t)
 
+
+static const
+CSN_DESCR_BEGIN        (Delete_All_Stored_Individual_Priorities_t)
+  M_NULL               (Delete_All_Stored_Individual_Priorities_t, dummy),
+CSN_DESCR_END          (Delete_All_Stored_Individual_Priorities_t)
+
+static const
+CSN_DESCR_BEGIN        (Individual_UTRAN_Priority_FDD_t)
+  M_REC_ARRAY          (Individual_UTRAN_Priority_FDD_t, FDD_ARFCN, Count, 14),
+CSN_DESCR_END          (Individual_UTRAN_Priority_FDD_t)
+
+static const
+CSN_DESCR_BEGIN        (Individual_UTRAN_Priority_TDD_t)
+  M_REC_ARRAY          (Individual_UTRAN_Priority_TDD_t, TDD_ARFCN, Count, 14),
+CSN_DESCR_END          (Individual_UTRAN_Priority_TDD_t)
+
+static const
+CSN_DESCR_BEGIN        (Repeated_Individual_UTRAN_Priority_Parameters_t)
+  M_UNION              (Repeated_Individual_UTRAN_Priority_Parameters_t, 2),
+  M_TYPE               (Repeated_Individual_UTRAN_Priority_Parameters_t, u.Individual_UTRAN_Priority_FDD, Individual_UTRAN_Priority_FDD_t),
+  M_TYPE               (Repeated_Individual_UTRAN_Priority_Parameters_t, u.Individual_UTRAN_Priority_TDD, Individual_UTRAN_Priority_TDD_t),
+  M_UINT               (Repeated_Individual_UTRAN_Priority_Parameters_t,  UTRAN_PRIORITY,  3, &hf_idvd_utran_priority),
+CSN_DESCR_END          (Repeated_Individual_UTRAN_Priority_Parameters_t)
+
+static const
+CSN_DESCR_BEGIN        (ThreeG_Individual_Priority_Parameters_Description_t)
+  M_NEXT_EXIST         (ThreeG_Individual_Priority_Parameters_Description_t, Exist_DEFAULT_UTRAN_PRIORITY, 1),
+  M_UINT               (ThreeG_Individual_Priority_Parameters_Description_t,  DEFAULT_UTRAN_PRIORITY,  3, &hf_idvd_default_utran_priority),
+  M_REC_TARRAY         (ThreeG_Individual_Priority_Parameters_Description_t, Repeated_Individual_UTRAN_Priority_Parameters, Repeated_Individual_UTRAN_Priority_Parameters_t, Repeated_Individual_UTRAN_Priority_Parameters_Count),
+CSN_DESCR_END          (ThreeG_Individual_Priority_Parameters_Description_t)
+
+static const
+CSN_DESCR_BEGIN        (Repeated_Individual_EUTRAN_Priority_Parameters_t)
+  M_REC_ARRAY          (Repeated_Individual_EUTRAN_Priority_Parameters_t, EARFCN, Count, 16),
+  M_UINT               (Repeated_Individual_EUTRAN_Priority_Parameters_t,  EUTRAN_PRIORITY,  3, &hf_idvd_eutran_priority),
+CSN_DESCR_END          (Repeated_Individual_EUTRAN_Priority_Parameters_t)
+
+static const
+CSN_DESCR_BEGIN        (EUTRAN_Individual_Priority_Parameters_Description_t)
+  M_NEXT_EXIST         (EUTRAN_Individual_Priority_Parameters_Description_t, Exist_DEFAULT_EUTRAN_PRIORITY, 1),
+  M_UINT               (EUTRAN_Individual_Priority_Parameters_Description_t,  DEFAULT_EUTRAN_PRIORITY,  3, &hf_idvd_default_eutran_priority),
+  M_REC_TARRAY         (EUTRAN_Individual_Priority_Parameters_Description_t, Repeated_Individual_EUTRAN_Priority_Parameters, Repeated_Individual_EUTRAN_Priority_Parameters_t, Count),
+CSN_DESCR_END          (EUTRAN_Individual_Priority_Parameters_Description_t)
+
+static const
+CSN_DESCR_BEGIN        (Provide_Individual_Priorities_t)
+  M_UINT               (Provide_Individual_Priorities_t,  GERAN_PRIORITY,  3, &hf_idvd_prio_geran_priority),
+  M_NEXT_EXIST         (Provide_Individual_Priorities_t, Exist_3G_Individual_Priority_Parameters_Description, 1),
+  M_TYPE               (Provide_Individual_Priorities_t, ThreeG_Individual_Priority_Parameters_Description, ThreeG_Individual_Priority_Parameters_Description_t),
+  M_NEXT_EXIST         (Provide_Individual_Priorities_t, Exist_EUTRAN_Individual_Priority_Parameters_Description, 1),
+  M_TYPE               (Provide_Individual_Priorities_t, EUTRAN_Individual_Priority_Parameters_Description, EUTRAN_Individual_Priority_Parameters_Description_t),
+  M_NEXT_EXIST         (Provide_Individual_Priorities_t, Exist_T3230_timeout_value, 1),
+  M_UINT               (Provide_Individual_Priorities_t,  T3230_timeout_value,  3, &hf_idvd_prio_t3230_timeout_value),
+CSN_DESCR_END          (Provide_Individual_Priorities_t)
+
+static const
+CSN_DESCR_BEGIN        (Individual_Priorities_t)
+  M_UNION              (Individual_Priorities_t, 2),
+  M_TYPE               (Individual_Priorities_t, u.Delete_All_Stored_Individual_Priorities, Delete_All_Stored_Individual_Priorities_t),
+  M_TYPE               (Individual_Priorities_t, u.Provide_Individual_Priorities, Provide_Individual_Priorities_t),
+CSN_DESCR_END          (Individual_Priorities_t)
+
+static const
+CSN_DESCR_BEGIN        (PMO_AdditionsR9_t)
+  M_NEXT_EXIST         (PMO_AdditionsR9_t, existEnhanced_Cell_Reselection_Parameters_Description, 1),
+  M_TYPE               (PMO_AdditionsR9_t, Enhanced_Cell_Reselection_Parameters_Description, Enh_Cell_Reselect_Param_Desp_t),
+  M_NEXT_EXIST         (PMO_AdditionsR9_t, existCSG_Cells_Reporting_Description, 1),
+  M_TYPE               (PMO_AdditionsR9_t, CSG_Cells_Reporting_Description, CSG_Cells_Reporting_Desp_t),
+CSN_DESCR_END          (PMO_AdditionsR9_t)
+
 static const
 CSN_DESCR_BEGIN        (PMO_AdditionsR8_t)
   M_NEXT_EXIST         (PMO_AdditionsR8_t, existBA_IND_3G_PMO_IND, 2),
@@ -3960,7 +4196,16 @@ CSN_DESCR_BEGIN        (PMO_AdditionsR8_t)
   M_BIT                (PMO_AdditionsR8_t,  PMO_IND, &hf_pmo_additionsr8_pmo_ind),
   M_NEXT_EXIST         (PMO_AdditionsR8_t, existPriorityAndEUTRAN_ParametersDescription_PMO, 1),
   M_TYPE               (PMO_AdditionsR8_t, PriorityAndEUTRAN_ParametersDescription_PMO, PriorityAndEUTRAN_ParametersDescription_PMO_t),
-  /* TBD: IndividualPriorities_PMO */
+  M_NEXT_EXIST         (PMO_AdditionsR8_t, existIndividualPriorities_PMO, 1),
+  M_TYPE               (PMO_AdditionsR8_t, IndividualPriorities_PMO, Individual_Priorities_t),
+  M_NEXT_EXIST         (PMO_AdditionsR8_t, existThreeG_CSG_Description, 1),
+  M_TYPE               (PMO_AdditionsR8_t, ThreeG_CSG_Description_PMO, ThreeG_CSG_Description_t),
+  M_NEXT_EXIST         (PMO_AdditionsR8_t, existEUTRAN_CSG_Description, 1),
+  M_TYPE               (PMO_AdditionsR8_t, EUTRAN_CSG_Description_PMO, EUTRAN_CSG_Description_t),
+  M_NEXT_EXIST         (PMO_AdditionsR8_t, existMeasurement_Control_Parameters_Description, 1),
+  M_TYPE               (PMO_AdditionsR8_t, Measurement_Control_Parameters_Description_PMO, Meas_Ctrl_Param_Desp_t),
+  M_NEXT_EXIST_OR_NULL (PMO_AdditionsR8_t, existAdditionsR9, 1),
+  M_TYPE               (PMO_AdditionsR8_t, AdditionsR9, PMO_AdditionsR9_t),
 CSN_DESCR_END          (PMO_AdditionsR8_t)
 
 static const
@@ -4098,6 +4343,31 @@ CSN_DESCR_BEGIN        (Target_Cell_GSM_t)
   M_TYPE               (Target_Cell_GSM_t, AdditionsR98, PCCO_AdditionsR98_t),
 CSN_DESCR_END          (Target_Cell_GSM_t)
 
+
+static const
+CSN_DESCR_BEGIN        (EUTRAN_Target_Cell_t)
+  M_UINT               (EUTRAN_Target_Cell_t,  EARFCN,  16, &hf_target_cell_eutran_earfcn),
+  M_NEXT_EXIST         (EUTRAN_Target_Cell_t, Exist_Measurement_Bandwidth, 1),
+  M_UINT               (EUTRAN_Target_Cell_t,  Measurement_Bandwidth,  3, &hf_target_cell_eutran_measurement_bandwidth),
+  M_UINT               (EUTRAN_Target_Cell_t,  Physical_Layer_Cell_Identity,  9, &hf_target_cell_eutran_pl_cell_id),
+CSN_DESCR_END          (EUTRAN_Target_Cell_t)
+
+static const
+CSN_DESCR_BEGIN        (Target_Cell_3G_AdditionsR8_t)
+  M_NEXT_EXIST         (Target_Cell_3G_AdditionsR8_t, Exist_EUTRAN_Target_Cell, 1),
+  M_TYPE               (Target_Cell_3G_AdditionsR8_t, EUTRAN_Target_Cell, EUTRAN_Target_Cell_t),
+  M_NEXT_EXIST         (Target_Cell_3G_AdditionsR8_t, Exist_Individual_Priorities, 1),
+  M_TYPE               (Target_Cell_3G_AdditionsR8_t, Individual_Priorities, Individual_Priorities_t),
+CSN_DESCR_END          (Target_Cell_3G_AdditionsR8_t)
+
+static const
+CSN_DESCR_BEGIN        (Target_Cell_3G_AdditionsR5_t)
+  M_NEXT_EXIST         (Target_Cell_3G_AdditionsR5_t, Exist_G_RNTI_Extention, 1),
+  M_UINT               (Target_Cell_3G_AdditionsR5_t,  G_RNTI_Extention,  4, &hf_target_cell_g_rnti_ext),
+  M_NEXT_EXIST_OR_NULL (Target_Cell_3G_AdditionsR5_t, Exist_AdditionsR8, 1),
+  M_TYPE               (Target_Cell_3G_AdditionsR5_t, AdditionsR8, Target_Cell_3G_AdditionsR8_t),
+CSN_DESCR_END          (Target_Cell_3G_AdditionsR5_t)
+
 static const
 CSN_DESCR_BEGIN(Target_Cell_3G_t)
   /* 00 -- Message escape */
@@ -4106,7 +4376,9 @@ CSN_DESCR_BEGIN(Target_Cell_3G_t)
   M_NEXT_EXIST (Target_Cell_3G_t, Exist_FDD_Description, 1),
   M_TYPE       (Target_Cell_3G_t, FDD_Target_Cell, FDD_Target_Cell_t),
   M_NEXT_EXIST (Target_Cell_3G_t, Exist_TDD_Description, 1),
-  M_TYPE       (Target_Cell_3G_t, TDD_Target_Cell, TDD_Target_Cell_t),  /* not implemented */
+  M_TYPE       (Target_Cell_3G_t, TDD_Target_Cell, TDD_Target_Cell_t),
+  M_NEXT_EXIST_OR_NULL (Target_Cell_3G_t, Exist_AdditionsR5, 1),
+  M_TYPE       (Target_Cell_3G_t, AdditionsR5, Target_Cell_3G_AdditionsR5_t),
 CSN_DESCR_END  (Target_Cell_3G_t)
 
 static const
@@ -4353,21 +4625,113 @@ CSN_DESCR_BEGIN(FDD_Target_Cell_Notif_t)
 CSN_DESCR_END  (FDD_Target_Cell_Notif_t)
 
 static const
+CSN_DESCR_BEGIN(TDD_Target_Cell_Notif_t)
+  M_UINT       (TDD_Target_Cell_Notif_t,  TDD_ARFCN,  14, &hf_tddarget_cell_t_tdd_arfcn),
+  M_NEXT_EXIST (TDD_Target_Cell_Notif_t, Exist_Bandwith_TDD, 1),
+  M_UINT       (TDD_Target_Cell_Notif_t,  BANDWITH_TDD,  3, &hf_tddarget_cell_t_bandwith_tdd),
+  M_UINT       (TDD_Target_Cell_Notif_t,  CELL_PARAMETER,  7, &hf_tddarget_cell_t_cell_parameter),
+  M_UINT       (TDD_Target_Cell_Notif_t,  Sync_Case_TSTD,  1, &hf_tddarget_cell_t_sync_case_tstd),
+CSN_DESCR_END  (TDD_Target_Cell_Notif_t)
+
+static const
 CSN_DESCR_BEGIN(Target_Cell_3G_Notif_t)
-  /* 0 -- escape bit */
-  M_FIXED      (Target_Cell_3G_Notif_t, 1, 0),
   M_NEXT_EXIST (Target_Cell_3G_Notif_t, Exist_FDD_Description, 1),
   M_TYPE       (Target_Cell_3G_Notif_t, FDD_Target_Cell_Notif, FDD_Target_Cell_Notif_t),
   M_NEXT_EXIST (Target_Cell_3G_Notif_t, Exist_TDD_Description, 1),
-  M_TYPE       (Target_Cell_3G_Notif_t, TDD_Target_Cell, TDD_Target_Cell_t),  /* not implemented */
+  M_TYPE       (Target_Cell_3G_Notif_t, TDD_Target_Cell, TDD_Target_Cell_Notif_t),
   M_UINT       (Target_Cell_3G_Notif_t,  REPORTING_QUANTITY,  6, &hf_target_cell_3g_notif_reporting_quantity),
 CSN_DESCR_END  (Target_Cell_3G_Notif_t)
 
 static const
+CSN_DESCR_BEGIN(Target_EUTRAN_Cell_Notif_t)
+  M_UINT       (Target_EUTRAN_Cell_Notif_t,  EARFCN,  16, &hf_target_cell_eutran_earfcn),
+  M_NEXT_EXIST (Target_EUTRAN_Cell_Notif_t, Exist_Measurement_Bandwidth, 1),
+  M_UINT       (Target_EUTRAN_Cell_Notif_t,  Measurement_Bandwidth,  3, &hf_target_cell_eutran_measurement_bandwidth),
+  M_UINT       (Target_EUTRAN_Cell_Notif_t,  Physical_Layer_Cell_Identity,  9, &hf_target_cell_eutran_pl_cell_id),
+  M_UINT       (Target_EUTRAN_Cell_Notif_t,  Reporting_Quantity,  6, &hf_packet_cell_change_notification_lte_reporting_quantity),
+CSN_DESCR_END  (Target_EUTRAN_Cell_Notif_t)
+
+static const
+CSN_DESCR_BEGIN(Eutran_Ccn_Measurement_Report_Cell_t)
+  M_UINT       (Eutran_Ccn_Measurement_Report_Cell_t,  EUTRAN_FREQUENCY_INDEX,  3, &hf_eutran_ccn_meas_rpt_freq_idx),
+  M_UINT       (Eutran_Ccn_Measurement_Report_Cell_t,  CELL_IDENTITY,  9, &hf_eutran_ccn_meas_cell_id),
+  M_UINT       (Eutran_Ccn_Measurement_Report_Cell_t,  REPORTING_QUANTITY,  6, &hf_eutran_ccn_meas_rpt_quantity),
+CSN_DESCR_END  (Eutran_Ccn_Measurement_Report_Cell_t)
+
+
+static const
+CSN_DESCR_BEGIN(Eutran_Ccn_Measurement_Report_t)
+  M_BIT        (Eutran_Ccn_Measurement_Report_t,  ThreeG_BA_USED, &hf_eutran_ccn_meas_rpt_3g_ba_used),
+  M_UINT_OFFSET(Eutran_Ccn_Measurement_Report_t,  N_EUTRAN,  2, 1),
+  M_VAR_TARRAY (Eutran_Ccn_Measurement_Report_t,  Eutran_Ccn_Measurement_Report_Cell, Eutran_Ccn_Measurement_Report_Cell_t, N_EUTRAN),
+CSN_DESCR_END  (Eutran_Ccn_Measurement_Report_t)
+
+static const
+CSN_DESCR_BEGIN(Target_Cell_4G_Notif_t)
+  M_NEXT_EXIST (Target_Cell_4G_Notif_t, Exist_Arfcn, 2),
+  M_UINT       (Target_Cell_4G_Notif_t,  Arfcn,  10, &hf_target_cell_gsm_arfcn),
+  M_UINT       (Target_Cell_4G_Notif_t,  bsic,  6, &hf_target_cell_gsm_bsic),
+  M_NEXT_EXIST (Target_Cell_4G_Notif_t, Exist_3G_Target_Cell, 1),
+  M_TYPE       (Target_Cell_4G_Notif_t,  Target_Cell_3G_Notif, Target_Cell_3G_Notif_t),
+  M_NEXT_EXIST (Target_Cell_4G_Notif_t, Exist_Eutran_Target_Cell, 1),
+  M_TYPE       (Target_Cell_4G_Notif_t,  Target_EUTRAN_Cell, Target_EUTRAN_Cell_Notif_t),
+  M_NEXT_EXIST (Target_Cell_4G_Notif_t, Exist_Eutran_Ccn_Measurement_Report, 1),
+  M_TYPE       (Target_Cell_4G_Notif_t,  Eutran_Ccn_Measurement_Report, Eutran_Ccn_Measurement_Report_t),
+CSN_DESCR_END  (Target_Cell_4G_Notif_t)
+
+static const
+CSN_DESCR_BEGIN(UTRAN_CSG_Measurement_Report_t)
+  M_UINT       (UTRAN_CSG_Measurement_Report_t,  UTRAN_CGI,  28, &hf_utran_csg_meas_rpt_cgi),
+  M_NEXT_EXIST (UTRAN_CSG_Measurement_Report_t, Exist_PLMN_ID, 1),
+  M_TYPE       (UTRAN_CSG_Measurement_Report_t,  Plmn_ID, PLMN_t),
+  M_UINT       (UTRAN_CSG_Measurement_Report_t,  CSG_ID,  27, &hf_utran_csg_meas_rpt_csg_id),
+  M_BIT        (UTRAN_CSG_Measurement_Report_t,  Access_Mode, &hf_utran_csg_meas_rpt_access_mode),
+  M_UINT       (UTRAN_CSG_Measurement_Report_t,  REPORTING_QUANTITY,  6, &hf_utran_csg_meas_rpt_quantity),
+CSN_DESCR_END  (UTRAN_CSG_Measurement_Report_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_CSG_Measurement_Report_t)
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  EUTRAN_CGI,  28, &hf_eutran_csg_meas_rpt_cgi),
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  Tracking_Area_Code,  16, &hf_eutran_csg_meas_rpt_ta),
+  M_NEXT_EXIST (EUTRAN_CSG_Measurement_Report_t, Exist_PLMN_ID, 1),
+  M_TYPE       (EUTRAN_CSG_Measurement_Report_t,  Plmn_ID, PLMN_t),
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  CSG_ID,  27, &hf_eutran_csg_meas_rpt_csg_id),
+  M_BIT        (EUTRAN_CSG_Measurement_Report_t,  Access_Mode, &hf_eutran_csg_meas_rpt_access_mode),
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  REPORTING_QUANTITY,  6, &hf_eutran_csg_meas_rpt_quantity),
+CSN_DESCR_END  (EUTRAN_CSG_Measurement_Report_t)
+
+static const
+CSN_DESCR_BEGIN(Target_Cell_CSG_Notif_t)
+  M_FIXED      (Target_Cell_CSG_Notif_t, 1, 0x00),
+  M_UNION      (Target_Cell_CSG_Notif_t, 2),
+  M_TYPE       (Target_Cell_CSG_Notif_t, u.UTRAN_CSG_Measurement_Report, UTRAN_CSG_Measurement_Report_t),
+  M_TYPE       (Target_Cell_CSG_Notif_t, u.EUTRAN_CSG_Measurement_Report, EUTRAN_CSG_Measurement_Report_t),
+  M_NEXT_EXIST (Target_Cell_CSG_Notif_t, Exist_Eutran_Ccn_Measurement_Report, 1),
+  M_TYPE       (Target_Cell_CSG_Notif_t,  Eutran_Ccn_Measurement_Report, Eutran_Ccn_Measurement_Report_t),
+CSN_DESCR_END  (Target_Cell_CSG_Notif_t)
+
+static const
+CSN_DESCR_BEGIN(Target_Other_RAT_2_Notif_t)
+  /* 110 vs 1110 */
+  M_UNION      (Target_Other_RAT_2_Notif_t, 2),
+  M_TYPE       (Target_Other_RAT_2_Notif_t, u.Target_Cell_4G_Notif, Target_Cell_4G_Notif_t),
+  M_TYPE       (Target_Other_RAT_2_Notif_t, u.Target_Cell_CSG_Notif, Target_Cell_CSG_Notif_t),
+CSN_DESCR_END  (Target_Other_RAT_2_Notif_t)
+
+static const
+CSN_DESCR_BEGIN(Target_Other_RAT_Notif_t)
+  /* 10 vs 110 */
+  M_UNION      (Target_Other_RAT_Notif_t, 2),
+  M_TYPE       (Target_Other_RAT_Notif_t, u.Target_Cell_3G_Notif, Target_Cell_3G_Notif_t),
+  M_TYPE       (Target_Other_RAT_Notif_t, u.Target_Other_RAT_2_Notif, Target_Other_RAT_2_Notif_t),
+CSN_DESCR_END  (Target_Other_RAT_Notif_t)
+
+static const
 CSN_DESCR_BEGIN(Target_Cell_t)
+  /* 0 vs 10 */
   M_UNION      (Target_Cell_t, 2),
   M_TYPE       (Target_Cell_t, u.Target_Cell_GSM_Notif, Target_Cell_GSM_Notif_t),
-  M_TYPE       (Target_Cell_t, u.Target_Cell_3G_Notif, Target_Cell_3G_Notif_t),
+  M_TYPE       (Target_Cell_t, u.Target_Other_RAT_Notif, Target_Other_RAT_Notif_t),
 CSN_DESCR_END  (Target_Cell_t)
 
 static const
@@ -4818,15 +5182,6 @@ CSN_DESCR_END  (PSI1_t)
 
 
 /*< Packet System Information Type 2 message content >*/
-static const
-CSN_DESCR_BEGIN(PLMN_t)
-  M_UINT       (PLMN_t,  MCC2,  4, &hf_packet_plmn_mcc2),
-  M_UINT       (PLMN_t,  MCC1,  4, &hf_packet_plmn_mcc1),
-  M_UINT       (PLMN_t,  MNC3,  4, &hf_packet_plmn_mnc3),
-  M_UINT       (PLMN_t,  MCC3,  4, &hf_packet_plmn_mcc3),
-  M_UINT       (PLMN_t,  MNC2,  4, &hf_packet_plmn_mnc2),
-  M_UINT       (PLMN_t,  MNC1,  4, &hf_packet_plmn_mnc1),
-CSN_DESCR_END  (PLMN_t)
 
 static const
 CSN_DESCR_BEGIN(LAI_t)
@@ -7889,8 +8244,32 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
-    { &hf_tddarget_cell_t_complete_this,
-      { "Complete_This",        "gsm_rlcmac_ul.epdan_complete_this",
+    { &hf_tddarget_cell_t_tdd_arfcn,
+      { "TDD-ARFCN",        "gsm_rlcmac_ul.epdan_tdd_arfcn",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_tddarget_cell_t_diversity,
+      { "Diversity TDD",        "gsm_rlcmac_ul.epdan_diversity_tdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_tddarget_cell_t_bandwith_tdd,
+      { "Bandwidth_TDD",        "gsm_rlcmac_ul.epdan_bandwidth_tdd",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_tddarget_cell_t_cell_parameter,
+      { "Cell Parameter",        "gsm_rlcmac_ul.epdan_cell_param",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_tddarget_cell_t_sync_case_tstd,
+      { "Sync Case TSTD",        "gsm_rlcmac_ul.epdan_sync_case_tstd",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -9946,6 +10325,114 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+    { &hf_psc_pattern_length,
+      { "PSC_pattern_length",        "gsm_rlcmac_dl.psc_pattern_length",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_psc_pattern_sense,
+      { "PSC_pattern_sense",        "gsm_rlcmac_dl.psc_pattern_sense",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_meas_ctrl_param_meas_ctrl_eutran,
+      { "Measurement_Control_E-UTRAN",        "gsm_rlcmac_dl.meas_ctrl_param_eutran",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_meas_ctrl_param_eutran_freq_idx,
+      { "EUTRAN_FREQUENCY_INDEX",        "gsm_rlcmac_dl.meas_ctrl_param_eutran_freq_idx",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_meas_ctrl_param_meas_ctrl_utran,
+      { "Measurement_Control_UTRAN",        "gsm_rlcmac_dl.meas_ctrl_param_utran",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_meas_ctrl_param_utran_freq_idx,
+      { "UTRAN_FREQUENCY_INDEX",        "gsm_rlcmac_dl.meas_ctrl_param_utran_freq_idx",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_rept_eutran_enh_cell_resel_param_eutran_qmin,
+      { "E-UTRAN_Qmin",        "gsm_rlcmac_dl.enh_cell_resel_param_eutran_qmin",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_high_q,
+      { "THRESH_E-UTRAN_high_Q",        "gsm_rlcmac_dl.enh_cell_resel_param_eutran_high_q",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_low_q,
+      { "THRESH_E-UTRAN_low_Q",        "gsm_rlcmac_dl.enh_cell_resel_param_eutran_low_q",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_qqualmin,
+      { "E-UTRAN_QQUALMIN",        "gsm_rlcmac_dl.enh_cell_resel_param_eutran_qqualmin",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_rept_eutran_enh_cell_resel_param_thresh_eutran_rsrpmin,
+      { "E-UTRAN_RSRPmin",        "gsm_rlcmac_dl.enh_cell_resel_param_eutran_rsrpmin",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_fdd_reporting_threshold,
+      { "UTRAN_CSG_FDD_REPORTING_THRESHOLD",        "gsm_rlcmac_dl.utran_csg_fdd_reporting_threshold",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_fdd_reporting_threshold2,
+      { "UTRAN_CSG_FDD_REPORTING_THRESHOLD_2",        "gsm_rlcmac_dl.utran_csg_fdd_reporting_threshold2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_tdd_reporting_threshold,
+      { "UTRAN_CSG_TDD_REPORTING_THRESHOLD",        "gsm_rlcmac_dl.utran_csg_tdd_reporting_threshold",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_fdd_reporting_threshold,
+      { "E-UTRAN_CSG_FDD_REPORTING_THRESHOLD",        "gsm_rlcmac_dl.eutran_csg_fdd_reporting_threshold",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_fdd_reporting_threshold2,
+      { "E-UTRAN_CSG_FDD_REPORTING_THRESHOLD_2",        "gsm_rlcmac_dl.eutran_csg_fdd_reporting_threshold2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_tdd_reporting_threshold,
+      { "E-UTRAN_CSG_TDD_REPORTING_THRESHOLD",        "gsm_rlcmac_dl.eutran_csg_tdd_reporting_threshold",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_tdd_reporting_threshold2,
+      { "E-UTRAN_CSG_TDD_REPORTING_THRESHOLD_2",        "gsm_rlcmac_dl.eutran_csg_tdd_reporting_threshold2",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },    
     { &hf_eutran_parametersdescription_pmo_eutran_ccn_active,
       { "EUTRAN_CCN_ACTIVE",        "gsm_rlcmac_dl.eutran_parametersdescription_pmo_eutran_ccn_active",
         FT_BOOLEAN, BASE_NONE, NULL, 0x0,
@@ -10080,6 +10567,66 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_packet_cell_change_order_page_mode,
       { "PAGE_MODE",        "gsm_rlcmac_dl.pcco_page_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_target_cell_eutran_earfcn,
+      { "EARFCN",        "gsm_rlcmac_dl.pcco_target_cell_eutran_earfcn",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_target_cell_eutran_measurement_bandwidth,
+      { "Measurement Bandwidth",        "gsm_rlcmac_dl.pcco_target_cell_eutran_meas_bw",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_target_cell_eutran_pl_cell_id,
+      { "Physical Layer Cell Identity",        "gsm_rlcmac_dl.pcco_target_cell_eutran_cell_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_idvd_default_utran_priority,
+      { "DEFAULT_UTRAN_PRIORITY",        "gsm_rlcmac_dl.idvl_prio_dlft_geran_prio",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_idvd_utran_priority,
+      { "UTRAN_PRIORITY",        "gsm_rlcmac_dl.idvl_prio_geran_prio",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_idvd_default_eutran_priority,
+      { "DEFAULT_E-UTRAN_PRIORITY",        "gsm_rlcmac_dl.idvl_prio_dlft_eutran_prio",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_idvd_eutran_priority,
+      { "E-UTRAN_PRIORITY",        "gsm_rlcmac_dl.idvl_prio_eutran_prio",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_idvd_prio_geran_priority,
+      { "GERAN_PRIORITY",        "gsm_rlcmac_dl.idvl_prio_dlft_geran_prio",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_idvd_prio_t3230_timeout_value,
+      { "T3230 timeout value",        "gsm_rlcmac_dl.idvl_prio_t3230",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_target_cell_g_rnti_ext,
+      { "G-RNTI extension",        "gsm_rlcmac_dl.pcco_g_rnti_ext",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
@@ -10552,6 +11099,92 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+    { &hf_packet_cell_change_notification_lte_reporting_quantity,
+      { "REPORTING_QUANTITY",        "gsm_rlcmac_ul.pccn_lte_reporting_quantity",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_ccn_meas_rpt_3g_ba_used,
+      { "3G_BA_USED",        "gsm_rlcmac_ul.pccn_eutran_ccn_meas_rpt_3g_ba_used",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_ccn_meas_rpt_freq_idx,
+      { "E-UTRAN_FREQUENCY_INDEX",        "gsm_rlcmac_ul.pccn_eutran_ccn_meas_rpt_freq_idx",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_ccn_meas_cell_id,
+      { "CELL IDENTITY",        "gsm_rlcmac_ul.pccn_eutran_ccn_meas_rpt_cell_id",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_ccn_meas_rpt_quantity,
+      { "REPORTING_QUANTITY",        "gsm_rlcmac_ul.pccn_eutran_ccn_meas_rpt_rpt_quantity",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_meas_rpt_cgi,
+      { "UTRAN_CGI",        "gsm_rlcmac_ul.utran_csg_meas_rpt_cgi",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_meas_rpt_csg_id,
+      { "CSG_ID",        "gsm_rlcmac_ul.utran_csg_meas_rpt_csg_id",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_meas_rpt_access_mode,
+      { "Access Mode",        "gsm_rlcmac_ul.utran_csg_meas_rpt_access_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_utran_csg_meas_rpt_quantity,
+      { "REPORTING_QUANTITY",        "gsm_rlcmac_ul.utran_csg_meas_rpt_quantity",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_meas_rpt_cgi,
+      { "EUTRAN_CGI",        "gsm_rlcmac_ul.eutran_csg_meas_rpt_cgi",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_meas_rpt_ta,
+      { "Tracking Area Code",        "gsm_rlcmac_ul.eutran_csg_meas_rpt_ta",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_meas_rpt_csg_id,
+      { "CSG_ID",        "gsm_rlcmac_ul.eutran_csg_meas_rpt_csg_id",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_meas_rpt_access_mode,
+      { "Access Mode",        "gsm_rlcmac_ul.eutran_csg_meas_rpt_access_mode",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_meas_rpt_quantity,
+      { "REPORTING_QUANTITY",        "gsm_rlcmac_ul.eutran_csg_meas_rpt_quantity",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+
+    
 
 /*< Packet Cell Change Continue message contents > */
     { &hf_packet_cell_change_continue_message_type,
