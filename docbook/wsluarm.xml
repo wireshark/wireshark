@@ -124,7 +124,7 @@ do
 		local tap = Listener.new();
 
 		function remove()
-			-- this way we remove the listener than otherwise will remain running indifinitelly
+			-- this way we remove the listener than otherwise will remain running indefinitely
 			tap:remove();
 		end
 

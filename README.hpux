@@ -253,11 +253,11 @@ promiscuous mode support.
 
 An additional note, from Jost Martin, for HP-UX 10.20:
 
-	Q: How do I get ethereral on HPUX to capture the _outgoing_ packets
+	Q: How do I get wireshark on HPUX to capture the _outgoing_ packets
 	   of an interface
 	A: You need to get PHNE_20892,PHNE_20725 and PHCO_10947 (or
 	   newer, this is as of 4.4.00) and its dependencies.  Then you can
-	   enable the feature as descibed below:
+	   enable the feature as described below:
 
 	Patch Name: PHNE_20892
 	Patch Description: s700 10.20 PCI 100Base-T cumulative patch

@@ -106,7 +106,7 @@ Network General/Network Associates DOS-based Sniffer (compressed and
     uncompressed)
 Microsoft Network Monitor
 AIX's iptrace
-Cinco Networks NetXRray
+Cinco Networks NetXray
 Network Associates Windows-based Sniffer
 AG Group/WildPackets EtherPeek/TokenPeek/AiroPeek/EtherHelp
 RADCOM's WAN/LAN Analyzer
@@ -114,7 +114,7 @@ Lucent/Ascend access products
 HP-UX's nettl
 Toshiba's ISDN routers
 ISDN4BSD "i4btrace" utility
-Cisco Secure Intrustion Detection System iplogging facility
+Cisco Secure Intrusion Detection System iplogging facility
 pppd logs (pppdump-format files)
 VMS's TCPIPtrace utility
 DBS Etherwatch for VMS

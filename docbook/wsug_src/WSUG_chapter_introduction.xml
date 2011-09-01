@@ -260,7 +260,7 @@
 	<listitem><para>
 	  Windows 95, 98 and ME are no longer supported. The "old technology"
 	  releases of Windows lack memory protection (specifically <ulink
-	  url="http://msdn.microsoft.com/en-us/library/aa366898.aspx">VirutalProtect</ulink>)
+	  url="http://msdn.microsoft.com/en-us/library/aa366898.aspx">VirtualProtect</ulink>)
 	  which we use to improve program safety and security. The last known
 	  version to work was Ethereal 0.10.14 (which includes WinPcap 3.1). You
 	  can get it from <ulink url="http://ethereal.com/download.html" />.

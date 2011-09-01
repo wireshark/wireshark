@@ -56,7 +56,7 @@
   -->
 		<!-- *********************** Commands ***************************** -->
 		<!-- Diameter Base Protocol Command Codes -->
-		<!-- 0-255 RADIUS compatability codes [http://www.iana.org/assignments/radius-types] -->
+		<!-- 0-255 RADIUS compatibility codes [http://www.iana.org/assignments/radius-types] -->
 		<!--256 Unassigned -->
 		<command name="Capabilities-Exchange"         code="257" vendor-id="None"/>
 		<command name="Re-Auth"                       code="258" vendor-id="None"/>
@@ -2234,7 +2234,7 @@
 			<type type-name="OctetString"/>
 		</avp>
 
-<!-- AVP:s 411 - 461 Belongs to Carge Control and is defined in chargecontrol.xml
+<!-- AVP:s 411 - 461 Belongs to Charge Control and is defined in chargecontrol.xml
 411 CC-Correlation-Id [RFC4006]
 412 CC-Input-Octets [RFC4006]
 413 CC-Money [RFC4006]
@@ -2573,75 +2573,75 @@ Note: The AVP codes from 320 to 399 are reserved for TS 29.234
 			<enum name="Private identity not requested" code="1"/>
 		</avp>
 		<avp name="GBA-Push-Info" code="417" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="NAF-SA-Identifier" code="418" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Security-Feature-Request" code="419" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Security-Feature-Response" code="420" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 <!-- Note: The AVP codes from 421 to 499 are reserved for TS 29.109
 
 		<avp name="Reserved for TS 29.109" code="421" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="422" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="423" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="424" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="425" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="426" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="427" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="428" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="429" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="430" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="431" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="432" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="433" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="434" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="435" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="436" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="437" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="438" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Reserved for TS 29.109" code="439" vendor-bit="must" may-encrypt="no" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 29.109 [7]
 Note: The AVP codes from 421 to 499 are reserved for TS 29.109
@@ -3261,7 +3261,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="Other" code="6"/>
 		</avp>
 		<avp name="TMGI" code="900" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="Required-MBMS-Bearer-Capabilities" code="901" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="UTF8String"/>
@@ -3273,7 +3273,7 @@ Note: The AVP codes from 800 to 822 are reserved for TS 32.299.
 			<enum name="UPDATE" code="2"/>
 		</avp>
 		<avp name="MBMS-Service-Area" code="903" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
-			<type type-name="OctectString"/>
+			<type type-name="OctetString"/>
 		</avp>
 		<avp name="MBMS-Session-Duration" code="904" mandatory="must" may-encrypt="no" protected="mustnot" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
@@ -3498,8 +3498,8 @@ Note: The AVP codes from 924 to 999 are reserved for TS 29.061
 		<avp name="QoS-Information" code="1016" mandatory="must" may-encrypt="yes" protected="may" vendor-bit="must" vendor-id="TGPP">
 			<grouped>
 				<gavp name="QoS-Class-Identifier"/>
-				<gavp name="Max-Requested-Bandwdith-DL"/>
-				<gavp name="Max-Requested-Bandwdith-UL"/>
+				<gavp name="Max-Requested-Bandwidth-DL"/>
+				<gavp name="Max-Requested-Bandwidth-UL"/>
 				<gavp name="Guaranteed-Bitrate-UL"/>
 				<gavp name="Guaranteed-Bitrate-DL"/>
 				<gavp name="Bearer-Identifier"/>
@@ -5347,7 +5347,7 @@ Note: The AVP codes from 1634 to 1699 are reserved for TS 29.272.
 			<enum name="INVITE_INTO_CONF" code="2"/>
 			<enum name="QUIT_CONF" code="3"/>
 		</avp>
-		<avp name="PDN-Conncetion-ID" code="2050" vendor-bit="must" vendor-id="TGPP">
+		<avp name="PDN-Connection-ID" code="2050" vendor-bit="must" vendor-id="TGPP">
 			<type type-name="Unsigned32"/>
 		</avp>
 		<avp name="Dynamic-Address-Flag" code="2051" vendor-bit="must" vendor-id="TGPP">

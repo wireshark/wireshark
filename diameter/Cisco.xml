@@ -9,7 +9,7 @@
 
     </avp>
 
-    <!--Cisco-Charging-Rule-Defination-->
+    <!--Cisco-Charging-Rule-Definition-->
 
 		<avp name="Cisco-Charging-Rule-Definition" code="131072" vendor-id="Cisco" mandatory="must" may-encrypt="yes" protected="mustnot" vendor-bit="must">
 			<grouped>
@@ -936,7 +936,7 @@
 		
 		<avp name="Billing-Plan-Install" code="131187" vendor-id="Cisco" mandatory="must" protected="mustnot" may-encrypt="yes" vendor-bit="must">
 			<grouped>
-				<gavp name="Billing-Plan-Defination"/>	
+				<gavp name="Billing-Plan-Definition"/>	
 
 
 			</grouped>

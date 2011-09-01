@@ -83,7 +83,7 @@ FreeBSD 6.0 and later this can be done by creating an /etc/devfs.rules
 file with content such as
 
 	[localrules=10]
-	add path 'bpf*' {mode and permissons}
+	add path 'bpf*' {mode and permissions}
 
 where "mode and permissions" can include clauses such as
 
