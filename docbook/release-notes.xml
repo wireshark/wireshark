@@ -42,12 +42,27 @@ Wireshark Info
             <!-- Fixed in trunk: r38213 -->
             <!-- Fixed in trunk-1.6: r38848 -->
             <!-- Fixed in trunk-1.4: r????? -->
+            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6138">Bug
+            6138</ulink>)
+          </para>
+          <para>Versions affected: 1.6.0 to 1.6.1.</para>
+          <para>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+          </para>
+        </listitem>
+
+        <listitem>
+          <para>
+            A malformed IKE packet could consume excessive resources.
+            <!-- Fixed in trunk: r38247 -->
+            <!-- Fixed in trunk-1.6: r38851 -->
+            <!-- Fixed in trunk-1.4: r????? -->
             <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6138">Bug
             6138</ulink>) -->
           </para>
           <para>Versions affected: 1.6.0 to 1.6.1.</para>
           <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
+            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3266">CVE-2011-3266</ulink>
           </para>
         </listitem>
 
@@ -160,6 +175,7 @@ There are no new protocols in this release.
 CSN.1,
 ICMP,
 ICMPv6,
+IKE,
 OpenSafety,
 MSISDN,
 
