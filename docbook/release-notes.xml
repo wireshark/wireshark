@@ -38,14 +38,14 @@ Wireshark Info
 
         <listitem>
           <para>
-            .
-            <!-- Fixed in trunk: r????? -->
-            <!-- Fixed in trunk-1.6: r????? -->
+            A large loop in the OpenSafety dissector could cause a crash.
+            <!-- Fixed in trunk: r38213 -->
+            <!-- Fixed in trunk-1.6: r38848 -->
             <!-- Fixed in trunk-1.4: r????? -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=????">Bug
-            ????</ulink>) -->
+            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6138">Bug
+            6138</ulink>) -->
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.8 and 1.6.0 to 1.6.1.</para>
+          <para>Versions affected: 1.6.0 to 1.6.1.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para>
