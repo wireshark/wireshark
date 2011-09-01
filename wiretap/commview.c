@@ -88,10 +88,10 @@ static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   union wtap_pseudo_header *pseudo_header,
 				   guchar *pd, int length, int *err,
 				   gchar **err_info);
-static gboolean  commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
-				      int *err, gchar **err_info);
+static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
+				     int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
-			      const union wtap_pseudo_header *pseudo_header _U_,
+			      const union wtap_pseudo_header *pseudo_header,
 			      const guchar *pd, int *err);
 
 int commview_open(wtap *wth, int *err, gchar **err_info)
@@ -132,6 +132,29 @@ int commview_open(wtap *wth, int *err, gchar **err_info)
 	return 1; /* Our kind of file */
 }
 
+static void
+commview_set_pseudo_header(commview_header_t *cv_hdrp, union wtap_pseudo_header
+			   *pseudo_header)
+{
+	switch(cv_hdrp->flags & FLAGS_MEDIUM) {
+
+	case MEDIUM_ETHERNET :
+		pseudo_header->eth.fcs_len = -1; /* Unknown */
+		break;
+
+	case MEDIUM_WIFI :
+		pseudo_header->ieee_802_11.fcs_len = -1; /* Unknown */
+		pseudo_header->ieee_802_11.channel = cv_hdrp->channel;
+		pseudo_header->ieee_802_11.data_rate = cv_hdrp->rate;
+		pseudo_header->ieee_802_11.signal_level = cv_hdrp->signal_level_percent;
+		break;
+
+	default :
+		/* Token Ring or unknown - no pseudo-header for that */
+		break;
+	}
+}
+
 static gboolean
 commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 {
@@ -159,12 +182,15 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 	case MEDIUM_TOKEN_RING :
 		wth->phdr.pkt_encap = WTAP_ENCAP_TOKEN_RING;
 		break;
-	default:
+
+	default :
 		*err = WTAP_ERR_BAD_RECORD;
 		*err_info = g_strdup_printf("commview: unsupported encap: %u",
 					    cv_hdr.flags & FLAGS_MEDIUM);
 		return FALSE;
 	}
+
+	commview_set_pseudo_header(&cv_hdr, &wth->pseudo_header);
 
 	buffer_assure_space(wth->frame_buffer, cv_hdr.data_len);
 	bytes_read = file_read(buffer_start_ptr(wth->frame_buffer),
@@ -219,13 +245,7 @@ commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 		return FALSE;
 	}
 
-	/* Pass some data to the 802.11 dissector if this is a WiFi packet */
-	if((cv_hdr.flags & FLAGS_MEDIUM) == MEDIUM_WIFI) {
-		pseudo_header->ieee_802_11.fcs_len = -1; /* Unknown */
-		pseudo_header->ieee_802_11.channel = cv_hdr.channel;
-		pseudo_header->ieee_802_11.data_rate = cv_hdr.rate;
-		pseudo_header->ieee_802_11.signal_level = cv_hdr.signal_level_percent;
-	}
+	commview_set_pseudo_header(&cv_hdr, pseudo_header);
 
 	bytes_read = file_read(pd, cv_hdr.data_len, wth->random_fh);
 	if(bytes_read != cv_hdr.data_len) {
@@ -310,7 +330,7 @@ static gboolean commview_dump(wtap_dumper *wdh,
 			      const guchar *pd, int *err)
 {
 	commview_header_t cv_hdr;
-	char date_time[5];
+	struct tm *tm;
 
 	memset(&cv_hdr, 0, sizeof(cv_hdr));
 
@@ -318,24 +338,13 @@ static gboolean commview_dump(wtap_dumper *wdh,
 	cv_hdr.source_data_len = GUINT16_TO_LE((guint16)phdr->caplen);
 	cv_hdr.version = 0;
 
-	strftime(date_time, 5, "%Y", localtime(&phdr->ts.secs));
-	cv_hdr.year = GUINT16_TO_LE((guint16)strtol(date_time, NULL, 10));
-
-	strftime(date_time, 5, "%m", localtime(&phdr->ts.secs));
-	cv_hdr.month = (guint8)strtol(date_time, NULL, 10);
-
-	strftime(date_time, 5, "%d", localtime(&phdr->ts.secs));
-	cv_hdr.day = (guint8)strtol(date_time, NULL, 10);
-
-	strftime(date_time, 5, "%H", localtime(&phdr->ts.secs));
-	cv_hdr.hours = (guint8)strtol(date_time, NULL, 10);
-
-	strftime(date_time, 5, "%M", localtime(&phdr->ts.secs));
-	cv_hdr.minutes = (guint8)strtol(date_time, NULL, 10);
-
-	strftime(date_time, 5, "%S", localtime(&phdr->ts.secs));
-	cv_hdr.seconds = (guint8)strtol(date_time, NULL, 10);
-
+	tm = localtime(&phdr->ts.secs);
+	cv_hdr.year = tm->tm_year + 1900;
+	cv_hdr.month = tm->tm_mon + 1;
+	cv_hdr.day = tm->tm_mday;
+	cv_hdr.hours = tm->tm_hour;
+	cv_hdr.minutes = tm->tm_min;
+	cv_hdr.seconds = tm->tm_sec;
 	cv_hdr.usecs = GUINT32_TO_LE(phdr->ts.nsecs / 1000);
 
 	switch(phdr->pkt_encap) {
