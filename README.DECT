@@ -2,11 +2,11 @@ $Id$
 
 Description:
 ============
-DECT pcap files can be obtained by using tools coming with the linux
+DECT pcap files can be obtained by using tools included with the linux
 kernel driver for the Dosch-and-Amand COM-ON-AIR cards. The driver is
 called com-on-air_cs.
 
-Wireshark itself cannot directy record from the DECT HW, as the driver
+Wireshark cannot directly record from the DECT HW, as the driver
 currently lacks a virtual network interface.
 
 There is ongoing work to change this (see this work by Patrick McHardy):

@@ -6,7 +6,7 @@
 
 	<application id="16777231" name="Diameter e2e4 Application" uri="http://pda.etsi.org">
 
-	<!-- ETSI ES 283 026 V1.6.0 (2008-02) Specifies some eperimental resultcodes with vendor id ETSI
+	<!-- ETSI ES 283 026 V1.6.0 (2008-02) Specifies some experimental resultcodes with vendor id ETSI
 		6.3.2 Experimental-Result-Code AVP values defined in the present
 		document
 	This clause defines the specific values of the Experimental-Result-Code AVP (vendor-id is ETSI):

@@ -138,7 +138,7 @@ typedef enum _AirpcapValidationType
 {
     AIRPCAP_VT_ACCEPT_EVERYTHING = 1,		///< Accept all the frames the device captures
     AIRPCAP_VT_ACCEPT_CORRECT_FRAMES = 2,	///< Accept correct frames only, i.e. frames with correct Frame Check Sequence (FCS).
-    AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES = 3,	///< Accept corrupt frames only, i.e. frames with worng Frame Check Sequence (FCS).
+    AIRPCAP_VT_ACCEPT_CORRUPT_FRAMES = 3,	///< Accept corrupt frames only, i.e. frames with wrong Frame Check Sequence (FCS).
 	AIRPCAP_VT_UNKNOWN = 4					///< Unknown validation type. You should see it only in case of error.
 }AirpcapValidationType, *PAirpcapValidationType;
 
@@ -193,7 +193,7 @@ typedef struct _AirpcapKeysCollection
 /*!
   \brief Packet header.
 
-  This structure defines the BPF that preceeds every packet delivered to the application.
+  This structure defines the BPF that precedes every packet delivered to the application.
 */
 typedef struct _AirpcapBpfHeader
 {
@@ -380,7 +380,7 @@ void AirpcapClose(PAirpcapHandle AdapterHandle);
 
   The main reason to turn monitor mode off is that, when not in monitor mode, the adapter will acknowledge the
   data frames sent to its address. This is useful when the adapter needs to interact with other devices on the
-  802.11 network, bacause handling the ACKs in software is too slow.
+  802.11 network, because handling the ACKs in software is too slow.
 
   \note When an adapter is plugged into the system, it's always configured with monitor mode ON. The monitor mode
         configuration is not stored persistently, so if you want to turn monitor mode off, you will need to do it
@@ -417,7 +417,7 @@ gboolean AirpcapGetMonitorMode(PAirpcapHandle AdapterHandle, gboolean * PMonitor
   the developer's pack can be used as a reference on how to decode 802.11 frames with radiotap headers.
   - \ref AIRPCAP_LT_802_11_PLUS_PPI, to capture 802.11 frames (including control frames) with a Per Packet Information (PPI)
 	header that contains per-packet meta information like channel and power information. More details on the PPI header can
-	be founf in the PPI online documentation (TODO).
+	be found in the PPI online documentation (TODO).
 */
 gboolean AirpcapSetLinkType(PAirpcapHandle AdapterHandle, AirpcapLinkType NewLinkType);
 
@@ -460,7 +460,7 @@ gboolean AirpcapSetFcsPresence(PAirpcapHandle AdapterHandle, gboolean IsFcsPrese
   \param PIsFcsPresent User-provided variable that will be set to true if the adapter is including the FCS.
   \return TRUE if the operation is successful. FALSE otherwise.
 
-  In the default configuration, the adatper has FCS inclusion turned on. The MAC Frame Check Sequence is 4 bytes
+  In the default configuration, the adapter has FCS inclusion turned on. The MAC Frame Check Sequence is 4 bytes
   and is located at the end of the 802.11 packet, with both AIRPCAP_LT_802_11 and AIRPCAP_LT_802_11_PLUS_RADIO
   link types.
   When the FCS inclusion is turned on, and if the link type is AIRPCAP_LT_802_11_PLUS_RADIO, the radiotap header
@@ -483,7 +483,7 @@ gboolean AirpcapSetFcsValidation(PAirpcapHandle AdapterHandle, AirpcapValidation
   \brief Checks if the specified adapter is configured to capture frames with incorrect an incorrect Frame Check Sequence (FCS).
   \param AdapterHandle Handle to the adapter.
   \param ValidationType Pointer to a user supplied variable that will contain the type of validation the driver will perform. See the documentation of \ref AirpcapValidationType for details.
-  \return TRUE if the operation is succesful. FALSE otherwise.
+  \return TRUE if the operation is successful. FALSE otherwise.
 
   \note By default, the driver is configured in \ref AIRPCAP_VT_ACCEPT_EVERYTHING mode.
 */
@@ -518,7 +518,7 @@ gboolean AirpcapSetDeviceKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
   \param KeysCollection User-allocated PAirpcapKeysCollection structure that will be filled with the keys.
   \param PKeysCollectionSize \b IN: pointer to a user-allocated variable that contains the length of the KeysCollection structure, in bytes.
 					        \b OUT: amount of data moved by the driver in the buffer pointed by KeysBuffer, in bytes.
-  \return TRUE if the operation is succesful. If an error occurs, the return value is FALSE and KeysCollectionSize is zero.
+  \return TRUE if the operation is successful. If an error occurs, the return value is FALSE and KeysCollectionSize is zero.
   If the provided buffer is too small to contain the keys, the return value is FALSE and KeysCollectionSize contains the
   needed KeysCollection length, in bytes. If the device doesn't have any decryption key configured, the return value is TRUE, and
   KeysCollectionSize will be zero.
@@ -567,7 +567,7 @@ gboolean AirpcapSetDriverKeys(PAirpcapHandle AdapterHandle, PAirpcapKeysCollecti
   \param KeysCollection User-allocated PAirpcapKeysCollection structure that will be filled with the keys.
   \param PKeysCollectionSize \b IN: pointer to a user-allocated variable that contains the length of the KeysCollection structure, in bytes.
 					        \b OUT: amount of data moved by the driver in the buffer pointed by KeysBuffer, in bytes.
-  \return TRUE if the operation is succesful. If an error occurs, the return value is FALSE and KeysCollectionSize is zero.
+  \return TRUE if the operation is successful. If an error occurs, the return value is FALSE and KeysCollectionSize is zero.
   If the provided buffer is too small to contain the keys, the return value is FALSE and KeysCollectionSize contains the
   needed KeysCollection length, in bytes. If the device doesn't have any decryption key configured, the return value is TRUE, and
   KeysCollectionSize will be zero.
@@ -598,7 +598,7 @@ gboolean AirpcapSetDecryptionState(PAirpcapHandle AdapterHandle, AirpcapDecrypti
   \brief Tells if this open instance is configured to perform the decryption of the incoming frames with the <b>adapter-specific</b> keys.
   \param AdapterHandle Handle to the adapter.
   \param PEnable Pointer to a user supplied variable that will contain the decryption configuration. See \ref PAirpcapDecryptionState for details.
-  \return TRUE if the operation is succesful. FALSE otherwise.
+  \return TRUE if the operation is successful. FALSE otherwise.
 
   The adapter-specific decryption keys can be configured with the \ref AirpcapSetDeviceKeys() function.
   \note By default, the driver is configured with \ref AIRPCAP_DECRYPTION_ON.
@@ -665,7 +665,7 @@ gboolean AirpcapGetDeviceChannel(PAirpcapHandle AdapterHandle, guint * PChannel)
   application is busy, at the cost of higher kernel memory usage.
 
   \note don't use this function unless you know what you are doing. Due to caching issues and bigger non-paged
-  memory consumption, bigger buffer sizes can decrease the capture performace instead of improving it.
+  memory consumption, bigger buffer sizes can decrease the capture performance instead of improving it.
 */
 gboolean AirpcapSetKernelBuffer(PAirpcapHandle AdapterHandle, guint BufferSize);
 
@@ -729,7 +729,7 @@ gboolean AirpcapStoreCurConfigAsAdapterDefault(PAirpcapHandle AdapterHandle);
   \return TRUE on success.
 
   The AirPcap driver is able to perform kernel-level filtering using the standard BPF pseudo-machine format. You can read
-  the WinPcap documentation at http://www.winpcap.org/devel.htm for more details on the BPF filtering mechaism.
+  the WinPcap documentation at http://www.winpcap.org/devel.htm for more details on the BPF filtering mechanism.
 
   A filter can be automatically created by using the pcap_compile() function of the WinPcap API. This function
   converts a human readable text expression with the tcpdump/libpcap syntax into a BPF program.

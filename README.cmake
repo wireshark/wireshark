@@ -108,7 +108,7 @@ About cmake in general and why KDE4 uses it
 Introductory/tutorial presentation
 	http://ait.web.psi.ch/services/linux/hpc/hpc_user_cookbook/tools/cmake/docs/Cmake_VM_2007.pdf
 
-Introductory arcticle in Linux Journal
+Introductory article in Linux Journal
 	http://www.linuxjournal.com/node/6700/print
 
 Useful variables

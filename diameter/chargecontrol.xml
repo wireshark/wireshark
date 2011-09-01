@@ -102,7 +102,7 @@
 				<gavp name="CC-Time"/>
 				<gavp name="CC-Money"/>
 				<gavp name="CC-Total-Octets"/>
-				<gavp name="CC-Imput-Octets"/>
+				<gavp name="CC-Input-Octets"/>
 				<gavp name="CC-output-Octets"/>
 				<gavp name="CC-Service-Specific-Units"/>
 			</grouped>
@@ -138,7 +138,7 @@
 				<gavp name="CC-Time"/>
 				<gavp name="CC-Money"/>
 				<gavp name="CC-Total-Octets"/>
-				<gavp name="CC-Imput-Octets"/>
+				<gavp name="CC-Input-Octets"/>
 				<gavp name="CC-output-Octets"/>
 				<gavp name="CC-Service-Specific-Units"/>
 			</grouped>
@@ -183,7 +183,7 @@
 				<gavp name="CC-Time"/>
 				<gavp name="CC-Money"/>
 				<gavp name="CC-Total-Octets"/>
-				<gavp name="CC-Imput-Octets"/>
+				<gavp name="CC-Input-Octets"/>
 				<gavp name="CC-output-Octets"/>
 				<gavp name="CC-Service-Specific-Units"/>
 			</grouped>
