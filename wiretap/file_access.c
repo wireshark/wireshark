@@ -981,7 +981,7 @@ static gboolean wtap_dump_open_finish(wtap_dumper *wdh, int filetype, gboolean c
 }
 
 gboolean wtap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-		   const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
+		   const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
 {
 	return (wdh->subtype_write)(wdh, phdr, pseudo_header, pd, err);
 }

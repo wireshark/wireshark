@@ -94,7 +94,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static void
 ipfix_close(wtap *wth);
@@ -291,7 +291,7 @@ ipfix_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 /* classic wtap: seek to file position and read packet */
 static gboolean
 ipfix_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length _U_,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length _U_,
     int *err, gchar **err_info)
 {
     ipfix_message_header_t msg_hdr;

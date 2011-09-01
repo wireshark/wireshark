@@ -94,7 +94,7 @@ static gboolean daintree_sna_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean daintree_sna_seek_read(wtap *wth, gint64 seek_off,
 	union wtap_pseudo_header *pseudo_header _U_,
-	guchar *pd, int len, int *err,
+	guint8 *pd, int len, int *err,
 	gchar **err_info);
 
 static guint daintree_sna_hex_char(guchar *str, int *err);
@@ -199,7 +199,7 @@ daintree_sna_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
  * Wireshark opens the capture file for random access when displaying user-selected packets */
 static gboolean
 daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-	*pseudo_header _U_, guchar *pd, int len, int *err,
+	*pseudo_header _U_, guint8 *pd, int len, int *err,
 	gchar **err_info)
 {
 	guint pkt_len;
@@ -244,15 +244,15 @@ daintree_sna_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
 	return TRUE;
 }
 
-/* Convert an ASCII hex string to guchar */
+/* Convert an ASCII hex string to guint8 */
 static guint
 daintree_sna_hex_char(guchar *str, int *err _U_) {
 	guint bytes;
-	guchar *p;
+	guint8 *p;
 
 	p = str; /* overlay source buffer */
 	bytes = 0;
-	/* convert hex string to guchar */
+	/* convert hex string to guint8 */
 	while(*str) {
 		if (!isxdigit((guchar)*str)) return 0;
 		/* most significant nibble */

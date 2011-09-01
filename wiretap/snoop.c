@@ -91,17 +91,17 @@ struct shomiti_trailer {
 static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean snoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 static gboolean snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info,
     int *header_size);
-static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length,
+static gboolean snoop_read_rec_data(FILE_T fh, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean snoop_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
 
 /*
  * See
@@ -634,7 +634,7 @@ static gboolean snoop_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 snoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -836,7 +836,7 @@ snoop_read_shomiti_wireless_pseudoheader(FILE_T fh,
 }
 
 static gboolean
-snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+snoop_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info)
 {
 	int	bytes_read;
@@ -913,7 +913,7 @@ gboolean snoop_dump_open(wtap_dumper *wdh, int *err)
 static gboolean snoop_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const guchar *pd, int *err)
+	const guint8 *pd, int *err)
 {
 	struct snooprec_hdr rec_hdr;
 	int reclen;

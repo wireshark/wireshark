@@ -40,12 +40,12 @@ typedef struct {
 static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean i4btrace_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int i4b_read_rec_header(FILE_T fh, i4b_trace_hdr_t *hdr, int *err,
     gchar **err_info);
 static void i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr);
-static gboolean i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+static gboolean i4b_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info);
 static void i4b_set_pseudo_header(i4b_trace_hdr_t *hdr,
     union wtap_pseudo_header *pseudo_header);
@@ -189,7 +189,7 @@ static gboolean i4btrace_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 i4btrace_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	int	ret;
@@ -259,7 +259,7 @@ i4b_byte_swap_header(wtap *wth, i4b_trace_hdr_t *hdr)
 }
 
 static gboolean
-i4b_read_rec_data(FILE_T fh, guchar *pd, int length, int *err, gchar **err_info)
+i4b_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err, gchar **err_info)
 {
 	int	bytes_read;
 

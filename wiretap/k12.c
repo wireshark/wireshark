@@ -501,7 +501,7 @@ static gboolean k12_read(wtap *wth, int *err, gchar **err_info, gint64 *data_off
 }
 
 
-static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guchar *pd, int length, int *err _U_, gchar **err_info) {
+static gboolean k12_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header, guint8 *pd, int length, int *err _U_, gchar **err_info) {
     k12_t *k12 = (k12_t *)wth->priv;
     k12_src_desc_t* src_desc;
     guint8* buffer;
@@ -985,7 +985,7 @@ static void k12_dump_src_setting(gpointer k _U_, gpointer v, gpointer p) {
 
 static gboolean k12_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                          const union wtap_pseudo_header *pseudo_header,
-                         const guchar *pd, int *err) {
+                         const guint8 *pd, int *err) {
     k12_dump_t *k12 = (k12_dump_t *)wdh->priv;
     guint32 len;
     union {

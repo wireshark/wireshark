@@ -30,7 +30,6 @@
 #include "wtap-int.h"
 #include "file_wrappers.h"
 #include "buffer.h"
-#include "atm.h"
 #include "pcap-common.h"
 #include "pcap-encap.h"
 #include "libpcap.h"
@@ -70,15 +69,15 @@ static libpcap_try_t libpcap_try(wtap *wth, int *err);
 static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean libpcap_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int libpcap_read_header(wtap *wth, int *err, gchar **err_info,
     struct pcaprec_ss990915_hdr *hdr);
 static void adjust_header(wtap *wth, struct pcaprec_hdr *hdr);
-static gboolean libpcap_read_rec_data(FILE_T fh, guchar *pd, int length,
+static gboolean libpcap_read_rec_data(FILE_T fh, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean libpcap_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
 
 int libpcap_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -601,7 +600,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	guint packet_size;
 	guint orig_size;
 	int bytes_read;
-	guchar fddi_padding[3];
+	guint8 fddi_padding[3];
 	int phdr_len;
 	libpcap_t *libpcap;
 
@@ -674,30 +673,9 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 	wth->phdr.caplen = packet_size;
 	wth->phdr.len = orig_size;
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
-		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
-			/*
-			 * Nokia IPSO ATM.
-			 *
-			 * Guess the traffic type based on the packet
-			 * contents.
-			 */
-			atm_guess_traffic_type(buffer_start_ptr(wth->frame_buffer),
-			    wth->phdr.caplen, &wth->pseudo_header);
-		} else {
-			/*
-			 * SunATM.
-			 *
-			 * If this is ATM LANE traffic, try to guess what
-			 * type of LANE traffic it is based on the packet
-			 * contents.
-			 */
-			if (wth->pseudo_header.atm.type == TRAF_LANE) {
-				atm_guess_lane_type(buffer_start_ptr(wth->frame_buffer),
-				    wth->phdr.caplen, &wth->pseudo_header);
-			}
-		}
-	}
+	pcap_fill_in_pseudo_header(wth->file_type, wth->file_encap,
+	    buffer_start_ptr(wth->frame_buffer), wth->phdr.caplen,
+	    &wth->pseudo_header, -1);
 
 	pcap_read_post_process(wth->file_encap, wth->phdr.caplen,
 	    libpcap->byte_swapped, buffer_start_ptr(wth->frame_buffer));
@@ -706,7 +684,7 @@ static gboolean libpcap_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 libpcap_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	int phdr_len;
@@ -727,27 +705,9 @@ libpcap_seek_read(wtap *wth, gint64 seek_off,
 	if (!libpcap_read_rec_data(wth->random_fh, pd, length, err, err_info))
 		return FALSE;	/* failed */
 
-	if (wth->file_encap == WTAP_ENCAP_ATM_PDUS) {
-		if (wth->file_type == WTAP_FILE_PCAP_NOKIA) {
-			/*
-			 * Nokia IPSO ATM.
-			 *
-			 * Guess the traffic type based on the packet
-			 * contents.
-			 */
-			atm_guess_traffic_type(pd, length, pseudo_header);
-		} else {
-			/*
-			 * SunATM.
-			 *
-			 * If this is ATM LANE traffic, try to guess what
-			 * type of LANE traffic it is based on the packet
-			 * contents.
-			 */
-			if (pseudo_header->atm.type == TRAF_LANE)
-				atm_guess_lane_type(pd, length, pseudo_header);
-		}
-	}
+	pcap_fill_in_pseudo_header(wth->file_type, wth->file_encap, pd,
+	    length, pseudo_header, -1);
+
 	pcap_read_post_process(wth->file_encap, length,
 	    libpcap->byte_swapped, pd);
 	return TRUE;
@@ -876,7 +836,7 @@ adjust_header(wtap *wth, struct pcaprec_hdr *hdr)
 }
 
 static gboolean
-libpcap_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+libpcap_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info)
 {
 	int	bytes_read;
@@ -981,7 +941,7 @@ gboolean libpcap_dump_open(wtap_dumper *wdh, int *err)
 static gboolean libpcap_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header,
-	const guchar *pd, int *err)
+	const guint8 *pd, int *err)
 {
 	struct pcaprec_ss990915_hdr rec_hdr;
 	size_t hdr_size;

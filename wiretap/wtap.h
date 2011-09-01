@@ -597,7 +597,7 @@ struct k12_phdr {
 	const gchar* stack_file;
 	guint32 input_type;
 	k12_input_info_t input_info;
-	guchar* extra_info;
+	guint8* extra_info;
 	guint32 extra_length;
 	void* stuff;
 };
@@ -938,7 +938,7 @@ wtap_dumper* wtap_dump_open(const char *filename, int filetype, int encap,
 wtap_dumper* wtap_dump_fdopen(int fd, int filetype, int encap, int snaplen,
 	gboolean compressed, int *err);
 gboolean wtap_dump(wtap_dumper *, const struct wtap_pkthdr *,
-	const union wtap_pseudo_header *pseudo_header, const guchar *, int *err);
+	const union wtap_pseudo_header *pseudo_header, const guint8 *, int *err);
 void wtap_dump_flush(wtap_dumper *);
 gint64 wtap_get_bytes_dumped(wtap_dumper *);
 void wtap_set_bytes_dumped(wtap_dumper *wdh, gint64 bytes_dumped);

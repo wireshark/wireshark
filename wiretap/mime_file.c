@@ -57,7 +57,7 @@ typedef struct {
 } mime_file_private_t;
 
 typedef struct {
-	const guchar *magic;
+	const guint8 *magic;
 	guint magic_len;
 } mime_files_t;
 
@@ -69,7 +69,7 @@ typedef struct {
  * http://www.jpeg.org/public/jfif.pdf
  * http://www.w3.org/Graphics/JPEG/itu-t81.pdf
  */
-static const guchar jpeg_jfif_magic[] = { 0xFF, 0xD8, /* SOF */
+static const guint8 jpeg_jfif_magic[] = { 0xFF, 0xD8, /* SOF */
 					  0xFF        /* start of the next marker */
 					};
 
@@ -124,7 +124,7 @@ mime_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 }
 
 static gboolean
-mime_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guchar *pd, int length, int *err, gchar **err_info)
+mime_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header *pseudo_header _U_, guint8 *pd, int length, int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1) {
 		*err_info = NULL;

@@ -34,7 +34,7 @@
 /* Initializes a buffer with a certain amount of allocated space */
 void buffer_init(Buffer* buffer, gsize space)
 {
-	buffer->data = (guchar*)g_malloc(space);
+	buffer->data = (guint8*)g_malloc(space);
 	buffer->allocated = space;
 	buffer->start = 0;
 	buffer->first_free = 0;
@@ -84,10 +84,10 @@ void buffer_assure_space(Buffer* buffer, gsize space)
 
 	/* We'll allocate more space */
 	buffer->allocated += space + 1024;
-	buffer->data = (guchar*)g_realloc(buffer->data, buffer->allocated);
+	buffer->data = (guint8*)g_realloc(buffer->data, buffer->allocated);
 }
 
-void buffer_append(Buffer* buffer, guchar *from, gsize bytes)
+void buffer_append(Buffer* buffer, guint8 *from, gsize bytes)
 {
 	buffer_assure_space(buffer, bytes);
 	memcpy(buffer->data + buffer->first_free, from, bytes);
@@ -133,14 +133,14 @@ gsize buffer_length(Buffer* buffer)
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-guchar* buffer_start_ptr(Buffer* buffer)
+guint8* buffer_start_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->start;
 }
 #endif
 
 #ifndef SOME_FUNCTIONS_ARE_DEFINES
-guchar* buffer_end_ptr(Buffer* buffer)
+guint8* buffer_end_ptr(Buffer* buffer)
 {
 	return buffer->data + buffer->first_free;
 }

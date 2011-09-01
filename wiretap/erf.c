@@ -68,7 +68,7 @@ static int erf_read_header(FILE_T fh,
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 			 gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-			      union wtap_pseudo_header *pseudo_header, guchar *pd,
+			      union wtap_pseudo_header *pseudo_header, guint8 *pd,
 			      int length, int *err, gchar **err_info);
 
 static const struct {
@@ -307,7 +307,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-			      union wtap_pseudo_header *pseudo_header, guchar *pd,
+			      union wtap_pseudo_header *pseudo_header, guint8 *pd,
 			      int length _U_, int *err, gchar **err_info)
 {
   erf_header_t erf_header;
@@ -553,7 +553,7 @@ static gboolean erf_dump(
     wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header,
-    const guchar *pd,
+    const guint8 *pd,
     int *err)
 {
   union wtap_pseudo_header other_phdr;

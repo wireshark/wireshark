@@ -111,13 +111,13 @@ static gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info,
                                       gint64 *data_offset);
 static gboolean catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
                                            union wtap_pseudo_header *pseudo_header,
-                                           guchar *pd, int length,
+                                           guint8 *pd, int length,
                                            int *err, gchar **err_info);
 static void catapult_dct2000_close(wtap *wth);
 
 static gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                       const union wtap_pseudo_header *pseudo_header,
-                                      const guchar *pd, int *err);
+                                      const guint8 *pd, int *err);
 
 
 /************************************************************/
@@ -135,14 +135,14 @@ static gboolean parse_line(char *linebuff, gint line_length,
                            gchar *context_name, guint8 *context_portp,
                            gchar *protocol_name, gchar *variant_name,
                            gchar *outhdr_name);
-static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+static int write_stub_header(guint8 *frame_buffer, char *timestamp_string,
                              packet_direction_t direction, int encap,
                              gchar *context_name, guint8 context_port,
                              gchar *protocol_name, gchar *variant_name,
                              gchar *outhdr_name);
-static guchar hex_from_char(gchar c);
-static guchar hex_byte_from_chars(gchar *c);
-static gchar char_from_hex(guchar hex);
+static guint8 hex_from_char(gchar c);
+static guint8 hex_byte_from_chars(gchar *c);
+static gchar char_from_hex(guint8 hex);
 
 static void set_pseudo_header_info(wtap *wth,
                                    int pkt_encap,
@@ -323,7 +323,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
                        aal_header_chars,
                        context_name, &context_port,
                        protocol_name, variant_name, outhdr_name)) {
-            guchar *frame_buffer;
+            guint8 *frame_buffer;
             int n;
             int stub_offset = 0;
             line_prefix_info_t *line_prefix_info;
@@ -444,7 +444,7 @@ gboolean catapult_dct2000_read(wtap *wth, int *err, gchar **err_info _U_,
 /**************************************************/
 static gboolean
 catapult_dct2000_seek_read(wtap *wth, gint64 seek_off,
-                           union wtap_pseudo_header *pseudo_header, guchar *pd,
+                           union wtap_pseudo_header *pseudo_header, guint8 *pd,
                            int length, int *err, gchar **err_info)
 {
     gint64 offset = wth->data_offset;
@@ -602,7 +602,7 @@ int catapult_dct2000_dump_can_write_encap(int encap)
 
 gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
                                const union wtap_pseudo_header *pseudo_header,
-                               const guchar *pd, int *err)
+                               const guint8 *pd, int *err)
 {
     guint32 n;
     line_prefix_info_t *prefix = NULL;
@@ -740,8 +740,8 @@ gboolean catapult_dct2000_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
         /* Each binary byte is written out as 2 hex string chars */ 
         for (; n < phdr->len; n++) {
             gchar c[2];
-            c[0] = char_from_hex((guchar)(pd[n] >> 4));
-            c[1] = char_from_hex((guchar)(pd[n] & 0x0f));
+            c[0] = char_from_hex((guint8)(pd[n] >> 4));
+            c[1] = char_from_hex((guint8)(pd[n] & 0x0f));
 
             /* Write both hex chars of byte together */
             if (!wtap_dump_file_write(wdh, c, 2, err)) {
@@ -1221,7 +1221,7 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
 /*****************************************************************/
 /* Write the stub info to the data buffer while reading a packet */
 /*****************************************************************/
-static int write_stub_header(guchar *frame_buffer, char *timestamp_string,
+static int write_stub_header(guint8 *frame_buffer, char *timestamp_string,
                              packet_direction_t direction, int encap,
                              gchar *context_name, guint8 context_port,
                              gchar *protocol_name, gchar *variant_name,
@@ -1383,7 +1383,7 @@ static void set_ppp_info(union wtap_pseudo_header *pseudo_header,
 /********************************************************/
 /* Return hex nibble equivalent of hex string character */
 /********************************************************/
-guchar hex_from_char(gchar c)
+guint8 hex_from_char(gchar c)
 {
     if ((c >= '0') && (c <= '9')) {
         return c - '0';
@@ -1398,13 +1398,13 @@ guchar hex_from_char(gchar c)
 }
 
 /* Extract and return a byte value from 2 ascii hex chars, starting from the given pointer */
-static guchar hex_byte_from_chars(gchar *c)
+static guint8 hex_byte_from_chars(gchar *c)
 {
     static guchar hex_char_array[16] = { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
                                          'a', 'b', 'c', 'd', 'e', 'f' };
 
     /* Populate lookup table first time */
-    static guchar tableValues[255][255];
+    static guint8 tableValues[255][255];
     static gint tableSet = FALSE;
     if (!tableSet) {
         gint i, j;
@@ -1426,7 +1426,7 @@ static guchar hex_byte_from_chars(gchar *c)
 /********************************************************/
 /* Return character corresponding to hex nibble value   */
 /********************************************************/
-gchar char_from_hex(guchar hex)
+gchar char_from_hex(guint8 hex)
 {
     static char hex_lookup[16] =
     { '0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};

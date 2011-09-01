@@ -34,8 +34,12 @@ extern int pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
     guint packet_size, gboolean check_packet_size, struct wtap_pkthdr *phdr,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
 
+extern void pcap_fill_in_pseudo_header(int file_type, int wtap_encap,
+    guint8 *pd, int length, union wtap_pseudo_header *pseudo_header,
+    int fcs_len);
+
 extern void pcap_read_post_process(int wtap_encap, guint packet_size,
-	gboolean bytes_swapped, guchar *pd);
+	gboolean bytes_swapped, guint8 *pd);
 
 extern int pcap_get_phdr_size(int encap,
     const union wtap_pseudo_header *pseudo_header);

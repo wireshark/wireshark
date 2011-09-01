@@ -91,7 +91,7 @@ typedef struct {
 static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean airopeekv9_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 
 static int wtap_file_read_pattern (wtap *wth, const char *pattern, int *err,
@@ -564,7 +564,7 @@ static gboolean airopeekv9_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 airopeekv9_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
     airopeek9_t *airopeek9 = (airopeek9_t *)wth->priv;

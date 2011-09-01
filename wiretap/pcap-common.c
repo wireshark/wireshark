@@ -33,6 +33,7 @@
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include "atm.h"
 #include "erf.h"
 #include "pcap-encap.h"
 #include "pcap-common.h"
@@ -1622,8 +1623,45 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 }
 
 void
+pcap_fill_in_pseudo_header(int file_type, int wtap_encap, guint8 *pd, int length,
+    union wtap_pseudo_header *pseudo_header, int fcs_len)
+{
+	switch (wtap_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		if (file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO ATM.
+			 *
+			 * Guess the traffic type based on the packet
+			 * contents.
+			 */
+			atm_guess_traffic_type(pd, length, pseudo_header);
+		} else {
+			/*
+			 * SunATM.
+			 *
+			 * If this is ATM LANE traffic, try to guess what
+			 * type of LANE traffic it is based on the packet
+			 * contents.
+			 */
+			if (pseudo_header->atm.type == TRAF_LANE)
+				atm_guess_lane_type(pd, length, pseudo_header);
+		}
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		pseudo_header->eth.fcs_len = fcs_len;
+		break;
+
+	default:
+		break;
+	}
+}
+
+void
 pcap_read_post_process(int wtap_encap, guint packet_size,
-    gboolean bytes_swapped, guchar *pd)
+    gboolean bytes_swapped, guint8 *pd)
 {
 	switch (wtap_encap) {
 

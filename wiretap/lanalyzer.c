@@ -270,7 +270,7 @@ typedef struct {
 static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean lanalyzer_dump_close(wtap_dumper *wdh, int *err);
 
@@ -546,7 +546,7 @@ static gboolean lanalyzer_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean lanalyzer_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	int bytes_read;
@@ -643,7 +643,7 @@ static void my_timersub(const struct timeval *a,
 static gboolean lanalyzer_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const guchar *pd, int *err)
+	const guint8 *pd, int *err)
 {
       double x;
       int    i;

@@ -105,17 +105,17 @@ typedef struct
 
 static gboolean _5views_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
-static gboolean _5views_read_rec_data(FILE_T fh, guchar *pd, int length,
+static gboolean _5views_read_rec_data(FILE_T fh, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int _5views_read_header(wtap *wth, FILE_T fh,
     t_5VW_TimeStamped_Header  *hdr, int *err, gchar **err_info);
 static gboolean _5views_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 
 
 static gboolean _5views_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-							 const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+							 const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
 static gboolean _5views_dump_close(wtap_dumper *wdh, int *err);
 
 
@@ -271,7 +271,7 @@ _5views_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 
 static gboolean
-_5views_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+_5views_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
    gchar **err_info)
 {
 	int	bytes_read;
@@ -316,7 +316,7 @@ _5views_read_header(wtap *wth _U_, FILE_T fh, t_5VW_TimeStamped_Header  *hdr,   
 
 static gboolean
 _5views_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
@@ -406,7 +406,7 @@ gboolean _5views_dump_open(wtap_dumper *wdh, int *err)
 static gboolean _5views_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const guchar *pd, int *err)
+	const guint8 *pd, int *err)
 {
 	_5views_dump_t *_5views = (_5views_dump_t *)wdh->priv;
 	static t_5VW_TimeStamped_Header HeaderFrame;

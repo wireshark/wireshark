@@ -86,13 +86,13 @@ static gboolean commview_read(wtap *wth, int *err, gchar **err_info,
 			      gint64 *data_offset);
 static gboolean commview_seek_read(wtap *wth, gint64 seek_off,
 				   union wtap_pseudo_header *pseudo_header,
-				   guchar *pd, int length, int *err,
+				   guint8 *pd, int length, int *err,
 				   gchar **err_info);
 static gboolean commview_read_header(commview_header_t *cv_hdr, FILE_T fh,
 				     int *err, gchar **err_info);
 static gboolean commview_dump(wtap_dumper *wdh,	const struct wtap_pkthdr *phdr,
 			      const union wtap_pseudo_header *pseudo_header,
-			      const guchar *pd, int *err);
+			      const guint8 *pd, int *err);
 
 int commview_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -223,7 +223,7 @@ commview_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset)
 
 static gboolean
 commview_seek_read(wtap *wth, gint64 seek_off, union wtap_pseudo_header
-		   *pseudo_header, guchar *pd, int length, int *err,
+		   *pseudo_header, guint8 *pd, int length, int *err,
 		   gchar **err_info)
 {
 	commview_header_t cv_hdr;
@@ -327,7 +327,7 @@ gboolean commview_dump_open(wtap_dumper *wdh, int *err _U_)
 static gboolean commview_dump(wtap_dumper *wdh,
 			      const struct wtap_pkthdr *phdr,
 			      const union wtap_pseudo_header *pseudo_header,
-			      const guchar *pd, int *err)
+			      const guint8 *pd, int *err)
 {
 	commview_header_t cv_hdr;
 	struct tm *tm;
