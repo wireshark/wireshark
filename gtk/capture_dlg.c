@@ -1796,8 +1796,10 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   row.links = NULL;
   row.active_dlt = -1;
   row.pmode = FALSE;
+#ifdef HAVE_PCAP_CREATE
   row.monitor_mode_enabled = FALSE;
   row.monitor_mode_supported = FALSE;
+#endif
   row.has_snaplen = FALSE;
   row.snaplen = 65535;
   row.cfilter = NULL;
