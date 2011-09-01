@@ -41,6 +41,10 @@
 #include "except.h"
 
 #ifdef _WIN32
+#if _MSC_VER < 1500
+/* IsDebuggerPresent() needs this #define! */
+#define _WIN32_WINNT 0x0400
+#endif
 #include <windows.h>
 #include "exceptions.h"
 #endif

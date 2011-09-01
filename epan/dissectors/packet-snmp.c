@@ -3186,7 +3186,7 @@ snmp_users_update_cb(void* p _U_, const char** err)
 		snmp_ue_assoc_t* u = &(ueas[i]);
 
 		/* RFC 3411 section 5 */
-		if (u->engine.len < 5 || u->engine.len > 32) {
+		if ((u->engine.len > 0) && (u->engine.len < 5 || u->engine.len > 32)) {
 			g_string_append_printf(es, "Invalid engineId length (%u). Must be between 5 and 32 (10 and 64 hex digits)\n", u->engine.len);
 		}
 

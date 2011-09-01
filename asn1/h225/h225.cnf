@@ -284,11 +284,15 @@ IsupNumber/nationalStandardPartyNumber isupNationalStandardPartyNumber
 #.FN_BODY RasMessage  VAL_PTR = &rasmessage_value
   	gint32 rasmessage_value;
 
+	call_id_guid = NULL;
 %(DEFAULT_BODY)s
 	col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "RAS: %%s ",
 		val_to_str(rasmessage_value, h225_RasMessage_vals, "<unknown>"));
 
 	h225_pi->msg_tag = rasmessage_value;
+	if (call_id_guid) {
+		h225_pi->guid = *call_id_guid;
+	}
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_HDR DestinationInfo/_item
