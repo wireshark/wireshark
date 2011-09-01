@@ -1803,8 +1803,10 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   row.has_snaplen = FALSE;
   row.snaplen = 65535;
   row.cfilter = NULL;
+#if defined(_WIN32) || defined(HAVE_PCAP_CREATE)
   row.buffer = 1;
-  
+#endif
+
   model = gtk_tree_view_get_model(view);
   gtk_tree_model_get_iter (model, &iter, path);
   marked_row = atoi(gtk_tree_path_to_string(path));
