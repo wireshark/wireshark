@@ -217,6 +217,9 @@ void gtk_rpcprogs_cb(GtkWidget *w, gpointer data);
 void mcaststream_launch(GtkAction *action, gpointer user_data);
 void wlanstat_launch(GtkAction *action, gpointer user_data);
 
+/** Adds a callback to be executed when the menubar is ready to have menus and items added to it */
+void ws_add_build_menubar_items_callback(gpointer callback);
+
 #else
 extern void register_stat_menu_item_stock(
     const char *name,

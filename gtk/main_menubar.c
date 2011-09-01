@@ -133,6 +133,7 @@ static GSList *popup_menu_list = NULL;
 static GtkAccelGroup *grp;
 
 static GList *merge_lua_menu_items_list = NULL;
+static GList *build_menubar_items_callback_list = NULL;
 
 GtkWidget *popup_menu_object;
 
@@ -141,6 +142,7 @@ static void add_recent_items (guint merge_id, GtkUIManager *ui_manager);
 
 static void menus_init(void);
 static void merge_lua_menu_items(GList *node);
+static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
 static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
@@ -3497,6 +3499,10 @@ menus_init(void) {
         menu_dissector_filter(&cfile);
 		/* Only LUA uses this currently. NOTE that "placeholders" must exist in the GUI description */
 		merge_lua_menu_items(merge_lua_menu_items_list);
+
+		/* Add external menus and items */
+		ws_menubar_build_external_menus();
+
         /* Initialize enabled/disabled state of menu items */
         set_menus_for_capture_file(NULL);
 #if 0
@@ -3524,6 +3530,28 @@ menus_init(void) {
         set_menus_for_file_set(/* dialog */TRUE, /* previous file */ FALSE, /* next_file */ FALSE);
 
     }
+}
+
+/* Get a merge id for the menubar */
+void
+ws_add_build_menubar_items_callback(gpointer callback)
+{
+	 build_menubar_items_callback_list = g_list_append(build_menubar_items_callback_list, callback);
+
+}
+
+static void
+ws_menubar_build_external_menus(void)
+{
+	void (*callback)(gpointer);
+
+	while(build_menubar_items_callback_list != NULL) {
+		callback = build_menubar_items_callback_list->data;
+		callback(ui_manager_main_menubar);
+		build_menubar_items_callback_list = g_list_next(build_menubar_items_callback_list);
+	}
+
+
 }
 
 typedef struct _menu_item {
