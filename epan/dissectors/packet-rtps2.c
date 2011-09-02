@@ -79,7 +79,7 @@
 #define MAX_SUMMARY_SIZE        (500)
 #define MAX_LOCATOR_SIZE        (200)
 #define MAX_IPV6_SIZE           (100)
-#define MAX_BITMAP_SIZE         (200)
+#define MAX_BITMAP_SIZE         (256)
 #define MAX_LABEL_SIZE          (64)
 #define MAX_IPV4_ADDRESS_SIZE   (64)
 
