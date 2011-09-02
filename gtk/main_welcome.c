@@ -1429,8 +1429,9 @@ GtkWidget* get_welcome_window(void)
   return welcome_hb;
 }
 
+#ifdef HAVE_LIBPCAP
 displayed_interface get_interface_data(gint index)
 {
   return g_array_index(interfaces, displayed_interface, index);
 }
-
+#endif
