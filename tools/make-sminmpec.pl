@@ -34,6 +34,7 @@ if($in =~ m/^http:/i) {
 	die "LWP isn't installed. It is part of the standard Perl module libwww." if $@;
 
 	my $agent    = LWP::UserAgent->new;
+	$agent->env_proxy;
 
 	warn "starting to fetch $in ...\n";
 

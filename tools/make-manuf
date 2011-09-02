@@ -24,6 +24,7 @@ if( $@ ) {
 	" module libwww.  Bailing.\n";
 }
 $agent    = LWP::UserAgent->new;
+$agent->env_proxy;
 
 $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
