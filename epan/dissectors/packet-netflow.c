@@ -5814,12 +5814,12 @@ proto_register_netflow(void)
 		{&hf_cflow_srcaddr,
 		 {"SrcAddr", "cflow.srcaddr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Flow Source Address", HFILL}
+		  "Flow Source Address (IPv4)", HFILL}
 		 },
 		{&hf_cflow_srcaddr_v6,
 		 {"SrcAddr", "cflow.srcaddrv6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "Flow Source Address", HFILL}
+		  "Flow Source Address (IPv6)", HFILL}
 		 },
 		{&hf_cflow_srcnet,
 		 {"SrcNet", "cflow.srcnet",
@@ -5829,12 +5829,12 @@ proto_register_netflow(void)
 		{&hf_cflow_dstaddr,
 		 {"DstAddr", "cflow.dstaddr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Flow Destination Address", HFILL}
+		  "Flow Destination Address (IPv4)", HFILL}
 		 },
 		{&hf_cflow_dstaddr_v6,
 		 {"DstAddr", "cflow.dstaddrv6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "Flow Destination Address", HFILL}
+		  "Flow Destination Address (IPv6)", HFILL}
 		 },
 		{&hf_cflow_dstnet,
 		 {"DstNet", "cflow.dstnet",
@@ -5844,22 +5844,22 @@ proto_register_netflow(void)
 		{&hf_cflow_nexthop,
 		 {"NextHop", "cflow.nexthop",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Router nexthop", HFILL}
+		  "Router nexthop (IPv4)", HFILL}
 		 },
 		{&hf_cflow_nexthop_v6,
 		 {"NextHop", "cflow.nexthopv6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "Router nexthop", HFILL}
+		  "Router nexthop (IPv6)", HFILL}
 		 },
 		{&hf_cflow_bgpnexthop,
 		 {"BGPNextHop", "cflow.bgpnexthop",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "BGP Router Nexthop", HFILL}
+		  "BGP Router Nexthop (IPv4)", HFILL}
 		 },
 		{&hf_cflow_bgpnexthop_v6,
 		 {"BGPNextHop", "cflow.bgpnexthopv6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "BGP Router Nexthop", HFILL}
+		  "BGP Router Nexthop (IPv6)", HFILL}
 		 },
 		{&hf_cflow_inputint,
 		 {"InputInt", "cflow.inputint",
@@ -6164,7 +6164,7 @@ proto_register_netflow(void)
 		{&hf_cflow_flow_exporter,
 		 {"FlowExporter", "cflow.flow_exporter",
 		  FT_BYTES/*FT_IPv4*/, BASE_NONE, NULL, 0x0,
-		  "Flow Exporter", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_icmp_ipv4_type,
 		 {"IPv4 ICMP Type", "cflow.icmp_ipv4_type",
@@ -6214,7 +6214,7 @@ proto_register_netflow(void)
 		{&hf_cflow_octets_squared64,
 		 {"OctetsSquared", "cflow.octets_squared",
 		  FT_UINT64, BASE_DEC, NULL, 0x0,
-		  "Octets Squared", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_udp_length,
 		 {"UDP Length", "cflow.udp_length",
@@ -6224,7 +6224,7 @@ proto_register_netflow(void)
 		{&hf_cflow_is_multicast,
 		 {"IsMulticast", "cflow.is_multicast",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Is Multicast", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_ip_header_words,
 		 {"IPHeaderLen", "cflow.ip_header_words",
@@ -6234,7 +6234,7 @@ proto_register_netflow(void)
 		{&hf_cflow_option_map,
 		 {"OptionMap", "cflow.option_map",
 		  FT_BYTES, BASE_NONE, NULL, 0x0,
-		  "Option Map", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_section_header,
 		 {"SectionHeader", "cflow.section_header",
@@ -6480,12 +6480,12 @@ proto_register_netflow(void)
 		{&hf_cflow_dstnet_v6,
 		 {"DstNet", "cflow.dstnetv6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "Flow Destination Network", HFILL}
+		  "Flow Destination Network (IPv6)", HFILL}
 		},
 		{&hf_cflow_srcnet_v6,
 		 {"SrcNet", "cflow.srcnetv6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "Flow Source Network", HFILL}
+		  "Flow Source Network (IPv6)", HFILL}
 		},
 		{&hf_cflow_ignore_packets,
 		 {"Ignored Packets", "cflow.ignore_packets",
@@ -6660,22 +6660,22 @@ proto_register_netflow(void)
 		{&hf_cflow_collector_addr,
 		 {"CollectorAddr", "cflow.collector_addr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Flow Collector Address", HFILL}
+		  "Flow Collector Address (IPv4)", HFILL}
 		},
 		{&hf_cflow_collector_addr_v6,
 		 {"CollectorAddr", "cflow.collector_addr_v6",
 		  FT_IPv6, BASE_NONE, NULL, 0x0,
-		  "Flow Collector Address", HFILL}
+		  "Flow Collector Address (IPv6)", HFILL}
 		},
 		{&hf_cflow_export_interface,
 		 {"ExportInterface", "cflow.export_interface",
 		  FT_UINT32, BASE_DEC, NULL, 0x0,
-		  "Export Interface", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_export_protocol_version,
 		 {"ExportProtocolVersion", "cflow.export_protocol_version",
 		  FT_UINT8, BASE_DEC, NULL, 0x0,
-		  "Export Protocol Version", HFILL}
+		  NULL, HFILL}
 		 },
 		{&hf_cflow_export_prot,
 		 {"ExportTransportProtocol", "cflow.exporter_protocol",
@@ -7436,12 +7436,12 @@ proto_register_netflow(void)
 		{&hf_cflow_nat_int_addr,
 		 {"Internal IPv4 address", "cflow.nat_int_addr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Internal IPv4 address", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_nat_ext_addr,
 		 {"External IPv4 address", "cflow.nat_ext_addr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "External IPv4 address", HFILL}
+		  NULL, HFILL}
 		},
 		{&hf_cflow_nat_ext_port_first,
 		 {"NAT port start", "cflow.nat_ext_port_first",
