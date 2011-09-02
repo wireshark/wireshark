@@ -652,7 +652,7 @@ dissect_hdfs_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /* determine PDU length of protocol  */
-static guint get_hdfs_message_len(packet_info *pinfo, tvbuff_t *tvb, int offset)
+static guint get_hdfs_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset _U_)
 {
     int len = tvb_reported_length(tvb);
     
