@@ -196,7 +196,7 @@ dissect_sita(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (!dissector_try_uint(sita_dissector_table, pinfo->pseudo_header->sita.proto, tvb, pinfo, tree)) {		/* try to find and run an applicable dissector */
 		if (check_col(pinfo->cinfo, COL_PROTOCOL))																/* if one can't be found... tell them we don't */
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UKNOWN");													/* know how to decode this protocol */
+			col_set_str(pinfo->cinfo, COL_PROTOCOL, "UNKNOWN");													/* know how to decode this protocol */
 		if (check_col(pinfo->cinfo, COL_INFO))
 			col_add_fstr(pinfo->cinfo, COL_INFO, "IOP protocol number: %u", pinfo->pseudo_header->sita.proto);	/* and give them the details then */
 		call_dissector(data_handle, tvb, pinfo, tree);															/* call the generic (hex display) decoder instead */

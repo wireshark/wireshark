@@ -1038,12 +1038,58 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_VPLS:
                 plen =  tvb_get_ntohs(tvb,offset);
                 rd_type=tvb_get_ntohs(tvb,offset+2);
+
+                /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability 
+                   Both BGP-AD and VPLS-BGP [RFC4761] use the same AFI/SAFI.  In order
+                   for both BGP-AD and VPLS-BGP to co-exist, the NLRI length must be
+                   used as a demultiplexer.
+
+                   The BGP-AD NLRI has an NLRI length of 12 bytes, containing only an
+                   8-byte RD and a 4-byte VSI-ID. VPLS-BGP [RFC4761] uses a 17-byte
+                   NLRI length.  Therefore, implementations of BGP-AD must ignore NLRI
+                   that are greater than 12 bytes.
+                */
+                if(plen == 12) /* BGP-AD */
+                {
+                    switch (rd_type) {
+
+                        case FORMAT_AS2_LOC:
+                            proto_tree_add_text(tree, tvb, start_offset,
+                                                (offset + plen + 2) - start_offset,
+                                                "RD: %u:%u, PE_addr: %s",
+                                                tvb_get_ntohs(tvb, offset + 4),
+                                                tvb_get_ntohl(tvb, offset + 6),
+                                                tvb_ip_to_str(tvb, offset + 10));
+                            break;
+
+                        case FORMAT_IP_LOC:
+                            proto_tree_add_text(tree, tvb, offset,
+                                                (offset + plen + 2) - start_offset,
+                                                "RD: %s:%u, PE_addr: %s",
+                                                tvb_ip_to_str(tvb, offset + 10),
+                                                tvb_get_ntohs(tvb, offset + 8),
+                                                tvb_ip_to_str(tvb, offset + 10));
+                            break;
+                        case FORMAT_AS4_LOC:
+                            proto_tree_add_text(tree, tvb, start_offset,
+                                                (offset + plen + 2) - start_offset,
+                                                "RD: %u:%u, PE_addr: %s",
+                                                tvb_get_ntohl(tvb, offset + 4),
+                                                tvb_get_ntohs(tvb, offset + 8),
+                                                tvb_ip_to_str(tvb, offset + 10));
+                            break;
+                        default:
+                            proto_tree_add_text(tree, tvb, start_offset,
+                                                (offset - start_offset) + 2,
+                                                "Unknown labeled VPN address format %u", rd_type);
+                            return -1;
+                    } /* switch (rd_type) */
+                }else{ /* VPLS-BGP */
                 ce_id=tvb_get_ntohs(tvb,offset+10);
                 labblk_off=tvb_get_ntohs(tvb,offset+12);
                 labblk_size=tvb_get_ntohs(tvb,offset+14);
                 stack_strbuf = ep_strbuf_new_label(NULL);
                 labnum = decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
-
                 switch (rd_type) {
 
                     case FORMAT_AS2_LOC:
@@ -1080,6 +1126,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                             "Unknown labeled VPN address format %u", rd_type);
                         return -1;
                 } /* switch (rd_type) */
+                }
                 /* FIXME there are subTLVs left to decode ... for now lets omit them */
                 total_length = plen+2;
                 break;
@@ -1307,7 +1354,7 @@ dissect_bgp_capability_item(tvbuff_t *tvb, int *p, proto_tree *tree, int ctype, 
                 proto_tree_add_text(subtree, tvb, *p,
                                     1, "Send/Receive: %s (%u)",
                                     val_to_str(orfsendrecv, orf_send_recv_vals,
-                                               "Uknown"), orfsendrecv);
+                                               "Unknown"), orfsendrecv);
                 (*p)++;
             }
             break;

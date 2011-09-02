@@ -4006,7 +4006,7 @@ proto_register_ndmp(void)
 		NULL, 0, "Current seek position on device", HFILL }},
 
 	{ &hf_ndmp_bytes_left_to_read, {
-		"Bytes left to read", "ndmp.bytes_left_to_read", FT_INT64, BASE_DEC,
+		"Bytes left to read", "ndmp.bytes_left_to_read", FT_UINT64, BASE_DEC,
 		NULL, 0, "Number of bytes left to be read from the device", HFILL }},
 
 	{ &hf_ndmp_window_offset, {

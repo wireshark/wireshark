@@ -33,6 +33,7 @@
 #include <errno.h>
 #include "wtap-int.h"
 #include "file_wrappers.h"
+#include "atm.h"
 #include "erf.h"
 #include "pcap-encap.h"
 #include "pcap-common.h"
@@ -1622,10 +1623,38 @@ pcap_process_pseudo_header(FILE_T fh, int file_type, int wtap_encap,
 }
 
 void
-pcap_read_post_process(int wtap_encap, guint packet_size,
-    gboolean bytes_swapped, guchar *pd)
+pcap_read_post_process(int file_type, int wtap_encap,
+    union wtap_pseudo_header *pseudo_header,
+    guint8 *pd, guint packet_size, gboolean bytes_swapped, int fcs_len)
 {
 	switch (wtap_encap) {
+
+	case WTAP_ENCAP_ATM_PDUS:
+		if (file_type == WTAP_FILE_PCAP_NOKIA) {
+			/*
+			 * Nokia IPSO ATM.
+			 *
+			 * Guess the traffic type based on the packet
+			 * contents.
+			 */
+			atm_guess_traffic_type(pd, packet_size, pseudo_header);
+		} else {
+			/*
+			 * SunATM.
+			 *
+			 * If this is ATM LANE traffic, try to guess what
+			 * type of LANE traffic it is based on the packet
+			 * contents.
+			 */
+			if (pseudo_header->atm.type == TRAF_LANE)
+				atm_guess_lane_type(pd, packet_size,
+				    pseudo_header);
+		}
+		break;
+
+	case WTAP_ENCAP_ETHERNET:
+		pseudo_header->eth.fcs_len = fcs_len;
+		break;
 
 	case WTAP_ENCAP_USB_LINUX:
 		pcap_process_linux_usb_pseudoheader(packet_size,
@@ -1671,8 +1700,6 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 	case WTAP_ENCAP_ERF:
 	        hdrsize = (int)sizeof (struct erf_phdr);
-		if (pseudo_header->erf.phdr.type & 0x80)
-			hdrsize += 8;
 		switch (pseudo_header->erf.phdr.type & 0x7F) {
 
 		case ERF_TYPE_MC_HDLC:
@@ -1693,6 +1720,22 @@ pcap_get_phdr_size(int encap, const union wtap_pseudo_header *pseudo_header)
 
 		default:
 			break;
+		}
+
+		/*
+		 * Add in the lengths of the extension headers.
+		 */
+		if (pseudo_header->erf.phdr.type & 0x80) {
+			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+			guint8 erf_exhdr[8];
+			guint8 type;
+
+			do {
+				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				type = erf_exhdr[0];
+				hdrsize += 8;
+				i++;
+			} while (type & 0x80 && i < max);
 		}
 		break;
 
@@ -1831,7 +1874,7 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		break;
 
 	case WTAP_ENCAP_ERF:
-	         /*
+		/*
 		 * Write the ERF header.
 		 */
 	        memset(&erf_hdr, 0, sizeof(erf_hdr));
@@ -1866,6 +1909,24 @@ pcap_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pseudo_header *pse
 		if (!wtap_dump_file_write(wdh, erf_hdr, size, err))
 			return FALSE;
 		wdh->bytes_dumped += size;
+
+		/*
+		 * Now write out the extension headers.
+		 */
+		if (pseudo_header->erf.phdr.type & 0x80) {
+			int i = 0, max = sizeof(pseudo_header->erf.ehdr_list)/sizeof(struct erf_ehdr);
+			guint8 erf_exhdr[8];
+			guint8 type;
+
+			do {
+				phtonll(erf_exhdr, pseudo_header->erf.ehdr_list[i].ehdr);
+				type = erf_exhdr[0];
+				if (!wtap_dump_file_write(wdh, erf_exhdr, 8, err))
+					return FALSE;
+				wdh->bytes_dumped += 8;
+				i++;
+			} while (type & 0x80 && i < max);
+		}
 		break;
 
 	case WTAP_ENCAP_I2C:

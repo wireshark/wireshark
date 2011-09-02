@@ -76,9 +76,9 @@ const gint64 KUnixTimeBase = G_GINT64_CONSTANT(0x00dcddb30f2f8000); /* offset fr
 static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
-static gboolean snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+static gboolean snoop_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info);
 
 int btsnoop_open(wtap *wth, int *err, gchar **err_info)
@@ -237,7 +237,7 @@ static gboolean btsnoop_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info) {
 	int	bytes_read;
 	struct btsnooprec_hdr hdr;
@@ -289,7 +289,7 @@ static gboolean btsnoop_seek_read(wtap *wth, gint64 seek_off,
 }
 
 static gboolean
-snoop_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+snoop_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info)
 {
 	int	bytes_read;
@@ -355,7 +355,7 @@ static guint8 btsnoop_lookup_flags(guint8 hci_type, gboolean sent, guint8 *flags
 static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header,
-    const guchar *pd, int *err,
+    const guint8 *pd, int *err,
     struct btsnooprec_hdr *rec_hdr)
 {
     gint64 ts_usec;
@@ -380,7 +380,7 @@ static gboolean btsnoop_dump_partial_rec_hdr(wtap_dumper *wdh _U_,
 static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header,
-    const guchar *pd, int *err)
+    const guint8 *pd, int *err)
 {
     struct btsnooprec_hdr rec_hdr;
 
@@ -409,7 +409,7 @@ static gboolean btsnoop_dump_h1(wtap_dumper *wdh,
 static gboolean btsnoop_dump_h4(wtap_dumper *wdh,
     const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header,
-    const guchar *pd, int *err)
+    const guint8 *pd, int *err)
 {
     struct btsnooprec_hdr rec_hdr;
 

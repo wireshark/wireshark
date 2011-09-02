@@ -344,7 +344,7 @@ static const struct { int e; const char* s; } encaps[] = {
 static gboolean
 k12text_dump(wtap_dumper *wdh _U_, const struct wtap_pkthdr *phdr,
 	     const union wtap_pseudo_header *pseudo_header _U_,
-	     const guchar *pd, int *err) {
+	     const guint8 *pd, int *err) {
 #define K12BUF_SIZE 196808
 	char *buf;
 	size_t left = K12BUF_SIZE;

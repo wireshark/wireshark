@@ -935,7 +935,7 @@ dissect_dcom_dcerpc_pointer(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 /* mark data as "ToBeDone" */
-/* XXX: handout data to generic "unkown data" dissector? */
+/* XXX: handout data to generic "unknown data" dissector? */
 extern int
 dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)
@@ -954,7 +954,7 @@ dissect_dcom_tobedone_data(tvbuff_t *tvb, int offset,
 
 
 /* mark data as "No Specification Available" */
-/* XXX: handout data to generic "unkown data" dissector? */
+/* XXX: handout data to generic "unknown data" dissector? */
 extern int
 dissect_dcom_nospec_data(tvbuff_t *tvb, int offset,
 	packet_info *pinfo _U_, proto_tree *tree, guint8 *drep _U_, int length)

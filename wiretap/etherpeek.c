@@ -149,14 +149,14 @@ typedef struct {
 static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static void etherpeek_fill_pseudo_header_v7(
     union wtap_pseudo_header *pseudo_header, airopeek_radio_hdr_t *radio_hdr);
 static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 
 int etherpeek_open(wtap *wth, int *err, gchar **err_info)
@@ -364,7 +364,7 @@ int etherpeek_open(wtap *wth, int *err, gchar **err_info)
 static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
-	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
+	guint8 ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 #if 0
 	guint16 protoNum;
 #endif
@@ -478,10 +478,10 @@ static gboolean etherpeek_read_v7(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 etherpeek_seek_read_v7(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-	guchar ep_pkt[ETHERPEEK_V7_PKT_SIZE];
+	guint8 ep_pkt[ETHERPEEK_V7_PKT_SIZE];
 	guint8  status;
 	airopeek_radio_hdr_t radio_hdr;
 
@@ -546,7 +546,7 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset)
 {
 	etherpeek_t *etherpeek = (etherpeek_t *)wth->priv;
-	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
+	guint8 ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	guint16 length;
 	guint16 sliceLength;
 #if 0
@@ -637,10 +637,10 @@ static gboolean etherpeek_read_v56(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 etherpeek_seek_read_v56(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
-	guchar ep_pkt[ETHERPEEK_V56_PKT_SIZE];
+	guint8 ep_pkt[ETHERPEEK_V56_PKT_SIZE];
 	int pkt_encap;
 	guint16 protoNum;
 	unsigned int i;

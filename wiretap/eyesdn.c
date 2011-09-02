@@ -427,7 +427,7 @@ esc_write(wtap_dumper *wdh, const guint8 *buf, int len, int *err)
 static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const struct wtap_pkthdr *phdr,
 			    const union wtap_pseudo_header *pseudo_header _U_,
-			    const guchar *pd, int *err);
+			    const guint8 *pd, int *err);
 
 gboolean eyesdn_dump_open(wtap_dumper *wdh, int *err)
 {
@@ -465,7 +465,7 @@ int eyesdn_dump_can_write_encap(int encap)
 static gboolean eyesdn_dump(wtap_dumper *wdh,
 			    const struct wtap_pkthdr *phdr,
 			    const union wtap_pseudo_header *pseudo_header _U_,
-			    const guchar *pd, int *err)
+			    const guint8 *pd, int *err)
 {
 	static const guint8 start_flag = 0xff;
 	guint8 buf[EYESDN_HDR_LENGTH];

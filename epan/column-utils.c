@@ -756,10 +756,15 @@ static gint
 set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 {
   time_t secs = ts->secs;
+  long nsecs = (long) ts->nsecs;
   gboolean negative = FALSE;
 
   if (secs < 0) {
     secs = -secs;
+    negative = TRUE;
+  }
+  if (nsecs < 0) {
+    nsecs = -nsecs;
     negative = TRUE;
   }
 
@@ -791,18 +796,18 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) secs / (60 * 60),
 		 (gint32) (secs / 60) % 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 100000000);
+		 nsecs / 100000000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%01lds",
 		 negative ? "- " : "",
 		 (gint32) secs / 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 100000000);
+		 nsecs / 100000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%01lds",
 		 negative ? "- " : "",
 		 (gint32) secs,
-		 (long)ts->nsecs / 100000000);
+		 nsecs / 100000000);
     }
     break;
   case TS_PREC_FIXED_CSEC:
@@ -813,18 +818,18 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) secs / (60 * 60),
 		 (gint32) (secs / 60) % 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 10000000);
+		 nsecs / 10000000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%02lds",
 		 negative ? "- " : "",
 		 (gint32) secs / 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 10000000);
+		 nsecs / 10000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%02lds",
 		 negative ? "- " : "",
 		 (gint32) secs,
-		 (long)ts->nsecs / 10000000);
+		 nsecs / 10000000);
     }
     break;
   case TS_PREC_FIXED_MSEC:
@@ -835,18 +840,18 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) secs / (60 * 60),
 		 (gint32) (secs / 60) % 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 1000000);
+		 nsecs / 1000000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%03lds",
 		 negative ? "- " : "",
 		 (gint32) secs / 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 1000000);
+		 nsecs / 1000000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%03lds",
 		 negative ? "- " : "",
 		 (gint32) secs,
-		 (long)ts->nsecs / 1000000);
+		 nsecs / 1000000);
     }
     break;
   case TS_PREC_FIXED_USEC:
@@ -857,18 +862,18 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) secs / (60 * 60),
 		 (gint32) (secs / 60) % 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 1000);
+		 nsecs / 1000);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%06lds",
 		 negative ? "- " : "",
 		 (gint32) secs / 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs / 1000);
+		 nsecs / 1000);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%06lds",
 		 negative ? "- " : "",
 		 (gint32) secs,
-		 (long)ts->nsecs / 1000);
+		 nsecs / 1000);
     }
     break;
   case TS_PREC_FIXED_NSEC:
@@ -879,18 +884,18 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 		 (gint32) secs / (60 * 60),
 		 (gint32) (secs / 60) % 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs);
+		 nsecs);
     } else if (secs >= 60) {
       g_snprintf(buf, COL_MAX_LEN, "%s%dm %2d.%09lds",
 		 negative ? "- " : "",
 		 (gint32) secs / 60,
 		 (gint32) secs % 60,
-		 (long)ts->nsecs);
+		 nsecs);
     } else {
       g_snprintf(buf, COL_MAX_LEN, "%s%d.%09lds",
 		 negative ? "- " : "",
 		 (gint32) secs,
-		 (long)ts->nsecs);
+		 nsecs);
     }
     break;
   default:

@@ -256,7 +256,7 @@ write_pdml_preamble(FILE *fh, const gchar* filename)
 	fputs("<?xml-stylesheet type=\"text/xsl\" href=\"" PDML2HTML_XSL "\"?>\n", fh);
 	fprintf(fh, "<!-- You can find " PDML2HTML_XSL " in %s or at http://anonsvn.wireshark.org/trunk/wireshark/" PDML2HTML_XSL ". -->\n", get_datafile_dir());
 	fputs("<pdml version=\"" PDML_VERSION "\" ", fh);
-	fprintf(fh, "creator=\"%s/%s\" time=\"%s\" capture_file=\"%s\">\n", PACKAGE, VERSION, ts, filename);
+	fprintf(fh, "creator=\"%s/%s\" time=\"%s\" capture_file=\"%s\">\n", PACKAGE, VERSION, ts, filename ? filename : "");
 }
 
 void

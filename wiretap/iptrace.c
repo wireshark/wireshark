@@ -35,13 +35,13 @@
 static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
     int *err, gchar **err_info);
 
 static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
     int *err, gchar **err_info);
 
 static int iptrace_read_rec_header(FILE_T fh, guint8 *header, int header_len,
@@ -131,7 +131,7 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
 	guint8			*data_ptr;
 	iptrace_1_0_phdr	pkt_hdr;
-	guchar			fddi_padding[3];
+	guint8			fddi_padding[3];
 
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
@@ -214,13 +214,13 @@ static gboolean iptrace_read_1_0(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean iptrace_seek_read_1_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
     int *err, gchar **err_info)
 {
 	int			ret;
 	guint8			header[IPTRACE_1_0_PHDR_SIZE];
 	int			pkt_encap;
-	guchar			fddi_padding[3];
+	guint8			fddi_padding[3];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -314,7 +314,7 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
 	guint8			*data_ptr;
 	iptrace_2_0_phdr	pkt_hdr;
-	guchar			fddi_padding[3];
+	guint8			fddi_padding[3];
 
 	/* Read the descriptor data */
 	*data_offset = wth->data_offset;
@@ -397,13 +397,13 @@ static gboolean iptrace_read_2_0(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean iptrace_seek_read_2_0(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int packet_size,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int packet_size,
     int *err, gchar **err_info)
 {
 	int			ret;
 	guint8			header[IPTRACE_2_0_PHDR_SIZE];
 	int			pkt_encap;
-	guchar			fddi_padding[3];
+	guint8			fddi_padding[3];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;

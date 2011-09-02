@@ -91,11 +91,11 @@ struct radcomrec_hdr {
 static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	gint64 *data_offset);
 static gboolean radcom_seek_read(wtap *wth, gint64 seek_off,
-	union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+	union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
 	int *err, gchar **err_info);
 static int radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr,
 	int *err, gchar **err_info);
-static gboolean radcom_read_rec_data(FILE_T fh, guchar *pd, int length,
+static gboolean radcom_read_rec_data(FILE_T fh, guint8 *pd, int length,
 	int *err, gchar **err_info);
 
 int radcom_open(wtap *wth, int *err, gchar **err_info)
@@ -279,7 +279,7 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 	guint32 sec;
 	int	bytes_read;
 	struct tm tm;
-	guchar	phdr[8];
+	guint8	phdr[8];
 	char	fcs[2];
 
 	/* Read record header. */
@@ -379,12 +379,12 @@ static gboolean radcom_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 radcom_seek_read(wtap *wth, gint64 seek_off,
-		 union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+		 union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
 		 int *err, gchar **err_info)
 {
 	int	ret;
 	struct radcomrec_hdr hdr;
-	guchar	phdr[8];
+	guint8	phdr[8];
 
 	if (file_seek(wth->random_fh, seek_off, SEEK_SET, err) == -1)
 		return FALSE;
@@ -450,7 +450,7 @@ radcom_read_rec_header(FILE_T fh, struct radcomrec_hdr *hdr, int *err,
 }
 
 static gboolean
-radcom_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+radcom_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
 		     gchar **err_info)
 {
 	int	bytes_read;

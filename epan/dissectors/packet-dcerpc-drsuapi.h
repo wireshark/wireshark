@@ -78,7 +78,7 @@ int drsuapi_dissect_DsNameStatus(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 extern const value_string drsuapi_DsNameFlags_vals[];
 int drsuapi_dissect_DsNameFlags(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep, int hf_index, guint32 param);
 
-#define DRSUAPI_DS_NAME_FORMAT_UKNOWN		0
+#define DRSUAPI_DS_NAME_FORMAT_UNKNOWN		0
 #define DRSUAPI_DS_NAME_FORMAT_FQDN_1779		1
 #define DRSUAPI_DS_NAME_FORMAT_NT4_ACCOUNT		2
 #define DRSUAPI_DS_NAME_FORMAT_DISPLAY		3

@@ -174,6 +174,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  Malformed Packet in decode for BGP-AD update.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6122">Bug
+          6122</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Wrong display of CSN_BIT in CSN.1.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6151">Bug
           6151</ulink>)
@@ -210,15 +216,75 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
-          .</ulink>)
+	  [Enter] key behavior varies when manually typing display filters.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6228">Bug
+          6228</ulink>)
         </para></listitem>
 
         <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
-          .</ulink>)
+	  Contents of pcapng EnhancedPacketBlocks with comments aren't displayed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6229">Bug
+          6229</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Misdecoding 3G Neighbour Cell Information Element in SI2quater message due to a coding typo.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6237">Bug
+          6237</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Mis-spelled word "unknown" in assorted files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6244">Bug
+          6244</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  tshark run with -Tpdml makes a seg fault.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6245">Bug
+          6245</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  btl2cap extended window shows wrong bit.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6257">Bug
+          6257</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  NDMP dissector incorrectly represents "ndmp.bytes_left_to_read" as signed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6262">Bug
+          6262</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  File types with no snaplen written out with a zero snaplen in pcap-ng files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6289">Bug
+          6289</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  ERF records with extension headers not written out correctly to pcap or pcap-ng files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6265">Bug
+          6265</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wrong display of CSN_BIT under CSN_UNION.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6287">Bug
+          6287</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  RTPS2: MAX_BITMAP_SIZE is defined incorrectly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6276">Bug
+          6276</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Copying from RTP stream analysis copies 1st line many times.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6279">Bug
+          6279</ulink>)
         </para></listitem>
 
       </itemizedlist>
@@ -247,16 +313,21 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+Bluetooth L2CAP,
 CSN.1,
+DCERPC,
+GSM A RR,
 GTPv2,
 ICMP,
 ICMPv6,
 IKE,
-OpenSafety,
 MSISDN,
+NDMP,
+OpenSafety,
+RTPS2,
 sFlow,
 SNMP,
-TCP,
+TCP
 
     </para>
     </section>
@@ -264,7 +335,7 @@ TCP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-JPEG.
+CommView, pcap-ng, JPEG.
 
     </para>
     </section>

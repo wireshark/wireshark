@@ -412,7 +412,7 @@ gboolean nstrace_read_v20(wtap *wth, int *err, gchar **err_info,
 		 gint64 *data_offset);
 gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
 		      union wtap_pseudo_header *pseudo_header,
-		      guchar *pd, int length,
+		      guint8 *pd, int length,
 		      int *err, gchar **err_info);
 void nstrace_close(wtap *wth);
 void nstrace_sequential_close(wtap *wth);
@@ -423,7 +423,7 @@ gboolean nstrace_set_start_time(wtap *wth);
 guint64	ns_hrtime2nsec(guint32 tm);
 
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-	const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+	const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
 
 
 #define GET_READ_PAGE_SIZE(remaining_file_size) ((gint32)((remaining_file_size>NSPR_PAGESIZE)?NSPR_PAGESIZE:remaining_file_size))
@@ -950,7 +950,7 @@ gboolean nstrace_read(wtap *wth, int *err, gchar **err_info, gint64 *data_offset
 
 
 gboolean nstrace_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	int bytes_read;
@@ -1131,7 +1131,7 @@ static gboolean nstrace_add_signature(wtap_dumper *wdh, int *err)
 
 static gboolean
 nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-     const guchar *pd, int *err)
+     const guint8 *pd, int *err)
 {
 	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 	guint64 nsg_creltime;
@@ -1199,7 +1199,7 @@ nstrace_add_abstime(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean nstrace_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
 {
 	nstrace_dump_t *nstrace = (nstrace_dump_t *)wdh->priv;
 

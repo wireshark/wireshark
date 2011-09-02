@@ -176,17 +176,17 @@ static const int netmon_encap[] = {
 static gboolean netmon_read(wtap *wth, int *err, gchar **err_info,
     gint64 *data_offset);
 static gboolean netmon_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info);
 static gboolean netmon_read_atm_pseudoheader(FILE_T fh,
     union wtap_pseudo_header *pseudo_header, int *err, gchar **err_info);
-static gboolean netmon_read_rec_data(FILE_T fh, guchar *pd, int length,
+static gboolean netmon_read_rec_data(FILE_T fh, guint8 *pd, int length,
     int *err, gchar **err_info);
 static int netmon_read_rec_trailer(FILE_T fh, int trlr_size, int *err,
     gchar **err_info);
 static void netmon_sequential_close(wtap *wth);
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
 static gboolean netmon_dump_close(wtap_dumper *wdh, int *err);
 
 int netmon_open(wtap *wth, int *err, gchar **err_info)
@@ -397,7 +397,7 @@ netmon_trailer_size(netmon_t *netmon)
 
 static void
 netmon_set_pseudo_header_info(int pkt_encap,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length)
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length)
 {
 	switch (pkt_encap) {
 
@@ -627,7 +627,7 @@ again:
 
 static gboolean
 netmon_seek_read(wtap *wth, gint64 seek_off,
-    union wtap_pseudo_header *pseudo_header, guchar *pd, int length,
+    union wtap_pseudo_header *pseudo_header, guint8 *pd, int length,
     int *err, gchar **err_info)
 {
 	netmon_t *netmon = (netmon_t *)wth->priv;
@@ -720,7 +720,7 @@ netmon_read_atm_pseudoheader(FILE_T fh, union wtap_pseudo_header *pseudo_header,
 }
 
 static gboolean
-netmon_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+netmon_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
     gchar **err_info)
 {
 	int	bytes_read;
@@ -907,7 +907,7 @@ gboolean netmon_dump_open(wtap_dumper *wdh, int *err)
 /* Write a record for a packet to a dump file.
    Returns TRUE on success, FALSE on failure. */
 static gboolean netmon_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err)
+    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err)
 {
 	netmon_dump_t *netmon = (netmon_dump_t *)wdh->priv;
 	struct netmonrec_1_x_hdr rec_1_x_hdr;

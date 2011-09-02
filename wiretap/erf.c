@@ -68,7 +68,7 @@ static int erf_read_header(FILE_T fh,
 static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 			 gint64 *data_offset);
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-			      union wtap_pseudo_header *pseudo_header, guchar *pd,
+			      union wtap_pseudo_header *pseudo_header, guint8 *pd,
 			      int length, int *err, gchar **err_info);
 
 extern int erf_open(wtap *wth, int *err, gchar **err_info)
@@ -76,7 +76,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
   int i, n, records_for_erf_check = RECORDS_FOR_ERF_CHECK;
   int valid_prev = 0;
   char *s;
-  erf_timestamp_t prevts,ts; 
+  erf_timestamp_t prevts,ts;
   erf_header_t header;
   guint32 mc_hdr;
   guint16 eth_hdr;
@@ -125,12 +125,12 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     rlen=g_ntohs(header.rlen);
 
     /* fail on invalid record type, invalid rlen, timestamps decreasing, or incrementing too far */
-    
+
     /* Test valid rlen >= 16 */
     if (rlen < 16) {
       return 0;
     }
-    
+
     packet_size = rlen - (guint32)sizeof(header);
     if (packet_size > WTAP_MAX_PACKET_SIZE) {
       /*
@@ -154,24 +154,24 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     if ((header.type & 0x7F) == 0 || (header.type & 0x7F) > ERF_TYPE_MAX ) {
       return 0;
     }
-    
+
     /* The ERF_TYPE_MAX is the PAD record, but the last used type is ERF_TYPE_INFINIBAND_LINK */
     if ((header.type & 0x7F) > ERF_TYPE_INFINIBAND_LINK) {
       return 0;
     }
-    
+
     if ((ts = pletohll(&header.ts)) < prevts) {
       /* reassembled AALx records may not be in time order, also records are not in strict time order between physical interfaces, so allow 1 sec fudge */
       if ( ((prevts-ts)>>32) > 1 ) {
 	return 0;
       }
     }
-    
+
     /* Check to see if timestamp increment is > 1 week */
     if ( (valid_prev) && (ts > prevts) && (((ts-prevts)>>32) > 3600*24*7) ) {
       return 0;
     }
-    
+
     memcpy(&prevts, &ts, sizeof(prevts));
 
     /* Read over the extension headers */
@@ -184,7 +184,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
 	    packet_size -= (guint32)sizeof(erf_ext_header);
 	    memcpy(&type, &erf_ext_header, sizeof(type));
     }
-    
+
 
     /* Read over MC or ETH subheader */
     switch(header.type & 0x7F) {
@@ -228,7 +228,7 @@ extern int erf_open(wtap *wth, int *err, gchar **err_info)
     r = file_read(buffer, packet_size, wth->fh);
     g_free(buffer);
 
-    if (r != packet_size) { 
+    if (r != packet_size) {
       /* ERF record too short, accept the file,
 	 only if the very first records have been successfully checked */
       if (i < MIN_RECORDS_FOR_ERF_CHECK) {
@@ -280,7 +280,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
     wth->data_offset += bytes_read;
 
     buffer_assure_space(wth->frame_buffer, packet_size);
-    
+
     wtap_file_read_expected_bytes(buffer_start_ptr(wth->frame_buffer),
 				(gint32)(packet_size), wth->fh, err, err_info);
     wth->data_offset += packet_size;
@@ -291,7 +291,7 @@ static gboolean erf_read(wtap *wth, int *err, gchar **err_info,
 }
 
 static gboolean erf_seek_read(wtap *wth, gint64 seek_off,
-			      union wtap_pseudo_header *pseudo_header, guchar *pd,
+			      union wtap_pseudo_header *pseudo_header, guint8 *pd,
 			      int length _U_, int *err, gchar **err_info)
 {
   erf_header_t erf_header;
@@ -395,8 +395,8 @@ static int erf_read_header(FILE_T fh,
     /***
     if (phdr != NULL) {
       phdr->len =  g_htons(erf_header->wlen);
-      phdr->caplen = g_htons(erf_header->wlen); 
-    }  
+      phdr->caplen = g_htons(erf_header->wlen);
+    }
     return TRUE;
     ***/
     break;

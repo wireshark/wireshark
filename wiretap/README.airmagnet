@@ -8,7 +8,7 @@ Lots of things are still unknown.
 This is NOT the intention to write a file importer in the forseeable
 future.
 
-Exact timestamp decoding still unkown:
+Exact timestamp decoding still unknown:
 From a diffrent decoded examplefile:
 06 51 49 1b     Timestamp  (105990427)  =  03:30:27.497544
 06 51 4a cd     Timestamp  (105990861)  =  03:30:27.497978  (+434)

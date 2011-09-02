@@ -48,7 +48,7 @@ void
 init_process_policies(void)
 {
 	HMODULE kernel32Handle;
-	typedef BOOL (*SetProcessDEPPolicyHandler)(DWORD);
+	typedef BOOL (WINAPI *SetProcessDEPPolicyHandler)(DWORD);
 	SetProcessDEPPolicyHandler PSetProcessDEPPolicy;
 
 #ifndef PROCESS_DEP_ENABLE
@@ -70,7 +70,8 @@ init_process_policies(void)
 	 */
 	kernel32Handle = GetModuleHandle(_T("kernel32.dll"));
 	if (kernel32Handle != NULL) {
-		if (PSetProcessDEPPolicy = (SetProcessDEPPolicyHandler) GetProcAddress(kernel32Handle, "SetProcessDEPPolicy")) {
+		PSetProcessDEPPolicy = (SetProcessDEPPolicyHandler) GetProcAddress(kernel32Handle, "SetProcessDEPPolicy");
+		if (PSetProcessDEPPolicy) {
 			PSetProcessDEPPolicy(PROCESS_DEP_ENABLE);
 		}
 	}

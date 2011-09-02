@@ -28,7 +28,7 @@
 #define SOME_FUNCTIONS_ARE_DEFINES
 
 typedef struct Buffer {
-	guchar	*data;
+	guint8	*data;
 	gsize	allocated;
 	gsize	start;
 	gsize	first_free;
@@ -37,7 +37,7 @@ typedef struct Buffer {
 void buffer_init(Buffer* buffer, gsize space);
 void buffer_free(Buffer* buffer);
 void buffer_assure_space(Buffer* buffer, gsize space);
-void buffer_append(Buffer* buffer, guchar *from, gsize bytes);
+void buffer_append(Buffer* buffer, guint8 *from, gsize bytes);
 void buffer_remove_start(Buffer* buffer, gsize bytes);
 
 #ifdef SOME_FUNCTIONS_ARE_DEFINES
@@ -51,8 +51,8 @@ void buffer_remove_start(Buffer* buffer, gsize bytes);
  void buffer_clean(Buffer* buffer);
  void buffer_increase_length(Buffer* buffer, unsigned int bytes);
  unsigned int buffer_length(Buffer* buffer);
- guchar* buffer_start_ptr(Buffer* buffer);
- guchar* buffer_end_ptr(Buffer* buffer);
+ guint8* buffer_start_ptr(Buffer* buffer);
+ guint8* buffer_end_ptr(Buffer* buffer);
  void buffer_append_buffer(Buffer* buffer, Buffer* src_buffer);
 #endif
 

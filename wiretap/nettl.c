@@ -58,7 +58,7 @@ struct nettl_file_hdr {
     gchar	tz[20];
     gchar	host_name[9];
     gchar	os_vers[9];
-    guchar	os_v;
+    guint8	os_v;
     guint8	xxa[8];
     gchar	model[11];
     guint16	unknown;	/* just padding to 128 bytes? */
@@ -182,15 +182,15 @@ typedef struct {
 static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 		gint64 *data_offset);
 static gboolean nettl_seek_read(wtap *wth, gint64 seek_off,
-		union wtap_pseudo_header *pseudo_header, guchar *pd,
+		union wtap_pseudo_header *pseudo_header, guint8 *pd,
 		int length, int *err, gchar **err_info);
 static int nettl_read_rec_header(wtap *wth, FILE_T fh,
 		struct wtap_pkthdr *phdr, union wtap_pseudo_header *pseudo_header,
 		int *err, gchar **err_info, gboolean *fddihack);
-static gboolean nettl_read_rec_data(FILE_T fh, guchar *pd, int length,
+static gboolean nettl_read_rec_data(FILE_T fh, guint8 *pd, int length,
 		int *err, gchar **err_info, gboolean fddihack);
 static gboolean nettl_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
-    const union wtap_pseudo_header *pseudo_header, const guchar *pd, int *err);
+    const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
 
 int nettl_open(wtap *wth, int *err, gchar **err_info)
 {
@@ -346,7 +346,7 @@ static gboolean nettl_read(wtap *wth, int *err, gchar **err_info,
 
 static gboolean
 nettl_seek_read(wtap *wth, gint64 seek_off,
-		union wtap_pseudo_header *pseudo_header, guchar *pd,
+		union wtap_pseudo_header *pseudo_header, guint8 *pd,
 		int length, int *err, gchar **err_info)
 {
     int ret;
@@ -650,7 +650,7 @@ nettl_read_rec_header(wtap *wth, FILE_T fh, struct wtap_pkthdr *phdr,
 }
 
 static gboolean
-nettl_read_rec_data(FILE_T fh, guchar *pd, int length, int *err,
+nettl_read_rec_data(FILE_T fh, guint8 *pd, int length, int *err,
 	gchar **err_info, gboolean fddihack)
 {
     int bytes_to_read, bytes_read;
@@ -767,7 +767,7 @@ gboolean nettl_dump_open(wtap_dumper *wdh, int *err)
 static gboolean nettl_dump(wtap_dumper *wdh,
 	const struct wtap_pkthdr *phdr,
 	const union wtap_pseudo_header *pseudo_header _U_,
-	const guchar *pd, int *err)
+	const guint8 *pd, int *err)
 {
 	struct nettlrec_hdr rec_hdr;
 	guint8 dummyc[24];

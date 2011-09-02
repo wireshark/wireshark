@@ -2180,7 +2180,7 @@ void get_CDR_fixed(tvbuff_t *tvb, gchar **seq, gint *offset, guint32 digits, gin
       break;
     default:
       g_warning("giop: Unknown sign value in fixed type %u \n", sign);
-      (*seq)[sindex] = '*';     /* flag as sign unkown */
+      (*seq)[sindex] = '*';     /* flag as sign unknown */
       break;
     }
 
