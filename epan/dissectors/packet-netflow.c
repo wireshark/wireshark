@@ -7436,17 +7436,17 @@ proto_register_netflow(void)
 		{&hf_cflow_nat_int_addr,
 		 {"Internal IPv4 address", "cflow.nat_int_addr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "Internal IPv4 address ", HFILL}
+		  "Internal IPv4 address", HFILL}
 		},
 		{&hf_cflow_nat_ext_addr,
 		 {"External IPv4 address", "cflow.nat_ext_addr",
 		  FT_IPv4, BASE_NONE, NULL, 0x0,
-		  "External IPv4 address ", HFILL}
+		  "External IPv4 address", HFILL}
 		},
 		{&hf_cflow_nat_ext_port_first,
 		 {"NAT port start", "cflow.nat_ext_port_first",
 		  FT_UINT16, BASE_DEC, NULL, 0x0,
-		  "External L4 port start ", HFILL}
+		  "External L4 port start", HFILL}
 		},
 		{&hf_cflow_nat_ext_port_last,
 		 {"NAT port end", "cflow.nat_ext_port_last",
