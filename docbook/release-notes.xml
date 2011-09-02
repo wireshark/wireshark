@@ -68,6 +68,24 @@ Wireshark Info
         </para></listitem>
 -->
 
+        <listitem><para>
+	  Unable to configure zero length SNMP Engine ID.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5731">Bug
+          5731</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  H.323 RAS packets missing from packet counts in "Telephony->VoIP Calls" and the "Flow Graph" for the call.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848">Bug
+          5848</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Fixes for SCPS TCP option.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6194">Bug
+          6194</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -96,6 +114,7 @@ There are no new protocols in this release.
 <!-- Sort alphabetically -->
 
 IKE,
+SNMP,
 
     </para>
     </section>
