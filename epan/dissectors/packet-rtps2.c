@@ -42,6 +42,8 @@
  * the Object Management Group (as version 2.0).
  *
  * Additional information at:
+ *   The Real-time Publish-Subscribe Wire Protocol DDS Interoperability Wire Protocol (DDSI):
+ *                             http://www.omg.org/spec/DDSI/
  *   Full OMG DDS Standard Specification:
  *                             http://www.omg.org/cgi-bin/doc?ptc/2003-07-07
  *
