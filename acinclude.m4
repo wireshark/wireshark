@@ -1668,7 +1668,7 @@ AC_DEFUN([AC_WIRESHARK_LDFLAGS_CHECK],
 [GCC_OPTION="$1"
 AC_MSG_CHECKING(whether we can add $GCC_OPTION to LDFLAGS)
 if test "x$ac_supports_W_linker_passthrough" = "xyes"; then
-  LDFLAGS_saved="$CFLAGS"
+  LDFLAGS_saved="$LDFLAGS"
   LDFLAGS="$LDFLAGS $GCC_OPTION"
   AC_LINK_IFELSE([
     AC_LANG_SOURCE([[

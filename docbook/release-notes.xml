@@ -132,15 +132,39 @@ Wireshark Info
 -->
 
         <listitem><para>
-	  Editcap could create invalid pcap files when converting from JPEG.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6010">Bug
-          6010</ulink>)
+	  configure ignores (partially) LDFLAGS.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5607">Bug
+          5607</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Build fails when it tries to #include &lt;getopt.h&gt;, not present in Solaris 9.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5608">Bug
+          5608</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Unable to configure zero length SNMP Engine ID.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5731">Bug
+          5731</ulink>)
         </para></listitem>
 
         <listitem><para>
 	  BACnet who-is request device range values are not decoded correctly in the packet details window.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5769">Bug
           5769</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  H.323 RAS packets missing from packet counts in "Telephony->VoIP Calls" and the "Flow Graph" for the call.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848">Bug
+          5848</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Editcap could create invalid pcap files when converting from JPEG.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6010">Bug
+          6010</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -174,39 +198,15 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  Unable to configure zero length SNMP Engine ID.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5731">Bug
-          5731</ulink>)
-        </para></listitem>
-
-        <listitem><para>
 	  Fixes for SCPS TCP option.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6194">Bug
           6194</ulink>)
         </para></listitem>
 
         <listitem><para>
-	  H.323 RAS packets missing from packet counts in "Telephony->VoIP Calls" and the "Flow Graph" for the call.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848">Bug
-          5848</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
-          .</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
-          .</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  .
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=.">Bug
-          .</ulink>)
+	  Offset calculated incorrectly for sFlow extended data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6219">Bug
+          6219</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -254,6 +254,7 @@ ICMPv6,
 IKE,
 OpenSafety,
 MSISDN,
+sFlow,
 SNMP,
 TCP,
 

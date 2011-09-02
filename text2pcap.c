@@ -125,9 +125,7 @@
 #include <errno.h>
 #include <assert.h>
 
-#ifdef HAVE_GETOPT_H
-#include <getopt.h>
-#else
+#ifndef HAVE_GETOPT
 #include "wsutil/wsgetopt.h"
 #endif
 

@@ -1776,13 +1776,13 @@ dissect_sflow_24_flow_sample(tvbuff_t *tvb, packet_info *pinfo,
 
         switch (ext_type) {
             case SFLOW_245_EXTENDED_SWITCH:
-                offset += dissect_sflow_245_extended_switch(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_switch(tvb, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_ROUTER:
-                offset += dissect_sflow_245_extended_router(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_router(tvb, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_GATEWAY:
-                offset += dissect_sflow_245_extended_gateway(tvb, extended_data_tree, offset);
+                offset = dissect_sflow_245_extended_gateway(tvb, extended_data_tree, offset);
                 break;
             case SFLOW_245_EXTENDED_USER:
                 break;
