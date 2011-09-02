@@ -501,16 +501,20 @@ get_runtime_version_info(GString *str, void (*additional_info)(GString *))
 	/* Compiler info */
 
 	/*
-	 * See http://predef.sourceforge.net/precomp.html for
+	 * See https://sourceforge.net/apps/mediawiki/predef/index.php?title=Compilers
 	 * information on various defined strings.
 	 *
 	 * GCC's __VERSION__ is a nice text string for humans to
-	 * read.  The page at predef.sourceforge.net largely
-	 * describes numeric #defines that encode the version;
-	 * if the compiler doesn't also offer a nice printable
-	 * string, we should probably prettify the number somehow.
+	 * read.  The page at sourceforge.net largely describes
+	 * numeric #defines that encode the version; if the compiler
+	 * doesn't also offer a nice printable string, we try prettifying
+	 * the number somehow.
 	 */
 #if defined(__GNUC__) && defined(__VERSION__)
+	/*
+	 * Clang and llvm-gcc also define __GNUC__ and __VERSION__;
+	 * distinguish between them.
+	 */
 #if defined(__clang__)
 	g_string_append_printf(str, "\n\nBuilt using clang %s.\n", __VERSION__);
 #elif defined(__llvm__)
