@@ -70,5 +70,5 @@ GUI_ENABLED = gui_enabled()
 DATA_DIR = datafile_path()
 USER_DIR = persconffile_path()
 
-dofile("console.lua")
---dofile("dtd_gen.lua")
+dofile(DATA_DIR.."console.lua")
+--dofile(DATA_DIR.."dtd_gen.lua")
