@@ -538,7 +538,8 @@ static gboolean erf_write_phdr(wtap_dumper *wdh, int encap, const union wtap_pse
       if(i == MAX_ERF_EHDR-1) ehdr[i*8] = ehdr[i*8] & 0x7F;
       i++;
     }while((ehdr[0] & 0x80) != 0 && i < MAX_ERF_EHDR);
-    wtap_dump_file_write(wdh, ehdr, MAX_ERF_EHDR*i, err);
+    if (!wtap_dump_file_write(wdh, ehdr, MAX_ERF_EHDR*i, err))
+      return FALSE;
     wdh->bytes_dumped += MAX_ERF_EHDR*i;
   }
 
