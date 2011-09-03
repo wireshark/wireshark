@@ -313,7 +313,7 @@ sub get_config {
 if (-d "$srcdir/.svn") {
 	$svn_info_cmd = "svn info $srcdir";
 } elsif (-d "$srcdir/.git/svn") {
-	$svn_info_cmd = "git svn info $srcdir";
+	$svn_info_cmd = "(cd $srcdir; git svn info)";
 }
 
 if ($svn_info_cmd) {
