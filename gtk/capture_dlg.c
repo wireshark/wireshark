@@ -3545,7 +3545,7 @@ make_and_fill_rows(void)
 {
   GList *if_entry, *if_list;
   if_info_t *if_info;
-  char *if_string="", *temp="";
+  char *if_string="";
   gchar *descr;
   if_capabilities_t *caps=NULL;
   gint linktype_count;
@@ -3557,7 +3557,7 @@ make_and_fill_rows(void)
   GList *lt_entry;
   link_row *link = NULL;
   data_link_info_t *data_link_info;
-  gchar *str, *err_str = NULL, *link_type_name = NULL;
+  gchar *str, *err_str = NULL;
   interface_row row;
   interface_options interface_opts;
   gboolean found = FALSE;
@@ -3666,7 +3666,6 @@ make_and_fill_rows(void)
             str = g_strdup_printf("%s (not supported)", data_link_info->name);
           }
           if (linktype_count == 0) {
-            link_type_name = g_strdup(str);
             row.active_dlt = data_link_info->dlt;
           }
           link = (link_row *)g_malloc(sizeof(link_row));
@@ -3682,15 +3681,9 @@ make_and_fill_rows(void)
         row.monitor_mode_supported = FALSE;
 #endif
         row.active_dlt = -1;
-        link_type_name = g_strdup("default");
       }
       row.addresses = g_strdup(ip_str->str);
       row.no_addresses = ips;
-      if (ips == 0) {
-        temp = g_strdup_printf("<b>%s</b>", row.display_name);
-      } else {
-        temp = g_strdup_printf("<b>%s</b>\n<span size='small'>%s</span>", row.display_name, row.addresses);
-      }
       g_array_append_val(rows, row);
       if (caps != NULL) {
         free_if_capabilities(caps);
