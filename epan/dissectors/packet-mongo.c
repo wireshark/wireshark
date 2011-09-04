@@ -97,7 +97,7 @@ static int hf_mongo_update_flags_multiupdate = -1;
 static int hf_mongo_selector = -1;
 static int hf_mongo_update = -1;
 static int hf_mongo_insert_flags = -1;
-static int hf_mongo_insert_flags_keepgoing = -1;
+static int hf_mongo_insert_flags_continueonerror = -1;
 static int hf_mongo_query_flags = -1;
 static int hf_mongo_query_flags_tailablecursor = -1;
 static int hf_mongo_query_flags_slaveok = -1;
@@ -237,7 +237,7 @@ dissect_mongo_insert(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
   ti = proto_tree_add_item(tree, hf_mongo_insert_flags, tvb, offset, 4, ENC_NA);
   flags_tree = proto_item_add_subtree(ti, ett_mongo_flags);
-  proto_tree_add_item(flags_tree, hf_mongo_insert_flags_keepgoing, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(flags_tree, hf_mongo_insert_flags_continueonerror, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   offset += dissect_fullcollectionname(tvb, offset, tree);
@@ -569,8 +569,8 @@ proto_register_mongo(void)
       FT_NONE, BASE_NONE, NULL, 0x0,
       "Bit vector of insert options.", HFILL }
     },
-    { &hf_mongo_insert_flags_keepgoing,
-      { "KeepGoing", "mongo.insert.flags.keepgoing",
+    { &hf_mongo_insert_flags_continueonerror,
+      { "ContinueOnError", "mongo.insert.flags.continueonerror",
       FT_BOOLEAN, 32, TFS(&tfs_yes_no), 0x00000001,
       "If set, the database will not stop processing a bulk insert if one fails (eg due to duplicate IDs)", HFILL }
     },
