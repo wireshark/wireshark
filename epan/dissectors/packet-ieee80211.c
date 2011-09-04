@@ -577,7 +577,12 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_POWER_CAPABILITY         33
 #define TAG_TPC_REQUEST              34
 #define TAG_TPC_REPORT               35
-/* 36 - 41 below */
+#define TAG_SUPPORTED_CHANNELS       36
+#define TAG_CHANNEL_SWITCH_ANN       37
+#define TAG_MEASURE_REQ              38
+#define TAG_MEASURE_REP              39
+#define TAG_QUIET                    40
+#define TAG_IBSS_DFS                 41
 #define TAG_ERP_INFO                 42
 #define TAG_TS_DELAY                 43
 #define TAG_TCLAS_PROCESS            44
@@ -588,18 +593,18 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* Reserved 49 */
 #define TAG_EXT_SUPP_RATES           50
 #define TAG_AP_CHANNEL_REPORT        51
-/* 52 below */
+#define TAG_NEIGHBOR_REPORT          52
 #define TAG_RCPI                     53
-#define TAG_MOBILITY_DOMAIN          54  /* IEEE Std 802.11r-2008 */
-/* 55 below */
-#define TAG_TIMEOUT_INTERVAL         56  /* IEEE Std 802.11r-2008 */
-#define TAG_RIC_DATA                 57  /* IEEE Std 802.11r-2008 */
+#define TAG_MOBILITY_DOMAIN          54   /* IEEE Std 802.11r-2008 */
+#define TAG_FAST_BSS_TRANSITION      55   /* IEEE Std 802.11r-2008 */
+#define TAG_TIMEOUT_INTERVAL         56   /* IEEE Std 802.11r-2008 */
+#define TAG_RIC_DATA                 57   /* IEEE Std 802.11r-2008 */
 /* 58 ??? */
 #define TAG_SUPPORTED_REGULATORY_CLASSES            59 /* IEEE Std 802.11w-2009 */
 #define TAG_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT    60 /* IEEE Std 802.11w-2009 */
-#define TAG_HT_INFO                  61  /* IEEE Stc 802.11n/D2.0 */
-#define TAG_SECONDARY_CHANNEL_OFFSET 62  /* IEEE Stc 802.11n/D1.10/D2.0 */
-/* 69 below */
+#define TAG_HT_INFO                  61   /* IEEE Stc 802.11n/D2.0 */
+#define TAG_SECONDARY_CHANNEL_OFFSET 62   /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_WSIE                     69   /* Wave Service Information (802.11p) */
 #define TAG_20_40_BSS_CO_EX          72   /* IEEE P802.11n/D6.0 */
 #define TAG_20_40_BSS_INTOL_CH_REP   73   /* IEEE P802.11n/D6.0 */
 #define TAG_OVERLAP_BSS_SCAN_PAR     74   /* IEEE P802.11n/D6.0 */
@@ -611,32 +616,21 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_PTI_CONTROL              105  /* IEEE Std 802.11z-2010 */
 #define TAG_PU_BUFFER_STATUS         106  /* IEEE Std 802.11z-2010 */
 #define TAG_ADVERTISEMENT_PROTOCOL   108  /* IEEE P802.11u/D10.0 */
-#define TAG_EXTENDED_CAPABILITIES    127   /* IEEE Stc 802.11n/D1.10/D2.0 */
+#define TAG_MESH_CONFIGURATION       113  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_ID                  114  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_PEERING_MGMT        117  /* IEEE Std 802.11s-2011 */
+#define TAG_RANN                     126  /* IEEE Std 802.11s-2011 */
+#define TAG_EXTENDED_CAPABILITIES    127  /* IEEE Stc 802.11n/D1.10/D2.0 */
 #define TAG_AGERE_PROPRIETARY        128
+#define TAG_MESH_PREQ                130  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_PREP                131  /* IEEE Std 802.11s-2011 */
+#define TAG_MESH_PERR                132  /* IEEE Std 802.11s-2011 */
 #define TAG_CISCO_CCX1_CKIP          133  /* Cisco Compatible eXtensions */
 #define TAG_CISCO_UNKNOWN_88         136  /* Cisco Compatible eXtensions? */
 #define TAG_CISCO_UNKNOWN_95         149  /* Cisco Compatible eXtensions */
 #define TAG_CISCO_UNKNOWN_96         150  /* Cisco Compatible eXtensions */
 #define TAG_SYMBOL_PROPRIETARY       173
 #define TAG_VENDOR_SPECIFIC_IE       221
-
-#define TAG_SUPPORTED_CHANNELS       36
-#define TAG_CHANNEL_SWITCH_ANN       37
-#define TAG_MEASURE_REQ              38
-#define TAG_MEASURE_REP              39
-#define TAG_QUIET                    40
-#define TAG_IBSS_DFS                 41
-#define TAG_NEIGHBOR_REPORT          52
-#define TAG_FAST_BSS_TRANSITION      55  /* IEEE Std 802.11r-2008 */
-#define TAG_WSIE                     69   /* tag of the Wave Service Information (802.11p) */
-
-#define TAG_MESH_CONFIGURATION       113
-#define TAG_MESH_ID                  114
-#define TAG_MESH_PEERING_MGMT        117
-#define TAG_RANN                     126
-#define TAG_MESH_PREQ                130
-#define TAG_MESH_PREP                131
-#define TAG_MESH_PERR                132
 
 static const range_string tag_num_vals[] = {
   { TAG_SSID, TAG_SSID, "SSID parameter set" },
@@ -698,21 +692,21 @@ static const range_string tag_num_vals[] = {
   { TAG_PTI_CONTROL, TAG_PTI_CONTROL, "PTI Control" },
   { TAG_PU_BUFFER_STATUS, TAG_PU_BUFFER_STATUS, "PU Buffer Status" },
   { TAG_ADVERTISEMENT_PROTOCOL, TAG_ADVERTISEMENT_PROTOCOL, "Advertisement Protocol"},
+  { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
+  { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
+  { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
+  { TAG_RANN, TAG_RANN, "Root Announcement" },
   { TAG_EXTENDED_CAPABILITIES, TAG_EXTENDED_CAPABILITIES, "Extended Capabilities" },
   { TAG_AGERE_PROPRIETARY, TAG_AGERE_PROPRIETARY, "Agere Proprietary" },
+  { TAG_MESH_PREQ, TAG_MESH_PREQ, "Path Request" },
+  { TAG_MESH_PREP, TAG_MESH_PREP, "Path Reply" },
+  { TAG_MESH_PERR, TAG_MESH_PERR, "Path Error" },
   { TAG_CISCO_CCX1_CKIP, TAG_CISCO_CCX1_CKIP, "Cisco CCX1 CKIP + Device Name" },
   { TAG_CISCO_UNKNOWN_88, TAG_CISCO_UNKNOWN_88, "Cisco Unknown 88" },
   { TAG_CISCO_UNKNOWN_95, TAG_CISCO_UNKNOWN_95, "Cisco Unknown 95" },
   { TAG_CISCO_UNKNOWN_96, TAG_CISCO_UNKNOWN_96, "Cisco Unknown 96" },
   { TAG_SYMBOL_PROPRIETARY, TAG_SYMBOL_PROPRIETARY, "Symbol Proprietary" },
   { TAG_VENDOR_SPECIFIC_IE, TAG_VENDOR_SPECIFIC_IE, "Vendor Specific" },
-  { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
-  { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
-  { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
-  { TAG_RANN, TAG_RANN, "Root Announcement" },
-  { TAG_MESH_PREQ, TAG_MESH_PREQ, "Path Request" },
-  { TAG_MESH_PREP, TAG_MESH_PREP, "Path Reply" },
-  { TAG_MESH_PERR, TAG_MESH_PERR, "Path Error" },
   { 0, 0, NULL }
 };
 
