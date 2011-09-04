@@ -1748,6 +1748,7 @@ static int hf_ieee80211_tim_partial_virtual_bitmap = -1;
 static int hf_ieee80211_tag_ibss_atim_window = -1;
 static int hf_ieee80211_tag_country_info_code = -1;
 static int hf_ieee80211_tag_country_info_env = -1;
+static int hf_ieee80211_tag_country_info_pad = -1;
 static int hf_ieee80211_tag_country_info_fnm = -1;
 static int hf_ieee80211_tag_country_info_fnm_fcn = -1;
 static int hf_ieee80211_tag_country_info_fnm_nc = -1;
@@ -6856,6 +6857,13 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
         while(offset < tag_end)
         {
+          /* Padding ? */
+          if ((tag_end - offset) < 3)
+          {
+            proto_tree_add_item(tree, hf_ieee80211_tag_country_info_pad, tvb, offset, 1, ENC_NA);
+            offset += 1;
+            continue;
+          }
           if(tvb_get_guint8(tvb, offset) <= 200) { /* 802.11d */
             sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_fnm, tvb, offset, 3, FALSE);
             sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_fnm_tree);
@@ -13464,6 +13472,11 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_country_info_env,
      {"Environment", "wlan_mgt.country_info.environment",
       FT_UINT8, BASE_HEX, VALS(environment_vals), 0x0,
+      NULL, HFILL }},
+
+    {&hf_ieee80211_tag_country_info_pad,
+     {"Padding", "wlan_mgt.country_info.padding",
+      FT_BYTES, BASE_NONE, NULL, 0x0,
       NULL, HFILL }},
 
     {&hf_ieee80211_tag_country_info_fnm,
