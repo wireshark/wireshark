@@ -35,6 +35,11 @@
 
 #include <epan/packet.h>
 #include <epan/epan_dissect.h>
+#include <epan/filesystem.h>
+#include <epan/prefs.h>
+#include <epan/prefs-int.h>
+
+#include <wsutil/file_util.h>
 
 #include "../simple_dialog.h"
 
@@ -222,6 +227,139 @@ decode_build_reset_list (const gchar *table_name, ftenum_t selector_type,
 
 
 /**************************************************/
+/*             Saving "Decode As"                 */
+/**************************************************/
+
+/*
+ * Data structure to hold information of the "Decode As" entry.
+ */
+struct da_entry {
+  gchar *table;
+  guint selector;
+  gchar *initial;
+  gchar *current;
+};
+
+/*
+ * A typedef for the "Decode As" entry.
+ */
+typedef struct da_entry da_entry_t;
+
+/*
+ * Container that holds the entries of the "Decode As"
+ */
+GSList *da_entries = NULL;
+
+/*
+ * Data structure used as user data when iterating diessector handles
+ */
+struct lookup_entry {
+  gchar*             dissector_short_name;
+  dissector_handle_t handle;
+};
+
+typedef struct lookup_entry lookup_entry_t;
+
+/*
+ * Implementation of the dissector_table defined in packet.h
+ */
+struct dissector_table {
+  GHashTable *hash_table;
+  GSList     *dissector_handles;
+  const char *ui_name;
+  ftenum_t   type;
+  int        base;
+};
+
+/*
+ * A callback function to changed a dissector_handle if matched
+ * This is used when iterating a dissector table
+ */
+void change_dissector_if_matched(gpointer item, gpointer user_data) {
+  dissector_handle_t handle = (dissector_handle_t)item;
+  lookup_entry_t * lookup = (lookup_entry_t *)user_data;
+  if (strcmp(lookup->dissector_short_name, dissector_handle_get_short_name(handle)) == 0) {
+    lookup->handle = handle;
+  }
+}
+
+/*
+ * A callback function to parse each "decode as" entry in the file and apply the change
+ */
+prefs_set_pref_e
+read_set_decode_as_entries(gchar *key, gchar *value,
+			   void *user_data _U_,
+			   gboolean return_range_errors _U_)
+{
+  gchar *values[4];
+  gchar delimiter[4] = {',', ',', ',','\0'};
+  gchar *pch;
+  guint i, j;
+  dissector_table_t sub_dissectors;
+  prefs_set_pref_e retval = PREFS_SET_OK;
+
+  for (i = 0; i < 4; i++) {
+    values[i] = NULL;
+  }
+
+  if (strcmp(key, DECODE_AS_ENTRY) == 0) {
+    /* Parse csv into table, selector, initial, current */
+    for (i = 0; i < 4; i++) {
+      pch = strchr(value, delimiter[i]);
+      if (pch == NULL) {
+	for (j = 0; j < i; j++) {
+	  g_free(values[j]);
+	  return PREFS_SET_SYNTAX_ERR;
+	}
+      }
+      values[i] = g_strndup(value, pch - value);
+      value = pch + 1;
+    }
+    sub_dissectors = find_dissector_table(values[0]);
+    if (sub_dissectors != NULL) {
+      lookup_entry_t lookup;
+      lookup.dissector_short_name = values[3];
+      lookup.handle = NULL;
+      g_slist_foreach(sub_dissectors->dissector_handles, change_dissector_if_matched, &lookup);
+      if (lookup.handle != NULL) {
+	dissector_change_uint(values[0], atoi(values[1]), lookup.handle);
+	decode_build_reset_list(g_strdup(values[0]), sub_dissectors->type, g_strdup(values[1]), NULL, NULL);
+      }
+    } else {
+      retval = PREFS_SET_SYNTAX_ERR;
+    }
+
+  } else {
+    retval = PREFS_SET_NO_SUCH_PREF;
+  }
+
+  for (i = 0; i < 4; i++) {
+    g_free(values[i]);
+  }
+  return retval;
+}
+
+/*
+ * Save entries into preferences.
+ */
+void write_da_entry(gpointer item, gpointer user_data) {
+  da_entry_t *entry = (da_entry_t *)item;
+  FILE *daf = (FILE *)user_data;
+  fprintf (daf, DECODE_AS_ENTRY ": %s,%d,%s,%s\n", entry->table, entry->selector, entry->initial, entry->current);
+}
+
+/*
+ * Free memory used by the da_entry
+ */
+void free_da_entry(gpointer item) {
+  da_entry_t *entry = (da_entry_t *)item;
+  g_free(entry->table);
+  g_free(entry->initial);
+  g_free(entry->current);
+}
+
+
+/**************************************************/
 /*             Show Changed Dissectors            */
 /**************************************************/
 
@@ -315,6 +453,9 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
     const gchar *current_proto_name, *initial_proto_name;
     gchar       *selector_name;
     gchar        string1[20];
+    da_entry_t *entry;
+
+    entry = g_malloc(sizeof(da_entry_t));
 
     g_assert(user_data);
     g_assert(value);
@@ -391,12 +532,18 @@ decode_build_show_list (const gchar *table_name, ftenum_t selector_type,
         selector_name,
         initial_proto_name,
         current_proto_name);
+
+    entry->table    = g_strdup(table_name);
+    entry->selector = GPOINTER_TO_UINT(key);
+    entry->initial  = g_strdup(initial_proto_name);
+    entry->current  = g_strdup(current_proto_name);
+    da_entries = g_slist_append(da_entries, entry);
 }
 
 
 /* clear all settings */
 static void
-decode_clear_all(void)
+decode_clear_all(gboolean redissect)
 {
     dissector_delete_item_t *item;
     GSList *tmp;
@@ -431,7 +578,9 @@ decode_clear_all(void)
 
     decode_dcerpc_reset_all();
 
-    redissect_packets();
+    if (redissect) {
+      redissect_packets();
+    }
 }
 
 
@@ -464,9 +613,11 @@ decode_show_ok_cb (GtkWidget *ok_bt _U_, gpointer parent_w)
 static void
 decode_show_clear_cb (GtkWidget *clear_bt _U_, gpointer parent_w)
 {
-    decode_clear_all();
+    decode_clear_all(TRUE);
 
     window_destroy(GTK_WIDGET(parent_w));
+
+    decode_show_cb(NULL, NULL);
 }
 
 
@@ -504,6 +655,54 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 {
     /* Note that we no longer have a "Decode As:Show" dialog box. */
     decode_show_w = NULL;
+
+    /* Clear saved "Decode As" entries. */
+    g_slist_free_full(da_entries, free_da_entry);
+    da_entries = NULL;
+}
+
+
+/*
+ * This routine saves the current "Decode As"-entries into the
+ * preferences file
+ *
+ * @param win Unused
+ *
+ * @param user_data Unused
+ */
+void
+decode_show_save_cb (GtkWidget *win _U_, gpointer user_data _U_)
+{
+  char        *pf_dir_path;
+  char        *daf_path;
+  FILE        *daf;
+
+  if (create_persconffile_dir(&pf_dir_path) == -1) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't create directory\n\"%s\"\nfor recent file: %s.", pf_dir_path,
+      g_strerror(errno));
+     g_free(pf_dir_path);
+  }
+
+  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE, TRUE);
+  if ((daf = ws_fopen(daf_path, "w")) == NULL) {
+     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+      "Can't open decode_as_entries file\n\"%s\": %s.", daf_path,
+      g_strerror(errno));
+    g_free(daf_path);
+  }
+
+  fputs("# \"Decode As\" entries file for Wireshark " VERSION ".\n"
+    "#\n"
+    "# This file is regenerated when saving the \"Decode As...\" list.\n"
+    "# So be careful, if you want to make manual changes here.\n"
+    "\n"
+    "######## Decode As table entries, can be altered through command line ########\n"
+    "\n", daf);
+
+  g_slist_foreach(da_entries, write_da_entry, daf);
+
+  fclose(daf);
 }
 
 
@@ -518,7 +717,7 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 void
 decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
 {
-    GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *help_bt, *scrolled_window;
+    GtkWidget         *main_vb, *bbox, *ok_bt, *clear_bt, *save_bt, *help_bt, *scrolled_window;
     const gchar       *titles[E_LIST_D_COLUMNS] = {
         "Table", "Value", "Initial", "Current"
     };
@@ -579,7 +778,7 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
     gtk_box_pack_start(GTK_BOX(main_vb), scrolled_window, TRUE, TRUE, 0);
 
     /* Button row */
-    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_HELP, NULL);
+    bbox = dlg_button_row_new(GTK_STOCK_OK, GTK_STOCK_CLEAR, GTK_STOCK_SAVE, GTK_STOCK_HELP, NULL);
     gtk_box_pack_start(GTK_BOX(main_vb), bbox, FALSE, FALSE, 0);
     gtk_widget_show(bbox);
 
@@ -588,6 +787,9 @@ decode_show_cb (GtkWidget *w _U_, gpointer user_data _U_)
 
     clear_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CLEAR);
     g_signal_connect(clear_bt, "clicked", G_CALLBACK(decode_show_clear_cb), decode_show_w);
+
+    save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
+    g_signal_connect(save_bt, "clicked", G_CALLBACK(decode_show_save_cb), decode_show_w);
 
     help_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_HELP);
     g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DECODE_AS_SHOW_DIALOG);
@@ -642,6 +844,7 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     GtkTreeSelection  *selection;
     GtkTreeModel      *model;
     GtkTreeIter        iter;
+    guint             *selector_type;
 
     selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(list));
     if (gtk_tree_selection_get_selected(selection, &model, &iter) == FALSE)
@@ -658,6 +861,9 @@ decode_change_one_dissector(gchar *table_name, guint selector, GtkWidget *list)
     } else {
         dissector_change_uint(table_name, selector, handle);
     }
+    selector_type = g_malloc(sizeof(guint));
+    *selector_type = selector;
+    decode_build_reset_list(g_strdup(table_name), FT_UINT32, selector_type, NULL, NULL);
     g_free(abbrev);
 }
 
@@ -966,7 +1172,7 @@ decode_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
 static void
 decode_clear_cb(GtkWidget *clear_bt _U_, gpointer user_data _U_)
 {
-    decode_clear_all();
+    decode_clear_all(TRUE);
 }
 
 
@@ -1814,4 +2020,21 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
 
     gtk_widget_show_all(decode_w);
     window_present(decode_w);
+}
+
+void load_decode_as_entries(void)
+{
+  char   *daf_path;
+  FILE   *daf;
+
+  if (dissector_reset_list) {
+    decode_clear_all(FALSE);
+  }
+
+  daf_path = get_persconffile_path(DECODE_AS_ENTRIES_FILE_NAME, TRUE, FALSE);
+  if ((daf = ws_fopen(daf_path, "r")) != NULL) {
+    read_prefs_file(daf_path, daf, read_set_decode_as_entries, NULL);
+    fclose(daf);
+  }
+  g_free(daf_path);
 }

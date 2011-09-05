@@ -31,6 +31,13 @@
  *  @ingroup dialog_group
  */
 
+/*
+ * Filename of the "decode as" entry preferences
+ */
+#define DECODE_AS_ENTRIES_FILE_NAME "decode_as_entries"
+
+#define DECODE_AS_ENTRY "decode_as_entry"
+
 /** Init the "Decode As" module
  */
 void decode_as_init(void);
@@ -55,5 +62,10 @@ void decode_show_cb(GtkWidget *widget, gpointer data);
  * @return TRUE, if we have at least one notebook page in "Decode As"
  */
 gboolean decode_as_ok(void);
+
+/*
+ * Reset the "decode as"entries and reload ones of the current profile
+ */
+void load_decode_as_entries(void);
 
 #endif
