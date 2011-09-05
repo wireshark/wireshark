@@ -200,18 +200,20 @@ display_heur_dissector_table_entries(gpointer data, gpointer user_data)
 }
 
 static void
-display_heur_dissector_table_names(const char *table_name, heur_dissector_list_t *table, gpointer w)
+display_heur_dissector_table_names(const char *table_name, gpointer table, gpointer w)
 {
     dissector_tables_trees_t      *dis_tbl_trees;
     dissector_tables_tree_info_t  *tree_info;
+	heur_dissector_list_t *list;
 	 
 	tree_info = g_new(dissector_tables_tree_info_t, 1);
 	dis_tbl_trees = w;
+	list = table;
 
 	table_name_add_to_list(tree_info, dis_tbl_trees->heuristic_tree_wgt, "", table_name);
 
 	if(table){
-		g_slist_foreach (*table, display_heur_dissector_table_entries, tree_info);
+		g_slist_foreach (*list, display_heur_dissector_table_entries, tree_info);
 	}
 
 }
