@@ -351,7 +351,7 @@ void write_da_entry(gpointer item, gpointer user_data) {
 /*
  * Free memory used by the da_entry
  */
-void free_da_entry(gpointer item) {
+void free_da_entry(gpointer item, gpointer user_data _U_) {
   da_entry_t *entry = (da_entry_t *)item;
   g_free(entry->table);
   g_free(entry->initial);
@@ -657,7 +657,8 @@ decode_show_destroy_cb (GtkWidget *win _U_, gpointer user_data _U_)
     decode_show_w = NULL;
 
     /* Clear saved "Decode As" entries. */
-    g_slist_free_full(da_entries, free_da_entry);
+    g_slist_foreach(da_entries, free_da_entry, NULL);
+    g_slist_free(da_entries);
     da_entries = NULL;
 }
 
