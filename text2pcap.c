@@ -1074,7 +1074,7 @@ parse_token (token_t token, char *str)
                of s2, it means the matched part in tail is the ASCII dump
                of the head byte. These matched should be rollback */
             line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
-            s2 = (char*)malloc((line_size+1)/4+1);
+            s2 = (char*)g_malloc((line_size+1)/4+1);
             /* gather the possible pattern */
             for(i=0; i<(line_size+1)/4; i++) {
                 tmp_str[0] = pkt_lnstart[i*3];
@@ -1107,7 +1107,7 @@ parse_token (token_t token, char *str)
                     unwrite_bytes(line_size);
                 }
             }
-            free(s2);
+            g_free(s2);
             break;
         default:
             break;
