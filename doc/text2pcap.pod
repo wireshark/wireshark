@@ -19,6 +19,7 @@ S<[ B<-T> E<lt>srcportE<gt>,E<lt>destportE<gt> ]>
 S<[ B<-s> E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>tagE<gt> ]>
 S<[ B<-S> E<lt>srcportE<gt>,E<lt>destportE<gt>,E<lt>ppiE<gt> ]>
 S<[ B<-t> E<lt>timefmtE<gt> ]>
+S<[ B<-a> ]>
 E<lt>I<infile>E<gt>|-
 E<lt>I<outfile>E<gt>|-
 
@@ -196,6 +197,13 @@ a second.
 
 B<NOTE:> Date/time fields from the current date/time are
 used as the default for unspecified fields.
+
+=item -a
+
+Enables ASCII text dump identification. It allows to identify the start of
+the ASCII text dump and not include it in the packet even if it looks like HEX.
+
+B<NOTE:> Do not enable it if the input file does not contain the ASCII text dump.
 
 =back
 

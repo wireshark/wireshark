@@ -178,6 +178,8 @@ static unsigned short hdr_data_chunk_sid  = 0;
 static unsigned short hdr_data_chunk_ssn  = 0;
 static unsigned long  hdr_data_chunk_ppid = 0;
 
+/* ASCII text dump identification */
+static int identify_ascii = FALSE;
 
 /*--- Local date -----------------------------------------------------------------*/
 
@@ -1063,51 +1065,53 @@ parse_token (token_t token, char *str)
                 by_eol = 1;
                 state = START_OF_LINE;
             }
-            /* Here a line of pkt bytes reading is finished
-               compare the ascii and hex to avoid such situation:
-               "61 62 20 ab ", when ab is ascii dump then it should 
-               not be treat as byte */
-            rollback = 0;
-            /* s2 is the ASCII string, s1 is the HEX string, e.g, when 
-               s2 = "ab ", s1 = "616220" 
-               we should find out the largest tail of s1 matches the head
-               of s2, it means the matched part in tail is the ASCII dump
-               of the head byte. These matched should be rollback */
-            line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
-            s2 = (char*)g_malloc((line_size+1)/4+1);
-            /* gather the possible pattern */
-            for(i=0; i<(line_size+1)/4; i++) {
-                tmp_str[0] = pkt_lnstart[i*3];
-                tmp_str[1] = pkt_lnstart[i*3+1];
-                tmp_str[2] = '\0';
-                /* it is a valid convertable string */
-                if (!isxdigit(tmp_str[0]) || !isxdigit(tmp_str[0])) {
-                    break;
+            if (identify_ascii) {
+                /* Here a line of pkt bytes reading is finished
+                   compare the ascii and hex to avoid such situation:
+                   "61 62 20 ab ", when ab is ascii dump then it should 
+                   not be treat as byte */
+                rollback = 0;
+                /* s2 is the ASCII string, s1 is the HEX string, e.g, when 
+                   s2 = "ab ", s1 = "616220" 
+                   we should find out the largest tail of s1 matches the head
+                   of s2, it means the matched part in tail is the ASCII dump
+                   of the head byte. These matched should be rollback */
+                line_size = curr_offset-(int)(pkt_lnstart-packet_buf);
+                s2 = (char*)g_malloc((line_size+1)/4+1);
+                /* gather the possible pattern */
+                for(i=0; i<(line_size+1)/4; i++) {
+                    tmp_str[0] = pkt_lnstart[i*3];
+                    tmp_str[1] = pkt_lnstart[i*3+1];
+                    tmp_str[2] = '\0';
+                    /* it is a valid convertable string */
+                    if (!isxdigit(tmp_str[0]) || !isxdigit(tmp_str[0])) {
+                        break;
+                    }
+                    s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
+                    rollback++;
+                    /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
+                    if (!(pkt_lnstart[i*3+2] == ' ')) {
+                        if (by_eol != 1)
+                            rollback--;
+                        break;
+                    }
                 }
-                s2[i] = (char)strtoul(tmp_str, (char **)NULL, 16);
-                rollback++;
-                /* the 3rd entry is not a delimiter, so the possible byte pattern will not shown */
-                if (!(pkt_lnstart[i*3+2] == ' ')) {
-                    if (by_eol != 1)
-                        rollback--;
-                    break;
+                /* If packet line start contains possible byte pattern, the line end
+                   should contain the matched pattern if the user open the -a flag.
+                   The packet will be possible invalid if the byte pattern cannot find 
+                   a matched one in the line of packet buffer.*/
+                if (rollback > 0) {
+                    if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
+                        unwrite_bytes(rollback);
+                    }
+                    /* Not matched. This line contains invalid packet bytes, so
+                       discard the whole line */
+                    else {
+                        unwrite_bytes(line_size);
+                    }
                 }
+                g_free(s2);
             }
-            /* If packet line start contains possible byte pattern, the line end
-               should contain the matched pattern if the user open the -a flag.
-               The packet will be possible invalid if the byte pattern cannot find 
-               a matched one in the line of packet buffer.*/
-            if (rollback > 0) {
-                if (strncmp(pkt_lnstart+line_size-rollback, s2, rollback) == 0) {
-                    unwrite_bytes(rollback);
-                }
-                /* Not matched. This line contains invalid packet bytes, so
-                   discard the whole line */
-                else {
-                    unwrite_bytes(line_size);
-                }
-            }
-            g_free(s2);
             break;
         default:
             break;
@@ -1168,6 +1172,12 @@ usage (void)
             "                         number is assumed to be fractions of a second.\n"
             "                         NOTE: Date/time fields from the current date/time are\n"
             "                         used as the default for unspecified fields.\n"
+            "  -a                     enable ASCII text dump identification.\n"
+            "                         It allows to identify the start of the ASCII text\n"
+            "                         dump and not include it in the packet even if it\n"
+            "                         looks like HEX dump.\n"
+            "                         NOTE: Do not enable it if the input file does not\n"
+            "                         contain the ASCII text dump.\n"
             "\n"
             "Output:\n"
             "  -l <typenum>           link-layer type number; default is 1 (Ethernet).\n"
@@ -1229,7 +1239,7 @@ parse_options (int argc, char *argv[])
 #endif /* _WIN32 */
 
     /* Scan CLI parameters */
-    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:o:u:s:S:t:T:")) != -1) {
+    while ((c = getopt(argc, argv, "Ddhqe:i:l:m:o:u:s:S:t:T:a")) != -1) {
         switch(c) {
         case '?': usage(); break;
         case 'h': usage(); break;
@@ -1394,6 +1404,10 @@ parse_options (int argc, char *argv[])
             hdr_ethernet = TRUE;
             hdr_ethernet_proto = 0x800;
             break;
+
+        case 'a':
+            identify_ascii = TRUE;
+			break;
 
         default:
             usage();
