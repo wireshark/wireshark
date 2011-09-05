@@ -132,6 +132,9 @@ typedef void (*DATFunc_handle) (const gchar *table_name, gpointer value,
 typedef void (*DATFunc_table) (const gchar *table_name, const gchar *ui_name,
     gpointer user_data);
 
+typedef void (*DATFunc_heur_table) (const gchar *table_name,gpointer table,
+    gpointer user_data);
+
 /* Opaque structure - provides type checking but no access to components */
 typedef struct dtbl_entry dtbl_entry_t;
 
@@ -266,6 +269,12 @@ extern void dissector_add_handle(const char *name, dissector_handle_t handle);
    by another dissector. */
 typedef GSList *heur_dissector_list_t;
 
+
+typedef struct {
+	heur_dissector_t dissector;
+	protocol_t *protocol;
+} heur_dtbl_entry_t;
+
 /** A protocol uses this function to register a heuristic sub-dissector list.
  *  Call this in the parent dissectors proto_register function.
  *
@@ -274,6 +283,9 @@ typedef GSList *heur_dissector_list_t;
  */
 extern void register_heur_dissector_list(const char *name,
     heur_dissector_list_t *list);
+
+extern void dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
+    gpointer user_data);
 
 /** Try all the dissectors in a given heuristic dissector list. This is done,
  *  until we find one that recognizes the protocol.

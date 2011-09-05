@@ -1532,10 +1532,6 @@ get_dissector_table_base(const char *name)
 
 static GHashTable *heur_dissector_lists = NULL;
 
-typedef struct {
-	heur_dissector_t dissector;
-	protocol_t *protocol;
-} heur_dtbl_entry_t;
 
 /* Finds a heuristic dissector table by field name. */
 static heur_dissector_list_t *
@@ -1689,6 +1685,38 @@ dissector_try_heuristic(heur_dissector_list_t sub_dissectors,
 	pinfo->current_proto = saved_proto;
 	pinfo->can_desegment=saved_can_desegment;
 	return status;
+}
+
+/*
+ * Called for each entry in the table of all heuristic dissector tables.
+ */
+typedef struct heur_dissector_foreach_table_info {
+	gpointer           caller_data;
+	DATFunc_heur_table caller_func;
+} heur_dissector_foreach_table_info_t;
+
+static void
+dissector_all_heur_tables_foreach_table_func (gpointer key, const gpointer value, const gpointer user_data)
+{
+	heur_dissector_foreach_table_info_t *info;
+
+	info = user_data;
+	(*info->caller_func)((gchar*)key, value, info->caller_data);
+}
+
+/*
+ * Walk all heuristic dissector tables calling a user supplied function on each
+ * table.
+ */
+void
+dissector_all_heur_tables_foreach_table (DATFunc_heur_table func,
+				    gpointer user_data)
+{
+	heur_dissector_foreach_table_info_t info;
+
+	info.caller_data = user_data;
+	info.caller_func = func;
+	g_hash_table_foreach(heur_dissector_lists, dissector_all_heur_tables_foreach_table_func, &info);
 }
 
 void

@@ -321,6 +321,7 @@ dissect_xdlc_control
 dissector_add_handle
 dissector_add_string
 dissector_add_uint
+dissector_all_heur_tables_foreach_table
 dissector_all_tables_foreach_changed
 dissector_all_tables_foreach_table
 dissector_change_string

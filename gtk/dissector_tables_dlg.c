@@ -101,6 +101,7 @@ ui_sort_func(GtkTreeModel *model,
 struct dissector_tables_trees {
     GtkWidget       *str_tree_wgt;
     GtkWidget       *uint_tree_wgt;
+    GtkWidget       *heuristic_tree_wgt;
 };
 
 typedef struct dissector_tables_trees dissector_tables_trees_t;
@@ -118,7 +119,7 @@ proto_add_to_list(dissector_tables_tree_info_t *tree_info,
 }
 
 static void
-decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type _U_,
+decode_proto_add_to_list (const gchar *table_name _U_, ftenum_t selector_type,
                           gpointer key, gpointer value _U_, gpointer user_data)
 {
     GtkTreeStore       *store;
@@ -179,8 +180,44 @@ table_name_add_to_list(dissector_tables_tree_info_t  *tree_info,
 }
 
 static void
-display_dissector_table_names(const char *table_name, const char *ui_name,
-                              gpointer w)
+display_heur_dissector_table_entries(gpointer data, gpointer user_data)
+{
+	heur_dtbl_entry_t *dtbl_entry = data;
+	dissector_tables_tree_info_t  *tree_info = user_data;
+	GtkTreeStore       *store;
+
+	if(dtbl_entry->protocol){
+
+		store = GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(tree_info->tree))); /* Get store */
+		proto_add_to_list(tree_info, store, 
+			(gchar *)proto_get_protocol_long_name(dtbl_entry->protocol), 
+			proto_get_protocol_short_name(dtbl_entry->protocol));
+	}else{
+		g_warning("no protocol info");
+	}
+
+
+}
+
+static void
+display_heur_dissector_table_names(const char *table_name, heur_dissector_list_t *table, gpointer w)
+{
+    dissector_tables_trees_t      *dis_tbl_trees;
+    dissector_tables_tree_info_t  *tree_info;
+	 
+	tree_info = g_new(dissector_tables_tree_info_t, 1);
+	dis_tbl_trees = w;
+
+	table_name_add_to_list(tree_info, dis_tbl_trees->heuristic_tree_wgt, "", table_name);
+
+	if(table){
+		g_slist_foreach (*table, display_heur_dissector_table_entries, tree_info);
+	}
+
+}
+
+static void
+display_dissector_table_names(const char *table_name, const char *ui_name, gpointer w)
 {
     dissector_tables_trees_t      *dis_tbl_trees;
     dissector_tables_tree_info_t  *tree_info;
@@ -317,17 +354,37 @@ dissector_tables_dlg_init(void)
     gtk_box_pack_start(GTK_BOX(temp_page), scrolled_window, TRUE, TRUE, 0);
     gtk_widget_show(scrolled_window);
 
-    /* We must display TOP LEVEL Widget before calling init_table() */
+    /* heuristic tables */
+    temp_page = gtk_vbox_new(FALSE, 6);
+    tmp = gtk_label_new("Heuristic tables");
+    gtk_widget_show(tmp);
+    hbox = gtk_hbox_new(FALSE, 3);
+    gtk_container_add(GTK_CONTAINER(hbox), tmp);
+    gtk_notebook_append_page(GTK_NOTEBOOK(main_nb), temp_page, hbox);
+
+    scrolled_window = scrolled_window_new(NULL, NULL);
+    dis_tbl_trees.heuristic_tree_wgt = init_table();
+    gtk_widget_show(dis_tbl_trees.heuristic_tree_wgt);
+    gtk_container_add(GTK_CONTAINER(scrolled_window), dis_tbl_trees.heuristic_tree_wgt);
+    gtk_box_pack_start(GTK_BOX(temp_page), scrolled_window, TRUE, TRUE, 0);
+    gtk_widget_show(scrolled_window);
+
+	/* We must display TOP LEVEL Widget before calling init_table() */
     gtk_widget_show_all(dissector_tables_dlg_w);
     g_signal_connect(dissector_tables_dlg_w, "destroy", G_CALLBACK(win_destroy_cb), NULL);
 
     /* Fill the table with data */
     dissector_all_tables_foreach_table(display_dissector_table_names, (gpointer)&dis_tbl_trees);
 
-    sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.str_tree_wgt)));
+    dissector_all_heur_tables_foreach_table(display_heur_dissector_table_names, (gpointer)&dis_tbl_trees);
+
+	sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.str_tree_wgt)));
     gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
 
     sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.uint_tree_wgt)));
+    gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
+
+    sortable = GTK_TREE_SORTABLE(gtk_tree_view_get_model(GTK_TREE_VIEW(dis_tbl_trees.heuristic_tree_wgt)));
     gtk_tree_sortable_set_sort_column_id(sortable, TABLE_UI_NAME_COL, GTK_SORT_ASCENDING);
 
 }
