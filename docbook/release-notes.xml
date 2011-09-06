@@ -56,11 +56,9 @@ Wireshark Info
             A malformed IKE packet could consume excessive resources.
             <!-- Fixed in trunk: r38247 -->
             <!-- Fixed in trunk-1.6: r38851 -->
-            <!-- Fixed in trunk-1.4: r????? -->
-            <!-- (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6138">Bug
-            6138</ulink>) -->
+            <!-- Fixed in trunk-1.4: r38870 -->
           </para>
-          <para>Versions affected: 1.6.0 to 1.6.1.</para>
+          <para>Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3266">CVE-2011-3266</ulink>
           </para>
@@ -204,6 +202,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  BGP : AS_PATH attribute was decode wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6188">Bug
+          6188</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Fixes for SCPS TCP option.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6194">Bug
           6194</ulink>)
@@ -264,15 +268,15 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
-	  ERF records with extension headers not written out correctly to pcap or pcap-ng files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6265">Bug
-          6265</ulink>)
+	  Wireshark improperly parsing 802.11 Beacon Country Information tag.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6264">Bug
+          6264</ulink>)
         </para></listitem>
 
         <listitem><para>
-	  Wrong display of CSN_BIT under CSN_UNION.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6287">Bug
-          6287</ulink>)
+	  ERF records with extension headers not written out correctly to pcap or pcap-ng files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6265">Bug
+          6265</ulink>)
         </para></listitem>
 
         <listitem><para>
@@ -285,6 +289,12 @@ Wireshark Info
 	  Copying from RTP stream analysis copies 1st line many times.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6279">Bug
           6279</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wrong display of CSN_BIT under CSN_UNION.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6287">Bug
+          6287</ulink>)
         </para></listitem>
 
       </itemizedlist>
