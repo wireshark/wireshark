@@ -1041,7 +1041,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 plen =  tvb_get_ntohs(tvb,offset);
                 rd_type=tvb_get_ntohs(tvb,offset+2);
 
-                /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability 
+                /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability
                    Both BGP-AD and VPLS-BGP [RFC4761] use the same AFI/SAFI.  In order
                    for both BGP-AD and VPLS-BGP to co-exist, the NLRI length must be
                    used as a demultiplexer.
@@ -1061,16 +1061,16 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                                 "RD: %u:%u, PE_addr: %s",
                                                 tvb_get_ntohs(tvb, offset + 4),
                                                 tvb_get_ntohl(tvb, offset + 6),
-                                                tvb_ip_to_str(tvb, offset + 10));
+                                                ip_to_str(tvb_get_ptr(tvb, offset + 10, 4)));
                             break;
 
                         case FORMAT_IP_LOC:
                             proto_tree_add_text(tree, tvb, offset,
                                                 (offset + plen + 2) - start_offset,
                                                 "RD: %s:%u, PE_addr: %s",
-                                                tvb_ip_to_str(tvb, offset + 10),
+                                                ip_to_str(tvb_get_ptr(tvb, offset + 10, 4)),
                                                 tvb_get_ntohs(tvb, offset + 8),
-                                                tvb_ip_to_str(tvb, offset + 10));
+                                                ip_to_str(tvb_get_ptr(tvb, offset + 10, 4)));
                             break;
                         case FORMAT_AS4_LOC:
                             proto_tree_add_text(tree, tvb, start_offset,
@@ -1078,7 +1078,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                                 "RD: %u:%u, PE_addr: %s",
                                                 tvb_get_ntohl(tvb, offset + 4),
                                                 tvb_get_ntohs(tvb, offset + 8),
-                                                tvb_ip_to_str(tvb, offset + 10));
+                                                ip_to_str(tvb_get_ptr(tvb, offset + 10, 4)));
                             break;
                         default:
                             proto_tree_add_text(tree, tvb, start_offset,
@@ -1645,13 +1645,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 length = tvb_get_guint8(tvb, k++);
 
                                 /* Check for invalid ASN */
-                                for (d = 0; d < length; d++) 
+                                for (d = 0; d < length; d++)
                                 {
                                     if(tvb_get_ntohs(tvb, k) == 0)
                                         asn_is_null = 1;
                                     k += 2;
                                 }
-                            }                        
+                            }
                             if(k != end || unknown_segment_type || asn_is_null)
                                 asn_len = 4;
                         }
