@@ -111,6 +111,18 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  Malformed Packet in decode for BGP-AD update.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6122">Bug
+          6122</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  BGP : AS_PATH attribute was decode wrong.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6188">Bug
+          6188</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  Fixes for SCPS TCP option.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6194">Bug
           6194</ulink>)
@@ -144,6 +156,42 @@ Wireshark Info
 	  Mis-spelled word "unknown" in assorted files.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6244">Bug
           6244</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  btl2cap extended window shows wrong bit.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6257">Bug
+          6257</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  NDMP dissector incorrectly represents "ndmp.bytes_left_to_read" as signed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6262">Bug
+          6262</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  ERF records with extension headers not written out correctly to pcap or pcap-ng files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6265">Bug
+          6265</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  RTPS2: MAX_BITMAP_SIZE is defined incorrectly.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6276">Bug
+          6276</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Copying from RTP stream analysis copies 1st line many times.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6279">Bug
+          6279</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  File types with no snaplen written out with a zero snaplen in pcap-ng files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6289">Bug
+          6289</ulink>)
         </para></listitem>
 
       </itemizedlist>

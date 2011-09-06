@@ -1040,12 +1040,58 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
             case SAFNUM_VPLS:
                 plen =  tvb_get_ntohs(tvb,offset);
                 rd_type=tvb_get_ntohs(tvb,offset+2);
+
+                /* RFC6074 Section 7 BGP-AD and VPLS-BGP Interoperability 
+                   Both BGP-AD and VPLS-BGP [RFC4761] use the same AFI/SAFI.  In order
+                   for both BGP-AD and VPLS-BGP to co-exist, the NLRI length must be
+                   used as a demultiplexer.
+
+                   The BGP-AD NLRI has an NLRI length of 12 bytes, containing only an
+                   8-byte RD and a 4-byte VSI-ID. VPLS-BGP [RFC4761] uses a 17-byte
+                   NLRI length.  Therefore, implementations of BGP-AD must ignore NLRI
+                   that are greater than 12 bytes.
+                */
+                if(plen == 12) /* BGP-AD */
+                {
+                    switch (rd_type) {
+
+                        case FORMAT_AS2_LOC:
+                            proto_tree_add_text(tree, tvb, start_offset,
+                                                (offset + plen + 2) - start_offset,
+                                                "RD: %u:%u, PE_addr: %s",
+                                                tvb_get_ntohs(tvb, offset + 4),
+                                                tvb_get_ntohl(tvb, offset + 6),
+                                                tvb_ip_to_str(tvb, offset + 10));
+                            break;
+
+                        case FORMAT_IP_LOC:
+                            proto_tree_add_text(tree, tvb, offset,
+                                                (offset + plen + 2) - start_offset,
+                                                "RD: %s:%u, PE_addr: %s",
+                                                tvb_ip_to_str(tvb, offset + 10),
+                                                tvb_get_ntohs(tvb, offset + 8),
+                                                tvb_ip_to_str(tvb, offset + 10));
+                            break;
+                        case FORMAT_AS4_LOC:
+                            proto_tree_add_text(tree, tvb, start_offset,
+                                                (offset + plen + 2) - start_offset,
+                                                "RD: %u:%u, PE_addr: %s",
+                                                tvb_get_ntohl(tvb, offset + 4),
+                                                tvb_get_ntohs(tvb, offset + 8),
+                                                tvb_ip_to_str(tvb, offset + 10));
+                            break;
+                        default:
+                            proto_tree_add_text(tree, tvb, start_offset,
+                                                (offset - start_offset) + 2,
+                                                "Unknown labeled VPN address format %u", rd_type);
+                            return -1;
+                    } /* switch (rd_type) */
+                }else{ /* VPLS-BGP */
                 ce_id=tvb_get_ntohs(tvb,offset+10);
                 labblk_off=tvb_get_ntohs(tvb,offset+12);
                 labblk_size=tvb_get_ntohs(tvb,offset+14);
                 stack_strbuf = ep_strbuf_new_label(NULL);
                 labnum = decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
-
                 switch (rd_type) {
 
                     case FORMAT_AS2_LOC:
@@ -1082,6 +1128,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                             "Unknown labeled VPN address format %u", rd_type);
                         return -1;
                 } /* switch (rd_type) */
+                }
                 /* FIXME there are subTLVs left to decode ... for now lets omit them */
                 total_length = plen+2;
                 break;
@@ -1579,13 +1626,34 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         asn_len = 4;
                     else {
                         if (bgp_asn_len == 0) {
+                            guint unknown_segment_type = 0;
+                            guint asn_is_null = 0;
+                            guint d;
+                            asn_len = 2;
                             k = q;
-                            while (k < end) {
-                                k++;
+                            while (k < end)
+                            {
+                                type = tvb_get_guint8(tvb, k++);
+
+                                /* type of segment is unknown */
+                                if (type != AS_SET &&
+                                    type != AS_SEQUENCE &&
+                                    type != AS_CONFED_SEQUENCE &&
+                                    type != AS_CONFED_SEQUENCE)
+                                    unknown_segment_type = 1;
+
                                 length = tvb_get_guint8(tvb, k++);
-                                k += length * 2;
-                            }
-                            asn_len = (k == end) ? 2 : 4;
+
+                                /* Check for invalid ASN */
+                                for (d = 0; d < length; d++) 
+                                {
+                                    if(tvb_get_ntohs(tvb, k) == 0)
+                                        asn_is_null = 1;
+                                    k += 2;
+                                }
+                            }                        
+                            if(k != end || unknown_segment_type || asn_is_null)
+                                asn_len = 4;
                         }
                         else {
                             asn_len = bgp_asn_len;
