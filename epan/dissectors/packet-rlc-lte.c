@@ -80,6 +80,8 @@ static gboolean global_rlc_lte_headers_expected = FALSE;
 /* Heuristic dissection */
 static gboolean global_rlc_lte_heur = FALSE;
 
+/* Re-assembly of segments */
+static gboolean global_rlc_lte_reassembly = FALSE;
 
 /**************************************************/
 /* Initialize the protocol and registered fields. */
@@ -165,6 +167,15 @@ static int hf_rlc_lte_sequence_analysis_repeated_nack_original_frame = -1;
 static int hf_rlc_lte_sequence_analysis_ack_out_of_range = -1;
 static int hf_rlc_lte_sequence_analysis_ack_out_of_range_opposite_frame = -1;
 
+/* Reassembly */
+static int hf_rlc_lte_reassembly_source = -1;
+static int hf_rlc_lte_reassembly_source_number_of_segments = -1;
+static int hf_rlc_lte_reassembly_source_total_length = -1;
+static int hf_rlc_lte_reassembly_source_segment = -1;
+static int hf_rlc_lte_reassembly_source_segment_sn = -1;
+static int hf_rlc_lte_reassembly_source_segment_framenum = -1;
+static int hf_rlc_lte_reassembly_source_segment_length = -1;
+
 /* Subtrees. */
 static int ett_rlc_lte = -1;
 static int ett_rlc_lte_context = -1;
@@ -172,6 +183,8 @@ static int ett_rlc_lte_um_header = -1;
 static int ett_rlc_lte_am_header = -1;
 static int ett_rlc_lte_extension_part = -1;
 static int ett_rlc_lte_sequence_analysis = -1;
+static int ett_rlc_lte_reassembly_source = -1;
+static int ett_rlc_lte_reassembly_source_segment = -1;
 
 /* Value-strings */
 static const value_string direction_vals[] =
@@ -313,7 +326,29 @@ typedef struct
     guint8   direction;
 } rlc_channel_hash_key;
 
-/* Conversation-type status for sequence analysis on channel */
+
+/******************************************************************/
+/* State maintained for AM/UM reassembly                          */
+
+typedef struct rlc_segment {
+    guint32 frameNum;
+    guint16 SN;
+    guint8 *data;
+    guint16 length;
+} rlc_segment;
+
+typedef struct rlc_channel_reassembly_info
+{
+    guint16 number_of_segments;
+    #define RLC_MAX_SEGMENTS 100
+    rlc_segment segments[RLC_MAX_SEGMENTS];
+} rlc_channel_reassembly_info;
+
+
+
+
+/*******************************************************************/
+/* Conversation-type status for sequence analysis on channel       */
 typedef struct
 {
     guint8   rlcMode;
@@ -324,6 +359,9 @@ typedef struct
     guint16  previousSequenceNumber;
     guint32  previousFrameNum;
     gboolean previousSegmentIncomplete;
+
+    /* Accumulate info about current segmented SDU */
+    struct rlc_channel_reassembly_info *reassembly_info;
 } rlc_channel_sequence_analysis_status;
 
 /* The sequence analysis channel hash table */
@@ -353,6 +391,162 @@ typedef struct
 
 /* The sequence analysis frame report hash table instance itself   */
 static GHashTable *rlc_lte_frame_sequence_analysis_report_hash = NULL;
+
+
+
+
+/* The reassembly result hash table */
+static GHashTable *rlc_lte_frame_reassembly_report_hash = NULL;
+
+
+/* Create a new struct for reassembly */
+static void reassembly_reset(rlc_channel_sequence_analysis_status *status)
+{
+    status->reassembly_info = se_alloc0(sizeof(rlc_channel_reassembly_info));
+}
+
+/* Hide previous one */
+static void reassembly_destroy(rlc_channel_sequence_analysis_status *status)
+{
+    /* TODO: actually free? */
+    status->reassembly_info = NULL;
+}
+
+/* Add a new segment to the accumulating segmented SDU */
+static void reassembly_add_segment(rlc_channel_sequence_analysis_status *status,
+                                   guint16 SN, guint32 frame,
+                                   tvbuff_t *tvb, gint offset, gint length)
+{
+    int segment_number =  status->reassembly_info->number_of_segments;
+    guint8 *segment_data;
+
+    /* Give up if reach segment limit */
+    if (segment_number >= (RLC_MAX_SEGMENTS-1)) {
+        reassembly_destroy(status);
+        return;
+    }
+
+    segment_data = se_alloc(length);
+    /* TODO: is there a better way to do this? */
+    memcpy(segment_data, tvb_get_ptr(tvb, offset, length), length);
+
+    /* Add new segment */
+    status->reassembly_info->segments[segment_number].frameNum = frame;
+    status->reassembly_info->segments[segment_number].SN = SN;
+    status->reassembly_info->segments[segment_number].data = segment_data;
+    status->reassembly_info->segments[segment_number].length = length;
+
+    status->reassembly_info->number_of_segments++;
+}
+
+
+/* Record the current & complete segmented SDU by mapping from this frame number to
+   struct with segment info.
+   TODO: should use a larger key that also identifies channel... */
+static void reassembly_record(rlc_channel_sequence_analysis_status *status, packet_info *pinfo)
+{
+    /* Just store existing info in hash table */
+    g_hash_table_insert(rlc_lte_frame_reassembly_report_hash, &pinfo->fd->num, status->reassembly_info);
+}
+
+/* Create and return a tvb based upon contents of reassembly info */
+static tvbuff_t* reassembly_get_reassembled_tvb(rlc_channel_reassembly_info *reassembly_info,
+                                                packet_info *pinfo)
+{
+    gint n;
+    guint   combined_length = 0;
+    guint8 *combined_data;
+    guint combined_offset = 0;
+    tvbuff_t *tvb;
+
+    /* Allocate buffer big enough to hold re-assembled data */
+    for (n=0; n < reassembly_info->number_of_segments; n++) {
+        combined_length += reassembly_info->segments[n].length;
+    }
+    combined_data = se_alloc(combined_length);
+
+    /* Copy data into contiguous buffer */
+    for (n=0; n < reassembly_info->number_of_segments; n++) {
+        guint8 *data = reassembly_info->segments[n].data;
+        int length = reassembly_info->segments[n].length;
+        memcpy(combined_data+combined_offset, data, length);
+        combined_offset += length;
+    }
+
+    /* Create and return tvb with this data */
+    tvb = tvb_new_real_data(combined_data, combined_offset, combined_offset);
+    add_new_data_source(pinfo, tvb, "Reassembled SDU");
+    return tvb;
+}
+
+/* Show where the segments came from for a reassembled SDU */
+static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
+                                   proto_tree *tree, tvbuff_t *tvb, gint offset)
+{
+    int n;
+    proto_item *source_ti, *ti;
+    proto_tree *source_tree;
+    proto_item *segment_ti;
+    proto_tree *segment_tree;
+    guint      total_length=0;
+
+    /* Create root of source info */
+    source_ti = proto_tree_add_item(tree,
+                                    hf_rlc_lte_reassembly_source,
+                                    tvb, 0, 0, FALSE);
+    source_tree = proto_item_add_subtree(source_ti, ett_rlc_lte_reassembly_source);
+    PROTO_ITEM_SET_GENERATED(source_ti);
+    proto_item_append_text(source_ti, " %u segments", reassembly_info->number_of_segments);
+
+    /* Number of segments */
+    ti = proto_tree_add_uint(source_tree,
+                             hf_rlc_lte_reassembly_source_number_of_segments,
+                             tvb, 0, 0, reassembly_info->number_of_segments);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Total length */
+    for (n=0; n < reassembly_info->number_of_segments; n++) {
+        total_length += reassembly_info->segments[n].length;
+    }
+    ti = proto_tree_add_uint(source_tree,
+                             hf_rlc_lte_reassembly_source_number_of_segments,
+                             tvb, 0, 0, total_length);
+    PROTO_ITEM_SET_GENERATED(ti);
+
+    /* Now add info about each segment in turn */
+    for (n=0; n < reassembly_info->number_of_segments; n++) {
+
+        /* Add next segment as a subtree */
+        rlc_segment *segment = &(reassembly_info->segments[n]);
+        proto_item_append_text(source_ti, " (SN=%u frame=%u len=%u)",
+                               segment->SN, segment->frameNum, segment->length);
+
+        /* N.B. assume last segment from passed-in tvb! */
+        segment_ti = proto_tree_add_item(source_tree,
+                                         hf_rlc_lte_reassembly_source_segment,
+                                         tvb,
+                                         (n == reassembly_info->number_of_segments-1) ? offset : 0,
+                                         (n == reassembly_info->number_of_segments-1) ? segment->length : 0,
+                                         FALSE);
+        segment_tree = proto_item_add_subtree(segment_ti, ett_rlc_lte_reassembly_source_segment);
+        proto_item_append_text(segment_ti, " (SN=%u frame=%u len=%u)",
+                               segment->SN, segment->frameNum, segment->length);
+        PROTO_ITEM_SET_GENERATED(segment_ti);
+
+        /* Add details to segment tree */
+        ti = proto_tree_add_uint(segment_tree, hf_rlc_lte_reassembly_source_segment_sn,
+                                 tvb, 0, 0, segment->SN);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_uint(segment_tree, hf_rlc_lte_reassembly_source_segment_framenum,
+                                 tvb, 0, 0, segment->frameNum);
+        PROTO_ITEM_SET_GENERATED(ti);
+        ti = proto_tree_add_uint(segment_tree, hf_rlc_lte_reassembly_source_segment_length,
+                                 tvb, 0, 0, segment->length);
+        PROTO_ITEM_SET_GENERATED(ti);
+    }
+}
+
+
 
 
 /******************************************************************/
@@ -489,7 +683,7 @@ static void show_PDU_in_info(packet_info *pinfo,
 
 /* Show an SDU.  If configured, pass to PDCP dissector */
 static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, gint offset, gint length,
-                             rlc_lte_info *rlc_info, gboolean whole_pdu)
+                             rlc_lte_info *rlc_info, gboolean whole_pdu, rlc_channel_reassembly_info *reassembly_info)
 {
     /* Add raw data (according to mode) */
     proto_item *data_ti = proto_tree_add_item(tree,
@@ -498,16 +692,25 @@ static void show_PDU_in_tree(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb
                                                     hf_rlc_lte_um_data,
                                               tvb, offset, length, FALSE);
 
-    /* Decode signalling PDUs as PDCP */
-    if (whole_pdu &&
+    /* Send whole PDU to PDCP */
+    if ((whole_pdu || (reassembly_info != NULL)) &&
         (((global_rlc_lte_call_pdcp_for_srb) && (rlc_info->channelType == CHANNEL_TYPE_SRB)) ||
          ((global_rlc_lte_call_pdcp_for_drb != PDCP_drb_off) && (rlc_info->channelType == CHANNEL_TYPE_DRB)))) {
 
-        /* Attempt to decode payload using LTE PDCP dissector */
-        tvbuff_t *pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
+        /* TODO: made static to avoid compiler warning... */
+        static tvbuff_t *pdcp_tvb = NULL;
         volatile dissector_handle_t protocol_handle;
-
         struct pdcp_lte_info *p_pdcp_lte_info;
+
+        /* Get tvb for passing to LTE PDCP dissector */
+        if (reassembly_info == NULL) {
+            pdcp_tvb = tvb_new_subset(tvb, offset, length, length);
+        }
+        else {
+            /* Get combined tvb. */
+            pdcp_tvb = reassembly_get_reassembled_tvb(reassembly_info, pinfo);
+            reassembly_show_source(reassembly_info, tree, tvb, offset);
+        }
 
         /* Reuse or allocate struct */
         p_pdcp_lte_info = p_get_proto_data(pinfo->fd, proto_pdcp_lte);
@@ -589,14 +792,9 @@ static guint rlc_channel_hash_func(gconstpointer v)
     return ((val1->ueId * 1024) + (val1->channelType*64) + (val1->channelId*2) + val1->direction);
 }
 
-
-
-/* Hash table functions for frame reports */
-
-/* Equal keys */
-static gint rlc_frame_equal(gconstpointer v, gconstpointer v2)
+static gint rlc_int_equal(gconstpointer v, gconstpointer v2)
 {
-    return (v == v2);
+    return *((gint*)(v)) == *((gint*)(v2));
 }
 
 /* Compute a hash value for a given key. */
@@ -916,6 +1114,10 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
 static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                                      rlc_lte_info *p_rlc_lte_info,
                                      gboolean isControlFrame,
+                                     guint8 number_of_segments,
+                                     guint16 firstSegmentOffset,
+                                     guint16 firstSegmentLength,
+                                     guint16 lastSegmentOffset,
                                      guint16 sequenceNumber,
                                      gboolean first_includes_start, gboolean last_includes_end,
                                      gboolean is_resegmented _U_,
@@ -1001,7 +1203,7 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
             /* For wrong sequence number... */
             if (!p_report_in_frame->sequenceExpectedCorrect) {
 
-                p_report_in_frame->sequenceExpectedCorrect = FALSE;
+                reassembly_destroy(p_channel_status);
 
                 /* Don't get confused by MAC (HARQ) retx */
                 if (is_mac_lte_frame_retx(pinfo, p_rlc_lte_info->direction)) {
@@ -1045,6 +1247,35 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 p_channel_status->previousFrameNum = pinfo->fd->num;
                 p_channel_status->previousSequenceNumber = sequenceNumber;
                 p_channel_status->previousSegmentIncomplete = !last_includes_end;
+
+                if (p_channel_status->reassembly_info) {
+
+                    /* Add next segment to reassembly info */
+                    reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->fd->num,
+                                           tvb, firstSegmentOffset, firstSegmentLength);
+
+                    /* The end of existing reassembly? */
+                    if (!first_includes_start &&
+                        ((number_of_segments > 1) || last_includes_end)) {
+
+                        reassembly_record(p_channel_status, pinfo);
+                        reassembly_destroy(p_channel_status);
+                    }
+                }
+
+                /* The start of a new reassembly? */
+                if (!last_includes_end &&
+                    ((number_of_segments > 1) || first_includes_start)) {
+
+                    guint16 lastSegmentLength = tvb_length(tvb)-lastSegmentOffset;
+
+                    if (global_rlc_lte_reassembly) {
+                        reassembly_reset(p_channel_status);
+                        reassembly_add_segment(p_channel_status, sequenceNumber,
+                                               pinfo->fd->num,
+                                               tvb, lastSegmentOffset, lastSegmentLength);
+                    }
+                }
             }
 
             break;
@@ -1070,11 +1301,15 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 p_report_in_frame->firstSN = sequenceNumber;
 
                 /* No channel state to update */
+                break;
+            }
+
+            if (sequenceNumber != expectedSequenceNumber) {
+                reassembly_destroy(p_channel_status);
             }
 
             /* Expected? */
-            else if (sequenceNumber == expectedSequenceNumber) {
-
+            if (sequenceNumber == expectedSequenceNumber) {
                 /* Set report for this frame */
                 p_report_in_frame->sequenceExpectedCorrect = TRUE;
                 p_report_in_frame->sequenceExpected = expectedSequenceNumber;
@@ -1086,6 +1321,36 @@ static void checkChannelSequenceInfo(packet_info *pinfo, tvbuff_t *tvb,
                 p_channel_status->previousSequenceNumber = sequenceNumber;
                 p_channel_status->previousFrameNum = pinfo->fd->num;
                 p_channel_status->previousSegmentIncomplete = !last_includes_end;
+
+
+                if (p_channel_status->reassembly_info) {
+
+                    /* Add next segment to reassembly info */
+                    reassembly_add_segment(p_channel_status, sequenceNumber, pinfo->fd->num,
+                                           tvb, firstSegmentOffset, firstSegmentLength);
+
+                    /* The end of existing reassembly? */
+                    if (!first_includes_start &&
+                        ((number_of_segments > 1) || last_includes_end)) {
+
+                        reassembly_record(p_channel_status, pinfo);
+                        reassembly_destroy(p_channel_status);
+                    }
+                }
+
+                /* The start of a new reassembly? */
+                if (!last_includes_end &&
+                    ((number_of_segments > 1) || first_includes_start)) {
+
+                    guint16 lastSegmentLength = tvb_length(tvb)-lastSegmentOffset;
+
+                    if (global_rlc_lte_reassembly) {
+                        reassembly_reset(p_channel_status);
+                        reassembly_add_segment(p_channel_status, sequenceNumber,
+                                               pinfo->fd->num,
+                                               tvb, lastSegmentOffset, lastSegmentLength);
+                    }
+                }
             }
 
             /* Previous subframe repeated? */
@@ -1467,6 +1732,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
     proto_item *um_header_ti;
     gboolean is_truncated;
     proto_item *truncated_ti;
+    rlc_channel_reassembly_info *reassembly_info = NULL;
 
     /* Hidden UM root */
     um_ti = proto_tree_add_string_format(tree, hf_rlc_lte_um,
@@ -1580,8 +1846,20 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
         ((global_rlc_lte_um_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
          (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
 
+        guint16 lastSegmentOffset = offset;
+        if (s_number_of_extensions >= 1) {
+            int n;
+            lastSegmentOffset = offset;
+            for (n=0; n < s_number_of_extensions; n++) {
+                lastSegmentOffset += s_lengths[n];
+            }
+        }
+
         checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info,
                                 FALSE,
+                                s_number_of_extensions+1,
+                                offset, s_lengths[0],
+                                lastSegmentOffset,
                                 (guint16)sn, first_includes_start, last_includes_end,
                                 FALSE, /* UM doesn't re-segment */
                                 tap_info, um_header_tree);
@@ -1590,12 +1868,17 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /*************************************/
     /* Data                              */
+
+    reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(rlc_lte_frame_reassembly_report_hash,
+                                                                         &pinfo->fd->num);
+
     if (s_number_of_extensions > 0) {
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             show_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
-                             (n==0) ? first_includes_start : TRUE);
+                             (n==0) ? first_includes_start : TRUE,
+                             (n==0) ? reassembly_info : NULL);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1606,9 +1889,8 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Final data element */
     show_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
-                     ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end);
-
-
+                     ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end,
+                     (s_number_of_extensions == 0) ? reassembly_info : NULL);
     show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                      (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                      last_includes_end);
@@ -1797,6 +2079,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     guint16    sn;
     gboolean is_truncated;
     proto_item *truncated_ti;
+    rlc_channel_reassembly_info *reassembly_info = NULL;
 
     /* Hidden AM root */
     am_ti = proto_tree_add_string_format(tree, hf_rlc_lte_am,
@@ -1914,20 +2197,43 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         ((global_rlc_lte_am_sequence_analysis == SEQUENCE_ANALYSIS_RLC_ONLY) &&
          (p_get_proto_data(pinfo->fd, proto_mac_lte) == NULL))) {
 
-        checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, FALSE, (guint16)sn,
+        guint16 firstSegmentLength;
+        guint16 lastSegmentOffset = offset;
+        if (s_number_of_extensions >= 1) {
+            int n;
+            for (n=0; n < s_number_of_extensions; n++) {
+                lastSegmentOffset += s_lengths[n];
+            }
+
+            firstSegmentLength = s_lengths[0];
+        }
+        else {
+            firstSegmentLength = tvb_length_remaining(tvb, offset);
+        }
+
+        checkChannelSequenceInfo(pinfo, tvb, p_rlc_lte_info, FALSE,
+                                 s_number_of_extensions+1,
+                                 offset, firstSegmentLength,
+                                 lastSegmentOffset,
+                                 (guint16)sn,
                                  first_includes_start, last_includes_end,
                                  is_resegmented, tap_info, tree);
     }
 
 
     /*************************************/
-    /* Data                        */
+    /* Data                              */
+
+    reassembly_info = (rlc_channel_reassembly_info *)g_hash_table_lookup(rlc_lte_frame_reassembly_report_hash,
+                                                                         &pinfo->fd->num);
+
     if (s_number_of_extensions > 0) {
         /* Show each data segment separately */
         int n;
         for (n=0; n < s_number_of_extensions; n++) {
             show_PDU_in_tree(pinfo, tree, tvb, offset, s_lengths[n], p_rlc_lte_info,
-                             (n==0) ? first_includes_start : TRUE);
+                             (n==0) ? first_includes_start : TRUE,
+                             (n==0) ? reassembly_info : NULL);
             show_PDU_in_info(pinfo, top_ti, s_lengths[n],
                              (n==0) ? first_includes_start : TRUE,
                              TRUE);
@@ -1939,7 +2245,8 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
     /* Final data element */
     if (tvb_length_remaining(tvb, offset) > 0) {
         show_PDU_in_tree(pinfo, tree, tvb, offset, -1, p_rlc_lte_info,
-                         ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end);
+                         ((s_number_of_extensions == 0) ? first_includes_start : TRUE) && last_includes_end,
+                         (s_number_of_extensions == 0) ? reassembly_info : NULL);
         show_PDU_in_info(pinfo, top_ti, (guint16)tvb_length_remaining(tvb, offset),
                          (s_number_of_extensions == 0) ? first_includes_start : TRUE,
                          last_includes_end);
@@ -2264,14 +2571,17 @@ rlc_lte_init_protocol(void)
     if (rlc_lte_frame_repeated_nack_report_hash) {
         g_hash_table_destroy(rlc_lte_frame_repeated_nack_report_hash);
     }
-
+    if (rlc_lte_frame_reassembly_report_hash) {
+        g_hash_table_destroy(rlc_lte_frame_reassembly_report_hash);
+    }
 
     /* Now create them over */
     rlc_lte_sequence_analysis_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
-    rlc_lte_frame_sequence_analysis_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_frame_equal);
+    rlc_lte_frame_sequence_analysis_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_int_equal);
 
     rlc_lte_repeated_nack_channel_hash = g_hash_table_new(rlc_channel_hash_func, rlc_channel_equal);
-    rlc_lte_frame_repeated_nack_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_frame_equal);
+    rlc_lte_frame_repeated_nack_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_int_equal);
+    rlc_lte_frame_reassembly_report_hash = g_hash_table_new(rlc_frame_hash_func, rlc_int_equal);
 }
 
 
@@ -2634,6 +2944,49 @@ void proto_register_rlc_lte(void)
             }
         },
 
+        { &hf_rlc_lte_reassembly_source,
+            { "Reassembly Source",
+              "rlc-lte.reassembly-info", FT_STRING, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_reassembly_source_number_of_segments,
+            { "Number of segments",
+              "rlc-lte.reassembly-info.number-of-segments", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_reassembly_source_total_length,
+            { "Total length",
+              "rlc-lte.reassembly-info.total-length", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_reassembly_source_segment,
+            { "Segment",
+              "rlc-lte.reassembly-info.segment", FT_NONE, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_reassembly_source_segment_sn,
+            { "SN",
+              "rlc-lte.reassembly-info.segment.sn", FT_UINT16, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_reassembly_source_segment_framenum,
+            { "Frame",
+              "rlc-lte.reassembly-info.segment.frame", FT_FRAMENUM, BASE_NONE, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+        { &hf_rlc_lte_reassembly_source_segment_length,
+            { "Length",
+              "rlc-lte.reassembly-info.segment.length", FT_UINT32, BASE_DEC, 0, 0x0,
+              NULL, HFILL
+            }
+        },
+
         { &hf_rlc_lte_header_only,
             { "RLC PDU Header only",
               "rlc-lte.header-only", FT_UINT8, BASE_DEC, VALS(header_only_vals), 0x0,
@@ -2649,7 +3002,9 @@ void proto_register_rlc_lte(void)
         &ett_rlc_lte_um_header,
         &ett_rlc_lte_am_header,
         &ett_rlc_lte_extension_part,
-        &ett_rlc_lte_sequence_analysis
+        &ett_rlc_lte_sequence_analysis,
+        &ett_rlc_lte_reassembly_source,
+        &ett_rlc_lte_reassembly_source_segment
     };
 
     static enum_val_t sequence_analysis_vals[] = {
@@ -2714,6 +3069,15 @@ void proto_register_rlc_lte(void)
         "When enabled, if data is not present, don't report as an error, but instead "
         "add expert info to indicate that headers were omitted",
         &global_rlc_lte_headers_expected);
+
+    prefs_register_bool_preference(rlc_lte_module, "reassembly",
+        "Attempt SDU reassembly",
+        "When enabled, attempts to re-assemble upper-layer SDUs that are split over "
+        "more than one RLC PDU.  Note: does not currently support out-of-order or "
+        "re-segmentation. N.B. sequence analysis must also be turned on in order "
+        "for reassembly to work",
+        &global_rlc_lte_reassembly);
+
 
     register_init_routine(&rlc_lte_init_protocol);
 }
