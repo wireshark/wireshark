@@ -116,6 +116,36 @@ Wireshark Info
           6194</ulink>)
         </para></listitem>
 
+        <listitem><para>
+	  Offset calculated incorrectly for sFlow extended data.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6219">Bug
+          6219</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  [Enter] key behavior varies when manually typing display filters.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6228">Bug
+          6228</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Contents of pcapng EnhancedPacketBlocks with comments aren't displayed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6229">Bug
+          6229</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Misdecoding 3G Neighbour Cell Information Element in SI2quater message due to a coding typo.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6237">Bug
+          6237</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Mis-spelled word "unknown" in assorted files.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6244">Bug
+          6244</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>

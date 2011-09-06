@@ -409,7 +409,7 @@ proto_register_gvcp(void)
         NULL, HFILL }
     },
     { &hf_gvcp_unknown16,
-      { "2-byte unknown meaning", "gvcp.unkown16",
+      { "2-byte unknown meaning", "gvcp.unknown16",
         FT_UINT16, BASE_HEX,
         NULL, 0x0,
         NULL, HFILL }

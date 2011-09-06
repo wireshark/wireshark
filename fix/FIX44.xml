@@ -5244,7 +5244,7 @@
     <field number="379" name="BusinessRejectRefID" type="STRING" />
     <field number="380" name="BusinessRejectReason" type="INT">
       <value enum="0" description="OTHER" />
-      <value enum="1" description="UNKOWN_ID" />
+      <value enum="1" description="UNKNOWN_ID" />
       <value enum="2" description="UNKNOWN_SECURITY" />
       <value enum="3" description="UNSUPPORTED_MESSAGE_TYPE" />
       <value enum="4" description="APPLICATION_NOT_AVAILABLE" />

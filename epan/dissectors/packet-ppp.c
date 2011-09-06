@@ -2501,7 +2501,7 @@ dissect_ccp_lzsdcp_opt(const ip_tcp_opt *optp, tvbuff_t *tvb,
   process_mode = tvb_get_guint8(tvb, offset + 5);
   proto_tree_add_text(field_tree, tvb, offset + 5, 1,
                       "Process Mode: %s (0x%02X)",
-                      val_to_str(process_mode, lzsdcp_processmode_vals, "Unkown"),
+                      val_to_str(process_mode, lzsdcp_processmode_vals, "Unknown"),
                       process_mode);
 }
 
@@ -4345,7 +4345,7 @@ dissect_ppp_raw_hdlc( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
  * it directly for USB captures, some captures like the following will not be
  * dissected correctly:
  * http://wiki.wireshark.org/SampleCaptures#head-886e340c31ca977f321c921f81cbec4c21bb7738
- * 
+ *
  * NOTE: I don't know if these heuristics are sufficient.  Time will tell ...
  */
 static void
@@ -4358,12 +4358,12 @@ dissect_ppp_usb( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   const guchar buf2[4] = {0x7e, 0xff, 0x7d, 0x23};
   tvbuff_t *next_tvb;
 
-  if ((tvb_memeql(tvb, 0, buf2, sizeof(buf2)) == 0) || 
+  if ((tvb_memeql(tvb, 0, buf2, sizeof(buf2)) == 0) ||
     (tvb_memeql(tvb, 0, buf1, sizeof(buf1)) == 0)) {
     dissect_ppp_raw_hdlc(tvb, pinfo, tree);
   }
   else if ((tvb_memeql(tvb, 0, &buf1[1], sizeof(buf1) - 1) == 0) ||
-    (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) { 
+    (tvb_memeql(tvb, 0, &buf2[1], sizeof(buf2) - 1) == 0)) {
     /* It's missing the 0x7e framing character.  What TODO?
      * Should we try faking it by sticking 0x7e in front?  Or try telling
      * dissect_ppp_raw_hdlc() NOT to look for the 0x7e frame deliminator?

@@ -561,6 +561,9 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
           autocomplete_protocol_string(filter_te, value);
           g_free(value);
         }
+	if(k != GDK_space) {
+	  stop_propagation = TRUE;    /* stop event propagation */
+	}
       }
 
       /* Lose popup */
@@ -588,9 +591,6 @@ filter_string_te_key_pressed_cb(GtkWidget *filter_te, GdkEventKey *event)
   }
 
   g_free(prefix_start);
-
-  if(k == GDK_Return || k == GDK_KP_Enter)
-    return TRUE;    /* stop event propagation */
 
   return stop_propagation;
 }

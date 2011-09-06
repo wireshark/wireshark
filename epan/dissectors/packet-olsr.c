@@ -489,7 +489,7 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
 
   if (version != 1) {
     proto_tree_add_bytes_format(olsr_tree, hf_olsr_data, tvb, offset, message_end - offset, tvb_get_ptr(tvb, offset,
-        message_end - offset), "Unkown nameservice protocol version %d", version);
+        message_end - offset), "Unknown nameservice protocol version %d", version);
     return message_end;
   }
 

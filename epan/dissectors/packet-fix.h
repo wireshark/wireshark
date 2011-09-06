@@ -1384,7 +1384,7 @@
 
    static const  value_string BusinessRejectReason_val[] = { 
        { 0, "OTHER" },
-       { 1, "UNKOWN ID" },
+       { 1, "UNKNOWN ID" },
        { 2, "UNKNOWN SECURITY" },
        { 3, "UNSUPPORTED MESSAGE TYPE" },
        { 4, "APPLICATION NOT AVAILABLE" },
