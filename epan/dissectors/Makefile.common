@@ -615,7 +615,6 @@ DISSECTOR_SRC = \
 	packet-iuup.c		\
 	packet-iwarp-ddp-rdmap.c\
 	packet-iwarp-mpa.c	\
-	packet-jabber.c		\
 	packet-jmirror.c	\
 	packet-jpeg.c 		\
 	packet-json.c		\
@@ -1008,6 +1007,7 @@ DISSECTOR_SRC = \
 	packet-xcsl.c		\
 	packet-xdmcp.c		\
 	packet-xml.c		\
+	packet-xmpp.c		\
 	packet-xot.c		\
 	packet-xtp.c		\
 	packet-xyplex.c		\
