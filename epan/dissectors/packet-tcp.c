@@ -3830,9 +3830,10 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tcpd->ta->flags|=TCP_A_REUSED_PORTS;
     }
 
-    item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
-    PROTO_ITEM_SET_GENERATED(item);
-
+    if (tcpd) {
+        item = proto_tree_add_uint(tcp_tree, hf_tcp_stream, tvb, offset, 0, tcpd->stream);
+        PROTO_ITEM_SET_GENERATED(item);
+    }
 
     /* Do we need to calculate timestamps relative to the tcp-stream? */
     if (tcp_calculate_ts) {
