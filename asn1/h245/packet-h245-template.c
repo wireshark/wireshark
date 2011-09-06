@@ -76,6 +76,7 @@ static dissector_handle_t amr_handle = NULL;
 static void init_h245_packet_info(h245_packet_info *pi);
 static int hf_h245_pdu_type = -1;
 static int hf_h245Manufacturer = -1;
+static int hf_h245_subMessageIdentifier_standard = -1;
 static int h245_tap = -1;
 static int h245dg_tap = -1;
 h245_packet_info *h245_pi=NULL;
@@ -253,6 +254,18 @@ static const value_string h245_RFC_number_vals[] = {
 	{  3984,	"RFC 3984 - RTP Payload Format for H.264 Video" },
 	{  0, NULL }
 };
+
+/* Table 7/H.239 subMessageIdentifier values */
+static const value_string h245_h239subMessageIdentifier_vals[] = {
+  {   1, "flowControlReleaseRequest" },
+  {   2, "flowControlReleaseResponse" },
+  {   3, "presentationTokenRequest" },
+  {   4, "presentationTokenResponse" },
+  {   5, "presentationTokenRelease" },
+  {   6, "presentationTokenIndicateOwner" },
+  { 0, NULL }
+};
+
 
 /* h223 multiplex codes */
 static h223_set_mc_handle_t h223_set_mc_handle = NULL;
@@ -471,6 +484,11 @@ void proto_register_h245(void) {
 	{ &hf_h245Manufacturer,
 		{ "H.245 Manufacturer", "h245.Manufacturer", FT_UINT32, BASE_HEX,
 		VALS(H221ManufacturerCode_vals), 0, "h245.H.221 Manufacturer", HFILL }},
+    { &hf_h245_subMessageIdentifier_standard,
+      { "subMessageIdentifier", "h245.subMessageIdentifier.standard",
+        FT_UINT32, BASE_DEC, VALS(h245_h239subMessageIdentifier_vals), 0,
+        NULL, HFILL }},
+
 #include "packet-h245-hfarr.c"
   };
 

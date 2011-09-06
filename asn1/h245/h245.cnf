@@ -623,9 +623,18 @@ if (h245_pi != NULL)
 #.FN_BODY GenericMessage/subMessageIdentifier  VAL_PTR = &subMessageIdentifer
   guint32 subMessageIdentifer;
   gef_ctx_t *gefx;
+
+  gefx = gef_ctx_get(actx->private_data);
+  if (gefx) {
+	/* If this is a standard generic message use hf_h245_subMessageIdentifier_standard to get
+	 * the value translated and make it fileterable.
+	 */
+    if (strcmp("GenericMessage/0.0.8.239.2", gefx->key) == 0) {
+      hf_index = hf_h245_subMessageIdentifier_standard;
+    }
+  }
   
 %(DEFAULT_BODY)s
-  gefx = gef_ctx_get(actx->private_data);
   if (gefx) gefx->subid = ep_strdup_printf("%%u", subMessageIdentifer);
 #.END
 
