@@ -3300,6 +3300,10 @@ Andrew Kampjes		<andrew.kampjes [AT] endace.com> {
 	Endace ERF channelisation and "New BFS" extension header support
 }
 
+Kurnia Hendrawan        <kurnia.hendrawan [AT] consistec.de> {
+        Saving User Specified Decodes into profile
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

@@ -836,8 +836,9 @@ standard libpcap format.
 	was opened.
 	<warning><title>Warning!</title>
 		<para>
-		The user specified decodes can not be saved. If you quit Wireshark,
-		these settings will be lost.
+		These settings will be lost if you quit Wireshark or change profile,
+		unless you save the entries in the <command>Show User Specified Decodes...</command>
+		windows (<xref linkend="ChAdvDecodeAsShow"/>).
 		</para>
 	</warning>
       <orderedlist>
@@ -889,7 +890,8 @@ standard libpcap format.
 
     <section id="ChAdvDecodeAsShow"><title>Show User Specified Decodes</title>
     <para>
-	This dialog box shows the currently active user specified decodes.
+	This dialog box shows the currently active user specified decodes. These entries
+	can be saved into current profile for later session.
     <figure id="ChAdvDecodeAsShowFig">
       <title>The "Decode As: Show" dialog box</title>
       <graphic entityref="WiresharkDecodeAsShow" format="PNG"/>
@@ -902,7 +904,12 @@ standard libpcap format.
 	</listitem>
 	<listitem>
 	  <para>
-	    <command>Clear</command>: Removes all user specified decodes.
+	    <command>Save</command>: Save the entries in the table into current profile.
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    <command>Clear</command>: Removes all user specified decodes without updating the profile.
 	  </para>
 	</listitem>
       </orderedlist>
@@ -1103,6 +1110,13 @@ standard libpcap format.
 		</para>
 	      </listitem>
 	    </itemizedlist>
+	  </para>
+	</listitem>
+	<listitem>
+	  <para>
+	    Changed dissector assignments (decode_as_entries), which can be set in <command>Decode As...</command>
+	    dialog box (<xref linkend="ChAdvDecodeAs"/>), and further saved in the <command>User Specified Decodes...</command>
+	    window (<xref linkend="ChAdvDecodeAsShow"/>).
 	  </para>
 	</listitem>
 	<listitem>
