@@ -160,7 +160,7 @@ epan_circuit_cleanup(void)
 }
 
 epan_dissect_t*
-epan_dissect_init(epan_dissect_t	*edt, const gboolean create_proto_tree, const gboolean proto_tree_visible)
+epan_dissect_init(epan_dissect_t *edt, const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
 	g_assert(edt);
 
@@ -178,7 +178,7 @@ epan_dissect_init(epan_dissect_t	*edt, const gboolean create_proto_tree, const g
 epan_dissect_t*
 epan_dissect_new(const gboolean create_proto_tree, const gboolean proto_tree_visible)
 {
-	epan_dissect_t	*edt;
+	epan_dissect_t *edt;
 
 	edt = g_new0(epan_dissect_t, 1);
 

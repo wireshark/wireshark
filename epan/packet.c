@@ -747,7 +747,7 @@ dissector_add_uint(const char *name, const guint32 pattern, dissector_handle_t h
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
-/* do the table insertion */
+	/* do the table insertion */
 	g_hash_table_insert( sub_dissectors->hash_table,
 			     GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 
@@ -773,7 +773,7 @@ dissector_delete_uint(const char *name, const guint32 pattern,
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+	/* sanity check */
 	g_assert( sub_dissectors);
 
 	/*
@@ -803,7 +803,7 @@ dissector_change_uint(const char *name, const guint32 pattern, dissector_handle_
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+	/* sanity check */
 	g_assert( sub_dissectors);
 
 	/*
@@ -827,7 +827,7 @@ dissector_change_uint(const char *name, const guint32 pattern, dissector_handle_
 	dtbl_entry->initial = NULL;
 	dtbl_entry->current = handle;
 
-/* do the table insertion */
+	/* do the table insertion */
 	g_hash_table_insert( sub_dissectors->hash_table,
 			     GUINT_TO_POINTER( pattern), (gpointer)dtbl_entry);
 }
@@ -839,7 +839,7 @@ dissector_reset_uint(const char *name, const guint32 pattern)
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+	/* sanity check */
 	g_assert( sub_dissectors);
 
 	/*
@@ -1011,7 +1011,7 @@ dissector_add_string(const char *name, const gchar *pattern,
 	dtbl_entry->current = handle;
 	dtbl_entry->initial = dtbl_entry->current;
 
-/* do the table insertion */
+	/* do the table insertion */
 	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
 			     (gpointer)dtbl_entry);
 
@@ -1038,7 +1038,7 @@ dissector_delete_string(const char *name, const gchar *pattern,
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+	/* sanity check */
 	g_assert( sub_dissectors);
 
 	/*
@@ -1068,7 +1068,7 @@ dissector_change_string(const char *name, const gchar *pattern,
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+	/* sanity check */
 	g_assert( sub_dissectors);
 
 	/*
@@ -1092,7 +1092,7 @@ dissector_change_string(const char *name, const gchar *pattern,
 	dtbl_entry->initial = NULL;
 	dtbl_entry->current = handle;
 
-/* do the table insertion */
+	/* do the table insertion */
 	g_hash_table_insert( sub_dissectors->hash_table, (gpointer)pattern,
 			     (gpointer)dtbl_entry);
 }
@@ -1104,7 +1104,7 @@ dissector_reset_string(const char *name, const gchar *pattern)
 	dissector_table_t sub_dissectors = find_dissector_table( name);
 	dtbl_entry_t *dtbl_entry;
 
-/* sanity check */
+	/* sanity check */
 	g_assert( sub_dissectors);
 
 	/*
