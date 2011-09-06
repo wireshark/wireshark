@@ -696,7 +696,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-iuup.c
 	dissectors/packet-iwarp-ddp-rdmap.c
 	dissectors/packet-iwarp-mpa.c
-	dissectors/packet-jabber.c
 	dissectors/packet-jmirror.c
 	dissectors/packet-jpeg.c
 	dissectors/packet-json.c
@@ -1091,6 +1090,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-xcsl.c
 	dissectors/packet-xdmcp.c
 	dissectors/packet-xml.c
+	dissectors/packet-xmpp.c
 	dissectors/packet-xot.c
 	dissectors/packet-xtp.c
 	dissectors/packet-xyplex.c
