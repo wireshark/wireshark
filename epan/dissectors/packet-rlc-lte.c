@@ -496,7 +496,12 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
                                     tvb, 0, 0, FALSE);
     source_tree = proto_item_add_subtree(source_ti, ett_rlc_lte_reassembly_source);
     PROTO_ITEM_SET_GENERATED(source_ti);
-    proto_item_append_text(source_ti, " %u segments", reassembly_info->number_of_segments);
+
+    for (n=0; n < reassembly_info->number_of_segments; n++) {
+        total_length += reassembly_info->segments[n].length;
+    }
+    proto_item_append_text(source_ti, " %u segments, %u bytes", reassembly_info->number_of_segments,
+                           total_length);
 
     /* Number of segments */
     ti = proto_tree_add_uint(source_tree,
@@ -505,11 +510,8 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
     PROTO_ITEM_SET_GENERATED(ti);
 
     /* Total length */
-    for (n=0; n < reassembly_info->number_of_segments; n++) {
-        total_length += reassembly_info->segments[n].length;
-    }
     ti = proto_tree_add_uint(source_tree,
-                             hf_rlc_lte_reassembly_source_number_of_segments,
+                             hf_rlc_lte_reassembly_source_total_length,
                              tvb, 0, 0, total_length);
     PROTO_ITEM_SET_GENERATED(ti);
 
@@ -529,7 +531,7 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
                                          (n == reassembly_info->number_of_segments-1) ? segment->length : 0,
                                          FALSE);
         segment_tree = proto_item_add_subtree(segment_ti, ett_rlc_lte_reassembly_source_segment);
-        proto_item_append_text(segment_ti, " (SN=%u frame=%u len=%u)",
+        proto_item_append_text(segment_ti, " (SN=%u frame=%u length=%u)",
                                segment->SN, segment->frameNum, segment->length);
         PROTO_ITEM_SET_GENERATED(segment_ti);
 
