@@ -1979,7 +1979,8 @@ decode_as_cb (GtkWidget * w _U_, gpointer user_data _U_)
     GTK_WIDGET_SET_FLAGS(button, GTK_CAN_DEFAULT);
 #endif
     gtk_box_pack_start(GTK_BOX(button_vb), button, FALSE, FALSE, 0);
-	gtk_widget_set_tooltip_text(button, "Open a dialog showing the current settings.");
+	gtk_widget_set_tooltip_text(button, "Open a dialog showing the current settings.\n" 
+		"Note you need to select and press apply first to be able to save the current setting");
 
     button = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
     g_signal_connect(button, "clicked", G_CALLBACK(decode_clear_cb), NULL);
