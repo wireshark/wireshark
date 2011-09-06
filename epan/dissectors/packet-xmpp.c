@@ -1,5 +1,5 @@
-/* packet-jabber.c
- * Routines for Jabber packet dissection
+/* packet-xmpp.c
+ * Routines for XMPP packet dissection
  * Copyright 2003, Brad Hards <bradh@frogmouth.net>
  * Heavily based in packet-acap.c, which in turn is heavily based on 
  * packet-imap.c, Copyright 1999, Richard Sharpe <rsharpe@ns.aus.com>
@@ -25,6 +25,8 @@
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
+ *
+ * Ref http://xmpp.org/
  */
 
 #ifdef HAVE_CONFIG_H
@@ -35,29 +37,29 @@
 #include <epan/packet.h>
 #include <epan/strutil.h>
 
-static int proto_jabber = -1;
-static int hf_jabber_response = -1;
-static int hf_jabber_request = -1;
+static int proto_xmpp = -1;
+static int hf_xmpp_response = -1;
+static int hf_xmpp_request = -1;
 
-static gint ett_jabber = -1;
-static gint ett_jabber_reqresp = -1;
+static gint ett_xmpp = -1;
+static gint ett_xmpp_reqresp = -1;
 
-#define TCP_PORT_JABBER			5222
+#define TCP_PORT_XMPP			5222
 static dissector_handle_t xml_handle=NULL;
 
 static void
-dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+dissect_xmpp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-        gboolean        is_request;
-        proto_tree      *jabber_tree = NULL;
-        proto_item      *ti, *hidden_item;
-	gint		offset = 0;
+    gboolean         is_request;
+    proto_tree      *xmpp_tree = NULL;
+    proto_item      *ti, *hidden_item;
+	gint		     offset = 0;
 	const guchar	*line;
-	gint		next_offset;
-	int		linelen;
-	tvbuff_t *xmltvb;
+	gint             next_offset;
+	int	             linelen;
+	tvbuff_t        *xmltvb;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Jabber");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "XMPP");
 
 	/*
 	 * Find the end of the first line.
@@ -74,67 +76,65 @@ dissect_jabber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		is_request = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/*
-		 * Put the first line from the buffer into the summary
-		 * (but leave out the line terminator).
-		 */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-		    is_request ? "Request" : "Response",
-		    format_text(line, linelen));
-	}
+	/*
+	 * Put the first line from the buffer into the summary
+	 * (but leave out the line terminator).
+	 */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+	    is_request ? "Request" : "Response",
+	    format_text(line, linelen));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_jabber, tvb, offset, -1,
-		    FALSE);
-		jabber_tree = proto_item_add_subtree(ti, ett_jabber);
+		ti = proto_tree_add_item(tree, proto_xmpp, tvb, offset, -1,
+		    ENC_BIG_ENDIAN) ;
+		xmpp_tree = proto_item_add_subtree(ti, ett_xmpp);
 
 		if (is_request) {
-			hidden_item = proto_tree_add_boolean(jabber_tree,
-			    hf_jabber_request, tvb, 0, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(xmpp_tree,
+			    hf_xmpp_request, tvb, 0, 0, TRUE);
 		} else {
-			hidden_item = proto_tree_add_boolean(jabber_tree,
-			    hf_jabber_response, tvb, 0, 0, TRUE);
+			hidden_item = proto_tree_add_boolean(xmpp_tree,
+			    hf_xmpp_response, tvb, 0, 0, TRUE);
 		}
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 	}
 
         xmltvb = tvb_new_subset_remaining(tvb, offset);
-        call_dissector(xml_handle, xmltvb, pinfo, jabber_tree);
+        call_dissector(xml_handle, xmltvb, pinfo, xmpp_tree);
 }
 
 void
-proto_register_jabber(void)
+proto_register_xmpp(void)
 {
   static hf_register_info hf[] = {
-    { &hf_jabber_response,
-      { "Response",           "jabber.response",
+    { &hf_xmpp_response,
+      { "Response",           "xmpp.response",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if Jabber response", HFILL }},
+      	"TRUE if XMPP response", HFILL }},
 
-    { &hf_jabber_request,
-      { "Request",            "jabber.request",
+    { &hf_xmpp_request,
+      { "Request",            "xmpp.request",
 	FT_BOOLEAN, BASE_NONE, NULL, 0x0,
-      	"TRUE if Jabber request", HFILL }}
+      	"TRUE if XMPP request", HFILL }}
   };
   static gint *ett[] = {
-    &ett_jabber,
-    &ett_jabber_reqresp,
+    &ett_xmpp,
+    &ett_xmpp_reqresp,
   };
 
-  proto_jabber = proto_register_protocol("Jabber XML Messaging",
-				       "Jabber", "jabber");
-  proto_register_field_array(proto_jabber, hf, array_length(hf));
+  proto_xmpp = proto_register_protocol("Extensible Messaging and Presence Protocol",
+				       "XMPP", "xmpp");
+  proto_register_field_array(proto_xmpp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
-proto_reg_handoff_jabber(void)
+proto_reg_handoff_xmpp(void)
 {
-  dissector_handle_t jabber_handle;
+  dissector_handle_t xmpp_handle;
 
   xml_handle = find_dissector("xml");
 
-  jabber_handle = create_dissector_handle(dissect_jabber, proto_jabber);
-  dissector_add_uint("tcp.port", TCP_PORT_JABBER, jabber_handle);
+  xmpp_handle = create_dissector_handle(dissect_xmpp, proto_xmpp);
+  dissector_add_uint("tcp.port", TCP_PORT_XMPP, xmpp_handle);
 }
