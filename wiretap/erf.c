@@ -562,6 +562,7 @@ static gboolean erf_dump(
   int encap;
   gint64 alignbytes = 0;
   int i;
+  gboolean must_add_crc = FALSE;
   guint32 crc32 = 0x00000000;
 
   if(wdh->encap == WTAP_ENCAP_PER_PACKET){
@@ -583,6 +584,7 @@ static gboolean erf_dump(
         if(!wtap_dump_file_write(wdh, "", 1, err)) return FALSE;
         wdh->bytes_dumped++;
       }
+      must_add_crc = TRUE; /* XXX - not if this came from an ERF file with an FCS! */
       break;
     default:  /*deal with generic wtap format*/
       /*generate a fake header in other_phdr using data that we know*/
@@ -596,16 +598,26 @@ static gboolean erf_dump(
       other_phdr.erf.phdr.wlen = phdr->caplen;
       switch(other_phdr.erf.phdr.type){
         case ERF_TYPE_ETH:
-          crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
           other_phdr.erf.phdr.rlen += 2;  /*2 bytes for erf eth_type*/
-          other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
-          other_phdr.erf.phdr.wlen += 4;
+          if (pseudo_header->eth.fcs_len != 4) {
+            /* Either this packet doesn't include the FCS
+               (pseudo_header->eth.fcs_len = 0), or we don't
+               know whether it has an FCS (= -1).  We have to
+               synthesize an FCS.
+
+               XXX - not if the snapshot length cut it off? */
+            crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
+            other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
+            other_phdr.erf.phdr.wlen += 4;
+            must_add_crc = TRUE;
+          }
           break;
         case ERF_TYPE_HDLC_POS:
           /*we assume that it's missing a FCS checksum, make one up*/
           crc32 = crc32_ccitt_seed(pd, phdr->caplen, 0xFFFFFFFF);
           other_phdr.erf.phdr.rlen += 4;  /*4 bytes for added checksum*/
           other_phdr.erf.phdr.wlen += 4;
+          must_add_crc = TRUE; /* XXX - these never have an FCS? */
           break;
         default:
           break;
@@ -618,8 +630,8 @@ static gboolean erf_dump(
       if(!wtap_dump_file_write(wdh, pd, phdr->caplen, err)) return FALSE;
       wdh->bytes_dumped += phdr->caplen;
 
-      /*add the 4 byte checksum if type eth*/
-      if(newencap == ERF_TYPE_ETH || newencap == ERF_TYPE_HDLC_POS){
+      /*add the 4 byte CRC if necessary*/
+      if(must_add_crc){
         if(!wtap_dump_file_write(wdh, &crc32, 4, err)) return FALSE;
         wdh->bytes_dumped += 4;
       }
