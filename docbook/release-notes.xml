@@ -31,12 +31,14 @@ Wireshark Info
 
     <para>
 
-      The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-12.html">security advisory</ulink> for details and a workaround.
+      The following vulnerabilities have been fixed.
 
       <itemizedlist>
 
         <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-13.html">wnpa-sec-2011-13</ulink>
+          </para>
           <para>
             A malformed IKE packet could consume excessive resources.
             <!-- Fixed in trunk: r38247 -->
@@ -50,6 +52,9 @@ Wireshark Info
         </listitem>
 
         <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-14.html">wnpa-sec-2011-14</ulink>
+          </para>
           <para>
             A malformed capture file could result in an invalid root tvbuff and cause a crash.
             <!-- Fixed in trunk: r38410 -->
@@ -65,6 +70,9 @@ Wireshark Info
         </listitem>
 
         <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-15.html">wnpa-sec-2011-15</ulink>
+          </para>
           <para>
             Wireshark could run arbitrary Lua scripts.
             <!-- Fixed in trunk: r38414 -->
@@ -194,6 +202,12 @@ Wireshark Info
           6289</ulink>)
         </para></listitem>
 
+        <listitem><para>
+	  MEGACO context tracking fix - context id reuse.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6311">Bug
+          6311</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -221,8 +235,17 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+BGP,
+Bluetooth L2CAP,
+GSM A RR,
+H.225,
 IKE,
-SNMP,
+MEGACO,
+NDMP,
+RTPS2,
+SCPS,
+sFlow,
+SNMP
 
     </para>
     </section>
@@ -230,7 +253,7 @@ SNMP,
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-.
+CommView, pcap-ng.
 
     </para>
     </section>
