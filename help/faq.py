@@ -320,21 +320,19 @@ More information on the name change can be found here:
 
 question("Where can I get help?")
 answer("""
-Community support is available on the wireshark-users mailing list.
-Subscription information and archives for all of Wireshark's mailing
-lists can be found at %s.  An IRC channel dedicated to Wireshark can
-be found at %s.
+Community support is available on the
+<a href="http://ask.wireshark.org/">Q&amp;A site</a> and on the
+wireshark-users mailing list.  Subscription information and archives for
+all of Wireshark's mailing lists can be found at %s.  An IRC channel
+dedicated to Wireshark can be found at %s.
 
 <br />
 
-Self-paced and instructor-led training is available at
-<a href="http://www.wiresharku.com">Wireshark University</a>.  A
-certification program will be announced in Q3 2007.
+Self-paced and instructor-led training is available at <a
+href="http://www.wiresharktraining.com">Wireshark University</a>.
+Wireshark University also offers certification via the Wireshark
+Certified Network Analyst program.
 
-<br />
-
-Commercial support and development services are available
-from <a href="http://www.cacetech.com/">CACE Technologies</a>.
 """ % (selflink("https://www.wireshark.org/mailman/listinfo"),
        selflink("irc://irc.freenode.net/wireshark")
        ))
