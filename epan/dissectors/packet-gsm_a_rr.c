@@ -732,7 +732,7 @@ static int hf_gsm_a_rr_eutran_mr_n_eutran = -1;
 static int hf_gsm_a_rr_eutran_mr_freq_idx = -1;
 static int hf_gsm_a_rr_eutran_mr_cell_id = -1;
 static int hf_gsm_a_rr_eutran_mr_rpt_quantity = -1;
-
+static int hf_gsm_a_rr_ma_channel_set = -1;
 
 
 
@@ -3452,23 +3452,38 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 {
     proto_tree  *subtree;
     proto_item  *item;
-    guint32      curr_offset;
+    guint32      curr_bit_offset;
+    guint8       value;
+    guint8       i;
 
     len = 3;
-    curr_offset = offset;
+    curr_bit_offset = offset<<3;
 
     item =
         proto_tree_add_text(tree,
-                            tvb, curr_offset, 3, "%s",
+                            tvb, offset, 3, "%s",
                             gsm_rr_elem_strings[DE_RR_IAR_REST_OCT].strptr);
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IAR_REST_OCT]);
 
-    proto_tree_add_text(subtree,tvb, curr_offset, len ,"Data(Not decoded)");
+    for( i=0; i<4; i++ )
+    {
+        value = tvb_get_bits8(tvb,curr_bit_offset,1);
+        curr_bit_offset += 1;
+        if (value)
+        {   
+            proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "Extended RA %d present", i);
+            proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, FALSE);
+            curr_bit_offset += 5;
+        }
+        else
+        {
+            proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "Extended RA %d not present", i);
+        }
+    }
 
-    curr_offset = curr_offset + len;
 
-    return curr_offset-offset;
+    return (curr_bit_offset>>3)-offset;
 }
 
 /*
@@ -3479,26 +3494,31 @@ de_rr_iax_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 {
     proto_tree  *subtree;
     proto_item  *item;
-    guint32      curr_offset;
+    guint32      curr_bit_offset;
+    guint8       value;
 
     len = tvb_length_remaining(tvb,offset);
     if (len==0)
         return 0;
 
-    curr_offset = offset;
+    curr_bit_offset = offset<<3;
 
     item =
         proto_tree_add_text(tree,
-                            tvb, curr_offset, len, "%s",
+                            tvb, offset, len, "%s",
                             gsm_rr_elem_strings[DE_RR_IAX_REST_OCT].strptr);
 
     subtree = proto_item_add_subtree(item, ett_gsm_rr_elem[DE_RR_IAX_REST_OCT]);
 
-    proto_tree_add_text(subtree,tvb, curr_offset, len ,"Data(Not decoded)");
+    value = tvb_get_bits8(tvb,curr_bit_offset,1);
+    curr_bit_offset += 1;
 
-    curr_offset = curr_offset + len;
+    if (value)
+        proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall be used");
+    else
+        proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "A compressed version of the INTER RAT HANDOVER INFO message shall not be used");
 
-    return curr_offset-offset;
+    return (curr_bit_offset>>3)-offset;
 }
 
 /*
@@ -3865,13 +3885,45 @@ de_rr_multirate_conf(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 static guint16
 de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
+    proto_item  *item;
     guint32 curr_offset;
+    guint8  oct;
+    guint8  i;
 
     curr_offset = offset;
 
-    proto_tree_add_text(tree,tvb, curr_offset, len ,"Data(Not decoded)");
+    item = proto_tree_add_text(tree,tvb, curr_offset, 1 ,"List of DA:");
 
-    curr_offset = curr_offset + len;
+    oct = tvb_get_guint8(tvb, curr_offset);
+    curr_offset++;
+    for( i=0;i<7;i++ )
+    {
+        if( (oct>>i) & 1 )
+        {
+            proto_item_append_text(item," DA%d",i+1);
+        }
+    }
+
+    if( oct & 0x80 )  /* octet 3a present */
+    {
+        item = proto_tree_add_text(tree,tvb, curr_offset, 1 ,"List of UA:");
+        oct = tvb_get_guint8(tvb, curr_offset);
+        curr_offset++;
+        for( i=0;i<7;i++ )
+        {
+            if( (oct>>i) & 1 )
+            {
+                proto_item_append_text(item," UA%d",i+1);
+            }
+        }
+    }
+
+    while ( curr_offset < offset + len )
+    {
+        proto_tree_add_item(tree, hf_gsm_a_rr_ma_channel_set, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
+        curr_offset++;
+    }
+    
     return(curr_offset - offset);
 
 }
@@ -12786,6 +12838,11 @@ proto_register_gsm_a_rr(void)
                 FT_UINT8, BASE_DEC, NULL, 0x00,
                 NULL, HFILL }
             },
+            { &hf_gsm_a_rr_ma_channel_set,
+              { "Channel Set", "gsm_a.rr.ma_channel_set",
+                FT_UINT8, BASE_HEX, NULL, 0x00,
+                NULL, HFILL }
+            },            
         };
 
     static hf_register_info hf_sacch[] =
