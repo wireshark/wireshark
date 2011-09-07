@@ -1168,6 +1168,7 @@ set(FTYPE_FILES
 	ftypes/ftype-double.c
 	ftypes/ftype-integer.c
 	ftypes/ftype-ipv4.c
+	ftypes/ftype-ipv6.c
 	ftypes/ftype-guid.c
 	ftypes/ftype-none.c
 	ftypes/ftype-pcre.c
