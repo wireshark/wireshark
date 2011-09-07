@@ -356,6 +356,10 @@ static int hf_oss_spdo_time_request       = -1;
 static int hf_oss_spdo_time_request_to    = -1;
 static int hf_oss_spdo_time_request_from  = -1;
 
+static dissector_handle_t data_handle;
+static dissector_handle_t epl_handle;
+static dissector_handle_t siii_handle;
+
 static const char *global_scm_udid = "00:00:00:00:00:00";
 
 /* This is defined by the specification. The Address field is 10 bits long, and the node with the number
@@ -1255,14 +1259,12 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
     gboolean handled, dissectorCalled;
     guint8 firstByte, found;
     gint len, reported_len;
-    dissector_handle_t epl_handle;
     guint8 packageCounter;
     handled = FALSE;
     dissectorCalled = FALSE;
 
-    epl_handle = find_dissector("epl");
     if ( epl_handle == NULL )
-        epl_handle = find_dissector("data");
+        epl_handle = data_handle;
 
     firstByte = ( tvb_get_guint8(message_tvb, 0) << 1 );
     /* No frames can be sent in SoA and SoC messages, therefore those get filtered right away */
@@ -1361,16 +1363,14 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
     gboolean handled, dissectorCalled, udpDissectorCalled;
     guint8 firstByte, found;
     gint len, reported_len;
-    dissector_handle_t siii_handle;
     guint8 packageCounter = 0;
 
     handled = FALSE;
     dissectorCalled = FALSE;
     udpDissectorCalled = FALSE;
 
-    siii_handle = find_dissector("sercosiii");
     if ( siii_handle == NULL )
-        siii_handle = find_dissector("data");
+        siii_handle = data_handle;
 
     /* We have a SERCOS III package, whether encapsulated in UDP or
        directly atop Ethernet */
@@ -1586,6 +1586,9 @@ proto_reg_handoff_opensafety(void)
 
     if ( !opensafety_inited )
     {
+        data_handle = find_dissector("data");
+        epl_handle = find_dissector("epl");
+        siii_handle = find_dissector("sercosiii");
         /* Default UDP only based dissector */
         dissector_add_uint("udp.port", UDP_PORT_OPENSAFETY, find_dissector("opensafety"));
 
@@ -1600,6 +1603,8 @@ proto_reg_handoff_opensafety(void)
          *  is implemented as a plugin, and therefore the heuristic dissector is not
          *  added by the time this method is being called
          */
-        heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
+        if (siii_handle) {
+            heur_dissector_add("sercosiii", dissect_heur_opensafety_siii, proto_opensafety);
+        }
     }
 }
