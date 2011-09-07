@@ -1,4 +1,4 @@
-Wireshark 1.6.1 Release Notes
+Wireshark 1.6.2 Release Notes
 
    ------------------------------------------------------------------
 
@@ -12,117 +12,127 @@ What's New
 
   Bug Fixes
 
-   The following vulnerabilities have been fixed. See the security
-   advisory for details and a workaround.
+   The following vulnerabilities have been fixed.
 
-     o The Lucent/Ascend file parser was susceptible to an infinite
-       loop.
+     o wnpa-sec-2011-12
 
-       Versions affected: 1.2.0 to 1.2.17, 1.4.0 to 1.4.7, and 1.6.0.
+       A large loop in the OpenSafety dissector could cause a crash.
+       (Bug 6138)
 
-       CVE-2011-2597
+       Versions affected: 1.6.0 to 1.6.1.
 
-     o The ANSI MAP dissector was susceptible to an infinite loop.
-       (Bug 6044)
+     o wnpa-sec-2011-13
 
-       Versions affected: 1.4.0 to 1.4.7, and 1.6.0.
+       A malformed IKE packet could consume excessive resources.
+
+       Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.
+
+       CVE-2011-3266
+
+     o wnpa-sec-2011-14
+
+       A malformed capture file could result in an invalid root
+       tvbuff and cause a crash. (Bug 6135)
+
+       Versions affected: 1.6.0 to 1.6.1.
+
+     o wnpa-sec-2011-15
+
+       Wireshark could run arbitrary Lua scripts. (Bug 6136)
+
+       Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.
+
+     o wnpa-sec-2011-16
+
+       The CSN.1 dissector could crash. (Bug 6139)
+
+       Versions affected: 1.6.0 to 1.6.1.
 
    The following bugs have been fixed:
 
-     o TCP dissector doesn't decode TCP segments of length 1. (Bug
-       4716)
+     o configure ignores (partially) LDFLAGS. (Bug 5607)
 
-     o wireshark 1.4.0rc1 and python - spurious message. (Bug 4878)
+     o Build fails when it tries to #include <getopt.h>, not present
+       in Solaris 9. (Bug 5608)
 
-     o Missing LUA function. (Bug 5006)
+     o Unable to configure zero length SNMP Engine ID. (Bug 5731)
 
-     o Lua API description about creating a new Tvb from a bytearray
-       is not correct in wireshark's user guide. (Bug 5199)
+     o BACnet who-is request device range values are not decoded
+       correctly in the packet details window. (Bug 5769)
 
-     o Character echo pauses in Capture Filter field in Capture
-       Options. (Bug 5356)
+     o H.323 RAS packets missing from packet counts in
+       "Telephony->VoIP Calls" and the "Flow Graph" for the call.
+       (Bug 5848)
 
-     o White space in protocol field abbreviation causes runtime
-       failure while registering Lua dissector. (Bug 5569)
+     o Wireshark crashes if sercosiii module isn't installed. (Bug
+       6006)
 
-     o "File not found" box uses wrong filename encoding. (Bug 5715)
+     o Editcap could create invalid pcap files when converting from
+       JPEG. (Bug 6010)
 
-     o capinfos: #ifdef HAVE_LIBGCRYPT block includes a line too many
-       . (Bug 5803)
+     o Timestamp is incorrectly decoded for ICMP Timestamp Response
+       packets from MS Windows. (Bug 6114)
 
-     o Wireshark crashes if Lua contains "Pref.range()" with missing
-       arguments. (Bug 5895)
+     o Malformed Packet in decode for BGP-AD update. (Bug 6122)
 
-     o The "range" field in Lua's "Pref.range()" serves as default
-       while the "default" field does nothing . (Bug 5896)
+     o Wrong display of CSN_BIT in CSN.1. (Bug 6151)
 
-     o Wireshark crashes when calling TreeItem:set_len() on TreeItem
-       without tvb. (Bug 5941)
+     o Fix CSN_RECURSIVE_TARRAY last bit error in packet-csn1.c. (Bug
+       6166)
 
-     o TvbRange_string(lua_State* L) call a wrong function. (Bug
-       5960)
+     o Wireshark cannot display Reachable time & Retrans timer in
+       IPv6 RA messages. (Bug 6168)
 
-     o VoIP call flow graph displays BICC APM as a BICC ANM. (Bug
-       5966)
+     o ReadPropertyMultiple-ACK not correctly dissected. (Bug 6178)
 
-     o Cannot Live-capture VirtualBox network packets with Wireshark;
-       pipe problem. (Bug 6002)
+     o GTPv2 dissectors should treat gtpv2_ccrsi as optional. (Bug
+       6183)
 
-     o Interface list in Capture Options isn't cleared when selecting
-       other host. (Bug 6008)
+     o BGP : AS_PATH attribute was decode wrong. (Bug 6188)
 
-     o H323 rate multiplier wrong. (Bug 6009)
+     o Fixes for SCPS TCP option. (Bug 6194)
 
-     o Inclusion of config.h is too late in lex-files resulting in
-       wrong definition of _FILE_OFFSET_BITS. (Bug 6012)
+     o Offset calculated incorrectly for sFlow extended data. (Bug
+       6219)
 
-     o tshark crashes when loading Lua script that contains GUI
-       function. (Bug 6018)
+     o [Enter] key behavior varies when manually typing display
+       filters. (Bug 6228)
 
-     o 802.11 Disassociation Packet's "Reason Code" field is
-       imprecisely decoded/described. (Bug 6022)
+     o Contents of pcapng EnhancedPacketBlocks with comments aren't
+       displayed. (Bug 6229)
 
-     o Wireshark crashes when setting custom column's field name with
-       conditional. (Bug 6028)
+     o Misdecoding 3G Neighbour Cell Information Element in SI2quater
+       message due to a coding typo. (Bug 6237)
 
-     o Crash after applying "expert.severity" field as column. (Bug
-       6035)
+     o Mis-spelled word "unknown" in assorted files. (Bug 6244)
 
-     o GTS Descriptor count limited to 3 instead of 7. (Bug 6055)
+     o tshark run with -Tpdml makes a seg fault. (Bug 6245)
 
-     o The SSL dissector can not resemble correctly the frames after
-       TCP zero window probe packet. (Bug 6059)
+     o btl2cap extended window shows wrong bit. (Bug 6257)
 
-     o Packet parser takes too long for this trace. (Bug 6073)
+     o NDMP dissector incorrectly represents
+       "ndmp.bytes_left_to_read" as signed. (Bug 6262)
 
-     o The SSL dissector can not resemble correctly the frames after
-       TCP zero window probe packet. (Bug 6059)
+     o TShark/dumpcap skips capture duration flag occasionally. (Bug
+       6280)
 
-     o Wireshark crashes after repeating "File -> Import -> Cancel".
-       (Bug 6080)
+     o File types with no snaplen written out with a zero snaplen in
+       pcap-ng files. (Bug 6289)
 
-     o Decoding of MQ ASCII and EBCDIC Traffic Flow - ASCII shows
-       fine, EBCDIC does not. (Bug 6084)
+     o Wireshark improperly parsing 802.11 Beacon Country Information
+       tag. (Bug 6264)
 
-     o 802.11 Association Response Packet's "Status Code" field is
-       imprecisely decoded/described. (Bug 6093)
+     o ERF records with extension headers not written out correctly
+       to pcap or pcap-ng files. (Bug 6265)
 
-     o Abis interface not correctly handled in gsmtap dissector. (Bug
-       6097)
+     o RTPS2: MAX_BITMAP_SIZE is defined incorrectly. (Bug 6276)
 
-     o Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP
-       TS 44.060). (Bug 6098)
+     o Copying from RTP stream analysis copies 1st line many times.
+       (Bug 6279)
 
-     o CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl
-       dissector (3GPP TS 44.060). (Bug 6101)
+     o Wrong display of CSN_BIT under CSN_UNION. (Bug 6287)
 
-     o wireshark 1.6.0 and python support: installer fails to create
-       the wspy_dissectors subdirectory and . (Bug 6110)
-
-     o Wireshark crash during RTP stream analysis. (Bug 6120)
-
-     o Tshark custom columns: Why don't I get an error message? (Bug
-       6131)
+     o MEGACO context tracking fix - context id reuse. (Bug 6311)
 
   New and Updated Features
 
@@ -134,9 +144,13 @@ What's New
 
   Updated Protocol Support
 
+   BACapp, Bluetooth L2CAP, CSN.1, DCERPC, GSM A RR, GTPv2, ICMP,
+   ICMPv6, IKE, MEGACO, MSISDN, NDMP, OpenSafety, RTPS2, sFlow, SNMP,
+   TCP
+
   New and Updated Capture File Support
 
-   Network Monitor.
+   CommView, pcap-ng, JPEG.
 
 Getting Wireshark
 
@@ -187,9 +201,6 @@ Known Problems
 
    Wireshark and TShark will display incorrect delta times in some
    cases. (Bug 4985 and bug 5580)
-
-   Character echo pauses in Capture Filter field in Capture Options.
-   (Bug 5356)
 
 Getting Help
 

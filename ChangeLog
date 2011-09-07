@@ -1,1105 +1,924 @@
 ------------------------------------------------------------------------
-r37591 | gerald | 2011-06-07 07:35:07 -0700 (Tue, 07 Jun 2011) | 11 lines
+r38102 | gerald | 2011-07-18 16:14:10 -0700 (Mon, 18 Jul 2011) | 2 lines
 Changed paths:
-   M /trunk-1.6/ChangeLog
-   M /trunk-1.6/doc/tshark.pod
-
-Copy over r37587. Update the ChangeLog.
-
-  ------------------------------------------------------------------------
-  r37587 | sahlberg | 2011-06-07 03:27:44 -0700 (Tue, 07 Jun 2011) | 3 lines
-  Changed paths:
-     M /trunk/doc/tshark.pod
-
-  Add description of LOAD stats for tshark to the manpage
-  ------------------------------------------------------------------------
-
-
-------------------------------------------------------------------------
-r37592 | gerald | 2011-06-07 07:48:17 -0700 (Tue, 07 Jun 2011) | 2 lines
-Changed paths:
-   M /trunk-1.6/version.conf
-
-Build 1.6.0.
-
-------------------------------------------------------------------------
-r37595 | gerald | 2011-06-07 11:51:11 -0700 (Tue, 07 Jun 2011) | 2 lines
-Changed paths:
-   M /trunk-1.6/NEWS
    M /trunk-1.6/config.nmake
    M /trunk-1.6/configure.in
    M /trunk-1.6/debian/changelog
    M /trunk-1.6/docbook/release-notes.xml
    M /trunk-1.6/version.conf
 
-1.6.0 → 1.6.1. Update the release notes.
+1.6.1 → 1.6.2.
 
 ------------------------------------------------------------------------
-r37613 | etxrab | 2011-06-07 23:01:55 -0700 (Tue, 07 Jun 2011) | 1 line
+r38120 | gerald | 2011-07-19 11:38:20 -0700 (Tue, 19 Jul 2011) | 3 lines
 Changed paths:
-   M /trunk-1.6/Makefile.am
+   M /trunk-1.6/config.nmake
 
-Apply the relevant part of Revision 37435 by hand "Include missing files in distribution".
+Pull the Windows external library directory from WIRESHARK_LIB_DIR if
+it's set.
+
 ------------------------------------------------------------------------
-r37657 | gerald | 2011-06-12 09:04:25 -0700 (Sun, 12 Jun 2011) | 1 line
+r38126 | gerald | 2011-07-19 15:29:52 -0700 (Tue, 19 Jul 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+
+Remove a fixed bug and fix the URLs for two others.
+
+------------------------------------------------------------------------
+r38182 | gerald | 2011-07-24 08:04:17 -0700 (Sun, 24 Jul 2011) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-06-12]
+[Automatic manuf, services and enterprise-numbers update for 2011-07-24]
 ------------------------------------------------------------------------
-r37710 | gerald | 2011-06-19 09:04:45 -0700 (Sun, 19 Jun 2011) | 1 line
+r38289 | gerald | 2011-07-31 08:04:01 -0700 (Sun, 31 Jul 2011) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-06-19]
+[Automatic manuf, services and enterprise-numbers update for 2011-07-31]
 ------------------------------------------------------------------------
-r37758 | etxrab | 2011-06-22 22:55:25 -0700 (Wed, 22 Jun 2011) | 1 line
+r38295 | etxrab | 2011-07-31 13:35:09 -0700 (Sun, 31 Jul 2011) | 1 line
 Changed paths:
-   M /trunk-1.6/Makefile.am
-   A /trunk-1.6/diameter/Cisco.xml
-   A /trunk-1.6/diameter/Vodafone.xml
+   M /trunk-1.6/diameter/Cisco.xml
    M /trunk-1.6/diameter/dictionary.xml
-   M /trunk-1.6/packaging/nsis/wireshark.nsi
 
-Update Diameter xml:s
+Update Diameter files.
 ------------------------------------------------------------------------
-r37790 | gerald | 2011-06-26 09:04:50 -0700 (Sun, 26 Jun 2011) | 1 line
+r38308 | etxrab | 2011-08-01 22:36:43 -0700 (Mon, 01 Aug 2011) | 3 lines
 Changed paths:
-   M /trunk-1.6/epan/enterprise-numbers
-   M /trunk-1.6/services
-
-[Automatic manuf, services and enterprise-numbers update for 2011-06-26]
-------------------------------------------------------------------------
-r37875 | gerald | 2011-07-03 09:36:08 -0700 (Sun, 03 Jul 2011) | 1 line
-Changed paths:
-   M /trunk-1.6/epan/enterprise-numbers
-   M /trunk-1.6/services
-
-[Automatic manuf, services and enterprise-numbers update for 2011-07-03]
-------------------------------------------------------------------------
-r37949 | gerald | 2011-07-10 09:04:22 -0700 (Sun, 10 Jul 2011) | 1 line
-Changed paths:
-   M /trunk-1.6/epan/enterprise-numbers
-   M /trunk-1.6/services
-
-[Automatic manuf, services and enterprise-numbers update for 2011-07-10]
-------------------------------------------------------------------------
-r37964 | gerald | 2011-07-11 10:30:09 -0700 (Mon, 11 Jul 2011) | 46 lines
-Changed paths:
-   M /trunk-1.6/Makefile.am
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-reload-framing.c
    M /trunk-1.6/gtk/capture_dlg.c
-   M /trunk-1.6/packaging/macosx/Makefile.am
-   M /trunk-1.6/packaging/nsis/Makefile.am
-   M /trunk-1.6/tools/Makefile.am
-   M /trunk-1.6/wiretap/Makefile.am
+
+From John Thacker.
+gtk/capture_dlg.c [misplaced comma: old gtk only]
+https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6144
+------------------------------------------------------------------------
+r38389 | gerald | 2011-08-07 08:04:05 -0700 (Sun, 07 Aug 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-08-07]
+------------------------------------------------------------------------
+r38533 | gerald | 2011-08-14 08:04:19 -0700 (Sun, 14 Aug 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-08-14]
+------------------------------------------------------------------------
+r38552 | gerald | 2011-08-15 15:10:54 -0700 (Mon, 15 Aug 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/config.nmake
+
+Disable -WX by default.
+
+------------------------------------------------------------------------
+r38641 | gerald | 2011-08-21 08:04:46 -0700 (Sun, 21 Aug 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-08-21]
+------------------------------------------------------------------------
+r38653 | gerald | 2011-08-21 15:39:55 -0700 (Sun, 21 Aug 2011) | 8 lines
+Changed paths:
+   M /trunk-1.6/services
+   M /trunk-1.6/tools/make-services.pl
+
+The canonical IANA port number URL now returns XML. Update
+make-services.pl to to use the old-style text URL and add a comment
+about parsing the XML instead.
+
+Update the services file. Due to format changes it generates a lot of
+text that should be commented out, but it's apparently been doing that
+for a while now.
+
+------------------------------------------------------------------------
+r38758 | gerald | 2011-08-28 08:51:05 -0700 (Sun, 28 Aug 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/epan/enterprise-numbers
+   M /trunk-1.6/services
+
+[Automatic manuf, services and enterprise-numbers update for 2011-08-28]
+------------------------------------------------------------------------
+r38830 | gerald | 2011-08-31 16:11:28 -0700 (Wed, 31 Aug 2011) | 6 lines
+Changed paths:
+   M /trunk-1.6/services
+   M /trunk-1.6/tools/make-services.pl
+
+Copy over r38829 from the trunk:
+
+ Fix the format of the services file. The output from make-services.pl is
+ still uglier than a box of YouTube comments but transport name
+ resolution seems to work now. Fixes bug 6274.
+
+------------------------------------------------------------------------
+r38835 | etxrab | 2011-08-31 21:39:42 -0700 (Wed, 31 Aug 2011) | 1 line
+Changed paths:
+   M /trunk-1.6/CPackConfig.txt
+   M /trunk-1.6/README
+   M /trunk-1.6/README.DECT
+   M /trunk-1.6/README.bsd
+   M /trunk-1.6/README.cmake
+   M /trunk-1.6/README.hpux
+   M /trunk-1.6/airpcap.h
+   M /trunk-1.6/diameter/Cisco.xml
+   M /trunk-1.6/diameter/chargecontrol.xml
+   M /trunk-1.6/diameter/dictionary.xml
+   M /trunk-1.6/diameter/etsie2e4.xml
+   M /trunk-1.6/docbook/wsluarm.xml
+   M /trunk-1.6/docbook/wsug_src/WSUG_chapter_introduction.xml
+   M /trunk-1.6/dumpcap.c
+
+Copy over revision 38834 Spelling fixes
+------------------------------------------------------------------------
+r38837 | etxrab | 2011-08-31 21:59:15 -0700 (Wed, 31 Aug 2011) | 6 lines
+Changed paths:
+   M /trunk-1.6/README
+
+Copy over r38836
+ At least according to the saved ancient press release at
+ 
+ 	http://www.omnitest.co.uk/cinco.html
+ 
+ it really was "NetXRay", not "NetXray".
+------------------------------------------------------------------------
+r38846 | gerald | 2011-09-01 14:02:04 -0700 (Thu, 01 Sep 2011) | 58 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-bacapp.c
+   M /trunk-1.6/epan/dissectors/packet-csn1.c
+   M /trunk-1.6/epan/dissectors/packet-icmp.c
+   M /trunk-1.6/epan/libwireshark.def
+   M /trunk-1.6/wiretap/libpcap.c
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r37409 | etxrab | 2011-05-26 07:23:40 -0700 (Thu, 26 May 2011) | 1 line
+  r37634 | gerald | 2011-06-09 11:31:39 -0700 (Thu, 09 Jun 2011) | 2 lines
   Changed paths:
-     M /trunk/Makefile.am
+     M /trunk/wiretap/libpcap.c
 
-  Add FindGMODULE2.cmake and FindGTHREAD2.cmake to the dist.
+  Make sure we don't write invalid record lengths.
   ------------------------------------------------------------------------
-  r37589 | etxrab | 2011-06-07 07:15:50 -0700 (Tue, 07 Jun 2011) | 1 line
+  r38105 | cmaynard | 2011-07-18 19:47:12 -0700 (Mon, 18 Jul 2011) | 5 lines
   Changed paths:
-     M /trunk/Makefile.am
-     M /trunk/packaging/macosx/Makefile.am
-     M /trunk/packaging/nsis/Makefile.am
+     M /trunk/epan/dissectors/packet-bacapp.c
 
-  Add files to distribution.
+  From Michael Mann via bug 5769:  In fDevice_Instance(), add field in proper
+  big-endian byte order.
+
+  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5769
   ------------------------------------------------------------------------
-  r37593 | etxrab | 2011-06-07 08:05:45 -0700 (Tue, 07 Jun 2011) | 1 line
+  r38129 | cmaynard | 2011-07-19 17:22:31 -0700 (Tue, 19 Jul 2011) | 4 lines
   Changed paths:
-     M /trunk/Makefile.am
-     M /trunk/tools/Makefile.am
-     M /trunk/wiretap/Makefile.am
+     M /trunk/epan/dissectors/packet-icmp.c
 
-  Add more missing files.
+  Apply some endian heuristics when dissecting ICMP originate, receive and transmit timestamps.  Fixes bug 6114.
+
+  Ref: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6114
   ------------------------------------------------------------------------
-  r37618 | tuexen | 2011-06-08 07:12:47 -0700 (Wed, 08 Jun 2011) | 8 lines
+  r38171 | cmaynard | 2011-07-22 17:30:24 -0700 (Fri, 22 Jul 2011) | 2 lines
   Changed paths:
-     M /trunk/gtk/capture_dlg.c
+     M /trunk/epan/dissectors/packet-icmp.c
 
-  This fixes https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6008
-
-  Clear the list of interfaces before adding new interfaces.
-  Also fix an endless loop which would occur in case of an error
-  when getting remote interfaces.
-
-  From Irene Ruengeler.
+  Avoid potential midday problems by narrowing the midnight rollover test.
   ------------------------------------------------------------------------
-  r37631 | gerald | 2011-06-09 10:30:13 -0700 (Thu, 09 Jun 2011) | 3 lines
+  r38164 | etxrab | 2011-07-22 01:10:25 -0700 (Fri, 22 Jul 2011) | 3 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-reload-framing.c
+     M /trunk/epan/dissectors/packet-csn1.c
 
-  Only count an ACK if it's part of an existing conversation, otherwise we
-  get a lot of false positives.
-
+  From Lei Chen:
+  pDescr should not step on until proto_tree_add_text() has been called.
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6151
   ------------------------------------------------------------------------
-
-------------------------------------------------------------------------
-r37965 | gerald | 2011-07-11 10:41:08 -0700 (Mon, 11 Jul 2011) | 13 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/wiretap/ascend_scanner.l
-
-Copy over r37625 from the trunk:
-
-  ------------------------------------------------------------------------
-  r37625 | gerald | 2011-06-08 13:58:44 -0700 (Wed, 08 Jun 2011) | 3 lines
+  r38169 | cmaynard | 2011-07-22 08:32:59 -0700 (Fri, 22 Jul 2011) | 2 lines
   Changed paths:
-     M /trunk/wiretap/ascend_scanner.l
+     M /trunk/epan/libwireshark.def
 
-  Limit the lengths of some of our patterns. Fixes an infinite loop found
-  when trying to read a TPNCP data file.
+  Add tvb_find_tvb
+  ------------------------------------------------------------------------
+  r38205 | etxrab | 2011-07-25 20:52:29 -0700 (Mon, 25 Jul 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-csn1.c
+
+  From Lei Chen:
+  CSN_RECURSIVE_TARRAY should count the last '0' bit.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6166
   ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r37966 | gerald | 2011-07-11 10:45:27 -0700 (Mon, 11 Jul 2011) | 16 lines
+r38848 | gerald | 2011-09-01 14:47:40 -0700 (Thu, 01 Sep 2011) | 14 lines
 Changed paths:
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-ansi_a.c
+   M /trunk-1.6/epan/dissectors/packet-opensafety.c
 
-Copy over r37930 from the trunk:
+Copy over r38213 from the trunk:
 
   ------------------------------------------------------------------------
-  r37930 | cmaynard | 2011-07-07 09:37:33 -0700 (Thu, 07 Jul 2011) | 7 lines
+  r38213 | cmaynard | 2011-07-26 09:19:48 -0700 (Tue, 26 Jul 2011) | 3 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-ansi_a.c
+     M /trunk/epan/dissectors/packet-opensafety.c
 
-  In elem_cell_id_aux(), in the case of an unknown/invalid disc, be sure to
-  increment the curr_offset by the correct number of bytes; otherwise we can run
-  into an infinite loop condition such as was the case for bug 6044.
+  Avoid a crash reported in bug 6138 by never allowing frame1Size < dataLength.
+  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6138
 
-  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6044
   ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r37968 | gerald | 2011-07-11 10:52:13 -0700 (Mon, 11 Jul 2011) | 2 lines
+r38850 | gerald | 2011-09-01 15:15:06 -0700 (Thu, 01 Sep 2011) | 31 lines
 Changed paths:
-   A /trunk-1.6/tools/colorfilters2js.pl
-
-Add a missing file.
-
-------------------------------------------------------------------------
-r37977 | gerald | 2011-07-11 13:12:22 -0700 (Mon, 11 Jul 2011) | 2 lines
-Changed paths:
-   A /trunk-1.6/tools/compare-abis.sh
-
-Add another missing file.
-
-------------------------------------------------------------------------
-r37979 | gerald | 2011-07-11 14:23:58 -0700 (Mon, 11 Jul 2011) | 109 lines
-Changed paths:
-   M /trunk-1.6/capture_opts.c
-   M /trunk-1.6/config.h.win32
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-afp.c
+   M /trunk-1.6/epan/dissectors/packet-diameter_3gpp.c
    M /trunk-1.6/epan/dissectors/packet-icmpv6.c
-   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
-   M /trunk-1.6/epan/dissectors/packet-ieee802154.c
-   M /trunk-1.6/epan/dissectors/packet-netflow.c
-   M /trunk-1.6/epan/dissectors/packet-q931.c
-   M /trunk-1.6/epan/proto.c
-   M /trunk-1.6/wiretap/ascend_scanner.l
-   M /trunk-1.6/wiretap/file_wrappers.c
-   M /trunk-1.6/wiretap/wtap-int.h
+   M /trunk-1.6/gtk/tap_dfilter_dlg.c
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r37663 | jake | 2011-06-13 13:29:51 -0700 (Mon, 13 Jun 2011) | 3 lines
+  r38226 | etxrab | 2011-07-27 06:17:58 -0700 (Wed, 27 Jul 2011) | 1 line
   Changed paths:
-     M /trunk/epan/dissectors/packet-q931.c
+     M /trunk/epan/dissectors/packet-diameter_3gpp.c
 
-  Fix for bug 6009:
-  Information transfer rate is a 7 bit field.
+  Use tvb_length when adding MSISDN.
   ------------------------------------------------------------------------
-  r37665 | alagoutte | 2011-06-15 01:32:10 -0700 (Wed, 15 Jun 2011) | 4 lines
+  r38227 | alagoutte | 2011-07-27 08:19:17 -0700 (Wed, 27 Jul 2011) | 3 lines
   Changed paths:
      M /trunk/epan/dissectors/packet-icmpv6.c
 
-  From Colin O'Flynn via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5363
-
-  Fix some error in ICMPv6 dissector...
-  ------------------------------------------------------------------------
-  r37668 | alagoutte | 2011-06-15 02:01:04 -0700 (Wed, 15 Jun 2011) | 7 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ieee80211.c
-
-  From Ali Bahar via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6022
-  802.11 Disassociation Packet's "Reason Code" field is imprecisely decoded/described
-
-  From me :
-  * Display Reason code in decimal (not Hexa)
-  * Update list from last standard (802.11-2007 & 802.11n-2009)
-  ------------------------------------------------------------------------
-  r37705 | stig | 2011-06-19 03:15:05 -0700 (Sun, 19 Jun 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/proto.c
-
-  Handle BASE_NONE as BASE_DEC for filter expression in custom columns.
-
-  This fixes bug 6035.
-  ------------------------------------------------------------------------
-  r37720 | stig | 2011-06-19 12:29:19 -0700 (Sun, 19 Jun 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/proto.c
-
-  Make creating a display filter from a custom column defined as integer with
-  strings and BASE_NONE equal to selecting the filter from the tree entry.
-  ------------------------------------------------------------------------
-  r37689 | stig | 2011-06-17 04:09:35 -0700 (Fri, 17 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-netflow.c
-
-  Added cast to int for nstime_t.nsecs.
-  ------------------------------------------------------------------------
-  r37691 | stig | 2011-06-17 04:56:56 -0700 (Fri, 17 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ieee802154.c
-
-  Added a cast from ieee802154_long_addr.addr (guint64) to guint.
-  ------------------------------------------------------------------------
-  r37694 | stig | 2011-06-17 06:39:56 -0700 (Fri, 17 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-afp.c
-
-  Added some casts from spotlight_ntoh64 to guint.
-  ------------------------------------------------------------------------
-  r37728 | stig | 2011-06-20 00:14:57 -0700 (Mon, 20 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/config.h.win32
-
-  Add back support for building with MSVC2005 (and older).
-  ------------------------------------------------------------------------
-  r37730 | stig | 2011-06-20 01:58:59 -0700 (Mon, 20 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/config.h.win32
-
-  AttachConsole() needs _WIN32_WINNT 0x0500.
+  From Eric Zhu via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6168
+  Wireshark cannot display Reachable time & Retrans timer in IPv6 RA messages
   ------------------------------------------------------------------------
 
 
 Copy over by hand:
 
   ------------------------------------------------------------------------
-  r37635 | gerald | 2011-06-09 14:13:40 -0700 (Thu, 09 Jun 2011) | 4 lines
+  r38214 | gerald | 2011-07-26 10:46:19 -0700 (Tue, 26 Jul 2011) | 2 lines
   Changed paths:
-     M /trunk/wiretap/ascend_scanner.l
+     M /trunk/gtk/tap_param_dlg.c
 
-  Move the copyright notice and the config.h include to the top of the
-  file so that we have the proper definitions in place for large file
-  support on Solaris (bug 6102).
+  Don't free a string which will be used later on.
   ------------------------------------------------------------------------
-  r37640 | guy | 2011-06-09 15:46:00 -0700 (Thu, 09 Jun 2011) | 5 lines
-  Changed paths:
-     M /trunk/wiretap/ascend_scanner.l
-     M /trunk/wiretap/file_wrappers.c
-     M /trunk/wiretap/wtap-int.h
 
-  The only place where we care about zlib is file_wrappers.c; include
-  <zlib.h> there, rather than wtap-int.h.  That obviates the need to
-  include config.h earlier in ascend_scanner.l; revert the previous
-  change, so we don't require a version of Flex that supports %top.
-  ------------------------------------------------------------------------
-  r37681 | tuexen | 2011-06-16 00:33:24 -0700 (Thu, 16 Jun 2011) | 4 lines
-  Changed paths:
-     M /trunk/capture_opts.c
-
-  Really print the rpcap username when logging, not
-  the rpcap password.
-  This only affects remote capturing.
-  ------------------------------------------------------------------------
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r37981 | gerald | 2011-07-11 15:22:02 -0700 (Mon, 11 Jul 2011) | 131 lines
+r38851 | gerald | 2011-09-01 15:46:56 -0700 (Thu, 01 Sep 2011) | 14 lines
 Changed paths:
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/column-utils.c
-   M /trunk-1.6/epan/dissectors/packet-ieee802154.h
-   M /trunk-1.6/epan/proto.c
-   M /trunk-1.6/epan/range.c
-   M /trunk-1.6/epan/wslua/wslua_gui.c
-   M /trunk-1.6/epan/wslua/wslua_proto.c
-   M /trunk-1.6/epan/wslua/wslua_tvb.c
-   M /trunk-1.6/gtk/main.c
-   M /trunk-1.6/gtk/main_welcome.c
-   M /trunk-1.6/tap-comparestat.c
+   M /trunk-1.6/epan/dissectors/packet-isakmp.c
 
-Copy over revisions from the trunk:
+Copy over r38247 from the trunk:
 
   ------------------------------------------------------------------------
-  r37756 | stig | 2011-06-22 13:15:34 -0700 (Wed, 22 Jun 2011) | 4 lines
+  r38247 | stig | 2011-07-28 15:19:46 -0700 (Thu, 28 Jul 2011) | 3 lines
   Changed paths:
-     M /trunk/epan/column-utils.c
+     M /trunk/epan/dissectors/packet-isakmp.c
 
-  Don't assert on invalid custom columns, just set as invalid/unknown.
+  Avoid a possible infinite loop in dissect_delete().
 
-  This fixes bug 6028.
+  This may fix the "Malformed IKE Packet DoS" bug.
   ------------------------------------------------------------------------
-  r37760 | stig | 2011-06-23 03:28:53 -0700 (Thu, 23 Jun 2011) | 5 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_tvb.c
-
-  Rename Tvb_tvb to TvbRange_tvb, as it's a TvbRange function.
-  Documentation is generated from code.
-
-  This fixes bug 5006.
-  ------------------------------------------------------------------------
-  r37761 | stig | 2011-06-23 03:43:49 -0700 (Thu, 23 Jun 2011) | 5 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_tvb.c
-
-  Rename Tvb_new_real to ByteArray_tvb, as it's a ByteArray function.
-  Documentation is generated from code.
-
-  This fixes bug 5199.
-  ------------------------------------------------------------------------
-  r37763 | stig | 2011-06-23 04:06:34 -0700 (Thu, 23 Jun 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_tvb.c
-
-  From Tony Trinh via bug 5960:
-  Fix TvbRange:string() so that it returns a string that contains all bytes
-  of the range, including zeroes (instead of being truncated at first zero).
-  ------------------------------------------------------------------------
-  r37771 | wmeier | 2011-06-23 08:40:34 -0700 (Thu, 23 Jun 2011) | 11 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ieee802154.h
-
-  From Ivan Lawrow: GTS Descriptor count is a 3 bit field;
-
-  The IEEE 802.15.4 GTS descriptor count is a 3-bit field (see page 144
-  of attached spec).
-
-  The mask for this field is incorrectly defined as a 2-bit field in
-  epan/dissectors/packet-ieee802154.h line 74:
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6055
-  ------------------------------------------------------------------------
-  r37779 | cmaynard | 2011-06-23 19:35:46 -0700 (Thu, 23 Jun 2011) | 6 lines
-  Changed paths:
-     M /trunk/gtk/main.c
-
-  Make Wireshark portable to all locales by calling setlocale().  This, along with my previous commits in revisions 36160 and 36166 ought to fix the problem that Bartosz Kiziukiewicz first reported on the wireshark-users mailing list here:
-
-      http://www.wireshark.org/lists/wireshark-users/201103/msg00018.html
-
-  (I successfully generated Wireshark compare statistics after applying this change and also changing my locale to Polish.)
-  ------------------------------------------------------------------------
-  r37780 | cmaynard | 2011-06-23 19:45:23 -0700 (Thu, 23 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/tap-comparestat.c
-
-  Print the filter string, if one was specified, just like Wireshark does.
-  ------------------------------------------------------------------------
-  r37783 | stig | 2011-06-25 07:58:06 -0700 (Sat, 25 Jun 2011) | 8 lines
-  Changed paths:
-     M /trunk/epan/proto.c
-
-  Make guy's fix in revision 37236 actually work:
-  "You cannot just make the "len" field of a GByteArray larger, if there's
-  no data to back that length; you can only make it smaller."
-
-  Two equal values are always equal!
-
-  This fixes bug 5941.
-  ------------------------------------------------------------------------
-  r37784 | stig | 2011-06-25 08:21:17 -0700 (Sat, 25 Jun 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/range.c
-
-  From Tony Trinh via bug 5895:
-  Add sanity checks in range.c
-  ------------------------------------------------------------------------
-  r37785 | stig | 2011-06-25 08:24:55 -0700 (Sat, 25 Jun 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_proto.c
-
-  From Tony Trinh via bug 5894:
-  Added argument validation to Pref.range.
-  ------------------------------------------------------------------------
-  r37786 | stig | 2011-06-25 08:42:41 -0700 (Sat, 25 Jun 2011) | 5 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_proto.c
-
-  Remove "range" from Lua's Pref.range(), as this value shall be fetched from
-  the "default".
-
-  This fixes bug 5896.
-  ------------------------------------------------------------------------
-  r37787 | stig | 2011-06-25 12:39:16 -0700 (Sat, 25 Jun 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_proto.c
-
-  Added check for invalid chars in abbrev in ProtoField functions.
-
-  This fixes bug 5569.
-  ------------------------------------------------------------------------
-  r37788 | stig | 2011-06-25 13:47:13 -0700 (Sat, 25 Jun 2011) | 6 lines
-  Changed paths:
-     M /trunk/epan/wslua/wslua_gui.c
-
-  From Tony Trinh via bug 6018:
-  Add NULL checks and fix typos in Lua error print-outs
-
-  From me:
-  Use the error message "GUI not available" when using GUI functions in tshark.
-  ------------------------------------------------------------------------
-  r37238 | rbalint | 2011-05-18 06:08:02 -0700 (Wed, 18 May 2011) | 3 lines
-  Changed paths:
-     M /trunk/gtk/main_welcome.c
-
-  Refer to "Capture Help" as "Capture Help below" when there are no interfaces
-  to capture on.
-  ------------------------------------------------------------------------
-
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r37984 | gerald | 2011-07-11 16:13:44 -0700 (Mon, 11 Jul 2011) | 64 lines
+r38852 | gerald | 2011-09-01 16:27:28 -0700 (Thu, 01 Sep 2011) | 98 lines
 Changed paths:
-   M /trunk-1.6/ConfigureChecks.cmake
-   M /trunk-1.6/alert_box.c
-   M /trunk-1.6/capinfos.c
-   M /trunk-1.6/capture-pcap-util-unix.c
-   M /trunk-1.6/capture_sync.c
-   M /trunk-1.6/cmakeconfig.h.in
-   M /trunk-1.6/color_filters.c
+   M /trunk-1.6/AUTHORS
+   M /trunk-1.6/asn1/h225/h225.cnf
+   M /trunk-1.6/asn1/snmp/packet-snmp-template.c
    M /trunk-1.6/config.h.win32
-   M /trunk-1.6/configure.in
-   M /trunk-1.6/dftest.c
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/dumpcap.c
-   M /trunk-1.6/epan/dfilter/dfilter-macro.c
-   M /trunk-1.6/epan/diam_dict.l
-   M /trunk-1.6/epan/dissectors/packet-giop.c
-   M /trunk-1.6/epan/dtd_preparse.l
-   M /trunk-1.6/epan/filesystem.c
-   M /trunk-1.6/epan/radius_dict.l
-   M /trunk-1.6/epan/uat.c
-   M /trunk-1.6/epan/uat_load.l
-   M /trunk-1.6/gtk/airpcap_dlg.c
-   M /trunk-1.6/gtk/color_dlg.c
-   M /trunk-1.6/gtk/filter_dlg.c
-   M /trunk-1.6/gtk/follow_stream.c
-   M /trunk-1.6/gtk/follow_tcp.c
-   M /trunk-1.6/gtk/funnel_stat.c
-   M /trunk-1.6/gtk/main.c
-   M /trunk-1.6/gtk/prefs_dlg.c
-   M /trunk-1.6/gtk/print_dlg.c
-   M /trunk-1.6/gtk/profile_dlg.c
-   M /trunk-1.6/gtk/proto_dlg.c
-   M /trunk-1.6/gtk/recent.c
-   M /trunk-1.6/gtk/simple_dialog.c
-   M /trunk-1.6/gtk/text_page_utils.c
-   M /trunk-1.6/mergecap.c
-   M /trunk-1.6/packaging/macosx/native-gtk/config.h
-   M /trunk-1.6/plugins/asn1/packet-asn1.c
-   M /trunk-1.6/plugins/mate/mate_parser.l
-   M /trunk-1.6/randpkt.c
-   M /trunk-1.6/rawshark.c
-   M /trunk-1.6/text2pcap.c
-   M /trunk-1.6/tools/checkAPIs.pl
-   M /trunk-1.6/tshark.c
-   M /trunk-1.6/version_info.c
-   M /trunk-1.6/wiretap/wtap.c
-   M /trunk-1.6/wsutil/CMakeLists.txt
-   M /trunk-1.6/wsutil/Makefile.am
-   D /trunk-1.6/wsutil/strerror.c
-   D /trunk-1.6/wsutil/strerror.h
-
-Copy over r37812 with manual intervention:
-
-  ------------------------------------------------------------------------
-  r37812 | stig | 2011-06-28 02:00:11 -0700 (Tue, 28 Jun 2011) | 6 lines
-  Changed paths:
-     M /trunk/ConfigureChecks.cmake
-     M /trunk/alert_box.c
-     M /trunk/capinfos.c
-     M /trunk/capture-pcap-util-unix.c
-     M /trunk/capture_sync.c
-     M /trunk/cmakeconfig.h.in
-     M /trunk/color_filters.c
-     M /trunk/config.h.win32
-     M /trunk/configure.in
-     M /trunk/dftest.c
-     M /trunk/dumpcap.c
-     M /trunk/epan/dfilter/dfilter-macro.c
-     M /trunk/epan/diam_dict.l
-     M /trunk/epan/dissectors/packet-giop.c
-     M /trunk/epan/dtd_preparse.l
-     M /trunk/epan/filesystem.c
-     M /trunk/epan/radius_dict.l
-     M /trunk/epan/uat.c
-     M /trunk/epan/uat_load.l
-     M /trunk/gtk/airpcap_dlg.c
-     M /trunk/gtk/color_dlg.c
-     M /trunk/gtk/filter_dlg.c
-     M /trunk/gtk/follow_stream.c
-     M /trunk/gtk/follow_tcp.c
-     M /trunk/gtk/funnel_stat.c
-     M /trunk/gtk/main.c
-     M /trunk/gtk/prefs_dlg.c
-     M /trunk/gtk/print_dlg.c
-     M /trunk/gtk/profile_dlg.c
-     M /trunk/gtk/proto_dlg.c
-     M /trunk/gtk/recent.c
-     M /trunk/gtk/simple_dialog.c
-     M /trunk/gtk/text_page_utils.c
-     M /trunk/mergecap.c
-     M /trunk/packaging/macosx/native-gtk/config.h
-     M /trunk/plugins/asn1/packet-asn1.c
-     M /trunk/plugins/mate/mate_parser.l
-     M /trunk/randpkt.c
-     M /trunk/rawshark.c
-     M /trunk/text2pcap.c
-     M /trunk/tools/checkAPIs.pl
-     M /trunk/tshark.c
-     M /trunk/version_info.c
-     M /trunk/wiretap/wtap.c
-     M /trunk/wsutil/CMakeLists.txt
-     M /trunk/wsutil/Makefile.am
-     D /trunk/wsutil/strerror.c
-     D /trunk/wsutil/strerror.h
-
-  Replace all strerror() with g_strerror().
-  Remove our local strerror implementation.
-  Mark strerror as locale unsafe API.
-
-  This fixes bug 5715.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r37985 | gerald | 2011-07-11 17:14:28 -0700 (Mon, 11 Jul 2011) | 34 lines
-Changed paths:
-   M /trunk-1.6/capinfos.c
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/dissectors/packet-rpcap.c
-   M /trunk-1.6/gtk/capture_dlg.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r37816 | stig | 2011-06-28 08:18:21 -0700 (Tue, 28 Jun 2011) | 4 lines
-  Changed paths:
-     M /trunk/capinfos.c
-
-  From Jose Pedro Oliveira via bug 5803:
-  #ifdef HAVE_LIBGCRYPT block includes a line too many.
-  "Fixes 2nd instance of the problem"
-  ------------------------------------------------------------------------
-  r37828 | stig | 2011-06-29 00:02:04 -0700 (Wed, 29 Jun 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-rpcap.c
-
-  Strengthen heuristics for Packets.
-
-  This fixes bug 6073.
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r37842 | stig | 2011-06-30 02:31:11 -0700 (Thu, 30 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-rpcap.c
-
-  Avoid absurdly large values used in for-loops.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r38000 | gerald | 2011-07-13 12:29:38 -0700 (Wed, 13 Jul 2011) | 94 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/dissectors/packet-gtpv2.c
+   M /trunk-1.6/epan/dissectors/packet-h225.c
+   M /trunk-1.6/epan/dissectors/packet-snmp.c
    M /trunk-1.6/epan/dissectors/packet-tcp.c
-   M /trunk-1.6/epan/libwireshark.def
-   M /trunk-1.6/epan/prefs.c
-   M /trunk-1.6/epan/prefs.h
-   M /trunk-1.6/epan/proto.c
-   M /trunk-1.6/gtk/capture_dlg.c
-   M /trunk-1.6/gtk/file_import_dlg.c
-   M /trunk-1.6/gtk/iax2_analysis.c
-   M /trunk-1.6/gtk/prefs_capture.c
-   M /trunk-1.6/gtk/rtp_analysis.c
-
-Copy over revisions from the trunk:
-
-  ------------------------------------------------------------------------
-  r37845 | guy | 2011-06-30 11:08:42 -0700 (Thu, 30 Jun 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/libwireshark.def
-
-  Export tvb_get_unicode_string().
-  ------------------------------------------------------------------------
-  r37853 | cmaynard | 2011-07-01 12:00:14 -0700 (Fri, 01 Jul 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-tcp.c
-
-  Initialize the TCP windows to the maximum value instead of 0 to avoid false zero window conditions, especially at the beginning of a capture or if only one side of a conversation is captured.  This resolves bug 4716: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=4716.
-  ------------------------------------------------------------------------
-  r37854 | cmaynard | 2011-07-01 12:17:02 -0700 (Fri, 01 Jul 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-tcp.c
-
-  In decode_tcp_ports(), don't abort processing zero window probe packets, even if the payload is only a single byte.  Also, for the keep-alives, display any payload that might be present.
-  ------------------------------------------------------------------------
-  r37867 | wmeier | 2011-07-02 12:50:41 -0700 (Sat, 02 Jul 2011) | 14 lines
-  Changed paths:
-     M /trunk/gtk/file_import_dlg.c
-
-  Fix: Wireshark crashes after repeating "File -> Import -> Cancel"
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6080
-
-  Apparently gtk_radio_button_get_group() must be called after
-  each addition to the group before the 'group' GSList pointer can be used
-  again in, for example, a call to get_radio_button_new_with_label().
-
-  (Where does it say this in the GTK docs ? It does make sense, tho, given
-  the way GSLists work).
-
-  We'll use gtk_radio_button_new_with_label_from_widget() instead to let GTK
-  handle the grouping.
-  ------------------------------------------------------------------------
-  r37869 | wmeier | 2011-07-02 14:00:56 -0700 (Sat, 02 Jul 2011) | 13 lines
-  Changed paths:
-     M /trunk/gtk/iax2_analysis.c
-
-  Fix incorrect usage of gtk_radio_button_new_with_label()/gtk_radio_button_get_group();
-  Use gtk_radio_button_new_with_label_from_widget().
-
-  Essentially: gtk_radio_button_get_group() must be called after each gtk_radio_button_new...()
-  before using the 'group' GSList pointer in another call to gtk_radio_button_new...().
-
-  In these cases the incorrect usage appears to only have resulted in allowing multiple
-  radio buttons to be activated simultaneously.
-
-  (In at least one case elsewhere, the incorrect usage resulted in a Wireshark crash).
-  ------------------------------------------------------------------------
-  r37870 | wmeier | 2011-07-02 14:06:51 -0700 (Sat, 02 Jul 2011) | 2 lines
-  Changed paths:
-     M /trunk/gtk/iax2_analysis.c
-
-  Remove 3 lines of code no longer needed after SVN #37869
-  ------------------------------------------------------------------------
-  r37871 | wmeier | 2011-07-02 14:36:25 -0700 (Sat, 02 Jul 2011) | 13 lines
-  Changed paths:
-     M /trunk/gtk/rtp_analysis.c
-
-  Log:
-   Fix incorrect usage of gtk_radio_button_new_with_label()/gtk_radio_button_get_group();
-   Use gtk_radio_button_new_with_label_from_widget().
-
-   Essentially: gtk_radio_button_get_group() must be called after each gtk_radio_button_new...()
-   before using the 'group' GSList pointer in another call to gtk_radio_button_new...().
-
-   In these cases the incorrect usage appears to only have resulted in allowing multiple
-   radio buttons to be activated simultaneously.
-
-   (In at least one case elsewhere, the incorrect usage resulted in a Wireshark crash).
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r37830 | stig | 2011-06-29 03:42:29 -0700 (Wed, 29 Jun 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/prefs.c
-     M /trunk/epan/prefs.h
-     M /trunk/gtk/capture_dlg.c
-     M /trunk/gtk/prefs_capture.c
-
-  Added a preference to turn of capture filter syntax check.
-  This can be used to disable the effect in bug 5356.
-  ------------------------------------------------------------------------
-
-
-Update the release notes.
-
-------------------------------------------------------------------------
-r38002 | gerald | 2011-07-13 14:29:15 -0700 (Wed, 13 Jul 2011) | 104 lines
-Changed paths:
-   M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/Makefile.am
-   M /trunk-1.6/epan/Makefile.nmake
-   M /trunk-1.6/epan/dissectors/packet-gsmtap.c
-   M /trunk-1.6/epan/dissectors/packet-isup.c
-   M /trunk-1.6/epan/dissectors/packet-mq.c
-   M /trunk-1.6/epan/libwireshark.def
-   M /trunk-1.6/epan/proto.c
-   M /trunk-1.6/epan/proto.h
-   M /trunk-1.6/epan/strutil.c
-   M /trunk-1.6/epan/tvbuff.c
-   M /trunk-1.6/epan/tvbuff.h
+   M /trunk-1.6/epan/except.c
+   M /trunk-1.6/epan/gcp.c
+   M /trunk-1.6/gtk/main.c
    M /trunk-1.6/make-version.pl
+   M /trunk-1.6/tap-rtp-common.c
 
 Copy over revisions from the trunk:
 
-------------------------------------------------------------------------
-  r37872 | guy | 2011-07-02 18:40:12 -0700 (Sat, 02 Jul 2011) | 6 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-mq.c
-     M /trunk/epan/proto.c
-     M /trunk/epan/proto.h
-
-  Add ENC_ values for UTF-8 and EBCDIC, support them for FT_STRINGZ
-  values, and use them in the MQ dissector, so EBCDIC strings are
-  displayed as such.
-
-  Fix up some other final arguments to proto_tree_add_item().
   ------------------------------------------------------------------------
-  r37878 | guy | 2011-07-03 10:54:00 -0700 (Sun, 03 Jul 2011) | 2 lines
+  r38268 | etxrab | 2011-07-30 02:33:10 -0700 (Sat, 30 Jul 2011) | 2 lines
   Changed paths:
-     M /trunk/epan/libwireshark.def
+     M /trunk/epan/dissectors/packet-gtpv2.c
 
-  Need to export EBCDIC_to_ASCII().
+  CCRSI is not included in 3GPP 29.274 R8.
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6183
   ------------------------------------------------------------------------
-  r37879 | darkjames | 2011-07-03 11:59:41 -0700 (Sun, 03 Jul 2011) | 4 lines
+  r38269 | stig | 2011-07-30 02:52:40 -0700 (Sat, 30 Jul 2011) | 1 line
   Changed paths:
-     M /trunk/epan/Makefile.am
-     M /trunk/epan/Makefile.nmake
-     M /trunk/epan/libwireshark.def
+     M /trunk/epan/dissectors/packet-gtpv2.c
 
-  Fix: tvbuff.obj : error LNK2019: unresolved external symbol _EBCDIC_to_ASCII referenced in function _tvb_get_ephemeral_string_enc
-
-  Remove duplicated EBCDIC_to_ASCII from libwireshark.def
+  Fix a typo.
   ------------------------------------------------------------------------
-  r37883 | darkjames | 2011-07-03 14:18:22 -0700 (Sun, 03 Jul 2011) | 2 lines
+  r38286 | etxrab | 2011-07-31 06:25:13 -0700 (Sun, 31 Jul 2011) | 2 lines
   Changed paths:
-     M /trunk/epan/Makefile.am
-     M /trunk/epan/Makefile.nmake
+     M /trunk/tap-rtp-common.c
 
-  Fix one more undefined reference to `EBCDIC_to_ASCII'
+  Use pinfo->iphdrlen rather than a fixed vaue of 20 to make
+  the calculation correct for IPv6 too.
   ------------------------------------------------------------------------
-  r37893 | etxrab | 2011-07-04 13:43:29 -0700 (Mon, 04 Jul 2011) | 14 lines
+  r38299 | stig | 2011-08-01 05:38:58 -0700 (Mon, 01 Aug 2011) | 4 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-isup.c
+     M /trunk/config.h.win32
+     M /trunk/epan/except.c
+     M /trunk/gtk/main.c
 
-  From Christopher Maynard:
-  From doc/README.tapping:
+  Another fix for building with MSVC2005.
 
-  IF the tap is going to return private data using the last parameter to
-  tap_queue_packet() and IF the protocol can appear multiple times inside the
-  same packet, you will have to make sure that each instance of
-  tap_queue_packet() is using its own instance of private struct variable
-  so they don't overwrite each other.
-
-  This was the case here, so I changed the static allocation of tap_rec to be
-  ep_alloc'd.  I also tried to clean up the Info column a bit.  With this patch
-  applied, the graph now shows the APM and ANM correctly instead of 2 ANM's.
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5966
+  The previous fixes in r37728 and r37730 did build a wireshark which was
+  unable to use the native windows file dialog (GetOpenFileName).
   ------------------------------------------------------------------------
-  r37895 | stig | 2011-07-04 14:14:43 -0700 (Mon, 04 Jul 2011) | 1 line
+  r38303 | cmaynard | 2011-08-01 18:54:03 -0700 (Mon, 01 Aug 2011) | 4 lines
+  Changed paths:
+     M /trunk/AUTHORS
+     M /trunk/asn1/snmp/packet-snmp-template.c
+
+  From Paul Stath via bug 5731:  The check for engineID length should only occur if the engineID has a non-zero length.
+
+  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5731
+  ------------------------------------------------------------------------
+  r38304 | etxrab | 2011-08-01 21:17:45 -0700 (Mon, 01 Aug 2011) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-snmp.c
+
+  Gnenerate the dissector for previous commit.
+  ------------------------------------------------------------------------
+  r38326 | gerald | 2011-08-03 12:11:07 -0700 (Wed, 03 Aug 2011) | 15 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-tcp.c
+
+  From Dirk Jagdmann via bug 6194:
+
+  The attachted patch fixes and enhances the SCPS TCP option dissection. Changes
+  are:
+
+  - fix order of reserved Bit 1,2,3
+  - fix minimum TCP option length
+  - fix proto items
+  - add proto item for Connection ID
+  - removed the verify_scps() function. It's logic was broken, because it did
+  reset the scps_capable flag on both flows if one of them did not have it.
+  However sometimes that flag is only enabled in one flow direction and that flow
+  direction could see TCP options later on, which would get dissected as invalid.
+  See the attachted capture file for an example.
+  ------------------------------------------------------------------------
+  r38331 | stig | 2011-08-04 03:02:37 -0700 (Thu, 04 Aug 2011) | 1 line
+  Changed paths:
+     M /trunk/epan/dissectors/packet-tcp.c
+
+  Removed a debug printf.
+  ------------------------------------------------------------------------
+  r38340 | cmaynard | 2011-08-04 13:20:51 -0700 (Thu, 04 Aug 2011) | 2 lines
   Changed paths:
      M /trunk/make-version.pl
 
-  Fetch svn revision also when checked out with git-svn.
+  Don't report svn version if not building from svn.  Change prompted by http://ask.wireshark.org/questions/5376/wireshark-161-title-shows-svn-rev-unknown-from-unknown.
   ------------------------------------------------------------------------
-  r37918 | etxrab | 2011-07-06 05:47:21 -0700 (Wed, 06 Jul 2011) | 4 lines
+  r38397 | etxrab | 2011-08-07 13:08:08 -0700 (Sun, 07 Aug 2011) | 1 line
   Changed paths:
-     M /trunk/epan/dissectors/packet-gsmtap.c
+     M /trunk/epan/gcp.c
 
-  From HAESSLER:
-  Abis interface not correctly handled in gsmtap dissector
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6097
+  g_ascii_strdown Returns a newly-allocated string.
   ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-------------------------------------------------------------------------
-r37685 | guy | 2011-06-16 11:34:17 -0700 (Thu, 16 Jun 2011) | 2 lines
-Changed paths:
-   M /trunk/epan/proto.c
-   M /trunk/epan/strutil.c
-   M /trunk/epan/tvbuff.c
-   M /trunk/epan/tvbuff.h
-
-Squelch some compiler warnings.
-------------------------------------------------------------------------
-  r37876 | guy | 2011-07-03 10:08:25 -0700 (Sun, 03 Jul 2011) | 6 lines
+  r38399 | cmaynard | 2011-08-07 13:50:31 -0700 (Sun, 07 Aug 2011) | 3 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-mq.c
-     M /trunk/epan/libwireshark.def
-     M /trunk/epan/proto.h
-     M /trunk/epan/tvbuff.c
-     M /trunk/epan/tvbuff.h
+     M /trunk/asn1/h225/h225.cnf
+     M /trunk/epan/dissectors/packet-h225.c
 
-  Add a tvb_get_ephemeral_string_enc() routine that's like
-  tvb_get_ephemeral_string() but takes an ENC_ value for the character
-  encoding.  Use it in the MQ dissector to fetch strings to put, for
-  example, into the Info column, so we properly handle EBCDIC strings
-  there.
+  Fix bug 5848, "https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848", which was apparently introduced with r27287 (http://anonsvn.wireshark.org/viewvc/trunk/epan/dissectors/packet-h225.c?r1=26698&r2=27287).  Regenerate the packet-h225.c dissector.  Patch from ericn1234@yahoo.com.
+  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848
   ------------------------------------------------------------------------
 
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r38003 | gerald | 2011-07-13 15:18:30 -0700 (Wed, 13 Jul 2011) | 92 lines
+r38853 | gerald | 2011-09-01 16:49:56 -0700 (Thu, 01 Sep 2011) | 13 lines
 Changed paths:
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/dumpcap.c
+   M /trunk-1.6/epan/packet.c
+
+Copy over r38410 from the trunk:
+
+  ------------------------------------------------------------------------
+  r38410 | gerald | 2011-08-08 10:25:35 -0700 (Mon, 08 Aug 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/packet.c
+
+  Make sure our root tvb is initialized in case its creation fails.
+  Untested fix for bug 6135.
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r38854 | gerald | 2011-09-01 16:55:08 -0700 (Thu, 01 Sep 2011) | 12 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/wslua/template-init.lua
+
+Copy over r38414 from the trunk:
+
+  ------------------------------------------------------------------------
+  r38414 | gerald | 2011-08-08 12:10:19 -0700 (Mon, 08 Aug 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/wslua/template-init.lua
+
+  Load console.lua and dtd-gen.lua from an explicit path.
+  ------------------------------------------------------------------------
+
+Update and fix the release notes.
+
+------------------------------------------------------------------------
+r38855 | gerald | 2011-09-01 16:57:36 -0700 (Thu, 01 Sep 2011) | 16 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
    M /trunk-1.6/epan/dissectors/packet-csn1.c
-   M /trunk-1.6/epan/dissectors/packet-giop.c
-   M /trunk-1.6/epan/dissectors/packet-gre.c
-   M /trunk-1.6/epan/dissectors/packet-gsm_rlcmac.c
-   M /trunk-1.6/epan/dissectors/packet-gsm_rlcmac.h
-   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
-   M /trunk-1.6/epan/dissectors/packet-msrp.c
-   M /trunk-1.6/epan/dissectors/packet-wsp.c
-   M /trunk-1.6/wiretap/lanalyzer.c
+
+Copy over r38430 from the trunk:
+
+  ------------------------------------------------------------------------
+  r38430 | morriss | 2011-08-09 08:43:42 -0700 (Tue, 09 Aug 2011) | 6 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-csn1.c
+
+  Fix the fuzz failure reported in
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6139 :
+
+  Properly initialize the CSN_DESCR type before recursively calling
+  csnStreamDissector().
+  ------------------------------------------------------------------------
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r38856 | gerald | 2011-09-01 17:16:14 -0700 (Thu, 01 Sep 2011) | 60 lines
+Changed paths:
+   M /trunk-1.6/ConfigureChecks.cmake
+   M /trunk-1.6/acinclude.m4
+   M /trunk-1.6/capinfos.c
+   M /trunk-1.6/cmakeconfig.h.in
+   M /trunk-1.6/configure.in
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/dumpcap.c
+   M /trunk-1.6/editcap.c
+   M /trunk-1.6/epan/dissectors/packet-sflow.c
+   M /trunk-1.6/gtk/main.c
+   M /trunk-1.6/mergecap.c
+   M /trunk-1.6/randpkt.c
+   M /trunk-1.6/rawshark.c
+   M /trunk-1.6/text2pcap.c
+   M /trunk-1.6/tshark.c
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r37919 | etxrab | 2011-07-06 05:53:04 -0700 (Wed, 06 Jul 2011) | 4 lines
+  r38419 | cmaynard | 2011-08-08 13:34:18 -0700 (Mon, 08 Aug 2011) | 2 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-gsm_rlcmac.c
-     M /trunk/epan/dissectors/packet-gsm_rlcmac.h
+     M /trunk/epan/dissectors/packet-sflow.c
 
-  From Ludovic Haessler:
-  Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP TS 44.060)
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6098
+  From Andrew Feren via bug 6219: Offset calculated incorrectly for sFlow extended data.
   ------------------------------------------------------------------------
-  r37923 | cmaynard | 2011-07-06 09:03:43 -0700 (Wed, 06 Jul 2011) | 2 lines
+  r38434 | morriss | 2011-08-09 12:49:08 -0700 (Tue, 09 Aug 2011) | 7 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-wsp.c
+     M /trunk/acinclude.m4
 
-  Fix memory leak, using ep_alloc() instead of g_malloc().
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5607 :
+
+  When testing if we can add things to LDFLAGS, don't set LDFLAGS to CFLAGS
+  if the test determines that the flag cannot be added to LDFLAGS.
+
+  (Simple typo: LDFLAGS_saved was being set to CFLAGS instead of LDFLAGS.)
   ------------------------------------------------------------------------
-  r37926 | etxrab | 2011-07-07 00:44:25 -0700 (Thu, 07 Jul 2011) | 4 lines
+  r38437 | morriss | 2011-08-09 14:02:10 -0700 (Tue, 09 Aug 2011) | 12 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-csn1.c
-     M /trunk/epan/dissectors/packet-gsm_rlcmac.c
+     M /trunk/capinfos.c
+     M /trunk/configure.in
+     M /trunk/dumpcap.c
+     M /trunk/editcap.c
+     M /trunk/gtk/main.c
+     M /trunk/mergecap.c
+     M /trunk/randpkt.c
+     M /trunk/rawshark.c
+     M /trunk/text2pcap.c
+     M /trunk/tshark.c
 
-  From Ludovic Haessler:
-  CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl dissector (3GPP TS 44.060)
+  Fix https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5608 :
 
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6101
-  ------------------------------------------------------------------------
-  r37927 | alagoutte | 2011-07-07 03:19:02 -0700 (Thu, 07 Jul 2011) | 8 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-ieee80211.c
+  getopt() can/should normally be found in unistd.h, so:
 
-  From Ali Bahar via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093
-  802.11 Association Response Packet's "Status Code" field is imprecisely decoded/described.
+  - When testing for getopt(), define that we HAVE_GETOPT instead of
+    HAVE_GETOPT_H (to avoid confusion).
+  - Don't attempt to include getopt.h: not all OS's have it (for example,
+    Solaris 9 does not).
+  - (All the places which need getopt already include unistd.h (if we have it).)
 
-  From me :
-  * Display Reason code in decimal (not Hexa)
-  * Check list from last standard (802.11-2007, 802.11r-2008, 802.11n-2009, 802.11w-2009 & 802.11z-2011)
-  * Add link to 802.11z-2010 documentation
-  ------------------------------------------------------------------------
-  r37945 | cmaynard | 2011-07-08 19:04:48 -0700 (Fri, 08 Jul 2011) | 8 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-gre.c
-
-  Per README.developer, we must call subdissectors regardless of whether "tree"
-  is NULL or not.  With this change, GRE-encapsulated packets (such as IP)
-  should now appear in then endpoint and conversation lists.  This was
-  essentially the request made at Sharkfest '11.  The actual request was for a
-  "GRE" tab to be added, but that doesn't really make much sense to me.  I
-  believe this change should fulfill that request.
-  ------------------------------------------------------------------------
-  r37953 | guy | 2011-07-10 14:05:19 -0700 (Sun, 10 Jul 2011) | 5 lines
-  Changed paths:
-     M /trunk/wiretap/lanalyzer.c
-
-  At that point in the code, bytes_read isn't the total number of record
-  header bytes read, as we're reading the two header fields separately and
-  checking the byte count for each read.  We *do*, however, know that the
-  record header is 4 bytes long, so we can just seek back 4 bytes.
-  ------------------------------------------------------------------------
-  r37955 | etxrab | 2011-07-10 15:13:03 -0700 (Sun, 10 Jul 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-msrp.c
-
-  From Jaap:
-  Limit the search to the line.
-  ------------------------------------------------------------------------
-  r37957 | cmaynard | 2011-07-10 17:17:08 -0700 (Sun, 10 Jul 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-giop.c
-
-  As noted by Jaap Keuter on -dev, be sure to use message_size instead of
-  header->message_size for a correct host endianness comparison.
+  If this breaks things on some OS, we might need (a real) HAVE_GETOPT_H check.
   ------------------------------------------------------------------------
 
 
 Copy over by hand:
-
   ------------------------------------------------------------------------
-  r37924 | cmaynard | 2011-07-06 09:22:11 -0700 (Wed, 06 Jul 2011) | 5 lines
+  r38438 | jmayer | 2011-08-09 14:26:33 -0700 (Tue, 09 Aug 2011) | 2 lines
   Changed paths:
-     M /trunk/dumpcap.c
+     M /trunk/ConfigureChecks.cmake
+     M /trunk/cmakeconfig.h.in
 
-  From Jakub Zawadzki via bug 6002:  Don't set state to STATE_EXPECT_DATA if there's no data to read.
-
-  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6002
+  Copy over the commit 38437 to cmake.
   ------------------------------------------------------------------------
 
 
 Update the release notes.
 
 ------------------------------------------------------------------------
-r38068 | gerald | 2011-07-17 08:04:24 -0700 (Sun, 17 Jul 2011) | 1 line
+r38869 | gerald | 2011-09-02 13:22:41 -0700 (Fri, 02 Sep 2011) | 183 lines
+Changed paths:
+   M /trunk-1.6/Makefile.nmake
+   M /trunk-1.6/asn1/tetra/packet-tetra-template.c
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/epan/column-utils.c
+   M /trunk-1.6/epan/dissectors/dcerpc/drsuapi/drsuapi.idl
+   M /trunk-1.6/epan/dissectors/packet-bgp.c
+   M /trunk-1.6/epan/dissectors/packet-btl2cap.c
+   M /trunk-1.6/epan/dissectors/packet-csn1.c
+   M /trunk-1.6/epan/dissectors/packet-dcerpc-drsuapi.c
+   M /trunk-1.6/epan/dissectors/packet-dcerpc-drsuapi.h
+   M /trunk-1.6/epan/dissectors/packet-dcerpc.c
+   M /trunk-1.6/epan/dissectors/packet-dcom.c
+   M /trunk-1.6/epan/dissectors/packet-fix.h
+   M /trunk-1.6/epan/dissectors/packet-giop.c
+   M /trunk-1.6/epan/dissectors/packet-gsm_a_rr.c
+   M /trunk-1.6/epan/dissectors/packet-gvcp.c
+   M /trunk-1.6/epan/dissectors/packet-lldp.c
+   M /trunk-1.6/epan/dissectors/packet-ndmp.c
+   M /trunk-1.6/epan/dissectors/packet-olsr.c
+   M /trunk-1.6/epan/dissectors/packet-ospf.c
+   M /trunk-1.6/epan/dissectors/packet-pdcp-lte.c
+   M /trunk-1.6/epan/dissectors/packet-ppp.c
+   M /trunk-1.6/epan/dissectors/packet-rohc.c
+   M /trunk-1.6/epan/dissectors/packet-rtps2.c
+   M /trunk-1.6/epan/dissectors/packet-sita.c
+   M /trunk-1.6/epan/dissectors/packet-tetra.c
+   M /trunk-1.6/epan/wslua/init_wslua.c
+   M /trunk-1.6/fix/FIX.xml
+   M /trunk-1.6/fix/FIX42.xml
+   M /trunk-1.6/fix/FIX43.xml
+   M /trunk-1.6/fix/FIX44.xml
+   M /trunk-1.6/gtk/filter_autocomplete.c
+   M /trunk-1.6/gtk/rtp_stream_dlg.c
+   M /trunk-1.6/print.c
+   M /trunk-1.6/tshark.c
+   M /trunk-1.6/wiretap/5views.c
+   M /trunk-1.6/wiretap/README.airmagnet
+   M /trunk-1.6/wiretap/airopeek9.c
+   M /trunk-1.6/wiretap/btsnoop.c
+   M /trunk-1.6/wiretap/buffer.c
+   M /trunk-1.6/wiretap/buffer.h
+   M /trunk-1.6/wiretap/catapult_dct2000.c
+   M /trunk-1.6/wiretap/commview.c
+   M /trunk-1.6/wiretap/daintree-sna.c
+   M /trunk-1.6/wiretap/erf.c
+   M /trunk-1.6/wiretap/etherpeek.c
+   M /trunk-1.6/wiretap/eyesdn.c
+   M /trunk-1.6/wiretap/file_access.c
+   M /trunk-1.6/wiretap/i4btrace.c
+   M /trunk-1.6/wiretap/ipfix.c
+   M /trunk-1.6/wiretap/iptrace.c
+   M /trunk-1.6/wiretap/jpeg_jfif.c
+   M /trunk-1.6/wiretap/k12.c
+   M /trunk-1.6/wiretap/k12text.l
+   M /trunk-1.6/wiretap/lanalyzer.c
+   M /trunk-1.6/wiretap/libpcap.c
+   M /trunk-1.6/wiretap/mpeg.c
+   M /trunk-1.6/wiretap/netmon.c
+   M /trunk-1.6/wiretap/netscaler.c
+   M /trunk-1.6/wiretap/nettl.c
+   M /trunk-1.6/wiretap/network_instruments.c
+   M /trunk-1.6/wiretap/netxray.c
+   M /trunk-1.6/wiretap/ngsniffer.c
+   M /trunk-1.6/wiretap/packetlogger.c
+   M /trunk-1.6/wiretap/pcap-common.c
+   M /trunk-1.6/wiretap/pcap-common.h
+   M /trunk-1.6/wiretap/pcapng.c
+   M /trunk-1.6/wiretap/radcom.c
+   M /trunk-1.6/wiretap/snoop.c
+   M /trunk-1.6/wiretap/visual.c
+   M /trunk-1.6/wiretap/wtap-int.h
+   M /trunk-1.6/wiretap/wtap.h
+   M /trunk-1.6/wsutil/privileges.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r38583 | gerald | 2011-08-17 09:47:04 -0700 (Wed, 17 Aug 2011) | 5 lines
+  Changed paths:
+     M /trunk/wsutil/privileges.c
+
+  From Gisle Vanem: Make sure our SetProcessDEPPolicyHandler typedef
+  matches the documentation.
+
+  I also verified that DEP is still enabled on Win32 using Process Explorer.
+  ------------------------------------------------------------------------
+  r38680 | etxrab | 2011-08-22 21:49:24 -0700 (Mon, 22 Aug 2011) | 4 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-btl2cap.c
+
+  From Andrei Emeltchenko via Chris Maynard:
+  btl2cap extended window shows wrong bit.
+  Patch would not apply cleanly so added by hand.
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6257
+  ------------------------------------------------------------------------
+  r38728 | cmaynard | 2011-08-24 17:50:39 -0700 (Wed, 24 Aug 2011) | 2 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-ndmp.c
+
+  "Bytes left to read" is an unsigned quantity.  Changed FT_INT64 to FT_UINT64 as suggested by Rui Loura via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6262.
+  ------------------------------------------------------------------------
+  r38737 | stig | 2011-08-25 12:01:05 -0700 (Thu, 25 Aug 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/wslua/init_wslua.c
+
+  Do case insensitive search for lua scripts to load.
+  Skip files starting with . also on windows, as the home directory
+  may be mounted from a server with a proper filesystem.
+  ------------------------------------------------------------------------
+  r38790 | guy | 2011-08-29 23:01:44 -0700 (Mon, 29 Aug 2011) | 7 lines
+  Changed paths:
+     M /trunk/wiretap/pcapng.c
+
+  A zero snaplen means "snaplen unknown", as in "the file format from
+  which we read the data to be written doesn't record the snapshot
+  length".  A snapshot length of 0 in a pcap or pcap-ng file is not
+  handled well by many programs reading those files; for pcap files, we
+  write out WTAP_MAX_PACKET_SIZE as the snapshot length in that case, so
+  do so for pcap-ng files as well.
+  ------------------------------------------------------------------------
+  r38792 | guy | 2011-08-30 01:09:40 -0700 (Tue, 30 Aug 2011) | 6 lines
+  Changed paths:
+     M /trunk/wiretap/pcap-common.c
+
+  Handle multiple extension headers when calculating the pseudo-header
+  length, and actually write out the extension headers when writing out
+  the pseudo-header.
+
+  Fixes bug 6265.
+  ------------------------------------------------------------------------
+
+  r38807 | etxrab | 2011-08-30 11:34:19 -0700 (Tue, 30 Aug 2011) | 3 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-csn1.c
+
+  From Lei Chen:
+  fix the wrong display of CSN_BIT under CSN_UNION.
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6287
+  ------------------------------------------------------------------------
+  r38823 | etxrab | 2011-08-31 07:03:34 -0700 (Wed, 31 Aug 2011) | 2 lines
+  Changed paths:
+     M /trunk/gtk/rtp_stream_dlg.c
+
+  COPY as CSV to clipboard from RTP stream analysis only copies 1st line many times.
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6279
+  ------------------------------------------------------------------------
+  r38833 | guy | 2011-08-31 21:14:54 -0700 (Wed, 31 Aug 2011) | 11 lines
+  Changed paths:
+     M /trunk/wiretap/commview.c
+
+  Set eth.fcs_len in the pseudo-header for Ethernet packets.
+
+  Set the pseudo-header when doing the sequential read as well as when
+  doing random reads.
+
+  When writing packets to a CommView file, use a slightly less contorted
+  way to get the year/month/day/hour/minute/second values.
+
+  commview_dump() uses the pseudo_header argument; don't mark it as
+  unused.
+  ------------------------------------------------------------------------
+  r38844 | guy | 2011-09-01 12:58:25 -0700 (Thu, 01 Sep 2011) | 2 lines
+  Changed paths:
+     M /trunk/wiretap/libpcap.c
+     M /trunk/wiretap/pcap-common.c
+     M /trunk/wiretap/pcap-common.h
+     M /trunk/wiretap/pcapng.c
+
+  Merge pcap_fill_in_pseudo_header() into pcap_read_post_process().
+  ------------------------------------------------------------------------
+  r38862 | stig | 2011-09-02 04:46:33 -0700 (Fri, 02 Sep 2011) | 1 line
+  Changed paths:
+     M /trunk/epan/column-utils.c
+
+  Support negative nsecs when viewing seconds with hours and minutes.
+  ------------------------------------------------------------------------
+  r38865 | wmeier | 2011-09-02 11:00:10 -0700 (Fri, 02 Sep 2011) | 11 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-rtps2.c
+
+  Increase MAX_BITMAP_SIZE from 200 to 256.
+  See: Bug 6276: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6276
+
+  Verified in the Spec:
+
+  The Real-time Publish-Subscribe Wire Protocol
+  DDS Interoperability Wire Protocol
+  Specification
+  Version 2.1
+  ------------------------------------------------------------------------
+
+
+Copy over by hand:
+
+  ------------------------------------------------------------------------
+  r38601 | alagoutte | 2011-08-18 06:43:24 -0700 (Thu, 18 Aug 2011) | 7 lines
+  Changed paths:
+     M /trunk/epan/dissectors/packet-bgp.c
+
+  From Ryan Hoffman via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6122
+  Malformed Packet in decode for BGP-AD (autodiscovery) update (RFC6074)
+
+  From me:
+  Add support of RFC6074 (BGP-AD) in BGP dissector.
+  Both BGP-AD and VPLS-BGP (RFC4761) use the same AFI/SAFI, The NLRI length must be used as a demultiplexer. (See RFC6074  Section 7 : BGP-AD and VPLS-BGP Interoperability)
+  ------------------------------------------------------------------------
+  r38840 | guy | 2011-09-01 02:43:10 -0700 (Thu, 01 Sep 2011) | 8 lines
+  Changed paths:
+     M /trunk/wiretap/5views.c
+     M /trunk/wiretap/airopeek9.c
+     M /trunk/wiretap/btsnoop.c
+     M /trunk/wiretap/buffer.c
+     M /trunk/wiretap/buffer.h
+     M /trunk/wiretap/catapult_dct2000.c
+     M /trunk/wiretap/commview.c
+     M /trunk/wiretap/daintree-sna.c
+     M /trunk/wiretap/erf.c
+     M /trunk/wiretap/etherpeek.c
+     M /trunk/wiretap/eyesdn.c
+     M /trunk/wiretap/file_access.c
+     M /trunk/wiretap/i4btrace.c
+     M /trunk/wiretap/ipfix.c
+     M /trunk/wiretap/iptrace.c
+     M /trunk/wiretap/k12.c
+     M /trunk/wiretap/k12text.l
+     M /trunk/wiretap/lanalyzer.c
+     M /trunk/wiretap/libpcap.c
+     M /trunk/wiretap/mime_file.c
+     M /trunk/wiretap/mpeg.c
+     M /trunk/wiretap/netmon.c
+     M /trunk/wiretap/netscaler.c
+     M /trunk/wiretap/nettl.c
+     M /trunk/wiretap/network_instruments.c
+     M /trunk/wiretap/netxray.c
+     M /trunk/wiretap/ngsniffer.c
+     M /trunk/wiretap/packetlogger.c
+     M /trunk/wiretap/pcap-common.c
+     M /trunk/wiretap/pcap-common.h
+     M /trunk/wiretap/pcapng.c
+     M /trunk/wiretap/radcom.c
+     M /trunk/wiretap/snoop.c
+     M /trunk/wiretap/visual.c
+     M /trunk/wiretap/wtap-int.h
+     M /trunk/wiretap/wtap.h
+
+  Use guint8 rather than guchar for raw octets and pointers to arrays of
+  same.
+
+  Add to wiretap/pcap-common.c a routine to fill in the pseudo-header for
+  ATM (by looking at the VPI, VCI, and packet data, and guessing) and
+  Ethernet (setting the FCS length appropriately).  Use it for both pcap
+  and pcap-ng files.
+  ------------------------------------------------------------------------
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r38888 | gerald | 2011-09-05 13:54:12 -0700 (Mon, 05 Sep 2011) | 1 line
 Changed paths:
    M /trunk-1.6/epan/enterprise-numbers
    M /trunk-1.6/services
 
-[Automatic manuf, services and enterprise-numbers update for 2011-07-17]
+[Automatic manuf, services and enterprise-numbers update for 2011-09-05]
 ------------------------------------------------------------------------
-r38088 | gerald | 2011-07-18 09:21:42 -0700 (Mon, 18 Jul 2011) | 121 lines
+r38904 | gerald | 2011-09-06 13:26:14 -0700 (Tue, 06 Sep 2011) | 29 lines
 Changed paths:
-   M /trunk-1.6/ChangeLog
-   M /trunk-1.6/NEWS
    M /trunk-1.6/docbook/release-notes.xml
-   M /trunk-1.6/epan/prefs.c
-   M /trunk-1.6/epan/wspython/register-dissector.py
-   M /trunk-1.6/gtk/rtp_player.c
-   M /trunk-1.6/packaging/macosx/osx-app.sh
+   M /trunk-1.6/epan/dissectors/packet-bgp.c
+   M /trunk-1.6/epan/dissectors/packet-ieee80211.c
 
 Copy over revisions from the trunk:
 
   ------------------------------------------------------------------------
-  r37919 | etxrab | 2011-07-06 05:53:04 -0700 (Wed, 06 Jul 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-gsm_rlcmac.c
-     M /trunk/epan/dissectors/packet-gsm_rlcmac.h
-
-  From Ludovic Haessler:
-  Wrong decoding of RLC/MAC EGPRS Packet Downlink Ack/Nack (3GPP TS 44.060)
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6098
-  ------------------------------------------------------------------------
-  r37923 | cmaynard | 2011-07-06 09:03:43 -0700 (Wed, 06 Jul 2011) | 2 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-wsp.c
-
-  Fix memory leak, using ep_alloc() instead of g_malloc().
-  ------------------------------------------------------------------------
-  r37926 | etxrab | 2011-07-07 00:44:25 -0700 (Thu, 07 Jul 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-csn1.c
-     M /trunk/epan/dissectors/packet-gsm_rlcmac.c
-
-  From Ludovic Haessler:
-  CSN Ack/Nack Description wrongly handled in gsm_rlcmac_dl dissector (3GPP TS 44.060)
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6101
-  ------------------------------------------------------------------------
-  r37927 | alagoutte | 2011-07-07 03:19:02 -0700 (Thu, 07 Jul 2011) | 8 lines
+  r38878 | alagoutte | 2011-09-04 12:16:20 -0700 (Sun, 04 Sep 2011) | 6 lines
   Changed paths:
      M /trunk/epan/dissectors/packet-ieee80211.c
 
-  From Ali Bahar via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6093
-  802.11 Association Response Packet's "Status Code" field is imprecisely decoded/described.
+  From Daniel Smith via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6264
+  Wireshark improperly parsing 802.11 Beacon Country Information tag
 
-  From me :
-  * Display Reason code in decimal (not Hexa)
-  * Check list from last standard (802.11-2007, 802.11r-2008, 802.11n-2009, 802.11w-2009 & 802.11z-2011)
-  * Add link to 802.11z-2010 documentation
+  From me:
+  Fix this issue (miss the optionnal Pad field for Country Tag)
   ------------------------------------------------------------------------
-  r37945 | cmaynard | 2011-07-08 19:04:48 -0700 (Fri, 08 Jul 2011) | 8 lines
+  r38723 | alagoutte | 2011-08-24 14:37:37 -0700 (Wed, 24 Aug 2011) | 8 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-gre.c
+     M /trunk/epan/dissectors/packet-bgp.c
 
-  Per README.developer, we must call subdissectors regardless of whether "tree"
-  is NULL or not.  With this change, GRE-encapsulated packets (such as IP)
-  should now appear in then endpoint and conversation lists.  This was
-  essentially the request made at Sharkfest '11.  The actual request was for a
-  "GRE" tab to be added, but that doesn't really make much sense to me.  I
-  believe this change should fulfill that request.
+  From astramax57 via https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6188
+  In some BGP captures the AS_PATH attribute was decode wrong, if the asn length determines automatically
+
+  From me:
+  Fix some whitespace...
+  Fix error: ‘for’ loop initial declarations are only allowed in C99 mode
+  Replace unsigned by guint
   ------------------------------------------------------------------------
-  r37953 | guy | 2011-07-10 14:05:19 -0700 (Sun, 10 Jul 2011) | 5 lines
+
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r38923 | gerald | 2011-09-07 12:13:29 -0700 (Wed, 07 Sep 2011) | 4 lines
+Changed paths:
+   M /trunk-1.6/epan/dissectors/packet-opensafety.c
+
+Initialize various dissector handles once at startup, similar to what we
+do elsewhere. Check for the existence of the sercosiii dissector before
+we try to call it via heur_dissector_add. Fixes bug 6006.
+
+------------------------------------------------------------------------
+r38924 | gerald | 2011-09-07 12:16:41 -0700 (Wed, 07 Sep 2011) | 2 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+
+Update the release notes.
+
+------------------------------------------------------------------------
+r38926 | gerald | 2011-09-07 15:30:43 -0700 (Wed, 07 Sep 2011) | 52 lines
+Changed paths:
+   M /trunk-1.6/docbook/release-notes.xml
+   M /trunk-1.6/dumpcap.c
+   M /trunk-1.6/epan/dissectors/packet-bacapp.c
+   M /trunk-1.6/epan/gcp.c
+
+Copy over revisions from the trunk:
+
+  ------------------------------------------------------------------------
+  r38910 | etxrab | 2011-09-06 22:02:43 -0700 (Tue, 06 Sep 2011) | 7 lines
   Changed paths:
-     M /trunk/wiretap/lanalyzer.c
+     M /trunk/epan/gcp.c
 
-  At that point in the code, bytes_read isn't the total number of record
-  header bytes read, as we're reading the two header fields separately and
-  checking the byte count for each read.  We *do*, however, know that the
-  record header is 4 bytes long, so we can just seek back 4 bytes.
+  From Václav Horčák:
+  When context id is reused by another termination, initial packet containing $
+  (=choose one) is not added to context but belongs to context 0xfffffffe(context
+  id value used in wireshark for choose one). This affects context listing in
+  MEGACO packet contents and Telephony->Voip Calls listings for MEGACO.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6311
   ------------------------------------------------------------------------
-  r37955 | etxrab | 2011-07-10 15:13:03 -0700 (Sun, 10 Jul 2011) | 2 lines
+  r38919 | etxrab | 2011-09-07 07:42:08 -0700 (Wed, 07 Sep 2011) | 6 lines
   Changed paths:
-     M /trunk/epan/dissectors/packet-msrp.c
+     M /trunk/epan/dissectors/packet-bacapp.c
 
-  From Jaap:
-  Limit the search to the line.
+  From Lori Tribble:
+  Fix problem with the decoding of the exception schedule.  It was eating one
+  too many closing tags before exiting and causing the rest of the information to
+  fail to decode correctly.
+
+  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6178
   ------------------------------------------------------------------------
-  r37957 | cmaynard | 2011-07-10 17:17:08 -0700 (Sun, 10 Jul 2011) | 4 lines
-  Changed paths:
-     M /trunk/epan/dissectors/packet-giop.c
-
-  As noted by Jaap Keuter on -dev, be sure to use message_size instead of
-  header->message_size for a correct host endianness comparison.
-  ------------------------------------------------------------------------
-  r38023 | wmeier | 2011-07-14 12:51:53 -0700 (Thu, 14 Jul 2011) | 6 lines
-  Changed paths:
-     M /trunk/gtk/rtp_player.c
-
-  Fix a crash when doing Telephony ! RTP ! Stream Analysis with capture files with truncated frames.
-  (That is: the capture files were created with a snapshot length less than the maximum).
-
-  https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6120
-  ------------------------------------------------------------------------
-  r38064 | stig | 2011-07-16 11:30:57 -0700 (Sat, 16 Jul 2011) | 3 lines
-  Changed paths:
-     M /trunk/epan/prefs.c
-
-  Improved check for valid custom column in preferences.
-
-  This fixes bug 6131.
-  ------------------------------------------------------------------------
-  r38070 | stig | 2011-07-17 10:56:42 -0700 (Sun, 17 Jul 2011) | 1 line
-  Changed paths:
-     M /trunk/epan/wspython/register-dissector.py
-
-  Check for a valid wspy_dissectors disectory to avoid a warning if missing.
-  ------------------------------------------------------------------------
-  r38072 | guy | 2011-07-17 13:23:07 -0700 (Sun, 17 Jul 2011) | 2 lines
-  Changed paths:
-     M /trunk/packaging/macosx/osx-app.sh
-
-  Handle versions of GTK+ where gdk-pixbuf is a separate library.
-  ------------------------------------------------------------------------
-
-
-Copy over by hand:
-
-  ------------------------------------------------------------------------
-  r37924 | cmaynard | 2011-07-06 09:22:11 -0700 (Wed, 06 Jul 2011) | 5 lines
+  r38921 | wmeier | 2011-09-07 11:25:54 -0700 (Wed, 07 Sep 2011) | 19 lines
   Changed paths:
      M /trunk/dumpcap.c
 
-  From Jakub Zawadzki via bug 6002:  Don't set state to STATE_EXPECT_DATA if there's no data to read.
+  Windows: GetTickCount() returns a DWORD (not a time_t);
+  Fixes a problem on Windows wherein specifying a capture file
+  time duration for autostop or file-switching would stop
+  working after some period of time.
 
-  Reference: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6002
+  The reason:
+  GetTickCount returns DWORD (unsigned int) which
+   wraps "every 49.7 days";
+
+  and: The GetTickCount() return value was being stored in a time_t which is
+   int64 on Windows;
+
+  thus:
+   The test for elapsed time (using signed integers) didn't work correctly after
+   the time had wrapped.
+
+  Fixes Bug #6280: https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6280
   ------------------------------------------------------------------------
 
 
