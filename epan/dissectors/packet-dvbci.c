@@ -272,6 +272,10 @@ static void
 dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
+static void
+dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
 
 
 /* apdu defines */
@@ -303,6 +307,10 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 #define T_MENU_ANSW            0x9F880B
 #define T_LIST_LAST            0x9F880C
 #define T_LIST_MORE            0x9F880D
+#define T_HOST_COUNTRY_ENQ     0x9F8100
+#define T_HOST_COUNTRY         0x9F8101
+#define T_HOST_LANGUAGE_ENQ    0x9F8110
+#define T_HOST_LANGUAGE        0x9F8111
 
 /* the following apdus are recognized but not dissected in this release */
 #define T_COMMS_CMD       0x9F8C00
@@ -320,9 +328,9 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 #define IS_MENU_APDU(t) (t==T_MENU_MORE || t==T_MENU_LAST)
 
 static const apdu_info_t apdu_info[] = {
-    {T_PROFILE_ENQ,     0, 0,             DIRECTION_ANY,    NULL},
-    {T_PROFILE,         0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_rm},
-    {T_PROFILE_CHANGE,  0, 0,             DIRECTION_ANY,    NULL},
+    {T_PROFILE_ENQ,         0, 0,             DIRECTION_ANY,    NULL},
+    {T_PROFILE,             0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_rm},
+    {T_PROFILE_CHANGE,      0, 0,             DIRECTION_ANY,    NULL},
 
     {T_APP_INFO_ENQ,        0, 0,             DATA_HOST_TO_CAM, NULL},
     {T_APP_INFO,            6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ap},
@@ -330,29 +338,34 @@ static const apdu_info_t apdu_info[] = {
     {T_REQUEST_CICAM_RESET, 0, 0,             DATA_CAM_TO_HOST, NULL},
     {T_DATARATE_INFO,       0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ap},
 
-    {T_CA_INFO_ENQ,     0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_CA_INFO,         0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
-    {T_CA_PMT,          6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
-    {T_CA_PMT_REPLY,    8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
+    {T_CA_INFO_ENQ,         0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_CA_INFO,             0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
+    {T_CA_PMT,              6, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ca},
+    {T_CA_PMT_REPLY,        8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
 
-    {T_TUNE,            0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_REPLACE,         0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_CLEAR_REPLACE,   0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
-    {T_ASK_RELEASE,     0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_TUNE,                0, 8,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_REPLACE,             0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_CLEAR_REPLACE,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
+    {T_ASK_RELEASE,         0, 0,             DATA_HOST_TO_CAM, NULL},
 
-    {T_DATE_TIME_ENQ,   0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
-    {T_DATE_TIME,       5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
+    {T_DATE_TIME_ENQ,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
+    {T_DATE_TIME,           5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
 
-    {T_CLOSE_MMI,       1, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_mmi},
-    {T_DISPLAY_CONTROL, 1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_DISPLAY_REPLY,   1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_ENQ,             2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_ANSW,            1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_MENU_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_MENU_MORE,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_MENU_ANSW,       0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
-    {T_LIST_LAST,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
-    {T_LIST_MORE,      13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_CLOSE_MMI,           1, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_mmi},
+    {T_DISPLAY_CONTROL,     1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_DISPLAY_REPLY,       1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
+    {T_ENQ,                 2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_ANSW,                1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
+    {T_MENU_LAST,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_MENU_MORE,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_MENU_ANSW,           0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_mmi},
+    {T_LIST_LAST,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+    {T_LIST_MORE,          13, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_mmi},
+
+    {T_HOST_COUNTRY_ENQ,    0, 0,             DATA_CAM_TO_HOST, NULL},
+    {T_HOST_COUNTRY,        0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc},
+    {T_HOST_LANGUAGE_ENQ,   0, 0,             DATA_CAM_TO_HOST, NULL},
+    {T_HOST_LANGUAGE,       0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc}
 };
 
 static const value_string dvbci_apdu_tag[] = {
@@ -392,6 +405,10 @@ static const value_string dvbci_apdu_tag[] = {
     { T_COMMS_SEND_MORE,     "Comms send more" },
     { T_COMMS_RCV_LAST,      "Comms receive last" },
     { T_COMMS_RCV_MORE,      "Comms receive more" },
+    { T_HOST_COUNTRY_ENQ,    "Host country enquiry" },
+    { T_HOST_COUNTRY,        "Host country" },
+    { T_HOST_LANGUAGE_ENQ,   "Host language enquiry" },
+    { T_HOST_LANGUAGE,       "Host language" },
     { 0, NULL }
 };
 
@@ -493,6 +510,8 @@ static int hf_dvbci_ans_id = -1;
 static int hf_dvbci_choice_nb = -1;
 static int hf_dvbci_choice_ref = -1;
 static int hf_dvbci_item_nb = -1;
+static int hf_dvbci_host_country = -1;
+static int hf_dvbci_host_language = -1;
 
 
 static GHashTable *tpdu_fragment_table = NULL;
@@ -1527,6 +1546,29 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 
 
 static void
+dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+{
+  guint8 *str;
+
+  if (tag==T_HOST_COUNTRY) {
+      proto_tree_add_item(tree, hf_dvbci_host_country,
+              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+  }
+  else if (tag==T_HOST_LANGUAGE) {
+      proto_tree_add_item(tree, hf_dvbci_host_language,
+              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+  }
+
+  /* both apdus' body is only a country code, this can be shared */
+  str = tvb_get_ephemeral_string(tvb, offset,
+              tvb_reported_length_remaining(tvb, offset));
+  if (str)
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", str);
+}
+
+
+static void
 dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         guint8 direction)
 {
@@ -2546,6 +2588,12 @@ proto_register_dvbci(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_dvbci_item_nb,
             { "Number of list items", "dvb-ci.mmi.item_nb", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_host_country,
+            { "Host country", "dvb-ci.hlc.country", FT_STRING, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_host_language,
+            { "Host language", "dvb-ci.hlc.language", FT_STRING, BASE_NONE,
                 NULL, 0, NULL, HFILL } }
     };
 
