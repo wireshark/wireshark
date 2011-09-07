@@ -3043,7 +3043,7 @@ static gboolean
 capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct pcap_stat *stats)
 {
 #ifdef WIN32
-    time_t upd_time, cur_time;
+    DWORD upd_time, cur_time;   /* GetTickCount() returns a "DWORD" (which is 'unsigned long') */
 #else
     struct timeval upd_time, cur_time;
 #endif
@@ -3267,8 +3267,8 @@ capture_loop_start(capture_options *capture_opts, gboolean *stats_known, struct 
 #define DUMPCAP_UPD_TIME 500
 
 #ifdef WIN32
-        cur_time = GetTickCount();
-        if ( (cur_time - upd_time) > DUMPCAP_UPD_TIME) {
+        cur_time = GetTickCount();  /* Note: wraps to 0 if sys runs for 49.7 days */
+        if ((cur_time - upd_time) > DUMPCAP_UPD_TIME) { /* wrap just causes an extra update */
 #else
         gettimeofday(&cur_time, NULL);
         if ((cur_time.tv_sec * 1000000 + cur_time.tv_usec) >
