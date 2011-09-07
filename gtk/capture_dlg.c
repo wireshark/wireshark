@@ -1790,6 +1790,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
     return;
   }
 
+  row.name = NULL;
   row.display_name = NULL;
   row.no_addresses = 0;
   row.addresses = NULL;
@@ -1821,10 +1822,10 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
     for (i = 0; i < rows->len; i++) {
      row = g_array_index(rows, interface_row, i);
      if (strcmp(row.name, (char*)d_interface.name)==0) {
-       marked_row = i; 
+       marked_row = i;
        break;
      }
-    } 
+    }
   }
   opt_edit_w = dlg_window_new("Edit Interface Settings");
   g_object_set_data(G_OBJECT(opt_edit_w), E_OPT_EDIT_CALLER_PTR_KEY, caller);
