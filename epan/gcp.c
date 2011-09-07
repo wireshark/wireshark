@@ -281,7 +281,9 @@ gcp_ctx_t* gcp_ctx(gcp_msg_t* m, gcp_trx_t* t, guint32 c_id, gboolean persistent
                 if (( context = se_tree_lookup32_array(ctxs_by_trx,trx_key) )) {
                     if (( context_p = se_tree_lookup32_array(ctxs,ctx_key) )) {
                         if (context != *context_p) {
-                            context = se_alloc(sizeof(gcp_ctx_t));
+                            if(context->id != CHOOSE_CONTEXT) {
+                                context = se_alloc(sizeof(gcp_ctx_t));
+                            }
                             context->initial = m;
                             context->id = c_id;
                             context->cmds = NULL;
