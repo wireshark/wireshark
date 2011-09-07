@@ -31,17 +31,17 @@ Wireshark Info
 
     <para>
 
-      The following vulnerabilities have been fixed. See the
-      <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-11.html">security advisory</ulink> for details and a workaround.
-
+      The following vulnerabilities have been fixed.
       <itemizedlist>
 
         <listitem>
           <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-12.html">wnpa-sec-2011-12</ulink>
+          </para>
+          <para>
             A large loop in the OpenSafety dissector could cause a crash.
             <!-- Fixed in trunk: r38213 -->
             <!-- Fixed in trunk-1.6: r38848 -->
-            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6138">Bug
             6138</ulink>)
           </para>
@@ -52,6 +52,9 @@ Wireshark Info
         </listitem>
 
         <listitem>
+          <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-13.html">wnpa-sec-2011-13</ulink>
+          </para>
           <para>
             A malformed IKE packet could consume excessive resources.
             <!-- Fixed in trunk: r38247 -->
@@ -66,10 +69,12 @@ Wireshark Info
 
         <listitem>
           <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-14.html">wnpa-sec-2011-14</ulink>
+          </para>
+          <para>
             A malformed capture file could result in an invalid root tvbuff and cause a crash.
             <!-- Fixed in trunk: r38410 -->
             <!-- Fixed in trunk-1.6: r38853 -->
-            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6135">Bug
             6135</ulink>)
           </para>
@@ -81,14 +86,17 @@ Wireshark Info
 
         <listitem>
           <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-15.html">wnpa-sec-2011-15</ulink>
+          </para>
+          <para>
             Wireshark could run arbitrary Lua scripts.
             <!-- Fixed in trunk: r38414 -->
             <!-- Fixed in trunk-1.6: r38854 -->
-            <!-- Fixed in trunk-1.4: r????? -->
+            <!-- Fixed in trunk-1.4: r38873 -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6136">Bug
             6136</ulink>)
           </para>
-          <para>Versions affected: 1.6.0 to 1.6.1.</para>
+          <para>Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.</para>
           <!-- <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
           </para> -->
@@ -96,12 +104,14 @@ Wireshark Info
 
         <listitem>
           <para>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-16.html">wnpa-sec-2011-16</ulink>
+          </para>
+          <para>
             The CSN.1 dissector could crash.
             <!-- Fixed in trunk: r38430 -->
             <!-- Fixed in trunk-1.6: r38855 -->
-            <!-- Fixed in trunk-1.4: r????? -->
             (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6139">Bug
-            6136</ulink>)
+            6139</ulink>)
           </para>
           <para>Versions affected: 1.6.0 to 1.6.1.</para>
           <!-- <para>
@@ -157,6 +167,12 @@ Wireshark Info
 	  H.323 RAS packets missing from packet counts in "Telephony->VoIP Calls" and the "Flow Graph" for the call.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848">Bug
           5848</ulink>)
+        </para></listitem>
+
+        <listitem><para>
+	  Wireshark crashes if sercosiii module isn't installed.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6006">Bug
+          6006</ulink>)
         </para></listitem>
 
         <listitem><para>
