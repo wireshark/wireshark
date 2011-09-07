@@ -227,6 +227,19 @@
 #define TEXT_CTRL_CRLF      0x8A
 
 
+/* cam upgrade resource */
+#define CUP_DELAYED   0x0
+#define CUP_IMMEDIATE 0x1
+
+#define CUP_ANS_NO  0x0
+#define CUP_ANS_YES 0x1
+#define CUP_ANS_ASK 0x2
+
+#define CUP_RESET_PCMCIA 0x0
+#define CUP_RESET_CMDIF  0x1
+#define CUP_RESET_NONE   0x2
+
+
 /* application layer */
 
 #define APDU_TAG_SIZE 3
@@ -276,41 +289,50 @@ static void
 dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
+static void
+dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
+
 
 
 /* apdu defines */
-#define T_PROFILE_ENQ          0x9F8010
-#define T_PROFILE              0x9F8011
-#define T_PROFILE_CHANGE       0x9F8012
-#define T_APP_INFO_ENQ         0x9F8020
-#define T_APP_INFO             0x9F8021
-#define T_ENTER_MENU           0x9F8022
-#define T_REQUEST_CICAM_RESET  0x9F8023
-#define T_DATARATE_INFO        0x9F8024
-#define T_CA_INFO_ENQ          0x9F8030
-#define T_CA_INFO              0x9F8031
-#define T_CA_PMT               0x9F8032
-#define T_CA_PMT_REPLY         0x9F8033
-#define T_TUNE                 0x9F8400
-#define T_REPLACE              0x9F8401
-#define T_CLEAR_REPLACE        0x9F8402
-#define T_ASK_RELEASE          0x9F8403
-#define T_DATE_TIME_ENQ        0x9F8440
-#define T_DATE_TIME            0x9F8441
-#define T_CLOSE_MMI            0x9F8800
-#define T_DISPLAY_CONTROL      0x9F8801
-#define T_DISPLAY_REPLY        0x9F8802
-#define T_ENQ                  0x9F8807
-#define T_ANSW                 0x9F8808
-#define T_MENU_LAST            0x9F8809
-#define T_MENU_MORE            0x9F880A
-#define T_MENU_ANSW            0x9F880B
-#define T_LIST_LAST            0x9F880C
-#define T_LIST_MORE            0x9F880D
-#define T_HOST_COUNTRY_ENQ     0x9F8100
-#define T_HOST_COUNTRY         0x9F8101
-#define T_HOST_LANGUAGE_ENQ    0x9F8110
-#define T_HOST_LANGUAGE        0x9F8111
+#define T_PROFILE_ENQ                   0x9F8010
+#define T_PROFILE                       0x9F8011
+#define T_PROFILE_CHANGE                0x9F8012
+#define T_APP_INFO_ENQ                  0x9F8020
+#define T_APP_INFO                      0x9F8021
+#define T_ENTER_MENU                    0x9F8022
+#define T_REQUEST_CICAM_RESET           0x9F8023
+#define T_DATARATE_INFO                 0x9F8024
+#define T_CA_INFO_ENQ                   0x9F8030
+#define T_CA_INFO                       0x9F8031
+#define T_CA_PMT                        0x9F8032
+#define T_CA_PMT_REPLY                  0x9F8033
+#define T_TUNE                          0x9F8400
+#define T_REPLACE                       0x9F8401
+#define T_CLEAR_REPLACE                 0x9F8402
+#define T_ASK_RELEASE                   0x9F8403
+#define T_DATE_TIME_ENQ                 0x9F8440
+#define T_DATE_TIME                     0x9F8441
+#define T_CLOSE_MMI                     0x9F8800
+#define T_DISPLAY_CONTROL               0x9F8801
+#define T_DISPLAY_REPLY                 0x9F8802
+#define T_ENQ                           0x9F8807
+#define T_ANSW                          0x9F8808
+#define T_MENU_LAST                     0x9F8809
+#define T_MENU_MORE                     0x9F880A
+#define T_MENU_ANSW                     0x9F880B
+#define T_LIST_LAST                     0x9F880C
+#define T_LIST_MORE                     0x9F880D
+#define T_HOST_COUNTRY_ENQ              0x9F8100
+#define T_HOST_COUNTRY                  0x9F8101
+#define T_HOST_LANGUAGE_ENQ             0x9F8110
+#define T_HOST_LANGUAGE                 0x9F8111
+#define T_CAM_FIRMWARE_UPGRADE          0x9F9D01
+#define T_CAM_FIRMWARE_UPGRADE_REPLY    0x9F9D02
+#define T_CAM_FIRMWARE_UPGRADE_PROGRESS 0x9F9D03
+#define T_CAM_FIRMWARE_UPGRADE_COMPLETE 0x9F9D04
 
 /* the following apdus are recognized but not dissected in this release */
 #define T_COMMS_CMD       0x9F8C00
@@ -365,50 +387,59 @@ static const apdu_info_t apdu_info[] = {
     {T_HOST_COUNTRY_ENQ,    0, 0,             DATA_CAM_TO_HOST, NULL},
     {T_HOST_COUNTRY,        0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc},
     {T_HOST_LANGUAGE_ENQ,   0, 0,             DATA_CAM_TO_HOST, NULL},
-    {T_HOST_LANGUAGE,       0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc}
+    {T_HOST_LANGUAGE,       0, 3,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hlc},
+
+    {T_CAM_FIRMWARE_UPGRADE,          0, 3, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE_REPLY,    0, 1, DATA_HOST_TO_CAM, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE_PROGRESS, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
+    {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup}
 };
 
 static const value_string dvbci_apdu_tag[] = {
-    { T_PROFILE_ENQ,         "Profile enquiry" },
-    { T_PROFILE,             "Profile information" },
-    { T_PROFILE_CHANGE,      "Profile change notification" },
-    { T_APP_INFO_ENQ,        "Application info enquiry" },
-    { T_APP_INFO,            "Application info" },
-    { T_ENTER_MENU,          "Enter menu" },
-    { T_REQUEST_CICAM_RESET, "Request CICAM reset" },
-    { T_DATARATE_INFO,       "Datarate info" },
-    { T_CA_INFO_ENQ,         "CA info enquiry" },
-    { T_CA_INFO,             "CA info" },
-    { T_CA_PMT,              "CA PMT" },
-    { T_DATE_TIME_ENQ,       "Date-Time enquiry" },
-    { T_DATE_TIME,           "Date-Time" },
-    { T_CA_PMT_REPLY,        "CA PMT reply" },
-    { T_TUNE,                "Tune" },
-    { T_REPLACE,             "Replace" },
-    { T_CLEAR_REPLACE,       "Clear replace" },
-    { T_ASK_RELEASE,         "Ask release" },
-    { T_CLOSE_MMI,           "Close MMI" },
-    { T_DISPLAY_CONTROL,     "Display control" },
-    { T_DISPLAY_REPLY,       "Display reply" },
-    { T_TEXT_LAST,           "Text last" },
-    { T_TEXT_MORE,           "Text more" },
-    { T_ENQ,                 "Enquiry" },
-    { T_ANSW,                "Answer" },
-    { T_MENU_LAST,           "Menu last" },
-    { T_MENU_MORE,           "Menu more" },
-    { T_MENU_ANSW,           "Menu answer" },
-    { T_LIST_LAST,           "List last" },
-    { T_LIST_MORE,           "List more" },
-    { T_COMMS_CMD,           "Comms command" },
-    { T_COMMS_REPLY,         "Comms reply" },
-    { T_COMMS_SEND_LAST,     "Comms send last" },
-    { T_COMMS_SEND_MORE,     "Comms send more" },
-    { T_COMMS_RCV_LAST,      "Comms receive last" },
-    { T_COMMS_RCV_MORE,      "Comms receive more" },
-    { T_HOST_COUNTRY_ENQ,    "Host country enquiry" },
-    { T_HOST_COUNTRY,        "Host country" },
-    { T_HOST_LANGUAGE_ENQ,   "Host language enquiry" },
-    { T_HOST_LANGUAGE,       "Host language" },
+    { T_PROFILE_ENQ,                   "Profile enquiry" },
+    { T_PROFILE,                       "Profile information" },
+    { T_PROFILE_CHANGE,                "Profile change notification" },
+    { T_APP_INFO_ENQ,                  "Application info enquiry" },
+    { T_APP_INFO,                      "Application info" },
+    { T_ENTER_MENU,                    "Enter menu" },
+    { T_REQUEST_CICAM_RESET,           "Request CICAM reset" },
+    { T_DATARATE_INFO,                 "Datarate info" },
+    { T_CA_INFO_ENQ,                   "CA info enquiry" },
+    { T_CA_INFO,                       "CA info" },
+    { T_CA_PMT,                        "CA PMT" },
+    { T_DATE_TIME_ENQ,                 "Date-Time enquiry" },
+    { T_DATE_TIME,                     "Date-Time" },
+    { T_CA_PMT_REPLY,                  "CA PMT reply" },
+    { T_TUNE,                          "Tune" },
+    { T_REPLACE,                       "Replace" },
+    { T_CLEAR_REPLACE,                 "Clear replace" },
+    { T_ASK_RELEASE,                   "Ask release" },
+    { T_CLOSE_MMI,                     "Close MMI" },
+    { T_DISPLAY_CONTROL,               "Display control" },
+    { T_DISPLAY_REPLY,                 "Display reply" },
+    { T_TEXT_LAST,                     "Text last" },
+    { T_TEXT_MORE,                     "Text more" },
+    { T_ENQ,                           "Enquiry" },
+    { T_ANSW,                          "Answer" },
+    { T_MENU_LAST,                     "Menu last" },
+    { T_MENU_MORE,                     "Menu more" },
+    { T_MENU_ANSW,                     "Menu answer" },
+    { T_LIST_LAST,                     "List last" },
+    { T_LIST_MORE,                     "List more" },
+    { T_COMMS_CMD,                     "Comms command" },
+    { T_COMMS_REPLY,                   "Comms reply" },
+    { T_COMMS_SEND_LAST,               "Comms send last" },
+    { T_COMMS_SEND_MORE,               "Comms send more" },
+    { T_COMMS_RCV_LAST,                "Comms receive last" },
+    { T_COMMS_RCV_MORE,                "Comms receive more" },
+    { T_HOST_COUNTRY_ENQ,              "Host country enquiry" },
+    { T_HOST_COUNTRY,                  "Host country" },
+    { T_HOST_LANGUAGE_ENQ,             "Host language enquiry" },
+    { T_HOST_LANGUAGE,                 "Host language" },
+    { T_CAM_FIRMWARE_UPGRADE,          "CAM firmware upgrade" },
+    { T_CAM_FIRMWARE_UPGRADE_REPLY,    "CAM firmware upgrade reply" },
+    { T_CAM_FIRMWARE_UPGRADE_PROGRESS, "CAM firmware upgrade progress" },
+    { T_CAM_FIRMWARE_UPGRADE_COMPLETE, "CAM firmware upgrade complete" },
     { 0, NULL }
 };
 
@@ -512,6 +543,11 @@ static int hf_dvbci_choice_ref = -1;
 static int hf_dvbci_item_nb = -1;
 static int hf_dvbci_host_country = -1;
 static int hf_dvbci_host_language = -1;
+static int hf_dvbci_cup_type = -1;
+static int hf_dvbci_cup_download_time = -1;
+static int hf_dvbci_cup_answer = -1;
+static int hf_dvbci_cup_progress = -1;
+static int hf_dvbci_cup_reset = -1;
 
 
 static GHashTable *tpdu_fragment_table = NULL;
@@ -770,7 +806,23 @@ static const value_string dvbci_ans_id[] = {
     { ANSW_ID_ANSWER, "answer" },
     { 0, NULL }
 };
-
+static const value_string dvbci_cup_type[] = {
+    { CUP_DELAYED, "delayed" },
+    { CUP_IMMEDIATE, "immediate" },
+    { 0, NULL }
+};
+static const value_string dvbci_cup_answer[] = {
+    { CUP_ANS_NO,  "upgrade denied" },
+    { CUP_ANS_YES, "upgrade allowed" },
+    { CUP_ANS_ASK, "ask the user for permission" },
+    { 0, NULL }
+};
+static const value_string dvbci_cup_reset[] = {
+    { CUP_RESET_PCMCIA, "PCMCIA reset" },
+    { CUP_RESET_CMDIF,  "CI command interface reset" },
+    { CUP_RESET_NONE,   "no reset" },
+    { 0, NULL }
+};
 
 
 
@@ -1565,6 +1617,66 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
               tvb_reported_length_remaining(tvb, offset));
   if (str)
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", str);
+}
+
+
+static void
+dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree)
+{
+  guint8 upgrade_type;
+  guint16 download_time;
+  guint8 answer, progress;
+  proto_item *pi;
+
+  switch(tag) {
+    case T_CAM_FIRMWARE_UPGRADE:
+      upgrade_type = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(tree, hf_dvbci_cup_type, tvb, offset, 1, ENC_NA);
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)",
+                    val_to_str(upgrade_type, dvbci_cup_type, "unknown"));
+      offset++;
+      download_time = tvb_get_ntohs(tvb, offset);
+      if (download_time == 0) {
+          proto_tree_add_uint_format(tree, hf_dvbci_cup_download_time,
+                  tvb, offset, 2, download_time,
+                  "estimated download time is unknown");
+      }
+      else {
+          proto_tree_add_uint_format(tree, hf_dvbci_cup_download_time,
+                  tvb, offset, 2, download_time,
+                  "estimated download time is %d seconds",
+                  download_time);
+      }
+      break;
+    case T_CAM_FIRMWARE_UPGRADE_REPLY:
+      answer = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(tree, hf_dvbci_cup_answer, tvb, offset, 1, ENC_NA);
+      col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(answer, dvbci_cup_answer, "unknown"));
+      break;
+    case T_CAM_FIRMWARE_UPGRADE_PROGRESS:
+      progress = tvb_get_guint8(tvb, offset);
+      if (progress > 100) {
+        pi = proto_tree_add_text(tree, tvb, offset, 1,
+                "Invalid value for progress");
+        expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                "progress is in percent, value must be between 0 and 100");
+      }
+      else {
+          col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%d%%", progress);
+          proto_tree_add_uint_format(tree, hf_dvbci_cup_progress,
+                  tvb, offset, 1, progress,
+                  "download progress %d%%", progress);
+      }
+      break;
+    case T_CAM_FIRMWARE_UPGRADE_COMPLETE:
+      proto_tree_add_item(tree, hf_dvbci_cup_reset, tvb, offset, 1, ENC_NA);
+      break;
+    default:
+      break;
+  }
 }
 
 
@@ -2594,7 +2706,22 @@ proto_register_dvbci(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_dvbci_host_language,
             { "Host language", "dvb-ci.hlc.language", FT_STRING, BASE_NONE,
-                NULL, 0, NULL, HFILL } }
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_cup_type,
+            { "CAM upgrade type", "dvb-ci.cup.type", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cup_type), 0, NULL, HFILL } },
+        { &hf_dvbci_cup_download_time,
+            { "Download time", "dvb-ci.cup.download_time", FT_UINT16, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_cup_answer,
+            { "CAM upgrade answer", "dvb-ci.cup.answer", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cup_answer), 0, NULL, HFILL } },
+        { &hf_dvbci_cup_progress,
+            { "CAM upgrade progress", "dvb-ci.cup.progress", FT_UINT8, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_cup_reset,
+            { "requested CAM reset", "dvb-ci.cup.reset", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cup_reset), 0, NULL, HFILL } }
     };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
