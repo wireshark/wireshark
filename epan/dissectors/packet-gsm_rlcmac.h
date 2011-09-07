@@ -1532,7 +1532,6 @@ typedef struct
   guint16 SCRAMBLING_CODE;
 } FDD_Target_Cell_t;
 
-/* TDD Target cell not implemented */
 typedef struct
 {
   guint16 TDD_ARFCN;
@@ -1545,10 +1544,59 @@ typedef struct
 
 typedef struct
 {
+  guint16 EARFCN;
+  guint8 Exist_Measurement_Bandwidth;
+  guint8 Measurement_Bandwidth;
+  guint16 Physical_Layer_Cell_Identity;
+}EUTRAN_Target_Cell_t;
+
+typedef struct
+{
+  guint32 UTRAN_CI;
+  guint8 Exist_PLMN_ID;
+  PLMN_t  PLMN_ID;
+}UTRAN_CSG_Target_Cell_t;
+
+typedef struct
+{
+  guint32 EUTRAN_CI;
+  guint16 Tracking_Area_Code;
+  guint8 Exist_PLMN_ID;
+  PLMN_t  PLMN_ID;
+}EUTRAN_CSG_Target_Cell_t;
+
+typedef struct
+{
+  guint8 Exist_UTRAN_CSG_Target_Cell;
+  UTRAN_CSG_Target_Cell_t UTRAN_CSG_Target_Cell;
+  guint8 Exist_EUTRAN_CSG_Target_Cell;
+  EUTRAN_CSG_Target_Cell_t EUTRAN_CSG_Target_Cell;
+}PCCF_AdditionsR9_t;
+
+typedef struct
+{
+  guint8 Exist_EUTRAN_Target_Cell;
+  EUTRAN_Target_Cell_t EUTRAN_Target_Cell;
+  guint8 Exist_AdditionsR9;
+  PCCF_AdditionsR9_t AdditionsR9;
+}PCCF_AdditionsR8_t;
+
+typedef struct
+{
+  guint8 Exist_G_RNTI_extention;
+  guint8  G_RNTI_extention;
+  guint8 Exist_AdditionsR8;
+  PCCF_AdditionsR8_t AdditionsR8;
+} PCCF_AdditionsR5_t;
+
+typedef struct
+{
   guint8 Exist_FDD_Description;
   FDD_Target_Cell_t FDD_Target_Cell;
   guint8 Exist_TDD_Description;
   TDD_Target_Cell_t TDD_Target_Cell;
+  guint8 Exist_AdditionsR5;
+  PCCF_AdditionsR5_t AdditionsR5;
 } PCCF_AdditionsR99_t;
 
 /* < Packet Cell Change Failure message content > */
@@ -3124,6 +3172,64 @@ typedef struct
 
 typedef struct
 {
+  guint32  UTRAN_CGI;
+  guint8 Exist_PLMN_ID;
+  PLMN_t   Plmn_ID;
+  guint32  CSG_ID;
+  gboolean Access_Mode;
+  guint8   REPORTING_QUANTITY;
+}UTRAN_CSG_Measurement_Report_t;
+
+typedef struct
+{
+  guint32  EUTRAN_CGI;
+  guint16  Tracking_Area_Code;
+  guint8 Exist_PLMN_ID;
+  PLMN_t   Plmn_ID;
+  guint32  CSG_ID;
+  gboolean Access_Mode;
+  guint8   REPORTING_QUANTITY;
+}EUTRAN_CSG_Measurement_Report_t;
+
+typedef struct
+{
+  gboolean  Exist_UTRAN_CSG_Meas_Rpt;
+  UTRAN_CSG_Measurement_Report_t  UTRAN_CSG_Meas_Rpt;
+  gboolean  Exist_EUTRAN_CSG_Meas_Rpt;
+  EUTRAN_CSG_Measurement_Report_t  EUTRAN_CSG_Meas_Rpt;
+}PMR_AdditionsR9_t;
+
+typedef struct
+{
+  guint8  EUTRAN_FREQUENCY_INDEX;
+  guint16 CELL_IDENTITY;
+  guint8  REPORTING_QUANTITY;
+}EUTRAN_Measurement_Report_Body_t;
+
+typedef struct
+{
+  guint8 N_EUTRAN;
+  EUTRAN_Measurement_Report_Body_t Report[4];
+}EUTRAN_Measurement_Report_t;
+
+typedef struct
+{
+  gboolean   Exist_EUTRAN_Meas_Rpt;
+  EUTRAN_Measurement_Report_t  EUTRAN_Meas_Rpt;
+  gboolean   Exist_AdditionsR9;
+  PMR_AdditionsR9_t  AdditionsR9;
+}PMR_AdditionsR8_t;
+
+typedef struct
+{
+  gboolean     Exist_GRNTI;
+  guint8        GRNTI;
+  gboolean     Exist_AdditionsR8;
+  PMR_AdditionsR8_t  AdditionsR8;
+}PMR_AdditionsR5_t;
+
+typedef struct
+{
   gboolean     Exist_Info3G;
   guint8       UnionType;
   union
@@ -3140,6 +3246,9 @@ typedef struct
   gboolean     Exist_MeasurementReport3G;
   guint8       N_3G;
   Measurements_3G_t Measurements_3G[6];
+
+  gboolean     Exist_AdditionsR5;
+  PMR_AdditionsR5_t  AdditionsR5;
 } PMR_AdditionsR99_t;
 
 typedef struct
@@ -3196,6 +3305,38 @@ typedef struct
 
 typedef struct
 {
+  guint8 Exist_UTRAN_CSG_Target_Cell;
+  UTRAN_CSG_Target_Cell_t UTRAN_CSG_Target_Cell;
+  guint8 Exist_EUTRAN_CSG_Target_Cell;
+  EUTRAN_CSG_Target_Cell_t EUTRAN_CSG_Target_Cell;  
+}PEMR_AdditionsR9_t;
+
+typedef struct
+{
+  gboolean  Exist_REPORTING_QUANTITY;
+  guint8     REPORTING_QUANTITY;
+}Bitmap_Report_Quantity_t;
+
+typedef struct
+{
+  guint8 BITMAP_LENGTH;
+  Bitmap_Report_Quantity_t  Bitmap_Report_Quantity[128];
+  gboolean  Exist_EUTRAN_Meas_Rpt;
+  EUTRAN_Measurement_Report_t EUTRAN_Meas_Rpt;
+  gboolean   Exist_AdditionsR9;
+  PEMR_AdditionsR9_t AdditionsR9;
+}PEMR_AdditionsR8_t;
+
+typedef struct
+{
+  gboolean  Exist_GRNTI_Ext;
+  guint8     GRNTI_Ext;
+  gboolean  Exist_AdditionsR8;
+  PEMR_AdditionsR8_t  AdditionsR8;
+}PEMR_AdditionsR5_t;
+
+typedef struct
+{
   guint8 MESSAGE_TYPE;
   guint8 PayloadType;
   guint8 spare;
@@ -3204,6 +3345,9 @@ typedef struct
   guint32 TLLI;
 
   ENH_NC_Measurement_Report_t Measurements;
+
+  gboolean  Exist_AdditionsR5;
+  PEMR_AdditionsR5_t  AdditionsR5;
 } Packet_Enh_Measurement_Report_t;
 
 typedef struct
@@ -3283,27 +3427,6 @@ typedef struct
   guint8 Exist_Eutran_Ccn_Measurement_Report;
   Eutran_Ccn_Measurement_Report_t Eutran_Ccn_Measurement_Report;
 }Target_Cell_4G_Notif_t;
-
-typedef struct
-{
-  guint32  UTRAN_CGI;
-  guint8 Exist_PLMN_ID;
-  PLMN_t   Plmn_ID;
-  guint32  CSG_ID;
-  gboolean Access_Mode;
-  guint8   REPORTING_QUANTITY;
-}UTRAN_CSG_Measurement_Report_t;
-
-typedef struct
-{
-  guint32  EUTRAN_CGI;
-  guint16  Tracking_Area_Code;
-  guint8 Exist_PLMN_ID;
-  PLMN_t   Plmn_ID;
-  guint32  CSG_ID;
-  gboolean Access_Mode;
-  guint8   REPORTING_QUANTITY;
-}EUTRAN_CSG_Measurement_Report_t;
 
 typedef struct
 {
@@ -4226,14 +4349,6 @@ typedef struct
   guint8 Exist_AdditionsR98;
   PCCO_AdditionsR98_t AdditionsR98;
 } Target_Cell_GSM_t;
-
-typedef struct
-{
-  guint16 EARFCN;
-  guint8 Exist_Measurement_Bandwidth;
-  guint8 Measurement_Bandwidth;
-  guint16 Physical_Layer_Cell_Identity;
-}EUTRAN_Target_Cell_t;
 
 typedef struct
 {

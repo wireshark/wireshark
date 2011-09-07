@@ -456,6 +456,10 @@ static int hf_packet_cell_change_failure_tlli;
 static int hf_packet_cell_change_failure_arfcn;
 static int hf_packet_cell_change_failure_bsic;
 static int hf_packet_cell_change_failure_cause;
+static int hf_utran_csg_target_cell_ci;
+static int hf_eutran_csg_target_cell_ci;
+static int hf_eutran_csg_target_cell_tac;
+
 
 /*< Packet Uplink Ack/Nack message content > */
 static int hf_power_control_parameters_alpha;
@@ -897,6 +901,9 @@ static int hf_measurements_3g_cell_list_index_3g;
 static int hf_measurements_3g_reporting_quantity;
 static int hf_pmr_additionsr99_psi3_change_mark;
 static int hf_pmr_additionsr99_pmo_used;
+static int hf_pmr_eutran_meas_rpt_freq_idx;
+static int hf_pmr_eutran_meas_rpt_cell_id;
+static int hf_pmr_eutran_meas_rpt_quantity;
 static int hf_emr_servingcell_dtx_used;
 static int hf_emr_servingcell_rxlev_val;
 static int hf_emr_servingcell_rx_qual_full;
@@ -2440,9 +2447,56 @@ CSN_DESCR_BEGIN(TDD_Target_Cell_t)
   M_UINT       (TDD_Target_Cell_t,  DIVERSITY_TDD,  1, &hf_tddarget_cell_t_diversity),
   M_NEXT_EXIST (TDD_Target_Cell_t, Exist_Bandwith_TDD, 1),
   M_UINT       (TDD_Target_Cell_t,  BANDWITH_TDD,  3, &hf_tddarget_cell_t_bandwith_tdd),
-  M_UINT       (TDD_Target_Cell_t,  CELL_PARAMETER,  9, &hf_tddarget_cell_t_cell_parameter),
+  M_UINT       (TDD_Target_Cell_t,  CELL_PARAMETER,  7, &hf_tddarget_cell_t_cell_parameter),
   M_UINT       (TDD_Target_Cell_t,  Sync_Case_TSTD,  1, &hf_tddarget_cell_t_sync_case_tstd),
 CSN_DESCR_END  (TDD_Target_Cell_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_Target_Cell_t)
+  M_UINT       (EUTRAN_Target_Cell_t,  EARFCN,  16, &hf_target_cell_eutran_earfcn),
+  M_NEXT_EXIST (EUTRAN_Target_Cell_t, Exist_Measurement_Bandwidth, 1),
+  M_UINT       (EUTRAN_Target_Cell_t,  Measurement_Bandwidth,  3, &hf_target_cell_eutran_measurement_bandwidth),
+  M_UINT       (EUTRAN_Target_Cell_t,  Physical_Layer_Cell_Identity,  9, &hf_target_cell_eutran_pl_cell_id),
+CSN_DESCR_END  (EUTRAN_Target_Cell_t)
+
+static const
+CSN_DESCR_BEGIN(UTRAN_CSG_Target_Cell_t)
+  M_UINT       (UTRAN_CSG_Target_Cell_t, UTRAN_CI,  28, &hf_utran_csg_target_cell_ci),
+  M_NEXT_EXIST (UTRAN_CSG_Target_Cell_t, Exist_PLMN_ID, 1),
+  M_TYPE       (UTRAN_CSG_Target_Cell_t, PLMN_ID, PLMN_t),
+CSN_DESCR_END  (UTRAN_CSG_Target_Cell_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_CSG_Target_Cell_t)
+  M_UINT       (EUTRAN_CSG_Target_Cell_t, EUTRAN_CI,  28, &hf_eutran_csg_target_cell_ci),
+  M_UINT       (EUTRAN_CSG_Target_Cell_t, Tracking_Area_Code,  16, &hf_eutran_csg_target_cell_tac),
+  M_NEXT_EXIST (EUTRAN_CSG_Target_Cell_t, Exist_PLMN_ID, 1),
+  M_TYPE       (EUTRAN_CSG_Target_Cell_t, PLMN_ID, PLMN_t),
+CSN_DESCR_END  (EUTRAN_CSG_Target_Cell_t)
+
+static const
+CSN_DESCR_BEGIN(PCCF_AdditionsR9_t)
+  M_NEXT_EXIST (PCCF_AdditionsR9_t, Exist_UTRAN_CSG_Target_Cell, 1),
+  M_TYPE       (PCCF_AdditionsR9_t, UTRAN_CSG_Target_Cell, UTRAN_CSG_Target_Cell_t),
+  M_NEXT_EXIST (PCCF_AdditionsR9_t, Exist_EUTRAN_CSG_Target_Cell, 1),
+  M_TYPE       (PCCF_AdditionsR9_t, EUTRAN_CSG_Target_Cell, EUTRAN_CSG_Target_Cell_t),
+CSN_DESCR_END  (PCCF_AdditionsR9_t)
+
+static const
+CSN_DESCR_BEGIN(PCCF_AdditionsR8_t)
+  M_NEXT_EXIST (PCCF_AdditionsR8_t, Exist_EUTRAN_Target_Cell, 1),
+  M_TYPE       (PCCF_AdditionsR8_t, EUTRAN_Target_Cell, EUTRAN_Target_Cell_t),
+  M_NEXT_EXIST_OR_NULL(PCCF_AdditionsR8_t, Exist_AdditionsR9, 1),
+  M_TYPE       (PCCF_AdditionsR8_t, AdditionsR9, PCCF_AdditionsR9_t),
+CSN_DESCR_END  (PCCF_AdditionsR8_t)
+
+static const
+CSN_DESCR_BEGIN(PCCF_AdditionsR5_t)
+  M_NEXT_EXIST (PCCF_AdditionsR5_t, Exist_G_RNTI_extention, 1),
+  M_UINT       (PCCF_AdditionsR5_t,  G_RNTI_extention,  4, &hf_pmo_additionsr5_grnti),
+  M_NEXT_EXIST_OR_NULL(PCCF_AdditionsR5_t, Exist_AdditionsR8, 1),
+  M_TYPE       (PCCF_AdditionsR5_t, AdditionsR8, PCCF_AdditionsR8_t),
+CSN_DESCR_END  (PCCF_AdditionsR5_t)
 
 static const
 CSN_DESCR_BEGIN(PCCF_AdditionsR99_t)
@@ -2450,6 +2504,8 @@ CSN_DESCR_BEGIN(PCCF_AdditionsR99_t)
   M_TYPE       (PCCF_AdditionsR99_t, FDD_Target_Cell, FDD_Target_Cell_t),
   M_NEXT_EXIST (PCCF_AdditionsR99_t, Exist_TDD_Description, 1),
   M_TYPE       (PCCF_AdditionsR99_t, TDD_Target_Cell, TDD_Target_Cell_t),
+  M_NEXT_EXIST_OR_NULL(PCCF_AdditionsR99_t, Exist_AdditionsR5, 1),
+  M_TYPE       (PCCF_AdditionsR99_t, AdditionsR5, PCCF_AdditionsR5_t),
 CSN_DESCR_END  (PCCF_AdditionsR99_t)
 
 /*< Packet Cell Change Failure message content > */
@@ -4343,15 +4399,6 @@ CSN_DESCR_BEGIN        (Target_Cell_GSM_t)
   M_TYPE               (Target_Cell_GSM_t, AdditionsR98, PCCO_AdditionsR98_t),
 CSN_DESCR_END          (Target_Cell_GSM_t)
 
-
-static const
-CSN_DESCR_BEGIN        (EUTRAN_Target_Cell_t)
-  M_UINT               (EUTRAN_Target_Cell_t,  EARFCN,  16, &hf_target_cell_eutran_earfcn),
-  M_NEXT_EXIST         (EUTRAN_Target_Cell_t, Exist_Measurement_Bandwidth, 1),
-  M_UINT               (EUTRAN_Target_Cell_t,  Measurement_Bandwidth,  3, &hf_target_cell_eutran_measurement_bandwidth),
-  M_UINT               (EUTRAN_Target_Cell_t,  Physical_Layer_Cell_Identity,  9, &hf_target_cell_eutran_pl_cell_id),
-CSN_DESCR_END          (EUTRAN_Target_Cell_t)
-
 static const
 CSN_DESCR_BEGIN        (Target_Cell_3G_AdditionsR8_t)
   M_NEXT_EXIST         (Target_Cell_3G_AdditionsR8_t, Exist_EUTRAN_Target_Cell, 1),
@@ -4494,6 +4541,64 @@ CSN_DESCR_BEGIN (Measurements_3G_t)
 CSN_DESCR_END   (Measurements_3G_t)
 
 static const
+CSN_DESCR_BEGIN (EUTRAN_Measurement_Report_Body_t)
+  M_UINT        (EUTRAN_Measurement_Report_Body_t,  EUTRAN_FREQUENCY_INDEX,  3, &hf_pmr_eutran_meas_rpt_freq_idx),
+  M_UINT        (EUTRAN_Measurement_Report_Body_t,  CELL_IDENTITY,  9, &hf_pmr_eutran_meas_rpt_cell_id),
+  M_UINT        (EUTRAN_Measurement_Report_Body_t,  REPORTING_QUANTITY,  6, &hf_pmr_eutran_meas_rpt_quantity),
+CSN_DESCR_END   (EUTRAN_Measurement_Report_Body_t)
+
+static const
+CSN_DESCR_BEGIN (EUTRAN_Measurement_Report_t)
+  M_UINT_OFFSET (EUTRAN_Measurement_Report_t, N_EUTRAN,  2, 1),
+  M_VAR_TARRAY  (EUTRAN_Measurement_Report_t, Report, EUTRAN_Measurement_Report_Body_t, N_EUTRAN),
+CSN_DESCR_END   (EUTRAN_Measurement_Report_t)
+
+static const
+CSN_DESCR_BEGIN(UTRAN_CSG_Measurement_Report_t)
+  M_UINT       (UTRAN_CSG_Measurement_Report_t,  UTRAN_CGI,  28, &hf_utran_csg_meas_rpt_cgi),
+  M_NEXT_EXIST (UTRAN_CSG_Measurement_Report_t, Exist_PLMN_ID, 1),
+  M_TYPE       (UTRAN_CSG_Measurement_Report_t,  Plmn_ID, PLMN_t),
+  M_UINT       (UTRAN_CSG_Measurement_Report_t,  CSG_ID,  27, &hf_utran_csg_meas_rpt_csg_id),
+  M_BIT        (UTRAN_CSG_Measurement_Report_t,  Access_Mode, &hf_utran_csg_meas_rpt_access_mode),
+  M_UINT       (UTRAN_CSG_Measurement_Report_t,  REPORTING_QUANTITY,  6, &hf_utran_csg_meas_rpt_quantity),
+CSN_DESCR_END  (UTRAN_CSG_Measurement_Report_t)
+
+static const
+CSN_DESCR_BEGIN(EUTRAN_CSG_Measurement_Report_t)
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  EUTRAN_CGI,  28, &hf_eutran_csg_meas_rpt_cgi),
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  Tracking_Area_Code,  16, &hf_eutran_csg_meas_rpt_ta),
+  M_NEXT_EXIST (EUTRAN_CSG_Measurement_Report_t, Exist_PLMN_ID, 1),
+  M_TYPE       (EUTRAN_CSG_Measurement_Report_t,  Plmn_ID, PLMN_t),
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  CSG_ID,  27, &hf_eutran_csg_meas_rpt_csg_id),
+  M_BIT        (EUTRAN_CSG_Measurement_Report_t,  Access_Mode, &hf_eutran_csg_meas_rpt_access_mode),
+  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  REPORTING_QUANTITY,  6, &hf_eutran_csg_meas_rpt_quantity),
+CSN_DESCR_END  (EUTRAN_CSG_Measurement_Report_t)
+
+static const
+CSN_DESCR_BEGIN (PMR_AdditionsR9_t)
+  M_NEXT_EXIST  (PMR_AdditionsR9_t, Exist_UTRAN_CSG_Meas_Rpt, 1),
+  M_TYPE        (PMR_AdditionsR9_t, UTRAN_CSG_Meas_Rpt, UTRAN_CSG_Measurement_Report_t),
+  M_NEXT_EXIST  (PMR_AdditionsR9_t, Exist_EUTRAN_CSG_Meas_Rpt, 1),
+  M_TYPE        (PMR_AdditionsR9_t, EUTRAN_CSG_Meas_Rpt, EUTRAN_CSG_Measurement_Report_t),
+CSN_DESCR_END   (PMR_AdditionsR9_t)
+
+static const
+CSN_DESCR_BEGIN (PMR_AdditionsR8_t)
+  M_NEXT_EXIST  (PMR_AdditionsR8_t, Exist_EUTRAN_Meas_Rpt, 1),
+  M_TYPE        (PMR_AdditionsR8_t, EUTRAN_Meas_Rpt, EUTRAN_Measurement_Report_t),
+  M_NEXT_EXIST_OR_NULL(PMR_AdditionsR8_t, Exist_AdditionsR9, 1),
+  M_TYPE        (PMR_AdditionsR8_t, AdditionsR9, PMR_AdditionsR9_t),
+CSN_DESCR_END   (PMR_AdditionsR8_t)
+
+static const
+CSN_DESCR_BEGIN (PMR_AdditionsR5_t)
+  M_NEXT_EXIST  (PMR_AdditionsR5_t, Exist_GRNTI, 4),
+  M_UINT        (PMR_AdditionsR5_t,  GRNTI,  4, &hf_pmo_additionsr5_grnti),
+  M_NEXT_EXIST_OR_NULL (PMR_AdditionsR5_t, Exist_AdditionsR8, 1),
+  M_TYPE        (PMR_AdditionsR5_t, AdditionsR8, PMR_AdditionsR8_t),
+CSN_DESCR_END   (PMR_AdditionsR5_t)
+
+static const
 CSN_DESCR_BEGIN (PMR_AdditionsR99_t)
   M_NEXT_EXIST  (PMR_AdditionsR99_t, Exist_Info3G, 4),
   M_UNION       (PMR_AdditionsR99_t, 2),
@@ -4504,6 +4609,9 @@ CSN_DESCR_BEGIN (PMR_AdditionsR99_t)
   M_NEXT_EXIST  (PMR_AdditionsR99_t, Exist_MeasurementReport3G, 2),
   M_UINT_OFFSET (PMR_AdditionsR99_t, N_3G, 3, 1),   /* offset 1 */
   M_VAR_TARRAY_OFFSET  (PMR_AdditionsR99_t, Measurements_3G, Measurements_3G_t, N_3G),
+
+  M_NEXT_EXIST_OR_NULL (PMR_AdditionsR99_t, Exist_AdditionsR5, 1),
+  M_TYPE        (PMR_AdditionsR99_t, AdditionsR5, PMR_AdditionsR5_t),
 CSN_DESCR_END   (PMR_AdditionsR99_t)
 
 static const
@@ -4556,6 +4664,39 @@ CSN_DESCR_BEGIN       (Packet_Measurement_Report_t)
 CSN_DESCR_END         (Packet_Measurement_Report_t)
 
 static const
+CSN_DESCR_BEGIN (PEMR_AdditionsR9_t)
+  M_NEXT_EXIST  (PEMR_AdditionsR9_t, Exist_UTRAN_CSG_Target_Cell, 1),
+  M_TYPE        (PEMR_AdditionsR9_t, UTRAN_CSG_Target_Cell, UTRAN_CSG_Target_Cell_t),
+  M_NEXT_EXIST  (PEMR_AdditionsR9_t, Exist_EUTRAN_CSG_Target_Cell, 1),
+  M_TYPE        (PEMR_AdditionsR9_t, EUTRAN_CSG_Target_Cell, EUTRAN_CSG_Target_Cell_t),
+CSN_DESCR_END   (PEMR_AdditionsR9_t)
+
+static const
+CSN_DESCR_BEGIN (Bitmap_Report_Quantity_t)
+  M_NEXT_EXIST  (Bitmap_Report_Quantity_t, Exist_REPORTING_QUANTITY, 1),
+  M_UINT        (Bitmap_Report_Quantity_t,  REPORTING_QUANTITY,  6, &hf_reporting_quantity_instance_reporting_quantity),
+CSN_DESCR_END   (Bitmap_Report_Quantity_t)
+
+static const
+CSN_DESCR_BEGIN (PEMR_AdditionsR8_t)
+  M_UINT_OFFSET (PEMR_AdditionsR8_t, BITMAP_LENGTH,  7, 1),
+  M_VAR_TARRAY  (PEMR_AdditionsR8_t, Bitmap_Report_Quantity, Bitmap_Report_Quantity_t, BITMAP_LENGTH),
+  M_NEXT_EXIST  (PEMR_AdditionsR8_t, Exist_EUTRAN_Meas_Rpt, 1),
+  M_TYPE        (PEMR_AdditionsR8_t, EUTRAN_Meas_Rpt, EUTRAN_Measurement_Report_t),
+  M_NEXT_EXIST_OR_NULL(PEMR_AdditionsR8_t, Exist_AdditionsR9, 1),
+  M_TYPE        (PEMR_AdditionsR8_t, AdditionsR9, PEMR_AdditionsR9_t),
+CSN_DESCR_END   (PEMR_AdditionsR8_t)
+
+static const
+CSN_DESCR_BEGIN (PEMR_AdditionsR5_t)
+  M_NEXT_EXIST  (PEMR_AdditionsR5_t, Exist_GRNTI_Ext, 1),
+  M_UINT        (PEMR_AdditionsR5_t,  GRNTI_Ext,  4, &hf_pmo_additionsr5_grnti),
+  M_NEXT_EXIST_OR_NULL(PEMR_AdditionsR5_t, Exist_AdditionsR8, 1),
+  M_TYPE        (PEMR_AdditionsR5_t, AdditionsR8, PEMR_AdditionsR8_t),
+CSN_DESCR_END   (PEMR_AdditionsR5_t)
+
+
+static const
 CSN_DESCR_BEGIN       (Packet_Enh_Measurement_Report_t)
   /* Mac header */
   M_UINT              (Packet_Enh_Measurement_Report_t,  PayloadType,  2, &hf_packet_enh_measurement_report_payloadtype),
@@ -4567,6 +4708,9 @@ CSN_DESCR_BEGIN       (Packet_Enh_Measurement_Report_t)
   M_UINT              (Packet_Enh_Measurement_Report_t,  TLLI,  32, &hf_packet_enh_measurement_report_tlli),
 
   M_TYPE              (Packet_Enh_Measurement_Report_t, Measurements, ENH_NC_Measurement_Report_t),
+
+  M_NEXT_EXIST_OR_NULL(Packet_Enh_Measurement_Report_t, Exist_AdditionsR5, 1),
+  M_TYPE              (Packet_Enh_Measurement_Report_t, AdditionsR5, PEMR_AdditionsR5_t),
 CSN_DESCR_END         (Packet_Enh_Measurement_Report_t)
 
 /*< Packet Measurement Order message contents >*/
@@ -4678,27 +4822,6 @@ CSN_DESCR_BEGIN(Target_Cell_4G_Notif_t)
   M_NEXT_EXIST (Target_Cell_4G_Notif_t, Exist_Eutran_Ccn_Measurement_Report, 1),
   M_TYPE       (Target_Cell_4G_Notif_t,  Eutran_Ccn_Measurement_Report, Eutran_Ccn_Measurement_Report_t),
 CSN_DESCR_END  (Target_Cell_4G_Notif_t)
-
-static const
-CSN_DESCR_BEGIN(UTRAN_CSG_Measurement_Report_t)
-  M_UINT       (UTRAN_CSG_Measurement_Report_t,  UTRAN_CGI,  28, &hf_utran_csg_meas_rpt_cgi),
-  M_NEXT_EXIST (UTRAN_CSG_Measurement_Report_t, Exist_PLMN_ID, 1),
-  M_TYPE       (UTRAN_CSG_Measurement_Report_t,  Plmn_ID, PLMN_t),
-  M_UINT       (UTRAN_CSG_Measurement_Report_t,  CSG_ID,  27, &hf_utran_csg_meas_rpt_csg_id),
-  M_BIT        (UTRAN_CSG_Measurement_Report_t,  Access_Mode, &hf_utran_csg_meas_rpt_access_mode),
-  M_UINT       (UTRAN_CSG_Measurement_Report_t,  REPORTING_QUANTITY,  6, &hf_utran_csg_meas_rpt_quantity),
-CSN_DESCR_END  (UTRAN_CSG_Measurement_Report_t)
-
-static const
-CSN_DESCR_BEGIN(EUTRAN_CSG_Measurement_Report_t)
-  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  EUTRAN_CGI,  28, &hf_eutran_csg_meas_rpt_cgi),
-  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  Tracking_Area_Code,  16, &hf_eutran_csg_meas_rpt_ta),
-  M_NEXT_EXIST (EUTRAN_CSG_Measurement_Report_t, Exist_PLMN_ID, 1),
-  M_TYPE       (EUTRAN_CSG_Measurement_Report_t,  Plmn_ID, PLMN_t),
-  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  CSG_ID,  27, &hf_eutran_csg_meas_rpt_csg_id),
-  M_BIT        (EUTRAN_CSG_Measurement_Report_t,  Access_Mode, &hf_eutran_csg_meas_rpt_access_mode),
-  M_UINT       (EUTRAN_CSG_Measurement_Report_t,  REPORTING_QUANTITY,  6, &hf_eutran_csg_meas_rpt_quantity),
-CSN_DESCR_END  (EUTRAN_CSG_Measurement_Report_t)
 
 static const
 CSN_DESCR_BEGIN(Target_Cell_CSG_Notif_t)
@@ -8324,6 +8447,24 @@ proto_register_gsm_rlcmac(void)
         NULL, HFILL
       }
     },
+    { &hf_utran_csg_target_cell_ci,
+      { "UTRAN_CI",        "gsm_rlcmac_ul.utran_csg_target_cell_ci",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_target_cell_ci,
+      { "EUTRAN_CI",        "gsm_rlcmac_ul.eutran_csg_target_cell_ci",
+        FT_UINT32, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_eutran_csg_target_cell_tac,
+      { "Tracking Area Code",        "gsm_rlcmac_ul.eutran_csg_target_cell_tac",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
 
 /*< Packet Uplink Ack/Nack message content > */
     { &hf_power_control_parameters_alpha,
@@ -10815,6 +10956,24 @@ proto_register_gsm_rlcmac(void)
     },
     { &hf_pmr_additionsr99_pmo_used,
       { "PMO_USED",        "gsm_rlcmac_ul.pmr_additionsr99_pmo_used",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pmr_eutran_meas_rpt_freq_idx,
+      { "E-UTRAN_FREQUENCY_INDEX",        "gsm_rlcmac_ul.pmr_eutran_meas_rpt_freq_idx",
+        FT_UINT8, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pmr_eutran_meas_rpt_cell_id,
+      { "CELL IDENTITY",        "gsm_rlcmac_ul.pmr_eutran_meas_rpt_cell_id",
+        FT_UINT16, BASE_DEC, NULL, 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_pmr_eutran_meas_rpt_quantity,
+      { "REPORTING_QUANTITY",        "gsm_rlcmac_ul.pmr_eutran_meas_rpt_quantity",
         FT_UINT8, BASE_DEC, NULL, 0x0,
         NULL, HFILL
       }
