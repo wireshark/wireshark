@@ -2809,7 +2809,7 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_bep_period2, tvb, curr_bit_offset, 4, FALSE);
             curr_bit_offset += 4;
-        }        
+        }
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_resegment, tvb, curr_bit_offset, 1, FALSE);
         curr_bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_egprs_window_size, tvb, curr_bit_offset, 5, FALSE);
@@ -2829,14 +2829,14 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_timing_adv_index, tvb, curr_bit_offset, 4, FALSE);
             curr_bit_offset += 4;
-        }  
+        }
         value = tvb_get_bits8(tvb,curr_bit_offset,1);
         curr_bit_offset += 1;
         if (value)
         {
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tbf_starting_time, tvb, curr_bit_offset, 16, FALSE);
             curr_bit_offset += 16;
-        }  
+        }
     }
     else  /*  Multi Block Allocation */
     {
@@ -2863,7 +2863,7 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
             curr_bit_offset += 1;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_pr_mode, tvb, curr_bit_offset, 1, FALSE);
             curr_bit_offset += 1;
-        } 
+        }
         flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
         curr_bit_offset += 1;
         if (flag)
@@ -2876,8 +2876,8 @@ de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree
                 curr_bit_offset += 7;
             }
         }
-	}
-    
+    }
+
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
     return (curr_bit_offset - bit_offset);
@@ -2903,7 +2903,7 @@ de_rr_ia_rest_oct_tmgi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
     value = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
     if (value == 0)   /*  without MCC and MNC parameters */
-    {        
+    {
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_mbms_service_id, tvb, curr_bit_offset, 24, FALSE);
         curr_bit_offset += 24;
     }
@@ -2922,7 +2922,7 @@ de_rr_ia_rest_oct_tmgi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
             "Mobile Country Code (MCC): %s",
             mcc);
         curr_bit_offset += 12;
-        
+
         value16 = tvb_get_bits16(tvb,curr_bit_offset,12,FALSE);
         mnc[0] = '0' + ((value16>>8)&0xf);
         mnc[1] = '0' + ((value16>>4)&0xf);
@@ -2944,7 +2944,7 @@ de_rr_ia_rest_oct_tmgi(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
 
 static gint
 de_rr_ia_rest_oct_packet_timing_advance(tvbuff_t *tvb, proto_tree *tree, gint bit_offset)
-{   
+{
     proto_tree *subtree;
     proto_item *item;
     gint        curr_bit_offset;
@@ -3023,7 +3023,7 @@ de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvbuff_t *tvb, prot
                     "Length Indicator of MS ID: %d",
                     value);
                 curr_bit_offset += 2;
-                
+
                 proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ms_id, tvb, curr_bit_offset, value+1, FALSE);
                 curr_bit_offset += value+1;
                 curr_bit_offset += de_rr_ia_rest_oct_packet_timing_advance(tvb, tree, curr_bit_offset);
@@ -3044,8 +3044,8 @@ de_rr_ia_rest_oct_multiple_blocks_packet_downlink_assignment(tvbuff_t *tvb, prot
             }
         }
     }
- 
-    
+
+
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
     return (curr_bit_offset - bit_offset);
@@ -3172,7 +3172,7 @@ de_rr_ia_rest_oct_packet_uplink_assignment(tvbuff_t *tvb, proto_tree *tree, gint
             curr_bit_offset += 7;
         }
     }
-                
+
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
     return (curr_bit_offset - bit_offset);
@@ -3195,7 +3195,7 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gi
 
     proto_tree_add_bits_item(subtree, hf_gsm_a_rr_tlli, tvb, curr_bit_offset, 32, FALSE);
     curr_bit_offset += 32;
-    
+
     value = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
     if (value)
@@ -3216,7 +3216,7 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gi
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_polling, tvb, curr_bit_offset, 1, FALSE);
         curr_bit_offset += 1;
         proto_tree_add_bits_item(subtree, hf_gsm_a_rr_ta_valid, tvb, curr_bit_offset, 1, FALSE);
-        curr_bit_offset += 1;   
+        curr_bit_offset += 1;
     }
     value = tvb_get_bits8(tvb,curr_bit_offset,1);
     curr_bit_offset += 1;
@@ -3273,7 +3273,7 @@ de_rr_ia_rest_oct_packet_downlink_assignment(tvbuff_t *tvb, proto_tree *tree, gi
             curr_bit_offset += 7;
         }
     }
-                
+
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
     return (curr_bit_offset - bit_offset);
@@ -3296,7 +3296,7 @@ de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree,
 
     item = proto_tree_add_text(tree, tvb, curr_bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT].strptr);
     subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_SECOND_PART_PACKET_ASSIGNMENT]);
-    
+
     flag = gsm_a_rr_is_bit_high(tvb,curr_bit_offset);
     curr_bit_offset += 1;
     if (flag)
@@ -3309,7 +3309,7 @@ de_rr_ia_rest_oct_second_part_packet_assignment(tvbuff_t *tvb, proto_tree *tree,
             curr_bit_offset += 5;
         }
     }
-                
+
     proto_item_set_len(item,((curr_bit_offset-bit_offset)>>3)+1);
 
     return (curr_bit_offset - bit_offset);
@@ -3327,7 +3327,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
     proto_item  *item;
     guint32      curr_offset;
     gint         bit_offset;
-	gint         length;
+    gint         length;
     guint8       value;
     gboolean     flag;
     guint64      ma_length;
@@ -3370,7 +3370,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 value = tvb_get_bits8(tvb,bit_offset,1);
                 bit_offset += 1;
                 if (value == 0)
-                {   
+                {
                     bit_offset += de_rr_ia_rest_oct_egprs_packet_uplink_assignment(tvb, tree, bit_offset);
                 }
                 else
@@ -3399,7 +3399,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
                 proto_tree_add_text(subtree, tvb, bit_offset>>3, 1, "MAIO: %d", tvb_get_bits8(tvb,bit_offset,6));
                 bit_offset += 6;
                 length = (gint)ma_length;
-				item = proto_tree_add_text(subtree,tvb, bit_offset>>3, (length>>3)-1, "MA Bitmap: ");
+                item = proto_tree_add_text(subtree,tvb, bit_offset>>3, (length>>3)-1, "MA Bitmap: ");
                 length = (length-1)*8;
                 while (length)
                 {
@@ -3448,7 +3448,7 @@ de_rr_ia_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 
 static guint16
-de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
+de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     proto_tree  *subtree;
     proto_item  *item;
@@ -3456,7 +3456,6 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     guint8       value;
     guint8       i;
 
-    len = 3;
     curr_bit_offset = offset<<3;
 
     item =
@@ -3471,7 +3470,7 @@ de_rr_iar_rest_oct(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
         value = tvb_get_bits8(tvb,curr_bit_offset,1);
         curr_bit_offset += 1;
         if (value)
-        {   
+        {
             proto_tree_add_text(subtree, tvb, curr_bit_offset>>3, 1, "Extended RA %d present", i);
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_extended_ra, tvb, curr_bit_offset, 5, FALSE);
             curr_bit_offset += 5;
@@ -3923,7 +3922,7 @@ de_rr_mult_all(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         proto_tree_add_item(tree, hf_gsm_a_rr_ma_channel_set, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
         curr_offset++;
     }
-    
+
     return(curr_offset - offset);
 
 }
@@ -10576,7 +10575,7 @@ sacch_rr_enh_meas_report(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
             gint8  bitmap_length;
             item = proto_tree_add_text(tree, tvb, bit_offset>>3, -1, "%s", gsm_rr_rest_octets_elem_strings[DE_RR_REST_OCTETS_REPORTING_QUANTITY].strptr);
             subtree = proto_item_add_subtree(item, ett_gsm_rr_rest_octets_elem[DE_RR_REST_OCTETS_REPORTING_QUANTITY]);
-            
+
             bitmap_length = tvb_get_bits8(tvb,bit_offset,7);
             bitmap_length += 1;
             proto_tree_add_bits_item(subtree, hf_gsm_a_rr_emr_bitmap_length, tvb, bit_offset, 7, FALSE);
@@ -12842,7 +12841,7 @@ proto_register_gsm_a_rr(void)
               { "Channel Set", "gsm_a.rr.ma_channel_set",
                 FT_UINT8, BASE_HEX, NULL, 0x00,
                 NULL, HFILL }
-            },            
+            },
         };
 
     static hf_register_info hf_sacch[] =
