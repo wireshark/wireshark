@@ -436,9 +436,9 @@
 
 #ifndef ETHERTYPE_PTP
 #define ETHERTYPE_PTP			0x88F7	/* IEEE1588v2 (PTPv2) over Ethernet */
-#endif						/* in particular for the information exchange between IED's in a power */
-						/* transmission or distribution substation. */
-						/*  There are three types of application services */
+#endif									/* in particular for the information exchange between IED's in a power */
+										/* transmission or distribution substation. */
+										/*  There are three types of application services */
 
 #ifndef ETHERTYPE_PRP
 #define ETHERTYPE_PRP			0x88FB	/* Parallel Redundancy Protocol (IEC62439 Chapter 6) */
@@ -450,6 +450,10 @@
 
 #ifndef ETHERTYPE_CFM
 #define ETHERTYPE_CFM			0x8902	/* IEEE 802.1ag Connectivity Fault Management(CFM) protocol */
+#endif
+
+#ifndef ETHERTYPE_DCE
+#define ETHERTYPE_DCE			0x8903	/* Cisco Systems Inc DCE */
 #endif
 
 #ifndef ETHERTYPE_FCOE
