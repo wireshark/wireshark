@@ -32,6 +32,11 @@ struct e_in6_addr {
 	guint8   bytes[16];		/**< 128 bit IP6 address */
 };
 
+typedef struct {
+	struct e_in6_addr addr;
+	guint32 prefix;
+} ipv6_addr;
+
 /**
  * Unicast Scope
  * Note that we must check topmost 10 bits only, not 16 bits (see RFC2373).
