@@ -212,6 +212,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  ReadPropertyMultiple-ACK not correctly dissected.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6178">Bug
+          6178</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  GTPv2 dissectors should treat gtpv2_ccrsi as optional.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6183">Bug
           6183</ulink>)
@@ -278,6 +284,12 @@ Wireshark Info
         </para></listitem>
 
         <listitem><para>
+	  TShark/dumpcap skips capture duration flag occasionally.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6280">Bug
+          6280</ulink>)
+        </para></listitem>
+
+        <listitem><para>
 	  File types with no snaplen written out with a zero snaplen in pcap-ng files.
           (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6289">Bug
           6289</ulink>)
@@ -313,6 +325,12 @@ Wireshark Info
           6287</ulink>)
         </para></listitem>
 
+        <listitem><para>
+	  MEGACO context tracking fix - context id reuse.
+          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6311">Bug
+          6311</ulink>)
+        </para></listitem>
+
       </itemizedlist>
 
     </para>
@@ -339,6 +357,7 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
+BACapp,
 Bluetooth L2CAP,
 CSN.1,
 DCERPC,
@@ -347,6 +366,7 @@ GTPv2,
 ICMP,
 ICMPv6,
 IKE,
+MEGACO,
 MSISDN,
 NDMP,
 OpenSafety,
