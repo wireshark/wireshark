@@ -158,6 +158,9 @@
 #define APP_TYPE_CA  0x1
 #define APP_TYPE_EPG 0x2
 
+#define DATA_RATE_72 0x0
+#define DATA_RATE_96 0x1
+
 /* ca resource */
 #define LIST_MGMT_MORE   0x0
 #define LIST_MGMT_FIRST  0x1
@@ -272,32 +275,34 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
 
 
 /* apdu defines */
-#define T_PROFILE_ENQ     0x9F8010
-#define T_PROFILE         0x9F8011
-#define T_PROFILE_CHANGE  0x9F8012
-#define T_APP_INFO_ENQ    0x9F8020
-#define T_APP_INFO        0x9F8021
-#define T_ENTER_MENU      0x9F8022
-#define T_CA_INFO_ENQ     0x9F8030
-#define T_CA_INFO         0x9F8031
-#define T_CA_PMT          0x9F8032
-#define T_CA_PMT_REPLY    0x9F8033
-#define T_TUNE            0x9F8400
-#define T_REPLACE         0x9F8401
-#define T_CLEAR_REPLACE   0x9F8402
-#define T_ASK_RELEASE     0x9F8403
-#define T_DATE_TIME_ENQ   0x9F8440
-#define T_DATE_TIME       0x9F8441
-#define T_CLOSE_MMI       0x9F8800
-#define T_DISPLAY_CONTROL 0x9F8801
-#define T_DISPLAY_REPLY   0x9F8802
-#define T_ENQ             0x9F8807
-#define T_ANSW            0x9F8808
-#define T_MENU_LAST       0x9F8809
-#define T_MENU_MORE       0x9F880A
-#define T_MENU_ANSW       0x9F880B
-#define T_LIST_LAST       0x9F880C
-#define T_LIST_MORE       0x9F880D
+#define T_PROFILE_ENQ          0x9F8010
+#define T_PROFILE              0x9F8011
+#define T_PROFILE_CHANGE       0x9F8012
+#define T_APP_INFO_ENQ         0x9F8020
+#define T_APP_INFO             0x9F8021
+#define T_ENTER_MENU           0x9F8022
+#define T_REQUEST_CICAM_RESET  0x9F8023
+#define T_DATARATE_INFO        0x9F8024
+#define T_CA_INFO_ENQ          0x9F8030
+#define T_CA_INFO              0x9F8031
+#define T_CA_PMT               0x9F8032
+#define T_CA_PMT_REPLY         0x9F8033
+#define T_TUNE                 0x9F8400
+#define T_REPLACE              0x9F8401
+#define T_CLEAR_REPLACE        0x9F8402
+#define T_ASK_RELEASE          0x9F8403
+#define T_DATE_TIME_ENQ        0x9F8440
+#define T_DATE_TIME            0x9F8441
+#define T_CLOSE_MMI            0x9F8800
+#define T_DISPLAY_CONTROL      0x9F8801
+#define T_DISPLAY_REPLY        0x9F8802
+#define T_ENQ                  0x9F8807
+#define T_ANSW                 0x9F8808
+#define T_MENU_LAST            0x9F8809
+#define T_MENU_MORE            0x9F880A
+#define T_MENU_ANSW            0x9F880B
+#define T_LIST_LAST            0x9F880C
+#define T_LIST_MORE            0x9F880D
 
 /* the following apdus are recognized but not dissected in this release */
 #define T_COMMS_CMD       0x9F8C00
@@ -319,9 +324,11 @@ static const apdu_info_t apdu_info[] = {
     {T_PROFILE,         0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_rm},
     {T_PROFILE_CHANGE,  0, 0,             DIRECTION_ANY,    NULL},
 
-    {T_APP_INFO_ENQ,    0, 0,             DATA_HOST_TO_CAM, NULL},
-    {T_APP_INFO,        6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ap},
-    {T_ENTER_MENU,      0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_APP_INFO_ENQ,        0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_APP_INFO,            6, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ap},
+    {T_ENTER_MENU,          0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_REQUEST_CICAM_RESET, 0, 0,             DATA_CAM_TO_HOST, NULL},
+    {T_DATARATE_INFO,       0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ap},
 
     {T_CA_INFO_ENQ,     0, 0,             DATA_HOST_TO_CAM, NULL},
     {T_CA_INFO,         0, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ca},
@@ -349,40 +356,42 @@ static const apdu_info_t apdu_info[] = {
 };
 
 static const value_string dvbci_apdu_tag[] = {
-    { T_PROFILE_ENQ,     "Profile enquiry" },
-    { T_PROFILE,         "Profile information" },
-    { T_PROFILE_CHANGE,  "Profile change notification" },
-    { T_APP_INFO_ENQ,    "Application info enquiry" },
-    { T_APP_INFO,        "Application info" },
-    { T_ENTER_MENU,      "Enter menu" },
-    { T_CA_INFO_ENQ,     "CA info enquiry" },
-    { T_CA_INFO,         "CA info" },
-    { T_CA_PMT,          "CA PMT" },
-    { T_DATE_TIME_ENQ,   "Date-Time enquiry" },
-    { T_DATE_TIME,       "Date-Time" },
-    { T_CA_PMT_REPLY,    "CA PMT reply" },
-    { T_TUNE,            "Tune" },
-    { T_REPLACE,         "Replace" },
-    { T_CLEAR_REPLACE,   "Clear replace" },
-    { T_ASK_RELEASE,     "Ask release" },
-    { T_CLOSE_MMI,       "Close MMI" },
-    { T_DISPLAY_CONTROL, "Display control" },
-    { T_DISPLAY_REPLY,   "Display reply" },
-    { T_TEXT_LAST,       "Text last" },
-    { T_TEXT_MORE,       "Text more" },
-    { T_ENQ,             "Enquiry" },
-    { T_ANSW,            "Answer" },
-    { T_MENU_LAST,       "Menu last" },
-    { T_MENU_MORE,       "Menu more" },
-    { T_MENU_ANSW,       "Menu answer" },
-    { T_LIST_LAST,       "List last" },
-    { T_LIST_MORE,       "List more" },
-    { T_COMMS_CMD,       "Comms command" },
-    { T_COMMS_REPLY,     "Comms reply" },
-    { T_COMMS_SEND_LAST, "Comms send last" },
-    { T_COMMS_SEND_MORE, "Comms send more" },
-    { T_COMMS_RCV_LAST,  "Comms receive last" },
-    { T_COMMS_RCV_MORE,  "Comms receive more" },
+    { T_PROFILE_ENQ,         "Profile enquiry" },
+    { T_PROFILE,             "Profile information" },
+    { T_PROFILE_CHANGE,      "Profile change notification" },
+    { T_APP_INFO_ENQ,        "Application info enquiry" },
+    { T_APP_INFO,            "Application info" },
+    { T_ENTER_MENU,          "Enter menu" },
+    { T_REQUEST_CICAM_RESET, "Request CICAM reset" },
+    { T_DATARATE_INFO,       "Datarate info" },
+    { T_CA_INFO_ENQ,         "CA info enquiry" },
+    { T_CA_INFO,             "CA info" },
+    { T_CA_PMT,              "CA PMT" },
+    { T_DATE_TIME_ENQ,       "Date-Time enquiry" },
+    { T_DATE_TIME,           "Date-Time" },
+    { T_CA_PMT_REPLY,        "CA PMT reply" },
+    { T_TUNE,                "Tune" },
+    { T_REPLACE,             "Replace" },
+    { T_CLEAR_REPLACE,       "Clear replace" },
+    { T_ASK_RELEASE,         "Ask release" },
+    { T_CLOSE_MMI,           "Close MMI" },
+    { T_DISPLAY_CONTROL,     "Display control" },
+    { T_DISPLAY_REPLY,       "Display reply" },
+    { T_TEXT_LAST,           "Text last" },
+    { T_TEXT_MORE,           "Text more" },
+    { T_ENQ,                 "Enquiry" },
+    { T_ANSW,                "Answer" },
+    { T_MENU_LAST,           "Menu last" },
+    { T_MENU_MORE,           "Menu more" },
+    { T_MENU_ANSW,           "Menu answer" },
+    { T_LIST_LAST,           "List last" },
+    { T_LIST_MORE,           "List more" },
+    { T_COMMS_CMD,           "Comms command" },
+    { T_COMMS_REPLY,         "Comms reply" },
+    { T_COMMS_SEND_LAST,     "Comms send last" },
+    { T_COMMS_SEND_MORE,     "Comms send more" },
+    { T_COMMS_RCV_LAST,      "Comms receive last" },
+    { T_COMMS_RCV_MORE,      "Comms receive more" },
     { 0, NULL }
 };
 
@@ -448,6 +457,7 @@ static int hf_dvbci_app_type = -1;
 static int hf_dvbci_app_manf = -1;
 static int hf_dvbci_manf_code = -1;
 static int hf_dvbci_menu_str_len = -1;
+static int hf_dvbci_data_rate = -1;
 static int hf_dvbci_ca_sys_id = -1;
 static int hf_dvbci_ca_pmt_list_mgmt = -1;
 static int hf_dvbci_prog_num = -1;
@@ -652,6 +662,11 @@ static const value_string dvbci_res_class[] = {
 static const value_string dvbci_app_type[] = {
     { APP_TYPE_CA,  "Conditional Access" },
     { APP_TYPE_EPG, "Electronic Progam Guide" },
+    { 0, NULL }
+};
+static const value_string dvbci_data_rate[] = {
+    { DATA_RATE_72, "72 Mbit/s" },
+    { DATA_RATE_96, "96 Mbit/s" },
     { 0, NULL }
 };
 static const value_string dvbci_ca_pmt_list_mgmt[] = {
@@ -1054,6 +1069,7 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
 {
     guint8 menu_str_len;
     guint8 *menu_string;
+    guint8 data_rate;
 
     if (tag==T_APP_INFO) {
         proto_tree_add_item(tree, hf_dvbci_app_type, tvb, offset, 1, ENC_NA);
@@ -1078,6 +1094,12 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
             proto_tree_add_text(tree, tvb, offset, menu_str_len,
                     "Menu string: %s", menu_string);
         }
+    }
+    else if (tag== T_DATARATE_INFO) {
+        data_rate = tvb_get_guint8(tvb, offset);
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(data_rate, dvbci_data_rate, "unknown (0x%x)"));
+        proto_tree_add_item(tree, hf_dvbci_data_rate, tvb, offset, 1, ENC_NA);
     }
 }
 
@@ -2413,6 +2435,10 @@ proto_register_dvbci(void)
         { &hf_dvbci_menu_str_len,
             { "Menu string length", "dvb-ci.ap.menu_string_length",
                 FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_data_rate,
+            { "Transport stream data rate supported by the host",
+                "dvb-ci.ap.data_rate", FT_UINT8, BASE_HEX,
+                VALS(dvbci_data_rate), 0, NULL, HFILL } },
         { &hf_dvbci_ca_sys_id,
             { "CA system ID", "dvb-ci.ca.ca_system_id", FT_UINT16, BASE_HEX,
                 NULL, 0, NULL, HFILL } },
