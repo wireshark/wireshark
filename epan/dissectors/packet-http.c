@@ -209,8 +209,10 @@ static gboolean http_decompress_body = FALSE;
 
 #define TCP_PORT_DAAP			3689
 
-/*
+/* Simple Service Discovery Protocol
  * SSDP is implemented atop HTTP (yes, it really *does* run over UDP).
+ * SSDP is the discovery protocol of Universal Plug and Play 
+ * UPnP   http://www.upnp.org/specs/arch/UPnP-arch-DeviceArchitecture-v1.1.pdf
  */
 #define TCP_PORT_SSDP			1900
 #define UDP_PORT_SSDP			1900
