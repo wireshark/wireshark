@@ -45,6 +45,7 @@ ftypes_initialize(void)
 	ftype_register_double();
 	ftype_register_integers();
 	ftype_register_ipv4();
+	ftype_register_ipv6();
 	ftype_register_guid();
 	ftype_register_none();
 	ftype_register_string();

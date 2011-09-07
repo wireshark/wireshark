@@ -38,6 +38,7 @@ void ftype_register_bytes(void);
 void ftype_register_double(void);
 void ftype_register_integers(void);
 void ftype_register_ipv4(void);
+void ftype_register_ipv6(void);
 void ftype_register_guid(void);
 void ftype_register_none(void);
 void ftype_register_string(void);

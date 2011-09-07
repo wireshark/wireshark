@@ -151,13 +151,6 @@ ether_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 }
 
 static void
-ipv6_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
-{
-	g_assert(!already_copied);
-	common_fvalue_set(fv, value, FT_IPv6_LEN);
-}
-
-static void
 oid_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
 	g_assert(already_copied);
@@ -250,35 +243,6 @@ ether_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value, LogFunc
 
 	ether_fvalue_set(fv, mac, FALSE);
 	return TRUE;
-}
-
-static gboolean
-ipv6_from_unparsed(fvalue_t *fv, char *s, gboolean allow_partial_value _U_, LogFunc logfunc)
-{
-	guint8	buffer[16];
-
-	if (!get_host_ipaddr6(s, (struct e_in6_addr*)buffer)) {
-		logfunc("\"%s\" is not a valid hostname or IPv6 address.", s);
-		return FALSE;
-	}
-
-	ipv6_fvalue_set(fv, buffer, FALSE);
-	return TRUE;
-}
-
-static int
-ipv6_repr_len(fvalue_t *fv _U_, ftrepr_t rtype _U_)
-{
-	/*
-	 * 39 characters for "XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX:XXXX".
-	 */
-	return 39;
-}
-
-static void
-ipv6_to_repr(fvalue_t *fv, ftrepr_t rtype _U_, char *buf)
-{
-	ip6_to_str_buf((struct e_in6_addr *)fv->value.bytes->data, buf);
 }
 
 static gboolean
@@ -610,44 +574,6 @@ ftype_register_bytes(void)
 		slice,
 	};
 
-	static ftype_t ipv6_type = {
-		FT_IPv6,			/* ftype */
-		"FT_IPv6",			/* name */
-		"IPv6 address",			/* pretty_name */
-		FT_IPv6_LEN,			/* wire_size */
-		bytes_fvalue_new,		/* new_value */
-		bytes_fvalue_free,		/* free_value */
-		ipv6_from_unparsed,		/* val_from_unparsed */
-		NULL,				/* val_from_string */
-		ipv6_to_repr,			/* val_to_string_repr */
-		ipv6_repr_len,			/* len_string_repr */
-
-		ipv6_fvalue_set,		/* set_value */
-		NULL,				/* set_value_uinteger */
-		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
-		NULL,				/* set_value_floating */
-
-		value_get,			/* get_value */
-		NULL,				/* get_value_uinteger */
-		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
-		NULL,				/* get_value_floating */
-
-		cmp_eq,
-		cmp_ne,
-		cmp_gt,
-		cmp_ge,
-		cmp_lt,
-		cmp_le,
-		cmp_bitwise_and,
-		cmp_contains,
-		NULL,				/* cmp_matches */
-
-		len,
-		slice,
-	};
-
 	static ftype_t oid_type = {
 		FT_OID,			/* ftype */
 		"FT_OID",			/* name */
@@ -689,6 +615,5 @@ ftype_register_bytes(void)
 	ftype_register(FT_BYTES, &bytes_type);
 	ftype_register(FT_UINT_BYTES, &uint_bytes_type);
 	ftype_register(FT_ETHER, &ether_type);
-	ftype_register(FT_IPv6, &ipv6_type);
 	ftype_register(FT_OID, &oid_type);
 }
