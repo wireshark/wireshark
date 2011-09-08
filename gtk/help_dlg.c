@@ -349,6 +349,9 @@ topic_action(topic_action_e action)
     case(HELP_TIME_SHIFT_DIALOG):
         help_topic_html("ChWorkShiftTimePacketSection.html");
         break;
+    case(HELP_FILTER_SAVE_DIALOG):
+        help_topic_html("ChWorkFilterSaveSection.html");
+        break;
 
     default:
         g_assert_not_reached();
