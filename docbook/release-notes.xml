@@ -12,7 +12,7 @@ DOCUMENT SECTION
 <!--
 Wireshark Info
 -->
-  <!ENTITY WiresharkCurrentVersion "1.4.9">
+  <!ENTITY WiresharkCurrentVersion "1.4.10">
 
 ]>
 
@@ -37,54 +37,18 @@ Wireshark Info
 
         <listitem>
           <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-13.html">wnpa-sec-2011-13</ulink>
+            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-17.html">wnpa-sec-2011-17</ulink>
           </para>
           <para>
-            A malformed IKE packet could consume excessive resources.
-            <!-- Fixed in trunk: r38247 -->
-            <!-- Fixed in trunk-1.6: r38851 -->
-            <!-- Fixed in trunk-1.4: r38870 -->
+            .
+            <!-- Fixed in trunk: r????? -->
+            <!-- Fixed in trunk-1.6: r????? -->
+            <!-- Fixed in trunk-1.4: r????? -->
           </para>
-          <para>Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.</para>
+          <para>Versions affected: 1.4.0 to 1.4.9, 1.6.0 to 1.6.2.</para>
           <para>
             <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-3266">CVE-2011-3266</ulink>
           </para>
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-14.html">wnpa-sec-2011-14</ulink>
-          </para>
-          <para>
-            A malformed capture file could result in an invalid root tvbuff and cause a crash.
-            <!-- Fixed in trunk: r38410 -->
-            <!-- Fixed in trunk-1.6: r38853 -->
-            <!-- Fixed in trunk-1.4: r38872 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6135">Bug
-            6135</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para> -->
-        </listitem>
-
-        <listitem>
-          <para>
-            <ulink url="http://www.wireshark.org/security/wnpa-sec-2011-15.html">wnpa-sec-2011-15</ulink>
-          </para>
-          <para>
-            Wireshark could run arbitrary Lua scripts.
-            <!-- Fixed in trunk: r38414 -->
-            <!-- Fixed in trunk-1.6: r38854 -->
-            <!-- Fixed in trunk-1.4: r38873 -->
-            (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6136">Bug
-            6136</ulink>)
-          </para>
-          <para>Versions affected: 1.4.0 to 1.4.8, 1.6.0 to 1.6.1.</para>
-          <!-- <para>
-            <ulink url="http://cve.mitre.org/cgi-bin/cvename.cgi?name=CVE-2011-????">CVE-2011-????</ulink>
-          </para> -->
         </listitem>
 
       </itemizedlist>
@@ -105,108 +69,6 @@ Wireshark Info
           0000</ulink>)
         </para></listitem>
 -->
-
-        <listitem><para>
-	  Unable to configure zero length SNMP Engine ID.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5731">Bug
-          5731</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  H.323 RAS packets missing from packet counts in "Telephony->VoIP Calls" and the "Flow Graph" for the call.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=5848">Bug
-          5848</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Malformed Packet in decode for BGP-AD update.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6122">Bug
-          6122</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  BGP : AS_PATH attribute was decode wrong.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6188">Bug
-          6188</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Fixes for SCPS TCP option.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6194">Bug
-          6194</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Offset calculated incorrectly for sFlow extended data.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6219">Bug
-          6219</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  [Enter] key behavior varies when manually typing display filters.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6228">Bug
-          6228</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Contents of pcapng EnhancedPacketBlocks with comments aren't displayed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6229">Bug
-          6229</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Misdecoding 3G Neighbour Cell Information Element in SI2quater message due to a coding typo.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6237">Bug
-          6237</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Mis-spelled word "unknown" in assorted files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6244">Bug
-          6244</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  btl2cap extended window shows wrong bit.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6257">Bug
-          6257</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  NDMP dissector incorrectly represents "ndmp.bytes_left_to_read" as signed.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6262">Bug
-          6262</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  ERF records with extension headers not written out correctly to pcap or pcap-ng files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6265">Bug
-          6265</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  RTPS2: MAX_BITMAP_SIZE is defined incorrectly.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6276">Bug
-          6276</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  Copying from RTP stream analysis copies 1st line many times.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6279">Bug
-          6279</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  File types with no snaplen written out with a zero snaplen in pcap-ng files.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6289">Bug
-          6289</ulink>)
-        </para></listitem>
-
-        <listitem><para>
-	  MEGACO context tracking fix - context id reuse.
-          (<ulink url="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6311">Bug
-          6311</ulink>)
-        </para></listitem>
 
       </itemizedlist>
 
@@ -235,17 +97,6 @@ There are no new protocols in this release.
 
 <!-- Sort alphabetically -->
 
-BGP,
-Bluetooth L2CAP,
-GSM A RR,
-H.225,
-IKE,
-MEGACO,
-NDMP,
-RTPS2,
-SCPS,
-sFlow,
-SNMP
 
     </para>
     </section>
@@ -253,7 +104,7 @@ SNMP
     <section id="NewCapture"><title>New and Updated Capture File Support</title>
     <para>
 
-CommView, pcap-ng.
+.
 
     </para>
     </section>
