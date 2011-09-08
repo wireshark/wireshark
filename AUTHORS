@@ -2661,13 +2661,13 @@ Douglas Pratley		<Douglas.pratley [AT] detica.com> {
 	Epoch timestamps
 }
 
-Giorgio Tino		<giorgio.tino [AT] cacetech.com> {
+Giorgio Tino		<giorgio.tino [AT] tinoshi@gmail.com> {
 	AirPcap support
 	WPA UI support
 	Static text preferences
 }
 
-Davide Schiera		<davide.schiera [AT] cacetech.com> {
+Davide Schiera		<davide.schiera [AT] riverbed.com> {
 	WPA and WPA2 decryption
 }
 
@@ -2818,7 +2818,7 @@ Shane Kearns		<shane.kearns [AT] symbian.com> {
 	Support Symbian OS btsnoop
 }
 
-Loris Degioanni		<loris.degioanni [AT] cacetech.com> {
+Loris Degioanni		<loris.degioanni [AT] riverbed.com> {
 	Rawshark
 }
 
