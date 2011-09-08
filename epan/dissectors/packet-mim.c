@@ -217,7 +217,7 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   guint16 dswid = 0;
   guint16 dsswid = 0;
   guint16 dlid = 0;
-  const guint8 *dst_addr;
+  const guint8 *dst_addr = NULL;
   gboolean dest_ig = FALSE;
 
   col_set_str( pinfo->cinfo, COL_PROTOCOL, FP_PROTO_COL_NAME ) ;
