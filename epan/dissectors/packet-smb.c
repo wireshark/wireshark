@@ -143,7 +143,10 @@ static int hf_smb_flags_response = -1;
 static int hf_smb_flags2_long_names_allowed = -1;
 static int hf_smb_flags2_ea = -1;
 static int hf_smb_flags2_sec_sig = -1;
+static int hf_smb_flags2_compressed = -1;
+static int hf_smb_flags2_sec_sig_required = -1;
 static int hf_smb_flags2_long_names_used = -1;
+static int hf_smb_flags2_reparse_path = -1;
 static int hf_smb_flags2_esn = -1;
 static int hf_smb_flags2_dfs = -1;
 static int hf_smb_flags2_roe = -1;
@@ -192,10 +195,10 @@ static int hf_smb_server_cap_dfs = -1;
 static int hf_smb_server_cap_infolevel_passthru = -1;
 static int hf_smb_server_cap_large_readx = -1;
 static int hf_smb_server_cap_large_writex = -1;
+static int hf_smb_server_cap_lwio = -1;
 static int hf_smb_server_cap_unix = -1;
-static int hf_smb_server_cap_reserved = -1;
-static int hf_smb_server_cap_bulk_transfer = -1;
 static int hf_smb_server_cap_compressed_data = -1;
+static int hf_smb_server_cap_dynamic_reauth = -1;
 static int hf_smb_server_cap_extended_security = -1;
 static int hf_smb_system_time = -1;
 static int hf_smb_unknown = -1;
@@ -1893,10 +1896,10 @@ dissect_extended_file_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 #define SERVER_CAP_INFOLEVEL_PASSTHRU  0x00002000
 #define SERVER_CAP_LARGE_READX         0x00004000
 #define SERVER_CAP_LARGE_WRITEX        0x00008000
+#define SERVER_CAP_LWIO                0x00010000
 #define SERVER_CAP_UNIX                0x00800000
-#define SERVER_CAP_RESERVED            0x02000000
-#define SERVER_CAP_BULK_TRANSFER       0x20000000
-#define SERVER_CAP_COMPRESSED_DATA     0x40000000
+#define SERVER_CAP_COMPRESSED_DATA     0x02000000
+#define SERVER_CAP_DYNAMIC_REAUTH      0x20000000
 #define SERVER_CAP_EXTENDED_SECURITY   0x80000000
 static const true_false_string tfs_server_cap_raw_mode = {
 	"Read Raw and Write Raw are supported",
@@ -1954,21 +1957,21 @@ static const true_false_string tfs_server_cap_large_writex = {
 	"Large Write andX is supported",
 	"Large Write andX is not supported"
 };
+static const true_false_string tfs_server_cap_lwio = {
+	"LWIO ioctl/fsctl is supported",
+	"LWIO ioctl/fsctl is not supported"
+};
 static const true_false_string tfs_server_cap_unix = {
 	"UNIX extensions are supported",
 	"UNIX extensions are not supported"
 };
-static const true_false_string tfs_server_cap_reserved = {
-	"Reserved",
-	"Reserved"
-};
-static const true_false_string tfs_server_cap_bulk_transfer = {
-	"Bulk Read and Bulk Write are supported",
-	"Bulk Read and Bulk Write are not supported"
-};
 static const true_false_string tfs_server_cap_compressed_data = {
 	"Compressed data transfer is supported",
 	"Compressed data transfer is not supported"
+};
+static const true_false_string tfs_server_cap_dynamic_reauth = {
+	"Dynamic Reauth is supported",
+	"Dynamic Reauth is not supported"
 };
 static const true_false_string tfs_server_cap_extended_security = {
 	"Extended security exchanges are supported",
@@ -2015,13 +2018,13 @@ dissect_negprot_capabilities(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			tvb, offset, 4, mask);
 		proto_tree_add_boolean(tree, hf_smb_server_cap_large_writex,
 			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_lwio,
+			tvb, offset, 4, mask);
 		proto_tree_add_boolean(tree, hf_smb_server_cap_unix,
 			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_server_cap_reserved,
-			tvb, offset, 4, mask);
-		proto_tree_add_boolean(tree, hf_smb_server_cap_bulk_transfer,
-			tvb, offset, 4, mask);
 		proto_tree_add_boolean(tree, hf_smb_server_cap_compressed_data,
+			tvb, offset, 4, mask);
+		proto_tree_add_boolean(tree, hf_smb_server_cap_dynamic_reauth,
 			tvb, offset, 4, mask);
 		proto_tree_add_boolean(tree, hf_smb_server_cap_extended_security,
 			tvb, offset, 4, mask);
@@ -17209,9 +17212,21 @@ static const true_false_string tfs_smb_flags2_sec_sig = {
 	"Security signatures are supported",
 	"Security signatures are not supported"
 };
+static const true_false_string tfs_smb_flags2_compressed = {
+	"Compression is requested",
+	"Compression is not requested"
+};
+static const true_false_string tfs_smb_flags2_sec_sig_required = {
+	"Security signatures are required",
+	"Security signatures are not required"
+};
 static const true_false_string tfs_smb_flags2_long_names_used = {
 	"Path names in request are long file names",
 	"Path names in request are not long file names"
+};
+static const true_false_string tfs_smb_flags2_reparse_path = {
+	"The request uses a @GMT reparse path",
+	"The request does not use a @GMT reparse path"
 };
 static const true_false_string tfs_smb_flags2_esn = {
 	"Extended security negotiation is supported",
@@ -17257,7 +17272,13 @@ dissect_smb_flags2(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 			tvb, offset, 2, mask);
 		proto_tree_add_boolean(tree, hf_smb_flags2_esn,
 			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_reparse_path,
+			tvb, offset, 2, mask);
 		proto_tree_add_boolean(tree, hf_smb_flags2_long_names_used,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_sec_sig_required,
+			tvb, offset, 2, mask);
+		proto_tree_add_boolean(tree, hf_smb_flags2_compressed,
 			tvb, offset, 2, mask);
 		proto_tree_add_boolean(tree, hf_smb_flags2_sec_sig,
 			tvb, offset, 2, mask);
@@ -17965,9 +17986,21 @@ proto_register_smb(void)
 		{ "Security Signatures", "smb.flags2.sec_sig", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_sec_sig), 0x0004, "Are security signatures supported?", HFILL }},
 
+	{ &hf_smb_flags2_compressed,
+		{ "Compressed", "smb.flags2.compressed", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_compressed), 0x0008, "Is compression requested?", HFILL }},
+
+	{ &hf_smb_flags2_sec_sig_required,
+		{ "Security Signatures Required", "smb.flags2.sec_sig_required", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_sec_sig_required), 0x0010, "Are security signatures required?", HFILL }},
+
 	{ &hf_smb_flags2_long_names_used,
 		{ "Long Names Used", "smb.flags2.long_names_used", FT_BOOLEAN, 16,
 		TFS(&tfs_smb_flags2_long_names_used), 0x0040, "Are pathnames in this request long file names?", HFILL }},
+
+	{ &hf_smb_flags2_reparse_path,
+		{ "Reparse Path", "smb.flags2.reparse_path", FT_BOOLEAN, 16,
+		TFS(&tfs_smb_flags2_reparse_path), 0x0400, "The request uses a @GMT reparse path", HFILL }},
 
 	{ &hf_smb_flags2_esn,
 		{ "Extended Security Negotiation", "smb.flags2.esn", FT_BOOLEAN, 16,
@@ -18153,21 +18186,23 @@ proto_register_smb(void)
 		{ "Large WriteX", "smb.server_cap.large_writex", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_large_writex), SERVER_CAP_LARGE_WRITEX, "Is Large Write andX supported?", HFILL }},
 
+	{ &hf_smb_server_cap_lwio,
+		{ "LWIO", "smb.server_cap.lwio", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_lwio), SERVER_CAP_LWIO,
+		"Is IOCTL/FSCTL supported", HFILL }},
+
 	{ &hf_smb_server_cap_unix,
 		{ "UNIX", "smb.server_cap.unix", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_unix), SERVER_CAP_UNIX , "Are UNIX extensions supported?", HFILL }},
 
-	{ &hf_smb_server_cap_reserved,
-		{ "Reserved", "smb.server_cap.reserved", FT_BOOLEAN, 32,
-		TFS(&tfs_server_cap_reserved), SERVER_CAP_RESERVED, NULL, HFILL }},
-
-	{ &hf_smb_server_cap_bulk_transfer,
-		{ "Bulk Transfer", "smb.server_cap.bulk_transfer", FT_BOOLEAN, 32,
-		TFS(&tfs_server_cap_bulk_transfer), SERVER_CAP_BULK_TRANSFER, "Are Bulk Read and Bulk Write supported?", HFILL }},
-
 	{ &hf_smb_server_cap_compressed_data,
 		{ "Compressed Data", "smb.server_cap.compressed_data", FT_BOOLEAN, 32,
 		TFS(&tfs_server_cap_compressed_data), SERVER_CAP_COMPRESSED_DATA, "Is compressed data transfer supported?", HFILL }},
+
+	{ &hf_smb_server_cap_dynamic_reauth,
+		{ "Dynamic Reauth", "smb.server_cap.dynamic_reauth", FT_BOOLEAN, 32,
+		TFS(&tfs_server_cap_dynamic_reauth), SERVER_CAP_DYNAMIC_REAUTH,
+		"Is dynamic reauth supported?", HFILL }},
 
 	{ &hf_smb_server_cap_extended_security,
 		{ "Extended Security", "smb.server_cap.extended_security", FT_BOOLEAN, 32,
