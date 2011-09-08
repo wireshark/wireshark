@@ -50,6 +50,8 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/stock_icons.h"
 #include "gtk/prefs_dlg.h"
+#include "gtk/filter_dlg.h"
+#include "gtk/filter_autocomplete.h"
 #include "gtk/keys.h"
 #include "gtk/help_dlg.h"
 #include "ui_util.h"
@@ -277,6 +279,10 @@ filter_expression_save_dlg(gpointer data)
 
 	filter_text_box = gtk_entry_new();
 	gtk_box_pack_start(GTK_BOX(entry_hb), filter_text_box, TRUE, TRUE, 0);
+	g_signal_connect(filter_text_box, "changed", G_CALLBACK(filter_te_syntax_check_cb), NULL);
+	g_signal_connect(filter_text_box, "key-press-event", G_CALLBACK (filter_string_te_key_pressed_cb), NULL);
+	g_signal_connect(filter_save_frame_w, "key-press-event", G_CALLBACK (filter_parent_dlg_key_pressed_cb), NULL);
+
 	gtk_entry_set_text(GTK_ENTRY(filter_text_box), expr);
 	gtk_widget_show(filter_text_box);
 
