@@ -35,12 +35,17 @@
 #		 the SVN revision number.
 #   pkg_enable - Enable or disable package versioning.
 #   pkg_format - Like "format", but used for the package version.
+#   is_release - Specifies that we're building from a release tarball;
+#		 svnversion.h is not updated.  This should be added only
+#		 to the *released* version.conf, not the one used to build
+#		 the release (IOW it should be added by automake's dist-hook).
 #
 # If run with the "-p" or "--package-version" argument, the
 # AC_INIT macro in configure.in and the VERSION macro in
 # config.nmake will have the pkg_format template appended to the 
 # version number.  svnversion.h will _not_ be generated if either
-# argument is present.
+# argument is present (it will also not be generated if 'is_release' is set
+# in version.conf).
 #
 # Default configuration:
 #
@@ -70,6 +75,7 @@ my %version_pref = (
 	"enable"     => 1,
 	"svn_client" => 1,
 	"format"     => "SVN %Y%m%d%H%M%S",
+	"is_release" => 0,
 
 	# Normal development builds
 	"pkg_enable" => 1,
@@ -248,14 +254,15 @@ sub print_svn_version
 	my $svn_version;
 	my $needs_update = 1;
 
-	if ($pkg_version) { return; }
+	if ($pkg_version || $version_pref{"is_release"} == 1) { return; }
 
 	if ($last_change && $revision) {
 		$svn_version = "#define SVNVERSION \"SVN Rev " . 
 			$revision . "\"\n" .
 			"#define SVNPATH \"" . $repo_path . "\"\n";
 	} else {
-		$svn_version = "\n";
+		$svn_version = "#define SVNVERSION \"SVN Rev Unknown\"\n" .
+			"#define SVNPATH \"unknown\"\n";
 	}
 	if (open(OLDVER, "<$version_file")) {
 		my $old_svn_version = <OLDVER> . <OLDVER>;
@@ -286,7 +293,6 @@ sub get_config {
 	if ($#ARGV >= 0) {
 		$srcdir = $ARGV[0]
 	}
-
 
 	if (! open(FILE, "<$vconf_file")) {
 		print STDERR "Version configuration file $vconf_file not "
@@ -332,8 +338,6 @@ if ($svn_info_cmd) {
 	}
 } else {
 	print "This is not a SVN build.\n";
-		$last_change = 0;
-		$revision = 0;
 }
 
 &print_svn_version;

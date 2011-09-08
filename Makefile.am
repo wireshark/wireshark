@@ -810,7 +810,7 @@ EXTRA_DIST = \
 	$(dtds_DATA)		\
 	$(radius_DATA)		\
 	$(tpncp_DATA)		\
-	$(ui_DATA)			\
+	$(ui_DATA)		\
 	$(wimaxasncp_DATA)	\
 	randpkt.c		\
 	smi_modules		\
@@ -866,16 +866,16 @@ EXTRA_DIST = \
 	cmake/modules/UseMakeDissectorReg.cmake	\
 	cmake/modules/UseMakeTapReg.cmake	\
 	cmake/modules/readme.txt		\
-	win32/Makefile.nmake	\
-	win32/file_dlg_win32.c		\
-	win32/file_dlg_win32.h		\
+	win32/Makefile.nmake			\
+	win32/file_dlg_win32.c			\
+	win32/file_dlg_win32.h			\
 	win32/print_win32.c			\
 	win32/print_win32.h			\
 	CPackConfig.txt				\
-	all.vcproj		\
-	dumpcap.vcproj		\
-	packaging.vcproj	\
-	tshark.vcproj		\
+	all.vcproj				\
+	dumpcap.vcproj				\
+	packaging.vcproj			\
+	tshark.vcproj				\
 	wireshark.vcproj
 
 install-exec-hook:
@@ -1024,3 +1024,12 @@ checkapi: checkapi_local
 	cd ../dissectors && $(MAKE) checkapi
 	cd ../../plugins && $(MAKE) checkapi
 	cd ../wsutil && $(MAKE) checkapi
+
+# When we build a release tarball, tell make-version that it is such.  This
+# prevents make-version from looking for SVN details in the source tarball,
+# failing, and then labelling the build as from "SVN version unknown."
+dist-hook:
+	if test -f $(top_srcdir)/version.conf; then \
+		cp $(top_srcdir)/version.conf $(top_distdir); \
+		echo "is_release: 1" >> $(top_distdir)/version.conf; \
+	fi
