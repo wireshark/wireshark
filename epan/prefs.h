@@ -167,6 +167,7 @@ typedef struct _e_prefs {
   guint    rtp_player_max_visible;
   guint    tap_update_interval;
   gboolean display_hidden_proto_items;
+  gpointer filter_expressions;	/* Actually points to &head */
 } e_prefs;
 
 WS_VAR_IMPORT e_prefs prefs;

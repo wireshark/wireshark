@@ -1,6 +1,5 @@
-/* main_filter_toolbar.h
- * Definitions for filter toolbar routines
- * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
+/* filter_expression_save_dlg.h
+ * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
  * $Id$
  *
@@ -23,13 +22,26 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MAIN_FILTER_TOOLBAR_H__
-#define __MAIN_FILTER_TOOLBAR_H__
+#ifndef __FILTER_EXPRESSIONS_SAVE_DLG_H__
+#define __FILTER_EXPRESSIONS_SAVE_DLG_H__
 
-#define E_DFILTER_APPLY_KEY       "display_filter_apply"
-#define E_DFILTER_CLEAR_KEY       "display_filter_clear"
-#define E_DFILTER_SAVE_KEY        "display_filter_save"
+#include "globals.h"
+#include "epan/filter_expressions.h"
 
-extern GtkWidget *filter_toolbar_new(void);
+enum {
+	FILTER_EXPRESSION_REINIT_DESTROY = 1,
+	FILTER_EXPRESSION_REINIT_CREATE = 2
+};
 
-#endif /* __MAIN_FILTER_TOOLBAR_H__ */
+/** User requested to shift the time of the trace
+ *
+ * @param widget parent widget (unused)
+ * @param data unused
+ * @param action the function to use
+ */
+
+extern void filter_expression_save_dlg(gpointer data);
+void filter_expression_save_dlg_init(gpointer filter_tb, gpointer filter_te);
+void filter_expression_reinit(int what);
+
+#endif /* __FILTER_EXPRESSIONS_SAVE_DLG_H__ */

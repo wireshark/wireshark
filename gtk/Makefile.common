@@ -81,6 +81,7 @@ WIRESHARK_GTK_SRC = \
 	file_import_dlg.c	\
 	fileset_dlg.c	\
 	filter_dlg.c	\
+	filter_expression_save_dlg.c	\
 	filter_utils.c	\
 	find_dlg.c	\
 	firewall_dlg.c	\
@@ -116,6 +117,7 @@ WIRESHARK_GTK_SRC = \
 	prefs_capture.c	\
 	prefs_column.c	\
 	prefs_dlg.c	\
+	prefs_filter_expressions.c	\
 	prefs_gui.c	\
 	prefs_layout.c	\
 	prefs_nameres.c	\
@@ -266,6 +268,7 @@ noinst_HEADERS = \
 	fileset_dlg.h	\
 	filter_autocomplete.h	\
 	filter_dlg.h	\
+	filter_expression_save_dlg.h	\
 	filter_utils.h	\
 	find_dlg.h	\
 	firewall_dlg.h	\
@@ -309,6 +312,7 @@ noinst_HEADERS = \
 	prefs_capture.h	\
 	prefs_column.h	\
 	prefs_dlg.h	\
+	prefs_filter_expressions.h	\
 	prefs_gui.h	\
 	prefs_layout.h	\
 	prefs_nameres.h	\

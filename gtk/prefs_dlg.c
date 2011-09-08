@@ -43,6 +43,7 @@
 #include "gtk/main.h"
 #include "gtk/prefs_column.h"
 #include "gtk/prefs_dlg.h"
+#include "gtk/prefs_filter_expressions.h"
 #include "gtk/prefs_print.h"
 #include "gtk/prefs_stream.h"
 #include "gtk/prefs_gui.h"
@@ -97,6 +98,7 @@ static void     prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 #define E_NAMERES_PAGE_KEY      "nameres_options_page"
 #define E_TAPS_PAGE_KEY         "taps_options_page"
 #define E_PROTOCOLS_PAGE_KEY    "protocols_options_page"
+#define E_FILTER_EXPRESSIONS_PAGE_KEY	"filter_expressions_page"
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that
@@ -575,6 +577,13 @@ prefs_page_cb(GtkWidget *w _U_, gpointer dummy _U_, PREFS_PAGE_E prefs_page)
   /* Name resolution prefs */
   g_strlcpy(label_str, "Name Resolution", MAX_TREE_NODE_NAME_LEN);
   prefs_nb_page_add(prefs_nb, label_str, nameres_prefs_show(), E_NAMERES_PAGE_KEY);
+  prefs_tree_page_add(label_str, cts.page, store, NULL);
+  cts.page++;
+
+  /* Saved filter prefs */
+  g_strlcpy(label_str, "Filter Expressions", MAX_TREE_NODE_NAME_LEN);
+  prefs_nb_page_add(prefs_nb, label_str, filter_expressions_prefs_show(),
+    E_FILTER_EXPRESSIONS_PAGE_KEY);
   prefs_tree_page_add(label_str, cts.page, store, NULL);
   cts.page++;
 
@@ -1255,6 +1264,8 @@ prefs_main_fetch_all(GtkWidget *dlg, gboolean *must_redissect)
 #endif /* HAVE_LIBPCAP */
   printer_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PRINT_PAGE_KEY));
   nameres_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_NAMERES_PAGE_KEY));
+  filter_expressions_prefs_fetch(g_object_get_data(G_OBJECT(dlg),
+    E_FILTER_EXPRESSIONS_PAGE_KEY));
   stats_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_TAPS_PAGE_KEY));
   protocols_prefs_fetch(g_object_get_data(G_OBJECT(dlg), E_PROTOCOLS_PAGE_KEY));
   prefs_modules_foreach(module_prefs_fetch, must_redissect);

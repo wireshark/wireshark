@@ -1217,6 +1217,7 @@ set(LIBWIRESHARK_FILES
 	except.c
 	expert.c
 	filesystem.c
+	filter_expressions.c
 	follow.c
 	frame_data.c
 	frequency-utils.c

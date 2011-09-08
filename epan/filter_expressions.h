@@ -1,6 +1,5 @@
-/* main_filter_toolbar.h
- * Definitions for filter toolbar routines
- * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
+/* filter_expressions.h
+ * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
  * $Id$
  *
@@ -23,13 +22,28 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MAIN_FILTER_TOOLBAR_H__
-#define __MAIN_FILTER_TOOLBAR_H__
+#ifndef __FILTER_EXPRESSIONS_H__
+#define __FILTER_EXPRESSIONS_H__
 
-#define E_DFILTER_APPLY_KEY       "display_filter_apply"
-#define E_DFILTER_CLEAR_KEY       "display_filter_clear"
-#define E_DFILTER_SAVE_KEY        "display_filter_save"
+#include "globals.h"
 
-extern GtkWidget *filter_toolbar_new(void);
+struct filter_expression {
+	gpointer button;	/* Filter toolbar */
+	gchar	*label;
+	gchar	*expression;
 
-#endif /* __MAIN_FILTER_TOOLBAR_H__ */
+	gint	index;
+	gboolean enabled;	/* Can be set to FALSE by Preferences Dialog */
+	gboolean deleted;	/* Can be set to TRUE by Preferences Dialog */
+
+	struct filter_expression *next;
+};
+
+WS_VAR_IMPORT struct filter_expression **pfilter_expression_head;
+
+struct filter_expression *filter_expression_new(const gchar *label,
+    const gchar *expr, const gboolean enabled);
+
+void filter_expression_init(gboolean prefs);
+
+#endif /* __FILTER_EXPRESSIONS_H__ */

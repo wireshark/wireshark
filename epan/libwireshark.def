@@ -443,6 +443,8 @@ file_open_error_message
 file_write_error_message
 files_identical
 filesystem_opt
+pfilter_expression_head		DATA
+filter_expression_new
 find_circuit
 find_codec
 find_conversation

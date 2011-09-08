@@ -53,6 +53,7 @@ set(WIRESHARK_GTK_SRC
 	file_import_dlg.c
 	fileset_dlg.c
 	filter_dlg.c
+	filter_expression_save_dlg.c
 	filter_utils.c
 	find_dlg.c
 	firewall_dlg.c
@@ -88,6 +89,7 @@ set(WIRESHARK_GTK_SRC
 	prefs_capture.c
 	prefs_column.c
 	prefs_dlg.c
+	prefs_filter_expressions.c
 	prefs_gui.c
 	prefs_layout.c
 	prefs_nameres.c

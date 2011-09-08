@@ -50,6 +50,7 @@ LIBWIRESHARK_SRC = 		\
 	except.c		\
 	expert.c		\
 	filesystem.c		\
+	filter_expressions.c	\
 	follow.c		\
 	frame_data.c		\
 	frequency-utils.c	\
@@ -163,6 +164,7 @@ LIBWIRESHARK_INCLUDES = 	\
 	except.h		\
 	exceptions.h		\
 	expert.h		\
+	filter_expressions.h	\
 	filesystem.h		\
 	follow.h		\
 	frame_data.h		\

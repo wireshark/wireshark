@@ -162,6 +162,7 @@
 #include "gtk/prefs_dlg.h"
 #include "gtk/proto_help.h"
 #include "gtk/new_packet_list.h"
+#include "gtk/filter_expression_save_dlg.h"
 
 #include "gtk/old-gtk-compat.h"
 
@@ -3779,6 +3780,7 @@ void change_configuration_profile (const gchar *profile_name)
    /* Set profile name and update the status bar */
    set_profile_name (profile_name);
    profile_bar_update ();
+   filter_expression_reinit(FILTER_EXPRESSION_REINIT_DESTROY);
 
    /* Reset current preferences and apply the new */
    prefs_reset();
@@ -3806,6 +3808,7 @@ void change_configuration_profile (const gchar *profile_name)
 
    /* Update window view and redraw the toolbar */
    update_main_window_title();
+   filter_expression_reinit(FILTER_EXPRESSION_REINIT_CREATE);
    toolbar_redraw_all();
 
    /* Enable all protocols and disable from the disabled list */

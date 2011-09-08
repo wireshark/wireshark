@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-08-31
+# 2011-09-07
 # 
 # Note
 # 
@@ -1491,8 +1491,8 @@ keyserver	584/udp	# Key Server                   [Gary_Howland]                 
 # 585               De-registered                                                                                                                           2006-04-25                                                             Use of 585 is not recommended, use 993 instead
 password-chg	586/tcp	# Password Change
 password-chg	586/udp	# Password Change
-submission	587/tcp	# Submission                                                                                                                                           [RFC4409]
-submission	587/udp	# Submission                                                                                                                                           [RFC4409]
+submission	587/tcp	# Message Submission                                                                                                                                   [RFC-ietf-yam-rfc4409bis-03]
+submission	587/udp	# Message Submission                                                                                                                                   [RFC-ietf-yam-rfc4409bis-03]
 cal	588/tcp	# CAL                          [Myron_Hattig]                      [Myron_Hattig]
 cal	588/udp	# CAL                          [Myron_Hattig]                      [Myron_Hattig]
 eyelink	589/tcp	# EyeLink                      [Dave_Stampe]                       [Dave_Stampe]
@@ -15242,7 +15242,18 @@ EtherNet-IP-2	44818/udp	# IANA assigned this           [Brian_Batke_2]          
 # New contact added for port 44818 on 2008-02-01 This entry is
 EtherNet/IP-2	44818/udp	# EtherNet/IP messaging        [Brian_Batke_2]                     [Brian_Batke_2]                                                                                                                               an alias to "EtherNet-IP-2". This entry is now historic, not
 # usable for use with many common service discovery mechanisms.
-# 44819-45053           Unassigned
+# 44819-44999           Unassigned
+# NSi AutoStore Status
+asmp	45000/tcp	# Monitoring Protocol data     [Notable_Solutions_Inc]             [Andrew_Andrews]                                          2011-09-01
+# transfer
+# NSi AutoStore Status
+asmp-mon	45000/udp	# Monitoring Protocol device   [Notable_Solutions_Inc]             [Andrew_Andrews]                                          2011-09-01
+# monitoring
+# NSi AutoStore Status
+asmps	45001/tcp	# Monitoring Protocol secure   [Notable_Solutions_Inc]             [Andrew_Andrews]                                          2011-09-01
+# data transfer
+# 45001       udp    Reserved
+# 45002-45053           Unassigned
 invision-ag	45054/tcp	# InVision AG                  [Matthias_Schroer]                  [Matthias_Schroer]
 invision-ag	45054/udp	# InVision AG                  [Matthias_Schroer]                  [Matthias_Schroer]
 # 45055-45677           Unassigned
@@ -15954,8 +15965,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Java Bonjour application)
 # panoply                        tcp    Panoply multimedia composite [Natarajan_Balasundar]              [Natarajan_Balasundar]                                                                                                                        Defined TXT keys: None
 # transfer protocol
-# panoply                        udp    Panoply multimedia composite [Natarajan_Balasundar]              [Natarajan_Balasundar]                                                                                                                        Defined TXT keys: None
-# transfer protocol
 # parabay-p2p                    tcp    Parabay P2P protocol         [Vishnu_Varadaraj]                  [Vishnu_Varadaraj]                                                                                                                            Defined TXT keys: None
 # pgpkey-hkp                            Horowitz Key Protocol (HKP)  [Marc_Horowitz]                     [Marc_Horowitz]                                                                                                                               Defined TXT keys: None
 # pgpkey-http                           PGP Keyserver using HTTP/1.1 [Jeroen_Massar_3]                   [Jeroen_Massar_3]                                                                                                                             Defined TXT keys: path=<path on the server where the HKP
@@ -16513,6 +16522,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Andrei_Vilkotski]                                        Andrei Vilkotski                          mailto:andreiv&sgi.com                                        2003-06
 # [Andres_Seco_Hernande]                                    Andres Seco Hernandez                     mailto:AndresSH&alamin.org
 # [Andrew_Aksyonoff]                                        Andrew Aksyonoff                          mailto:shodan&sphinxsearch.com                                2009-10-20
+# [Andrew_Andrews]                                          Andrew Andrews                            mailto:Andrew.Andrews&nsius.com                               2011-09-01
 # [Andrew_Borisov]                                          Andrew Borisov                            mailto:hdr&chat.ru
 # [Andrew_Chernow]                                          Andrew Chernow                            mailto:andrew&esilo.com                                       2007-01
 # [Andrew_Crockford]                                        Andrew Crockford                          mailto:andrew.crockford&modus-interactive.co.uk
@@ -19293,6 +19303,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Norman_Brie]                                             Norman Brie                               mailto:norm_brie&sns.ca
 # [Norman_Wilson]                                           Norman Wilson                             mailto:nwilson&programmar.com                                 2010-10-06
 # [Northon_Rodrigues]                                       Northon Rodrigues                         mailto:northon.rodrigues&thomson.net                          2004-02
+# [Notable_Solutions_Inc]                                                             Notable         mailto:dev&nsius.com                                          2011-09-01
+# Solutions, Inc.
 # [NovaWiz_LTD]                                             NovaWiz LTD                               mailto:Moshe&novawiz.com
 # OASIS KMIP
 # [OASIS_KMIP_Technical_Committee]                                                    Technical       mailto:robin&oasis-open.org                                   2011-07-25

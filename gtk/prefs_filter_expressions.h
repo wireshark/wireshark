@@ -1,6 +1,5 @@
-/* main_filter_toolbar.h
- * Definitions for filter toolbar routines
- * Copyright 2003, Ulf Lamping <ulf.lamping@web.de>
+/* prefs_filter_expressions.h
+ * Submitted by Edwin Groothuis <wireshark@mavetju.org>
  *
  * $Id$
  *
@@ -23,13 +22,24 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-#ifndef __MAIN_FILTER_TOOLBAR_H__
-#define __MAIN_FILTER_TOOLBAR_H__
+#ifndef __PREFS_FILTER_EXPRESSIONS_H__
+#define __PREFS_FILTER_EXPRESSIONS_H__
 
-#define E_DFILTER_APPLY_KEY       "display_filter_apply"
-#define E_DFILTER_CLEAR_KEY       "display_filter_clear"
-#define E_DFILTER_SAVE_KEY        "display_filter_save"
+/** @file
+ *  "Name resolution" preferences page.
+ *  @ingroup prefs_group
+ */
 
-extern GtkWidget *filter_toolbar_new(void);
+/** Build a Filter Save preferences page.
+ *
+ * @return the new preferences page
+ */
+GtkWidget *filter_expressions_prefs_show(void);
 
-#endif /* __MAIN_FILTER_TOOLBAR_H__ */
+/** Fetch preference values from page.
+ *
+ * @param widget widget from filtersave_prefs_show()
+ */
+void filter_expressions_prefs_fetch(GtkWidget *widget);
+
+#endif

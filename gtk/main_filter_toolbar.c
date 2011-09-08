@@ -50,6 +50,7 @@
 #include "menus.h"
 #include "main_toolbar.h"
 #include "main_filter_toolbar.h"
+#include "filter_expression_save_dlg.h"
 
 #ifdef MAIN_MENU_USE_UIMANAGER
 # define MENU_BAR_PATH_FILE_OPEN				"/Menubar/FileMenu/Open"
@@ -64,7 +65,6 @@
 # define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/OrSelected"
 # define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_AND_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/AndNotSelected"
 # define MENU_BAR_PATH_ANALYZE_APL_AS_FLT_OR_NOT_SEL		"/Menubar/AnalyzeMenu/ApplyAsFilter/OrNotSelected"
-
 # define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_SEL			"/Menubar/AnalyzeMenu/PrepareaFilter/Selected"
 # define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_NOT_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/NotSelected"
 # define MENU_BAR_PATH_ANALYZE_PREP_A_FLT_AND_SEL		"/Menubar/AnalyzeMenu/PrepareaFilter/AndSelected"
@@ -123,6 +123,7 @@ filter_changed_cb(GtkWidget *w _U_, gpointer data)
 {
     gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_APPLY_KEY), TRUE);
     gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_CLEAR_KEY), TRUE);
+    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(data), E_DFILTER_SAVE_KEY), TRUE);
 }
 
 /* redisplay with no display filter */
@@ -137,13 +138,20 @@ filter_reset_cb(GtkWidget *w, gpointer data _U_)
     main_filter_packets(&cfile, NULL, FALSE);
 }
 
+static void
+filter_save_cb(GtkWidget *w _U_, GtkWindow *parent_w)
+{
+    filter_expression_save_dlg(parent_w);
+}
+
+
 GtkWidget *filter_toolbar_new(void)
 {
     GtkWidget     *filter_cm;
     GtkWidget     *filter_te;
     GtkWidget     *filter_tb;
-    GtkToolItem   *filter_bt, *filter_add_expr_bt, *filter_reset;
-    GtkToolItem   *filter_apply, *item;
+    GtkToolItem	  *filter_bt, *filter_add_expr_bt, *filter_reset;
+    GtkToolItem   *filter_apply, *filter_save, *item;
 
 
     /* Display filter construct dialog has an Apply button, and "OK" not
@@ -217,7 +225,7 @@ GtkWidget *filter_toolbar_new(void)
                        filter_add_expr_bt,
                        -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(filter_add_expr_bt), "Add an expression to this filter string");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_add_expr_bt), "Add an expression to this filter string");
 
     /* Create the "Clear" button */
     filter_reset = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_CLEAR_EXPRESSION);
@@ -230,7 +238,7 @@ GtkWidget *filter_toolbar_new(void)
                        filter_reset,
                        -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(filter_reset), "Clear this filter string and update the display");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_reset), "Clear this filter string and update the display");
 
     /* Create the "Apply" button */
     filter_apply = gtk_tool_button_new_from_stock(WIRESHARK_STOCK_APPLY_EXPRESSION);
@@ -244,7 +252,21 @@ GtkWidget *filter_toolbar_new(void)
                        filter_apply,
                        -1);
 
-	gtk_widget_set_tooltip_text(GTK_WIDGET(filter_apply), "Apply this filter string to the display");
+    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_apply), "Apply this filter string to the display");
+
+    /* Create the "Save" button */
+    filter_save = gtk_tool_button_new_from_stock(GTK_STOCK_SAVE);
+    g_object_set_data(G_OBJECT(filter_save), E_DFILTER_CM_KEY, filter_cm);
+    g_object_set_data(G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY, filter_save);
+    g_signal_connect(filter_save, "clicked", G_CALLBACK(filter_save_cb), filter_te);
+    gtk_widget_set_sensitive (GTK_WIDGET(filter_save), FALSE);
+    gtk_widget_show(GTK_WIDGET(filter_save));
+
+    gtk_toolbar_insert(GTK_TOOLBAR(filter_tb),
+                       filter_save,
+                       -1);
+
+    gtk_widget_set_tooltip_text(GTK_WIDGET(filter_save), "Save this filter string");
 
     /* Sets the text entry widget pointer as the E_DILTER_TE_KEY data
      * of any widget that ends up calling a callback which needs
@@ -287,6 +309,8 @@ GtkWidget *filter_toolbar_new(void)
 
     set_toolbar_object_data(E_DFILTER_TE_KEY, filter_te);
     g_object_set_data(G_OBJECT(popup_menu_object), E_DFILTER_TE_KEY, filter_te);
+
+    filter_expression_save_dlg_init(filter_tb, filter_te);
 
     /* make current preferences effective */
     toolbar_redraw_all();
@@ -392,6 +416,7 @@ main_filter_packets(capture_file *cf, const gchar *dftext, gboolean force)
         gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_APPLY_KEY), FALSE);
 	if (!s || strlen (s) == 0) {
 	    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_CLEAR_KEY), FALSE);
+	    gtk_widget_set_sensitive (g_object_get_data (G_OBJECT(filter_cm), E_DFILTER_SAVE_KEY), FALSE);
 	}
     }
 

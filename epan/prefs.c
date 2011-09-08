@@ -53,6 +53,8 @@
 #include <epan/prefs-int.h>
 #include <epan/uat-int.h>
 
+#include "epan/filter_expressions.h"
+
 /* Internal functions */
 static module_t *find_subtree(module_t *parent, const char *tilte);
 static module_t *prefs_register_module_or_subtree(module_t *parent,
@@ -1322,6 +1324,7 @@ init_prefs(void) {
   prefs.rtp_player_max_visible = RTP_PLAYER_DEFAULT_VISIBLE;
 
   prefs.display_hidden_proto_items = FALSE;
+  filter_expression_init(TRUE);
 
   prefs_initialized = TRUE;
 }
@@ -1847,6 +1850,9 @@ prefs_capture_device_monitor_mode(const char *name)
 #define PRS_GUI_LAYOUT_CONTENT_2         "gui.layout_content_2"
 #define PRS_GUI_LAYOUT_CONTENT_3         "gui.layout_content_3"
 #define PRS_CONSOLE_LOG_LEVEL		 "console.log.level"
+#define PRS_GUI_FILTER_LABEL             "gui.filter_expressions.label"
+#define PRS_GUI_FILTER_EXPR              "gui.filter_expressions.expr"
+#define PRS_GUI_FILTER_ENABLED           "gui.filter_expressions.enabled"
 
 /*
  * This applies to more than just captures, so it's not "capture.name_resolve";
@@ -2004,6 +2010,9 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
   gint     enum_val;
   char     *p;
   gchar    *dotp, *last_dotp;
+  static gchar *filter_label = NULL;
+  static gboolean filter_enabled = FALSE;
+  gchar    *filter_expr = NULL;
   module_t *module;
   pref_t   *pref;
   gboolean had_a_dot;
@@ -2035,6 +2044,15 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
     prefs.pr_cmd = g_strdup(value);
   } else if (strcmp(pref_name, PRS_COL_HIDDEN) == 0) {
     cols_hidden_list = g_strdup (value);
+  } else if (strcmp(pref_name, PRS_GUI_FILTER_LABEL) == 0) {
+    filter_label = g_strdup(value);
+  } else if (strcmp(pref_name, PRS_GUI_FILTER_ENABLED) == 0) {
+    filter_enabled = (strcmp(value, "TRUE") == 0) ? TRUE : FALSE;
+  } else if (strcmp(pref_name, PRS_GUI_FILTER_EXPR) == 0) {
+    filter_expr = g_strdup(value);
+    filter_expression_new(filter_label, filter_expr, filter_enabled);
+    g_free(filter_label);
+    g_free(filter_expr);
   } else if (strcmp(pref_name, PRS_COL_FMT) == 0) {
     col_l = prefs_get_string_list(value);
     if (col_l == NULL)
@@ -3380,6 +3398,22 @@ write_prefs(char **pf_path_return)
   fprintf(pf, "# An integer value greater than 0.\n");
   fprintf(pf, PRS_RTP_PLAYER_MAX_VISIBLE ": %d\n",
 	  prefs.rtp_player_max_visible);
+
+  fprintf(pf, "\n####### Filter Expressions ########\n");
+  {
+    struct filter_expression *fe;
+
+    fe = *(struct filter_expression **)prefs.filter_expressions;
+    while (fe != NULL) {
+      if (fe->deleted == FALSE) {
+	fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_LABEL, fe->label);
+	fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_ENABLED,
+	fe->enabled == TRUE ? "TRUE" : "FALSE");
+	fprintf(pf, "%s: %s\n", PRS_GUI_FILTER_EXPR, fe->expression);
+      }
+      fe = fe->next;
+    }
+  }
 
   fprintf(pf, "\n####### Protocols ########\n");
 
