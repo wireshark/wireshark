@@ -948,6 +948,7 @@ DISSECTOR_SRC = \
 	packet-tpncp.c		\
 	packet-tr.c			\
 	packet-trill.c      \
+	packet-mim.c        \
 	packet-trmac.c		\
 	packet-tsp.c		\
 	packet-tte.c		\

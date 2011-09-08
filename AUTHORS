@@ -3304,6 +3304,14 @@ Kurnia Hendrawan	<kurnia.hendrawan [AT] consistec.de> {
         Saving User Specified Decodes into profile
 }
 
+Kurnia Hendrawan	<kurnia.hendrawan [AT] consistec.de> {
+        Saving User Specified Decodes into profile
+}
+
+Leonard Tracy	<letracy [at] cisco.com>{
+        Cisco FabricPath protocol dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
