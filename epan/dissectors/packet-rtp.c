@@ -678,9 +678,8 @@ void rtp_add_address(packet_info *pinfo,
 static gboolean
 dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 {
-	guint8      octet1, octet2;
+	guint8      octet1;
  	unsigned int version;
-	unsigned int payload_type;
  	unsigned int offset = 0;
 
 	/* This is a heuristic dissector, which means we get all the UDP
@@ -726,21 +725,8 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		return FALSE;
 	}
 
-	/* Get the fields in the second octet */
-	octet2 = tvb_get_guint8( tvb, offset + 1 );
-	payload_type = RTP_PAYLOAD_TYPE( octet2 );
-
-	/* Check for a sensible payload type
-	   (recognised static and preferred dynamic ranges) */
-	if ((payload_type <= PT_H263) ||
-		/* Alex Lindberg - Modified range to use RTP Type Names */
-	    (payload_type >= PT_UNDF_96 && payload_type <= PT_UNDF_127)) {
-		dissect_rtp( tvb, pinfo, tree );
-		return TRUE;
-	}
-	else {
- 		return FALSE;
-	}
+	dissect_rtp( tvb, pinfo, tree );
+	return TRUE;
 }
 
 /*
