@@ -219,8 +219,6 @@ static dissector_handle_t data_handle;
 void proto_reg_handoff_rtp(void);
 void proto_reg_handoff_pkt_ccc(void);
 
-static gboolean dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo,
-    proto_tree *tree );
 static void dissect_rtp( tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree );
 static void show_setup_info(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
