@@ -150,7 +150,7 @@ typedef struct _stun_conv_info_t {
 #define UNKNOWN_ATTRIBUTES	0x000a	/* draft-ietf-behave-rfc3489bis-17 */
 #define CHANNEL_NUMBER		0x000c	/* draft-ietf-behave-turn-10 */
 #define LIFETIME		0x000d	/* draft-ietf-behave-turn-10 */
-#define BANDWIDTH		0x0010 /* turn-07 */
+#define BANDWIDTH		0x0010  /* turn-07 */
 #define XOR_PEER_ADDRESS	0x0012	/* draft-ietf-behave-turn-10 */
 #define DATA			0x0013	/* draft-ietf-behave-turn-10 */
 #define REALM			0x0014	/* draft-ietf-behave-rfc3489bis-17 */
@@ -178,22 +178,6 @@ typedef struct _stun_conv_info_t {
 #define RESPONSE_ORIGIN		0x802b	/* draft-ietf-behave-nat-behavior-discovery-03 */
 #define OTHER_ADDRESS		0x802c	/* draft-ietf-behave-nat-behavior-discovery-03 */
 
-/* divers */
-#define PROTO_NUM_UDP	17
-#define PROTO_NUM_TCP	6
-#define PROTO_NUM_ERR	255
-
-#define TURN_REQUESTED_PROPS_EVEN_PORT		0x01
-#define TURN_REQUESTED_PROPS_PAIR_OF_PORTS	0x02
-
-#define TURN_CHANNEL_NUMBER_MIN			0x4000
-#define TURN_CHANNEL_NUMBER_MAX			0xFFFE
-
-
-
-
-
-
 
 /* Initialize the subtree pointers */
 static gint ett_stun = -1;
@@ -205,7 +189,7 @@ static gint ett_stun_att_type = -1;
 #define UDP_PORT_STUN 	3478
 #define TCP_PORT_STUN	3478
 
-#define STUN_HDR_LEN		((guint)20)	/* STUN message header length */
+#define STUN_HDR_LEN		       20	/* STUN message header length */
 #define ATTR_HDR_LEN			4	/* STUN attribute header length */
 #define CHANNEL_DATA_HDR_LEN		4	/* TURN CHANNEL-DATA Message hdr length */
 #define MIN_HDR_LEN			4
@@ -329,152 +313,128 @@ static const value_string error_code[] = {
 static guint
 get_stun_message_len(packet_info *pinfo _U_, tvbuff_t *tvb, int offset)
 {
-	guint16 type = tvb_get_ntohs(tvb, offset);
-	guint16 length = tvb_get_ntohs(tvb, offset+2);
-	guint res;
+	guint16 type   = tvb_get_ntohs(tvb, offset);
+	guint   length = tvb_get_ntohs(tvb, offset+2);
 
 	if (type & 0xC000)
 	{
 		/* two first bits not NULL => should be a channel-data message */
-		res = (guint) ((length + CHANNEL_DATA_HDR_LEN +3) & -4);
+		/* Note: For TCP the message is padded to a 4 byte boundary    */
+		return (length + CHANNEL_DATA_HDR_LEN +3) & ~0x3;
 	}
 	else
 	{
 		/* Normal STUN message */
-		res = (guint) length + STUN_HDR_LEN;
+		return length + STUN_HDR_LEN;
 	}
-	return res;
 }
+
+static int
+dissect_stun_message_channel_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 msg_type, guint msg_length)
+{
+	guint reported_length;
+	tvbuff_t *next_tvb;
+
+	reported_length = tvb_reported_length(tvb);
+
+	/* two first bits not NULL => should be a channel-data message */
+	if (msg_type == 0xFFFF)
+		return 0;
+
+	/* note that padding is only mandatory over streaming
+	   protocols */
+	if (pinfo->ipproto == IP_PROTO_UDP) {
+		if (reported_length != (msg_length + CHANNEL_DATA_HDR_LEN))
+			return 0;
+	} else { /* TCP */
+		if (reported_length != ((msg_length + CHANNEL_DATA_HDR_LEN + 3) & ~0x3))
+			return 0;
+	}
+
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
+	col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
+
+	if (tree) {
+		proto_item *ti;
+		proto_tree *stun_tree;
+		ti = proto_tree_add_item(
+			tree, proto_stun, tvb, 0,
+			CHANNEL_DATA_HDR_LEN,
+			FALSE);
+		proto_item_append_text(ti, ", TURN ChannelData Message");
+		stun_tree = proto_item_add_subtree(ti, ett_stun);
+		proto_tree_add_item(stun_tree, hf_stun_channel, tvb, 0, 2, FALSE);
+		proto_tree_add_item(stun_tree, hf_stun_length,  tvb, 2, 2, FALSE);
+	}
+
+	next_tvb = tvb_new_subset_remaining(tvb, CHANNEL_DATA_HDR_LEN);
+
+	if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, tree)) {
+		call_dissector_only(data_handle, next_tvb, pinfo, tree);
+	}
+
+	return reported_length;
+}
+
 
 static int
 dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
+	guint       captured_length;
+	guint16     msg_type;
+	guint       msg_length;
 	proto_item *ti;
 	proto_tree *stun_tree;
 	proto_tree *stun_type_tree;
 	proto_tree *att_all_tree;
 	proto_tree *att_type_tree;
 	proto_tree *att_tree;
-	guint16 msg_type;
-	guint16 msg_length;
-	guint16 msg_type_method;
-	guint16 msg_type_class;
+	guint16     msg_type_method;
+	guint16     msg_type_class;
 	const char *msg_class_str;
 	const char *msg_method_str;
-	guint16 att_type;
-	guint16 att_length;
-	guint16 offset;
-	guint i;
-	guint magic_cookie_first_word;
-	guint len;
-	guint msg_total_len;
-	conversation_t *conversation=NULL;
-	stun_conv_info_t *stun_info;
-	stun_transaction_t * stun_trans;
+	guint16     att_type;
+	guint16     att_length;
+	guint       i;
+	guint       magic_cookie_first_word;
+	conversation_t     *conversation=NULL;
+	stun_conv_info_t   *stun_info;
+	stun_transaction_t *stun_trans;
 	emem_tree_key_t transaction_id_key[2];
-	guint32 transaction_id[3];
+	guint32         transaction_id[3];
 
 	/*
-	 * First check if the frame is really meant for us.
+	 * Check if the frame is really meant for us.
 	 */
 
-	offset = 0;
-	len = tvb_length(tvb);
-
-
-
 	/* First, make sure we have enough data to do the check. */
-	if (len < MIN_HDR_LEN)
+	captured_length = tvb_length(tvb);
+	if (captured_length < MIN_HDR_LEN)
 		return 0;
 
-	msg_type = tvb_get_ntohs(tvb, 0);
-	msg_length = tvb_get_ntohs(tvb, 2);
+	msg_type     = tvb_get_ntohs(tvb, 0);
+	msg_length   = tvb_get_ntohs(tvb, 2);
 
-	if (msg_type & 0xC000)
-	{
-		/* two first bits not NULL => should be a channel-data message */
-		if (msg_type == 0xFFFF)
-			return 0;
-		/* note that padding is only mandatory over streaming
-		   protocols */
-		msg_total_len = (guint) ((msg_length + CHANNEL_DATA_HDR_LEN +3) & -4) ;
-
-		/* check if payload enough */
-		if (len != msg_total_len) {
-			if (pinfo->ipproto != IP_PROTO_UDP) {
-				return 0;
-			}
-			/* recalculate the total length without padding */
-			msg_total_len = (guint) msg_length + CHANNEL_DATA_HDR_LEN;
-			if (len != msg_total_len)
-				return 0;
-		}
+	/* STUN Channel Data message ? */
+	if (msg_type & 0xC000) {
+		return dissect_stun_message_channel_data(tvb, pinfo, tree, msg_type, msg_length);
 	}
-	else
-	{
-		/* Normal STUN message */
-		msg_total_len = (guint) msg_length + STUN_HDR_LEN;
-		if (len < STUN_HDR_LEN)
-			return 0;
-		/* Check if it is really a STUN message */
-		if ( tvb_get_ntohl(tvb, 4) != 0x2112a442)
-			return 0;
 
-		/* check if payload enough */
-		if (len != msg_total_len)
-			return 0;
-	}
+	/* Normal STUN message */
+	if (captured_length < STUN_HDR_LEN)
+		return 0;
+
+	/* Check if it is really a STUN message */
+	if ( tvb_get_ntohl(tvb, 4) != 0x2112a442)
+		return 0;
+
+	/* check if payload enough */
+	if (tvb_reported_length(tvb) != (msg_length + STUN_HDR_LEN))
+		return 0;
 
 	/* The message seems to be a valid STUN message! */
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "STUN");
-
-	/* BEGIN of CHANNEL-DATA specific section */
-	if (msg_type & 0xC000)
-	{
-		guint data_length;
-		tvbuff_t *next_tvb;
-		guint reported_len, new_len;
-		/* two first bits not NULL => should be a channel-data message*/
-
-		/* Clear out stuff in the info column */
-		col_set_str(pinfo->cinfo, COL_INFO, "ChannelData TURN Message");
-
-		if (tree) {
-			ti = proto_tree_add_item(
-				tree, proto_stun, tvb, 0,
-				CHANNEL_DATA_HDR_LEN,
-				FALSE);
-			proto_item_append_text(ti, ", TURN ChannelData Message");
-			stun_tree = proto_item_add_subtree(ti, ett_stun);
-			proto_tree_add_item(stun_tree, hf_stun_channel, tvb, offset, 2, FALSE); offset += 2;
-			data_length = tvb_get_ntohs(tvb, 2);
-			proto_tree_add_item(stun_tree, hf_stun_length,  tvb, offset, 2, FALSE); offset += 2;
-		} else {
-			data_length = tvb_get_ntohs(tvb, 2);
-		}
-
-
-		new_len = tvb_length_remaining(tvb, CHANNEL_DATA_HDR_LEN);
-		reported_len = tvb_reported_length_remaining(tvb,
-							     CHANNEL_DATA_HDR_LEN);
-		if (data_length < reported_len) {
-			reported_len = data_length;
-		}
-		next_tvb = tvb_new_subset(tvb, CHANNEL_DATA_HDR_LEN, new_len,
-					  reported_len);
-
-
-		if (!dissector_try_heuristic(heur_subdissector_list,
-					     next_tvb, pinfo, tree)) {
-			call_dissector_only(data_handle,next_tvb, pinfo, tree);
-		}
-
-		return tvb_length(tvb);
-	}
-	/* END of CHANNEL-DATA specific section */
-
-	/* At this stage, we know this is a standard stun message */
 
 	/* Create the transaction key which may be used
 	   to track the conversation */
@@ -545,10 +505,10 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	msg_class_str = val_to_str_const(msg_type_class, classes, "Unknown");
+	msg_class_str  = val_to_str_const(msg_type_class, classes, "Unknown");
 	msg_method_str = val_to_str_const(msg_type_method, methods, "Unknown");
 
-	if(check_col(pinfo->cinfo,COL_INFO)) {
+	if(check_col(pinfo->cinfo, COL_INFO)) {
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
 			     msg_method_str, msg_class_str);
 	}
@@ -556,7 +516,6 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_stun, tvb, 0, -1, FALSE);
 
 	stun_tree = proto_item_add_subtree(ti, ett_stun);
-
 
 	if (msg_type_class == REQUEST) {
 		if (stun_trans->req_frame != pinfo->fd->num) {
@@ -611,24 +570,29 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (0x%03x)", msg_method_str, msg_type_method);
 	PROTO_ITEM_SET_GENERATED(ti);
 	proto_tree_add_uint(stun_type_tree, hf_stun_type_method_assignment, tvb, 0, 2, msg_type);
-	ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2, "%s (%d)", val_to_str((msg_type & 0x2000) >> 13, assignments, "Unknown: 0x%x"), (msg_type & 0x2000) >> 13);
+	ti = proto_tree_add_text(stun_type_tree, tvb, 0, 2,
+				 "%s (%d)",
+				 val_to_str((msg_type & 0x2000) >> 13, assignments, "Unknown: 0x%x"),
+				 (msg_type & 0x2000) >> 13);
 	PROTO_ITEM_SET_GENERATED(ti);
 
-	proto_tree_add_uint(stun_tree, hf_stun_length, tvb, 2, 2, msg_length);
+	proto_tree_add_item(stun_tree, hf_stun_length, tvb, 2, 2, FALSE);
 	proto_tree_add_item(stun_tree, hf_stun_cookie, tvb, 4, 4, FALSE);
 	proto_tree_add_item(stun_tree, hf_stun_id, tvb, 8, 12, FALSE);
 
 	/* Remember this (in host order) so we can show clear xor'd addresses */
 	magic_cookie_first_word = tvb_get_ntohl(tvb, 4);
 
-	if (msg_length > 0) {
+	if (msg_length != 0) {
+		guint offset;
+
 		ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, STUN_HDR_LEN, msg_length, FALSE);
 		att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
 
 		offset = STUN_HDR_LEN;
 
-		while (msg_length > 0) {
-			att_type = tvb_get_ntohs(tvb, offset); /* Type field in attribute header */
+		while (offset < (STUN_HDR_LEN + msg_length)) {
+			att_type = tvb_get_ntohs(tvb, offset);     /* Type field in attribute header */
 			att_length = tvb_get_ntohs(tvb, offset+2); /* Length field in attribute header */
 			ti = proto_tree_add_uint_format(att_all_tree, hf_stun_attr,
 							tvb, offset, ATTR_HDR_LEN+att_length,
@@ -650,18 +614,20 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 (att_type & 0x4000) >> 14);
 			PROTO_ITEM_SET_GENERATED(ti);
 
-			offset += 2;
-			if (ATTR_HDR_LEN+att_length > msg_length) {
+			if ((offset+ATTR_HDR_LEN+att_length) > (STUN_HDR_LEN+msg_length)) {
 				proto_tree_add_uint_format(att_tree,
-							   stun_att_length, tvb, offset, 2,
+							   stun_att_length, tvb, offset+2, 2,
 							   att_length,
 							   "Attribute Length: %u (bogus, goes past the end of the message)",
 							   att_length);
 				break;
 			}
+			offset += 2;
+
 			proto_tree_add_uint(att_tree, stun_att_length, tvb,
 					    offset, 2, att_length);
 			offset += 2;
+
 			switch (att_type) {
 			case MAPPED_ADDRESS:
 			case ALTERNATE_SERVER:
@@ -832,8 +798,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				XOR (host order) transid with (host order) xor-port.
 				Add host-order port into tree. */
 				ti = proto_tree_add_uint(att_tree, stun_att_port, tvb, offset+2, 2,
-					tvb_get_ntohs(tvb, offset+2) ^
-					(magic_cookie_first_word >> 16));
+					tvb_get_ntohs(tvb, offset+2) ^ (magic_cookie_first_word >> 16));
 				PROTO_ITEM_SET_GENERATED(ti);
 
 				if (att_length < 8)
@@ -876,8 +841,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(att_tree, stun_att_xor_ipv6, tvb, offset+4, 16, FALSE);
 					{
 						guint32 IPv6[4];
-						IPv6[0] = g_htonl(tvb_get_ntohl(tvb, offset+4) ^ magic_cookie_first_word);
-						IPv6[1] = g_htonl(tvb_get_ntohl(tvb, offset+8) ^ transaction_id[0]);
+						IPv6[0] = g_htonl(tvb_get_ntohl(tvb, offset+4)  ^ magic_cookie_first_word);
+						IPv6[1] = g_htonl(tvb_get_ntohl(tvb, offset+8)  ^ transaction_id[0]);
 						IPv6[2] = g_htonl(tvb_get_ntohl(tvb, offset+12) ^ transaction_id[1]);
 						IPv6[3] = g_htonl(tvb_get_ntohl(tvb, offset+16) ^ transaction_id[2]);
 						ti = proto_tree_add_ipv6(att_tree, stun_att_ipv6, tvb, offset+4, 16,
@@ -954,23 +919,17 @@ case EVEN_PORT:
 			case DATA:
 				if (att_length > 0) {
 					tvbuff_t *next_tvb;
-					guint reported_len, pad=0;
 					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, FALSE);
 					if (att_length % 4 != 0) {
+						guint pad;
 						pad = 4-(att_length % 4);
 						proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, pad, pad);
 					}
-					reported_len = att_length;
 
+					next_tvb = tvb_new_subset(tvb, offset, att_length, att_length);
 
-					next_tvb =
-						tvb_new_subset(tvb, offset,
-							       reported_len,
-							       reported_len);
-
-					if (!dissector_try_heuristic(heur_subdissector_list,
-								     next_tvb, pinfo, att_tree)) {
-						call_dissector_only(data_handle,next_tvb, pinfo, att_tree);
+					if (!dissector_try_heuristic(heur_subdissector_list, next_tvb, pinfo, att_tree)) {
+						call_dissector_only(data_handle, next_tvb, pinfo, att_tree);
 					}
 
 				}
@@ -1046,15 +1005,15 @@ case EVEN_PORT:
 				if (att_length > 0)
 					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, FALSE);
 				if (att_length % 4 != 0)
-					proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
+					proto_tree_add_uint(att_tree, stun_att_padding, tvb,
+							    offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
 				break;
 			}
-			offset += (att_length+3) & -4;
-			msg_length -= (ATTR_HDR_LEN+att_length+3) & -4;
+			offset += (att_length+3) & ~0x3;
 		}
 	}
 
-	return tvb_length(tvb);
+	return tvb_reported_length(tvb);
 }
 
 static int
@@ -1335,8 +1294,8 @@ proto_reg_handoff_stun(void)
 	dissector_add_uint("tcp.port", TCP_PORT_STUN, stun_tcp_handle);
 	dissector_add_uint("udp.port", UDP_PORT_STUN, stun_udp_handle);
 
-	heur_dissector_add("udp", dissect_stun_heur, proto_stun);
-	heur_dissector_add("tcp", dissect_stun_heur, proto_stun);
+	heur_dissector_add("udp",  dissect_stun_heur, proto_stun);
+	heur_dissector_add("tcp",  dissect_stun_heur, proto_stun);
 	heur_dissector_add("stun", dissect_stun_heur, proto_stun);
 
 	data_handle = find_dissector("data");
