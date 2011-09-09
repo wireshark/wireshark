@@ -24,7 +24,7 @@
  */
 
 /*
- * 
+ *
  */
 
 #ifdef HAVE_CONFIG_H
@@ -72,16 +72,16 @@ static int hf_ooodl = -1;
 static gboolean  mim_enable_dissector = FALSE;
 
 static const true_false_string ig_tfs = {
-	"Group address (multicast/broadcast)",
-	"Individual address (unicast)"
+  "Group address (multicast/broadcast)",
+  "Individual address (unicast)"
 };
 static const true_false_string ul_tfs = {
-	"Locally administered address (this is NOT the factory default)",
-	"Globally unique address (factory default)"
+  "Locally administered address (this is NOT the factory default)",
+  "Globally unique address (factory default)"
 };
 static const true_false_string ooodl_tfs = {
-        "Out of order delivery (If DA) or Do not learn (If SA)",
-        "Deliver in order (If DA) or Learn (If SA)"
+  "Out of order delivery (If DA) or Do not learn (If SA)",
+  "Deliver in order (If DA) or Learn (If SA)"
 };
 
 static dissector_handle_t eth_dissector ;
@@ -153,7 +153,7 @@ fp_is_ig_set (guint64 hmac)
     return FALSE;
   }
 }
-  
+
 static void
 fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
 
@@ -161,7 +161,7 @@ fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
     return;
   }
 
-  *swid = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 24);  
+  *swid = (guint16) ((hmac & FP_HMAC_SWID_MASK) >> 24);
   *sswid = (guint16) ((hmac & FP_HMAC_SSWID_MASK) >> 16);
   *lid = (guint16) (hmac & FP_HMAC_LID_MASK);
 }
@@ -176,7 +176,7 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
     return;
   }
 
-  if (!tvb || !tree) {    
+  if (!tvb || !tree) {
     return;
   }
 
@@ -208,7 +208,7 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   proto_tree *fp_tree ;
   proto_tree *fp_addr_tree ;
   tvbuff_t *next_tvb ;
-  int offset = 0 ;  
+  int offset = 0 ;
   guint64 hmac_src;
   guint64 hmac_dst;
   guint16 sswid = 0;
@@ -224,38 +224,38 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   col_set_str( pinfo->cinfo, COL_INFO, FP_PROTO_COL_INFO ) ;
 
   if (tree) {
-	
-	hmac_dst = tvb_get_ntoh48 (tvb, 0);
-	hmac_src = tvb_get_ntoh48 (tvb, 6);
-	
+
+    hmac_dst = tvb_get_ntoh48 (tvb, 0);
+    hmac_src = tvb_get_ntoh48 (tvb, 6);
+
     dest_ig = fp_is_ig_set(hmac_dst);
     if (!dest_ig) {
       fp_get_hmac_addr (hmac_dst, &dswid, &dsswid, &dlid);
     } else {
-	  hmac_dst = GUINT64_TO_BE (hmac_dst);
-	  /* Get pointer to most sig byte of destination address 
-	     in network order
-	  */
-	  dst_addr = ((const guint8 *) &hmac_dst) + 2;
-	}
+      hmac_dst = GUINT64_TO_BE (hmac_dst);
+      /* Get pointer to most sig byte of destination address
+         in network order
+      */
+      dst_addr = ((const guint8 *) &hmac_dst) + 2;
+    }
 
-	
-	
+
+
     fp_get_hmac_addr (hmac_src, &sswid, &ssswid, &slid);
 
     if (PTREE_DATA(tree)->visible) {
       if (dest_ig) {
-		
-		ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
-		  			         "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %s (%s)",
-					         sswid, ssswid, slid, 
-					         get_ether_name(dst_addr), ether_to_str(dst_addr));
+
+        ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
+                                            "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %s (%s)",
+                                            sswid, ssswid, slid,
+                                            get_ether_name(dst_addr), ether_to_str(dst_addr));
       } else {
-	    ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
-		  			        "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %03x.%02x.%04x",
-					        sswid, ssswid, slid, 
-					        dswid, dsswid, dlid);
-      }	
+        ti = proto_tree_add_protocol_format(tree, proto_fp, tvb, 0, FP_HEADER_SIZE,
+                                            "Cisco FabricPath, Src: %03x.%02x.%04x, Dst: %03x.%02x.%04x",
+                                            sswid, ssswid, slid,
+                                            dswid, dsswid, dlid);
+      }
     } else {
       ti = proto_tree_add_item( tree, proto_fp, tvb, 0, -1, FALSE ) ;
     }
@@ -279,18 +279,18 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
                                      "Source: %03x.%02x.%04x", sswid, ssswid, slid);
     fp_addr_tree = proto_item_add_subtree (ti, ett_hmac);
     fp_add_hmac (tvb, fp_addr_tree, offset);
-    
+
     offset += FP_HMAC_LEN;
     /* Skip ethertype */
-	offset += 2; 
-    
+    offset += 2;
+
     ti = proto_tree_add_item (fp_tree, hf_ftag, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item (fp_tree, hf_ttl, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
-                           
+
   }
   /* call the eth dissector */
-  next_tvb = tvb_new_subset( tvb, FP_HEADER_SIZE, -1, -1 ) ;
+  next_tvb = tvb_new_subset_remaining( tvb, FP_HEADER_SIZE) ;
   call_dissector( eth_dissector, next_tvb, pinfo, tree ) ;
 
   return tvb_length( tvb ) ;
@@ -299,16 +299,18 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 /* Register the protocol with Wireshark */
 void
 proto_register_mim(void)
-{  
+{
   static hf_register_info hf[] = {
     { &hf_s_hmac,
       { "Source HMAC", "cfp.s_hmac",
         FT_NONE, BASE_NONE, NULL,
         0, "Source Hierarchical MAC", HFILL }},
+
     { &hf_d_hmac,
       { "Destination HMAC", "cfp.d_hmac",
         FT_NONE, BASE_NONE, NULL,
         0, "Destination Hierarchical MAC", HFILL }},
+
     { &hf_d_hmac_mc,
       { "MC Destination", "cfp.d_hmac",
         FT_ETHER, BASE_NONE, NULL,
@@ -318,6 +320,7 @@ proto_register_mim(void)
       { "FTAG", "cfp.ftag",
         FT_UINT16, BASE_DEC, NULL, FP_FTAG_MASK,
         "FTAG field identifying forwarding distribution tree.", HFILL }},
+
     { &hf_ttl,
       { "TTL", "cfp.ttl",
         FT_UINT16, BASE_DEC, NULL, FP_TTL_MASK,
@@ -340,7 +343,7 @@ proto_register_mim(void)
     {
       &hf_lid,
       { "Source LID", "cfp.lid",
-        FT_UINT16, BASE_DEC_HEX, NULL, 0x0, 
+        FT_UINT16, BASE_DEC_HEX, NULL, 0x0,
         "Source or Destination Port index on switch in FabricPath network", HFILL }},
     {
       &hf_ul,
@@ -349,15 +352,15 @@ proto_register_mim(void)
         "Specifies if this is a locally administered or globally unique (IEEE assigned) address", HFILL }},
     {
       &hf_ig,
-      { "I/G bit", "cfp.ig", 
-      FT_BOOLEAN, 24 /* FP_BF_LEN */, TFS(&ig_tfs), FP_IG_MASK,
-      "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
+      { "I/G bit", "cfp.ig",
+        FT_BOOLEAN, 24 /* FP_BF_LEN */, TFS(&ig_tfs), FP_IG_MASK,
+        "Specifies if this is an individual (unicast) or group (broadcast/multicast) address", HFILL }},
     {
       &hf_ooodl,
-      { "OOO/DL Bit", "cfp.ooodl", 
+      { "OOO/DL Bit", "cfp.ooodl",
         FT_BOOLEAN, 24 /* FP_BF_LEN */, TFS(&ooodl_tfs), FP_OOO_MASK,
         "Specifies Out of Order Delivery OK in destination address and Do Not Learn when set in source address", HFILL }}
-        
+
   };
 
   static gint *ett[] = {
@@ -370,8 +373,8 @@ proto_register_mim(void)
   mim_module = prefs_register_protocol (proto_fp, proto_reg_handoff_fabricpath);
 
   prefs_register_bool_preference (mim_module, "enable", "Enable dissector",
-	                              "Enable this dissector (default is false)", 
-								  &mim_enable_dissector);
+                                  "Enable this dissector (default is false)",
+                                  &mim_enable_dissector);
 
   proto_register_field_array(proto_fp, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
@@ -381,22 +384,22 @@ void
 proto_reg_handoff_fabricpath(void)
 {
   /*
-  dissector_handle_t fp_handle;
-  fp_handle = new_create_dissector_handle(dissect_fp, proto_fp);
-  dissector_add("ethertype", ETHERTYPE_DCE, fp_handle);
+    dissector_handle_t fp_handle;
+    fp_handle = new_create_dissector_handle(dissect_fp, proto_fp);
+    dissector_add("ethertype", ETHERTYPE_DCE, fp_handle);
   */
   static gboolean prefs_initialized = FALSE;
 
   if (!prefs_initialized) {
-	/*
-	 * Using Heurisit dissector (As opposed to
-	 * registering the ethertype) in order to
-	 * get outer source and destination MAC
-	 * before the standard ethernet dissector
-	 */
+    /*
+     * Using Heuristic dissector (As opposed to
+     * registering the ethertype) in order to
+     * get outer source and destination MAC
+     * before the standard ethernet dissector
+     */
     heur_dissector_add ("eth", dissect_fp_heur, proto_fp);
-	eth_dissector = find_dissector( "eth" );
-	prefs_initialized = TRUE;
+    eth_dissector = find_dissector( "eth" );
+    prefs_initialized = TRUE;
   }
 
   proto_set_decoding(proto_fp, mim_enable_dissector);
