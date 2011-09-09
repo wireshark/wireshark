@@ -531,7 +531,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_tree   *test_tree;
 
             descr[0]      = pChoice->descr;
-            descr[0].type = CSN_END;
+            descr[1].type = CSN_END;
             pui8          = pui8DATA(data, pDescr->offset);
             *pui8         = i;
             proto_tree_add_text(tree, tvb, bit_offset>>3, (no_of_bits>>3)+1, "%s Choice: %s",
