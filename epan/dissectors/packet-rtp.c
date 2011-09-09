@@ -676,9 +676,9 @@ void rtp_add_address(packet_info *pinfo,
 }
 
 static gboolean
-dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+dissect_rtp_heur_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean check_destport )
 {
-	guint8      octet1;
+	guint8       octet1;
  	unsigned int version;
  	unsigned int offset = 0;
 
@@ -721,12 +721,24 @@ dissect_rtp_heur( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	}
 
 	/* Was it sent to an even-numbered port? */
-	if ((pinfo->destport % 2) != 0) {
+	if (check_destport && ((pinfo->destport % 2) != 0)) {
 		return FALSE;
 	}
 
 	dissect_rtp( tvb, pinfo, tree );
 	return TRUE;
+}
+
+static gboolean
+dissect_rtp_heur_udp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	return dissect_rtp_heur_common(tvb, pinfo, tree, TRUE);
+}
+
+static gboolean
+dissect_rtp_heur_stun( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
+{
+	return dissect_rtp_heur_common(tvb, pinfo, tree, FALSE);
 }
 
 /*
@@ -2169,8 +2181,8 @@ proto_reg_handoff_rtp(void)
 
 		dissector_add_handle("udp.port", rtp_handle);  /* for 'decode-as' */
 		dissector_add_string("rtp_dyn_payload_type", "red", rtp_rfc2198_handle);
-		heur_dissector_add( "udp", dissect_rtp_heur, proto_rtp);
-		heur_dissector_add("stun", dissect_rtp_heur, proto_rtp);
+		heur_dissector_add( "udp", dissect_rtp_heur_udp,  proto_rtp);
+		heur_dissector_add("stun", dissect_rtp_heur_stun, proto_rtp);
 
 		data_handle = find_dissector("data");
 		classicstun_handle = find_dissector("classicstun");
