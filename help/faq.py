@@ -45,23 +45,23 @@ class faq_section:
 		return 3
 
 	def print_index(self):
-		print("<a href=#sec%s><h%d>%s:</h%d></a>\n" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level()))
+		print(("<a href=#sec%s><h%d>%s:</h%d></a>\n" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level())))
 		for qa in self.qa:
 			id = qa[0]
 			question = qa[1]
 			print('<p class="faq_q">')
-			print('<a class="faq_qnum" href=#q%s>%s %s</a>\n' % (id, id, question))
+			print(('<a class="faq_qnum" href=#q%s>%s %s</a>\n' % (id, id, question)))
 			print('</p>')
 		for subsec in self.subsecs:
 			subsec.print_index()
 
 	def print_contents(self):
 		# Table header
-		print("""
+		print(("""
   <a name="sec%s">
     <h%d>%s</h%d>
   </a>
-""" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level()))
+""" % (self.get_num_string(), self.get_header_level(), self.get_num_name(), self.get_header_level())))
 
 		# Questions and Answers
 		for qa in self.qa:
@@ -71,10 +71,10 @@ class faq_section:
 			tag = qa[3]
 
 			print('<p class="faq_q">')
-			print('<a class="faq_qnum" name=q%s>Q %s:</a>' % (id, id))
+			print(('<a class="faq_qnum" name=q%s>Q %s:</a>' % (id, id)))
 			if tag is not None:
-				print('<a name=%s>' % tag)
-			print('<span>%s</span>' % (question))
+				print(('<a name=%s>' % tag))
+			print(('<span>%s</span>' % (question)))
 			if tag is not None:
 				print('</a>')
 			print('</p>')
