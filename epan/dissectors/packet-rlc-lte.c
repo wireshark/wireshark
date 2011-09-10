@@ -45,7 +45,10 @@
  */
 
 /* TODO:
-   - UM & AM re-assembly?
+   - for sequence analysis/reassembly results, add channel details to key to avoid
+     risk of attaching result to wrong PDU within MAC frame
+   - add intermediate results to segments leading to final reassembly
+   - use multiple active rlc_channel_reassembly_info's per channel
 */
 
 /********************************/
@@ -63,9 +66,9 @@ static gboolean global_rlc_lte_call_pdcp_for_srb = FALSE;
 
 enum pdcp_for_drb { PDCP_drb_off, PDCP_drb_SN_7, PDCP_drb_SN_12, PDCP_drb_SN_signalled};
 static enum_val_t pdcp_drb_col_vals[] = {
-    {"pdcp-drb-off",   "Off",       PDCP_drb_off},
-    {"pdcp-drb-sn-7",  "7-bit SN",  PDCP_drb_SN_7},
-    {"pdcp-drb-sn-12", "12-bit SN", PDCP_drb_SN_12},
+    {"pdcp-drb-off",           "Off",                 PDCP_drb_off},
+    {"pdcp-drb-sn-7",          "7-bit SN",            PDCP_drb_SN_7},
+    {"pdcp-drb-sn-12",         "12-bit SN",           PDCP_drb_SN_12},
     {"pdcp-drb-sn-signalling", "Use signalled value", PDCP_drb_SN_signalled},
     {NULL, NULL, -1}
 };
@@ -408,7 +411,7 @@ static void reassembly_reset(rlc_channel_sequence_analysis_status *status)
 /* Hide previous one */
 static void reassembly_destroy(rlc_channel_sequence_analysis_status *status)
 {
-    /* TODO: actually free? */
+    /* Just "leak" it. There seems to be no way to free this memory... */
     status->reassembly_info = NULL;
 }
 
@@ -2589,11 +2592,11 @@ rlc_lte_init_protocol(void)
 
 /* Configure number of PDCP SN bits to use for DRB channels.
    TODO: currently assume all UEs/Channels will use the same length... */
-void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid _U_, guint8 drbid _U_, guint8 userplane_seqnum_length)
+void set_rlc_lte_drb_pdcp_seqnum_length(guint16 ueid _U_, guint8 drbid _U_,
+                                        guint8 userplane_seqnum_length)
 {
     signalled_pdcp_sn_bits = userplane_seqnum_length;
 }
-
 
 
 void proto_register_rlc_lte(void)
@@ -2656,7 +2659,6 @@ void proto_register_rlc_lte(void)
               "Length of UM sequence number in bits", HFILL
             }
         },
-
 
         /* Transparent mode fields */
         { &hf_rlc_lte_tm,
@@ -2721,8 +2723,6 @@ void proto_register_rlc_lte(void)
               NULL, HFILL
             }
         },
-
-
         { &hf_rlc_lte_extension_e,
             { "Extension",
               "rlc-lte.extension.e", FT_UINT8, BASE_HEX, VALS(extension_extension_vals), 0x0,
@@ -2808,7 +2808,6 @@ void proto_register_rlc_lte(void)
               "Acknowledged Mode Data", HFILL
             }
         },
-
 
         { &hf_rlc_lte_am_cpt,
             { "Control PDU Type",
