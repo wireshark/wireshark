@@ -86,16 +86,16 @@ proto_register_mgmt (void)
 		    NULL, 0x0, NULL, HFILL }},
 		{ &hf_mgmt_proto,
 		  {"Authn Proto", "mgmt.proto", FT_UINT32, BASE_HEX,
-                    NULL, 0x0, "Authn Proto", HFILL }},
+                    NULL, 0x0, NULL, HFILL }},
 		{ &hf_mgmt_princ_name,
 		  {"Principal name", "mgmt.princ_name", FT_STRING, BASE_NONE,
-                    NULL, 0, "Principal name", HFILL }},
+                    NULL, 0, NULL, HFILL }},
 		{ &hf_mgmt_princ_size,
 		  {"Principal size", "mgmt.princ_size", FT_UINT32, BASE_DEC,
                     NULL, 0x0, "Size of principal", HFILL }},
 		{ &hf_mgmt_rc,
 		  {"Status", "mgmt.rc", FT_UINT32, BASE_HEX,
-                    NULL, 0x0, "Status", HFILL }},
+                    NULL, 0x0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {
