@@ -658,6 +658,61 @@ frsrpc_dissect_element_CommPktChangeOrderCommand_file_name(tvbuff_t *tvb _U_, in
 	}
 	return offset;
 }
+int
+frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
+{
+	guint1632 type;
+	int i = 0;
+	const char *s = NULL;
+	proto_item *item = NULL;
+	proto_tree *tree = NULL;
+	dcerpc_info *di = pinfo->private_data;
+	int old_offset;
+	old_offset = offset;
+	if (parent_tree) {
+		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
+		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChunk);
+	}
+	
+	offset = frsrpc_dissect_element_CommPktChunk_type(tvb, offset, pinfo, tree, drep, &type);
+	offset = frsrpc_dissect_element_CommPktChunk_data(tvb, offset, pinfo, tree, drep, &type);
+	for (i=0; frsrpc_frsrpc_CommPktChunkType_vals[i].strptr; i++) {
+		if (frsrpc_frsrpc_CommPktChunkType_vals[i].value == type) {
+			s = frsrpc_frsrpc_CommPktChunkType_vals[i].strptr;
+		}
+	}
+	if (s != NULL) {
+		proto_item_append_text(item, ", type = %s", s);
+	}
+	proto_item_set_len(item, offset-old_offset);
+	if (di->call_data->flags & DCERPC_IS_NDR64) {
+		ALIGN_TO_3_BYTES;
+	}
+	return offset;
+}
+int
+frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
+{
+	guint32 parameter=0;
+	int i = 0;
+	const char *s = NULL;
+	if(param){
+		parameter=(guint32)*param;
+	}
+	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
+	for (i=0; frsrpc_frsrpc_CommPktCommand_vals[i].strptr != NULL; i++) {
+		if (frsrpc_frsrpc_CommPktCommand_vals[i].value == parameter) {
+			s = frsrpc_frsrpc_CommPktCommand_vals[i].strptr;
+		}
+	}
+	if (s!= NULL && check_col(pinfo->cinfo, COL_INFO))
+		col_append_fstr(pinfo->cinfo, COL_INFO, ",command = %s",
+				s);
+	if(param){
+		*param=(guint32)parameter;
+	}
+	return offset;
+}
 static int
 frsrpc_dissect_struct_frsrpc_CommPktChunkCtr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint8 *drep _U_, int hf_index, guint32 param _U_)
 {
@@ -2221,20 +2276,6 @@ frsrpc_dissect_struct_CommPktChangeOrderRecordExtension(tvbuff_t *tvb _U_, int o
 /* IDL: 	FRSRPC_COMMAND_SEND_STAGE=0x00000228, */
 /* IDL: } */
 
-int
-frsrpc_dissect_enum_CommPktCommand(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 *param _U_)
-{
-	guint32 parameter=0;
-	if(param){
-		parameter=(guint32)*param;
-	}
-	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep, hf_index, &parameter);
-	if(param){
-		*param=(guint32)parameter;
-	}
-	return offset;
-}
-
 
 /* IDL: enum { */
 /* IDL: 	FRSRPC_COMM_PKT_CHUNK_BOP=0x0001, */
@@ -2291,7 +2332,7 @@ frsrpc_dissect_enum_CommPktChunkType(tvbuff_t *tvb _U_, int offset _U_, packet_i
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_JOIN_TIME)] NTTIME join_time; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)] [subcontext(4)] [case(FRSRPC_COMM_PKT_CHUNK_REPLICA_VERSION_GUID)] GUID replica_version_guid; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID)] [case(FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID)] GUID compression_guid; */
-/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] [flag(LIBNDR_FLAG_REMAINING)] [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] DATA_BLOB block; */
+/* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] [case(FRSRPC_COMM_PKT_CHUNK_BLOCK)] DATA_BLOB block; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE)] [case(FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE)] hyper block_size; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_FILE_SIZE)] [case(FRSRPC_COMM_PKT_CHUNK_FILE_SIZE)] hyper file_size; */
 /* IDL: [case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)] [case(FRSRPC_COMM_PKT_CHUNK_FILE_OFFSET)] hyper file_offset; */
@@ -2483,7 +2524,7 @@ frsrpc_dissect_element_CommPktChunkData_compression_guid(tvbuff_t *tvb _U_, int 
 static int
 frsrpc_dissect_element_CommPktChunkData_block(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_)
 {
-	offset = dissect_ndr_datablob(tvb, offset, pinfo, tree, drep, hf_frsrpc_frsrpc_CommPktChunkData_block, 1);
+	offset = dissect_ndr_datablob(tvb, offset, pinfo, tree, drep, hf_frsrpc_frsrpc_CommPktChunkData_block, 0);
 
 	return offset;
 }
@@ -2792,38 +2833,6 @@ static int
 frsrpc_dissect_element_CommPktChunk_data_(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint8 *drep _U_, guint1632 *type)
 {
 	offset = frsrpc_dissect_CommPktChunkData(tvb, offset, pinfo, tree, drep, hf_frsrpc_frsrpc_CommPktChunk_data, *type);
-
-	return offset;
-}
-
-int
-frsrpc_dissect_struct_CommPktChunk(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *parent_tree _U_, guint8 *drep _U_, int hf_index _U_, guint32 param _U_)
-{
-	guint1632 type;
-	proto_item *item = NULL;
-	proto_tree *tree = NULL;
-	dcerpc_info *di = pinfo->private_data;
-	int old_offset;
-
-
-	old_offset = offset;
-
-	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
-		tree = proto_item_add_subtree(item, ett_frsrpc_frsrpc_CommPktChunk);
-	}
-	
-	offset = frsrpc_dissect_element_CommPktChunk_type(tvb, offset, pinfo, tree, drep, &type);
-
-	offset = frsrpc_dissect_element_CommPktChunk_data(tvb, offset, pinfo, tree, drep, &type);
-
-
-	proto_item_set_len(item, offset-old_offset);
-
-
-	if (di->call_data->flags & DCERPC_IS_NDR64) {
-		ALIGN_TO_3_BYTES;
-	}
 
 	return offset;
 }
@@ -3769,7 +3778,7 @@ void proto_register_dcerpc_frsrpc(void)
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_join_guid, 
 	  { "Join Guid", "frsrpc.frsrpc_CommPktChunkData.join_guid", FT_GUID, BASE_NONE, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_FrsVerifyPromotionParent___ndr_guid_size, 
-	  { "Ndr Guid Size", "frsrpc.frsrpc_FrsVerifyPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "  Ndr Guid Size", "frsrpc.frsrpc_FrsVerifyPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_FrsSendCommPktReq_data_handle, 
 	  { "Data Handle", "frsrpc.frsrpc_FrsSendCommPktReq.data_handle", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_content_cmd, 
@@ -3789,7 +3798,7 @@ void proto_register_dcerpc_frsrpc(void)
 	{ &hf_frsrpc_frsrpc_CommPktChangeOrderCommand_spare2guid_p1, 
 	  { "Spare2guid P1", "frsrpc.frsrpc_CommPktChangeOrderCommand.spare2guid_p1", FT_UINT64, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_FrsStartPromotionParent___ndr_guid_size, 
-	  { "Ndr Guid Size", "frsrpc.frsrpc_FrsStartPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
+	  { "  Ndr Guid Size", "frsrpc.frsrpc_FrsStartPromotionParent.__ndr_guid_size", FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_gvsn_, 
 	  { "Subcontext length", "frsrpc.frsrpc_CommPktChunkData.subcontext", FT_UINT32, BASE_HEX, NULL, 0, NULL, HFILL }},
 	{ &hf_frsrpc_frsrpc_CommPktChunkData_replica_version_guid, 

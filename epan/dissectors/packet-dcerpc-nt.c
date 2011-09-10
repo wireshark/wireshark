@@ -46,7 +46,7 @@ int hf_nt_error;
 int hf_nt_cs_size = -1;
 static int hf_lsa_String_name_len = -1;
 static int hf_lsa_String_name_size = -1;
-
+static int hf_nt_data_blob_len = -1;
 
 static gint ett_nt_unicode_string = -1;
 static gint ett_lsa_String = -1;
@@ -96,9 +96,9 @@ dissect_ndr_datablob(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		len = tvb_length_remaining (tvb, offset);
 	} else {
 		offset = dissect_ndr_uint32(tvb, offset, pinfo, subtree, drep,
-				    hf_index, &len);
+				    hf_nt_data_blob_len, &len);
 	}
-	proto_tree_add_text(tree, tvb, offset, len, "Blob data");
+	proto_tree_add_text(subtree, tvb, offset, len, "Blob data");
 	offset += len;
 	return offset;
 }
@@ -1968,6 +1968,10 @@ void dcerpc_smb_init(int proto_dcerpc)
 		{ &hf_lsa_String_name_size,
 		  { "Name Size", "dcerpc.lsa_String.name_size",
 		    FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+		{ &hf_nt_data_blob_len,
+		  { "Blob size", "dcerpc.nt.blob.size",
+		    FT_UINT32, BASE_DEC, NULL, 0, NULL, HFILL }},
 	};
 
 	static gint *ett[] = {

@@ -281,7 +281,7 @@ interface frsrpc
 		[case(FRSRPC_COMM_PKT_CHUNK_COMPRESSION_GUID)]
 			GUID compression_guid;
 		[case(FRSRPC_COMM_PKT_CHUNK_BLOCK)]
-			[flag(NDR_REMAINING)] DATA_BLOB block;
+			DATA_BLOB block;
 		[case(FRSRPC_COMM_PKT_CHUNK_BLOCK_SIZE)]
 			hyper block_size;
 		[case(FRSRPC_COMM_PKT_CHUNK_FILE_SIZE)]
