@@ -1611,11 +1611,13 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
 {
     proto_item *admin_record_item;
     proto_tree *admin_record_tree;
+    proto_item *timestamp_sequence_item;
     guint8 record_type;
     guint8 status;
     guint8 reason;
     int record_size = 0;
     int sdnv_length;
+    int timestamp_sequence;
     int endpoint_length;
     guint8 *string_ptr;
 
@@ -1750,10 +1752,24 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             return 0;
         }
         offset += sdnv_length; record_size += sdnv_length;
-        sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
-                                        "Bundle Creation Timestamp Sequence");
-        if(sdnv_length <= 0) {
-            return 0;
+
+        timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
+        timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
+        
+        if(timestamp_sequence < 0) {
+            gint64 ts_seq;
+
+            if((ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length)) < 0) {
+               proto_item_set_text(timestamp_sequence_item, "Timestamp Sequence Number: Error");
+               return 0;
+            }
+
+            proto_item_set_text(timestamp_sequence_item,
+                "Timestamp Sequence Number: 0x%" G_GINT64_MODIFIER "x", ts_seq);
+        }
+        else {
+            proto_item_set_text(timestamp_sequence_item,
+				"Timestamp Sequence Number: %d", timestamp_sequence);
         }
         offset += sdnv_length; record_size += sdnv_length;
 
@@ -1826,11 +1842,26 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
             return 0;
         }
         offset += sdnv_length; record_size += sdnv_length;
-        sdnv_length = add_sdnv_to_tree(admin_record_tree, tvb, offset,
-                                                        "Bundle Creation Timestamp Sequence");
-        if(sdnv_length <= 0) {
-            return 0;
+
+        timestamp_sequence = evaluate_sdnv(tvb, offset, &sdnv_length);
+        timestamp_sequence_item = proto_tree_add_text(admin_record_tree, tvb, offset, sdnv_length, " ");
+        
+        if(timestamp_sequence < 0) {
+            gint64 ts_seq;
+
+            if((ts_seq = evaluate_sdnv_64(tvb, offset, &sdnv_length)) < 0) {
+               proto_item_set_text(timestamp_sequence_item, "Timestamp Sequence Number: Error");
+               return 0;
+            }
+
+            proto_item_set_text(timestamp_sequence_item,
+               "Timestamp Sequence Number: 0x%" G_GINT64_MODIFIER "x", ts_seq);
         }
+        else {
+            proto_item_set_text(timestamp_sequence_item,
+               "Timestamp Sequence Number: %d", timestamp_sequence);
+        }
+
         offset += sdnv_length; record_size += sdnv_length;
 
         endpoint_length = evaluate_sdnv(tvb, offset, &sdnv_length);
