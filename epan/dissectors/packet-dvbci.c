@@ -248,6 +248,12 @@
 #define REQ_TYPE_DATA 0x1
 
 
+/* sas resource */
+#define SAS_SESS_STATE_CONNECTED 0
+#define SAS_SESS_STATE_NOT_FOUND 1
+#define SAS_SESS_STATE_DENIED    2
+
+
 /* application layer */
 
 #define APDU_TAG_SIZE 3
@@ -305,7 +311,10 @@ static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
-
+static void
+dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
 
 
 /* apdu defines */
@@ -351,6 +360,9 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
 #define T_FILE_ACKNOWLEDGE              0x9F8003
 #define T_APP_ABORT_REQUEST             0x9F8004
 #define T_APP_ABORT_ACK                 0x9F8005
+#define T_SAS_CONNECT_RQST              0x9F9A00
+#define T_SAS_CONNECT_CNF               0x9F9A01
+#define T_SAS_ASYNC_MSG                 0x9F9A07
 
 /* the following apdus are recognized but not dissected in this release */
 #define T_COMMS_CMD                     0x9F8C00
@@ -418,7 +430,11 @@ static const apdu_info_t apdu_info[] = {
     {T_FILE_REQUEST,        1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
     {T_FILE_ACKNOWLEDGE,    2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
     {T_APP_ABORT_REQUEST,   0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
-    {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami} 
+    {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
+
+    {T_SAS_CONNECT_RQST,    0, 8,             DATA_HOST_TO_CAM, dissect_dvbci_payload_sas},
+    {T_SAS_CONNECT_CNF,     0, 9,             DATA_CAM_TO_HOST, dissect_dvbci_payload_sas},
+    {T_SAS_ASYNC_MSG,       3, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_sas}
 };
 
 static const value_string dvbci_apdu_tag[] = {
@@ -472,6 +488,9 @@ static const value_string dvbci_apdu_tag[] = {
     { T_FILE_ACKNOWLEDGE,              "File acknowledge" },
     { T_APP_ABORT_REQUEST,             "App abort request" },
     { T_APP_ABORT_ACK,                 "App abort ack" },
+    { T_SAS_CONNECT_RQST,              "SAS connect request" },
+    { T_SAS_CONNECT_CNF,               "SAS connect confirm" },
+    { T_SAS_ASYNC_MSG,                 "SAS async message" },
     { 0, NULL }
 };
 
@@ -590,6 +609,11 @@ static int hf_dvbci_file_ok = -1;
 static int hf_dvbci_file_data = -1;
 static int hf_dvbci_abort_req_code = -1;
 static int hf_dvbci_abort_ack_code = -1;
+static int hf_dvbci_sas_app_id = -1;
+static int hf_dvbci_sas_sess_state = -1;
+static int hf_dvbci_sas_msg_nb = -1;
+static int hf_dvbci_sas_msg_len = -1;
+static int hf_dvbci_sas_msg = -1;
 
 
 static GHashTable *tpdu_fragment_table = NULL;
@@ -874,6 +898,12 @@ static const value_string dvbci_ack_code[] = {
 static const value_string dvbci_req_type[] = {
     { REQ_TYPE_FILE, "File" },
     { REQ_TYPE_DATA, "Data" },
+    { 0, NULL }
+};
+static const value_string dvbci_sas_sess_state[] = {
+    { SAS_SESS_STATE_CONNECTED, "connected" },
+    { SAS_SESS_STATE_NOT_FOUND, "application not found" },
+    { SAS_SESS_STATE_DENIED, "denied, no more connections available" },
     { 0, NULL }
 };
 
@@ -1843,6 +1873,53 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             break;
         default:
             break;
+    }
+}
+
+
+static void
+dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+{
+    guint64 app_id;
+    guint8 sas_status;
+    guint8 msg_nb;
+    guint16 msg_len;
+
+    switch(tag) {
+        case T_SAS_CONNECT_RQST:
+        case T_SAS_CONNECT_CNF:
+            app_id = tvb_get_ntoh64(tvb, offset);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "App ID 0x%016" G_GINT64_MODIFIER "x", app_id);
+            proto_tree_add_item(tree, hf_dvbci_sas_app_id,
+                    tvb, offset, 8, ENC_BIG_ENDIAN);
+            offset += 8;
+            if (tag == T_SAS_CONNECT_CNF) {
+                sas_status = tvb_get_guint8(tvb, offset);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, 
+                        (sas_status == SAS_SESS_STATE_CONNECTED ?
+                         "Ok" : "Error"));
+                proto_tree_add_item(tree, hf_dvbci_sas_sess_state,
+                        tvb, offset, 1, ENC_NA);
+            }
+            break;
+        case T_SAS_ASYNC_MSG:
+            msg_nb = tvb_get_guint8(tvb, offset);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "Message #%d ", msg_nb);
+            proto_tree_add_item(tree, hf_dvbci_sas_msg_nb,
+                    tvb, offset, 1, ENC_NA);
+            offset++;
+            msg_len = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_sas_msg_len,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_dvbci_sas_msg,
+                    tvb, offset, msg_len, ENC_NA);
+            break;
+        default:
+          break;
     }
 }
 
@@ -2918,7 +2995,22 @@ proto_register_dvbci(void)
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_abort_ack_code,
             { "Abort acknowledgement code", "dvb-ci.ami.abort_ack_code",
-                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } }
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sas_app_id,
+            { "Application ID", "dvb-ci.sas.app_id", FT_UINT64, BASE_HEX,
+               NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sas_sess_state,
+            { "Connection state", "dvb-ci.sas.sess_state", FT_UINT8, BASE_DEC,
+               VALS(dvbci_sas_sess_state), 0, NULL, HFILL } },
+        { &hf_dvbci_sas_msg_nb,
+            { "Message number", "dvb-ci.sas.msg_nb", FT_UINT8, BASE_DEC,
+               NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sas_msg_len,
+            { "Message length", "dvb-ci.sas.msg_len", FT_UINT16, BASE_DEC,
+               NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sas_msg,
+            { "Message", "dvb-ci.sas.message", FT_BYTES, BASE_NONE,
+                NULL, 0, NULL, HFILL } }
     };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
