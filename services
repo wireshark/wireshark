@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-09-02
+# 2011-09-07
 # 
 # Note
 # 
@@ -1491,8 +1491,8 @@ keyserver	584/udp	# Key Server                   [Gary_Howland]                 
 # 585               De-registered                                                                                                                           2006-04-25                                                             Use of 585 is not recommended, use 993 instead
 password-chg	586/tcp	# Password Change
 password-chg	586/udp	# Password Change
-submission	587/tcp	# Submission                                                                                                                                           [RFC4409]
-submission	587/udp	# Submission                                                                                                                                           [RFC4409]
+submission	587/tcp	# Message Submission                                                                                                                                   [RFC-ietf-yam-rfc4409bis-03]
+submission	587/udp	# Message Submission                                                                                                                                   [RFC-ietf-yam-rfc4409bis-03]
 cal	588/tcp	# CAL                          [Myron_Hattig]                      [Myron_Hattig]
 cal	588/udp	# CAL                          [Myron_Hattig]                      [Myron_Hattig]
 eyelink	589/tcp	# EyeLink                      [Dave_Stampe]                       [Dave_Stampe]
