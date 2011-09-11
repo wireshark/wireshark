@@ -1,7 +1,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V9.6.0 Release 9) packet dissection
+ * (3GPP TS 36.331 V9.7.0 Release 9) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -46,7 +46,10 @@
 #define PFNAME "lte_rrc"
 
 static dissector_handle_t nas_eps_handle = NULL;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
+static dissector_handle_t rrc_sys_info_cont_handle;
 static guint32 lte_rrc_rat_type_value = -1;
+static guint32 lte_rrc_ho_target_rat_type_value = -1;
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -218,8 +221,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_29_val = {
   "Semi-Persistent Scheduling - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_30_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "Handover between FDD and TDD - Supported",
+  "Handover between FDD and TDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_31_val = {
   "Undefined - Supported",
@@ -505,6 +508,8 @@ proto_reg_handoff_lte_rrc(void)
 	lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
 	dissector_add_handle("udp.port", lte_rrc_dl_ccch_handle);
 	nas_eps_handle = find_dissector("nas-eps");
+	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
+	rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
 }
 
 

@@ -1,7 +1,7 @@
 -- $Id$
 -- PDU-definitions.asn
 --
--- 3GPP TS 25.331 V9.2.1 (2010-04)
+-- 3GPP TS 25.331 V9.7.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.2	PDU definitions
@@ -77,6 +77,7 @@ IMPORTS
 	PagingCause,
 	PagingRecordList,
 	PagingRecord2List-r5,
+	PDCP-Capability-r4-ext,
 	PDCP-Capability-v770ext,
 	Pre-RedirectionInfo,
 	ProtocolErrorIndicator,
@@ -135,6 +136,7 @@ IMPORTS
 	UE-RadioAccessCapabilityComp2-v920ext,
 	UE-RadioAccessCapabilityComp-TDD128,
 	UE-RadioAccessCapabilityInfo-v770ext,
+	UE-RadioAccessCapabilityInfo-TDD128-v8b0ext,
 	UE-SecurityInformation,
 	UE-SecurityInformation2,
 	UE-SpecificCapabilityInformation-LCRTDD,
@@ -326,9 +328,11 @@ IMPORTS
 	RL-AdditionInformationList-r8,
 	RL-AdditionInformationList-v890ext,
 	RL-AdditionInformationList-r9,
+	RL-AdditionInformationList-v950ext,
 	RL-AdditionInformationList-SecULFreq,
 	RL-RemovalInformationList,
 	RL-RemovalInformationList-SecULFreq,
+	SecondaryCellMIMOparametersFDD-v950ext,
 	Serving-HSDSCH-CellInformation,
 	Serving-HSDSCH-CellInformation-r7,
 	Serving-HSDSCH-CellInformation-r8,
@@ -373,6 +377,7 @@ IMPORTS
 	UpPCHposition-LCR,
 -- Measurement IEs :
 	AdditionalMeasurementID-List,
+	AdditionalMeasurementID-List-r9,
 	CellDCHMeasOccasionInfo-TDD128-r9,
 	CSGProximityIndication,
 	DeltaRSCP,
@@ -415,6 +420,8 @@ IMPORTS
 	MeasurementCommand-r8,
 	MeasurementCommand-r9,
 	MeasurementIdentity,
+	MeasurementIdentity-r9,
+	MeasurementIdentityExt,
 	MeasurementReportingMode,
 	NewInterFreqCellList-v7b0ext,
 	NewInterFreqCellList-LCR-v8a0ext,
@@ -584,7 +591,10 @@ ActiveSetUpdate ::= CHOICE {
 							activeSetUpdate-r9				ActiveSetUpdate-r9-IEs,
 							-- Container for adding non critical extensions after freezing REL-10
 							activeSetUpdate-r9-add-ext		BIT STRING		OPTIONAL,
-							nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+							v950NonCriticalExtensions		SEQUENCE {
+								activeSetUpdate-v950ext			ActiveSetUpdate-v950ext-IEs,
+								nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+							}	OPTIONAL
 						},
 						criticalExtensions				SEQUENCE {}
 					}
@@ -775,7 +785,13 @@ ActiveSetUpdate-r9-IEs ::= SEQUENCE {
 		e-dch-ReconfInfoSameCell			E-DCH-RL-InfoSameServingCell		OPTIONAL,
 		e-TFC-Boost-Info					E-TFC-Boost-Info-r7					OPTIONAL,
 		e-DPDCH-PowerInterpolation			E-DPDCH-PowerInterpolation			OPTIONAL,
-		dl-SecondaryCellInfoFDD				DL-SecondaryCellInfoFDD-r9				OPTIONAL
+		dl-SecondaryCellInfoFDD				DL-SecondaryCellInfoFDD-r9			OPTIONAL
+}
+
+ActiveSetUpdate-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters			SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL,
+		rl-AdditionInformationList			RL-AdditionInformationList-v950ext			OPTIONAL
 }
 
 -- ***************************************************
@@ -1180,7 +1196,10 @@ CellUpdateConfirm ::= CHOICE {
 									-- Container for adding non critical extensions after 
 									-- freezing REL-10
 									cellUpdateConfirm-r9-add-ext	BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v950NonCriticalExtensions		SEQUENCE {
+										cellUpdateConfirm-v950ext		CellUpdateConfirm-v950ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -1670,6 +1689,11 @@ CellUpdateConfirm-r9-IEs ::= SEQUENCE {
 		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL
 }
 
+CellUpdateConfirm-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
+}
+
 -- ***************************************************
 --
 -- CELL UPDATE CONFIRM for CCCH
@@ -1768,7 +1792,15 @@ CellUpdateConfirm-CCCH ::= CHOICE {
 										v8a0NonCriticalExtensions		SEQUENCE {
 											cellUpdateConfirm-v8a0ext
 																CellUpdateConfirm-v8a0ext-IEs,
-											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+											v7f0NonCriticalExtensions	SEQUENCE {
+												cellUpdateConfirm-v7f0ext	
+																CellUpdateConfirm-v7f0ext-IEs,
+												v7g0NonCriticalExtensions	SEQUENCE {
+													cellUpdateConfirm-v7g0ext
+																	CellUpdateConfirm-v7g0ext-IEs,
+													nonCriticalExtensions	SEQUENCE {}		OPTIONAL
+												}	OPTIONAL
+											}	OPTIONAL
 										}	OPTIONAL
 									}	OPTIONAL
 								}	OPTIONAL
@@ -2822,7 +2854,7 @@ InterRATHandoverInfo ::= SEQUENCE {
 	},
 	ue-CapabilityContainer			CHOICE {
 		absent							NULL,
-		-- present is an octet aligned string containing IE UE-RadioAccessCapabilityInfo
+		-- present is an octet aligned string containing Ie UE-RadioAccessCapabilityInfo
 		present							OCTET STRING (SIZE (0..63))
 	},
 	-- Non critical extensions
@@ -2937,7 +2969,15 @@ InterRATHandoverInfo-NonCriticalExtension-v6b0-IEs ::=	SEQUENCE {
 						interRATHandoverInfo-v880ext		InterRATHandoverInfo-v880ext-IEs,
 						v920NonCriticalExtensions			SEQUENCE {
 							interRATHandoverInfo-v920ext		InterRATHandoverInfo-v920ext-IEs,
-							nonCriticalExtensions					SEQUENCE {} OPTIONAL
+							v8b0NonCriticalExtensions			SEQUENCE {
+								interRATHandoverInfo-v8b0ext
+																InterRATHandoverInfo-v8b0ext-IEs,
+									v950NonCriticalExtensions			SEQUENCE {
+											interRATHandoverInfo-v950ext
+															InterRATHandoverInfo-v950ext-IEs,
+									nonCriticalExtensions					SEQUENCE {} OPTIONAL
+									}	OPTIONAL
+							}	OPTIONAL
 						}	OPTIONAL
 					}	OPTIONAL
 				}	OPTIONAL
@@ -2992,6 +3032,16 @@ InterRATHandoverInfo-v880ext-IEs ::=	SEQUENCE {
 InterRATHandoverInfo-v920ext-IEs ::=	SEQUENCE {
 		ue-RadioAccessCapabilityInfo		UE-RadioAccessCapability-v920ext		OPTIONAL,
 		ue-RadioAccessCapabilityComp2		UE-RadioAccessCapabilityComp2-v920ext	OPTIONAL
+}
+
+InterRATHandoverInfo-v8b0ext-IEs ::=	SEQUENCE {
+	-- UE radio access capability
+		ue-RadioAccessCapabilityInfo		UE-RadioAccessCapabilityInfo-TDD128-v8b0ext	OPTIONAL
+}
+
+InterRATHandoverInfo-v950ext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		pdcp-Capability						PDCP-Capability-r4-ext					OPTIONAL
 }
 
 -- ***************************************************
@@ -3086,7 +3136,12 @@ MeasurementControl ::= CHOICE {
 									measurementControl-r9			MeasurementControl-r9-IEs,
 									-- Container for adding non critical extensions after freezing REL-10
 									measurementControl-r9-add-ext	BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v970NonCriticalExtensions			SEQUENCE {
+										measurementControl-v970ext	
+															MeasurementControl-v970ext-IEs,
+										nonCriticalExtensions	
+															SEQUENCE {}		OPTIONAL
+									}		OPTIONAL
 								},
 							criticalExtensions				SEQUENCE {}
 							}
@@ -3200,14 +3255,26 @@ MeasurementControl-v8a0ext-IEs ::= SEQUENCE {
 
 MeasurementControl-r9-IEs ::= SEQUENCE {
 	-- Measurement IEs
+	-- if the UE supports extended measurements, "measurementIdentity" 
+	-- shall be ignored if "measurementIdentity" in MeasurementControl-v970ext-IEs
+	-- is present, and the value of that element shall be used instead.
 		measurementIdentity				MeasurementIdentity,
 		-- TABULAR: The measurement type is included in measurementCommand.
 		measurementCommand				MeasurementCommand-r9,
 		measurementReportingMode		MeasurementReportingMode			OPTIONAL,
+	-- if the UE supports extended measurements, "additionalMeasurementList" 
+	-- shall be ignored if "additionalMeasurementList" in MeasurementControl-v970ext-IEs
+	-- is present, and the value of that element shall be used instead.
 		additionalMeasurementList		AdditionalMeasurementID-List		OPTIONAL,
 		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL,
 	-- Physical channel IEs
 		dpch-CompressedModeStatusInfo	DPCH-CompressedModeStatusInfo		OPTIONAL
+}
+
+MeasurementControl-v970ext-IEs ::= SEQUENCE {
+	-- Measurement IEs
+		measurementIdentity				MeasurementIdentity-r9				OPTIONAL,
+		additionalMeasurementList		AdditionalMeasurementID-List-r9		OPTIONAL
 }
 
 -- ***************************************************
@@ -3248,6 +3315,9 @@ MeasurementControlFailure-v590ext-IEs ::= SEQUENCE {
 
 MeasurementReport ::= SEQUENCE {
 	-- Measurement IEs
+	-- if the UE supports extended measurements, "measurementIdentity" 
+	-- shall be ignored if "measurementIdentity" in MeasurementReport-v970ext-IEs
+	-- is present, and the value of that element shall be used instead.
 		measurementIdentity				MeasurementIdentity,
 		measuredResults					MeasuredResults						OPTIONAL,
 		measuredResultsOnRACH			MeasuredResultsOnRACH				OPTIONAL,
@@ -3274,7 +3344,12 @@ MeasurementReport ::= SEQUENCE {
 										measurementReport-v860ext	MeasurementReport-v860ext-IEs,
 										v920NonCriticalExtensions		SEQUENCE {
 											measurementReport-v920ext	MeasurementReport-v920ext-IEs,
-											nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+											v970NonCriticalExtensions			SEQUENCE {
+												measurementReport-v970ext-IE	
+																MeasurementReport-v970ext-IEs,
+												nonCriticalExtensions	
+																SEQUENCE {}		OPTIONAL
+											}	OPTIONAL
 										}	OPTIONAL
 									}		OPTIONAL
 								}		OPTIONAL
@@ -3337,6 +3412,10 @@ MeasurementReport-v920ext-IEs ::= SEQUENCE {
 										MeasuredResultsListOnSecUlFreq		OPTIONAL,
 	eventResultsOnSecUlFreq				EventResultsOnSecUlFreq				OPTIONAL,
 	eutra-MeasuredResults				EUTRA-MeasuredResults-v920ext		OPTIONAL
+}
+
+MeasurementReport-v970ext-IEs ::= SEQUENCE {
+	measurementIdentity					MeasurementIdentityExt			OPTIONAL
 }
 
 -- ***************************************************
@@ -3544,7 +3623,11 @@ PhysicalChannelReconfiguration ::= CHOICE {
 									-- freezing REL-10
 									physicalChannelReconfiguration-r9-add-ext
 																			BIT STRING	OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}			OPTIONAL
+									v950NonCriticalExtensions		SEQUENCE {
+										physicalChannelReconfiguration-v950ext
+														PhysicalChannelReconfiguration-v950ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}			OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -3918,6 +4001,11 @@ PhysicalChannelReconfiguration-r9-IEs ::= SEQUENCE {
 		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL
 }
 
+PhysicalChannelReconfiguration-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
+}
+
 -- ***************************************************
 --
 -- PHYSICAL CHANNEL RECONFIGURATION COMPLETE
@@ -4246,12 +4334,17 @@ RadioBearerReconfiguration ::= CHOICE {
 							},
 							criticalExtensions				CHOICE {
 								r9								SEQUENCE {
-									radioBearerReconfiguration-r9																									RadioBearerReconfiguration-r9-IEs,
+									radioBearerReconfiguration-r9
+																RadioBearerReconfiguration-r9-IEs,
 									-- Container for adding non critical extensions after 
 									-- freezing REL-10
 									radioBearerReconfiguration-r9-add-ext
 																	BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v950NonCriticalExtensions		SEQUENCE {
+										radioBearerReconfiguration-v950ext	
+															RadioBearerReconfiguration-v950ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -4826,6 +4919,11 @@ RadioBearerReconfiguration-r9-IEs ::= SEQUENCE {
 		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL
 }
 
+RadioBearerReconfiguration-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
+}
+
 -- ***************************************************
 --
 -- RADIO BEARER RECONFIGURATION COMPLETE
@@ -5008,7 +5106,13 @@ RadioBearerRelease ::= CHOICE {
 									-- Container for adding non critical extensions after 
 									-- freezing REL-10
 									radioBearerRelease-r9-add-ext	BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v950NonCriticalExtensions		SEQUENCE {
+										radioBearerRelease-v950ext	RadioBearerRelease-v950ext-IEs,
+										v970NonCriticalExtensions		SEQUENCE {
+											radioBearerRelease-v970ext	RadioBearerRelease-v970ext-IEs,
+											nonCriticalExtensions		SEQUENCE {}		OPTIONAL
+										}	OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -5477,6 +5581,16 @@ RadioBearerRelease-r9-IEs ::= SEQUENCE {
 										RB-InformationReleaseList			OPTIONAL
 }
 
+RadioBearerRelease-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
+}
+
+RadioBearerRelease-v970ext-IEs ::= SEQUENCE {
+	-- Measurement IEs for LCR
+		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL
+}
+
 -- ***************************************************
 --
 -- RADIO BEARER RELEASE COMPLETE
@@ -5650,7 +5764,10 @@ RadioBearerSetup ::= CHOICE {
 									-- Container for adding non critical extensions after 
 									-- freezing REL-10
 									radioBearerSetup-r9-add-ext		BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v950NonCriticalExtensions		SEQUENCE {
+										radioBearerSetup-v950ext		RadioBearerSetup-v950ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -6153,6 +6270,11 @@ RadioBearerSetup-r9-IEs ::= SEQUENCE {
 		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL
 }
 
+RadioBearerSetup-v950ext-IEs::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
+}
+
 -- ***************************************************
 --
 -- RADIO BEARER SETUP COMPLETE
@@ -6495,8 +6617,12 @@ RRCConnectionRequest ::= SEQUENCE {
 													v920NonCriticalExtensions		SEQUENCE {
 														rrcConnectionRequest-v920ext
 																RRCConnectionRequest-v920ext-IEs,
-														nonCriticalExtensions
+														v940NonCriticalExtensions	SEQUENCE {
+															rrcConnectionRequest-v940ext
+																RRCConnectionRequest-v940ext-IEs,
+															nonCriticalExtensions
 																SEQUENCE {}		OPTIONAL
+														}	OPTIONAL
 													}	OPTIONAL
 												}	OPTIONAL
 											}	OPTIONAL
@@ -6583,6 +6709,11 @@ RRCConnectionRequest-v860ext-IEs ::= 	SEQUENCE {
 RRCConnectionRequest-v920ext-IEs ::=	SEQUENCE {
 	-- User equipment IEs
 		supportOfDualCellMIMO				ENUMERATED { true }					OPTIONAL
+}
+
+RRCConnectionRequest-v940ext-IEs ::=	SEQUENCE {
+	-- User equipment IEs
+		systemInformationContainerStoredIndicator	ENUMERATED { true }			OPTIONAL
 }
 
 -- ***************************************************
@@ -6683,8 +6814,11 @@ RRCConnectionSetup ::= CHOICE {
 									rrcConnectionSetup-r9			RRCConnectionSetup-r9-IEs,
 									-- Container for adding non critical extensions after 
 									-- freezing REL-10
-									rrcConnectionSetup-r9-add-ext																										BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									rrcConnectionSetup-r9-add-ext	BIT STRING		OPTIONAL,
+									v950NonCriticalExtensions		SEQUENCE {
+										rrcConnectionSetup-v950ext	RRCConnectionSetup-v950ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -7052,6 +7186,11 @@ RRCConnectionSetup-r9-IEs ::= SEQUENCE {
 		dl-InformationPerRL-List		DL-InformationPerRL-List-r8			OPTIONAL,
 		dl-SecondaryCellInfoFDD			DL-SecondaryCellInfoFDD-r9			OPTIONAL,
 		sps-Information-TDD128			SPS-Information-TDD128-r8			OPTIONAL
+}
+
+RRCConnectionSetup-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
 }
 
 -- ***************************************************
@@ -7725,7 +7864,11 @@ TransportChannelReconfiguration ::= CHOICE {
 									-- freezing REL-10
 									transportChannelReconfiguration-r9-add-ext
 																	BIT STRING		OPTIONAL,
-									nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									v950NonCriticalExtensions		SEQUENCE {
+										transportChannelReconfiguration-v950ext
+															TransportChannelReconfiguration-v950ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+									}	OPTIONAL
 								},
 								criticalExtensions				SEQUENCE {}
 							}
@@ -8147,6 +8290,11 @@ TransportChannelReconfiguration-r9-IEs ::= SEQUENCE {
 		mbms-PL-ServiceRestrictInfo		MBMS-PL-ServiceRestrictInfo-r6		OPTIONAL,
 	-- Measurement IEs for LCR
 		cellDCHMeasOccasionInfo-TDD128	CellDCHMeasOccasionInfo-TDD128-r9	OPTIONAL
+}
+
+TransportChannelReconfiguration-v950ext-IEs ::= SEQUENCE {
+	-- Physical channel IEs
+		secondaryCellMimoParameters		SecondaryCellMIMOparametersFDD-v950ext		OPTIONAL
 }
 
 -- ***************************************************

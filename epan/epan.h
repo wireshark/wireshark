@@ -33,6 +33,50 @@ typedef struct _epan_dissect_t epan_dissect_t;
 
 #include "dfilter/dfilter.h"
 
+/**
+	@mainpage Wireshark EPAN the packet analyzing engine. Source code can be found in the epan directory
+
+	@section Introduction
+
+	XXX
+
+	@b Sections:
+	- \ref proto_pub
+*/
+/* 
+Ref 1
+Epan
+Ethereal Packet ANalyzer (XXX - is this correct?) the packet analyzing engine. Source code can be found in the epan directory. 
+
+Protocol-Tree - Keep data of the capture file protocol information. 
+
+Dissectors - The various protocol dissectors in epan/dissectors. 
+
+Plugins - Some of the protocol dissectors are implemented as plugins. Source code can be found at plugins. 
+
+Display-Filters - the display filter engine at epan/dfilter
+
+
+
+Ref2 for further edits - delete when done
+	\section Introduction
+
+	This document describes the data structures and the functions exported by the CACE Technologies AirPcap library.
+	The AirPcap library provides low-level access to the AirPcap driver including advanced capabilities such as channel setting,
+	link type control and WEP configuration.<br>
+	This manual includes the following sections:
+
+	\note throughout this documentation, \e device refers to a physical USB AirPcap device, while \e adapter is an open API
+	instance. Most of the AirPcap API operations are adapter-specific but some of them, like setting the channel, are
+	per-device and will be reflected on all the open adapters. These functions will have "Device" in their name, e.g.
+	AirpcapSetDeviceChannel().
+
+	\b Sections:
+
+	- \ref airpcapfuncs
+	- \ref airpcapdefs
+	- \ref radiotap
+*/
 /** init the whole epan module, this is used to be called only once in a program */
 void epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_data),
 	       void (*register_all_handoffs_func)(register_cb cb, gpointer client_data),

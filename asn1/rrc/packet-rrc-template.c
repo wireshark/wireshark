@@ -24,7 +24,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  *
- * Ref: 3GPP TS 25.331 V8.8.0 (2009-09)
+ * Ref: 3GPP TS 25.331 V9.7.0 (2011-06)
  */
 
 #ifdef HAVE_CONFIG_H
@@ -58,9 +58,21 @@ static dissector_handle_t rrc_ul_ccch_handle=NULL;
 static dissector_handle_t rrc_dl_ccch_handle=NULL;
 static dissector_handle_t rrc_ul_dcch_handle=NULL;
 static dissector_handle_t rrc_dl_dcch_handle=NULL;
+static dissector_handle_t lte_rrc_ue_eutra_cap_handle=NULL;
+static dissector_handle_t lte_rrc_dl_dcch_handle=NULL;
 
 /* Forward declarations */
-static void dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_UE_RadioAccessCapabilityInfo_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_MasterInformationBlock_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoTypeSB1_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoTypeSB2_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType1_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType3_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType5_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType7_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType11_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType11bis_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
+static int dissect_SysInfoType12_PDU(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
 /* Include constants */
 #include "packet-rrc-val.h"
@@ -75,8 +87,32 @@ static int ett_rrc = -1;
 
 #include "packet-rrc-ett.c"
 
+static gint ett_rrc_eutraFeatureGroupIndicators = -1;
+
 /* Global variables */
 static proto_tree *top_tree;
+
+static int hf_rrc_eutra_feat_group_ind_1 = -1;
+static int hf_rrc_eutra_feat_group_ind_2 = -1;
+static int hf_rrc_eutra_feat_group_ind_3 = -1;
+static int hf_rrc_eutra_feat_group_ind_4 = -1;
+
+static const true_false_string rrc_eutra_feat_group_ind_1_val = {
+  "UTRA CELL_PCH to EUTRA RRC_IDLE cell reselection - Supported",
+  "UTRA CELL_PCH to EUTRA RRC_IDLE cell reselection - Not supported"
+};
+static const true_false_string rrc_eutra_feat_group_ind_2_val = {
+  "EUTRAN measurements and reporting in connected mode - Supported",
+  "EUTRAN measurements and reporting in connected mode - Not supported"
+};
+static const true_false_string rrc_eutra_feat_group_ind_3_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
+static const true_false_string rrc_eutra_feat_group_ind_4_val = {
+  "Undefined - Supported",
+  "Undefined - Not supported"
+};
 
 #include "packet-rrc-fn.c"
 
@@ -135,13 +171,29 @@ void proto_register_rrc(void) {
       { "RAB Test", "rrc.RAB.test",
         FT_UINT8, BASE_DEC, NULL, 0,
         "rrc.RAB_Info_r6", HFILL }},
-
+    { &hf_rrc_eutra_feat_group_ind_1,
+      { "Indicator 1", "rrc.eutra_feat_group_ind_1",
+        FT_BOOLEAN, BASE_NONE, TFS(&rrc_eutra_feat_group_ind_1_val), 0,
+        "EUTRA Feature Group Indicator 1", HFILL }},
+    { &hf_rrc_eutra_feat_group_ind_2,
+      { "Indicator 2", "rrc.eutra_feat_group_ind_2",
+        FT_BOOLEAN, BASE_NONE, TFS(&rrc_eutra_feat_group_ind_2_val), 0,
+        "EUTRA Feature Group Indicator 2", HFILL }},
+    { &hf_rrc_eutra_feat_group_ind_3,
+      { "Indicator 3", "rrc.eutra_feat_group_ind_3",
+        FT_BOOLEAN, BASE_NONE, TFS(&rrc_eutra_feat_group_ind_3_val), 0,
+        "EUTRA Feature Group Indicator 3", HFILL }},
+    { &hf_rrc_eutra_feat_group_ind_4,
+      { "Indicator 4", "rrc.eutra_feat_group_ind_4",
+        FT_BOOLEAN, BASE_NONE, TFS(&rrc_eutra_feat_group_ind_4_val), 0,
+        "EUTRA Feature Group Indicator 4", HFILL }},
   };
 
   /* List of subtrees */
   static gint *ett[] = {
-		  &ett_rrc,
+    &ett_rrc,
 #include "packet-rrc-ettarr.c"
+    &ett_rrc_eutraFeatureGroupIndicators,
   };
 
 
@@ -162,15 +214,16 @@ void proto_register_rrc(void) {
 void
 proto_reg_handoff_rrc(void)
 {
-
-	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-	rrc_pcch_handle = find_dissector("rrc.pcch");
-	rrc_ul_ccch_handle = find_dissector("rrc.ul.ccch");
-	rrc_dl_ccch_handle = find_dissector("rrc.dl.ccch");
-	rrc_ul_dcch_handle = find_dissector("rrc.ul.dcch");
-	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
-	rrc_ue_radio_access_cap_info_handle = find_dissector("rrc.ue_radio_access_cap_info");
-	rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
+  gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+  rrc_pcch_handle = find_dissector("rrc.pcch");
+  rrc_ul_ccch_handle = find_dissector("rrc.ul.ccch");
+  rrc_dl_ccch_handle = find_dissector("rrc.dl.ccch");
+  rrc_ul_dcch_handle = find_dissector("rrc.ul.dcch");
+  rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
+  rrc_ue_radio_access_cap_info_handle = find_dissector("rrc.ue_radio_access_cap_info");
+  rrc_dl_dcch_handle = find_dissector("rrc.dl.dcch");
+  lte_rrc_ue_eutra_cap_handle = find_dissector("lte-rrc.ue_eutra_cap");
+  lte_rrc_dl_dcch_handle = find_dissector("lte-rrc.dl.dcch");
 }
 
 

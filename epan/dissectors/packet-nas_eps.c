@@ -438,8 +438,8 @@ de_eps_cmn_eps_be_ctx_status(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo
 /*
  * 9.9.2.6  NAS security parameters from E-UTRA
  */
-static guint16
-de_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+guint16
+de_emm_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -458,8 +458,8 @@ de_sec_par_from_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 /*
  * 9.9.2.7  NAS security parameters to E-UTRA
  */
-static guint16
-de_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+guint16
+de_emm_sec_par_to_eutra(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
     guint32 curr_offset;
 
@@ -522,8 +522,8 @@ guint16 (*nas_eps_common_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_inf
     de_mid,                         /* 9.9.2.3  Mobile identity See subclause 10.5.1.4 in 3GPP TS 24.008*/
     de_ms_cm_2,                     /* 9.9.2.4  Mobile station classmark 2 */
     de_ms_cm_3,                     /* 9.9.2.5  Mobile station classmark 3 */
-    de_sec_par_from_eutra,          /* 9.9.2.6  NAS security parameters from E-UTRA */
-    de_sec_par_to_eutra,            /* 9.9.2.7  NAS security parameters to E-UTRA */
+    de_emm_sec_par_from_eutra,      /* 9.9.2.6  NAS security parameters from E-UTRA */
+    de_emm_sec_par_to_eutra,        /* 9.9.2.7  NAS security parameters to E-UTRA */
 
     de_plmn_list,                   /* 9.9.2.8  PLMN list */
     NULL,                           /* 9.9.2.10 Supported codec list (packet-gsm_a_dtap.c) */

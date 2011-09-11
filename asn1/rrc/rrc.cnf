@@ -20,17 +20,15 @@ HandoverToUTRANCommand_PDU
 # MasterInformationBlock       @si.mib
 # :
 # for some reason
-System-Information-Container
 UE-RadioAccessCapability-v890ext
 UL-PhysChCapabilityFDD-r6
 GSMCellGroupingList
 UE-Positioning-GANSS-Data
 GANSSDecipheringKeys
 GSM-CellID
-CellMeasuredResultsListOnSecULFreq
 #.END
 
-#.PDU
+#.PDU_NEW
 
 DL-DCCH-Message              @dl.dcch
 UL-DCCH-Message              @ul.dcch
@@ -44,6 +42,7 @@ BCCH-BCH-Message             @bcch.bch
 MCCH-Message                 @mcch
 MSCH-Message                 @msch
 SystemInformation-BCH        @sysinfo
+System-Information-Container @sysinfo.cont
 MasterInformationBlock       @si.mib
 SysInfoType1                 @si.sib1
 SysInfoType2                 @si.sib2
@@ -169,6 +168,10 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
   col_append_str(actx->pinfo->cinfo, COL_INFO, "DownlinkDirectTransfer");
 %(DEFAULT_BODY)s
 
+#.FN_BODY ETWSPrimaryNotificationWithSecurity
+  col_append_str(actx->pinfo->cinfo, COL_INFO, "ETWSPrimaryNotificationWithSecurity");
+%(DEFAULT_BODY)s
+
 #.FN_BODY HandoverToUTRANComplete
   col_append_str(actx->pinfo->cinfo, COL_INFO, "HandoverToUTRANComplete");
 %(DEFAULT_BODY)s
@@ -199,10 +202,6 @@ HandoverFromUTRANCommand-GSM-r6-IEs/gsm-message/single-GSM-Message single-GSM-Me
 
 #.FN_BODY MBMSCommonPTMRBInformation
   col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCommonPTMRBInformation");
-%(DEFAULT_BODY)s
-
-#.FN_BODY MBMSCurrentCellPTMRBInformation
-  col_append_str(actx->pinfo->cinfo, COL_INFO, "MBMSCurrentCellPTMRBInformation");
 %(DEFAULT_BODY)s
 
 #.FN_BODY MBMSCurrentCellPTMRBInformation
@@ -496,6 +495,7 @@ tvbuff_t *parameter_tvb=NULL;
   if (parameter_tvb){
 	de_ms_cm_3(parameter_tvb, tree, actx->pinfo, 0, tvb_length(parameter_tvb), NULL, 0);
   }
+
 #.FN_BODY InterRATHandoverInfoWithInterRATCapabilities-r3-IEs/interRATHandoverInfo VAL_PTR = &parameter_tvb
 tvbuff_t *parameter_tvb=NULL;
 
@@ -503,6 +503,42 @@ tvbuff_t *parameter_tvb=NULL;
   if (parameter_tvb){
 	dissect_rrc_InterRATHandoverInfo_PDU(parameter_tvb, actx->pinfo, tree);
   }
+
+#.FN_BODY EUTRA-RadioAccessCapability/ue-EUTRA-Capability VAL_PTR = &ue_eutra_cap_tvb
+  tvbuff_t *ue_eutra_cap_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (ue_eutra_cap_tvb && lte_rrc_ue_eutra_cap_handle)
+    call_dissector(lte_rrc_ue_eutra_cap_handle, ue_eutra_cap_tvb, actx->pinfo, tree);
+
+#.FN_BODY HandoverFromUTRANCommand-EUTRA-r8-IEs/eutra-Message VAL_PTR = &eutra_message_tvb
+  tvbuff_t *eutra_message_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_message_tvb && lte_rrc_dl_dcch_handle)
+    call_dissector(lte_rrc_dl_dcch_handle, eutra_message_tvb, actx->pinfo, tree);
+
+#.FN_BODY HandoverFromUtranFailure-v860ext-IEs/eutra-Message VAL_PTR = &eutra_message_tvb
+  tvbuff_t *eutra_message_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (eutra_message_tvb && lte_rrc_dl_dcch_handle)
+    call_dissector(lte_rrc_dl_dcch_handle, eutra_message_tvb, actx->pinfo, tree);
+
+#.FN_BODY MultiModeRAT-Capability-v860ext/eutraFeatureGroupIndicators VAL_PTR = &eutraFeatureGroupIndicators_tvb
+  tvbuff_t *eutraFeatureGroupIndicators_tvb=NULL;
+%(DEFAULT_BODY)s
+  if(eutraFeatureGroupIndicators_tvb){
+    /* Dissect eutraFeatureGroupIndicators */
+    proto_tree *subtree;
+    gint curr_bit_offset = 0;
+    subtree = proto_item_add_subtree(actx->created_item, ett_rrc_eutraFeatureGroupIndicators);
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_1, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_2, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_3, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+    proto_tree_add_bits_item(subtree, hf_rrc_eutra_feat_group_ind_4, eutraFeatureGroupIndicators_tvb, curr_bit_offset, 1, FALSE);
+    curr_bit_offset++;
+}
 
 #.END
 

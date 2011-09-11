@@ -9,7 +9,7 @@
 /* packet-lte-rrc-template.c
  * Routines for Evolved Universal Terrestrial Radio Access (E-UTRA);
  * Radio Resource Control (RRC) protocol specification
- * (3GPP TS 36.331 V9.6.0 Release 9) packet dissection
+ * (3GPP TS 36.331 V9.7.0 Release 9) packet dissection
  * Copyright 2008, Vincent Helfre
  *
  * $Id$
@@ -54,7 +54,10 @@
 #define PFNAME "lte_rrc"
 
 static dissector_handle_t nas_eps_handle = NULL;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
+static dissector_handle_t rrc_sys_info_cont_handle;
 static guint32 lte_rrc_rat_type_value = -1;
+static guint32 lte_rrc_ho_target_rat_type_value = -1;
 
 /* Include constants */
 
@@ -94,7 +97,7 @@ static guint32 lte_rrc_rat_type_value = -1;
 #define maxReestabInfo                 32
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 53 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 56 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -267,8 +270,8 @@ static int hf_lte_rrc_nonCriticalExtension_20 = -1;  /* MobilityFromEUTRACommand
 static int hf_lte_rrc_nonCriticalExtension_21 = -1;  /* MobilityFromEUTRACommand_v960_IEs */
 static int hf_lte_rrc_nonCriticalExtension_22 = -1;  /* T_nonCriticalExtension_09 */
 static int hf_lte_rrc_targetRAT_Type = -1;        /* T_targetRAT_Type */
-static int hf_lte_rrc_targetRAT_MessageContainer = -1;  /* OCTET_STRING */
-static int hf_lte_rrc_nas_SecurityParamFromEUTRA = -1;  /* OCTET_STRING_SIZE_1 */
+static int hf_lte_rrc_targetRAT_MessageContainer = -1;  /* T_targetRAT_MessageContainer */
+static int hf_lte_rrc_nas_SecurityParamFromEUTRA = -1;  /* T_nas_SecurityParamFromEUTRA */
 static int hf_lte_rrc_systemInformation_01 = -1;  /* SI_OrPSI_GERAN */
 static int hf_lte_rrc_t304 = -1;                  /* T_t304 */
 static int hf_lte_rrc_targetRAT_Type_01 = -1;     /* T_targetRAT_Type_01 */
@@ -326,7 +329,7 @@ static int hf_lte_rrc_securityAlgorithmConfig = -1;  /* SecurityAlgorithmConfig 
 static int hf_lte_rrc_keyChangeIndicator = -1;    /* BOOLEAN */
 static int hf_lte_rrc_nextHopChainingCount = -1;  /* NextHopChainingCount */
 static int hf_lte_rrc_interRAT = -1;              /* T_interRAT */
-static int hf_lte_rrc_nas_SecurityParamToEUTRA = -1;  /* OCTET_STRING_SIZE_6 */
+static int hf_lte_rrc_nas_SecurityParamToEUTRA = -1;  /* T_nas_SecurityParamToEUTRA */
 static int hf_lte_rrc_criticalExtensions_10 = -1;  /* T_criticalExtensions_10 */
 static int hf_lte_rrc_rrcConnectionReconfigurationComplete_r8 = -1;  /* RRCConnectionReconfigurationComplete_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_10 = -1;  /* T_criticalExtensionsFuture_10 */
@@ -410,9 +413,10 @@ static int hf_lte_rrc_carrierFreq_r9_01 = -1;     /* CarrierFreqGERAN */
 static int hf_lte_rrc_systemInformation_r9 = -1;  /* SystemInfoListGERAN */
 static int hf_lte_rrc_CellInfoListUTRA_FDD_r9_item = -1;  /* CellInfoUTRA_FDD_r9 */
 static int hf_lte_rrc_physCellId_r9_01 = -1;      /* PhysCellIdUTRA_FDD */
-static int hf_lte_rrc_utra_BCCH_Container_r9 = -1;  /* OCTET_STRING */
+static int hf_lte_rrc_utra_BCCH_Container_r9 = -1;  /* T_utra_BCCH_Container_r9 */
 static int hf_lte_rrc_CellInfoListUTRA_TDD_r9_item = -1;  /* CellInfoUTRA_TDD_r9 */
 static int hf_lte_rrc_physCellId_r9_02 = -1;      /* PhysCellIdUTRA_TDD */
+static int hf_lte_rrc_utra_BCCH_Container_r9_01 = -1;  /* T_utra_BCCH_Container_r9_01 */
 static int hf_lte_rrc_criticalExtensions_17 = -1;  /* T_criticalExtensions_17 */
 static int hf_lte_rrc_rrcConnectionRequest_r8 = -1;  /* RRCConnectionRequest_r8_IEs */
 static int hf_lte_rrc_criticalExtensionsFuture_17 = -1;  /* T_criticalExtensionsFuture_17 */
@@ -1370,7 +1374,7 @@ static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 58 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 61 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2081,7 +2085,7 @@ static gint ett_lte_rrc_AdditionalReestabInfo = -1;
 static gint ett_lte_rrc_RRM_Config = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 96 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 99 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 
@@ -2207,8 +2211,8 @@ static const true_false_string lte_rrc_eutra_cap_feat_group_ind_29_val = {
   "Semi-Persistent Scheduling - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_30_val = {
-  "Undefined - Supported",
-  "Undefined - Not supported"
+  "Handover between FDD and TDD - Supported",
+  "Handover between FDD and TDD - Not supported"
 };
 static const true_false_string lte_rrc_eutra_cap_feat_group_ind_31_val = {
   "Undefined - Supported",
@@ -10899,7 +10903,63 @@ static const value_string lte_rrc_T_targetRAT_Type_vals[] = {
 static int
 dissect_lte_rrc_T_targetRAT_Type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     8, NULL, TRUE, 0, NULL);
+                                     8, &lte_rrc_ho_target_rat_type_value, TRUE, 0, NULL);
+
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *target_rat_msg_cont_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &target_rat_msg_cont_tvb);
+
+  if(target_rat_msg_cont_tvb){
+    switch(lte_rrc_ho_target_rat_type_value){
+    case 0:
+      /* utra */
+      if (rrc_irat_ho_to_utran_cmd_handle)
+        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+      break;
+    case 1:
+      /* geran */
+      break;
+    case 2:
+      /* cdma2000-1XRTT */
+      break;
+    case 3:
+      /* cdma2000-HRPD */
+      break;
+    default:
+      break;
+    }
+  }
+
+
+  return offset;
+}
+
+
+
+static int
+dissect_lte_rrc_T_nas_SecurityParamFromEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *nas_sec_param_from_eutra_tvb = NULL;
+  guint32 length;
+  proto_item *item;
+  proto_tree *subtree;
+
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       1, 1, FALSE, &nas_sec_param_from_eutra_tvb);
+
+  length = tvb_length(nas_sec_param_from_eutra_tvb);
+  item = proto_tree_add_text(tree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
+  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamFromEUTRA);
+  de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+
 
   return offset;
 }
@@ -10953,16 +11013,19 @@ dissect_lte_rrc_SI_OrPSI_GERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static const per_sequence_t Handover_sequence[] = {
   { &hf_lte_rrc_targetRAT_Type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_targetRAT_Type },
-  { &hf_lte_rrc_targetRAT_MessageContainer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
-  { &hf_lte_rrc_nas_SecurityParamFromEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_OCTET_STRING_SIZE_1 },
+  { &hf_lte_rrc_targetRAT_MessageContainer, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_targetRAT_MessageContainer },
+  { &hf_lte_rrc_nas_SecurityParamFromEUTRA, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_T_nas_SecurityParamFromEUTRA },
   { &hf_lte_rrc_systemInformation_01, ASN1_NO_EXTENSIONS     , ASN1_OPTIONAL    , dissect_lte_rrc_SI_OrPSI_GERAN },
   { NULL, 0, 0, NULL }
 };
 
 static int
 dissect_lte_rrc_Handover(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  lte_rrc_ho_target_rat_type_value = -1;
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_Handover, Handover_sequence);
+
+
 
   return offset;
 }
@@ -13255,9 +13318,21 @@ dissect_lte_rrc_T_intraLTE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _
 
 
 static int
-dissect_lte_rrc_OCTET_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_T_nas_SecurityParamToEUTRA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *nas_sec_param_to_eutra_tvb = NULL;
+  guint32 length;
+  proto_item *item;
+  proto_tree *subtree;
+
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       6, 6, FALSE, NULL);
+                                       6, 6, FALSE, &nas_sec_param_to_eutra_tvb);
+
+  length = tvb_length(nas_sec_param_to_eutra_tvb);
+  item = proto_tree_add_text(tree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
+  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamToEUTRA);
+  de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+
+
 
   return offset;
 }
@@ -13265,7 +13340,7 @@ dissect_lte_rrc_OCTET_STRING_SIZE_6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_
 
 static const per_sequence_t T_interRAT_sequence[] = {
   { &hf_lte_rrc_securityAlgorithmConfig, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SecurityAlgorithmConfig },
-  { &hf_lte_rrc_nas_SecurityParamToEUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING_SIZE_6 },
+  { &hf_lte_rrc_nas_SecurityParamToEUTRA, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_nas_SecurityParamToEUTRA },
   { NULL, 0, 0, NULL }
 };
 
@@ -13832,9 +13907,24 @@ dissect_lte_rrc_CellInfoListGERAN_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 }
 
 
+
+static int
+dissect_lte_rrc_T_utra_BCCH_Container_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *utra_bcch_cont_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &utra_bcch_cont_tvb);
+
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t CellInfoUTRA_FDD_r9_sequence[] = {
   { &hf_lte_rrc_physCellId_r9_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellIdUTRA_FDD },
-  { &hf_lte_rrc_utra_BCCH_Container_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
+  { &hf_lte_rrc_utra_BCCH_Container_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_utra_BCCH_Container_r9 },
   { NULL, 0, 0, NULL }
 };
 
@@ -13861,9 +13951,24 @@ dissect_lte_rrc_CellInfoListUTRA_FDD_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_
 }
 
 
+
+static int
+dissect_lte_rrc_T_utra_BCCH_Container_r9_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *utra_bcch_cont_tvb = NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       NO_BOUND, NO_BOUND, FALSE, &utra_bcch_cont_tvb);
+
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+
+
+  return offset;
+}
+
+
 static const per_sequence_t CellInfoUTRA_TDD_r9_sequence[] = {
   { &hf_lte_rrc_physCellId_r9_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_PhysCellIdUTRA_TDD },
-  { &hf_lte_rrc_utra_BCCH_Container_r9, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING },
+  { &hf_lte_rrc_utra_BCCH_Container_r9_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_T_utra_BCCH_Container_r9_01 },
   { NULL, 0, 0, NULL }
 };
 
@@ -19537,7 +19642,7 @@ static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 233 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 236 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -20308,11 +20413,11 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_targetRAT_MessageContainer,
       { "targetRAT-MessageContainer", "lte-rrc.targetRAT_MessageContainer",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        "T_targetRAT_MessageContainer", HFILL }},
     { &hf_lte_rrc_nas_SecurityParamFromEUTRA,
       { "nas-SecurityParamFromEUTRA", "lte-rrc.nas_SecurityParamFromEUTRA",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_systemInformation_01,
       { "systemInformation", "lte-rrc.systemInformation",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_SI_OrPSI_GERAN_vals), 0,
@@ -20544,7 +20649,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_nas_SecurityParamToEUTRA,
       { "nas-SecurityParamToEUTRA", "lte-rrc.nas_SecurityParamToEUTRA",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_6", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_criticalExtensions_10,
       { "criticalExtensions", "lte-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_criticalExtensions_10_vals), 0,
@@ -20880,7 +20985,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_utra_BCCH_Container_r9,
       { "utra-BCCH-Container-r9", "lte-rrc.utra_BCCH_Container_r9",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_CellInfoListUTRA_TDD_r9_item,
       { "CellInfoUTRA-TDD-r9", "lte-rrc.CellInfoUTRA_TDD_r9",
         FT_NONE, BASE_NONE, NULL, 0,
@@ -20889,6 +20994,10 @@ void proto_register_lte_rrc(void) {
       { "physCellId-r9", "lte-rrc.physCellId_r9",
         FT_UINT32, BASE_DEC, NULL, 0,
         "PhysCellIdUTRA_TDD", HFILL }},
+    { &hf_lte_rrc_utra_BCCH_Container_r9_01,
+      { "utra-BCCH-Container-r9", "lte-rrc.utra_BCCH_Container_r9",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_utra_BCCH_Container_r9_01", HFILL }},
     { &hf_lte_rrc_criticalExtensions_17,
       { "criticalExtensions", "lte-rrc.criticalExtensions",
         FT_UINT32, BASE_DEC, VALS(lte_rrc_T_criticalExtensions_17_vals), 0,
@@ -24707,7 +24816,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 338 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 341 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -25515,7 +25624,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 473 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 476 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
   };
@@ -25553,7 +25662,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 495 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 498 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 
@@ -25567,6 +25676,8 @@ proto_reg_handoff_lte_rrc(void)
 	lte_rrc_dl_ccch_handle = find_dissector("lte_rrc.dl_ccch");
 	dissector_add_handle("udp.port", lte_rrc_dl_ccch_handle);
 	nas_eps_handle = find_dissector("nas-eps");
+	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
+	rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
 }
 
 

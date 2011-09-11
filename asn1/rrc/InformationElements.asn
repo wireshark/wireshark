@@ -1,7 +1,7 @@
 -- $Id$
 -- InformationElements.asn
 --
--- 3GPP TS 25.331 V9.2.1 (2010-04)
+-- 3GPP TS 25.331 V9.7.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.3	Information element definitions
@@ -2202,8 +2202,12 @@ UE-CapabilityContainer-IEs ::=			SEQUENCE {
 															UE-RadioAccessCapability-v890ext-IEs,
 									v920NonCriticalExtensions			SEQUENCE {
 										ue-RadioAccessCapability-v920ext
-																	UE-RadioAccessCapability-v920ext-IEs,
-									nonCriticalExtensions				SEQUENCE {} OPTIONAL
+															UE-RadioAccessCapability-v920ext-IEs,
+										v970NonCriticalExtensions			SEQUENCE {
+											ue-RadioAccessCapability-v970ext
+															UE-RadioAccessCapability-v970ext-IEs,
+											nonCriticalExtensions				SEQUENCE {} OPTIONAL
+										}		OPTIONAL
 									}		OPTIONAL
 								}		OPTIONAL
 							}		OPTIONAL
@@ -2278,6 +2282,11 @@ UE-RadioAccessCapability-v920ext-IEs ::= SEQUENCE {
 	-- UE radio access capability
 	csgProximityIndicationCapability		CSG-ProximityIndicationCapability		OPTIONAL,
 	neighCellSI-AcquisitionCapability		NeighCellSI-AcquisitionCapability		OPTIONAL
+}
+
+UE-RadioAccessCapability-v970ext-IEs ::= SEQUENCE {
+	-- UE physical channel capability
+	ue-ExtendedMeasurementSupport			ENUMERATED { true }						OPTIONAL
 }
 
 UE-ConnTimersAndConstants ::=		SEQUENCE {
@@ -2441,6 +2450,8 @@ UE-RadioAccessCapability-v7e0ext ::=	SEQUENCE {
 
 UE-RadioAccessCapability-v7f0ext ::=	SEQUENCE {
 	supportofTxDivOnNonMIMOChannel			ENUMERATED { true }							OPTIONAL,
+	-- IE physicalChannelCapability-LCR and ue-RadioAccessCapabilityComp-TDD128 shall only be
+	-- included in InterRATHandoverInfo for 1.28 Mcps TDD, otherwise these IEs are not needed here.
 	physicalChannelCapability-LCR			PhysicalChannelCapability-LCR-r4			OPTIONAL,
 	ue-RadioAccessCapabilityComp-TDD128		UE-RadioAccessCapabilityComp-TDD128-v7f0ext	OPTIONAL
 }
@@ -2451,6 +2462,13 @@ UE-RadioAccessCapabilityInfo-v770ext ::= SEQUENCE {
 	ganssSupportIndication					ENUMERATED { true }						OPTIONAL,
 	mac-ehsSupport							ENUMERATED { true }						OPTIONAL,
 	ue-SpecificCapabilityInformation		UE-SpecificCapabilityInformation-LCRTDD	OPTIONAL
+}
+
+UE-RadioAccessCapabilityInfo-TDD128-v8b0ext ::=	SEQUENCE {
+	-- INTER RAT HANDOVER INFO
+	measurementCapabilityTDD						MeasurementCapabilityTDD			OPTIONAL,
+	hSDSCH-physical-layer-category-extension
+											HSDSCH-physical-layer-category-extension	OPTIONAL
 }
 
 UE-RadioAccessCapability-v860ext ::=	SEQUENCE {
@@ -5504,10 +5522,10 @@ CodeWordSet ::=						ENUMERATED {
 										ssdtOff }
 
 Common-E-DCH-ResourceInfoList ::=	SEQUENCE {
-	s-offset							INTEGER (0..9),
-	f-dpch-ChannelisationCodeNumber		INTEGER (0..255),
-	e-RGCH-Information					E-RGCH-Information					OPTIONAL,
-	e-hich-Info							E-HICH-Information,
+	s-offset							INTEGER (0..9)						OPTIONAL,
+	f-dpch-ChannelisationCodeNumber		INTEGER (0..255)					OPTIONAL,
+	e-RGCH-Information					E-RGCH-Information-CommonEdch		OPTIONAL,
+	e-hich-Info							E-HICH-Information-CommonEdch,
 	ul-DPCH-CodeInfoForCommonEDCH		UL-DPCH-CodeInfoForCommonEDCH
 }
 
@@ -5518,35 +5536,14 @@ Common-E-RNTI-Info ::=				SEQUENCE (SIZE (1..maxERUCCH)) OF
 	number-of-ENRTI-per-group				INTEGER (1..maxERNTIperGroup)
 }
 
+	-- For FDD, the network should not include the IE CommonEDCHSystemInfo.
+	-- Instead, the IE commonEDCHSystemInfoFDD should be used.
+	-- If included, the UE behavior is unspecified.
 CommonEDCHSystemInfo ::=			SEQUENCE {
 	ul-InterferenceForCommonEDCH		UL-Interference								OPTIONAL,
 	common-E-DCH-MAC-d-FlowList			Common-E-DCH-MAC-d-FlowList,
 	modeSpecificInfo					CHOICE {
-		fdd									SEQUENCE {
-			prach-PreambleForEnhancedUplink		PRACH-PreambleForEnhancedUplink,
-			initialServingGrantValue			INTEGER (0..37),
-			e-dch-TTI							E-DCH-TTI,
-			e-agch-Information					E-AGCH-Information,
-			harq-Info							ENUMERATED { rv0, rvtable },
-			ul-DPCHpowerControlInfoForCommonEDCH
-												UL-DPCHpowerControlInfoForCommonEDCH,
-			e-dpcch-Info						E-DPCCH-Info-r7,
-			e-dpdch-Info						E-DPDCH-Info-r8,
-			-- Actual value dl-FDPCH-TPCcommandErrorRate = IE value * 0.01
-			dl-FDPCH-TPCcommandErrorRate		INTEGER (1..10),
-			additional-E-DCH-TransmitBackoff	INTEGER (0..15),
-			max-CCCH-ResourceAllocation			ENUMERATED { 
-													tti8, tti12, tti16, tti24, tti32, tti40,
-													tti80, tti120 },
-			max-PeriodForCollisionResolution	INTEGER (8..24),
-			e-dch-TransmitContinuationOffset	ENUMERATED {
-													tti0, tti8, tti16, tti24, tti40, tti80,
-													tti120, infinity },
-			ack-nack-support-on-HS-DPCCH		BOOLEAN,
-			measurement-Feedback-Info			Measurement-Feedback-Info-r7		OPTIONAL,
-			common-E-DCH-ResourceInfoList		SEQUENCE (SIZE (1..maxEDCHs)) OF
-													Common-E-DCH-ResourceInfoList
-		},
+		dummy								SEQUENCE {},
 		tdd									CHOICE {
 			tdd768	NULL,
 			tdd384	NULL,
@@ -5571,6 +5568,34 @@ CommonEDCHSystemInfo ::=			SEQUENCE {
 			}
 		}
 	}
+}
+
+CommonEDCHSystemInfoFDD ::=			SEQUENCE {
+	ul-InterferenceForCommonEDCH		UL-Interference					OPTIONAL,
+	common-E-DCH-MAC-d-FlowList			Common-E-DCH-MAC-d-FlowList,
+	prach-PreambleForEnhancedUplink		PRACH-PreambleForEnhancedUplink,
+	initialServingGrantValue			INTEGER (0..37),
+	e-dch-TTI							E-DCH-TTI,
+	e-agch-Information					E-AGCH-Information,
+	harq-Info							ENUMERATED { rv0, rvtable },
+	ul-DPCHpowerControlInfoForCommonEDCH
+										UL-DPCHpowerControlInfoForCommonEDCH,
+	e-dpcch-Info						E-DPCCH-Info-r7,
+	e-dpdch-Info						E-DPDCH-Info-r8,
+	-- Actual value dl-FDPCH-TPCcommandErrorRate = IE value * 0.01
+	dl-FDPCH-TPCcommandErrorRate		INTEGER (1..10),
+	additional-E-DCH-TransmitBackoff	INTEGER (0..15),
+	max-CCCH-ResourceAllocation			ENUMERATED { 
+											tti8, tti12, tti16, tti20, tti24, tti32,
+											tti40, tti80 },
+	max-PeriodForCollisionResolution	INTEGER (8..24),
+	e-dch-TransmitContinuationOffset	ENUMERATED {
+											tti0, tti4, tti8, tti16, tti24, tti40,
+											tti80,infinity },
+	ack-nack-support-on-HS-DPCCH		BOOLEAN,
+	measurement-Feedback-Info			Measurement-Feedback-Info-r7		OPTIONAL,
+	common-E-DCH-ResourceInfoList		SEQUENCE (SIZE (1..maxEDCHs)) OF
+											Common-E-DCH-ResourceInfoList
 }
 
 CommonTimeslotInfo ::=				SEQUENCE {
@@ -7262,6 +7287,11 @@ E-HICH-Information ::=				SEQUENCE {
 	signatureSequence					E-HICH-RGCH-SignatureSequence
 }
 
+E-HICH-Information-CommonEdch ::=		SEQUENCE {
+	channelisationCode					E-HICH-ChannelisationCode					OPTIONAL,
+	signatureSequence					E-HICH-RGCH-SignatureSequence				OPTIONAL
+}
+
 E-HICH-Information-TDD384-768 ::=	SEQUENCE {
 	n-E-HICH							INTEGER (4..44),
 	tS-Number							INTEGER (0..14),
@@ -7392,6 +7422,10 @@ E-RGCH-CombinationIndex ::=			INTEGER (0..5)
 E-RGCH-Information ::=				SEQUENCE {
 	signatureSequence					E-HICH-RGCH-SignatureSequence,
 	rg-CombinationIndex					E-RGCH-CombinationIndex
+}
+
+E-RGCH-Information-CommonEdch ::=	SEQUENCE {
+	signatureSequence					E-HICH-RGCH-SignatureSequence				OPTIONAL
 }
 
 E-RUCCH-AccessServiceClass ::=		PRACH-Partitioning-LCR-r4
@@ -8941,10 +8975,10 @@ PRACH-PowerOffset ::=				SEQUENCE {
 }
 
 PRACH-PreambleForEnhancedUplink ::=		SEQUENCE {
-	availableSignatures						AvailableSignatures,
+	availableSignatures						AvailableSignatures					OPTIONAL,
 	e-ai-Indication							BOOLEAN,
-	preambleScramblingCodeWordNumber		PreambleScramblingCodeWordNumber,
-	availableSubChannelNumbers				AvailableSubChannelNumbers,
+	preambleScramblingCodeWordNumber		PreambleScramblingCodeWordNumber	OPTIONAL,
+	availableSubChannelNumbers				AvailableSubChannelNumbers			OPTIONAL,
 	prach-Partitioning						PRACH-Partitioning-r7				OPTIONAL,
 	persistenceScalingFactorList			PersistenceScalingFactorList		OPTIONAL,
 	ac-To-ASC-MappingTable					AC-To-ASC-MappingTable				OPTIONAL,
@@ -9491,6 +9525,10 @@ RL-AdditionInformation-v890ext ::=	SEQUENCE {
 	targetCellPreconfigInfo				TargetCellPreconfigInfo-v890ext		OPTIONAL
 }
 
+RL-AdditionInformation-v950ext ::=	SEQUENCE {
+	targetCellPreconfigInfo				TargetCellPreconfigInfo-v950ext		OPTIONAL
+}
+
 RL-AdditionInformationList ::=		SEQUENCE (SIZE (1..maxRL-1)) OF
 										RL-AdditionInformation
 
@@ -9511,6 +9549,9 @@ RL-AdditionInformationList-v890ext ::=	SEQUENCE (SIZE (1..maxRL-1)) OF
 
 RL-AdditionInformationList-r9 ::=	SEQUENCE (SIZE(1..maxRL-1)) OF
 										RL-AdditionInformation-r9
+
+RL-AdditionInformationList-v950ext ::=	SEQUENCE (SIZE(1..maxRL-1)) OF
+											RL-AdditionInformation-v950ext
 
 RL-AdditionInformationList-SecULFreq ::=	SEQUENCE (SIZE(1..maxEDCHRL-1)) OF
 										RL-AdditionInformation-SecULFreq
@@ -9821,6 +9862,10 @@ SecondaryCellMIMOparametersFDD ::=		CHOICE {
 	}
 }
 
+SecondaryCellMIMOparametersFDD-v950ext ::= SEQUENCE {
+	precodingWeightSetRestriction		ENUMERATED { true }			OPTIONAL
+}
+
 SecondInterleavingMode ::=			ENUMERATED {
 										frameRelated, timeslotRelated }
 
@@ -10021,6 +10066,8 @@ TargetCellPreconfigInfo-r9 ::=			SEQUENCE {
 	e-dch-ReconfigurationInfo-SecULFrequency	
 								E-DCH-ReconfigurationInfo-SecULFrequency	OPTIONAL
 }
+
+TargetCellPreconfigInfo-v950ext ::=		SecondaryCellMIMOparametersFDD-v950ext
 
 TDD-FPACH-CCode16-r4 ::=			ENUMERATED {
 										cc16-1, cc16-2, cc16-3, cc16-4,
@@ -10537,7 +10584,7 @@ UL-DPCCH-SlotFormat ::=				ENUMERATED {
 
 UL-DPCH-CodeInfoForCommonEDCH ::=	SEQUENCE {
 	ul-DPCCHscramblingCodeType			ScramblingCodeType,
-	ul-DPCCHscramblingCode				UL-ScramblingCode
+	ul-DPCCHscramblingCode				UL-ScramblingCode					OPTIONAL
 }
 
 UL-DPCH-Info ::=					SEQUENCE {
@@ -11226,6 +11273,9 @@ AcquisitionSatInfoList ::=			SEQUENCE (SIZE (1..maxSat)) OF
 
 AdditionalMeasurementID-List ::=	SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
 										MeasurementIdentity
+
+AdditionalMeasurementID-List-r9 ::=	SEQUENCE (SIZE (1..maxAdditionalMeas)) OF
+												MeasurementIdentity-r9
 
 AlmanacSatInfo ::=					SEQUENCE {
 	dataID								INTEGER (0..3),
@@ -12114,7 +12164,6 @@ EUTRA-FrequencyAndPriorityInfo ::=	SEQUENCE {
 }
 
 EUTRA-FrequencyAndPriorityInfo-v920ext ::=	SEQUENCE {
-	-- Actual value = IE value * 2
 	qqualMinEUTRA						INTEGER (-34..-3)						OPTIONAL,
 	threshXhigh2						INTEGER (0..31)							OPTIONAL,
 	threshXlow2							INTEGER (0..31)							OPTIONAL
@@ -14484,6 +14533,10 @@ MeasurementControlSysInfo-LCR-r4-ext ::=	SEQUENCE {
 }
 
 MeasurementIdentity ::=		INTEGER (1..16)
+
+MeasurementIdentityExt ::=		INTEGER (17..32)
+
+MeasurementIdentity-r9 ::=		INTEGER (1..32)
 
 MeasurementOccasionPatternParameter ::=		SEQUENCE {
 	measurement-Occasion-Coeff			INTEGER (1..9),
@@ -18025,7 +18078,15 @@ SysInfoType5 ::=					SEQUENCE {
 									sysInfoType5-v860ext			SysInfoType5-v860ext-IEs,
 									v890NonCriticalExtensions		SEQUENCE {
 										sysInfoType5-v890ext			SysInfoType5-v890ext-IEs,
-										nonCriticalExtensions			SEQUENCE {}		OPTIONAL
+										v8b0NonCriticalExtensions		SEQUENCE {
+											sysInfoType5-v8b0ext
+																		SysInfoType5-v8b0ext-IEs,
+											v8d0NonCriticalExtensions		SEQUENCE {
+												sysInfoType5-v8d0ext
+																			SysInfoType5-v8d0ext-IEs,
+												nonCriticalExtensions		SEQUENCE {}		OPTIONAL
+											}		OPTIONAL
+										}		OPTIONAL
 									}		OPTIONAL
 								}		OPTIONAL
 							}		OPTIONAL
@@ -18140,6 +18201,15 @@ SysInfoType5-v860ext-IEs ::= SEQUENCE {
 SysInfoType5-v890ext-IEs ::= SEQUENCE {
 	secondFrequencyInfo					FrequencyInfoTDD				OPTIONAL,
 	commonEDCHSystemInfo				CommonEDCHSystemInfo						OPTIONAL
+}
+
+SysInfoType5-v8b0ext-IEs ::= SEQUENCE {
+	tresetUsageIndicator				ENUMERATED { true }				OPTIONAL,
+	upPCHpositionInfo					UpPCHposition-LCR				OPTIONAL
+}
+
+SysInfoType5-v8d0ext-IEs ::= SEQUENCE {
+	commonEDCHSystemInfoFDD				CommonEDCHSystemInfoFDD			OPTIONAL
 }
 
 -- SysInfoType5bis uses the same structure as SysInfoType5

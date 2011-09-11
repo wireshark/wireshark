@@ -1,7 +1,7 @@
 -- $Id$
 -- Internode-definitions.asn
 --
--- 3GPP TS 25.331 V9.2.1 (2010-04)
+-- 3GPP TS 25.331 V9.7.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25331.htm
 --
 -- 11.5	RRC information between network nodes
@@ -96,6 +96,7 @@ FROM PDU-definitions
 	UL-PhysChCapabilityTDD,
 	UL-PhysChCapabilityTDD-LCR-r4,
 -- Radio Bearer IEs :
+	PDCP-ROHC-TargetMode,
 	PredefinedConfigStatusList,
 	PredefinedConfigValueTag,
 	RAB-InformationSetupList,
@@ -148,6 +149,7 @@ FROM PDU-definitions
 	InterRATCellInfoIndication,
 	MeasuredResultsOnRACHinterFreq,
 	MeasurementIdentity,
+	MeasurementIdentity-r9,
 	MeasurementReportingMode,
 	MeasurementType,
 	MeasurementType-r4,
@@ -156,6 +158,7 @@ FROM PDU-definitions
 	MeasurementType-r8,
 	MeasurementType-r9,
 	AdditionalMeasurementID-List,
+	AdditionalMeasurementID-List-r9,
 	PositionEstimate,
 	ReportingCellStatus,
 	ThresholdSFN-GPS-TOW-us,
@@ -505,7 +508,11 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 								v7f0NonCriticalExtensions		SEQUENCE {
 									sRNC-RelocationInfo-v7f0ext
 															SRNC-RelocationInfo-v7f0ext-IEs,
-									nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+									v8d0NonCriticalExtensions		SEQUENCE {
+										sRNC-RelocationInfo-v8d0ext
+															SRNC-RelocationInfo-v8d0ext-IEs,
+										nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+									}	OPTIONAL
 								}	OPTIONAL
 							}	OPTIONAL
 						},
@@ -513,7 +520,15 @@ SRNC-RelocationInfo-r3 ::= CHOICE {
 							r9								SEQUENCE {
 								sRNC-RelocationInfo-r9			SRNC-RelocationInfo-r9-IEs,
 								sRNC-RelocationInfo-r9-add-ext	BIT STRING		OPTIONAL,
-								nonCriticalExtensions			SEQUENCE {}	OPTIONAL
+								v8d0NonCriticalExtensions		SEQUENCE {
+									sRNC-RelocationInfo-v8d0ext		SRNC-RelocationInfo-v8d0ext-IEs,
+									v970NonCriticalExtensions			SEQUENCE {
+										sRNC-RelocationInfo-v970ext	
+															SRNC-RelocationInfo-v970ext-IEs,
+										nonCriticalExtensions	
+															SEQUENCE {}	OPTIONAL
+									}	OPTIONAL
+								}	OPTIONAL
 							},
 							criticalExtensions				SEQUENCE {}
 						}
@@ -1166,6 +1181,11 @@ SRNC-RelocationInfo-v860ext-IEs ::=	SEQUENCE {
 		e-RGCH-CombinationInfoList		E-RGCH-CombinationInfoList			OPTIONAL
 }
 
+SRNC-RelocationInfo-v8d0ext-IEs ::=	SEQUENCE {
+	--Radio Bearer IEs
+		pdcp-ROHC-TargetMode			PDCP-ROHC-TargetMode				OPTIONAL
+}
+
 SRNC-RelocationInfo-r9-IEs ::=			SEQUENCE {
 	-- Non-RRC IEs
 		-- IE rb-IdentityForHOMessage includes the identity of the RB used by the source SRNC
@@ -1247,6 +1267,11 @@ SRNC-RelocationInfo-r9-IEs ::=			SEQUENCE {
 	-- MBMS IEs
 		mbms-JoinedInformation			MBMS-JoinedInformation-r6			OPTIONAL,
 		mbmsSelectedServiceInfo			MBMS-SelectedServiceInfo			OPTIONAL
+}
+
+SRNC-RelocationInfo-v970ext-IEs ::=		SEQUENCE {
+	-- Measurement IEs
+		ongoingMeasRepList					OngoingMeasRepList-v970ext-IE		OPTIONAL
 }
 
 -- IE definitions
@@ -1527,7 +1552,25 @@ OngoingMeasRep-r9 ::=				SEQUENCE {
 	measurementIdentity					MeasurementIdentity,
 	measurementCommandWithType			MeasurementCommandWithType-r9,
 	measurementReportingMode			MeasurementReportingMode			OPTIONAL,
+	-- if any of the additional measurement ID is within the range 17 to 32,
+	-- "OngoingMeasRep-v970ext-IEs" should be present and should include 
+	-- the IE "measurementIdentity" and "additionalMeasurementID-List".
+	-- The value of the IE "measurementIdentity" in "OngoingMeasRep-v970ext-IEs"
+	-- should be the same as the "measurementIdentity" value in "OngoingMeasRep-r9",
+	-- and "additionalMeasurementID-List" should contain the complete list.
+	-- The IE "additionalMeasurementID-List" in "OngoingMeasRep-r9" should still 
+	-- contain the additional measurement ID which value is within the range 1 to 16.
 	additionalMeasurementID-List		AdditionalMeasurementID-List		OPTIONAL
+}
+
+-- The IE "OngoingMeasRep-v970ext-IEs" should be included to report 
+-- measurementIdentity values within the range 17 to 32 and when a 
+-- "measurementIdentity" in "OngoingMeasRep-r9" needs to contain one of the 
+-- values within the range 17 to 32 in the IE "additionalMeasurementID-List".
+
+OngoingMeasRep-v970ext-IEs ::=		SEQUENCE {
+	measurementIdentity					MeasurementIdentity-r9				OPTIONAL,
+	additionalMeasurementID-List		AdditionalMeasurementID-List-r9		OPTIONAL
 }
 
 OngoingMeasRepList ::=				SEQUENCE (SIZE (1..maxNoOfMeas)) OF
@@ -1550,6 +1593,9 @@ OngoingMeasRepList-r8 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 
 OngoingMeasRepList-r9 ::=			SEQUENCE (SIZE (1..maxNoOfMeas)) OF
 										OngoingMeasRep-r9
+
+OngoingMeasRepList-v970ext-IE ::=	SEQUENCE (SIZE (1..maxNoOfMeas)) OF
+										OngoingMeasRep-v970ext-IEs
 
 PDCP-Capability-r4 ::=				SEQUENCE {
 	losslessSRNS-RelocationSupport		BOOLEAN,

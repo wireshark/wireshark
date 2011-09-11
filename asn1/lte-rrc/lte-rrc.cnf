@@ -223,6 +223,74 @@ if(ue_eutra_cap_tvb){
     curr_bit_offset++;
   }
 
+#.FN_BODY Handover
+  lte_rrc_ho_target_rat_type_value = -1;
+%(DEFAULT_BODY)s
+
+#.FN_BODY Handover/targetRAT-Type VAL_PTR = &lte_rrc_ho_target_rat_type_value
+%(DEFAULT_BODY)s
+
+#.FN_BODY Handover/targetRAT-MessageContainer VAL_PTR = &target_rat_msg_cont_tvb
+  tvbuff_t *target_rat_msg_cont_tvb = NULL;
+%(DEFAULT_BODY)s
+  if(target_rat_msg_cont_tvb){
+    switch(lte_rrc_ho_target_rat_type_value){
+    case 0:
+      /* utra */
+      if (rrc_irat_ho_to_utran_cmd_handle)
+        call_dissector(rrc_irat_ho_to_utran_cmd_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+      break;
+    case 1:
+      /* geran */
+      break;
+    case 2:
+      /* cdma2000-1XRTT */
+      break;
+    case 3:
+      /* cdma2000-HRPD */
+      break;
+    default:
+      break;
+    }
+  }
+
+#.FN_BODY Handover/nas-SecurityParamFromEUTRA VAL_PTR = &nas_sec_param_from_eutra_tvb
+  tvbuff_t *nas_sec_param_from_eutra_tvb = NULL;
+  guint32 length;
+  proto_item *item;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+  length = tvb_length(nas_sec_param_from_eutra_tvb);
+  item = proto_tree_add_text(tree, nas_sec_param_from_eutra_tvb, 0, length, "NAS security parameters from E-UTRA");
+  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamFromEUTRA);
+  de_emm_sec_par_from_eutra(nas_sec_param_from_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+
+#.FN_BODY SecurityConfigHO/handoverType/interRAT/nas-SecurityParamToEUTRA VAL_PTR = &nas_sec_param_to_eutra_tvb
+  tvbuff_t *nas_sec_param_to_eutra_tvb = NULL;
+  guint32 length;
+  proto_item *item;
+  proto_tree *subtree;
+
+%(DEFAULT_BODY)s
+  length = tvb_length(nas_sec_param_to_eutra_tvb);
+  item = proto_tree_add_text(tree, nas_sec_param_to_eutra_tvb, 0, length, "NAS security parameters to E-UTRA");
+  subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamToEUTRA);
+  de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
+
+
+#.FN_BODY CellInfoUTRA-FDD-r9/utra-BCCH-Container-r9 VAL_PTR = &utra_bcch_cont_tvb
+  tvbuff_t *utra_bcch_cont_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+
+#.FN_BODY CellInfoUTRA-TDD-r9/utra-BCCH-Container-r9 VAL_PTR = &utra_bcch_cont_tvb
+  tvbuff_t *utra_bcch_cont_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
+    call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
+
 #.FN_HDR MasterInformationBlock
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock ");
