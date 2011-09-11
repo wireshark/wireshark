@@ -239,6 +239,14 @@
 #define CUP_RESET_CMDIF  0x1
 #define CUP_RESET_NONE   0x2
 
+/* application mmi resource */
+#define ACK_CODE_OK        0x1
+#define ACK_CODE_WRONG_API 0x2
+#define ACK_CODE_API_BUSY  0x3
+
+#define REQ_TYPE_FILE 0x0
+#define REQ_TYPE_DATA 0x1
+
 
 /* application layer */
 
@@ -293,6 +301,10 @@ static void
 dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
+static void
+dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
 
 
 
@@ -333,14 +345,20 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
 #define T_CAM_FIRMWARE_UPGRADE_REPLY    0x9F9D02
 #define T_CAM_FIRMWARE_UPGRADE_PROGRESS 0x9F9D03
 #define T_CAM_FIRMWARE_UPGRADE_COMPLETE 0x9F9D04
+#define T_REQUEST_START                 0x9F8000
+#define T_REQUEST_START_ACK             0x9F8001
+#define T_FILE_REQUEST                  0x9F8002
+#define T_FILE_ACKNOWLEDGE              0x9F8003
+#define T_APP_ABORT_REQUEST             0x9F8004
+#define T_APP_ABORT_ACK                 0x9F8005
 
 /* the following apdus are recognized but not dissected in this release */
-#define T_COMMS_CMD       0x9F8C00
-#define T_COMMS_REPLY     0x9F8C02
-#define T_COMMS_SEND_LAST 0x9F8C03
-#define T_COMMS_SEND_MORE 0x9F8C04
-#define T_COMMS_RCV_LAST  0x9F8C05
-#define T_COMMS_RCV_MORE  0x9F8C06
+#define T_COMMS_CMD                     0x9F8C00
+#define T_COMMS_REPLY                   0x9F8C02
+#define T_COMMS_SEND_LAST               0x9F8C03
+#define T_COMMS_SEND_MORE               0x9F8C04
+#define T_COMMS_RCV_LAST                0x9F8C05
+#define T_COMMS_RCV_MORE                0x9F8C06
 
 /* these are no real apdus, they just use the same format */
 #define T_TEXT_LAST             0x9F8803
@@ -392,7 +410,15 @@ static const apdu_info_t apdu_info[] = {
     {T_CAM_FIRMWARE_UPGRADE,          0, 3, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
     {T_CAM_FIRMWARE_UPGRADE_REPLY,    0, 1, DATA_HOST_TO_CAM, dissect_dvbci_payload_cup},
     {T_CAM_FIRMWARE_UPGRADE_PROGRESS, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
-    {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup}
+    {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
+
+
+    {T_REQUEST_START,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
+    {T_REQUEST_START_ACK,   0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
+    {T_FILE_REQUEST,        1, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
+    {T_FILE_ACKNOWLEDGE,    2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
+    {T_APP_ABORT_REQUEST,   0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
+    {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami} 
 };
 
 static const value_string dvbci_apdu_tag[] = {
@@ -440,6 +466,12 @@ static const value_string dvbci_apdu_tag[] = {
     { T_CAM_FIRMWARE_UPGRADE_REPLY,    "CAM firmware upgrade reply" },
     { T_CAM_FIRMWARE_UPGRADE_PROGRESS, "CAM firmware upgrade progress" },
     { T_CAM_FIRMWARE_UPGRADE_COMPLETE, "CAM firmware upgrade complete" },
+    { T_REQUEST_START,                 "Request start" },
+    { T_REQUEST_START_ACK,             "Request start ack" },
+    { T_FILE_REQUEST,                  "File request" },
+    { T_FILE_ACKNOWLEDGE,              "File acknowledge" },
+    { T_APP_ABORT_REQUEST,             "App abort request" },
+    { T_APP_ABORT_ACK,                 "App abort ack" },
     { 0, NULL }
 };
 
@@ -548,6 +580,16 @@ static int hf_dvbci_cup_download_time = -1;
 static int hf_dvbci_cup_answer = -1;
 static int hf_dvbci_cup_progress = -1;
 static int hf_dvbci_cup_reset = -1;
+static int hf_dvbci_app_dom_id = -1;
+static int hf_dvbci_init_obj = -1;
+static int hf_dvbci_ack_code = -1;
+static int hf_dvbci_req_type = -1;
+static int hf_dvbci_file_name = -1;
+static int hf_dvbci_ami_priv_data = -1;
+static int hf_dvbci_file_ok = -1;
+static int hf_dvbci_file_data = -1;
+static int hf_dvbci_abort_req_code = -1;
+static int hf_dvbci_abort_ack_code = -1;
 
 
 static GHashTable *tpdu_fragment_table = NULL;
@@ -823,7 +865,17 @@ static const value_string dvbci_cup_reset[] = {
     { CUP_RESET_NONE,   "no reset" },
     { 0, NULL }
 };
-
+static const value_string dvbci_ack_code[] = {
+    { ACK_CODE_OK, "Ok" },
+    { ACK_CODE_WRONG_API,  "Application Domain unsupported" },
+    { ACK_CODE_API_BUSY,   "Application Domain currently unavailable" },
+    { 0, NULL }
+};
+static const value_string dvbci_req_type[] = {
+    { REQ_TYPE_FILE, "File" },
+    { REQ_TYPE_DATA, "Data" },
+    { 0, NULL }
+};
 
 
 static guint16 buf_size_cam;    /* buffer size proposal by the CAM */
@@ -1677,6 +1729,121 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
     default:
       break;
   }
+}
+
+
+static void
+dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+{
+    guint8 app_dom_id_len, init_obj_len;
+    guint8 *app_dom_id;
+    guint8 ack_code;
+    guint8 req_type;
+    guint8 *req_str;
+    guint8 file_name_len;
+    guint8 *file_name_str;
+
+    switch(tag) {
+        case T_REQUEST_START:
+            /* no filter for length items */
+            app_dom_id_len = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 1,
+                    "Application Domain Indentifier length %d", app_dom_id_len);
+            offset++;
+            init_obj_len = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 1,
+                    "Initial Object length %d", init_obj_len);
+            offset++;
+            proto_tree_add_item(tree, hf_dvbci_app_dom_id,
+                    tvb, offset, app_dom_id_len, ENC_NA);
+            app_dom_id = tvb_get_ephemeral_string(tvb, offset, app_dom_id_len);
+            if (app_dom_id) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
+                        "for %s", app_dom_id);
+            }
+            offset += app_dom_id_len;
+            proto_tree_add_item(tree, hf_dvbci_init_obj,
+                    tvb, offset, init_obj_len, ENC_NA);
+            break;
+        case T_REQUEST_START_ACK:
+            ack_code = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(
+                    tree, hf_dvbci_ack_code, tvb, offset, 1, ENC_NA);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(ack_code, dvbci_ack_code, "unknown"));
+            break;
+        case T_FILE_REQUEST:
+            req_type = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            if (tvb_reported_length_remaining(tvb, offset) <= 0)
+                break;
+            if (req_type==REQ_TYPE_FILE) {
+                req_str = tvb_get_ephemeral_string(tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset));
+                if (!req_str)
+                    break;
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", req_str);
+                proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
+                        tvb, offset, tvb_reported_length_remaining(tvb, offset),
+                        req_str, "%s", req_str);
+            }
+            else if (req_type==REQ_TYPE_DATA) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "data");
+                proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            break;
+        case T_FILE_ACKNOWLEDGE:
+            proto_tree_add_item(tree, hf_dvbci_file_ok, tvb, offset, 1, ENC_NA);
+            offset++;
+            req_type = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_NA);
+            offset++;
+            if (req_type==REQ_TYPE_FILE) {
+                file_name_len = tvb_get_guint8(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, 1,
+                        "File name length %d", file_name_len);
+                offset++;
+                file_name_str = tvb_get_ephemeral_string(
+                        tvb, offset, file_name_len);
+                if (!file_name_str)
+                    break;
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                        "%s", file_name_str);
+                proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
+                        tvb, offset, file_name_len, file_name_str,
+                        "%s", file_name_str);
+                offset += file_name_len;
+                if (tvb_reported_length_remaining(tvb, offset) <= 0)
+                    break;
+                proto_tree_add_item(tree, hf_dvbci_file_data, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            else if (req_type==REQ_TYPE_DATA) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "data");
+                if (tvb_reported_length_remaining(tvb, offset) <= 0)
+                    break;
+                proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            break;
+        case T_APP_ABORT_REQUEST:
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_item(tree, hf_dvbci_abort_req_code, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            break;
+        case T_APP_ABORT_ACK:
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_item(tree, hf_dvbci_abort_ack_code, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            break;
+        default:
+            break;
+    }
 }
 
 
@@ -2721,7 +2888,37 @@ proto_register_dvbci(void)
                 NULL, 0, NULL, HFILL } },
         { &hf_dvbci_cup_reset,
             { "requested CAM reset", "dvb-ci.cup.reset", FT_UINT8, BASE_HEX,
-                VALS(dvbci_cup_reset), 0, NULL, HFILL } }
+                VALS(dvbci_cup_reset), 0, NULL, HFILL } },
+        { &hf_dvbci_app_dom_id,
+            { "Application Domain Identifier", "dvb-ci.ami.app_dom_id",
+                FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_init_obj,
+            { "Initial Object", "dvb-ci.ami.init_obj", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_ack_code,
+            { "Acknowledgement", "dvb-ci.ami.ack_code", FT_UINT8, BASE_HEX,
+                VALS(dvbci_ack_code), 0, NULL, HFILL } },
+        { &hf_dvbci_req_type,
+            { "Request type", "dvb-ci.ami.req_type", FT_UINT8, BASE_HEX,
+                VALS(dvbci_req_type), 0, NULL, HFILL } },
+        { &hf_dvbci_file_name,
+            { "File name", "dvb-ci.ami.file_name", FT_STRING,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_ami_priv_data,
+            { "Private data", "dvb-ci.ami.private_data", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_file_ok,
+            { "FileOK", "dvb-ci.ami.file_ok", FT_UINT8, BASE_HEX,
+                NULL, 0x01, NULL, HFILL } },
+        { &hf_dvbci_file_data,
+            { "File data", "dvb-ci.ami.file_data", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_abort_req_code,
+            { "Abort request code", "dvb-ci.ami.abort_req_code", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_abort_ack_code,
+            { "Abort acknowledgement code", "dvb-ci.ami.abort_ack_code",
+                FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } }
     };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
