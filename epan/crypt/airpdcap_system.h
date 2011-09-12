@@ -336,13 +336,6 @@ INT AirPDcapDestroyContext(
 	PAIRPDCAP_CONTEXT ctx)
 	;
 
-
-extern INT AirPDcapWepDecrypt(
-	const UCHAR *seed,
-	const size_t seed_len,	/* max AIRPDCAP_KEYBUF_SIZE	*/
-	UCHAR *cypher_text,
-	const size_t data_len)
-	;
 extern INT AirPDcapCcmpDecrypt(
 	UINT8 *m,
         gint mac_header_len,

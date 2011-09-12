@@ -36,6 +36,7 @@
 /*	File includes																					*/
 /*																										*/
 #include <epan/pint.h>
+#include <wsutil/crc32.h>
 #include "airpdcap_system.h"
 #include "airpdcap_int.h"
 

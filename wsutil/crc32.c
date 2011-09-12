@@ -115,7 +115,7 @@ static const guint32 crc32c_table[256] = {
  *  x^32 + x^26 + x^23 + x^22 + x^16 + x^12 + x^11 + x^8 + x^7 +
  *      x^5 + x^4 + x^2 + x + 1
  */
-static const guint32 crc32_ccitt_table[256] = {
+const guint32 crc32_ccitt_table[256] = {
         0x00000000, 0x77073096, 0xee0e612c, 0x990951ba, 0x076dc419,
         0x706af48f, 0xe963a535, 0x9e6495a3, 0x0edb8832, 0x79dcb8a4,
         0xe0d5e91e, 0x97d2d988, 0x09b64c2b, 0x7eb17cbd, 0xe7b82d07,

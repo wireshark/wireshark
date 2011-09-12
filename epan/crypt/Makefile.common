@@ -29,7 +29,6 @@ LIBAIRPDCAP_SRC =		\
 	airpdcap_debug.c	\
 	airpdcap_rijndael.c	\
 	airpdcap_tkip.c		\
-	airpdcap_wep.c		\
 	crypt-aes.c		\
 	crypt-des.c		\
 	crypt-md4.c		\

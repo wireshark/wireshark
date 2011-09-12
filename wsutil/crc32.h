@@ -43,6 +43,8 @@ extern "C" {
 
 #define CRC32C(c,d) (c=(c>>8)^crc32c_table_lookup((c^(d))&0xFF))
 
+extern const guint32 crc32_ccitt_table[256];
+
 /** Lookup the crc value in the crc32c_table
  @param pos Position in the table. */
 extern guint32 crc32c_table_lookup (guchar pos);
@@ -72,6 +74,13 @@ extern guint32 crc32_ccitt(const guint8 *buf, guint len);
  @param seed The seed to use.
  @return The CRC32 CCITT checksum (using the given seed). */
 extern guint32 crc32_ccitt_seed(const guint8 *buf, guint len, guint32 seed);
+
+
+int AirPDcapWepDecrypt(
+	const guchar *seed,
+	const size_t seed_len,
+	guchar *cypher_text,
+	const size_t data_len);
 
 #ifdef __cplusplus
 }

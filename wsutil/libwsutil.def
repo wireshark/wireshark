@@ -8,6 +8,8 @@
 ; NOTE: TABS DON'T WORK IN THIS FILE, USE SPACES INSTEAD!!!
 ;
 EXPORTS
+; airpdcap.c
+AirPDcapWepDecrypt
 
 ; crc6.c
 update_crc6_by_bytes

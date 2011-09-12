@@ -88,9 +88,6 @@
 #define	AIRPDCAP_EAP_MIC(KeyInfo_0)		(KeyInfo_0 & 0x1)
 #define	AIRPDCAP_EAP_SEC(KeyInfo_0)		((KeyInfo_0 >> 1) & 0x1)
 
-/* Note: copied from net80211/ieee80211_airpdcap_tkip.c			*/
-#define S_SWAP(a,b) { UINT8 t = S[a]; S[a] = S[b]; S[b] = t; }
-
 /****************************************************************************/
 
 /****************************************************************************/
