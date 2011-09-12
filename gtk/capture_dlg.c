@@ -2129,14 +2129,14 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   advanced_bt = gtk_button_new_with_label("Wireless Settings");
 
   /* Both the callback and the data are global */
-  g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb),airpcap_tb);
-  g_object_set_data(G_OBJECT(top_level),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
-  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, interface_opts.name);
-  if(airpcap_if_selected != NULL) {
+  g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb), airpcap_tb);
+  g_object_set_data(G_OBJECT(top_level),AIRPCAP_OPTIONS_ADVANCED_KEY, advanced_bt);
+  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, row.name);
+  if (airpcap_if_selected != NULL) {
     /* It is an airpcap interface */
-    gtk_widget_set_sensitive(advanced_bt,TRUE);
+    gtk_widget_set_sensitive(advanced_bt, TRUE);
   } else {
-    gtk_widget_set_sensitive(advanced_bt,FALSE);
+    gtk_widget_set_sensitive(advanced_bt, FALSE);
   }
 
   gtk_box_pack_start(GTK_BOX(right_vb), advanced_bt, FALSE, FALSE, 0);
