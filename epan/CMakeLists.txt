@@ -45,7 +45,6 @@ set(CRYPT_FILES
 	crypt/airpdcap_debug.c
 	crypt/airpdcap_rijndael.c
 	crypt/airpdcap_tkip.c
-	crypt/airpdcap_wep.c
 	crypt/crypt-aes.c
 	crypt/crypt-des.c
 	crypt/crypt-md4.c

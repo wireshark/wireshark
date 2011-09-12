@@ -35,6 +35,7 @@ set(WSUTIL_FILES
 #		@INET_PTON_LO@	# inet_pton.c
 #		@STRNCASECMP_LO@ # strncasecmp.c
 #		@STRPTIME_LO@	# strptime.c
+  airpdcap_wep.c
   crc10.c
   crc16.c
   crc16-plain.c
