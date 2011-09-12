@@ -654,6 +654,16 @@ id-Cell-Access-Mode											ProtocolIE-ID
 id-IP-Source-Address										ProtocolIE-ID 
 id-CSFB-Information											ProtocolIE-ID
 id-PDP-TypeInformation-extension							ProtocolIE-ID
+id-MSISDN													ProtocolIE-ID
+id-Offload-RAB-Parameters									ProtocolIE-ID
+id-LGW-TransportLayerAddress								ProtocolIE-ID
+id-Correlation-ID											ProtocolIE-ID
+id-IRAT-Measurement-Configuration							ProtocolIE-ID
+id-MDT-Configuration										ProtocolIE-ID
+id-Priority-Class-Indicator									ProtocolIE-ID
+id-RNSAPRelocationParameters								ProtocolIE-ID
+id-RABParametersList										ProtocolIE-ID
+id-Management-Based-MDT-Allowed								ProtocolIE-ID
 #.END
 
 #.REGISTER_NEW
@@ -804,6 +814,7 @@ ExtendedRNC-ID											N ranap.ies id-Relocation-SourceExtendedRNC-ID
 EncryptionKey											N ranap.ies id-EncryptionKey
 IntegrityProtectionKey									N ranap.ies id-IntegrityProtectionKey
 SRVCC-Information										N ranap.ies id-SRVCC-Information
+GlobalCN-ID												N ranap.ie id-GlobalCN-IDPS
 
 #RANAP-PROTOCOL-IES-PAIR
 RAB-SetupOrModifyItemFirst								N ranap.ies.pair.first id-RAB-SetupOrModifyItem
@@ -881,7 +892,6 @@ UE-History-Information									N ranap.extension id-UE-History-Information
 MBMSSynchronisationInformation							N ranap.extension id-MBMSSynchronisationInformation
 SubscriberProfileIDforRFP								N ranap.extension id-SubscriberProfileIDforRFP
 CSG-Id													N ranap.extension id-CSG-Id
-GlobalCN-ID												N ranap.extension id-GlobalCN-IDPS
 #N ranap.extension id-SourceExtendedRNC-ID
 #N ranap.extension id-SourceRNC-ID
 SupportedRAB-ParameterBitrateList						N ranap.extension id-Ass-RAB-Parameter-SupportedGuaranteedBitrateList
@@ -901,6 +911,17 @@ Cell-Access-Mode										N ranap.extension id-Cell-Access-Mode
 IPMulticastAddress										N ranap.extension id-IP-Source-Address
 CSFB-Information										N ranap.extension id-CSFB-Information
 PDP-TypeInformation-extension							N ranap.extension id-PDP-TypeInformation-extension
+
+MSISDN													N ranap.extension id-MSISDN
+Offload-RAB-Parameters									N ranap.extension id-Offload-RAB-Parameters
+TransportLayerAddress									N ranap.extension id-LGW-TransportLayerAddress
+Correlation-ID											N ranap.extension id-Correlation-ID
+IRAT-Measurement-Configuration							N ranap.extension id-IRAT-Measurement-Configuration
+MDT-Configuration										N ranap.extension id-MDT-Configuration
+Priority-Class-Indicator								N ranap.extension id-Priority-Class-Indicator
+RNSAPRelocationParameters								N ranap.extension id-RNSAPRelocationParameters
+RABParametersList										N ranap.extension id-RABParametersList
+Management-Based-MDT-Allowed							N ranap.extension id-Management-Based-MDT-Allowed
 
 #RANAP-ELEMENTARY-PROCEDURE
 Iu-ReleaseCommand							N ranap.proc.imsg id-Iu-Release

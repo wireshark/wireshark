@@ -1,6 +1,6 @@
 -- RANAP-PDU-Contents.asn
 --
--- 3GPP TS 25.413 V9.6.0 (2011-06)
+-- 3GPP TS 25.413 V10.2.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.3	PDU Definitions
@@ -82,6 +82,7 @@ IMPORTS
 	L3-Information,
 	LAI,
 	LastKnownServiceArea,
+	Correlation-ID,
 	MBMS-PTP-RAB-ID,
 	MBMSBearerServiceType,
 	MBMSCountingInformation,
@@ -92,12 +93,16 @@ IMPORTS
 	MBMSSessionDuration,
 	MBMSSessionIdentity,
 	MBMSSessionRepetitionNumber,
+	MSISDN,
 	NAS-PDU,
 	NAS-SequenceNumber,
 	NAS-SynchronisationIndicator,
 	NewBSS-To-OldBSS-Information,
 	NonSearchingIndication,
 	NumberOfSteps,
+	Offload-RAB-Parameters,
+	Offload-RAB-Parameters-APN,
+	Offload-RAB-Parameters-ChargingCharacteristics,
 	OMC-ID,
 	OldBSS-ToNewBSS-Information,
 	PagingAreaID,
@@ -161,7 +166,13 @@ IMPORTS
 	Alt-RAB-Parameters,
 	Ass-RAB-Parameters,
 	PeriodicLocationInfo,
-	SubscriberProfileIDforRFP
+	SubscriberProfileIDforRFP,
+	RNSAPRelocationParameters,
+	RABParametersList,
+	MDT-Configuration,
+	Priority-Class-Indicator,
+	Management-Based-MDT-Allowed
+
 FROM RANAP-IEs
 
 
@@ -256,16 +267,18 @@ FROM RANAP-Containers
 	id-MBMSSessionDuration,
 	id-MBMSSessionIdentity,
 	id-MBMSSessionRepetitionNumber,
+	id-MSISDN,
 	id-NAS-PDU,
 	id-NAS-SequenceNumber,
 	id-NewBSS-To-OldBSS-Information,
 	id-NonSearchingIndication,
 	id-NumberOfSteps,
+	id-Offload-RAB-Parameters,
 	id-OMC-ID,
 	id-OldBSS-ToNewBSS-Information,
 	id-PagingAreaID,
 	id-PagingCause,
-	id-PDP-TypeInformation, 
+	id-PDP-TypeInformation,
 	id-PDP-TypeInformation-extension,
 	id-PermanentNAS-UE-ID,
 	id-PositionData,
@@ -377,7 +390,14 @@ FROM RANAP-Containers
 	id-BroadcastGANSSAssistanceDataDecipheringKeys,
 	id-SubscriberProfileIDforRFP,
 	id-E-UTRAN-Service-Handover,
-	id-IP-Source-Address
+	id-IP-Source-Address,
+	id-LGW-TransportLayerAddress,
+	id-Correlation-ID,
+	id-MDT-Configuration,
+	id-RNSAPRelocationParameters,
+	id-RABParametersList,
+	id-Priority-Class-Indicator,
+	id-Management-Based-MDT-Allowed
 
 FROM RANAP-Constants;
 
@@ -681,13 +701,15 @@ RAB-SetupItem-RelocReq ::= SEQUENCE {
 
 RAB-SetupItem-RelocReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 to enable RAB Quality of Service negotiation over Iu --
-	{ID id-Alt-RAB-Parameters	CRITICALITY ignore		EXTENSION Alt-RAB-Parameters		PRESENCE optional} |
+	{ ID id-Alt-RAB-Parameters					CRITICALITY ignore	EXTENSION Alt-RAB-Parameters					PRESENCE optional}|
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
-	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	}|
+	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container					PRESENCE optional}|
 -- Extension for Release 8 to enable handover restriction to E-UTRAN --
-	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	}|
+	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional}|
 -- Extension for Release 9 to enable a new value --
-	{ ID id-PDP-TypeInformation-extension 		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional	},
+	{ ID id-PDP-TypeInformation-extension 		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional}|
+-- Extension for Release 10 to enable offload at Iu-PS for UTRAN --
+	{ ID id-Offload-RAB-Parameters				CRITICALITY ignore	EXTENSION Offload-RAB-Parameters				PRESENCE optional},
 	...
 }
 
@@ -704,20 +726,22 @@ UserPlaneInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 RelocationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 --
-	{ ID id-GlobalCN-ID				CRITICALITY reject		EXTENSION GlobalCN-ID				PRESENCE optional} |
+	{ ID id-GlobalCN-ID						CRITICALITY reject	EXTENSION GlobalCN-ID					PRESENCE optional}|
 -- Extension for Release 5 to enable shared networks in connected mode --
-	{ ID id-SNA-Access-Information	CRITICALITY ignore		EXTENSION SNA-Access-Information	PRESENCE optional} |
+	{ ID id-SNA-Access-Information			CRITICALITY ignore	EXTENSION SNA-Access-Information		PRESENCE optional}|
 -- Extension for Release 5 to enable specific behaviour by the RNC in relation with early UE handling --
-	{ ID id-UESBI-Iu	CRITICALITY ignore		EXTENSION UESBI-Iu	PRESENCE optional}|
+	{ ID id-UESBI-Iu						CRITICALITY ignore	EXTENSION UESBI-Iu						PRESENCE optional}|
 -- Extension for Release 6 to convey the selected PLMN id in network sharing mobility scenarios --
-	{ ID id-SelectedPLMN-ID	 	CRITICALITY ignore	EXTENSION PLMNidentity		PRESENCE optional 	}|
+	{ ID id-SelectedPLMN-ID	 				CRITICALITY ignore	EXTENSION PLMNidentity					PRESENCE optional}|
 -- Extension for Release 6 to enable MBMS UE linking at relocation --
-	{ ID id-CNMBMSLinkingInformation	CRITICALITY ignore		EXTENSION CNMBMSLinkingInformation	PRESENCE optional} |
-	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	} |
+	{ ID id-CNMBMSLinkingInformation		CRITICALITY ignore	EXTENSION CNMBMSLinkingInformation	PRESENCE optional}|
+	{ ID id-UE-AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional}|
 -- Extension for Release 9 to communicate to the target cell the CSG id reported by the source --
-	{ ID id-CSG-Id 								CRITICALITY reject 	EXTENSION CSG-Id 										PRESENCE optional} |
+	{ ID id-CSG-Id 							CRITICALITY reject	EXTENSION CSG-Id 						PRESENCE optional}|
 -- Extension for Release 9 for enabling UE prioritisation during access to hybrid cells --
-	{ ID id-CSG-Membership-Status		CRITICALITY	 ignore		EXTENSION CSG-Membership-Status		PRESENCE optional	},
+	{ ID id-CSG-Membership-Status			CRITICALITY ignore	EXTENSION CSG-Membership-Status			PRESENCE optional}|
+-- Extension for Release 10 to enable offload at Iu-PS for UTRAN --
+	{ ID id-MSISDN							CRITICALITY ignore	EXTENSION MSISDN						PRESENCE optional},
 	...
 }
 
@@ -1531,6 +1555,8 @@ RAB-SetupItem-EnhancedRelocCompleteRes ::= SEQUENCE {
 }
 
 RAB-SetupItem-EnhancedRelocCompleteRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
+	-- Extension for Release 10 to enable Offload at Iu-ps for UTRAN --
+	{ ID id-Offload-RAB-Parameters			CRITICALITY ignore	EXTENSION Offload-RAB-Parameters			PRESENCE optional},
 	...
 }
 
@@ -1553,7 +1579,9 @@ RAB-ToBeReleasedItem-EnhancedRelocCompleteRes-ExtIEs RANAP-PROTOCOL-EXTENSION ::
 }
 
 EnhancedRelocationCompleteResponseExtensions RANAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	},
+	{ ID id-UE-AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional}|
+-- Extension for Release 10 to enable Offload at Iu-ps for UTRAN --
+	{ ID id-MSISDN							CRITICALITY ignore	EXTENSION MSISDN						PRESENCE optional},
 	...
 }
 
@@ -1663,17 +1691,19 @@ CommonID-IEs RANAP-PROTOCOL-IES ::= {
 
 CommonIDExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable shared networks in connected mode --
-	{ ID id-SNA-Access-Information		CRITICALITY ignore	EXTENSION	SNA-Access-Information			PRESENCE optional		} |
+	{ ID id-SNA-Access-Information			CRITICALITY ignore	EXTENSION SNA-Access-Information				PRESENCE optional }|
 -- Extension for Release 5 to enable specific behaviour by the RNC in relation with early UE handling --
-	{ ID id-UESBI-Iu	CRITICALITY ignore		EXTENSION UESBI-Iu	PRESENCE optional}|
+	{ ID id-UESBI-Iu						CRITICALITY ignore	EXTENSION UESBI-Iu								PRESENCE optional }|
 -- Extension for Release 6 to indicate the selected plmn in GWCN configuration for network sharing non-supporting UEs --
-	{ ID id-SelectedPLMN-ID	 	CRITICALITY ignore	EXTENSION PLMNidentity		PRESENCE optional 	}|
+	{ ID id-SelectedPLMN-ID					CRITICALITY ignore	EXTENSION PLMNidentity							PRESENCE optional }|
 -- Extension for Release 8 to indicate the Subscriber Profile ID for RAT/Frequency Selection Priority --
-	{ID id-SubscriberProfileIDforRFP		CRITICALITY ignore		EXTENSION SubscriberProfileIDforRFP					PRESENCE optional}|
+	{ID id-SubscriberProfileIDforRFP		CRITICALITY ignore	EXTENSION SubscriberProfileIDforRFP			PRESENCE optional }|
 -- Extension for Release 8 for SRVCC operation --
-	{ ID id-SRVCC-Operation-Possible		CRITICALITY ignore	EXTENSION SRVCC-Operation-Possible			PRESENCE optional	}|
+	{ ID id-SRVCC-Operation-Possible		CRITICALITY ignore	EXTENSION SRVCC-Operation-Possible			PRESENCE optional }|
 -- Extension for Release 9 to allow for UE prioritisation during access to hybrid cells --
-	{ ID id-CSG-Membership-Status		CRITICALITY	 ignore		EXTENSION CSG-Membership-Status		PRESENCE optional	},
+	{ ID id-CSG-Membership-Status			CRITICALITY ignore	EXTENSION CSG-Membership-Status					PRESENCE optional }|
+-- Extension for Release 10 to indicate Management Based MDT Allowed --
+	{ ID id-Management-Based-MDT-Allowed	CRITICALITY ignore	EXTENSION Management-Based-MDT-Allowed		PRESENCE optional},
 	...
 }
 
@@ -1710,7 +1740,9 @@ CN-InvokeTraceIEs RANAP-PROTOCOL-IES ::= {
 
 CN-InvokeTraceExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to enable signalling based activation for Subscriber and Equipment Trace over Iu interface --
-	{ ID id-TracePropagationParameters		CRITICALITY ignore	EXTENSION TracePropagationParameters			PRESENCE optional	} ,
+	{ ID id-TracePropagationParameters		CRITICALITY ignore	EXTENSION TracePropagationParameters		PRESENCE optional} |
+-- Extension for Release 10 to support MDT--
+	{ ID id-MDT-Configuration				CRITICALITY ignore	EXTENSION MDT-Configuration					PRESENCE optional} ,
 	...
 }
 
@@ -1854,21 +1886,23 @@ InitialUE-MessageIEs RANAP-PROTOCOL-IES ::= {
 
 InitialUE-MessageExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
-	{ ID id-GERAN-Classmark					CRITICALITY ignore	EXTENSION GERAN-Classmark			PRESENCE optional	} |
+	{ ID id-GERAN-Classmark					CRITICALITY ignore	EXTENSION GERAN-Classmark			PRESENCE optional}|
 -- Extension for Release 6 to convey the selected PLMN id in shared networks --
-	{ ID id-SelectedPLMN-ID	 				CRITICALITY ignore	EXTENSION PLMNidentity				PRESENCE optional 	} |
+	{ ID id-SelectedPLMN-ID	 				CRITICALITY ignore	EXTENSION PLMNidentity				PRESENCE optional}|
 -- Extension for Release 6 to enable rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-PermanentNAS-UE-ID				CRITICALITY ignore	EXTENSION PermanentNAS-UE-ID		PRESENCE optional	} |
+	{ ID id-PermanentNAS-UE-ID				CRITICALITY ignore	EXTENSION PermanentNAS-UE-ID		PRESENCE optional}|
 -- Extension for Release 6 to enable rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-NAS-SequenceNumber				CRITICALITY ignore	EXTENSION NAS-SequenceNumber		PRESENCE optional	} |
+	{ ID id-NAS-SequenceNumber				CRITICALITY ignore	EXTENSION NAS-SequenceNumber		PRESENCE optional}|
 -- Extension for Release 6 to indicate rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag		PRESENCE optional	} |
+	{ ID id-RedirectAttemptFlag				CRITICALITY ignore	EXTENSION RedirectAttemptFlag		PRESENCE optional}|
 -- Extension for Release 7 to indicate extended RNC-ID --
-	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional	} |
+	{ ID id-ExtendedRNC-ID					CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional}|
 -- Extension for Release 8 to support CSG --
-	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id					PRESENCE optional	} |
+	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id					PRESENCE optional}|
 -- Extension for Release 9 to allow communication of the cell access mode -- 
-	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode						PRESENCE optional},
+	{ ID id-Cell-Access-Mode				CRITICALITY reject	EXTENSION Cell-Access-Mode			PRESENCE optional}|
+-- Extension for Release 10 to support LIPA -- 
+	{ ID id-LGW-TransportLayerAddress		CRITICALITY reject	EXTENSION TransportLayerAddress		PRESENCE optional},
 	...
 }
 
@@ -1891,21 +1925,23 @@ DirectTransfer ::= SEQUENCE {
 }
 
 DirectTransferIEs RANAP-PROTOCOL-IES ::= {
-	{ ID id-NAS-PDU				CRITICALITY ignore	TYPE NAS-PDU				PRESENCE mandatory	} |
-	{ ID id-LAI					CRITICALITY ignore	TYPE LAI					PRESENCE optional	} |
-	{ ID id-RAC					CRITICALITY ignore	TYPE RAC					PRESENCE optional	} |
-	{ ID id-SAI					CRITICALITY ignore	TYPE SAI					PRESENCE optional	} |
-	{ ID id-SAPI				CRITICALITY ignore	TYPE SAPI					PRESENCE optional	},
+	{ ID id-NAS-PDU				CRITICALITY ignore	TYPE NAS-PDU				PRESENCE mandatory}|
+	{ ID id-LAI					CRITICALITY ignore	TYPE LAI					PRESENCE optional}|
+	{ ID id-RAC					CRITICALITY ignore	TYPE RAC					PRESENCE optional}|
+	{ ID id-SAI					CRITICALITY ignore	TYPE SAI					PRESENCE optional}|
+	{ ID id-SAPI				CRITICALITY ignore	TYPE SAPI					PRESENCE optional},
 	...
 }
 
 DirectTransferExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 6 to enable rerouting in MOCN configuration for network sharing non-supporting UEs --
-	{ ID id-RedirectionIndication			CRITICALITY ignore	EXTENSION RedirectionIndication					PRESENCE optional	}|
+	{ ID id-RedirectionIndication			CRITICALITY ignore	EXTENSION RedirectionIndication					PRESENCE optional}|
 -- Extension for Release 6 to indicate the MOCN rerouting is completed --
-	{ ID id-RedirectionCompleted			CRITICALITY ignore	EXTENSION RedirectionCompleted					PRESENCE optional	}|
+	{ ID id-RedirectionCompleted			CRITICALITY ignore	EXTENSION RedirectionCompleted					PRESENCE optional}|
 -- Extension for Release 8 to indicate the Subscriber Profile ID for RAT/Frequency Selection Priority --
-	{ID id-SubscriberProfileIDforRFP		CRITICALITY ignore		EXTENSION SubscriberProfileIDforRFP		PRESENCE optional},
+	{ ID id-SubscriberProfileIDforRFP		CRITICALITY ignore	EXTENSION SubscriberProfileIDforRFP			PRESENCE optional}|
+-- Extension for Release 10 to support LIPA -- 
+	{ ID id-LGW-TransportLayerAddress		CRITICALITY reject	EXTENSION TransportLayerAddress					PRESENCE optional},
 	...
 }
 
@@ -1945,11 +1981,13 @@ OverloadIEs RANAP-PROTOCOL-IES ::= {
 
 OverloadExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 99 to enable the indication to the RNC which CN domain is suffering the signalling traffic overload --
-	{ ID id-CN-DomainIndicator			CRITICALITY ignore	EXTENSION CN-DomainIndicator	PRESENCE optional	} |
+	{ ID id-CN-DomainIndicator			CRITICALITY ignore	EXTENSION CN-DomainIndicator		PRESENCE optional} |
 -- Extension for Release 5 to enable NNSF --
-	{ ID id-GlobalCN-ID					CRITICALITY ignore	EXTENSION GlobalCN-ID			PRESENCE optional	} |
+	{ ID id-GlobalCN-ID					CRITICALITY ignore	EXTENSION GlobalCN-ID				PRESENCE optional} |
 -- Extension for Release 7 to indicate extended RNC-ID --
-	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID		PRESENCE optional	},
+	{ ID id-ExtendedRNC-ID				CRITICALITY reject	EXTENSION ExtendedRNC-ID			PRESENCE optional} |
+-- Extension for Release 10 to support Low Priority overload --
+	{ ID id-Priority-Class-Indicator	CRITICALITY ignore	EXTENSION Priority-Class-Indicator	PRESENCE optional},
 	...
 }
 
@@ -2100,7 +2138,9 @@ TransportLayerInformation-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 RAB-SetupOrModifyItemFirst-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 8 to enable handover restriction to E-UTRAN --
-	{ ID id-E-UTRAN-Service-Handover			CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover			PRESENCE optional	},
+	{ ID id-E-UTRAN-Service-Handover		CRITICALITY ignore	EXTENSION E-UTRAN-Service-Handover	PRESENCE optional}|
+-- Extension for Release 10 to support LIPA --
+	{ ID id-Correlation-ID					CRITICALITY ignore	EXTENSION Correlation-ID				PRESENCE optional},
 	...
 }
 
@@ -2117,16 +2157,20 @@ RAB-SetupOrModifyItemSecond ::= SEQUENCE {
 
 RAB-SetupOrModifyItemSecond-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 4 to enable RAB Quality of Service negotiation over Iu --
-	{	ID id-Alt-RAB-Parameters	CRITICALITY ignore		EXTENSION Alt-RAB-Parameters		PRESENCE optional	} |
+	{ ID id-Alt-RAB-Parameters					CRITICALITY ignore	EXTENSION Alt-RAB-Parameters			PRESENCE optional}|
 -- Extension for Release 5 to enable GERAN support over Iu-cs --
-	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional	} |
+	{ ID id-GERAN-BSC-Container					CRITICALITY ignore	EXTENSION GERAN-BSC-Container			PRESENCE optional}|
 -- Extension for Release Release 9 to enable a new value --
-	{ ID id-PDP-TypeInformation-extension		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional	},
+	{ ID id-PDP-TypeInformation-extension		CRITICALITY ignore	EXTENSION PDP-TypeInformation-extension	PRESENCE optional}|
+-- Extension for Release 10 to enable Offload at Iu-ps for UTRAN --
+	{ ID id-Offload-RAB-Parameters				CRITICALITY ignore	EXTENSION Offload-RAB-Parameters		PRESENCE optional},
 	...
 }
 
 RAB-AssignmentRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	},
+	{ ID id-UE-AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional}|
+-- Extension for Release 10 to enable Offload at Iu-ps for UTRAN --
+	{ ID id-MSISDN							CRITICALITY ignore	EXTENSION MSISDN						PRESENCE optional},
 	...
 }
 
@@ -2330,7 +2374,9 @@ RAB-ContextItem-ExtIEs-RANAP-RelocInf RANAP-PROTOCOL-EXTENSION ::= {
 
 RANAP-RelocationInformationExtensions RANAP-PROTOCOL-EXTENSION ::= {
 -- Extension for Release 5 to enable relocation of Source RNC PDCP context info --
-	{ ID id-SourceRNC-PDCP-context-info		CRITICALITY ignore	EXTENSION RRC-Container	PRESENCE optional},
+	{ ID id-SourceRNC-PDCP-context-info		CRITICALITY ignore	EXTENSION RRC-Container					PRESENCE optional} |
+-- Extension for Release 10 to enable RNSAP Relocation --
+	{ ID id-RNSAPRelocationParameters		CRITICALITY reject	EXTENSION RNSAPRelocationParameters	PRESENCE optional},
 	...
 }
 
@@ -2413,9 +2459,13 @@ TNLInformationEnhRelInfoReq-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 
 
 RANAP-EnhancedRelocationInformationRequestExtensions RANAP-PROTOCOL-EXTENSION ::= {
-	{ ID id-IntegrityProtectionInformation		CRITICALITY ignore	EXTENSION IntegrityProtectionInformation 		PRESENCE optional	} |
-	{ ID id-EncryptionInformation			CRITICALITY ignore	EXTENSION EncryptionInformation 			PRESENCE optional	}|
-	{ ID id-UE-AggregateMaximumBitRate			CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate	PRESENCE optional	},
+	{ ID id-IntegrityProtectionInformation	CRITICALITY ignore	EXTENSION IntegrityProtectionInformation	PRESENCE optional} |
+	{ ID id-EncryptionInformation			CRITICALITY ignore	EXTENSION EncryptionInformation 				PRESENCE optional} |
+	{ ID id-UE-AggregateMaximumBitRate		CRITICALITY ignore	EXTENSION UE-AggregateMaximumBitRate			PRESENCE optional} |
+-- Extension for Release 10 to enable RNSAP Relocation --
+	{ ID id-RABParametersList				CRITICALITY reject	EXTENSION RABParametersList						PRESENCE optional} |
+	{ ID id-CSG-Id							CRITICALITY reject	EXTENSION CSG-Id								PRESENCE optional} |
+	{ ID id-CSG-Membership-Status			CRITICALITY reject	EXTENSION CSG-Membership-Status				PRESENCE optional},
 	...
 }
 
