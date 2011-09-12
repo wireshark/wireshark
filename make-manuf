@@ -5,7 +5,7 @@
 # Make-manuf - Creates a file containing ethernet OUIs and their
 # company IDs.  It merges the databases at
 # http://standards.ieee.org/regauth/oui/index.shtml and
-# http://www.cavebear.com/CaveBear/Ethernet/
+# http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt
 # with entries in our template file.
 #
 # The script reads the comments at the top of "manuf.tmpl" and writes
@@ -13,10 +13,10 @@
 # with the listing in "oui.txt", with the entries in "manuf.tmpl" taking
 # precedence.
 
-# LWP is part of the standard Perl module libwww 
+# LWP is part of the standard Perl module libwww
 
 use Encode;
-use open ':encoding(utf8)'; 
+use open ':encoding(utf8)';
 
 eval "require LWP::UserAgent;";
 if( $@ ) {
@@ -24,6 +24,7 @@ if( $@ ) {
 	" module libwww.  Bailing.\n";
 }
 $agent    = LWP::UserAgent->new;
+$agent->env_proxy;
 
 $template = "manuf.tmpl";
 $wkatmpl  = "wka.tmpl";
@@ -31,7 +32,7 @@ $outfile  = "manuf";
 $inheader = 1;
 $oui_url  = "http://standards.ieee.org/regauth/oui/oui.txt";
 $iab_url  = "http://standards.ieee.org/regauth/oui/iab.txt";
-$cb_url   = "http://www.cavebear.com/CaveBear/Ethernet/Ethernet.txt";
+$cb_url   = "http://www.cavebear.com/archive/cavebear/Ethernet/Ethernet.txt";
 %oui_list = ();
 $hp       = "[0-9a-fA-F]{2}";
 $oui_re   = "$hp:$hp:$hp";
@@ -48,7 +49,7 @@ $iab_skipped = 0;
 
 sub shorten
 {
-  my $origmanuf = shift; 
+  my $origmanuf = shift;
   my $manuf = " " . $origmanuf . " ";
   # Remove any punctuation
   $manuf =~ tr/',.()/    /;
@@ -60,8 +61,9 @@ sub shorten
   $manuf =~ s/(\w+)/\u\L$1/g;
   # Remove all spaces
   $manuf =~ s/\s+//g;
-  # Truncate all names to a reasonable length, say 10 characters.
-  $manuf = substr($manuf, 0, 10);
+  # Truncate all names to a reasonable length, say, 8 characters.
+  # If the string contains UTF-8, this may be substantially more than 8 bytes.
+  $manuf = substr($manuf, 0, 8);
 
   if ($manuf =~ /\Q$origmanuf\E/i) {
     return $manuf;
@@ -85,7 +87,7 @@ sub fetch
 
 # Write out the header and populate the OUI list with our entries.
 
-open (TMPL, "< $template") || 
+open (TMPL, "< $template") ||
   die "Couldn't open template file for reading ($template)\n";
 
 while ($line = <TMPL>) {
@@ -184,7 +186,7 @@ foreach $oui (sort(keys %oui_list)) {
 # addresses, and then read the well-known address template file
 # and write it to the manuf file.
 
-open (WKATMPL, "< $wkatmpl") || 
+open (WKATMPL, "< $wkatmpl") ||
   die "Couldn't open well-known address template file for reading ($wkatmpl)\n";
 
 # XXX - it'd be nice to get this from the Cavebear file, but inferring
