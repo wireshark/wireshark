@@ -370,12 +370,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
 	if ( h245_shorttypes == TRUE )
 	    {
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_RequestMessage_vals, "<unknown>"));
 		}
 
@@ -408,12 +408,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
 	    if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_ResponseMessage_vals, "<unknown>"));
 		}
 
@@ -433,12 +433,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
         if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_IndicationMessage_vals, "<unknown>"));
 		}
 
@@ -457,12 +457,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 %(DEFAULT_BODY)s
 	   if ( h245_shorttypes == TRUE )
 	        {
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_short_vals, "<unknown>"));
 		}
 		else
 		{
-	        	col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
+	        	col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ",
 				val_to_str(value, h245_CommandMessage_vals, "<unknown>"));
 		}
 
@@ -635,6 +635,10 @@ if (h245_pi != NULL)
   }
   
 %(DEFAULT_BODY)s
+  if (hf_index == hf_h245_subMessageIdentifier_standard)
+  {
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>") );
+  }
   if (gefx) gefx->subid = ep_strdup_printf("%%u", subMessageIdentifer);
 #.END
 
