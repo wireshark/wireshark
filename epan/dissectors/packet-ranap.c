@@ -16587,7 +16587,7 @@ proto_reg_handoff_ranap(void)
   dissector_add_uint("ranap.ies", id_EncryptionKey, new_create_dissector_handle(dissect_EncryptionKey_PDU, proto_ranap));
   dissector_add_uint("ranap.ies", id_IntegrityProtectionKey, new_create_dissector_handle(dissect_IntegrityProtectionKey_PDU, proto_ranap));
   dissector_add_uint("ranap.ies", id_SRVCC_Information, new_create_dissector_handle(dissect_SRVCC_Information_PDU, proto_ranap));
-  dissector_add_uint("ranap.ie", id_GlobalCN_IDPS, new_create_dissector_handle(dissect_GlobalCN_ID_PDU, proto_ranap));
+  dissector_add_uint("ranap.ies", id_GlobalCN_IDPS, new_create_dissector_handle(dissect_GlobalCN_ID_PDU, proto_ranap));
   dissector_add_uint("ranap.ies.pair.first", id_RAB_SetupOrModifyItem, new_create_dissector_handle(dissect_RAB_SetupOrModifyItemFirst_PDU, proto_ranap));
   dissector_add_uint("ranap.ies.pair.second", id_RAB_SetupOrModifyItem, new_create_dissector_handle(dissect_RAB_SetupOrModifyItemSecond_PDU, proto_ranap));
   dissector_add_uint("ranap.extension", id_AlternativeRABConfiguration, new_create_dissector_handle(dissect_RAB_Parameters_PDU, proto_ranap));

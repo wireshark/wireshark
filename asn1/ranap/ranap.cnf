@@ -814,7 +814,7 @@ ExtendedRNC-ID											N ranap.ies id-Relocation-SourceExtendedRNC-ID
 EncryptionKey											N ranap.ies id-EncryptionKey
 IntegrityProtectionKey									N ranap.ies id-IntegrityProtectionKey
 SRVCC-Information										N ranap.ies id-SRVCC-Information
-GlobalCN-ID												N ranap.ie id-GlobalCN-IDPS
+GlobalCN-ID												N ranap.ies id-GlobalCN-IDPS
 
 #RANAP-PROTOCOL-IES-PAIR
 RAB-SetupOrModifyItemFirst								N ranap.ies.pair.first id-RAB-SetupOrModifyItem
