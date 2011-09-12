@@ -881,7 +881,7 @@ UE-History-Information									N ranap.extension id-UE-History-Information
 MBMSSynchronisationInformation							N ranap.extension id-MBMSSynchronisationInformation
 SubscriberProfileIDforRFP								N ranap.extension id-SubscriberProfileIDforRFP
 CSG-Id													N ranap.extension id-CSG-Id
-#N ranap.extension id-GlobalCN-IDPS
+GlobalCN-ID												N ranap.extension id-GlobalCN-IDPS
 #N ranap.extension id-SourceExtendedRNC-ID
 #N ranap.extension id-SourceRNC-ID
 SupportedRAB-ParameterBitrateList						N ranap.extension id-Ass-RAB-Parameter-SupportedGuaranteedBitrateList

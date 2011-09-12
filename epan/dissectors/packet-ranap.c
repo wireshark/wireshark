@@ -15229,6 +15229,7 @@ proto_reg_handoff_ranap(void)
   dissector_add_uint("ranap.extension", id_MBMSSynchronisationInformation, new_create_dissector_handle(dissect_MBMSSynchronisationInformation_PDU, proto_ranap));
   dissector_add_uint("ranap.extension", id_SubscriberProfileIDforRFP, new_create_dissector_handle(dissect_SubscriberProfileIDforRFP_PDU, proto_ranap));
   dissector_add_uint("ranap.extension", id_CSG_Id, new_create_dissector_handle(dissect_CSG_Id_PDU, proto_ranap));
+  dissector_add_uint("ranap.extension", id_GlobalCN_IDPS, new_create_dissector_handle(dissect_GlobalCN_ID_PDU, proto_ranap));
   dissector_add_uint("ranap.extension", id_Ass_RAB_Parameter_SupportedGuaranteedBitrateList, new_create_dissector_handle(dissect_SupportedRAB_ParameterBitrateList_PDU, proto_ranap));
   dissector_add_uint("ranap.extension", id_Ass_RAB_Parameter_SupportedMaxBitrateList, new_create_dissector_handle(dissect_SupportedRAB_ParameterBitrateList_PDU, proto_ranap));
   dissector_add_uint("ranap.extension", id_RAB_Parameter_SupportedGuaranteedBitrateList, new_create_dissector_handle(dissect_SupportedRAB_ParameterBitrateList_PDU, proto_ranap));

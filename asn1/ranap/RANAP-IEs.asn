@@ -1,6 +1,6 @@
 -- RANAP-IEs.asn
 --
--- 3GPP TS 25.413 V9.4.0 (2010-09)
+-- 3GPP TS 25.413 V9.6.0 (2011-06)
 -- http://www.3gpp.org/ftp/Specs/html-info/25413.htm
 --
 -- 9.3.4	Information Element Definitions
@@ -828,7 +828,7 @@ GA-UncertaintyEllipse ::= SEQUENCE {
 }
 
 GERAN-BSC-Container				::= OCTET STRING
-	-- GERAN BSC Container as defined in [11] --
+	-- GERAN BSC Container as defined in TS 48.008 [11] --
 
 
 GERAN-Cell-ID ::= SEQUENCE {
@@ -843,7 +843,7 @@ GERAN-Cell-ID-ExtIEs RANAP-PROTOCOL-EXTENSION ::= {
 }
 
 GERAN-Classmark	 				::= OCTET STRING
-	-- GERAN Classmark as defined in [11] --
+	-- GERAN Classmark as defined in TS 48.008 [11] --
 
 GlobalCN-ID ::= SEQUENCE {
 	pLMNidentity				PLMNidentity,
@@ -1156,7 +1156,7 @@ NumberOfSteps				::= INTEGER (1..16)
 OldBSS-ToNewBSS-Information		::= OCTET STRING
 
 OMC-ID					::= OCTET STRING (SIZE (3..22))
--- Reference: GSM [25]
+-- Reference: GSM TS 12.20 [25]
 
 -- P
 
@@ -1679,7 +1679,7 @@ Source-ToTarget-TransparentContainer ::= OCTET STRING
 -- This IE is a transparent container, the IE shall be encoded not as an OCTET STRING but according to the type specifications of the target system.
 -- Note: In the current version of this specification, this IE may either carry the Source RNC to
 -- Target RNC Transparent Container or the Source eNB to Target eNB Transparent Container IE as
--- defined in [49]
+-- defined in TS 36.413 [49]
 
 SourceeNodeB-ToTargeteNodeB-TransparentContainer ::= OCTET STRING
 
@@ -1833,7 +1833,7 @@ Target-ToSource-TransparentContainer ::= OCTET STRING
 -- This IE is a transparent container, the IE shall be encoded not as an OCTET STRING but according to the type specifications of the target system.
 -- Note: In the current version of this specification, this IE may either carry the Target RNC to
 -- Source RNC Transparent Container or the Target eNB to Source eNB Transparent Container IE as
--- defined in [49]
+-- defined in TS 36.413 [49]
 
 TargeteNodeB-ToSourceeNodeB-TransparentContainer ::= OCTET STRING
 
