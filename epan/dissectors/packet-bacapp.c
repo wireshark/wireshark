@@ -3148,7 +3148,7 @@ BACnetPropertyIdentifier [] = {
 	{201,"requested-update-interval"},
 	{202,"restart-notification-recipients"},
 	{203,"time-of-device-restart"},
-	{204,"time-synchronization-recipients"},
+	{204,"time-synchronization-interval"},
 	{205,"trigger"},
 	{206,"UTC-time-synchronization-recipients"},
 	{207,"node-subtype"},
