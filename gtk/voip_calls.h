@@ -207,13 +207,10 @@ typedef struct _voip_rtp_stream_info {
 	guint32 npackets;
 	gboolean end_stream;
 
-	guint32 first_frame_num; /* frame number of first frame */
 	guint32 setup_frame_number; /* frame number of setup message */
-	/* start of recording (GMT) of this stream */
-	nstime_t start_abs;
-	nstime_t stop_abs;
-	nstime_t start_rel;
-	nstime_t stop_rel;
+	/* The frame_data struct holds the frame number and timing information needed. */
+	frame_data *start_fd; 
+	frame_data *stop_fd;
 	gint32 rtp_event;
 } voip_rtp_stream_info_t;
 

@@ -547,9 +547,7 @@ RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void cons
 		}
 		if (!strinfo->pt_str) strinfo->pt_str = g_strdup(val_to_str_ext(strinfo->pt, &rtp_payload_type_short_vals_ext, "%u"));
 		strinfo->npackets = 0;
-		strinfo->first_frame_num = pinfo->fd->num;
-		strinfo->start_abs = pinfo->fd->abs_ts;
-		strinfo->start_rel = pinfo->fd->rel_ts;
+		strinfo->start_fd = pinfo->fd;
 		strinfo->setup_frame_number = pi->info_setup_frame_num;
 		strinfo->rtp_event = -1;
 		tapinfo->list = g_list_append(tapinfo->list, strinfo);
@@ -558,8 +556,7 @@ RTP_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, void cons
 	if (strinfo!=NULL){
 		/* Add the info to the existing RTP stream */
 		strinfo->npackets++;
-		strinfo->stop_abs = pinfo->fd->abs_ts;
-		strinfo->stop_rel = pinfo->fd->rel_ts;
+		strinfo->stop_fd = pinfo->fd;
 
 		/* process RTP Event */
 		if (rtp_evt_frame_num == pinfo->fd->num) {
@@ -609,8 +606,8 @@ static void RTP_packet_draw(void *prs _U_)
 				while(voip_calls_graph_list){
 					gai = voip_calls_graph_list->data;
 					/* if RTP was already in the Graph, just update the comment information */
-					if (rtp_listinfo->first_frame_num == gai->frame_num){
-						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel));
+					if (rtp_listinfo->start_fd->num == gai->frame_num){
+						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
 						g_free(gai->comment);
 						gai->comment = g_strdup_printf("%s Num packets:%u  Duration:%u.%03us SSRC:0x%X",
 														(rtp_listinfo->is_srtp)?"SRTP":"RTP", rtp_listinfo->npackets,
@@ -623,15 +620,15 @@ static void RTP_packet_draw(void *prs _U_)
 					if (!voip_calls_graph_list) item++;
 
 					/* add the RTP item to the graph if was not there*/
-					if (rtp_listinfo->first_frame_num<gai->frame_num || !voip_calls_graph_list){
+					if (rtp_listinfo->start_fd->num<gai->frame_num || !voip_calls_graph_list){
 						new_gai = g_malloc(sizeof(graph_analysis_item_t));
-						new_gai->frame_num = rtp_listinfo->first_frame_num;
-						new_gai->time = nstime_to_sec(&rtp_listinfo->start_rel);
+						new_gai->frame_num = rtp_listinfo->start_fd->num;
+						new_gai->time = nstime_to_sec(&rtp_listinfo->start_fd->rel_ts);
 						COPY_ADDRESS(&(new_gai->src_addr),&(rtp_listinfo->src_addr));
 						COPY_ADDRESS(&(new_gai->dst_addr),&(rtp_listinfo->dest_addr));
 						new_gai->port_src = rtp_listinfo->src_port;
 						new_gai->port_dst = rtp_listinfo->dest_port;
-						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_rel) - nstime_to_msec(&rtp_listinfo->start_rel));
+						duration = (guint32)(nstime_to_msec(&rtp_listinfo->stop_fd->rel_ts) - nstime_to_msec(&rtp_listinfo->start_fd->rel_ts));
 						new_gai->frame_label = g_strdup_printf("%s (%s) %s",
 										       (rtp_listinfo->is_srtp)?"SRTP":"RTP",
 										       rtp_listinfo->pt_str,
