@@ -2131,6 +2131,7 @@ void options_interface_cb(GtkTreeView *view, GtkTreePath *path, GtkTreeViewColum
   /* Both the callback and the data are global */
   g_signal_connect(advanced_bt,"clicked", G_CALLBACK(options_airpcap_advanced_cb),airpcap_tb);
   g_object_set_data(G_OBJECT(top_level),AIRPCAP_OPTIONS_ADVANCED_KEY,advanced_bt);
+  airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list, interface_opts.name);
   if(airpcap_if_selected != NULL) {
     /* It is an airpcap interface */
     gtk_widget_set_sensitive(advanced_bt,TRUE);
@@ -2705,11 +2706,6 @@ capture_prep_cb(GtkWidget *w _U_, gpointer d _U_)
   free_interface_list(if_list);
   g_object_set_data(G_OBJECT(cap_open_w), E_CAP_IFACE_KEY, view);
 
-#ifdef HAVE_AIRPCAP
-  /* get the airpcap interface (if it IS an airpcap interface, and update the
-     toolbar... and of course enable the advanced button...)*/
- /* airpcap_if_selected = get_airpcap_if_from_name(airpcap_if_list,interface_opts.name);*/
-#endif
   main_hb = gtk_hbox_new(FALSE, 5);
   gtk_container_set_border_width(GTK_CONTAINER(main_hb), 3);
   gtk_box_pack_start(GTK_BOX(capture_vb), main_hb, FALSE, FALSE, 0);
