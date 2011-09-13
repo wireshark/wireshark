@@ -247,8 +247,7 @@ flow_graph_frame_add_to_graph(packet_info *pinfo)
 		else return 0;
 	}
 
-	gai->frame_num = pinfo->fd->num;
-	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
+	gai->fd = pinfo->fd;
 
 	gai->port_src=pinfo->srcport;
 	gai->port_dst=pinfo->destport;
@@ -323,8 +322,7 @@ flow_graph_tcp_add_to_graph(packet_info *pinfo, const struct tcpheader *tcph)
 	gchar flags[64];
 
 	gai = g_malloc(sizeof(graph_analysis_item_t));
-	gai->frame_num = pinfo->fd->num;
-	gai->time= nstime_to_sec(&pinfo->fd->rel_ts);
+	gai->fd = pinfo->fd;
 	if (node_addr_type == NODE_ADDR_TYPE_NET_SRCDST) {
 		COPY_ADDRESS(&(gai->src_addr),&(pinfo->net_src));
 		COPY_ADDRESS(&(gai->dst_addr),&(pinfo->net_dst));

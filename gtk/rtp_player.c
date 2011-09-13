@@ -442,7 +442,7 @@ mark_rtp_stream_to_play(gchar *key _U_ , rtp_stream_info_t *rsi, gpointer ptr _U
 	while (graph_list)
 	{
 		graph_item = graph_list->data;
-		if (rsi->first_frame_number == graph_item->frame_num) {
+		if (rsi->first_frame_number == graph_item->fd->num) {
 			rsi->call_num = graph_item->conv_num;
 			/* if it is in the graph list, then check if the voip_call is selected */
 			voip_calls_list = g_list_first(voip_calls->callsinfo_list);

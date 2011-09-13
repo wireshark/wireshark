@@ -39,8 +39,7 @@
 
 /* defines an entry in for the graph analysis */
 typedef struct _graph_analysis_item {
-	guint32 frame_num;			/* frame number used to "go to" that frame */
-	double time;				/* frame time */
+	frame_data *fd;				/* Holds the frame number and time information */
 	address src_addr;
 	guint16 port_src;
 	address dst_addr;

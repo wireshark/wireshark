@@ -448,7 +448,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 		}
 
 		/* write the time */
-		g_string_printf(label_string, "|%.3f", gai->time);
+		g_string_printf(label_string, "|%.3f", nstime_to_sec(&gai->fd->rel_ts));
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
 
@@ -768,8 +768,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		if (gai->display){
 			if (current_item>=display_items) break;		/* the item is outside the display */
 			if (i>=first_item){
-				user_data->dlg.items[current_item].frame_num = gai->frame_num;
-				user_data->dlg.items[current_item].time = gai->time;
+				user_data->dlg.items[current_item].frame_num = gai->fd->num;
+				user_data->dlg.items[current_item].time = nstime_to_sec(&gai->fd->rel_ts);
 				user_data->dlg.items[current_item].port_src = gai->port_src;
 				user_data->dlg.items[current_item].port_dst = gai->port_dst;
 				/* Add "..." if the length is 50 characters */
