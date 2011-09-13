@@ -613,7 +613,7 @@ tree_view_menu_prepare_or_not_selected_cb(GtkAction *action _U_, gpointer user_d
  *	<control>A	Edit->Select All (which we don't currently have)
  *
  * Note that some if not all of the Edit keys above already perform those
- * functions in text boxes, such as the Filter box.  Do no, under any
+ * functions in text boxes, such as the Filter box.  Do not, under any
  * circumstances, make a change that keeps them from doing so.
  */
 
