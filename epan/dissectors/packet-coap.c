@@ -312,7 +312,7 @@ dissect_coap_opt_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 
 	switch (opt_length) {
 	case 0:
-		item = proto_tree_add_int(subtree, hfindex, tvb, offset, opt_length, pinfo->destport);
+		item = proto_tree_add_uint(subtree, hfindex, tvb, offset, opt_length, pinfo->destport);
 		proto_item_append_text(item, " (default)");
 		return;
 	case 1:
