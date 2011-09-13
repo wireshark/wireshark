@@ -474,10 +474,10 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
       }
 
       dissect_802_3(ehdr->type, is_802_2, tvb, offset, pinfo, parent_tree, fh_tree,
-                    hf_eth_len, hf_eth_trailer, 0);
+                    hf_eth_len, hf_eth_trailer, fcs_len);
     } else {
       ethertype(ehdr->type, tvb, offset, pinfo, parent_tree, fh_tree,
-                         hf_eth_type, hf_eth_trailer, 0);
+                         hf_eth_type, hf_eth_trailer, fcs_len);
     }
   }
 }
