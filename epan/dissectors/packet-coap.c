@@ -316,10 +316,10 @@ dissect_coap_opt_port(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, gi
 		proto_item_append_text(item, " (default)");
 		return;
 	case 1:
-		g_snprintf(portstr, sizeof(portstr), "%d", (int)tvb_get_guint8(tvb, offset));
+		g_snprintf(portstr, sizeof(portstr), "%u", tvb_get_guint8(tvb, offset));
 		break;
 	case 2:
-		g_snprintf(portstr, sizeof(portstr), "%d", (int)tvb_get_ntohs(tvb, offset));
+		g_snprintf(portstr, sizeof(portstr), "%u", tvb_get_ntohs(tvb, offset));
 		break;
 	default:
 		expert_add_info_format(pinfo, subtree, PI_MALFORMED, PI_WARN, "Invalid Option Length: %d", opt_length);
