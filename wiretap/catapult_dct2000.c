@@ -1010,7 +1010,6 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
         atm_header_present = TRUE;
     }
 
-
     else
     if (strcmp(protocol_name, "ppp") == 0) {
         *encap = WTAP_ENCAP_PPP;
@@ -1089,9 +1088,20 @@ static gboolean parse_line(gchar *linebuff, gint line_length,
         }
     }
 
+    /* Skip next '/' */
+    n++;
+
+    /* If there is a number, skip all info to next '/'.
+       TODO: for IP encapsulation, should store PDCP ueid, drb in pseudo info
+       and display dct2000 dissector... */
+    if (isdigit(linebuff[n])) {
+        while ((n+1 < line_length) && linebuff[n] != '/') {
+            n++;
+        }
+    }
+
     /* Skip '/' */
     while ((n+1 < line_length) && linebuff[n] == '/') {
-        
         n++;
     }
 
