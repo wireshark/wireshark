@@ -68,5 +68,7 @@ export MallocCheckHeapEach=1000
 export MallocCheckHeapAbort=1
 # Call abort() if an illegal free() call is made
 export MallocBadFreeAbort=1
+# Call abort() on dissector bugs to make it easier to get a stack trace
+export WIRESHARK_ABORT_ON_DISSECTOR_BUG=
 
 $BIN_DIR/tshark -nVxr $1 > /dev/null
