@@ -120,6 +120,26 @@ typedef struct {
 
 static h245_labels_t h245_labels;
 
+/* defines a RTP stream */
+typedef struct _voip_rtp_stream_info {
+	address src_addr;
+	guint16 src_port;
+	address dest_addr;
+	guint16 dest_port;
+	guint32 ssrc;
+	guint32  pt;
+	gchar *pt_str;
+	gboolean is_srtp;  
+	guint32 npackets;
+	gboolean end_stream;
+
+	guint32 setup_frame_number; /* frame number of setup message */
+	/* The frame_data struct holds the frame number and timing information needed. */
+	frame_data *start_fd; 
+	frame_data *stop_fd;
+	gint32 rtp_event;
+} voip_rtp_stream_info_t;
+
 /****************************************************************************/
 /* the one and only global voip_calls_tapinfo_t structure */
 static voip_calls_tapinfo_t the_tapinfo_struct =
@@ -755,10 +775,8 @@ T38_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, const vo
 			callsinfo->from_identity=g_strdup("T38 Media only");
 			callsinfo->to_identity=g_strdup("T38 Media only");
 			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-			callsinfo->first_frame_num=pinfo->fd->num;
 			callsinfo->selected=FALSE;
-			callsinfo->start_abs = pinfo->fd->abs_ts;
-			callsinfo->start_rel = pinfo->fd->rel_ts;
+			callsinfo->start_fd = pinfo->fd;
 			callsinfo->protocol=MEDIA_T38;
 			callsinfo->prot_info=NULL;
 			callsinfo->free_prot_info = NULL;
@@ -920,10 +938,8 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			callsinfo->from_identity=g_strdup(pi->tap_from_addr);
 			callsinfo->to_identity=g_strdup(pi->tap_to_addr);
 			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-			callsinfo->first_frame_num=pinfo->fd->num;
 			callsinfo->selected=FALSE;
-			callsinfo->start_abs=pinfo->fd->abs_ts;
-			callsinfo->start_rel=pinfo->fd->rel_ts;
+			callsinfo->start_fd=pinfo->fd;
 			callsinfo->protocol=VOIP_SIP;
 			callsinfo->prot_info=g_malloc(sizeof(sip_calls_info_t));
 			callsinfo->free_prot_info = free_sip_info;
@@ -988,9 +1004,7 @@ SIPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			}
 		}
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);
@@ -1142,9 +1156,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 		callsinfo->call_state = VOIP_UNKNOWN;
 		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
 		callsinfo->selected=FALSE;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->start_abs=pinfo->fd->abs_ts;
-		callsinfo->start_rel=pinfo->fd->rel_ts;
+		callsinfo->start_fd=pinfo->fd;
 		callsinfo->protocol=VOIP_ISUP;
 		if (pi->calling_number!=NULL){
 			callsinfo->from_identity=g_strdup(pi->calling_number);
@@ -1166,9 +1178,7 @@ isup_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 
 	if (callsinfo!=NULL){
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 
 		/* Let's analyze the call state */
@@ -1578,10 +1588,8 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			callsinfo->from_identity=g_strdup(q931_calling_number);
 			callsinfo->to_identity=g_strdup(q931_called_number);
 			COPY_ADDRESS(&(callsinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
-			callsinfo->first_frame_num=pinfo->fd->num;
 			callsinfo->selected=FALSE;
-			callsinfo->start_abs=pinfo->fd->abs_ts;
-			callsinfo->start_rel=pinfo->fd->rel_ts;
+			callsinfo->start_fd=pinfo->fd;
 			callsinfo->protocol=VOIP_AC_ISDN;
 			callsinfo->prot_info=g_malloc(sizeof(actrace_isdn_calls_info_t));
 			callsinfo->free_prot_info = g_free;
@@ -1593,9 +1601,7 @@ q931_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
 		}
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);
@@ -1793,9 +1799,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		callsinfo->to_identity=g_strdup("");
 		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
 		callsinfo->selected=FALSE;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->start_abs=pinfo->fd->abs_ts;
-		callsinfo->start_rel=pinfo->fd->rel_ts;
+		callsinfo->start_fd=pinfo->fd;
 		callsinfo->protocol=VOIP_H323;
 		callsinfo->prot_info=g_malloc(sizeof(h323_calls_info_t));
 		callsinfo->free_prot_info = free_h225_info;
@@ -1826,9 +1830,7 @@ H225calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 
 		/* let's analyze the call state */
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);
@@ -2351,7 +2353,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 						   check first if it is an ended call. We can still match packets to this Endpoint 2 seconds
 						   after the call has been released
 						*/
-						diff_time = nstime_to_sec(&pinfo->fd->rel_ts) - nstime_to_sec(&tmp_listinfo->stop_rel);
+						diff_time = nstime_to_sec(&pinfo->fd->rel_ts) - nstime_to_sec(&tmp_listinfo->stop_fd->rel_ts);
 						if ( ((tmp_listinfo->call_state == VOIP_CANCELLED) ||
 						     (tmp_listinfo->call_state == VOIP_COMPLETED)  ||
 						     (tmp_listinfo->call_state == VOIP_REJECTED)) &&
@@ -2425,10 +2427,8 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 			callsinfo->to_identity=g_strdup(pi->endpointId);
 		}
 		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-		callsinfo->first_frame_num=pinfo->fd->num;
 		callsinfo->selected=FALSE;
-		callsinfo->start_abs=pinfo->fd->abs_ts;
-		callsinfo->start_rel=pinfo->fd->rel_ts;
+		callsinfo->start_fd=pinfo->fd;
 		callsinfo->protocol=VOIP_MGCP;
 		callsinfo->prot_info=g_malloc(sizeof(mgcp_calls_info_t));
 		callsinfo->free_prot_info = g_free;
@@ -2515,9 +2515,7 @@ MGCPcalls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, co
 
 	comment = g_strdup_printf("MGCP %s %s%s", tmp_mgcpinfo->endpointId, (pi->mgcp_type == MGCP_REQUEST)?"Request":"Response", pi->is_duplicate?" Duplicate":"");
 
-	callsinfo->stop_abs = pinfo->fd->abs_ts;
-	callsinfo->stop_rel = pinfo->fd->rel_ts;
-	callsinfo->last_frame_num=pinfo->fd->num;
+	callsinfo->stop_fd = pinfo->fd;
 	++(callsinfo->npackets);
 	/* increment the packets counter of all calls */
 	++(tapinfo->npackets);
@@ -2639,10 +2637,8 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 			callsinfo->from_identity=g_strdup("N/A");
 			callsinfo->to_identity=g_strdup("N/A");
 			COPY_ADDRESS(&(callsinfo->initial_speaker),actrace_direction?&pstn_add:&(pinfo->src));
-			callsinfo->first_frame_num=pinfo->fd->num;
 			callsinfo->selected=FALSE;
-			callsinfo->start_abs=pinfo->fd->abs_ts;
-			callsinfo->start_rel=pinfo->fd->rel_ts;
+			callsinfo->start_fd=pinfo->fd;
 			callsinfo->protocol=VOIP_AC_CAS;
 			callsinfo->prot_info=g_malloc(sizeof(actrace_cas_calls_info_t));
 			callsinfo->free_prot_info = g_free;
@@ -2655,9 +2651,7 @@ ACTRACEcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 			tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
 		}
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 		/* increment the packets counter of all calls */
 		++(tapinfo->npackets);
@@ -2780,17 +2774,13 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		callsinfo->free_prot_info = NULL;
 
 		callsinfo->npackets = 1;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->last_frame_num=pinfo->fd->num;
 
 		COPY_ADDRESS(&(callsinfo->initial_speaker), mgc);
 
 		callsinfo->protocol = TEL_H248;
 		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->start_abs = pinfo->fd->abs_ts;
-		callsinfo->start_rel = pinfo->fd->rel_ts;
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
+		callsinfo->start_fd = pinfo->fd;
+		callsinfo->stop_fd = pinfo->fd;
 
 		callsinfo->selected = FALSE;
 
@@ -2816,9 +2806,7 @@ static int h248_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *
 		callsinfo->to_identity = s->str;
 		g_string_free(s,FALSE);
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 	}
 
@@ -2942,16 +2930,13 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 		callsinfo->free_prot_info = NULL;
 
 		callsinfo->npackets = 1;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->last_frame_num=pinfo->fd->num;
 
 		COPY_ADDRESS(&(callsinfo->initial_speaker), &(pinfo->src));
 
 		callsinfo->protocol =   SP2VP(assoc->payload);
-		callsinfo->start_abs = pinfo->fd->abs_ts;
-		callsinfo->start_rel = pinfo->fd->rel_ts;
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
+		/* Store frame data which holds time and frame number */
+		callsinfo->start_fd = pinfo->fd;
+		callsinfo->stop_fd = pinfo->fd;
 
 		callsinfo->selected = FALSE;
 		callsinfo->call_num = tapinfo->ncalls++;
@@ -2970,9 +2955,8 @@ static int sccp_calls(packet_info *pinfo, const void *prot_info) {
 		}
 
 		callsinfo->protocol =  SP2VP(assoc->payload);
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		/* Store frame data which holds stop time and frame number */
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 
 		switch (msg->type) {
@@ -3162,13 +3146,12 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 				callsinfo->from_identity=g_strdup_printf("%x",pi->termid);
 				callsinfo->to_identity=g_strdup("UNKNOWN");
 				COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-				callsinfo->first_frame_num=pinfo->fd->num;
 				callsinfo->selected=FALSE;
 
 				/* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
 				/* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
-				callsinfo->start_abs=pinfo->fd->abs_ts;
-				callsinfo->start_rel=pinfo->fd->rel_ts;
+				/* Store frame data which holds time and frame number */
+				callsinfo->start_fd=pinfo->fd;
 
 				callsinfo->protocol=VOIP_UNISTIM;
 				callsinfo->prot_info=g_malloc(sizeof(unistim_info_t));
@@ -3206,9 +3189,8 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			}
 
 			/* Each packet COULD BE OUR LAST!!!! */
-			callsinfo->stop_abs = pinfo->fd->abs_ts;
-			callsinfo->stop_rel = pinfo->fd->rel_ts;
-			callsinfo->last_frame_num=pinfo->fd->num;
+			/* Store frame data which holds time and frame number */
+			callsinfo->stop_fd = pinfo->fd;
 
 			/* This is a valid packet so increment counter */
 			++(callsinfo->npackets);
@@ -3371,8 +3353,8 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 			/* Open stream */
 			/* Signifies the start of the call so set start_sec & start_usec */
-			callsinfo->start_abs=pinfo->fd->abs_ts;
-			callsinfo->start_rel=pinfo->fd->rel_ts;
+			/* Frame data holds the time info */
+			callsinfo->start_fd=pinfo->fd;
 
 			/* Local packets too */
 			++(callsinfo->npackets);
@@ -3414,13 +3396,11 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			callsinfo->from_identity=g_strdup("UNKNOWN");
 			callsinfo->to_identity=g_strdup("UNKNOWN");
 			COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
-			callsinfo->first_frame_num=pinfo->fd->num;
 			callsinfo->selected=FALSE;
 
 			/* Set this on init of struct so in case the call doesn't complete, we'll have a ref. */
 			/* Otherwise if the call is completed we'll have the open/close streams to ref actual call duration */
-			callsinfo->start_abs=pinfo->fd->abs_ts;
-			callsinfo->start_rel=pinfo->fd->rel_ts;
+			callsinfo->start_fd=pinfo->fd;
 
 			callsinfo->protocol=VOIP_UNISTIM;
 			callsinfo->prot_info=g_malloc(sizeof(unistim_info_t));
@@ -3452,8 +3432,8 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 
 				/* Open stream */
 			/* Signifies the start of the call so set start_sec & start_usec */
-			callsinfo->start_abs=pinfo->fd->abs_ts;
-			callsinfo->start_rel=pinfo->fd->rel_ts;
+			/* frame_data holds the time info */
+			callsinfo->start_fd=pinfo->fd;
 
 			/* Local packets too */
 			++(callsinfo->npackets);
@@ -3486,9 +3466,8 @@ unistim_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_,
 			/* Close Stream */
 
 			/* Set stop seconds + usec */
-			callsinfo->stop_abs = pinfo->fd->abs_ts;
-			callsinfo->stop_rel = pinfo->fd->rel_ts;
-			callsinfo->last_frame_num=pinfo->fd->num;
+			/* frame_data holds the time info */
+			callsinfo->stop_fd = pinfo->fd;
 
 			tmp_unistim_info->sequence = pi->sequence;
 
@@ -3652,17 +3631,13 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		tmp_skinnyinfo = callsinfo->prot_info;
 		tmp_skinnyinfo->callId = si->callId ? si->callId : si->passThruId;
 		callsinfo->npackets = 1;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->last_frame_num=pinfo->fd->num;
 
 		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
 
 		callsinfo->protocol = VOIP_SKINNY;
 		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->start_abs = pinfo->fd->abs_ts;
-		callsinfo->start_rel = pinfo->fd->rel_ts;
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
+		callsinfo->start_fd = pinfo->fd;
+		callsinfo->stop_fd = pinfo->fd;
 
 		callsinfo->selected = FALSE;
 		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
@@ -3678,9 +3653,7 @@ skinny_calls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, 
 		if ((si->callState > 0) && (si->callState < (sizeof(skinny_tap_voip_state)/sizeof(skinny_tap_voip_state[0]))))
 			callsinfo->call_state = skinny_tap_voip_state[si->callState];
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 	}
 
@@ -3854,8 +3827,6 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		tmp_iax2info->callState = tap_iax_voip_state[ii->callState];
 
 		callsinfo->npackets = 1;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->last_frame_num=pinfo->fd->num;
 
 		COPY_ADDRESS(&(callsinfo->initial_speaker), phone);
 		callsinfo->from_identity = g_strdup(ii->callingParty);
@@ -3863,10 +3834,8 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 
 		callsinfo->protocol = VOIP_IAX2;
 		callsinfo->call_num = tapinfo->ncalls++;
-		callsinfo->start_abs=pinfo->fd->abs_ts;
-		callsinfo->start_rel=pinfo->fd->rel_ts;
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
+		callsinfo->start_fd=pinfo->fd;
+		callsinfo->stop_fd = pinfo->fd;
 
 		callsinfo->selected = FALSE;
 		tapinfo->callsinfo_list = g_list_append(tapinfo->callsinfo_list, callsinfo);
@@ -3875,9 +3844,7 @@ iax2_calls_packet( void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, c
 		if ((ii->callState > 0) && (ii->callState < (sizeof(tap_iax_voip_state)/sizeof(tap_iax_voip_state[0]))))
 			callsinfo->call_state = tap_iax_voip_state[ii->callState];
 
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 	}
 
@@ -3977,9 +3944,7 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 		callsinfo->to_identity = g_strdup((pi->to_identity)?pi->to_identity:"");
 		COPY_ADDRESS(&(callsinfo->initial_speaker),&(pinfo->src));
 		callsinfo->selected=FALSE;
-		callsinfo->first_frame_num=pinfo->fd->num;
-		callsinfo->start_abs=pinfo->fd->abs_ts;
-		callsinfo->start_rel=pinfo->fd->rel_ts;
+		callsinfo->start_fd=pinfo->fd;
 		callsinfo->protocol=VOIP_COMMON;
 		callsinfo->protocol_name=g_strdup((pi->protocol_name)?pi->protocol_name:"");
 		callsinfo->call_comment=g_strdup((pi->call_comment)?pi->call_comment:"");
@@ -4002,9 +3967,7 @@ VoIPcalls_packet(void *ptr _U_, packet_info *pinfo, epan_dissect_t *edt _U_, con
 			g_free(callsinfo->call_comment);
 			callsinfo->call_comment=g_strdup(pi->call_comment);
 		}
-		callsinfo->stop_abs = pinfo->fd->abs_ts;
-		callsinfo->stop_rel = pinfo->fd->rel_ts;
-		callsinfo->last_frame_num=pinfo->fd->num;
+		callsinfo->stop_fd = pinfo->fd;
 		++(callsinfo->npackets);
 		++(tapinfo->npackets);
 	}

@@ -260,8 +260,8 @@ voip_calls_on_filter(GtkButton *button _U_, gpointer user_data _U_)
 					isupinfo = listinfo->prot_info;
 					g_string_append_printf(filter_string_fwd,
 						"(isup.cic == %i and frame.number >= %i and frame.number <= %i and mtp3.network_indicator == %i and ((mtp3.dpc == %i) and (mtp3.opc == %i)) or ((mtp3.dpc == %i) and (mtp3.opc == %i)))",
-						isupinfo->cic, listinfo->first_frame_num,
-						listinfo->last_frame_num,
+						isupinfo->cic, listinfo->start_fd->num,
+						listinfo->stop_fd->num,
 						isupinfo->ni, isupinfo->dpc, isupinfo->opc,
 						isupinfo->opc, isupinfo->dpc
 					);
@@ -456,8 +456,8 @@ add_to_list_store(voip_calls_info_t* strinfo)
 
 	/* Fill the new row */
 	gtk_list_store_set(list_store, &list_iter,
-			   CALL_COL_START_TIME,       nstime_to_sec(&strinfo->start_rel),
-			   CALL_COL_STOP_TIME,        nstime_to_sec(&strinfo->stop_rel),
+			   CALL_COL_START_TIME,       nstime_to_sec(&strinfo->start_fd->rel_ts),
+			   CALL_COL_STOP_TIME,        nstime_to_sec(&strinfo->stop_fd->rel_ts),
 			   CALL_COL_INITIAL_SPEAKER,  &field[CALL_COL_INITIAL_SPEAKER][0],
 			   CALL_COL_FROM,             &field[CALL_COL_FROM][0],
 			   CALL_COL_TO,               &field[CALL_COL_TO][0],

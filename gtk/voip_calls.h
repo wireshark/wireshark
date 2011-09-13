@@ -140,16 +140,13 @@ typedef struct _voip_calls_info {
 	void(*free_prot_info)(gpointer);
 	address initial_speaker;
 	guint32 npackets;
-	guint32 first_frame_num; /* frame number of first frame */
-	guint32 last_frame_num; 
 	voip_protocol protocol;
 	gchar *protocol_name;
 	gchar *call_comment;
 	guint16 call_num;
-	nstime_t start_abs;
-	nstime_t stop_abs;
-	nstime_t start_rel;
-	nstime_t stop_rel;
+	/* The frame_data struct holds the frame number and timing information needed. */
+	frame_data *start_fd; 
+	frame_data *stop_fd;
 	gboolean selected;
 
 } voip_calls_info_t;
@@ -194,25 +191,6 @@ typedef struct _voip_calls_tapinfo {
 } voip_calls_tapinfo_t;
 
 
-/* defines a RTP stream */
-typedef struct _voip_rtp_stream_info {
-	address src_addr;
-	guint16 src_port;
-	address dest_addr;
-	guint16 dest_port;
-	guint32 ssrc;
-	guint32  pt;
-	gchar *pt_str;
-	gboolean is_srtp;  
-	guint32 npackets;
-	gboolean end_stream;
-
-	guint32 setup_frame_number; /* frame number of setup message */
-	/* The frame_data struct holds the frame number and timing information needed. */
-	frame_data *start_fd; 
-	frame_data *stop_fd;
-	gint32 rtp_event;
-} voip_rtp_stream_info_t;
 
 /* structure that holds the information about all RTP streams associated with the calls */
 /* struct holding all information of the RTP tap */
