@@ -37,5 +37,3 @@ gtk/tcp_graph.c:813:3: error: implicit declaration of function ‘gdk_gc_new’
 gtk/tcp_graph.c:813:10: error: assignment makes pointer from integer without a cast
 gtk/tcp_graph.c:814:3: error: implicit declaration of function ‘gdk_gc_set_function’
 gtk/tcp_graph.c:829:3: error: implicit declaration of function ‘gdk_gc_set_foreground’
-gtk/tcp_graph.c: In function ‘cross_xor’:
-gtk/tcp_graph.c:2869:3: error: implicit declaration of function ‘gdk_draw_line’

@@ -802,7 +802,7 @@ static void create_drawing_area (struct graph *g)
 #if GTK_CHECK_VERSION(3,0,0)
 	context = gtk_widget_get_style_context (g->drawing_area);
 	gtk_style_context_get (context, GTK_STATE_NORMAL,
-					   "font", &g->font,
+					   GTK_STYLE_PROPERTY_FONT, &g->font,
 					   NULL);
 #else
 	g->font = gtk_widget_get_style(g->drawing_area)->font_desc;
@@ -2835,7 +2835,7 @@ static int ellipse_detect_collision (struct element *e, int x, int y)
 
 static void cross_xor (struct graph *g, int x, int y)
 {
-#if GTK_CHECK_VERSION(3,0,0)
+#if GTK_CHECK_VERSION(2,22,0)
 	GdkColor color_gray15 = {0x0, 0x2626, 0x2626, 0x2626};
 	cairo_t *cr;
 
