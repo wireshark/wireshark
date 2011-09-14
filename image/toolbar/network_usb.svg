@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
+
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://creativecommons.org/ns#"
@@ -13,13 +14,15 @@
    height="16"
    id="svg2"
    sodipodi:version="0.32"
-   inkscape:version="0.46"
+   inkscape:version="0.48.0 r9654"
    version="1.0"
    sodipodi:docname="network_usb.svg"
    inkscape:output_extension="org.inkscape.output.svg.inkscape"
    inkscape:export-filename="/Users/gerald/Development/wireshark/image/toolbar/network_usb_16.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
+  <title
+     id="title3255">USB Network Device</title>
   <defs
      id="defs4">
     <linearGradient
@@ -61,7 +64,7 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="22.627417"
-     inkscape:cx="9.5090068"
+     inkscape:cx="1.8192206"
      inkscape:cy="7.3308523"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
@@ -69,7 +72,8 @@
      inkscape:window-width="1086"
      inkscape:window-height="761"
      inkscape:window-x="234"
-     inkscape:window-y="503" />
+     inkscape:window-y="798"
+     inkscape:window-maximized="0" />
   <metadata
      id="metadata7">
     <rdf:RDF>
@@ -78,7 +82,37 @@
         <dc:format>image/svg+xml</dc:format>
         <dc:type
            rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title>USB Network Device</dc:title>
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>Gerald Combs</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:rights>
+          <cc:Agent>
+            <dc:title></dc:title>
+          </cc:Agent>
+        </dc:rights>
+        <dc:subject>
+          <rdf:Bag>
+            <rdf:li>usb</rdf:li>
+            <rdf:li>dongle</rdf:li>
+            <rdf:li>nic</rdf:li>
+          </rdf:Bag>
+        </dc:subject>
+        <dc:description>Generic USB network device icon. This vector image and any rasterized representations are public domain.</dc:description>
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/publicdomain/" />
       </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/publicdomain/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+      </cc:License>
     </rdf:RDF>
   </metadata>
   <g
