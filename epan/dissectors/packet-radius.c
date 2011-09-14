@@ -148,56 +148,53 @@ static guint request_ttl = 5;
 static guint8 authenticator[AUTHENTICATOR_LENGTH];
 
 /* http://www.iana.org/assignments/radius-types */
-static const value_string radius_vals[] =
+static const value_string radius_pkt_type_codes[] =
 {
-	{RADIUS_ACCESS_REQUEST,			"Access-Request"},	/*  1 RFC2865 */
-	{RADIUS_ACCESS_ACCEPT,			"Access-Accept"},	/*  2 RFC2865 */
-	{RADIUS_ACCESS_REJECT,			"Access-Reject"},	/*  3 RFC2865 */
-	{RADIUS_ACCOUNTING_REQUEST,		"Accounting-Request"},	/*  4 RFC2865 */
-	{RADIUS_ACCOUNTING_RESPONSE,		"Accounting-Response"},	/*  5 RFC2865 */
-	{RADIUS_ACCOUNTING_STATUS,		"Accounting-Status"},	/*  6 RFC2865 */
-	{RADIUS_ACCESS_PASSWORD_REQUEST,	"Password-Request"},	/*  7 RFC3575 */
-	{RADIUS_ACCESS_PASSWORD_ACK,		"Password-Ack"},	/*  8 RFC3575 */
-	{RADIUS_ACCESS_PASSWORD_REJECT,		"Password-Reject"},	/*  9 RFC3575 */
-	{RADIUS_ACCOUNTING_MESSAGE,		"Accounting-Message"},	/* 10 RFC3575 */
-	{RADIUS_ACCESS_CHALLENGE,		"Access-challenge"},	/* 11 RFC2865 */
-	{RADIUS_STATUS_SERVER,			"Status-Server"},	/* 12 RFC2865 */
-	{RADIUS_STATUS_CLIENT,			"Status-Client"},	/* 13 RFC2865 */
+	{RADIUS_PKT_TYPE_ACCESS_REQUEST,			"Access-Request"},			/*  1 RFC2865 */
+	{RADIUS_PKT_TYPE_ACCESS_ACCEPT,				"Access-Accept"},			/*  2 RFC2865 */
+	{RADIUS_PKT_TYPE_ACCESS_REJECT,				"Access-Reject"},			/*  3 RFC2865 */
+	{RADIUS_PKT_TYPE_ACCOUNTING_REQUEST,			"Accounting-Request"},			/*  4 RFC2865 */
+	{RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE,			"Accounting-Response"},			/*  5 RFC2865 */
+	{RADIUS_PKT_TYPE_ACCOUNTING_STATUS,			"Accounting-Status"},			/*  6 RFC3575 */
+	{RADIUS_PKT_TYPE_PASSWORD_REQUEST,			"Password-Request"},			/*  7 RFC3575 */
+	{RADIUS_PKT_TYPE_PASSWORD_ACK,				"Password-Ack"},			/*  8 RFC3575 */
+	{RADIUS_PKT_TYPE_PASSWORD_REJECT,			"Password-Reject"},			/*  9 RFC3575 */
+	{RADIUS_PKT_TYPE_ACCOUNTING_MESSAGE,			"Accounting-Message"},			/* 10 RFC3575 */
+	{RADIUS_PKT_TYPE_ACCESS_CHALLENGE,			"Access-Challenge"},			/* 11 RFC2865 */
+	{RADIUS_PKT_TYPE_STATUS_SERVER,				"Status-Server"},			/* 12 RFC2865 */
+	{RADIUS_PKT_TYPE_STATUS_CLIENT,				"Status-Client"},			/* 13 RFC2865 */
+
+	{RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST,			"Resource-Free-Request"},		/* 21 RFC3575 */
+	{RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE,		"Resource-Free-Response"},		/* 22 RFC3575 */
+	{RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST,		"Resource-Query-Request"},		/* 23 RFC3575 */
+	{RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE,		"Query_Response"},			/* 24 RFC3575 */
+	{RADIUS_PKT_TYPE_ALTERNATE_RESOURCE_RECLAIM_REQUEST,	"Alternate-Resource-Reclaim-Request"},	/* 25 RFC3575 */
+	{RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST,			"NAS-Reboot-Request"},			/* 26 RFC3575 */
+	{RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE,			"NAS-Reboot-Response"},			/* 27 RFC3575 */
+
+	{RADIUS_PKT_TYPE_NEXT_PASSCODE,				"Next-Passcode"},			/* 29 RFC3575 */
+	{RADIUS_PKT_TYPE_NEW_PIN,				"New-Pin"},				/* 30 RFC3575 */
+	{RADIUS_PKT_TYPE_TERMINATE_SESSION,			"Terminate-Session"},			/* 31 RFC3575 */
+	{RADIUS_PKT_TYPE_PASSWORD_EXPIRED,			"Password-Expired"},			/* 32 RFC3575 */
+	{RADIUS_PKT_TYPE_EVENT_REQUEST,				"Event-Request"},			/* 33 RFC3575 */
+	{RADIUS_PKT_TYPE_EVENT_RESPONSE,			"Event-Response"},			/* 34 RFC3575|RFC5176 */
+
+	{RADIUS_PKT_TYPE_DISCONNECT_REQUEST,			"Disconnect-Request"},			/* 40 RFC3575|RFC5176 */
+	{RADIUS_PKT_TYPE_DISCONNECT_ACK,			"Disconnect-ACK"},			/* 41 RFC3575|RFC5176 */
+	{RADIUS_PKT_TYPE_DISCONNECT_NAK,			"Disconnect-NAK"},			/* 42 RFC3575|RFC5176 */
+	{RADIUS_PKT_TYPE_COA_REQUEST,				"CoA-Request"},				/* 43 RFC3575|RFC5176 */
+	{RADIUS_PKT_TYPE_COA_ACK,				"CoA-ACK"},				/* 44 RFC3575|RFC5176 */
+	{RADIUS_PKT_TYPE_COA_NAK,				"CoA-NAK"},				/* 45 RFC3575|RFC5176 */
+
+	{RADIUS_PKT_TYPE_IP_ADDRESS_ALLOCATE,			"IP-Address-Allocate"},			/* 50 RFC3575 */
+	{RADIUS_PKT_TYPE_IP_ADDRESS_RELEASE,			"IP-Address-Release"},			/* 51 RFC3575 */
 /*
-21       Resource-Free-Request        [RFC3575]
-22       Resource-Free-Response       [RFC3575]
-23       Resource-Query-Request       [RFC3575]
-24       Resource-Query-Response      [RFC3575]
-25       Alternate-Resource-
-         Reclaim-Request              [RFC3575]
-26       NAS-Reboot-Request           [RFC3575]
-*/
-	{RADIUS_VENDOR_SPECIFIC_CODE,		"Vendor-Specific"},	/* 26 */
-/*
-27       NAS-Reboot-Response          [RFC3575]
-28       Reserved
-*/
-	{RADIUS_ASCEND_ACCESS_NEXT_CODE,	"Next-Passcode"},	/* 29 RFC3575 */
-	{RADIUS_ASCEND_ACCESS_NEW_PIN,		"New-Pin"},		/* 30 RFC3575 */
-	{31,					"Terminate-Session"},	/* 31 RFC3575 */
-	{RADIUS_ASCEND_PASSWORD_EXPIRED,	"Password-Expired"},	/* 32 RFC3575 */
-	{RADIUS_ASCEND_ACCESS_EVENT_REQUEST,	"Event-Request"},	/* 33 RFC3575 */
-	{RADIUS_ASCEND_ACCESS_EVENT_RESPONSE,	"Event-Response"},	/* 34 RFC3575 */
-	{RADIUS_DISCONNECT_REQUEST,		"Disconnect-Request"},	/* 40 RFC3575 */
-	{RADIUS_DISCONNECT_REQUEST_ACK,		"Disconnect-ACK"},	/* 41 RFC3575 */
-	{RADIUS_DISCONNECT_REQUEST_NAK,		"Disconnect-NAK"},	/* 42 RFC3575 */
-	{RADIUS_CHANGE_FILTER_REQUEST,		"CoA-Request"},		/* 43 */
-	{RADIUS_CHANGE_FILTER_REQUEST_ACK,	"CoA-ACK"},		/* 44 */
-	{RADIUS_CHANGE_FILTER_REQUEST_NAK,	"CoA-NAK"},		/* 45 */
-/*
-50       IP-Address-Allocate          [RFC3575]
-51       IP-Address-Release           [RFC3575]
 250-253  Experimental Use             [RFC3575]
-254      Reserved                     [RFC3575]
+254-255  Reserved                     [RFC3575]
 */
-	{RADIUS_RESERVED,			"Reserved"},
 	{0, NULL}
 };
+static value_string_ext radius_pkt_type_codes_ext = VALUE_STRING_EXT_INIT(radius_pkt_type_codes);
 
 /*
  * Init Hash table stuff for converation
@@ -245,7 +242,7 @@ static guint radius_vsa_hash(gconstpointer k)
 }
 
 /* Compare 2 keys */
-static gint radius_call_equal(gconstpointer k1, gconstpointer k2)
+static gboolean radius_call_equal(gconstpointer k1, gconstpointer k2)
 {
 	const radius_call_info_key* key1 = (const radius_call_info_key*) k1;
 	const radius_call_info_key* key2 = (const radius_call_info_key*) k2;
@@ -257,27 +254,45 @@ static gint radius_call_equal(gconstpointer k1, gconstpointer k2)
 		if (abs( (int) nstime_to_sec(&delta)) > (double) request_ttl) return 0;
 
 		if (key1->code == key2->code)
-			return 1;
+			return TRUE;
 		/* check the request and response are of the same code type */
-		if (key1->code == RADIUS_ACCESS_REQUEST && ( key2->code == RADIUS_ACCESS_ACCEPT || key2->code == RADIUS_ACCESS_REJECT ) )
-			return 1;
+		if ((key1->code == RADIUS_PKT_TYPE_ACCESS_REQUEST) &&
+		    ((key2->code == RADIUS_PKT_TYPE_ACCESS_ACCEPT) || (key2->code == RADIUS_PKT_TYPE_ACCESS_REJECT)))
+			return TRUE;
 
-		if (key1->code == RADIUS_ACCOUNTING_REQUEST && key2->code == RADIUS_ACCOUNTING_RESPONSE )
-			return 1;
+		if ((key1->code == RADIUS_PKT_TYPE_ACCOUNTING_REQUEST) &&
+		    (key2->code == RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE))
+			return TRUE;
 
-		if (key1->code == RADIUS_ACCESS_PASSWORD_REQUEST && ( key2->code == RADIUS_ACCESS_PASSWORD_ACK || key2->code == RADIUS_ACCESS_PASSWORD_REJECT ) )
-			return 1;
+		if ((key1->code == RADIUS_PKT_TYPE_PASSWORD_REQUEST) &&
+		    ((key2->code == RADIUS_PKT_TYPE_PASSWORD_ACK) || (key2->code == RADIUS_PKT_TYPE_PASSWORD_REJECT)))
+			return TRUE;
 
-		if (key1->code == RADIUS_ASCEND_ACCESS_EVENT_REQUEST && key2->code == RADIUS_ASCEND_ACCESS_EVENT_RESPONSE )
-			return 1;
+		if ((key1->code == RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST) &&
+		    (key2->code == RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE))
+			return TRUE;
 
-		if (key1->code == RADIUS_DISCONNECT_REQUEST && ( key2->code == RADIUS_DISCONNECT_REQUEST_ACK || key2->code == RADIUS_DISCONNECT_REQUEST_NAK ) )
-			return 1;
+		if ((key1->code == RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST) &&
+		    (key2->code == RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE))
+			return TRUE;
 
-		if (key1->code == RADIUS_CHANGE_FILTER_REQUEST && ( key2->code == RADIUS_CHANGE_FILTER_REQUEST_ACK || key2->code == RADIUS_CHANGE_FILTER_REQUEST_NAK ) )
-			return 1;
+		if ((key1->code == RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST) &&
+		    (key2->code == RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE))
+			return TRUE;
+
+		if ((key1->code == RADIUS_PKT_TYPE_EVENT_REQUEST) &&
+		    (key2->code == RADIUS_PKT_TYPE_EVENT_RESPONSE))
+			return TRUE;
+
+		if ((key1->code == RADIUS_PKT_TYPE_DISCONNECT_REQUEST) &&
+		    ((key2->code == RADIUS_PKT_TYPE_DISCONNECT_ACK) || (key2->code == RADIUS_PKT_TYPE_DISCONNECT_NAK)))
+			return TRUE;
+
+		if ((key1->code == RADIUS_PKT_TYPE_COA_REQUEST) &&
+		    ((key2->code == RADIUS_PKT_TYPE_COA_ACK) || (key2->code == RADIUS_PKT_TYPE_COA_NAK)))
+			return TRUE;
 	}
-	return 0;
+	return FALSE;
 }
 
 /* Calculate a hash key */
@@ -352,10 +367,10 @@ static const gchar *dissect_login_ip_host(proto_tree* tree, tvbuff_t* tvb, packe
 }
 
 static const value_string ascenddf_filtertype[] = { {0, "generic"}, {1, "ip"}, {0, NULL} };
-static const value_string ascenddf_filteror[] = { {0, "drop"}, {1, "forward"}, {0, NULL} };
-static const value_string ascenddf_inout[] = { {0, "out"}, {1, "in"}, {0, NULL} };
-static const value_string ascenddf_proto[] = { {1, "icmp"}, {6, "tcp"}, {17, "udp"}, {0, NULL} };
-static const value_string ascenddf_portq[] = { {1, "lt"}, {2, "eq"}, {3, "gt"}, {4, "ne"}, {0, NULL} };
+static const value_string ascenddf_filteror[]   = { {0, "drop"}, {1, "forward"}, {0, NULL} };
+static const value_string ascenddf_inout[]      = { {0, "out"}, {1, "in"}, {0, NULL} };
+static const value_string ascenddf_proto[]      = { {1, "icmp"}, {6, "tcp"}, {17, "udp"}, {0, NULL} };
+static const value_string ascenddf_portq[]      = { {1, "lt"}, {2, "eq"}, {3, "gt"}, {4, "ne"}, {0, NULL} };
 
 static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, packet_info* pinfo _U_) {
 	const gchar *str;
@@ -928,7 +943,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 
 		length -= avp_length;
 
-		dictionary_entry = g_hash_table_lookup(dict->attrs_by_id,GUINT_TO_POINTER(avp_type));
+		dictionary_entry = g_hash_table_lookup(dict->attrs_by_id, GUINT_TO_POINTER(avp_type));
 
 		if (! dictionary_entry ) {
 			dictionary_entry = &no_dictionary_entry;
@@ -941,7 +956,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		avp_length -= 2;
 		offset += 2;
 
-		if (avp_type == RADIUS_VENDOR_SPECIFIC_CODE) {
+		if (avp_type == RADIUS_ATTR_TYPE_VENDOR_SPECIFIC) {
 			radius_vendor_info_t* vendor;
 			proto_tree* vendor_tree;
 			gint max_offset = offset + avp_length;
@@ -1115,7 +1130,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 		if ((gint)avp_length < tvb_len)
 			tvb_len = avp_length;
 
-		if (avp_type == RADIUS_EAP_MESSAGE_CODE) {
+		if (avp_type == RADIUS_ATTR_TYPE_EAP_MESSAGE) {
 			eap_seg_num++;
 
 			/* Show this as an EAP fragment. */
@@ -1176,7 +1191,7 @@ static void dissect_attribute_value_pairs(proto_tree *tree, packet_info *pinfo, 
 				if ( tvb_bytes_exist(tvb, offset + avp_length + 1, 1) ) {
 					guint8 next_type = tvb_get_guint8(tvb, offset + avp_length);
 
-					if ( next_type != RADIUS_EAP_MESSAGE_CODE ) {
+					if ( next_type != RADIUS_ATTR_TYPE_EAP_MESSAGE ) {
 						/* Non-EAP-Message attribute */
 						last_eap = TRUE;
 					}
@@ -1254,36 +1269,7 @@ is_radius(tvbuff_t *tvb)
 	guint16 length;
 
 	code=tvb_get_guint8(tvb, 0);
-	switch(code){
-	case RADIUS_ACCESS_REQUEST:
-	case RADIUS_ACCESS_ACCEPT:
-	case RADIUS_ACCESS_REJECT:
-	case RADIUS_ACCOUNTING_REQUEST:
-	case RADIUS_ACCOUNTING_RESPONSE:
-	case RADIUS_ACCOUNTING_STATUS:
-	case RADIUS_ACCESS_PASSWORD_REQUEST:
-	case RADIUS_ACCESS_PASSWORD_ACK:
-	case RADIUS_ACCESS_PASSWORD_REJECT:
-	case RADIUS_ACCOUNTING_MESSAGE:
-	case RADIUS_ACCESS_CHALLENGE:
-	case RADIUS_STATUS_SERVER:
-	case RADIUS_STATUS_CLIENT:
-	case RADIUS_VENDOR_SPECIFIC_CODE:
-	case RADIUS_ASCEND_ACCESS_NEXT_CODE:
-	case RADIUS_ASCEND_ACCESS_NEW_PIN:
-	case RADIUS_ASCEND_PASSWORD_EXPIRED:
-	case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
-	case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
-	case RADIUS_DISCONNECT_REQUEST:
-	case RADIUS_DISCONNECT_REQUEST_ACK:
-	case RADIUS_DISCONNECT_REQUEST_NAK:
-	case RADIUS_CHANGE_FILTER_REQUEST:
-	case RADIUS_CHANGE_FILTER_REQUEST_ACK:
-	case RADIUS_CHANGE_FILTER_REQUEST_NAK:
-	case RADIUS_EAP_MESSAGE_CODE:
-	case RADIUS_MESSAGE_AUTHENTICATOR:
-		break;
-	default:
+	if (match_strval_ext(code, &radius_pkt_type_codes_ext) == NULL) {
 		return FALSE;
 	}
 
@@ -1356,7 +1342,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_add_fstr(pinfo->cinfo,COL_INFO,"%s(%d) (id=%d, l=%d)",
-			val_to_str(rh.rh_code,radius_vals,"Unknown Packet"),
+			val_to_str_ext(rh.rh_code, &radius_pkt_type_codes_ext, "Unknown Packet"),
 			rh.rh_code, rh.rh_ident, rh.rh_pktlength);
 	}
 
@@ -1392,18 +1378,21 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(radius_tree, hf_radius_length, tvb, 2, 2, rh.rh_pktlength);
 		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4, AUTHENTICATOR_LENGTH,FALSE);
 	}
-	tvb_memcpy(tvb,authenticator,4,AUTHENTICATOR_LENGTH);
+	tvb_memcpy(tvb, authenticator, 4, AUTHENTICATOR_LENGTH);
 
 	/* Conversation support REQUEST/RESPONSES */
 	switch (rh.rh_code)
 	{
-		case RADIUS_ACCESS_REQUEST:
-		case RADIUS_ACCOUNTING_REQUEST:
-		case RADIUS_ACCESS_PASSWORD_REQUEST:
-		case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
-		case RADIUS_DISCONNECT_REQUEST:
-		case RADIUS_CHANGE_FILTER_REQUEST:
-			/* Don't bother creating conversations if we're encapsulated within 
+		case RADIUS_PKT_TYPE_ACCESS_REQUEST:
+		case RADIUS_PKT_TYPE_ACCOUNTING_REQUEST:
+		case RADIUS_PKT_TYPE_PASSWORD_REQUEST:
+		case RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST:
+		case RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST:
+		case RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST:
+		case RADIUS_PKT_TYPE_EVENT_REQUEST:
+		case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
+		case RADIUS_PKT_TYPE_COA_REQUEST:
+			/* Don't bother creating conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
 			if (pinfo->in_error_pkt)
 				break;
@@ -1503,16 +1492,19 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				PROTO_ITEM_SET_GENERATED(item);
 			}
 			break;
-		case RADIUS_ACCESS_ACCEPT:
-		case RADIUS_ACCESS_REJECT:
-		case RADIUS_ACCOUNTING_RESPONSE:
-		case RADIUS_ACCESS_PASSWORD_ACK:
-		case RADIUS_ACCESS_PASSWORD_REJECT:
-		case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
-		case RADIUS_DISCONNECT_REQUEST_ACK:
-		case RADIUS_DISCONNECT_REQUEST_NAK:
-		case RADIUS_CHANGE_FILTER_REQUEST_ACK:
-		case RADIUS_CHANGE_FILTER_REQUEST_NAK:
+		case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
+		case RADIUS_PKT_TYPE_ACCESS_REJECT:
+		case RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE:
+		case RADIUS_PKT_TYPE_PASSWORD_ACK:
+		case RADIUS_PKT_TYPE_PASSWORD_REJECT:
+		case RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE:
+		case RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE:
+		case RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE:
+		case RADIUS_PKT_TYPE_EVENT_RESPONSE:
+		case RADIUS_PKT_TYPE_DISCONNECT_ACK:
+		case RADIUS_PKT_TYPE_DISCONNECT_NAK:
+		case RADIUS_PKT_TYPE_COA_ACK:
+		case RADIUS_PKT_TYPE_COA_NAK:
 			/* Don't bother finding conversations if we're encapsulated within
 			 * an error packet, such as an ICMP destination unreachable */
 			if (pinfo->in_error_pkt)
@@ -1645,10 +1637,10 @@ static void register_attrs(gpointer k _U_, gpointer v, gpointer p) {
 	gint* ett = &(a->ett);
 	gchar* abbrev = g_strconcat("radius.",a->name,NULL);
 	hf_register_info hfri[] = {
-		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ NULL, { NULL,NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
 		{ NULL, { NULL,NULL, FT_UINT8, BASE_DEC, NULL, 0x0, NULL, HFILL }},
-		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }},
-		{ NULL, { NULL,NULL, FT_NONE, BASE_NONE, NULL, 0x0, NULL, HFILL }}
+		{ NULL, { NULL,NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }},
+		{ NULL, { NULL,NULL, FT_NONE,  BASE_NONE, NULL, 0x0, NULL, HFILL }}
 	};
 	guint len_hf = 2;
 	hfett_t* ri = p;
@@ -1792,8 +1784,8 @@ extern void radius_register_avp_dissector(guint32 vendor_id, guint32 attribute_i
 			vendor = g_malloc(sizeof(radius_vendor_info_t));
 
 			vendor->name = g_strdup_printf("%s-%u",
-                                                       val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown"),
-                                                       vendor_id);
+						       val_to_str_ext_const(vendor_id, &sminmpec_values_ext, "Unknown"),
+						       vendor_id);
 			vendor->code = vendor_id;
 			vendor->attrs_by_id = g_hash_table_new(g_direct_hash,g_direct_equal);
 			vendor->ett = no_vendor.ett;
@@ -1867,7 +1859,7 @@ static void register_radius_fields(const char* unused _U_) {
 		 { "Time from request", "radius.time", FT_RELATIVE_TIME, BASE_NONE, NULL, 0,
 			 "Timedelta between Request and Response", HFILL }},
 		 { &hf_radius_code,
-		 { "Code","radius.code", FT_UINT8, BASE_DEC, VALS(radius_vals), 0x0,
+		 { "Code","radius.code", FT_UINT8, BASE_DEC|BASE_EXT_STRING, &radius_pkt_type_codes_ext, 0x0,
 			 NULL, HFILL }},
 		 { &hf_radius_id,
 		 { "Identifier",	"radius.id", FT_UINT8, BASE_DEC, NULL, 0x0,

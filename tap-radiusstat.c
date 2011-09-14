@@ -40,28 +40,47 @@
 #include <epan/dissectors/packet-radius.h>
 #include "timestats.h"
 
-#define NUM_TIMESTATS 8
+typedef enum _radius_category {
+	RADIUS_CAT_OVERALL = 0,
+	RADIUS_CAT_ACCESS,
+	RADIUS_CAT_ACCOUNTING,
+	RADIUS_CAT_PASSWORD,
+	RADIUS_CAT_RESOURCE_FREE,
+	RADIUS_CAT_RESOURCE_QUERY,
+	RADIUS_CAT_NAS_REBOOT,
+	RADIUS_CAT_EVENT,
+	RADIUS_CAT_DISCONNECT,
+	RADIUS_CAT_COA,
+	RADIUS_CAT_OTHERS,
+        RADIUS_CAT_NUM_TIMESTATS
+} radius_category;
 
 /* used to keep track of the statistics for an entire program interface */
 typedef struct _radiusstat_t {
 	char *filter;
-	timestat_t rtd[NUM_TIMESTATS];
+	timestat_t rtd[RADIUS_CAT_NUM_TIMESTATS];
 	guint32 open_req_num;
 	guint32 disc_rsp_num;
 	guint32 req_dup_num;
 	guint32 rsp_dup_num;
 } radiusstat_t;
 
+
+
+
 static const value_string radius_message_code[] = {
-  {  0, "Overall       "},
-  {  1, "Access        "},
-  {  2, "Accounting    "},
-  {  3, "Access Passw  "},
-  {  4, "Ascend Acce Ev"},
-  {  5, "Disconnect    "},
-  {  6, "Change Filter "},
-  {  7, "Other         "},
-  {  0, NULL}
+	{  RADIUS_CAT_OVERALL,        "Overall       "},
+	{  RADIUS_CAT_ACCESS,         "Access        "},
+	{  RADIUS_CAT_ACCOUNTING,     "Accounting    "},
+	{  RADIUS_CAT_PASSWORD,       "Password      "},
+	{  RADIUS_CAT_RESOURCE_FREE,  "Resource Free "},
+	{  RADIUS_CAT_RESOURCE_QUERY, "Resource Query"},
+	{  RADIUS_CAT_NAS_REBOOT,     "NAS Reboot    "},
+	{  RADIUS_CAT_EVENT,          "Event         "},
+	{  RADIUS_CAT_DISCONNECT,     "Disconnect    "},
+	{  RADIUS_CAT_COA,            "CoA           "},
+	{  RADIUS_CAT_OTHERS,         "Other         "},
+	{  0, NULL}
 };
 
 static int
@@ -74,12 +93,15 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 
 	switch (ri->code) {
 
-	case RADIUS_ACCESS_REQUEST:
-	case RADIUS_ACCOUNTING_REQUEST:
-	case RADIUS_ACCESS_PASSWORD_REQUEST:
-	case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
-	case RADIUS_DISCONNECT_REQUEST:
-	case RADIUS_CHANGE_FILTER_REQUEST:
+	case RADIUS_PKT_TYPE_ACCESS_REQUEST:
+	case RADIUS_PKT_TYPE_ACCOUNTING_REQUEST:
+	case RADIUS_PKT_TYPE_PASSWORD_REQUEST:
+	case RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST:
+	case RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST:
+	case RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST:
+	case RADIUS_PKT_TYPE_EVENT_REQUEST:
+	case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
+	case RADIUS_PKT_TYPE_COA_REQUEST:
 		if(ri->is_duplicate){
 			/* Duplicate is ignored */
 			rs->req_dup_num++;
@@ -89,16 +111,19 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 		}
 		break;
 
-	case RADIUS_ACCESS_ACCEPT:
-	case RADIUS_ACCESS_REJECT:
-	case RADIUS_ACCOUNTING_RESPONSE:
-	case RADIUS_ACCESS_PASSWORD_ACK:
-	case RADIUS_ACCESS_PASSWORD_REJECT:
-	case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
-	case RADIUS_DISCONNECT_REQUEST_ACK:
-	case RADIUS_DISCONNECT_REQUEST_NAK:
-	case RADIUS_CHANGE_FILTER_REQUEST_ACK:
-	case RADIUS_CHANGE_FILTER_REQUEST_NAK:
+	case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
+	case RADIUS_PKT_TYPE_ACCESS_REJECT:
+	case RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE:
+	case RADIUS_PKT_TYPE_PASSWORD_ACK:
+	case RADIUS_PKT_TYPE_PASSWORD_REJECT:
+	case RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE:
+	case RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE:
+	case RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE:
+	case RADIUS_PKT_TYPE_EVENT_RESPONSE:
+	case RADIUS_PKT_TYPE_DISCONNECT_ACK:
+	case RADIUS_PKT_TYPE_DISCONNECT_NAK:
+	case RADIUS_PKT_TYPE_COA_ACK:
+	case RADIUS_PKT_TYPE_COA_NAK:
 		if(ri->is_duplicate){
 			/* Duplicate is ignored */
 			rs->rsp_dup_num++;
@@ -112,15 +137,16 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 			/* calculate time delta between request and response */
 			nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
 
-			time_stat_update(&(rs->rtd[0]),&delta, pinfo);
-			if (ri->code == RADIUS_ACCESS_ACCEPT || ri->code == RADIUS_ACCESS_REJECT) {
-				time_stat_update(&(rs->rtd[1]),&delta, pinfo);
+			time_stat_update(&(rs->rtd[RADIUS_CAT_OVERALL]),&delta, pinfo);
+
+			if (ri->code == RADIUS_PKT_TYPE_ACCESS_ACCEPT || ri->code == RADIUS_PKT_TYPE_ACCESS_REJECT) {
+				time_stat_update(&(rs->rtd[RADIUS_CAT_ACCESS]),&delta, pinfo);
 			}
-			else if (ri->code == RADIUS_ACCOUNTING_RESPONSE) {
-				time_stat_update(&(rs->rtd[2]),&delta, pinfo);
+			else if (ri->code == RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE) {
+				time_stat_update(&(rs->rtd[RADIUS_CAT_ACCOUNTING]),&delta, pinfo);
 			}
 			else {
-				time_stat_update(&(rs->rtd[7]),&delta, pinfo);
+				time_stat_update(&(rs->rtd[RADIUS_CAT_OTHERS]),&delta, pinfo);
 			}
 
 			ret = 1;
@@ -150,7 +176,7 @@ radiusstat_draw(void *prs)
         printf("Open requests: %u\n",rs->open_req_num);
         printf("Discarded responses: %u\n",rs->disc_rsp_num);
         printf("Type           | Messages   |    Min RTD    |    Max RTD    |    Avg RTD    | Min in Frame | Max in Frame |\n");
-        for(i=0;i<NUM_TIMESTATS;i++) {
+        for(i=0;i<RADIUS_CAT_NUM_TIMESTATS;i++) {
         	if(rs->rtd[i].num) {
         		printf("%s | %7u    | %8.2f msec | %8.2f msec | %8.2f msec |  %10u  |  %10u  |\n",
         			val_to_str(i,radius_message_code,"Other  "),rs->rtd[i].num,
@@ -178,7 +204,7 @@ radiusstat_init(const char *optarg, void* userdata _U_)
 		rs->filter=NULL;
 	}
 
-	for(i=0;i<NUM_TIMESTATS;i++) {
+	for(i=0;i<RADIUS_CAT_NUM_TIMESTATS;i++) {
 		rs->rtd[i].num=0;
 		rs->rtd[i].min_num=0;
 		rs->rtd[i].max_num=0;

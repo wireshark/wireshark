@@ -54,8 +54,22 @@
 
 #include "gtk/old-gtk-compat.h"
 
-#define NUM_TIMESTATS 8
 #define NUM_COLUMNS 11
+
+typedef enum _radius_category {
+	RADIUS_CAT_OVERALL = 0,
+	RADIUS_CAT_ACCESS,
+	RADIUS_CAT_ACCOUNTING,
+	RADIUS_CAT_PASSWORD,
+	RADIUS_CAT_RESOURCE_FREE,
+	RADIUS_CAT_RESOURCE_QUERY,
+	RADIUS_CAT_NAS_REBOOT,
+	RADIUS_CAT_EVENT,
+	RADIUS_CAT_DISCONNECT,
+	RADIUS_CAT_COA,
+	RADIUS_CAT_OTHERS,
+        RADIUS_CAT_NUM_TIMESTATS
+} radius_category;
 
 /* Summary of response-time calculations*/
 typedef struct _radius_rtd_t {
@@ -73,31 +87,23 @@ typedef struct _radiusstat_t {
 	char *filter;
 	GtkWidget *scrolled_window;
 	GtkTreeView *table;
-	radius_rtd_t radius_rtd[NUM_TIMESTATS];
+	radius_rtd_t radius_rtd[RADIUS_CAT_NUM_TIMESTATS];
 } radiusstat_t;
 
 static const value_string radius_message_code[] = {
-  {  0,	"Overall"},
-  {  1,	"Access"},
-  {  2,	"Accounting"},
-  {  3,	"Access Password"},
-  {  4, "Ascend Access Event"},
-  {  5, "Disconnect"},
-  {  6, "Change Filter"},
-  {  7, "Other"},
-  {  0, NULL}
+	{  RADIUS_CAT_OVERALL,        "Overall"},
+	{  RADIUS_CAT_ACCESS,         "Access"},
+	{  RADIUS_CAT_ACCOUNTING,     "Accounting"},
+	{  RADIUS_CAT_PASSWORD,       "Password"},
+	{  RADIUS_CAT_RESOURCE_FREE,  "Resource Free"},
+	{  RADIUS_CAT_RESOURCE_QUERY, "Resource Query"},
+	{  RADIUS_CAT_NAS_REBOOT,     "NAS Reboot"},
+	{  RADIUS_CAT_EVENT,          "Event"},
+	{  RADIUS_CAT_DISCONNECT,     "Disconnect"},
+	{  RADIUS_CAT_COA,            "CoA"},
+	{  RADIUS_CAT_OTHERS,         "Other"},
+	{  0, NULL}
 };
-
-typedef enum _radius_category {
-	OVERALL,
-	ACCESS,
-	ACCOUNTING,
-	ACCESS_PASSWORD,
-	ASCEND_ACCESS_EVENT,
-	DISCONNECT,
-	CHANGE_FILTER,
-	OTHERS
-}radius_category;
 
 static void
 radiusstat_reset(void *prs)
@@ -106,16 +112,16 @@ radiusstat_reset(void *prs)
 	int i;
 
 
-	for(i=0;i<NUM_TIMESTATS;i++) {
+	for(i=0; i<RADIUS_CAT_NUM_TIMESTATS; i++) {
 		rs->radius_rtd[i].stats.num=0;
 		rs->radius_rtd[i].stats.min_num=0;
 		rs->radius_rtd[i].stats.max_num=0;
 		rs->radius_rtd[i].stats.min.secs=0;
-        rs->radius_rtd[i].stats.min.nsecs=0;
-        rs->radius_rtd[i].stats.max.secs=0;
-        rs->radius_rtd[i].stats.max.nsecs=0;
-        rs->radius_rtd[i].stats.tot.secs=0;
-        rs->radius_rtd[i].stats.tot.nsecs=0;
+		rs->radius_rtd[i].stats.min.nsecs=0;
+		rs->radius_rtd[i].stats.max.secs=0;
+		rs->radius_rtd[i].stats.max.nsecs=0;
+		rs->radius_rtd[i].stats.tot.secs=0;
+		rs->radius_rtd[i].stats.tot.nsecs=0;
 		rs->radius_rtd[i].open_req_num = 0;
 		rs->radius_rtd[i].disc_rsp_num = 0;
 		rs->radius_rtd[i].req_dup_num = 0;
@@ -131,86 +137,98 @@ radiusstat_packet(void *prs, packet_info *pinfo, epan_dissect_t *edt _U_, const 
 	radiusstat_t *rs=(radiusstat_t *)prs;
 	const radius_info_t *ri=pri;
 	nstime_t delta;
-	radius_category radius_cat = OTHERS;
+	radius_category radius_cat = RADIUS_CAT_OTHERS;
 	int ret = 0;
 
 	switch (ri->code) {
-		case RADIUS_ACCESS_REQUEST:
-		case RADIUS_ACCESS_ACCEPT:
-		case RADIUS_ACCESS_REJECT:
-			radius_cat = ACCESS;
+		case RADIUS_PKT_TYPE_ACCESS_REQUEST:
+		case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
+		case RADIUS_PKT_TYPE_ACCESS_REJECT:
+			radius_cat = RADIUS_CAT_ACCESS;
 			break;
-		case RADIUS_ACCOUNTING_REQUEST:
-		case RADIUS_ACCOUNTING_RESPONSE:
-			radius_cat = ACCOUNTING;
+		case RADIUS_PKT_TYPE_ACCOUNTING_REQUEST:
+		case RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE:
+			radius_cat = RADIUS_CAT_ACCOUNTING;
 			break;
-		case RADIUS_ACCESS_PASSWORD_REQUEST:
-		case RADIUS_ACCESS_PASSWORD_ACK:
-		case RADIUS_ACCESS_PASSWORD_REJECT:
-			radius_cat = ACCESS_PASSWORD;
+		case RADIUS_PKT_TYPE_PASSWORD_REQUEST:
+		case RADIUS_PKT_TYPE_PASSWORD_ACK:
+		case RADIUS_PKT_TYPE_PASSWORD_REJECT:
+			radius_cat = RADIUS_CAT_PASSWORD;
 			break;
-		case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
-		case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
-			radius_cat = ASCEND_ACCESS_EVENT;
+		case RADIUS_PKT_TYPE_RESOURCE_FREE_REQUEST:
+		case RADIUS_PKT_TYPE_RESOURCE_FREE_RESPONSE:
+			radius_cat = RADIUS_CAT_RESOURCE_FREE;
 			break;
-		case RADIUS_DISCONNECT_REQUEST:
-		case RADIUS_DISCONNECT_REQUEST_ACK:
-		case RADIUS_DISCONNECT_REQUEST_NAK:
-			radius_cat = DISCONNECT;
+		case RADIUS_PKT_TYPE_RESOURCE_QUERY_REQUEST:
+		case RADIUS_PKT_TYPE_RESOURCE_QUERY_RESPONSE:
+			radius_cat = RADIUS_CAT_RESOURCE_QUERY;
 			break;
-		case RADIUS_CHANGE_FILTER_REQUEST:
-		case RADIUS_CHANGE_FILTER_REQUEST_ACK:
-		case RADIUS_CHANGE_FILTER_REQUEST_NAK:
-			radius_cat = CHANGE_FILTER;
+		case RADIUS_PKT_TYPE_NAS_REBOOT_REQUEST:
+		case RADIUS_PKT_TYPE_NAS_REBOOT_RESPONSE:
+			radius_cat = RADIUS_CAT_NAS_REBOOT;
+			break;
+		case RADIUS_PKT_TYPE_EVENT_REQUEST:
+		case RADIUS_PKT_TYPE_EVENT_RESPONSE:
+			radius_cat = RADIUS_CAT_EVENT;
+			break;
+		case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
+		case RADIUS_PKT_TYPE_DISCONNECT_ACK:
+		case RADIUS_PKT_TYPE_DISCONNECT_NAK:
+			radius_cat = RADIUS_CAT_DISCONNECT;
+			break;
+		case RADIUS_PKT_TYPE_COA_REQUEST:
+		case RADIUS_PKT_TYPE_COA_ACK:
+		case RADIUS_PKT_TYPE_COA_NAK:
+			radius_cat = RADIUS_CAT_COA;
 			break;
 	}
 
 	switch (ri->code) {
 
-	case RADIUS_ACCESS_REQUEST:
-	case RADIUS_ACCOUNTING_REQUEST:
-	case RADIUS_ACCESS_PASSWORD_REQUEST:
-	case RADIUS_ASCEND_ACCESS_EVENT_REQUEST:
-	case RADIUS_DISCONNECT_REQUEST:
-	case RADIUS_CHANGE_FILTER_REQUEST:
+	case RADIUS_PKT_TYPE_ACCESS_REQUEST:
+	case RADIUS_PKT_TYPE_ACCOUNTING_REQUEST:
+	case RADIUS_PKT_TYPE_PASSWORD_REQUEST:
+	case RADIUS_PKT_TYPE_EVENT_REQUEST:
+	case RADIUS_PKT_TYPE_DISCONNECT_REQUEST:
+	case RADIUS_PKT_TYPE_COA_REQUEST:
 		if(ri->is_duplicate){
 			/* Duplicate is ignored */
-			rs->radius_rtd[OVERALL].req_dup_num++;
+			rs->radius_rtd[RADIUS_CAT_OVERALL].req_dup_num++;
 			rs->radius_rtd[radius_cat].req_dup_num++;
 		}
 		else {
-			rs->radius_rtd[OVERALL].open_req_num++;
+			rs->radius_rtd[RADIUS_CAT_OVERALL].open_req_num++;
 			rs->radius_rtd[radius_cat].open_req_num++;
 		}
 		break;
 
-	case RADIUS_ACCESS_ACCEPT:
-	case RADIUS_ACCESS_REJECT:
-	case RADIUS_ACCOUNTING_RESPONSE:
-	case RADIUS_ACCESS_PASSWORD_ACK:
-	case RADIUS_ACCESS_PASSWORD_REJECT:
-	case RADIUS_ASCEND_ACCESS_EVENT_RESPONSE:
-	case RADIUS_DISCONNECT_REQUEST_ACK:
-	case RADIUS_DISCONNECT_REQUEST_NAK:
-	case RADIUS_CHANGE_FILTER_REQUEST_ACK:
-	case RADIUS_CHANGE_FILTER_REQUEST_NAK:
+	case RADIUS_PKT_TYPE_ACCESS_ACCEPT:
+	case RADIUS_PKT_TYPE_ACCESS_REJECT:
+	case RADIUS_PKT_TYPE_ACCOUNTING_RESPONSE:
+	case RADIUS_PKT_TYPE_PASSWORD_ACK:
+	case RADIUS_PKT_TYPE_PASSWORD_REJECT:
+	case RADIUS_PKT_TYPE_EVENT_RESPONSE:
+	case RADIUS_PKT_TYPE_DISCONNECT_ACK:
+	case RADIUS_PKT_TYPE_DISCONNECT_NAK:
+	case RADIUS_PKT_TYPE_COA_ACK:
+	case RADIUS_PKT_TYPE_COA_NAK:
 		if(ri->is_duplicate){
 			/* Duplicate is ignored */
-			rs->radius_rtd[OVERALL].rsp_dup_num++;
+			rs->radius_rtd[RADIUS_CAT_OVERALL].rsp_dup_num++;
 			rs->radius_rtd[radius_cat].rsp_dup_num++;
 		}
 		else if (!ri->request_available) {
 			/* no request was seen */
-			rs->radius_rtd[OVERALL].disc_rsp_num++;
+			rs->radius_rtd[RADIUS_CAT_OVERALL].disc_rsp_num++;
 			rs->radius_rtd[radius_cat].disc_rsp_num++;
 		}
 		else {
-			rs->radius_rtd[OVERALL].open_req_num--;
+			rs->radius_rtd[RADIUS_CAT_OVERALL].open_req_num--;
 			rs->radius_rtd[radius_cat].open_req_num--;
 			/* calculate time delta between request and response */
 			nstime_delta(&delta, &pinfo->fd->abs_ts, &ri->req_time);
 
-			time_stat_update(&(rs->radius_rtd[OVERALL].stats),&delta, pinfo);
+			time_stat_update(&(rs->radius_rtd[RADIUS_CAT_OVERALL].stats),&delta, pinfo);
 			time_stat_update(&(rs->radius_rtd[radius_cat].stats),&delta, pinfo);
 
 			ret = 1;
@@ -237,7 +255,7 @@ radiusstat_draw(void *prs)
   	store = GTK_LIST_STORE(gtk_tree_view_get_model(rs->table));
   	gtk_list_store_clear(store);
 
-	for(i=0;i<NUM_TIMESTATS;i++) {
+	for(i=0; i<RADIUS_CAT_NUM_TIMESTATS; i++) {
 		/* nothing seen, nothing to do */
 		if(rs->radius_rtd[i].stats.num==0){
 			continue;
