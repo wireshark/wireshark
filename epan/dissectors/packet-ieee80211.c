@@ -3393,7 +3393,7 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
                                tvbuff_t *tvb, int offset, gboolean *anqp)
 {
   guint8 tag_no, tag_len, left;
-  proto_item *item = NULL;
+  proto_item *item = NULL, *adv_item;
   proto_tree *adv_tree, *adv_tuple_tree;
 
   if (anqp)
@@ -3422,14 +3422,16 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
 
   left = tag_len;
   offset += 2;
-  item = proto_tree_add_text(tree, tvb, offset, left,
-                             "Advertisement Protocol element");
-  adv_tree = proto_item_add_subtree(item, ett_adv_proto);
+  adv_item = proto_tree_add_text(tree, tvb, offset, left,
+                                 "Advertisement Protocol element");
+  adv_tree = proto_item_add_subtree(adv_item, ett_adv_proto);
 
   while (left >= 2) {
     guint8 id;
 
     id = tvb_get_guint8(tvb, offset + 1);
+    if (id == 0)
+      proto_item_append_text(adv_item, ": ANQP");
     item = proto_tree_add_text(adv_tree, tvb, offset, 2,
                                "Advertisement Protocol Tuple: %s",
                                val_to_str(id, adv_proto_id_vals,
