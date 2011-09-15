@@ -1234,6 +1234,21 @@ for those frames that match that filter.
 Example: B<-z "rlc-lte,stat,rlc-lte.ueid>3000"> will only collect stats for
 UEs with a UEId of more than 3000.
 
+=item B<-z> expert,stat[I<,filter>]
+
+Collects information about all expert info, and will display them in order,
+grouped by severity.
+
+
+Example: B<-z expert,stat>.
+
+This option can be used multiple times on the command line.
+
+If the optional I<filter> is provided, the stats will only be calculated
+on those calls that match that filter.
+Example: B<-z "expert,stat,tcp"> will only collect expert items for frames that
+include the tcp protocol.
+
 =back
 
 =back
