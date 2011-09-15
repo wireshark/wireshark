@@ -615,7 +615,12 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 #define TAG_CHANNEL_SWITCH_TIMING    104  /* IEEE Std 802.11z-2010 */
 #define TAG_PTI_CONTROL              105  /* IEEE Std 802.11z-2010 */
 #define TAG_PU_BUFFER_STATUS         106  /* IEEE Std 802.11z-2010 */
-#define TAG_ADVERTISEMENT_PROTOCOL   108  /* IEEE P802.11u/D10.0 */
+#define TAG_INTERWORKING             107  /* IEEE Std 802.11u-2011 */
+#define TAG_ADVERTISEMENT_PROTOCOL   108  /* IEEE Std 802.11u-2011 */
+#define TAG_EXPIDITED_BANDWIDTH_REQ  109  /* IEEE Std 802.11u-2011 */
+#define TAG_QOS_MAP_SET              110  /* IEEE Std 802.11u-2011 */
+#define TAG_ROAMING_CONSORTIUM       111  /* IEEE Std 802.11u-2011 */
+#define TAG_EMERGENCY_ALERT_ID       112  /* IEEE Std 802.11u-2011 */
 #define TAG_MESH_CONFIGURATION       113  /* IEEE Std 802.11s-2011 */
 #define TAG_MESH_ID                  114  /* IEEE Std 802.11s-2011 */
 #define TAG_MESH_PEERING_MGMT        117  /* IEEE Std 802.11s-2011 */
@@ -691,7 +696,12 @@ static const range_string tag_num_vals[] = {
   { TAG_CHANNEL_SWITCH_TIMING, TAG_CHANNEL_SWITCH_TIMING, "Channel Switch Timing" },
   { TAG_PTI_CONTROL, TAG_PTI_CONTROL, "PTI Control" },
   { TAG_PU_BUFFER_STATUS, TAG_PU_BUFFER_STATUS, "PU Buffer Status" },
+  { TAG_INTERWORKING, TAG_INTERWORKING, "Interworking" },
   { TAG_ADVERTISEMENT_PROTOCOL, TAG_ADVERTISEMENT_PROTOCOL, "Advertisement Protocol"},
+  { TAG_EXPIDITED_BANDWIDTH_REQ, TAG_EXPIDITED_BANDWIDTH_REQ, "Expedited Bandwidth Request" },
+  { TAG_QOS_MAP_SET, TAG_QOS_MAP_SET, "QoS Map Set" },
+  { TAG_ROAMING_CONSORTIUM, TAG_ROAMING_CONSORTIUM, "Roaming Consortium" },
+  { TAG_EMERGENCY_ALERT_ID, TAG_EMERGENCY_ALERT_ID, "Emergency Alert Identifier" },
   { TAG_MESH_ID, TAG_MESH_ID, "Mesh ID" },
   { TAG_MESH_CONFIGURATION, TAG_MESH_CONFIGURATION, "Mesh Configuration" },
   { TAG_MESH_PEERING_MGMT, TAG_MESH_PEERING_MGMT, "Mesh Peering Management" },
