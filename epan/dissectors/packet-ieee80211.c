@@ -3479,24 +3479,28 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
   return 2 + tag_len;
 }
 
-static void
-dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
+static int
+dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
+                  gboolean request, int idx)
 {
   guint16 id, len;
   guint32 oui;
   guint8 subtype;
+  proto_item *item;
 
-  proto_tree_add_text(tree, tvb, offset, 4,
-                      request ? "Access Network Query Protocol Request" :
-                      "Access Network Query Protocol Response");
-  if (tvb_reported_length_remaining(tvb, offset) < 4) {
-    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
-                           "Not enough room for ANQP header");
-    return;
-  }
-  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
-                      tvb, offset, 2, TRUE);
+  item = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
+                             tvb, offset, 2, TRUE);
   id = tvb_get_letohs(tvb, offset);
+  if (id != ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST) {
+    if (idx == 0) {
+      proto_item_append_text(tree, " - %s",
+                             val_to_str(id, anqp_info_id_vals,
+                                        "Unknown (%u)"));
+    } else if (idx == 1) {
+      proto_item_append_text(tree, ", ..");
+    }
+  }
+  tree = proto_item_add_subtree(item, ett_gas_anqp);
   offset += 2;
   proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_length,
                       tvb, offset, 2, TRUE);
@@ -3505,7 +3509,7 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
   if (tvb_reported_length_remaining(tvb, offset) < len) {
     expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
                            "Invalid ANQP Info length");
-    return;
+    return 4 + len;
   }
   switch (id)
   {
@@ -3536,6 +3540,26 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
                         tvb, offset, len, ENC_BIG_ENDIAN);
     break;
   }
+
+  return 4 + len;
+}
+
+static void
+dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
+{
+  int idx = 0;
+
+  proto_item_append_text(tree, ": ANQP ");
+  proto_item_append_text(tree, request ? "Request" : "Response");
+  if (tvb_reported_length_remaining(tvb, offset) < 4) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Not enough room for ANQP header");
+    return;
+  }
+  while (tvb_reported_length_remaining(tvb, offset) > 0) {
+    offset += dissect_anqp_info(tree, tvb, offset, request, idx);
+    idx++;
+  }
 }
 
 static guint
@@ -3545,7 +3569,7 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint16 req_len;
   int start = offset;
   proto_item *item;
-  proto_tree *query, *anqp_tree;
+  proto_tree *query;
 
   /* Query Request Length (2 octets) */
   req_len = tvb_get_letohs(tvb, offset);
@@ -3560,12 +3584,11 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, int offset,
    * Query Request (GAS query; formatted per protocol specified in the
    * Advertisement Protocol IE)
    */
-  item = proto_tree_add_item(query, hf_ieee80211_ff_query_request,
-                             tvb, offset, req_len, FALSE);
-  if (anqp) {
-    anqp_tree = proto_item_add_subtree(item, ett_gas_anqp);
-    dissect_anqp(anqp_tree, tvb, offset, TRUE);
-  }
+  if (anqp)
+    dissect_anqp(query, tvb, offset, TRUE);
+  else
+    proto_tree_add_item(query, hf_ieee80211_ff_query_request,
+                        tvb, offset, req_len, FALSE);
   offset += req_len;
 
   return offset - start;
@@ -3578,7 +3601,7 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint16 resp_len;
   int start = offset;
   proto_item *item;
-  proto_tree *query, *anqp_tree;
+  proto_tree *query;
 
   /* Query Response Length (2 octets) */
   resp_len = tvb_get_letohs(tvb, offset);
@@ -3592,12 +3615,11 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   offset += 2;
   /* Query Response (optional) */
   if (resp_len) {
-    item = proto_tree_add_item(query, hf_ieee80211_ff_query_response,
-                               tvb, offset, resp_len, FALSE);
-    if (anqp) {
-      anqp_tree = proto_item_add_subtree(item, ett_gas_anqp);
-      dissect_anqp(anqp_tree, tvb, offset, FALSE);
-    }
+    if (anqp)
+      dissect_anqp(query, tvb, offset, FALSE);
+    else
+      proto_tree_add_item(query, hf_ieee80211_ff_query_response,
+                          tvb, offset, resp_len, FALSE);
     offset += resp_len;
   }
 
@@ -3611,7 +3633,7 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   guint16 resp_len;
   int start = offset;
   proto_item *item;
-  proto_tree *query, *anqp_tree;
+  proto_tree *query;
 
   /* Query Response Length (2 octets) */
   resp_len = tvb_get_letohs(tvb, offset);
@@ -3625,12 +3647,11 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   offset += 2;
   /* Query Response (optional) */
   if (resp_len) {
-    item = proto_tree_add_item(query, hf_ieee80211_ff_query_response,
-                               tvb, offset, resp_len, FALSE);
-    if (anqp && frag == 0) {
-      anqp_tree = proto_item_add_subtree(item, ett_gas_anqp);
-      dissect_anqp(anqp_tree, tvb, offset, FALSE);
-    }
+    if (anqp && frag == 0)
+      dissect_anqp(query, tvb, offset, FALSE);
+    else
+      proto_tree_add_item(query, hf_ieee80211_ff_query_response,
+                          tvb, offset, resp_len, FALSE);
     offset += resp_len;
   }
 
