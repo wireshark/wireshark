@@ -3483,6 +3483,11 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
   proto_tree_add_text(tree, tvb, offset, 4,
                       request ? "Access Network Query Protocol Request" :
                       "Access Network Query Protocol Response");
+  if (tvb_reported_length_remaining(tvb, offset) < 4) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Not enough room for ANQP header");
+    return;
+  }
   proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info_id,
                       tvb, offset, 2, TRUE);
   id = tvb_get_letohs(tvb, offset);
@@ -3491,6 +3496,11 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
                       tvb, offset, 2, TRUE);
   len = tvb_get_letohs(tvb, offset);
   offset += 2;
+  if (tvb_reported_length_remaining(tvb, offset) < len) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Invalid ANQP Info length");
+    return;
+  }
   switch (id)
   {
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
