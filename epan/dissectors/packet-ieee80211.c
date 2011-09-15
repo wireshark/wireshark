@@ -4965,7 +4965,8 @@ static const value_string anqp_info_id_vals[] =
   {267, "AP Location Public Identifier URI"},
   {268, "Domain Name list"},
   {269, "Emergency Alert Identifier URI"},
-  {270, "TDLS Discovery"},
+  {270, "TDLS Capability information"},
+  {271, "Emergency NAI"},
   {56797, "ANQP vendor-specific list"},
   {0, NULL}
 };
