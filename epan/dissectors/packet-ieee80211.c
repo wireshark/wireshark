@@ -1579,6 +1579,10 @@ static int hf_ieee80211_ff_venue_info_type = -1;
 static int hf_ieee80211_ff_anqp_venue_length = -1;
 static int hf_ieee80211_ff_anqp_venue_language = -1;
 static int hf_ieee80211_ff_anqp_venue_name = -1;
+static int hf_ieee80211_ff_anqp_roaming_consortium_oi_len = -1;
+static int hf_ieee80211_ff_anqp_roaming_consortium_oi = -1;
+static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv6 = -1;
+static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv4 = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_regulatory_class = -1;
@@ -3563,6 +3567,70 @@ dissect_venue_name_info(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
+static void add_manuf(proto_item *item, tvbuff_t *tvb, int offset)
+{
+  const gchar *manuf_name;
+  manuf_name = tvb_get_manuf_name_if_known(tvb, offset);
+  if (manuf_name == NULL)
+    return;
+  proto_item_append_text(item, " - %s", manuf_name);
+}
+
+static void
+dissect_roaming_consortium_list(proto_tree *tree, tvbuff_t *tvb, int offset,
+                                int end)
+{
+  proto_item *item;
+  guint8 len;
+
+  while (offset < end) {
+    len = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(tree,
+                               hf_ieee80211_ff_anqp_roaming_consortium_oi_len,
+                               tvb, offset, 1, FALSE);
+    offset++;
+    if (len > end - offset || len < 3) {
+      expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Invalid Roaming Consortium OI");
+      break;
+    }
+    item = proto_tree_add_item(tree,
+                               hf_ieee80211_ff_anqp_roaming_consortium_oi,
+                               tvb, offset, len, FALSE);
+    add_manuf(item, tvb, offset);
+    offset += len;
+  }
+}
+
+static const value_string ip_addr_avail_ipv6_vals[] = {
+  { 0, "Address type not available" },
+  { 1, "Address type available" },
+  { 2, "Availability of the address type not known" },
+  { 0, NULL }
+};
+
+static const value_string ip_addr_avail_ipv4_vals[] = {
+  { 0, "Address type not available" },
+  { 1, "Public IPv4 address available" },
+  { 2, "Port-restricted IPv4 address available" },
+  { 3, "Single NATed private IPv4 address available" },
+  { 4, "Double NATed private IPv4 address available" },
+  { 5, "Port-restricted IPv4 address and single NATed IPv4 address available" },
+  { 6, "Port-restricted IPv4 address and double NATed IPv4 address available" },
+  { 7, "Availability of the address type is not known" },
+  { 0, NULL }
+};
+
+static void
+dissect_ip_addr_type_availability_info(proto_tree *tree, tvbuff_t *tvb,
+                                       int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_ip_addr_avail_ipv6,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_ip_addr_avail_ipv4,
+                      tvb, offset, 1, FALSE);
+}
+
 static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                   gboolean request, int idx)
@@ -3608,6 +3676,12 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
   case ANQP_INFO_VENUE_NAME_INFO:
     dissect_venue_name_info(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_ROAMING_CONSORTIUM_LIST:
+    dissect_roaming_consortium_list(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO:
+    dissect_ip_addr_type_availability_info(tree, tvb, offset);
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     oui = tvb_get_ntoh24(tvb, offset);
@@ -13580,6 +13654,24 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_ff_anqp_venue_name,
      {"Venue Name", "wlan_mgt.fixed.anqp.venue.name",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_roaming_consortium_oi_len,
+     {"OI Length", "wlan_mgt.fixed.anqp.roaming_consortium.oi_len",
+      FT_UINT8, BASE_DEC, NULL, 0, "Roaming Consortium OI Length", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_roaming_consortium_oi,
+     {"OI", "wlan_mgt.fixed.anqp.roaming_consortium.oi",
+      FT_BYTES, BASE_NONE, NULL, 0, "Roaming Consortium OI", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_ip_addr_avail_ipv6,
+     {"IPv6 Address", "wlan_mgt.fixed.anqp.ip_addr_availability.ipv6",
+      FT_UINT8, BASE_DEC, VALS(ip_addr_avail_ipv6_vals), 0x03,
+      "IP Address Type Availability information for IPv6", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_ip_addr_avail_ipv4,
+     {"IPv4 Address", "wlan_mgt.fixed.anqp.ip_addr_availability.ipv4",
+      FT_UINT8, BASE_DEC, VALS(ip_addr_avail_ipv4_vals), 0xfc,
+      "IP Address Type Availability information for IPv4", HFILL }},
 
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
