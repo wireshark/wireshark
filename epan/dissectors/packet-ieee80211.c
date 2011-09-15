@@ -1168,6 +1168,49 @@ static const value_string aruba_mgt_typevals[] = {
 #define MRVL_MESH_MGMT_ACTION_RERR      2
 #define MRVL_MESH_MGMT_ACTION_PLDM      3
 
+#define ANQP_INFO_ANQP_QUERY_LIST 256
+#define ANQP_INFO_ANQP_CAPAB_LIST 257
+#define ANQP_INFO_VENUE_NAME_INFO 258
+#define ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO 259
+#define ANQP_INFO_NETWORK_AUTH_TYPE_INFO 260
+#define ANQP_INFO_ROAMING_CONSORTIUM_LIST 261
+#define ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO 262
+#define ANQP_INFO_NAI_REALM_LIST 263
+#define ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO 264
+#define ANQP_INFO_AP_GEOSPATIAL_LOCATION 265
+#define ANQP_INFO_AP_CIVIC_LOCATION 266
+#define ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI 267
+#define ANQP_INFO_DOMAIN_NAME_LIST 268
+#define ANQP_INFO_EMERGENCY_ALERT_ID_URI 269
+#define ANQP_INFO_TDLS_CAPAB_INFO 270
+#define ANQP_INFO_EMERGENCY_NAI 271
+#define ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST 56797
+
+/* ANQP information ID - IEEE Std 802.11u-2011 - Table 7-43bk */
+static const value_string anqp_info_id_vals[] =
+{
+  {ANQP_INFO_ANQP_QUERY_LIST, "ANQP Query list"},
+  {ANQP_INFO_ANQP_CAPAB_LIST, "ANQP Capability list"},
+  {ANQP_INFO_VENUE_NAME_INFO, "Venue Name information"},
+  {ANQP_INFO_EMERGENCY_CALL_NUMBER_INFO, "Emergency Call Number information"},
+  {ANQP_INFO_NETWORK_AUTH_TYPE_INFO,
+   "Network Authentication Type information"},
+  {ANQP_INFO_ROAMING_CONSORTIUM_LIST, "Roaming Consortium list"},
+  {ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO,
+   "IP Address Type Availability information"},
+  {ANQP_INFO_NAI_REALM_LIST, "NAI Realm list"},
+  {ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO, "3GPP Cellular Network information"},
+  {ANQP_INFO_AP_GEOSPATIAL_LOCATION, "AP Geospatial Location"},
+  {ANQP_INFO_AP_CIVIC_LOCATION, "AP Civic Location"},
+  {ANQP_INFO_AP_LOCATION_PUBLIC_ID_URI, "AP Location Public Identifier URI"},
+  {ANQP_INFO_DOMAIN_NAME_LIST, "Domain Name list"},
+  {ANQP_INFO_EMERGENCY_ALERT_ID_URI, "Emergency Alert Identifier URI"},
+  {ANQP_INFO_TDLS_CAPAB_INFO, "TDLS Capability information"},
+  {ANQP_INFO_EMERGENCY_NAI, "Emergency NAI"},
+  {ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST, "ANQP vendor-specific list"},
+  {0, NULL}
+};
+
 /*** End: Action Fixed Parameter ***/
 
 static const value_string ieee80211_tag_measure_request_type_flags[] = {
@@ -3434,6 +3477,8 @@ static void
 dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
 {
   guint16 id, len;
+  guint32 oui;
+  guint8 subtype;
 
   proto_tree_add_text(tree, tvb, offset, 4,
                       request ? "Access Network Query Protocol Request" :
@@ -3446,13 +3491,9 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
                       tvb, offset, 2, TRUE);
   len = tvb_get_letohs(tvb, offset);
   offset += 2;
-  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
-                      tvb, offset, len, FALSE);
-  if (id == 56797) {
-    /* ANQP vendor-specific list */
-    guint32 oui;
-    guint8 subtype;
-
+  switch (id)
+  {
+  case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     oui = tvb_get_ntoh24(tvb, offset);
     proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
     offset += 3;
@@ -3467,7 +3508,17 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
       } else {
         proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u", subtype);
       }
+      break;
+    default:
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
+                          tvb, offset, len, ENC_BIG_ENDIAN);
+      break;
     }
+    break;
+  default:
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_info,
+                        tvb, offset, len, ENC_BIG_ENDIAN);
+    break;
   }
 }
 
@@ -4946,28 +4997,6 @@ static const value_string ft_subelem_id_vals[] =
   {2, "GTK subelement"},
   {3, "PMK-R0 key holder identifier (R0KH-ID)"},
   {4, "IGTK"},
-  {0, NULL}
-};
-
-static const value_string anqp_info_id_vals[] =
-{
-  {256, "ANQP Query list"},
-  {257, "ANQP Capability list"},
-  {258, "Venue Name information"},
-  {259, "Emergency Call Number information"},
-  {260, "Network Authentication Type information"},
-  {261, "Roaming Consortium list"},
-  {262, "IP Address Type Availability information"},
-  {263, "NAI Realm list"},
-  {264, "3GPP Cellular Network information"},
-  {265, "AP Geospatial Location"},
-  {266, "AP Civic Location"},
-  {267, "AP Location Public Identifier URI"},
-  {268, "Domain Name list"},
-  {269, "Emergency Alert Identifier URI"},
-  {270, "TDLS Capability information"},
-  {271, "Emergency NAI"},
-  {56797, "ANQP vendor-specific list"},
   {0, NULL}
 };
 
