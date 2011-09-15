@@ -4186,7 +4186,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
         proto_tree *action_tree;
 
         action_item = proto_tree_add_item(tree, hf_ieee80211_action, tvb, offset, 1, TRUE);
-        action_tree = proto_item_add_subtree(action_item, ett_sched_tree);
+        action_tree = tree;
 
         switch (tvb_get_guint8(tvb, offset) & 0x7f)
           {
