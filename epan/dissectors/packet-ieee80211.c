@@ -1573,6 +1573,7 @@ static int hf_ieee80211_ff_anqp_info_id = -1;
 static int hf_ieee80211_ff_anqp_info_length = -1;
 static int hf_ieee80211_ff_anqp_info = -1;
 static int hf_ieee80211_ff_anqp_query_id = -1;
+static int hf_ieee80211_ff_anqp_capability = -1;
 static int hf_ieee80211_ff_venue_info_group = -1;
 static int hf_ieee80211_ff_venue_info_type = -1;
 static int hf_ieee80211_ff_anqp_venue_length = -1;
@@ -3499,6 +3500,20 @@ dissect_anqp_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
     }
 }
 
+static void
+dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+    while (offset + 2 <= end) {
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_capability,
+                          tvb, offset, 2, TRUE);
+      offset += 2;
+    }
+    if (offset != end) {
+      expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                             "Unexpected ANQP Capability list format");
+    }
+}
+
 static const value_string venue_group_vals[] = {
   { 0, "Unspecified" },
   { 1, "Assembly" },
@@ -3587,6 +3602,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   {
   case ANQP_INFO_ANQP_QUERY_LIST:
     dissect_anqp_query_list(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_ANQP_CAPAB_LIST:
+    dissect_anqp_capab_list(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_VENUE_NAME_INFO:
     dissect_venue_name_info(tree, tvb, offset, offset + len);
@@ -13534,6 +13552,11 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_anqp_query_id,
      {"ANQP Query ID", "wlan_mgt.fixed.anqp.query_id",
+      FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
+      "Access Network Query Protocol Query ID", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_capability,
+     {"ANQP Capability", "wlan_mgt.fixed.anqp.capability",
       FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
       "Access Network Query Protocol Query ID", HFILL }},
 
