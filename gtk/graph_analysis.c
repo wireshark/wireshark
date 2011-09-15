@@ -49,7 +49,7 @@
 #include <epan/tap.h>
 #include <epan/dissectors/packet-rtp.h>
 #include <epan/addr_resolv.h>
-#include "epan/filesystem.h"
+#include <epan/filesystem.h>
 
 #include "../util.h"
 #include "../simple_dialog.h"
@@ -62,6 +62,7 @@
 #include "gtk/dlg_utils.h"
 #include "gtk/main.h"
 #include "gtk/graph_analysis.h"
+#include "gtk/recent.h"
 
 #include "gtk/old-gtk-compat.h"
 
@@ -448,6 +449,7 @@ static gboolean dialog_graph_dump_to_file(graph_analysis_data_t *user_data)
 		}
 
 		/* write the time */
+		/* XXX TODO: Use recent.gui_time_format to chose time format */
 		g_string_printf(label_string, "|%.3f", nstime_to_sec(&gai->fd->rel_ts));
 		enlarge_string(label_string, 10, ' ');
 		fprintf(of, "%s", label_string->str);
@@ -769,7 +771,7 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			if (current_item>=display_items) break;		/* the item is outside the display */
 			if (i>=first_item){
 				user_data->dlg.items[current_item].frame_num = gai->fd->num;
-				user_data->dlg.items[current_item].time = nstime_to_sec(&gai->fd->rel_ts);
+				user_data->dlg.items[current_item].time = gai->fd->rel_ts;
 				user_data->dlg.items[current_item].port_src = gai->port_src;
 				user_data->dlg.items[current_item].port_dst = gai->port_dst;
 				/* Add "..." if the length is 50 characters */
@@ -810,7 +812,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 
 	/* Calculate the x borders */
 	/* We use time from the last display item to calcultate the x left border */
-	g_snprintf(label_string, MAX_LABEL, "%.3f", user_data->dlg.items[display_items-1].time);
+	/* XXX TODO: Use recent.gui_time_format to chose time format */
+	g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[display_items-1].time));
 	layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	middle_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
 	small_layout = gtk_widget_create_pango_layout(user_data->dlg.draw_area_time, label_string);
@@ -998,7 +1001,8 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 	/* Draw the items */
 	for (current_item=0; current_item<display_items; current_item++){
 		/* draw the time */
-		g_snprintf(label_string, MAX_LABEL, "%.3f", user_data->dlg.items[current_item].time);
+		/* XXX TODO: Use recent.gui_time_format to chose time format */
+		g_snprintf(label_string, MAX_LABEL, "%.3f", nstime_to_sec(&user_data->dlg.items[current_item].time));
 		pango_layout_set_text(layout, label_string, -1);
 		pango_layout_get_pixel_size(layout, &label_width, &label_height);
 #if GTK_CHECK_VERSION(2,22,0)
