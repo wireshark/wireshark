@@ -428,6 +428,7 @@ static int hf_mysql_shutdown = -1;
 static int hf_mysql_option = -1;
 static int hf_mysql_num_rows = -1;
 static int hf_mysql_param = -1;
+static int hf_mysql_num_params = -1;
 static int hf_mysql_exec_flags = -1;
 static int hf_mysql_exec_iter = -1;
 static int hf_mysql_binlog_position = -1;
@@ -508,7 +509,8 @@ typedef enum mysql_state
 	FIELD_PACKET,
 	ROW_PACKET,
 	RESPONSE_PREPARE,
-	PARAM_PACKET
+    PREPARED_PARAMETERS,
+    PREPARED_FIELDS
 } mysql_state_t;
 
 #ifdef CTDEBUG
@@ -523,7 +525,8 @@ static const value_string state_vals[] = {
 	{FIELD_PACKET,         "field packet"},
 	{ROW_PACKET,           "row packet"},
 	{RESPONSE_PREPARE,     "response to PREPARE"},
-	{PARAM_PACKET,         "parameter packet"},
+	{RESPONSE_PARAMETERS,  "parameters in response to PREPARE"},
+	{RESPONSE_FIELDS,      "fields in response to PREPARE"},
 	{0, NULL}
 };
 #endif
@@ -534,6 +537,8 @@ typedef struct mysql_conn_data
 	guint16 clnt_caps;
 	guint16 clnt_caps_ext;
 	mysql_state_t state;
+	guint16 stmt_num_params;
+	guint16 stmt_num_fields;
 	GHashTable* stmts;
 #ifdef CTDEBUG
 	guint32 generation;
@@ -567,8 +572,7 @@ static int mysql_dissect_ext_caps_client(tvbuff_t *tvb, int offset, proto_tree *
 static int mysql_dissect_result_header(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static int mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
-static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree);
-static int mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tree);
+static int mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data);
 static gint my_tvb_strsize(tvbuff_t *tvb, int offset);
 static int tvb_get_fle(tvbuff_t *tvb, int offset, guint64 *res, guint8 *is_null);
 
@@ -1126,6 +1130,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	gint response_code;
 	gint strlen;
+    gint server_status = 0;
 
 	response_code = tvb_get_guint8(tvb, offset);
 
@@ -1143,18 +1148,36 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		/* pre-4.1 packet ends here */
 		if (tvb_reported_length_remaining(tvb, offset)) {
 			proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			server_status = tvb_get_letohs(tvb, offset+2);
 			offset = mysql_dissect_server_status(tvb, offset+2, tree);
 		}
 
 		if (conn_data->state == FIELD_PACKET) {
 			conn_data->state= ROW_PACKET;
+		} else if (conn_data->state == ROW_PACKET) {
+			if (server_status & MYSQL_STAT_MU) {
+				conn_data->state= RESPONSE_TABULAR;
+			} else {
+				conn_data->state= REQUEST;
+			}
+		} else if (conn_data->state == PREPARED_PARAMETERS) {
+			if (conn_data->stmt_num_fields > 0) {
+				conn_data->state= PREPARED_FIELDS;
+			} else {
+				conn_data->state= REQUEST;
+			}
+		} else if (conn_data->state == PREPARED_FIELDS) {
+			conn_data->state= REQUEST;
 		} else {
+			/* This should be an unreachable case */
 			conn_data->state= REQUEST;
 		}
 	}
 
 	else if (response_code == 0) {
-		if (tvb_reported_length_remaining(tvb, offset+1)  > tvb_get_fle(tvb, offset+1, NULL, NULL)) {
+		if (conn_data->state == RESPONSE_PREPARE) {
+			offset = mysql_dissect_response_prepare(tvb, offset, tree, conn_data);
+		} else if (tvb_reported_length_remaining(tvb, offset+1)  > tvb_get_fle(tvb, offset+1, NULL, NULL)) {
 			offset = mysql_dissect_ok_packet(tvb, pinfo, offset+1, tree, conn_data);
 		} else {
 			offset = mysql_dissect_result_header(tvb, pinfo, offset, tree, conn_data);
@@ -1177,6 +1200,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 
 		case FIELD_PACKET:
 		case RESPONSE_SHOW_FIELDS:
+		case RESPONSE_PREPARE:
+		case PREPARED_PARAMETERS:
 			offset = mysql_dissect_field_packet(tvb, offset, tree, conn_data);
 			break;
 
@@ -1184,12 +1209,8 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 			offset = mysql_dissect_row_packet(tvb, offset, tree);
 			break;
 
-		case RESPONSE_PREPARE:
-			offset = mysql_dissect_response_prepare(tvb, offset, tree);
-			break;
-
-		case PARAM_PACKET:
-			offset = mysql_dissect_param_packet(tvb, offset, tree);
+		case PREPARED_FIELDS:
+			offset = mysql_dissect_field_packet(tvb, offset, tree, conn_data);
 			break;
 
 		default:
@@ -1494,17 +1515,29 @@ mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 
 static int
-mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree)
+mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data)
 {
-	proto_tree_add_text(tree, tvb, offset, -1, "FIXME: write mysql_dissect_response_prepare()");
-	return offset + tvb_reported_length_remaining(tvb, offset);
-}
+    /* 0, marker for OK packet */
+    offset += 1;
+    proto_tree_add_item(tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    offset += 4;
+    proto_tree_add_item(tree, hf_mysql_num_fields, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    conn_data->stmt_num_fields = tvb_get_letohs(tvb, offset);
+    offset += 2;
+    proto_tree_add_item(tree, hf_mysql_num_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
+    offset += 2;
+    /* Filler */
+    offset += 1;
+    proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
+    if (conn_data->stmt_num_params > 0)
+        conn_data->state = PREPARED_PARAMETERS;
+    else if (conn_data->stmt_num_fields > 0)
+        conn_data->state = PREPARED_FIELDS;
+    else
+        conn_data->state = REQUEST;
 
-static int
-mysql_dissect_param_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
-{
-	proto_tree_add_text(tree, tvb, offset, -1, "FIXME: write mysql_dissect_param_packet()");
 	return offset + tvb_reported_length_remaining(tvb, offset);
 }
 
@@ -1964,6 +1997,11 @@ void proto_register_mysql(void)
 
 		{ &hf_mysql_param,
 		{ "Parameter", "mysql.param",
+		FT_UINT16, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_num_params,
+		{ "Number of parameter", "mysql.num_params",
 		FT_UINT16, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
