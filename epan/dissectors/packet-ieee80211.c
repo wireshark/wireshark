@@ -1573,6 +1573,11 @@ static int hf_ieee80211_ff_anqp_info_id = -1;
 static int hf_ieee80211_ff_anqp_info_length = -1;
 static int hf_ieee80211_ff_anqp_info = -1;
 static int hf_ieee80211_ff_anqp_query_id = -1;
+static int hf_ieee80211_ff_venue_info_group = -1;
+static int hf_ieee80211_ff_venue_info_type = -1;
+static int hf_ieee80211_ff_anqp_venue_length = -1;
+static int hf_ieee80211_ff_anqp_venue_language = -1;
+static int hf_ieee80211_ff_anqp_venue_name = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_regulatory_class = -1;
@@ -3494,6 +3499,55 @@ dissect_anqp_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
     }
 }
 
+static const value_string venue_group_vals[] = {
+  { 0, "Unspecified" },
+  { 1, "Assembly" },
+  { 2, "Business" },
+  { 3, "Educational" },
+  { 4, "Factory and Industrial" },
+  { 5, "Institutional" },
+  { 6, "Mercantile" },
+  { 7, "Residential" },
+  { 8, "Storage" },
+  { 9, "Utility and Miscellaneous" },
+  { 10, "Vehicular" },
+  { 11, "Outdoor" },
+  { 0, NULL }
+};
+
+static void dissect_venue_info(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  proto_tree_add_item(tree, hf_ieee80211_ff_venue_info_group,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_ff_venue_info_type,
+                      tvb, offset + 1, 1, FALSE);
+}
+
+static void
+dissect_venue_name_info(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  proto_item *item;
+
+  dissect_venue_info(tree, tvb, offset);
+  offset += 2;
+  while (offset + 4 <= end) {
+    guint8 vlen = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_length,
+                               tvb, offset, 1, FALSE);
+    offset++;
+    if (vlen > end - offset || vlen < 3) {
+      expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Invalid Venue Name Duple length");
+      break;
+    }
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_language,
+                        tvb, offset, 3, FALSE);
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_name,
+                        tvb, offset + 3, vlen - 3, FALSE);
+    offset += vlen;
+  }
+}
+
 static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                   gboolean request, int idx)
@@ -3533,6 +3587,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   {
   case ANQP_INFO_ANQP_QUERY_LIST:
     dissect_anqp_query_list(tree, tvb, offset, offset + len);
+    break;
+  case ANQP_INFO_VENUE_NAME_INFO:
+    dissect_venue_name_info(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     oui = tvb_get_ntoh24(tvb, offset);
@@ -13479,6 +13536,27 @@ proto_register_ieee80211 (void)
      {"ANQP Query ID", "wlan_mgt.fixed.anqp.query_id",
       FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
       "Access Network Query Protocol Query ID", HFILL }},
+
+    {&hf_ieee80211_ff_venue_info_group,
+     {"Venue Group", "wlan_mgt.fixed.venue_info.group",
+      FT_UINT8, BASE_DEC, VALS(venue_group_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_venue_info_type,
+     {"Venue Type", "wlan_mgt.fixed.venue_info.type",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_venue_length,
+     {"Venue Name Duple Length", "wlan_mgt.fixed.anqp.venue.length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_venue_language,
+     {"Language Code", "wlan_mgt.fixed.anqp.venue.language",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "Venue Name Language Code", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_venue_name,
+     {"Venue Name", "wlan_mgt.fixed.anqp.venue.name",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
