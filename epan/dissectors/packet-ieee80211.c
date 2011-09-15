@@ -3399,7 +3399,8 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
   if (anqp)
     *anqp = FALSE;
   tag_no = tvb_get_guint8(tvb, offset);
-  item = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, TRUE);
+  if (anqp)
+    item = proto_tree_add_item(tree, hf_ieee80211_tag_number, tvb, offset, 1, TRUE);
 
   tag_len = tvb_get_guint8(tvb, offset + 1);
   if (tag_no != TAG_ADVERTISEMENT_PROTOCOL) {
@@ -3408,8 +3409,11 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
                            "Protocol)", tag_no);
     return 2 + tag_len;
   }
-  item = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
+  if (anqp)
+    item = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
   if (tag_len < 2) {
+    if (!anqp)
+      item = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, 1, tag_len);
     expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                            "Advertisement Protocol: IE must be at least 2 "
                            "octets long");
