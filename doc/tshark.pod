@@ -27,6 +27,7 @@ S<[ B<-L> ]>
 S<[ B<-n> ]>
 S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
 S<[ B<-o> E<lt>preference settingE<gt> ] ...>
+S<[ B<-O> E<lt>protocolsE<gt> ]>
 S<[ B<-p> ]>
 S<[ B<-q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
@@ -37,7 +38,6 @@ S<[ B<-t> ad|a|r|d|dd|e ]>
 S<[ B<-T> pdml|psml|ps|text|fields ]>
 S<[ B<-v> ]>
 S<[ B<-V> ]>
-S<[ B<-O> E<lt>protocolsE<gt> ]>
 S<[ B<-w> E<lt>outfileE<gt>|- ]>
 S<[ B<-W> E<lt>file format optionE<gt>]>
 S<[ B<-x> ]>
