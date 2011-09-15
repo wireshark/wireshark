@@ -3496,8 +3496,11 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
       proto_item_append_text(tree, " - %s",
                              val_to_str(id, anqp_info_id_vals,
                                         "Unknown (%u)"));
+      col_append_fstr(g_pinfo->cinfo, COL_INFO, " %s",
+                      val_to_str(id, anqp_info_id_vals, "Unknown (%u)"));
     } else if (idx == 1) {
       proto_item_append_text(tree, ", ..");
+      col_append_fstr(g_pinfo->cinfo, COL_INFO, ", ..");
     }
   }
   tree = proto_item_add_subtree(item, ett_gas_anqp);
@@ -3556,6 +3559,8 @@ dissect_anqp(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean request)
                            "Not enough room for ANQP header");
     return;
   }
+  col_append_fstr(g_pinfo->cinfo, COL_INFO, ", ANQP %s",
+                  request ? "Req" : "Resp");
   while (tvb_reported_length_remaining(tvb, offset) > 0) {
     offset += dissect_anqp_info(tree, tvb, offset, request, idx);
     idx++;
