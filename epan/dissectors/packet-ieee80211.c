@@ -1572,6 +1572,7 @@ static int hf_ieee80211_ff_query_response = -1;
 static int hf_ieee80211_ff_anqp_info_id = -1;
 static int hf_ieee80211_ff_anqp_info_length = -1;
 static int hf_ieee80211_ff_anqp_info = -1;
+static int hf_ieee80211_ff_anqp_query_id = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_regulatory_class = -1;
@@ -3479,6 +3480,20 @@ dissect_advertisement_protocol(packet_info *pinfo, proto_tree *tree,
   return 2 + tag_len;
 }
 
+static void
+dissect_anqp_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+    while (offset + 2 <= end) {
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_query_id,
+                          tvb, offset, 2, TRUE);
+      offset += 2;
+    }
+    if (offset != end) {
+      expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                             "Unexpected ANQP Query list format");
+    }
+}
+
 static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                   gboolean request, int idx)
@@ -3516,6 +3531,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   }
   switch (id)
   {
+  case ANQP_INFO_ANQP_QUERY_LIST:
+    dissect_anqp_query_list(tree, tvb, offset, offset + len);
+    break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     oui = tvb_get_ntoh24(tvb, offset);
     proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
@@ -13456,6 +13474,11 @@ proto_register_ieee80211 (void)
      {"Information", "wlan_mgt.fixed.anqp.info",
       FT_BYTES, BASE_NONE, NULL, 0,
       "Access Network Query Protocol Information", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_query_id,
+     {"ANQP Query ID", "wlan_mgt.fixed.anqp.query_id",
+      FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
+      "Access Network Query Protocol Query ID", HFILL }},
 
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
