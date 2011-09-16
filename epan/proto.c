@@ -7232,12 +7232,12 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 			    const gint bit_offset, const gint no_of_bits,
 			    guint64 *return_value, const gboolean little_endian)
 {
-	const char *format = NULL;
 	gint	offset;
 	guint	length;
 	guint8	tot_no_bits;
-	char *str;
+	char *bf_str, lbl_str[ITEM_LABEL_LENGTH];
 	header_field_info *hf_field;
+	proto_item *pi;
 	guint64 value = 0;
 	const true_false_string *tfstring;
 
@@ -7284,10 +7284,7 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	/* Coast clear. Try and fake it */
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hf_field);
 
-	str = decode_bits_in_field(bit_offset, no_of_bits, value);
-
-	strcat(str," = ");
-	strcat(str,hf_field->name);
+	bf_str = decode_bits_in_field(bit_offset, no_of_bits, value);
 
 	switch(hf_field->type){
 	case FT_BOOLEAN:
@@ -7296,8 +7293,8 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 		if (hf_field->strings)
 			tfstring = (const true_false_string *) hf_field->strings;
 		return proto_tree_add_boolean_format(tree, hf_index, tvb, offset, length, (guint32)value,
-			"%s: %s",
-			str,
+			"%s = %s: %s",
+			bf_str, hf_field->name,
 			(guint32)value ? tfstring->true_string : tfstring->false_string);
 		break;
 
@@ -7305,39 +7302,13 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	case FT_UINT16:
 	case FT_UINT24:
 	case FT_UINT32:
-		/* 1 - 32 bits field */
-		if (hf_field->strings) {
-			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-				"%s: %s (%u)",
-				str,	(hf_field->display & BASE_RANGE_STRING) ?
-					rval_to_str((guint32)value, hf_field->strings, "Unknown ") :
-					(hf_field->display & BASE_EXT_STRING) ?
-					val_to_str_ext_const((guint32)value, (value_string_ext *) (hf_field->strings), "Unknown ") :
-					val_to_str_const((guint32)value, cVALS(hf_field->strings), "Unknown "),
-				(guint32)value);
-			break;
-		}
-		/* Pick the proper format string */
-		format = hfinfo_uint_format(hf_field);
-		if (IS_BASE_DUAL(hf_field->display)) {
-			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-				format, str, (guint32)value, (guint32)value);
-		} else {
-			return proto_tree_add_uint_format(tree, hf_index, tvb, offset, length, (guint32)value,
-				format, str, (guint32)value);
-		}
+		pi = proto_tree_add_uint(tree, hf_index, tvb, offset, length, (guint32)value);
+		fill_label_uint(PITEM_FINFO(pi), lbl_str);
 		break;
 
 	case FT_UINT64:
-		/* Pick the proper format string */
-		format = hfinfo_uint64_format(hf_field);
-		if (IS_BASE_DUAL(hf_field->display)) {
-			return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
-				format, str, value, value);
-		} else {
-			return proto_tree_add_uint64_format(tree, hf_index, tvb, offset, length, value,
-				format, str, value);
-		}
+		pi = proto_tree_add_uint64(tree, hf_index, tvb, offset, length, value);
+		fill_label_uint64(PITEM_FINFO(pi), lbl_str);
 		break;
 
 	default:
@@ -7345,6 +7316,9 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 		return NULL;
 		break;
 	}
+
+	proto_item_set_text(pi, "%s = %s", bf_str, lbl_str);
+	return pi;
 }
 
 proto_item *
