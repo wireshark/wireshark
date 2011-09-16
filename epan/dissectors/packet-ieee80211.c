@@ -3880,6 +3880,11 @@ dissect_gas_initial_request(proto_tree *tree, tvbuff_t *tvb, int offset,
   req_len = tvb_get_letohs(tvb, offset);
 
   item = proto_tree_add_text(tree, tvb, offset, 2 + req_len, "Query Request");
+  if (tvb_reported_length_remaining(tvb, offset) < 2 + req_len) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Invalid Query Request Length");
+    return tvb_reported_length_remaining(tvb, offset);
+  }
   query = proto_item_add_subtree(item, ett_gas_query);
 
   proto_tree_add_item(query, hf_ieee80211_ff_query_request_length,
@@ -3913,6 +3918,11 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
                              "Query Response");
+  if (tvb_reported_length_remaining(tvb, offset) < 2 + resp_len) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Invalid Query Response Length");
+    return tvb_reported_length_remaining(tvb, offset);
+  }
   query = proto_item_add_subtree(item, ett_gas_query);
 
   proto_tree_add_item(query, hf_ieee80211_ff_query_response_length,
@@ -3945,6 +3955,11 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
 
   item = proto_tree_add_text(tree, tvb, offset, 2 + resp_len,
                              "Query Response");
+  if (tvb_reported_length_remaining(tvb, offset) < 2 + resp_len) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Invalid Query Response Length");
+    return tvb_reported_length_remaining(tvb, offset);
+  }
   query = proto_item_add_subtree(item, ett_gas_query);
 
   proto_tree_add_item(query, hf_ieee80211_ff_query_response_length,
@@ -9125,7 +9140,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
       tagged_parameter_tree_len =
         tvb_reported_length_remaining(tvb, offset);
-      if (tagged_parameter_tree_len != 0)
+      if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree (mgt_tree,
             tvb,
@@ -9160,7 +9175,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
-      if (tagged_parameter_tree_len != 0)
+      if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
           tagged_parameter_tree_len);
@@ -9180,7 +9195,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
 
       proto_item_set_len(lcl_fixed_hdr, offset);
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
-      if (tagged_parameter_tree_len != 0)
+      if (tagged_parameter_tree_len > 0)
       {
         tagged_tree = get_tagged_parameter_tree (mgt_tree, tvb, offset,
           tagged_parameter_tree_len);
@@ -16580,7 +16595,7 @@ dissect_data_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
     offset += add_fixed_field(tree, tvb, offset, FIELD_ACTION);
     tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
-    if (tagged_parameter_tree_len != 0) {
+    if (tagged_parameter_tree_len > 0) {
       tagged_tree = get_tagged_parameter_tree(tree, tvb, offset,
                                               tagged_parameter_tree_len);
       ieee_80211_add_tagged_parameters(tvb, offset, pinfo, tagged_tree,
