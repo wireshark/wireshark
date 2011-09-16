@@ -149,7 +149,9 @@ developer-guide.html: wsdg_html/developer-guide.html
 wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	if not exist wsdg_html\wsdg_graphics md wsdg_html\wsdg_graphics
-	cp wsdg_graphics/* wsdg_html/wsdg_graphics
+	if not exist wsug_html\wsug_graphics\toolbar md wsug_html\wsug_graphics\toolbar
+	cp wsug_graphics/*.* wsug_html/wsug_graphics/
+	cp wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar/
 	cp ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl developer-guide.xml > $@
 	-chmod -R og+rX wsdg_html
@@ -160,7 +162,9 @@ wsdg_html_chunked: wsdg_html_chunked/index.html
 wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
 	if not exist wsdg_html_chunked\wsdg_graphics md wsdg_html_chunked\wsdg_graphics
-	cp wsdg_graphics/* wsdg_html_chunked/wsdg_graphics
+	if not exist wsug_html_chunked\wsug_graphics\toolbar md wsug_html_chunked\wsug_graphics\toolbar
+	cp wsug_graphics/*.* wsug_html_chunked/wsug_graphics/
+	cp wsug_graphics/toolbar/* wsug_html_chunked/wsug_graphics/toolbar/
 	cp ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl developer-guide.xml
 	-chmod -R og+rX wsdg_html_chunked
@@ -186,7 +190,9 @@ developer-guide.chm: $(WSDG_SOURCE)
 !ifdef HHC_EXE
 	@ echo --- WSDG - MICROSOFT HTML HELP ---
 	if not exist wsdg_chm\wsdg_graphics md wsdg_chm\wsdg_graphics
-	cp wsdg_graphics/* wsdg_chm/wsdg_graphics
+	if not exist wsug_chm\wsug_graphics\toolbar md wsug_chm\wsug_graphics\toolbar
+	cp wsug_graphics/*.* wsug_chm/wsug_graphics/
+	cp wsug_graphics/toolbar/* wsug_chm/wsug_graphics/toolbar/
 	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl developer-guide.xml
 	-$(HHC_EXE) htmlhelp.hhp
 	-mv htmlhelp.chm $@

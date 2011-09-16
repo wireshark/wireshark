@@ -161,8 +161,9 @@ developer-guide.html: wsdg_html/developer-guide.html
 
 wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
-	mkdir -p wsdg_html/wsdg_graphics
-	cp $(srcdir)/wsdg_graphics/* wsdg_html/wsdg_graphics
+	mkdir -p wsdg_html/wsdg_graphics/toolbar
+	cp $(srcdir)/wsdg_graphics/*.* wsdg_html/wsdg_graphics
+	cp wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ \
@@ -176,8 +177,9 @@ wsdg_html_chunked: wsdg_html_chunked/index.html
 
 wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
-	mkdir -p wsdg_html_chunked/wsdg_graphics
-	cp $(srcdir)/wsdg_graphics/* wsdg_html_chunked/wsdg_graphics
+	mkdir -p wsdg_html_chunked/wsdg_graphics/toolbar
+	cp $(srcdir)/wsdg_graphics/*.* wsdg_html_chunked/wsdg_graphics
+	cp wsug_graphics/toolbar/* wsug_html_chunked/wsug_graphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/  \
