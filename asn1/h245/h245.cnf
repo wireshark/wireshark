@@ -389,16 +389,19 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 	if (h245_pi == NULL)
 		return offset;
 
-    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
-    g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
-
-    /* if it is OLC or RM*/
-    if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
+    if (strlen(h245_pi->frame_label) == 0)
     {
-       g_strlcat(h245_pi->frame_label, " (", 50);
-       g_strlcat(h245_pi->frame_label, codec_type, 50);
-       g_strlcat(h245_pi->frame_label, ")", 50);
+      g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_RequestMessage_short_vals, "UKN"));
+
+      /* if it is OLC or RM*/
+      if ((codec_type != NULL) && (( value == RequestMessage_openLogicalChannel) || ( value == RequestMessage_requestMode)))
+      {
+        g_strlcat(h245_pi->frame_label, " (", 50);
+        g_strlcat(h245_pi->frame_label, codec_type, 50);
+        g_strlcat(h245_pi->frame_label, ")", 50);
+      }
     }
+    g_strlcat(h245_pi->comment, val_to_str(value, h245_RequestMessage_vals, "<unknown>"), 50);
 #.END
 #----------------------------------------------------------------------------------------
 #.FN_BODY ResponseMessage  VAL_PTR = &value
@@ -420,7 +423,9 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 	if (h245_pi != NULL){
 		/* Add to packet info */
-		g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+		if ( strlen(h245_pi->frame_label) == 0 ){
+		   g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_ResponseMessage_short_vals, "UKN"));
+		}
 		g_strlcat(h245_pi->comment, val_to_str(value, h245_ResponseMessage_vals, "<unknown>"), 50);
 	}
 
@@ -443,10 +448,13 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
- 	if (h245_pi  !=NULL){
-		g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
-		g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
-	}
+    if (h245_pi  !=NULL){
+      if ( strlen(h245_pi->frame_label) == 0 ){
+	    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_IndicationMessage_short_vals, "UKN"));
+	  }
+      g_strlcat(h245_pi->comment, val_to_str(value, h245_IndicationMessage_vals, "<unknown>"), 50);
+
+    }
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -467,10 +475,12 @@ Rfc2733Format  FECCapability/rfc2733Format  FECMode/rfc2733Format
 
 	col_set_fence(%(ACTX)s->pinfo->cinfo,COL_INFO);
     /* Add to packet info */
-	if (h245_pi != NULL){
-	    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
-		g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
-	}
+    if (h245_pi != NULL){
+      if ( strlen(h245_pi->frame_label) == 0 ){
+        g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(value, h245_CommandMessage_short_vals, "UKN"));
+      }
+	  g_strlcat(h245_pi->comment, val_to_str(value, h245_CommandMessage_vals, "<unknown>"), 50);
+    }
 
 #.END
 #----------------------------------------------------------------------------------------
@@ -624,6 +634,7 @@ if (h245_pi != NULL)
   if (hf_index == hf_h245_subMessageIdentifier_standard)
   {
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>") );
+    g_snprintf(h245_pi->frame_label, 50, "%%s", val_to_str(subMessageIdentifer, h245_h239subMessageIdentifier_vals, "<unknown>"));
   }
   if (gefx) gefx->subid = ep_strdup_printf("%%u", subMessageIdentifer);
 #.END
