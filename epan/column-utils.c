@@ -620,7 +620,7 @@ col_has_time_fmt(column_info *cinfo, const gint col)
           (cinfo->fmt_matx[col][COL_DELTA_TIME_DIS]));
 }
 
-static gint
+static void
 set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
 {
   struct tm *tmp;
@@ -704,26 +704,25 @@ set_abs_date_time(const frame_data *fd, gchar *buf, gboolean local)
   } else {
     buf[0] = '\0';
   }
-  return 1;
 }
 
 static void
 col_set_abs_date_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  if (set_abs_date_time(fd, cinfo->col_buf[col], TRUE)) {
-      cinfo->col_expr.col_expr[col] = "frame.time";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-  }
+  set_abs_date_time(fd, cinfo->col_buf[col], TRUE);
+  cinfo->col_expr.col_expr[col] = "frame.time";
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
 static void
 col_set_utc_date_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  if (set_abs_date_time(fd, cinfo->col_buf[col], FALSE)) {
-      cinfo->col_expr.col_expr[col] = "frame.time";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-  }
+  set_abs_date_time(fd, cinfo->col_buf[col], FALSE);
+  cinfo->col_expr.col_expr[col] = "frame.time";
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
@@ -988,7 +987,7 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-static gint
+static void
 set_abs_time(const frame_data *fd, gchar *buf, gboolean local)
 {
   struct tm *tmp;
@@ -1055,26 +1054,25 @@ set_abs_time(const frame_data *fd, gchar *buf, gboolean local)
   } else {
     *buf = '\0';
   }
-  return 1;
 }
 
 static void
 col_set_abs_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  if (set_abs_time(fd, cinfo->col_buf[col], TRUE)) {
-      cinfo->col_expr.col_expr[col] = "frame.time";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-  }
+  set_abs_time(fd, cinfo->col_buf[col], TRUE);
+  cinfo->col_expr.col_expr[col] = "frame.time";
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
 static void
 col_set_utc_time(const frame_data *fd, column_info *cinfo, const int col)
 {
-  if (set_abs_time(fd, cinfo->col_buf[col], FALSE)) {
-      cinfo->col_expr.col_expr[col] = "frame.time";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-  }
+  set_abs_time(fd, cinfo->col_buf[col], FALSE);
+  cinfo->col_expr.col_expr[col] = "frame.time";
+  g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
+
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
