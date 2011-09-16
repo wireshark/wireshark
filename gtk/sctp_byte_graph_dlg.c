@@ -1392,6 +1392,7 @@ quit(GObject *object _U_, gpointer user_data)
 static void create_draw_area(GtkWidget *box, struct sctp_udata *u_data)
 {
 	u_data->io->draw_area=gtk_drawing_area_new();
+	g_object_set_data(G_OBJECT(u_data->io->draw_area), "sctp_graph_t", u_data->io);
 	g_signal_connect(u_data->io->draw_area, "destroy", G_CALLBACK(quit), u_data);
 
 	gtk_widget_set_size_request(u_data->io->draw_area, u_data->io->surface_width, u_data->io->surface_height);
