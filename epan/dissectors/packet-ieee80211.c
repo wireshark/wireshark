@@ -1579,10 +1579,21 @@ static int hf_ieee80211_ff_venue_info_type = -1;
 static int hf_ieee80211_ff_anqp_venue_length = -1;
 static int hf_ieee80211_ff_anqp_venue_language = -1;
 static int hf_ieee80211_ff_anqp_venue_name = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_indicator = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_url_len = -1;
+static int hf_ieee80211_ff_anqp_nw_auth_type_url = -1;
 static int hf_ieee80211_ff_anqp_roaming_consortium_oi_len = -1;
 static int hf_ieee80211_ff_anqp_roaming_consortium_oi = -1;
 static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv6 = -1;
 static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv4 = -1;
+static int hf_ieee80211_3gpp_gc_gud = -1;
+static int hf_ieee80211_3gpp_gc_udhl = -1;
+static int hf_ieee80211_3gpp_gc_iei = -1;
+static int hf_ieee80211_3gpp_gc_plmn_len = -1;
+static int hf_ieee80211_3gpp_gc_num_plmns = -1;
+static int hf_ieee80211_3gpp_gc_plmn = -1;
+static int hf_ieee80211_ff_anqp_domain_name_len = -1;
+static int hf_ieee80211_ff_anqp_domain_name = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_regulatory_class = -1;
@@ -2156,10 +2167,26 @@ static int hf_ieee80211_tag_mmie_keyid = -1;
 static int hf_ieee80211_tag_mmie_ipn = -1;
 static int hf_ieee80211_tag_mmie_mic = -1;
 
-/* IEEE P802.11u/D10.0, 7.3.2.91 */
+/* IEEE Std 802.11u-2011 7.3.2.92 */
+static int hf_ieee80211_tag_interworking_access_network_type = -1;
+static int hf_ieee80211_tag_interworking_internet = -1;
+static int hf_ieee80211_tag_interworking_asra = -1;
+static int hf_ieee80211_tag_interworking_esr = -1;
+static int hf_ieee80211_tag_interworking_uesa = -1;
+static int hf_ieee80211_tag_interworking_hessid = -1;
+
+/* IEEE Std 802.11u-2011 7.3.2.93 */
 static int hf_ieee80211_tag_adv_proto_resp_len_limit = -1;
 static int hf_ieee80211_tag_adv_proto_pame_bi = -1;
 static int hf_ieee80211_tag_adv_proto_id = -1;
+
+/* IEEE Std 802.11u-2011 7.3.2.96 */
+static int hf_ieee80211_tag_roaming_consortium_num_anqp_oi = -1;
+static int hf_ieee80211_tag_roaming_consortium_oi1_len = -1;
+static int hf_ieee80211_tag_roaming_consortium_oi2_len = -1;
+static int hf_ieee80211_tag_roaming_consortium_oi1 = -1;
+static int hf_ieee80211_tag_roaming_consortium_oi2 = -1;
+static int hf_ieee80211_tag_roaming_consortium_oi3 = -1;
 
 /* 802.11n 7.3.2.48 */
 static int hf_ieee80211_hta_cap = -1;
@@ -2575,6 +2602,19 @@ static dissector_handle_t data_handle;
 static dissector_handle_t wlancap_handle;
 
 static int wlan_tap = -1;
+
+static const value_string access_network_type_vals[] =
+{
+  { 0, "Private network" },
+  { 1, "Private network with guest access" },
+  { 2, "Chargeable public network" },
+  { 3, "Free public network" },
+  { 4, "Personal device network" },
+  { 5, "Emergency services only network" },
+  { 14, "Test or experimental" },
+  { 15, "Wildcard" },
+  { 0, NULL }
+};
 
 static const value_string adv_proto_id_vals[] =
 {
@@ -3567,6 +3607,33 @@ dissect_venue_name_info(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
   }
 }
 
+static const value_string nw_auth_type_vals[] = {
+  { 0, "Acceptance of terms and conditions" },
+  { 1, "On-line enrollment supported" },
+  { 2, "http/https redirection" },
+  { 3, "DNS redirection" },
+  { 0, NULL }
+};
+
+static void
+dissect_network_auth_type(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  while (offset + 3 <= end) {
+    guint16 len;
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_indicator,
+                        tvb, offset, 1, FALSE);
+    offset++;
+    len = tvb_get_letohs(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_url_len,
+                        tvb, offset, 2, TRUE);
+    offset += 2;
+    if (len)
+      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_url,
+                          tvb, offset, len, FALSE);
+    offset += len;
+  }
+}
+
 static void add_manuf(proto_item *item, tvbuff_t *tvb, int offset)
 {
   const gchar *manuf_name;
@@ -3631,6 +3698,63 @@ dissect_ip_addr_type_availability_info(proto_tree *tree, tvbuff_t *tvb,
                       tvb, offset, 1, FALSE);
 }
 
+static void
+dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  guint8 iei, num;
+  proto_item *item;
+
+  /* See Annex A of 3GPP TS 24.234 v8.1.0 for description */
+  proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_gud, tvb, offset, 1, FALSE);
+  offset++;
+  proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_udhl, tvb, offset, 1, FALSE);
+  offset++;
+  iei = tvb_get_guint8(tvb, offset);
+  item = proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_iei, tvb, offset, 1, FALSE);
+  if (iei == 0)
+    proto_item_append_text(item, " (PLMN List)");
+  else
+    return;
+  offset++;
+  proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_plmn_len, tvb, offset, 1, FALSE);
+  offset++;
+  num = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_3gpp_gc_num_plmns, tvb, offset, 1, FALSE);
+  offset++;
+  while (num > 0) {
+    guint8 o1, o2, o3;
+    if (tvb_reported_length_remaining(tvb, offset) < 3)
+      break;
+    num--;
+    o1 = tvb_get_guint8(tvb, offset);
+    o2 = tvb_get_guint8(tvb, offset + 1);
+    o3 = tvb_get_guint8(tvb, offset + 2);
+    proto_tree_add_string_format_value(tree, hf_ieee80211_3gpp_gc_plmn, tvb, offset, 3,
+                                       "", "MCC %d%d%d MNC %d%d%c",
+                                       o1 & 0x0f, (o1 & 0xf0) >> 4, o2 & 0x0f,
+                                       o3 & 0x0f, (o3 & 0xf0) >> 4,
+                                       ((o2 & 0xf0) == 0xf0) ? ' ' :
+                                       ('0' + ((o2 & 0xf0) >> 4)));
+    offset += 3;
+  }
+}
+
+static void
+dissect_domain_name_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  guint8 len;
+
+  while (offset < end) {
+    len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_domain_name_len,
+                        tvb, offset, 1, FALSE);
+    offset++;
+    proto_tree_add_item(tree, hf_ieee80211_ff_anqp_domain_name,
+                        tvb, offset, len, FALSE);
+    offset += len;
+  }
+}
+
 static int
 dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
                   gboolean request, int idx)
@@ -3677,11 +3801,20 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
   case ANQP_INFO_VENUE_NAME_INFO:
     dissect_venue_name_info(tree, tvb, offset, offset + len);
     break;
+  case ANQP_INFO_NETWORK_AUTH_TYPE_INFO:
+    dissect_network_auth_type(tree, tvb, offset, offset + len);
+    break;
   case ANQP_INFO_ROAMING_CONSORTIUM_LIST:
     dissect_roaming_consortium_list(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO:
     dissect_ip_addr_type_availability_info(tree, tvb, offset);
+    break;
+  case ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO:
+    dissect_3gpp_cellular_network_info(tree, tvb, offset);
+    break;
+  case ANQP_INFO_DOMAIN_NAME_LIST:
+    dissect_domain_name_list(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST:
     oui = tvb_get_ntoh24(tvb, offset);
@@ -6886,6 +7019,115 @@ dissect_vendor_ie_ht(proto_item * item, proto_tree * tree, tvbuff_t * tag_tvb)
   }
 }
 
+static guint
+dissect_interworking(packet_info *pinfo, proto_tree *tree, proto_item *item,
+                     tvbuff_t *tvb, int offset)
+{
+  guint8 len;
+
+  offset++;
+  len = tvb_get_guint8(tvb, offset);
+  offset++;
+
+  if (tvb_reported_length_remaining(tvb, offset) < len || len == 0) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Truncated Interworking element");
+    return 2 + len;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_interworking_access_network_type,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_interworking_internet,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_interworking_asra,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_interworking_esr,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_interworking_uesa,
+                      tvb, offset, 1, FALSE);
+  offset++;
+
+  if (len == 1 + 2 || len == 1 + 2 + 6) {
+    dissect_venue_info(tree, tvb, offset);
+    offset += 2;
+  }
+
+  if (len == 1 + 6 || len == 1 + 2 + 6) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_interworking_hessid,
+                        tvb, offset, 6, FALSE);
+    offset += 6;
+  }
+
+  if (len != 1 && len != 1 + 2 && len != 1 + 6 && len != 1 + 2 + 6) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Invalid Interworking element length");
+  }
+
+  return 2 + len;
+}
+
+static guint
+dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
+                           proto_item *item, tvbuff_t *tvb, int offset)
+{
+  guint8 len, oi_lens, oi1_len, oi2_len;
+  int end;
+
+  offset++;
+  len = tvb_get_guint8(tvb, offset);
+  offset++;
+  end = offset + len;
+
+  if (tvb_reported_length_remaining(tvb, offset) < len || len < 2) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Truncated Roaming Consortium element");
+    return 2 + len;
+  }
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_num_anqp_oi,
+                      tvb, offset, 1, FALSE);
+  offset++;
+
+  oi_lens = tvb_get_guint8(tvb, offset);
+  oi1_len = oi_lens & 0x0f;
+  oi2_len = (oi_lens & 0xf0) >> 4;
+  proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi1_len,
+                      tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi2_len,
+                      tvb, offset, 1, FALSE);
+  offset++;
+
+  if (offset + oi1_len > end) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Truncated Roaming Consortium element");
+    return 2 + len;
+  }
+
+  item = proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi1,
+                             tvb, offset, oi1_len, FALSE);
+  add_manuf(item, tvb, offset);
+  offset += oi1_len;
+
+  if (offset + oi2_len > end) {
+    expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
+                           "Truncated Roaming Consortium element");
+    return 2 + len;
+  }
+
+  if (oi2_len > 0) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi2,
+                        tvb, offset, oi2_len, FALSE);
+    offset += oi2_len;
+  }
+
+  if (end > offset) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi3,
+                        tvb, offset, end - offset, FALSE);
+  }
+
+  return 2 + len;
+}
+
 
 /* ************************************************************************* */
 /*           Dissect and add tagged (optional) fields to proto tree          */
@@ -8507,11 +8749,17 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       break;
     }
 
+    case TAG_INTERWORKING:
+      dissect_interworking(pinfo, tree, ti, tvb, offset);
+      break;
     case TAG_ADVERTISEMENT_PROTOCOL:
     {
       dissect_advertisement_protocol(pinfo, tree, tvb, offset, NULL);
       break;
     }
+    case TAG_ROAMING_CONSORTIUM:
+      dissect_roaming_consortium(pinfo, tree, ti, tvb, offset);
+      break;
 
     case TAG_NEIGHBOR_REPORT:
     {
@@ -13655,6 +13903,20 @@ proto_register_ieee80211 (void)
      {"Venue Name", "wlan_mgt.fixed.anqp.venue.name",
       FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_ff_anqp_nw_auth_type_indicator,
+     {"Network Authentication Type Indicator",
+      "wlan_mgt.fixed.anqp.nw_auth_type.indicator",
+      FT_UINT8, BASE_DEC, VALS(nw_auth_type_vals), 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_url_len,
+     {"Re-direct URL Length",
+      "wlan_mgt.fixed.anqp.nw_auth_type.url_len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_anqp_nw_auth_type_url,
+     {"Re-direct URL", "wlan_mgt.fixed.anqp.nw_auth_type_url",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_ff_anqp_roaming_consortium_oi_len,
      {"OI Length", "wlan_mgt.fixed.anqp.roaming_consortium.oi_len",
       FT_UINT8, BASE_DEC, NULL, 0, "Roaming Consortium OI Length", HFILL }},
@@ -13672,6 +13934,37 @@ proto_register_ieee80211 (void)
      {"IPv4 Address", "wlan_mgt.fixed.anqp.ip_addr_availability.ipv4",
       FT_UINT8, BASE_DEC, VALS(ip_addr_avail_ipv4_vals), 0xfc,
       "IP Address Type Availability information for IPv4", HFILL }},
+
+    {&hf_ieee80211_3gpp_gc_gud,
+     {"GUD", "wlan_mgt.fixed.anqp.3gpp_cellular_info.gud",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Generic container User Data", HFILL }},
+    {&hf_ieee80211_3gpp_gc_udhl,
+     {"UDHL", "wlan_mgt.fixed.anqp.3gpp_cellular_info.udhl",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "User Data Header Length", HFILL }},
+    {&hf_ieee80211_3gpp_gc_iei,
+     {"IEI", "wlan_mgt.fixed.anqp.3gpp_cellular_info.iei",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Information Element Identity", HFILL }},
+    {&hf_ieee80211_3gpp_gc_plmn_len,
+     {"PLMN Length", "wlan_mgt.fixed.anqp.3gpp_cellular_info.plmn_len",
+      FT_UINT8, BASE_DEC, NULL, 0,
+      "Length of PLMN List value contents", HFILL }},
+    {&hf_ieee80211_3gpp_gc_num_plmns,
+     {"Number of PLMNs", "wlan_mgt.fixed.anqp.3gpp_cellular_info.num_plmns",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_3gpp_gc_plmn,
+     {"PLMN", "wlan_mgt.fixed.anqp.3gpp_cellular_info.plmn",
+      FT_STRING, BASE_NONE, NULL, 0,
+      "PLMN information", HFILL }},
+
+    {&hf_ieee80211_ff_anqp_domain_name_len,
+     {"Domain Name Length", "wlan_mgt.fixed.anqp.domain_name_list.len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_domain_name,
+     {"Domain Name", "wlan_mgt.fixed.anqp.domain_name_list.name",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_dls_timeout,
      {"DLS timeout", "wlan_mgt.fixed.dls_timeout",
@@ -15926,6 +16219,28 @@ proto_register_ieee80211 (void)
      {"MIC", "wlan_mgt.mmie.mic",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    /* Interworking */
+    {&hf_ieee80211_tag_interworking_access_network_type,
+     {"Access Network Type", "wlan_mgt.interworking.access_network_type",
+      FT_UINT8, BASE_DEC, VALS(access_network_type_vals), 0x0f, NULL, HFILL }},
+    {&hf_ieee80211_tag_interworking_internet,
+     {"Internet", "wlan_mgt.interworking.internet",
+      FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+    {&hf_ieee80211_tag_interworking_asra,
+     {"ASRA", "wlan_mgt.interworking.asra",
+      FT_UINT8, BASE_DEC, NULL, 0x20, "Additional Step Required for Access",
+      HFILL }},
+    {&hf_ieee80211_tag_interworking_esr,
+     {"ESR", "wlan_mgt.interworking.esr",
+      FT_UINT8, BASE_DEC, NULL, 0x40, "Emergency services reachable", HFILL }},
+    {&hf_ieee80211_tag_interworking_uesa,
+     {"UESA", "wlan_mgt.interworking.uesa",
+      FT_UINT8, BASE_DEC, NULL, 0x80,
+      "Unauthenticated emergency service accessible", HFILL }},
+    {&hf_ieee80211_tag_interworking_hessid,
+     {"HESSID", "wlan_mgt.interworking.hessid",
+      FT_ETHER, BASE_NONE, NULL, 0, "Homogeneous ESS identifier", HFILL }},
+
     /* Advertisement Protocol */
     {&hf_ieee80211_tag_adv_proto_resp_len_limit,
      {"Query Response Length Limit", "wlan_mgt.adv_proto.resp_len_limit",
@@ -15937,6 +16252,26 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_tag_adv_proto_id,
      {"Advertisement Protocol ID", "wlan_mgt.adv_proto.id",
       FT_UINT8, BASE_DEC, VALS(adv_proto_id_vals), 0, NULL, HFILL }},
+
+    /* Roaming Consortium */
+    {&hf_ieee80211_tag_roaming_consortium_num_anqp_oi,
+     {"Number of ANQP OIs", "wlan_mgt.roaming_consortium.num_anqp_oi",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_roaming_consortium_oi1_len,
+     {"OI #1 Length", "wlan_mgt.roaming_consortium.oi1_len",
+      FT_UINT8, BASE_DEC, NULL, 0x0f, NULL, HFILL }},
+    {&hf_ieee80211_tag_roaming_consortium_oi2_len,
+     {"OI #2 Length", "wlan_mgt.roaming_consortium.oi2_len",
+      FT_UINT8, BASE_DEC, NULL, 0xf0, NULL, HFILL }},
+    {&hf_ieee80211_tag_roaming_consortium_oi1,
+     {"OI #1", "wlan_mgt.roaming_consortium.oi1",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_roaming_consortium_oi2,
+     {"OI #2", "wlan_mgt.roaming_consortium.oi2",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_tag_roaming_consortium_oi3,
+     {"OI #3", "wlan_mgt.roaming_consortium.oi3",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     /* Timeout Interval */
     {&hf_ieee80211_tag_timeout_int_type,
