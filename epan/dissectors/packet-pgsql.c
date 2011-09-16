@@ -60,6 +60,7 @@ static int hf_tableoid = -1;
 static int hf_typeoid = -1;
 static int hf_oid = -1;
 static int hf_format = -1;
+static int hf_field_count = -1;
 static int hf_val_name = -1;
 static int hf_val_idx = -1;
 static int hf_val_length = -1;
@@ -286,7 +287,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 {
     guchar c;
     gint i, l;
-    char *s, *t;
+    char *s;
     proto_item *ti, *hidden_item;
     proto_tree *shrub;
 
@@ -412,13 +413,14 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         /* Startup message */
         case 196608:
             while (length > 0) {
-                s = tvb_get_ephemeral_stringz(tvb, n, &l);
+                l = tvb_strsize(tvb, n);
                 length -= l;
                 if (length <= 0) {
                     break;
                 }
-                t = tvb_get_ephemeral_stringz(tvb, n+l, &i);
-                proto_tree_add_text(tree, tvb, n, l+i, "%s: %s", s, t);
+                proto_tree_add_item(tree, hf_parameter_name, tvb, n, l, ENC_NA);
+                i = tvb_strsize(tvb, n+l);
+                proto_tree_add_item(tree, hf_parameter_value, tvb, n + l, i, ENC_NA);
                 n += l+i;
                 length -= i;
                 if (length == 1 && tvb_get_guint8(tvb, n) == 0)
@@ -539,7 +541,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Row description */
     case 'T':
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Columns: %d", i);
+        ti = proto_tree_add_item(tree, hf_field_count, tvb, n, 2, FALSE);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
@@ -566,7 +568,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Data row */
     case 'D':
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_text(tree, tvb, n, 2, "Columns: %d", i);
+        ti = proto_tree_add_item(tree, hf_field_count, tvb, n, 2, FALSE);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
@@ -763,6 +765,10 @@ proto_register_pgsql(void)
         { &hf_format,
           { "Format", "pgsql.format", FT_UINT16, BASE_DEC, VALS(format_vals),
             0, "A format specifier.", HFILL }
+        },
+        { &hf_field_count,
+          { "Field count", "pgsql.field.count", FT_UINT16, BASE_DEC, NULL, 0,
+            "The number of fields within a row.", HFILL }
         },
         { &hf_val_name,
           { "Column name", "pgsql.col.name", FT_STRINGZ, BASE_NONE, NULL, 0,
