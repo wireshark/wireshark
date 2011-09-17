@@ -2,7 +2,7 @@
  * Routines for PCEP packet disassembly
  * draft-ietf-pce-pcep-09
  * draft-ietf-pce-pcep-xro-02
- * See also RFC 4655, RFC 4657, RFC 5520, RFC 5440 and RFC 5541
+ * See also RFC 4655, RFC 4657, RFC 5520, RFC 5521, RFC 5440 and RFC 5541
  *
  * (c) Copyright 2007 Silvia Cristina Tejedor <silviacristina.tejedor@gmail.com>
  *
@@ -65,13 +65,11 @@
 #define PCEP_SUB_IPv6				2
 #define PCEP_SUB_LABEL_CONTROL			3
 #define PCEP_SUB_UNNUMB_INTERFACE_ID		4
-#define PCEP_SUB_SRLG				5
 #define PCEP_SUB_AUTONOMOUS_SYS_NUM		32
 #define PCEP_SUB_EXRS				33
+#define PCEP_SUB_SRLG				34
 #define PCEP_SUB_PKSv4				64
 #define PCEP_SUB_PKSv6				65
-#define PCEP_SUB_AUTONOMOUS_SYS_NUM_XRO		4
-#define PCEP_SUB_UNNUMB_INTERFACE_ID_XRO	3
 
 /*Possible values of the NI in the NO-PATH object*/
 #define NO_SATISFYING			0
@@ -292,8 +290,8 @@ static const value_string pcep_subobj_vals[] = {
 	{PCEP_SUB_IPv6, 		"SUBOBJECT IPv6"			},
 	{PCEP_SUB_LABEL_CONTROL,	"SUBOBJECT LABEL"			},
 	{PCEP_SUB_UNNUMB_INTERFACE_ID,	"SUBOBJECT UNNUMBERED INTERFACE-ID"	},
-	{PCEP_SUB_SRLG,			"SUBOBJECT SRLG"      			},
 	{PCEP_SUB_AUTONOMOUS_SYS_NUM,	"SUBOBJECT AUTONOMOUS SYSTEM NUMBER"	},
+	{PCEP_SUB_SRLG,			"SUBOBJECT SRLG"			},
 	{PCEP_SUB_PKSv4,		"SUBOBJECT PATH KEY (IPv4)"		},
 	{PCEP_SUB_PKSv6,		"SUBOBJECT PATH KEY (IPv6)"		},
 	{0,			         NULL            			}
@@ -303,8 +301,8 @@ static const value_string pcep_subobj_vals[] = {
 static const value_string pcep_subobj_xro_vals[] = {
 	{PCEP_SUB_IPv4,			"SUBOBJECT IPv4" 			},
 	{PCEP_SUB_IPv6, 		"SUBOBJECT IPv6"			},
-	{PCEP_SUB_UNNUMB_INTERFACE_ID_XRO,"SUBOBJECT UNNUMBERED INTERFACE-ID"	},
-	{PCEP_SUB_AUTONOMOUS_SYS_NUM_XRO,"SUBOBJECT AUTONOMOUS SYSTEM NUMBER"	},
+	{PCEP_SUB_UNNUMB_INTERFACE_ID,	"SUBOBJECT UNNUMBERED INTERFACE-ID"	},
+	{PCEP_SUB_AUTONOMOUS_SYS_NUM,	"SUBOBJECT AUTONOMOUS SYSTEM NUMBER"	},
 	{PCEP_SUB_SRLG,			"SUBOBJECT SRLG"      			},
 	{0,			         NULL            			}
 };
@@ -1083,10 +1081,10 @@ dissect_subobj_exrs(proto_tree *pcep_subobj_tree, tvbuff_t *tvb, int offset, int
 		case PCEP_SUB_IPv6:
 			dissect_subobj_ipv6(pcep_subobj_exrs, tvb, offset, obj_class, ett_pcep_obj, l_type, length2);
 			break;
-		case PCEP_SUB_UNNUMB_INTERFACE_ID_XRO:
+		case PCEP_SUB_UNNUMB_INTERFACE_ID:
 			dissect_subobj_unnumb_interfaceID(pcep_subobj_exrs, tvb, offset, obj_class, ett_pcep_obj, l_type, length2);
 			break;
-		case PCEP_SUB_AUTONOMOUS_SYS_NUM_XRO:
+		case PCEP_SUB_AUTONOMOUS_SYS_NUM:
 			dissect_subobj_autonomous_sys_num(pcep_subobj_exrs, tvb, offset, obj_class, ett_pcep_obj, l_type, length2);
 			break;
 		case PCEP_SUB_SRLG:
@@ -2018,10 +2016,10 @@ dissect_pcep_xro_obj(proto_tree *pcep_object_tree, tvbuff_t *tvb, int offset2, i
 		case PCEP_SUB_IPv6:
 			dissect_subobj_ipv6(pcep_object_tree, tvb, offset2, obj_class, ett_pcep_obj_xro, x_type, length);
 			break;
-		case PCEP_SUB_UNNUMB_INTERFACE_ID_XRO:
+		case PCEP_SUB_UNNUMB_INTERFACE_ID:
 			dissect_subobj_unnumb_interfaceID(pcep_object_tree, tvb, offset2, obj_class, ett_pcep_obj_xro, x_type, length);
 			break;
-		case PCEP_SUB_AUTONOMOUS_SYS_NUM_XRO:
+		case PCEP_SUB_AUTONOMOUS_SYS_NUM:
 			dissect_subobj_autonomous_sys_num(pcep_object_tree, tvb, offset2, obj_class, ett_pcep_obj_xro, x_type, length);
 			break;
 		case PCEP_SUB_SRLG:
