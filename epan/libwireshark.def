@@ -955,6 +955,7 @@ se_strdup_vprintf
 se_strndup
 se_tree_create
 se_tree_create_non_persistent
+set_fd_time
 sl_alloc
 sl_alloc0
 sl_free

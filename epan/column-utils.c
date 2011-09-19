@@ -726,7 +726,7 @@ col_set_utc_date_time(const frame_data *fd, column_info *cinfo, const int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-static gint
+static void
 set_time_seconds(const nstime_t *ts, gchar *buf)
 {
   switch(timestamp_get_precision()) {
@@ -763,10 +763,9 @@ set_time_seconds(const nstime_t *ts, gchar *buf)
       default:
           g_assert_not_reached();
   }
-  return 1;
 }
 
-static gint
+static void
 set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
 {
   time_t secs = ts->secs;
@@ -915,8 +914,6 @@ set_time_hour_min_sec(const nstime_t *ts, gchar *buf)
   default:
     g_assert_not_reached();
   }
-
-  return 1;
 }
 
 static void
@@ -924,16 +921,14 @@ col_set_rel_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
-    if (set_time_seconds(&fd->rel_ts, cinfo->col_buf[col])) {
-      cinfo->col_expr.col_expr[col] = "frame.time_relative";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-    }
+    set_time_seconds(&fd->rel_ts, cinfo->col_buf[col]);
+    cinfo->col_expr.col_expr[col] = "frame.time_relative";
+    g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
     break;
   case TS_SECONDS_HOUR_MIN_SEC:
-    if (set_time_hour_min_sec(&fd->rel_ts, cinfo->col_buf[col])) {
-      cinfo->col_expr.col_expr[col] = "frame.time_relative";
-      set_time_seconds(&fd->rel_ts, cinfo->col_expr.col_expr_val[col]);
-    }
+    set_time_hour_min_sec(&fd->rel_ts, cinfo->col_buf[col]);
+    cinfo->col_expr.col_expr[col] = "frame.time_relative";
+    set_time_seconds(&fd->rel_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
     g_assert_not_reached();
@@ -946,16 +941,14 @@ col_set_delta_time(const frame_data *fd, column_info *cinfo, const int col)
 {
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
-    if (set_time_seconds(&fd->del_cap_ts, cinfo->col_buf[col])) {
-      cinfo->col_expr.col_expr[col] = "frame.time_delta";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-    }
+    set_time_seconds(&fd->del_cap_ts, cinfo->col_buf[col]);
+    cinfo->col_expr.col_expr[col] = "frame.time_delta";
+    g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
     break;
   case TS_SECONDS_HOUR_MIN_SEC:
-    if (set_time_hour_min_sec(&fd->del_cap_ts, cinfo->col_buf[col])) {
-      cinfo->col_expr.col_expr[col] = "frame.time_delta";
-      set_time_seconds(&fd->del_cap_ts, cinfo->col_expr.col_expr_val[col]);
-    }
+    set_time_hour_min_sec(&fd->del_cap_ts, cinfo->col_buf[col]);
+    cinfo->col_expr.col_expr[col] = "frame.time_delta";
+    set_time_seconds(&fd->del_cap_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
     g_assert_not_reached();
@@ -969,16 +962,14 @@ col_set_delta_time_dis(const frame_data *fd, column_info *cinfo, const int col)
 {
   switch (timestamp_get_seconds_type()) {
   case TS_SECONDS_DEFAULT:
-    if (set_time_seconds(&fd->del_dis_ts, cinfo->col_buf[col])) {
-      cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
-      g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
-    }
+    set_time_seconds(&fd->del_dis_ts, cinfo->col_buf[col]);
+    cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
+    g_strlcpy(cinfo->col_expr.col_expr_val[col],cinfo->col_buf[col],COL_MAX_LEN);
     break;
   case TS_SECONDS_HOUR_MIN_SEC:
-    if (set_time_hour_min_sec(&fd->del_dis_ts, cinfo->col_buf[col])) {
-      cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
-      set_time_seconds(&fd->del_dis_ts, cinfo->col_expr.col_expr_val[col]);
-    }
+    set_time_hour_min_sec(&fd->del_dis_ts, cinfo->col_buf[col]);
+    cinfo->col_expr.col_expr[col] = "frame.time_delta_displayed";
+    set_time_seconds(&fd->del_dis_ts, cinfo->col_expr.col_expr_val[col]);
     break;
   default:
     g_assert_not_reached();
@@ -1126,42 +1117,68 @@ col_set_epoch_time(const frame_data *fd, column_info *cinfo, const int col)
   cinfo->col_data[col] = cinfo->col_buf[col];
 }
 
-#if 0
-/* Set the format of the variable time format.
-   XXX - this is called from "file.c" when the user changes the time
-   format they want for "command-line-specified" time; it's a bit ugly
-   that we have to export it, but if we go to a CList-like widget that
-   invokes callbacks to get the text for the columns rather than
-   requiring us to stuff the text into the widget from outside, we
-   might be able to clean this up. */
 void
-set_cls_time(frame_data *fd, gchar *buf)
+set_fd_time(frame_data *fd, gchar *buf)
 {
-  COL_CHECK_REF_TIME(fd, cinfo->col_buf[col]);
 
   switch (timestamp_get_type()) {
     case TS_ABSOLUTE:
-      set_abs_time(fd, buf);
+      set_abs_time(fd, buf, TRUE);
       break;
 
     case TS_ABSOLUTE_WITH_DATE:
-      set_abs_date_time(fd, buf);
+      set_abs_date_time(fd, buf, TRUE);
       break;
 
     case TS_RELATIVE:
-      set_rel_time(fd, buf);
+	  switch (timestamp_get_seconds_type()) {
+	  case TS_SECONDS_DEFAULT:
+		set_time_seconds(&fd->rel_ts, buf);
+		break;
+	  case TS_SECONDS_HOUR_MIN_SEC:
+		set_time_seconds(&fd->rel_ts, buf);
+		break;
+	  default:
+		g_assert_not_reached();
+	  }
       break;
 
     case TS_DELTA:
-      set_delta_time(fd, buf);
+		switch (timestamp_get_seconds_type()) {
+		case TS_SECONDS_DEFAULT:
+			set_time_seconds(&fd->del_cap_ts, buf);
+		break;
+		case TS_SECONDS_HOUR_MIN_SEC:
+			set_time_hour_min_sec(&fd->del_cap_ts, buf);
+			break;
+		default:
+			g_assert_not_reached();
+		}
       break;
 
     case TS_DELTA_DIS:
-      set_delta_time_dis(fd, buf);
+	  switch (timestamp_get_seconds_type()) {
+	  case TS_SECONDS_DEFAULT:
+		set_time_seconds(&fd->del_dis_ts, buf);
+		break;
+	  case TS_SECONDS_HOUR_MIN_SEC:
+		set_time_hour_min_sec(&fd->del_dis_ts, buf);
+		break;
+	  default:
+		g_assert_not_reached();
+	  }
       break;
 
     case TS_EPOCH:
       set_epoch_time(fd, buf);
+      break;
+
+    case TS_UTC:
+      set_abs_time(fd, buf, FALSE);
+      break;
+
+    case TS_UTC_WITH_DATE:
+      set_abs_date_time(fd, buf, FALSE);
       break;
 
     case TS_NOT_SET:
@@ -1170,7 +1187,6 @@ set_cls_time(frame_data *fd, gchar *buf)
         break;
   }
 }
-#endif
 
 static void
 col_set_cls_time(const frame_data *fd, column_info *cinfo, const gint col)
