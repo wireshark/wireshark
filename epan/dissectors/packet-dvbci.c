@@ -244,8 +244,10 @@
 #define ACK_CODE_WRONG_API 0x2
 #define ACK_CODE_API_BUSY  0x3
 
-#define REQ_TYPE_FILE 0x0
-#define REQ_TYPE_DATA 0x1
+#define REQ_TYPE_FILE      0x0
+#define REQ_TYPE_DATA      0x1
+#define REQ_TYPE_FILE_HASH 0x2
+#define REQ_TYPE_REQ       0x3
 
 
 /* sas resource */
@@ -516,6 +518,7 @@ static gint ett_dvbci_application = -1;
 static gint ett_dvbci_es = -1;
 static gint ett_dvbci_ca_desc = -1;
 static gint ett_dvbci_text = -1;
+static gint ett_dvbci_ami_req_types = -1;
 
 static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
@@ -603,8 +606,10 @@ static int hf_dvbci_app_dom_id = -1;
 static int hf_dvbci_init_obj = -1;
 static int hf_dvbci_ack_code = -1;
 static int hf_dvbci_req_type = -1;
+static int hf_dvbci_file_hash = -1;
 static int hf_dvbci_file_name = -1;
 static int hf_dvbci_ami_priv_data = -1;
+static int hf_dvbci_req_ok = -1;
 static int hf_dvbci_file_ok = -1;
 static int hf_dvbci_file_data = -1;
 static int hf_dvbci_abort_req_code = -1;
@@ -898,6 +903,8 @@ static const value_string dvbci_ack_code[] = {
 static const value_string dvbci_req_type[] = {
     { REQ_TYPE_FILE, "File" },
     { REQ_TYPE_DATA, "Data" },
+    { REQ_TYPE_FILE_HASH, "FileHash" },
+    { REQ_TYPE_REQ, "List supported request types" },
     { 0, NULL }
 };
 static const value_string dvbci_sas_sess_state[] = {
@@ -1769,10 +1776,14 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
     guint8 app_dom_id_len, init_obj_len;
     guint8 *app_dom_id;
     guint8 ack_code;
+    gboolean req_ok=FALSE, file_ok;
     guint8 req_type;
     guint8 *req_str;
     guint8 file_name_len;
     guint8 *file_name_str;
+    guint32 file_data_len;
+    proto_item *ti = NULL;
+    proto_tree *req_tree = NULL;
 
     switch(tag) {
         case T_REQUEST_START:
@@ -1806,32 +1817,46 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         case T_FILE_REQUEST:
             req_type = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_NA);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(req_type, dvbci_req_type, "unknown"));
             offset++;
+            if (req_type==REQ_TYPE_FILE_HASH) {
+                proto_tree_add_item(tree, hf_dvbci_file_hash,
+                        tvb, offset, 16, ENC_NA);
+                offset += 16;
+            }
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                break;
-            if (req_type==REQ_TYPE_FILE) {
+              break;
+            if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
                 req_str = tvb_get_ephemeral_string(tvb, offset,
                         tvb_reported_length_remaining(tvb, offset));
                 if (!req_str)
                     break;
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", req_str);
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "%s", req_str);
                 proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
                         tvb, offset, tvb_reported_length_remaining(tvb, offset),
                         req_str, "%s", req_str);
             }
             else if (req_type==REQ_TYPE_DATA) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "data");
                 proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
                         tvb_reported_length_remaining(tvb, offset), ENC_NA);
             }
             break;
         case T_FILE_ACKNOWLEDGE:
+            req_type = tvb_get_guint8(tvb, offset+1);
+            if (req_type==REQ_TYPE_FILE_HASH) {
+                req_ok = ((tvb_get_guint8(tvb, offset) & 0x02) == 0x02);
+                proto_tree_add_item(tree, hf_dvbci_req_ok,
+                        tvb, offset, 1, ENC_NA);
+            }
+            file_ok = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
             proto_tree_add_item(tree, hf_dvbci_file_ok, tvb, offset, 1, ENC_NA);
             offset++;
-            req_type = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_NA);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(req_type, dvbci_req_type, "unknown"));
             offset++;
-            if (req_type==REQ_TYPE_FILE) {
+            if (req_type==REQ_TYPE_FILE || req_type==REQ_TYPE_FILE_HASH) {
                 file_name_len = tvb_get_guint8(tvb, offset);
                 proto_tree_add_text(tree, tvb, offset, 1,
                         "File name length %d", file_name_len);
@@ -1840,23 +1865,45 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                         tvb, offset, file_name_len);
                 if (!file_name_str)
                     break;
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
                         "%s", file_name_str);
                 proto_tree_add_string_format_value(tree, hf_dvbci_file_name,
                         tvb, offset, file_name_len, file_name_str,
                         "%s", file_name_str);
                 offset += file_name_len;
-                if (tvb_reported_length_remaining(tvb, offset) <= 0)
-                    break;
-                proto_tree_add_item(tree, hf_dvbci_file_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
-            }
+                file_data_len = tvb_get_ntohl(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, 4,
+                        "File data length %d", file_data_len);
+                offset += 4;
+                if (file_data_len > 0) {
+                    proto_tree_add_item(tree, hf_dvbci_file_data,
+                            tvb, offset, file_data_len, ENC_NA);
+                }
+             }
             else if (req_type==REQ_TYPE_DATA) {
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "data");
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
                     break;
                 proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
                         tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            else if (req_type==REQ_TYPE_REQ) {
+                if (tree) {
+                    ti = proto_tree_add_text(tree, tvb,
+                            offset, tvb_reported_length_remaining(tvb, offset),
+                            "Supported request types");
+                    req_tree = proto_item_add_subtree
+                        (ti, ett_dvbci_ami_req_types);
+                }
+                while (tvb_reported_length_remaining(tvb, offset) > 0) {
+                    proto_tree_add_item(req_tree, hf_dvbci_req_type,
+                            tvb, offset, 1, ENC_NA);
+                    offset++;
+                }
+            }
+
+            if (req_type==REQ_TYPE_FILE_HASH && req_ok && !file_ok) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                        "cached copy is valid");
             }
             break;
         case T_APP_ABORT_REQUEST:
@@ -2706,7 +2753,8 @@ proto_register_dvbci(void)
         &ett_dvbci_application,
         &ett_dvbci_es,
         &ett_dvbci_ca_desc,
-        &ett_dvbci_text
+        &ett_dvbci_text,
+        &ett_dvbci_ami_req_types,
     };
 
     static hf_register_info hf[] = {
@@ -2978,12 +3026,18 @@ proto_register_dvbci(void)
         { &hf_dvbci_req_type,
             { "Request type", "dvb-ci.ami.req_type", FT_UINT8, BASE_HEX,
                 VALS(dvbci_req_type), 0, NULL, HFILL } },
-        { &hf_dvbci_file_name,
+        { &hf_dvbci_file_hash,
+            { "File hash", "dvb-ci.ami.file_hash", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+       { &hf_dvbci_file_name,
             { "File name", "dvb-ci.ami.file_name", FT_STRING,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_ami_priv_data,
             { "Private data", "dvb-ci.ami.private_data", FT_BYTES,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_req_ok,
+            { "RequestOK", "dvb-ci.ami.request_ok", FT_UINT8, BASE_HEX,
+                NULL, 0x02, NULL, HFILL } },
         { &hf_dvbci_file_ok,
             { "FileOK", "dvb-ci.ami.file_ok", FT_UINT8, BASE_HEX,
                 NULL, 0x01, NULL, HFILL } },
