@@ -6042,7 +6042,6 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_item(amqp_tree, hf_amqp_method_arguments,
                     tvb, 11, length - 4, ENC_BIG_ENDIAN);
                 args_tree = proto_item_add_subtree(ti, ett_args);
-                args_tree = proto_item_add_subtree(ti, ett_args);
 
 				col_append_fstr(pinfo->cinfo, COL_INFO, "Basic.%s", 
 					val_to_str( method_id, amqp_method_basic_methods, "Unknown (%u)"));
