@@ -772,7 +772,7 @@ static const value_string sec_pol[] = {
   { 0x7, "Extended, Mission Defined"         },
   { 0,   NULL } };
 
-#define MAX_NATIONAL_VALUES 256
+#define MAX_NATIONAL_VALUES 56
 /* Will be built in build_national_strings() */
 static value_string nat_pol_id[MAX_NATIONAL_VALUES+1];
 
@@ -780,7 +780,7 @@ static value_string nat_pol_id[MAX_NATIONAL_VALUES+1];
  * for description we use the Country Name and
  * for value we use the DMP value for National Policy Identifier.
  */
-static enum_val_t dmp_national_values[] = {
+static enum_val_t dmp_national_values[MAX_NATIONAL_VALUES+1] = {
   { "???",  "None", 0x00 },
   { "alb",  "Albania", 0x1B },
   { "arm",  "Armenia", 0x20 },
@@ -993,7 +993,7 @@ static const value_string ipm_id_modifier[] = {
   { 0x2,  "Nationally-defined"   },
   { 0x3,  "Nationally-defined"   },
   { 0, NULL }
-}; 
+};
 
 static const value_string thales_ipm_id_modifier[] = {
   { 0x0,  "X.400 IPM Identifier" },
@@ -1001,7 +1001,7 @@ static const value_string thales_ipm_id_modifier[] = {
   { 0x2,  "4 digits"             },
   { 0x3,  "5 digits"             },
   { 0, NULL }
-}; 
+};
 
 UAT_VS_DEF(dmp_security_class, nation, dmp_security_class_t, 0, "None");
 UAT_DEC_CB_DEF(dmp_security_class, class, dmp_security_class_t);
@@ -1031,7 +1031,7 @@ dmp_class_free_cb(void *r)
 static gchar *dmp_national_sec_class (guint nation, guint dmp_sec_class)
 {
   guint i;
-  
+
   for (i = 0; i < num_dmp_security_classes; i++) {
     dmp_security_class_t *u = &(dmp_security_classes[i]);
 
@@ -1043,7 +1043,7 @@ static gchar *dmp_national_sec_class (guint nation, guint dmp_sec_class)
   return NULL;
 }
 
-static void build_national_strings (void) 
+static void build_national_strings (void)
 {
   gint i = 0;
 
@@ -1680,7 +1680,7 @@ static gchar *dissect_thales_mts_id (tvbuff_t *tvb, gint offset, gint length)
 {
   /* Thales XOmail uses this format: "MTA-NAME/000000000000" */
   if (length >= 7 && length <= 22) {
-    return ep_strdup_printf ("%s/%08X%04X", 
+    return ep_strdup_printf ("%s/%08X%04X",
                              dissect_7bit_string (tvb, offset, length - 6),
                              tvb_get_ntohl (tvb, offset + length - 6),
                              tvb_get_ntohs (tvb, offset + length - 2));
@@ -2183,26 +2183,26 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
 
     if (dmp.version == DMP_VERSION_1 && !(dmp.prot_id == PROT_NAT && dmp_nat_decode == NAT_DECODE_THALES)) {
       switch (dmp_addr_form) {
-      
+
       case P1_DIRECT:
         offset = dissect_dmp_direct_addr (tvb, pinfo, field_tree,
                                           tf, offset, -1, -1,
                                           ORIGINATOR);
         break;
-      
+
       case P1_EXTENDED:
         offset = dissect_dmp_ext_addr (tvb, pinfo, field_tree, tf, offset, -1,
                                        -1, ORIGINATOR);
         break;
-      
+
       default:
         proto_item_append_text (tf, " (invalid address form)");
         break;
-      
+
       }
     } else {
       switch (dmp_addr_form) {
-      
+
       case P1_DIRECT:
       case P1_P2_DIRECT:
       case P1_DIRECT_P2_EXTENDED:
@@ -2210,22 +2210,22 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
                                           tf, offset, -1, -1,
                                           ORIGINATOR);
         break;
-      
+
       case P1_EXTENDED:
       case P1_EXTENDED_P2_DIRECT:
       case P1_P2_EXTENDED:
         offset = dissect_dmp_ext_addr (tvb, pinfo, field_tree, tf, offset, -1,
                                        -1, ORIGINATOR);
         break;
-      
+
       default:
         proto_item_append_text (tf, " (invalid address form)");
         break;
-      
+
       }
-    
+
       switch (dmp_addr_form) {
-      
+
       case P1_P2_DIRECT:
       case P1_EXTENDED_P2_DIRECT:
         offset = dissect_dmp_direct_addr (tvb, pinfo, field_tree,
@@ -2233,14 +2233,14 @@ static gint dissect_dmp_originator (tvbuff_t *tvb, packet_info *pinfo,
                                           ORIG_P2_ADDRESS);
         p2_addr = TRUE;
         break;
-      
+
       case P1_DIRECT_P2_EXTENDED:
       case P1_P2_EXTENDED:
         offset = dissect_dmp_ext_addr (tvb, pinfo, field_tree, tf, offset, -1,
                                        -1, ORIG_P2_ADDRESS);
         p2_addr = TRUE;
         break;
-      
+
       }
     }
 
@@ -2746,7 +2746,7 @@ static gint dissect_ipm_identifier (tvbuff_t *tvb, packet_info *pinfo _U_, proto
   }
   proto_tree_add_item (field_tree, hf_envelope_ipm_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-  
+
   if (modifier == IPM_MODIFIER_X400 || dmp_nat_decode == NAT_DECODE_DMP) {
     ipm_id = dissect_7bit_string (tvb, offset, ipm_id_length);
   } else if (dmp_nat_decode == NAT_DECODE_THALES) {
@@ -2908,7 +2908,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
     dmp.msg_id_type = (envelope & 0x60) >> 5;
     tf = proto_tree_add_uint_format (envelope_tree, hf_envelope_msg_id_type,
                                      tvb, offset, 1, envelope,
-                                     "Message Identifier Type: %s (%d)", 
+                                     "Message Identifier Type: %s (%d)",
                                      val_to_str (dmp.msg_id_type, msg_id_type_vals, "Unknown"),
                                      dmp.msg_id_type);
     field_tree = proto_item_add_subtree (tf, ett_envelope_msg_id_type);
@@ -2919,7 +2919,7 @@ static gint dissect_dmp_envelope (tvbuff_t *tvb, packet_info *pinfo,
       dmp.mts_id_length = (envelope & 0x1F);
       dmp.mts_id_item = proto_tree_add_uint_format (envelope_tree, hf_envelope_mts_id_length,
                                                     tvb, offset, 1, envelope,
-                                                    "MTS Identifier Length: %u", 
+                                                    "MTS Identifier Length: %u",
                                                     dmp.mts_id_length);
       field_tree = proto_item_add_subtree (dmp.mts_id_item, ett_envelope_mts_id_length);
       proto_tree_add_item (field_tree, hf_envelope_mts_id_length, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -3508,13 +3508,13 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
   field_tree = proto_item_add_subtree (tf, ett_message_sec_cat);
 
   switch (ext) {
-    
+
   case SEC_CAT_EXT_NONE:
     proto_tree_add_item (field_tree, hf_message_sec_cat_cl, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (field_tree, hf_message_sec_cat_cs, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (field_tree, hf_message_sec_cat_ex, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item (field_tree, hf_message_sec_cat_ne, tvb, offset, 1, ENC_BIG_ENDIAN);
-    
+
     tr = proto_tree_add_item (field_tree, hf_reserved_0x08, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (message & 0x08) {
       expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
@@ -3523,7 +3523,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
     if (message & 0x04) {
       expert_add_info_format (pinfo, tr, PI_UNDECODED, PI_WARN, "Reserved value");
     }
-    
+
     if (message & 0xF0) {
       sec_cat = ep_strdup_printf ("%s%s%s%s",
                                   (message & 0x80) ? ",cl" : "",
@@ -3534,7 +3534,7 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
       g_string_append (label_string, sec_cat);
     }
     break;
-    
+
   case SEC_CAT_EXT_PERMISSIVE:
     if ((message >> 2) == 0x3F) {
       /* Fake entry because nat_pol_id defines 0x3F as reserved */
@@ -3550,18 +3550,18 @@ static gint dissect_dmp_security_category (tvbuff_t *tvb, packet_info *pinfo,
       }
     }
     break;
-    
+
   case SEC_CAT_EXT_RESTRICTIVE:
     proto_tree_add_item (field_tree, hf_message_sec_cat_restrictive, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text (tf, " (restrictive: 0x%2.2x)", message >> 2);
     break;
-    
+
   default:
     break;
   }
 
   proto_item_append_text (tf, " (0x%2.2x)", message);
-  
+
   if (dmp.version == 1) {
     tr = proto_tree_add_item (field_tree, hf_reserved_0x02, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (message & 0x02) {
@@ -3945,7 +3945,7 @@ static gint dissect_dmp_extensions (tvbuff_t *tvb, packet_info *pinfo _U_,
                                      "Extension (#%d)", num_ext + 1);
     ext_tree = proto_item_add_subtree (en, ett_extension);
 
-    en = proto_tree_add_none_format (ext_tree, hf_extension_header, tvb, offset, 1, 
+    en = proto_tree_add_none_format (ext_tree, hf_extension_header, tvb, offset, 1,
                                      "Extension Length: %u, More %s", ext_length,
                                      (ext_hdr & 0x80) ? "Present" : "Not present");
     hdr_tree = proto_item_add_subtree (en, ett_extension_header);
@@ -4963,14 +4963,14 @@ void proto_register_dmp (void)
     &ett_checksum,
     &ett_analysis
   };
-  
+
   static uat_field_t attributes_flds[] = {
     UAT_FLD_VS(dmp_security_class,nation, "Nation", nat_pol_id, 0),
     UAT_FLD_DEC(dmp_security_class,class, "Classification", "Security Classification"),
     UAT_FLD_CSTRING(dmp_security_class,name, "Name", "Classification Name"),
     UAT_END_FIELDS
   };
-  
+
   uat_t *attributes_uat = uat_new("DMP Security Classifications",
                                   sizeof(dmp_security_class_t),
                                   "dmp_security_classifications",
