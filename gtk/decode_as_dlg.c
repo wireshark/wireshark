@@ -291,16 +291,12 @@ read_set_decode_as_entries(gchar *key, gchar *value,
 			   void *user_data _U_,
 			   gboolean return_range_errors _U_)
 {
-  gchar *values[4];
+  gchar *values[4] = {NULL, NULL, NULL, NULL};
   gchar delimiter[4] = {',', ',', ',','\0'};
   gchar *pch;
   guint i, j;
   dissector_table_t sub_dissectors;
   prefs_set_pref_e retval = PREFS_SET_OK;
-
-  for (i = 0; i < 4; i++) {
-    values[i] = NULL;
-  }
 
   if (strcmp(key, DECODE_AS_ENTRY) == 0) {
     /* Parse csv into table, selector, initial, current */
@@ -309,8 +305,8 @@ read_set_decode_as_entries(gchar *key, gchar *value,
       if (pch == NULL) {
 	for (j = 0; j < i; j++) {
 	  g_free(values[j]);
-	  return PREFS_SET_SYNTAX_ERR;
 	}
+	return PREFS_SET_SYNTAX_ERR;
       }
       values[i] = g_strndup(value, pch - value);
       value = pch + 1;
