@@ -236,42 +236,42 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (!tree) /*not much more of one line summary interrest yet.. */
 		return;
 
-	ti = proto_tree_add_item(tree, proto_9P, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_9P, tvb, 0, -1, ENC_NA);
 	ninep_tree = proto_item_add_subtree(ti, ett_9P);
-	proto_tree_add_item(ninep_tree, hf_9P_msgsz, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ninep_tree, hf_9P_msgsz, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 
-	proto_tree_add_item(ninep_tree, hf_9P_msgtype, tvb, offset, 1, TRUE);
+	proto_tree_add_item(ninep_tree, hf_9P_msgtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	++offset;
-	proto_tree_add_item(ninep_tree, hf_9P_tag, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ninep_tree, hf_9P_tag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	switch(ninemsg) {
 	case RVERSION:
 	case TVERSION:
-		proto_tree_add_item(ninep_tree, hf_9P_maxsize, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_maxsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_version, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_version, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_version);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		break;
 	case TAUTH:
-		proto_tree_add_item(ninep_tree, hf_9P_afid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_afid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uname);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_aname);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 		break;
 	case RAUTH:
@@ -280,34 +280,34 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		break;
 	case RERROR:
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_ename, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_ename, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_ename);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
 		break;
 	case TFLUSH:
-		proto_tree_add_item(ninep_tree, hf_9P_oldtag, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_oldtag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		break;
 	case RFLUSH:
 		break;
 	case TATTACH:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_afid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_afid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uname);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16 + 2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_aname);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 		break;
 	case RATTACH:
@@ -315,14 +315,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset += 13;
 		break;
 	case TWALK:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_newfid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_newfid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		proto_tree_add_item(ninep_tree, hf_9P_nwalk, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_nwalk, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 		/* I can't imagine anyone having a directory depth more than 25,
 		   Limit to 10 times that to be sure, 2^16 is too much */
@@ -338,9 +338,9 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree *wname_tree;
 
 			tmplen = tvb_get_letohs(tvb,offset);
-			wname = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, tmplen, TRUE);
+			wname = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, tmplen, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 			wname_tree = proto_item_add_subtree(wname,ett_9P_wname);
-			proto_tree_add_item(wname_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+			proto_tree_add_item(wname_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
 			offset += tmplen + 2;
 		}
@@ -348,7 +348,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		break;
 	case RWALK:
 		tmp16 = tvb_get_letohs(tvb,offset);
-		proto_tree_add_item(ninep_tree, hf_9P_nqid, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_nqid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 		/* I can't imagine anyone having a directory depth more than 25,
 		   Limit to 10 times that to be sure, 2^16 is too much */
@@ -364,51 +364,51 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		}
 		break;
 	case TOPEN:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
-		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		dissect_9P_mode(tvb,ti,offset);
 		break;
 	case ROPEN:
 		dissect_9P_qid(tvb,ninep_tree,offset);
 		offset += 13;
-		proto_tree_add_item(ninep_tree, hf_9P_iounit, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_iounit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case TCREATE:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_name, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_name, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_filename);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16 + 2;
 
-		ti = proto_tree_add_item(ninep_tree, hf_9P_perm, tvb, offset, 4, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_perm, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_dm(tvb,ti,offset,1);
 		offset +=4;
 
-		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		dissect_9P_mode(tvb,ti,offset);
 
 		break;
 	case RCREATE:
 		dissect_9P_qid(tvb,ninep_tree,offset);
 		offset += 13;
-		proto_tree_add_item(ninep_tree, hf_9P_iounit, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_iounit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case TREAD:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_offset, tvb, offset, 8, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset +=8;
 
-		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case RREAD:
 		tmp = tvb_get_letohl(tvb,offset);
-		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		len = tvb_reported_length_remaining(tvb, offset);
@@ -417,14 +417,14 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 		break;
 	case TWRITE:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_offset, tvb, offset, 8, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_offset, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset +=8;
 
 		tmp = tvb_get_letohl(tvb,offset);
-		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		len = tvb_reported_length_remaining(tvb, offset);
 		reportedlen = ((gint)tmp&0xffff) > len ? len : (gint)tmp&0xffff;
@@ -432,40 +432,40 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		call_dissector(data_handle,next_tvb, pinfo, tree);
 		break;
 	case RWRITE:
-		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case TCLUNK:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 		break;
 	case RCLUNK:
 		break;
 	case TREMOVE:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 		break;
 	case RREMOVE:
 		break;
 	case TSTAT:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		break;
 	case RSTAT:
-		proto_tree_add_item(ninep_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
-		proto_tree_add_item(ninep_tree, hf_9P_sdlen, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_sdlen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
-		proto_tree_add_item(ninep_tree, hf_9P_stattype, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_stattype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
-		proto_tree_add_item(ninep_tree, hf_9P_dev, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_dev, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		dissect_9P_qid(tvb,ninep_tree,offset);
 		offset += 13;
 
-		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_dm(tvb,ti,offset,0);
 		offset +=4;
 
@@ -479,53 +479,53 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset +=8;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_filename);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uid);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_gid);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_muid);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 		break;
 	case TWSTAT:
-		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
-		proto_tree_add_item(ninep_tree, hf_9P_sdlen, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_sdlen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
-		proto_tree_add_item(ninep_tree, hf_9P_stattype, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_stattype, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
 
-		proto_tree_add_item(ninep_tree, hf_9P_dev, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_dev, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset +=4;
 
 		dissect_9P_qid(tvb,ninep_tree,offset);
 		offset += 13;
 
-		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_statmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		dissect_9P_dm(tvb,ti,offset,0);
 		offset +=4;
 
@@ -539,31 +539,31 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		proto_tree_add_time(ninep_tree, hf_9P_mtime, tvb, offset, 4, &tv);
 		offset +=4;
 
-		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, TRUE);
+		proto_tree_add_item(ninep_tree, hf_9P_length, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset +=8;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_filename);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uid);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_gid);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, TRUE);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_muid);
-		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 		break;
 	}
@@ -602,7 +602,7 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset)
 	qid_item = proto_tree_add_text(tree,tvb,offset,13,"Qid type=0x%02x vers=%d path=%" G_GINT64_MODIFIER "u",type,vers,path);
 	qid_tree = proto_item_add_subtree(qid_item,ett_9P_qid);
 
-	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, TRUE);
+	qidtype_item = proto_tree_add_item(qid_tree, hf_9P_qidtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	qidtype_tree = proto_item_add_subtree(qidtype_item,ett_9P_qidtype);
 
 	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
@@ -618,8 +618,8 @@ static void dissect_9P_qid(tvbuff_t * tvb,  proto_tree * tree,int offset)
 	proto_tree_add_text(qidtype_tree, tvb, offset, 1, "%s",
 	decode_boolean_bitfield(type,    QTTMP, 8, "Temporary file (not backed up)", "not a Temporary file"));
 
-	proto_tree_add_item(qid_tree, hf_9P_qidvers, tvb, offset+1, 4, TRUE);
-	proto_tree_add_item(qid_tree, hf_9P_qidpath, tvb, offset+1+4, 8, TRUE);
+	proto_tree_add_item(qid_tree, hf_9P_qidvers, tvb, offset+1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(qid_tree, hf_9P_qidpath, tvb, offset+1+4, 8, ENC_LITTLE_ENDIAN);
 }
 
 /*dissect 9P stat mode and create perm flags */
