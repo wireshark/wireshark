@@ -2352,7 +2352,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             p_remove_proto_data(pinfo->fd, proto_cip);
             p_add_proto_data(pinfo->fd, proto_cip, pembedded_req_info );
 
-            rrsc_item = proto_tree_add_text( item_tree, NULL, 0, 0, "(Service: Unconnected Send (Response))" );
+            proto_tree_add_text( item_tree, NULL, 0, 0, "(Service: Unconnected Send (Response))" );
             next_tvb = tvb_new_subset(tvb, offset, item_length, item_length);
             if ( pembedded_req_info && pembedded_req_info->dissector )
                call_dissector(pembedded_req_info->dissector, next_tvb, pinfo, item_tree );
