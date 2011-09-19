@@ -125,12 +125,9 @@ dissect_null_term_string(tvbuff_t *tvb, int offset,
 	}
 
 	if (data) {
-		proto_item *ti;
-		
-		ti = proto_tree_add_string(tree, hf_nt_error, tvb, offset, tmp_offset - offset, "Not a null terminated string");
+		proto_tree_add_string(tree, hf_nt_error, tvb, offset,
+			tmp_offset - offset, "Not a null terminated string");
 		return tmp_offset;
-		/*expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-		"Length of item (%d) is not valid", length);*/
 	}
 
 	len = tmp_offset - offset;
@@ -164,11 +161,9 @@ dissect_null_term_wstring(tvbuff_t *tvb, int offset,
 	}
 
 	if (data) {
-		proto_item *ti;
-		ti = proto_tree_add_string(tree, hf_nt_error, tvb, offset, tmp_offset - offset, "Not a null terminated string");
+		proto_tree_add_string(tree, hf_nt_error, tvb, offset,
+			tmp_offset - offset, "Not a null terminated string");
 		return tmp_offset;
-		/*expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
-		"Length of item (%d) is not valid", length);*/
 	}
 	len = tmp_offset - offset;
 
