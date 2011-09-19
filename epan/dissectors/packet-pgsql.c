@@ -260,16 +260,16 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     if (tree) {
-        ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, FALSE);
+        ti = proto_tree_add_item(tree, proto_pgsql, tvb, 0, -1, ENC_NA);
         ptree = proto_item_add_subtree(ti, ett_pgsql);
 
         n = 1;
         if (type == '\0')
             n = 0;
         proto_tree_add_text(ptree, tvb, 0, n, "Type: %s", typestr);
-        hidden_item = proto_tree_add_item(ptree, hf_type, tvb, 0, n, FALSE);
+        hidden_item = proto_tree_add_item(ptree, hf_type, tvb, 0, n, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_item(ptree, hf_length, tvb, n, 4, FALSE);
+        proto_tree_add_item(ptree, hf_length, tvb, n, 4, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_boolean(ptree, hf_frontend, tvb, 0, 0, fe);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         n += 4;
@@ -286,7 +286,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
                                  gint n, proto_tree *tree)
 {
     guchar c;
-    gint i, l;
+    gint i, siz;
     char *s;
     proto_item *ti, *hidden_item;
     proto_tree *shrub;
@@ -294,52 +294,52 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     switch (type) {
     /* Password */
     case 'p':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_passwd, tvb, n, l, s);
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_passwd, tvb, n, siz, ENC_NA);
         break;
 
     /* Simple query */
     case 'Q':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_query, tvb, n, l, s);
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_query, tvb, n, siz, ENC_NA);
         break;
 
     /* Parse */
     case 'P':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_statement, tvb, n, l, s);
-        n += l;
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_statement, tvb, n, siz, ENC_NA);
+        n += siz;
 
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_query, tvb, n, l, s);
-        n += l;
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_query, tvb, n, siz, ENC_NA);
+        n += siz;
 
         i = tvb_get_ntohs(tvb, n);
         ti = proto_tree_add_text(tree, tvb, n, 2, "Parameters: %d", i);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            proto_tree_add_item(shrub, hf_typeoid, tvb, n, 4, FALSE);
+            proto_tree_add_item(shrub, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
         break;
 
     /* Bind */
     case 'B':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_portal, tvb, n, l, s);
-        n += l;
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_NA);
+        n += siz;
 
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_statement, tvb, n, l, s);
-        n += l;
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_statement, tvb, n, siz, ENC_NA);
+        n += siz;
 
         i = tvb_get_ntohs(tvb, n);
         ti = proto_tree_add_text(tree, tvb, n, 2, "Parameter formats: %d", i);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            proto_tree_add_item(shrub, hf_format, tvb, n, 2, FALSE);
+            proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
         }
 
@@ -348,12 +348,12 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            l = tvb_get_ntohl(tvb, n);
-            proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
+            siz = tvb_get_ntohl(tvb, n);
+            proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, siz);
             n += 4;
-            if (l > 0) {
-                proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
-                n += l;
+            if (siz > 0) {
+                proto_tree_add_item(shrub, hf_val_data, tvb, n, siz, ENC_NA);
+                n += siz;
             }
         }
 
@@ -362,16 +362,16 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            proto_tree_add_item(shrub, hf_format, tvb, n, 2, FALSE);
+            proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
         }
         break;
 
     /* Execute */
     case 'E':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_portal, tvb, n, l, s);
-        n += l;
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_NA);
+        n += siz;
 
         ti = proto_tree_add_text(tree, tvb, n, 4, "Returns: ");
         i = tvb_get_ntohl(tvb, n);
@@ -394,11 +394,11 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
         if (i != 0) {
             n += 1;
-            s = tvb_get_ephemeral_stringz(tvb, n, &l);
-            hidden_item = proto_tree_add_string(tree, i, tvb, n, l, s);
+            s = tvb_get_ephemeral_stringz(tvb, n, &siz);
+            hidden_item = proto_tree_add_string(tree, i, tvb, n, siz, s);
             PROTO_ITEM_SET_HIDDEN(hidden_item);
             proto_tree_add_text(
-                tree, tvb, n-1, l, "%s: %s",
+                tree, tvb, n-1, siz, "%s: %s",
                 (c == 'P' ? "Portal" : "Statement"), s
             );
         }
@@ -412,17 +412,18 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         switch (i) {
         /* Startup message */
         case 196608:
-            while (length > 0) {
-                l = tvb_strsize(tvb, n);
-                length -= l;
-                if (length <= 0) {
+            while ((signed)length > 0) {
+                siz = tvb_strsize(tvb, n);
+                length -= siz;
+                if ((signed)length <= 0) {
                     break;
                 }
-                proto_tree_add_item(tree, hf_parameter_name, tvb, n, l, ENC_NA);
-                i = tvb_strsize(tvb, n+l);
-                proto_tree_add_item(tree, hf_parameter_value, tvb, n + l, i, ENC_NA);
-                n += l+i;
+                proto_tree_add_item(tree, hf_parameter_name,  tvb, n,       siz, ENC_NA);
+                i = tvb_strsize(tvb, n+siz);
+                proto_tree_add_item(tree, hf_parameter_value, tvb, n + siz, i,   ENC_NA);
                 length -= i;
+
+                n += siz+i;
                 if (length == 1 && tvb_get_guint8(tvb, n) == 0)
                     break;
             }
@@ -436,26 +437,26 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
 
         /* Cancellation request */
         case 80877102:
-            proto_tree_add_item(tree, hf_pid, tvb, n, 4, FALSE);
-            proto_tree_add_item(tree, hf_key, tvb, n+4, 4, FALSE);
+            proto_tree_add_item(tree, hf_pid, tvb, n,   4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_key, tvb, n+4, 4, ENC_BIG_ENDIAN);
             break;
         }
         break;
 
     /* Copy data */
     case 'd':
-        proto_tree_add_item(tree, hf_copydata, tvb, n, length-n+1, FALSE);
+        proto_tree_add_item(tree, hf_copydata, tvb, n, length-n+1, ENC_NA);
         break;
 
     /* Copy failure */
     case 'f':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_error, tvb, n, l, s);
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_error, tvb, n, siz, ENC_NA);
         break;
 
     /* Function call */
     case 'F':
-        proto_tree_add_item(tree, hf_oid, tvb, n, 4, FALSE);
+        proto_tree_add_item(tree, hf_oid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
 
         i = tvb_get_ntohs(tvb, n);
@@ -463,7 +464,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            proto_tree_add_item(shrub, hf_format, tvb, n, 2, FALSE);
+            proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
         }
 
@@ -472,16 +473,16 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            l = tvb_get_ntohl(tvb, n);
-            proto_tree_add_item(shrub, hf_val_length, tvb, n, 4, FALSE);
+            siz = tvb_get_ntohl(tvb, n);
+            proto_tree_add_item(shrub, hf_val_length, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
-            if (l > 0) {
-                proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
-                n += l;
+            if (siz > 0) {
+                proto_tree_add_item(shrub, hf_val_data, tvb, n, siz, ENC_NA);
+                n += siz;
             }
         }
 
-        proto_tree_add_item(tree, hf_format, tvb, n, 2, FALSE);
+        proto_tree_add_item(tree, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
         break;
     }
 }
@@ -491,7 +492,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
                                  gint n, proto_tree *tree)
 {
     guchar c;
-    gint i, l;
+    gint i, siz;
     char *s, *t;
     proto_item *ti, *hidden_item;
     proto_tree *shrub;
@@ -499,32 +500,32 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     switch (type) {
     /* Authentication request */
     case 'R':
-        proto_tree_add_item(tree, hf_authtype, tvb, n, 4, FALSE);
+        proto_tree_add_item(tree, hf_authtype, tvb, n, 4, ENC_BIG_ENDIAN);
         i = tvb_get_ntohl(tvb, n);
         if (i == 4 || i == 5) {
             /* i -= (6-i); :-) */
             n += 4;
-            l = (i == 4 ? 2 : 4);
-            proto_tree_add_item(tree, hf_salt, tvb, n, l, FALSE);
+            siz = (i == 4 ? 2 : 4);
+            proto_tree_add_item(tree, hf_salt, tvb, n, siz, ENC_NA);
         }
         break;
 
     /* Key data */
     case 'K':
-        proto_tree_add_item(tree, hf_pid, tvb, n, 4, FALSE);
-        proto_tree_add_item(tree, hf_key, tvb, n+4, 4, FALSE);
+        proto_tree_add_item(tree, hf_pid, tvb, n,   4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_key, tvb, n+4, 4, ENC_BIG_ENDIAN);
         break;
 
     /* Parameter status */
     case 'S':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        hidden_item = proto_tree_add_string(tree, hf_parameter_name, tvb, n, l, s);
+        s = tvb_get_ephemeral_stringz(tvb, n, &siz);
+        hidden_item = proto_tree_add_string(tree, hf_parameter_name, tvb, n, siz, s);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        n += l;
+        n += siz;
         t = tvb_get_ephemeral_stringz(tvb, n, &i);
         hidden_item = proto_tree_add_string(tree, hf_parameter_value, tvb, n, i, t);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_text(tree, tvb, n-l, l+i, "%s: %s", s, t);
+        proto_tree_add_text(tree, tvb, n-siz, siz+i, "%s: %s", s, t);
         break;
 
     /* Parameter description */
@@ -533,7 +534,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         proto_tree_add_text(tree, tvb, n, 2, "Parameters: %d", i);
         n += 2;
         while (i-- > 0) {
-            proto_tree_add_item(tree, hf_typeoid, tvb, n, 4, FALSE);
+            proto_tree_add_item(tree, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
         }
         break;
@@ -541,26 +542,26 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Row description */
     case 'T':
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_item(tree, hf_field_count, tvb, n, 2, FALSE);
+        ti = proto_tree_add_item(tree, hf_field_count, tvb, n, 2, ENC_BIG_ENDIAN);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
             proto_tree *twig;
-            s = tvb_get_ephemeral_stringz(tvb, n, &l);
-            ti = proto_tree_add_string(shrub, hf_val_name, tvb, n, l, s);
+            siz = tvb_strsize(tvb, n);
+            ti = proto_tree_add_item(shrub, hf_val_name, tvb, n, siz, ENC_NA);
             twig = proto_item_add_subtree(ti, ett_values);
-            n += l;
-            proto_tree_add_item(twig, hf_tableoid, tvb, n, 4, FALSE);
+            n += siz;
+            proto_tree_add_item(twig, hf_tableoid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
-            proto_tree_add_item(twig, hf_val_idx, tvb, n, 2, FALSE);
+            proto_tree_add_item(twig, hf_val_idx, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
-            proto_tree_add_item(twig, hf_typeoid, tvb, n, 4, FALSE);
+            proto_tree_add_item(twig, hf_typeoid, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
-            proto_tree_add_item(twig, hf_val_length, tvb, n, 2, FALSE);
+            proto_tree_add_item(twig, hf_val_length, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
-            proto_tree_add_item(twig, hf_val_mod, tvb, n, 4, FALSE);
+            proto_tree_add_item(twig, hf_val_mod, tvb, n, 4, ENC_BIG_ENDIAN);
             n += 4;
-            proto_tree_add_item(twig, hf_format, tvb, n, 2, FALSE);
+            proto_tree_add_item(twig, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
         }
         break;
@@ -568,96 +569,97 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Data row */
     case 'D':
         i = tvb_get_ntohs(tvb, n);
-        ti = proto_tree_add_item(tree, hf_field_count, tvb, n, 2, FALSE);
+        ti = proto_tree_add_item(tree, hf_field_count, tvb, n, 2, ENC_BIG_ENDIAN);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 0) {
-            l = tvb_get_ntohl(tvb, n);
-            proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, l);
+            siz = tvb_get_ntohl(tvb, n);
+            proto_tree_add_int(shrub, hf_val_length, tvb, n, 4, siz);
             n += 4;
-            if (l > 0) {
-                proto_tree_add_item(shrub, hf_val_data, tvb, n, l, FALSE);
-                n += l;
+            if (siz > 0) {
+                proto_tree_add_item(shrub, hf_val_data, tvb, n, siz, ENC_NA);
+                n += siz;
             }
         }
         break;
 
     /* Command completion */
     case 'C':
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_tag, tvb, n, l, s);
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_tag, tvb, n, siz, ENC_NA);
         break;
 
     /* Ready */
     case 'Z':
-        proto_tree_add_item(tree, hf_status, tvb, n, 1, FALSE);
+        proto_tree_add_item(tree, hf_status, tvb, n, 1, ENC_NA);
         break;
 
     /* Error, Notice */
     case 'E':
     case 'N':
         length -= 4;
-        while (length > 0) {
+        while ((signed)length > 0) {
             c = tvb_get_guint8(tvb, n);
             if (c == '\0')
                 break;
-            s = tvb_get_ephemeral_stringz(tvb, n+1, &l);
+            s = tvb_get_ephemeral_stringz(tvb, n+1, &siz);
             i = hf_text;
             switch (c) {
             case 'S': i = hf_severity; break;
-            case 'C': i = hf_code; break;
-            case 'M': i = hf_message; break;
-            case 'D': i = hf_detail; break;
-            case 'H': i = hf_hint; break;
+            case 'C': i = hf_code;     break;
+            case 'M': i = hf_message;  break;
+            case 'D': i = hf_detail;   break;
+            case 'H': i = hf_hint;     break;
             case 'P': i = hf_position; break;
-            case 'W': i = hf_where; break;
-            case 'F': i = hf_file; break;
-            case 'L': i = hf_line; break;
-            case 'R': i = hf_routine; break;
+            case 'W': i = hf_where;    break;
+            case 'F': i = hf_file;     break;
+            case 'L': i = hf_line;     break;
+            case 'R': i = hf_routine;  break;
             }
-            proto_tree_add_string(tree, i, tvb, n, l+1, s);
-            n += l+1;
+            proto_tree_add_string(tree, i, tvb, n, siz+1, s);
+            length -= siz+1;
+            n += siz+1;
         }
         break;
 
     /* NOTICE response */
     case 'A':
-        proto_tree_add_item(tree, hf_pid, tvb, n, 4, FALSE);
+        proto_tree_add_item(tree, hf_pid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        proto_tree_add_string(tree, hf_condition, tvb, n, l, s);
-        n += l;
-        s = tvb_get_ephemeral_stringz(tvb, n, &l);
-        if (l > 1)
-            proto_tree_add_string(tree, hf_text, tvb, n, l, s);
+        siz = tvb_strsize(tvb, n);
+        proto_tree_add_item(tree, hf_condition, tvb, n, siz, ENC_NA);
+        n += siz;
+        siz = tvb_strsize(tvb, n);
+        if (siz > 1)
+            proto_tree_add_item(tree, hf_text, tvb, n, siz, ENC_NA);
         break;
 
     /* Copy in/out */
     case 'G':
     case 'H':
-        proto_tree_add_item(tree, hf_format, tvb, n, 1, FALSE);
+        proto_tree_add_item(tree, hf_format, tvb, n, 1, ENC_BIG_ENDIAN);
         n += 1;
         i = tvb_get_ntohs(tvb, n);
         ti = proto_tree_add_text(tree, tvb, n, 2, "Columns: %d", i);
         shrub = proto_item_add_subtree(ti, ett_values);
         n += 2;
         while (i-- > 2) {
-            proto_tree_add_item(shrub, hf_format, tvb, n, 2, FALSE);
+            proto_tree_add_item(shrub, hf_format, tvb, n, 2, ENC_BIG_ENDIAN);
             n += 2;
         }
         break;
 
     /* Copy data */
     case 'd':
-        proto_tree_add_item(tree, hf_copydata, tvb, n, length-n+1, FALSE);
+        proto_tree_add_item(tree, hf_copydata, tvb, n, length-n+1, ENC_NA);
         break;
 
     /* Function call response */
     case 'V':
-        l = tvb_get_ntohl(tvb, n);
-        proto_tree_add_int(tree, hf_val_length, tvb, n, 4, l);
-        if (l > 0)
-            proto_tree_add_item(tree, hf_val_data, tvb, n+4, l, FALSE);
+        siz = tvb_get_ntohl(tvb, n);
+        proto_tree_add_int(tree, hf_val_length, tvb, n, 4, siz);
+        if (siz > 0)
+            proto_tree_add_item(tree, hf_val_data, tvb, n+4, siz, ENC_NA);
         break;
     }
 }
