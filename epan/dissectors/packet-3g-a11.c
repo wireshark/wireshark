@@ -866,26 +866,26 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
 
               proto_tree* extt_tree = proto_item_add_subtree(tj, ett_a11_forward_rohc);
 
-              proto_tree_add_item(extt_tree, hf_a11_ase_forward_rohc_info_len, tvb, offset+clen, 1, FALSE);
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_rohc_info_len, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
               clen++;
 
 
-              proto_tree_add_item(extt_tree, hf_a11_ase_forward_maxcid, tvb, offset+clen, 2, FALSE);
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_maxcid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
               clen+=2;
-              proto_tree_add_item(extt_tree, hf_a11_ase_forward_mrru, tvb, offset+clen, 2, FALSE);
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_mrru, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
               clen+=2;
-              proto_tree_add_item(extt_tree, hf_a11_ase_forward_large_cids, tvb, offset+clen, 1, FALSE);
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_large_cids, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
               clen++;
               profile_count=tvb_get_guint8(tvb, offset+clen);
 
-              proto_tree_add_item(extt_tree, hf_a11_ase_forward_profile_count, tvb, offset+clen, 1, FALSE);
+              proto_tree_add_item(extt_tree, hf_a11_ase_forward_profile_count, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
               clen++;
 
 
               for(profile_index=0; profile_index<profile_count; profile_index++){
       	          proto_item* tk = proto_tree_add_text (extt_tree, tvb, offset+clen, (2*profile_count), "Forward Profile : %d", profile_index);
                   proto_tree* extu_tree = proto_item_add_subtree(tk, ett_a11_forward_profile);
-                  proto_tree_add_item(extu_tree, hf_a11_ase_forward_profile, tvb, offset+clen, 2, FALSE);
+                  proto_tree_add_item(extu_tree, hf_a11_ase_forward_profile, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
                   clen+=2;
               }/*for*/
 
@@ -896,20 +896,20 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
 
               extv_tree = proto_item_add_subtree(tl, ett_a11_reverse_rohc);
 
-              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_rohc_info_len, tvb, offset+clen, 1, FALSE);
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_rohc_info_len, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
               clen++;
 
 
-              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_maxcid, tvb, offset+clen, 2, FALSE);
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_maxcid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
               clen+=2;
-              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_mrru, tvb, offset+clen, 2, FALSE);
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_mrru, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
               clen+=2;
-              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_large_cids, tvb, offset+clen, 1, FALSE);
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_large_cids, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
               clen++;
 
               profile_count=tvb_get_guint8(tvb, offset+clen);
 
-              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_profile_count, tvb, offset+clen, 1, FALSE);
+              proto_tree_add_item(extv_tree, hf_a11_ase_reverse_profile_count, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
               clen++;
 
 
@@ -918,7 +918,7 @@ static void dissect_ase(tvbuff_t* tvb, int offset, guint ase_len, proto_tree* ex
 
                   proto_tree* extw_tree = proto_item_add_subtree(tm, ett_a11_reverse_profile);
 
-                  proto_tree_add_item(extw_tree, hf_a11_ase_reverse_profile, tvb, offset+clen, 2, FALSE);
+                  proto_tree_add_item(extw_tree, hf_a11_ase_reverse_profile, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
                   clen+=2;
 
 
@@ -1086,13 +1086,13 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
             proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Forward Requested QoS Sub Blob");
 
             /* Flow Priority */
-            proto_tree_add_item(exts_tree1, hf_a11_fqi_flow_priority, tvb,offset+clen , 1, FALSE);
+            proto_tree_add_item(exts_tree1, hf_a11_fqi_flow_priority, tvb,offset+clen , 1, ENC_BIG_ENDIAN);
 			
             /*  Num of QoS attribute sets */
-            proto_tree_add_item(exts_tree1, hf_a11_fqi_num_qos_attribute_set, tvb, offset+clen, 1, FALSE);
+            proto_tree_add_item(exts_tree1, hf_a11_fqi_num_qos_attribute_set, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
 
             /* QoS attribute set length */
-            proto_tree_add_item(exts_tree1, hf_a11_fqi_qos_attribute_setlen, tvb, offset+clen, 2, FALSE);
+            proto_tree_add_item(exts_tree1, hf_a11_fqi_qos_attribute_setlen, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
             clen++;
 
             /* QoS attribute set */
@@ -1100,14 +1100,14 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
             exts_tree2 = proto_item_add_subtree(ti2, ett_a11_fqi_qos_attribute_set);
 			
             /* QoS attribute setid */
-            proto_tree_add_item(exts_tree2, hf_a11_fqi_qos_attribute_setid, tvb, offset+clen, 2, FALSE);
+            proto_tree_add_item(exts_tree2, hf_a11_fqi_qos_attribute_setid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
             clen++;
 
             /* verbose */
-            proto_tree_add_item(exts_tree2, hf_a11_fqi_verbose, tvb,offset+clen, 1, FALSE);
+            proto_tree_add_item(exts_tree2, hf_a11_fqi_verbose, tvb,offset+clen, 1, ENC_BIG_ENDIAN);
 
             /* Flow profile id */
-            proto_tree_add_item(exts_tree2, hf_a11_fqi_flow_profileid, tvb, offset+clen, 3, FALSE);
+            proto_tree_add_item(exts_tree2, hf_a11_fqi_flow_profileid, tvb, offset+clen, 3, ENC_BIG_ENDIAN);
             clen += 3;
 
         }
@@ -1196,13 +1196,13 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
             proto_tree_add_text(exts_tree1, tvb, offset+clen, requested_qos_len, "Reverse Requested QoS Sub Blob");
 
             /* Flow Priority */
-            proto_tree_add_item(exts_tree1, hf_a11_rqi_flow_priority, tvb,offset+clen , 1, FALSE);
+            proto_tree_add_item(exts_tree1, hf_a11_rqi_flow_priority, tvb,offset+clen , 1, ENC_BIG_ENDIAN);
 
             /*  Num of QoS attribute sets */
-            proto_tree_add_item(exts_tree1, hf_a11_rqi_num_qos_attribute_set, tvb, offset+clen, 1, FALSE);
+            proto_tree_add_item(exts_tree1, hf_a11_rqi_num_qos_attribute_set, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
 
             /* QoS attribute set length */
-            proto_tree_add_item(exts_tree1, hf_a11_rqi_qos_attribute_setlen, tvb, offset+clen, 2, FALSE);
+            proto_tree_add_item(exts_tree1, hf_a11_rqi_qos_attribute_setlen, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
             clen++;
 
             /* QoS attribute set */
@@ -1210,14 +1210,14 @@ static void dissect_rev_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
             exts_tree2 = proto_item_add_subtree(ti2, ett_a11_rqi_qos_attribute_set);
 
             /* QoS attribute setid */
-            proto_tree_add_item(exts_tree2, hf_a11_rqi_qos_attribute_setid, tvb, offset+clen, 2, FALSE);
+            proto_tree_add_item(exts_tree2, hf_a11_rqi_qos_attribute_setid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
             clen++;
 
             /* verbose */
-            proto_tree_add_item(exts_tree2, hf_a11_rqi_verbose, tvb,offset+clen, 1, FALSE);
+            proto_tree_add_item(exts_tree2, hf_a11_rqi_verbose, tvb,offset+clen, 1, ENC_BIG_ENDIAN);
 
             /* Flow profile id */
-            proto_tree_add_item(exts_tree2, hf_a11_rqi_flow_profileid, tvb, offset+clen, 3, FALSE);
+            proto_tree_add_item(exts_tree2, hf_a11_rqi_flow_profileid, tvb, offset+clen, 3, ENC_BIG_ENDIAN);
             clen += 3;
         }
 
@@ -1444,8 +1444,17 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
         case MN_NAI_EXT:
             if (ext_len == 0)
                 break;
+            /*
+             * XXX - RFC 2486 speaks only of ASCII; we currently don't
+             * have ENC_ASCII, and don't yet have infrastructure to
+             * deal with it (by displaying all octets with the 8th bit
+             * set as an "error" character).  Dunno whether the 3GPP2
+             * or IETF or anybody else extended the NAI to include
+             * non-ASCII characters or, if they did, whether they
+             * specify UTF-8 or some other encoding.
+             */
             proto_tree_add_item(ext_tree, hf_a11_next_nai, tvb, offset,
-                                ext_len, ENC_BIG_ENDIAN);
+                                ext_len, ENC_UTF_8|ENC_BIG_ENDIAN);
             break;
 
         case GEN_AUTH_EXT:      /* RFC 3012 */
