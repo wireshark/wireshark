@@ -2043,18 +2043,16 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							/* To        =  ( "To" / "t" ) HCOLON ( name-addr
 							 *               / addr-spec ) *( SEMI to-param )
 							 */
-						}
-						sip_uri_offset_init(&uri_offsets);
-						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
-							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
-							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-								stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
-									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
+							sip_uri_offset_init(&uri_offsets);
+							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
+								display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_to_uri);
+								if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
+									stat_info->tap_to_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
+										uri_offsets.name_addr_end - uri_offsets.name_addr_start);
+								}
+								offset = uri_offsets.name_addr_end +1;
 							}
-							offset = uri_offsets.name_addr_end +1;
-						}
 
-						if(hdr_tree) {
 							/* Find parameter tag if present.
 							 * TODO make this generic to find any interesting parameter
 							 * use the same method as for SIP headers ?
@@ -2095,23 +2093,22 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							                   value, "%s",
 							                   tvb_format_text(tvb, offset, linelen));
 							sip_element_tree = proto_item_add_subtree( sip_element_item, ett_sip_element);
-						}
 							/*
 							 * From        =  ( "From" / "f" ) HCOLON from-spec
 							 * from-spec   =  ( name-addr / addr-spec )
 							 *                *( SEMI from-param )
 							 */
 
-						sip_uri_offset_init(&uri_offsets);
-						if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
-							display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
-							if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
-								stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
-									uri_offsets.name_addr_end - uri_offsets.name_addr_start);
+							sip_uri_offset_init(&uri_offsets);
+							if((dissect_sip_name_addr_or_addr_spec(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1){
+								display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_from_uri);
+								if((uri_offsets.name_addr_start != -1) && (uri_offsets.name_addr_end != -1)){
+									stat_info->tap_from_addr=tvb_get_ephemeral_string(tvb, uri_offsets.name_addr_start,
+										uri_offsets.name_addr_end - uri_offsets.name_addr_start);
+								}
+								offset = uri_offsets.name_addr_end +1;
 							}
-							offset = uri_offsets.name_addr_end +1;
-						}
-						if(hdr_tree) {
+
 							/* Find parameter tag if present.
 							 * TODO make this generic to find any interesting parameter
 							 * use the same method as for SIP headers ?
@@ -2231,41 +2228,41 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 							sip_element_tree = proto_item_add_subtree( sip_element_item,
 																		ett_sip_element);
-						}
-						/*
-						 * Trigger-Consent     =  "Trigger-Consent" HCOLON trigger-cons-spec
-						 *                        *( COMMA trigger-cons-spec )
-						 * trigger-cons-spec   =  ( SIP-URI / SIPS-URI )
-						 *                        *( SEMI trigger-param )
-						 * trigger-param       =  target-uri / generic-param
-						 * target-uri          =  "target-uri" EQUAL
-						 *                            LDQUOT *( qdtext / quoted-pair ) RDQUOT
-						 * Initialize the uri_offsets
-						 */
-						sip_uri_offset_init(&uri_offsets);
-						if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1) {
+							/*
+							 * Trigger-Consent     =  "Trigger-Consent" HCOLON trigger-cons-spec
+							 *                        *( COMMA trigger-cons-spec )
+							 * trigger-cons-spec   =  ( SIP-URI / SIPS-URI )
+							 *                        *( SEMI trigger-param )
+							 * trigger-param       =  target-uri / generic-param
+							 * target-uri          =  "target-uri" EQUAL
+							 *                            LDQUOT *( qdtext / quoted-pair ) RDQUOT
+							 * Initialize the uri_offsets
+							 */
+							sip_uri_offset_init(&uri_offsets);
+							if((dissect_sip_uri(tvb, pinfo, value_offset, line_end_offset+2, &uri_offsets)) != -1) {
 
-							tc_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_tc_uri);
-							if (line_end_offset > uri_offsets.uri_end) {
-								gint hparam_offset = uri_offsets.uri_end + 1;
-								/* Is there a header parameter */
-								if (tvb_find_guint8(tvb, hparam_offset, 1,';')) {
-									while ((hparam_offset != -1 && hparam_offset < line_end_offset) )  {
-										/* Is this a target-uri ? */
-										hparam_offset = hparam_offset + 1;
-										if (tvb_strncaseeql(tvb, hparam_offset, "target-uri=\"", 12) == 0) {
-											gint turi_start_offset = hparam_offset + 12;
-											gint turi_end_offset   = tvb_find_guint8(tvb, turi_start_offset, -1,'\"');
-											if (turi_end_offset != -1)
-												proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),FALSE);
-											else
-							 					break; /* malformed */
+								tc_uri_item_tree = display_sip_uri(tvb, sip_element_tree, &uri_offsets, &sip_tc_uri);
+								if (line_end_offset > uri_offsets.uri_end) {
+									gint hparam_offset = uri_offsets.uri_end + 1;
+									/* Is there a header parameter */
+									if (tvb_find_guint8(tvb, hparam_offset, 1,';')) {
+										while ((hparam_offset != -1 && hparam_offset < line_end_offset) )  {
+											/* Is this a target-uri ? */
+											hparam_offset = hparam_offset + 1;
+											if (tvb_strncaseeql(tvb, hparam_offset, "target-uri=\"", 12) == 0) {
+												gint turi_start_offset = hparam_offset + 12;
+												gint turi_end_offset   = tvb_find_guint8(tvb, turi_start_offset, -1,'\"');
+												if (turi_end_offset != -1)
+													proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),FALSE);
+												else
+							 						break; /* malformed */
+											}
+											hparam_offset = tvb_find_guint8(tvb, hparam_offset, -1,';');
 										}
-										hparam_offset = tvb_find_guint8(tvb, hparam_offset, -1,';');
 									}
 								}
 							}
-						}
+						}/* hdr_tree */
 						break;
 
 					case POS_CSEQ :
