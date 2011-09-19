@@ -512,8 +512,8 @@ const value_string ssl_31_client_certificate_type[] = {
     /* GOST certificate types */
     /* Section 3.5 of draft-chudov-cryptopro-cptls-04 */
     { 21, "GOST R 34.10-94" },
-    { 22, "GOST R 34.10-2001" },    
-    /* END GOST certificate types */        
+    { 22, "GOST R 34.10-2001" },
+    /* END GOST certificate types */
     { 64, "ECDSA Sign" },
     { 65, "RSA Fixed ECDH" },
     { 66, "ECDSA Fixed ECDH" },
@@ -3190,12 +3190,12 @@ ssl_parse_key_list(const ssldecrypt_assoc_t * uats, GHashTable *key_hash, GTree*
         private_key = ssl_load_pkcs12(fp, uats->password);
     }
 
+    fclose(fp);
+
     if (!private_key) {
         fprintf(stderr,"Can't load private key from %s\n", uats->keyfile);
         return;
     }
-
-    fclose(fp);
 
     for (at = 0; at < 2; at++) {
         memset(addr_data, 0, sizeof(addr_data));
@@ -3363,7 +3363,7 @@ ssl_keylog_lookup(SslDecryptSession* ssl_session,
             ssl_debug_printf("    rejecting line due to bad format\n");
             continue;
         }
-        
+
         offset = 4;
 
         if ( ssl_session->session_id.data_len>0 && memcmp(line+offset,"Session-ID:",11) == 0 ) {
