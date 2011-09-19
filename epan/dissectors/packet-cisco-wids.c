@@ -127,12 +127,13 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					" [Malformed or short IEEE80211 subpacket] " );
 				col_set_fence(pinfo->cinfo, COL_INFO);
 			}
-
-	wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
 #if 0
+	wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
 			/* FIXME: Why does this throw an exception? */
 			proto_tree_add_text(cwids_tree, wlan_tvb, offset, capturelen,
 				"[Malformed or short IEEE80211 subpacket]");
+#else
+			tvb_new_subset(tvb, offset, capturelen, capturelen);
 #endif
 	;
 		} ENDTRY;
