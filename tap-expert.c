@@ -55,6 +55,22 @@ typedef struct expert_tapdata_t {
 } expert_tapdata_t;
 
 
+/* Copied from expert.c... */
+const value_string expert_group_vals[] = {
+        { PI_CHECKSUM,          "Checksum" },
+        { PI_SEQUENCE,          "Sequence" },
+        { PI_RESPONSE_CODE,     "Response" },
+        { PI_REQUEST_CODE,      "Request" },
+        { PI_UNDECODED,         "Undecoded" },
+        { PI_REASSEMBLE,        "Reassemble" },
+        { PI_MALFORMED,         "Malformed" },
+        { PI_DEBUG,             "Debug" },
+        { PI_PROTOCOL,          "Protocol" },
+        { PI_SECURITY,          "Security" },
+        { 0, NULL }
+};
+
+
 
 /* Reset expert stats */
 static void
@@ -129,12 +145,14 @@ static void draw_items_for_severity(GArray *items, const gchar *label)
     printf("=============\n");
 
     /* Column headings */
-    printf("   Frame             Protocol\n");
+    printf("   Frame      Group           Protocol\n");
 
     /* Items */
     for (n=0; n < items->len; n++) {
         ei = &g_array_index(items, expert_info_t, n);
-        printf("%8u %20s  %s\n", ei->packet_num ,ei->protocol, ei->summary);
+        printf("%8u %10s %18s  %s\n", ei->packet_num,
+              val_to_str(ei->group, expert_group_vals, "Unknown"),
+              ei->protocol, ei->summary);
     }
 }
 
@@ -175,6 +193,7 @@ static void expert_stat_init(const char *optarg, void *userdata _U_)
 
     /* Allocate chunk of strings */
     hs->text = g_string_chunk_new(100);
+
     /* Allocate GArray for each severity level */
     for (n=0; n < max_level; n++) {
         hs->ei_array[n] = g_array_sized_new(FALSE, FALSE, sizeof(expert_info_t), 1000);
