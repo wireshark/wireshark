@@ -371,16 +371,16 @@ acn_add_channel_owner_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   pi = proto_tree_add_text(this_tree, tvb, offset, 8, "Channel Owner Info Block");
   this_tree = proto_item_add_subtree(pi, ett_acn_channel_owner_info_block);
 
-  proto_tree_add_item(this_tree, hf_acn_member_id, tvb, offset, 2, FALSE);
+  proto_tree_add_item(this_tree, hf_acn_member_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, FALSE);
+  proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
   offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
 
   session_count = tvb_get_ntohs(tvb, offset);
   for (x=0; x<session_count; x++) {
-    pi = proto_tree_add_item(this_tree, hf_acn_protocol_id, tvb, offset, 4, FALSE);
+    pi = proto_tree_add_item(this_tree, hf_acn_protocol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " #%d",  x+1);
     offset += 4;
   }
@@ -400,20 +400,20 @@ acn_add_channel_member_info_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   pi = proto_tree_add_text(this_tree, tvb, offset, 8, "Channel Member Info Block");
   this_tree = proto_item_add_subtree(pi, ett_acn_channel_member_info_block);
 
-  proto_tree_add_item(this_tree, hf_acn_member_id, tvb, offset, 2, FALSE);
+  proto_tree_add_item(this_tree, hf_acn_member_id, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(this_tree, hf_acn_cid, tvb, offset, 16, FALSE);
+  proto_tree_add_item(this_tree, hf_acn_cid, tvb, offset, 16, ENC_BIG_ENDIAN);
   offset += 16;
-  proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, FALSE);
+  proto_tree_add_item(this_tree, hf_acn_channel_number, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   offset += acn_add_address(tvb, pinfo, this_tree, offset, "Destination Address:");
   offset += acn_add_address(tvb, pinfo, this_tree, offset, "Source Address:");
-  proto_tree_add_item(this_tree, hf_acn_reciprocal_channel, tvb, offset, 2, FALSE);
+  proto_tree_add_item(this_tree, hf_acn_reciprocal_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   session_count = tvb_get_ntohs(tvb, offset);
   for (x=0; x<session_count; x++) {
-    pi = proto_tree_add_item(this_tree, hf_acn_protocol_id, tvb, offset, 4, FALSE);
+    pi = proto_tree_add_item(this_tree, hf_acn_protocol_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(pi, " #%d",  x+1);
     offset += 4;
   }
@@ -442,15 +442,15 @@ acn_add_channel_parameter(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
   pi = proto_tree_add_text(tree, tvb, offset, 8, "Channel Parameter Block");
   param_tree = proto_item_add_subtree(pi, ett_acn_channel_parameter);
-  proto_tree_add_item(param_tree, hf_acn_expiry, tvb, offset, 1, FALSE);
+  proto_tree_add_item(param_tree, hf_acn_expiry, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-  proto_tree_add_item(param_tree, hf_acn_nak_outbound_flag, tvb, offset, 1, FALSE);
+  proto_tree_add_item(param_tree, hf_acn_nak_outbound_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-  proto_tree_add_item(param_tree, hf_acn_nak_holdoff, tvb, offset, 2, FALSE);
+  proto_tree_add_item(param_tree, hf_acn_nak_holdoff, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(param_tree, hf_acn_nak_modulus, tvb, offset, 2, FALSE);
+  proto_tree_add_item(param_tree, hf_acn_nak_modulus, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(param_tree, hf_acn_nak_max_wait, tvb, offset, 2, FALSE);
+  proto_tree_add_item(param_tree, hf_acn_nak_max_wait, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   return offset; /* bytes used */
 }
@@ -476,21 +476,21 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
 
   switch (ip_address_type) {
     case ACN_ADDR_NULL:
-      proto_tree_add_item(tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       break;
     case ACN_ADDR_IPV4:
       /* Build tree and add type*/
       pi = proto_tree_add_text(tree, tvb, offset, 7, "%s", label);
       addr_tree = proto_item_add_subtree(pi, ett_acn_address);
-      proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset +=1;
       /* Add port */
       port = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       /* Add Address */
-      proto_tree_add_item(addr_tree, hf_acn_ipv4, tvb, offset, 4, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
       /* Append port and address to tree item */
       IPv4 = tvb_get_ipv4(tvb, offset);
       SET_ADDRESS(&addr, AT_IPv4, sizeof(IPv4), &IPv4);
@@ -501,14 +501,14 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       /* Build tree and add type*/
       pi = proto_tree_add_text(tree, tvb, offset, 19, "%s", label);
       addr_tree = proto_item_add_subtree(pi, ett_acn_address);
-      proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset +=1;
       /* Add port */
       port = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       /* Add Address */
-      proto_tree_add_item(addr_tree, hf_acn_ipv6, tvb, offset, 16, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
       /* Append port and address to tree item */
       tvb_get_ipv6(tvb, offset, &IPv6);
       SET_ADDRESS(&addr, AT_IPv6, sizeof(struct e_in6_addr), &IPv6);
@@ -519,11 +519,11 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       /* Build tree and add type*/
       pi = proto_tree_add_text(tree, tvb, offset, 3, "%s", label);
       addr_tree = proto_item_add_subtree(pi, ett_acn_address);
-      proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_ip_address_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset +=1;
       /* Add port */
       port = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, FALSE);
+      proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       /* Append port to tree item */
       proto_item_append_text(pi, " %s Port %d", ep_address_to_str(&addr), port);
       offset += 2;
@@ -782,7 +782,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
   if (!ok_to_process) {
     data_size = adt->data_length;
-    ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, FALSE);
+    ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
     offset += data_size;
     proto_item_set_text(ti, "Data and more Address-Data Pairs (further dissection not possible)");
     return offset;
@@ -834,7 +834,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
             g_snprintf(buffer, BUFFER_SIZE, "%s %2.2X", buffer, data_value);
           }
           /* add the item */
-          ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, FALSE);
+          ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
           offset += data_size;
           /* change the text */
           proto_item_set_text(ti, "%s", buffer);
@@ -887,7 +887,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
               g_snprintf(buffer, BUFFER_SIZE, "%s %2.2X", buffer, data_value);
             }
             /* add the item */
-            ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, FALSE);
+            ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
             /* change the text */
             proto_item_set_text(ti, "%s", buffer);
             break;
@@ -941,7 +941,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
               g_snprintf(buffer, BUFFER_SIZE, "%s %2.2X", buffer, data_value);
             }
             /* add the item */
-            ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, FALSE);
+            ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
             /* change the text */
             proto_item_set_text(ti, "%s", buffer);
             break;
@@ -954,7 +954,7 @@ acn_add_dmp_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int of
 
     case ACN_DMP_ADT_D_RM: /* Range address, Series of mixed size data items */
       data_size = adt->data_length;
-      ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, FALSE);
+      ti = proto_tree_add_item(tree, hf_acn_data, tvb, offset, data_size, ENC_NA);
       offset += data_size;
       /* change the text */
       proto_item_set_text(ti, "Mixed size data items");
@@ -1125,16 +1125,16 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_dmp_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -1370,7 +1370,7 @@ dissect_acn_dmp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
       break;
     case ACN_DMP_VECTOR_ALLOCATE_MAP_REPLY:
       /* Single reason code  */
-      proto_tree_add_item(pdu_tree, hf_acn_dmp_reason_code, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_dmp_reason_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset++;
     case ACN_DMP_VECTOR_DEALLOCATE_MAP:
       /* No data for this */
@@ -1430,16 +1430,16 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_sdt_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -1483,7 +1483,7 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
 
   switch (vector) {
     case ACN_SDT_VECTOR_ACK:
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       break;
     case ACN_SDT_VECTOR_CHANNEL_PARAMS:
@@ -1496,31 +1496,31 @@ dissect_acn_sdt_wrapped_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree 
       break;
     case ACN_SDT_VECTOR_CONNECT:
       /* Protocol ID item */
-      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       break;
     case ACN_SDT_VECTOR_CONNECT_ACCEPT:
       /* Protocol ID item */
-      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       break;
     case ACN_SDT_VECTOR_CONNECT_REFUSE:
       /* Protocol ID item */
-      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_refuse_code, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_refuse_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset++;
       break;
     case ACN_SDT_VECTOR_DISCONNECT:
       /* Protocol ID item */
-      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       break;
     case ACN_SDT_VECTOR_DISCONNECTING:
       /* Protocol ID item */
-      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_protocol_id, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_reason_code, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reason_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset++;
       break;
 
@@ -1586,16 +1586,16 @@ dissect_acn_sdt_client_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_sdt_client_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -1802,16 +1802,16 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_dmx_data_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -1872,19 +1872,19 @@ dissect_acn_dmx_data_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo,
     case ACN_DMP_VECTOR_SET_PROPERTY:
       dmx_start_code = tvb_get_ntohs(tvb, data_offset);
       if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_first_property_address, tvb, data_offset, 2, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_first_property_address, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       } else{
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_start_code, tvb, data_offset, 2, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_start_code, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       }
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_increment, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_increment, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
       dmx_count = tvb_get_ntohs(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_count, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_count, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
 
       if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_start_code, tvb, data_offset, 1, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_start_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         data_offset += 1;
         dmx_count -= 1;
       }
@@ -2054,16 +2054,16 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_dmx_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -2083,7 +2083,7 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
 
   /* Add Vector item */
   vector = tvb_get_ntohl(tvb, vector_offset);
-  proto_tree_add_item(pdu_tree, hf_acn_dmx_vector, tvb, vector_offset, 4, FALSE);
+  proto_tree_add_item(pdu_tree, hf_acn_dmx_vector, tvb, vector_offset, 4, ENC_BIG_ENDIAN);
   /* vector_offset +=4; */
 
   /* Add Vector item to tree*/
@@ -2109,37 +2109,37 @@ dissect_acn_dmx_pdu(guint32 protocol_id, tvbuff_t *tvb, packet_info *pinfo, prot
   switch (vector) {
     case 0x02:
       if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 64, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 64, ENC_UTF_8|ENC_BIG_ENDIAN);
         data_offset += 64;
       } else{
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 32, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_source_name, tvb, data_offset, 32, ENC_UTF_8|ENC_BIG_ENDIAN);
         data_offset += 32;
       }
 
       priority = tvb_get_guint8(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_priority, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_priority, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset += 1;
 
       if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
-        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_reserved, tvb, data_offset, 2, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_dmx_2_reserved, tvb, data_offset, 2, ENC_BIG_ENDIAN);
         data_offset += 2;
       }
 
       sequence = tvb_get_guint8(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_sequence_number, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_sequence_number, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset += 1;
 
       if(protocol_id==ACN_PROTOCOL_ID_DMX_2){
         option_flags = tvb_get_guint8(tvb, data_offset);
         pi = proto_tree_add_uint(pdu_tree, hf_acn_dmx_2_options, tvb, data_offset, 1, option_flags);
         flag_tree = proto_item_add_subtree(pi, ett_acn_dmx_2_options);
-        proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_p, tvb, data_offset, 1, FALSE);
-        proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_s, tvb, data_offset, 1, FALSE);
+        proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_p, tvb, data_offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flag_tree, hf_acn_dmx_2_option_s, tvb, data_offset, 1, ENC_BIG_ENDIAN);
         data_offset += 1;
       }
 
       universe = tvb_get_ntohs(tvb, data_offset);
-      proto_tree_add_item(pdu_tree, hf_acn_dmx_universe       , tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_dmx_universe       , tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
 
       /* add universe to info */
@@ -2207,16 +2207,16 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_sdt_base_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -2265,19 +2265,19 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       break;
     case ACN_SDT_VECTOR_REL_WRAP:
     case ACN_SDT_VECTOR_UNREL_WRAP:
-      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_total_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_total_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_oldest_available_wrapper, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_oldest_available_wrapper, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_first_memeber_to_ack, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_first_memeber_to_ack, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_last_memeber_to_ack, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_last_memeber_to_ack, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_mak_threshold, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_mak_threshold, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
 
       while (data_offset < end_offset) {
@@ -2289,61 +2289,61 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     case ACN_SDT_VECTOR_CHANNEL_PARAMS:
       break;
     case ACN_SDT_VECTOR_JOIN:
-      proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
       data_offset += 16;
-      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_reciprocal_channel, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reciprocal_channel, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_total_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_total_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       data_offset = acn_add_address(tvb, pinfo, pdu_tree, data_offset, "Destination Address:");
       data_offset = acn_add_channel_parameter(tvb, pinfo, pdu_tree, data_offset);
       data_offset = acn_add_expiry(tvb, pinfo, pdu_tree, data_offset, "Ad-hoc Expiry:");
       break;
     case ACN_SDT_VECTOR_JOIN_REFUSE:
-      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
+      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
       data_offset += 16;
       proto_item_append_text(pi, "(Leader)");
-      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_refuse_code, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_refuse_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       data_offset ++;
       break;
     case ACN_SDT_VECTOR_JOIN_ACCEPT:
-      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
+      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
       data_offset += 16;
       proto_item_append_text(pi, "(Leader)");
-      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_reciprocal_channel, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reciprocal_channel, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
       break;
     case ACN_SDT_VECTOR_LEAVE:
       break;
     case ACN_SDT_VECTOR_LEAVING:
-      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
+      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
       data_offset += 16;
       proto_item_append_text(pi, "(Leader)");
-      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_reason_code, tvb, data_offset, 1, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reason_code, tvb, data_offset, 1, ENC_BIG_ENDIAN);
       offset++;
       break;
     case ACN_SDT_VECTOR_CONNECT:
@@ -2359,22 +2359,22 @@ dissect_acn_sdt_base_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
     case ACN_SDT_VECTOR_ACK:
       break;
     case ACN_SDT_VECTOR_NAK:
-      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
+      pi = proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
       data_offset += 16;
       proto_item_append_text(pi, "(Leader)");
-      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_channel_number, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_member_id, tvb, data_offset, 2, ENC_BIG_ENDIAN);
       data_offset += 2;
-      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_reliable_sequence_number, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_first_missed_sequence, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_first_missed_sequence, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
-      proto_tree_add_item(pdu_tree, hf_acn_last_missed_sequence, tvb, data_offset, 4, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_last_missed_sequence, tvb, data_offset, 4, ENC_BIG_ENDIAN);
       data_offset += 4;
       break;
     case ACN_SDT_VECTOR_GET_SESSION:
-      proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, data_offset, 16, ENC_BIG_ENDIAN);
       data_offset += 16;
       break;
     case ACN_SDT_VECTOR_SESSIONS:
@@ -2447,16 +2447,16 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
   /* offset should now be pointing to vector (if one exists) */
 
   /* Add pdu item and tree */
-  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, FALSE);
+  ti = proto_tree_add_item(tree, hf_acn_pdu, tvb, pdu_start, pdu_length, ENC_NA);
   pdu_tree = proto_item_add_subtree(ti, ett_acn_root_pdu);
 
   /* Add flag item and tree */
   pi = proto_tree_add_uint(pdu_tree, hf_acn_pdu_flags, tvb, pdu_start, 1, pdu_flags);
   flag_tree = proto_item_add_subtree(pi, ett_acn_pdu_flags);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, FALSE);
-  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, FALSE);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_l, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_v, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_h, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(flag_tree, hf_acn_pdu_flag_d, tvb, pdu_start, 1, ENC_BIG_ENDIAN);
 
   /* Add PDU Length item */
   proto_tree_add_uint(pdu_tree, hf_acn_pdu_length, tvb, pdu_start, pdu_flvh_length, pdu_length);
@@ -2501,13 +2501,13 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
         /* offset should now be pointing to data (if one exists) */
 
         /* get Header (CID) 16 bytes */
-        tvb_get_guid(tvb, header_offset, &guid, FALSE);
+        tvb_get_guid(tvb, header_offset, &guid, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, ", Src: %s", guid_to_str(&guid));
 
         /* add cid to info */
         col_add_fstr(pinfo->cinfo,COL_INFO, "CID %s", guid_to_str(&guid));
 
-        proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, FALSE);
+        proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, ENC_BIG_ENDIAN);
         header_offset += 16;
 
         /* Adjust data */
@@ -2550,10 +2550,10 @@ dissect_acn_root_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
       /* offset should now be pointing to data (if one exists) */
 
       /* get Header (CID) 16 bytes */
-      tvb_get_guid(tvb, header_offset, &guid, FALSE);
+      tvb_get_guid(tvb, header_offset, &guid, ENC_BIG_ENDIAN);
       proto_item_append_text(ti, ", Src: %s", guid_to_str(&guid));
 
-      proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, FALSE);
+      proto_tree_add_item(pdu_tree, hf_acn_cid, tvb, header_offset, 16, ENC_BIG_ENDIAN);
       header_offset += 16;
 
       /* Adjust data */
@@ -2604,15 +2604,15 @@ dissect_acn(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_add_fstr(pinfo->cinfo,COL_INFO, "ACN [Src Port: %d, Dst Port: %d]", pinfo->srcport, pinfo->destport );
 
   if (tree) { /* we are being asked for details */
-    ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_acn, tvb, 0, -1, ENC_NA);
     acn_tree = proto_item_add_subtree(ti, ett_acn);
 
     /* add preamble, postamble and ACN Packet ID */
-    proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, FALSE);
+    proto_tree_add_item(acn_tree, hf_acn_preamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
     data_offset += 2;
-    proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, FALSE);
+    proto_tree_add_item(acn_tree, hf_acn_postamble_size, tvb, data_offset, 2, ENC_BIG_ENDIAN);
     data_offset += 2;
-    proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, FALSE);
+    proto_tree_add_item(acn_tree, hf_acn_packet_identifier, tvb, data_offset, 12, ENC_UTF_8|ENC_BIG_ENDIAN);
     data_offset += 12;
 
     /* one past the last byte */
@@ -3105,4 +3105,3 @@ proto_reg_handoff_acn(void)
   /* dissector_add_handle("udp.port", acn_handle);                         */
   heur_dissector_add("udp", dissect_acn_heur, proto_acn);
 }
-
