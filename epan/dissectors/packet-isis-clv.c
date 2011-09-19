@@ -565,7 +565,7 @@ isis_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			}
 #else
 			if (tree) {
-				ti = proto_tree_add_text(tree, tvb, offset - 2,
+				proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, "Unknown code %u (%u)",
 					code, length);
 			}
