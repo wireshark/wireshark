@@ -169,7 +169,6 @@ fp_get_hmac_addr (guint64 hmac, guint16 *swid, guint16 *sswid, guint16 *lid) {
 static void
 fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
 
-  proto_item *ti ;
   guint16 eid;
 
   if (!tree) {
@@ -184,19 +183,18 @@ fp_add_hmac (tvbuff_t *tvb, proto_tree *tree, int offset) {
 
   eid &= FP_EID_MASK;
   eid = ((eid & 0x00C0) >> 6) + ((eid & 0xFC00) >> 8);
-  ti = proto_tree_add_uint(tree, hf_eid, tvb, offset,
-                           FP_BF_LEN, eid);
+  proto_tree_add_uint(tree, hf_eid, tvb, offset, FP_BF_LEN, eid);
 
-  ti = proto_tree_add_item (tree, hf_ul, tvb, offset, FP_BF_LEN, ENC_NA);
-  ti = proto_tree_add_item (tree, hf_ig, tvb, offset, FP_BF_LEN, ENC_NA);
-  ti = proto_tree_add_item (tree, hf_ooodl, tvb, offset, FP_BF_LEN, ENC_NA);
-  ti = proto_tree_add_item (tree, hf_swid, tvb, offset, FP_BF_LEN, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_ul, tvb, offset, FP_BF_LEN, ENC_NA);
+  proto_tree_add_item (tree, hf_ig, tvb, offset, FP_BF_LEN, ENC_NA);
+  proto_tree_add_item (tree, hf_ooodl, tvb, offset, FP_BF_LEN, ENC_NA);
+  proto_tree_add_item (tree, hf_swid, tvb, offset, FP_BF_LEN, ENC_BIG_ENDIAN);
   offset += FP_BF_LEN;
 
-  ti = proto_tree_add_item (tree, hf_sswid, tvb, offset, FP_SSWID_LEN, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_sswid, tvb, offset, FP_SSWID_LEN, ENC_BIG_ENDIAN);
   offset += FP_SSWID_LEN;
 
-  ti = proto_tree_add_item (tree, hf_lid, tvb, offset, FP_LID_LEN, ENC_BIG_ENDIAN);
+  proto_tree_add_item (tree, hf_lid, tvb, offset, FP_LID_LEN, ENC_BIG_ENDIAN);
   offset += FP_LID_LEN;
 
 }
@@ -284,9 +282,9 @@ dissect_fp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     /* Skip ethertype */
     offset += 2;
 
-    ti = proto_tree_add_item (fp_tree, hf_ftag, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item (fp_tree, hf_ftag, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
 
-    ti = proto_tree_add_item (fp_tree, hf_ttl, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
+    proto_tree_add_item (fp_tree, hf_ttl, tvb, offset, FP_FTAG_LEN, ENC_BIG_ENDIAN);
 
   }
   /* call the eth dissector */
