@@ -702,7 +702,6 @@ timestamp_format_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_, gp
     gint value;
 
     value = gtk_radio_action_get_current_value (action);
-    g_warning("timestamp_format_new_cb, value %u, recent.gui_time_format %u",value, recent.gui_time_format);
     if (recent.gui_time_format != value) {
         timestamp_set_type(value);
         recent.gui_time_format = value;
