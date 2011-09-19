@@ -224,14 +224,18 @@ nlsp_dissect_clvs(tvbuff_t *tvb, proto_tree *tree, int offset,
 			    length);
 		} else {
 			if (tree) {
+#if 0  /* XXX: ?? */
 				ti = proto_tree_add_text(tree, tvb, offset - 2,
 					length + 2, "Unknown code %u (%u)",
 					code, length);
-#if 0  /* XXX: ?? */
 				clv_tree = proto_item_add_subtree(ti,
 					unknown_tree_id );
 			} else {
 				clv_tree = NULL;
+#else
+				proto_tree_add_text(tree, tvb, offset - 2,
+					length + 2, "Unknown code %u (%u)",
+					code, length);
 #endif
 			}
 		}
