@@ -1445,13 +1445,8 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
             if (ext_len == 0)
                 break;
             /*
-             * XXX - RFC 2486 speaks only of ASCII; we currently don't
-             * have ENC_ASCII, and don't yet have infrastructure to
-             * deal with it (by displaying all octets with the 8th bit
-             * set as an "error" character).  Dunno whether the 3GPP2
-             * or IETF or anybody else extended the NAI to include
-             * non-ASCII characters or, if they did, whether they
-             * specify UTF-8 or some other encoding.
+             * RFC 2486 speaks only of ASCII; RFC 4282 expands that to
+             * UTF-8.
              */
             proto_tree_add_item(ext_tree, hf_a11_next_nai, tvb, offset,
                                 ext_len, ENC_UTF_8|ENC_BIG_ENDIAN);
