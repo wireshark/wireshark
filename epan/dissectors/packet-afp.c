@@ -693,7 +693,6 @@ static int hf_afp_spotlight_returncode = -1;
 static int hf_afp_spotlight_volflags = -1;
 static int hf_afp_spotlight_reqlen = -1;
 static int hf_afp_spotlight_toc_query_end = -1;
-static int hf_afp_spotlight_mdstring = -1;
 
 static const value_string flag_vals[] = {
 	{0,	"Start" },
@@ -1014,9 +1013,13 @@ static int hf_afp_acl_access_bitmap_generic_read    = -1;
 
 #define hash_init_count 20
 
+/* Forward declarations */
+
 /* Hash functions */
 static gint  afp_equal (gconstpointer v, gconstpointer v2);
 static guint afp_hash  (gconstpointer v);
+
+static gint dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset);
 
 typedef struct {
 	guint32 conversation;
@@ -1028,18 +1031,22 @@ static GHashTable *afp_request_hash = NULL;
 static guint Vol;      /* volume */
 static guint Did;      /* parent directory ID */
 
-#define SPOTLIGHT_BIG_ENDIAN 0
-#define SPOTLIGHT_LITTLE_ENDIAN 1
-
-static gint spotlight_endianess;
-
 static guint64
-spotlight_ntoh64(tvbuff_t *tvb, gint offset)
+spotlight_ntoh64(tvbuff_t *tvb, gint offset, guint encoding)
 {
-	if (spotlight_endianess == SPOTLIGHT_LITTLE_ENDIAN)
+	if (encoding == ENC_LITTLE_ENDIAN)
 		return tvb_get_letoh64(tvb, offset);
 	else
 		return tvb_get_ntoh64(tvb, offset);
+}
+
+static gdouble
+spotlight_ntohieee_double(tvbuff_t *tvb, gint offset, guint encoding)
+{
+	if (encoding == ENC_LITTLE_ENDIAN)
+		return tvb_get_letohieee_double(tvb, offset);
+	else
+		return tvb_get_ntohieee_double(tvb, offset);
 }
 
 /* Hash Functions */
@@ -3976,45 +3983,292 @@ dissect_query_afp_with_did(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 }
 
 /* ************************** */
+
+#define SQ_TYPE_NULL    0x0000
+#define SQ_TYPE_COMPLEX 0x0200
+#define SQ_TYPE_INT64   0x8400
+#define SQ_TYPE_BOOL    0x0100
+#define SQ_TYPE_FLOAT   0x8500
+#define SQ_TYPE_DATA    0x0700
+#define SQ_TYPE_CNIDS   0x8700
+
+#define SQ_CPX_TYPE_ARRAY    0x0a00
+#define SQ_CPX_TYPE_STRING   0x0c00
+#define SQ_CPX_TYPE_DICT     0x0d00
+#define SQ_CPX_TYPE_CNIDS    0x1a00
+#define SQ_CPX_TYPE_FILEMETA 0x1b00
+
+static gint
+spotlight_int64(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
+{
+	gint count, i;
+	guint64 query_data64;
+	
+	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+	count = query_data64 >> 32;
+	offset += 8;
+	
+	i = 0;
+	while (i++ < count) {
+		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+		proto_tree_add_text(tree, tvb, offset, 8, "int64: 0x%016" G_GINT64_MODIFIER "x", query_data64);
+		offset += 8;
+	}	
+	
+	return count;
+}
+
+static gint
+spotlight_float(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
+{
+	gint count, i;
+	guint64 query_data64;
+	gdouble fval;
+	
+	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+	count = query_data64 >> 32;
+	offset += 8;
+	
+	i = 0;
+	while (i++ < count) {
+		fval = spotlight_ntohieee_double(tvb, offset, encoding);
+		proto_tree_add_text(tree, tvb, offset, 8, "float: %f", fval);
+		offset += 8;
+	}	
+	
+	return count;
+}
+
+static gint
+spotlight_CNID_array(tvbuff_t *tvb, proto_tree *tree, gint offset, guint encoding)
+{
+	gint count;
+	guint64 query_data64;
+	guint16 unknown1;
+	guint32 unknown2;
+
+	query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+	count = query_data64 & 0xffff;
+	unknown1 = (query_data64 & 0xffff0000) >> 16;
+	unknown2 = query_data64 >> 32;
+
+	proto_tree_add_text(tree, tvb, offset + 2, 2, "unknown1: 0x%04" G_GINT16_MODIFIER "x",
+		unknown1);
+	proto_tree_add_text(tree, tvb, offset + 4, 4, "unknown2: 0x%08" G_GINT32_MODIFIER "x",
+		unknown2);
+	offset += 8;
+	
+
+	while (count --) {
+		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+		proto_tree_add_text(tree, tvb, offset, 8, "CNID: %" G_GINT64_MODIFIER "u",
+			query_data64);
+		offset += 8;
+	}
+								
+	return 0;
+}
+
+static const char *spotlight_get_qtype_string(guint64 query_type)
+{
+	switch (query_type) {
+	case SQ_TYPE_NULL:
+		return "null";
+	case SQ_TYPE_COMPLEX:
+		return "complex";
+	case SQ_TYPE_INT64:
+		return "int64";
+	case SQ_TYPE_BOOL:
+		return "bool";
+	case SQ_TYPE_FLOAT:
+		return "float";
+	case SQ_TYPE_DATA:
+		return "data";
+	case SQ_TYPE_CNIDS:
+		return "CNIDs";
+	default:
+		return "unknown";
+	}
+}
+
+static const char *spotlight_get_cpx_qtype_string(guint64 cpx_query_type)
+{
+	switch (cpx_query_type) {
+	case SQ_CPX_TYPE_ARRAY:
+		return "array";
+	case SQ_CPX_TYPE_STRING:
+		return "string";
+	case SQ_CPX_TYPE_DICT:
+		return "dictionary";
+	case SQ_CPX_TYPE_CNIDS:
+		return "CNIDs";
+	case SQ_CPX_TYPE_FILEMETA:
+		return "FileMeta";
+	default:
+		return "unknown";
+	}
+}
+
+static gint
+spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint64 cpx_query_type, gint count, gint toc_offset, guint encoding)
+{
+	gint j;
+	gint subquery_count;
+	gint toc_index;
+	guint64 query_data64;
+	guint64 query_length;
+	guint64 query_type;
+	guint64 complex_query_type;
+
+	proto_item *item_query;
+	proto_tree *sub_tree;
+
+	/*
+	 * This loops through a possibly nested query data structure.
+	 * The outermost one is always without count and called from
+	 * dissect_spotlight() with count = INT_MAX thus the while (...)
+	 * loop terminates if (offset >= toc_offset).
+	 * If nested structures are found, these will have an encoded element
+	 * count which is used in a recursive call to
+	 * spotlight_dissect_query_loop as count parameter, thus in this case
+	 * the while (...) loop will terminate when count reaches 0.
+	 */
+	while ((offset < (toc_offset - 8)) && (count > 0)) {
+		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
+		query_length = (query_data64 & 0xffff) * 8;
+		query_type = (query_data64 & 0xffff0000) >> 16;
+		
+		switch (query_type) {
+		case SQ_TYPE_COMPLEX:
+			toc_index = (gint)((query_data64 >> 32) - 1);
+			query_data64 = spotlight_ntoh64(tvb, toc_offset + toc_index * 8, encoding);
+			complex_query_type = (query_data64 & 0xffff0000) >> 16;
+
+			switch (complex_query_type) {
+			case SQ_CPX_TYPE_ARRAY:
+			case SQ_CPX_TYPE_DICT:
+				subquery_count = (gint)(query_data64 >> 32);
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length,
+								 "%s, toc index: %u, children: %u",
+								 spotlight_get_cpx_qtype_string(complex_query_type),
+								 toc_index + 1,
+								 subquery_count);
+				break;
+			case SQ_CPX_TYPE_STRING:
+				subquery_count = 1;
+				query_data64 = spotlight_ntoh64(tvb, offset + 8, encoding);
+				query_length = (query_data64 & 0xffff) * 8;
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length + 8,
+								 "%s, toc index: %u, string: '%s'",
+								 spotlight_get_cpx_qtype_string(complex_query_type),
+								 toc_index + 1,
+								 tvb_get_ephemeral_string(tvb, offset + 16, query_length - 8));
+				break;
+			default:
+				subquery_count = 1;
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length,
+								 "type: %s (%s), toc index: %u, children: %u",
+								 spotlight_get_qtype_string(query_type),
+								 spotlight_get_cpx_qtype_string(complex_query_type),
+								 toc_index + 1,
+								 subquery_count);
+				break;
+			}
+			
+			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			offset += 8;
+			offset = spotlight_dissect_query_loop(tvb, sub_tree, offset, complex_query_type, subquery_count, toc_offset, encoding);
+			break;
+		case SQ_TYPE_NULL:
+			subquery_count = (gint)(query_data64 >> 32);
+			j = 0;
+			while (j++ < subquery_count) {
+				proto_tree_add_text(tree, tvb, offset, 8, "null");
+			}
+			count -= subquery_count;
+			offset += query_length;
+			break;
+		case SQ_TYPE_BOOL:
+			item_query = proto_tree_add_text(tree, tvb, offset, query_length, "bool: %s",
+							 (query_data64 >> 32) ? "true" : "false");
+			offset += query_length;
+			break;
+		case SQ_TYPE_INT64:
+			item_query = proto_tree_add_text(tree, tvb, offset, 8, "int64");
+			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			j = spotlight_int64(tvb, sub_tree, offset, encoding) - 1;
+			count -= j;
+			offset += query_length;
+			break;
+		case SQ_TYPE_FLOAT:
+			item_query = proto_tree_add_text(tree, tvb, offset, 8, "float");
+			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			j = spotlight_float(tvb, sub_tree, offset, encoding) - 1;
+			count -= j;
+			offset += query_length;
+			break;
+		case SQ_TYPE_DATA:
+			switch (cpx_query_type) {
+			case SQ_CPX_TYPE_STRING:
+				proto_tree_add_text(tree, tvb, offset, query_length, "string: '%s'",
+						    tvb_get_ephemeral_string(tvb, offset + 8, query_length - 8));
+				break;
+			case SQ_CPX_TYPE_FILEMETA:
+				item_query = proto_tree_add_text(tree, tvb, offset, query_length, "filemeta");
+				sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+				(void)dissect_spotlight(tvb, sub_tree, offset + 8);
+				break;
+			}
+			offset += query_length;
+			break;
+		case SQ_TYPE_CNIDS:
+			item_query = proto_tree_add_text(tree, tvb, offset, query_length, "CNID Array");
+			sub_tree = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
+			spotlight_CNID_array(tvb, sub_tree, offset + 8, encoding);
+			offset += query_length;
+			break;
+		default:
+			item_query = proto_tree_add_text(tree, tvb, offset, query_length, "type: %s",
+							 spotlight_get_qtype_string(query_type));
+			offset += query_length;
+			break;
+		}
+		count--;
+	}
+	
+	return offset;
+}
+
 static gint
 dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 {
+	guint encoding;
 	gint i;
-	gint mdlen;
-	gint query_offset;
-	gint query_offset_next;
 	gint querylen;
 	gint toc_offset;
-	gint num_queries;
-	gint query_data_len;
-	guint64 query_data64;
+	gint toc_entries;
 	guint64 toc_entry;
-	guint8 *mds;
-
+	
 	proto_item *item_queries_data;
 	proto_tree *sub_tree_queries;
 	proto_item *item_toc;
 	proto_tree *sub_tree_toc;
-	proto_item *item_query;
-	proto_tree *sub_tree_query;
-	proto_item *item_data;
-	proto_tree *sub_tree_data;
 
 	if (strncmp(tvb_get_ephemeral_string(tvb, offset, 8), "md031234", 8) == 0)
-		spotlight_endianess = SPOTLIGHT_BIG_ENDIAN;
+		encoding = ENC_BIG_ENDIAN;
 	else
-		spotlight_endianess = SPOTLIGHT_LITTLE_ENDIAN;
+		encoding = ENC_LITTLE_ENDIAN;
 	proto_tree_add_text(tree,
 			    tvb,
 			    offset,
 			    8,
 			    "Endianess: %s",
-			    spotlight_endianess == SPOTLIGHT_BIG_ENDIAN ?
+			    encoding == ENC_BIG_ENDIAN ?
 			    "Big Endian" : "Litte Endian");
 	offset += 8;
 
-	toc_offset = (gint)(spotlight_ntoh64(tvb, offset) >> 32) * 8 - 8;
-	querylen = (gint)(spotlight_ntoh64(tvb, offset) & 0xffffffff) * 8 - 8;
+	toc_offset = (gint)(spotlight_ntoh64(tvb, offset, encoding) >> 32) * 8 - 8;
+	querylen = (gint)(spotlight_ntoh64(tvb, offset, encoding) & 0xffffffff) * 8 - 8;
 	proto_tree_add_text(tree,
 			    tvb,
 			    offset,
@@ -4024,144 +4278,61 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			    querylen);
 	offset += 8;
 
-	num_queries = (gint)(spotlight_ntoh64(tvb, offset + toc_offset) & 0xffff) - 1;
+	toc_offset += offset;
+	toc_entries = (gint)(spotlight_ntoh64(tvb, toc_offset, encoding) & 0xffff) - 1;
 
 	item_queries_data = proto_tree_add_text(tree,
 						tvb,
 						offset,
 						toc_offset,
-						"Query data (%u queries)",
-						num_queries);
-
+						"Spotlight RPC data");
 	sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
+
 	/* Queries */
-	query_offset_next = (gint)(spotlight_ntoh64(tvb, offset + toc_offset + 8) & 0xff) * 8 - 16;
-	for (i = 0; i < num_queries; i++) {
-		query_offset = query_offset_next;
-		if (i == num_queries - 1)
-			/* last */
-			query_offset_next = toc_offset;
-		else
-			/* peek at next offset */
-			query_offset_next = (gint)(spotlight_ntoh64(tvb, offset + toc_offset + 8 + (i+1)*8) & 0xff) * 8 - 16;
-
-		/* this is obviously the length of one query */
-		query_data_len = query_offset_next - query_offset;
-
-		if (query_data_len > 8)
-			item_query = proto_tree_add_text(sub_tree_queries,
-							 tvb,
-							 offset + query_offset,
-							 query_data_len,
-							 "Query %u",
-							 i + 1);
-		else
-			item_query = proto_tree_add_text(sub_tree_queries,
-							 tvb,
-							 offset + query_offset,
-							 query_data_len,
-							 "Query %u (empty?)",
-							 i + 1);
-
-		/* tree per query */
-		sub_tree_query = proto_item_add_subtree(item_query, ett_afp_spotlight_query_line);
-		query_data64 = spotlight_ntoh64(tvb, offset + query_offset);
-
-		/* print the query line */
-		proto_tree_add_text(sub_tree_query,
-				    tvb,
-				    offset + query_offset,
-				    8,
-				    "Index: %" G_GINT64_MODIFIER "u, ?: 0x%08" G_GINT64_MODIFIER "x",
-				    query_data64 >> 32,
-				    query_data64 & 0xffffffff);
-
-		/* really any data in the query */
-		if (query_data_len > 8) {
-			/* populate the query tree */
-			query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 8);
-			mdlen = (gint)((query_data64 & 0xffff) - 1) * 8;
-			proto_tree_add_text(sub_tree_query,
-					    tvb,
-					    offset + query_offset + 8,
-					    8,
-					    "?(reappears in ToC): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, strlen: ((%u-1)*8 = ) %u",
-					    query_data64 >> 32,
-					    (query_data64 & 0xffff0000) >> 16,
-					    mdlen/8+1,
-					    mdlen);
-
-			mds = tvb_get_ephemeral_string(tvb, offset + query_offset + 16, mdlen);
-			proto_item_append_text(item_query, ": \"%s\"", mds);
-
-			proto_tree_add_text(sub_tree_query,
-					    tvb,
-					    offset + query_offset + 16,
-					    mdlen,
-					    "mdstring: \"%s\" (%u bytes)",
-					    mds,
-					    mdlen);
-
-			item_data = proto_tree_add_text(sub_tree_query,
-							tvb,
-							offset + query_offset + 16 + mdlen,
-							query_data_len - 16 - mdlen,
-							"data: %u bytes",
-							query_data_len - 16 - mdlen);
-
-			/* If there are more then 8 bytes theres at least x*8+8 bytes */
-			if ((query_data_len - 16 - mdlen) >= 16) {
-				sub_tree_data = proto_item_add_subtree(item_data, ett_afp_spotlight_data);
-				query_data64 = spotlight_ntoh64(tvb, offset + query_offset + 16 + mdlen);
-
-				proto_tree_add_text(sub_tree_data,
-						    tvb,
-						    offset + query_offset + 16 + mdlen,
-						    8,
-						    "data: %" G_GINT64_MODIFIER "u * 8 (= %" G_GINT64_MODIFIER "u) bytes, ?: 0x%04" G_GINT64_MODIFIER "x",
-						    (query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32,
-						    ((query_data64 & G_GINT64_CONSTANT(0xffffffff00000000)) >> 32) * 8,
-						    query_data64 & 0xffffffff);
-				proto_tree_add_text(sub_tree_data,
-						    tvb,
-						    offset + query_offset + 16 + mdlen + 8,
-						    query_data_len - 16 - mdlen - 8,
-						    "data: %u  bytes",
-						    query_data_len - 16 - mdlen - 8);
-			}
-
-		}
-	}
-	offset += toc_offset;
+	offset = spotlight_dissect_query_loop(tvb, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, toc_offset + 8, encoding);
 
 	/* ToC */
+	offset = toc_offset;
 	item_toc = proto_tree_add_text(tree,
 				       tvb,
 				       offset,
 				       querylen - toc_offset,
-				       "ToC (%u entries)",
-				       num_queries);
+				       "Complex types ToC (%u entries)",
+				       toc_entries);
 	sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
-	proto_tree_add_text(sub_tree_toc,
-			    tvb,
-			    offset,
-			    8,
-			    "Number of entries (%u)",
-			    num_queries);
-	for (i = 0; i < num_queries; i++) {
-		toc_entry = spotlight_ntoh64(tvb, offset + 8 + i*8);
-		proto_tree_add_text(sub_tree_toc,
-				    tvb,
-				    offset + 8 + i*8,
-				    8,
-				    "Index: %u, ?(reappears in queries): 0x%08" G_GINT64_MODIFIER "x, ?: 0x%04" G_GINT64_MODIFIER "x, Offset: %" G_GINT64_MODIFIER "u",
-				    i+1,
-				    toc_entry >> 32,
-				    (toc_entry & 0xffff0000) >> 16,
-				    (toc_entry & 0xffff) * 8);
+	proto_tree_add_text(sub_tree_toc, tvb, offset, 2, "Number of entries (%u)", toc_entries);
+	proto_tree_add_text(sub_tree_toc, tvb, offset + 2, 2, "unknown");
+	proto_tree_add_text(sub_tree_toc, tvb, offset + 4, 4, "unknown");
+
+	offset += 8;
+	for (i = 0; i < toc_entries; i++, offset += 8) {
+		toc_entry = spotlight_ntoh64(tvb, offset, encoding);
+		if ((((toc_entry & 0xffff0000) >> 16) == SQ_CPX_TYPE_ARRAY)
+		    || (((toc_entry & 0xffff0000) >> 16) == SQ_CPX_TYPE_DICT)) {
+			proto_tree_add_text(sub_tree_toc,
+					    tvb,
+					    offset,
+					    8,
+					    "%u: count: %" G_GINT64_MODIFIER "u, type: %s, offset: %" G_GINT64_MODIFIER "u",
+					    i+1,
+					    toc_entry >> 32,
+					    spotlight_get_cpx_qtype_string((toc_entry & 0xffff0000) >> 16),
+					    (toc_entry & 0xffff) * 8);
+		} else {
+			proto_tree_add_text(sub_tree_toc,
+					    tvb,
+					    offset,
+					    8,
+					    "%u: unknown: 0x%08" G_GINT64_MODIFIER "x, type: %s, offset: %" G_GINT64_MODIFIER "u",
+					    i+1,
+					    toc_entry >> 32,
+					    spotlight_get_cpx_qtype_string((toc_entry & 0xffff0000) >> 16),
+					    (toc_entry & 0xffff) * 8);
+		}
+		
+		
 	}
 
-	offset += querylen - toc_offset;
 	return offset;
 }
 
@@ -6276,11 +6447,6 @@ proto_register_afp(void)
 		{ &hf_afp_spotlight_toc_query_end,
 		  { "End marker",               "afp.spotlight.query_end",
 		    FT_UINT32, BASE_HEX, NULL, 0x0,
-		    NULL, HFILL }},
-
-		{ &hf_afp_spotlight_mdstring,
-		  { "mdquery string",               "afp.spotlight.mds",
-		    FT_STRINGZ, BASE_NONE, NULL, 0x0,
 		    NULL, HFILL }},
 
 		{ &hf_afp_unknown,
