@@ -7277,6 +7277,21 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 		return NULL;
 	}
 
+	/* Sign extend for signed types */
+	switch(hf_field->type){
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+	case FT_INT64:
+		if (value & (G_GINT64_CONSTANT(1) << (no_of_bits-1)))
+			value |= (G_GINT64_CONSTANT(-1) << no_of_bits);
+		break;
+
+	default:
+		break;
+	}
+
 	if(return_value){
 		*return_value=value;
 	}
@@ -7306,9 +7321,22 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 		fill_label_uint(PITEM_FINFO(pi), lbl_str);
 		break;
 
+	case FT_INT8:
+	case FT_INT16:
+	case FT_INT24:
+	case FT_INT32:
+		pi = proto_tree_add_int(tree, hf_index, tvb, offset, length, (gint32)value);
+		fill_label_int(PITEM_FINFO(pi), lbl_str);
+		break;
+
 	case FT_UINT64:
 		pi = proto_tree_add_uint64(tree, hf_index, tvb, offset, length, value);
 		fill_label_uint64(PITEM_FINFO(pi), lbl_str);
+		break;
+
+	case FT_INT64:
+		pi = proto_tree_add_int64(tree, hf_index, tvb, offset, length, (gint64)value);
+		fill_label_int64(PITEM_FINFO(pi), lbl_str);
 		break;
 
 	default:
