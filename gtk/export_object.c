@@ -229,33 +229,35 @@ eo_save_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 #define HEXTOASCII(x)	(((x) < 10) ? ((x) + '0') : ((x) - 10 + 'a'))
 #define MAXFILELEN		255
 
-static GString *eo_rename(GString *gstr, gchar dup)
+static GString *eo_rename(GString *gstr, int dup)
 {
-	gchar tmp[4] = "( )";
+	GString *gstr_tmp;
 	gchar *tmp_ptr;
 	GString *ext_str;
 
-	tmp[1] = dup;
+	gstr_tmp = g_string_new("(");
+	g_string_append_printf (gstr_tmp, "%d)", dup);
 	if ( (tmp_ptr = strrchr(gstr->str, '.')) != NULL ) {
 		/* Retain the extension */
 		ext_str = g_string_new(tmp_ptr);
 		gstr = g_string_truncate(gstr, gstr->len - ext_str->len);
-		if ( gstr->len >= (MAXFILELEN - (strlen(tmp) + ext_str->len)) )
-			gstr = g_string_truncate(gstr, MAXFILELEN - (strlen(tmp) + ext_str->len));
-		gstr = g_string_append(gstr, tmp);
+		if ( gstr->len >= (MAXFILELEN - (strlen(gstr_tmp->str) + ext_str->len)) )
+			gstr = g_string_truncate(gstr, MAXFILELEN - (strlen(gstr_tmp->str) + ext_str->len));
+		gstr = g_string_append(gstr, gstr_tmp->str);
 		gstr = g_string_append(gstr, ext_str->str);
 		g_string_free(ext_str, TRUE);
 	}
 	else {
-		if ( gstr->len >= (MAXFILELEN - strlen(tmp)) )
-			gstr = g_string_truncate(gstr, MAXFILELEN - strlen(tmp));
-		gstr = g_string_append(gstr, tmp);
+		if ( gstr->len >= (MAXFILELEN - strlen(gstr_tmp->str)) )
+			gstr = g_string_truncate(gstr, MAXFILELEN - strlen(gstr_tmp->str));
+		gstr = g_string_append(gstr, gstr_tmp->str);
 	}
+	g_string_free(gstr_tmp, TRUE);
 	return gstr;
 }
 
 static GString *
-eo_massage_str(const gchar *in_str, gsize maxlen, gchar dup)
+eo_massage_str(const gchar *in_str, gsize maxlen, int dup)
 {
 	gchar *tmp_ptr;
 	/* The characters in "reject" come from:
@@ -291,7 +293,7 @@ eo_massage_str(const gchar *in_str, gsize maxlen, gchar dup)
 		else
 			out_str = g_string_truncate(out_str, maxlen);
 	}
-	if ( dup != '0' )
+	if ( dup != 0 )
 		out_str = eo_rename(out_str, dup);
 	return out_str;
 }
@@ -323,11 +325,11 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 			if ( strlen(save_in_path) < MAXFILELEN ) {
 				do {
 					safe_filename = eo_massage_str(entry->filename,
-						MAXFILELEN - strlen(save_in_path), count | 0x30);
+						MAXFILELEN - strlen(save_in_path), count);
 					save_as_fullpath = g_build_filename(
 						save_in_path, safe_filename->str, NULL);
 					g_string_free(safe_filename, TRUE);
-				} while ( g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && (++count < 10) );
+				} while ( g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000 );
 				count = 0;
 				if (!eo_save_entry(save_as_fullpath, entry, TRUE))
 					all_saved = FALSE;
@@ -368,7 +370,7 @@ eo_draw(void *tapdata)
 	GSList *slist = object_list->entries;
 	GtkTreeIter new_iter;
 
-	/*  Free the tree first, since we may get called more than once for the same capture 
+	/*  Free the tree first, since we may get called more than once for the same capture
 	    Not doing so caused duplicate entries and clicking them caused crashes.
 	*/
 
