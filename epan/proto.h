@@ -238,10 +238,21 @@ typedef struct _protocol protocol_t;
  *
  * The value for ENC_EBCDIC is subject to change in a future release (or
  * to replacement with multiple values for different flavors of EBCDIC).
- * Additional encodings will also be provided.
+ *
+ * We currently add some additional encodings, for various ASCII-based
+ * encodings, but use the same value as ENC_UTF_8, for now, so that we
+ * can mark the appropriate encoding.  Ultimately, we should handle
+ * those encodings by mapping them to UTF-8 for display; for ASCII,
+ * all bytes with the 8th bit set should be mapped to some "this is
+ * not a valid character" glyph, as ENC_ASCII should mean "this is
+ * ASCII, not some extended variant thereof".  Perhaps we should also
+ * map control characters to the Unicode glyphs showing the name of
+ * the control character in small caps, diagonally.  (Unfortunately,
+ * those only exist for C0, not C1.)
  */
 #define ENC_CHARENCODING_MASK	0x7FFFFFFE	/* mask out byte-order bits */
 #define ENC_UTF_8		0x00000000
+#define ENC_ASCII		0x00000000
 #define ENC_EBCDIC		0x0EBCD1C0
 
 /*
