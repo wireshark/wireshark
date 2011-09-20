@@ -230,7 +230,7 @@ static uat_t* smi_modules_uat = NULL;
 
 static GString* smi_errors;
 
-UAT_CSTRING_CB_DEF(smi_mod,name,smi_module_t)
+UAT_DIRECTORYNAME_CB_DEF(smi_mod,name,smi_module_t)
 
 static void smi_error_handler(char *path, int line, int severity, char *msg, char *tag) {
 		g_string_append_printf(smi_errors,"%s:%d %d %s %s\n",
@@ -519,7 +519,7 @@ static void register_mibs(void) {
 		UAT_END_FIELDS
 	};
 	static uat_field_t smi_paths_fields[] = {
-		UAT_FLD_PATHNAME(smi_mod,name,"Directory path","The directory name"),
+		UAT_FLD_DIRECTORYNAME(smi_mod,name,"Directory path","The directory name"),
 		UAT_END_FIELDS
 	};
 	char* smi_load_error = NULL;

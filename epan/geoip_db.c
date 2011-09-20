@@ -80,7 +80,7 @@ typedef struct _geoip_db_path_t {
 static geoip_db_path_t *geoip_db_paths = NULL;
 static guint num_geoip_db_paths = 0;
 static uat_t *geoip_db_paths_uat = NULL;
-UAT_CSTRING_CB_DEF(geoip_mod, path, geoip_db_path_t)
+UAT_DIRECTORYNAME_CB_DEF(geoip_mod, path, geoip_db_path_t)
 
 
 /**
@@ -132,7 +132,7 @@ void
 geoip_db_init(void) {
 	guint i;
 	static uat_field_t geoip_db_paths_fields[] = {
-		UAT_FLD_PATHNAME(geoip_mod, path, "Database pathname", "The database path"),
+		UAT_FLD_DIRECTORYNAME(geoip_mod, path, "GeoIP Database Directory", "The GeoIP database directory path"),
 		UAT_END_FIELDS
 	};
 	char* geoip_load_error = NULL;

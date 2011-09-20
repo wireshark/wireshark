@@ -4390,7 +4390,7 @@ ssldecrypt_copy_cb(void* dest, const void* orig, size_t len _U_)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,ipaddr,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,port,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,protocol,ssldecrypt_assoc_t)
-UAT_CSTRING_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
+UAT_FILENAME_CB_DEF(sslkeylist_uats,keyfile,ssldecrypt_assoc_t)
 UAT_CSTRING_CB_DEF(sslkeylist_uats,password,ssldecrypt_assoc_t)
 #endif
 
@@ -4983,7 +4983,7 @@ proto_register_ssl(void)
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, ipaddr, "IP address", ssldecrypt_uat_fld_ip_chk_cb, "IPv4 or IPv6 address"),
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, port, "Port", ssldecrypt_uat_fld_port_chk_cb, "Port Number"),
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, protocol, "Protocol", ssldecrypt_uat_fld_protocol_chk_cb, "Protocol"),
-            UAT_FLD_CSTRING_OTHER(sslkeylist_uats, keyfile, "Key File", ssldecrypt_uat_fld_fileopen_chk_cb, "Private keyfile."),
+            UAT_FLD_FILENAME_OTHER(sslkeylist_uats, keyfile, "Key File", ssldecrypt_uat_fld_fileopen_chk_cb, "Private keyfile."),
             UAT_FLD_CSTRING_OTHER(sslkeylist_uats, password,"Password", ssldecrypt_uat_fld_password_chk_cb, "Password (for PCKS#12 keyfile)"),
             UAT_END_FIELDS
         };

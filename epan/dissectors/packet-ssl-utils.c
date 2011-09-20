@@ -3550,8 +3550,7 @@ ssl_print_string(const gchar* name, const StringInfo* data)
 gboolean
 ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
-
-    if ((gint)strlen(p) == 0) {
+    if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No IP address given.");
         return FALSE;
     }
@@ -3563,16 +3562,14 @@ ssldecrypt_uat_fld_ip_chk_cb(void* r _U_, const char* p, unsigned len _U_, const
 gboolean
 ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
-    guint i;
-
-    if ((gint)strlen(p) == 0) {
+    if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No Port given.");
         return FALSE;
     }
 
     if (strcmp(p, "start_tls") != 0){
-        i = atoi(p);
-        if (i <= 0) {
+        const gint i = atoi(p);
+        if (i <= 0 || i > 65535) {
             *err = ep_strdup_printf("Invalid port given.");
             return FALSE;
         }
@@ -3585,7 +3582,7 @@ ssldecrypt_uat_fld_port_chk_cb(void* r _U_, const char* p, unsigned len _U_, con
 gboolean
 ssldecrypt_uat_fld_protocol_chk_cb(void* r _U_, const char* p, unsigned len _U_, const void* u1 _U_, const void* u2 _U_, const char** err)
 {
-    if ((gint)strlen(p) == 0) {
+    if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No protocol given.");
         return FALSE;
     }
@@ -3604,7 +3601,7 @@ ssldecrypt_uat_fld_fileopen_chk_cb(void* r _U_, const char* p, unsigned len _U_,
 {
     ws_statb64 st;
 
-    if ((gint)strlen(p) == 0) {
+    if (!p || strlen(p) == 0u) {
         *err = ep_strdup_printf("No filename given.");
         return FALSE;
     } else {
@@ -3624,7 +3621,7 @@ ssldecrypt_uat_fld_password_chk_cb(void* r _U_, const char* p, unsigned len _U_,
     ssldecrypt_assoc_t* f = r;
     FILE *fp = NULL;
 
-    if ((gint)strlen(p) > 0) {
+    if (p && strlen(p) > 0u) {
         fp = ws_fopen(f->keyfile, "rb");
         if (fp) {
             if (!ssl_load_pkcs12(fp, p)) {
