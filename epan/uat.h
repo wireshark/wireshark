@@ -182,7 +182,12 @@ typedef enum _uat_text_mode_t {
 		 "invalid" as NULL,3
 		 "a1b" as NULL, 1
 	 */
-	PT_TXTMOD_ENUM
+	PT_TXTMOD_ENUM,
+
+	PT_TXTMOD_FILENAME,
+	/* processed like a PT_TXTMOD_STRING, but shows a filename dialog */
+	PT_TXTMOD_DIRECTORYNAME,
+	/* processed like a PT_TXTMOD_STRING, but shows a directory dialog */
 } uat_text_mode_t;
 
 /*
@@ -364,15 +369,24 @@ static void basename ## _ ## field_name ## _tostr_cb(void* rec, const char** out
 	{#field_name, title, PT_TXTMOD_STRING,{ chk ,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
- * PATHNAME - for now, just a CSTRING, but we might want to have a
- * way to pop up a dialog to let you browse for a file name.
+ * FILENAME and DIRECTORYNAME,
+ *    a simple c-string contained in (((rec_t*)rec)->(field_name))
  */
-#define UAT_FLD_PATHNAME(basename,field_name,title,desc) \
-	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+#define UAT_FILENAME_CB_DEF(basename,field_name,rec_t) UAT_CSTRING_CB_DEF(basename,field_name,rec_t)
+
+#define UAT_FLD_FILENAME(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_FILENAME,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+#define UAT_FLD_FILENAME_OTHER(basename,field_name,title,chk,desc) \
+	{#field_name, title, PT_TXTMOD_FILENAME,{chk,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
+
+#define UAT_DIRECTORYNAME_CB_DEF(basename,field_name,rec_t) UAT_CSTRING_CB_DEF(basename,field_name,rec_t)
+
+#define UAT_FLD_DIRECTORYNAME(basename,field_name,title,desc) \
+	{#field_name, title, PT_TXTMOD_DIRECTORYNAME,{uat_fld_chk_str,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}
 
 /*
  * OID - just a CSTRING with a specific check routine 
- *
  */
 #define UAT_FLD_OID(basename,field_name,title,desc) \
 	{#field_name, title, PT_TXTMOD_STRING,{uat_fld_chk_oid,basename ## _ ## field_name ## _set_cb,basename ## _ ## field_name ## _tostr_cb},{0,0,0},0,desc,FLDFILL}

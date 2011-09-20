@@ -158,6 +158,8 @@ static char* fld_tostr(void* rec, uat_field_t* f) {
 	switch(f->mode) {
 		case PT_TXTMOD_STRING:
 		case PT_TXTMOD_ENUM:
+		case PT_TXTMOD_FILENAME:
+		case PT_TXTMOD_DIRECTORYNAME:
 			out = ep_strndup(ptr,len);
 			break;
 		case PT_TXTMOD_HEXBYTES: {
@@ -302,10 +304,22 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 
 	for ( colnum = 0; colnum < ncols; colnum++ ) {
 		void* e = g_ptr_array_index(dd->entries,colnum);
-		const char* text;
+		const char *text = NULL;
+		char *text_free = NULL;
 		unsigned len = 0;
 
 		switch(f[colnum].mode) {
+			case PT_TXTMOD_FILENAME:
+			case PT_TXTMOD_DIRECTORYNAME:
+				text = text_free = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(e));
+				if (text) {
+					len = (unsigned) strlen(text);
+				} else {
+					text = "";
+					len = 0;
+				}
+				break;
+
 			case PT_TXTMOD_STRING:
 				text = gtk_entry_get_text(GTK_ENTRY(e));
 				len = (unsigned) strlen(text);
@@ -333,7 +347,6 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 				return FALSE;
 		}
 
-
 		if (f[colnum].cb.chk) {
 			if (! f[colnum].cb.chk(dd->rec, text, len, f[colnum].cbdata.chk, f[colnum].fld_data, &err)) {
 				err = ep_strdup_printf("error in column '%s': %s",f[colnum].title,err);
@@ -342,6 +355,8 @@ static gboolean uat_dlg_cb(GtkWidget *win _U_, gpointer user_data) {
 		}
 
 		f[colnum].cb.set(dd->rec,text,len, f[colnum].cbdata.set, f[colnum].fld_data);
+
+		g_free(text_free);
 	}
 
 	if (dd->uat->update_cb) {
@@ -477,17 +492,28 @@ static void uat_edit_dialog(uat_t* uat, gint row, gboolean copy) {
 		gtk_container_add(GTK_CONTAINER(event_box), label);
 
 		switch(f[colnum].mode) {
-			case PT_TXTMOD_STRING:
-			case PT_TXTMOD_HEXBYTES: {
-				entry = gtk_entry_new();
+			case PT_TXTMOD_FILENAME:
+			case PT_TXTMOD_DIRECTORYNAME:
+				entry = gtk_file_chooser_button_new(f[colnum].desc,
+								    (f[colnum].mode == PT_TXTMOD_FILENAME) ? GTK_FILE_CHOOSER_ACTION_OPEN : GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER);
+				if (! dd->is_new || copy) {
+					gtk_file_chooser_set_filename(GTK_FILE_CHOOSER(entry), text);
+				}
 				g_ptr_array_add(dd->entries,entry);
 				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
+				break;
+
+			case PT_TXTMOD_STRING:
+			case PT_TXTMOD_HEXBYTES:
+				entry = gtk_entry_new();
 				if (! dd->is_new || copy) {
 					gtk_entry_set_text(GTK_ENTRY(entry),text);
 				}
+				g_ptr_array_add(dd->entries,entry);
+				gtk_table_attach_defaults(GTK_TABLE(main_tb), entry, 1, 2, colnum+1, colnum + 2);
 				dlg_set_activate(entry, bt_ok);
 				break;
-			}
+
 			case PT_TXTMOD_ENUM: {
 				GtkWidget *combo_box;
 				int idx;
