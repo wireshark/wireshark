@@ -4116,7 +4116,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 	gint subquery_count;
 	gint toc_index;
 	guint64 query_data64;
-	guint64 query_length;
+	gint query_length;
 	guint64 query_type;
 	guint64 complex_query_type;
 
