@@ -1969,7 +1969,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             /* We shouldn't NACK the ACK_SN! */
             if (nack_sn == ack_sn) {
                 expert_add_info_format(pinfo, nack_ti, PI_MALFORMED, PI_ERROR,
-                                       "Status PDU shouldn't ACK and NACK the same sequence number (%llu)",
+                                       "Status PDU shouldn't ACK and NACK the same sequence number (%" G_GINT64_MODIFIER "u)",
                                        ack_sn);
             }
 
