@@ -151,7 +151,6 @@ StaticChannelID
 TokenID
 StaticTokenID
 RosterRefreshRequest
-GCCPDU
 #.END
 #.VIRTUAL_ASSGN
 #----------------------------------------------------------------------------------------

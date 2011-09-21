@@ -120,7 +120,7 @@ int dissect_DomainMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tr
 }
 
 static int
-dissect_t124(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+dissect_t124_new(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -138,6 +138,12 @@ dissect_t124(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   dissect_t124_ConnectData(tvb, 0, &asn1_ctx, tree, hf_t124_ConnectData);
 
   return tvb_length(tvb);
+}
+
+static void
+dissect_t124(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+{
+  dissect_t124_new(tvb, pinfo, parent_tree);
 }
 
 static gboolean
@@ -187,6 +193,7 @@ void proto_register_t124(void) {
 	  &ett_t124_connectGCCPDU,
 #include "packet-t124-ettarr.c"
   };
+  per_type_fn warning_suppressor;
 
   /* Register protocol */
   proto_t124 = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -197,9 +204,15 @@ void proto_register_t124(void) {
   t124_ns_dissector_table = register_dissector_table("t124.ns", "T.124 H.221 Non Standard Dissectors", FT_STRING, BASE_NONE);
   t124_sd_dissector_table = register_dissector_table("t124.sd", "T.124 H.221 Send Data Dissectors", FT_UINT32, BASE_NONE);
 
-  new_register_dissector("t124", dissect_t124, proto_t124);
+  new_register_dissector("t124", dissect_t124_new, proto_t124);
+
+  /* suppress some warnings */
+  warning_suppressor = dissect_t124_GCCPDU;
+  warning_suppressor = dissect_t124_ConnectMCSPDU;
+  
 }
 
+void
 proto_reg_handoff_t124(void) {
 
   register_ber_oid_dissector("0.0.20.124.0.1", dissect_t124, proto_t124, "Generic Conference Control");
