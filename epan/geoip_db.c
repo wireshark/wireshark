@@ -51,30 +51,30 @@
 
 /* Column names for each database type */
 value_string geoip_type_name_vals[] = {
-	{ GEOIP_COUNTRY_EDITION,		"Country" },
-	{ GEOIP_REGION_EDITION_REV0,	"Region" },
-	{ GEOIP_CITY_EDITION_REV0,		"City"},
-	{ GEOIP_ORG_EDITION,			"Organization" },
-	{ GEOIP_ISP_EDITION,			"ISP" },
-	{ GEOIP_CITY_EDITION_REV1,		"City" },
-	{ GEOIP_REGION_EDITION_REV1,	"Region" },
-	{ GEOIP_PROXY_EDITION,			"Proxy" },
-	{ GEOIP_ASNUM_EDITION,			"AS Number" },
-	{ GEOIP_NETSPEED_EDITION,		"Speed" },
-	{ GEOIP_DOMAIN_EDITION,			"Domain" },
+    { GEOIP_COUNTRY_EDITION,        "Country" },
+    { GEOIP_REGION_EDITION_REV0,    "Region" },
+    { GEOIP_CITY_EDITION_REV0,      "City"},
+    { GEOIP_ORG_EDITION,            "Organization" },
+    { GEOIP_ISP_EDITION,            "ISP" },
+    { GEOIP_CITY_EDITION_REV1,      "City" },
+    { GEOIP_REGION_EDITION_REV1,    "Region" },
+    { GEOIP_PROXY_EDITION,          "Proxy" },
+    { GEOIP_ASNUM_EDITION,          "AS Number" },
+    { GEOIP_NETSPEED_EDITION,       "Speed" },
+    { GEOIP_DOMAIN_EDITION,         "Domain" },
 #ifdef GEOIP_COUNTRY_EDITION_V6
-	{ GEOIP_COUNTRY_EDITION_V6,		"Country" },
+    { GEOIP_COUNTRY_EDITION_V6,     "Country" },
 #endif
-	{ WS_LAT_FAKE_EDITION,			"Latitude" },	/* fake database */
-	{ WS_LON_FAKE_EDITION,			"Longitude" },	/* fake database */
-	{ 0, NULL }
+    { WS_LAT_FAKE_EDITION,          "Latitude" },   /* fake database */
+    { WS_LON_FAKE_EDITION,          "Longitude" },  /* fake database */
+    { 0, NULL }
 };
 
 static GArray *geoip_dat_arr = NULL;
 
 /* UAT definitions. Copied from oids.c */
 typedef struct _geoip_db_path_t {
-	char* path;
+    char* path;
 } geoip_db_path_t;
 
 static geoip_db_path_t *geoip_db_paths = NULL;
@@ -88,41 +88,41 @@ UAT_DIRECTORYNAME_CB_DEF(geoip_mod, path, geoip_db_path_t)
  */
 static void
 geoip_dat_scan_dir(const char *dirname) {
-	WS_DIR *dir;
-	WS_DIRENT *file;
-	const char *name;
-	char *datname;
-	GeoIP *gi;
+    WS_DIR *dir;
+    WS_DIRENT *file;
+    const char *name;
+    char *datname;
+    GeoIP *gi;
 
-	if ((dir = ws_dir_open(dirname, 0, NULL)) != NULL) {
-		while ((file = ws_dir_read_name(dir)) != NULL) {
-			name = ws_dir_get_name(file);
-			if (g_str_has_prefix(file, "Geo") && g_str_has_suffix(file, ".dat")) {
-				datname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
-				gi = GeoIP_open(datname, GEOIP_MEMORY_CACHE);
-				if (gi) {
-					g_array_append_val(geoip_dat_arr, gi);
-				}
-				g_free(datname);
-			}
-		}
-		ws_dir_close (dir);
-	}
+    if ((dir = ws_dir_open(dirname, 0, NULL)) != NULL) {
+        while ((file = ws_dir_read_name(dir)) != NULL) {
+            name = ws_dir_get_name(file);
+            if (g_str_has_prefix(file, "Geo") && g_str_has_suffix(file, ".dat")) {
+                datname = g_strdup_printf("%s" G_DIR_SEPARATOR_S "%s", dirname, name);
+                gi = GeoIP_open(datname, GEOIP_MEMORY_CACHE);
+                if (gi) {
+                    g_array_append_val(geoip_dat_arr, gi);
+                }
+                g_free(datname);
+            }
+        }
+        ws_dir_close (dir);
+    }
 }
 
 /* UAT callbacks */
 static void* geoip_db_path_copy_cb(void* dest, const void* orig, size_t len _U_) {
-	const geoip_db_path_t *m = orig;
-	geoip_db_path_t *d = dest;
+    const geoip_db_path_t *m = orig;
+    geoip_db_path_t *d = dest;
 
-	d->path = g_strdup(m->path);
+    d->path = g_strdup(m->path);
 
-	return d;
+    return d;
 }
 
 static void geoip_db_path_free_cb(void* p) {
-	geoip_db_path_t *m = p;
-	g_free(m->path);
+    geoip_db_path_t *m = p;
+    g_free(m->path);
 }
 
 /**
@@ -130,41 +130,41 @@ static void geoip_db_path_free_cb(void* p) {
  */
 void
 geoip_db_init(void) {
-	guint i;
-	static uat_field_t geoip_db_paths_fields[] = {
-		UAT_FLD_DIRECTORYNAME(geoip_mod, path, "GeoIP Database Directory", "The GeoIP database directory path"),
-		UAT_END_FIELDS
-	};
-	char* geoip_load_error = NULL;
+    guint i;
+    static uat_field_t geoip_db_paths_fields[] = {
+        UAT_FLD_DIRECTORYNAME(geoip_mod, path, "GeoIP Database Directory", "The GeoIP database directory path"),
+        UAT_END_FIELDS
+    };
+    char* geoip_load_error = NULL;
 
-	geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
+    geoip_dat_arr = g_array_new(FALSE, FALSE, sizeof(GeoIP *));
 
-	geoip_db_paths_uat = uat_new("GeoIP Database Paths",
-			sizeof(geoip_db_path_t),
-			"geoip_db_paths",
-			FALSE,
-			(void*)&geoip_db_paths,
-			&num_geoip_db_paths,
-			UAT_CAT_GENERAL,
-			"ChGeoIPDbPaths",
-			geoip_db_path_copy_cb,
-			NULL,
-			geoip_db_path_free_cb,
+    geoip_db_paths_uat = uat_new("GeoIP Database Paths",
+            sizeof(geoip_db_path_t),
+            "geoip_db_paths",
+            FALSE,
+            (void*)&geoip_db_paths,
+            &num_geoip_db_paths,
+            UAT_CAT_GENERAL,
+            "ChGeoIPDbPaths",
+            geoip_db_path_copy_cb,
+            NULL,
+            geoip_db_path_free_cb,
                         NULL,
-			geoip_db_paths_fields);
+            geoip_db_paths_fields);
 
-	uat_load(geoip_db_paths_uat, &geoip_load_error);
+    uat_load(geoip_db_paths_uat, &geoip_load_error);
 
-	if (geoip_load_error) {
-		report_failure("Error loading GeoIP database path table: %s", geoip_load_error);
-		return;
-	}
+    if (geoip_load_error) {
+        report_failure("Error loading GeoIP database path table: %s", geoip_load_error);
+        return;
+    }
 
-	for (i = 0; i < num_geoip_db_paths; i++) {
-		if (geoip_db_paths[i].path) {
-			geoip_dat_scan_dir(geoip_db_paths[i].path);
-		}
-	}
+    for (i = 0; i < num_geoip_db_paths; i++) {
+        if (geoip_db_paths[i].path) {
+            geoip_dat_scan_dir(geoip_db_paths[i].path);
+        }
+    }
 
     /* add fake databases for latitude and longitude (using "City" in reality) */
     {
@@ -173,47 +173,47 @@ geoip_db_init(void) {
 
         gi_lat = g_malloc(sizeof (GeoIP));
         gi_lat->databaseType = WS_LAT_FAKE_EDITION;
-		g_array_append_val(geoip_dat_arr, gi_lat);
+        g_array_append_val(geoip_dat_arr, gi_lat);
         gi_lon = g_malloc(sizeof (GeoIP));
         gi_lon->databaseType = WS_LON_FAKE_EDITION;
-		g_array_append_val(geoip_dat_arr, gi_lon);
+        g_array_append_val(geoip_dat_arr, gi_lon);
     }
 }
 
 guint
 geoip_db_num_dbs(void) {
-	return geoip_dat_arr->len;
+    return geoip_dat_arr->len;
 }
 
 const gchar *
 geoip_db_name(guint dbnum) {
-	GeoIP *gi;
+    GeoIP *gi;
 
-	gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
-	if (gi) {
-		return (val_to_str(gi->databaseType, geoip_type_name_vals, "Unknown database"));
-	}
-	return "Invalid database";
+    gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
+    if (gi) {
+        return (val_to_str(gi->databaseType, geoip_type_name_vals, "Unknown database"));
+    }
+    return "Invalid database";
 }
 
 int
 geoip_db_type(guint dbnum) {
-	GeoIP *gi;
+    GeoIP *gi;
 
-	gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
-	if (gi) {
-		return (gi->databaseType);
-	}
-	return -1;
+    gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
+    if (gi) {
+        return (gi->databaseType);
+    }
+    return -1;
 }
 
 static int
 geoip_db_lookup_latlon(guint32 addr, float *lat, float *lon) {
-	GeoIP *gi;
-	GeoIPRecord *gir;
+    GeoIP *gi;
+    GeoIPRecord *gir;
     guint i;
 
-	for (i = 0; i < geoip_db_num_dbs(); i++) {
+    for (i = 0; i < geoip_db_num_dbs(); i++) {
         gi = g_array_index(geoip_dat_arr, GeoIP *, i);
         if (gi) {
             switch (gi->databaseType) {
@@ -223,7 +223,7 @@ geoip_db_lookup_latlon(guint32 addr, float *lat, float *lon) {
                     if(gir) {
                         *lat = gir->latitude;
                         *lon = gir->longitude;
-						return 0;
+                        return 0;
                     }
                     return -1;
                     /*break;*/
@@ -233,51 +233,51 @@ geoip_db_lookup_latlon(guint32 addr, float *lat, float *lon) {
             }
         }
     }
-	return -1;
+    return -1;
 }
 
 #define VAL_STR_LEN 100
 const char *
 geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
-	GeoIP *gi;
-	GeoIPRecord *gir;
-	const char *ret = not_found;
-	static char val[VAL_STR_LEN];
+    GeoIP *gi;
+    GeoIPRecord *gir;
+    const char *ret = not_found;
+    static char val[VAL_STR_LEN];
 
-	gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
-	if (gi) {
-		switch (gi->databaseType) {
-			case GEOIP_COUNTRY_EDITION:
-				ret = GeoIP_country_name_by_ipnum(gi, addr);
-				break;
+    gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
+    if (gi) {
+        switch (gi->databaseType) {
+            case GEOIP_COUNTRY_EDITION:
+                ret = GeoIP_country_name_by_ipnum(gi, addr);
+                break;
 
-			case GEOIP_CITY_EDITION_REV0:
-			case GEOIP_CITY_EDITION_REV1:
-				gir = GeoIP_record_by_ipnum(gi, addr);
-				if (gir && gir->city && gir->region) {
-					g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
-					ret = val;
-				} else if (gir && gir->city) {
-					g_snprintf(val, VAL_STR_LEN, "%s", gir->city);
-					ret = val;
-				}
-				break;
+            case GEOIP_CITY_EDITION_REV0:
+            case GEOIP_CITY_EDITION_REV1:
+                gir = GeoIP_record_by_ipnum(gi, addr);
+                if (gir && gir->city && gir->region) {
+                    g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
+                    ret = val;
+                } else if (gir && gir->city) {
+                    g_snprintf(val, VAL_STR_LEN, "%s", gir->city);
+                    ret = val;
+                }
+                break;
 
-			case GEOIP_ORG_EDITION:
-			case GEOIP_ISP_EDITION:
-			case GEOIP_ASNUM_EDITION:
-				ret = GeoIP_name_by_ipnum(gi, addr);
-				break;
+            case GEOIP_ORG_EDITION:
+            case GEOIP_ISP_EDITION:
+            case GEOIP_ASNUM_EDITION:
+                ret = GeoIP_name_by_ipnum(gi, addr);
+                break;
 
             case WS_LAT_FAKE_EDITION:
             {
                 float lat;
                 float lon;
-				char *c;
+                char *c;
                 if(geoip_db_lookup_latlon(addr, &lat, &lon) == 0) {
                     g_snprintf(val, VAL_STR_LEN, "%f", lat);
-					c = strchr(val, ',');
-					if (c != NULL) *c = '.';
+                    c = strchr(val, ',');
+                    if (c != NULL) *c = '.';
                     ret = val;
                 }
             }
@@ -287,51 +287,51 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
             {
                 float lat;
                 float lon;
-				char *c;
+                char *c;
                 if(geoip_db_lookup_latlon(addr, &lat, &lon) == 0) {
                     g_snprintf(val, VAL_STR_LEN, "%f", lon);
-					c = strchr(val, ',');
-					if (c != NULL) *c = '.';
+                    c = strchr(val, ',');
+                    if (c != NULL) *c = '.';
                     ret = val;
                 }
             }
                 break;
 
-			default:
-				break;
-		}
-	}
-	if (ret) {
-		return ret;
-	}
-	return not_found;
+            default:
+                break;
+        }
+    }
+    if (ret) {
+        return ret;
+    }
+    return not_found;
 }
 
 gchar *
 geoip_db_get_paths(void) {
-	GString* path_str = NULL;
-	gchar *path_ret;
-	char path_separator;
-	guint i;
+    GString* path_str = NULL;
+    gchar *path_ret;
+    char path_separator;
+    guint i;
 
-	path_str = g_string_new("");
+    path_str = g_string_new("");
 #ifdef _WIN32
-	path_separator = ';';
+    path_separator = ';';
 #else
-	path_separator = ':';
+    path_separator = ':';
 #endif
 
-	for (i = 0; i < num_geoip_db_paths; i++) {
-		if (geoip_db_paths[i].path) {
-			g_string_append_printf(path_str, "%s%c", geoip_db_paths[i].path, path_separator);
-		}
-	}
+    for (i = 0; i < num_geoip_db_paths; i++) {
+        if (geoip_db_paths[i].path) {
+            g_string_append_printf(path_str, "%s%c", geoip_db_paths[i].path, path_separator);
+        }
+    }
 
-	g_string_truncate(path_str, path_str->len-1);
-	path_ret = path_str->str;
-	g_string_free(path_str, FALSE);
+    g_string_truncate(path_str, path_str->len-1);
+    path_ret = path_str->str;
+    g_string_free(path_str, FALSE);
 
-	return path_ret;
+    return path_ret;
 }
 
 #else /* HAVE_GEOIP */
@@ -340,27 +340,27 @@ geoip_db_init(void) {}
 
 guint
 geoip_db_num_dbs(void) {
-	return 0;
+    return 0;
 }
 
 const gchar *
 geoip_db_name(guint dbnum _U_) {
-	return "Unsupported";
+    return "Unsupported";
 }
 
 int
 geoip_db_type(guint dbnum _U_) {
-	return -1;
+    return -1;
 }
 
 const char *
 geoip_db_lookup_ipv4(guint dbnum _U_, guint32 addr _U_, char *not_found) {
-	return not_found;
+    return not_found;
 }
 
 gchar *
 geoip_db_get_paths(void) {
-	return "";
+    return "";
 }
 
 #endif /* HAVE_GEOIP */
@@ -370,10 +370,10 @@ geoip_db_get_paths(void) {
  *
  * Local Variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=4 noexpandtab
- * :indentSize=4:tabSize=4:noTabs=false:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
  */

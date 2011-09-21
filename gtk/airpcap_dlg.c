@@ -76,27 +76,27 @@ typedef struct{
 static void
 write_prefs_to_file(void)
 {
-  int err;
-  char *pf_dir_path;
-  char *pf_path;
+    int err;
+    char *pf_dir_path;
+    char *pf_path;
 
-  /* Create the directory that holds personal configuration files, if
-     necessary.  */
-  if (create_persconffile_dir(&pf_dir_path) == -1) {
-     simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-      "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
-      g_strerror(errno));
-     g_free(pf_dir_path);
-  } else {
-    /* Write the preferencs out. */
-    err = write_prefs(&pf_path);
-    if (err != 0) {
-       simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
-        "Can't open preferences file\n\"%s\": %s.", pf_path,
-        g_strerror(err));
-       g_free(pf_path);
+    /* Create the directory that holds personal configuration files, if
+       necessary.  */
+    if (create_persconffile_dir(&pf_dir_path) == -1) {
+        simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                      "Can't create directory\n\"%s\"\nfor preferences file: %s.", pf_dir_path,
+                      g_strerror(errno));
+        g_free(pf_dir_path);
+    } else {
+        /* Write the preferencs out. */
+        err = write_prefs(&pf_path);
+        if (err != 0) {
+            simple_dialog(ESD_TYPE_ERROR, ESD_BTN_OK,
+                          "Can't open preferences file\n\"%s\": %s.", pf_path,
+                          g_strerror(err));
+            g_free(pf_path);
+        }
     }
-  }
 }
 
 /*
@@ -2710,13 +2710,13 @@ on_keys_check_ok_bt_clicked (GtkWidget *button _U_, gpointer user_data)
 
     /* Find out which radio button is selected and call the correct function */
     if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(merge_rb)))
-		on_merge_bt_clicked (merge_rb,keys_check_w);
+        on_merge_bt_clicked (merge_rb,keys_check_w);
     else if (gtk_toggle_button_get_active (GTK_TOGGLE_BUTTON(keep_rb))) 
-		on_keep_bt_clicked (keep_rb,keys_check_w);
+        on_keep_bt_clicked (keep_rb,keys_check_w);
     else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(import_rb))) 
-		on_import_bt_clicked (import_rb,keys_check_w);
+        on_import_bt_clicked (import_rb,keys_check_w);
     else if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(ignore_rb)))
-		on_ignore_bt_clicked (ignore_rb,keys_check_w);
+        on_ignore_bt_clicked (ignore_rb,keys_check_w);
     else on_keys_check_cancel_bt_clicked(NULL,keys_check_w);
 }
 
@@ -2902,10 +2902,10 @@ airpcap_keys_check_w(GtkWidget *w, gpointer data _U_)
  *
  * Local Variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=4 noexpandtab
- * :indentSize=4:tabSize=4:noTabs=false:
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
