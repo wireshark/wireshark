@@ -36,18 +36,18 @@
 /* set the given nstime_t to zero */
 void nstime_set_zero(nstime_t *nstime)
 {
-	nstime->secs  = 0;
-	nstime->nsecs = 0;
+    nstime->secs  = 0;
+    nstime->nsecs = 0;
 }
 
 /* is the given nstime_t currently zero? */
 gboolean nstime_is_zero(nstime_t *nstime)
 {
-	if(nstime->secs == 0 && nstime->nsecs == 0) {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
+    if(nstime->secs == 0 && nstime->nsecs == 0) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
 /* set the given nstime_t to (0,maxint) to mark it as "unset"
@@ -56,18 +56,18 @@ gboolean nstime_is_zero(nstime_t *nstime)
  */
 void nstime_set_unset(nstime_t *nstime)
 {
-	nstime->secs  = 0;
-	nstime->nsecs = G_MAXINT;
+    nstime->secs  = 0;
+    nstime->nsecs = G_MAXINT;
 }
 
 /* is the given nstime_t currently (0,maxint)? */
 gboolean nstime_is_unset(nstime_t *nstime)
 {
-	if(nstime->secs == 0 && nstime->nsecs == G_MAXINT) {
-		return TRUE;
-	} else {
-		return FALSE;
-	}
+    if(nstime->secs == 0 && nstime->nsecs == G_MAXINT) {
+        return TRUE;
+    } else {
+        return FALSE;
+    }
 }
 
 
@@ -77,8 +77,8 @@ gboolean nstime_is_unset(nstime_t *nstime)
  */
 void nstime_copy(nstime_t *a, const nstime_t *b)
 {
-	a->secs = b->secs;
-	a->nsecs = b->nsecs;
+    a->secs = b->secs;
+    a->nsecs = b->nsecs;
 }
 
 /*

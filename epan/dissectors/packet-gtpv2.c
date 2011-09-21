@@ -1853,22 +1853,22 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     length = tvb_length(tvb);
     flags_3gpp = tvb_get_guint8(tvb,offset);
 
-	proto_tree_add_item(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_glt, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     switch(flags_3gpp)
     {
-	case 0:
+    case 0:
         /* CGI */
         flags = GTPv2_ULI_CGI_MASK;
-		break;
-	case 1:
+        break;
+    case 1:
         /* SAI */
         flags = GTPv2_ULI_SAI_MASK;
-		break;
-	case 2:
+        break;
+    case 2:
         /* RAI */
         flags = GTPv2_ULI_RAI_MASK;
-		break;
+        break;
     case 128:
         /* TAI */
         flags = GTPv2_ULI_TAI_MASK;
@@ -1882,7 +1882,7 @@ dissect_diameter_3gpp_uli(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         flags = GTPv2_ULI_TAI_MASK + GTPv2_ULI_ECGI_MASK;
         break;
     default:
-		proto_tree_add_text(tree, tvb, 1, -1, "Geographic Location");
+        proto_tree_add_text(tree, tvb, 1, -1, "Geographic Location");
         return length;
     }
 
@@ -4626,7 +4626,7 @@ void proto_register_gtpv2(void)
            FT_BOOLEAN, 8, NULL, GTPv2_ULI_CGI_MASK,
            NULL, HFILL}
         },
-		{ &hf_gtpv2_glt,
+        { &hf_gtpv2_glt,
           {"Geographic Location Type", "gtpv2.glt",
            FT_UINT8, BASE_DEC, VALS(geographic_location_type_vals), 0x0,
            NULL, HFILL}

@@ -469,10 +469,10 @@
 
 /***************************************************************************/
 /* File Objects */
-#define AL_OBJ_FILE_CMD    	0x4603   /* 70 03 File Control - Command */
-#define AL_OBJ_FILE_STAT   	0x4604   /* 70 04 File Control - Status */
-#define AL_OBJ_FILE_TRANS  	0x4605   /* 70 05 File Control - Transport */
-#define AL_OBJ_FILE_TRAN_ST	0x4606   /* 70 05 File Control - Transport Status */
+#define AL_OBJ_FILE_CMD         0x4603   /* 70 03 File Control - Command */
+#define AL_OBJ_FILE_STAT        0x4604   /* 70 04 File Control - Status */
+#define AL_OBJ_FILE_TRANS       0x4605   /* 70 05 File Control - Transport */
+#define AL_OBJ_FILE_TRAN_ST     0x4606   /* 70 05 File Control - Transport Status */
 
 /* File Control Mode flags */
 #define AL_OBJ_FILE_MODE_NULL   0x00   /* NULL */
@@ -1032,9 +1032,9 @@ static GHashTable *dl_conversation_table = NULL;
 /* Data-Link-Layer Conversation Key Structure */
 typedef struct _dl_conversation_key
 {
-	guint32 conversation; /* TCP / UDP conversation index */
-	guint16 src;	      /* DNP3.0 Source Address */
-	guint16 dst;	      /* DNP3.0 Destination Address */
+  guint32 conversation; /* TCP / UDP conversation index */
+  guint16 src;          /* DNP3.0 Source Address */
+  guint16 dst;          /* DNP3.0 Destination Address */
 } dl_conversation_key_t;
 
 /* Data-Link-Layer conversation key equality function */
@@ -1058,12 +1058,12 @@ dl_conversation_equal(gconstpointer v, gconstpointer w)
 static guint
 dl_conversation_hash(gconstpointer v)
 {
-	const dl_conversation_key_t *key = (const dl_conversation_key_t*)v;
-	guint val;
+  const dl_conversation_key_t *key = (const dl_conversation_key_t*)v;
+  guint val;
 
-	val = key->conversation + (key->src << 16) + key->dst;
+  val = key->conversation + (key->src << 16) + key->dst;
 
-	return val;
+  return val;
 }
 
 /* ************************************************************************* */
@@ -2165,7 +2165,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             switch (al_obj)
             {
               case AL_OBJ_AO_32:     /* 32-Bit Analog Output Status (Obj:40, Var:01) */
-			  case AL_OBJ_AOC_32NT:  /* 32-Bit Analog Output Event w/o Time (Obj:42, Var:01) */
+              case AL_OBJ_AOC_32NT:  /* 32-Bit Analog Output Event w/o Time (Obj:42, Var:01) */
               case AL_OBJ_AOC_32T:   /* 32-Bit Analog Output Event with Time (Obj:42, Var:03) */
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
@@ -2175,8 +2175,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
                 break;
 
               case AL_OBJ_AO_16:     /* 16-Bit Analog Output Status (Obj:40, Var:02) */
-			  case AL_OBJ_AOC_16NT:  /* 16-Bit Analog Output Event w/o Time (Obj:42, Var:02) */
-			  case AL_OBJ_AOC_16T:   /* 16-Bit Analog Output Event with Time (Obj:42, Var:04) */
+              case AL_OBJ_AOC_16NT:  /* 16-Bit Analog Output Event w/o Time (Obj:42, Var:02) */
+              case AL_OBJ_AOC_16T:   /* 16-Bit Analog Output Event with Time (Obj:42, Var:04) */
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val16);
@@ -2185,8 +2185,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
                 break;
 
               case AL_OBJ_AO_FLT:     /* 32-Bit Floating Point Output Status (Obj:40, Var:03) */
-			  case AL_OBJ_AOC_FLTNT:  /* 32-Bit Floating Point Output Event w/o Time (Obj:42, Var:05) */
-			  case AL_OBJ_AOC_FLTT:   /* 32-Bit Floating Point Output Event w/ Time (Obj:42, Var:07) */
+              case AL_OBJ_AOC_FLTNT:  /* 32-Bit Floating Point Output Event w/o Time (Obj:42, Var:05) */
+              case AL_OBJ_AOC_FLTT:   /* 32-Bit Floating Point Output Event w/ Time (Obj:42, Var:07) */
 
                 al_valflt = tvb_get_letohieee_float(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valflt);
@@ -2195,8 +2195,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
                 break;
 
               case AL_OBJ_AO_DBL:     /* 64-Bit Floating Point Output Status (Obj:40, Var:04) */
-			  case AL_OBJ_AOC_DBLNT:  /* 64-Bit Floating Point Output Event w/o Time (Obj:42, Var:06) */
-			  case AL_OBJ_AOC_DBLT:   /* 64-Bit Floating Point Output Event w/ Time (Obj:42, Var:08) */
+              case AL_OBJ_AOC_DBLNT:  /* 64-Bit Floating Point Output Event w/o Time (Obj:42, Var:06) */
+              case AL_OBJ_AOC_DBLT:   /* 64-Bit Floating Point Output Event w/ Time (Obj:42, Var:08) */
 
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valdbl);
@@ -2391,7 +2391,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             offset = data_pos;
             break;
 
-		  case AL_OBJ_FILE_TRAN_ST: /* File Control Tansport Status (Obj:70, Var:06) */
+          case AL_OBJ_FILE_TRAN_ST: /* File Control Tansport Status (Obj:70, Var:06) */
 
             /* File Handle */
             proto_tree_add_item(point_tree, hf_dnp3_al_file_handle, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
@@ -2416,7 +2416,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             proto_item_set_len(point_item, data_pos - offset);
 
             offset = data_pos;
-		    break;
+            break;
 
           case AL_OBJ_IIN:     /* IIN Data Object */
 
@@ -2656,9 +2656,9 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   break;
 
-  case AL_FUNC_OPENFILE:  	/* Open File Function Code 0x19 */
-  case AL_FUNC_CLOSEFILE: 	/* Close File Function Code 0x1A */
-  case AL_FUNC_DELETEFILE:	/* Delete File Function Code 0x1B */
+  case AL_FUNC_OPENFILE:        /* Open File Function Code 0x19 */
+  case AL_FUNC_CLOSEFILE:       /* Close File Function Code 0x1A */
+  case AL_FUNC_DELETEFILE:      /* Delete File Function Code 0x1B */
 
   /* Create File Data Objects Tree */
   t_robj = proto_tree_add_text(al_tree, tvb, offset, -1, "File Data Objects");
@@ -2941,11 +2941,11 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* Look up the conversation to get the fragment reassembly id */
         conversation = find_or_create_conversation(pinfo);
 
-		/*
-		 * The TCP/UDP conversation is not sufficient to identify a conversation
-		 * on a multi-drop DNP network.  Lookup conversation data based on TCP/UDP
-		 * conversation and the DNP src and dst addresses
-		 */
+        /*
+         * The TCP/UDP conversation is not sufficient to identify a conversation
+         * on a multi-drop DNP network.  Lookup conversation data based on TCP/UDP
+         * conversation and the DNP src and dst addresses
+         */
 
         dl_conversation_key.conversation = conversation->index;
         dl_conversation_key.src = dl_src;
@@ -2958,14 +2958,14 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           dl_conversation_key_t* new_dl_conversation_key = NULL;
           new_dl_conversation_key = se_alloc(sizeof(dl_conversation_key_t));
           *new_dl_conversation_key = dl_conversation_key;
-          
+
           conv_data_ptr = se_alloc(sizeof(dnp3_conv_t));
-          
+
           /*** Increment static global fragment reassembly id ***/
           conv_data_ptr->conv_seq_number = seq_number++;
 
           g_hash_table_insert(dl_conversation_table, new_dl_conversation_key, conv_data_ptr);
-		}
+        }
 
         conv_seq_number = conv_data_ptr->conv_seq_number;
 

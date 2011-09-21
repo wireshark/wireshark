@@ -80,25 +80,25 @@ static void     prefs_main_destroy_cb(GtkWidget *, gpointer);
 static void     prefs_tree_select_cb(GtkTreeSelection *, gpointer);
 
 
-#define E_PREFSW_SCROLLW_KEY    "prefsw_scrollw"
-#define E_PREFSW_TREE_KEY       "prefsw_tree"
-#define E_PREFSW_NOTEBOOK_KEY   "prefsw_notebook"
-#define E_PREFSW_SAVE_BT_KEY    "prefsw_save_bt"
-#define E_PAGE_ITER_KEY         "page_iter"
-#define E_PAGE_MODULE_KEY       "page_module"
-#define E_PAGESW_FRAME_KEY      "pagesw_frame"
+#define E_PREFSW_SCROLLW_KEY          "prefsw_scrollw"
+#define E_PREFSW_TREE_KEY             "prefsw_tree"
+#define E_PREFSW_NOTEBOOK_KEY         "prefsw_notebook"
+#define E_PREFSW_SAVE_BT_KEY          "prefsw_save_bt"
+#define E_PAGE_ITER_KEY               "page_iter"
+#define E_PAGE_MODULE_KEY             "page_module"
+#define E_PAGESW_FRAME_KEY            "pagesw_frame"
 
-#define E_GUI_PAGE_KEY          "gui_options_page"
-#define E_GUI_LAYOUT_PAGE_KEY   "gui_layout_page"
-#define E_GUI_COLUMN_PAGE_KEY   "gui_column_options_page"
-#define E_GUI_FONT_PAGE_KEY     "gui_font_options_page"
-#define E_GUI_COLORS_PAGE_KEY   "gui_colors_options_page"
-#define E_CAPTURE_PAGE_KEY      "capture_options_page"
-#define E_PRINT_PAGE_KEY        "printer_options_page"
-#define E_NAMERES_PAGE_KEY      "nameres_options_page"
-#define E_TAPS_PAGE_KEY         "taps_options_page"
-#define E_PROTOCOLS_PAGE_KEY    "protocols_options_page"
-#define E_FILTER_EXPRESSIONS_PAGE_KEY	"filter_expressions_page"
+#define E_GUI_PAGE_KEY                "gui_options_page"
+#define E_GUI_LAYOUT_PAGE_KEY         "gui_layout_page"
+#define E_GUI_COLUMN_PAGE_KEY         "gui_column_options_page"
+#define E_GUI_FONT_PAGE_KEY           "gui_font_options_page"
+#define E_GUI_COLORS_PAGE_KEY         "gui_colors_options_page"
+#define E_CAPTURE_PAGE_KEY            "capture_options_page"
+#define E_PRINT_PAGE_KEY              "printer_options_page"
+#define E_NAMERES_PAGE_KEY            "nameres_options_page"
+#define E_TAPS_PAGE_KEY               "taps_options_page"
+#define E_PROTOCOLS_PAGE_KEY          "protocols_options_page"
+#define E_FILTER_EXPRESSIONS_PAGE_KEY "filter_expressions_page"
 
 /*
  * Keep a static pointer to the current "Preferences" window, if any, so that

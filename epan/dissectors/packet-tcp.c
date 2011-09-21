@@ -270,8 +270,8 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOPT_MOOD             25      /* RFC5841 TCP Packet Mood */
 #define TCPOPT_QS               27      /* RFC4782 */
 #define TCPOPT_USER_TO          28      /* RFC5482 */
-#define TCPOPT_EXP_FD		0xfd	/* Experimental, reserved */
-#define TCPOPT_EXP_FE		0xfe	/* Experimental, reserved */
+#define TCPOPT_EXP_FD           0xfd    /* Experimental, reserved */
+#define TCPOPT_EXP_FE           0xfe    /* Experimental, reserved */
 /* Non IANA registered option numbers */
 #define TCPOPT_RVBD_PROBE       76      /* Riverbed probe option */
 #define TCPOPT_RVBD_TRPY        78      /* Riverbed transparency option */
@@ -300,7 +300,7 @@ static gint ett_tcp_opt_rvbd_trpy_flags = -1;
 #define TCPOLEN_USER_TO        4
 #define TCPOLEN_RVBD_PROBE_MIN 3
 #define TCPOLEN_RVBD_TRPY_MIN 16
-#define TCPOLEN_EXP_MIN	       2
+#define TCPOLEN_EXP_MIN        2
 
 static const true_false_string tcp_option_user_to_granularity = {
   "Minutes", "Seconds"
@@ -2270,12 +2270,12 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree *exp_tree;
 
     item = proto_tree_add_item(opt_tree, hf_tcp_option_exp, tvb,
-	offset, optlen, FALSE);
+        offset, optlen, FALSE);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
     proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
     proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
-	offset + 2, optlen - 2, FALSE);
+        offset + 2, optlen - 2, FALSE);
     tcp_info_append_uint(pinfo, "Expxx", TRUE);
 }
 
@@ -2305,7 +2305,7 @@ dissect_tcpopt_mss(const ip_tcp_opt *optp, tvbuff_t *tvb,
 
     mss = tvb_get_ntohs(tvb, offset + 2);
     item = proto_tree_add_none_format(opt_tree, hf_tcp_option_mss, tvb, offset,
-	optlen, "%s: %u bytes", optp->name, mss);
+        optlen, "%s: %u bytes", optp->name, mss);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_mss);
     proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
     proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
@@ -2476,8 +2476,8 @@ dissect_tcpopt_timestamp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     proto_item_append_text(ti, "TSval %u, TSecr %u", ts_val, ts_ecr);
     if (tcp_ignore_timestamps == FALSE) {
-	tcp_info_append_uint(pinfo, "TSval", ts_val);
-	tcp_info_append_uint(pinfo, "TSecr", ts_ecr);
+        tcp_info_append_uint(pinfo, "TSval", ts_val);
+        tcp_info_append_uint(pinfo, "TSecr", ts_ecr);
     }
 }
 

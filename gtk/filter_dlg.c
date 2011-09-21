@@ -446,7 +446,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     g_signal_connect(new_bt, "clicked", G_CALLBACK(filter_new_bt_clicked_cb), filter_list_type_p);
     gtk_widget_show(new_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), new_bt, FALSE, FALSE, 0);
-	gtk_widget_set_tooltip_text(new_bt, "Create a new filter at the end of the list (with the current properties)");
+    gtk_widget_set_tooltip_text(new_bt, "Create a new filter at the end of the list (with the current properties)");
 
     del_bt = gtk_button_new_from_stock(GTK_STOCK_DELETE);
     gtk_widget_set_sensitive(del_bt, FALSE);
@@ -454,7 +454,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     g_object_set_data(G_OBJECT(main_w), E_FILT_DEL_BT_KEY, del_bt);
     gtk_widget_show(del_bt);
     gtk_box_pack_start (GTK_BOX (list_bb), del_bt, FALSE, FALSE, 0);
-	gtk_widget_set_tooltip_text(del_bt, "Delete the selected filter");
+    gtk_widget_set_tooltip_text(del_bt, "Delete the selected filter");
 
     filter_fr = gtk_frame_new(list_name);
     gtk_box_pack_start(GTK_BOX(top_hb), filter_fr, TRUE, TRUE, 0);
@@ -547,7 +547,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     g_object_set_data(G_OBJECT(main_w), E_FILT_PARENT_FILTER_TE_KEY, parent_filter_te);
 
     if (list_type == DFILTER_EDITED_LIST) {
-		gtk_widget_set_tooltip_text(filter_te,
+        gtk_widget_set_tooltip_text(filter_te,
             "Enter a display filter. "
             "The background color of this field is changed by a continuous syntax check"
               " (green is valid, red is invalid, yellow may have unexpected results).");
@@ -558,7 +558,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
         g_signal_connect(add_expression_bt, "clicked", G_CALLBACK(filter_add_expr_bt_cb), main_w);
         gtk_box_pack_start(GTK_BOX(bottom_hb), add_expression_bt, FALSE, FALSE, 0);
         gtk_widget_show(add_expression_bt);
-		gtk_widget_set_tooltip_text(add_expression_bt, "Add an expression to the filter string");
+        gtk_widget_set_tooltip_text(add_expression_bt, "Add an expression to the filter string");
     }
 
 
@@ -569,7 +569,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     ok_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_OK);
     g_signal_connect(ok_bt, "clicked", G_CALLBACK(filter_dlg_ok_cb), filter_list_type_p);
-	gtk_widget_set_tooltip_text(ok_bt, "Apply the filters and close this dialog");
+    gtk_widget_set_tooltip_text(ok_bt, "Apply the filters and close this dialog");
 
     /* Catch the "activate" signal on the filter name and filter
        expression text entries, so that if the user types Return
@@ -583,14 +583,14 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
 
     apply_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_APPLY);
     g_signal_connect(apply_bt, "clicked", G_CALLBACK(filter_dlg_apply_cb), filter_list_type_p);
-	gtk_widget_set_tooltip_text(apply_bt, "Apply the filters and keep this dialog open");
+    gtk_widget_set_tooltip_text(apply_bt, "Apply the filters and keep this dialog open");
 
     save_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_SAVE);
     g_signal_connect(save_bt, "clicked", G_CALLBACK(filter_dlg_save_cb), filter_list_type_p);
-	gtk_widget_set_tooltip_text(save_bt, "Save the filters permanently and keep this dialog open");
+    gtk_widget_set_tooltip_text(save_bt, "Save the filters permanently and keep this dialog open");
 
     cancel_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_CANCEL);
-	gtk_widget_set_tooltip_text(cancel_bt, "Cancel the changes");
+    gtk_widget_set_tooltip_text(cancel_bt, "Cancel the changes");
     g_signal_connect(cancel_bt, "clicked", G_CALLBACK(filter_dlg_cancel_cb), filter_list_type_p);
     window_set_cancel_button(main_w, cancel_bt, NULL);
 
@@ -600,7 +600,7 @@ filter_dialog_new(GtkWidget *button, GtkWidget *parent_filter_te,
     } else {
         g_signal_connect(help_bt, "clicked", G_CALLBACK(topic_cb), (gpointer)HELP_DISPLAY_FILTERS_DIALOG);
     }
-	gtk_widget_set_tooltip_text(help_bt, "Show topic specific help");
+    gtk_widget_set_tooltip_text(help_bt, "Show topic specific help");
 
     if(ok_bt) {
         gtk_widget_grab_default(ok_bt);

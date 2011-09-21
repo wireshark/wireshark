@@ -99,99 +99,99 @@ proto_hier_select_filter_cb(GtkWidget *widget _U_, gpointer callback_data _U_, g
 static void
 apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
 }
 static void
 apply_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 apply_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
 }
 static void
 apply_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
 }
 static void
 apply_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
 apply_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
 prep_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
 }
 static void
 prep_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 prep_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
 }
 static void
 prep_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
 }
 static void
 prep_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
 prep_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
 find_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
 }
 static void
 find_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 find_prev_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
 }
 static void
 find_prev_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 find_next_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
 }
 static void
 find_next_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 color_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	proto_hier_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
+    proto_hier_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
 
 
@@ -244,44 +244,44 @@ static const char *ui_desc_proto_hier_stats_filter_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
- * const gchar *label;			The label for the action. This field should typically be marked for translation,
- *								see gtk_action_group_set_translation_domain().
- *								If label is NULL, the label of the stock item with id stock_id is used.
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ * const gchar *name;           The name of the action.
+ * const gchar *stock_id;       The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;          The label for the action. This field should typically be marked for translation,
  *                              see gtk_action_group_set_translation_domain().
- * GCallback callback;			The function to call when the action is activated.
+ *                              If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;    The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;        The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;          The function to call when the action is activated.
  *
  */
 static const GtkActionEntry proto_hier_stats_popup_entries[] = {
-  { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
-  { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Frame",					NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Next",					NULL, "Find Next" ,						NULL, NULL,								NULL },
-  { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
-  { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
-  { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/Not Selected",		NULL, "Not Selected",				NULL, "Not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
-  { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/Not Selected",		NULL, "Not Selected",				NULL, "Not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			G_CALLBACK(prep_as_or_not_selected_cb) },
-  { "/Find Frame/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_selected_cb) },
-  { "/Find Frame/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_not_selected_cb) },
-  { "/Find Previous/Selected",					NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_prev_selected_cb) },
-  { "/Find Previous/Not Selected",				NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_prev_not_selected_cb) },
-  { "/Find Next/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_next_selected_cb) },
-  { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
-  { "/Colorize Procedure/Colorize Protocol",	NULL, "Colorize Protocol",				NULL, "Colorize Protocol",				G_CALLBACK(color_selected_cb) },
+  { "/Apply as Filter",                         NULL, "Apply as Filter",                NULL, NULL,                             NULL },
+  { "/Prepare a Filter",                        NULL, "Prepare a Filter",               NULL, NULL,                             NULL },
+  { "/Find Frame",                              NULL, "Find Frame",                     NULL, NULL,                             NULL },
+  { "/Find Frame/Find Frame",                   NULL, "Find Frame",                     NULL, NULL,                             NULL },
+  { "/Find Frame/Find Next",                    NULL, "Find Next" ,                     NULL, NULL,                             NULL },
+  { "/Find Frame/Find Previous",                NULL, "Find Previous",                  NULL, NULL,                             NULL },
+  { "/Colorize Procedure",                      NULL, "Colorize Procedure",             NULL, NULL,                             NULL },
+  { "/Apply as Filter/Selected",                NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(apply_as_selected_cb) },
+  { "/Apply as Filter/Not Selected",        NULL, "Not Selected",               NULL, "Not Selected",               G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",            NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",        NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Prepare a Filter/Selected",               NULL, "Selected",                       NULL, "selcted",                        G_CALLBACK(prep_as_selected_cb) },
+  { "/Prepare a Filter/Not Selected",       NULL, "Not Selected",               NULL, "Not Selected",               G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Find Frame/Selected",                     NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_selected_cb) },
+  { "/Find Frame/Not Selected",                 NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_not_selected_cb) },
+  { "/Find Previous/Selected",                  NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_prev_selected_cb) },
+  { "/Find Previous/Not Selected",              NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_prev_not_selected_cb) },
+  { "/Find Next/Selected",                      NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_next_selected_cb) },
+  { "/Find Next/Not Selected",                  NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_next_not_selected_cb) },
+  { "/Colorize Procedure/Colorize Protocol",    NULL, "Colorize Protocol",              NULL, "Colorize Protocol",              G_CALLBACK(color_selected_cb) },
 };
 
 static void
@@ -388,31 +388,31 @@ static void
 proto_hier_create_popup_menu(void)
 {
 
-	GtkUIManager *ui_manager;
-	GtkActionGroup *action_group;
-	GError *error = NULL;
-	GtkWidget *popup_menu_object;
+    GtkUIManager *ui_manager;
+    GtkActionGroup *action_group;
+    GError *error = NULL;
+    GtkWidget *popup_menu_object;
 
-	action_group = gtk_action_group_new ("ProtoHierStatsTFilterPopupActionGroup");
-	gtk_action_group_add_actions (action_group,									/* the action group */
-								(gpointer)proto_hier_stats_popup_entries,		/* an array of action descriptions */
-								G_N_ELEMENTS(proto_hier_stats_popup_entries),	/* the number of entries */
-								NULL);											/* data to pass to the action callbacks */
+    action_group = gtk_action_group_new ("ProtoHierStatsTFilterPopupActionGroup");
+    gtk_action_group_add_actions (action_group,                                 /* the action group */
+                                (gpointer)proto_hier_stats_popup_entries,       /* an array of action descriptions */
+                                G_N_ELEMENTS(proto_hier_stats_popup_entries),   /* the number of entries */
+                                NULL);                                          /* data to pass to the action callbacks */
 
-	ui_manager = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager,
-		action_group,
-		0); /* the position at which the group will be inserted */
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_proto_hier_stats_filter_popup, -1, &error);
-	if (error != NULL)
+    ui_manager = gtk_ui_manager_new ();
+    gtk_ui_manager_insert_action_group (ui_manager,
+        action_group,
+        0); /* the position at which the group will be inserted */
+    gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_proto_hier_stats_filter_popup, -1, &error);
+    if (error != NULL)
     {
         fprintf (stderr, "Warning: building proto hier ststs filter popup failed: %s\n",
                 error->message);
         g_error_free (error);
         error = NULL;
     }
-	popup_menu_object = gtk_ui_manager_get_widget(ui_manager, "/ProtoHierStatsFilterPopup");
-	g_signal_connect(tree, "button_press_event", G_CALLBACK(proto_hier_show_popup_menu_cb), popup_menu_object);
+    popup_menu_object = gtk_ui_manager_get_widget(ui_manager, "/ProtoHierStatsFilterPopup");
+    g_signal_connect(tree, "button_press_event", G_CALLBACK(proto_hier_show_popup_menu_cb), popup_menu_object);
 
 }
 
@@ -421,7 +421,7 @@ proto_hier_create_popup_menu(void)
 static void
 create_tree(GtkWidget *container, ph_stats_t *ps)
 {
-    GtkWidget	*sw;
+    GtkWidget         *sw;
     GtkTreeView       *tree_view;
     GtkTreeStore      *store;
     GtkCellRenderer   *renderer;

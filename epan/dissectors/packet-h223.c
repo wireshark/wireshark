@@ -635,7 +635,7 @@ static guint8 h223_al2_crc8bit( tvbuff_t *tvb ) {
 static void
 dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
 /*                  circuit_t* vc_circuit, */
-		    h223_lc_params* lc_params )
+                    h223_lc_params* lc_params )
 {
     proto_tree *al_tree = NULL;
     proto_item *al_item, *hidden_item;
@@ -739,9 +739,9 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
  */
 static void
 dissect_mux_sdu_fragment(tvbuff_t *volatile next_tvb, packet_info *pinfo,
-			 guint32 pkt_offset, proto_tree *pdu_tree,
-			 h223_call_info* call_info, guint16 vc,
-			 gboolean end_of_mux_sdu)
+                         guint32 pkt_offset, proto_tree *pdu_tree,
+                         h223_call_info* call_info, guint16 vc,
+                         gboolean end_of_mux_sdu)
 {
     /* update the circuit details before passing to a subdissector */
     guint32 orig_circuit = pinfo->circuit_id;
@@ -856,10 +856,10 @@ mux_element_sublist_size( h223_mux_element* me )
  */
 static guint32
 dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
-				guint32 pkt_offset, proto_tree *pdu_tree,
-				h223_call_info* call_info,
-				h223_mux_element *me, guint32 offset,
-				gboolean endOfMuxSdu )
+                                guint32 pkt_offset, proto_tree *pdu_tree,
+                                h223_call_info* call_info,
+                                h223_mux_element *me, guint32 offset,
+                                gboolean endOfMuxSdu )
 {
     guint32 len = tvb_reported_length(tvb);
     guint32 frag_len;
@@ -909,8 +909,8 @@ dissect_mux_payload_by_me_list( tvbuff_t *tvb, packet_info *pinfo,
  */
 static void
 dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
-		     proto_tree *pdu_tree, h223_call_info *call_info,
-		     guint8 mc, gboolean endOfMuxSdu )
+                     proto_tree *pdu_tree, h223_call_info *call_info,
+                     guint8 mc, gboolean endOfMuxSdu )
 {
     guint32 len = tvb_reported_length(tvb);
 
@@ -944,7 +944,7 @@ dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
  */
 static void
 dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
-		 proto_tree *h223_tree, h223_call_info *call_info)
+                 proto_tree *h223_tree, h223_call_info *call_info)
 {
     guint32 offset = 0;
     /* actual (as opposed to reported) payload len */
@@ -1188,8 +1188,8 @@ h223_mux_check_hdlc(int h223_level, guint32 nbytes, guint32 tail_buf)
 
 static gint
 dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
-			  packet_info *pinfo, proto_tree *h223_tree,
-			  h223_call_info *call_info)
+                          packet_info *pinfo, proto_tree *h223_tree,
+                          h223_call_info *call_info)
 {
     tvbuff_t *volatile next_tvb;
     volatile guint32 offset = start_offset;
@@ -1265,16 +1265,16 @@ dissect_mux_pdu_fragment( tvbuff_t *tvb, guint32 start_offset,
     }
 
     CATCH2(BoundsError,ReportedBoundsError) {
-	/*  Restore the private_data structure in case one of the
-	 *  called dissectors modified it (and, due to the exception,
-	 *  was unable to restore it).
-	 */
-	pinfo->private_data = pd_save;
+        /*  Restore the private_data structure in case one of the
+         *  called dissectors modified it (and, due to the exception,
+         *  was unable to restore it).
+         */
+        pinfo->private_data = pd_save;
 
         col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
         proto_tree_add_protocol_format(h223_tree, proto_malformed,
                                        tvb, 0, 0, "[Malformed Packet: %s]",
-				       pinfo->current_proto);
+                                       pinfo->current_proto);
     }
 
     ENDTRY;

@@ -400,99 +400,99 @@ hostlist_show_popup_menu_cb(void *widg _U_, GdkEvent *event, hostlist_table *et)
 static void
 apply_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_SELECTED, 0));
 }
 static void
 apply_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 apply_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_SELECTED, 0));
 }
 static void
 apply_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_SELECTED, 0));
 }
 static void
 apply_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
 apply_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_MATCH(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
 prep_as_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_SELECTED, 0));
 }
 static void
 prep_as_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 prep_as_and_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_SELECTED, 0));
 }
 static void
 prep_as_or_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_SELECTED, 0));
 }
 static void
 prep_as_and_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_AND_NOT_SELECTED, 0));
 }
 static void
 prep_as_or_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_PREPARE(ACTYPE_OR_NOT_SELECTED, 0));
 }
 
 static void
 find_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_SELECTED, 0));
 }
 static void
 find_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_FRAME(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 find_prev_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_SELECTED, 0));
 }
 static void
 find_prev_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_PREVIOUS(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 find_next_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_SELECTED, 0));
 }
 static void
 find_next_not_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_FIND_NEXT(ACTYPE_NOT_SELECTED, 0));
 }
 static void
 color_selected_cb(GtkWidget *widget, gpointer user_data)
 {
-	hostlist_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
+    hostlist_select_filter_cb( widget , user_data, CALLBACK_COLORIZE(ACTYPE_SELECTED, 0));
 }
 
 static const char *ui_desc_hostlist_table_popup =
@@ -544,73 +544,73 @@ static const char *ui_desc_hostlist_table_popup =
  *   const gchar     *tooltip;
  *   GCallback  callback;
  * } GtkActionEntry;
- * const gchar *name;			The name of the action.
- * const gchar *stock_id;		The stock id for the action, or the name of an icon from the icon theme.
- * const gchar *label;			The label for the action. This field should typically be marked for translation,
- *								see gtk_action_group_set_translation_domain().
- *								If label is NULL, the label of the stock item with id stock_id is used.
- * const gchar *accelerator;	The accelerator for the action, in the format understood by gtk_accelerator_parse().
- * const gchar *tooltip;		The tooltip for the action. This field should typically be marked for translation,
+ * const gchar *name;           The name of the action.
+ * const gchar *stock_id;       The stock id for the action, or the name of an icon from the icon theme.
+ * const gchar *label;          The label for the action. This field should typically be marked for translation,
  *                              see gtk_action_group_set_translation_domain().
- * GCallback callback;			The function to call when the action is activated.
+ *                              If label is NULL, the label of the stock item with id stock_id is used.
+ * const gchar *accelerator;    The accelerator for the action, in the format understood by gtk_accelerator_parse().
+ * const gchar *tooltip;        The tooltip for the action. This field should typically be marked for translation,
+ *                              see gtk_action_group_set_translation_domain().
+ * GCallback callback;          The function to call when the action is activated.
  *
  */
 static const GtkActionEntry service_resp_t__popup_entries[] = {
-  { "/Apply as Filter",							NULL, "Apply as Filter",				NULL, NULL,								NULL },
-  { "/Prepare a Filter",						NULL, "Prepare a Filter",				NULL, NULL,								NULL },
-  { "/Find Frame",								NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Frame",					NULL, "Find Frame",						NULL, NULL,								NULL },
-  { "/Find Frame/Find Next",					NULL, "Find Next" ,						NULL, NULL,								NULL },
-  { "/Find Frame/Find Previous",				NULL, "Find Previous",					NULL, NULL,								NULL },
-  { "/Colorize Procedure",						NULL, "Colorize Procedure",				NULL, NULL,								NULL },
-  { "/Apply as Filter/Selected",				NULL, "Selected",						NULL, "Selected",						G_CALLBACK(apply_as_selected_cb) },
-  { "/Apply as Filter/Not Selected",		NULL, "Not Selected",				NULL, "Not Selected",				G_CALLBACK(apply_as_not_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				G_CALLBACK(apply_as_and_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				G_CALLBACK(apply_as_or_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			G_CALLBACK(apply_as_and_not_selected_cb) },
-  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			G_CALLBACK(apply_as_or_not_selected_cb) },
-  { "/Prepare a Filter/Selected",				NULL, "Selected",						NULL, "selcted",						G_CALLBACK(prep_as_selected_cb) },
-  { "/Prepare a Filter/Not Selected",		NULL, "Not Selected",				NULL, "Not Selected",				G_CALLBACK(prep_as_not_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",				G_CALLBACK(prep_as_and_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",		NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",				G_CALLBACK(prep_as_or_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",			G_CALLBACK(prep_as_and_not_selected_cb) },
-  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",	NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",			G_CALLBACK(prep_as_or_not_selected_cb) },
-  { "/Find Frame/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_selected_cb) },
-  { "/Find Frame/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_not_selected_cb) },
-  { "/Find Previous/Selected",					NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_prev_selected_cb) },
-  { "/Find Previous/Not Selected",				NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_prev_not_selected_cb) },
-  { "/Find Next/Selected",						NULL, "Selected",						NULL, "Selected",						G_CALLBACK(find_next_selected_cb) },
-  { "/Find Next/Not Selected",					NULL, "Not Selected",					NULL, "Not Selected",					G_CALLBACK(find_next_not_selected_cb) },
-  { "/Colorize Procedure/Colorize Host Traffic",NULL, "Colorize Host Traffic",			NULL, "Colorize Host Traffic",			G_CALLBACK(color_selected_cb) },
+  { "/Apply as Filter",                         NULL, "Apply as Filter",                NULL, NULL,                             NULL },
+  { "/Prepare a Filter",                        NULL, "Prepare a Filter",               NULL, NULL,                             NULL },
+  { "/Find Frame",                              NULL, "Find Frame",                     NULL, NULL,                             NULL },
+  { "/Find Frame/Find Frame",                   NULL, "Find Frame",                     NULL, NULL,                             NULL },
+  { "/Find Frame/Find Next",                    NULL, "Find Next" ,                     NULL, NULL,                             NULL },
+  { "/Find Frame/Find Previous",                NULL, "Find Previous",                  NULL, NULL,                             NULL },
+  { "/Colorize Procedure",                      NULL, "Colorize Procedure",             NULL, NULL,                             NULL },
+  { "/Apply as Filter/Selected",                NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(apply_as_selected_cb) },
+  { "/Apply as Filter/Not Selected",            NULL, "Not Selected",                   NULL, "Not Selected",               G_CALLBACK(apply_as_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             G_CALLBACK(apply_as_and_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",            NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              G_CALLBACK(apply_as_or_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         G_CALLBACK(apply_as_and_not_selected_cb) },
+  { "/Apply as Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",        NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          G_CALLBACK(apply_as_or_not_selected_cb) },
+  { "/Prepare a Filter/Selected",               NULL, "Selected",                       NULL, "selcted",                        G_CALLBACK(prep_as_selected_cb) },
+  { "/Prepare a Filter/Not Selected",       NULL, "Not Selected",               NULL, "Not Selected",               G_CALLBACK(prep_as_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and Selected",      NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             NULL, UTF8_HORIZONTAL_ELLIPSIS " and Selected",             G_CALLBACK(prep_as_and_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or Selected",       NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              NULL, UTF8_HORIZONTAL_ELLIPSIS " or Selected",              G_CALLBACK(prep_as_or_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " and not Selected",  NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         NULL, UTF8_HORIZONTAL_ELLIPSIS " and not Selected",         G_CALLBACK(prep_as_and_not_selected_cb) },
+  { "/Prepare a Filter/" UTF8_HORIZONTAL_ELLIPSIS " or not Selected",   NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          NULL, UTF8_HORIZONTAL_ELLIPSIS " or not Selected",          G_CALLBACK(prep_as_or_not_selected_cb) },
+  { "/Find Frame/Selected",                     NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_selected_cb) },
+  { "/Find Frame/Not Selected",                 NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_not_selected_cb) },
+  { "/Find Previous/Selected",                  NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_prev_selected_cb) },
+  { "/Find Previous/Not Selected",              NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_prev_not_selected_cb) },
+  { "/Find Next/Selected",                      NULL, "Selected",                       NULL, "Selected",                       G_CALLBACK(find_next_selected_cb) },
+  { "/Find Next/Not Selected",                  NULL, "Not Selected",                   NULL, "Not Selected",                   G_CALLBACK(find_next_not_selected_cb) },
+  { "/Colorize Procedure/Colorize Host Traffic",NULL, "Colorize Host Traffic",          NULL, "Colorize Host Traffic",          G_CALLBACK(color_selected_cb) },
 };
 
 static void
 hostlist_create_popup_menu(hostlist_table *hl)
 {
-	GtkUIManager *ui_manager;
-	GtkActionGroup *action_group;
-	GError *error = NULL;
+    GtkUIManager *ui_manager;
+    GtkActionGroup *action_group;
+    GError *error = NULL;
 
-	action_group = gtk_action_group_new ("HostlistTablePopupActionGroup");
-	gtk_action_group_add_actions (action_group,								/* the action group */
-								(gpointer)service_resp_t__popup_entries,	/* an array of action descriptions */
-								G_N_ELEMENTS(service_resp_t__popup_entries),/* the number of entries */
-								hl);										/* data to pass to the action callbacks */
+    action_group = gtk_action_group_new ("HostlistTablePopupActionGroup");
+    gtk_action_group_add_actions (action_group,                             /* the action group */
+                                (gpointer)service_resp_t__popup_entries,    /* an array of action descriptions */
+                                G_N_ELEMENTS(service_resp_t__popup_entries),/* the number of entries */
+                                hl);                                        /* data to pass to the action callbacks */
 
-	ui_manager = gtk_ui_manager_new ();
-	gtk_ui_manager_insert_action_group (ui_manager,
-		action_group,
-		0); /* the position at which the group will be inserted */
-	gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_hostlist_table_popup, -1, &error);
-	if (error != NULL)
+    ui_manager = gtk_ui_manager_new ();
+    gtk_ui_manager_insert_action_group (ui_manager,
+        action_group,
+        0); /* the position at which the group will be inserted */
+    gtk_ui_manager_add_ui_from_string (ui_manager,ui_desc_hostlist_table_popup, -1, &error);
+    if (error != NULL)
     {
         fprintf (stderr, "Warning: building hostlist table filter popup failed: %s\n",
                 error->message);
         g_error_free (error);
         error = NULL;
     }
-	hl->menu = gtk_ui_manager_get_widget(ui_manager, "/HostlistTableFilterPopup");
-	g_signal_connect(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
+    hl->menu = gtk_ui_manager_get_widget(ui_manager, "/HostlistTableFilterPopup");
+    g_signal_connect(hl->table, "button_press_event", G_CALLBACK(hostlist_show_popup_menu_cb), hl);
 }
 
 
@@ -1376,7 +1376,7 @@ init_hostlist_table(gboolean hide_ports, const char *table_name, const char *tap
     window_set_cancel_button(hosttable->win, close_bt, window_cancel_button_cb);
 
     copy_bt = g_object_get_data(G_OBJECT(bbox), GTK_STOCK_COPY);
-	gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
+    gtk_widget_set_tooltip_text(copy_bt, "Copy all statistical values of this page to the clipboard in CSV (Comma Separated Values) format.");
     g_object_set_data(G_OBJECT(copy_bt), HOST_PTR_KEY, hosttable);
     g_signal_connect(copy_bt, "clicked", G_CALLBACK(copy_as_csv_cb), NULL);
 
@@ -1616,15 +1616,15 @@ init_hostlist_notebook_cb(GtkWidget *w _U_, gpointer d _U_)
     resolv_cb = gtk_check_button_new_with_mnemonic("Name resolution");
     gtk_container_add(GTK_CONTAINER(hbox), resolv_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(resolv_cb), TRUE);
-	gtk_widget_set_tooltip_text(resolv_cb, 
-		"Show results of name resolutions rather than the \"raw\" values. Please note: The corresponding name resolution must be enabled.");
+    gtk_widget_set_tooltip_text(resolv_cb,
+        "Show results of name resolutions rather than the \"raw\" values. Please note: The corresponding name resolution must be enabled.");
 
     g_signal_connect(resolv_cb, "toggled", G_CALLBACK(hostlist_resolve_toggle_dest), pages);
 
     filter_cb = gtk_check_button_new_with_mnemonic("Limit to display filter");
     gtk_container_add(GTK_CONTAINER(hbox), filter_cb);
     gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(filter_cb), FALSE);
-	gtk_widget_set_tooltip_text(filter_cb, "Limit the list to endpoints matching the current display filter.");
+    gtk_widget_set_tooltip_text(filter_cb, "Limit the list to endpoints matching the current display filter.");
 
     g_signal_connect(filter_cb, "toggled", G_CALLBACK(hostlist_filter_toggle_dest), pages);
 

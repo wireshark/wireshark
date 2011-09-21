@@ -1922,7 +1922,7 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
     /* Timestamp */
     proto_tree_add_item(iax2_tree, hf_iax2_trunk_ts, tvb, offset + 2, 4, FALSE);
   }
-  
+
   offset += 6;
 
   if( trunkts ) {
@@ -2807,7 +2807,7 @@ proto_reg_handoff_iax2 (void)
   dissector_add_uint("udp.port", IAX2_PORT, find_dissector("iax2"));
   v110_handle =  find_dissector("v110");
   if(v110_handle)
-	  dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_V110, v110_handle);
+    dissector_add_uint("iax2.dataformat", AST_DATAFORMAT_V110, v110_handle);
   data_handle = find_dissector("data");
 }
 

@@ -478,8 +478,8 @@ calc_progbar_val(capture_file *cf, gint64 size, gint64 file_pos, gchar *status_s
   }
 
   g_snprintf(status_str, status_size,
-	     "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
-	     file_pos / 1024, size / 1024);
+             "%" G_GINT64_MODIFIER "dKB of %" G_GINT64_MODIFIER "dKB",
+             file_pos / 1024, size / 1024);
 
   return progbar_val;
 }
@@ -2758,7 +2758,7 @@ cf_find_string_protocol_tree(capture_file *cf, proto_tree *tree,  match_data *md
   mdata->cf = cf;
   /* Iterate through all the nodes looking for matching text */
   proto_tree_children_foreach(tree, match_subtree_text, mdata);
-  return mdata->frame_matched ? MR_MATCHED : MR_NOTMATCHED; 
+  return mdata->frame_matched ? MR_MATCHED : MR_NOTMATCHED;
 }
 
 static match_result

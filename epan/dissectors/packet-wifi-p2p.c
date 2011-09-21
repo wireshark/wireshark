@@ -660,9 +660,9 @@ static void dissect_wifi_p2p_group_id(proto_item *tlv_root,
 }
 
 static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
-	                              proto_item *tlv_root,
-                                      proto_item *tlv_item, tvbuff_t *tvb,
-                                      int offset, guint16 slen)
+                                         proto_item *tlv_root,
+                                         proto_item *tlv_item, tvbuff_t *tvb,
+                                         int offset, guint16 slen)
 {
   int s_offset;
   guint8 addr[6];
