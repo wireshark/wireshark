@@ -191,18 +191,18 @@ static guint16 tree_add_common_dcch_dtch_fields(tvbuff_t *tvb, packet_info *pinf
 	guint8 ueid_type;
 
 	ueid_type = tvb_get_bits8(tvb, bitoffs, 2);
-	proto_tree_add_bits_item(tree, hf_mac_ueid_type, tvb, bitoffs, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_mac_ueid_type, tvb, bitoffs, 2, ENC_BIG_ENDIAN);
 	bitoffs += 2;
 	if (ueid_type == MAC_UEID_TYPE_URNTI) {
-		proto_tree_add_bits_item(tree, hf_mac_urnti, tvb, bitoffs, 32, FALSE);
+		proto_tree_add_bits_item(tree, hf_mac_urnti, tvb, bitoffs, 32, ENC_BIG_ENDIAN);
 		bitoffs += 32;
 	} else if (ueid_type == MAC_UEID_TYPE_CRNTI) {
-		proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, FALSE);
+		proto_tree_add_bits_item(tree, hf_mac_crnti, tvb, 4, 16, ENC_BIG_ENDIAN);
 		bitoffs += 16;
 	}
 
 	if (macinf->ctmux[fpinf->cur_tb]) {
-		proto_tree_add_bits_item(tree, hf_mac_ct, tvb, bitoffs, 4, FALSE);
+		proto_tree_add_bits_item(tree, hf_mac_ct, tvb, bitoffs, 4, ENC_BIG_ENDIAN);
 		bitoffs += 4;
 	}
 	return bitoffs;
@@ -212,14 +212,12 @@ static void dissect_mac_fdd_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 {
 	proto_tree *pch_tree = NULL;
 	proto_item *channel_type;
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_str(pinfo->cinfo, COL_INFO, "PCCH");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+	col_set_str(pinfo->cinfo, COL_INFO, "PCCH");
 		
 	if (tree) {
 		proto_item *ti;
-		ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
 		pch_tree = proto_item_add_subtree(ti, ett_mac_pch);
 		proto_item_append_text(ti, " (PCCH)");
 		channel_type = proto_tree_add_uint(pch_tree, hf_mac_channel, tvb, 0, 0, MAC_PCCH);
@@ -244,14 +242,12 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tctf = tvb_get_bits8(tvb, 0, 2);
 	bitoffs += 2;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(tctf, rach_fdd_tctf_vals, "Unknown TCTF"));
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(tctf, rach_fdd_tctf_vals, "Unknown TCTF"));
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
 	rach_tree = proto_item_add_subtree(ti, ett_mac_rach);
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
@@ -262,7 +258,7 @@ static void dissect_mac_fdd_rach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		return;
 	}
 
-	proto_tree_add_bits_item(rach_tree, hf_mac_rach_fdd_tctf, tvb, 0, 2, FALSE);
+	proto_tree_add_bits_item(rach_tree, hf_mac_rach_fdd_tctf, tvb, 0, 2, ENC_BIG_ENDIAN);
 	if (tctf == TCTF_DCCH_DTCH_RACH_FDD) {
 		macinf->ctmux[fpinf->cur_tb] = 1; /* DCCH/DTCH on RACH *always* has a C/T */
 		bitoffs = tree_add_common_dcch_dtch_fields(tvb, pinfo, rach_tree, bitoffs, fpinf, macinf);
@@ -327,14 +323,12 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tctf = fach_fdd_tctf(hdr, &bitoffs);
 	tctf_len = bitoffs;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(tctf, fach_fdd_tctf_vals, "Unknown TCTF"));
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(tctf, fach_fdd_tctf_vals, "Unknown TCTF"));
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
 	fach_tree = proto_item_add_subtree(ti, ett_mac_fach);
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
@@ -345,7 +339,7 @@ static void dissect_mac_fdd_fach(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		return;
 	}
 
-	proto_tree_add_bits_item(fach_tree, hf_mac_fach_fdd_tctf, tvb, 0, tctf_len, FALSE);
+	proto_tree_add_bits_item(fach_tree, hf_mac_fach_fdd_tctf, tvb, 0, tctf_len, ENC_BIG_ENDIAN);
 	if (tctf == TCTF_DCCH_DTCH_FACH_FDD) {
 		macinf->ctmux[fpinf->cur_tb] = 1; /* DCCH/DTCH on FACH *always* has a C/T */
 		bitoffs = tree_add_common_dcch_dtch_fields(tvb, pinfo, fach_tree, bitoffs, fpinf, macinf);
@@ -412,10 +406,9 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	tvbuff_t *next_tvb;
 	proto_item *ti = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
 	dch_tree = proto_item_add_subtree(ti, ett_mac_dch);
 
 	macinf = p_get_proto_data(pinfo->fd, proto_umts_mac);
@@ -427,7 +420,7 @@ static void dissect_mac_fdd_dch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	}
 	pos = fpinf->cur_tb;
 	if (macinf->ctmux[pos]) {
-		proto_tree_add_bits_item(dch_tree, hf_mac_ct, tvb, 0, 4, FALSE);
+		proto_tree_add_bits_item(dch_tree, hf_mac_ct, tvb, 0, 4, ENC_BIG_ENDIAN);
 		bitoffs = 4;
 	}
 
@@ -468,10 +461,9 @@ static void dissect_mac_fdd_edch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	guint16 pos;
 	proto_item *ti = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
 	edch_tree = proto_item_add_subtree(ti, ett_mac_edch);
 
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp); 
@@ -522,10 +514,9 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	tvbuff_t *next_tvb;
 	proto_item *ti = NULL;
 
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MAC");
 
-	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_umts_mac, tvb, 0, -1, ENC_BIG_ENDIAN);
 	hsdsch_tree = proto_item_add_subtree(ti, ett_mac_hsdsch);
 
 	fpinf = p_get_proto_data(pinfo->fd, proto_fp);
@@ -539,7 +530,7 @@ static void dissect_mac_fdd_hsdsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		return;
 	}
 	if (macinf->ctmux[pos]) {
-		proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, 0, 4, FALSE);
+		proto_tree_add_bits_item(hsdsch_tree, hf_mac_ct, tvb, 0, 4, ENC_BIG_ENDIAN);
 		bitoffs += 4;
 	}
 

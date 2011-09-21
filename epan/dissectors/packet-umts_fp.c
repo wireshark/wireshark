@@ -551,7 +551,7 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree)
     {
         /* Add data subtree */
-        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, FALSE);
+        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
         proto_item_set_text(tree_ti, "TB data for %u chans", p_fp_info->num_chans);
         data_tree = proto_item_add_subtree(tree_ti, ett_fp_data);
     }
@@ -582,7 +582,7 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_item(data_tree, hf_fp_tb, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8,
-                                         FALSE);
+                                         ENC_BIG_ENDIAN);
                 proto_item_set_text(ti, "TB (chan %u, tb %u, %u bits)",
                                     chan+1, n+1, p_fp_info->chan_tf_size[chan]);
             }
@@ -641,7 +641,7 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* Add data subtree */
     if (tree)
     {
-        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, FALSE);
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
         proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bits", number_of_pdus, length);
         data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
     }
@@ -652,7 +652,7 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
         if (data_tree) {
             /* Show 4 bits padding at start of PDU */
-            proto_tree_add_item(data_tree, hf_fp_hsdsch_data_padding, tvb, offset+(bit_offset/8), 1, FALSE);
+            proto_tree_add_item(data_tree, hf_fp_hsdsch_data_padding, tvb, offset+(bit_offset/8), 1, ENC_BIG_ENDIAN);
         }
         bit_offset += 4;
 
@@ -662,7 +662,7 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + length + 7) / 8,
-                                         FALSE);
+                                         ENC_BIG_ENDIAN);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
         }
 		if (preferences_call_mac_dissectors) {
@@ -713,7 +713,7 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Add data subtree */
     if (tree)
     {
-        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, FALSE);
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
         proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bytes", number_of_pdus, length);
         data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
     }
@@ -727,7 +727,7 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
         if (data_tree)
         {
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
-                                         offset, length, FALSE);
+                                         offset, length, ENC_BIG_ENDIAN);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
             if (preferences_call_mac_dissectors) {
                 tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, -1);
@@ -766,7 +766,7 @@ static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Add CRCIs subtree */
     if (tree)
     {
-        ti =  proto_tree_add_item(tree, hf_fp_crcis, tvb, offset, (num_tbs+7)/8, FALSE);
+        ti =  proto_tree_add_item(tree, hf_fp_crcis, tvb, offset, (num_tbs+7)/8, ENC_BIG_ENDIAN);
         proto_item_set_text(ti, "CRCI bits for %u tbs", num_tbs);
         crcis_tree = proto_item_add_subtree(ti, ett_fp_crcis);
     }
@@ -776,7 +776,7 @@ static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     {
         int bit = (tvb_get_guint8(tvb, offset+(n/8)) >> (7-(n%8))) & 0x01;
         proto_tree_add_item(crcis_tree, hf_fp_crci[n%8], tvb, offset+(n/8),
-                            1, FALSE);
+                            1, ENC_BIG_ENDIAN);
 
         if (bit == 1)
         {
@@ -818,7 +818,7 @@ static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
     if (remain > crc_size)
     {
         ti = proto_tree_add_item(tree, hf_fp_spare_extension, tvb,
-                                 offset, remain-crc_size, FALSE);
+                                 offset, remain-crc_size, ENC_BIG_ENDIAN);
         proto_item_append_text(ti, " (%u octets)", remain-crc_size);
         expert_add_info_format(pinfo, ti,
                                PI_UNDECODED, PI_WARN,
@@ -829,7 +829,7 @@ static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
     if (crc_size)
     {
         proto_tree_add_item(tree, hf_fp_payload_crc, tvb, offset, crc_size,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
     }
 }
 
@@ -855,12 +855,12 @@ int dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuf
 
         /* CFN control */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* ToA */
         toa = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "   CFN=%u, ToA=%d", cfn, toa);
@@ -872,7 +872,7 @@ int dissect_common_timing_adjustment(packet_info *pinfo, proto_tree *tree, tvbuf
 
         /* PCH CFN is 12 bits */
         cfn = (tvb_get_ntohs(tvb, offset) >> 4);
-        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* 4 bits of padding follow... */
@@ -892,7 +892,7 @@ static int dissect_common_dl_node_synchronisation(packet_info *pinfo, proto_tree
 {
     /* T1 (3 bytes) */
     guint32 t1 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, FALSE);
+    proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u", t1);
@@ -907,17 +907,17 @@ static int dissect_common_ul_node_synchronisation(packet_info *pinfo, proto_tree
 
     /* T1 (3 bytes) */
     t1 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, FALSE);
+    proto_tree_add_item(tree, hf_fp_t1, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     /* T2 (3 bytes) */
     t2 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t2, tvb, offset, 3, FALSE);
+    proto_tree_add_item(tree, hf_fp_t2, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     /* T3 (3 bytes) */
     t3 = tvb_get_ntoh24(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_t3, tvb, offset, 3, FALSE);
+    proto_tree_add_item(tree, hf_fp_t3, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "   T1=%u T2=%u, T3=%u",
@@ -935,14 +935,14 @@ static int dissect_common_dl_synchronisation(packet_info *pinfo, proto_tree *tre
     {
         /* CFN control */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
     else
     {
         /* PCH CFN is 12 bits */
         cfn = (tvb_get_ntohs(tvb, offset) >> 4);
-        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         /* 4 bits of padding follow... */
         offset += 2;
@@ -966,7 +966,7 @@ static int dissect_common_timing_advance(packet_info *pinfo, proto_tree *tree, t
 
     /* CFN control */
     cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Timing Advance */
@@ -988,12 +988,12 @@ static int dissect_hsdpa_capacity_request(packet_info *pinfo, proto_tree *tree,
 
     /* CmCH-PI */
     priority = (tvb_get_guint8(tvb, offset) & 0x0f);
-    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* User buffer size */
     user_buffer_size = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "      CmCH-PI=%u  User-Buffer-Size=%u",
@@ -1017,21 +1017,21 @@ static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tre
     if ((p_fp_info->release == 6) || (p_fp_info->release == 7))
     {
         proto_tree_add_bits_item(tree, hf_fp_congestion_status, tvb,
-                                 offset*8 + 2, 2, FALSE);
+                                 offset*8 + 2, 2, ENC_BIG_ENDIAN);
     }
 
     /* CmCH-PI */
-    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Max MAC-d PDU length (13 bits) */
     max_pdu_length = tvb_get_ntohs(tvb, offset) >> 3;
-    proto_tree_add_item(tree, hf_fp_hsdsch_max_macd_pdu_len, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_fp_hsdsch_max_macd_pdu_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset++;
 
     /* HS-DSCH credits (11 bits) */
     ti = proto_tree_add_bits_ret_val(tree, hf_fp_hsdsch_credits, tvb,
-                                     offset*8 + 5, 11, &credits, FALSE);
+                                     offset*8 + 5, 11, &credits, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Interesting values */
@@ -1058,7 +1058,7 @@ static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tre
 
     /* HS-DSCH Repetition period */
     repetition_period = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_fp_hsdsch_repetition_period, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(tree, hf_fp_hsdsch_repetition_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     if (repetition_period == 0)
     {
@@ -1068,7 +1068,7 @@ static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tre
     /* Calculated and show effective rate enabled */
     if (credits == 2047)
     {
-        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
+        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_GENERATED(rate_ti);
     }
     else
@@ -1101,17 +1101,17 @@ static int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tr
 
     /* Congestion status */
     proto_tree_add_bits_item(tree, hf_fp_congestion_status, tvb,
-                            offset*8 + 2, 2, FALSE);
+                            offset*8 + 2, 2, ENC_BIG_ENDIAN);
 
     /* CmCH-PI */
-    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* 5 spare bits follow here */
 
     /* Max MAC-d/c PDU length (11 bits) */
     max_pdu_length = tvb_get_ntohs(tvb, offset) & 0x7ff;
-    proto_tree_add_item(tree, hf_fp_hsdsch_max_macdc_pdu_len, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_fp_hsdsch_max_macdc_pdu_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* HS-DSCH credits (16 bits) */
@@ -1144,7 +1144,7 @@ static int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tr
 
     /* HS-DSCH Repetition period */
     repetition_period = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(tree, hf_fp_hsdsch_repetition_period, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(tree, hf_fp_hsdsch_repetition_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     if (repetition_period == 0)
     {
@@ -1154,7 +1154,7 @@ static int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tr
     /* Calculated and show effective rate enabled */
     if (credits == 65535)
     {
-        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, FALSE);
+        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_GENERATED(rate_ti);
     }
     else
@@ -1185,12 +1185,12 @@ static int dissect_common_dynamic_pusch_assignment(packet_info *pinfo, proto_tre
 
     /* PUSCH Set Id */
     pusch_set_id = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_pusch_set_id, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_pusch_set_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Activation CFN */
     activation_cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_activation_cfn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_activation_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Duration */
@@ -1215,7 +1215,7 @@ static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 {
     /* Common control frame type */
     guint8 control_frame_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_common_control_frame_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_common_control_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
@@ -1276,11 +1276,11 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1303,13 +1303,13 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         /* CFN */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
 
         /* TFI */
-        proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         if (p_fp_info->channel == CHANNEL_RACH_FDD)
@@ -1326,7 +1326,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
         {
             /* Rx Timing Deviation */
             rx_timing_deviation = tvb_get_guint8(tvb, offset);
-            rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation, tvb, offset, 1, FALSE);
+            rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
 
@@ -1335,7 +1335,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
             /* Received SYNC UL Timing Deviation */
             received_sync_ul_timing_deviation = tvb_get_guint8(tvb, offset);
             received_sync_ul_timing_deviation_ti =
-                 proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, FALSE);
+                 proto_tree_add_item(tree, hf_fp_received_sync_ul_timing_deviation, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
 
@@ -1387,19 +1387,19 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                     /* Ext propagation delay */
                                     ext_propagation_delay_present = TRUE;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_propagation_delay_present,
-                                                        tvb, offset, 1, FALSE);
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case Division_TDD_128:
                                     /* Ext Rx Sync UL Timing */
                                     ext_rx_sync_ul_timing_deviation_present = TRUE;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_sync_ul_timing_deviation_present,
-                                                        tvb, offset, 1, FALSE);
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
         
                                     break;
                                 default:
                                     /* Not defined */
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[6],
-                                                        tvb, offset, 1, FALSE);
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                             }
                             break;
@@ -1410,20 +1410,20 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                     /* Cell Portion ID */
                                     cell_portion_id_present = TRUE;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_cell_portion_id_present,
-                                                        tvb, offset, 1, FALSE);
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case Division_TDD_128:
                                     /* AOA */
                                     angle_of_arrival_present = TRUE;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_angle_of_arrival_present,
-                                                        tvb, offset, 1, FALSE);
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                                 case Division_TDD_384:
                                 case Division_TDD_768:
                                     /* Extended Rx Timing Deviation */
                                     ext_rx_timing_deviation_present = TRUE;
                                     proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_ext_rx_timing_deviation_present,
-                                                        tvb, offset, 1, FALSE);
+                                                        tvb, offset, 1, ENC_BIG_ENDIAN);
                                     break;
                             }
                             break;
@@ -1432,7 +1432,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                             /* No defined meanings */
                             /* Visual Studio Code Analyzer wrongly thinks n can be 7 here. It can't */
                             proto_tree_add_item(new_ie_flags_tree, hf_fp_rach_new_ie_flag_unused[n],
-                                                tvb, offset, 1, FALSE);
+                                                tvb, offset, 1, ENC_BIG_ENDIAN);
                             break;
                     }
                     if ((flags >> (7-n)) & 0x01)
@@ -1449,7 +1449,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
             /* Cell Portion ID */
             if (cell_portion_id_present) {
-                    proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(tree, hf_fp_cell_portion_id, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
             }
 
@@ -1479,7 +1479,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
                                        " (extended to 0x%x)",
                                        rx_timing_deviation);
                 proto_tree_add_bits_item(tree, hf_fp_extended_bits, tvb,
-                                         offset*8 + (8-bits_to_extend), bits_to_extend, FALSE);
+                                         offset*8 + (8-bits_to_extend), bits_to_extend, ENC_BIG_ENDIAN);
                 offset++;
             }
 
@@ -1487,7 +1487,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
             if (ext_propagation_delay_present)
             {
                 guint16 extra_bits = tvb_get_ntohs(tvb, offset) & 0x03ff;
-                proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 2, FALSE);
+                proto_tree_add_item(tree, hf_fp_ext_propagation_delay, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                 /* Adding 10 bits to original 8 */
                 proto_item_append_text(propagation_delay_ti, " (extended to %u)",
@@ -1498,7 +1498,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
             /* Angle of Arrival (AOA) */
             if (angle_of_arrival_present)
             {
-                proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, FALSE);
+                proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
 
@@ -1508,7 +1508,7 @@ static void dissect_rach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
                 /* Ext received Sync UL Timing Deviation */
                 extra_bits = tvb_get_ntohs(tvb, offset) & 0x1fff;
-                proto_tree_add_item(tree, hf_fp_ext_received_sync_ul_timing_deviation, tvb, offset, 2, FALSE);
+                proto_tree_add_item(tree, hf_fp_ext_received_sync_ul_timing_deviation, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                 /* Adding 13 bits to original 8 */
                 proto_item_append_text(received_sync_ul_timing_deviation_ti, " (extended to %u)",
@@ -1531,11 +1531,11 @@ static void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1552,13 +1552,13 @@ static void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         /* CFN */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
 
         /* TFI */
-        proto_tree_add_item(tree, hf_fp_fach_tfi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_fach_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Transmit power level */
@@ -1579,7 +1579,7 @@ static void dissect_fach_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
             if (aoa_present)
             {
-                proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, FALSE);
+                proto_tree_add_item(tree, hf_fp_angle_of_arrival, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
         }
@@ -1598,11 +1598,11 @@ static void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1619,13 +1619,13 @@ static void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         /* CFN */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
 
         /* TFI */
-        proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
 
@@ -1640,14 +1640,14 @@ static void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
             offset++;
 
             /* Code number */
-            proto_tree_add_item(tree, hf_fp_code_number, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_code_number, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Spreading Factor (3 bits) */
-            proto_tree_add_item(tree, hf_fp_spreading_factor, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_spreading_factor, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* MC info (4 bits)*/
-            proto_tree_add_item(tree, hf_fp_mc_info, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_mc_info, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Last bit of this byte is spare */
             offset++;
@@ -1657,7 +1657,7 @@ static void dissect_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
             /* Normal case */
 
             /* PDSCH Set Id */
-            proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_pdsch_set_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Transmit power level */
@@ -1683,11 +1683,11 @@ static void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1706,26 +1706,26 @@ static void dissect_usch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         /* CFN */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
 
         /* TFI */
-        proto_tree_add_item(tree, hf_fp_usch_tfi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_usch_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Rx Timing Deviation */
         rx_timing_deviation = tvb_get_guint8(tvb, offset);
         rx_timing_deviation_ti = proto_tree_add_item(tree, hf_fp_rx_timing_deviation,
-                                                     tvb, offset, 1, FALSE);
+                                                     tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* TB data */
         offset = dissect_tb_data(tvb, pinfo, tree, offset, p_fp_info, NULL);
 
         /* QE */
-        proto_tree_add_item(tree, hf_fp_quality_estimate, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_quality_estimate, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* CRCIs */
@@ -1766,11 +1766,11 @@ static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     gboolean paging_indication;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1784,19 +1784,19 @@ static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         /* DATA */
 
         /* 12-bit CFN value */
-        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_pch_cfn, tvb, offset, 2, ENC_BIG_ENDIAN);
         pch_cfn = (tvb_get_ntohs(tvb, offset) & 0xfff0) >> 4;
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%04u ", pch_cfn);
 
         /* Paging indication */
-        proto_tree_add_item(tree, hf_fp_pch_pi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_pch_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
         paging_indication = tvb_get_guint8(tvb, offset) & 0x01;
         offset++;
 
         /* 5-bit TFI */
-        proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_pch_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Optional paging indications */
@@ -1806,7 +1806,7 @@ static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             ti = proto_tree_add_item(tree, hf_fp_paging_indication_bitmap, tvb,
                                      offset,
                                      (p_fp_info->paging_indications+7) / 8,
-                                     FALSE);
+                                     ENC_BIG_ENDIAN);
             proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
             offset += ((p_fp_info->paging_indications+7) / 8);
         }
@@ -1828,11 +1828,11 @@ static void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1849,13 +1849,13 @@ static void dissect_cpch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
         /* CFN */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "CFN=%03u ", cfn);
 
         /* TFI */
-        proto_tree_add_item(tree, hf_fp_cpch_tfi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cpch_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Propagation delay */
@@ -1883,11 +1883,11 @@ static void dissect_bch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1907,11 +1907,11 @@ static void dissect_iur_dsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, pro
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -1940,12 +1940,12 @@ static int dissect_dch_timing_adjustment(proto_tree *tree, packet_info *pinfo, t
 
     /* CFN control */
     control_cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* ToA */
     toa = tvb_get_ntohs(tvb, offset);
-    toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, FALSE);
+    toa_ti = proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     expert_add_info_format(pinfo, toa_ti,
@@ -1968,12 +1968,12 @@ static int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
     proto_item *timing_deviation_ti = NULL;
 
     /* CFN control */
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Rx Timing Deviation */
     timing_deviation = tvb_get_guint8(tvb, offset);
-    timing_deviation_ti = proto_tree_add_item(tree, hf_fp_dch_rx_timing_deviation, tvb, offset, 1, FALSE);
+    timing_deviation_ti = proto_tree_add_item(tree, hf_fp_dch_rx_timing_deviation, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* May be extended in R7, but in this case there are at least 2 bytes remaining */
@@ -1986,9 +1986,9 @@ static int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
 
         /* Read flags */
         proto_tree_add_bits_ret_val(tree, hf_fp_e_rucch_present, tvb,
-                                    offset*8 + 6, 1, &e_rucch_present, FALSE);
+                                    offset*8 + 6, 1, &e_rucch_present, ENC_BIG_ENDIAN);
         proto_tree_add_bits_ret_val(tree, hf_fp_extended_bits_present, tvb,
-                                    offset*8 + 7, 1, &extended_bits_present, FALSE);
+                                    offset*8 + 7, 1, &extended_bits_present, ENC_BIG_ENDIAN);
         offset++;
 
         /* Optional E-RUCCH */
@@ -2017,9 +2017,9 @@ static int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
                     }
             }
 
-            proto_tree_add_item(tree, hf_fp_dch_e_rucch_flag, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_dch_e_rucch_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_bits_item(tree, hf_fp_dch_e_rucch_flag, tvb,
-                                     offset*8 + bit_offset, 1, FALSE);
+                                     offset*8 + bit_offset, 1, ENC_BIG_ENDIAN);
         }
 
         /* Timing deviation may be extended by another:
@@ -2051,7 +2051,7 @@ static int dissect_dch_rx_timing_deviation(packet_info *pinfo, proto_tree *tree,
                                    " (extended to 0x%x)",
                                    timing_deviation);
             proto_tree_add_bits_item(tree, hf_fp_extended_bits, tvb,
-                                     offset*8 + (8-bits_to_extend), bits_to_extend, FALSE);
+                                     offset*8 + (8-bits_to_extend), bits_to_extend, ENC_BIG_ENDIAN);
             offset++;
         }
     }
@@ -2070,7 +2070,7 @@ static int dissect_dch_dl_synchronisation(proto_tree *tree, packet_info *pinfo, 
 {
     /* CFN control */
     guint cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u", cfn);
@@ -2085,12 +2085,12 @@ static int dissect_dch_ul_synchronisation(proto_tree *tree, packet_info *pinfo, 
 
     /* CFN control */
     cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* ToA */
     toa = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_fp_toa, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " CFN = %u, ToA = %d",
@@ -2129,24 +2129,24 @@ static int dissect_dch_radio_interface_parameter_update(proto_tree *tree, packet
     /* Show defined flags in these 2 bytes */
     for (n=4; n >= 0; n--)
     {
-        proto_tree_add_item(tree, hf_fp_radio_interface_parameter_update_flag[n], tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_radio_interface_parameter_update_flag[n], tvb, offset, 2, ENC_BIG_ENDIAN);
     }
     offset += 2;
 
     /* CFN  */
     tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* DPC mode */
-    proto_tree_add_item(tree, hf_fp_dpc_mode, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_dpc_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* TPC PO */
-    proto_tree_add_item(tree, hf_fp_tpc_po, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_tpc_po, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Multiple RL sets indicator */
-    proto_tree_add_item(tree, hf_fp_multiple_rl_set_indicator, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_multiple_rl_set_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* MAX_UE_TX_POW */
@@ -2166,7 +2166,7 @@ static int dissect_dch_timing_advance(proto_tree *tree, packet_info *pinfo,
 
     /* CFN control */
     cfn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_cfn_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Timing Advance */
@@ -2204,7 +2204,7 @@ static int dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *
 
     /* Congestion status */
     proto_tree_add_bits_ret_val(tree, hf_fp_congestion_status, tvb,
-                                offset*8 + 6, 2, &status, FALSE);
+                                offset*8 + 6, 2, &status, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " status = %s",
@@ -2222,7 +2222,7 @@ static void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbu
 {
     /* Control frame type */
     guint8 control_frame_type = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_fp_dch_control_frame_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_dch_control_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
@@ -2276,11 +2276,11 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     guint8   cfn;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
@@ -2300,7 +2300,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         int chan;
 
         /* CFN */
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         cfn = tvb_get_guint8(tvb, offset);
         offset++;
 
@@ -2309,7 +2309,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         /* One TFI for each channel */
         for (chan=0; chan < p_fp_info->num_chans; chan++)
         {
-            proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_tfi, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
 
@@ -2319,7 +2319,7 @@ static void dissect_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         /* QE (uplink only) */
         if (p_fp_info->is_uplink)
         {
-            proto_tree_add_item(tree, hf_fp_quality_estimate, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_quality_estimate, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
 
@@ -2354,11 +2354,11 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
     }
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_edch_header_crc, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_fp_edch_header_crc, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -2379,7 +2379,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
         gboolean dissected = FALSE;
 
         /* FSN */
-        proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_edch_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Number of subframes.
@@ -2403,7 +2403,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
 
         /* CFN */
         cfn = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cfn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Remainder of T2 or common data frames differ here... */
@@ -2428,18 +2428,18 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
 
             /* Number of HARQ Retransmissions */
             proto_tree_add_item(subframe_header_tree, hf_fp_edch_harq_retransmissions, tvb,
-                                offset, 1, FALSE);
+                                offset, 1, ENC_BIG_ENDIAN);
 
             /* Subframe number */
             subframes[n].subframe_number = (tvb_get_guint8(tvb, offset) & 0x07);
             proto_tree_add_bits_item(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
-                                     offset*8+5, 1, FALSE);
+                                     offset*8+5, 1, ENC_BIG_ENDIAN);
             offset++;
 
             /* Number of MAC-es PDUs */
             subframes[n].number_of_mac_es_pdus = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
             proto_tree_add_item(subframe_header_tree, hf_fp_edch_number_of_mac_es_pdus,
-                                tvb, offset, 1, FALSE);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
             bit_offset = 4;
 
             proto_item_append_text(subframe_header_ti, " %u header (%u MAC-es PDUs)",
@@ -2457,7 +2457,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
 
                 /* DDI (6 bits) */
                 ddi_ti = proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_ddi, tvb,
-                                                     offset*8 + bit_offset, 6, &ddi, FALSE);
+                                                     offset*8 + bit_offset, 6, &ddi, ENC_BIG_ENDIAN);
 
                 /* Look up the size from this DDI value */
                 for (p=0; p < p_fp_info->no_ddi_entries; p++)
@@ -2485,7 +2485,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
 
                 /* Number of MAC-d PDUs (6 bits) */
                 proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_number_of_mac_d_pdus, tvb,
-                                            offset*8 + bit_offset, 6, &n_pdus, FALSE);
+                                            offset*8 + bit_offset, 6, &n_pdus, ENC_BIG_ENDIAN);
 
                 subframes[n].number_of_mac_d_pdus[i] = (guint8)n_pdus;
                 bit_offset += 6;
@@ -2546,14 +2546,14 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                 /* 2 bits spare */
                 proto_tree_add_item(subframe_tree, hf_fp_edch_pdu_padding, tvb,
                                     offset + (bit_offset/8),
-                                    1, FALSE);
+                                    1, ENC_BIG_ENDIAN);
                 bit_offset += 2;
 
                 /* TSN */
                 /* tsn = (tvb_get_guint8(tvb, offset + (bit_offset/8)) & 0x3f); */
                 proto_tree_add_item(subframe_tree, hf_fp_edch_tsn, tvb,
                                     offset + (bit_offset/8),
-                                    1, FALSE);
+                                    1, ENC_BIG_ENDIAN);
                 bit_offset += 6;
 
                 /* PDU */
@@ -2562,7 +2562,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                     ti = proto_tree_add_item(subframe_tree, hf_fp_edch_mac_es_pdu, tvb,
                                              offset + (bit_offset/8),
                                              ((bit_offset % 8) + send_size + 7) / 8,
-                                             FALSE);
+                                             ENC_BIG_ENDIAN);
                     proto_item_append_text(ti, " (%u * %u = %u bits, PDU %d)",
                                            size, subframes[n].number_of_mac_d_pdus[i],
                                            send_size, n);
@@ -2585,7 +2585,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                         proto_tree_add_item(maces_tree, hf_fp_mac_d_pdu, tvb,
                                             offset + (bit_offset/8),
                                             ((bit_offset % 8) + size + 7) / 8,
-                                            FALSE);
+                                            ENC_BIG_ENDIAN);
                     }
                     bit_offset += size;
                 }
@@ -2648,19 +2648,19 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
     /* User Buffer size */
     proto_tree_add_bits_item(tree, hf_fp_edch_user_buffer_size, tvb, offset*8,
-                             18, FALSE);
+                             18, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Spare is in-between... */
 
     /* Total number of MAC-is SDUs */
     proto_tree_add_bits_ret_val(tree, hf_fp_edch_no_macid_sdus, tvb, offset*8+4,
-                                12, &total_macis_sdus, FALSE);
+                                12, &total_macis_sdus, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (is_common) {
         /* E-RNTI */
-        proto_tree_add_item(tree, hf_fp_edch_e_rnti, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_edch_e_rnti, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -2683,19 +2683,19 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
         if (!is_common) {
             /* Number of HARQ Retransmissions */
             proto_tree_add_item(subframe_header_tree, hf_fp_edch_harq_retransmissions, tvb,
-                                bit_offset/8, 1, FALSE);
+                                bit_offset/8, 1, ENC_BIG_ENDIAN);
             bit_offset += 4;
         }
 
         /* Subframe number */
         proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_subframe_number, tvb,
-                                    bit_offset, 3, &subframe_number, FALSE);
+                                    bit_offset, 3, &subframe_number, ENC_BIG_ENDIAN);
         subframes[n].subframe_number = (guint8)subframe_number;
         bit_offset += 3;
 
         /* Number of MAC-is PDUs */
         proto_tree_add_bits_ret_val(subframe_header_tree, hf_fp_edch_number_of_mac_is_pdus, tvb,
-                                    bit_offset, 4, &no_of_macis_pdus, FALSE);
+                                    bit_offset, 4, &no_of_macis_pdus, ENC_BIG_ENDIAN);
         bit_offset += 4;
         subframes[n].number_of_mac_is_pdus = (guint8)no_of_macis_pdus;
         macis_pdus += subframes[n].number_of_mac_is_pdus;
@@ -2740,7 +2740,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
                 /* LCH-ID */
                 subframes[n].mac_is_lchid[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-                proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_lchid, tvb, offset, 1, FALSE);
+                proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_lchid, tvb, offset, 1, ENC_BIG_ENDIAN);
                 if (subframes[n].mac_is_lchid[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] == 15) {
                     proto_item *ti;
 
@@ -2748,7 +2748,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
                     offset++;
 
                     /* E-RNTI */
-                    ti = proto_tree_add_item(tree, hf_fp_edch_e_rnti, tvb, offset, 2, FALSE);
+                    ti = proto_tree_add_item(tree, hf_fp_edch_e_rnti, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
 
                     /* This is only allowed if:
@@ -2769,12 +2769,12 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
                 /* Length */
                 subframes[n].mac_is_length[pdu_no][subframes[n].number_of_mac_is_sdus[pdu_no]] = (tvb_get_ntohs(tvb, offset) & 0x0ffe) >> 1;
-                proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_length, tvb, offset, 2, FALSE);
+                proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset++;
 
                 /* Flag */
                 F = tvb_get_guint8(tvb, offset) & 0x01;
-                f_ti = proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_flag, tvb, offset, 1, FALSE);
+                f_ti = proto_tree_add_item(subframe_macis_descriptors_tree, hf_fp_edch_macis_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 subframes[n].number_of_mac_is_sdus[pdu_no]++;
 
@@ -2812,11 +2812,11 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
 
             /* SS */
             ss = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
-            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_ss, tvb, offset, 1, FALSE);
+            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_ss, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* TSN */
             tsn = tvb_get_guint8(tvb, offset) & 0x03;
-            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_tsn, tvb, offset, 1, FALSE);
+            proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_tsn, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             offset++;
 
@@ -2826,7 +2826,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
                 ti = proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_sdu, tvb,
                                          offset,
                                          subframes[n].mac_is_length[pdu_no][sdu_no],
-                                         FALSE);
+                                         ENC_BIG_ENDIAN);
                 proto_item_append_text(ti, " (%s Len=%u): %s",
                                        val_to_str_const(subframes[n].mac_is_lchid[pdu_no][sdu_no], lchid_vals, "Unknown"),
                                        subframes[n].mac_is_length[pdu_no][sdu_no],
@@ -2864,11 +2864,11 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -2891,39 +2891,39 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
             (p_fp_info->release == 7))
         {
             guint8 frame_seq_no = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-            proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "  seqno=%u", frame_seq_no);
         }
 
         /* CmCH-PI */
-        proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* MAC-d PDU Length (13 bits) */
         pdu_length = (tvb_get_ntohs(tvb, offset) >> 3);
-        proto_tree_add_item(tree, hf_fp_mac_d_pdu_len, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_mac_d_pdu_len, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         if ((p_fp_info->release == 6) ||
             (p_fp_info->release == 7))
         {
             /* Flush bit */
-            proto_tree_add_item(tree, hf_fp_flush, tvb, offset-1, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_flush, tvb, offset-1, 1, ENC_BIG_ENDIAN);
 
             /* FSN/DRT reset bit */
-            proto_tree_add_item(tree, hf_fp_fsn_drt_reset, tvb, offset-1, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_fsn_drt_reset, tvb, offset-1, 1, ENC_BIG_ENDIAN);
         }
 
 
         /* Num of PDUs */
         number_of_pdus = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_num_of_pdu, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_num_of_pdu, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* User buffer size */
         user_buffer_size = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* MAC-d PDUs */
@@ -2961,7 +2961,7 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                 /* Dissect individual bits */
                 for (n=0; n < 8; n++)
                 {
-                    proto_tree_add_item(new_ie_flags_tree, hf_fp_hsdsch_new_ie_flag[n], tvb, offset, 1, FALSE);
+                    proto_tree_add_item(new_ie_flags_tree, hf_fp_hsdsch_new_ie_flag[n], tvb, offset, 1, ENC_BIG_ENDIAN);
                     if ((flags >> (7-n)) & 0x01)
                     {
                         ies_found++;
@@ -2980,7 +2980,7 @@ static void dissect_hsdsch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto
                    but the description below it states that
                    it should depend upon the first bit.  The detailed description of
                    New IE flags doesn't agree, so treat as mandatory for now... */
-                proto_tree_add_item(tree, hf_fp_hsdsch_drt, tvb, offset, 2, FALSE);
+                proto_tree_add_item(tree, hf_fp_hsdsch_drt, tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
             }
         }
@@ -3002,11 +3002,11 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
     gboolean is_control_frame;
 
     /* Header CRC */
-    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_header_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Frame Type */
     is_control_frame = tvb_get_guint8(tvb, offset) & 0x01;
-    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_fp_ft, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO, is_control_frame ? " [Control] " : " [Data] ");
@@ -3038,41 +3038,41 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
             (p_fp_info->release == 7))
         {
             guint8 frame_seq_no = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-            proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_frame_seq_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             col_append_fstr(pinfo->cinfo, COL_INFO, "  seqno=%u", frame_seq_no);
         }
 
         /* CmCH-PI (4 bits) */
-        proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_cmch_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Total number of PDU blocks (5 bits) */
         number_of_pdu_blocks = (tvb_get_guint8(tvb, offset) >> 3);
-        proto_tree_add_item(tree, hf_fp_total_pdu_blocks, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_total_pdu_blocks, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         if (p_fp_info->release == 7)
         {
             /* Flush bit */
-            proto_tree_add_item(tree, hf_fp_flush, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_flush, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* FSN/DRT reset bit */
-            proto_tree_add_item(tree, hf_fp_fsn_drt_reset, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_fsn_drt_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* DRT Indicator */
             drt_present = tvb_get_guint8(tvb, offset) & 0x01;
-            proto_tree_add_item(tree, hf_fp_drt_indicator, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_fp_drt_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         offset++;
 
         /* FACH Indicator flag */
         fach_present = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-        proto_tree_add_item(tree, hf_fp_fach_indicator, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_fp_fach_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* User buffer size */
         user_buffer_size = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_fp_user_buffer_size, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         col_append_fstr(pinfo->cinfo, COL_INFO, "  User-Buffer-Size=%u", user_buffer_size);
@@ -3097,7 +3097,7 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
             /* MAC-d/c PDU length in this block (11 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_pdu_length_in_block, tvb,
                                         (offset*8) + ((n % 2) ? 4 : 0), 11,
-                                        &pdu_length[n], FALSE);
+                                        &pdu_length[n], ENC_BIG_ENDIAN);
             if ((n % 2) == 0)
                 offset++;
             else
@@ -3107,7 +3107,7 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
             /* # PDUs in this block (4 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_pdus_in_block, tvb,
                                         (offset*8) + ((n % 2) ? 0 : 4), 4,
-                                        &no_of_pdus[n], FALSE);
+                                        &no_of_pdus[n], ENC_BIG_ENDIAN);
             if ((n % 2) == 0) {
                 offset++;
             }
@@ -3115,7 +3115,7 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
             /* Logical channel ID in block (4 bits) */
             proto_tree_add_bits_ret_val(pdu_block_header_tree, hf_fp_lchid, tvb,
                                         (offset*8) + ((n % 2) ? 4 : 0), 4,
-                                        &lchid[n], FALSE);
+                                        &lchid[n], ENC_BIG_ENDIAN);
             if ((n % 2) == 1) {
                 offset++;
             }
@@ -3150,18 +3150,18 @@ static void dissect_hsdsch_type_2_channel_info(tvbuff_t *tvb, packet_info *pinfo
         if (drt_present)
         {
             /* DRT */
-            proto_tree_add_item(tree, hf_fp_drt, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_fp_drt, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
         }
 
         if (fach_present)
         {
             /* H-RNTI: */
-            proto_tree_add_item(tree, hf_fp_hrnti, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_fp_hrnti, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /* RACH Measurement Result */
-            proto_tree_add_item(tree, hf_fp_rach_measurement_result, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tree, hf_fp_rach_measurement_result, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset++;
         }
 
@@ -3226,7 +3226,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FP");
 
     /* Create fp tree. */
-    ti = proto_tree_add_item(tree, proto_fp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_fp, tvb, offset, -1, ENC_BIG_ENDIAN);
     fp_tree = proto_item_add_subtree(ti, ett_fp);
 
     top_level_tree = tree;
@@ -3249,7 +3249,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *release_tree;
         proto_item *temp_ti;
 
-        release_ti = proto_tree_add_item(fp_tree, hf_fp_release, tvb, 0, 0, FALSE);
+        release_ti = proto_tree_add_item(fp_tree, hf_fp_release, tvb, 0, 0, ENC_BIG_ENDIAN);
         PROTO_ITEM_SET_GENERATED(release_ti);
         proto_item_append_text(release_ti, " R%u (%d/%d)",
                                p_fp_info->release, p_fp_info->release_year, p_fp_info->release_month);
