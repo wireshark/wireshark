@@ -5110,6 +5110,6 @@ ssl_dissector_delete(guint port, const gchar *protocol, gboolean tcp)
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=8 expandtab
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

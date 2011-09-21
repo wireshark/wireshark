@@ -2755,6 +2755,6 @@ proto_reg_handoff_reload(void)
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=2 expandtab
+ * vi: set shiftwidth=2 tabstop=2 expandtab:
  * :indentSize=2:tabSize=2:noTabs=true:
  */

@@ -297,6 +297,6 @@ proto_reg_handoff_lisp_data(void)
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 expandtab
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
  * :indentSize=4:tabSize=4:noTabs=true:
  */

@@ -2071,6 +2071,6 @@ proto_reg_handoff_rtmpt(void)
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 expandtab
+ * vi: set shiftwidth=8 tabstop=8 expandtab:
  * :indentSize=8:tabSize=8:noTabs=true:
  */

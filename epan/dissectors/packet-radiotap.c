@@ -2112,6 +2112,6 @@ void proto_reg_handoff_radiotap(void)
  * indent-tabs-mode: t
  * End:
  *
- * vi: set shiftwidth=8 tabstop=8 noexpandtab
+ * vi: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */

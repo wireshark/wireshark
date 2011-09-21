@@ -2499,6 +2499,6 @@ proto_reg_handoff_atalk(void)
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

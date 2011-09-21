@@ -6145,6 +6145,6 @@ static void dissect_data_for_typecode(tvbuff_t *tvb, proto_tree *tree, gint *off
  * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=2 tabstop=8 expandtab
+ * vi: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */
