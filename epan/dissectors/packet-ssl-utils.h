@@ -29,7 +29,6 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/emem.h>
-#include <epan/value_string.h>
 
 #include <stdio.h>
 
