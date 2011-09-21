@@ -1966,6 +1966,13 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
             bit_offset += 10;
             write_pdu_label_and_info(top_ti, NULL, pinfo, "  NACK_SN=%-4u", (guint16)nack_sn);
 
+            /* We shouldn't NACK the ACK_SN! */
+            if (nack_sn == ack_sn) {
+                expert_add_info_format(pinfo, nack_ti, PI_MALFORMED, PI_ERROR,
+                                       "Status PDU shouldn't ACK and NACK the same sequence number (%llu)",
+                                       ack_sn);
+            }
+
             /* Copy into struct, but don't exceed buffer */
             if (nack_count < MAX_NACKs) {
                 tap_info->NACKs[nack_count++] = (guint16)nack_sn;
