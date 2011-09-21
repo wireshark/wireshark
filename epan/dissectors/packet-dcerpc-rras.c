@@ -1,5 +1,5 @@
 /* packet-dcerpc-rras.c
- * Routines for the rras (Routing and Remote Access service) MSRPC interface 
+ * Routines for the rras (Routing and Remote Access service) MSRPC interface
  * Copyright 2005 Jean-Baptiste Marchand <jbm@hsc.fr>
  *
  * $Id$
@@ -39,7 +39,7 @@ static int hf_rras_opnum = 0;
 
 static gint ett_dcerpc_rras = -1;
 
-/* 
+/*
  * The rras MSRPC interface is typically reached using the ncacn_np transport
  * and the \pipe\ROUTER named pipe as endpoint.
  */
@@ -49,61 +49,61 @@ static e_uuid_t uuid_dcerpc_rras = {
 	{ 0xbb, 0xd2, 0x00, 0x00, 0x1a, 0x18, 0x1c, 0xad }
 };
 
-static guint16 ver_dcerpc_rras = 0; 
+static guint16 ver_dcerpc_rras = 0;
 
 
 static dcerpc_sub_dissector dcerpc_rras_dissectors[] = {
-	{ RRAS_ADMIN_SERVER_GETINFO, 
+	{ RRAS_ADMIN_SERVER_GETINFO,
 		"MprAdminServerGetInfo", NULL, NULL },
-	{ RRAS_ADMIN_CONNECTION_ENUM, 
+	{ RRAS_ADMIN_CONNECTION_ENUM,
 		"RasAdminConnectionEnum", NULL, NULL },
-	{ RRAS_ADMIN_CONNECTION_GETINFO, 
+	{ RRAS_ADMIN_CONNECTION_GETINFO,
 		"RasAdminConnectionGetInfo", NULL, NULL },
-	{ RRAS_ADMIN_CONNECTION_CLEARSTATS, 
+	{ RRAS_ADMIN_CONNECTION_CLEARSTATS,
 		"RasAdminConnectionClearStats", NULL, NULL },
-	{ RRAS_ADMIN_PORT_ENUM, 
+	{ RRAS_ADMIN_PORT_ENUM,
 		"RasAdminPortEnum", NULL, NULL },
-	{ RRAS_ADMIN_PORT_GETINFO, 
+	{ RRAS_ADMIN_PORT_GETINFO,
 		"RasAdminPortGetInfo", NULL, NULL },
-	{ RRAS_ADMIN_PORT_CLEARSTATS, 
+	{ RRAS_ADMIN_PORT_CLEARSTATS,
 		"RasAdminPortClearStats", NULL, NULL },
-	{ RRAS_ADMIN_PORT_RESET, 
+	{ RRAS_ADMIN_PORT_RESET,
 		"RasAdminPortReset", NULL, NULL },
-	{ RRAS_ADMIN_PORT_DISCONNECT, 
+	{ RRAS_ADMIN_PORT_DISCONNECT,
 		"RasAdminPortDisconnect", NULL, NULL },
-	{ RRAS_RI_TRANS_SET_GLOBALINFO, 
+	{ RRAS_RI_TRANS_SET_GLOBALINFO,
 		"RouterInterfaceTransportSetGlobalInfo", NULL, NULL },
-	{ RRAS_RI_TRANS_GET_GLOBALINFO, 
+	{ RRAS_RI_TRANS_GET_GLOBALINFO,
 		"RouterInterfaceTransportGetGlobalInfo", NULL, NULL },
-	{ RRAS_RI_GET_HANDLE, 
+	{ RRAS_RI_GET_HANDLE,
 		"RouterInterfaceGetHandle", NULL, NULL },
-	{ RRAS_RI_CREATE, 
+	{ RRAS_RI_CREATE,
 		"RouterInterfaceCreate", NULL, NULL },
-	{ RRAS_RI_GETINFO, 
+	{ RRAS_RI_GETINFO,
 		"RouterInterfaceGetInfo", NULL, NULL },
-	{ RRAS_RI_SETINFO, 
+	{ RRAS_RI_SETINFO,
 		"RouterInterfaceSetInfo", NULL, NULL },
-	{ RRAS_RI_DELETE, 
+	{ RRAS_RI_DELETE,
 		"RouterInterfaceDelete", NULL, NULL },
-	{ RRAS_TRANS_REMOVE, 
+	{ RRAS_TRANS_REMOVE,
 		"RouterInterfaceTransportRemove", NULL, NULL },
-	{ RRAS_TRANS_ADD, 
+	{ RRAS_TRANS_ADD,
 		"RouterInterfaceTransportAdd", NULL, NULL },
-	{ RRAS_TRANS_GETINFO, 
+	{ RRAS_TRANS_GETINFO,
 		"RouterInterfaceTransportGetInfo", NULL, NULL },
-	{ RRAS_TRANS_SETINFO, 
+	{ RRAS_TRANS_SETINFO,
 		"RouterInterfaceTransportSetInfo", NULL, NULL },
-	{ RRAS_RI_ENUM, 
+	{ RRAS_RI_ENUM,
 		"RouterInterfaceEnum", NULL, NULL },
-	{ RRAS_RI_CONNECT, 
+	{ RRAS_RI_CONNECT,
 		"RouterInterfaceConnect", NULL, NULL },
-	{ RRAS_RI_DISCONNECT, 
+	{ RRAS_RI_DISCONNECT,
 		"RouterInterfaceDisconnect", NULL, NULL },
-	{ RRAS_RI_UPDATE_ROUTES, 
+	{ RRAS_RI_UPDATE_ROUTES,
 		"RouterInterfaceUpdateRoutes", NULL, NULL },
-	{ RRAS_RI_QUERY_UPDATE_RESULT, 
+	{ RRAS_RI_QUERY_UPDATE_RESULT,
 		"RouterInterfaceQueryUpdateResult", NULL, NULL },
-	{ RRAS_RI_UPDATE_PB_INFO, 
+	{ RRAS_RI_UPDATE_PB_INFO,
 		"RouterInterfaceUpdatePhonebookInfo", NULL, NULL },
 	{ RRAS_MIB_ENTRY_CREATE, "MIBEntryCreate", NULL, NULL },
 	{ RRAS_MIB_ENTRY_DELETE, "MIBEntryDelete", NULL, NULL },
@@ -113,11 +113,11 @@ static dcerpc_sub_dissector dcerpc_rras_dissectors[] = {
 	{ RRAS_MIB_GET_NEXT, "MIBEntryGetNext", NULL, NULL },
 	{ RRAS_GET_TRAP_INFO, "MIBGetTrapInfo", NULL, NULL },
 	{ RRAS_SET_TRAP_INFO, "MIBSetTrapInfo", NULL, NULL },
-	{ RRAS_ADMIN_CONNECTION_NOTIFICATION, 
+	{ RRAS_ADMIN_CONNECTION_NOTIFICATION,
 		"RasAdminConnectionNotification", NULL, NULL },
 	{ RRAS_ADMIN_SEND_USER_MSG, "RasAdminSendUserMessage", NULL, NULL },
 	{ RRAS_ROUTER_DEVICE_ENUM, "RouterDeviceEnum", NULL, NULL },
-	{ RRAS_RI_TRANSPORT_CREATE, 
+	{ RRAS_RI_TRANSPORT_CREATE,
 		"RouterInterfaceTransportCreate", NULL, NULL },
 	{ RRAS_RI_DEV_GETINFO, "RouterInterfaceDeviceGetInfo", NULL, NULL },
 	{ RRAS_RI_DEV_SETINFO, "RouterInterfaceDeviceSetInfo", NULL, NULL },
@@ -135,9 +135,9 @@ proto_register_dcerpc_rras(void)
 
         static hf_register_info hf[] = {
 
-		{ &hf_rras_opnum, 
+		{ &hf_rras_opnum,
 		  { "Operation", "rras.opnum", FT_UINT16, BASE_DEC,
-		   NULL, 0x0, NULL, HFILL }},	
+		   NULL, 0x0, NULL, HFILL }},
 	};
 
 

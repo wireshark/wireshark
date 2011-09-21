@@ -120,37 +120,37 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	for (conn = 0; conn < cnt; conn++)
 	{
-		proto_tree *ctree, *ti;	
+		proto_tree *ctree, *ti;
 		proto_tree *ftree, *fi;
-		guint16 flags; 
+		guint16 flags;
 
 		ti = proto_tree_add_text(tree, tvb, offset, 24, "Connection #%d", conn+1);
 		ctree = proto_item_add_subtree(ti, ett_conn);
 
 		proto_tree_add_item(ctree, hf_resv8, tvb, offset, 1, FALSE);
 		offset += 1;
-		
+
 		proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, FALSE);
 		offset += 1;
-		
+
 		proto_tree_add_item(ctree, hf_cport, tvb, offset, 2, FALSE);
 		offset += 2;
-		
+
 		proto_tree_add_item(ctree, hf_vport, tvb, offset, 2, FALSE);
 		offset += 2;
-		
+
 		proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, FALSE);
 		offset += 2;
-		
+
 		proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, FALSE);
 		offset += 4;
-		
+
 		proto_tree_add_item(ctree, hf_vaddr, tvb, offset, 4, FALSE);
 		offset += 4;
-		
+
 		proto_tree_add_item(ctree, hf_daddr, tvb, offset, 4, FALSE);
 		offset += 4;
-		
+
 		flags = tvb_get_ntohs(tvb, offset);
 		fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, FALSE);
 		ftree = proto_item_add_subtree(fi, ett_flags);
@@ -173,7 +173,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 		else
 		{
-			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Unknown (%d)", 
+			proto_tree_add_text(ftree, tvb, offset+1, 1, "Connection Type: Unknown (%d)",
 				flags & IP_VS_CONN_F_FWD_MASK);
 		}
 
@@ -206,34 +206,34 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		{
 			proto_tree_add_text(ftree, tvb, offset, 1, "No Client Port Set");
 		}
-		
+
 		offset += 2;
-		
+
 		proto_tree_add_item(ctree, hf_state, tvb, offset, 2, FALSE);
 		offset += 2;
-		
+
 		/* we have full connection info */
 		if ( flags & IP_VS_CONN_F_SEQ_MASK )
 		{
 			proto_tree_add_item(ctree, hf_in_seq_init, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(ctree, hf_in_seq_delta, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(ctree, hf_in_seq_pdelta, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(ctree, hf_out_seq_init, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(ctree, hf_out_seq_delta, tvb, offset, 4, FALSE);
 			offset += 4;
-		
+
 			proto_tree_add_item(ctree, hf_out_seq_pdelta, tvb, offset, 4, FALSE);
 			offset += 4;
 		}
-		
+
 	}
 }
 
@@ -292,31 +292,31 @@ proto_register_ipvs_syncd(void)
 		{ &hf_state,
 			{ "State", "ipvs.state", FT_UINT16, BASE_HEX,
 			  VALS(state_strings), 0, NULL, HFILL }},
-	
+
 		{ &hf_in_seq_init,
-			{ "Input Sequence (Initial)", "ipvs.in_seq.initial", FT_UINT32, 
+			{ "Input Sequence (Initial)", "ipvs.in_seq.initial", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
-	
+
 		{ &hf_in_seq_delta,
-			{ "Input Sequence (Delta)", "ipvs.in_seq.delta", FT_UINT32, 
+			{ "Input Sequence (Delta)", "ipvs.in_seq.delta", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
-	
+
 		{ &hf_in_seq_pdelta,
-			{ "Input Sequence (Previous Delta)", "ipvs.in_seq.pdelta", FT_UINT32, 
+			{ "Input Sequence (Previous Delta)", "ipvs.in_seq.pdelta", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
-	
+
 		{ &hf_out_seq_init,
-			{ "Output Sequence (Initial)", "ipvs.out_seq.initial", FT_UINT32, 
+			{ "Output Sequence (Initial)", "ipvs.out_seq.initial", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
-	
+
 		{ &hf_out_seq_delta,
-			{ "Output Sequence (Delta)", "ipvs.out_seq.delta", FT_UINT32, 
+			{ "Output Sequence (Delta)", "ipvs.out_seq.delta", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
-	
+
 		{ &hf_out_seq_pdelta,
-			{ "Output Sequence (Previous Delta)", "ipvs.out_seq.pdelta", FT_UINT32, 
+			{ "Output Sequence (Previous Delta)", "ipvs.out_seq.pdelta", FT_UINT32,
 				BASE_HEX, NULL, 0, NULL, HFILL }},
-	
+
 
 
 

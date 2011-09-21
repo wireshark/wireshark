@@ -257,15 +257,15 @@ dissect_browser_browserr_server_enum_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
                         hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -279,11 +279,11 @@ dissect_browser_browserr_server_enum_rqst(tvbuff_t *tvb, int offset,
 		hf_browser_unknown_long, NULL);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
-			dissect_browser_long_pointer, NDR_POINTER_UNIQUE, 
+			dissect_browser_long_pointer, NDR_POINTER_UNIQUE,
 			"unknown long", hf_browser_unknown_long);
 
 	return offset;
@@ -323,7 +323,7 @@ dissect_browser_browserr_debug_call_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -359,7 +359,7 @@ dissect_browser_browserr_query_other_domains_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -394,7 +394,7 @@ dissect_browser_browserr_reset_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	return offset;
@@ -423,11 +423,11 @@ dissect_browser_browserr_debug_trace_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_REF, "unknown string", 
+			NDR_POINTER_REF, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	return offset;
@@ -550,7 +550,7 @@ dissect_browser_browserr_query_statistics_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	return offset;
@@ -582,7 +582,7 @@ dissect_browser_browserr_reset_statistics_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	return offset;
@@ -610,7 +610,7 @@ dissect_browser_netr_browser_statistics_clear_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	return offset;
@@ -856,7 +856,7 @@ dissect_browser_netr_browser_statistics_get_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -898,15 +898,15 @@ dissect_browser_browserr_set_netlogon_state_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_REF, "unknown string", 
+			NDR_POINTER_REF, "unknown string",
                         hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
@@ -991,7 +991,7 @@ dissect_browser_browserr_query_emulated_domains_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1035,15 +1035,15 @@ dissect_browser_browserr_server_enum_ex_rqst(tvbuff_t *tvb, int offset,
 			guint8 *drep)
 {
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_pointer(tvb, offset, pinfo, tree, drep,
@@ -1057,11 +1057,11 @@ dissect_browser_browserr_server_enum_ex_rqst(tvbuff_t *tvb, int offset,
 		hf_browser_unknown_long, NULL);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	offset = dissect_ndr_str_pointer_item(tvb, offset, pinfo, tree, drep,
-			NDR_POINTER_UNIQUE, "unknown string", 
+			NDR_POINTER_UNIQUE, "unknown string",
 			hf_browser_unknown_string, 0);
 
 	return offset;
@@ -1096,43 +1096,43 @@ static dcerpc_sub_dissector dcerpc_browser_dissectors[] = {
         { BROWSER_BROWSERR_DEBUG_CALL, "BrowserrDebugCall",
 		dissect_browser_browserr_debug_call_rqst,
 		dissect_browser_browserr_debug_call_reply },
-        { BROWSER_BROWSERR_QUERY_OTHER_DOMAINS,	 
+        { BROWSER_BROWSERR_QUERY_OTHER_DOMAINS,
 	  "BrowserrQueryOtherDomains",
 		dissect_browser_browserr_query_other_domains_rqst,
 		dissect_browser_browserr_query_other_domains_reply },
-        { BROWSER_BROWSERR_RESET_NETLOGON_STATE, 
+        { BROWSER_BROWSERR_RESET_NETLOGON_STATE,
 	  "BrowserrResetNetlogonState",
 		dissect_browser_browserr_reset_netlogon_state_rqst,
 		dissect_browser_browserr_reset_netlogon_state_reply },
-        { BROWSER_BROWSERR_DEBUG_TRACE, 
+        { BROWSER_BROWSERR_DEBUG_TRACE,
 	  "BrowserrDebugTrace",
 		dissect_browser_browserr_debug_trace_rqst,
 		dissect_browser_browserr_debug_trace_reply },
-        { BROWSER_BROWSERR_QUERY_STATISTICS, 
+        { BROWSER_BROWSERR_QUERY_STATISTICS,
 	  "BrowserrQueryStatistics",
 		dissect_browser_browserr_query_statistics_rqst,
 		dissect_browser_browserr_query_statistics_reply },
-        { BROWSER_BROWSERR_RESET_STATISTICS, 
+        { BROWSER_BROWSERR_RESET_STATISTICS,
 	  "BrowserrResetStatistics",
 		dissect_browser_browserr_reset_statistics_rqst,
 		dissect_browser_browserr_reset_statistics_reply },
-        { BROWSER_NETR_BROWSER_STATISTICS_CLEAR, 
+        { BROWSER_NETR_BROWSER_STATISTICS_CLEAR,
 	  "NetrBrowserStatisticsClear",
 		dissect_browser_netr_browser_statistics_clear_rqst,
 		dissect_browser_netr_browser_statistics_clear_reply },
-        { BROWSER_NETR_BROWSER_STATISTICS_GET, 
+        { BROWSER_NETR_BROWSER_STATISTICS_GET,
 	  "NetrBrowserStatisticsGet",
 		dissect_browser_netr_browser_statistics_get_rqst,
 		dissect_browser_netr_browser_statistics_get_reply },
-        { BROWSER_BROWSERR_SET_NETLOGON_STATE, 
+        { BROWSER_BROWSERR_SET_NETLOGON_STATE,
 	  "BrowserrSetNetlogonState",
 		dissect_browser_browserr_set_netlogon_state_rqst,
 		dissect_browser_browserr_set_netlogon_state_reply },
-        { BROWSER_BROWSERR_QUERY_EMULATED_DOMAINS, 
+        { BROWSER_BROWSERR_QUERY_EMULATED_DOMAINS,
 	  "BrowserrQueryEmulatedDomains",
 		dissect_browser_browserr_query_emulated_domains_rqst,
 		dissect_browser_browserr_query_emulated_domains_reply },
-        { BROWSER_BROWSERR_SERVER_ENUM_EX, 
+        { BROWSER_BROWSERR_SERVER_ENUM_EX,
 	  "BrowserrServerEnumEx",
 		dissect_browser_browserr_server_enum_ex_rqst,
 		dissect_browser_browserr_server_enum_ex_reply },
@@ -1145,7 +1145,7 @@ proto_register_dcerpc_browser(void)
 {
 static hf_register_info hf[] = {
 
-	{ &hf_browser_opnum, { 
+	{ &hf_browser_opnum, {
 		"Operation", "rpc_browser.opnum", FT_UINT16, BASE_DEC,
 		NULL, 0x0, NULL, HFILL }},
 

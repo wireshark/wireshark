@@ -115,7 +115,7 @@ static dissector_handle_t data_handle;
 
 const value_string gre_version[] = {
 	{ 0, "GRE" },		 /* [RFC2784] */
-	{ 1, "Enhanced GRE" },	 /* [RFC2637] */ 
+	{ 1, "Enhanced GRE" },	 /* [RFC2637] */
 	{ 0, NULL}
 };
 const value_string gre_typevals[] = {
@@ -171,7 +171,7 @@ static const value_string gre_3ggp2_seg_vals[] = {
    { 0x02, "Packet Ended" },
    { 0,    NULL }
 };
-/* 3GPP2 A.S0012-C v2.0 
+/* 3GPP2 A.S0012-C v2.0
  * 2.6.1 GRE Attributes
  */
 static const value_string gre_3ggp2_attrib_id_vals[] = {
@@ -240,7 +240,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      {
         case ID_3GPP2_FLOW_DISCRIMINATOR:
              {
-			  value = tvb_get_guint8(tvb,offset);	
+			  value = tvb_get_guint8(tvb,offset);
               proto_tree_add_item(attr_tree, hf_gre_3ggp2_flow_disc, tvb, offset, attrib_length, FALSE);
 			  proto_item_append_text(attr_item," - 0x%x",value);
              }
@@ -263,7 +263,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
              break;
         case ID_3GPP2_FLOW_CTRL:
              {
-			  value = tvb_get_guint8(tvb,offset);	
+			  value = tvb_get_guint8(tvb,offset);
               proto_tree_add_item(attr_tree, hf_gre_3ggp2_fci, tvb, offset, attrib_length, FALSE);
 			  proto_item_append_text(attr_item," - %s",
 				  (value & 0x80) ? "XON" : "XOFF");
@@ -275,7 +275,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
      }
 
      offset += attrib_length;
-  } 
+  }
   proto_item_set_len(ti, offset - start_offset);
 
   return offset;
@@ -329,7 +329,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (flags_and_ver & GRE_ACK)
     is_ppp = TRUE;
     break;
-  case ETHERTYPE_3GPP2: 
+  case ETHERTYPE_3GPP2:
   case ETHERTYPE_CDMA2000_A10_UBS:
    is_ppp = TRUE;
    break;
@@ -382,9 +382,9 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     proto_tree_add_item(fv_tree, hf_gre_flags_version, tvb, offset, 2, FALSE);
-    
+
     offset += 2;
-    
+
     proto_tree_add_item(gre_tree, hf_gre_proto, tvb, offset, 2, FALSE);
     offset += 2;
 
@@ -411,7 +411,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_item_append_text(it_checksum," [incorrect, should be 0x%04x]",in_cksum_shouldbe(cksum, computed_cksum));
 	   expert_add_info_format(pinfo, it_checksum, PI_MALFORMED, PI_WARN, "Incorrect GRE Checksum");
 	}
-      } 
+      }
 
 
       offset += 2;
@@ -463,7 +463,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         sre_length = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, FALSE);
         offset += 1;
-	
+
 	proto_item_set_len(it_routing, 2 + 1 +1 + sre_length);
         if (sre_af == 0 && sre_length == 0)
 	  break;
@@ -506,7 +506,7 @@ proto_register_gre(void)
 {
     static hf_register_info hf[] = {
     { &hf_gre_proto,
-      { "Protocol Type", "gre.proto", 
+      { "Protocol Type", "gre.proto",
 	FT_UINT16, BASE_HEX, VALS(gre_typevals), 0x0,
         "The protocol that is GRE encapsulated", HFILL }},
     { &hf_gre_flags_and_version,
@@ -554,51 +554,51 @@ proto_register_gre(void)
 	FT_UINT16,	BASE_DEC,	VALS(gre_version),	GRE_VERSION,
       	NULL, HFILL }},
     { &hf_gre_checksum,
-      { "Checksum", "gre.checksum", 
+      { "Checksum", "gre.checksum",
 	FT_UINT16, BASE_HEX, NULL, 0x0,
 	"The Checksum field contains the IP (one's complement) checksum of the GRE header and the payload packet", HFILL }},
     { &hf_gre_offset,
-      { "Offset", "gre.offset", 
+      { "Offset", "gre.offset",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"The offset field indicates the octet offset from the start of the Routing field to the first octet of the active Source Route Entry to be examined", HFILL }},
     { &hf_gre_key,
-      { "Key", "gre.key", 
+      { "Key", "gre.key",
 	FT_UINT32, BASE_HEX, NULL, 0x0,
 	"The Key field contains a four octet number which was inserted by the encapsulator", HFILL }},
     { &hf_gre_key_payload_length,
-      { "Payload Length", "gre.key.payload_length", 
+      { "Payload Length", "gre.key.payload_length",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Size of the payload, not including the GRE header", HFILL }},
     { &hf_gre_key_call_id,
-      { "Call ID", "gre.key.call_id", 
+      { "Call ID", "gre.key.call_id",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"Contains the Peer's Call ID for the session to which this packet belongs.", HFILL }},
     { &hf_gre_sequence_number,
-      { "Sequence Number", "gre.sequence_number", 
+      { "Sequence Number", "gre.sequence_number",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"The Sequence Number field contains an unsigned 32 bit integer which is inserted by the encapsulator", HFILL }},
     { &hf_gre_ack_number,
-      { "Acknowledgment Number", "gre.ack_number", 
+      { "Acknowledgment Number", "gre.ack_number",
 	FT_UINT32, BASE_DEC, NULL, 0x0,
 	"Contains the sequence number of the highest numbered GRE packet received by the sending peer for this user session", HFILL }},
     { &hf_gre_routing,
-      { "Routing", "gre.routing", 
+      { "Routing", "gre.routing",
 	FT_NONE, BASE_NONE, NULL, 0x0,
 	"The Routing field is a list of Source Route Entries (SREs)", HFILL }},
     { &hf_gre_routing_address_family,
-      { "Address Family", "gre.routing.address_family", 
+      { "Address Family", "gre.routing.address_family",
 	FT_UINT16, BASE_DEC, NULL, 0x0,
 	"The Address Family field contains a two octet value which indicates the syntax and semantics of the Routing Information field", HFILL }},
     { &hf_gre_routing_sre_offset,
-      { "SRE Offset", "gre.routing.sre_offset", 
+      { "SRE Offset", "gre.routing.sre_offset",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"The Address Family field contains a two octet value which indicates the syntax and semantics of the Routing Information field", HFILL }},
     { &hf_gre_routing_sre_length,
-      { "SRE Length", "gre.routing.src_length", 
+      { "SRE Length", "gre.routing.src_length",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"The SRE Length field contains the number of octets in the SRE", HFILL }},
     { &hf_gre_routing_information,
-      { "Routing Information", "gre.routing.information", 
+      { "Routing Information", "gre.routing.information",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
 	"The Routing Information field contains data which may be used in routing this packet", HFILL }},
     { &hf_gre_3ggp2_attrib,
@@ -614,19 +614,19 @@ proto_register_gre(void)
 	FT_UINT8, BASE_HEX, NULL, 0x0,
 	NULL, HFILL }},
     { &hf_gre_3ggp2_sdi,
-      { "SDI/DOS", "gre.3ggp2_sdi", 
+      { "SDI/DOS", "gre.3ggp2_sdi",
 	FT_BOOLEAN, 16, TFS(&gre_3ggp2_sdi_val), 0x8000,
 	"Short Data Indicator(SDI)/Data Over Signaling (DOS)", HFILL }},
     { &hf_gre_3ggp2_fci,
-      { "Flow Control Indicator", "gre.3ggp2_fci", 
+      { "Flow Control Indicator", "gre.3ggp2_fci",
 	FT_BOOLEAN, 16, TFS(&gre_3ggp2_fci_val), 0x8000,
 	NULL, HFILL }},
     { &hf_gre_3ggp2_di,
-      { "Duration Indicator", "gre.3ggp2_di", 
+      { "Duration Indicator", "gre.3ggp2_di",
 	FT_BOOLEAN, 16, TFS(&gre_3ggp2_di_val), 0x4000,
 	NULL, HFILL }},
     { &hf_gre_3ggp2_flow_disc,
-      { "Flow ID", "gre.ggp2_flow_disc", 
+      { "Flow ID", "gre.ggp2_flow_disc",
 	FT_BYTES, BASE_NONE, NULL, 0x0,
 	NULL, HFILL }},
     { &hf_gre_3ggp2_seg,
@@ -635,27 +635,27 @@ proto_register_gre(void)
 	NULL, HFILL }},
 
     { &hf_gre_wccp_redirect_header,
-      { "Redirect Header", "gre.wccp.redirect_header", 
+      { "Redirect Header", "gre.wccp.redirect_header",
 	FT_NONE, BASE_NONE, NULL, 0x0,
 	NULL, HFILL }},
     { &hf_gre_wccp_dynamic_service,
-      { "Dynamic Service", "gre.wccp.dynamic_service", 
+      { "Dynamic Service", "gre.wccp.dynamic_service",
 	FT_BOOLEAN, 8, TFS(&gre_wccp_dynamic_service_val), 0x80,
 	NULL, HFILL }},
     { &hf_gre_wccp_alternative_bucket_used,
-      { "Alternative bucket used", "gre.wccp.alternative_bucket_used", 
+      { "Alternative bucket used", "gre.wccp.alternative_bucket_used",
 	FT_BOOLEAN, 8, TFS(&gre_wccp_alternative_bucket_used_val), 0x40,
 	NULL, HFILL }},
     { &hf_gre_wccp_service_id,
-      { "Service ID", "gre.wccp.service_id", 
+      { "Service ID", "gre.wccp.service_id",
 	FT_UINT8, BASE_DEC, VALS(service_id_vals), 0x00,
 	"Service Group identifier", HFILL }},
     { &hf_gre_wccp_alternative_bucket,
-      { "Alternative Bucket", "gre.wccp.alternative_bucket", 
+      { "Alternative Bucket", "gre.wccp.alternative_bucket",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"Alternative bucket index used to redirect the packet.", HFILL }},
     { &hf_gre_wccp_primary_bucket,
-      { "Primary Bucket", "gre.wccp.primary_bucket", 
+      { "Primary Bucket", "gre.wccp.primary_bucket",
 	FT_UINT8, BASE_DEC, NULL, 0x0,
 	"Primary bucket index used to redirect the packet.", HFILL  }},
 

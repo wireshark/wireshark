@@ -19,7 +19,7 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
- 
+
 
 #ifdef HAVE_CONFIG_H
 # include "config.h"
@@ -117,12 +117,12 @@ static const usb_setup_dissector_table_t setup_dissectors[] = {
     {USB_SETUP_RESET,          dissect_usb_ms_reset},
     {USB_SETUP_GET_MAX_LUN,    dissect_usb_ms_get_max_lun},
     {0, NULL}
-};  
+};
 static const value_string setup_request_names_vals[] = {
     {USB_SETUP_RESET,          "RESET"},
     {USB_SETUP_GET_MAX_LUN,    "GET MAX LUN"},
     {0, NULL}
-};  
+};
 
 /* Dissector for mass storage control .
  * Returns TRUE if a class specific dissector was found
@@ -220,8 +220,8 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     signature=tvb_get_letohl(tvb, offset);
 
 
-    /* 
-     * SCSI CDB inside CBW 
+    /*
+     * SCSI CDB inside CBW
      */
     if(is_request&&(signature==0x43425355)&&(tvb_length(tvb)==31)){
         tvbuff_t *cdb_tvb;
@@ -303,8 +303,8 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     }
 
 
-    /* 
-     * SCSI RESPONSE inside CSW 
+    /*
+     * SCSI RESPONSE inside CSW
      */
     if((!is_request)&&(signature==0x53425355)&&(tvb_length(tvb)==13)){
         guint8 status;
@@ -331,12 +331,12 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
             return;
         }
         itlq->last_exchange_frame=pinfo->fd->num;
-            
+
         itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
         if(!itl){
             return;
         }
-       
+
         if(!status){
             dissect_scsi_rsp(tvb, pinfo, parent_tree, itlq, itl, 0);
         } else {
@@ -353,7 +353,7 @@ dissect_usb_ms_bulk(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     if(!itlq){
         return;
     }
-            
+
     itl=(itl_nexus_t *)se_tree_lookup32(usb_ms_conv_info->itl, itlq->lun);
     if(!itl){
         return;
@@ -368,39 +368,39 @@ proto_register_usb_ms(void)
 {
     static hf_register_info hf[] = {
         { &hf_usb_ms_dCBWSignature,
-        { "Signature", "usbms.dCBWSignature", FT_UINT32, BASE_HEX, 
+        { "Signature", "usbms.dCBWSignature", FT_UINT32, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_dCBWTag,
-        { "Tag", "usbms.dCBWTag", FT_UINT32, BASE_HEX, 
+        { "Tag", "usbms.dCBWTag", FT_UINT32, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_dCBWDataTransferLength,
-        { "DataTransferLength", "usbms.dCBWDataTransferLength", FT_UINT32, BASE_DEC, 
+        { "DataTransferLength", "usbms.dCBWDataTransferLength", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_dCBWFlags,
-        { "Flags", "usbms.dCBWFlags", FT_UINT8, BASE_HEX, 
+        { "Flags", "usbms.dCBWFlags", FT_UINT8, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_dCBWLUN,
-        { "LUN", "usbms.dCBWLUN", FT_UINT8, BASE_HEX, 
+        { "LUN", "usbms.dCBWLUN", FT_UINT8, BASE_HEX,
           NULL, 0x0f, NULL, HFILL }},
 
         { &hf_usb_ms_dCBWCBLength,
-        { "CDB Length", "usbms.dCBWCBLength", FT_UINT8, BASE_HEX, 
+        { "CDB Length", "usbms.dCBWCBLength", FT_UINT8, BASE_HEX,
           NULL, 0x1f, NULL, HFILL }},
 
         { &hf_usb_ms_dCSWSignature,
-        { "Signature", "usbms.dCSWSignature", FT_UINT32, BASE_HEX, 
+        { "Signature", "usbms.dCSWSignature", FT_UINT32, BASE_HEX,
           NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_dCSWDataResidue,
-        { "DataResidue", "usbms.dCSWDataResidue", FT_UINT32, BASE_DEC, 
+        { "DataResidue", "usbms.dCSWDataResidue", FT_UINT32, BASE_DEC,
           NULL, 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_dCSWStatus,
-        { "Status", "usbms.dCSWStatus", FT_UINT8, BASE_HEX, 
+        { "Status", "usbms.dCSWStatus", FT_UINT8, BASE_HEX,
           VALS(status_vals), 0x0, NULL, HFILL }},
 
         { &hf_usb_ms_request,
@@ -418,18 +418,18 @@ proto_register_usb_ms(void)
         { &hf_usb_ms_length,
         { "wLength", "usbms.setup.wLength", FT_UINT16, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
-                
+
         { &hf_usb_ms_maxlun,
         { "Max LUN", "usbms.setup.maxlun", FT_UINT8, BASE_DEC, NULL, 0x0,
                 NULL, HFILL }},
-                
+
     };
-    
+
     static gint *usb_ms_subtrees[] = {
             &ett_usb_ms,
     };
 
-     
+
     proto_usb_ms = proto_register_protocol("USB Mass Storage", "USBMS", "usbms");
     proto_register_field_array(proto_usb_ms, hf, array_length(hf));
     proto_register_subtree_array(usb_ms_subtrees, array_length(usb_ms_subtrees));

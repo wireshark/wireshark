@@ -351,37 +351,37 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 			/* Show tag data */
 			switch (poe_tag)
 			{
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID, <=, 63, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_CIRCUIT_ID, <=, 63,
 						hf_pppoed_tag_vspec_circuit_id)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_REMOTE_ID, <=, 63, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_REMOTE_ID, <=, 63,
 						hf_pppoed_tag_vspec_remote_id)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_act_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_act_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_attainable_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ATTAINABLE_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_attainable_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_UP, ==, 4,
 						hf_pppoed_tag_vspec_max_data_rate_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_DATA_RATE_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_max_data_rate_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_UP_LP, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_up_lp)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MIN_DATA_RATE_DOWN_LP, ==, 4,
 						hf_pppoed_tag_vspec_min_data_rate_down_lp)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_UP, ==, 4,
 						hf_pppoed_tag_vspec_max_int_delay_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_UP, ==, 4,
 						hf_pppoed_tag_vspec_act_int_delay_up)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_MAX_INT_DELAY_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_max_int_delay_down)
-				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, ==, 4, 
+				CASE_VSPEC_DSLF_TAG(PPPOE_TAG_VSPEC_DSLF_ACT_INT_DELAY_DOWN, ==, 4,
 						hf_pppoed_tag_vspec_act_int_delay_down)
 				case PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION:
 					ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_access_loop_encapsulation, tvb,
@@ -398,7 +398,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 							tvb, tagstart+3, 1, FALSE);
 					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_encap_2,
 							tvb, tagstart+4, 1, FALSE);
-					
+
 					break;
 				default:
 					if (poe_tag_length > 0 )
@@ -455,7 +455,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 			if (global_pppoe_show_tags_and_lengths)
 			{
 				proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
-				pppoe_tree_tag_length_item = 
+				pppoe_tree_tag_length_item =
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
 			}
 
@@ -504,7 +504,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							default:
 								proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_unspecified, tvb,
 										    tagstart+4+4, poe_tag_length-4, FALSE);
-								
+
 						}
 					}
 					break;
@@ -597,7 +597,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							    proto_registrar_get_name(hf_pppoed_tag_seq_num),
 							    poe_tag_length);
 						}
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, 
+						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
 								       "Sequence Number tag: Wrong length: %u (expected 2)",
 								       poe_tag_length);
 					}
@@ -616,7 +616,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							    proto_registrar_get_name(hf_pppoed_tag_cred_scale),
 							    poe_tag_length);
 						}
-						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, 
+						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
 								       "Credit Scale Factor tag: Wrong length: %u (expected 2)",
 								       poe_tag_length);
 					}

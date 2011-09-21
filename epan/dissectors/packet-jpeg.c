@@ -151,113 +151,113 @@ proto_register_jpeg(void)
 
 	static hf_register_info hf[] =
 	{
-		{ &hf_rtp_jpeg_main_hdr, { 
+		{ &hf_rtp_jpeg_main_hdr, {
 			"Main Header",
 			"jpeg.main_hdr",
 			FT_NONE, BASE_NONE, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_main_hdr_ts, { 
+		{ &hf_rtp_jpeg_main_hdr_ts, {
 			"Type Specific",
 			"jpeg.main_hdr.ts",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_main_hdr_offs, { 
+		{ &hf_rtp_jpeg_main_hdr_offs, {
 			"Fragment Offset",
 			"jpeg.main_hdr.offset",
 			FT_UINT24, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_main_hdr_type, { 
+		{ &hf_rtp_jpeg_main_hdr_type, {
 			"Type",
 			"jpeg.main_hdr.type",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_main_hdr_q, { 
+		{ &hf_rtp_jpeg_main_hdr_q, {
 			"Q",
 			"jpeg.main_hdr.q",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_main_hdr_width, { 
+		{ &hf_rtp_jpeg_main_hdr_width, {
 			"Width",
 			"jpeg.main_hdr.width",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_main_hdr_height, { 
+		{ &hf_rtp_jpeg_main_hdr_height, {
 			"Height",
 			"jpeg.main_hdr.height",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_restart_hdr, { 
+		{ &hf_rtp_jpeg_restart_hdr, {
 			"Restart Marker Header",
 			"jpeg.restart_hdr",
 			FT_NONE, BASE_NONE, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_restart_hdr_interval, { 
+		{ &hf_rtp_jpeg_restart_hdr_interval, {
 			"Restart Interval",
 			"jpeg.restart_hdr.interval",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_restart_hdr_f, { 
+		{ &hf_rtp_jpeg_restart_hdr_f, {
 			"F",
 			"jpeg.restart_hdr.f",
 			FT_UINT16, BASE_DEC, NULL, 0x8000,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_restart_hdr_l, { 
+		{ &hf_rtp_jpeg_restart_hdr_l, {
 			"L",
 			"jpeg.restart_hdr.l",
 			FT_UINT16, BASE_DEC, NULL, 0x4000,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_restart_hdr_count, { 
+		{ &hf_rtp_jpeg_restart_hdr_count, {
 			"Restart Count",
 			"jpeg.restart_hdr.count",
 			FT_UINT16, BASE_DEC, NULL, 0x3FFF,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_qtable_hdr, { 
+		{ &hf_rtp_jpeg_qtable_hdr, {
 			"Quantization Table Header",
 			"jpeg.qtable_hdr",
 			FT_NONE, BASE_NONE, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_qtable_hdr_mbz, { 
+		{ &hf_rtp_jpeg_qtable_hdr_mbz, {
 			"MBZ",
 			"jpeg.qtable_hdr.mbz",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_qtable_hdr_prec, { 
+		{ &hf_rtp_jpeg_qtable_hdr_prec, {
 			"Precision",
 			"jpeg.qtable_hdr.precision",
 			FT_UINT8, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_qtable_hdr_length, { 
+		{ &hf_rtp_jpeg_qtable_hdr_length, {
 			"Length",
 			"jpeg.qtable_hdr.length",
 			FT_UINT16, BASE_DEC, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_qtable_hdr_data, { 
+		{ &hf_rtp_jpeg_qtable_hdr_data, {
 			"Quantization Table Data",
 			"jpeg.qtable_hdr.data",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
-		{ &hf_rtp_jpeg_payload, { 
+		{ &hf_rtp_jpeg_payload, {
 			"Payload",
 			"jpeg.payload",
 			FT_BYTES, BASE_NONE, NULL, 0,
-			NULL, HFILL 
+			NULL, HFILL
 		}},
 	};
 

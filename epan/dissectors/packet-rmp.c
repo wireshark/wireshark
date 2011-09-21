@@ -124,21 +124,21 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		switch (type) {
 			case RMP_BOOT_REQ:
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_retcode, tvb, 1, 1, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_seqnum, tvb, 2, 4, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_version, tvb, 8, 2, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_machtype, tvb, 10, 20, FALSE);
 				/* The remaining fields are optional */
 				if(!tvb_offset_exists(tvb, 30))
 					return;
 				len = tvb_get_guint8(tvb, 30);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_filename, tvb, 30, 1, FALSE);
 				if(tvb_offset_exists(tvb, len+31))
 					call_dissector(data_handle,
@@ -147,16 +147,16 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case RMP_BOOT_REPL:
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_retcode, tvb, 1, 1, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_seqnum, tvb, 2, 4, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_version, tvb, 8, 2, FALSE);
 				len = tvb_get_guint8(tvb, 10);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_filename, tvb, 10, 1, FALSE);
 				if(tvb_offset_exists(tvb, len+11))
 					call_dissector(data_handle,
@@ -165,13 +165,13 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case RMP_READ_REQ:
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_retcode, tvb, 1, 1, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_offset, tvb, 2, 4, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_size, tvb, 8, 2, FALSE);
 				if(tvb_offset_exists(tvb, 10))
 					call_dissector(data_handle,
@@ -180,22 +180,22 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case RMP_READ_REPL:
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_retcode, tvb, 1, 1, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_offset, tvb, 2, 4, FALSE);
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
 				call_dissector(data_handle, tvb_new_subset_remaining(tvb,
 				    8), pinfo, rmp_tree);
 				break;
 
 			case RMP_BOOT_DONE:
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_retcode, tvb, 1, 1, FALSE);
-				proto_tree_add_text(rmp_tree, 
+				proto_tree_add_text(rmp_tree,
 				    tvb, 2, 4, "Reserved");
-				proto_tree_add_item(rmp_tree, 
+				proto_tree_add_item(rmp_tree,
 				    hf_rmp_sessionid, tvb, 6, 2, FALSE);
 				if(tvb_offset_exists(tvb, 8))
 					call_dissector(data_handle,

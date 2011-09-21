@@ -109,7 +109,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(tree, tvb, 0, 2, "Length: %u", len);
 
 	type = tvb_get_ntohs(tvb, 2);
-	proto_tree_add_text(tree, tvb, 2, 2, "Type: %s", 
+	proto_tree_add_text(tree, tvb, 2, 2, "Type: %s",
 		val_to_str(type, rpl_type_vals, "Unknown Type"));
 	offset = 4;
 
@@ -138,9 +138,9 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if(subtyp == 0xc005) ett_type = ett_rpl_c005;
 				if(subtyp == 0xc014) ett_type = ett_rpl_c014;
 				ti = proto_tree_add_text(tree, tvb,
-					offset, sublen, "%s", val_to_str(subtyp, 
+					offset, sublen, "%s", val_to_str(subtyp,
 					rpl_type_vals, "Unknown Type"));
-				rpl_container_tree = proto_item_add_subtree(ti, 
+				rpl_container_tree = proto_item_add_subtree(ti,
 					ett_type);
 				length = tvb_length_remaining(tvb, offset);
 				if (length > sublen)
@@ -149,7 +149,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				if (reported_length > sublen)
 					reported_length = sublen;
 				if ( length > 0) {
-				  dissect_rpl_container(tvb_new_subset(tvb, 
+				  dissect_rpl_container(tvb_new_subset(tvb,
 					offset, length, reported_length),
 					pinfo, rpl_container_tree);
 				  offset += reported_length;
@@ -158,107 +158,107 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				  offset += reported_length;
 				  break;
 				}
-			}	
+			}
 			break;
 
 		case 0x4003:
-			proto_tree_add_item(tree, hf_rpl_corrval, 
+			proto_tree_add_item(tree, hf_rpl_corrval,
 				tvb, offset, 4, FALSE);
 			offset += 4;
 			break;
 
 		case 0x4006:
-			proto_tree_add_item(tree, hf_rpl_lmac, 
+			proto_tree_add_item(tree, hf_rpl_lmac,
 				tvb, offset, 6, FALSE);
 			offset += 6;
 			break;
 
 		case 0x4007:
-			proto_tree_add_item(tree, hf_rpl_sap, 
+			proto_tree_add_item(tree, hf_rpl_sap,
 				tvb, offset, 1, FALSE);
 			offset ++;
 			break;
 
 		case 0x4009:
-			proto_tree_add_item(tree, hf_rpl_maxframe, 
+			proto_tree_add_item(tree, hf_rpl_maxframe,
 				tvb, offset, 2, FALSE);
 			offset += 2;
 			break;
 
 		case 0x400a:
-			proto_tree_add_item(tree, hf_rpl_connclass, 
+			proto_tree_add_item(tree, hf_rpl_connclass,
 				tvb, offset, 2, FALSE);
 			offset += 2;
 			break;
 
 		case 0x400b:
-			proto_tree_add_item(tree, hf_rpl_respval, 
+			proto_tree_add_item(tree, hf_rpl_respval,
 				tvb, offset, 1, FALSE);
 			offset ++;
 			break;
 
 		case 0x400c:
-			proto_tree_add_item(tree, hf_rpl_smac, 
+			proto_tree_add_item(tree, hf_rpl_smac,
 				tvb, offset, 6, FALSE);
 			offset += 6;
 			break;
 
 		case 0x4011:
-			proto_tree_add_item(tree, hf_rpl_sequence, 
+			proto_tree_add_item(tree, hf_rpl_sequence,
 				tvb, offset, 4, FALSE);
 			offset += 4;
 			break;
 
 		case 0x4018:
-			proto_tree_add_item(tree, hf_rpl_data, 
+			proto_tree_add_item(tree, hf_rpl_data,
 				tvb, offset, len-4, FALSE);
 			offset += len - 4;
 			break;
 
 		case 0xc005:
-			proto_tree_add_item(tree, hf_rpl_config, 
+			proto_tree_add_item(tree, hf_rpl_config,
 				tvb, offset, 8, FALSE);
 			offset += 8;
-			proto_tree_add_item(tree, hf_rpl_equipment, 
+			proto_tree_add_item(tree, hf_rpl_equipment,
 				tvb, offset, 2, FALSE);
 			offset += 2;
-			proto_tree_add_item(tree, hf_rpl_memsize, 
+			proto_tree_add_item(tree, hf_rpl_memsize,
 				tvb, offset, 2, FALSE);
 			offset += 2;
-			proto_tree_add_item(tree, hf_rpl_bsmversion, 
+			proto_tree_add_item(tree, hf_rpl_bsmversion,
 				tvb, offset, 2, FALSE);
 			offset += 2;
-			proto_tree_add_item(tree, hf_rpl_ec, 
+			proto_tree_add_item(tree, hf_rpl_ec,
 				tvb, offset, 6, FALSE);
 			offset += 6;
-			proto_tree_add_item(tree, hf_rpl_adapterid, 
+			proto_tree_add_item(tree, hf_rpl_adapterid,
 				tvb, offset, 2, FALSE);
 			offset += 2;
-			proto_tree_add_item(tree, hf_rpl_shortname, 
+			proto_tree_add_item(tree, hf_rpl_shortname,
 				tvb, offset, 10, FALSE);
 			offset += 10;
 			break;
 
 		case 0xc014:
-			proto_tree_add_item(tree, hf_rpl_laddress, 
+			proto_tree_add_item(tree, hf_rpl_laddress,
 				tvb, offset, 4, FALSE);
 			offset += 4;
-			proto_tree_add_item(tree, hf_rpl_xaddress, 
+			proto_tree_add_item(tree, hf_rpl_xaddress,
 				tvb, offset, 4, FALSE);
 			offset += 4;
-			proto_tree_add_item(tree, hf_rpl_flags, 
+			proto_tree_add_item(tree, hf_rpl_flags,
 				tvb, offset, 1, FALSE);
 			offset ++;
 			break;
 
 		default:
-			call_dissector(data_handle, 
+			call_dissector(data_handle,
 				tvb_new_subset_remaining(tvb, 4), pinfo,
 				tree);
 			break;
 	}
 	if (tvb_reported_length(tvb) > offset)
-		call_dissector(data_handle, 
+		call_dissector(data_handle,
 			tvb_new_subset_remaining(tvb, offset), pinfo, tree);
 }
 
@@ -280,7 +280,7 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    val_to_str_const(rpl_type, rpl_type_vals, "Unknown Type"));
 	}
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0, 
+		ti = proto_tree_add_item(tree, proto_rpl, tvb, 0,
 			rpl_len, FALSE);
 		rpl_tree = proto_item_add_subtree(ti, ett_rpl);
 		hidden_item = proto_tree_add_uint(rpl_tree, hf_rpl_type, tvb, 2, 2,
@@ -289,9 +289,9 @@ dissect_rpl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		next_tvb = tvb_new_subset_remaining(tvb, 0);
 		set_actual_length(next_tvb, rpl_len);
 		dissect_rpl_container(next_tvb, pinfo, rpl_tree);
-	
+
 		if (tvb_reported_length(tvb) > rpl_len)
-			call_dissector(data_handle, 
+			call_dissector(data_handle,
 				tvb_new_subset_remaining(tvb, rpl_len), pinfo,
 				    tree);
 	}
@@ -302,79 +302,79 @@ proto_register_rpl(void)
 {
 	static hf_register_info hf[] = {
 		{ &hf_rpl_type,
-			{ "Type", "rpl.type", 
+			{ "Type", "rpl.type",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"RPL Packet Type", HFILL }},
 		{ &hf_rpl_corrval,
-			{ "Correlator Value", "rpl.corrval", 
+			{ "Correlator Value", "rpl.corrval",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
 				"RPL Correlator Value", HFILL }},
 		{ &hf_rpl_respval,
-			{ "Response Code", "rpl.respval", 
+			{ "Response Code", "rpl.respval",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"RPL Response Code", HFILL }},
 		{ &hf_rpl_maxframe,
-			{ "Maximum Frame Size", "rpl.maxframe", 
+			{ "Maximum Frame Size", "rpl.maxframe",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"RPL Maximum Frame Size", HFILL }},
 		{ &hf_rpl_connclass,
-			{ "Connection Class", "rpl.connclass", 
+			{ "Connection Class", "rpl.connclass",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"RPL Connection Class", HFILL }},
 		{ &hf_rpl_lmac,
-			{ "Loader MAC Address", "rpl.lmac", 
+			{ "Loader MAC Address", "rpl.lmac",
 				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"RPL Loader MAC Address", HFILL }},
 		{ &hf_rpl_smac,
-			{ "Set MAC Address", "rpl.smac", 
+			{ "Set MAC Address", "rpl.smac",
 				FT_ETHER, BASE_NONE, NULL, 0x0,
 				"RPL Set MAC Address", HFILL }},
 		{ &hf_rpl_sap,
-			{ "SAP", "rpl.sap", 
+			{ "SAP", "rpl.sap",
 				FT_UINT8, BASE_HEX, VALS(sap_vals), 0x0,
 				"RPL SAP", HFILL }},
 		{ &hf_rpl_equipment,
-			{ "Equipment", "rpl.equipment", 
+			{ "Equipment", "rpl.equipment",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"RPL Equipment - AX from INT 11h", HFILL }},
 		{ &hf_rpl_memsize,
-			{ "Memory Size", "rpl.memsize", 
+			{ "Memory Size", "rpl.memsize",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				"RPL Memory Size - AX from INT 12h MINUS 32k MINUS the Boot ROM Size", HFILL }},
 		{ &hf_rpl_bsmversion,
-			{ "BSM Version", "rpl.bsmversion", 
+			{ "BSM Version", "rpl.bsmversion",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"RPL Version of BSM.obj", HFILL }},
 		{ &hf_rpl_adapterid,
-			{ "Adapter ID", "rpl.adapterid", 
+			{ "Adapter ID", "rpl.adapterid",
 				FT_UINT16, BASE_HEX, NULL, 0x0,
 				"RPL Adapter ID", HFILL }},
 		{ &hf_rpl_shortname,
-			{ "Short Name", "rpl.shortname", 
+			{ "Short Name", "rpl.shortname",
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"RPL BSM Short Name", HFILL }},
 		{ &hf_rpl_laddress,
-			{ "Locate Address", "rpl.laddress", 
+			{ "Locate Address", "rpl.laddress",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
 				"RPL Locate Address", HFILL }},
 		{ &hf_rpl_xaddress,
-			{ "XFER Address", "rpl.xaddress", 
+			{ "XFER Address", "rpl.xaddress",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
 				"RPL Transfer Control Address", HFILL }},
 		{ &hf_rpl_sequence,
-			{ "Sequence Number", "rpl.sequence", 
+			{ "Sequence Number", "rpl.sequence",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
 				"RPL Sequence Number", HFILL }},
 		{ &hf_rpl_config,
-			{ "Configuration", "rpl.config", 
+			{ "Configuration", "rpl.config",
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				 "RPL Configuration", HFILL }},
 		{ &hf_rpl_flags,
-			{ "Flags", "rpl.flags", 
+			{ "Flags", "rpl.flags",
 				FT_UINT8, BASE_HEX, NULL, 0x0,
 				"RPL Bit Significant Option Flags", HFILL }},
 		{ &hf_rpl_data,
-			{ "Data", "rpl.data", 
+			{ "Data", "rpl.data",
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"RPL Binary File Data", HFILL }},
 		{ &hf_rpl_ec,

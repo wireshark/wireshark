@@ -72,7 +72,7 @@ static int hf_sgsap_imeisv = -1;
 
 static int ett_sgsap = -1;
 
-/* 
+/*
  * 9.4	Information elements
  */
 /*
@@ -80,9 +80,9 @@ static int ett_sgsap = -1;
  */
 
 /*
- * Octets 3 to 14 contain the value part of the Calling party BCD number information element 
- * defined in subclause 10.5.4.9 of 3GPP TS 24.008 [8] (octets 3 to 14, i.e. not including 
- * 3GPP TS 24.008 IEI and 3GPP TS 24.008 length indicator) 
+ * Octets 3 to 14 contain the value part of the Calling party BCD number information element
+ * defined in subclause 10.5.4.9 of 3GPP TS 24.008 [8] (octets 3 to 14, i.e. not including
+ * 3GPP TS 24.008 IEI and 3GPP TS 24.008 length indicator)
  * ( packet-gsm_a_dtap.c )
  */
 /*
@@ -182,7 +182,7 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 /*
  * 9.4.5	IMEISV
  * See subclause 18.4.9 in 3GPP TS 29.018 [16].
- * The IMEISV is coded as a sequence of BCD digits, compressed two into each octet. 
+ * The IMEISV is coded as a sequence of BCD digits, compressed two into each octet.
  * The IMEISV consists of 16 digits
  * (see 3GPP TS 23.003).
  */
@@ -206,8 +206,8 @@ de_sgsap_imeisv(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 9.4.6	IMSI
  * See subclause 18.4.10 in 3GPP TS 29.018 [16].
  */
-/* The IMSI is coded as a sequence of BCD digits, compressed two into each octet. 
- * This is a variable length element, and includes a length indicator. 
+/* The IMSI is coded as a sequence of BCD digits, compressed two into each octet.
+ * This is a variable length element, and includes a length indicator.
  * The IMSI is defined in 3GPP TS 23.003. It shall not exceed 15 digits (see 3GPP TS 23.003).
  */
 /*
@@ -261,7 +261,7 @@ de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 }
 /*
  * 9.4.9	LCS client identity
- * The coding of the LCS client identity value is according to LCS-ClientID 
+ * The coding of the LCS client identity value is according to LCS-ClientID
  * as specified in subclause 17.7.13 of 3GPP TS 29.002 [15]
  * (packet-nas_eps.c)
  */
@@ -374,7 +374,7 @@ de_sgsap_nas_msg_container(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	curr_offset = offset;
 
-	/* Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR) 
+	/* Octets 3 to 253 contain the SMS message (i.e. CP DATA, CP ACK or CP ERROR)
 	 * as defined in subclause 7.2 of 3GPP TS 24.011 [10]
 	 */
 	new_tvb = tvb_new_subset_remaining(tvb, curr_offset);
@@ -466,7 +466,7 @@ de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
 /*
  * 9.4.19	SS code
- * The coding of the SS code value is according to SS-Code as specified in 
+ * The coding of the SS code value is according to SS-Code as specified in
  * subclause 17.7.5 of 3GPP TS 29.002 [15]
  * ( packet-nas_eps.c)
  */
@@ -524,9 +524,9 @@ de_sgsap_vlr_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	guint     name_len, tmp;
 	guint8 	*fqdn = NULL;
 
-	/* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1. 
-	 * Octets 3 through n contain the VLR name in the form of a fully qualified domain name (FQDN) 
-	 * as specified in IETF RFC 1035 [21]. 
+	/* The VLR name information element specifies the VLR name and is coded as shown in figure 9.4.22.1.
+	 * Octets 3 through n contain the VLR name in the form of a fully qualified domain name (FQDN)
+	 * as specified in IETF RFC 1035 [21].
 	 */
 	if (len > 0) {
 		name_len = tvb_get_guint8(tvb, offset);
@@ -749,7 +749,7 @@ sgsap_alert_rej(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 
 	/* IMSI	IMSI 9.4.6	M	TLV	6-10 */
 	ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
-	/* SGs Cause	SGs cause  9.4.18	M	TLV	3 */ 
+	/* SGs Cause	SGs cause  9.4.18	M	TLV	3 */
 	ELEM_MAND_TLV(0x08, SGSAP_PDU_TYPE, DE_SGSAP_SGS_CAUSE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -1107,7 +1107,7 @@ sgsap_service_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	ELEM_OPT_TLV(0x23, NAS_PDU_TYPE_EMM, DE_EMM_TRAC_AREA_ID, NULL);
 	/* E-CGI	E-UTRAN Cell Global Identity 9.4.3a	O	TLV	9 */
 	ELEM_OPT_TLV(0x24, SGSAP_PDU_TYPE, DE_SGSAP_ECGI, NULL);
-	/* UE EMM Mode	UE EMM mode 9.4.21c	O	TLV	3 */ 
+	/* UE EMM Mode	UE EMM mode 9.4.21c	O	TLV	3 */
 	ELEM_OPT_TLV(0x25, SGSAP_PDU_TYPE, DE_SGSAP_UE_EMM_MODE, NULL);
 
 	EXTRANEOUS_DATA_CHECK(curr_len, 0);
@@ -1147,8 +1147,8 @@ sgsap_tmsi_realloc_comp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_,
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = len;	
-	
+	curr_len = len;
+
 	/*IMSI	IMSI 9.4.6	M	TLV	6-10  */
 	ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
 
@@ -1166,7 +1166,7 @@ sgsap_ue_act_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = len;	
+	curr_len = len;
 
 	/* IMSI	IMSI 9.4.6	M	TLV	6-10 */
 	ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1185,7 +1185,7 @@ sgsap_ue_unreachable(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = len;	
+	curr_len = len;
 
 
 	/* IMSI	IMSI 9.4.6	M	TLV	6-10 */
@@ -1206,7 +1206,7 @@ sgsap_ue_ul_unitdata(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = len;	
+	curr_len = len;
 
 	/* IMSI	IMSI 9.4.6	M	TLV	6-10 */
 	ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1236,7 +1236,7 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 	guint	curr_len;
 
 	curr_offset = offset;
-	curr_len = len;	
+	curr_len = len;
 
 	/* IMSI	IMSI 9.4.6	M	TLV	6-10 */
 	ELEM_MAND_TLV(0x01, GSM_A_PDU_TYPE_BSSMAP, BE_IMSI, NULL);
@@ -1251,7 +1251,7 @@ sgsap_release_req(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
  */
 /* No IE's */
 
-/* 
+/*
  * 9.2	Message type
  */
 static const value_string sgsap_msg_strings[] = {
@@ -1260,7 +1260,7 @@ static const value_string sgsap_msg_strings[] = {
 /*
  * 0 0 0 0 0 0 1 1
  * to
- * 0 0 0 0 0 1 0 1	
+ * 0 0 0 0 0 1 0 1
  * Unassigned: treated as an unknown Message type
  */
 	{ 0x03,	"Unassigned"},							/* 7 */
@@ -1286,9 +1286,9 @@ static const value_string sgsap_msg_strings[] = {
 	{ 0x16,	"SGsAP-RESET-ACK"},						/* 8.15 */
 	{ 0x17,	"SGsAP-SERVICE-ABORT-REQUEST"},			/* 8.24 */
 /*
- * 0 0 0 1 1 0 0 0 
+ * 0 0 0 1 1 0 0 0
  * to
- * 0 0 0 1 1 0 0 1	
+ * 0 0 0 1 1 0 0 1
  * Unassigned: treated as an unknown Message type
  */
  	{ 0x18,	"Unassigned"},
@@ -1316,7 +1316,7 @@ static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 /*
  * 0 0 0 0 0 0 1 1
  * to
- * 0 0 0 0 0 1 0 1	
+ * 0 0 0 0 0 1 0 1
  * Unassigned: treated as an unknown Message type
  */
 	NULL,							/* 0x03,	"Unassigned" 7 */
@@ -1342,9 +1342,9 @@ static void (*sgsap_msg_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 	sgsap_reset_ack,				/* 0x16,	"SGsAP-RESET-ACK" 8.15 */
 	NULL,/* No IE's */				/* 0x17,	"SGsAP-SERVICE-ABORT-REQUEST" 8.24 */
 /*
- * 0 0 0 1 1 0 0 0 
+ * 0 0 0 1 1 0 0 0
  * to
- * 0 0 0 1 1 0 0 1	
+ * 0 0 0 1 1 0 0 1
  * Unassigned: treated as an unknown Message type
  */
  	NULL,							/* 0x18,	"Unassigned" */
@@ -1487,7 +1487,7 @@ void proto_register_sgsap(void) {
         FT_UINT16, BASE_DEC, NULL, 0x0,
         NULL, HFILL}
     },
-    { &hf_sgsap_imsi_det_eps, 
+    { &hf_sgsap_imsi_det_eps,
         { "IMSI detach from EPS service type",    "sgsap.imsi_det_eps",
         FT_UINT8, BASE_DEC, VALS(sgsap_imsi_det_from_eps_serv_type_values),0x0,
         NULL, HFILL }
@@ -1541,7 +1541,7 @@ void proto_register_sgsap(void) {
     /* Register fields and subtrees */
     proto_register_field_array(proto_sgsap, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
- 
+
     /* Register dissector */
     register_dissector(PFNAME, dissect_sgsap, proto_sgsap);
 }

@@ -14,17 +14,17 @@
  * don't bother with the "Copied from" - you don't even need to put
  * in a "Copied from" if you copied an existing dissector, especially
  * if the bulk of the code in the new dissector is your code)
- * 
+ *
  * This program is free software; you can redistribute it and/or
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -278,9 +278,9 @@ dissect_iui_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 f
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_iui, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_iui,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_iui);
 	}
@@ -316,9 +316,9 @@ dissect_linkctlinfo (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_linkctlinfo, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_linkctlinfo,
 				tvb, offset, 2, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dib_linkctlinfo);
 	}
@@ -359,9 +359,9 @@ dissect_dh_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint16 fl
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dhflags, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dhflags,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dhflags);
 	}
@@ -413,9 +413,9 @@ dissect_ccw_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ccw_flags, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ccw_flags,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dib_ccw_flags);
 	}
@@ -471,9 +471,9 @@ dissect_cmd_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8 fl
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_cmdflags, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_cmdflags,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dib_cmdflags);
 	}
@@ -538,9 +538,9 @@ dissect_status_flags (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint8
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_statusflags, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_statusflags,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dib_statusflags);
 	}
@@ -614,9 +614,9 @@ dissect_status (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *tvb, int 
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_status, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_status,
 				tvb, offset, 1, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dib_status);
 	}
@@ -698,9 +698,9 @@ dissect_sel_rst_param (proto_tree *parent_tree, tvbuff_t *tvb, int offset, guint
 {
 	proto_item *item=NULL;
 	proto_tree *tree=NULL;
-    
+
 	if(parent_tree){
-		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ctlparam, 
+		item=proto_tree_add_uint(parent_tree, hf_sbccs_dib_ctlparam,
 				tvb, offset, 3, flags);
 		tree=proto_item_add_subtree(item, ett_sbccs_dib_ctlparam);
 	}
@@ -746,7 +746,7 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     proto_tree *iuhdr_tree;
     guint8 iui, dhflags;
     guint type;
-    
+
     /* Decode the basic SB3 and IU header and determine type of frame */
     type = get_fc_sbccs_iu_type (tvb, offset);
 
@@ -754,7 +754,7 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
                                                          "0x%x"));
     }
-    
+
     if (tree) {
         /* Dissect SB3 header first */
         subti = proto_tree_add_text (tree, tvb, offset, FC_SBCCS_SB3_HDR_SIZE,
@@ -776,7 +776,7 @@ dissect_fc_sbccs_sb3_iu_hdr (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
         dhflags = tvb_get_guint8 (tvb, offset+1);
 	dissect_dh_flags(iuhdr_tree, tvb, offset+1, dhflags);
-        
+
         proto_tree_add_item (iuhdr_tree, hf_sbccs_ccw, tvb, offset+2, 2, 0);
         proto_tree_add_item (iuhdr_tree, hf_sbccs_token, tvb, offset+5, 3, 0);
     }
@@ -804,7 +804,7 @@ static void dissect_fc_sbccs_dib_cmd_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                              fc_sbccs_dib_cmd_val,
                                              "0x%x"));
     }
-    
+
     if (tree) {
         proto_tree_add_item (tree, hf_sbccs_dib_ccw_cmd, tvb, offset, 1, 0);
 
@@ -837,7 +837,7 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
         rv_valid = flags & 0x1; /* if residual count is valid */
         qparam_valid = (((flags & 0xE0) >> 5) == 0x1); /* From the FFC field */
 	dissect_status_flags(tree, tvb, offset, flags);
-        
+
         flags = tvb_get_guint8 (tvb, offset+1);
 	dissect_status(pinfo, tree, tvb, offset+1, flags);
 
@@ -849,7 +849,7 @@ static void dissect_fc_sbccs_dib_status_hdr (tvbuff_t *tvb, packet_info *pinfo,
             proto_tree_add_item (tree, hf_sbccs_dib_iupacing, tvb, offset+3,
                                  1, 0);
         }
-        
+
         if (qparam_valid) {
             proto_tree_add_item (tree, hf_sbccs_dib_qtuf, tvb, offset+4, 1, 0);
             proto_tree_add_item (tree, hf_sbccs_dib_qtu, tvb, offset+4, 2, 0);
@@ -879,7 +879,7 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
     if (check_col (pinfo->cinfo, COL_INFO)) {
         col_append_fstr (pinfo->cinfo, COL_INFO,
                          ": %s",
-                         val_to_str (ctlfn, 
+                         val_to_str (ctlfn,
                                      fc_sbccs_dib_ctl_fn_val,
                                      "0x%x"));
     }
@@ -904,7 +904,7 @@ static void dissect_fc_sbccs_dib_ctl_hdr (tvbuff_t *tvb, packet_info *pinfo,
                                  3, 0);
             break;
         }
-        
+
         proto_tree_add_item (tree, hf_sbccs_dib_iucnt, tvb, offset+9, 1, 0);
         proto_tree_add_item (tree, hf_sbccs_dib_datacnt, tvb, offset+10, 2, 0);
         proto_tree_add_item (tree, hf_sbccs_lrc, tvb, offset+12, 4, 0);
@@ -972,7 +972,7 @@ static void dissect_fc_sbccs_dib_link_hdr (tvbuff_t *tvb, packet_info *pinfo,
             link_payload_len = tvb_get_ntohs (tvb, offset+10);
             i = 0;
             offset += 16;
-            
+
             while (i < link_payload_len) {
                 proto_tree_add_text (tree, tvb, offset, 4,
                                      "Logical Paths %d-%d: %s",
@@ -990,7 +990,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
 {
     guint8 type;
     guint16 ch_cu_id, dev_addr, ccw;
-    guint offset = 0; 
+    guint offset = 0;
     proto_item *ti;
     proto_tree *sb3_tree = NULL,
                *dib_tree = NULL;
@@ -998,7 +998,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     conversation_t *conversation;
     sb3_task_id_t task_key;
     void* pd_save;
-        
+
     /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FC-SB3");
 
@@ -1010,11 +1010,11 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         col_add_str (pinfo->cinfo, COL_INFO, val_to_str (type, fc_sbccs_iu_val,
                                                          "0x%x"));
     }
-    
+
     /* Retrieve conversation state to determine expected payload */
     conversation = find_conversation (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                       PT_SBCCS, ch_cu_id, dev_addr, 0);
-                                      
+
     pd_save = pinfo->private_data;
     if (conversation) {
         task_key.conv_id = conversation->index;
@@ -1022,7 +1022,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
         pinfo->private_data = (void *)&task_key;
 
     }
-    else if ((type == FC_SBCCS_IU_CMD_HDR) || 
+    else if ((type == FC_SBCCS_IU_CMD_HDR) ||
              (type != FC_SBCCS_IU_CMD_DATA)) {
         conversation = conversation_new (pinfo->fd->num, &pinfo->src, &pinfo->dst,
                                          PT_SBCCS, ch_cu_id, dev_addr, 0);
@@ -1033,7 +1033,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     else {
         pinfo->private_data = NULL;
     }
-    
+
     if (tree) {
         ti = proto_tree_add_protocol_format (tree, proto_fc_sbccs, tvb, 0, -1,
                                              "FC-SB3");
@@ -1049,7 +1049,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
     else {
         offset += (FC_SBCCS_SB3_HDR_SIZE + FC_SBCCS_IU_HDR_SIZE);
     }
-    
+
     switch (type) {
     case FC_SBCCS_IU_DATA:
         dissect_fc_sbccs_dib_data_hdr (tvb, pinfo, dib_tree, offset);
@@ -1089,7 +1089,7 @@ static void dissect_fc_sbccs (tvbuff_t *tvb, packet_info *pinfo,
 
 void
 proto_register_fcsbccs (void)
-{                 
+{
     /* Setup list of header fields  See Section 1.6.1 for details*/
     static hf_register_info hf[] = {
         { &hf_sbccs_chid,

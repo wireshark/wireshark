@@ -350,8 +350,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Conf. %sRoot = %d/%d/%s  Cost = %d  Port = 0x%04x",
                      flags & 0x1 ? "TC + " : "",
-                     root_identifier_bridge_priority, 
-                     root_identifier_system_id_extension, 
+                     root_identifier_bridge_priority,
+                     root_identifier_system_id_extension,
                      root_identifier_mac_str,
                      root_path_cost, port_identifier);
       } else {
@@ -499,10 +499,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  root_identifier_mac_str);
       root_id_tree = proto_item_add_subtree(root_id_item, ett_root_id);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_prio, tvb,
-			      BPDU_ROOT_IDENTIFIER , 1, 
+			      BPDU_ROOT_IDENTIFIER , 1,
 			      root_identifier_bridge_priority);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_sys_id_ext, tvb,
-			      BPDU_ROOT_IDENTIFIER , 2, 
+			      BPDU_ROOT_IDENTIFIER , 2,
 			      root_identifier_system_id_extension);
       proto_tree_add_ether_format_value(root_id_tree, hf_bpdu_root_mac,
                               tvb, BPDU_ROOT_IDENTIFIER + 2, 6,
@@ -516,7 +516,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  root_identifier_mac_str);
       root_id_tree = proto_item_add_subtree(root_id_item, ett_root_id);
       proto_tree_add_uint(root_id_tree, hf_bpdu_root_prio, tvb,
-			      BPDU_ROOT_IDENTIFIER , 2, 
+			      BPDU_ROOT_IDENTIFIER , 2,
 			      root_identifier_bridge_priority);
       proto_tree_add_ether_format_value(root_id_tree, hf_bpdu_root_mac,
                               tvb, BPDU_ROOT_IDENTIFIER + 2, 6,
@@ -540,24 +540,24 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			  bridge_identifier_mac_str);
       bridge_id_tree = proto_item_add_subtree(bridge_id_item, ett_bridge_id);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_prio, tvb,
-			      BPDU_BRIDGE_IDENTIFIER , 1, 
+			      BPDU_BRIDGE_IDENTIFIER , 1,
 			      bridge_identifier_bridge_priority);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_sys_id_ext, tvb,
-			      BPDU_BRIDGE_IDENTIFIER , 2, 
+			      BPDU_BRIDGE_IDENTIFIER , 2,
 			      bridge_identifier_system_id_extension);
       proto_tree_add_ether_format_value(bridge_id_tree, hf_bpdu_bridge_mac,
                               tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6,
                               bridge_identifier_mac,
                               "%s", bridge_identifier_mac_str);
     } else {
-      bridge_id_item = proto_tree_add_text(bpdu_tree, tvb, 
+      bridge_id_item = proto_tree_add_text(bpdu_tree, tvb,
                           BPDU_BRIDGE_IDENTIFIER, 8,
 			  "Bridge Identifier: %d / %s",
 			  bridge_identifier_bridge_priority,
 			  bridge_identifier_mac_str);
       bridge_id_tree = proto_item_add_subtree(bridge_id_item, ett_bridge_id);
       proto_tree_add_uint(bridge_id_tree, hf_bpdu_bridge_prio, tvb,
-                              BPDU_BRIDGE_IDENTIFIER , 2, 
+                              BPDU_BRIDGE_IDENTIFIER , 2,
 			      bridge_identifier_bridge_priority);
       proto_tree_add_ether_format_value(bridge_id_tree, hf_bpdu_bridge_mac,
                               tvb, BPDU_BRIDGE_IDENTIFIER + 2, 6,
@@ -607,8 +607,8 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /*
        * Check the Version 3 Length, and see whether it's a
        * multiple of the MSTI Configuration Message length. Also
-       * check the config_format_selector because some MST BPDU's 
-       * have BPDU_VERSION_3_LENGTH set to 0 and use the 
+       * check the config_format_selector because some MST BPDU's
+       * have BPDU_VERSION_3_LENGTH set to 0 and use the
        * field BPDU_MST_CONFIG_FORMAT_SELECTOR as a length-field
        * for the MSTI data.
        */
@@ -648,7 +648,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  msti_format = MSTI_FORMAT_ALTERNATIVE;
 	  total_msti_length = config_format_selector - VERSION_3_STATIC_LENGTH;
 	} else {
-	  /* 
+	  /*
 	   * XXX - Unknown MSTI format, since version_3_length is 0
 	   * lets assume there are no msti instances in the packet.
 	   */
@@ -698,10 +698,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER , 1, 
+                                  BPDU_CIST_BRIDGE_IDENTIFIER , 1,
                                   cist_bridge_identifier_bridge_priority);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_sys_id_ext, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER , 2, 
+                                  BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                                   cist_bridge_identifier_system_id_extension);
           proto_tree_add_ether_format_value(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac,
                                   tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
@@ -715,7 +715,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  BPDU_CIST_BRIDGE_IDENTIFIER , 2, 
+                                  BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                                   cist_bridge_identifier_bridge_priority);
           proto_tree_add_ether_format_value(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac,
                                   tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
@@ -746,10 +746,10 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 1, 
+                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 1,
                                   cist_bridge_identifier_bridge_priority);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_sys_id_ext, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2, 
+                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                                   cist_bridge_identifier_system_id_extension);
           proto_tree_add_ether_format_value(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac,
                                   tvb, ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
@@ -763,7 +763,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                               cist_bridge_identifier_mac_str);
           cist_bridge_id_tree = proto_item_add_subtree(cist_bridge_id_item, ett_cist_bridge_id);
           proto_tree_add_uint(cist_bridge_id_tree, hf_bpdu_cist_bridge_prio, tvb,
-                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2, 
+                                  ALT_BPDU_CIST_BRIDGE_IDENTIFIER , 2,
                                   cist_bridge_identifier_bridge_priority);
           proto_tree_add_ether_format_value(cist_bridge_id_tree, hf_bpdu_cist_bridge_mac,
                                   tvb, ALT_BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6,
@@ -888,7 +888,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  msti_tree = proto_item_add_subtree(msti_item, ett_msti);
 
 	  msti_mstid = tvb_get_ntohs(tvb,  offset+ ALT_MSTI_MSTID);
-	  proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_MSTID, 2, 
+	  proto_tree_add_text(msti_tree, tvb, offset+ALT_MSTI_MSTID, 2,
 			      "MSTID: %d", msti_mstid);
 
 	  /* flags */
@@ -955,7 +955,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      msti_bridge_identifier_mac_str);
 
 	  msti_port_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_PORT_IDENTIFIER);
-	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_id, tvb, 
+	  proto_tree_add_uint(msti_tree, hf_bpdu_msti_port_id, tvb,
 			      offset+ALT_MSTI_PORT_IDENTIFIER, 2, msti_port_identifier_priority);
 
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
@@ -974,7 +974,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_bpdu(void)
-{      
+{
 
   static hf_register_info hf[] = {
     { &hf_bpdu_proto_id,

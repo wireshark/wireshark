@@ -2,7 +2,7 @@
  * Routines for LINX packet dissection
  *
  * Copyright 2006, Martin Peylo <martin.peylo@siemens.com>
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -24,10 +24,10 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
  */
 
-/* The used document is: 
+/* The used document is:
  * ENEA Link Protocol Specification available at
  * http://linx.sourceforge.net
- * 
+ *
  * Fits currently to
  * Enea LINX for Linux
  * Version: 2.5.0, May 16, 2011
@@ -36,7 +36,7 @@
  * Mattias Wallin, linx@enea.com, September 23, 2007
  *
  * Added support for LINX TCP CM.
- * Dejan Bucar, linx@enea.com, June 21, 2011 
+ * Dejan Bucar, linx@enea.com, June 21, 2011
  *
  * Added support for LINX ETHCM Multicore header.
  * Dejan Bucar, linx@enea.com, June 21, 2011
@@ -306,7 +306,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		ti = proto_tree_add_item(tree, proto_linx, tvb, 0, -1, FALSE);
 		linx_tree = proto_item_add_subtree(ti, ett_linx);
-		
+
 		dword   = tvb_get_ntohl(tvb, offset);
 		nexthdr = (dword >> 28) & 0xf;
 
@@ -334,12 +334,12 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* read main header*/
 			dword = tvb_get_ntohl(tvb, offset);
 		}
-		
+
 		version = (dword >> 25) & 0x7;
 		nexthdr = (dword >> 28) & 0xf;
 		pkgsize = dword & 0x3fff;
 		linx_tvb = tvb_new_subset(tvb, 0, pkgsize, pkgsize);
-		tvb_set_reported_length(tvb, pkgsize);		
+		tvb_set_reported_length(tvb, pkgsize);
 
 		/* Supports version 2 and 3 so far */
 		if (version < 2 || version > 3) {
@@ -366,12 +366,12 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(main_header_tree, hf_linx_main_bundle    , linx_tvb, offset, 4, FALSE);
 		proto_tree_add_item(main_header_tree, hf_linx_main_pkgsize   , linx_tvb, offset, 4, FALSE);
 		offset += 4;
-		
+
 		while (nexthdr != ETHCM_NONE) {
 
 			dword    = tvb_get_ntohl(linx_tvb, offset);
 			thishdr  = nexthdr;
-			nexthdr  = (dword >>28) & 0xf;			
+			nexthdr  = (dword >>28) & 0xf;
 			conntype = (dword >>24) & 0xf;
 			/* Write non trivial header name to info column */
 			if ((thishdr != ETHCM_NONE) && (thishdr != ETHCM_MAIN)) {
@@ -416,15 +416,15 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(conn_header_tree, hf_linx_conn_dstmac, linx_tvb, offset, 6, FALSE);
 						proto_tree_add_item(conn_header_tree, hf_linx_conn_srcmac, linx_tvb, offset + 6, 6, FALSE);
 					}
-					
+
 					offset += (2*size);
 					/* Feature Negotiation String */
 					if(version > 2) {
 					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, linx_tvb, offset, -1, FALSE);
-						offset += tvb_strnlen(linx_tvb, offset, -1);					  
+						offset += tvb_strnlen(linx_tvb, offset, -1);
 					}
-					break;	
- 
+					break;
+
 				case ETHCM_NACK:
 					/* Nack header */
 					/*
@@ -464,9 +464,9 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					  |                             Source                            |
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-					  
+
 					  * User data / fragment header => Version 2
-					  
+
 					  0		      1			  2		      3
 					  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -476,9 +476,9 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 					  |		  Dst		  |		  Src		  |
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-					  
+
 					  - fragments (not first fragment)
-					  
+
 					  0		      1			  2		      3
 					  0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1 2 3 4 5 6 7 8 9 0 1
 					  +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -517,7 +517,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						/* (dstaddr == srcaddr == 0) -> RLNH Protocol Message */
 
 					        dword = tvb_get_ntohl(linx_tvb, offset);
-						
+
 						/* Write to info column */
 						col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str(dword, linx_short_rlnh_names, "unknown"));
 
@@ -578,7 +578,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									offset += 4;
 									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_peer_linkaddr, linx_tvb, offset, -1, FALSE);
 									offset += tvb_strnlen(linx_tvb, offset, -1);
-								break;	
+								break;
 							default:
 									/* no known Message type... */
 									/* this could be done better */
@@ -642,7 +642,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 	}
-}	
+}
 
 
 /* Protocol Initialisation */
@@ -764,7 +764,7 @@ proto_register_linx(void)
 		{ &hf_linx_nack_seqno, /* in ETHCM_NACK */
 			{ "Sequence Number", "linx.nack_seqno", FT_UINT32, BASE_DEC, NULL, 0x00000fff, NULL, HFILL },
 		},
-	
+
 	  /* RLNH */
 		{ &hf_linx_rlnh_msg_type32, /* in RLNH */
 			{ "RLNH msg type", "linx.rlnh_msg_type", FT_UINT32, BASE_DEC, VALS(linx_long_rlnh_names), 0xffffffff, "RLNH message type", HFILL },
@@ -852,10 +852,10 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Show name in protocol column */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "LINX/TCP");
-	
+
 	/* Clear out stuff in the info column */
 	col_clear(pinfo->cinfo, COL_INFO);
-	
+
 	dword   = tvb_get_ntohl(tvb, 0);
 	version = (dword >> 16) & 0xFF;
 	type    = (dword >> 24) & 0xFF;
@@ -882,7 +882,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	item = proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, 0, 16, "TCP CM Header");
 	tcp_header_tree = proto_item_add_subtree(item, ett_linx_tcp);
-	
+
 	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_type, linx_tcp_tvb, 0, 4, FALSE);
 	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_version, linx_tcp_tvb, 0, 4, FALSE);
 	proto_tree_add_item(tcp_header_tree, hf_linx_tcp_oob, linx_tcp_tvb, 0, 4, FALSE);
@@ -893,14 +893,14 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset += 16;
 
 	if (type == 0x55) { /* UDATA */
-		dword = tvb_get_ntohl(linx_tcp_tvb, 8); 
+		dword = tvb_get_ntohl(linx_tcp_tvb, 8);
 		if (dword == 0) { /* RLNH Message*/
 
 			dword = tvb_get_ntohl(linx_tcp_tvb, offset);
 
 			/* Write to info column */
 			col_append_fstr(pinfo->cinfo, COL_INFO, "rlnh:%s ", val_to_str(dword, linx_short_rlnh_names, "unknown"));
-			
+
 			/* create new paragraph for RLNH */
 			item = proto_tree_add_text(linx_tcp_tree, linx_tcp_tvb, offset, 4, "RLNH");
 			rlnh_header_tree = proto_item_add_subtree(item, ett_linx_tcp);
@@ -964,7 +964,7 @@ dissect_linx_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					/* No known Message type */
 					proto_tree_add_text(rlnh_header_tree, linx_tcp_tvb, offset, 0, "ERROR: Header \"%u\" not recognized", dword);
 					break;
-			}      
+			}
 		} else {
 			/* User payload */
 			payloadsize = size-offset;

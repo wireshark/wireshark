@@ -201,7 +201,7 @@ static const fragment_items ltp_frag_items = {
     "LTP fragments"
 };
 
-static int 
+static int
 dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int frame_offset,int ltp_type, guint64 session_num){
 	guint64 client_id;
 	guint64 offset;
@@ -297,7 +297,7 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 	/* Create a subtree for data segment and add the other fields under it */
 	ltp_data_item = proto_tree_add_text(ltp_tree, tvb,frame_offset, segment_offset, "Data Segment");
 	ltp_data_tree = proto_item_add_subtree(ltp_data_item, ett_data_segm);
-	
+
 	proto_tree_add_uint64(ltp_data_tree,hf_ltp_data_clid, tvb, frame_offset,client_id_size,client_id);
 	frame_offset += client_id_size;
 
@@ -335,12 +335,12 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		{
 			/* if the segment has not been fragmented, then no reassembly is needed */
 			if(!more_frags && offset == 0)
-			{	
+			{
 				new_tvb = tvb_new_subset(tvb,frame_offset,tvb_length(tvb)-frame_offset,-1);
 			}
 			else
 			{
-				new_tvb = process_reassembled_data(tvb, frame_offset, pinfo, "Reassembled LTP Segment", 
+				new_tvb = process_reassembled_data(tvb, frame_offset, pinfo, "Reassembled LTP Segment",
 					frag_msg, &ltp_frag_items,NULL, ltp_data_tree);
 
 			}
@@ -376,14 +376,14 @@ dissect_data_segment(proto_tree *ltp_tree, tvbuff_t *tvb,packet_info *pinfo,int 
 		{
 			col_append_str(pinfo->cinfo, COL_INFO, "[Unfinished LTP Segment] ");
 		}
-		
+
 	}
 
 	return segment_offset;
 }
 
-  
-static int 
+
+static int
 dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, int frame_offset) {
 	guint64 rpt_sno;
 	guint64 chkp_sno;
@@ -392,7 +392,7 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	int rcpt_clm_cnt;
 	guint64 offset;
 	guint64 length;
-	
+
 	int rpt_sno_size;
 	int chkp_sno_size;
 	int upper_bound_size;
@@ -406,14 +406,14 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 
 	proto_item *ltp_rpt_item;
 	proto_item *ltp_rpt_clm_item;
-	
+
 	proto_tree *ltp_rpt_tree;
 	proto_tree *ltp_rpt_clm_tree;
 
 	/* Create the subtree for report segment under the main LTP tree and all the report segment fields under it */
 	ltp_rpt_item = proto_tree_add_text(ltp_tree, tvb, frame_offset, -1, "Report Segment");
 	ltp_rpt_tree = proto_item_add_subtree(ltp_rpt_item, ett_rpt_segm);
-	
+
 	/* Extract the report segment info */
 	rpt_sno = evaluate_sdnv_64(tvb, frame_offset, &rpt_sno_size);
 	proto_tree_add_uint64(ltp_rpt_tree, hf_ltp_rpt_sno, tvb, frame_offset + segment_offset, rpt_sno_size, rpt_sno);
@@ -460,14 +460,14 @@ dissect_report_segment(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ltp_tree, 
 	return segment_offset;
 }
 
- 
-static int 
+
+static int
 dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset){
 	guint64 rpt_sno;
 
 	int rpt_sno_size;
 	int segment_offset = 0;
-	
+
 	proto_item *ltp_rpt_ack_item;
 	proto_tree *ltp_rpt_ack_tree;
 
@@ -482,19 +482,19 @@ dissect_report_ack_segment(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset)
 	/* Creating tree for the report ack segment */
 	ltp_rpt_ack_item = proto_tree_add_text(ltp_tree, tvb,frame_offset, segment_offset, "Report Ack Segment");
 	ltp_rpt_ack_tree = proto_item_add_subtree(ltp_rpt_ack_item, ett_rpt_ack_segm);
-	
+
 	proto_tree_add_uint64(ltp_rpt_ack_tree, hf_ltp_rpt_ack_sno, tvb, frame_offset,rpt_sno_size, rpt_sno);
 	return segment_offset;
 }
 
- 
-static int 
+
+static int
 dissect_cancel_segment(proto_tree * ltp_tree, tvbuff_t *tvb,int frame_offset){
 	guint8 reason_code;
 
 	proto_item *ltp_cancel_item;
 	proto_tree *ltp_cancel_tree;
-	
+
 	/* The cancel segment has only one byte, which contains the reason code. */
 	reason_code = tvb_get_guint8(tvb,frame_offset);
 
@@ -515,13 +515,13 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int hdr
 
 	int length_size[LTP_MAX_HDR_EXTN];
 	int value_size[LTP_MAX_HDR_EXTN];
-	
+
 	int i;
 	int extn_offset = 0;
 
 	proto_item *ltp_hdr_extn_item;
 	proto_tree *ltp_hdr_extn_tree;
-	
+
 	/*  There can be more than one header extensions */
 	for(i = 0; i < hdr_extn_cnt; i++){
 		extn_type[i] = tvb_get_guint8(tvb,frame_offset);
@@ -553,7 +553,7 @@ dissect_header_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int hdr
 		proto_tree_add_uint64_format(ltp_hdr_extn_tree, hf_ltp_hdr_extn_val, tvb, frame_offset, value_size[i],value[i], "Value [%d]: %"G_GINT64_MODIFIER"d",i+1,value[i]);
 		frame_offset += value_size[i];
 	}
-	return extn_offset;	
+	return extn_offset;
 }
 
 static int
@@ -564,7 +564,7 @@ dissect_trailer_extn(proto_tree *ltp_tree, tvbuff_t *tvb,int frame_offset,int tr
 
 	int length_size[LTP_MAX_TRL_EXTN];
 	int value_size[LTP_MAX_TRL_EXTN];
-	
+
 	int i;
 	int extn_offset = 0;
 
@@ -702,7 +702,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 		return 0;
 	}
-	
+
 	/* Check if there are any header extensions */
 	if(hdr_extn_cnt > 0){
 		hdr_extn_offset = dissect_header_extn(ltp_tree, tvb, frame_offset,hdr_extn_cnt);
@@ -739,7 +739,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			col_set_str(pinfo->cinfo, COL_INFO, "Protocol Error");
 			return 0;
 		}
-	} 
+	}
 	else if(ltp_type == 12 || ltp_type == 14){
 		segment_offset = dissect_cancel_segment(ltp_tree,tvb,frame_offset);
 		if(segment_offset == 0){
@@ -775,7 +775,7 @@ void
 proto_register_ltp(void)
 {
 	module_t *ltp_module;
-  
+
 	static hf_register_info hf[] = {
 	  {&hf_ltp_version,
 		  {"LTP Version","ltp.version",

@@ -21,7 +21,7 @@
  * Various updates, enhancements and fixes
  * Copyright 2009, Gerasimos Dimitriadis <dimeg [AT] intracom.gr>
  * In association with Intracom Telecom SA
- * 
+ *
  * Title		3GPP			Other
  *
  *   Reference [3]
@@ -65,7 +65,7 @@
  *   Core network protocols;
  *   Stage 3
  *   (3GPP TS 24.008 version 9.6.0 Release 9)
- * 
+ *
  * $Id$
  *
  * Wireshark - Network traffic analyzer
@@ -554,7 +554,7 @@ de_auth_param_autn(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 	else
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
 			"AUTN length not equal to 16");
-	
+
 	return(len);
 }
 
@@ -603,7 +603,7 @@ de_auth_fail_param(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 
 	else
 		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN,
 			"AUTS length not equal to 14");
-	
+
 	return(len);
 }
 
@@ -704,7 +704,7 @@ de_network_name(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 		{
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Value leads to a Text String whose length is not a multiple of 7 bits");
 		}
-		/* 
+		/*
 		 * If the number of spare bits is 7, then we have unpacked one extra
 		 * character. Disregard this character.
 		 */
@@ -980,7 +980,7 @@ de_day_saving_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 }
 
 /*
- * 10.5.3.13 Emergency Number List 
+ * 10.5.3.13 Emergency Number List
  */
 static guint16
 de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
@@ -997,8 +997,8 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 
 	count = 1;
 	while ((curr_offset - offset) < len){
-		/* Length of 1st Emergency Number information note 1) octet 3 
-		 * NOTE 1: The length contains the number of octets used to encode the 
+		/* Length of 1st Emergency Number information note 1) octet 3
+		 * NOTE 1: The length contains the number of octets used to encode the
 		 * Emergency Service Category Value and the Number digits.
 		 */
 		en_len = tvb_get_guint8(tvb, curr_offset);
@@ -1049,7 +1049,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 			malformed_number = TRUE;
 
 		if(malformed_number)
-			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
+			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");
 
 		curr_offset = curr_offset + en_len;
 		count++;
@@ -1059,7 +1059,7 @@ de_emerg_num_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 o
 }
 
 /*
- * 10.5.3.14 Additional update parameters 
+ * 10.5.3.14 Additional update parameters
  */
 static const true_false_string gsm_a_dtap_csmt_vals = {
 	"CS fallback mobile terminating call",
@@ -1209,7 +1209,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	 * warning, bearer cap uses extended values that
 	 * are reversed from other parameters!
 	 */
-	item = 
+	item =
 		proto_tree_add_text(tree,
 			tvb, curr_offset, 1,
 			"Octet 3");
@@ -1298,7 +1298,7 @@ de_bearer_cap(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 		"%s = Transfer mode: %s",
 		a_bigbuf,
 		(oct & 0x08) ? "packet" : "circuit");
-	
+
 	proto_tree_add_item(subtree, hf_gsm_a_itc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 
 	if (add_string)
@@ -2454,7 +2454,7 @@ de_bcd_num(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, 
 		malformed_number = TRUE;
 
 	if(malformed_number)
-		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");	
+		expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "\'f\' end mark present in unexpected position");
 
 	return(len);
 }
@@ -2466,7 +2466,7 @@ const value_string gsm_a_type_of_sub_addr_values[] = {
 	{ 0x00,	"NSAP (X.213/ISO 8348 AD2)" },
 	{ 0x02,	"User specified" },
 	{ 0, NULL }
-};	
+};
 
 const value_string gsm_a_odd_even_ind_values[] = {
 	{ 0x00,	"even number of address signals" },
@@ -2532,7 +2532,7 @@ de_sub_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset,
 				expert_add_info_format(pinfo, item, PI_MALFORMED, PI_WARN, "Invalid IA5 character(s) in string (value > 127)");
 
 			return(len);
-		}	
+		}
 	}
 
 	proto_tree_add_text(tree,
@@ -2798,7 +2798,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 	 *   69 - Requested facility not implemented
 	 *   87 - User not member of CUG
 	 */
-	if ((cause == 17) || (cause == 29) || (cause == 34) || (cause == 50) || 
+	if ((cause == 17) || (cause == 29) || (cause == 34) || (cause == 50) ||
 		(cause == 55) || (cause == 69) || (cause == 87))
 	{
 		proto_tree_add_item(subtree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
@@ -2808,7 +2808,7 @@ de_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset
 	else
 	{
 		diag_length = len - (curr_offset - offset);
-		proto_tree_add_text(subtree, tvb, curr_offset, diag_length, 
+		proto_tree_add_text(subtree, tvb, curr_offset, diag_length,
 			"Data: %s", tvb_bytes_to_str(tvb, curr_offset, diag_length));
 		curr_offset += diag_length;
 	}
@@ -2997,7 +2997,7 @@ de_notif_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 {
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_gsm_a_notification_description, tvb, offset, 1, ENC_BIG_ENDIAN);
-	
+
 	return 1;
 }
 /*
@@ -3044,7 +3044,7 @@ de_prog_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	oct = tvb_get_guint8(tvb, curr_offset);
 	progress_description = oct & 0x7f;
 	proto_tree_add_item(tree, hf_gsm_a_extension, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
-	
+
 	switch (coding_standard)
 	{
 	case 0:
@@ -3198,7 +3198,7 @@ static guint16
 de_signal(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
 	proto_tree_add_item(tree, hf_gsm_a_dtap_signal_value, tvb, offset, 1, ENC_BIG_ENDIAN);
-	
+
 	return 1;
 }
 
@@ -3242,7 +3242,7 @@ de_ss_ver_ind(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 /*
 User-user protocol discriminator (octet 3)
 Bits
-8	7	6	5	4	3	2	1		
+8	7	6	5	4	3	2	1
 0	0	0	0	0	0	0	0		User specific protocol (Note 1)
 0	0	0	0	0	0	0	1		OSI high layer protocols
 0	0	0	0	0	0	1	0		X.244 (Note 2)
@@ -3250,20 +3250,20 @@ Bits
 0	0	0	0	0	1	0	0		IA5 characters (Note 3)
 0	0	0	0	0	1	1	1		Rec.V.120 rate adaption
 0	0	0	0	1	0	0	0		Q.931 (I.451) user-network call control messages
-									
+
 0	0	0	1	0	0	0	0		Reserved for other network layer or
 through		layer 3 protocols
-0	0	1	1	1	1	1	1		
-									
-0	1	0	0	0	0	0	0		
+0	0	1	1	1	1	1	1
+
+0	1	0	0	0	0	0	0
 through		National use
-0	1	0	0	1	1	1	0		
+0	1	0	0	1	1	1	0
 0	1	0	0	1	1	1	1		3GPP capability exchange protocol (NOTE 4)
-									
+
 0	1	0	1	0	0	0	0		Reserved for other network
 through		layer or layer 3 protocols
-1	1	1	1	1	1	1	0		
-									
+1	1	1	1	1	1	1	0
+
 All other values are reserved.
 */
 static const range_string gsm_a_dtap_u2u_prot_discr_vals[] = {
@@ -3294,7 +3294,7 @@ de_u2u(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 
 	item = proto_tree_add_text(tree, tvb, curr_offset, len - 1, "User-user information");
 	subtree = proto_item_add_subtree(item, ett_gsm_dtap_elem[DE_USER_USER]);
-	proto_tree_add_text(subtree, tvb, curr_offset, len - 1, 
+	proto_tree_add_text(subtree, tvb, curr_offset, len - 1,
 			"Data: %s", tvb_bytes_to_str(tvb, curr_offset, len - 1));
 
 	return(len);
@@ -3370,7 +3370,7 @@ de_stream_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 of
 			"Stream Identifier: No Bearer (%u)", oct);
 
 		if (add_string)
-			g_snprintf(add_string, string_len, " - (No Bearer)");			
+			g_snprintf(add_string, string_len, " - (No Bearer)");
 	}
 	else
 	{
@@ -3426,7 +3426,7 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 {
 	guint32	curr_offset;
 	guint8 oct;
-	
+
 	curr_offset = offset;
 
 	oct = tvb_get_guint8(tvb, curr_offset);
@@ -3451,7 +3451,7 @@ de_ca_of_no_cli(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
  * 10.5.4.32 Supported codec list
  */
 /* 6.1 System Identifiers for GSM and UMTS
- * The system identifiers for the radio access technologies 
+ * The system identifiers for the radio access technologies
  * supported by this specification are:
  * SysID for GSM: 0x0000.0000 (bit 8 .. bit 1)
  * SysID for UMTS: 0x0000.0100 (bit 8 .. bit 1)
@@ -3473,7 +3473,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	curr_offset = offset;
 
-	/*  System Identification 1 (SysID 1) octet 3 
+	/*  System Identification 1 (SysID 1) octet 3
 	 * SysID indicates the radio access technology for which the subsequent Codec
 	 * Bitmap indicates the supported codec types.
 	 * Coding of this Octet is defined in 3GPP TS 26.103
@@ -3496,17 +3496,17 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 			 * Bitmap as follows:
 			 * 8		 7	       6		5		4		3		2		bit 1
 			 * TDMA		 UMTS	   UMTS		HR AMR	FR AMR	GSM EFR GSM HR	GSM FR Octet 1
-			 * EFR		 AMR 2	   AMR 
+			 * EFR		 AMR 2	   AMR
 			 * bit 16	 15		   14		13		12		11		10		bit 9
 			 *(reserved) (reserved)OHR		OFR		OHR		UMTS	FR		PDC EFR Octet 2
 			 *                     AMR-WB	AMR-WB	AMR		AMR-WB	AMR-WB
-			 * A Codec Type is supported, if the corresponding bit is set to "1". 
+			 * A Codec Type is supported, if the corresponding bit is set to "1".
 			 * All reserved bits shall be set to "0".
-			 * 
-			 * NOTE: If the Codec Bitmap for a SysID is 1 octet, it is an indication that 
-			 * all codecs of the 2nd octet are not supported. 
-			 * If the Codec Bitmap for a SysID is more than 2 octets, the network shall 
-			 * ignore the additional octet(s) of the bitmap and process the rest of the 
+			 *
+			 * NOTE: If the Codec Bitmap for a SysID is 1 octet, it is an indication that
+			 * all codecs of the 2nd octet are not supported.
+			 * If the Codec Bitmap for a SysID is more than 2 octets, the network shall
+			 * ignore the additional octet(s) of the bitmap and process the rest of the
 			 * information element.
 			 *
 			 * Right now we are sure that at least the first octet of the bitmap is present
@@ -3538,7 +3538,7 @@ de_sup_codec_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 				length--;
 			}
 		}
-		
+
 		curr_offset = curr_offset + length;
 	}
 
@@ -5860,7 +5860,7 @@ dtap_tp_epc_close_ue_test_loop(tvbuff_t *tvb, proto_tree *tree, packet_info *pin
 	curr_offset = offset;
 
 	ELEM_MAND_V(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TEST_LOOP_MODE, NULL);
-	
+
 	if (epc_test_loop_mode == 0) {
 		ELEM_MAND_LV(GSM_A_PDU_TYPE_DTAP, DE_TP_EPC_UE_TL_A_LB_SETUP, NULL);
 	} else if (epc_test_loop_mode == 1) {
@@ -6267,8 +6267,8 @@ dissect_dtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* XXX */
 	}
 	/* 3GPP TS 24.008 version 8.5.0 Release 8
-	 * Bits 5 to 8 of the first octet of every message belonging to the protocols "Call Control; 
-	 * call related SS messages" and "Session Management"contain the transaction identifier (TI). 
+	 * Bits 5 to 8 of the first octet of every message belonging to the protocols "Call Control;
+	 * call related SS messages" and "Session Management"contain the transaction identifier (TI).
 	 * The transaction identifier and its use are defined in 3GPP TS 24.007 [20].
 	 *  5 = Mobility Management messages
 	 *  3 = Call Control; call related SS messages

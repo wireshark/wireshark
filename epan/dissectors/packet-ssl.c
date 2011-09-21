@@ -474,7 +474,7 @@ static void dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
 
-static void dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, 
+static void dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb,
                                           proto_tree *tree,
                                           guint32 offset, guint32 length);
 
@@ -1888,7 +1888,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
                    (server key exchange is optional and appears to be rare for RSA)
                 */
                 {
-                    if (conv_cipher == 0x39 || conv_cipher == 0x33) { 
+                    if (conv_cipher == 0x39 || conv_cipher == 0x33) {
                         dissect_ssl3_hnd_srv_keyex_dh(tvb, ssl_hand_tree, offset, length);
                     }
                 }
@@ -2732,7 +2732,7 @@ dissect_ssl3_hnd_cert_req(tvbuff_t *tvb,
 }
 
 static void
-dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree, 
+dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
                               guint32 offset, guint32 length)
 {
     gint p_len, p_len_offset;
@@ -2742,30 +2742,30 @@ dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
     proto_item *ti_dh;
     proto_tree *ssl_dh_tree;
     guint32 orig_offset;
-    
+
     orig_offset = offset;
-    
+
     p_len_offset = offset;
     p_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + p_len;
     if ((offset - orig_offset) > length) {
         return;
     }
-    
+
     g_len_offset = offset;
     g_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + g_len;
     if ((offset - orig_offset) > length) {
         return;
     }
-    
+
     ys_len_offset = offset;
     ys_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + ys_len;
     if ((offset - orig_offset) > length) {
         return;
     }
-    
+
     sig_len_offset = offset;
     sig_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + sig_len;
@@ -2773,66 +2773,66 @@ dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
         /* Lengths don't line up (wasn't what we expected?) */
         return;
     }
-     
-    ti_dh = proto_tree_add_text(tree, tvb, orig_offset, 
+
+    ti_dh = proto_tree_add_text(tree, tvb, orig_offset,
                 (offset - orig_offset), "Diffie-Hellman Server Params");
     ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_ssl_keyex_params);
-    
+
     /* p */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_p_len,
         tvb, p_len_offset, 2, p_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_p,
             tvb, p_len_offset + 2, p_len, ENC_BIG_ENDIAN);
-    
+
     /* g */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_g_len,
         tvb, g_len_offset, 2, g_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_g,
             tvb, g_len_offset + 2, g_len, ENC_BIG_ENDIAN);
-    
+
     /* Ys */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys_len,
         tvb, ys_len_offset, 2, ys_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys,
             tvb, ys_len_offset + 2, ys_len, ENC_BIG_ENDIAN);
-    
+
     /* Sig */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig_len,
         tvb, sig_len_offset, 2, sig_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig,
             tvb, sig_len_offset + 2, sig_len, ENC_BIG_ENDIAN);
-    
+
 }
 
 static void
-dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree, 
+dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
                               guint32 offset, guint32 length)
 {
     gint yc_len, yc_len_offset;
     proto_item *ti_dh;
     proto_tree *ssl_dh_tree;
     guint32 orig_offset;
-    
+
     orig_offset = offset;
-    
+
     yc_len_offset = offset;
     yc_len = tvb_get_ntohs(tvb, offset);
     offset += 2 + yc_len;
     if ((offset - orig_offset) != length) {
         return;
     }
-    
-    ti_dh = proto_tree_add_text(tree, tvb, orig_offset, 
+
+    ti_dh = proto_tree_add_text(tree, tvb, orig_offset,
                 (offset - orig_offset), "Diffie-Hellman Client Params");
     ssl_dh_tree = proto_item_add_subtree(ti_dh, ett_ssl_keyex_params);
-    
+
     /* Yc */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_client_keyex_yc_len,
         tvb, yc_len_offset, 2, yc_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_client_keyex_yc,
             tvb, yc_len_offset + 2, yc_len, ENC_BIG_ENDIAN);
 }
- 
+
 
 
 static void

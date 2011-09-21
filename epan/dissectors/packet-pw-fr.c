@@ -81,14 +81,14 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		    ,PQ_CW_BAD_LEN_MUST_BE_NONZERO	= 0x010
 		,PQ_PAYLOAD_SIZE_ZERO			= 0x020
 	} packet_quality;
-	
+
 	packet_size = tvb_reported_length_remaining(tvb, 0);
 	if (packet_size < encaps_size)
 	{
 		if (tree)
 		{
 			proto_item  *item;
-			item = proto_tree_add_item(tree, proto_encaps, tvb, 0, -1, FALSE); 
+			item = proto_tree_add_item(tree, proto_encaps, tvb, 0, -1, FALSE);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 				"PW packet (%d) is smaller than PW encapsulation header (%d)"
 				,(int)packet_size,(int)encaps_size);
@@ -103,7 +103,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		return;
 	}
 
-	/* check how "good" is this packet */   
+	/* check how "good" is this packet */
 	/* also decide payload length from packet size and CW */
 	packet_quality = 0;
 	if (0 != (tvb_get_guint8(tvb, 0) & 0xf0 /*bits03*/))
@@ -115,28 +115,28 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		 * [ If the frame's length (defined as the
 		 * length of the layer 2 payload plus the length of the control word)
 		 * is less than 64 octets, the length field MUST be set to the PW
-		 * payload length.  Otherwise, the length field MUST be set to zero. ] 
-		 * 
-		 * Note difference from RFC4385 which states that:  
-		 * [..the length field MUST be set to the length of the PW payload 
+		 * payload length.  Otherwise, the length field MUST be set to zero. ]
+		 *
+		 * Note difference from RFC4385 which states that:
+		 * [..the length field MUST be set to the length of the PW payload
 		 * *plus* the length of the *PWMCW*. ]
 		 */
 		int cw_len;
 		gint payload_size_packet; /*derived from packet size*/
 
-		cw_len = tvb_get_guint8(tvb, 1) & 0x3f; 
+		cw_len = tvb_get_guint8(tvb, 1) & 0x3f;
 		payload_size_packet = packet_size - encaps_size;
-		
-		/* 
+
+		/*
 		 * Initial assumptions.
 		 */
-		payload_size = payload_size_packet; 
-		payload_padding = 0;  
-		
+		payload_size = payload_size_packet;
+		payload_padding = 0;
+
 		if (payload_size_packet < 64)
 		{
 			gint payload_size_cw; /*derived from cw*/
-			payload_size_cw = cw_len; /*RFC4619-specific*/ 
+			payload_size_cw = cw_len; /*RFC4619-specific*/
 			if (payload_size_cw == 0)
 			{
 				packet_quality |= PQ_CW_BAD + PQ_CW_BAD_LEN_MUST_BE_NONZERO;
@@ -152,7 +152,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 			}
 		}
 		else /* payload_size_packet >= 64 */
-		{          
+		{
 			if (cw_len != 0)
 			{
 				packet_quality |= PQ_CW_BAD + PQ_CW_BAD_LEN_MUST_BE_ZERO;
@@ -160,20 +160,20 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		}
 	}
 	if (payload_size == 0)
-	{		
+	{
 		packet_quality |= PQ_PAYLOAD_SIZE_ZERO;
 	}
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");  
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "FR PW");
 	if (check_col(pinfo->cinfo, COL_INFO))
 	{
 		col_clear(pinfo->cinfo, COL_INFO);
-		if (packet_quality & PQ_CW_BAD) 
+		if (packet_quality & PQ_CW_BAD)
 		{
 			col_append_str(pinfo->cinfo, COL_INFO, "CW:Malformed, ");
 		}
 		col_append_fstr(pinfo->cinfo, COL_INFO, "%d payload octets", (int)payload_size);
-	
+
 		if (payload_padding != 0)
 		{
 			col_append_fstr(pinfo->cinfo, COL_INFO, ", %d padding", (int)payload_padding);
@@ -185,31 +185,31 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		proto_tree* subtree;
 		proto_item* item_headline;
 		proto_item* item;
-		
-		item_headline = proto_tree_add_item(tree, proto_encaps, tvb, 0, 4, FALSE); 
+
+		item_headline = proto_tree_add_item(tree, proto_encaps, tvb, 0, 4, FALSE);
 		proto_item_append_text(item_headline, ": 0x%.8" G_GINT32_MODIFIER "x", tvb_get_ntohl(tvb, 0));
 		subtree = proto_item_add_subtree(item_headline, ett_encaps);
-		
+
 		if (packet_quality & PQ_CW_BAD_BITS03) /*display only if value is wrong*/
 		{
 			item = proto_tree_add_item(subtree, hf_cw_bits03, tvb, 0, 1, FALSE);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 				"Bits 0..3 of Control Word must be 0");
 		}
-		
+
 		(void)proto_tree_add_item( subtree, hf_cw_fecn, tvb, 0, 1, FALSE );
 		(void)proto_tree_add_item( subtree, hf_cw_becn, tvb, 0, 1, FALSE );
 		(void)proto_tree_add_item( subtree, hf_cw_de, tvb, 0, 1, FALSE );
 		(void)proto_tree_add_item( subtree, hf_cw_cr, tvb, 0, 1, FALSE );
 		(void)proto_tree_add_item( subtree, hf_cw_frg, tvb, 1, 1, FALSE );
-		
+
 		item = proto_tree_add_item( subtree, hf_cw_len, tvb, 1, 1, FALSE );
 		if (packet_quality & PQ_CW_BAD_LEN_GT_PACKET)
 		{
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
-				"Bad Length: greater than FR payload size (%d)", 
+				"Bad Length: greater than FR payload size (%d)",
 				(int)payload_size);
-		}  
+		}
 		if (packet_quality & PQ_CW_BAD_LEN_MUST_BE_NONZERO)
 		{
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
@@ -222,15 +222,15 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 				"Bad Length: must be 0 if FR PW packet size (%d) is >= 64",
 				(int)(payload_size+encaps_size));
 		}
-		
+
 		proto_tree_add_item( subtree, hf_cw_seq, tvb, 2, 2, FALSE );
 
 		if (payload_padding > 0)
 		{
-			proto_tree_add_text(subtree, tvb, 
-				encaps_size+payload_size, payload_padding, 
+			proto_tree_add_text(subtree, tvb,
+				encaps_size+payload_size, payload_padding,
 				"[Padding: %d octets]",(int)payload_padding);
-		}               
+		}
 
 		if (packet_quality & PQ_PAYLOAD_SIZE_ZERO)
 		{
@@ -244,7 +244,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 		tvbuff_t *tvb_payload;
 		tvb_payload = tvb_new_subset(tvb, encaps_size, payload_size, payload_size);
 		call_dissector( fr_stripped_address_handle, tvb_payload, pinfo, tree );
-	} 
+	}
 	return;
 }
 

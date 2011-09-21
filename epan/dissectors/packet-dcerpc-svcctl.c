@@ -131,7 +131,7 @@ svcctl_dissect_dwServiceType_flags(tvbuff_t *tvb, int offset,
 		item = proto_tree_add_uint(parent_tree, hf_svcctl_service_type, tvb, offset, len, value);
 		tree = proto_item_add_subtree(item, ett_dcerpc_svcctl_service_type_bits);
 	}
-	
+
 	switch(opnum) {
 	case SVC_CREATE_SERVICE_W:
 		proto_tree_add_boolean(tree, hf_svcctl_service_type_interactive_process,
@@ -248,7 +248,7 @@ struct access_mask_info svcctl_scm_access_mask_info = {
  * IDL );
  */
 static int
-svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -294,7 +294,7 @@ svcctl_dissect_OpenSCManager_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset, 
+svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -334,7 +334,7 @@ svcctl_dissect_OpenSCManager_reply(tvbuff_t *tvb, int offset,
 }
 
 static int
-svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -380,7 +380,7 @@ svcctl_dissect_OpenSCManagerW_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset, 
+svcctl_dissect_OpenSCManagerW_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -437,7 +437,7 @@ svcctl_dissect_CreateServiceW_rqst(tvbuff_t *tvb, int offset,
 		dissect_ndr_wchar_cvstring, NDR_POINTER_UNIQUE,
 		"Display Name", hf_svcctl_display_name, cb_wstr_postprocess,
 		GINT_TO_POINTER(1));
-	
+
 	/* access mask */
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
@@ -526,7 +526,7 @@ svcctl_dissect_CreateServiceW_reply(tvbuff_t *tvb, int offset,
  * IDL );
  */
 static int
-svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -550,7 +550,7 @@ svcctl_dissect_CloseServiceHandle_rqst(tvbuff_t *tvb, int offset,
 }
 
 static int
-svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset, 
+svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -573,7 +573,7 @@ svcctl_dissect_CloseServiceHandle_reply(tvbuff_t *tvb, int offset,
  * IDL );
  */
 static int
-svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -585,7 +585,7 @@ svcctl_dissect_LockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset, 
+svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -608,7 +608,7 @@ svcctl_dissect_LockServiceDatabase_reply(tvbuff_t *tvb, int offset,
  * IDL );
  */
 static int
-svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -620,7 +620,7 @@ svcctl_dissect_UnlockServiceDatabase_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset, 
+svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -642,9 +642,9 @@ svcctl_dissect_UnlockServiceDatabase_reply(tvbuff_t *tvb, int offset,
  * IDL     [unique][string] char *lock_owner,
  * IDL     long lock_duration,
  * IDL };
- */ 
+ */
 static int
-svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset, 
+svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -671,7 +671,7 @@ svcctl_dissect_QUERY_SERVICE_LOCK_STATUS(tvbuff_t *tvb, int offset,
  * IDL );
  */
 static int
-svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -686,7 +686,7 @@ svcctl_dissect_QueryServiceLockStatus_rqst(tvbuff_t *tvb, int offset,
 	return offset;
 }
 static int
-svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset, 
+svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset,
 				  packet_info *pinfo, proto_tree *tree,
 				  guint8 *drep)
 {
@@ -709,12 +709,12 @@ svcctl_dissect_QueryServiceLockStatus_reply(tvbuff_t *tvb, int offset,
  * IDL      [in] long type,
  * IDL      [in] long status,
  * IDL      [in] long buf_size,
- * IDL      [in][unique] long *resume_handle, 
+ * IDL      [in][unique] long *resume_handle,
  * IDL );
  */
 
 static int
-svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset, 
+svcctl_dissect_EnumServicesStatus_rqst(tvbuff_t *tvb, int offset,
 		packet_info *pinfo, proto_tree *tree, guint8 *drep)
 {
 	/* policy handle */
@@ -751,7 +751,7 @@ svcctl_dissect_OpenServiceW_rqst(tvbuff_t *tvb, int offset,
 	/* service name */
 	offset = dissect_ndr_cvstring(tvb, offset, pinfo, tree, drep,
 		sizeof(guint16), hf_svcctl_service_name, TRUE, NULL);
-	
+
 	/* access mask */
 	offset = dissect_nt_access_mask(
 		tvb, offset, pinfo, tree, drep, hf_svcctl_access_mask,
@@ -790,37 +790,37 @@ svcctl_dissect_QueryServiceConfigW_rqst(tvbuff_t *tvb, int offset,
 }
 
 static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
-	{ SVC_CLOSE_SERVICE_HANDLE, "CloseServiceHandle", 
-		svcctl_dissect_CloseServiceHandle_rqst, 
+	{ SVC_CLOSE_SERVICE_HANDLE, "CloseServiceHandle",
+		svcctl_dissect_CloseServiceHandle_rqst,
 		svcctl_dissect_CloseServiceHandle_reply  },
 	{ SVC_CONTROL_SERVICE, "ControlService", NULL, NULL },
 	{ SVC_DELETE_SERVICE, "DeleteService", NULL, NULL },
 	{ SVC_LOCK_SERVICE_DATABASE, "LockServiceDatabase",
-		svcctl_dissect_LockServiceDatabase_rqst, 
+		svcctl_dissect_LockServiceDatabase_rqst,
 		svcctl_dissect_LockServiceDatabase_reply  },
-	{ SVC_QUERY_SERVICE_OBJECT_SECURITY, "QueryServiceObjectSecurity", 
+	{ SVC_QUERY_SERVICE_OBJECT_SECURITY, "QueryServiceObjectSecurity",
 	  NULL, NULL },
-	{ SVC_SET_SERVICE_OBJECT_SECURITY, "SetServiceObjectSecurity", 
+	{ SVC_SET_SERVICE_OBJECT_SECURITY, "SetServiceObjectSecurity",
 	  NULL, NULL },
- 	{ SVC_QUERY_SERVICE_STATUS, "QueryServiceStatus", 
+ 	{ SVC_QUERY_SERVICE_STATUS, "QueryServiceStatus",
 	  NULL, NULL },
-	{ SVC_SET_SERVICE_STATUS, "SetServiceStatus", 
+	{ SVC_SET_SERVICE_STATUS, "SetServiceStatus",
 	  NULL, NULL },
 	{ SVC_UNLOCK_SERVICE_DATABASE, "UnlockServiceDatabase",
-		svcctl_dissect_UnlockServiceDatabase_rqst, 
+		svcctl_dissect_UnlockServiceDatabase_rqst,
 		svcctl_dissect_UnlockServiceDatabase_reply  },
-	{ SVC_NOTIFY_BOOT_CONFIG_STATUS, "NotifyBootConfigStatus", 
+	{ SVC_NOTIFY_BOOT_CONFIG_STATUS, "NotifyBootConfigStatus",
 	  NULL, NULL },
 	{ SVC_SC_SET_SERVICE_BITS_W, "ScSetServiceBitsW",
 	  NULL, NULL },
-	{ SVC_CHANGE_SERVICE_CONFIG_W, "ChangeServiceConfigW", 
+	{ SVC_CHANGE_SERVICE_CONFIG_W, "ChangeServiceConfigW",
 	  NULL, NULL },
 	{ SVC_CREATE_SERVICE_W, "CreateServiceW",
 	  svcctl_dissect_CreateServiceW_rqst,
 	  svcctl_dissect_CreateServiceW_reply },
-	{ SVC_ENUM_DEPENDENT_SERVICES_W, "EnumDependentServicesW", 
+	{ SVC_ENUM_DEPENDENT_SERVICES_W, "EnumDependentServicesW",
 	  NULL, NULL },
-	{ SVC_ENUM_SERVICES_STATUS_W, "EnumServicesStatusW", 
+	{ SVC_ENUM_SERVICES_STATUS_W, "EnumServicesStatusW",
 	  svcctl_dissect_EnumServicesStatus_rqst, NULL },
 	{ SVC_OPEN_SC_MANAGER_W, "OpenSCManagerW",
 		svcctl_dissect_OpenSCManagerW_rqst,
@@ -830,19 +830,19 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 		svcctl_dissect_OpenServiceW_reply },
 	{ SVC_QUERY_SERVICE_CONFIG_W, "QueryServiceConfigW",
 		svcctl_dissect_QueryServiceConfigW_rqst, NULL },
-	{ SVC_QUERY_SERVICE_LOCK_STATUS_W, "QueryServiceLockStatusW", 
+	{ SVC_QUERY_SERVICE_LOCK_STATUS_W, "QueryServiceLockStatusW",
 	  NULL, NULL },
 	{ SVC_START_SERVICE_W, "StartServiceW", NULL, NULL },
-	{ SVC_GET_SERVICE_DISPLAY_NAME_W, "GetServiceDisplayNameW", 
+	{ SVC_GET_SERVICE_DISPLAY_NAME_W, "GetServiceDisplayNameW",
 	  NULL, NULL },
 	{ SVC_GET_SERVICE_KEY_NAME_W, "GetServiceKeyNameW", NULL, NULL },
 	{ SVC_SC_SET_SERVICE_BITS_A, "ScSetServiceBitsA", NULL, NULL },
 	{ SVC_CHANGE_SERVICE_CONFIG_A, "ChangeServiceConfigA", NULL, NULL },
 	{ SVC_CREATE_SERVICE_A, "CreateServiceA", NULL, NULL },
-	{ SVC_ENUM_DEPENDENT_SERVICES_A, "EnumDependentServicesA", 
+	{ SVC_ENUM_DEPENDENT_SERVICES_A, "EnumDependentServicesA",
 	  NULL, NULL },
 	{ SVC_ENUM_SERVICES_STATUS_A, "EnumServicesStatusA",
-		svcctl_dissect_EnumServicesStatus_rqst, 
+		svcctl_dissect_EnumServicesStatus_rqst,
 		NULL },
 	{ SVC_OPEN_SC_MANAGER_A, "OpenSCManagerA",
 		svcctl_dissect_OpenSCManager_rqst,
@@ -855,26 +855,26 @@ static dcerpc_sub_dissector dcerpc_svcctl_dissectors[] = {
 	{ SVC_START_SERVICE_A, "StartServiceA", NULL, NULL },
 	{ SVC_GET_SERVICE_DISPLAY_NAME_A, "GetServiceDisplayNameA",
 	  NULL, NULL },
-	{ SVC_GET_SERVICE_KEY_NAME_A, "GetServiceKeyNameA", NULL, NULL },	
+	{ SVC_GET_SERVICE_KEY_NAME_A, "GetServiceKeyNameA", NULL, NULL },
 	{ SVC_SC_GET_CURRENT_GROUPE_STATE_W, "ScGetCurrentGroupStateW",
 	  NULL, NULL },
-	{ SVC_ENUM_SERVICE_GROUP_W, "EnumServiceGroupW", 
+	{ SVC_ENUM_SERVICE_GROUP_W, "EnumServiceGroupW",
 	  NULL, NULL },
-	{ SVC_CHANGE_SERVICE_CONFIG2_A, "ChangeServiceConfig2A", 
+	{ SVC_CHANGE_SERVICE_CONFIG2_A, "ChangeServiceConfig2A",
 	  NULL, NULL },
 	{ SVC_CHANGE_SERVICE_CONFIG2_W, "ChangeServiceConfig2W",
 	  NULL, NULL },
-	{ SVC_QUERY_SERVICE_CONFIG2_A, "QueryServiceConfig2A", 
+	{ SVC_QUERY_SERVICE_CONFIG2_A, "QueryServiceConfig2A",
 	  NULL, NULL },
-	{ SVC_QUERY_SERVICE_CONFIG2_W, "QueryServiceConfig2W", 
+	{ SVC_QUERY_SERVICE_CONFIG2_W, "QueryServiceConfig2W",
 	  NULL, NULL },
-	{ SVC_QUERY_SERVICE_STATUS_EX, "QueryServiceStatusEx", 
+	{ SVC_QUERY_SERVICE_STATUS_EX, "QueryServiceStatusEx",
 	  NULL, NULL },
-	{ SVC_ENUM_SERVICES_STATUS_EX_A, "EnumServicesStatusExA", 
+	{ SVC_ENUM_SERVICES_STATUS_EX_A, "EnumServicesStatusExA",
 	  NULL, NULL },
-	{ SVC_ENUM_SERVICES_STATUS_EX_W, "EnumServicesStatusExW", 
+	{ SVC_ENUM_SERVICES_STATUS_EX_W, "EnumServicesStatusExW",
 	  NULL, NULL },
-	{ SVC_SC_SEND_TS_MESSAGE, "ScSendTSMessage", 
+	{ SVC_SC_SEND_TS_MESSAGE, "ScSendTSMessage",
 	  NULL, NULL },
 	{0, NULL, NULL, NULL}
 };

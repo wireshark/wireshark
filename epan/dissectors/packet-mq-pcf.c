@@ -27,8 +27,8 @@
 /*  MQ PCF in a nutshell
 *
 *   The MQ Programmable Command Formats API allows remotely configuring a queue manager.
-*   
-*   MQ PCF documentation is called "WebSphere MQ Programmable Command Formats and Administration Interface" 
+*
+*   MQ PCF documentation is called "WebSphere MQ Programmable Command Formats and Administration Interface"
 */
 
 #ifdef HAVE_CONFIG_H
@@ -63,49 +63,49 @@ static gint ett_mqpcf_cfh = -1;
 #define MQ_ENC_INTEGER_REVERSED  0x00000002
 
 #define MQ_CMD_NONE                     0
-#define MQ_CMD_CHANGE_Q_MGR             1 
-#define MQ_CMD_INQUIRE_Q_MGR            2 
-#define MQ_CMD_CHANGE_PROCESS           3 
-#define MQ_CMD_COPY_PROCESS             4 
-#define MQ_CMD_CREATE_PROCESS           5 
-#define MQ_CMD_DELETE_PROCESS           6 
-#define MQ_CMD_INQUIRE_PROCESS          7 
-#define MQ_CMD_CHANGE_Q                 8 
-#define MQ_CMD_CLEAR_Q                  9 
-#define MQ_CMD_COPY_Q                  10 
-#define MQ_CMD_CREATE_Q                11 
-#define MQ_CMD_DELETE_Q                12 
-#define MQ_CMD_INQUIRE_Q               13 
-#define MQ_CMD_RESET_Q_STATS           17 
-#define MQ_CMD_INQUIRE_Q_NAMES         18 
-#define MQ_CMD_INQUIRE_PROCESS_NAMES   19 
-#define MQ_CMD_INQUIRE_CHANNEL_NAMES   20 
-#define MQ_CMD_CHANGE_CHANNEL          21 
-#define MQ_CMD_COPY_CHANNEL            22 
-#define MQ_CMD_CREATE_CHANNEL          23 
-#define MQ_CMD_DELETE_CHANNEL          24 
-#define MQ_CMD_INQUIRE_CHANNEL         25 
-#define MQ_CMD_PING_CHANNEL            26 
-#define MQ_CMD_RESET_CHANNEL           27 
-#define MQ_CMD_START_CHANNEL           28 
-#define MQ_CMD_STOP_CHANNEL            29 
-#define MQ_CMD_START_CHANNEL_INIT      30 
-#define MQ_CMD_START_CHANNEL_LISTENER  31 
-#define MQ_CMD_CHANGE_NAMELIST         32 
-#define MQ_CMD_COPY_NAMELIST           33 
-#define MQ_CMD_CREATE_NAMELIST         34 
-#define MQ_CMD_DELETE_NAMELIST         35 
-#define MQ_CMD_INQUIRE_NAMELIST        36 
-#define MQ_CMD_INQUIRE_NAMELIST_NAMES  37 
-#define MQ_CMD_ESCAPE                  38 
-#define MQ_CMD_RESOLVE_CHANNEL         39 
-#define MQ_CMD_PING_Q_MGR              40 
-#define MQ_CMD_INQUIRE_Q_STATUS        41 
-#define MQ_CMD_INQUIRE_CHANNEL_STATUS  42 
-#define MQ_CMD_CONFIG_EVENT            43 
-#define MQ_CMD_Q_MGR_EVENT             44 
-#define MQ_CMD_PERFM_EVENT             45 
-#define MQ_CMD_CHANNEL_EVENT           46 
+#define MQ_CMD_CHANGE_Q_MGR             1
+#define MQ_CMD_INQUIRE_Q_MGR            2
+#define MQ_CMD_CHANGE_PROCESS           3
+#define MQ_CMD_COPY_PROCESS             4
+#define MQ_CMD_CREATE_PROCESS           5
+#define MQ_CMD_DELETE_PROCESS           6
+#define MQ_CMD_INQUIRE_PROCESS          7
+#define MQ_CMD_CHANGE_Q                 8
+#define MQ_CMD_CLEAR_Q                  9
+#define MQ_CMD_COPY_Q                  10
+#define MQ_CMD_CREATE_Q                11
+#define MQ_CMD_DELETE_Q                12
+#define MQ_CMD_INQUIRE_Q               13
+#define MQ_CMD_RESET_Q_STATS           17
+#define MQ_CMD_INQUIRE_Q_NAMES         18
+#define MQ_CMD_INQUIRE_PROCESS_NAMES   19
+#define MQ_CMD_INQUIRE_CHANNEL_NAMES   20
+#define MQ_CMD_CHANGE_CHANNEL          21
+#define MQ_CMD_COPY_CHANNEL            22
+#define MQ_CMD_CREATE_CHANNEL          23
+#define MQ_CMD_DELETE_CHANNEL          24
+#define MQ_CMD_INQUIRE_CHANNEL         25
+#define MQ_CMD_PING_CHANNEL            26
+#define MQ_CMD_RESET_CHANNEL           27
+#define MQ_CMD_START_CHANNEL           28
+#define MQ_CMD_STOP_CHANNEL            29
+#define MQ_CMD_START_CHANNEL_INIT      30
+#define MQ_CMD_START_CHANNEL_LISTENER  31
+#define MQ_CMD_CHANGE_NAMELIST         32
+#define MQ_CMD_COPY_NAMELIST           33
+#define MQ_CMD_CREATE_NAMELIST         34
+#define MQ_CMD_DELETE_NAMELIST         35
+#define MQ_CMD_INQUIRE_NAMELIST        36
+#define MQ_CMD_INQUIRE_NAMELIST_NAMES  37
+#define MQ_CMD_ESCAPE                  38
+#define MQ_CMD_RESOLVE_CHANNEL         39
+#define MQ_CMD_PING_Q_MGR              40
+#define MQ_CMD_INQUIRE_Q_STATUS        41
+#define MQ_CMD_INQUIRE_CHANNEL_STATUS  42
+#define MQ_CMD_CONFIG_EVENT            43
+#define MQ_CMD_Q_MGR_EVENT             44
+#define MQ_CMD_PERFM_EVENT             45
+#define MQ_CMD_CHANNEL_EVENT           46
 #define MQ_CMD_DELETE_PUBLICATION      60
 #define MQ_CMD_DEREGISTER_PUBLISHER    61
 #define MQ_CMD_DEREGISTER_SUBSCRIBER   62
@@ -114,18 +114,18 @@ static gint ett_mqpcf_cfh = -1;
 #define MQ_CMD_REGISTER_SUBSCRIBER     65
 #define MQ_CMD_REQUEST_UPDATE          66
 #define MQ_CMD_BROKER_INTERNAL         67
-#define MQ_CMD_INQUIRE_CLUSTER_Q_MGR   70 
-#define MQ_CMD_RESUME_Q_MGR_CLUSTER    71 
-#define MQ_CMD_SUSPEND_Q_MGR_CLUSTER   72 
-#define MQ_CMD_REFRESH_CLUSTER         73 
-#define MQ_CMD_RESET_CLUSTER           74 
-#define MQ_CMD_REFRESH_SECURITY        78 
-#define MQ_CMD_CHANGE_AUTH_INFO        79 
-#define MQ_CMD_COPY_AUTH_INFO          80 
-#define MQ_CMD_CREATE_AUTH_INFO        81 
-#define MQ_CMD_DELETE_AUTH_INFO        82 
-#define MQ_CMD_INQUIRE_AUTH_INFO       83 
-#define MQ_CMD_INQUIRE_AUTH_INFO_NAMES 84 
+#define MQ_CMD_INQUIRE_CLUSTER_Q_MGR   70
+#define MQ_CMD_RESUME_Q_MGR_CLUSTER    71
+#define MQ_CMD_SUSPEND_Q_MGR_CLUSTER   72
+#define MQ_CMD_REFRESH_CLUSTER         73
+#define MQ_CMD_RESET_CLUSTER           74
+#define MQ_CMD_REFRESH_SECURITY        78
+#define MQ_CMD_CHANGE_AUTH_INFO        79
+#define MQ_CMD_COPY_AUTH_INFO          80
+#define MQ_CMD_CREATE_AUTH_INFO        81
+#define MQ_CMD_DELETE_AUTH_INFO        82
+#define MQ_CMD_INQUIRE_AUTH_INFO       83
+#define MQ_CMD_INQUIRE_AUTH_INFO_NAMES 84
 
 #define MQ_TEXT_CFH   "MQ Command Format Header"
 
@@ -216,14 +216,14 @@ dissect_mqpcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gboolean bLittleEndian;
 	bLittleEndian = ((mqinfo->encoding & MQ_ENC_INTEGER_REVERSED) != 0) ? TRUE : FALSE;
 
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ PCF");	  
-	col_clear(pinfo->cinfo, COL_INFO);	  
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MQ PCF");
+	col_clear(pinfo->cinfo, COL_INFO);
 	if (tvb_length(tvb) >= 36)
 	{
 		gint iSizeMQCFH = 36;
 		guint32 iCommand = tvb_get_guint32_endian(tvb, offset + 12, bLittleEndian);
 
-		if (check_col(pinfo->cinfo, COL_INFO)) 
+		if (check_col(pinfo->cinfo, COL_INFO))
 		{
 			col_append_str(pinfo->cinfo, COL_INFO, val_to_str(iCommand, mqpcf_opcode_vals, "Unknown (0x%02x)"));
 		}

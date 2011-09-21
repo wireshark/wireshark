@@ -269,7 +269,7 @@ dissect_osd_attributes_list(packet_info *pinfo, tvbuff_t *tvb, int offset, proto
 	offset+=2;
 
 	/* if type is 1 length will be zero and we have to cycle over
-	 * all remaining bytes.   7.1.3.1 
+	 * all remaining bytes.   7.1.3.1
 	 */
 	if(type==1){
 		length=tvb_length_remaining(tvb, offset);
@@ -465,7 +465,7 @@ dissect_osd_attribute_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_t
 		    "Attribute Parameters");
 		tree = proto_item_add_subtree(item, ett_osd_attribute_parameters);
 	}
-		
+
 	if(cdata && cdata->itlq && cdata->itlq->extra_data){
 		extra_data=cdata->itlq->extra_data;
 		gsatype=extra_data->gsatype;
@@ -655,7 +655,7 @@ dissect_osd_permissions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	proto_item *it=NULL;
 	guint16 permissions;
 
-	permissions=tvb_get_ntohs(tvb, offset); 
+	permissions=tvb_get_ntohs(tvb, offset);
 
 	if(parent_tree){
 		it=proto_tree_add_item(parent_tree, hf_scsi_osd_permissions, tvb, offset, 2, 0);
@@ -720,7 +720,7 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 		    "Capability");
 		tree = proto_item_add_subtree(item, ett_osd_capability);
 	}
-		
+
 	/* capability format */
 	proto_tree_add_item(tree, hf_scsi_osd_capability_format, tvb, offset, 1, 0);
 	offset++;
@@ -787,7 +787,7 @@ dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 		    "Security Parameters");
 		tree = proto_item_add_subtree(item, ett_osd_security_parameters);
 	}
-		
+
 	/* request integrity check value */
 	proto_tree_add_item(tree, hf_scsi_osd_ricv, tvb, offset, 20, 0);
 	offset+=20;
@@ -864,7 +864,7 @@ dissect_osd_format_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for format osd */
 	}
-	
+
 }
 
 
@@ -983,7 +983,7 @@ dissect_osd_create_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		/* no data in for create partition */
 	}
-	
+
 }
 
 static const value_string scsi_osd_sort_order_vals[] = {
@@ -1156,7 +1156,7 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			offset+=8;
 		}
 	}
-	
+
 }
 
 static void
@@ -1245,7 +1245,7 @@ dissect_osd_create(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for create */
 	}
-	
+
 }
 
 
@@ -1308,7 +1308,7 @@ dissect_osd_remove_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		/* no data in for remove partition */
 	}
-	
+
 }
 
 static const value_string key_to_set_vals[] = {
@@ -1409,7 +1409,7 @@ dissect_osd_set_key(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for set key */
 	}
-	
+
 }
 
 static void
@@ -1475,7 +1475,7 @@ dissect_osd_remove(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for remove */
 	}
-	
+
 }
 
 static const true_false_string collection_fcr_tfs = {
@@ -1561,7 +1561,7 @@ dissect_osd_remove_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		/* no data in for remove collection */
 	}
-	
+
 }
 
 
@@ -1653,7 +1653,7 @@ dissect_osd_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for WRITE */
 	}
-	
+
 }
 
 
@@ -1730,7 +1730,7 @@ dissect_osd_create_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		/* no data in for create collection */
 	}
-	
+
 }
 
 
@@ -1811,7 +1811,7 @@ dissect_osd_flush(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for flush */
 	}
-	
+
 }
 
 
@@ -1894,7 +1894,7 @@ dissect_osd_flush_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		/* no data in for flush collection */
 	}
-	
+
 }
 
 
@@ -1968,7 +1968,7 @@ dissect_osd_append(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for append */
 	}
-	
+
 }
 
 static void
@@ -2042,7 +2042,7 @@ dissect_osd_create_and_write(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 		/* no data in for create and write*/
 	}
-	
+
 }
 
 
@@ -2113,7 +2113,7 @@ dissect_osd_flush_osd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for flush osd */
 	}
-	
+
 }
 
 
@@ -2192,7 +2192,7 @@ dissect_osd_flush_partition(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for flush partition */
 	}
-	
+
 }
 
 
@@ -2259,7 +2259,7 @@ dissect_osd_get_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for get attributes */
 	}
-	
+
 }
 
 
@@ -2334,7 +2334,7 @@ dissect_osd_list_collection(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* XXX dissect the data */
 	}
-	
+
 }
 
 
@@ -2410,7 +2410,7 @@ dissect_osd_read(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 /* xxx should dissect the data ? */
 	}
-	
+
 }
 
 
@@ -2477,7 +2477,7 @@ dissect_osd_set_attributes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* no data in for set attributes */
 	}
-	
+
 }
 
 /* OSD Service Actions */
@@ -2633,7 +2633,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
 		if(check_col(pinfo->cinfo, COL_INFO)){
-			col_append_str(pinfo->cinfo, COL_INFO, 
+			col_append_str(pinfo->cinfo, COL_INFO,
 				val_to_str(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
 		}
 		dissector=find_svcaction_dissector(svcaction);
@@ -2651,7 +2651,7 @@ dissect_osd_opcode(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		svcaction=extra_data->svcaction;
 	}
 	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_str(pinfo->cinfo, COL_INFO, 
+		col_append_str(pinfo->cinfo, COL_INFO,
 			val_to_str(svcaction, scsi_osd_svcaction_vals, "Unknown OSD Serviceaction"));
 	}
 	if(svcaction){

@@ -333,7 +333,7 @@ de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 }
 /*
  * 10.9 Geographic Location
- * contains an octet sequence identical to that for Geographical Information 
+ * contains an octet sequence identical to that for Geographical Information
  * defined in 3GPP TS 23.032..
  */
 /*
@@ -365,7 +365,7 @@ de_bmaple_req_gps_ass_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 	proto_tree_add_item(tree, hf_gsm_bssmap_le_almanac, tvb, curr_offset, 1, FALSE);
 	curr_offset++;
 
-	/* Octet 4 P O N M L K J I 
+	/* Octet 4 P O N M L K J I
 	 * bits L through P are Spare bits
 	 */
 	/* bit K Ephemeris Extension Check */
@@ -623,7 +623,7 @@ be_packet_meas_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 /*
  * 10.28 Cell Identity List
- * coded as the value part of the Cell Identity List IE 
+ * coded as the value part of the Cell Identity List IE
  * defined in 3GPP TS 48.071.
  */
 /* Dissector for the Measured Cell Identity List element */
@@ -645,7 +645,7 @@ be_measured_cell_identity(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
  */
 /*
  * 10.30 Velocity Data
- * contains an octet sequence identical to that for Description of 
+ * contains an octet sequence identical to that for Description of
  * Velocity defined in 3GPP TS 23.032.
  */
 /*
@@ -676,16 +676,16 @@ typedef enum
 	DE_BMAPLE_LCSQOS,			/ 10.16 LCS QoS /
 	DE_BMAPLE_LCS_PRIO,			/ LCS Priority /
 	DE_BMAPLE_LOC_TYPE,			/ 10.18 Location Type /
-	DE_BMAPLE_GANSS_LOC_TYPE,	/ GANSS Location Type /	
-	DE_BMAPLE_GEO_LOC,			/ 10.9 Geographic Location /	
-	DE_BMAPLE_POS_DATA,			/ 10.20 Positioning Data /			
+	DE_BMAPLE_GANSS_LOC_TYPE,	/ GANSS Location Type /
+	DE_BMAPLE_GEO_LOC,			/ 10.9 Geographic Location /
+	DE_BMAPLE_POS_DATA,			/ 10.20 Positioning Data /
 	DE_BMAPLE_GANSS_POS_DATA,	/ GANSS Positioning Data /
 	DE_BMAPLE_VELOC_DATA,		/ Velocity Data /
-	DE_BMAPLE_LCS_CAUSE,		/ 10.13 LCS Cause /	
+	DE_BMAPLE_LCS_CAUSE,		/ 10.13 LCS Cause /
 	DE_BMAPLE_LCS_CLIENT_TYPE,	/ LCS Client Type /
-	DE_BMAPLE_APDU,				/ 10.3 APDU /		
+	DE_BMAPLE_APDU,				/ 10.3 APDU /
 	DE_BMAPLE_NETWORK_ELEM_ID,	/ Network Element Identity /
-	DE_BMAPLE_REQ_GPS_ASSIST_D, / 10.10 Requested GPS Assistance Data /	
+	DE_BMAPLE_REQ_GPS_ASSIST_D, / 10.10 Requested GPS Assistance Data /
 	DE_BMAPLE_REQ_GNSS_ASSIST_D,/ Requested GANSS Assistance Data /
 	DE_BMAPLE_DECIPH_KEYS,		/ 10.8 Deciphering Keys /
 	DE_BMAPLE_RETURN_ERROR_REQ,	/ Return Error Request /
@@ -743,7 +743,7 @@ guint16 (*bssmap_le_elem_fcn[])(tvbuff_t *tvb, proto_tree *tree, packet_info *pi
 	de_mid,							/* IMEI (use same dissector as IMSI) */
 
 	NULL,	/* NONE */
-	
+
 };
 
 /*
@@ -851,10 +851,10 @@ bssmap_le_connection_oriented(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
  *
 Network Element Identity (source)	3.2.2.69	Both	M	3-n
 Network Element Identity (target)	3.2.2.69	Both	M	3-n
-APDU	3.2.2.68	Both	M	3-n 
+APDU	3.2.2.68	Both	M	3-n
 Segmentation	3.2,2,74	Both	C (note 1)	5
 Return Error Request	3.2.2.72	Both	C (note 2)	3-n
-Return Error Cause	3.2.2.73	Both	C (note 3)	3-n 
+Return Error Cause	3.2.2.73	Both	C (note 3)	3-n
 */
 
 /*
@@ -1036,23 +1036,23 @@ proto_register_gsm_bssmap_le(void)
 		    "APDU embedded protocol id", HFILL }
 		},
 		{ &hf_gsm_bssmap_le_spare,
-		  { "Spare", "gsm_bssmap_le.spare", 
+		  { "Spare", "gsm_bssmap_le.spare",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_ciphering_key_flag,
-		  { "Ciphering Key Flag", "gsm_bssmap_le.decipheringKeys.flag", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, 
+		  { "Ciphering Key Flag", "gsm_bssmap_le.decipheringKeys.flag",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_current_deciphering_key_value,
-		  { "Current Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.current", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL, 
+		  { "Current Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.current",
+		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
 		    HFILL}
 		},
 		{ &hf_gsm_bssmap_le_next_deciphering_key_value,
-		  { "Next Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.next", 
-		    FT_UINT8, BASE_DEC, NULL, 0x0, 
+		  { "Next Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.next",
+		    FT_UINT8, BASE_DEC, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_acq_ass,
@@ -1111,52 +1111,52 @@ proto_register_gsm_bssmap_le(void)
             NULL, HFILL }
 		},
 		{ &hf_gsm_bssmap_le_lcs_cause_value,
-		  { "Cause Value", "gsm_bssmap_le.lcsCauseValue", 
+		  { "Cause Value", "gsm_bssmap_le.lcsCauseValue",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_lcs_cause_values), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_diagnostic_value,
-		  { "Diagnostic Value", "gsm_bssmap_le.diagnosticValue", 
+		  { "Diagnostic Value", "gsm_bssmap_le.diagnosticValue",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_position_method_failure_diagnostic_vals), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_client_category,
-		  { "Client Category", "gsm_bssmap_le.lcsClientType.clientCategory", 
+		  { "Client Category", "gsm_bssmap_le.lcsClientType.clientCategory",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_client_category), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_client_subtype,
-		  { "Client Subtype", "gsm_bssmap_le.lcsClientType.clientSubtype", 
+		  { "Client Subtype", "gsm_bssmap_le.lcsClientType.clientSubtype",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_client_subtype), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_velocity_requested,
-		  { "Velocity Requested", "gsm_bssmap_le.lcsQos.velocityRequested", 
+		  { "Velocity Requested", "gsm_bssmap_le.lcsQos.velocityRequested",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_velocity_requested_vals), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_vertical_coordinate_indicator,
-		  { "Vertical Coordinate Indicator", "gsm_bssmap_le.lcsQos.verticalCoordinateIndicator", 
+		  { "Vertical Coordinate Indicator", "gsm_bssmap_le.lcsQos.verticalCoordinateIndicator",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_vertical_coordinate_indicator_vals), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_horizontal_accuracy_indicator,
-		  { "Horizontal Accuracy Indicator", "gsm_bssmap_le.lcsQos.horizontalAccuracyIndicator", 
+		  { "Horizontal Accuracy Indicator", "gsm_bssmap_le.lcsQos.horizontalAccuracyIndicator",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_horizontal_accuracy_indicator_vals), 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_horizontal_accuracy,
-		  { "Horizontal Accuracy", "gsm_bssmap_le.lcsQos.horizontalAccuracy", 
+		  { "Horizontal Accuracy", "gsm_bssmap_le.lcsQos.horizontalAccuracy",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_vertical_accuracy,
-		  { "Vertical Accuracy", "gsm_bssmap_le.lcsQos.verticalAccuracy", 
+		  { "Vertical Accuracy", "gsm_bssmap_le.lcsQos.verticalAccuracy",
 		    FT_UINT8, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_vertical_accuracy_indicator,
-		  { "Vertical Accuracy Indicator", "gsm_bssmap_le.lcsQos.verticalAccuracyIndicator", 
+		  { "Vertical Accuracy Indicator", "gsm_bssmap_le.lcsQos.verticalAccuracyIndicator",
 		    FT_UINT8, BASE_HEX, VALS(bssmap_le_vertical_accuracy_indicator_vals), 0x0,
 		    NULL, HFILL}
 		},
