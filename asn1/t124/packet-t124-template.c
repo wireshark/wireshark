@@ -37,6 +37,11 @@
 #include "packet-ber.h"
 #include "packet-t124.h"
 
+#ifdef _MSC_VER
+/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
+#pragma warning(disable:4146)
+#endif
+
 #define PNAME  "GENERIC-CONFERENCE-CONTROL T.124"
 #define PSNAME "T.124"
 #define PFNAME "t124"

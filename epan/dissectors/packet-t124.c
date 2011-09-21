@@ -45,6 +45,11 @@
 #include "packet-ber.h"
 #include "packet-t124.h"
 
+#ifdef _MSC_VER
+/* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
+#pragma warning(disable:4146)
+#endif
+
 #define PNAME  "GENERIC-CONFERENCE-CONTROL T.124"
 #define PSNAME "T.124"
 #define PFNAME "t124"
@@ -521,7 +526,7 @@ static int hf_t124_Segmentation_begin = -1;
 static int hf_t124_Segmentation_end = -1;
 
 /*--- End of included file: packet-t124-hf.c ---*/
-#line 49 "../../asn1/t124/packet-t124-template.c"
+#line 54 "../../asn1/t124/packet-t124-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t124 = -1;
@@ -762,7 +767,7 @@ static gint ett_t124_ConnectMCSPDU = -1;
 static gint ett_t124_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t124-ett.c ---*/
-#line 66 "../../asn1/t124/packet-t124-template.c"
+#line 71 "../../asn1/t124/packet-t124-template.c"
 
 
 /*--- Included file: packet-t124-fn.c ---*/
@@ -5709,7 +5714,7 @@ dissect_t124_DomainMCSPDU(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
 
 
 /*--- End of included file: packet-t124-fn.c ---*/
-#line 68 "../../asn1/t124/packet-t124-template.c"
+#line 73 "../../asn1/t124/packet-t124-template.c"
 
 static const per_sequence_t t124Heur_sequence[] = {
   { &hf_t124_t124Identifier , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_t124_Key },
@@ -7671,7 +7676,7 @@ void proto_register_t124(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t124-hfarr.c ---*/
-#line 177 "../../asn1/t124/packet-t124-template.c"
+#line 182 "../../asn1/t124/packet-t124-template.c"
   };
 
   /* List of subtrees */
@@ -7902,7 +7907,7 @@ void proto_register_t124(void) {
     &ett_t124_DomainMCSPDU,
 
 /*--- End of included file: packet-t124-ettarr.c ---*/
-#line 184 "../../asn1/t124/packet-t124-template.c"
+#line 189 "../../asn1/t124/packet-t124-template.c"
   };
 
   /* Register protocol */
