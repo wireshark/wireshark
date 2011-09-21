@@ -41,6 +41,9 @@
 
 #include <epan/asn1.h>
 #include "packet-ber.h"
+#include "packet-per.h"
+
+#include "packet-t124.h"
 
 #define PNAME  "MULTIPOINT-COMMUNICATION-SERVICE T.125"
 #define PSNAME "T.125"
@@ -49,6 +52,7 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_t125 = -1;
+static proto_tree *top_tree = NULL;
 
 /*--- Included file: packet-t125-hf.c ---*/
 #line 1 "../../asn1/t125/packet-t125-hf.c"
@@ -67,10 +71,11 @@ static int hf_t125_upwardFlag = -1;               /* BOOLEAN */
 static int hf_t125_targetParameters = -1;         /* DomainParameters */
 static int hf_t125_minimumParameters = -1;        /* DomainParameters */
 static int hf_t125_maximumParameters = -1;        /* DomainParameters */
-static int hf_t125_userData = -1;                 /* OCTET_STRING */
+static int hf_t125_userData = -1;                 /* T_userData */
 static int hf_t125_result = -1;                   /* Result */
 static int hf_t125_calledConnectId = -1;          /* INTEGER_0_MAX */
 static int hf_t125_domainParameters = -1;         /* DomainParameters */
+static int hf_t125_userData_01 = -1;              /* T_userData_01 */
 static int hf_t125_dataPriority = -1;             /* DataPriority */
 static int hf_t125_heightLimit = -1;              /* INTEGER_0_MAX */
 static int hf_t125_subHeight = -1;                /* INTEGER_0_MAX */
@@ -118,6 +123,7 @@ static int hf_t125_requested = -1;                /* ChannelId */
 static int hf_t125_channelIds = -1;               /* SET_OF_ChannelId */
 static int hf_t125_channelIds_item = -1;          /* ChannelId */
 static int hf_t125_segmentation = -1;             /* Segmentation */
+static int hf_t125_userData_02 = -1;              /* OCTET_STRING */
 static int hf_t125_tokenStatus = -1;              /* TokenStatus */
 static int hf_t125_connect_initial = -1;          /* Connect_Initial */
 static int hf_t125_connect_response = -1;         /* Connect_Response */
@@ -171,10 +177,14 @@ static int hf_t125_Segmentation_begin = -1;
 static int hf_t125_Segmentation_end = -1;
 
 /*--- End of included file: packet-t125-hf.c ---*/
-#line 45 "../../asn1/t125/packet-t125-template.c"
+#line 49 "../../asn1/t125/packet-t125-template.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
+
+static int hf_t125_connectData = -1;
+static int hf_t125_heur = -1;
+
 
 /*--- Included file: packet-t125-ett.c ---*/
 #line 1 "../../asn1/t125/packet-t125-ett.c"
@@ -247,7 +257,9 @@ static gint ett_t125_ConnectMCSPDU = -1;
 static gint ett_t125_DomainMCSPDU = -1;
 
 /*--- End of included file: packet-t125-ett.c ---*/
-#line 49 "../../asn1/t125/packet-t125-template.c"
+#line 57 "../../asn1/t125/packet-t125-template.c"
+
+static heur_dissector_list_t t125_heur_subdissector_list;
 
 
 /*--- Included file: packet-t125-fn.c ---*/
@@ -424,6 +436,23 @@ dissect_t125_BOOLEAN(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 }
 
 
+
+static int
+dissect_t125_T_userData(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 39 "../../asn1/t125/t125.cnf"
+    tvbuff_t	*next_tvb = NULL;
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &next_tvb);
+
+    if(next_tvb) 
+    	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
+	     actx->pinfo, top_tree);
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t Connect_Initial_U_sequence[] = {
   { &hf_t125_callingDomainSelector, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
   { &hf_t125_calledDomainSelector, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
@@ -431,7 +460,7 @@ static const ber_sequence_t Connect_Initial_U_sequence[] = {
   { &hf_t125_targetParameters, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t125_DomainParameters },
   { &hf_t125_minimumParameters, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t125_DomainParameters },
   { &hf_t125_maximumParameters, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t125_DomainParameters },
-  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
+  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_T_userData },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -484,11 +513,28 @@ dissect_t125_Result(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_
 }
 
 
+
+static int
+dissect_t125_T_userData_01(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+#line 48 "../../asn1/t125/t125.cnf"
+    tvbuff_t	*next_tvb = NULL;
+  offset = dissect_ber_octet_string(implicit_tag, actx, tree, tvb, offset, hf_index,
+                                       &next_tvb);
+
+    if(next_tvb) 
+    	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
+	     actx->pinfo, top_tree);
+
+
+  return offset;
+}
+
+
 static const ber_sequence_t Connect_Response_U_sequence[] = {
   { &hf_t125_result         , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_Result },
   { &hf_t125_calledConnectId, BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_INTEGER_0_MAX },
   { &hf_t125_domainParameters, BER_CLASS_UNI, BER_UNI_TAG_SEQUENCE, BER_FLAGS_NOOWNTAG, dissect_t125_DomainParameters },
-  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
+  { &hf_t125_userData_01    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_T_userData_01 },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1490,7 +1536,7 @@ static const ber_sequence_t SendDataRequest_U_sequence[] = {
   { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
   { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
   { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
+  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1518,7 +1564,7 @@ static const ber_sequence_t SendDataIndication_U_sequence[] = {
   { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
   { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
   { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
+  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1546,7 +1592,7 @@ static const ber_sequence_t UniformSendDataRequest_U_sequence[] = {
   { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
   { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
   { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
+  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1574,7 +1620,7 @@ static const ber_sequence_t UniformSendDataIndication_U_sequence[] = {
   { &hf_t125_channelId_03   , BER_CLASS_UNI, BER_UNI_TAG_INTEGER, BER_FLAGS_NOOWNTAG, dissect_t125_ChannelId },
   { &hf_t125_dataPriority   , BER_CLASS_UNI, BER_UNI_TAG_ENUMERATED, BER_FLAGS_NOOWNTAG, dissect_t125_DataPriority },
   { &hf_t125_segmentation   , BER_CLASS_UNI, BER_UNI_TAG_BITSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_Segmentation },
-  { &hf_t125_userData       , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
+  { &hf_t125_userData_02    , BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_t125_OCTET_STRING },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -1977,19 +2023,9 @@ static const ber_choice_t ConnectMCSPDU_choice[] = {
 
 static int
 dissect_t125_ConnectMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 22 "../../asn1/t125/t125.cnf"
-  	gint connectmcs_value;
-
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  ConnectMCSPDU_choice, hf_index, ett_t125_ConnectMCSPDU,
-                                 &connectmcs_value);
-
-	if( (connectmcs_value!=-1) && t125_ConnectMCSPDU_vals[connectmcs_value].strptr ){
-		if (check_col(actx->pinfo->cinfo, COL_INFO)){
-			col_add_fstr(actx->pinfo->cinfo, COL_INFO, "MCS: %s ", t125_ConnectMCSPDU_vals[connectmcs_value].strptr);
-		}
-	}
-
+                                 NULL);
 
   return offset;
 }
@@ -2091,17 +2127,23 @@ static const ber_choice_t DomainMCSPDU_choice[] = {
 
 static int
 dissect_t125_DomainMCSPDU(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 33 "../../asn1/t125/t125.cnf"
+#line 21 "../../asn1/t125/t125.cnf"
   	gint domainmcs_value;
 
   offset = dissect_ber_choice(actx, tree, tvb, offset,
                                  DomainMCSPDU_choice, hf_index, ett_t125_DomainMCSPDU,
                                  &domainmcs_value);
 
-	if( (domainmcs_value!=-1) && t125_DomainMCSPDU_vals[domainmcs_value].strptr ){
-		if (check_col(actx->pinfo->cinfo, COL_INFO)){
-			col_add_fstr(actx->pinfo->cinfo, COL_INFO, "MCS: %s ", t125_DomainMCSPDU_vals[domainmcs_value].strptr);
-		}
+	switch(domainmcs_value) {
+	case 25: /* sendDataRequest */
+	case 26: /* sendDataIndication */
+	case 27: /* uniformSendDataRequest */
+	case 28: /* uniformSendDataIndication */
+		/* Do nothing */
+		break;
+	default:
+		col_append_sep_fstr(actx->pinfo->cinfo, COL_INFO, " ", "MCS: %s ", val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
+		break;
 	}
 
 
@@ -2120,7 +2162,7 @@ static int dissect_ConnectMCSPDU_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, 
 
 
 /*--- End of included file: packet-t125-fn.c ---*/
-#line 51 "../../asn1/t125/packet-t125-template.c"
+#line 61 "../../asn1/t125/packet-t125-template.c"
 
 static int
 dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
@@ -2130,6 +2172,8 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   gint8 class;
   gboolean pc;
   gint32 tag;
+
+  top_tree = parent_tree;
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
   col_clear(pinfo->cinfo, COL_INFO);
@@ -2141,12 +2185,42 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 
   if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
     dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
-  } else {
-    col_set_str(pinfo->cinfo, COL_INFO, "T.125 payload");
-    proto_tree_add_text(tree, tvb, 0, -1, "T.125 payload");
+  } else  {
+    t124_set_top_tree(top_tree);
+    dissect_DomainMCSPDU_PDU(tvb, pinfo, tree);
   }
 
   return tvb_length(tvb);
+}
+
+static gboolean
+dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+{
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
+  guint32 choice_index = 100;
+  asn1_ctx_t asn1_ctx;
+
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+
+  /* could be BER */
+  get_ber_identifier(tvb, 0, &class, &pc, &tag);
+  /* or PER */
+  dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
+				  NULL, hf_t125_heur, 0, 42,
+				  &choice_index, FALSE); 
+
+  /* is this strong enough ? */
+  if ( ((class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
+       (choice_index <=42)) {
+
+    dissect_t125(tvb, pinfo, parent_tree);
+
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
@@ -2155,6 +2229,14 @@ void proto_register_t125(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_t125_connectData,
+      { "connectData", "t125.connectData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_t125_heur,
+      { "heuristic", "t125.heuristic",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
 
 /*--- Included file: packet-t125-hfarr.c ---*/
 #line 1 "../../asn1/t125/packet-t125-hfarr.c"
@@ -2221,7 +2303,7 @@ void proto_register_t125(void) {
     { &hf_t125_userData,
       { "userData", "t125.userData",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING", HFILL }},
+        NULL, HFILL }},
     { &hf_t125_result,
       { "result", "t125.result",
         FT_UINT32, BASE_DEC, VALS(t125_Result_vals), 0,
@@ -2234,6 +2316,10 @@ void proto_register_t125(void) {
       { "domainParameters", "t125.domainParameters",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_t125_userData_01,
+      { "userData", "t125.userData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "T_userData_01", HFILL }},
     { &hf_t125_dataPriority,
       { "dataPriority", "t125.dataPriority",
         FT_UINT32, BASE_DEC, VALS(t125_DataPriority_vals), 0,
@@ -2422,6 +2508,10 @@ void proto_register_t125(void) {
       { "segmentation", "t125.segmentation",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_t125_userData_02,
+      { "userData", "t125.userData",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        "OCTET_STRING", HFILL }},
     { &hf_t125_tokenStatus,
       { "tokenStatus", "t125.tokenStatus",
         FT_UINT32, BASE_DEC, VALS(t125_TokenStatus_vals), 0,
@@ -2624,7 +2714,7 @@ void proto_register_t125(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-t125-hfarr.c ---*/
-#line 86 "../../asn1/t125/packet-t125-template.c"
+#line 136 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* List of subtrees */
@@ -2702,7 +2792,7 @@ void proto_register_t125(void) {
     &ett_t125_DomainMCSPDU,
 
 /*--- End of included file: packet-t125-ettarr.c ---*/
-#line 92 "../../asn1/t125/packet-t125-template.c"
+#line 142 "../../asn1/t125/packet-t125-template.c"
   };
 
   /* Register protocol */
@@ -2711,10 +2801,15 @@ void proto_register_t125(void) {
   proto_register_field_array(proto_t125, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_heur_dissector_list("t125", &t125_heur_subdissector_list);
+
   new_register_dissector("t125", dissect_t125, proto_t125);
 }
 
 
 /*--- proto_reg_handoff_t125 ---------------------------------------*/
 void proto_reg_handoff_t125(void) {
+
+  heur_dissector_add("cotp", dissect_t125_heur, proto_t125);
+  heur_dissector_add("cotp_is", dissect_t125_heur, proto_t125);
 }

@@ -33,6 +33,9 @@
 
 #include <epan/asn1.h>
 #include "packet-ber.h"
+#include "packet-per.h"
+
+#include "packet-t124.h"
 
 #define PNAME  "MULTIPOINT-COMMUNICATION-SERVICE T.125"
 #define PSNAME "T.125"
@@ -41,11 +44,18 @@
 
 /* Initialize the protocol and registered fields */
 static int proto_t125 = -1;
+static proto_tree *top_tree = NULL;
 #include "packet-t125-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_t125 = -1;
+
+static int hf_t125_connectData = -1;
+static int hf_t125_heur = -1;
+
 #include "packet-t125-ett.c"
+
+static heur_dissector_list_t t125_heur_subdissector_list;
 
 #include "packet-t125-fn.c"
 
@@ -58,6 +68,8 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
   gboolean pc;
   gint32 tag;
 
+  top_tree = parent_tree;
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "T.125");
   col_clear(pinfo->cinfo, COL_INFO);
 
@@ -68,12 +80,42 @@ dissect_t125(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 
   if ( (class==BER_CLASS_APP) && (tag>=101) && (tag<=104) ){
     dissect_ConnectMCSPDU_PDU(tvb, pinfo, tree);
-  } else {
-    col_set_str(pinfo->cinfo, COL_INFO, "T.125 payload");
-    proto_tree_add_text(tree, tvb, 0, -1, "T.125 payload");
+  } else  {
+    t124_set_top_tree(top_tree);
+    dissect_DomainMCSPDU_PDU(tvb, pinfo, tree);
   }
 
   return tvb_length(tvb);
+}
+
+static gboolean
+dissect_t125_heur(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+{
+  gint8 class;
+  gboolean pc;
+  gint32 tag;
+  guint32 choice_index = 100;
+  asn1_ctx_t asn1_ctx;
+
+  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
+
+  /* could be BER */
+  get_ber_identifier(tvb, 0, &class, &pc, &tag);
+  /* or PER */
+  dissect_per_constrained_integer(tvb, 0, &asn1_ctx,
+				  NULL, hf_t125_heur, 0, 42,
+				  &choice_index, FALSE); 
+
+  /* is this strong enough ? */
+  if ( ((class==BER_CLASS_APP) && ((tag>=101) && (tag<=104))) ||
+       (choice_index <=42)) {
+
+    dissect_t125(tvb, pinfo, parent_tree);
+
+    return TRUE;
+  }
+
+  return FALSE;
 }
 
 
@@ -82,6 +124,14 @@ void proto_register_t125(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
+    { &hf_t125_connectData,
+      { "connectData", "t125.connectData",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_t125_heur,
+      { "heuristic", "t125.heuristic",
+        FT_UINT32, BASE_DEC, NULL, 0,
+        NULL, HFILL }},
 #include "packet-t125-hfarr.c"
   };
 
@@ -97,10 +147,15 @@ void proto_register_t125(void) {
   proto_register_field_array(proto_t125, hf, array_length(hf));
   proto_register_subtree_array(ett, array_length(ett));
 
+  register_heur_dissector_list("t125", &t125_heur_subdissector_list);
+
   new_register_dissector("t125", dissect_t125, proto_t125);
 }
 
 
 /*--- proto_reg_handoff_t125 ---------------------------------------*/
 void proto_reg_handoff_t125(void) {
+
+  heur_dissector_add("cotp", dissect_t125_heur, proto_t125);
+  heur_dissector_add("cotp_is", dissect_t125_heur, proto_t125);
 }

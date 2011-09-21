@@ -186,6 +186,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-rrc.c \
 	packet-rrlp.c \
 	packet-snmp.c \
+	packet-t124.c \
 	packet-t125.c \
 	packet-tcap.c \
 	packet-tetra.c
@@ -809,6 +810,7 @@ DISSECTOR_SRC = \
 	packet-radius_packetcable.c	\
 	packet-raw.c		\
 	packet-rdm.c		\
+	packet-rdp.c		\
 	packet-rdt.c		\
 	packet-redback.c 	\
 	packet-redbackli.c 	\
@@ -1269,6 +1271,7 @@ DISSECTOR_INCLUDES =	\
 	packet-radius.h	\
 	packet-ranap.h	\
 	packet-raw.h	\
+	packet-rdp.h	\
 	packet-rdt.h	\
 	packet-rgmp.h	\
 	packet-rlc.h	\
@@ -1324,6 +1327,7 @@ DISSECTOR_INCLUDES =	\
 	packet-stat.h	\
 	packet-stat-notify.h	\
 	packet-sv.h	\
+	packet-t124.h 	\
 	packet-t30.h	\
 	packet-t38.h	\
 	packet-tacacs.h	\

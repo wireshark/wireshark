@@ -12,33 +12,46 @@
 #.PDU_NEW
 #----------------------------------------------------------------------------------------
 ConnectMCSPDU
-#DomainMCSPDU
 #.END
 
 #.VIRTUAL_ASSGN
 #----------------------------------------------------------------------------------------
 
-#.FN_BODY ConnectMCSPDU  VAL_PTR = &connectmcs_value
-  	gint connectmcs_value;
-
-%(DEFAULT_BODY)s
-	if( (connectmcs_value!=-1) && t125_ConnectMCSPDU_vals[connectmcs_value].strptr ){
-		if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-			col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ", t125_ConnectMCSPDU_vals[connectmcs_value].strptr);
-		}
-	}
-#.END
-
 #.FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
   	gint domainmcs_value;
 
 %(DEFAULT_BODY)s
-	if( (domainmcs_value!=-1) && t125_DomainMCSPDU_vals[domainmcs_value].strptr ){
-		if (check_col(%(ACTX)s->pinfo->cinfo, COL_INFO)){
-			col_add_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "MCS: %%s ", t125_DomainMCSPDU_vals[domainmcs_value].strptr);
-		}
+	switch(domainmcs_value) {
+	case 25: /* sendDataRequest */
+	case 26: /* sendDataIndication */
+	case 27: /* uniformSendDataRequest */
+	case 28: /* uniformSendDataIndication */
+		/* Do nothing */
+		break;
+	default:
+		col_append_sep_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, " ", "MCS: %%s ", val_to_str(domainmcs_value, t125_DomainMCSPDU_vals, "Unknown"));
+		break;
 	}
 #.END
+
+#.FN_BODY Connect-Initial/_untag/userData VAL_PTR  = &next_tvb
+#.FN_BODY Connect-Initial/_untag/userData
+    tvbuff_t	*next_tvb = NULL;
+%(DEFAULT_BODY)s
+    if(next_tvb) 
+    	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
+	     actx->pinfo, top_tree);
+#.END
+
+#.FN_BODY Connect-Response/_untag/userData VAL_PTR  = &next_tvb
+#.FN_BODY Connect-Response/_untag/userData
+    tvbuff_t	*next_tvb = NULL;
+%(DEFAULT_BODY)s
+    if(next_tvb) 
+    	dissector_try_heuristic(t125_heur_subdissector_list, next_tvb,
+	     actx->pinfo, top_tree);
+#.END
+
 
 #----------------------------------------------------------------------------------------
 # vim:set ts=4 sts=2 sw=2:

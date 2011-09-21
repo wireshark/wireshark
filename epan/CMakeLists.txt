@@ -269,6 +269,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-rrc.c
 	dissectors/packet-rrlp.c
 	dissectors/packet-snmp.c
+	dissectors/packet-t124.c
 	dissectors/packet-t125.c
 	dissectors/packet-tcap.c
 	dissectors/packet-tetra.c
@@ -889,6 +890,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-radiotap-iter.c
 	dissectors/packet-raw.c
 	dissectors/packet-rdm.c
+	dissectors/packet-rdp.c
 	dissectors/packet-rdt.c
 	dissectors/packet-redback.c
 	dissectors/packet-redbackli.c

@@ -1,0 +1,162 @@
+# T.124/GCC-PROTOCOL.cnf
+# Copyright 2011 Graeme Lunt
+# $Id$
+#----------------------------------------------------------------------------------------
+#.EXPORTS
+#----------------------------------------------------------------------------------------
+ConnectData
+ConnectGCCPDU
+#.END
+
+#.PDU
+#----------------------------------------------------------------------------------------
+
+#.PDU_NEW
+#----------------------------------------------------------------------------------------
+
+
+#.TF_RENAME
+ISDNConnection/circuitTypes		ISDNCircuitTypes
+ISDNConnection/circuitTypes/_item	ISDNCircuitTypes_item
+ISDNConnection/highLayerCompatibility 	ISDNHighLayerCompatibility
+PSDNConnection/networkAddress	      	PSDNNetworkAddress
+ConferenceTerminateRequest/reason	TerminateRequestReason
+ConferenceTerminateIndication/reason	TerminateIndicationReason
+ConferenceEjectUserRequest/reason		EjectUserRequestReason
+RosterUpdateIndication/nodeInformation/nodeRecordList/refresh NodeRefresh
+RosterUpdateIndication/applicationInformation/_item/applicationRecordList/refresh ApplicationRefresh
+RosterUpdateIndication/applicationInformation/_item/applicationRecordList/update ApplicationUpdate
+RosterUpdateIndication/applicationInformation/_item/applicationRecordList/update/_item ApplicationUpdateItem
+ConferenceQueryResponse/result	QueryResponseResult
+ConferenceJoinResponse/result	JoinResponseResult
+ConferenceInviteResponse/result	InviteResponseResult
+ConferenceAddResponse/result	AddResponseResult
+ConferenceLockResponse/result	LockResponseResult
+ConferenceUnlockResponse/result	UnlockResponseResult
+ConferenceTerminateResponse/result	TerminateResponseResult
+ConferenceEjectUserResponse/result	EjectUserResponseResult
+ConferenceTransferResponse/result	TransferResponseResult
+RegistryAllocateHandleResponse/result	AllocateHandleResponseResult
+
+#.FN_BODY ConnectData/connectPDU VAL_PTR = &next_tvb
+    tvbuff_t	*next_tvb = NULL;
+    proto_tree	*next_tree = NULL;
+    int		old_offset = 0;
+
+    old_offset = offset;
+    %(DEFAULT_BODY)s
+    if(next_tvb) {
+      /* "2a -> ConnectData::connectPDU length = 42 bytes */
+      /* This length MUST be ignored by the client." */
+
+      /* Not sure why - but lets ignore the length. */
+      /* We assume the OCTET STRING is all of the remaining bytes */	 
+
+      if(tvb_length(next_tvb) == 42) {
+         /* this is perhaps a naive ... */
+	 next_tvb = tvb_new_subset_remaining(tvb, (old_offset>>3)+1);
+      }
+
+	 next_tree = proto_item_add_subtree(actx->created_item, ett_t124_connectGCCPDU);
+
+       dissect_t124_ConnectGCCPDU(next_tvb, 0, actx, next_tree, hf_t124_connectGCCPDU);
+
+    }
+#.END
+
+#.FN_BODY UserData/_item/value VAL_PTR = &next_tvb
+    tvbuff_t	*next_tvb = NULL;
+    guint8      *ns = NULL;
+
+%(DEFAULT_BODY)s
+
+	if(next_tvb) {
+
+	ns = tvb_get_string(t124NSIdentifier, 0, tvb_length(t124NSIdentifier));
+	if(ns != NULL) {
+		dissector_try_string(t124_ns_dissector_table, ns, next_tvb, actx->pinfo, top_tree);
+		g_free(ns);
+	}
+	}
+
+#.END
+
+#.FN_BODY SendDataRequest/userData  VAL_PTR = &next_tvb
+    tvbuff_t	*next_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+	if(next_tvb) {
+
+	     dissector_try_uint(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree);
+
+	}
+
+#.END
+
+#.FN_BODY SendDataIndication/userData VAL_PTR = &next_tvb
+    tvbuff_t	*next_tvb = NULL;
+
+%(DEFAULT_BODY)s
+
+	if(next_tvb) {
+
+	     dissector_try_uint(t124_sd_dissector_table, channelId, next_tvb, actx->pinfo, top_tree);
+
+	}
+
+#.END
+
+
+#.FN_BODY DomainMCSPDU  VAL_PTR = &domainmcs_value
+  	gint domainmcs_value;
+
+%(DEFAULT_BODY)s
+	switch(domainmcs_value) {
+	case 25: /* sendDataRequest */
+	case 26: /* sendDataIndication */
+	case 27: /* uniformSendDataRequest */
+	case 28: /* uniformSendDataIndication */
+		/* Do nothing */
+		break;
+	default:
+		col_prepend_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%s ", val_to_str(domainmcs_value, t124_DomainMCSPDU_vals, "Unknown"));
+		break;
+	}
+
+#.END
+
+#.FN_PARS Key/object
+	  FN_VARIANT = _str VAL_PTR = &t124Identifier
+
+#.FN_PARS H221NonStandardIdentifier
+	  VAL_PTR = &t124NSIdentifier
+
+#.FN_BODY H221NonStandardIdentifier
+
+    %(DEFAULT_BODY)s
+
+#.FN_PARS ChannelId VAL_PTR = &channelId
+
+#.FN_BODY ChannelId
+
+    %(DEFAULT_BODY)s
+
+    if(hf_index == hf_t124_channelId_03) 
+        col_append_fstr(%(ACTX)s->pinfo->cinfo, COL_INFO, "%%d", channelId);
+    	
+
+#.OMIT_ASSIGNMENT
+StaticChannelID
+TokenID
+StaticTokenID
+RosterRefreshRequest
+GCCPDU
+#.END
+#.VIRTUAL_ASSGN
+#----------------------------------------------------------------------------------------
+
+#.END
+
+#----------------------------------------------------------------------------------------
+# vim:set ts=4 sts=2 sw=2:

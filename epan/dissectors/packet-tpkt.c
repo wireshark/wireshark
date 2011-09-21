@@ -54,13 +54,9 @@ static gint ett_tpkt           = -1;
 static gboolean tpkt_desegment = TRUE;
 
 #define TCP_PORT_TPKT		102
-#define TCP_PORT_TPKT_X224	3389
 
 /* find the dissector for OSI TP (aka COTP) */
 static dissector_handle_t osi_tp_handle;
-
-/* find the dissector for X.224 */
-static dissector_handle_t x224_handle;
 
 /*
  * Check whether this could be a TPKT-encapsulated PDU.
@@ -591,16 +587,6 @@ dissect_tpkt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 /*
- * Dissect RFC 1006 TPKT, which wraps a TPKT header around an X.224
- * PDU.
- */
-static void
-dissect_tpkt_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
-{
-	dissect_tpkt_encap(tvb, pinfo, tree, tpkt_desegment, x224_handle);
-}
-
-/*
  * Dissect ASCII TPKT, which wraps a ASCII TPKT header around an OSI TP
  * PDU.
  */
@@ -678,15 +664,11 @@ proto_register_tpkt(void)
 void
 proto_reg_handoff_tpkt(void)
 {
-	dissector_handle_t tpkt_handle, tpkt_x224_handle;
+	dissector_handle_t tpkt_handle;
 
 	osi_tp_handle = find_dissector("ositp");
 	tpkt_handle = find_dissector("tpkt");
 	dissector_add_uint("tcp.port", TCP_PORT_TPKT, tpkt_handle);
-
-	x224_handle = find_dissector("x224");
-	tpkt_x224_handle = create_dissector_handle(dissect_tpkt_x224, proto_tpkt);
-	dissector_add_uint("tcp.port", TCP_PORT_TPKT_X224, tpkt_x224_handle);
 
 	/*
 	tpkt_ascii_handle = create_dissector_handle(dissect_ascii_tpkt, proto_tpkt);

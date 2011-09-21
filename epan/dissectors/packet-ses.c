@@ -1206,7 +1206,7 @@ dissect_ses(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * If so, dissect it as such (GIVE_TOKENS and DATA_TRANSFER have
 	 * the same SPDU type value).
 	 */
-	if (type == SES_PLEASE_TOKENS || type == SES_GIVE_TOKENS)
+	if ((type == SES_PLEASE_TOKENS) || (type == SES_GIVE_TOKENS))
 		offset = dissect_spdu(tvb, offset, pinfo, tree, TOKENS_SPDU, FALSE);
 
 
@@ -1991,6 +1991,15 @@ dissect_ses_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* do we have enough bytes ? */
 	if (tvb_length(tvb) < len)
 		return FALSE;	/* no */
+
+	/* final check to see if the next SPDU, if present, is also valid */
+	if (tvb_length(tvb) > len) {
+	  type = tvb_get_guint8(tvb, offset + len + 1);
+	  /* check SPDU type */
+	  if (match_strval(type, ses_vals) == NULL) {
+	    return FALSE;  /* no, it isn't a session PDU */
+	  }
+	}
 
 	dissect_ses(tvb, pinfo, parent_tree);
 	return TRUE;
