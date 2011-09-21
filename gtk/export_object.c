@@ -331,7 +331,7 @@ eo_save_all_clicked_cb(GtkWidget *widget _U_, gpointer arg)
 					g_string_free(safe_filename, TRUE);
 				} while ( g_file_test(save_as_fullpath, G_FILE_TEST_EXISTS) && ++count < 1000 );
 				count = 0;
-				if (!eo_save_entry(save_as_fullpath, entry, TRUE))
+				if (!eo_save_entry(save_as_fullpath, entry, FALSE))
 					all_saved = FALSE;
 			}
 			else
