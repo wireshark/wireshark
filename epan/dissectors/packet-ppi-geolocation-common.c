@@ -70,6 +70,6 @@ gdouble ppi_ns_counter_to_gdouble(guint32 in) {
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

@@ -329,9 +329,9 @@ get_cur_groupname(void) {
  * Local Variables:
  * c-basic-offset: 8
  * tab-width: 8
- * indent-tabs-mode: tabs
+ * indent-tabs-mode: t
  * End:
  *
- * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */

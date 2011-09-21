@@ -218,6 +218,6 @@ void _cnd_find_hash_key_for_class_id(gpointer key,
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */

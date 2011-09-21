@@ -196,7 +196,7 @@ double wtap_nstime_to_sec(const struct wtap_nstime *nstime)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
 

@@ -1390,6 +1390,6 @@ filter_te_syntax_check_cb(GtkWidget *w, gpointer user_data _U_)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */

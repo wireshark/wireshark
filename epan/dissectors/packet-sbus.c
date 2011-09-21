@@ -2340,6 +2340,6 @@ proto_reg_handoff_sbus(void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=7 tabstop=8 expandtab
+ * ex: set shiftwidth=7 tabstop=8 expandtab:
  * :indentSize=7:tabSize=8:noTabs=true:
  */

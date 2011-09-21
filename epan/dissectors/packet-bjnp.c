@@ -77,7 +77,7 @@ static const value_string dev_type_vals[] = {
 static const value_string cmd_code_vals[] = {
   { CMD_DISCOVER,       "Discover"              },
   { CMD_PRINT_JOB_DET,  "Print Job Details"     },
-  { CMD_CLOSE,          "Request Closure"       }, 
+  { CMD_CLOSE,          "Request Closure"       },
   { CMD_GET_STATUS,     "Get Printer Status"    },
   { CMD_PRINT,          "Print"                 },
   { CMD_GET_ID,         "Get Printer Identity"  },
@@ -168,7 +168,7 @@ void proto_register_bjnp (void)
 
   proto_bjnp = proto_register_protocol (PNAME, PSNAME, PFNAME);
   register_dissector (PFNAME, dissect_bjnp, proto_bjnp);
-  
+
   proto_register_field_array (proto_bjnp, hf, array_length (hf));
   proto_register_subtree_array (ett, array_length (ett));
 }
@@ -193,6 +193,6 @@ void proto_reg_handoff_bjnp (void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=2 tabstop=8 expandtab
+ * ex: set shiftwidth=2 tabstop=8 expandtab:
  * :indentSize=2:tabSize=8:noTabs=true:
  */

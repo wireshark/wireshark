@@ -3960,6 +3960,6 @@ proto_reg_handoff_cip(void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=3 tabstop=8 expandtab
+ * ex: set shiftwidth=3 tabstop=8 expandtab:
  * :indentSize=3:tabSize=8:noTabs=true:
  */

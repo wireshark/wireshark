@@ -8185,6 +8185,6 @@ proto_reg_handoff_netflow(void)
  * indent-tabs-mode: t
  * End:
  *
- * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */

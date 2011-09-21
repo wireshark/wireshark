@@ -4790,7 +4790,7 @@ void set_menus_for_profiles(gboolean default_profile)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=4 tabstop=8 expandtab
+ * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
 #endif /* MAIN_MENU_USE_UIMANAGER */

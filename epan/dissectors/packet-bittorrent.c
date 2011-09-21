@@ -993,6 +993,6 @@ proto_reg_handoff_bittorrent(void)
  * indent-tabs-mode: nil
  * End:
  *
- * ex: set shiftwidth=3 tabstop=3 expandtab
+ * ex: set shiftwidth=3 tabstop=3 expandtab:
  * :indentSize=3:tabSize=3:noTabs=true:
  */

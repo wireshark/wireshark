@@ -1230,7 +1230,7 @@ void add_oid_debug_subtree(oid_info_t* oid_info, proto_tree *tree) {
  * indent-tabs-mode: t
  * End:
  *
- * ex: set shiftwidth=8 tabstop=8 noexpandtab
+ * ex: set shiftwidth=8 tabstop=8 noexpandtab:
  * :indentSize=8:tabSize=8:noTabs=false:
  */
 
