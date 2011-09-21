@@ -37,16 +37,16 @@
 static void
 gregex_fvalue_new(fvalue_t *fv)
 {
-	fv->value.re = NULL;
+    fv->value.re = NULL;
 }
 
 static void
 gregex_fvalue_free(fvalue_t *fv)
 {
-	if (fv->value.re) {
-		g_regex_unref(fv->value.re);
-		fv->value.re = NULL;
-	}
+    if (fv->value.re) {
+        g_regex_unref(fv->value.re);
+        fv->value.re = NULL;
+    }
 }
 
 /* Generate a FT_PCRE from a parsed string pattern.
@@ -54,28 +54,28 @@ gregex_fvalue_free(fvalue_t *fv)
 static gboolean
 val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
 {
-	GError *regex_error = NULL;
-	/* Free up the old value, if we have one */
-	gregex_fvalue_free(fv);
+    GError *regex_error = NULL;
+    /* Free up the old value, if we have one */
+    gregex_fvalue_free(fv);
 
-	fv->value.re = g_regex_new(
-			pattern,			/* pattern */
-			G_REGEX_OPTIMIZE,	/* Compile options */
-			0,					/* Match options */
-			&regex_error		/* Compile / study errors */
-			);
+    fv->value.re = g_regex_new(
+            pattern,            /* pattern */
+            G_REGEX_OPTIMIZE,   /* Compile options */
+            0,                  /* Match options */
+            &regex_error        /* Compile / study errors */
+            );
 
-	if (regex_error) {
-		if (logfunc) {
-			logfunc(regex_error->message);
-		}
-		g_error_free(regex_error);
-		if (fv->value.re) {
-			g_regex_unref(fv->value.re);
-		}
-		return FALSE;
-	}
-	return TRUE;
+    if (regex_error) {
+        if (logfunc) {
+            logfunc(regex_error->message);
+        }
+        g_error_free(regex_error);
+        if (fv->value.re) {
+            g_regex_unref(fv->value.re);
+        }
+        return FALSE;
+    }
+    return TRUE;
 }
 
 /* Generate a FT_PCRE from an unparsed string pattern.
@@ -83,23 +83,23 @@ val_from_string(fvalue_t *fv, char *pattern, LogFunc logfunc)
 static gboolean
 val_from_unparsed(fvalue_t *fv, char *pattern, gboolean allow_partial_value _U_, LogFunc logfunc)
 {
-	g_assert(! allow_partial_value);
+    g_assert(! allow_partial_value);
 
-	return val_from_string(fv, pattern, logfunc);
+    return val_from_string(fv, pattern, logfunc);
 }
 
 static int
 gregex_repr_len(fvalue_t *fv, ftrepr_t rtype)
 {
-	g_assert(rtype == FTREPR_DFILTER);
-	return (int)strlen(g_regex_get_pattern(fv->value.re));
+    g_assert(rtype == FTREPR_DFILTER);
+    return (int)strlen(g_regex_get_pattern(fv->value.re));
 }
 
 static void
 gregex_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 {
-	g_assert(rtype == FTREPR_DFILTER);
-	strcpy(buf, g_regex_get_pattern(fv->value.re));
+    g_assert(rtype == FTREPR_DFILTER);
+    strcpy(buf, g_regex_get_pattern(fv->value.re));
 }
 
 /* BEHOLD - value contains the string representation of the regular expression,
@@ -107,60 +107,60 @@ gregex_to_repr(fvalue_t *fv, ftrepr_t rtype, char *buf)
 static void
 gregex_fvalue_set(fvalue_t *fv, gpointer value, gboolean already_copied)
 {
-	g_assert(value != NULL);
-	/* Free up the old value, if we have one */
-	gregex_fvalue_free(fv);
-	g_assert(! already_copied);
-	val_from_unparsed(fv, value, FALSE, NULL);
+    g_assert(value != NULL);
+    /* Free up the old value, if we have one */
+    gregex_fvalue_free(fv);
+    g_assert(! already_copied);
+    val_from_unparsed(fv, value, FALSE, NULL);
 }
 
 static gpointer
 gregex_fvalue_get(fvalue_t *fv)
 {
-	return fv->value.re;
+    return fv->value.re;
 }
 
 void
 ftype_register_pcre(void)
 {
-	static ftype_t pcre_type = {
-		FT_PCRE,		/* ftype */
-		"FT_PCRE",		/* name */
-		"Compiled Perl-Compatible Regular Expression (GRegex) object", /* pretty_name */
-		0,			/* wire_size */
-		gregex_fvalue_new,	/* new_value */
-		gregex_fvalue_free,	/* free_value */
-		val_from_unparsed,	/* val_from_unparsed */
-		val_from_string,	/* val_from_string */
-		gregex_to_repr,		/* val_to_string_repr */
-		gregex_repr_len,	/* len_string_repr */
+    static ftype_t pcre_type = {
+        FT_PCRE,        /* ftype */
+        "FT_PCRE",      /* name */
+        "Compiled Perl-Compatible Regular Expression (GRegex) object", /* pretty_name */
+        0,          /* wire_size */
+        gregex_fvalue_new,  /* new_value */
+        gregex_fvalue_free, /* free_value */
+        val_from_unparsed,  /* val_from_unparsed */
+        val_from_string,    /* val_from_string */
+        gregex_to_repr,     /* val_to_string_repr */
+        gregex_repr_len,    /* len_string_repr */
 
-		gregex_fvalue_set,	/* set_value */
-		NULL,				/* set_value_uinteger */
-		NULL,				/* set_value_sinteger */
-		NULL,				/* set_value_integer64 */
-		NULL,				/* set_value_floating */
+        gregex_fvalue_set,  /* set_value */
+        NULL,               /* set_value_uinteger */
+        NULL,               /* set_value_sinteger */
+        NULL,               /* set_value_integer64 */
+        NULL,               /* set_value_floating */
 
-		gregex_fvalue_get,	/* get_value */
-		NULL,				/* get_value_uinteger */
-		NULL,				/* get_value_sinteger */
-		NULL,				/* get_value_integer64 */
-		NULL,				/* get_value_floating */
+        gregex_fvalue_get,  /* get_value */
+        NULL,               /* get_value_uinteger */
+        NULL,               /* get_value_sinteger */
+        NULL,               /* get_value_integer64 */
+        NULL,               /* get_value_floating */
 
-		NULL,				/* cmp_eq */
-		NULL,				/* cmp_ne */
-		NULL,				/* cmp_gt */
-		NULL,				/* cmp_ge */
-		NULL,				/* cmp_lt */
-		NULL,				/* cmp_le */
-		NULL,				/* cmp_bitwise_and */
-		NULL,				/* cmp_contains */
-		NULL,				/* cmp_matches */
+        NULL,               /* cmp_eq */
+        NULL,               /* cmp_ne */
+        NULL,               /* cmp_gt */
+        NULL,               /* cmp_ge */
+        NULL,               /* cmp_lt */
+        NULL,               /* cmp_le */
+        NULL,               /* cmp_bitwise_and */
+        NULL,               /* cmp_contains */
+        NULL,               /* cmp_matches */
 
-		NULL,				/* len */
-		NULL,				/* slice */
-	};
-	ftype_register(FT_PCRE, &pcre_type);
+        NULL,               /* len */
+        NULL,               /* slice */
+    };
+    ftype_register(FT_PCRE, &pcre_type);
 }
 
 /*
@@ -168,10 +168,10 @@ ftype_register_pcre(void)
  *
  * Local variables:
  * c-basic-offset: 4
- * tab-width: 4
- * indent-tabs-mode: t
+ * tab-width: 8
+ * indent-tabs-mode: nil
  * End:
  *
- * vi: set shiftwidth=4 tabstop=4 noexpandtab
- * :indentSize=4:tabSize=4:noTabs=false:
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
  */
