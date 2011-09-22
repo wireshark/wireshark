@@ -65,8 +65,7 @@ typedef struct _graph_analysis_info {
 #define NUM_DISPLAY_ITEMS 1000
 
 typedef struct _display_items {
-	guint32 frame_num;			/* frame number used to "go to" that frame */
-	nstime_t time;				/* frame time */
+	frame_data *fd;				/* Holds the frame number and time information */
 	guint16 port_src;
 	guint16 port_dst;
 	gchar *frame_label;			/* the label on top of the arrow */
