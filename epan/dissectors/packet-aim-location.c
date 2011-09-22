@@ -129,16 +129,16 @@ static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb,
 
 	/* Info Type */
 	proto_tree_add_item(tree, hf_aim_snac_location_request_user_info_infotype, 
-						tvb, offset, 2, FALSE);
+						tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Buddy Name length */
 	buddyname_length = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* Buddy name */
-	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
 	offset += buddyname_length;
 
 	return offset;
@@ -153,15 +153,15 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
 
 	/* Buddy Name length */
 	buddyname_length = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_buddyname_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* Buddy name */
-	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, FALSE);
+	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
 	offset += buddyname_length;
 
 	/* Warning level */
-	proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_userinfo_warninglevel, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	offset = dissect_aim_tlv_list(tvb, pinfo, offset, tree, aim_onlinebuddy_tlvs);

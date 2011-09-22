@@ -347,13 +347,13 @@ static gint ett_afs_vldb_flags = -1;
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
 #define OUT_UINT64(field) \
-	proto_tree_add_item(tree, field, tvb, offset, 8, FALSE); \
+	proto_tree_add_item(tree, field, tvb, offset, 8, ENC_BIG_ENDIAN); \
 	offset += 8;
 
 /* Output a unsigned integer, stored into field 'field'
    Assumes it is in network byte order, converts to host before using */
 #define OUT_INT64(field) \
-	proto_tree_add_item(tree, field, tvb, offset, 8, FALSE); \
+	proto_tree_add_item(tree, field, tvb, offset, 8, ENC_BIG_ENDIAN); \
 	offset += 8;
 
 /* Output a unsigned integer, stored into field 'field'
@@ -418,7 +418,7 @@ static gint ett_afs_vldb_flags = -1;
 		i_orxs = tvb_get_ntohl(tvb, offset); \
 		len_orxs = ((i_orxs+4-1)/4)*4 + 4; \
 		proto_tree_add_item(tree, field, tvb, offset-4, len_orxs, \
-		FALSE); \
+		ENC_ASCII|ENC_BIG_ENDIAN); \
 		offset += len_orxs; \
 	}
 
@@ -768,7 +768,7 @@ static gint ett_afs_vldb_flags = -1;
 
 /* Raw data */
 #define OUT_BYTES(field, bytes) \
-	proto_tree_add_item(tree, field, tvb, offset, bytes, FALSE);\
+	proto_tree_add_item(tree, field, tvb, offset, bytes, ENC_NA);\
 	offset += bytes;
 
 
@@ -1597,7 +1597,7 @@ dissect_afs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_afs, tvb, offset, -1,
-				FALSE);
+				ENC_NA);
 		afs_tree = proto_item_add_subtree(ti, ett_afs);
 
 		proto_tree_add_text(afs_tree, tvb, 0, 0,

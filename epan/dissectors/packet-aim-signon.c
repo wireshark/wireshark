@@ -80,7 +80,7 @@ static int dissect_aim_snac_signon_signon(tvbuff_t *tvb, packet_info *pinfo,
 	guchar buddyname[MAX_BUDDYNAME_LENGTH + 1];
 
 	/* Info Type */
-	proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_infotype, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Unknown */
@@ -108,11 +108,11 @@ static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb,
 
 	/* Logon Challenge Length */
 	challenge_length = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_signon_challenge_len, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_signon_challenge_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Challenge */
-	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, FALSE);
+	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, ENC_ASCII|ENC_BIG_ENDIAN);
 	offset += challenge_length;
 	return offset;
 }

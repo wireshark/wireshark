@@ -40,8 +40,9 @@
 
 /* IMPORTANT IMPLEMENTATION NOTES
  *
- * You need to be looking at: jk/doc/AJP13.html in the
- * jakarta-tomcat-connectors repository.
+ * You need to be looking at:
+ *
+ *	http://tomcat.apache.org/connectors-doc/ajp/ajpv13a.html
  *
  * If you're a wireshark dissector guru, then you can skip the rest of
  * this. I'm writing it all down because I've written 3 dissectors so
@@ -157,17 +158,24 @@ static const value_string rsp_header_codes[] = {
 };
 
 
+#define MTYPE_FORWARD_REQUEST	2
+#define MTYPE_SEND_BODY_CHUNK	3
+#define MTYPE_SEND_HEADERS	4
+#define MTYPE_END_RESPONSE	5
+#define MTYPE_GET_BODY_CHUNK	6
+#define MTYPE_SHUTDOWN		7
+#define MTYPE_CPONG		9
+#define MTYPE_CPING		10
+
 static const value_string mtype_codes[] = {
-  { 0, "BAD" },
-  { 1, "BAD" },
-  { 2, "FORWARD REQUEST" },
-  { 3, "SEND BODY CHUNK" },
-  { 4, "SEND HEADERS" },
-  { 5, "END RESPONSE" },
-  { 6, "GET BODY CHUNK" },
-  { 7, "SHUTDOWN" },
-  { 9, "CPONG" },
-  {10, "CPING" },
+  { MTYPE_FORWARD_REQUEST, "FORWARD REQUEST" },
+  { MTYPE_SEND_BODY_CHUNK, "SEND BODY CHUNK" },
+  { MTYPE_SEND_HEADERS,    "SEND HEADERS" },
+  { MTYPE_END_RESPONSE,    "END RESPONSE" },
+  { MTYPE_GET_BODY_CHUNK,  "GET BODY CHUNK" },
+  { MTYPE_SHUTDOWN,        "SHUTDOWN" },
+  { MTYPE_CPONG,           "CPONG" },
+  { MTYPE_CPING,           "CPING" },
   { 0, NULL }
 };
 
@@ -233,7 +241,7 @@ typedef struct ajp13_frame_data {
 
 /* ajp13, in sort of a belt-and-suspenders move, encodes strings with
  * both a leading length field, and a trailing null. Mostly, see
- * AJPv13.html. The returned length _includes_ the trailing null, if
+ * ajpv13a.html. The returned length _includes_ the trailing null, if
  * there is one.
  *
  * XXX - is there a tvbuff routine to handle this?
@@ -258,42 +266,40 @@ ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
 static void
 display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 {
-  const gchar* msg_code = NULL;
   int pos = 0;
   guint8 mcode = 0;
-  char *mcode_buf;
   int i;
 
   /* MAGIC
    */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, ENC_NA);
   pos+=2;
 
   /* PDU LENGTH
    */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_len,   tvb, pos, 2, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_len,   tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
 
   /* MESSAGE TYPE CODE
    */
   mcode = tvb_get_guint8(tvb, pos);
-  msg_code = val_to_str(mcode, mtype_codes, "UNKNOWN");
-  mcode_buf=ep_strdup_printf("(%d) %s", mcode, msg_code);
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(mcode, mtype_codes, "Unknown message code %u"));
   if (ajp13_tree)
-    proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN);
   pos+=1;
 
-  col_append_str(pinfo->cinfo, COL_INFO, msg_code);
+  switch (mcode) {
 
-  if (mcode == 5) {
+  case MTYPE_END_RESPONSE:
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_reusep, tvb, pos, 1, 0);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_reusep, tvb, pos, 1, ENC_BIG_ENDIAN);
     pos+=1;
+    break;
 
-  } else if (mcode == 4) {
-
+  case MTYPE_SEND_HEADERS:
+  {
     const gchar *rsmsg;
     guint16 rsmsg_len;
     guint16 nhdr;
@@ -302,27 +308,25 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     /* HTTP RESPONSE STATUS CODE
      */
     rcode_num = tvb_get_ntohs(tvb, pos);
+    col_append_fstr(pinfo->cinfo, COL_INFO, ":%d", rcode_num);
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_rstatus, tvb, pos, 2, 0);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_rstatus, tvb, pos, 2, ENC_BIG_ENDIAN);
     pos+=2;
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, ":%d", rcode_num);
 
     /* HTTP RESPONSE STATUS MESSAGE
      */
     rsmsg = ajp13_get_nstring(tvb, pos, &rsmsg_len);
     pos+=2;
+    col_append_fstr(pinfo->cinfo, COL_INFO, " %s", rsmsg);
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_rsmsg, tvb, pos, rsmsg_len, 0);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_rsmsg, tvb, pos, rsmsg_len, ENC_UTF_8|ENC_BIG_ENDIAN);
     pos+=rsmsg_len;
-    if(check_col(pinfo->cinfo, COL_INFO))
-      col_append_fstr(pinfo->cinfo, COL_INFO, " %s", rsmsg);
 
     /* NUMBER OF HEADERS
      */
     nhdr = tvb_get_ntohs(tvb, pos);
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, 0);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, ENC_BIG_ENDIAN);
     pos+=2;
 
     /* HEADERS
@@ -372,22 +376,29 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, "%s : %s", hname, hval);
       }
     }
+    break;
+  }
 
-  } else if (mcode == 6) {
+  case MTYPE_GET_BODY_CHUNK:
+  {
     guint16 rlen;
     rlen = tvb_get_ntohs(tvb, pos);
     cd->content_length = rlen;
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, 0);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_rlen, tvb, pos, 2, ENC_BIG_ENDIAN);
     pos+=2;
+    break;
+  }
 
-  } else if ( mcode == 9 ) {
+  case MTYPE_CPONG:
+    break;
 
-  } else {
+  default:
     /* MESSAGE DATA (COPOUT)
      */
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_data,  tvb, pos+2, -1, 0);
+      proto_tree_add_item(ajp13_tree, hf_ajp13_data,  tvb, pos+2, -1, ENC_UTF_8|ENC_BIG_ENDIAN);
+    break;
   }
 }
 
@@ -412,13 +423,13 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
 
   /* MAGIC
    */
-  proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, 0);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, ENC_NA);
   pos+=2;
 
   /* PACKET LENGTH
    */
   packet_length = tvb_get_ntohs(tvb, pos);
-  proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, 0);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
 
   if (packet_length == 0)
@@ -436,7 +447,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
    */
   content_length = tvb_get_ntohs( tvb, pos);
   cd->content_length -= content_length;
-  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, 0);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, ENC_UTF_8|ENC_BIG_ENDIAN);
 }
 
 
@@ -468,50 +479,38 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   guint i;
 
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_magic, tvb, pos, 2, ENC_NA);
   pos+=2;
 
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_len, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
 
   /* PACKET CODE
    */
   cod = tvb_get_guint8(tvb, 4);
-  if (ajp13_tree) {
-    const gchar* msg_code = NULL;
-    char *mcode_buf;
-    msg_code = val_to_str(cod, mtype_codes, "UNKNOWN");
-    mcode_buf=ep_strdup_printf("(%d) %s", cod, msg_code);
-    proto_tree_add_string(ajp13_tree, hf_ajp13_code, tvb, pos, 1, mcode_buf);
-  }
+  if (ajp13_tree)
+    proto_tree_add_item(ajp13_tree, hf_ajp13_code, tvb, pos, 1, ENC_BIG_ENDIAN);
   pos+=1;
-  if ( cod == 10 ) {
+  if ( cod == MTYPE_CPING ) {
     col_append_str(pinfo->cinfo, COL_INFO, "CPING" );
     return;
   }
 
   /* HTTP METHOD (ENCODED AS INTEGER)
    */
-  {
-    const gchar* meth_code = NULL;
-    meth = tvb_get_guint8(tvb, pos);
-    meth_code = val_to_str(meth, http_method_codes, "UNKNOWN");
-    if (ajp13_tree) {
-      char *mcode_buf;
-      mcode_buf=ep_strdup_printf("(%d) %s", meth, meth_code);
-      proto_tree_add_string(ajp13_tree, hf_ajp13_method, tvb, pos, 1, mcode_buf);
-    }
-    col_append_str(pinfo->cinfo, COL_INFO, meth_code);
-    pos+=1;
-  }
+  meth = tvb_get_guint8(tvb, pos);
+  col_append_str(pinfo->cinfo, COL_INFO, val_to_str(meth, http_method_codes, "Unknown method %u"));
+  if (ajp13_tree)
+    proto_tree_add_item(ajp13_tree, hf_ajp13_method, tvb, pos, 1, ENC_BIG_ENDIAN);
+  pos+=1;
 
   /* HTTP VERSION STRING
    */
   ver = ajp13_get_nstring(tvb, pos, &ver_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_ver, tvb, pos, ver_len, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_ver, tvb, pos, ver_len, ENC_UTF_8|ENC_BIG_ENDIAN);
   pos=pos+ver_len;  /* skip over chars + trailing null */
 
   /* URI
@@ -519,7 +518,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   uri = ajp13_get_nstring(tvb, pos, &uri_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_uri, tvb, pos, uri_len, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_uri, tvb, pos, uri_len, ENC_UTF_8|ENC_BIG_ENDIAN);
   pos=pos+uri_len;  /* skip over chars + trailing null */
 
 
@@ -532,7 +531,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   ajp13_get_nstring(tvb, pos, &raddr_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len, ENC_UTF_8|ENC_BIG_ENDIAN);
   pos=pos+raddr_len;  /* skip over chars + trailing null */
 
   /* REMOTE HOST
@@ -540,7 +539,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   ajp13_get_nstring(tvb, pos, &rhost_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len, ENC_UTF_8|ENC_BIG_ENDIAN);
   pos=pos+rhost_len;  /* skip over chars + trailing null */
 
   /* SERVER NAME
@@ -548,19 +547,19 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   ajp13_get_nstring(tvb, pos, &srv_len);
   pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len, ENC_UTF_8|ENC_BIG_ENDIAN);
   pos=pos+srv_len;  /* skip over chars + trailing null */
 
   /* SERVER PORT
    */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_port, tvb, pos, 2, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_port, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
 
   /* IS SSL?
    */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_sslp, tvb, pos, 1, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_sslp, tvb, pos, 1, ENC_NA);
   pos+=1;
 
   /* NUM HEADERS
@@ -568,7 +567,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   nhdr = tvb_get_ntohs(tvb, pos);
 
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, 0);
+    proto_tree_add_item(ajp13_tree, hf_ajp13_nhdr, tvb, pos, 2, ENC_BIG_ENDIAN);
   pos+=2;
   cd->content_length = 0;
 
@@ -694,7 +693,7 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     proto_item *ti;
-    ti = proto_tree_add_item(tree, proto_ajp13, tvb, 0, tvb_length(tvb), FALSE);
+    ti = proto_tree_add_item(tree, proto_ajp13, tvb, 0, -1, ENC_NA);
     ajp13_tree = proto_item_add_subtree(ti, ett_ajp13);
   }
 
@@ -759,11 +758,11 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_code,
-      { "Code",  "ajp13.code", FT_STRING, BASE_NONE, NULL, 0x0, "Type Code",
+      { "Code",  "ajp13.code", FT_UINT32, BASE_DEC, VALS(mtype_codes), 0x0, "Type Code",
          HFILL }
     },
     { &hf_ajp13_method,
-      { "Method",  "ajp13.method", FT_STRING, BASE_NONE, NULL, 0x0, "HTTP Method",
+      { "Method",  "ajp13.method", FT_UINT8, BASE_DEC, VALS(http_method_codes), 0x0, "HTTP Method",
         HFILL }
     },
     { &hf_ajp13_ver,
@@ -791,7 +790,7 @@ proto_register_ajp13(void)
         HFILL }
     },
     { &hf_ajp13_sslp,
-      { "SSLP",  "ajp13.sslp", FT_UINT8, BASE_DEC, NULL, 0x0, "Is SSL?",
+      { "SSLP",  "ajp13.sslp", FT_BOOLEAN, BASE_NONE, NULL, 0x0, "Is SSL?",
         HFILL }
     },
     { &hf_ajp13_nhdr,

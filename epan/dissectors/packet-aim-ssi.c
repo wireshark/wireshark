@@ -112,31 +112,31 @@ static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, p
 
 	/* Buddy Name Length */
 	buddyname_length = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname_len, tvb, offset, 2, FALSE);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Buddy Name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, FALSE);
+		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
 		offset += buddyname_length;
 	}
 
 	/* Buddy group ID */
-	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_gid, tvb, offset, 2, FALSE);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_gid, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Buddy ID */
-	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_bid, tvb, offset, 2, FALSE);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_bid, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Buddy Type */
-	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_type, tvb, offset, 2, FALSE);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* Size of the following TLV in bytes (as opposed to the number of
 	   TLV objects in the chain) */
 	tlv_len = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, offset, 2, FALSE);
+	proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_tlvlen, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	endoffset = offset;
@@ -192,7 +192,7 @@ static int dissect_aim_snac_ssi_time_and_items_num(tvbuff_t *tvb, packet_info *p
 	offset += 4;
 
 	/* get number of SSI items */
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;
@@ -208,11 +208,11 @@ static int dissect_aim_snac_ssi_list(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 	gint ssi_entry_size;
 
 	/* SSI Version */
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* Number of items */
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_numitems, tvb, offset, 2, ENC_BIG_ENDIAN);
 	num_items = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 
@@ -237,28 +237,28 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 
 	/* get buddy length (1 byte) */
 	guint8 buddyname_length = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* show buddy name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, FALSE);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
 		offset += buddyname_length;
 	}
 	/* get reason message length (2 bytes) */
 	reason_length = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str_len, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* show reason message if present */
 	if (reason_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, FALSE);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_ASCII|ENC_BIG_ENDIAN);
 		offset += reason_length;
 	}
 
 	/* unknown (always 0x0000 ???) */
 	/*unknown = tvb_get_ntohs(tvb, offset);*/
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_grant_auth_unkn, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_grant_auth_unkn, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return offset;
@@ -271,27 +271,27 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 
 	/* get buddy length (1 byte) */
 	guint8 buddyname_length = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname_len8, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* show buddy name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, FALSE);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
 		offset += buddyname_length;
 	}
 
 	/* accept/reject authorization flag */
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_allow_auth, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_allow_auth, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* get reason message length (2 bytes) */
 	reason_length = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str_len, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* show reason message if present */
 	if (reason_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, FALSE);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_ASCII|ENC_BIG_ENDIAN);
 		offset += reason_length;
 	}
 
