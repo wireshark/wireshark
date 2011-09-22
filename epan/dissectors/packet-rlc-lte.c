@@ -927,7 +927,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                p_rlc_lte_info->ueid);
                         proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                p->firstSN, p->lastSN);
-                        tap_info->missingSNs = ((p->lastSN - p->firstSN) % 1024) + 1;
+                        tap_info->missingSNs = ((1024 + p->lastSN - p->firstSN) % 1024) + 1;
                     }
                     else {
                         expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
@@ -1016,7 +1016,7 @@ static void addChannelSequenceInfo(state_sequence_analysis_report_in_frame *p,
                                                    p_rlc_lte_info->ueid);
                             proto_item_append_text(seqnum_ti, " - SNs missing (%u to %u)",
                                                    p->firstSN, p->lastSN);
-                            tap_info->missingSNs = ((p->lastSN - p->firstSN) % snLimit) + 1;
+                            tap_info->missingSNs = ((snLimit + p->lastSN - p->firstSN) % snLimit) + 1;
                         }
                         else {
                             expert_add_info_format(pinfo, ti, PI_SEQUENCE, PI_WARN,
