@@ -311,7 +311,7 @@ fragment_table_init(GHashTable **fragment_table)
 		 * and the values are freed in free_all_fragments().
 		 *
 		 * free_all_fragments()
-		 * will free the adrress data associated with the key
+		 * will free the address data associated with the key
 		 */
 		g_hash_table_foreach_remove(*fragment_table,
 				free_all_fragments, NULL);
