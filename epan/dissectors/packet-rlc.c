@@ -1091,7 +1091,7 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 						malformed = proto_tree_add_protocol_format(tree,
 							proto_malformed, tvb, 0, 0, "[Malformed Packet: %s]", pinfo->current_proto);
 						expert_add_info_format(pinfo, malformed, PI_MALFORMED, PI_ERROR,
-							"Malformed Packet (incorrect LI value)");
+							"Malformed Packet (incorrect LI value 0x%x)",li[num_li].li);
 						col_append_str(pinfo->cinfo, COL_INFO, "[Malformed Packet]");
 						return -1; /* just give up on this */
 					}
@@ -1635,7 +1635,12 @@ static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	fpi = p_get_proto_data(pinfo->fd, proto_fp);
 	rlci = p_get_proto_data(pinfo->fd, proto_rlc);
 
-	if (!fpi || !rlci) return;
+	if (!fpi || !rlci){
+        ti = proto_tree_add_text(tree, tvb, 0, -1,
+                                "Can't dissect RLC frame because no per-frame info was attached!");
+        PROTO_ITEM_SET_GENERATED(ti);
+		return;
+	}
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
