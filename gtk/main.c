@@ -1193,6 +1193,7 @@ print_usage(gboolean print_ver) {
   fprintf(output, "\n");
   fprintf(output, "User interface:\n");
   fprintf(output, "  -C <config profile>      start with specified configuration profile\n");
+  fprintf(output, "  -d <display filter>      start with the given display filter\n");
   fprintf(output, "  -g <packet number>       go to specified packet number after \"-r\"\n");
   fprintf(output, "  -J <jump filter>         jump to the first packet matching the (display)\n");
   fprintf(output, "                           filter\n");
@@ -2042,7 +2043,7 @@ main(int argc, char *argv[])
 #endif
 #endif
   gint                 pl_size = 280, tv_size = 95, bv_size = 75;
-  gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *jfilter = NULL;
+  gchar               *rc_file, *cf_name = NULL, *rfilter = NULL, *dfilter = NULL, *jfilter = NULL;
   dfilter_t           *rfcode = NULL;
   gboolean             rfilter_parse_failed = FALSE;
   e_prefs             *prefs_p;
@@ -2074,7 +2075,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:b:" OPTSTRING_B "c:C:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:z:"
+#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:Df:g:Hhi:" OPTSTRING_I "jJ:kK:lLm:nN:o:P:pr:R:Ss:t:u:vw:X:y:z:"
 
   static const char optstring[] = OPTSTRING;
 
@@ -2483,6 +2484,9 @@ main(int argc, char *argv[])
       /*** all non capture option specific ***/
       case 'C':
         /* Configuration profile settings were already processed just ignore them this time*/
+	break;
+      case 'd':
+	dfilter = optarg;
 	break;
       case 'j':        /* Search backwards for a matching packet from filter in option J */
         jump_backwards = TRUE;
@@ -2917,6 +2921,14 @@ main(int argc, char *argv[])
 
   g_timeout_add(info_update_freq, resolv_update_cb, NULL);
 
+  if (dfilter) {
+    GtkWidget *filter_te;
+    filter_te = gtk_bin_get_child(GTK_BIN(g_object_get_data(G_OBJECT(top_level), E_DFILTER_CM_KEY)));
+    gtk_entry_set_text(GTK_ENTRY(filter_te), dfilter);
+
+    /* Run the display filter so it goes in effect. */
+    main_filter_packets(&cfile, dfilter, FALSE);
+  }
 
   /* If we were given the name of a capture file, read it in now;
      we defer it until now, so that, if we can't open it, and pop

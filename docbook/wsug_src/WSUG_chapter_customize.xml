@@ -93,6 +93,7 @@ Processing:
 
 User interface:
   -C &lt;config profile&gt;      start with specified configuration profile
+  -d &lt;display filter&gt;      start with the given display filter
   -g &lt;packet number&gt;       go to specified packet number after "-r"
   -J &lt;jump filter&gt;         jump to the first packet matching the (display)
                            filter
