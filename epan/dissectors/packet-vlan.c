@@ -53,21 +53,21 @@ static gint ett_vlan = -1;
 
 /* From Table G-2 of IEEE standard 802.1D-2004 */
 static const value_string pri_vals[] = {
-	{ 1, "Background"                        },
-	{ 2, "Spare"                             },
-	{ 0, "Best Effort (default)"             },
-	{ 3, "Excellent Effort"                  },
-	{ 4, "Controlled Load"                   },
-	{ 5, "Video, < 100ms latency and jitter" },
-	{ 6, "Voice, < 10ms latency and jitter"  },
-	{ 7, "Network Control"                   },
-	{ 0, NULL                                }
+  { 1, "Background"                        },
+  { 2, "Spare"                             },
+  { 0, "Best Effort (default)"             },
+  { 3, "Excellent Effort"                  },
+  { 4, "Controlled Load"                   },
+  { 5, "Video, < 100ms latency and jitter" },
+  { 6, "Voice, < 10ms latency and jitter"  },
+  { 7, "Network Control"                   },
+  { 0, NULL                                }
 };
 
 static const value_string cfi_vals[] = {
-	{ 0, "Canonical"     },
-	{ 1, "Non-canonical" },
-	{ 0, NULL            }
+  { 0, "Canonical"     },
+  { 1, "Non-canonical" },
+  { 0, NULL            }
 };
 
 
@@ -105,7 +105,7 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tci = tvb_get_ntohs( tvb, 0 );
 
   col_add_fstr(pinfo->cinfo, COL_INFO, "PRI: %u  CFI: %u  ID: %u",
-	      (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
+               (tci >> 13), ((tci >> 12) & 1), (tci & 0xFFF));
   col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", (tci & 0xFFF));
 
   vlan_tree = NULL;
@@ -138,16 +138,16 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Don't throw an exception for this check (even a BoundsError) */
     if (tvb_length_remaining(tvb, 4) >= 2) {
-	if (tvb_get_ntohs(tvb, 4) == 0xffff) {
-	    is_802_2 = FALSE;
-	}
+      if (tvb_get_ntohs(tvb, 4) == 0xffff) {
+        is_802_2 = FALSE;
+      }
     }
 
     dissect_802_3(encap_proto, is_802_2, tvb, 4, pinfo, tree, vlan_tree,
-		  hf_vlan_len, hf_vlan_trailer, 0);
+                  hf_vlan_len, hf_vlan_trailer, 0);
   } else {
     ethertype(encap_proto, tvb, 4, pinfo, tree, vlan_tree,
-		       hf_vlan_etype, hf_vlan_trailer, 0);
+              hf_vlan_etype, hf_vlan_trailer, 0);
   }
 }
 
@@ -155,27 +155,27 @@ void
 proto_register_vlan(void)
 {
   static hf_register_info hf[] = {
-	{ &hf_vlan_priority, {
-		"Priority", "vlan.priority", FT_UINT16, BASE_DEC,
-		VALS(pri_vals), 0xE000, "Descriptions are recommendations from IEEE standard 802.1D-2004", HFILL }},
-	{ &hf_vlan_cfi, {
-		"CFI", "vlan.cfi", FT_UINT16, BASE_DEC,
-		VALS(cfi_vals), 0x1000, "Canonical Format Identifier", HFILL }},
-	{ &hf_vlan_id, {
-		"ID", "vlan.id", FT_UINT16, BASE_DEC,
-		NULL, 0x0FFF, "VLAN ID", HFILL }},
-	{ &hf_vlan_etype, {
-		"Type", "vlan.etype", FT_UINT16, BASE_HEX,
-		VALS(etype_vals), 0x0, "Ethertype", HFILL }},
-	{ &hf_vlan_len, {
-		"Length", "vlan.len", FT_UINT16, BASE_DEC,
-		NULL, 0x0, NULL, HFILL }},
-	{ &hf_vlan_trailer, {
-		"Trailer", "vlan.trailer", FT_BYTES, BASE_NONE,
-		NULL, 0x0, "VLAN Trailer", HFILL }}
+    { &hf_vlan_priority, {
+        "Priority", "vlan.priority", FT_UINT16, BASE_DEC,
+        VALS(pri_vals), 0xE000, "Descriptions are recommendations from IEEE standard 802.1D-2004", HFILL }},
+    { &hf_vlan_cfi, {
+        "CFI", "vlan.cfi", FT_UINT16, BASE_DEC,
+        VALS(cfi_vals), 0x1000, "Canonical Format Identifier", HFILL }},
+    { &hf_vlan_id, {
+        "ID", "vlan.id", FT_UINT16, BASE_DEC,
+        NULL, 0x0FFF, "VLAN ID", HFILL }},
+    { &hf_vlan_etype, {
+        "Type", "vlan.etype", FT_UINT16, BASE_HEX,
+        VALS(etype_vals), 0x0, "Ethertype", HFILL }},
+    { &hf_vlan_len, {
+        "Length", "vlan.len", FT_UINT16, BASE_DEC,
+        NULL, 0x0, NULL, HFILL }},
+    { &hf_vlan_trailer, {
+        "Trailer", "vlan.trailer", FT_BYTES, BASE_NONE,
+        NULL, 0x0, "VLAN Trailer", HFILL }}
   };
   static gint *ett[] = {
-	&ett_vlan
+    &ett_vlan
   };
   module_t *vlan_module;
 
@@ -205,15 +205,15 @@ proto_reg_handoff_vlan(void)
   if (!prefs_initialized)
   {
     vlan_handle = create_dissector_handle(dissect_vlan, proto_vlan);
-    dissector_add("ethertype", ETHERTYPE_VLAN, vlan_handle);
+    dissector_add_uint("ethertype", ETHERTYPE_VLAN, vlan_handle);
     prefs_initialized = TRUE;
   }
   else
   {
-    dissector_delete("ethertype", old_q_in_q_ethertype, vlan_handle);
+    dissector_delete_uint("ethertype", old_q_in_q_ethertype, vlan_handle);
   }
 
   old_q_in_q_ethertype = q_in_q_ethertype;
 
-  dissector_add("ethertype", q_in_q_ethertype, vlan_handle);
+  dissector_add_uint("ethertype", q_in_q_ethertype, vlan_handle);
 }
