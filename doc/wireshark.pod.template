@@ -180,7 +180,7 @@ B<-r> option or can be specified as a command-line argument.
 =head1 OPTIONS
 
 Most users will want to start B<Wireshark> without options and configure
-it from the menus instead. Those users may just skip this section.
+it from the menus instead.  Those users may just skip this section.
 
 =over 4
 
@@ -194,7 +194,7 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds have
 elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
-I<value> kilobytes (where a kilobyte is 1024 bytes). If this option is used
+I<value> kilobytes (where a kilobyte is 1024 bytes).  If this option is used
 together with the -b option, Wireshark will stop writing to the current
 capture file and switch to the next one if filesize is reached.
 
@@ -204,7 +204,7 @@ were written.
 =item -b  E<lt>capture ring buffer optionE<gt>
 
 Cause B<Wireshark> to run in "multiple files" mode.  In "multiple files" mode,
-B<Wireshark> will write to several capture files. When the first capture file
+B<Wireshark> will write to several capture files.  When the first capture file
 fills up, B<Wireshark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> flag,
@@ -214,7 +214,7 @@ e.g. outfile_00001_20050604120117.pcap, outfile_00002_20050604120523.pcap, ...
 With the I<files> option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
 at which point B<Wireshark> will discard the data in the first file and start
-writing to that file and so on. If the I<files> option is not set,
+writing to that file and so on.  If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
 
@@ -253,11 +253,11 @@ This is available on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default capture buffer size.
 If used after an B<-i> option, it sets the capture buffer size for
 the interface specified by the last B<-i> option occurring before
-this option. If the capture buffer size is not set specifically,
+this option.  If the capture buffer size is not set specifically,
 the default capture buffer size is used if provided.
 
 =item -c  E<lt>capture packet countE<gt>
@@ -302,11 +302,11 @@ under Windows.
 
 Set the capture filter expression.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default capture filter expression.
 If used after an B<-i> option, it sets the capture filter expression for
 the interface specified by the last B<-i> option occurring before
-this option. If the capture filter expression is not set specifically,
+this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
 =item -g  E<lt>packet numberE<gt>
@@ -335,15 +335,15 @@ although not all versions of UNIX support the B<-a> flag to B<ifconfig>.
 If no interface is specified, B<Wireshark> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
-there are no non-loopback interfaces. If there are no interfaces at all,
+there are no non-loopback interfaces.  If there are no interfaces at all,
 B<Wireshark> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
-read data from the standard input. On Windows systems, pipe names must be
-of the form ``\\pipe\.\B<pipename>''. Data read from pipes must be in
+read data from the standard input.  On Windows systems, pipe names must be
+of the form ``\\pipe\.\B<pipename>''.  Data read from pipes must be in
 standard libpcap format.
 
-This option can occur multiple times. When capturing from multiple
+This option can occur multiple times.  When capturing from multiple
 interfaces, the capture file will be saved in pcap-ng format.
 
 =item -I
@@ -358,7 +358,7 @@ files on a network server, or resolving host names or network addresses,
 if you are capturing in monitor mode and are not connected to another
 network with another adapter.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it enables the monitor mode for all interfaces.
 If used after an B<-i> option, it enables the monitor mode for
 the interface specified by the last B<-i> option occurring before
@@ -367,13 +367,13 @@ this option.
 =item -J  E<lt>jump filterE<gt>
 
 After reading in a capture file using the B<-r> flag, jump to the packet
-matching the filter (display filter syntax). If no exact match is found
+matching the filter (display filter syntax).  If no exact match is found
 the first packet after that is selected.
 
 =item -j
 
 Use after B<-J> to change the behavior when no exact match is found for
-the filter. With this option select the first packet before.
+the filter.  With this option select the first packet before.
 
 =item -k
 
@@ -418,9 +418,9 @@ names), the B<-N> flag might override this one.
 
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
-numbers turned off. This flag overrides B<-n> if both B<-N> and B<-n> are
-present. If both B<-N> and B<-n> flags are not present, all name resolutions are
-turned on.
+numbers turned off.  This flag overrides B<-n> if both B<-N> and B<-n> are
+present.  If both B<-N> and B<-n> flags are not present, all name resolutions
+are turned on.
 
 The argument is a string that may contain the letters:
 
@@ -435,7 +435,7 @@ B<C> to enable concurrent (asynchronous) DNS lookups
 =item -o  E<lt>preference/recent settingE<gt>
 
 Set a preference or recent value, overriding the default value and any value
-read from a preference/recent file. The argument to the flag is a string of
+read from a preference/recent file.  The argument to the flag is a string of
 the form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference/recent value (which is the same name that would appear in the
 preference/recent file), and I<value> is the value to which it should be set.
@@ -443,9 +443,9 @@ Since B<Ethereal> 0.10.12, the recent settings replaces the formerly used
 -B, -P and -T flags to manipulate the GUI dimensions.
 
 If I<prefname> is "uat", you can override settings in various user access
-tables using the form uatB<:>I<uat filename>:I<uat record>. I<uat filename>
-must be the name of a UAT file, e.g. I<user_dlts>. I<uat_record> must be in
-the form of a valid record for that file, including quotes. For instance, to
+tables using the form uatB<:>I<uat filename>:I<uat record>.  I<uat filename>
+must be the name of a UAT file, e.g. I<user_dlts>.  I<uat_record> must be in
+the form of a valid record for that file, including quotes.  For instance, to
 specify a user DLT from the command line, you would use
 
 =over
@@ -463,7 +463,7 @@ traffic sent to or from the machine on which B<Wireshark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, no interface will be put into the
 promiscuous mode.
 If used after an B<-i> option, the interface specified by the last B<-i>
@@ -472,7 +472,7 @@ promiscuous mode.
 
 =item -P E<lt>path settingE<gt>
 
-Special path settings usually detected automatically. This is used for
+Special path settings usually detected automatically.  This is used for
 special cases, e.g. starting Wireshark from a known location on an USB stick.
 
 The criterion is of the form I<key>B<:>I<path>, where I<key> is one of:
@@ -481,13 +481,13 @@ B<persconf>:I<path> path of personal configuration files, like the
 preferences files.
 
 B<persdata>:I<path> path of personal data files, it's the folder initially
-opened. After the very first initialization, the recent file will keep the
+opened.  After the very first initialization, the recent file will keep the
 folder last used.
 
 =item -r  E<lt>infileE<gt>
 
 Read packet data from I<infile>, can be any supported capture file format
-(including gzipped files). It's not possible to use named pipes or stdin
+(including gzipped files).  It's not possible to use named pipes or stdin
 here!
 
 =item -R  E<lt>read (display) filterE<gt>
@@ -508,17 +508,17 @@ No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default snapshot length.
 If used after an B<-i> option, it sets the snapshot length for
 the interface specified by the last B<-i> option occurring before
-this option. If the snapshot length is not set specifically,
+this option.  If the snapshot length is not set specifically,
 the default snapshot length is used if provided.
 
 =item -t  ad|a|r|d|dd|e
 
 Set the format of the packet timestamp displayed in the packet list
-window. The format can be one of:
+window.  The format can be one of:
 
 B<ad> absolute with date: The absolute date and time is the actual time and
 date the packet was captured
@@ -553,16 +553,16 @@ If a capture is started from the command line with B<-k>, set the data
 link type to use while capturing packets.  The values reported by B<-L>
 are the values that can be used.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default capture link type.
 If used after an B<-i> option, it sets the capture link type for
 the interface specified by the last B<-i> option occurring before
-this option. If the capture link type is not set specifically,
+this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 
 =item -X E<lt>eXtension optionsE<gt>
 
-Specify an option to be passed to an B<Wireshark> module. The eXtension option
+Specify an option to be passed to an B<Wireshark> module.  The eXtension option
 is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
 B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
@@ -728,7 +728,7 @@ EXTENDED
 =item B<-z> mgcp,srt[I<,filter>]
 
 Collect request/response SRT (Service Response Time) data for MGCP.
-(This is similar to B<-z smb,srt>). Data collected is the number of calls
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
 for each known MGCP Type, Minimum SRT, Maximum SRT and Average SRT.
 
 Example: B<-z mgcp,srt>
@@ -744,7 +744,7 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 =item B<-z> megaco,srt[I<,filter>]
 
 Collect request/response SRT (Service Response Time) data for MEGACO.
-(This is similar to B<-z smb,srt>). Data collected is the number of calls
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
 for each known MEGACO Command, Minimum SRT, Maximum SRT and Average SRT.
 
 Example: B<-z megaco,srt>
@@ -786,9 +786,9 @@ conversation type from the menu "Tools/Statistics/Conversation List/".
 
 =item B<-z> h225,counter[I<,filter>]
 
-Count ITU-T H.225 messages and their reasons. In the first column you get a
+Count ITU-T H.225 messages and their reasons.  In the first column you get a
 list of H.225 messages and H.225 message reasons which occur in the current
-capture file. The number of occurrences of each message or reason is displayed
+capture file.  The number of occurrences of each message or reason is displayed
 in the second column.
 
 Example: B<-z h225,counter>
@@ -821,8 +821,8 @@ ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> sip,stat[I<,filter>]
 
-This option will activate a counter for SIP messages. You will get the number
-of occurrences of each SIP Method and of each SIP Status-Code. Additionally you
+This option will activate a counter for SIP messages.  You will get the number
+of occurrences of each SIP Method and of each SIP Status-Code.  Additionally you
 also get the number of resent SIP Messages (only for SIP over UDP).
 
 Example: B<-z sip,stat>
@@ -859,7 +859,7 @@ Example: B<-z voip,calls>
 
 =item File:Merge
 
-Merge another capture file to the currently loaded one. The I<File:Merge>
+Merge another capture file to the currently loaded one.  The I<File:Merge>
 dialog box allows the merge "Prepended", "Chronologically" or "Appended",
 relative to the already loaded one.
 
@@ -868,7 +868,7 @@ relative to the already loaded one.
 Open or close a capture file.  The I<File:Open> dialog box
 allows a filter to be specified; when the capture file is read, the
 filter is applied to all packets read from the file, and packets not
-matching the filter are discarded. The I<File:Open Recent> is a submenu
+matching the filter are discarded.  The I<File:Open Recent> is a submenu
 and will show a list of previously opened files.
 
 =item File:Save
@@ -886,7 +886,7 @@ which to save it.
 =item File:File Set:List Files
 
 Show a dialog box that lists all files of the file set matching the currently
-loaded file. A file set is a compound of files resulting from a capture using
+loaded file.  A file set is a compound of files resulting from a capture using
 the "multiple files" / "ringbuffer" mode, recognizable by the filename pattern,
 e.g.: Filename_00001_20050604101530.pcap.
 
@@ -899,14 +899,14 @@ next / previous file in that set.
 
 =item File:Export
 
-Export captured data into an external format. Note: the data cannot be
+Export captured data into an external format.  Note: the data cannot be
 imported back into Wireshark, so be sure to keep the capture file.
 
 =item File:Print
 
-Print packet data from the current capture. You can select the range of
+Print packet data from the current capture.  You can select the range of
 packets to be printed (which packets are printed), and the output format of
-each packet (how each packet is printed). The output format will be similar
+each packet (how each packet is printed).  The output format will be similar
 to the displayed values, so a summary line, the packet details view, and/or
 the hex dump of the packet can be printed.
 
@@ -1048,7 +1048,7 @@ Enable or disable translation of addresses to names in the display.
 
 =item View:Colorize Packet List
 
-Enable or disable the coloring rules. Disabling will improve performance.
+Enable or disable the coloring rules.  Disabling will improve performance.
 
 =item View:Auto Scroll in Live Capture
 
@@ -1101,9 +1101,9 @@ protocols last.
 
 =item How Colorization Works
 
-Packets are colored according to a list of color filters. Each filter
-consists of a name, a filter expression and a coloration. A packet is
-colored according to the first filter that it matches. Color filter
+Packets are colored according to a list of color filters.  Each filter
+consists of a name, a filter expression and a coloration.  A packet is
+colored according to the first filter that it matches.  Color filter
 expressions use exactly the same syntax as display filter expressions.
 
 When Wireshark starts, the color filters are loaded from:
@@ -1173,21 +1173,21 @@ Go to the previous / next packet of the conversation (TCP, UDP or IP)
 =item Capture:Interfaces
 
 Shows a dialog box with all currently known interfaces and displaying the
-current network traffic amount. Capture sessions can be started from here.
+current network traffic amount.  Capture sessions can be started from here.
 Beware: keeping this box open results in high system load!
 
 =item Capture:Options
 
 Initiate a live packet capture (see L<Capture Options|/item_capture_options>
-dialog below). If no filename is specified, a temporary file will be created
-to hold the capture. The location of the file can be chosen by setting your
-TMPDIR environment variable before starting B<Wireshark>. Otherwise, the
+dialog below).  If no filename is specified, a temporary file will be created
+to hold the capture.  The location of the file can be chosen by setting your
+TMPDIR environment variable before starting B<Wireshark>.  Otherwise, the
 default TMPDIR location is system-dependent, but is likely either F</var/tmp>
 or F</tmp>.
 
 =item Capture:Start
 
-Start a live packet capture with the previously selected options. This won't
+Start a live packet capture with the previously selected options.  This won't
 open the options dialog box, and can be convenient for repeatedly capturing
 with the same options.
 
@@ -1198,7 +1198,7 @@ Stop a running live capture.
 =item Capture:Restart
 
 While a live capture is running, stop it and restart with the same options
-again. This can be convenient to remove irrelevant packets, if no valuable
+again.  This can be convenient to remove irrelevant packets, if no valuable
 packets were captured so far.
 
 =item Capture:Capture Filters
@@ -1236,7 +1236,7 @@ operator followed by the new display filter expression.
 =item Analyze:Prepare a Filter
 
 Create a display filter based on the data currently highlighted in the
-packet details. The filter strip at the top (or bottom) is updated but
+packet details.  The filter strip at the top (or bottom) is updated but
 it is not yet applied.
 
 =item Analyze:Enabled Protocols
@@ -1337,7 +1337,7 @@ the table, they are listed under "End Packets" and "End Bytes".
 
 =item Statistics:Conversations
 
-Lists of conversations; selectable by protocol. See Statistics:Conversation List below.
+Lists of conversations; selectable by protocol.  See Statistics:Conversation List below.
 
 =item Statistics:End Points
 
@@ -1413,17 +1413,17 @@ some field can occur multiple times in the same packet and then all
 instances will be summed up.  Example: 'tcp.len' which will count the
 amount of payload data transferred across TCP in each interval.
 
-COUNT: available for all field types. This will COUNT the number of times
-certain field occurs in each interval. Note that some fields
+COUNT: available for all field types.  This will COUNT the number of times
+certain field occurs in each interval.  Note that some fields
 may occur multiple times in each packet and if that is the case
 then each instance will be counted independently and COUNT
 will be greater than the number of packets.
 
-MAX: available for all integer and relative time fields. This will calculate
+MAX: available for all integer and relative time fields.  This will calculate
 the max seen integer/time value seen for the field during the interval.
 Example: 'smb.time' which will plot the maximum SMB response time.
 
-MIN: available for all integer and relative time fields. This will calculate
+MIN: available for all integer and relative time fields.  This will calculate
 the min seen integer/time value seen for the field during the interval.
 Example: 'smb.time' which will plot the minimum SMB response time.
 
@@ -1470,7 +1470,7 @@ i.e. how fast will the client issue new commands when the previous ones
 completed.
 i.e. the level of concurrency the client can maintain.
 The higher the number, the more and faster is the client issuing new
-commands. When the LOAD goes down, it may be due to client load making
+commands.  When the LOAD goes down, it may be due to client load making
 the client slower in issuing new commands (there may be other reasons as
 well, maybe the client just doesn't have any commands it wants to issue
 right then).
@@ -1536,7 +1536,7 @@ files into B<Wireshark>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such DCE-RPC request/response pairs
-that match that filter will be used to calculate the statistics. If no filter
+that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
 =item *
@@ -1558,7 +1558,7 @@ First packet of the exchange and the Last packet of the exchange.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such FC first/last exchange pairs
-that match that filter will be used to calculate the statistics. If no filter
+that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
 =item *
@@ -1578,7 +1578,7 @@ These windows opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
-the calculation. The statistics will only be calculated
+the calculation.  The statistics will only be calculated
 on those calls matching that filter.
 
 =item *
@@ -1600,7 +1600,7 @@ These windows opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
-the calculation. The statistics will only be calculated
+the calculation.  The statistics will only be calculated
 on those calls matching that filter.
 
 =item *
@@ -1618,7 +1618,7 @@ doing live captures or when reading new capture files into B<Wireshark>.
 
 This dialog will also allow an optional filter string to be used.
 If an optional filter string is used only such ONC-RPC request/response pairs
-that match that filter will be used to calculate the statistics. If no filter
+that match that filter will be used to calculate the statistics.  If no filter
 string is specified all request/response pairs will be used.
 
 By first selecting a conversation by clicking on it and then using the
@@ -1651,7 +1651,7 @@ only the SessionSetupAndX call will be used in the statistics.
 This is a flaw that might be fixed in the future.
 
 You can apply an optional filter string in a dialog box, before starting
-the calculation. The stats will only be calculated
+the calculation.  The stats will only be calculated
 on those calls matching that filter.
 
 By first selecting a conversation by clicking on it and then using the
@@ -1712,28 +1712,28 @@ WLAN Traffic Statistics
 
 =item Telephony:ITU-T H.225
 
-Count ITU-T H.225 messages and their reasons. In the first column you get a
+Count ITU-T H.225 messages and their reasons.  In the first column you get a
 list of H.225 messages and H.225 message reasons, which occur in the current
-capture file. The number of occurrences of each message or reason will be displayed
+capture file.  The number of occurrences of each message or reason will be displayed
 in the second column.
 This window opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
-the counter. The statistics will only be calculated
+the counter.  The statistics will only be calculated
 on those calls matching that filter.
 
 =item Telephony:SIP
 
-Activate a counter for SIP messages. You will get the number of occurrences of each
-SIP Method and of each SIP Status-Code. Additionally you also get the number of
+Activate a counter for SIP messages.  You will get the number of occurrences of each
+SIP Method and of each SIP Status-Code.  Additionally you also get the number of
 resent SIP Messages (only for SIP over UDP).
 
 This window opened will update in semi-real time to reflect changes when
 doing live captures or when reading new capture files into B<Wireshark>.
 
 You can apply an optional filter string in a dialog box, before starting
-the counter. The statistics will only be calculated
+the counter.  The statistics will only be calculated
 on those calls matching that filter.
 
 =item Tools:Firewall ACL Rules
@@ -1771,10 +1771,10 @@ version, the folders used, the available plugins, ...
 =item Main Window
 
 The main window contains the usual things like the menu, some toolbars, the
-main area and a statusbar. The main area is split into three panes, you can
+main area and a statusbar.  The main area is split into three panes, you can
 resize each pane using a "thumb" at the right end of each divider line.
 
-The main window is much more flexible than before. The layout of the main
+The main window is much more flexible than before.  The layout of the main
 window can be customized by the I<Layout> page in the dialog box popped
 up by I<Edit:Preferences>, the following will describe the layout with the
 default settings.
@@ -1783,7 +1783,7 @@ default settings.
 
 =item Main Toolbar
 
-Some menu items are available for quick access here. There is no way to
+Some menu items are available for quick access here.  There is no way to
 customize the items in the toolbar, however the toolbar can be hidden by
 I<View:Main Toolbar>.
 
@@ -1911,7 +1911,7 @@ capture file to present preview data in the File Open dialog.
 
 =item Open Recent maximum list entries
 
-The File menu supports a recent file list. This items allows the user to
+The File menu supports a recent file list.  This items allows the user to
 specify how many files are kept track of in this list.
 
 =item Ask for unsaved capture files
@@ -1922,7 +1922,7 @@ the user is presented the option to save the file when this item is set.
 =item Wrap during find
 
 This items determines the behavior when reaching the beginning or the end
-of a capture file. When set the search wraps around and continues, otherwise
+of a capture file.  When set the search wraps around and continues, otherwise
 it stops.
 
 =item Settings dialogs show a save button
@@ -1932,8 +1932,8 @@ or that save is implicit in OK / Apply.
 
 =item Web browser command
 
-This entry specifies the command line to launch a web browser. It is used
-to access online content, like the Wiki and user guide. Use '%s' to place
+This entry specifies the command line to launch a web browser.  It is used
+to access online content, like the Wiki and user guide.  Use '%s' to place
 the request URL in the command line.
 
 =item Display LEDs in the Expert Infos dialog tab labels
@@ -2004,7 +2004,7 @@ The I<Font> page lets you select the font to be used for most text.
 =item Color Preferences
 
 The I<Colors> page can be used to change the color of the text
-displayed in the TCP stream window and for marked packets. To change a color,
+displayed in the TCP stream window and for marked packets.  To change a color,
 simply select an attribute from the "Set:" menu and use the color selector to
 get the desired color.  The new text colors are displayed as a sample text.
 
@@ -2066,8 +2066,8 @@ should be translated to names.
 
 The I<Enable concurrent DNS name resolution> allows Wireshark to send out
 multiple name resolution requests and not wait for the result before
-continuing dissection. This speeds up dissection with network name
-resolution but initially may miss resolutions. The number of concurrent
+continuing dissection.  This speeds up dissection with network name
+resolution but initially may miss resolutions.  The number of concurrent
 requests can be set here as well.
 
 I<SMI paths>
@@ -2077,7 +2077,7 @@ I<SMI modules>
 =item RTP Player Preferences
 
 This page allows you to select the number of channels visible in the
-RTP player window. It determines the height of the window, more channels
+RTP player window.  It determines the height of the window, more channels
 are possible and visible by means of a scroll bar.
 
 =item Protocol Preferences
@@ -2193,15 +2193,15 @@ modified.
 
 =item THE FILTER LIST
 
-Single rows may be selected by clicking. Multiple rows may be selected
+Single rows may be selected by clicking.  Multiple rows may be selected
 by using the ctrl and shift keys in combination with the mouse button.
 
 =item NEW
 
 Adds a new filter at the bottom of the list and opens the Edit Color
-Filter dialog box. You will have to alter the filter expression at
-least before the filter will be accepted. The format of color filter
-expressions is identical to that of display filters. The new filter is
+Filter dialog box.  You will have to alter the filter expression at
+least before the filter will be accepted.  The format of color filter
+expressions is identical to that of display filters.  The new filter is
 selected, so it may immediately be moved up and down, deleted or edited.
 To avoid confusion all filters are unselected before the new filter is
 created.
@@ -2227,17 +2227,17 @@ Deletes the selected color filter(s).
 =item EXPORT
 
 Allows you to choose a file in which to save the current list of color
-filters. You may also choose to save only the selected filters. A
+filters.  You may also choose to save only the selected filters.  A
 button is provided to save the filters in the global color filters file
 (you must have sufficient permissions to write this file, of course).
 
 =item IMPORT
 
 Allows you to choose a file containing color filters which are then
-added to the bottom of the current list. All the added filters are
+added to the bottom of the current list.  All the added filters are
 selected, so they may be moved to the correct position in the list as a
-group. To avoid confusion, all filters are unselected before the new
-filters are imported. A button is provided to load the filters from the
+group.  To avoid confusion, all filters are unselected before the new
+filters are imported.  A button is provided to load the filters from the
 global color filters file.
 
 =item CLEAR
@@ -2267,12 +2267,12 @@ does not close the dialog.
 =item SAVE
 
 Saves the current list of color filters in your personal color filters
-file. Unless you do this they will not be used the next time you start
+file.  Unless you do this they will not be used the next time you start
 Wireshark.
 
 =item CLOSE
 
-Closes the dialog without changing the coloration of the packets. Note
+Closes the dialog without changing the coloration of the packets.  Note
 that changes you have made to the current list of color filters are not
 undone.
 
@@ -2288,7 +2288,7 @@ capture packet data or a command from which to get the packet data via a
 pipe.
 
 The I<Link layer header type:> field lets you specify the interfaces link
-layer header type. This field is usually disabled, as most interface have
+layer header type.  This field is usually disabled, as most interface have
 only one header type.
 
 The I<Capture packets in promiscuous mode> check box lets you specify
@@ -2308,12 +2308,12 @@ specified, the captured packets will be saved in a temporary file; you
 can save those packets to a file with the I<File:Save As> menu item.
 
 The I<Use multiple files> check box lets you specify that the capture
-should be done in "multiple files" mode. This option is disabled, if the
+should be done in "multiple files" mode.  This option is disabled, if the
 I<Update list of packets in real time> option is checked.
 
 The I<Next file every ...  megabyte(s)> check box and fields lets
 you specify that a switch to a next file should be done
-if the specified filesize is reached. You can also select the appropriate
+if the specified filesize is reached.  You can also select the appropriate
 unit, but beware that the filesize has a maximum of 2 GB.
 The check box is forced to be checked, as "multiple files" mode requires a
 file size to be specified.
@@ -2323,7 +2323,7 @@ you specify that the switch to a next file should be done after the specified
 time has elapsed, even if the specified capture size is not reached.
 
 The I<Ring buffer with ... files> field lets you specify the number
-of files of a ring buffer. This feature will capture into to the first file
+of files of a ring buffer.  This feature will capture into to the first file
 again, after the specified amount of files were used.
 
 The I<Stop capture after ... files> field lets you specify the number
@@ -2337,10 +2337,10 @@ not stop capturing at some fixed number of captured packets.
 The I<Stop capture after ... megabyte(s)> check box and field lets
 you specify that Wireshark should stop capturing after the file to which
 captured packets are being saved grows as large as or larger than some
-specified number of megabytes. If the check box is not checked, Wireshark
+specified number of megabytes.  If the check box is not checked, Wireshark
 will not stop capturing at some capture file size (although the operating
 system on which Wireshark is running, or the available disk space, may still
-limit the maximum size of a capture file). This option is disabled, if
+limit the maximum size of a capture file).  This option is disabled, if
 "multiple files" mode is used,
 
 The I<Stop capture after ...  second(s)> check box and field let you
@@ -2426,9 +2426,9 @@ These files contains various B<Wireshark> configuration settings.
 =item Preferences
 
 The F<preferences> files contain global (system-wide) and personal
-preference settings. If the system-wide preference file exists, it is
-read first, overriding the default settings. If the personal preferences
-file exists, it is read next, overriding any previous values. Note: If
+preference settings.  If the system-wide preference file exists, it is
+read first, overriding the default settings.  If the personal preferences
+file exists, it is read next, overriding any previous values.  Note: If
 the command line flag B<-o> is used (possibly more than once), it will
 in turn override values from the preferences files.
 
@@ -2464,8 +2464,8 @@ unknown/obsolete settings that were in the file.
 =item Recent
 
 The F<recent> file contains personal settings (mostly GUI related) such
-as the current B<Wireshark> window size. The file is saved at program exit and
-read in at program start automatically. Note: The command line flag B<-o>
+as the current B<Wireshark> window size.  The file is saved at program exit and
+read in at program start automatically.  Note: The command line flag B<-o>
 may be used to override settings from this file.
 
 The settings in this file have the same format as in the F<preferences>
@@ -2508,7 +2508,7 @@ If the personal F<hosts> file exists, it is
 used to resolve IPv4 and IPv6 addresses before any other
 attempts are made to resolve them.  The file has the standard F<hosts>
 file syntax; each line contains one IP address and name, separated by
-whitespace. The same directory as for the personal preferences file is used.
+whitespace.  The same directory as for the personal preferences file is used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
 systems and WinPCAP on Windows.  As such the Wireshark personal F<hosts> file
@@ -2517,13 +2517,13 @@ will not be consulted for capture filter name resolution.
 =item Name Resolution (ethers)
 
 The F<ethers> files are consulted to correlate 6-byte hardware addresses to
-names. First the personal F<ethers> file is tried and if an address is not
+names.  First the personal F<ethers> file is tried and if an address is not
 found there the global F<ethers> file is tried next.
 
 Each line contains one hardware address and name, separated by
 whitespace.  The digits of the hardware address are separated by colons
 (:), dashes (-) or periods (.).  The same separator character must be
-used consistently in an address. The following three lines are valid
+used consistently in an address.  The following three lines are valid
 lines of an F<ethers> file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
@@ -2556,9 +2556,9 @@ entries such as:
   00-00-0C-07-AC/40     All-HSRP-routers
 
 can be specified, with a MAC address and a mask indicating how many bits
-of the address must match. The above entry, for example, has 40
+of the address must match.  The above entry, for example, has 40
 significant bits, or 5 bytes, and would match addresses from
-00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF. The mask need not be a
+00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF.  The mask need not be a
 multiple of 8.
 
 The F<manuf> file is looked for in the same directory as the global
@@ -2567,7 +2567,7 @@ preferences file.
 =item Name Resolution (ipxnets)
 
 The F<ipxnets> files are used to correlate 4-byte IPX network numbers to
-names. First the global F<ipxnets> file is tried and if that address is not
+names.  First the global F<ipxnets> file is tried and if that address is not
 found there the personal one is tried next.
 
 The format is the same as the F<ethers>
@@ -2601,7 +2601,7 @@ The global F<cfilters> file uses the same directory as the
 global preferences file.
 
 The personal F<cfilters> file uses the same directory as the personal
-preferences file. It is written through the Capture:Capture Filters
+preferences file.  It is written through the Capture:Capture Filters
 dialog.
 
 If the global F<cfilters> file exists, it is used only if the personal
@@ -2621,7 +2621,7 @@ The global F<dfilters> file uses the same directory as the
 global preferences file.
 
 The personal F<dfilters> file uses the same directory as the
-personal preferences file. It is written through the Analyze:Display
+personal preferences file.  It is written through the Analyze:Display
 Filters dialog.
 
 If the global F<dfilters> file exists, it is used only if the personal
@@ -2632,7 +2632,7 @@ not merged.
 
 The F<colorfilters> files contain system-wide and personal color filters.
 Each line contains one filter, starting with the string displayed in the
-dialog box, followed by the corresponding display filter. Then the
+dialog box, followed by the corresponding display filter.  Then the
 background and foreground colors are appended:
 
   # a comment
@@ -2643,7 +2643,7 @@ The global F<colorfilters> file uses the same directory as the
 global preferences file.
 
 The personal F<colorfilters> file uses the same directory as the
-personal preferences file. It is written through the View:Coloring Rules
+personal preferences file.  It is written through the View:Coloring Rules
 dialog.
 
 If the global F<colorfilters> file exists, it is used only if the personal
