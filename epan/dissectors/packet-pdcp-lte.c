@@ -932,7 +932,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
         /* Add summary to root item */
         proto_item_append_text(root_ti, " (prot=%s: %s -> %s)",
-                               val_to_str(protocol, ip_protocol_vals, "Unknown"),
+                               val_to_str_const(protocol, ip_protocol_vals, "Unknown"),
                                (char*)get_hostname(source),
                                (char*)get_hostname(dest));
     }
@@ -1063,10 +1063,10 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
     proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_mode, tvb, offset, 1, FALSE);
 
     /* Show ACK-TYPE(Mode) in info column */
-    full_mode_name = val_to_str(mode, rohc_mode_vals, "Error");
+    full_mode_name = val_to_str_const(mode, rohc_mode_vals, "Error");
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s(%c)",
-                    val_to_str(ack_type, feedback_ack_vals, "Unknown"),
+                    val_to_str_const(ack_type, feedback_ack_vals, "Unknown"),
                     full_mode_name[0]);
 
     /* 11 bits of SN */
@@ -1686,21 +1686,21 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
 
     /* Append summary to configuration root */
     proto_item_append_text(configuration_ti, "(direction=%s, plane=%s",
-                           val_to_str(p_pdcp_info->direction, direction_vals, "Unknown"),
-                           val_to_str(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
+                           val_to_str_const(p_pdcp_info->direction, direction_vals, "Unknown"),
+                           val_to_str_const(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
 
     if (p_pdcp_info->rohc_compression) {
-        const char *mode = val_to_str(p_pdcp_info->mode, rohc_mode_vals, "Error");
+        const char *mode = val_to_str_const(p_pdcp_info->mode, rohc_mode_vals, "Error");
         proto_item_append_text(configuration_ti, ", mode=%c, profile=%s",
                                mode[0],
-                               val_to_str(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
+                               val_to_str_const(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
     }
     proto_item_append_text(configuration_ti, ")");
     PROTO_ITEM_SET_GENERATED(configuration_ti);
 
     /* Show plane in info column */
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s: ",
-                    val_to_str(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
+                    val_to_str_const(p_pdcp_info->plane, pdcp_plane_vals, "Unknown"));
 
 }
 
@@ -1928,7 +1928,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 
     /* Set mode string */
-    mode = val_to_str(p_pdcp_info->mode, rohc_mode_vals, "Error");
+    mode = val_to_str_const(p_pdcp_info->mode, rohc_mode_vals, "Error");
 
     /* Show configuration (attached packet) info in tree */
     if (pdcp_tree) {
@@ -2187,7 +2187,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /***************************/
 
     col_append_fstr(pinfo->cinfo, COL_PROTOCOL, "|ROHC(%s)",
-                    val_to_str(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
+                    val_to_str_const(p_pdcp_info->profile, rohc_profile_vals, "Unknown"));
 
     /* Only attempt ROHC if configured to */
     if (!global_pdcp_dissect_rohc) {
