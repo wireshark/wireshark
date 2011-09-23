@@ -1168,7 +1168,7 @@ Go to the previous / next / first / last packet in the capture.
 
 =item Go:Next Packet In Conversation
 
-Go to the previous / next packet of the converation (TCP, UDP or IP)
+Go to the previous / next packet of the conversation (TCP, UDP or IP)
 
 =item Capture:Interfaces
 
