@@ -363,7 +363,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if (parent_tree) {
         if (PTREE_DATA(parent_tree)->visible) {
             ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
-                "Ethernet II, Src: %s (%s), Dst: %s (%s)"
+                "Ethernet II, Src: %s (%s), Dst: %s (%s)",
                 get_ether_name(src_addr), ether_to_str(src_addr),
                 get_ether_name(dst_addr), ether_to_str(dst_addr));
       }
