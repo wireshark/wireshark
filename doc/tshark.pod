@@ -58,7 +58,7 @@ standard output or writing the packets to a file.  B<TShark>'s native
 capture file format is B<libpcap> format, which is also the format used
 by B<tcpdump> and various other tools.
 
-Without any options set, B<TShark> will work much like B<tcpdump>. It will
+Without any options set, B<TShark> will work much like B<tcpdump>.  It will
 use the pcap library to capture traffic from the first available network
 interface and displays a summary line on stdout for each received packet.
 
@@ -90,8 +90,8 @@ show the "frame number" field.  If the B<-V> option is specified, it
 writes instead a view of the details of the packet, showing all the
 fields of all protocols in the packet.  If the B<-O> option is
 specified in combination with B<-V>, it will only show the full
-protocols specified. Use the output of "tshark -G protocols" to
-find the abbrevations of the protocols you can specify.
+protocols specified.  Use the output of "tshark -G protocols" to
+find the abbreviations of the protocols you can specify.
 
 If you want to write the decoded form of packets to a file, run
 B<TShark> without the B<-w> option, and redirect its standard output to
@@ -100,8 +100,8 @@ the file (do I<not> use the B<-w> option).
 When writing packets to a file, B<TShark>, by default, writes the
 file in B<libpcap> format, and writes all of the packets it sees to the
 output file.  The B<-F> option can be used to specify the format in which
-to write the file. This list of available file formats is displayed by
-the B<-F> flag without a value. However, you can't specify a file format
+to write the file.  This list of available file formats is displayed by
+the B<-F> flag without a value.  However, you can't specify a file format
 for a live capture.
 
 Read filters in B<TShark>, which allow you to select which packets
@@ -152,9 +152,9 @@ B<duration>:I<value> Stop writing to a capture file after I<value> seconds
 have elapsed.
 
 B<filesize>:I<value> Stop writing to a capture file after it reaches a size of
-I<value> kilobytes (where a kilobyte is 1024 bytes). If this option is used
+I<value> kilobytes (where a kilobyte is 1024 bytes).  If this option is used
 together with the -b option, B<TShark> will stop writing to the current
-capture file and switch to the next one if filesize is reached. When reading a
+capture file and switch to the next one if filesize is reached.  When reading a
 capture file, B<TShark> will stop reading the file after the number of bytes
 read exceeds this number (the complete packet will be read, so more bytes than
 this number may be read).
@@ -165,7 +165,7 @@ were written.
 =item -b  E<lt>capture ring buffer optionE<gt>
 
 Cause B<TShark> to run in "multiple files" mode.  In "multiple files" mode,
-B<TShark> will write to several capture files. When the first capture file
+B<TShark> will write to several capture files.  When the first capture file
 fills up, B<TShark> will switch writing to the next file and so on.
 
 The created filenames are based on the filename given with the B<-w> option,
@@ -175,7 +175,7 @@ e.g. outfile_00001_20050604120117.pcap, outfile_00002_20050604120523.pcap, ...
 With the I<files> option it's also possible to form a "ring buffer".
 This will fill up new files until the number of files specified,
 at which point B<TShark> will discard the data in the first file and start
-writing to that file and so on. If the I<files> option is not set,
+writing to that file and so on.  If the I<files> option is not set,
 new files filled up until one of the capture stop conditions match (or
 until the disk is full).
 
@@ -214,17 +214,17 @@ This is available on UNIX systems with libpcap 1.0.0 or later and on
 Windows.  It is not available on UNIX systems with earlier versions of
 libpcap.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default capture buffer size.
 If used after an B<-i> option, it sets the capture buffer size for
 the interface specified by the last B<-i> option occurring before
-this option. If the capture buffer size is not set specifically,
+this option.  If the capture buffer size is not set specifically,
 the default capture buffer size is used if provided.
 
 =item -c  E<lt>capture packet countE<gt>
 
 Set the maximum number of packets to read when capturing live
-data. If reading a capture file, set the maximum number of packets to read.
+data.  If reading a capture file, set the maximum number of packets to read.
 
 =item -C  E<lt>configuration profileE<gt>
 
@@ -233,7 +233,7 @@ Run with the given configuration profile.
 =item -d  E<lt>layer typeE<gt>==E<lt>selectorE<gt>,E<lt>decode-as protocolE<gt>
 
 Like Wireshark's B<Decode As...> feature, this lets you specify how a
-layer type should be dissected. If the layer type in question (for example,
+layer type should be dissected.  If the layer type in question (for example,
 B<tcp.port> or B<udp.port> for a TCP or UDP port number) has the specified
 selector value, packets should be dissected as the specified protocol.
 
@@ -315,11 +315,11 @@ uses double-quotes, B<s> single-quotes, B<n> no quotes (the default).
 
 Set the capture filter expression.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default capture filter expression.
 If used after an B<-i> option, it sets the capture filter expression for
 the interface specified by the last B<-i> option occurring before
-this option. If the capture filter expression is not set specifically,
+this option.  If the capture filter expression is not set specifically,
 the default capture filter expression is used if provided.
 
 =item -F  E<lt>file formatE<gt>
@@ -337,8 +337,8 @@ and then exit.  If no specific glossary type is specified, then the B<fields> re
 The available report types include:
 
 B<fields>  Dumps the contents of the registration database to
-stdout. An independent program can take this output and format it into nice
-tables or HTML or whatever.  There is one record per line. Each record is
+stdout.  An independent program can take this output and format it into nice
+tables or HTML or whatever.  There is one record per line.  Each record is
 either a protocol or a header field, differentiated by the first field.
 The fields are tab-delimited.
 
@@ -369,16 +369,16 @@ B<fields3>  Same as the B<fields> report but includes two additional columns.
 
 B<protocols> Dumps the protocols in the registration database to stdout.
 An independent program can take this output and format it into nice tables
-or HTML or whatever. There is one record per line. The fields are tab-delimited.
+or HTML or whatever.  There is one record per line.  The fields are tab-delimited.
 
  * Field 1 = protocol name
  * Field 2 = protocol short name
  * Field 3 = protocol filter name
 
 B<values> Dumps the value_strings, range_strings or true/false strings
-for fields that have them. There is one record per line. Fields are
+for fields that have them.  There is one record per line.  Fields are
 tab-delimited.  There are three types of records: Value String, Range
-String and True/False String. The first field, 'V', 'R' or 'T', indicates
+String and True/False String.  The first field, 'V', 'R' or 'T', indicates
 the type of record.
 
  * Value Strings
@@ -404,7 +404,7 @@ the type of record.
  * Field 4 = False String
 
 B<decodes> Dumps the "layer type"/"decode as" associations to stdout.
-There is one record per line. The fields are tab-delimited.
+There is one record per line.  The fields are tab-delimited.
 
  * Field 1 = layer type, e.g. "tcp.port"
  * Field 2 = selector in decimal
@@ -421,7 +421,7 @@ Print the version and options and exits.
 =item -H  E<lt>input hosts fileE<gt>
 
 Read a list of entries from a "hosts" file, which will then be written
-to a capture file. Implies B<-W n>.
+to a capture file.  Implies B<-W n>.
 
 The "hosts" file format is documented at
 L<http://en.wikipedia.org/wiki/Hosts_(file)>.
@@ -440,14 +440,14 @@ although not all versions of UNIX support the B<-a> option to B<ifconfig>.
 If no interface is specified, B<TShark> searches the list of
 interfaces, choosing the first non-loopback interface if there are any
 non-loopback interfaces, and choosing the first loopback interface if
-there are no non-loopback interfaces. If there are no interfaces at all,
+there are no non-loopback interfaces.  If there are no interfaces at all,
 B<TShark> reports an error and doesn't start the capture.
 
 Pipe names should be either the name of a FIFO (named pipe) or ``-'' to
 read data from the standard input.  Data read from pipes must be in
 standard libpcap format.
 
-This option can occur multiple times. When capturing from multiple
+This option can occur multiple times.  When capturing from multiple
 interfaces, the capture file will be saved in pcap-ng format.
 
 Note: the Win32 version of B<TShark> doesn't support capturing from
@@ -465,7 +465,7 @@ files on a network server, or resolving host names or network addresses,
 if you are capturing in monitor mode and are not connected to another
 network with another adapter.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it enables the monitor mode for all interfaces.
 If used after an B<-i> option, it enables the monitor mode for
 the interface specified by the last B<-i> option occurring before
@@ -498,7 +498,7 @@ standard output buffer containing that data fills up.
 
 =item -L
 
-List the data link types supported by the interface and exit. The reported
+List the data link types supported by the interface and exit.  The reported
 link types can be used for the B<-y> option.
 
 =item -n
@@ -510,9 +510,9 @@ names); the B<-N> flag might override this one.
 
 Turn on name resolving only for particular types of addresses and port
 numbers, with name resolving for other types of addresses and port
-numbers turned off. This flag overrides B<-n> if both B<-N> and B<-n> are
-present. If both B<-N> and B<-n> flags are not present, all name resolutions are
-turned on.
+numbers turned off.  This flag overrides B<-n> if both B<-N> and B<-n> are
+present.  If both B<-N> and B<-n> flags are not present, all name resolutions
+are turned on.
 
 The argument is a string that may contain the letters:
 
@@ -541,7 +541,7 @@ traffic sent to or from the machine on which B<TShark> is running,
 broadcast traffic, and multicast traffic to addresses received by that
 machine.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, no interface will be put into the
 promiscuous mode.
 If used after an B<-i> option, the interface specified by the last B<-i>
@@ -567,7 +567,7 @@ printed, just the statistics.
 =item -r  E<lt>infileE<gt>
 
 Read packet data from I<infile>, can be any supported capture file format
-(including gzipped files). It's B<not> possible to use named pipes
+(including gzipped files).  It's B<not> possible to use named pipes
 or stdin here!
 
 =item -R  E<lt>read (display) filterE<gt>
@@ -584,11 +584,11 @@ No more than I<snaplen> bytes of each network packet will be read into
 memory, or saved to disk.  A value of 0 specifies a snapshot length of
 65535, so that the full packet is captured; this is the default.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default snapshot length.
 If used after an B<-i> option, it sets the snapshot length for
 the interface specified by the last B<-i> option occurring before
-this option. If the snapshot length is not set specifically,
+this option.  If the snapshot length is not set specifically,
 the default snapshot length is used if provided.
 
 =item -S
@@ -642,7 +642,7 @@ multi-line view of the details of each of the packets, depending on
 whether the B<-V> flag was specified.  This is the default.
 
 B<fields> The values of fields specified with the B<-e> option, in a
-form specified by the B<-E> option. For example,
+form specified by the B<-E> option.  For example,
 
   -T fields -E separator=, -E quote=d
 
@@ -664,13 +664,13 @@ than a one-line summary of the packet.
 Write raw packet data to I<outfile> or to the standard output if
 I<outfile> is '-'.
 
-NOTE: -w provides raw packet data, not text. If you want text output
+NOTE: -w provides raw packet data, not text.  If you want text output
 you need to redirect stdout (e.g. using '>'), don't use the B<-w>
 option for this.
 
 =item -W  E<lt>file format optionE<gt>
 
-Save extra information in the file if the format supports it. For
+Save extra information in the file if the format supports it.  For
 example,
 
   -F pcapng -W n
@@ -691,7 +691,7 @@ after printing the summary or details.
 
 =item -X E<lt>eXtension optionsE<gt>
 
-Specify an option to be passed to a B<TShark> module. The eXtension option
+Specify an option to be passed to a B<TShark> module.  The eXtension option
 is in the form I<extension_key>B<:>I<value>, where I<extension_key> can be:
 
 B<lua_script>:I<lua_script_filename> tells B<Wireshark> to load the given script in addition to the
@@ -702,11 +702,11 @@ default Lua scripts.
 Set the data link type to use while capturing packets.  The values
 reported by B<-L> are the values that can be used.
 
-This option can occur multiple times. If used before the first
+This option can occur multiple times.  If used before the first
 occurrence of the B<-i> option, it sets the default capture link type.
 If used after an B<-i> option, it sets the capture link type for
 the interface specified by the last B<-i> option occurring before
-this option. If the capture link type is not set specifically,
+this option.  If the capture link type is not set specifically,
 the default capture link type is used if provided.
 
 =item -z  E<lt>statisticsE<gt>
@@ -752,7 +752,7 @@ SRT statistics for a specific host.
 
 =item B<-z> hosts[,ipv4][,ipv6]
 
-Dump any collected IPv4 and/or IPv6 addresses in "hosts" format. Both IPv4
+Dump any collected IPv4 and/or IPv6 addresses in "hosts" format.  Both IPv4
 and IPv6 addresses are dumped by default.
 
 Addresses are collected from a number of sources, including standard "hosts"
@@ -848,10 +848,10 @@ all the packets within a 10 millisecond interval.
 
 B<MIN/MAX/AVG(I<field>)I<field> [and I<filter>]> - The minimum, maximum, or average field value
 in each interval is calculated.  The specified field must be a named integer
-or relative time field. For relative time fields, the output is presented in
+or relative time field.  For relative time fields, the output is presented in
 seconds with six decimal digits of precision rounded to the nearest microsecond.
 
-In the following example, The time of the first Read_AndX call, the last Read_AndX
+In the following example, the time of the first Read_AndX call, the last Read_AndX
 response values are displayed and the minimum, maximum, and average Read response times
 (SRTs) are calculated.  NOTE: If the DOS command shell line continuation character, ''^''
 is used, each line cannot end in a comma so it is placed at the beginning of each
@@ -899,7 +899,7 @@ the total number of bytes transferred in SMB Write PDUs:
   =====================================================================================
 
 B<LOAD(I<field>)I<field> [and I<filter>]> - The LOAD/Queue-Depth
-in each interval is calculated.  The specified field must be a relative-time filed that represents a response time. For example smb.time.
+in each interval is calculated.  The specified field must be a relative time field that represents a response time.  For example smb.time.
 For each interval the Queue-Depth for the specified protocol is calculated.
 
 The following command displays the average SMB LOAD.
@@ -977,7 +977,7 @@ in addition to the normal content of that column.
 I<field> is the display-filter name of a field which value should be placed
 in the Info column.
 I<filter> is a filter string that controls for which packets the field value
-will be presented in the info column. I<field> will only be presented in the
+will be presented in the info column.  I<field> will only be presented in the
 Info column for the packets which match I<filter>.
 
 NOTE: In order for B<TShark> to be able to extract the I<field> value
@@ -1021,13 +1021,13 @@ Following fields will be printed out for each diameter message:
   "srcport"      Source port.
   "dst"          Destination address.
   "dstport"      Destination port.
-  "proto"        Constant string 'diameter', which can be used for post processing of tshark output. e.g. grep/sed/awk.
-  "msgnr"        seq. number of diameter message within the frame. E.g. '2' for the third diameter message in the same frame.
+  "proto"        Constant string 'diameter', which can be used for post processing of tshark output.  E.g. grep/sed/awk.
+  "msgnr"        seq. number of diameter message within the frame.  E.g. '2' for the third diameter message in the same frame.
   "is_request"   '0' if message is a request, '1' if message is an answer.
   "cmd"          diameter.cmd_code, E.g. '272' for credit control messages.
   "req_frame"    Number of frame where matched request was found or '0'.
   "ans_frame"    Number of frame where matched answer was found or '0'.
-  "resp_time"    response time in seconds, '0' in case if matched Request/Answer is not found in trace. E.g. in the begin or end of capture.
+  "resp_time"    response time in seconds, '0' in case if matched Request/Answer is not found in trace.  E.g. in the begin or end of capture.
 
 B<-z diameter,avp> option is much faster than B<-V -T text> or B<-T pdml> options.
 
@@ -1126,7 +1126,7 @@ is relatively restricted with a hope of future expansion.
 =item B<-z> mgcp,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MGCP.
-(This is similar to B<-z smb,srt>). Data collected is the number of calls
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
 for each known MGCP Type, MinRTD, MaxRTD and AvgRTD.
 Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses, which don't match with any request.
@@ -1142,7 +1142,7 @@ MGCP packets exchanged by the host at IP address 1.2.3.4 .
 =item B<-z> megaco,rtd[I<,filter>]
 
 Collect requests/response RTD (Response Time Delay) data for MEGACO.
-(This is similar to B<-z smb,srt>). Data collected is the number of calls
+(This is similar to B<-z smb,srt>).  Data collected is the number of calls
 for each known MEGACO Type, MinRTD, MaxRTD and AvgRTD.
 Additionally you get the number of duplicate requests/responses,
 unresponded requests, responses, which don't match with any request.
@@ -1157,9 +1157,9 @@ This option can be used multiple times on the command line.
 
 =item B<-z> h225,counter[I<,filter>]
 
-Count ITU-T H.225 messages and their reasons. In the first column you get a
+Count ITU-T H.225 messages and their reasons.  In the first column you get a
 list of H.225 messages and H.225 message reasons, which occur in the current
-capture file. The number of occurrences of each message or reason is displayed
+capture file.  The number of occurrences of each message or reason is displayed
 in the second column.
 
 Example: B<-z h225,counter>.
@@ -1191,9 +1191,9 @@ ITU-T H.225 RAS packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> sip,stat[I<,filter>]
 
-This option will activate a counter for SIP messages. You will get the number
-of occurrences of each SIP Method and of each SIP Status-Code. Additionally you
-also get the number of resent SIP Messages (only for SIP over UDP).
+This option will activate a counter for SIP messages.  You will get the number
+of occurrences of each SIP Method and of each SIP Status-Code.  Additionally
+you also get the number of resent SIP Messages (only for SIP over UDP).
 
 Example: B<-z sip,stat>.
 
@@ -1206,7 +1206,7 @@ SIP packets exchanged by the host at IP address 1.2.3.4 .
 
 =item B<-z> mac-lte,stat[I<,filter>]
 
-This option will activate a counter for LTE MAC messages. You will get
+This option will activate a counter for LTE MAC messages.  You will get
 information about the maximum number of UEs/TTI, common messages and
 various counters for each UE that appears in the log.
 
@@ -1221,7 +1221,7 @@ UEs with an assigned RNTI whose value is more than 3000.
 
 =item B<-z> rlc-lte,stat[I<,filter>]
 
-This option will activate a counter for LTE RLC messages. You will get
+This option will activate a counter for LTE RLC messages.  You will get
 information about common messages and various counters for each UE that appears
 in the log.
 
@@ -1272,9 +1272,9 @@ These files contains various B<Wireshark> configuration values.
 =item Preferences
 
 The F<preferences> files contain global (system-wide) and personal
-preference settings. If the system-wide preference file exists, it is
-read first, overriding the default settings. If the personal preferences
-file exists, it is read next, overriding any previous values. Note: If
+preference settings.  If the system-wide preference file exists, it is
+read first, overriding the default settings.  If the personal preferences
+file exists, it is read next, overriding any previous values.  Note: If
 the command line option B<-o> is used (possibly more than once), it will
 in turn override values from the preferences files.
 
@@ -1326,7 +1326,7 @@ If the personal F<hosts> file exists, it is
 used to resolve IPv4 and IPv6 addresses before any other
 attempts are made to resolve them.  The file has the standard F<hosts>
 file syntax; each line contains one IP address and name, separated by
-whitespace. The same directory as for the personal preferences file is
+whitespace.  The same directory as for the personal preferences file is
 used.
 
 Capture filter name resolution is handled by libpcap on UNIX-compatible
@@ -1336,13 +1336,13 @@ will not be consulted for capture filter name resolution.
 =item Name Resolution (ethers)
 
 The F<ethers> files are consulted to correlate 6-byte hardware addresses to
-names. First the personal F<ethers> file is tried and if an address is not
+names.  First the personal F<ethers> file is tried and if an address is not
 found there the global F<ethers> file is tried next.
 
 Each line contains one hardware address and name, separated by
 whitespace.  The digits of the hardware address are separated by colons
 (:), dashes (-) or periods (.).  The same separator character must be
-used consistently in an address. The following three lines are valid
+used consistently in an address.  The following three lines are valid
 lines of an F<ethers> file:
 
   ff:ff:ff:ff:ff:ff          Broadcast
@@ -1375,9 +1375,9 @@ entries such as:
   00-00-0C-07-AC/40     All-HSRP-routers
 
 can be specified, with a MAC address and a mask indicating how many bits
-of the address must match. The above entry, for example, has 40
+of the address must match.  The above entry, for example, has 40
 significant bits, or 5 bytes, and would match addresses from
-00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF. The mask need not be a
+00-00-0C-07-AC-00 through 00-00-0C-07-AC-FF.  The mask need not be a
 multiple of 8.
 
 The F<manuf> file is looked for in the same directory as the global
@@ -1386,7 +1386,7 @@ preferences file.
 =item Name Resolution (ipxnets)
 
 The F<ipxnets> files are used to correlate 4-byte IPX network numbers to
-names. First the global F<ipxnets> file is tried and if that address is not
+names.  First the global F<ipxnets> file is tried and if that address is not
 found there the personal one is tried next.
 
 The format is the same as the F<ethers>
