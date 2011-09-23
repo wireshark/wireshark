@@ -3495,3 +3495,15 @@ proto_reg_handoff_bgp(void)
     bgp_handle = create_dissector_handle(dissect_bgp, proto_bgp);
     dissector_add_uint("tcp.port", BGP_TCP_PORT, bgp_handle);
 }
+/*
+* Editor modelines - http://www.wireshark.org/tools/modelines.html
+*
+* Local variables:
+* c-basic-offset: 4
+* tab-width: 8
+* indent-tabs-mode: nil
+* End:
+*
+* ex: set shiftwidth=4 tabstop=8 expandtab:
+* :indentSize=4:tabSize=8:noTabs=true:
+*/

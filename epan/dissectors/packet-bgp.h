@@ -26,22 +26,22 @@
 #define __PACKET_BGP_H__
 
 /* some handy things to know */
-#define BGP_MAX_PACKET_SIZE		4096
-#define BGP_MARKER_SIZE			16	/* size of BGP marker */
-#define BGP_HEADER_SIZE			19	/* size of BGP header, including marker */
-#define BGP_MIN_OPEN_MSG_SIZE		29
-#define BGP_MIN_UPDATE_MSG_SIZE		23
-#define BGP_MIN_NOTIFICATION_MSG_SIZE	21
-#define BGP_MIN_KEEPALVE_MSG_SIZE	BGP_HEADER_SIZE
-#define BGP_TCP_PORT			179
+#define BGP_MAX_PACKET_SIZE        4096
+#define BGP_MARKER_SIZE            16    /* size of BGP marker */
+#define BGP_HEADER_SIZE            19    /* size of BGP header, including marker */
+#define BGP_MIN_OPEN_MSG_SIZE      29
+#define BGP_MIN_UPDATE_MSG_SIZE    23
+#define BGP_MIN_NOTIFICATION_MSG_SIZE    21
+#define BGP_MIN_KEEPALVE_MSG_SIZE    BGP_HEADER_SIZE
+#define BGP_TCP_PORT            179
 
 /* BGP message types */
-#define BGP_OPEN		1
-#define BGP_UPDATE		2
-#define BGP_NOTIFICATION	3
-#define BGP_KEEPALIVE		4
-#define BGP_ROUTE_REFRESH       5
-#define BGP_CAPABILITY		6
+#define BGP_OPEN          1
+#define BGP_UPDATE        2
+#define BGP_NOTIFICATION  3
+#define BGP_KEEPALIVE     4
+#define BGP_ROUTE_REFRESH 5
+#define BGP_CAPABILITY    6
 #define BGP_ROUTE_REFRESH_CISCO 0x80
 
 /* BGP OPEN message */
@@ -90,16 +90,16 @@ struct bgp_attr {
 #define BGP_ATTR_FLAG_EXTENDED_LENGTH 0x10
 
 /* SSA flags */
-#define BGP_SSA_TRANSITIVE	0x8000
-#define BGP_SSA_TYPE		0x7FFF
+#define BGP_SSA_TRANSITIVE    0x8000
+#define BGP_SSA_TYPE          0x7FFF
 
 /* SSA Types */
-#define BGP_SSA_L2TPv3	1
-#define BGP_SSA_mGRE	2
-#define BGP_SSA_IPSec	3
-#define BGP_SSA_MPLS	4
-#define BGP_SSA_L2TPv3_IN_IPSec	5
-#define BGP_SSA_mGRE_IN_IPSec	6
+#define BGP_SSA_L2TPv3    1
+#define BGP_SSA_mGRE      2
+#define BGP_SSA_IPSec     3
+#define BGP_SSA_MPLS      4
+#define BGP_SSA_L2TPv3_IN_IPSec 5
+#define BGP_SSA_mGRE_IN_IPSec   6
 
 /* AS_PATH segment types */
 #define AS_SET             1   /* RFC1771 */
@@ -108,36 +108,37 @@ struct bgp_attr {
 #define AS_CONFED_SEQUENCE 3   /* draft-ietf-idr-bgp-confed-rfc1965bis-01.txt */
 
 /* OPEN message Optional Parameter types  */
-#define BGP_OPTION_AUTHENTICATION	1   /* RFC1771 */
-#define BGP_OPTION_CAPABILITY		2   /* RFC2842 */
+#define BGP_OPTION_AUTHENTICATION    1   /* RFC1771 */
+#define BGP_OPTION_CAPABILITY        2   /* RFC2842 */
 
 /* BGP capability code */
-#define BGP_CAPABILITY_RESERVED		           0   /* RFC2434 */
-#define BGP_CAPABILITY_MULTIPROTOCOL	           1   /* RFC2858 */
-#define BGP_CAPABILITY_ROUTE_REFRESH	           2   /* RFC2918 */
-#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING 3   /* draft-ietf-idr-route-filter-04.txt */
-#define BGP_CAPABILITY_GRACEFUL_RESTART         0x40   /* draft-ietf-idr-restart-05  */
-#define BGP_CAPABILITY_4_OCTET_AS_NUMBER	0x41   /* draft-ietf-idr-as4bytes-06 */
-#define BGP_CAPABILITY_DYNAMIC_CAPABILITY	0x42   /* draft-ietf-idr-dynamic-cap-03 */
-#define BGP_CAPABILITY_ADDITIONAL_PATHS         0x45   /* draft-ietf-idr-add-paths */
-#define BGP_CAPABILITY_ORF_CISCO	        0x82   /* Cisco */
-#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO      0x80   /* Cisco */
+#define BGP_CAPABILITY_RESERVED                    0    /* RFC2434 */
+#define BGP_CAPABILITY_MULTIPROTOCOL               1    /* RFC2858 */
+#define BGP_CAPABILITY_ROUTE_REFRESH               2    /* RFC2918 */
+#define BGP_CAPABILITY_COOPERATIVE_ROUTE_FILTERING 3    /* draft-ietf-idr-route-filter-04.txt */
+#define BGP_CAPABILITY_GRACEFUL_RESTART            0x40    /* draft-ietf-idr-restart-05  */
+#define BGP_CAPABILITY_4_OCTET_AS_NUMBER           0x41    /* draft-ietf-idr-as4bytes-06 */
+#define BGP_CAPABILITY_DYNAMIC_CAPABILITY          0x42    /* draft-ietf-idr-dynamic-cap-03 */
+#define BGP_CAPABILITY_ADDITIONAL_PATHS            0x45    /* draft-ietf-idr-add-paths */
+#define BGP_CAPABILITY_ORF_CISCO                   0x82    /* Cisco */
+#define BGP_CAPABILITY_ROUTE_REFRESH_CISCO         0x80    /* Cisco */
 
-#define BGP_ORF_PREFIX_CISCO	0x80 /* Cisco */
-#define BGP_ORF_COMM_CISCO	0x81 /* Cisco */
-#define BGP_ORF_EXTCOMM_CISCO	0x82 /* Cisco */
-#define BGP_ORF_ASPATH_CISCO	0x83 /* Cisco */
-#define BGP_ORF_COMM		0x02 /* draft-ietf-idr-route-filter-06.txt */
-#define BGP_ORF_EXTCOMM		0x03 /* draft-ietf-idr-route-filter-06.txt */
-#define BGP_ORF_ASPATH		0x04 /* draft-ietf-idr-aspath-orf-02.txt */
+#define BGP_ORF_PREFIX_CISCO    0x80 /* Cisco */
+#define BGP_ORF_COMM_CISCO      0x81 /* Cisco */
+#define BGP_ORF_EXTCOMM_CISCO   0x82 /* Cisco */
+#define BGP_ORF_ASPATH_CISCO    0x83 /* Cisco */
+
+#define BGP_ORF_COMM        0x02 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_EXTCOMM     0x03 /* draft-ietf-idr-route-filter-06.txt */
+#define BGP_ORF_ASPATH      0x04 /* draft-ietf-idr-aspath-orf-02.txt */
 /* draft-ietf-idr-route-filter-06.txt */
-#define BGP_ORF_ACTION		0xc0
-#define BGP_ORF_ADD		0x00
-#define BGP_ORF_REMOVE		0x40
-#define BGP_ORF_REMOVEALL	0x80
-#define BGP_ORF_MATCH		0x20
-#define BGP_ORF_PERMIT		0x00
-#define BGP_ORF_DENY		0x20
+#define BGP_ORF_ACTION      0xc0
+#define BGP_ORF_ADD         0x00
+#define BGP_ORF_REMOVE      0x40
+#define BGP_ORF_REMOVEALL   0x80
+#define BGP_ORF_MATCH       0x20
+#define BGP_ORF_PERMIT      0x00
+#define BGP_ORF_DENY        0x20
 
 /* well-known communities, from RFC1997 */
 #define BGP_COMM_NO_EXPORT           0xFFFFFF01
@@ -169,8 +170,8 @@ struct bgp_attr {
 
 /* Extended community type */
 /* according to IANA's number assignment at: http://www.iana.org/assignments/bgp-extended-communities */
-#define BGP_EXT_COM_QOS_MARK_T  0x04	/* QoS Marking transitive attribute of regular type (8bit)           */
-#define BGP_EXT_COM_QOS_MARK_NT 0x44	/* QoS Marking non-transitive attribute of regular type (8bit)       */
+#define BGP_EXT_COM_QOS_MARK_T  0x04    /* QoS Marking transitive attribute of regular type (8bit)           */
+#define BGP_EXT_COM_QOS_MARK_NT 0x44    /* QoS Marking non-transitive attribute of regular type (8bit)       */
                                         /* Format Type(1byte):Flags(1byte):QoS Set(1byte):Tec. Type(1byte):  */
                                         /*        Marking O(2bytes):Marking A(1byte):Proc.Cnt(1byte)         */
 #define BGP_EXT_COM_COS_CAP_T   0x05    /* CoS Capability - Format Type(1byte):Flags(1byte):remaining '0..0' */
@@ -184,7 +185,7 @@ struct bgp_attr {
 #define BGP_EXT_COM_RO_2        0x0203  /* Route Origin,Format AS(2bytes):AN(4bytes) */
 #define BGP_EXT_COM_LINKBAND    ((BGP_ATTR_FLAG_TRANSITIVE << 8) | 0x0004)
                                         /* Link Bandwidth,Format AS(2bytes):
-					 * Bandwidth(4bytes) */
+                                         * Bandwidth(4bytes) */
                                         /* -2 version of the draft */
 #define BGP_EXT_COM_VPN_ORIGIN  0x0005  /* OSPF Domin ID / VPN of Origin  */
                                         /* draft-rosen-vpns-ospf-bgp-mpls */
@@ -199,7 +200,7 @@ struct bgp_attr {
 #define QOS_TECH_TYPE_VC           0x03  /* Virtual Channel (VC) encoding using separate channels for */
                                          /* QoS forwarding / one channel per class (e.g. ATM VCs, FR  */
                                          /* VCs, MPLS L-LSPs) */
-#define QOS_TECH_TYPE_GMPLS_TIME   0x04	 /* GMPLS - time slot encoding */
+#define QOS_TECH_TYPE_GMPLS_TIME   0x04   /* GMPLS - time slot encoding */
 #define QOS_TECH_TYPE_GMPLS_LAMBDA 0x05  /* GMPLS - lambda encoding */
 #define QOS_TECH_TYPE_GMPLS_FIBRE  0x06  /* GMPLS - fibre encoding */
 
@@ -222,9 +223,9 @@ struct bgp_attr {
 #define SAFNUM_MULCAST  2
 #define SAFNUM_UNIMULC  3
 #define SAFNUM_MPLS_LABEL 4     /* rfc3107 */
-#define SAFNUM_TUNNEL	64	/* draft-nalawade-kapoor-tunnel-safi-02.txt */
+#define SAFNUM_TUNNEL    64    /* draft-nalawade-kapoor-tunnel-safi-02.txt */
 #define SAFNUM_VPLS     65
-#define SAFNUM_LAB_VPNUNICAST  128     /* Draft-rosen-rfc2547bis-03 */
+#define SAFNUM_LAB_VPNUNICAST  128    /* Draft-rosen-rfc2547bis-03 */
 #define SAFNUM_LAB_VPNMULCAST  129
 #define SAFNUM_LAB_VPNUNIMULC  130
 
@@ -238,3 +239,16 @@ struct bgp_attr {
 #endif
 
 #endif
+
+/*
+* Editor modelines - http://www.wireshark.org/tools/modelines.html
+*
+* Local variables:
+* c-basic-offset: 4
+* tab-width: 8
+* indent-tabs-mode: nil
+* End:
+*
+* ex: set shiftwidth=4 tabstop=8 expandtab:
+* :indentSize=4:tabSize=8:noTabs=true:
+*/
