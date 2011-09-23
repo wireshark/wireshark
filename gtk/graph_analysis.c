@@ -1442,7 +1442,6 @@ static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 #else
 	gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_comments,0, 0);
 #endif
-	cairo_set_source_surface (cr, user_data->dlg.surface_comments, 0, 0);
 	cairo_rectangle (cr, 0, 0, allocation.width, allocation.height);
 	cairo_fill (cr);
 
