@@ -1340,37 +1340,7 @@ static gboolean button_press_event(GtkWidget *widget _U_, GdkEventButton *event,
 	return TRUE;
 }
 
-/****************************************************************************/
-static gboolean scroll_event(GtkWidget *widget _U_, GdkEventScroll *event, gpointer data)
-{
-	graph_analysis_data_t *user_data = data;
 
-	/* Up scroll */
-	switch(event->direction) {
-	case(GDK_SCROLL_UP):
-		if (user_data->dlg.first_item == 0) return TRUE;
-		if (user_data->dlg.first_item < 3)
-			user_data->dlg.first_item = 0;
-		else
-			user_data->dlg.first_item -= 3;
-		break;
-	case(GDK_SCROLL_DOWN):
-		if ((user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)+1 == user_data->num_items)) return TRUE;
-		if ((user_data->dlg.first_item+gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)+1) > (user_data->num_items-3))
-			user_data->dlg.first_item = user_data->num_items-(guint32)gtk_adjustment_get_page_size(user_data->dlg.v_scrollbar_adjustment)-1;
-		else
-			user_data->dlg.first_item += 3;
-	    break;
-	case(GDK_SCROLL_LEFT):
-	case(GDK_SCROLL_RIGHT):
-		/* nothing to do */
-		break;
-	}
-	g_warning("dialog_graph_redraw");
-	dialog_graph_redraw(user_data);
-
-	return TRUE;
-}
 
 /****************************************************************************/
 static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpointer data)
@@ -1404,7 +1374,9 @@ static gboolean key_press_event(GtkWidget *widget _U_, GdkEventKey *event, gpoin
 
 	return TRUE;
 }
-#if GTK_CHECK_VERSION(3,0,0)
+
+
+
 /****************************************************************************/
 static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
@@ -1419,7 +1391,7 @@ static gboolean draw_area_draw(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 	return FALSE;
 }
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
 /****************************************************************************/
 static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -1442,7 +1414,17 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 }
 #endif
 
-#if GTK_CHECK_VERSION(3,0,0)
+static gboolean
+draw_area_scrolled(GtkAdjustment *adjustment, gpointer data)
+{
+	graph_analysis_data_t *user_data = data;
+	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area));
+
+
+	draw_area_draw(user_data->dlg.draw_area, cr, data);
+
+	return TRUE;
+}
 /****************************************************************************/
 static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 {
@@ -1458,7 +1440,7 @@ static gboolean draw_comments(GtkWidget *widget, cairo_t *cr, gpointer data)
 
 	return FALSE;
 }
-#else
+#if !GTK_CHECK_VERSION(3,0,0)
 /****************************************************************************/
 static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, gpointer data)
 {
@@ -1480,6 +1462,18 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, 
 	return FALSE;
 }
 #endif
+
+static gboolean
+comments_area_scrolled(GtkAdjustment *adjustment, gpointer data)
+{
+	graph_analysis_data_t *user_data = data;
+	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_comments));
+
+
+	draw_comments(user_data->dlg.draw_area_comments, cr, data);
+
+	return TRUE;
+}
 
 #if GTK_CHECK_VERSION(3,0,0)
 /****************************************************************************/
@@ -1780,13 +1774,16 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(scroll_window_comments),
 		GTK_SHADOW_ETCHED_IN);
 
+	g_signal_connect(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)), 
+		"value-changed", G_CALLBACK(comments_area_scrolled), user_data);
+
+
 	viewport_comments = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)),
 					     gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(scroll_window_comments)));
 	gtk_container_add(GTK_CONTAINER(viewport_comments), user_data->dlg.draw_area_comments);
 	gtk_container_add(GTK_CONTAINER(scroll_window_comments), viewport_comments);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport_comments), GTK_SHADOW_NONE);
 	gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
-	g_signal_connect(scroll_window_comments, "scroll_event",  G_CALLBACK(scroll_event), user_data);
 
 	/* create main Graph draw area */
 	user_data->dlg.draw_area=gtk_drawing_area_new();
@@ -1807,6 +1804,11 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 
 	gtk_scrolled_window_set_shadow_type(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window),
 		GTK_SHADOW_ETCHED_IN);
+
+	g_signal_connect(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)), 
+		"value-changed", G_CALLBACK(draw_area_scrolled), user_data);
+
+
 	viewport = gtk_viewport_new(gtk_scrolled_window_get_hadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)),
 				    gtk_scrolled_window_get_vadjustment(GTK_SCROLLED_WINDOW(user_data->dlg.scroll_window)));
 	gtk_container_add(GTK_CONTAINER(viewport), user_data->dlg.draw_area);
@@ -1845,7 +1847,6 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 
 	gtk_widget_add_events (user_data->dlg.draw_area, GDK_BUTTON_PRESS_MASK);
 	g_signal_connect(user_data->dlg.draw_area, "button_press_event", G_CALLBACK(button_press_event), user_data);
-	g_signal_connect(user_data->dlg.draw_area, "scroll_event",  G_CALLBACK(scroll_event), user_data);
 	g_signal_connect(user_data->dlg.draw_area, "key_press_event",  G_CALLBACK(key_press_event), user_data);
 
 	gtk_widget_show(user_data->dlg.draw_area_time);
