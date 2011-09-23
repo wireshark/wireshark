@@ -33,6 +33,7 @@
 #include "packet-ieee8021ah.h"
 #include "packet-ipx.h"
 #include "packet-llc.h"
+#include "packet-vlan.h"
 #include <epan/etypes.h>
 #include <epan/prefs.h>
 

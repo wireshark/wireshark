@@ -858,6 +858,14 @@ prefs_set_preference_obsolete(pref_t *pref)
 	return PREFS_SET_NO_SUCH_PREF;
 }
 
+/* Return the value assigned to the given uint preference. */
+guint prefs_get_uint_preference(pref_t *pref)
+{
+	if (pref && pref->type == PREF_UINT)
+		return *pref->varp.uint;
+	return 0;
+}
+
 /*
  * Call a callback function, with a specified argument, for each preference
  * in a given module.
@@ -1962,7 +1970,7 @@ try_convert_to_custom_column(gpointer *el_data)
         gint el;
         gchar *col_expr;
     } migrated_columns[] = {
-        { COL_COS_VALUE, "eth.vlan.pri" },
+        { COL_COS_VALUE, "vlan.priority" },
         { COL_CIRCUIT_ID, "iax2.call" },
         { COL_BSSGP_TLLI, "bssgp.tlli" },
         { COL_HPUX_SUBSYS, "nettl.subsys" },
@@ -2476,8 +2484,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
          *
          * We also renamed "dcp" to "dccp", "x.25" to "x25", "x411" to "p1"
 	 * and "nsip" to "gprs_ns".
-	 *
-	 * The vlan dissector was integrated into the Ethernet dissector.
 	 *
 	 * The SynOptics Network Management Protocol (SONMP) is now known by
 	 * its modern name, the Nortel Discovery Protocol (NDP).

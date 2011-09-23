@@ -51,18 +51,12 @@ static gboolean ccsds_heuristic_length = FALSE;
 static gboolean ccsds_heuristic_version = FALSE;
 static gboolean ccsds_heuristic_header = FALSE;
 static gboolean ccsds_heuristic_bit = FALSE;
-/*  Preference moved over from the old vlan dissector */
-static guint q_in_q_ethertype = 0x9100;
 
 /* protocols and header fields */
 static int proto_eth = -1;
 static int hf_eth_dst = -1;
 static int hf_eth_src = -1;
 static int hf_eth_len = -1;
-static int hf_eth_vlan_tpid = -1;
-static int hf_eth_vlan_pri = -1;
-static int hf_eth_vlan_cfi = -1;
-static int hf_eth_vlan_id = -1;
 static int hf_eth_type = -1;
 static int hf_eth_invalid_lentype = -1;
 static int hf_eth_addr = -1;
@@ -74,7 +68,6 @@ static gint ett_ieee8023 = -1;
 static gint ett_ether2 = -1;
 static gint ett_ether = -1;
 static gint ett_addr = -1;
-static gint ett_tag = -1;
 
 static dissector_handle_t fw1_handle;
 static dissector_handle_t data_handle;
@@ -82,25 +75,6 @@ static heur_dissector_list_t heur_subdissector_list;
 static heur_dissector_list_t eth_trailer_subdissector_list;
 
 static int eth_tap = -1;
-
-/* From Table G-2 of IEEE standard 802.1D-2004 */
-static const value_string pri_vals[] = {
-    { 1, "Background"                        },
-    { 2, "Spare"                             },
-    { 0, "Best Effort (default)"             },
-    { 3, "Excellent Effort"                  },
-    { 4, "Controlled Load"                   },
-    { 5, "Video, < 100ms latency and jitter" },
-    { 6, "Voice, < 10ms latency and jitter"  },
-    { 7, "Network Control"                   },
-    { 0, NULL                                }
-};
-
-static const value_string cfi_vals[] = {
-  { 0, "Canonical"     },
-  { 1, "Non-canonical" },
-  { 0, NULL            }
-};
 
 #define ETH_HEADER_SIZE    14
 
@@ -225,7 +199,7 @@ static void
 dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     int fcs_len)
 {
-  proto_item        *ti = NULL, *tag_item;
+  proto_item        *ti = NULL;
   eth_hdr           *ehdr;
   gboolean          is_802_2;
   proto_tree        *fh_tree = NULL;
@@ -235,10 +209,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   proto_tree        *tree;
   proto_item        *addr_item;
   proto_tree        *addr_tree=NULL;
-  proto_tree        *tag_tree;
   gint              offset;
-  guint8            tag_pri;
-  guint16           tag_vlan_id;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -389,15 +360,10 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         }
     }
 
-    col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
-    if(ehdr->type == ETHERTYPE_VLAN || ehdr->type == q_in_q_ethertype)
-      col_append_str(pinfo->cinfo, COL_INFO, " (VLAN tagged)");
-
     if (parent_tree) {
         if (PTREE_DATA(parent_tree)->visible) {
             ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0,
                 ETH_HEADER_SIZE, "Ethernet II%s, Src: %s (%s), Dst: %s (%s)",
-                (ehdr->type == ETHERTYPE_VLAN || ehdr->type == q_in_q_ethertype) ? " (VLAN tagged)" : "",
                 get_ether_name(src_addr), ether_to_str(src_addr),
                 get_ether_name(dst_addr), ether_to_str(dst_addr));
       }
@@ -428,31 +394,6 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
 
     offset = 12;
-    while(ehdr->type == ETHERTYPE_VLAN || ehdr->type == q_in_q_ethertype) {
-      tag_item = proto_tree_add_text(fh_tree, tvb, offset, 4, "VLAN tag: ");
-      tag_tree = proto_item_add_subtree(tag_item, ett_tag);
-
-      proto_tree_add_item(tag_tree, hf_eth_vlan_tpid, tvb, offset, 2, FALSE);
-      offset += 2;
-
-      proto_tree_add_item(tag_tree, hf_eth_vlan_pri, tvb, offset, 2, FALSE);
-      tag_pri = tvb_get_guint8(tvb, offset) >> 5;
-
-      proto_tree_add_item(tag_tree, hf_eth_vlan_cfi, tvb, offset, 2, FALSE);
-
-      proto_tree_add_item(tag_tree, hf_eth_vlan_id, tvb, offset, 2, FALSE);
-      tag_vlan_id = tvb_get_ntohs(tvb, offset) & 0x0FFF;
-
-      proto_item_append_text(tag_item, "VLAN=%u, Priority=%s", tag_vlan_id,
-        val_to_str(tag_pri, pri_vals, "Unknown"));
-
-      if(check_col(pinfo->cinfo, COL_8021Q_VLAN_ID))
-        col_add_fstr(pinfo->cinfo, COL_8021Q_VLAN_ID, "%u", tag_vlan_id);
-
-      offset += 2;
-
-      ehdr->type = tvb_get_ntohs(tvb, offset);
-    }
     offset += 2;
     proto_item_set_len(ti, offset);
 
@@ -702,22 +643,6 @@ proto_register_eth(void)
         { "Invalid length/type", "eth.invalid_lentype", FT_UINT16, BASE_HEX_DEC,
             NULL, 0x0, NULL, HFILL }},
 
-        { &hf_eth_vlan_tpid,
-        { "Identifier", "eth.vlan.tpid", FT_UINT16, BASE_HEX, VALS(etype_vals), 0x0,
-            "Tag Protocol Identifier (TPID)", HFILL }},
-
-        { &hf_eth_vlan_pri,
-        { "Priority", "eth.vlan.pri", FT_UINT16, BASE_DEC, VALS(pri_vals), 0xE000,
-            "Priority Code Point (PCP)", HFILL }},
-
-        { &hf_eth_vlan_cfi,
-        { "CFI", "eth.vlan.cfi", FT_UINT16, BASE_DEC, VALS(cfi_vals), 0x1000,
-            "Canonical Format Identifier", HFILL }},
-
-        { &hf_eth_vlan_id,
-        { "VLAN", "eth.vlan.id", FT_UINT16, BASE_DEC, NULL, 0x0FFF,
-            "VLAN Identifier (VID)", HFILL }},
-
         { &hf_eth_addr,
         { "Address", "eth.addr", FT_ETHER, BASE_NONE, NULL, 0x0,
             "Source or Destination Hardware Address", HFILL }},
@@ -740,8 +665,7 @@ proto_register_eth(void)
         &ett_ieee8023,
         &ett_ether2,
         &ett_ether,
-        &ett_addr,
-        &ett_tag
+        &ett_addr
     };
     module_t *eth_module;
 
@@ -767,16 +691,6 @@ proto_register_eth(void)
             "Attempt to interpret as FireWall-1 monitor file",
             "Whether packets should be interpreted as coming from CheckPoint FireWall-1 monitor file if they look as if they do",
             &eth_interpret_as_fw1_monitor);
-
-    prefs_register_uint_preference(eth_module, "qinq_ethertype",
-            "802.1QinQ Ethertype (in hex)", "The (hexadecimal) Ethertype used to indicate "
-            "802.1QinQ VLAN in VLAN tunneling.", 16, &q_in_q_ethertype);
-
-    /* This preference is copied over from the old vlan dissector by the set_pref()
-     * function in epan/prefs.c.  We don't have it in this dissector because there could
-     * be multiple VLAN tags nested within the Ethernet header, so we wouldn't know which
-     * one to show. */
-    prefs_register_obsolete_preference(eth_module, "summary_in_tree");
 
     prefs_register_static_text_preference(eth_module, "ccsds_heuristic",
             "These are the conditions to match a payload against in order to determine if this\n"

@@ -37,10 +37,12 @@
 #include "packet-ip.h"
 #include "packet-ipv6.h"
 #include "packet-ipx.h"
+#include "packet-vlan.h"
 #include "packet-ieee8021ah.h"
 #include "packet-vines.h"
 #include <epan/etypes.h>
 #include <epan/ppptypes.h>
+#include <epan/prefs.h>
 
 static dissector_table_t ethertype_dissector_table;
 
@@ -191,7 +193,7 @@ capture_ethertype(guint16 etype, const guchar *pd, int offset, int len,
       capture_ipx(ld);
       break;
     case ETHERTYPE_VLAN:
-      capture_eth(pd, offset, len, ld);
+      capture_vlan(pd, offset, len, ld);
       break;
     case ETHERTYPE_IEEE_802_1AD:
     case ETHERTYPE_IEEE_802_1AH:
@@ -219,11 +221,21 @@ ethertype(guint16 etype, tvbuff_t *tvb, int offset_after_etype,
 	volatile gboolean	dissector_found = FALSE;
 	const char		*volatile saved_proto;
 	void			*pd_save;
+			module_t *eth_module;
+			pref_t *q_in_q_pref;
 
 	/* Add the Ethernet type to the protocol tree */
 	if (tree) {
-		proto_tree_add_uint(fh_tree, etype_id, tvb,
-		    offset_after_etype - 2, 2, etype);
+		eth_module = prefs_find_module("eth");
+		if (eth_module)
+			q_in_q_pref = prefs_find_preference(eth_module, "qinq_ethertype");
+		if (q_in_q_pref && (etype == prefs_get_uint_preference(q_in_q_pref)))
+		proto_tree_add_uint_format_value(fh_tree, etype_id, tvb,
+			offset_after_etype - 2, 2, etype, 
+			"802.1QinQ VLAN in VLAN tunneling (0x%04x)", etype);
+		else
+			proto_tree_add_uint(fh_tree, etype_id, tvb, 
+				offset_after_etype - 2, 2, etype);
 	}
 
 	/* Get the captured length and reported length of the data
