@@ -230,7 +230,7 @@ link types can be used for the B<-y> option.
 
 =item -M
 
-When used with B<-D>, B<-L> and B<-S>, print machine-readable output.
+When used with B<-D>, B<-L> or B<-S>, print machine-readable output.
 The machine-readable output is intended to be read by B<Wireshark> and
 B<TShark>; its format is subject to change from release to release.
 
