@@ -675,8 +675,9 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
                         case FORMAT_AS4_LOC:
                             length = 8 + sizeof(ip4addr);
                             ip4addr = tvb_get_ipv4(tvb, offset + 8);  /* Next Hop   */
-                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u:%u IPv4=%s",
-                                             tvb_get_ntohl(tvb, offset + 2),
+                            ep_strbuf_printf(strbuf, "Empty Label Stack RD=%u.%u:%u IPv4=%s",
+                                             tvb_get_ntohs(tvb, offset + 2),
+                                             tvb_get_ntohs(tvb, offset + 4),
                                              tvb_get_ntohs(tvb, offset + 6),
                                              ip_to_str((guint8 *)&ip4addr));
                             break ;
@@ -1000,9 +1001,10 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
                         ti = proto_tree_add_text(tree, tvb, start_offset,
                                                  (offset + 8 + length) - start_offset,
-                                                 "Label Stack=%s RD=%u:%u, IPv4=%s/%u",
+                                                 "Label Stack=%s RD=%u.%u:%u, IPv4=%s/%u",
                                                  stack_strbuf->str,
-                                                 tvb_get_ntohl(tvb, offset + 2),
+                                                 tvb_get_ntohs(tvb, offset + 2),
+                                                 tvb_get_ntohs(tvb, offset + 4),
                                                  tvb_get_ntohs(tvb, offset + 6),
                                                  ip_to_str(ip4addr.addr_bytes), plen);
                         prefix_tree = proto_item_add_subtree(ti, ett_bgp_prefix);
@@ -1011,8 +1013,8 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1, 3 * labnum,
                                             "%s Label Stack: %s", tag, stack_strbuf->str);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
-                                            "%s Route Distinguisher: %u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
-                                            tvb_get_ntohl(tvb, offset + 4));
+                                            "%s Route Distinguisher: %u.%u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
+                                            tvb_get_ntohs(tvb, offset + 2), tvb_get_ntohs(tvb, offset + 6));
                         if (hf_addr4 != -1) {
                             proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
                                                 offset + 8, length, ip4addr.addr);
@@ -1181,9 +1183,10 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
 
                         proto_tree_add_text(tree, tvb, start_offset,
                                             (offset + 8 + length) - start_offset,
-                                            "Label Stack=%s RD=%u:%u, IPv6=%s/%u",
+                                            "Label Stack=%s RD=%u.%u:%u, IPv6=%s/%u",
                                             stack_strbuf->str,
-                                            tvb_get_ntohl(tvb, offset + 2),
+                                            tvb_get_ntohs(tvb, offset + 2),
+                                            tvb_get_ntohs(tvb, offset + 4),
                                             tvb_get_ntohs(tvb, offset + 6),
                                             ip6_to_str(&ip6addr), plen);
                         total_length = (1 + labnum * 3 + 8) + length;
@@ -1247,8 +1250,9 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         case FORMAT_AS4_LOC:
                             proto_tree_add_text(tree, tvb, start_offset,
                                                 (offset + plen + 2) - start_offset,
-                                                "RD: %u:%u, PE_addr: %s",
-                                                tvb_get_ntohl(tvb, offset + 4),
+                                                "RD: %u.%u:%u, PE_addr: %s",
+                                                tvb_get_ntohs(tvb, offset + 4),
+                                                tvb_get_ntohs(tvb, offset + 6),
                                                 tvb_get_ntohs(tvb, offset + 8),
                                                 tvb_ip_to_str(tvb, offset + 10));
                             break;
@@ -1296,9 +1300,10 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                         case FORMAT_AS4_LOC:
                             proto_tree_add_text(tree, tvb, offset,
                                                 (offset + plen + 1) - start_offset,
-                                                "RD: %u:%u, CE-ID: %u, Label-Block Offset: %u, "
+                                                "RD: %u.%u:%u, CE-ID: %u, Label-Block Offset: %u, "
                                                 "Label-Block Size: %u, Label Base %s",
-                                                tvb_get_ntohl(tvb, offset + 4),
+                                                tvb_get_ntohs(tvb, offset + 4),
+                                                tvb_get_ntohs(tvb, offset + 6),
                                                 tvb_get_ntohs(tvb, offset + 8),
                                                 ce_id,
                                                 labblk_off,
