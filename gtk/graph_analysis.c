@@ -1366,6 +1366,7 @@ static gboolean scroll_event(GtkWidget *widget _U_, GdkEventScroll *event, gpoin
 		/* nothing to do */
 		break;
 	}
+	g_warning("dialog_graph_redraw");
 	dialog_graph_redraw(user_data);
 
 	return TRUE;
@@ -1678,7 +1679,7 @@ static gboolean configure_event_time(GtkWidget *widget, GdkEventConfigure *event
 static gboolean pane_callback(GtkWidget *widget _U_, GParamSpec *pspec _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
-	GtkAllocation draw_area_comments_alloc;
+	GtkAllocation draw_area_comments_alloc, draw_area_alloc;
 	cairo_t *cr;
 
 	if (gtk_paned_get_position(GTK_PANED(user_data->dlg.hpane)) > user_data->dlg.surface_width)
@@ -1701,6 +1702,21 @@ static gboolean pane_callback(GtkWidget *widget _U_, GParamSpec *pspec _U_, gpoi
 		cairo_fill (cr);
 		cairo_destroy (cr);
 	}
+	/* repaint the draw area because when moving the pane position there are times that the expose_event_comments is not called */
+     gtk_widget_get_allocation(user_data->dlg.draw_area, &draw_area_alloc);
+
+     if (gtk_widget_is_drawable(user_data->dlg.draw_area)){
+         cr = gdk_cairo_create(gtk_widget_get_window(user_data->dlg.draw_area));
+#if GTK_CHECK_VERSION(2,22,0)
+         cairo_set_source_surface (cr, user_data->dlg.surface_main, 0, 0); 
+#else
+         gdk_cairo_set_source_pixmap (cr, user_data->dlg.pixmap_main, 0, 0); 
+#endif
+         cairo_rectangle (cr, 0, 0, draw_area_alloc.width, draw_area_alloc.height);
+         cairo_fill (cr);
+         cairo_destroy (cr);
+     }
+
 
 	return TRUE;
 }
@@ -1770,7 +1786,7 @@ static void create_draw_area(graph_analysis_data_t *user_data, GtkWidget *box)
 	gtk_container_add(GTK_CONTAINER(scroll_window_comments), viewport_comments);
 	gtk_viewport_set_shadow_type(GTK_VIEWPORT(viewport_comments), GTK_SHADOW_NONE);
 	gtk_widget_add_events (user_data->dlg.draw_area_comments, GDK_BUTTON_PRESS_MASK);
-	g_signal_connect(user_data->dlg.draw_area_comments, "scroll_event",  G_CALLBACK(scroll_event), user_data);
+	g_signal_connect(scroll_window_comments, "scroll_event",  G_CALLBACK(scroll_event), user_data);
 
 	/* create main Graph draw area */
 	user_data->dlg.draw_area=gtk_drawing_area_new();
