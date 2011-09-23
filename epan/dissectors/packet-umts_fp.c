@@ -1219,7 +1219,7 @@ static void dissect_common_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
-                   val_to_str(control_frame_type, common_control_frame_type_vals, "Unknown"));
+                   val_to_str_const(control_frame_type, common_control_frame_type_vals, "Unknown"));
 
     /* Frame-type specific dissection */
     switch (control_frame_type)
@@ -2208,7 +2208,7 @@ static int dissect_dch_tnl_congestion_indication(proto_tree *tree, packet_info *
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " status = %s",
-                    val_to_str((guint16)status, congestion_status_vals, "unknown"));
+                    val_to_str_const((guint16)status, congestion_status_vals, "unknown"));
 
     return offset;
 }
@@ -2226,8 +2226,8 @@ static void dissect_dch_control_frame(proto_tree *tree, packet_info *pinfo, tvbu
     offset++;
 
     col_append_str(pinfo->cinfo, COL_INFO,
-                   val_to_str(control_frame_type,
-                              dch_control_frame_type_vals, "Unknown"));
+                   val_to_str_const(control_frame_type,
+                                    dch_control_frame_type_vals, "Unknown"));
 
     switch (control_frame_type)
     {
@@ -2830,7 +2830,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
                 proto_item_append_text(ti, " (%s Len=%u): %s",
                                        val_to_str_const(subframes[n].mac_is_lchid[pdu_no][sdu_no], lchid_vals, "Unknown"),
                                        subframes[n].mac_is_length[pdu_no][sdu_no],
-				       tvb_bytes_to_str(tvb, offset, subframes[n].mac_is_length[pdu_no][sdu_no]));
+                                       tvb_bytes_to_str(tvb, offset, subframes[n].mac_is_length[pdu_no][sdu_no]));
 
                 offset += subframes[n].mac_is_length[pdu_no][sdu_no];
                 subframe_bytes += subframes[n].mac_is_length[pdu_no][sdu_no];
@@ -3267,13 +3267,13 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Show channel type in info column, tree */
     col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(p_fp_info->channel,
-                           channel_type_vals,
-                           "Unknown channel type"));
+                val_to_str_const(p_fp_info->channel,
+                                 channel_type_vals,
+                                 "Unknown channel type"));
     proto_item_append_text(ti, " (%s)",
-                           val_to_str(p_fp_info->channel,
-                                      channel_type_vals,
-                                      "Unknown channel type"));
+                           val_to_str_const(p_fp_info->channel,
+                                            channel_type_vals,
+                                            "Unknown channel type"));
 
     /* Add channel type as a generated field */
     ti = proto_tree_add_uint(fp_tree, hf_fp_channel_type, tvb, 0, 0, p_fp_info->channel);
