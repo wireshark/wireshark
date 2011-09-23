@@ -979,6 +979,7 @@ DISSECTOR_SRC = \
 	packet-vicp.c		\
 	packet-vines.c		\
 	packet-vj.c		\
+	packet-vlan.c		\
 	packet-vmlab.c		\
 	packet-vnc.c		\
 	packet-vrrp.c		\
@@ -1346,6 +1347,7 @@ DISSECTOR_INCLUDES =	\
 	packet-usb.h	\
 	packet-usb-hid.h	\
 	packet-vines.h	\
+	packet-vlan.h	\
 	packet-wap.h	\
 	packet-wccp.h	\
 	packet-wifi-p2p.h	\
