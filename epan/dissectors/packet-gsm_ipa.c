@@ -34,7 +34,15 @@
 #include <epan/ipproto.h>
 #include <epan/prefs.h>
 
-#define IPA_TCP_PORTS "3002,3003,3006,5000"
+/* http://www.iana.org/assignments/service-names-port-numbers/service-names-port-numbers.xml
+ * 
+ * exlm-agent     3002
+ * cgms           3003
+ * ii-admin       3006
+ * vrml-multi-use 4200-4299 
+ * commplex-main  5000
+ */
+#define IPA_TCP_PORTS "3002,3003,3006,4249,4250,5000"
 #define IPA_UDP_PORTS "3006"
 
 static dissector_handle_t ipa_handle;
@@ -50,6 +58,8 @@ static int proto_ipaccess = -1;
 static int hf_ipa_data_len = -1;
 static int hf_ipa_protocol = -1;
 static int hf_ipa_hsl_debug = -1;
+static int hf_ipa_osmo_proto = -1;
+static int hf_ipa_osmo_ctrl_data = -1;
 
 static int hf_ipaccess_msgtype = -1;
 static int hf_ipaccess_attr_tag = -1;
@@ -65,27 +75,34 @@ enum {
 	SUB_SCCP,
 	SUB_MGCP,
 /*	SUB_IPACCESS, */
+	SUB_DATA,
 
 	SUB_MAX
 };
 
 static dissector_handle_t sub_handles[SUB_MAX];
+static dissector_table_t osmo_dissector_table;
+
 
 #define ABISIP_RSL_MAX	0x20
 #define HSL_DEBUG	0xdd
+#define OSMO_EXT	0xee
 #define IPA_MGCP	0xfc
 #define AIP_SCCP	0xfd
 #define ABISIP_IPACCESS	0xfe
 #define ABISIP_OML	0xff
+#define IPAC_PROTO_EXT_CTRL	0x00
+#define IPAC_PROTO_EXT_MGCP	0x01
 
 static const value_string ipa_protocol_vals[] = {
 	{ 0x00,		"RSL" },
 	{ 0xdd,		"HSL Debug" },
-	{ 0xfc,		"MGCP" },
+	{ 0xee,		"OSMO EXT" },
+	{ 0xfc,		"MGCP (old)" },
 	{ 0xfd,		"SCCP" },
 	{ 0xfe,		"IPA" },
 	{ 0xff,		"OML" },
-	{ 0, 		NULL }
+	{ 0,		NULL }
 };
 
 static const value_string ipaccess_msgtype_vals[] = {
@@ -114,6 +131,15 @@ static const value_string ipaccess_idtag_vals[] = {
 	{ 0,		NULL }
 };
 
+static const value_string ipa_osmo_proto_vals[] = {
+	{ 0x00,		"CTRL" },
+	{ 0x01,		"MGCP" },
+	{ 0x02,		"LAC" },
+	{ 0x03,		"SMSC" },
+	{ 0,		NULL }
+};
+
+
 static gint
 dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 {
@@ -128,14 +154,14 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 		case 0x00:	/* a string prefixed by its length */
 			len = tvb_get_guint8(tvb, offset+1);
 			proto_tree_add_item(tree, hf_ipaccess_attr_tag,
-					    tvb, offset+2, 1, FALSE);
+					    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_ipaccess_attr_string,
-					    tvb, offset+3, len-1, FALSE);
+					    tvb, offset+3, len-1, ENC_BIG_ENDIAN);
 			break;
 		case 0x01:	/* a single-byte reqest for a certain attr */
 			len = 0;
 			proto_tree_add_item(tree, hf_ipaccess_attr_tag,
-					    tvb, offset+1, 1, FALSE);
+					    tvb, offset+1, 1, ENC_BIG_ENDIAN);
 			break;
 		default:
 			len = 0;
@@ -163,10 +189,10 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	                val_to_str(msg_type, ipaccess_msgtype_vals,
 	                           "unknown 0x%02x"));
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ipaccess, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ipaccess, tvb, 0, -1, ENC_BIG_ENDIAN);
 		ipaccess_tree = proto_item_add_subtree(ti, ett_ipaccess);
 		proto_tree_add_item(ipaccess_tree, hf_ipaccess_msgtype,
-				    tvb, 0, 1, FALSE);
+				    tvb, 0, 1, ENC_BIG_ENDIAN);
 		switch (msg_type) {
 		case 4:
 		case 5:
@@ -177,6 +203,47 @@ dissect_ipaccess(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	return 1;
 }
+
+/* Dissect the osmocom extension header */
+static gint
+dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree *tree)
+{
+	tvbuff_t *next_tvb;
+	guint8 osmo_proto;
+
+	osmo_proto = tvb_get_guint8(tvb, 0);
+
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
+	                val_to_str(osmo_proto, ipa_osmo_proto_vals,
+	                           "unknown 0x%02x"));
+	if (ipatree) {
+		proto_tree_add_item(ipatree, hf_ipa_osmo_proto,
+				    tvb, 0, 1, ENC_BIG_ENDIAN);
+	}
+
+	next_tvb = tvb_new_subset_remaining(tvb, 1);
+
+	/* Call any subdissectors that registered for this protocol */
+	if (dissector_try_uint(osmo_dissector_table, osmo_proto, next_tvb, pinfo, tree))
+		return 1;
+
+	/* Fallback to the standard MGCP dissector */
+	if (osmo_proto == IPAC_PROTO_EXT_MGCP) {
+		call_dissector(sub_handles[SUB_MGCP], next_tvb, pinfo, tree);
+		return 1;
+	/* Simply display the CTRL data as text */
+	} else if (osmo_proto == IPAC_PROTO_EXT_CTRL) {
+		if (tree) {
+			proto_tree_add_item(tree, hf_ipa_osmo_ctrl_data, next_tvb, 0, -1, ENC_BIG_ENDIAN);
+		}
+		return 1;
+	}
+
+	call_dissector(sub_handles[SUB_DATA], next_tvb, pinfo, tree);
+
+	return 1;
+}
+
 
 
 /* Code to actually dissect the packets */
@@ -221,9 +288,9 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "unknown 0x%02x"));
 			ipa_tree = proto_item_add_subtree(ti, ett_ipa);
 			proto_tree_add_item(ipa_tree, hf_ipa_data_len,
-					    tvb, offset, 2, FALSE);
+					    tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(ipa_tree, hf_ipa_protocol,
-					    tvb, offset+2, 1, FALSE);
+					    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		}
 
 		next_tvb = tvb_new_subset(tvb, offset+header_length, len, len);
@@ -246,13 +313,16 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* hand this off to the standard MGCP dissector */
 			call_dissector(sub_handles[SUB_MGCP], next_tvb, pinfo, tree);
 			break;
+		case OSMO_EXT:
+			dissect_osmo(next_tvb, pinfo, ipa_tree, tree);
+			break;
 		case HSL_DEBUG:
 			if (tree) {
 				proto_tree_add_item(ipa_tree, hf_ipa_hsl_debug,
-						    next_tvb, 0, len, FALSE);
+						    next_tvb, 0, len, ENC_BIG_ENDIAN);
 				if (global_ipa_in_root == TRUE)
 					proto_tree_add_item(tree, hf_ipa_hsl_debug,
-							    next_tvb, 0, len, FALSE);
+							    next_tvb, 0, len, ENC_BIG_ENDIAN);
 			}
 			if (global_ipa_in_info == TRUE)
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",
@@ -291,6 +361,18 @@ void proto_register_ipa(void)
 		  FT_STRING, BASE_NONE, NULL, 0,
 		  "Hay Systems Limited debug message", HFILL}
 		},
+		{&hf_ipa_osmo_proto,
+		 {"Osmo ext protocol", "ipa.osmo.protocol",
+		  FT_UINT8, BASE_HEX, VALS(ipa_osmo_proto_vals), 0x0,
+		  "The osmo extension protocol", HFILL}
+		},
+
+		{&hf_ipa_osmo_ctrl_data,
+		 {"CTRL data", "ipa.ctrl.data",
+		  FT_STRING, BASE_NONE, NULL, 0x0,
+		  "Control interface data", HFILL}
+		},
+
 	};
 	static hf_register_info hf_ipa[] = {
 		{&hf_ipaccess_msgtype,
@@ -327,6 +409,11 @@ void proto_register_ipa(void)
 	proto_register_subtree_array(ett, array_length(ett));
 
 	register_dissector("gsm_ipa", dissect_ipa, proto_ipa);
+
+	/* Register table for subdissectors */
+	osmo_dissector_table = register_dissector_table("ipa.osmo.protocol",
+					"ip.access Protocol", FT_UINT8, BASE_DEC);
+
 
 	range_convert_str(&global_ipa_tcp_ports, IPA_TCP_PORTS, MAX_TCP_PORT);
 	range_convert_str(&global_ipa_udp_ports, IPA_UDP_PORTS, MAX_UDP_PORT);
@@ -386,6 +473,7 @@ void proto_reg_handoff_gsm_ipa(void)
 		sub_handles[SUB_OML] = find_dissector("gsm_abis_oml");
 		sub_handles[SUB_SCCP] = find_dissector("sccp");
 		sub_handles[SUB_MGCP] = find_dissector("mgcp");
+		sub_handles[SUB_DATA] = find_dissector("data");
 
 		ipa_handle = create_dissector_handle(dissect_ipa, proto_ipa);
 		ipa_initialized = TRUE;
