@@ -1028,15 +1028,6 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 		pango_cairo_show_layout (cr, layout);
 		cairo_destroy (cr);
 		cr = NULL;
-		/*draw the comments */
-		g_snprintf(label_string, MAX_COMMENT, "%s", user_data->dlg.items[current_item].comment);
-		pango_layout_set_text(middle_layout, label_string, -1);
-		pango_layout_get_pixel_size(middle_layout, &label_width, &label_height);
-		cr = cairo_create (user_data->dlg.surface_comments);
-		cairo_move_to (cr, 2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2);
-		pango_cairo_show_layout (cr, middle_layout);
-		cairo_destroy (cr);
-		cr = NULL;
 #else
 		if (GDK_IS_DRAWABLE(user_data->dlg.pixmap_time)) {
 			cr = gdk_cairo_create (user_data->dlg.pixmap_time);
@@ -1045,11 +1036,11 @@ static void dialog_graph_draw(graph_analysis_data_t *user_data)
 			cairo_destroy (cr);
 			cr = NULL;
 		}
+#endif
 		/*draw the comments */
 		g_snprintf(label_string, MAX_COMMENT, "%s", user_data->dlg.items[current_item].comment);
 		pango_layout_set_text(middle_layout, label_string, -1);
 		pango_layout_get_pixel_size(middle_layout, &label_width, &label_height);
-#endif
 #if GTK_CHECK_VERSION(2,22,0)
 		cr = cairo_create (user_data->dlg.surface_comments);
 		cairo_move_to (cr, 2, top_y_border+current_item*ITEM_HEIGHT+ITEM_HEIGHT/2-label_height/2);
