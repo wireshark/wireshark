@@ -261,7 +261,7 @@ static int hf_snmp_set_request = -1;              /* SetRequest_PDU */
 static int hf_snmp_trap = -1;                     /* Trap_PDU */
 static int hf_snmp_getBulkRequest = -1;           /* GetBulkRequest_PDU */
 static int hf_snmp_informRequest = -1;            /* InformRequest_PDU */
-static int hf_snmp_sNMPv2_Trap = -1;              /* SNMPv2_Trap_PDU */
+static int hf_snmp_snmpV2_trap = -1;              /* SNMPv2_Trap_PDU */
 static int hf_snmp_report = -1;                   /* Report_PDU */
 static int hf_snmp_request_id = -1;               /* INTEGER */
 static int hf_snmp_error_status = -1;             /* T_error_status */
@@ -1985,7 +1985,7 @@ static const value_string snmp_PDUs_vals[] = {
   {   4, "trap" },
   {   5, "getBulkRequest" },
   {   6, "informRequest" },
-  {   7, "sNMPv2-Trap" },
+  {   7, "snmpV2-trap" },
   {   8, "report" },
   { 0, NULL }
 };
@@ -1998,7 +1998,7 @@ static const ber_choice_t PDUs_choice[] = {
   {   4, &hf_snmp_trap           , BER_CLASS_CON, 4, BER_FLAGS_NOOWNTAG, dissect_snmp_Trap_PDU },
   {   5, &hf_snmp_getBulkRequest , BER_CLASS_CON, 5, BER_FLAGS_NOOWNTAG, dissect_snmp_GetBulkRequest_PDU },
   {   6, &hf_snmp_informRequest  , BER_CLASS_CON, 6, BER_FLAGS_NOOWNTAG, dissect_snmp_InformRequest_PDU },
-  {   7, &hf_snmp_sNMPv2_Trap    , BER_CLASS_CON, 7, BER_FLAGS_NOOWNTAG, dissect_snmp_SNMPv2_Trap_PDU },
+  {   7, &hf_snmp_snmpV2_trap    , BER_CLASS_CON, 7, BER_FLAGS_NOOWNTAG, dissect_snmp_SNMPv2_Trap_PDU },
   {   8, &hf_snmp_report         , BER_CLASS_CON, 8, BER_FLAGS_NOOWNTAG, dissect_snmp_Report_PDU },
   { 0, NULL, 0, 0, 0, NULL }
 };
@@ -3503,8 +3503,8 @@ void proto_register_snmp(void) {
       { "informRequest", "snmp.informRequest",
         FT_NONE, BASE_NONE, NULL, 0,
         "InformRequest_PDU", HFILL }},
-    { &hf_snmp_sNMPv2_Trap,
-      { "sNMPv2-Trap", "snmp.sNMPv2_Trap",
+    { &hf_snmp_snmpV2_trap,
+      { "snmpV2-trap", "snmp.snmpV2_trap",
         FT_NONE, BASE_NONE, NULL, 0,
         "SNMPv2_Trap_PDU", HFILL }},
     { &hf_snmp_report,

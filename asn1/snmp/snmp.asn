@@ -169,7 +169,7 @@ PDUs ::= CHOICE {
 	trap Trap-PDU,
 	getBulkRequest GetBulkRequest-PDU,
 	informRequest InformRequest-PDU,
-	sNMPv2-Trap SNMPv2-Trap-PDU,
+	snmpV2-trap SNMPv2-Trap-PDU,
 	report Report-PDU	  	
 }
 
