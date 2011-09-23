@@ -4482,11 +4482,23 @@ dissect_nas_eps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset++;
                 /* Integrity protected and ciphered = 2, Integrity protected and ciphered with new EPS security context = 4 */
                 pd = tvb_get_guint8(tvb,offset)&0x0f;
+#if 0
+				/* Does not work see Bug https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=6348 
+				 * 9.2 Protocol discriminator
+				 * :
+				 * The protocol discriminator in the header (see 3GPP TS 24.007 [12]) of a 
+				 * security protected NAS message is encoded as "EPS mobility management messages".
+				 * XXX Should we check for PD == 7?
+				 */
                 /* If pd is in plaintext this message probably isn't ciphered */
                 if((pd!=7)&&(pd!=2)&&(pd!=15)){
                     proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
                     return;
                 }
+#else
+                proto_tree_add_text(nas_eps_tree, tvb, offset, len-6,"Ciphered message");
+                return;
+#endif
             }else{
                 /* msg_auth_code == 0, probably not ciphered */
                 /* Sequence number  Sequence number 9.6 M   V   1 */
