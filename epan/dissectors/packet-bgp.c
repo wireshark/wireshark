@@ -637,7 +637,6 @@ mp_addr_to_str (guint16 afi, guint8 safi, tvbuff_t *tvb, gint offset, emem_strbu
     guint16             rd_type;                        /* Route Distinguisher type     */
     struct e_in6_addr   ip6addr;                        /* IPv6 address                 */
 
-    length = 0 ;
     switch (afi) {
         case AFNUM_INET:
             switch (safi) {
@@ -1267,7 +1266,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                     labblk_off=tvb_get_ntohs(tvb,offset+12);
                     labblk_size=tvb_get_ntohs(tvb,offset+14);
                     stack_strbuf = ep_strbuf_new_label(NULL);
-                    labnum = decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
+                    decode_MPLS_stack(tvb, offset + 16, stack_strbuf);
                     switch (rd_type) {
 
                         case FORMAT_AS2_LOC:
@@ -1687,8 +1686,6 @@ dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree)
                 case BGP_OPTION_CAPABILITY:
                     /* grab the capability code */
                     cend = p - 1 + plen;
-                    ctype = tvb_get_guint8(tvb, p++);
-                    clen = tvb_get_guint8(tvb, p++);
                     ti = proto_tree_add_text(subtree, tvb, p - 4,
                                              2 + plen, "Capabilities Advertisement (%u bytes)",
                                              2 + plen);
