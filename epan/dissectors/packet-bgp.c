@@ -1013,7 +1013,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                                             "%s Label Stack: %s", tag, stack_strbuf->str);
                         proto_tree_add_text(prefix_tree, tvb, start_offset + 1 + 3 * labnum, 8,
                                             "%s Route Distinguisher: %u.%u:%u", tag, tvb_get_ntohs(tvb, offset + 2),
-                                            tvb_get_ntohs(tvb, offset + 2), tvb_get_ntohs(tvb, offset + 6));
+                                            tvb_get_ntohs(tvb, offset + 4), tvb_get_ntohs(tvb, offset + 6));
                         if (hf_addr4 != -1) {
                             proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb,
                                                 offset + 8, length, ip4addr.addr);
