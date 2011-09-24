@@ -13,6 +13,9 @@
  *
  * Support for SMPP 5.0
  * introduced by Abhik Sarkar
+ * 
+ * Support for Huawei SMPP+ extensions 
+ * introduced by Xu Bo and enhance by Abhik Sarkar
  *
  * $Id$
  *
@@ -250,6 +253,22 @@ static int hf_smpp_dcs_wap_charset = -1;
 static int hf_smpp_dcs_wap_class = -1;
 static int hf_smpp_dcs_cbs_class = -1;
 
+/*
+ * Huawei SMPP+ extensions
+ */
+static int hf_huawei_smpp_version                        = -1;
+static int hf_huawei_smpp_smsc_addr                        = -1;
+static int hf_huawei_smpp_msc_addr_noa                        = -1;
+static int hf_huawei_smpp_msc_addr_npi                        = -1;
+static int hf_huawei_smpp_msc_addr                        = -1;
+static int hf_huawei_smpp_mo_mt_flag                        = -1;
+static int hf_huawei_smpp_length_auth                        = -1;
+static int hf_huawei_smpp_sm_id                                = -1;
+static int hf_huawei_smpp_service_id                        = -1;
+static int hf_huawei_smpp_operation_result                = -1;
+static int hf_huawei_smpp_notify_mode                        = -1;
+static int hf_huawei_smpp_delivery_result                = -1;
+
 /* Initialize the subtree pointers */
 static gint ett_smpp            = -1;
 static gint ett_dlist           = -1;
@@ -302,6 +321,11 @@ static const value_string vals_command_id[] = {         /* Operation    */
     { 0x80000112, "Query_broadcast_sm - resp" },
     { 0x00000113, "Cancel_broadcast_sm" },
     { 0x80000113, "Cancel_broadcast_sm - resp" },
+    /* Huawei SMPP+ extensions */
+    { 0x01000001, "Auth_acc" },
+    { 0x81000001, "Auth_acc - resp" },   
+    { 0X01000002, "Sm_result_notify" },
+    { 0X81000002, "Sm_result_notify - resp" },   
     { 0, NULL }
 };
 
@@ -1000,6 +1024,72 @@ static const range_string vals_broadcast_area_identifier_format[] = {
     {0, 0,  NULL }
 };
 
+/* Huawei SMPP+ extensions */
+static const value_string vals_mo_mt_flag[] = {
+    { 0x01, "MO" },
+    { 0x02, "MT" },
+    { 0x03, "Reserved" },
+    { 0x00, NULL }
+};
+ 
+static const value_string vals_operation_result[] = {
+    { 0x00, "Successful" },
+    { 0x01, "Protocol is not supported" },
+    { 0x0a, "Others" },
+    { 0x0b, "MO account does not exist" },
+    { 0x0c, "MT account does not exist" },
+    { 0x0d, "MO account state is abnormal" },
+    { 0x0e, "MT account state is abnormal" },
+    { 0x0f, "MO account balance is not enough" },
+    { 0x10, "MT account balance is not enough" },
+    { 0x11, "MO VAS is not supported" },
+    { 0x12, "MT VAS is not suppoeted" },
+    { 0x13, "MO user is post-paid user and checked success" },
+    { 0x14, "MT user is post-paid user and checked success" },
+    { 0x15, "MO post-paid user status is incorrect" },
+    { 0x16, "MT post-paid user status is incorrect" },
+    { 0x17, "MO post-paid user account balance is not sufficient" },
+    { 0x18, "MT post-paid user account balance is not sufficient" },
+    { 0x19, "MO post-paid user value-added services are not supported" },
+    { 0x1a, "MT post-paid user value-added services are not supported" },
+    { 0x00, NULL }
+};
+
+static const value_string vals_notify_mode[] = {
+    { 0x01, "Deliver the report when it's successful or failed" },
+    { 0x02, "Deliver the report only when it's failed" },
+    { 0x03, "Deliver the report only when it's successful" },
+    { 0x04, "Never deliver the report" },
+    { 0x00, NULL }
+};
+
+static const value_string vals_delivery_result[] = {
+    { 0x00, "Successful" },
+    { 0x01, "Unsuccessful" },
+    { 0x00, NULL }
+};
+
+static const value_string vals_msc_addr_noa    [] = {
+    { 0x00, "Spare" },
+    { 0x01, "Subscriber number" },
+    { 0x02, "Unknown" },
+    { 0x03, "National number" },
+    { 0x04, "International" },
+    { 0x00, NULL }
+};
+
+static const value_string vals_msc_addr_npi    [] = {
+    { 0x00, "Spare" },
+    { 0x01, "ISDN (Telephony) numbering plan (Recommendation E.164)" },
+    { 0x02, "Spare" },
+    { 0x03, "Data numbering plan (Recommendation X.121) (national use)" },
+    { 0x04, "Telex numbering plan (Recommendation F.69) (national use)" },
+    { 0x05, "Reserved for national use" },
+    { 0x06, "Reserved for national use" },
+    { 0x07, "Spare" },
+    { 0x00, NULL }
+};
+
 static dissector_handle_t gsm_sms_handle;
 
 /*
@@ -1222,7 +1312,7 @@ smpp_handle_dlist(proto_tree *tree, tvbuff_t *tvb, int *offset)
     guint8       dest_flag;
 
     if ((entries = tvb_get_guint8(tvb, tmpoff++))) {
-	proto_item  *pi;
+        proto_item  *pi;
         pi = proto_tree_add_item(tree, hf_smpp_dlist, tvb, *offset, 1, FALSE);
         sub_tree = proto_item_add_subtree(pi, ett_dlist);
     }
@@ -1260,9 +1350,9 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
     proto_tree  *sub_tree = NULL;
 
     if ((entries = tvb_get_guint8(tvb, tmpoff++))) {
-	proto_item  *pi;
+        proto_item  *pi;
         pi = proto_tree_add_item(tree, hf_smpp_dlist_resp,
-			         tvb, *offset, 1, FALSE);
+                                  tvb, *offset, 1, FALSE);
         sub_tree = proto_item_add_subtree(pi, ett_dlist_resp);
     }
     while (entries--)
@@ -1293,7 +1383,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 
     if (tvb_reported_length_remaining(tvb, *offset) >= 1) {
         pi = proto_tree_add_item(tree, hf_smpp_opt_params,
-			         tvb, *offset, -1, FALSE);
+                                 tvb, *offset, -1, FALSE);
         tlvs_tree = proto_item_add_subtree(pi, ett_opt_params);
     }
 
@@ -1312,9 +1402,9 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
         length = tvb_get_ntohs(tvb, (*offset+2));
 
         pi = proto_tree_add_none_format(tlvs_tree, hf_smpp_opt_param, tvb,
-					*offset, length+4,
-					"Optional parameter: %s (0x%04x)",
-					val_to_str(tag, vals_tlv_tags, "0x%04x"), tag);
+                                        *offset, length+4,
+                                        "Optional parameter: %s (0x%04x)",
+                                        val_to_str(tag, vals_tlv_tags, "0x%04x"), tag);
         sub_tree = proto_item_add_subtree(pi, ett_opt_param);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_tag,tvb,*offset,2,tag);
         proto_tree_add_uint(sub_tree,hf_smpp_opt_param_len,tvb,*offset+2,2,length);
@@ -2159,6 +2249,71 @@ query_broadcast_sm_resp(proto_tree *tree, tvbuff_t *tvb)
     smpp_handle_tlv(tree, tvb, &offset);
 }
 
+/* Huawei SMPP+ extensions */
+static void
+huawei_auth_acc(proto_tree *tree, tvbuff_t *tvb)
+{
+    int.offset = 0;
+    guint8 version = 0;
+
+    smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
+    version = tvb_get_guint8(tvb, offset);   
+    smpp_handle_string(tree, tvb, hf_huawei_smpp_smsc_addr, &offset);
+    if ( version == '3' ) {
+        smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_noa, &offset);
+        smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_npi, &offset);
+        smpp_handle_string(tree, tvb, hf_huawei_smpp_msc_addr, &offset);
+    }
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);    
+    smpp_handle_string(tree, tvb, hf_smpp_destination_addr, &offset);
+    smpp_handle_int1(tree, tvb, hf_huawei_smpp_mo_mt_flag, &offset);
+    smpp_handle_string(tree, tvb, hf_huawei_smpp_sm_id, &offset);
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_length_auth, &offset);
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_service_id, &offset);
+}
+
+static void
+huawei_auth_acc_resp(proto_tree *tree, tvbuff_t *tvb)
+{
+    int offset = 0;
+
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_operation_result, &offset);
+    smpp_handle_int1(tree, tvb, hf_huawei_smpp_notify_mode, &offset);
+}
+
+static void
+huawei_sm_result_notify(proto_tree *tree, tvbuff_t *tvb)
+{
+    int offset = 0;
+    guint8 version = 0;
+
+    smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
+    version = tvb_get_guint8(tvb, offset);   
+    smpp_handle_string(tree, tvb, hf_huawei_smpp_smsc_addr, &offset);
+    
+    if ( version == '3' ) {
+        smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_noa, &offset);
+        smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_npi, &offset);
+        smpp_handle_string(tree, tvb, hf_huawei_smpp_msc_addr, &offset);
+    }
+
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);    
+    smpp_handle_string(tree, tvb, hf_smpp_destination_addr, &offset);
+    smpp_handle_int1(tree, tvb, hf_huawei_smpp_mo_mt_flag, &offset);
+    smpp_handle_string(tree, tvb, hf_huawei_smpp_sm_id, &offset);
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_length_auth, &offset);
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_delivery_result, &offset);
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_service_id, &offset);
+}
+
+static void
+huawei_sm_result_notify_resp(proto_tree *tree, tvbuff_t *tvb)
+{
+    int offset = 0;
+
+    smpp_handle_int4(tree, tvb, hf_huawei_smpp_operation_result, &offset);
+}
+
 
 /*
  * A 'heuristic dissector' that attemtps to establish whether we have
@@ -2447,6 +2602,14 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             if (!command_status)
                                 query_broadcast_sm_resp(smpp_tree, tmp_tvb);
                             break;
+                        case 16777217:
+                            if (!command_status)
+                                huawei_auth_acc_resp(smpp_tree, tmp_tvb);
+                            break;
+                         case 16777218:
+                            if (!command_status)
+                                huawei_sm_result_notify_resp(smpp_tree, tmp_tvb);
+                            break;
                         default:
                             break;
                     } /* switch (command_id & 0x7FFFFFFF) */
@@ -2501,6 +2664,12 @@ dissect_smpp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             break;
                         case 275:
                             cancel_broadcast_sm(smpp_tree, tmp_tvb);
+                            break;
+                        case  16777217:
+                            huawei_auth_acc(smpp_tree, tmp_tvb);
+                            break;
+                        case  16777218:
+                            huawei_sm_result_notify(smpp_tree, tmp_tvb);
                             break;
                         default:
                             break;
@@ -3465,8 +3634,82 @@ proto_register_smpp(void)
                         FT_BYTES, BASE_NONE, NULL, 0x00,
                         "Cell Broadcast Message - Service Group", HFILL
                 }
+        },
+        /* Huawei SMPP+ extensions */
+        {    &hf_huawei_smpp_version,
+                {       "Version of SMPP+", "smpp.smppplus_version",
+                        FT_UINT8, BASE_HEX, NULL, 0x00,
+                        "Indicates the SMPP+ version", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_smsc_addr,
+                {       "SMPP+: GT of SMSC", "smpp.smsc_addr",
+                        FT_STRING, BASE_NONE, NULL, 0x00,
+                        "SMPP+: GT of SMSC", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_msc_addr_noa,
+                {       "SMPP+: NOA of MSC address", "smpp.msc_addr_noa",
+                        FT_UINT8, BASE_DEC, VALS(vals_msc_addr_noa), 0x00,
+                        "SMPP+: Indicates the TON of MSC address", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_msc_addr_npi,
+                {       "SMPP+: NPI of MSC address", "smpp.msc_addr_npi",
+                        FT_UINT8, BASE_DEC, VALS(vals_msc_addr_npi), 0x00,
+                        "SMPP+: Indicates the NPI of MSC address", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_msc_addr,
+                {       "SMPP+: GT of MSC", "smpp.msc_addr",
+                        FT_STRING, BASE_NONE, NULL, 0x00,
+                        "SMPP+: GT of MSC", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_mo_mt_flag,
+                {       "SMPP+: Charge for MO or MT", "smpp.mo_mt_flag",
+                        FT_UINT8, BASE_DEC, VALS(vals_mo_mt_flag), 0x00,
+                        "SMPP+: Indicates the Charge side of  MO or MT", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_sm_id,
+                {       "SMPP+: Unique SM ID", "smpp.sm_id",
+                        FT_STRING, BASE_NONE, NULL, 0x00,
+                        "SMPP+: Unique SM ID which is generated by SMSC", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_length_auth,
+                {       "SMPP+: Length of SMS", "smpp.length_auth",
+                        FT_UINT32, BASE_DEC, NULL, 0x00,
+                        "SMPP+: Indicates the Length of SMS", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_service_id,
+                {       "SMPP+: Service ID of SMSC", "smpp.service_id",
+                        FT_UINT32, BASE_DEC, NULL, 0x00,
+                        "SMPP+: Indicates the Service ID of SMSC", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_operation_result,
+                {       "SMPP+: Authentication result of SCP", "smpp.operation_result",
+                        FT_UINT32, BASE_DEC, VALS(vals_operation_result), 0x00,
+                        "SMPP+: Indicates the Authentication result of SCP", HFILL
+                }
+        },
+        {        &hf_huawei_smpp_notify_mode,
+                {       "SMPP+: SMS notify mode", "smpp.notify_mode",
+                        FT_UINT8, BASE_DEC, VALS(vals_notify_mode), 0x00,
+                        "SMPP+: Indicates the SMS notify mode", HFILL
+                }
+        },        
+        {        &hf_huawei_smpp_delivery_result,
+                {       "SMPP+: Delivery result of SMS", "smpp.delivery_result",
+                        FT_UINT32, BASE_DEC, VALS(vals_delivery_result), 0x00,
+                        "SMPP+: Indicates the Delivery result of SMS", HFILL
+                }
         }
     };
+
     /* Setup protocol subtree array */
     static gint *ett[] = {
         &ett_smpp,
