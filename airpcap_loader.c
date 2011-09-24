@@ -1453,35 +1453,16 @@ get_airpcap_interface_list(int *err, char **err_str)
  */
 airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name)
 {
-    unsigned int ifn;
-    GList* curr;
-    airpcap_if_info_t* if_info;
+	GList* curr;
+	airpcap_if_info_t* if_info;
 
-    ifn = 0;
-    if(if_list != NULL)
-    {
-	while( ifn < g_list_length(if_list) )
-	{
-	    curr = g_list_nth(if_list, ifn);
-
-	    if_info = NULL;
-	    if(curr != NULL)
-		    if_info = curr->data;
-	    if(if_info != NULL)
-	    {
-		if ( g_ascii_strcasecmp(if_info->name,name) == 0
-#ifdef HAVE_PCAP_REMOTE /* The interface will be prepended with "rpcap://" */
-			|| g_str_has_suffix(name, if_info->name)
-#endif
-			)
-		{
-		    return if_info;
+	for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
+		if_info = (airpcap_if_info_t *)curr->data;
+		if (if_info && (g_ascii_strcasecmp(if_info->name, name) == 0) {
+		    	return (if_info);
 		}
-	    }
-	    ifn++;
 	}
-    }
-    return NULL;
+	return (NULL);
 }
 
 /*
