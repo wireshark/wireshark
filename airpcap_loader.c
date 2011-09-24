@@ -1458,7 +1458,7 @@ airpcap_if_info_t* get_airpcap_if_from_name(GList* if_list, const gchar* name)
 
 	for (curr = g_list_first(if_list); curr; curr = g_list_next(curr)) {
 		if_info = (airpcap_if_info_t *)curr->data;
-		if (if_info && (g_ascii_strcasecmp(if_info->name, name) == 0) {
+		if (if_info && (g_ascii_strcasecmp(if_info->name, name) == 0)) {
 		    	return (if_info);
 		}
 	}
