@@ -750,6 +750,10 @@ EXTRA_DIST = \
 	image/toolbar/network_virtual_16.xpm	\
 	image/toolbar/network_wired_16.png	\
 	image/toolbar/network_wireless_16.png	\
+	image/toolbar/pipe_16.png	\
+	image/toolbar/remote_arrow_16.png	\
+	image/toolbar/remote_globe_16.png	\
+	image/toolbar/remote_sat_16.png	\
 	image/toolbar/resize_columns_24.xpm	\
 	image/toolbar/telephone_16.xpm	\
 	image/toolbar/telephony_16.xpm	\

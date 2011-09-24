@@ -153,7 +153,7 @@ WIRESHARK_GTK_SRC = \
 	webbrowser.c	\
 	$(WIRESHARK_CUSTOM_GTK_SRC)
 
-about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm
+about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm remote_icons.h
 main_statusbar.c: expert_indicators.h
 capture_if_dlg.c: network_icons.h
 
@@ -326,6 +326,7 @@ noinst_HEADERS = \
 	proto_hier_stats_dlg.h	\
 	range_utils.h \
 	recent.h	\
+	remote_icons.h	\
 	rtp_analysis.h	\
 	rtp_player.h 	\
 	rtp_stream.h	\

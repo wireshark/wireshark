@@ -73,8 +73,11 @@
 #include "airpcap_loader.h"
 #include "airpcap_gui_utils.h"
 #endif
-#if defined(HAVE_AIRPCAP) || defined(HAVE_PCAP_REMOTE)
+#if defined(HAVE_AIRPCAP)
 #include "../image/toolbar/capture_airpcap_16.xpm"
+#endif
+#if defined(HAVE_PCAP_REMOTE)
+#include "gtk/remote_icons.h"
 #endif
 
 /* XXX */
@@ -938,7 +941,7 @@ add_interface_to_list(gchar *name, gchar *descr, remote_options *remote_opts)
     d_interface.remote_opts.sampling_method = remote_opts->sampling_method;
     d_interface.remote_opts.sampling_param = remote_opts->sampling_param;
 #endif
-    icon = xpm_to_widget(capture_airpcap_16_xpm);
+    icon = pixbuf_to_widget(remote_sat_pb_data);
     d_interface.icon = icon;
     view = g_object_get_data(G_OBJECT(welcome_hb), TREE_VIEW_INTERFACES);
     model = gtk_tree_view_get_model(GTK_TREE_VIEW(view));
