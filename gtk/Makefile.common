@@ -155,7 +155,7 @@ WIRESHARK_GTK_SRC = \
 
 about_dlg.c main_welcome.c: ../image/wssplash.xpm ../image/wssplash-dev.xpm remote_icons.h
 main_statusbar.c: expert_indicators.h
-capture_if_dlg.c: network_icons.h
+capture_if_dlg.c: network_icons.h remote_icons.h
 
 WIRESHARK_TAP_SRC = \
 	afp_stat.c	\

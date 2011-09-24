@@ -75,6 +75,10 @@
 #include "../image/toolbar/capture_airpcap_16.xpm"
 #endif
 
+#if defined(HAVE_PCAP_REMOTE)
+#include "gtk/remote_icons.h"
+#endif
+
 #ifdef _WIN32
 #include "../image/toolbar/capture_ethernet_16.xpm"
 #include "../image/toolbar/modem_16.xpm"
@@ -447,6 +451,11 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
  */
 GtkWidget * capture_get_if_icon(const if_info_t* if_info)
 {
+#ifdef HAVE_PCAP_REMOTE
+  if (if_info->description && strstr(if_info->description, "on remote node") != NULL ) {
+    return pixbuf_to_widget(remote_sat_pb_data);
+  }
+#endif
 #if defined(_WIN32)
   /*
    * Much digging failed to reveal any obvious way to get something such
