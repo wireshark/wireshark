@@ -1419,7 +1419,7 @@ static gboolean expose_event(GtkWidget *widget, GdkEventExpose *event, gpointer 
 #endif
 
 static gboolean
-draw_area_scrolled(GtkAdjustment *adjustment, gpointer data)
+draw_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area));
@@ -1472,7 +1472,7 @@ static gboolean expose_event_comments(GtkWidget *widget, GdkEventExpose *event, 
 #endif
 
 static gboolean
-comments_area_scrolled(GtkAdjustment *adjustment, gpointer data)
+comments_area_scrolled(GtkAdjustment *adjustment _U_, gpointer data)
 {
 	graph_analysis_data_t *user_data = data;
 	cairo_t *cr = gdk_cairo_create (gtk_widget_get_window(user_data->dlg.draw_area_comments));
