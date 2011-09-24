@@ -2253,7 +2253,7 @@ query_broadcast_sm_resp(proto_tree *tree, tvbuff_t *tvb)
 static void
 huawei_auth_acc(proto_tree *tree, tvbuff_t *tvb)
 {
-    int.offset = 0;
+    int offset = 0;
     guint8 version = 0;
 
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
