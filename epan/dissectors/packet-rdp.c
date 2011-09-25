@@ -28,7 +28,7 @@
 # include "config.h"
 #endif
 
-#include <stdio.h>
+/* #include <stdio.h> */
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/prefs.h>
@@ -430,7 +430,7 @@ static int hf_rdp_DaylightBias = -1;
 #define PACKET_COMPR_TYPE_RDP61              0x3
 
 
-#define CHANNEL_FLAG_FIRST                  0x00000001
+#define CHANNEL_FLAG_FIRST                   0x00000001
 #define CHANNEL_FLAG_LAST                    0x00000002
 #define CHANNEL_FLAG_SHOW_PROTOCOL           0x00000010
 #define CHANNEL_FLAG_SUSPEND                 0x00000020
@@ -792,7 +792,8 @@ static const value_string rdp_wMonth_vals[] = {
 };
 
 
-static int dissect_rdp_fields(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, rdp_field_info_t *fields)
+static int
+dissect_rdp_fields(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_field_info_t *fields)
 {
   rdp_field_info_t *c;
   int     base_offset = offset;
@@ -807,7 +808,7 @@ static int dissect_rdp_fields(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
   for(c = fields; (c->field != -1) && ((offset - base_offset) < length); c++) {
 
     if((c->fixedLength == 0) && (c->variableLength)) {
-	len = *(c->variableLength);
+      len = *(c->variableLength);
     } else {
 
       len = c->fixedLength;
@@ -829,7 +830,7 @@ static int dissect_rdp_fields(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
       if(c->field != -1)
 	pi = proto_tree_add_item(tree, c->field, tvb, offset, len, TRUE);
       else
-	printf("Error!!!!!\n");
+	REPORT_DISSECTOR_BUG("Error!!!!!\n");
 
       if(c->flags & RDP_FI_UNICODE) {
 	string = tvb_get_ephemeral_faked_unicode(tvb, offset, len/2, TRUE); \
@@ -840,7 +841,7 @@ static int dissect_rdp_fields(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
 	if(c->offsetOrTree != -1)
 	  next_tree = proto_item_add_subtree(pi, c->offsetOrTree);
 	else
-	  printf("Tree Error!!\n");
+	  REPORT_DISSECTOR_BUG("Tree Error!!\n");
 
 	if(c->subfields)
 	  dissect_rdp_fields(tvb, offset, pinfo, next_tree, c->subfields);
@@ -854,7 +855,8 @@ static int dissect_rdp_fields(tvbuff_t *tvb _U_, int offset _U_, packet_info *pi
   return offset;
 }
 
-static int dissect_rdp_nyi(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, const char *info)
+static int
+dissect_rdp_nyi(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t nyi_fields[] = {
     {hf_rdp_notYetImplemented,      2, NULL, 0, 0, NULL },
@@ -862,7 +864,7 @@ static int dissect_rdp_nyi(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
   };
 
   nyi_fields[0].fixedLength = tvb_length_remaining(tvb, offset);
-  offset = dissect_rdp_fields(tvb, offset,pinfo, tree, nyi_fields);
+  offset = dissect_rdp_fields(tvb, offset, pinfo, tree, nyi_fields);
 
   if((tree != NULL) && (info != NULL))
     proto_item_append_text(tree->last_child, " (%s)", info);
@@ -870,7 +872,8 @@ static int dissect_rdp_nyi(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
   return offset;
 }
 
-static int dissect_rdp_encrypted(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, const char *info)
+static int
+dissect_rdp_encrypted(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, const char *info)
 {
   rdp_field_info_t enc_fields[] = {
     {hf_rdp_encrypted,      2, NULL, 0, 0, NULL },
@@ -889,7 +892,8 @@ static int dissect_rdp_encrypted(tvbuff_t *tvb _U_, int offset _U_, packet_info 
 }
 
 
-static int dissect_rdp_clientNetworkData(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint16 length, rdp_conv_info_t *rdp_info)
+static int
+dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint16 length, rdp_conv_info_t *rdp_info)
 {
   proto_tree	*next_tree = NULL;
   proto_item	*pi = NULL;
@@ -987,7 +991,7 @@ dissect_rdp_basicSecurityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, p
 
 
 static int
-dissect_rdp_securityHeader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, rdp_conv_info_t *rdp_info, gboolean alwaysBasic, guint32 *flags_ptr) {
+dissect_rdp_securityHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, rdp_conv_info_t *rdp_info, gboolean alwaysBasic, guint32 *flags_ptr) {
 
   rdp_field_info_t fips_fields[] = {
     {hf_rdp_fipsLength,        2, NULL, 0, 0, NULL },
@@ -1022,7 +1026,7 @@ dissect_rdp_securityHeader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
   return offset;
 }
 static int
-dissect_rdp_channelPDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_channelPDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
   guint32 length = 0;
 
@@ -1060,7 +1064,7 @@ dissect_rdp_channelPDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_
 }
 
 static int
-dissect_rdp_shareDataHeader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_shareDataHeader(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
   guint32 pduType2;
   guint32 compressedType;
   guint32 action = 0;
@@ -1198,7 +1202,7 @@ dissect_rdp_shareDataHeader(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 }
 
 static int
-dissect_rdp_capabilitySets(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_, guint32 numberCapabilities) {
+dissect_rdp_capabilitySets(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree, guint32 numberCapabilities) {
   guint16 i = 0;
   guint16 length = 0;
   guint32 lengthCapability;
@@ -1212,7 +1216,7 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
   };
 
   rdp_field_info_t set_fields[] = {
-    FI_SUBTREE(hf_rdp_capabilitySet, 0 , ett_rdp_capabilitySet, cs_fields),
+    FI_SUBTREE(hf_rdp_capabilitySet, 0, ett_rdp_capabilitySet, cs_fields),
     FI_TERMINATOR
   };
 
@@ -1226,9 +1230,8 @@ dissect_rdp_capabilitySets(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo
 }
 
 static int
-dissect_rdp_demandActivePDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_demandActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
-  guint16 length = 0;
   guint32 lengthSourceDescriptor;
   guint32 numberCapabilities;
 
@@ -1246,8 +1249,6 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
     FI_TERMINATOR
   };
 
-  length = tvb_length_remaining(tvb, offset);
-
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
 
   offset = dissect_rdp_capabilitySets(tvb, offset, pinfo, tree, numberCapabilities);
@@ -1258,9 +1259,8 @@ dissect_rdp_demandActivePDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 }
 
 static int
-dissect_rdp_confirmActivePDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_confirmActivePDU(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree) {
 
-  guint16 length = 0;
   guint32 lengthSourceDescriptor;
   guint32 numberCapabilities;
 
@@ -1275,8 +1275,6 @@ dissect_rdp_confirmActivePDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
     FI_TERMINATOR
   };
 
-  length = tvb_length_remaining(tvb, offset);
-
   offset = dissect_rdp_fields(tvb, offset, pinfo, tree, fields);
 
   offset = dissect_rdp_capabilitySets(tvb, offset, pinfo, tree, numberCapabilities);
@@ -1286,7 +1284,7 @@ dissect_rdp_confirmActivePDU(tvbuff_t *tvb _U_, int offset _U_, packet_info *pin
 
 
 static proto_tree *
-dissect_rdp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
+dissect_rdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 {
   proto_item *item = NULL;
   proto_tree *tree = NULL;
@@ -1301,7 +1299,7 @@ dissect_rdp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_tree)
 }
 
 void
-dissect_rdp_SendData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   proto_tree	*next_tree = NULL;
   proto_item	*pi = NULL;
   int offset = 0;
@@ -1566,7 +1564,7 @@ dissect_rdp_SendData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree
 }
 
 void
-dissect_rdp_ClientData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
   proto_tree	*next_tree = NULL;
   proto_item	*pi = NULL;
@@ -1741,7 +1739,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
 }
 
 void
-dissect_rdp_ServerData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset = 0;
   proto_tree	*next_tree = NULL;
   proto_tree	*old_tree = NULL;
@@ -1899,7 +1897,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
 
 	rdp_info->staticChannelId = channelId;
 	register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
-        if(channelCount > 0 ) {
+        if(channelCount > 0) {
 
 	  array_fields[0].fixedLength = channelCount * 2;
 	  dissect_rdp_fields(tvb, offset, pinfo, next_tree, array_fields);
@@ -1910,7 +1908,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
 	  for(i = 0; i < channelCount; i++) {
 	    offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, channel_fields);
 	    if(rdp_info) {
-	      if(i < MAX_CHANNELS) 
+	      if(i < MAX_CHANNELS)
 		rdp_info->channels[i].value = channelId;
 
 	      /* register SendData on this for now */
@@ -1951,7 +1949,8 @@ dissect_rdp_ServerData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
 
 
 /*--- proto_register_rdp -------------------------------------------*/
-void proto_register_rdp(void) {
+void
+proto_register_rdp(void) {
 
   /* List of fields */
   static hf_register_info hf[] = {
@@ -2413,7 +2412,7 @@ void proto_register_rdp(void) {
         NULL, HFILL }},
     { &hf_rdp_compressedTypeType,
       { "compressedTypeType", "rdp.compressedType.type",
-        FT_UINT8, BASE_HEX ,VALS(rdp_compressionType_vals),
+        FT_UINT8, BASE_HEX, VALS(rdp_compressionType_vals),
 	PacketCompressionTypeMask,
         NULL, HFILL }},
     { &hf_rdp_compressedTypeCompressed,
@@ -2820,7 +2819,8 @@ void proto_register_rdp(void) {
 
 }
 
-void proto_reg_handoff_rdp(void)
+void
+proto_reg_handoff_rdp(void)
 {
 
   /* remember the tpkt handler for change in preferences */
@@ -2832,7 +2832,8 @@ void proto_reg_handoff_rdp(void)
   register_t124_ns_dissector("McDn", dissect_rdp_ServerData, proto_rdp);
 }
 
-void prefs_register_rdp(void) {
+static void
+prefs_register_rdp(void) {
 
   static guint tcp_port = 0;
 
