@@ -531,6 +531,7 @@ csnStreamDissector(proto_tree *tree, csnStream_t* ar, const CSN_DESCR* pDescr, t
             proto_tree   *test_tree;
 
             descr[0]      = pChoice->descr;
+            memset(&descr[1], 0x00, sizeof(CSN_DESCR));
             descr[1].type = CSN_END;
             pui8          = pui8DATA(data, pDescr->offset);
             *pui8         = i;
