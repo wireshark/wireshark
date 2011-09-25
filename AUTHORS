@@ -3313,6 +3313,10 @@ Elliott Aldrich		<elliott [at] aldrichart.com> {
         Various icons
 }
 
+Glenn Matthews		<glenn.matthews@cisco.com> {
+	XMCP dissector
+}
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>
