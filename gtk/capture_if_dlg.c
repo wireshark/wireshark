@@ -451,6 +451,11 @@ gint if_list_comparator_alph (const void *first_arg, const void *second_arg){
  */
 GtkWidget * capture_get_if_icon(const if_info_t* if_info)
 {
+#if defined(__linux__)
+  ws_statb64 statb;
+  char *wireless_path;
+#endif
+
 #ifdef HAVE_PCAP_REMOTE
   if (if_info->description && strstr(if_info->description, "on remote node") != NULL ) {
     return pixbuf_to_widget(remote_sat_pb_data);
@@ -519,9 +524,6 @@ GtkWidget * capture_get_if_icon(const if_info_t* if_info)
   /*
    * Look for /sys/class/net/{device}/wireless.
    */
-  ws_statb64 statb;
-  char *wireless_path;
-
   wireless_path = g_strdup_printf("/sys/class/net/%s/wireless", if_info->name);
   if (wireless_path != NULL) {
     if (ws_stat64(wireless_path, &statb) == 0) {
