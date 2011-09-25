@@ -81,29 +81,15 @@ gtk_ipv6_hostlist_init(const char *optarg, void* userdata _U_)
     init_hostlist_table(TRUE, "IPv6", "ipv6", filter, ipv6_hostlist_packet);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_ipv6_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     gtk_ipv6_hostlist_init("hosts,ipv6", NULL);
 }
-#else
-static void
-gtk_ipv6_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    gtk_ipv6_hostlist_init("hosts,ipv6", NULL);
-}
-#endif
 
 void
 register_tap_listener_ipv6_hostlist(void)
 {
     register_stat_cmd_arg("hosts,ipv6", gtk_ipv6_hostlist_init, NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item("IPv6", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-        gtk_ipv6_hostlist_cb, NULL, NULL, NULL);
-#endif
     register_hostlist_table(TRUE, "IPv6", "ipv6", NULL /*filter*/, ipv6_hostlist_packet);
 }

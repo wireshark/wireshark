@@ -75,30 +75,15 @@ gtk_ipx_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_ipx_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	gtk_ipx_hostlist_init("hosts,ipx",NULL);
 }
-#else
-static void
-gtk_ipx_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	gtk_ipx_hostlist_init("hosts,ipx",NULL);
-}
-#endif
-
 
 void
 register_tap_listener_ipx_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,ipx", gtk_ipx_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-	    gtk_ipx_hostlist_cb, NULL, NULL, NULL);
-#endif
 	register_hostlist_table(TRUE, "IPX", "ipx", NULL /*filter*/, ipx_hostlist_packet);
 }

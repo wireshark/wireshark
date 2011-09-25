@@ -68,30 +68,15 @@ ip_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 ip_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	ip_conversation_init("conv,ip",NULL);
 }
-#else
-static void
-ip_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	ip_conversation_init("conv,ip",NULL);
-}
-#endif
 
 void
 register_tap_listener_ip_conversation(void)
 {
 	register_stat_cmd_arg("conv,ip", ip_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("IPv4", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    ip_endpoints_cb, NULL, NULL, NULL);
-#endif
-
 	register_conversation_table(TRUE, "IPv4", "ip", NULL /*filter*/, ip_conversation_packet);
 }

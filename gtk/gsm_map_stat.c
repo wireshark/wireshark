@@ -424,15 +424,8 @@ gsm_map_stat_gtk_win_create(
     window_present(dlg_p->win);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_map_stat_gtk_cb(GtkAction *action _U_, gpointer user_data _U_)
-#else
-static void
-gsm_map_stat_gtk_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-#endif
 {
 
 
@@ -480,10 +473,5 @@ register_tap_listener_gtkgsm_map_stat(void)
         exit(1);
     }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item("_GSM/MAP Operation",  REGISTER_STAT_GROUP_TELEPHONY,
-        gsm_map_stat_gtk_cb, NULL, NULL, NULL);
-#endif
     register_stat_cmd_arg("gsm_map", gsm_map_stat_gtk_init,NULL);
 }

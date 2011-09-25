@@ -80,29 +80,15 @@ sctp_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 sctp_conversation_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	sctp_conversation_init("conv,sctp",NULL);
 }
-#else
-static void
-sctp_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	sctp_conversation_init("conv,sctp",NULL);
-}
-#endif
 
 void
 register_tap_listener_sctp_conversation(void)
 {
 	register_stat_cmd_arg("conv,sctp", sctp_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else  
-	register_stat_menu_item("SCTP", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    sctp_conversation_cb, NULL, NULL, NULL);
-#endif
-    register_conversation_table(FALSE, "SCTP", "sctp", NULL /*filter*/, sctp_conversation_packet);
+	register_conversation_table(FALSE, "SCTP", "sctp", NULL /*filter*/, sctp_conversation_packet);
 }

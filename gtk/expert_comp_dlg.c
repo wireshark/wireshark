@@ -807,10 +807,5 @@ void
 register_tap_listener_expert_comp(void)
 {
     register_stat_cmd_arg("expert_comp", expert_comp_init,NULL);
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item_stock("Expert Info _Composite",
-        REGISTER_ANALYZE_GROUP_UNSORTED, WIRESHARK_STOCK_EXPERT_INFO,
-        expert_comp_dlg_launch, NULL, NULL, NULL);
-#endif
 }
+

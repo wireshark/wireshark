@@ -608,7 +608,6 @@ static void unset_busy_cursor(GdkWindow *w)
 	gdk_window_set_cursor(w, NULL);
 	gdk_flush();
 }
-#ifdef MAIN_MENU_USE_UIMANAGER
 void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 {
 	struct segment current;
@@ -650,33 +649,6 @@ void tcp_graph_cb (GtkAction *action, gpointer user_data _U_)
 	graph_init_sequence(g);
 
 }
-#else
-static void tcp_graph_cb (GtkWidget *w _U_, gpointer data, guint callback_action /*graph_type*/ _U_)
-{
-	struct segment current;
-	struct graph *g;
-
-	guint graph_type = GPOINTER_TO_INT(data);
-
-	debug(DBS_FENTRY) puts ("tcp_graph_cb()");
-
-	if (! (g = graph_new()))
-		return;
-
-	refnum++;
-	graph_initialize_values (g);
-
-	g->type = graph_type;
-	if (!select_tcpip_session (&cfile, &current)) {
-		return;
-	}
-
-	graph_segment_list_get(g);
-	create_gui(g);
-	/* display_text(g); */
-	graph_init_sequence(g);
-}
-#endif
 static void create_gui (struct graph *g)
 {
 	debug(DBS_FENTRY) puts ("create_gui()");
@@ -4623,12 +4595,7 @@ static int rint (double x)
 }
 #endif
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_)
-#else
-static
-gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_dissect_t *edt, gpointer callback_data _U_)
-#endif
 {
     return current_frame != NULL ? (edt->pi.ipproto == IP_PROTO_TCP) : FALSE;
 }
@@ -4637,18 +4604,5 @@ gboolean tcp_graph_selected_packet_enabled(frame_data *current_frame, epan_disse
 void
 register_tap_listener_tcp_graph(void)
 {
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item("TCP Stream Graph/Time-Sequence Graph (Stevens)", REGISTER_STAT_GROUP_UNSORTED,
-        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(0));
-    register_stat_menu_item("TCP Stream Graph/Time-Sequence Graph (tcptrace)", REGISTER_STAT_GROUP_UNSORTED,
-        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(1));
-    register_stat_menu_item("TCP Stream Graph/Throughput Graph", REGISTER_STAT_GROUP_UNSORTED,
-        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(2));
-    register_stat_menu_item("TCP Stream Graph/Round Trip Time Graph", REGISTER_STAT_GROUP_UNSORTED,
-        tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(3));
-    register_stat_menu_item("TCP Stream Graph/Window Scaling Graph", REGISTER_STAT_GROUP_UNSORTED,
-	tcp_graph_cb, tcp_graph_selected_packet_enabled, NULL, GINT_TO_POINTER(GRAPH_WSCALE));
-#endif
-
 }
+

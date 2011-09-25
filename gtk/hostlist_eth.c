@@ -77,29 +77,15 @@ gtk_eth_hostlist_init(const char *optarg,
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_eth_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	gtk_eth_hostlist_init("hosts,eth",NULL);
 }
-#else
-static void
-gtk_eth_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	gtk_eth_hostlist_init("hosts,eth",NULL);
-}
-#endif
 
 void
 register_tap_listener_eth_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,eth", gtk_eth_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("Ethernet", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-	    gtk_eth_hostlist_cb, NULL, NULL, NULL);
-#endif
 	register_hostlist_table(TRUE, "Ethernet", "eth", NULL /*filter*/, eth_hostlist_packet);
 }

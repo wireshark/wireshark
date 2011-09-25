@@ -73,29 +73,15 @@ gtk_wlan_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_wlan_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
         gtk_wlan_hostlist_init("hosts,wlan",NULL);
 }
-#else
-static void
-gtk_wlan_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-        gtk_wlan_hostlist_init("hosts,wlan",NULL);
-}
-#endif
 
 void
 register_tap_listener_wlan_hostlist(void)
 {
         register_stat_cmd_arg("hosts,wlan", gtk_wlan_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-        register_stat_menu_item("WLAN", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-            gtk_wlan_hostlist_cb, NULL, NULL, NULL);
-#endif
         register_hostlist_table(TRUE, "WLAN", "wlan", NULL /*filter*/, wlan_hostlist_packet);
 }

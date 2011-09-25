@@ -268,12 +268,7 @@ mtp3_sum_draw(
 }
 
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void mtp3_sum_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
-#else
-static void
-mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
-#endif
 {
   summary_tally summary;
   GtkWidget     *sum_open_w,
@@ -421,9 +416,4 @@ mtp3_sum_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkmtp3_summary(void)
 {
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item("_MTP3/MSU Summary",  REGISTER_STAT_GROUP_TELEPHONY,
-        mtp3_sum_gtk_sum_cb, NULL, NULL, NULL);
-#endif
 }

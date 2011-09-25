@@ -73,29 +73,15 @@ fc_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 fc_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	fc_conversation_init("conv,fc",NULL);
 }
-#else
-static void
-fc_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	fc_conversation_init("conv,fc",NULL);
-}
-#endif
 
 void
 register_tap_listener_fc_conversation(void)
 {
 	register_stat_cmd_arg("conv,fc", fc_conversation_init, NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("Fibre Channel", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    fc_endpoints_cb, NULL, NULL, NULL);
-#endif
 	register_conversation_table(TRUE, "Fibre Channel", "fc", NULL /*filter*/, fc_conversation_packet);
 }

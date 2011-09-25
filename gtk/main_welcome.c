@@ -557,11 +557,7 @@ update_recent_items(gpointer data)
         gtk_label_set_markup(GTK_LABEL(ri_stat->label), ri_stat->str->str);
         if (ri_stat->err == 0) {
             gtk_widget_set_sensitive(ri_stat->label, TRUE);
-#ifdef MAIN_MENU_USE_UIMANAGER
             gtk_action_set_sensitive((GtkAction *) ri_stat->menu_item, TRUE);
-#else
-            gtk_widget_set_sensitive(GTK_WIDGET(ri_stat->menu_item), TRUE);
-#endif
         }
         ri_stat->timer = 0;
     }

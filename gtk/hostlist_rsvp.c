@@ -79,30 +79,16 @@ gtk_rsvp_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_rsvp_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	gtk_rsvp_hostlist_init("hosts,rsvp",NULL);
 }
-#else
-static void
-gtk_rsvp_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	gtk_rsvp_hostlist_init("hosts,rsvp",NULL);
-}
-#endif
 
 void
 register_tap_listener_rsvp_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,rsvp", gtk_rsvp_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("RSVP", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-			       gtk_rsvp_hostlist_cb, NULL, NULL, NULL);
-#endif
 	register_hostlist_table(TRUE, "RSVP", "rsvp", NULL /*filter*/,
 				rsvp_hostlist_packet);
 }

@@ -73,29 +73,15 @@ gtk_sctp_hostlist_init(const char *optarg, void* userdata _U_)
         init_hostlist_table(FALSE, "SCTP", "sctp", filter, sctp_hostlist_packet);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_sctp_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
         gtk_sctp_hostlist_init("hosts,sctp",NULL);
 }
-#else
-static void
-gtk_sctp_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-        gtk_sctp_hostlist_init("hosts,sctp",NULL);
-}
-#endif
 
 void
 register_tap_listener_sctp_hostlist(void)
 {
         register_stat_cmd_arg("hosts,sctp", gtk_sctp_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-        register_stat_menu_item("SCTP", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-            gtk_sctp_hostlist_cb, NULL, NULL, NULL);
-#endif
         register_hostlist_table(FALSE, "SCTP", "sctp", NULL /*filter*/, sctp_hostlist_packet);
 }

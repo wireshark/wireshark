@@ -28,9 +28,11 @@
 # include "config.h"
 #endif
 
-#if defined(GTK_DISABLE_DEPRECATED) && !defined(MAIN_MENU_USE_UIMANAGER)
-# undef GTK_DISABLE_DEPRECATED
-#endif
+/* This file basically does nothing except remind us how this worked before
+ * the menu code was rewritten to no longer use the deprecated ItemFactory
+ * stuff.
+ */
+#define MAIN_MENU_USE_UIMANAGER 1
 
 #include <string.h>
 

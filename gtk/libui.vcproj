@@ -261,10 +261,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\menus.c"
-				>
-			</File>
-			<File
 				RelativePath=".\packet_history.c"
 				>
 			</File>

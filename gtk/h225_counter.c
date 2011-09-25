@@ -577,9 +577,7 @@ register_tap_listener_gtk_h225counter(void)
 	    REGISTER_STAT_GROUP_TELEPHONY);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void h225_counter_cb(GtkAction *action, gpointer user_data _U_)
 {
 	tap_param_dlg_cb(action, &h225_counter_dlg);
 }
-#endif

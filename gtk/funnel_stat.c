@@ -613,7 +613,6 @@ static void register_menu_cb(const char *name,
                              gpointer callback_data,
                              gboolean retap) {
 
-#ifdef MAIN_MENU_USE_UIMANAGER
     menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
 	const char *label = NULL, *str = NULL;
 
@@ -640,16 +639,6 @@ static void register_menu_cb(const char *name,
 		TRUE,              /* enabled */
 		NULL,
 		NULL);
-#else
-    menu_cb_t* mcb = g_malloc(sizeof(menu_cb_t));
-
-    mcb->callback = callback;
-    mcb->callback_data = callback_data;
-    mcb->retap = retap;
-
-	register_stat_menu_item(name, group, our_menu_callback, NULL, NULL, mcb);
-#endif
-
 }
 
 void initialize_funnel_ops(void) {

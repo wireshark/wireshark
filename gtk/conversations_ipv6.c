@@ -77,30 +77,15 @@ ipv6_conversation_init(const char *optarg, void *userdata _U_)
     init_conversation_table(TRUE, "IPv6", "ipv6", filter, ipv6_conversation_packet);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 ipv6_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     ipv6_conversation_init("conv,ipv6", NULL);
 }
-#else
-static void
-ipv6_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-    ipv6_conversation_init("conv,ipv6", NULL);
-}
-#endif
 
 void
 register_tap_listener_ipv6_conversation(void)
 {
     register_stat_cmd_arg("conv,ipv6", ipv6_conversation_init, NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else    
-	register_stat_menu_item("IPv6", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-        ipv6_endpoints_cb, NULL, NULL, NULL);
-#endif
-
     register_conversation_table(TRUE, "IPv6", "ipv6", NULL /*filter*/, ipv6_conversation_packet);
 }

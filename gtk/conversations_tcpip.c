@@ -70,30 +70,15 @@ tcpip_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 tcpip_conversation_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	tcpip_conversation_init("conv,tcp",NULL);
 }
-#else
-static void
-tcpip_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	tcpip_conversation_init("conv,tcp",NULL);
-}
-#endif
 
 void
 register_tap_listener_tcpip_conversation(void)
 {
 	register_stat_cmd_arg("conv,tcp", tcpip_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else  
-	register_stat_menu_item("TCP (IPv4 & IPv6)", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    tcpip_conversation_cb, NULL, NULL, NULL);
-#endif
-
 	register_conversation_table(FALSE, "TCP", "tcp", NULL /*filter*/, tcpip_conversation_packet);
 }

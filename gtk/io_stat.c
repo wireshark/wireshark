@@ -2418,29 +2418,14 @@ init_io_stat_window(io_stat_t *io)
 	window_present(io->window);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gui_iostat_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	iostat_init(NULL,NULL);
 }
-#else
-static void
-gui_iostat_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	iostat_init(NULL,NULL);
-}
-#endif
 
 void
 register_tap_listener_gtk_iostat(void)
 {
 	register_stat_cmd_arg("io,stat", iostat_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item_stock("_IO Graphs",
-				      REGISTER_STAT_GROUP_GENERIC, WIRESHARK_STOCK_GRAPHS,
-				      gui_iostat_cb, NULL, NULL, NULL);
-#endif
 }

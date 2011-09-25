@@ -75,29 +75,15 @@ gtk_tr_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_tr_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	gtk_tr_hostlist_init("hosts,tr",NULL);
 }
-#else
-static void
-gtk_tr_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	gtk_tr_hostlist_init("hosts,tr",NULL);
-}
-#endif
 
 void
 register_tap_listener_tr_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,tr", gtk_tr_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("Token Ring", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-	    gtk_tr_hostlist_cb, NULL, NULL, NULL);
-#endif
 	register_hostlist_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_hostlist_packet);
 }

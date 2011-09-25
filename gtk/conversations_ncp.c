@@ -71,30 +71,15 @@ ncp_conversation_init(const char *optarg, void* userdata _U_)
 	init_conversation_table(FALSE, "NCP", "ncp_hdr", filter, ncp_conversation_packet);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 ncp_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	ncp_conversation_init("conv,ncp",NULL);
 }
-#else
-static void
-ncp_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	ncp_conversation_init("conv,ncp",NULL);
-}
-#endif
 
 void
 register_tap_listener_ncp_conversation(void)
 {
 	register_stat_cmd_arg("conv,ncp", ncp_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else    
-	register_stat_menu_item("NCP", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    ncp_endpoints_cb, NULL, NULL, NULL);
-#endif
-
 	register_conversation_table(FALSE, "NCP", "ncp_hdr", NULL /*filter*/, ncp_conversation_packet);
 }

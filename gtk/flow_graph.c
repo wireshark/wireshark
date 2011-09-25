@@ -658,30 +658,16 @@ flow_graph_init_tap(const char *dummy _U_, void* userdata _U_)
 
 /****************************************************************************/
 /* entry point when called via the GTK menu */
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 flow_graph_launch(GtkAction *action _U_, gpointer user_data _U_)
 {
 	flow_graph_init_tap("",NULL);
 }
-#else
-static void
-flow_graph_launch(GtkWidget *w _U_, gpointer data _U_)
-{
-	flow_graph_init_tap("",NULL);
-}
-#endif
 
 /****************************************************************************/
 void
 register_tap_listener_flow_graph(void)
 {
 	register_stat_cmd_arg("flow_graph",flow_graph_init_tap,NULL);
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item_stock("Flo_w Graph...",
-				      REGISTER_STAT_GROUP_UNSORTED, WIRESHARK_STOCK_FLOW_GRAPH,
-				      flow_graph_launch, NULL, NULL, NULL);
-#endif
 }
 

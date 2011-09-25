@@ -521,12 +521,7 @@ dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 }
 
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void gtk_dcerpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
-#else
-static void
-gtk_dcerpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
-#endif
 {
 	GtkWidget       *dlg_box;
 	GtkWidget       *prog_box,   *prog_label, *prog_combo_box;
@@ -730,10 +725,4 @@ void
 register_tap_listener_gtkdcerpcstat(void)
 {
 	register_stat_cmd_arg("dcerpc,srt,", gtk_dcerpcstat_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("DCE-RPC...", REGISTER_STAT_GROUP_RESPONSE_TIME,
-	    gtk_dcerpcstat_cb, NULL, NULL, NULL);
-#endif
 }

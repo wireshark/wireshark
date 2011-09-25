@@ -70,29 +70,15 @@ tr_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 tr_conversation_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	tr_conversation_init("conv,tr",NULL);
 }
-#else
-static void
-tr_conversation_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	tr_conversation_init("conv,tr",NULL);
-}
-#endif
 
 void
 register_tap_listener_tr_conversation(void)
 {
 	register_stat_cmd_arg("conv,tr", tr_conversation_init, NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else  
-	register_stat_menu_item("Token Ring", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    tr_conversation_cb, NULL, NULL, NULL);
-#endif
-    register_conversation_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_conversation_packet);
+	register_conversation_table(TRUE, "Token Ring", "tr", NULL /*filter*/, tr_conversation_packet);
 }

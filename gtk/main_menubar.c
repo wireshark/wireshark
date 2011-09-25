@@ -25,7 +25,6 @@
 # include "config.h"
 #endif
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 #include <gtk/gtk.h>
 
 #include <stdio.h>
@@ -5492,4 +5491,4 @@ void set_menus_for_profiles(gboolean default_profile)
  * ex: set shiftwidth=4 tabstop=8 expandtab:
  * :indentSize=4:tabSize=8:noTabs=true:
  */
-#endif /* MAIN_MENU_USE_UIMANAGER */
+

@@ -74,29 +74,15 @@ gtk_ip_hostlist_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gtk_ip_hostlist_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	gtk_ip_hostlist_init("hosts,ip",NULL);
 }
-#else
-static void
-gtk_ip_hostlist_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	gtk_ip_hostlist_init("hosts,ip",NULL);
-}
-#endif
 
 void
 register_tap_listener_ip_hostlist(void)
 {
 	register_stat_cmd_arg("hosts,ip", gtk_ip_hostlist_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("IPv4", REGISTER_STAT_GROUP_ENDPOINT_LIST,
-		gtk_ip_hostlist_cb, NULL, NULL, NULL);
-#endif
 	register_hostlist_table(TRUE, "IPv4", "ip", NULL /*filter*/, ip_hostlist_packet);
 }

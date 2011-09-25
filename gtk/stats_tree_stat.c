@@ -351,11 +351,6 @@ register_gtk_stats_tree_tap (gpointer k _U_, gpointer v, gpointer p _U_)
 	cfg->pr->stat_dlg->index = -1;
 	cfg->pr->stat_dlg->nparams = G_N_ELEMENTS(tree_stat_params);
 	cfg->pr->stat_dlg->params = tree_stat_params;
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_dfilter_stat(cfg->pr->stat_dlg, cfg->name, cfg->stat_group);
-#endif
 }
 
 static void
@@ -380,7 +375,6 @@ register_tap_listener_stats_tree_stat(void)
 				NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
 {
 	const gchar *action_name; 
@@ -405,4 +399,4 @@ void gtk_stats_tree_cb(GtkAction *action, gpointer user_data _U_)
 	}
 
 }
-#endif
+

@@ -70,29 +70,15 @@ wlan_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 wlan_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	wlan_conversation_init("conv,wlan",NULL);
 }
-#else
-static void
-wlan_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	wlan_conversation_init("conv,wlan",NULL);
-}
-#endif
 
 void
 register_tap_listener_wlan_conversation(void)
 {
 	register_stat_cmd_arg("conv,wlan", wlan_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else  
-	register_stat_menu_item("WLAN", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    wlan_endpoints_cb, NULL, NULL, NULL);
-#endif
 	register_conversation_table(TRUE, "WLAN", "wlan", NULL /*filter*/, wlan_conversation_packet);
 }

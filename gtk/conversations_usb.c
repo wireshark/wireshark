@@ -67,29 +67,15 @@ usb_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 usb_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	usb_conversation_init("conv,usb", NULL);
 }
-#else
-static void
-usb_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	usb_conversation_init("conv,usb", NULL);
-}
-#endif
 
 void
 register_tap_listener_usb_conversation(void)
 {
 	register_stat_cmd_arg("conv,usb", usb_conversation_init, NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else    
-	register_stat_menu_item("USB", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    usb_endpoints_cb, NULL, NULL, NULL);
-#endif
 	register_conversation_table(TRUE, "USB", "usb", NULL /*filter*/, usb_conversation_packet);
 }

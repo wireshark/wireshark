@@ -34,46 +34,6 @@ extern "C" {
  */
 
 /**
- * Add a new menu item for a stat.
- * This must be called after we've created the main menu, so it can't
- * be called from the routine that registers stats - we have to introduce
- * another per-stat registration routine.
- *
- * @param name the menu label
- *
- * @param group the menu group this stat should be registered to
- *
- * @param callback gets called when the menu item is selected; it should do
- * the work of creating the stat window.
- *
- * @param selected_packet_enabled gets called by set_menus_for_selected_packet();
- * it's passed a pointer to the "frame_data" structure for the current frame,
- * if any, and to the "epan_dissect_t" structure for that frame, if any, and
- * should return TRUE if the stat will work now (which might depend on whether
- * a frame is selected and, if one is, on the frame) and FALSE if not.
- *
- * @param selected_tree_row_enabled gets called by
- * set_menus_for_selected_tree_row(); it's passed a pointer to the
- * "field_info" structure for the currently selected field, if any,
- * and should return TRUE if the stat will work now (which might depend on
- * whether a tree row is selected and, if one is, on the tree row) and
- * FALSE if not.
- *
- * @param callback_data data for callback function
- */
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-void
-register_stat_menu_item(
-    const char *name,
-    register_stat_group_t group,
-    gpointer callback,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
-    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
-    gpointer callback_data);
-#endif
-
-/**
  * XXX TODO: Rewrite me
  * NOTE comments refere to old menus.c implementation.
  *
@@ -103,7 +63,6 @@ register_stat_menu_item(
  *
  * @param callback_data data for callback function
  */
-#ifdef MAIN_MENU_USE_UIMANAGER
 void register_lua_menu_bar_menu_items(
     const char   *gui_path,
     const char   *name,
@@ -219,17 +178,6 @@ void wlanstat_launch(GtkAction *action, gpointer user_data);
 
 /** Adds a callback to be executed when the menubar is ready to have menus and items added to it */
 void ws_add_build_menubar_items_callback(gpointer callback);
-
-#else
-extern void register_stat_menu_item_stock(
-    const char *name,
-    register_stat_group_t group,
-    const gchar *stock_id,
-    gpointer callback,
-    gboolean (*selected_packet_enabled)(frame_data *, epan_dissect_t *, gpointer callback_data),
-    gboolean (*selected_tree_row_enabled)(field_info *, gpointer callback_data),
-    gpointer callback_data);
-#endif
 
 #ifdef __cplusplus
 }

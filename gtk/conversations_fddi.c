@@ -70,29 +70,15 @@ fddi_conversation_init(const char *optarg, void* userdata _U_ )
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 fddi_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	fddi_conversation_init("conv,fddi",NULL);
 }
-#else
-static void
-fddi_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	fddi_conversation_init("conv,fddi",NULL);
-}
-#endif
 
 void
 register_tap_listener_fddi_conversation(void)
 {
 	register_stat_cmd_arg("conv,fddi", fddi_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("FDDI", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    fddi_endpoints_cb, NULL, NULL, NULL);
-#endif
 	register_conversation_table(TRUE, "FDDI", "fddi", NULL /*filter*/, fddi_conversation_packet);
 }

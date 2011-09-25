@@ -71,12 +71,7 @@ add_string_to_box(gchar *str, GtkWidget *box)
   gtk_widget_show(lb);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void gsm_map_stat_gtk_sum_cb(GtkAction *action _U_, gpointer user_data _U_)
-#else
-static void
-gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
-#endif
 {
   summary_tally summary;
   GtkWidget     *sum_open_w,
@@ -302,9 +297,4 @@ gsm_map_stat_gtk_sum_cb(GtkWidget *w _U_, gpointer d _U_)
 void
 register_tap_listener_gtkgsm_map_summary(void)
 {
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item("_GSM/MAP Summary",  REGISTER_STAT_GROUP_TELEPHONY,
-        gsm_map_stat_gtk_sum_cb, NULL, NULL, NULL);
-#endif
 }

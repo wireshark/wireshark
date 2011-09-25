@@ -71,30 +71,15 @@ ipx_conversation_init(const char *optarg, void* userdata _U_)
 
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 ipx_endpoints_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	ipx_conversation_init("conv,ipx",NULL);
 }
-#else
-static void
-ipx_endpoints_cb(GtkWidget *w _U_, gpointer d _U_)
-{
-	ipx_conversation_init("conv,ipx",NULL);
-}
-#endif
 
 void
 register_tap_listener_ipx_conversation(void)
 {
 	register_stat_cmd_arg("conv,ipx", ipx_conversation_init,NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else    
-	register_stat_menu_item("IPX", REGISTER_STAT_GROUP_CONVERSATION_LIST,
-	    ipx_endpoints_cb, NULL, NULL, NULL);
-#endif
-
 	register_conversation_table(TRUE, "IPX", "ipx", NULL /*filter*/, ipx_conversation_packet);
 }

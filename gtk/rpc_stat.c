@@ -408,13 +408,8 @@ dlg_destroy_cb(GtkWidget *w _U_, gpointer user_data _U_)
 	dlg=NULL;
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
-void 
+void
 gtk_rpcstat_cb(GtkAction *action _U_, gpointer user_data _U_)
-#else
-static void
-gtk_rpcstat_cb(GtkWidget *w _U_, gpointer d _U_)
-#endif
 {
 	GtkWidget *dlg_box;
 	GtkWidget *prog_box, *prog_label;
@@ -538,10 +533,5 @@ void
 register_tap_listener_gtkrpcstat(void)
 {
 	register_stat_cmd_arg("rpc,srt,", gtk_rpcstat_init, NULL);
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-	register_stat_menu_item("ONC-RPC...", REGISTER_STAT_GROUP_RESPONSE_TIME,
-	    gtk_rpcstat_cb, NULL, NULL, NULL);
-#endif
 }
+

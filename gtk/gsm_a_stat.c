@@ -430,14 +430,7 @@ gsm_a_stat_gtk_win_create(
     window_present(dlg_p->win);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void gsm_a_stat_gtk_bssmap_cb(GtkAction *action _U_, gpointer user_data _U_ )
-#else
-static void
-gsm_a_stat_gtk_bssmap_cb(
-    GtkWidget      *w _U_,
-    gpointer        d _U_)
-#endif
 {
  /*   int           i;*/
 
@@ -464,7 +457,6 @@ gsm_a_stat_gtk_bssmap_init(
     gsm_a_stat_gtk_bssmap_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 static void
 gsm_a_stat_gtk_dtap_cb(
     GtkAction *action _U_,
@@ -472,15 +464,6 @@ gsm_a_stat_gtk_dtap_cb(
     gsm_a_stat_dlg_t    *dlg_dtap_p,
     const char      *title,
     const value_string  *dtap_msg_strings _U_)
-#else
-static void
-gsm_a_stat_gtk_dtap_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_,
-    gsm_a_stat_dlg_t    *dlg_dtap_p,
-    const char      *title,
-    const value_string  *dtap_msg_strings _U_)
-#endif
 {
 
     /*
@@ -497,7 +480,6 @@ gsm_a_stat_gtk_dtap_cb(
     gsm_a_stat_draw(&gsm_a_stat);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data )
 {
@@ -505,17 +487,7 @@ gsm_a_stat_gtk_dtap_mm_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP Mobility Management Statistics",
     gsm_a_dtap_msg_mm_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_mm_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_mm,
-    "GSM A-I/F DTAP Mobility Management Statistics",
-    gsm_a_dtap_msg_mm_strings);
-}
-#endif
+
 static void
 gsm_a_stat_gtk_dtap_mm_init(const char      *optarg _U_,
                             void* userdata _U_)
@@ -523,7 +495,6 @@ gsm_a_stat_gtk_dtap_mm_init(const char      *optarg _U_,
     gsm_a_stat_gtk_dtap_mm_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data )
 {
@@ -531,18 +502,6 @@ gsm_a_stat_gtk_dtap_rr_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP Radio Resource Management Statistics",
     gsm_a_dtap_msg_rr_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_rr_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_rr,
-    "GSM A-I/F DTAP Radio Resource Management Statistics",
-    gsm_a_dtap_msg_rr_strings);
-}
-#endif
-
 
 static void
 gsm_a_stat_gtk_dtap_rr_init(const char      *optarg _U_,
@@ -551,7 +510,6 @@ gsm_a_stat_gtk_dtap_rr_init(const char      *optarg _U_,
     gsm_a_stat_gtk_dtap_rr_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_cc_cb(GtkAction *action, gpointer user_data )
 {
@@ -559,17 +517,6 @@ gsm_a_stat_gtk_dtap_cc_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP Call Control Statistics",
     gsm_a_dtap_msg_cc_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_cc_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_cc,
-    "GSM A-I/F DTAP Call Control Statistics",
-    gsm_a_dtap_msg_cc_strings);
-}
-#endif
 
 static void
 gsm_a_stat_gtk_dtap_cc_init(const char      *optarg _U_,
@@ -578,7 +525,6 @@ gsm_a_stat_gtk_dtap_cc_init(const char      *optarg _U_,
     gsm_a_stat_gtk_dtap_cc_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_gmm_cb(GtkAction *action, gpointer user_data )
 {
@@ -587,18 +533,6 @@ gsm_a_stat_gtk_dtap_gmm_cb(GtkAction *action, gpointer user_data )
     gsm_a_dtap_msg_gmm_strings);
 }
 
-#else
-static void
-gsm_a_stat_gtk_dtap_gmm_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_gmm,
-    "GSM A-I/F DTAP GPRS Mobility Management Statistics",
-    gsm_a_dtap_msg_gmm_strings);
-}
-#endif
-
 static void
 gsm_a_stat_gtk_dtap_gmm_init(const char     *optarg _U_,
                              void* userdata _U_)
@@ -606,7 +540,6 @@ gsm_a_stat_gtk_dtap_gmm_init(const char     *optarg _U_,
     gsm_a_stat_gtk_dtap_gmm_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_sms_cb(GtkAction *action, gpointer user_data )
 {
@@ -614,17 +547,6 @@ gsm_a_stat_gtk_dtap_sms_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP Short Message Service Statistics",
     gsm_a_dtap_msg_sms_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_sms_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_sms,
-    "GSM A-I/F DTAP Short Message Service Statistics",
-    gsm_a_dtap_msg_sms_strings);
-}
-#endif
 
 static void
 gsm_a_stat_gtk_dtap_sms_init(const char     *optarg _U_,
@@ -633,7 +555,6 @@ gsm_a_stat_gtk_dtap_sms_init(const char     *optarg _U_,
     gsm_a_stat_gtk_dtap_sms_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_sm_cb(GtkAction *action, gpointer user_data )
 {
@@ -641,17 +562,6 @@ gsm_a_stat_gtk_dtap_sm_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP GPRS Session Management Statistics",
     gsm_a_dtap_msg_sm_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_sm_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_sm,
-    "GSM A-I/F DTAP GPRS Session Management Statistics",
-    gsm_a_dtap_msg_sm_strings);
-}
-#endif
 
 static void
 gsm_a_stat_gtk_dtap_sm_init(const char      *optarg _U_,
@@ -660,7 +570,6 @@ gsm_a_stat_gtk_dtap_sm_init(const char      *optarg _U_,
     gsm_a_stat_gtk_dtap_sm_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_ss_cb(GtkAction *action, gpointer user_data )
 {
@@ -668,17 +577,6 @@ gsm_a_stat_gtk_dtap_ss_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP Supplementary Services Statistics",
     gsm_a_dtap_msg_ss_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_ss_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_ss,
-    "GSM A-I/F DTAP Supplementary Services Statistics",
-    gsm_a_dtap_msg_ss_strings);
-}
-#endif
 
 static void
 gsm_a_stat_gtk_dtap_ss_init(
@@ -688,7 +586,6 @@ gsm_a_stat_gtk_dtap_ss_init(
     gsm_a_stat_gtk_dtap_ss_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data )
 {
@@ -696,17 +593,6 @@ gsm_a_stat_gtk_dtap_tp_cb(GtkAction *action, gpointer user_data )
     "GSM A-I/F DTAP Special Conformance Testing Functions Statistics",
     gsm_a_dtap_msg_tp_strings);
 }
-#else
-static void
-gsm_a_stat_gtk_dtap_tp_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-    gsm_a_stat_gtk_dtap_cb(w, d, &dlg_dtap_tp,
-    "GSM A-I/F DTAP Special Conformance Testing Functions Statistics",
-    gsm_a_dtap_msg_tp_strings);
-}
-#endif
 
 static void
 gsm_a_stat_gtk_dtap_tp_init(
@@ -716,7 +602,6 @@ gsm_a_stat_gtk_dtap_tp_init(
     gsm_a_stat_gtk_dtap_tp_cb(NULL, NULL);
 }
 
-#ifdef MAIN_MENU_USE_UIMANAGER
 void
 gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action _U_, gpointer user_data _U_ )
 {
@@ -733,26 +618,6 @@ gsm_a_stat_gtk_sacch_rr_cb(GtkAction *action _U_, gpointer user_data _U_ )
     gsm_a_stat_gtk_win_create(&dlg_sacch_rr, "GSM A-I/F SACCH Statistics");
     gsm_a_stat_draw(&gsm_a_stat);
 }
-#else
-static void
-gsm_a_stat_gtk_sacch_rr_cb(
-    GtkWidget       *w _U_,
-    gpointer        d _U_)
-{
-
-    /*
-     * if the window is already open, bring it to front
-     */
-    if (dlg_sacch_rr.win)
-    {
-    gdk_window_raise(gtk_widget_get_window(dlg_sacch_rr.win));
-    return;
-    }
-
-    gsm_a_stat_gtk_win_create(&dlg_sacch_rr, "GSM A-I/F SACCH Statistics");
-    gsm_a_stat_draw(&gsm_a_stat);
-}
-#endif
 
 static void
 gsm_a_stat_gtk_sacch_rr_init(
@@ -783,30 +648,6 @@ register_tap_listener_gtkgsm_a_stat(void)
 
         exit(1);
     }
-
-#ifdef MAIN_MENU_USE_UIMANAGER
-#else
-    register_stat_menu_item("_GSM/A-Interface BSSMAP", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_bssmap_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/Mobility Management", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_mm_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/Radio Resource Management", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_rr_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/Call Control", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_cc_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/GPRS Mobility Management", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_gmm_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/Short Message Service", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_sms_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/GPRS Session Management", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_sm_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/Supplementary Services", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_ss_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface DTAP/Special Conformance Testing Functions", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_dtap_tp_cb, NULL, NULL, NULL);
-    register_stat_menu_item("_GSM/A-Interface SACCH", REGISTER_STAT_GROUP_TELEPHONY,
-    gsm_a_stat_gtk_sacch_rr_cb, NULL, NULL, NULL);
-#endif
 
     register_stat_cmd_arg("gsm_a,bssmap", gsm_a_stat_gtk_bssmap_init,NULL);
 
