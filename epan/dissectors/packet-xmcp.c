@@ -131,7 +131,7 @@ static gint ett_xmcp_attr_flag = -1;
 void proto_reg_handoff_xmcp(void);
 static guint global_xmcp_tcp_port = TCP_PORT_XMCP;
 
-#define XMCP_HDR_LEN ((guint)20)
+#define XMCP_HDR_LEN      20
 #define XMCP_ATTR_HDR_LEN 4
 
 #define XMCP_TYPE_RESERVED      0xc000
@@ -439,8 +439,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     proto_tree_add_item(attr_tree, xmcp_attr_message_integrity, tvb, offset,
                         attr_length, FALSE);
     /* Message-integrity should be the last attribute in the message */
-    if (offset + get_xmcp_attr_padded_len(attr_length) <
-        tvb_reported_length(tvb)) {
+    if ((guint)(offset + get_xmcp_attr_padded_len(attr_length)) < tvb_reported_length(tvb)) {
       expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
                              "Data following message-integrity");
     }
@@ -961,7 +960,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* After the class/method, we have a 2 byte length...*/
   ti = proto_tree_add_item(xmcp_tree, hf_xmcp_length, tvb, 2, 2, FALSE);
   msg_length = tvb_get_ntohs(tvb, 2);
-  if (msg_length + XMCP_HDR_LEN > tvb_reported_length(tvb)) {
+  if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR,
                            "XMCP message length (%u-byte header + %u) exceeds "
                            "packet length (%u)",
