@@ -242,7 +242,8 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	msg_type = tvb_get_ntohs(tvb, 0);
 
-	if (msg_type & 0xC000 || tvb_get_ntohl(tvb, 4) == 0x2112a442)
+	if (msg_type & 0xC000 || tvb_get_ntohl(tvb, 4) == 0x2112a442 /* New STUN */
+	    || tvb_get_ntohl(tvb, 4) == 0x7f5a9bc7) /* XMCP */
 		return 0;
 
 	/* check if message type is correct */

@@ -1093,6 +1093,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-xcsl.c
 	dissectors/packet-xdmcp.c
 	dissectors/packet-xml.c
+	dissectors/packet-xmcp.c
 	dissectors/packet-xmpp.c
 	dissectors/packet-xot.c
 	dissectors/packet-xtp.c

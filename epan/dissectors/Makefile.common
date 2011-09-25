@@ -1011,6 +1011,7 @@ DISSECTOR_SRC = \
 	packet-xcsl.c		\
 	packet-xdmcp.c		\
 	packet-xml.c		\
+	packet-xmcp.c		\
 	packet-xmpp.c		\
 	packet-xot.c		\
 	packet-xtp.c		\
