@@ -205,10 +205,6 @@
 				>
 			</File>
 			<File
-				RelativePath=".\gtkvumeter.c"
-				>
-			</File>
-			<File
 				RelativePath=".\gui_stat_util.c"
 				>
 			</File>
@@ -848,10 +844,6 @@
 			</File>
 			<File
 				RelativePath=".\gtkglobals.h"
-				>
-			</File>
-			<File
-				RelativePath=".\gtkvumeter.h"
 				>
 			</File>
 			<File

@@ -252,7 +252,6 @@ endif()
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		capture_if_details_dlg_win32.c
-		gtkvumeter.c
 	)
 endif()
 
