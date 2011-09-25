@@ -209,7 +209,6 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
   proto_tree        *tree;
   proto_item        *addr_item;
   proto_tree        *addr_tree=NULL;
-  gint              offset;
 
   ehdr_num++;
   if(ehdr_num>=4){
@@ -360,6 +359,7 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         }
     }
 
+    col_set_str(pinfo->cinfo, COL_INFO, "Ethernet II");
     if (parent_tree) {
         if (PTREE_DATA(parent_tree)->visible) {
             ti = proto_tree_add_protocol_format(parent_tree, proto_eth, tvb, 0, ETH_HEADER_SIZE,
@@ -393,33 +393,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
     proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
 
-    offset = 12;
-    offset += 2;
-    proto_item_set_len(ti, offset);
-
-    if (ehdr->type <= IEEE_802_3_MAX_LEN) {
-      /* Is there an 802.2 layer? I can tell by looking at the first 2
-         bytes after the VLAN header. If they are 0xffff, then what
-         follows the VLAN header is an IPX payload, meaning no 802.2.
-         (IPX/SPX is they only thing that can be contained inside a
-         straight 802.3 packet, so presumably the same applies for
-         Ethernet VLAN packets). A non-0xffff value means that there's an
-         802.2 layer inside the VLAN layer */
-      is_802_2 = TRUE;
-
-      /* Don't throw an exception for this check (even a BoundsError) */
-      if (tvb_length_remaining(tvb, offset) >= 2) {
-          if (tvb_get_ntohs(tvb, offset) == 0xffff) {
-              is_802_2 = FALSE;
-          }
-      }
-
-      dissect_802_3(ehdr->type, is_802_2, tvb, offset, pinfo, parent_tree, fh_tree,
-                    hf_eth_len, hf_eth_trailer, fcs_len);
-    } else {
-      ethertype(ehdr->type, tvb, offset, pinfo, parent_tree, fh_tree,
-                         hf_eth_type, hf_eth_trailer, fcs_len);
-    }
+    ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
+          hf_eth_trailer, fcs_len);
   }
 }
 
