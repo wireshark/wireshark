@@ -1910,7 +1910,8 @@ dissect_rdp_ServerData(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tr
 	  for(i = 0; i < channelCount; i++) {
 	    offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, channel_fields);
 	    if(rdp_info) {
-	      rdp_info->channels[i].value = channelId;
+	      if(i < MAX_CHANNELS) 
+		rdp_info->channels[i].value = channelId;
 
 	      /* register SendData on this for now */
 	      register_t124_sd_dissector(pinfo, channelId, dissect_rdp_SendData, proto_rdp);
