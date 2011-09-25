@@ -2505,8 +2505,6 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
             module = prefs_find_module("x25");
           else if (strcmp(pref_name, "x411") == 0)
             module = prefs_find_module("p1");
-	  else if (strcmp(pref_name, "vlan") == 0)
-	    module = prefs_find_module("eth");
           else if (strcmp(pref_name, "nsip") == 0)
             module = prefs_find_module("gprs-ns");
           else if (strcmp(pref_name, "sonmp") == 0)
@@ -2739,6 +2737,15 @@ set_pref(gchar *pref_name, gchar *value, void *private_data _U_,
             value = "mtp2";
           else if (strcmp(value, "raw") == 0 || strcmp(value, "Raw data") == 0)
             value = "guess";
+        }
+      } else if (strcmp(module->name, "eth") == 0) {
+        /* "eth.qinq_ethertype" has been changed(restored) to "vlan.qinq.ethertype" */
+        if (strcmp(dotp, "qinq_ethertype") == 0) {
+          module_t *new_module = prefs_find_module("vlan");
+          if(new_module) {
+            pref = prefs_find_preference(new_module, "qinq_ethertype");
+            module = new_module;
+          }
         }
       }
     }
