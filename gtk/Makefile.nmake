@@ -31,8 +31,7 @@ include Makefile.common
 WIRESHARK_GTK_SRC = \
 	$(WIRESHARK_GTK_SRC) \
 	$(GENERATED_C_FILES) \
-	capture_if_details_dlg_win32.c \
-	gtkvumeter.c
+	capture_if_details_dlg_win32.c
 
 PORT_AUDIO_SRC = \
 !IFDEF PORTAUDIO_DIR
