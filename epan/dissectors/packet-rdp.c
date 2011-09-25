@@ -46,7 +46,7 @@
 static guint global_rdp_tcp_port = 3389;
 static dissector_handle_t tpkt_handle;
 
-void prefs_register_rdp(void); /* forward declaration for use in preferences registration */
+static void prefs_register_rdp(void); /* forward declaration for use in preferences registration */
 
 /* Initialize the protocol and registered fields */
 static int proto_rdp = -1;
