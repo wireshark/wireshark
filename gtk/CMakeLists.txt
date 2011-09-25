@@ -249,12 +249,6 @@ endif()
 
 # add_definitions(-DNEW_MENU_CODE)
 
-if (ENABLE_UI_MANAGER)
-	add_definitions(
-		-DMAIN_MENU_USE_UIMANAGER
-	)
-endif()
-
 if(WIN32)
 	set(PLATFORM_UI_SRC
 		capture_if_details_dlg_win32.c

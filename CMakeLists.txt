@@ -243,7 +243,6 @@ endif()
 if(BUILD_wireshark)
 	if(ENABLE_GTK3)
 		set(PACKAGELIST ${PACKAGELIST} GTK3)
-		set(ENABLE_UI_MANAGER ON)
 	else()
 		set(PACKAGELIST ${PACKAGELIST} GTK2)
 		set(GTK2_OPTIONS COMPONENTS gtk)
@@ -430,9 +429,6 @@ add_subdirectory( wsutil )
 
 if(BUILD_wireshark AND GTK_FOUND)
 	add_subdirectory( gtk )
-	if (ENABLE_UI_MANAGER)
-		set(MAIN_MENU_USE_UIMANAGER 1)
-	endif()
 endif()
 
 # Basedir where to install guides

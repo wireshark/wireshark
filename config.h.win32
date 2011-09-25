@@ -77,7 +77,6 @@
 @HAVE_AIRPCAP@
 
 @PCAP_NG_DEFAULT@
-@MAIN_MENU_USE_UIMANAGER@
 @WANT_PACKET_EDITOR@
 
 /* define macro for importing variables from an dll
