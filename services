@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-09-16
+# 2011-09-23
 # 
 # Note
 # 
@@ -29,15 +29,15 @@
 # SCTP.
 # 
 # Service names are assigned on a first-come, first-served process, as
-# documented in [RFC952].
+# documented in [RFC6335].
 # 
 # Port numbers are assigned in various ways, based on three ranges: System
 # Ports (0-1023), User Ports (1024-49151), and the Dynamic and/or Private
 # Ports (49152-65535); the difference uses of these ranges is described in
 # [RFC6335]. System Ports are assigned by IETF
-# process for standards-track protocols, as per [RFC1340].  User Ports
+# process for standards-track protocols, as per [RFC6335].  User Ports
 # are assigned by IANA using the "Expert Review" process, as per
-# [RFC5226].  Dynamic Ports are not assigned.
+# [RFC6335].  Dynamic Ports are not assigned.
 # 
 # The registration procedures for service names and port numbers are
 # described in [RFC6335].
@@ -4691,8 +4691,10 @@ ergolight	2109/tcp	# Ergolight                    [Jindra_Ryvola]               
 ergolight	2109/udp	# Ergolight                    [Jindra_Ryvola]                           [Jindra_Ryvola]
 umsp	2110/tcp	# UMSP                         [Alexander_Bogdanov_2]                    [Alexander_Bogdanov_2]
 umsp	2110/udp	# UMSP                         [Alexander_Bogdanov_2]                    [Alexander_Bogdanov_2]
-dsatp	2111/tcp	# DSATP                        [Ralph_Beck]                              [Ralph_Beck]
-dsatp	2111/udp	# DSATP                        [Ralph_Beck]                              [Ralph_Beck]
+dsatp	2111/tcp	# OPNET Dynamic Sampling Agent [OPNET_Technologies_Inc]                  [Edward_Macomber]                                                      2011-09-21
+# Transaction Protocol
+dsatp	2111/udp	# OPNET Dynamic Sampling Agent [OPNET_Technologies_Inc]                  [Edward_Macomber]                                                      2011-09-21
+# Transaction Protocol
 idonix-metanet	2112/tcp	# Idonix MetaNet               [Paul_Harrison]                           [Paul_Harrison]
 idonix-metanet	2112/udp	# Idonix MetaNet               [Paul_Harrison]                           [Paul_Harrison]
 hsl-storm	2113/tcp	# HSL StoRM                    [Jost_Faganel]                            [Jost_Faganel]
@@ -7898,9 +7900,9 @@ ndl-als	3431/tcp	# Active License Server Port   [Quentin_Brown]                 
 ndl-als	3431/udp	# Active License Server Port   [Quentin_Brown]                           [Quentin_Brown]                                           2002-03
 osdcp	3432/tcp	# Secure Device Protocol       [Peter_Fernandez]                         [Peter_Fernandez]                                         2002-03
 osdcp	3432/udp	# Secure Device Protocol       [Peter_Fernandez]                         [Peter_Fernandez]                                         2002-03
-alta-smp	3433/tcp	# Altaworks Service Management [Ted_Macomber]                            [Ted_Macomber]                                            2002-03
+opnet-smp	3433/tcp	# OPNET Service Management     [OPNET_Technologies_Inc]                  [Edward_Macomber]                                         2002-03      2011-09-21
 # Platform
-alta-smp	3433/udp	# Altaworks Service Management [Ted_Macomber]                            [Ted_Macomber]                                            2002-03
+opnet-smp	3433/udp	# OPNET Service Management     [OPNET_Technologies_Inc]                  [Edward_Macomber]                                         2002-03      2011-09-21
 # Platform
 opencm	3434/tcp	# OpenCM Server                [Jonathan_S_Shapiro]                      [Jonathan_S_Shapiro]                                      2002-03
 opencm	3434/udp	# OpenCM Server                [Jonathan_S_Shapiro]                      [Jonathan_S_Shapiro]                                      2002-03
@@ -17525,6 +17527,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Eduardo_Rosenberg_de]                                    Eduardo Rosenberg de                      mailto:eduardor&spacenet.com.br
 # Moura
 # [Edward_Browdy]                                           Edward Browdy                             mailto:ebrowdy&cryptek.com                                    2002-07
+# OPNET
+# [Edward_Macomber]                                         Edward Macomber           Technologies    mailto:tmacomber&opnet.com                                    2011-09-21
+# Inc
 # [Edward_R_Boedecker]                                      Edward R. Boedecker                       mailto:boedeck1&flash.net                                     2003-11
 # [Edward_Reus]                                             Edward Reus                               mailto:edwardr&microsoft.com
 # [Edward_T_O_Shea]                                         Edward T. O'Shea                          mailto:oshea&bellsouth.net
@@ -19351,6 +19356,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Working Group
 # [OpenMail_Encyclopedi]                                                              OpenMail        mailto:opencyc&hpopd.pwd.hp.com
 # Encyclopedia
+# OPNET
+# [OPNET_Technologies_Inc]                                                            Technologies    mailto:tmacomber&opnet.com                                    2011-09-21
+# Inc
 # [Oran_Davis]                                              Oran Davis                                mailto:oran&8x8.com
 # [Orazio_Granato]                                          Orazio Granato                            mailto:og&wsbgrd01.italy.hp.com
 # [Oren_Hurvitz]                                            Oren Hurvitz                              mailto:oren&omnisky.com
@@ -19626,7 +19634,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ralf_Doewich]                                            Ralf Doewich                              mailto:ralf.doewich&optimatele.com
 # [Ralf_Muckenhirn]                                         Ralf Muckenhirn                           tel:+49-7622-3980
 # tel:+49-7622-398200
-# [Ralph_Beck]                                              Ralph Beck                                mailto:beck&altaworks.com
 # [Ralph_Campbell]                                          Ralph Campbell                            mailto:ralph.campbell&xasystems.com                           2002-11
 # [Ralph_Droms]                                             Ralph Droms                               mailto:rdroms&nri.reston.va.us
 # [Ralph_Kammerlander]                                      Ralph Kammerlander                        mailto:ralph.kammerlander&khe.siemens.de
@@ -20309,7 +20316,6 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ted_Hess]                                                Ted Hess                                  mailto:thess&livevault.com
 # [Ted_Hoshi]                                               Ted Hoshi                                 mailto:tetsuo.hoshi&jp.yokogawa.com                           2004-06
 # [Ted_J_Socolofsky]                                        Ted J. Socolofsky                         mailto:Teds&spider.co.uk
-# [Ted_Macomber]                                            Ted Macomber                              mailto:TedM&altaworks.com                                     2002-03
 # [Ted_McFadden]                                            Ted McFadden                              mailto:mcfadden&dstc.edu.au
 # [Ted_Power]                                               Ted Power                                 mailto:tedp&hpinpcb.cup.hp.com
 # [Ted_Ross]                                                Ted Ross                                  mailto:ross&toplayer.com
