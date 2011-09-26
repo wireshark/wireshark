@@ -848,7 +848,7 @@ supported_query_oid(LPADAPTER adapter, guint32 oid)
 /* info functions, get and display various NDIS driver values */
 
 
-
+#if 0
     GtkWidget *meter;
     GtkWidget *val_lb;
 
@@ -914,7 +914,7 @@ add_meter_to_table(GtkWidget *list, guint *row, gchar *title,
     return meter;
 }
 
-
+#endif
 
 static void
 add_row_to_table(GtkWidget *list, guint *row, gchar *title, const gchar *value, gboolean sensitive)
@@ -1012,7 +1012,7 @@ rates_details(unsigned char *values, int length) {
 }
 
 
-
+#if 0
 static GList *
 rates_vu_list(unsigned char *values, int length, int *max)
 {
@@ -1047,7 +1047,6 @@ rates_vu_list(unsigned char *values, int length, int *max)
         }
     }
 
-#if 0
     /* debug: fake the 108MBit entry (I don't own one :-) */
     *max = 108;
 
@@ -1056,7 +1055,6 @@ rates_vu_list(unsigned char *values, int length, int *max)
     item->large = TRUE;
     item->label = "108";
     Rates = g_list_append(Rates, item);
-#endif
 
     for(i=0; i<length; i++) {
         if(values[i]) {
@@ -1134,6 +1132,7 @@ rates_vu_list(unsigned char *values, int length, int *max)
 
     return Rates;
 }
+#endif
 
 
 /* debugging only */
@@ -1458,6 +1457,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* RSSI */
     if (wpcap_packet_request_ulong(adapter, OID_802_11_RSSI, &rssi)) {
+#if 0
         int i;
         GList * scale_items = NULL;
         GList * current;
@@ -1504,7 +1504,6 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
         add_meter_to_table(table, row, "RSSI (Received Signal Strength Indication)",
             rssi+100 , string_buff, -100+100, 0+100, -80+100, scale_items);
-
         current = scale_items;
         while (current != NULL) {
             g_free(current->data);
@@ -1513,6 +1512,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         }
         g_list_free(scale_items);
         entries++;
+#endif
     } else {
         add_string_to_table(table, row, "RSSI (Received Signal Strength Indication)", "-");
     }
@@ -1527,13 +1527,15 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
 
     /* if we can get the link speed, show Supported Rates in level meter format */
     if (length != 0 && wpcap_packet_request_uint(adapter, OID_GEN_LINK_SPEED, &uint_value)) {
+#if 0
         int max;
         int yellow;
         GList *rates_list;
-        GList * current;
+
+		GList * current;
 
 
-        rates_list = rates_vu_list(values, length, &max);
+		rates_list = rates_vu_list(values, length, &max);
 
         /* if we don't have a signal, we might not have a valid link speed */
         if(rssi == -100) {
@@ -1548,9 +1550,9 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
         } else {
             yellow = 1;
         }
+
         add_meter_to_table(table, row, "Link Speed",
                 uint_value, string_buff, 0, max, yellow, rates_list);
-
         current = rates_list;
         while (current != NULL) {
             g_free(current->data);
@@ -1558,6 +1560,7 @@ capture_if_details_802_11(GtkWidget *table, GtkWidget *main_vb, guint *row, LPAD
             current = g_list_next(current);
         }
         g_list_free(rates_list);
+#endif
     }
 
     /* Supported Rates in String format */
