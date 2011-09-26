@@ -2223,6 +2223,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
     case SUA_RFC:
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (RFC 3868)");
       break;
+  }
 
   /* Clear entries in Info column on summary display */
   col_clear(pinfo->cinfo, COL_INFO);
@@ -2235,7 +2236,7 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
     sua_tree = proto_item_add_subtree(sua_item, ett_sua);
   } else {
     sua_tree = NULL;
-  };
+  }
 
   /* dissect the message */
   dissect_sua_message(message_tvb, pinfo, sua_tree, tree);
