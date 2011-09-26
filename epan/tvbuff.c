@@ -172,7 +172,7 @@ tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
 		/* shift tvb data bit_offset bits to the left */
 		for (i = 0; i < (datalen-1); i++)
 			buf[i] = (data[i] << left) | (data[i+1] >> right);
-		buf[datalen-1] = data[datalen] << left; /* set last octet */
+		buf[datalen-1] = data[datalen-1] << left; /* set last octet */
 	}
 	buf[datalen-1] &= left_aligned_bitmask[remaining_bits];
 
