@@ -76,24 +76,22 @@ dissect_ans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Intel ANS probe");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		seq_num = tvb_get_ntohl(tvb, 4);
-		sender_id = tvb_get_ntohs(tvb, 8);
-		tvb_memcpy(tvb, team_id, 10, 6);
+	seq_num = tvb_get_ntohl(tvb, 4);
+	sender_id = tvb_get_ntohs(tvb, 8);
+	tvb_memcpy(tvb, team_id, 10, 6);
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence: %u, Sender ID %u, Team ID %s",
-			seq_num, sender_id, ether_to_str(team_id));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence: %u, Sender ID %u, Team ID %s",
+		seq_num, sender_id, ether_to_str(team_id));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_ans, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_ans, tvb, 0, -1, ENC_BIG_ENDIAN);
 		ans_tree = proto_item_add_subtree(ti, ett_ans);
 
-		proto_tree_add_item(ans_tree, hf_ans_app_id, tvb, 0, 2, FALSE);
-		proto_tree_add_item(ans_tree, hf_ans_rev_id, tvb, 2, 2, FALSE);
-		proto_tree_add_item(ans_tree, hf_ans_seq_num, tvb, 4, 4, FALSE);
-		proto_tree_add_item(ans_tree, hf_ans_sender_id, tvb, 8, 2, FALSE);
-		proto_tree_add_item(ans_tree, hf_ans_team_id, tvb, 10, 6, FALSE);
+		proto_tree_add_item(ans_tree, hf_ans_app_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ans_tree, hf_ans_rev_id, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ans_tree, hf_ans_seq_num, tvb, 4, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ans_tree, hf_ans_sender_id, tvb, 8, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ans_tree, hf_ans_team_id, tvb, 10, 6, ENC_BIG_ENDIAN);
 	}
 }
 

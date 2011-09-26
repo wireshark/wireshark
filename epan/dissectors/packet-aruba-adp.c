@@ -68,38 +68,36 @@ dissect_aruba_adp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_aruba_adp, tvb, 0, 0, FALSE);
+    ti = proto_tree_add_item(tree, proto_aruba_adp, tvb, 0, 0, ENC_BIG_ENDIAN);
     aruba_adp_tree = proto_item_add_subtree(ti, ett_aruba_adp);
 
-    proto_tree_add_item(aruba_adp_tree, hf_adp_version, tvb, 0, 2, FALSE);
+    proto_tree_add_item(aruba_adp_tree, hf_adp_version, tvb, 0, 2, ENC_BIG_ENDIAN);
   }
   type = tvb_get_ntohs(tvb, 2);
 
   if (tree) {
-    proto_tree_add_item(aruba_adp_tree, hf_adp_type, tvb, 2, 2, FALSE);
+    proto_tree_add_item(aruba_adp_tree, hf_adp_type, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(aruba_adp_tree, hf_adp_id, tvb, 4, 2, FALSE);
+    proto_tree_add_item(aruba_adp_tree, hf_adp_id, tvb, 4, 2, ENC_BIG_ENDIAN);
   }
 
   switch(type){
     case ADP_REQUEST:
 
-      proto_tree_add_item(aruba_adp_tree, hf_adp_mac, tvb, 6, 6, FALSE);
+      proto_tree_add_item(aruba_adp_tree, hf_adp_mac, tvb, 6, 6, ENC_BIG_ENDIAN);
       mac_str = tvb_ether_to_str(tvb, 6);
 
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Request Src MAC: %s", mac_str);
+      col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Request Src MAC: %s", mac_str);
 
       proto_item_append_text(ti, ", Request Src MAC: %s", mac_str);
       break;
 
     case ADP_RESPONSE:
 
-      proto_tree_add_item(aruba_adp_tree, hf_adp_switchip, tvb, 6, 4, FALSE);
+      proto_tree_add_item(aruba_adp_tree, hf_adp_switchip, tvb, 6, 4, ENC_BIG_ENDIAN);
       switchip = tvb_ip_to_str(tvb, 6);
 
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Response Switch IP: %s", switchip);
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "ADP Response Switch IP: %s", switchip);
 
       proto_item_append_text(ti, ", Response Switch IP: %s", switchip);
       break;

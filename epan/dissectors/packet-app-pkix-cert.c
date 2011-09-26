@@ -58,11 +58,10 @@ dissect_cert(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		asn1_ctx_t asn1_ctx;
 		asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
         
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(application/pkix-cert)");
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(application/pkix-cert)");
 
         if (tree) {
-                ti = proto_tree_add_item(tree, proto_cert, tvb, 0, -1, FALSE);
+                ti = proto_tree_add_item(tree, proto_cert, tvb, 0, -1, ENC_BIG_ENDIAN);
                 subtree = proto_item_add_subtree(ti, ett_cert);
         }
 

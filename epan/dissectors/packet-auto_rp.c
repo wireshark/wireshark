@@ -119,11 +119,10 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         ver_type = tvb_get_guint8(tvb, 0);
         rp_count = tvb_get_guint8(tvb, 1);
-        if (check_col(pinfo->cinfo, COL_INFO))
-                col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%s) for %u RP%s",
-                             val_to_str(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"),
-                             val_to_str(hi_nibble(ver_type), auto_rp_ver_vals, "Unknown"),
-                             rp_count, plurality(rp_count, "", "s"));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s (v%s) for %u RP%s",
+                         val_to_str(lo_nibble(ver_type), auto_rp_type_vals, "Unknown"),
+                         val_to_str(hi_nibble(ver_type), auto_rp_ver_vals, "Unknown"),
+                         rp_count, plurality(rp_count, "", "s"));
 
         if (tree) {
                 proto_item *ti, *tv;
@@ -132,7 +131,7 @@ static void dissect_auto_rp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16 holdtime;
 
                 offset = 0;
-                ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, FALSE);
+                ti = proto_tree_add_item(tree, proto_auto_rp, tvb, offset, -1, ENC_BIG_ENDIAN);
                 auto_rp_tree = proto_item_add_subtree(ti, ett_auto_rp);
 
                 tv = proto_tree_add_text(auto_rp_tree, tvb, offset, 1, "Version: %s, Packet type: %s",

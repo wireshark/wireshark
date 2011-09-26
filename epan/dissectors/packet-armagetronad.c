@@ -209,17 +209,17 @@ add_message(tvbuff_t * tvb, gint offset, proto_tree * tree, GString * info)
 
 	/* DescriptorID field */
 	proto_tree_add_item(msg_tree, hf_armagetronad_descriptor_id, tvb,
-			    offset, 2, FALSE);
+			    offset, 2, ENC_BIG_ENDIAN);
 	if (info)
 		g_string_append_printf(info, "%s, ", descriptor);
 
 	/* MessageID field */
 	proto_tree_add_item(msg_tree, hf_armagetronad_message_id, tvb,
-			    offset + 2, 2, FALSE);
+			    offset + 2, 2, ENC_BIG_ENDIAN);
 
 	/* DataLen field */
 	proto_tree_add_item(msg_tree, hf_armagetronad_data_len, tvb,
-			    offset + 4, 2, FALSE);
+			    offset + 4, 2, ENC_BIG_ENDIAN);
 
 	/* Data field */
 	add_message_data(tvb, offset + 6, data_len, msg_tree);
@@ -240,14 +240,13 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	if (!is_armagetronad_packet(tvb))
 		return 0;
 
-	info = check_col(pinfo->cinfo, COL_INFO) ? g_string_new("") : NULL;
+	info = g_string_new("");
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Armagetronad");
 
-	if (info)
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
-	ti = proto_tree_add_item(tree, proto_armagetronad, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_armagetronad, tvb, 0, -1, ENC_BIG_ENDIAN);
 	armagetronad_tree = proto_item_add_subtree(ti, ett_armagetronad);
 
 	/* For each message in the frame */
@@ -257,19 +256,17 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	/* After the messages, comes the SenderID */
 	sender = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(ti, hf_armagetronad_sender_id, tvb, offset, 2,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 
-	if (info) {
-		gsize new_len = info->len - 2;	/* Remove the trailing ", " */
-		if (new_len > 0)
-			g_string_truncate(info, new_len);
-		else
-			g_string_assign(info, "No message");
+	gsize new_len = info->len - 2;	/* Remove the trailing ", " */
+	if (new_len > 0)
+		g_string_truncate(info, new_len);
+	else
+		g_string_assign(info, "No message");
 
-		col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] from 0x%04x",
-			     info->str, sender);
-		g_string_free(info, TRUE);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "[%s] from 0x%04x",
+		     info->str, sender);
+	g_string_free(info, TRUE);
 
 	return offset + 2;
 }

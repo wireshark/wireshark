@@ -163,17 +163,16 @@ dissect_asf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	type = tvb_get_guint8(tvb, 4);
 	len = tvb_get_guint8(tvb, 7);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(type, asf_type_vals, "Unknown (0x%02x)"));
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(type, asf_type_vals, "Unknown (0x%02x)"));
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8, FALSE);
+		ti = proto_tree_add_item(tree, proto_asf, tvb, 0, 8,ENC_BIG_ENDIAN);
 		asf_tree = proto_item_add_subtree(ti, ett_asf);
-		proto_tree_add_item(asf_tree, hf_asf_iana, tvb, 0, 4, FALSE);
-		proto_tree_add_item(asf_tree, hf_asf_type, tvb, 4, 1, FALSE);
-		proto_tree_add_item(asf_tree, hf_asf_tag, tvb, 5, 1, FALSE);
-		proto_tree_add_item(asf_tree, hf_asf_len, tvb, 7, 1, FALSE);
+		proto_tree_add_item(asf_tree, hf_asf_iana, tvb, 0, 4,ENC_BIG_ENDIAN);
+		proto_tree_add_item(asf_tree, hf_asf_type, tvb, 4, 1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(asf_tree, hf_asf_tag, tvb, 5, 1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(asf_tree, hf_asf_len, tvb, 7, 1,ENC_BIG_ENDIAN);
 	}
 
 	if (len) {
@@ -200,7 +199,7 @@ static void
 dissect_asf_open_session_request(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
-	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset, 4,ENC_BIG_ENDIAN);
 	offset += 4;
 	len    -= 4;
 	dissect_asf_payloads(tvb, tree, offset, len);
@@ -210,9 +209,9 @@ static void
 dissect_asf_open_session_response(tvbuff_t *tvb, proto_tree *tree,
 	gint offset, gint len)
 {
-	proto_tree_add_item(tree, hf_asf_rssp_status_code, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset + 4, 4, FALSE);
-	proto_tree_add_item(tree, hf_asf_client_id, tvb, offset + 8, 4, FALSE);
+	proto_tree_add_item(tree, hf_asf_rssp_status_code, tvb, offset, 1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_asf_mgt_console_id, tvb, offset + 4, 4,ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_asf_client_id, tvb, offset + 8, 4,ENC_BIG_ENDIAN);
 	offset += 12;
 	len    -= 12;
 	dissect_asf_payloads(tvb, tree, offset, len);
@@ -236,8 +235,8 @@ dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 			plen, "%s: %u bytes",
 			val_to_str(ptype, asf_payload_type_vals, "Unknown (%u)"), plen);
 		ptree = proto_item_add_subtree(ti, ett_asf_payload);
-		proto_tree_add_item(ptree, hf_asf_payload_type, tvb, offset, 1, FALSE);
-		proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(ptree, hf_asf_payload_type, tvb, offset, 1,ENC_BIG_ENDIAN);
+		proto_tree_add_item(ptree, hf_asf_payload_len, tvb, offset + 2, 2,ENC_BIG_ENDIAN);
 		if ( ptype && (plen > 4) )
 		{
 			switch ( ptype )
@@ -252,7 +251,7 @@ dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 					break;
 				default:
 					proto_tree_add_item(ptree, hf_asf_payload_data, tvb,
-						offset + 4, plen - 4, FALSE);
+						offset + 4, plen - 4,ENC_BIG_ENDIAN);
 					break;
 			}
 		}
@@ -274,8 +273,8 @@ dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 		len, "Authentication Algorithm: %s",
 		val_to_str(alg, asf_authentication_type_vals, "Unknown (%u)"));
 	atree = proto_item_add_subtree(ti, ett_asf_alg_payload);
-	proto_tree_add_item(atree, hf_asf_auth_alg, tvb, offset, 1, FALSE);
-	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1, FALSE);
+	proto_tree_add_item(atree, hf_asf_auth_alg, tvb, offset, 1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -291,8 +290,8 @@ dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 		len, "Integrity Algorithm: %s",
 		val_to_str(alg, asf_integrity_type_vals, "Unknown (%u)"));
 	atree = proto_item_add_subtree(ti, ett_asf_alg_payload);
-	proto_tree_add_item(atree, hf_asf_integrity_alg, tvb, offset, 1, FALSE);
-	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1, FALSE);
+	proto_tree_add_item(atree, hf_asf_integrity_alg, tvb, offset, 1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_BIG_ENDIAN);
 }
 
 void

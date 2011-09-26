@@ -151,7 +151,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   SET_ADDRESS(&pinfo->dl_dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
   SET_ADDRESS(&pinfo->dst,	AT_ARCNET, 1, tvb_get_ptr(tvb, 1, 1));
 
-  ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item (tree, proto_arcnet, tvb, 0, -1, ENC_BIG_ENDIAN);
 
   arcnet_tree = proto_item_add_subtree (ti, ett_arcnet);
 
@@ -162,7 +162,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   offset++;
 
   if (has_offset) {
-    proto_tree_add_item (arcnet_tree, hf_arcnet_offset, tvb, offset, 2, FALSE);
+    proto_tree_add_item (arcnet_tree, hf_arcnet_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
   }
 
@@ -219,7 +219,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
       offset += 2;
 
       /* Another copy of the packet type appears after the padding. */
-      proto_tree_add_item (arcnet_tree, hf_arcnet_protID, tvb, offset, 1, FALSE);
+      proto_tree_add_item (arcnet_tree, hf_arcnet_protID, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
       /* And after that comes the real split flag. */
@@ -230,7 +230,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 			   split_flag);
     offset++;
 
-    proto_tree_add_item (arcnet_tree, hf_arcnet_sequence, tvb, offset, 2, FALSE);
+    proto_tree_add_item (arcnet_tree, hf_arcnet_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     break;
@@ -244,10 +244,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   if (!dissector_try_uint (arcnet_dissector_table, protID,
 			   next_tvb, pinfo, tree))
     {
-      if (check_col (pinfo->cinfo, COL_PROTOCOL))
-	{
 	  col_add_fstr (pinfo->cinfo, COL_PROTOCOL, "0x%04x", protID);
-	}
       call_dissector (data_handle, next_tvb, pinfo, tree);
     }
 
@@ -271,7 +268,7 @@ dissect_arcnet (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 static void
 dissect_arcnet_linux (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 {
-  dissect_arcnet_common (tvb, pinfo, tree, TRUE, FALSE);
+  dissect_arcnet_common (tvb, pinfo, tree, TRUE, ENC_BIG_ENDIAN);
 }
 
 static const value_string arcnet_prot_id_vals[] = {

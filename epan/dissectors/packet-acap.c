@@ -65,7 +65,7 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 * not longer than what's in the buffer, so the "tvb_get_ptr()"
 	 * call won't throw an exception.
 	 */
-	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, FALSE);
+	linelen = tvb_find_line_end(tvb, offset, -1, &next_offset, ENC_BIG_ENDIAN);
 	line = tvb_get_ptr(tvb, offset, linelen);
 
 	if (pinfo->match_uint == pinfo->destport)
@@ -73,19 +73,17 @@ dissect_acap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	else
 		is_request = FALSE;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		/*
-		 * Put the first line from the buffer into the summary
-		 * (but leave out the line terminator).
-		 */
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
-		    is_request ? "Request" : "Response",
-		    format_text(line, linelen));
-	}
+	/*
+	 * Put the first line from the buffer into the summary
+	 * (but leave out the line terminator).
+	 */
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s: %s",
+	    is_request ? "Request" : "Response",
+	    format_text(line, linelen));
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_acap, tvb, offset, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		acap_tree = proto_item_add_subtree(ti, ett_acap);
 
 		if (is_request) {

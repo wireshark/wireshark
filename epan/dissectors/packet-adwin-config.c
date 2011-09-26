@@ -503,10 +503,9 @@ dissect_adwin_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			DISSECTOR_ASSERT_NOT_REACHED();
 		}
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_add_str(pinfo->cinfo, COL_INFO,
-				    val_to_str(length, length_mapping,
-					"Unknown ADwin Configuration packet, length: %d"));
+		col_add_str(pinfo->cinfo, COL_INFO,
+			    val_to_str(length, length_mapping,
+				"Unknown ADwin Configuration packet, length: %d"));
 	}
 
 	return (tvb_reported_length(tvb));

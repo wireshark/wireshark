@@ -522,8 +522,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   pos=pos+uri_len;  /* skip over chars + trailing null */
 
 
-  if(check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s", uri, ver);
+  col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s", uri, ver);
 
 
   /* REMOTE ADDRESS
@@ -680,16 +679,15 @@ dissect_ajp13_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*  len = tvb_get_ntohs(tvb, 2); */
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "AJP13");
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (mag == 0x1234 && !fd->is_request_body)
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:", conv->index);
-    else if (mag == 0x1234 && fd->is_request_body)
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:Body", conv->index);
-    else if (mag == 0x4142)
-      col_append_fstr(pinfo->cinfo, COL_INFO, "%d:RSP:", conv->index);
-    else
-      col_set_str(pinfo->cinfo, COL_INFO, "AJP13 Error?");
-  }
+
+  if (mag == 0x1234 && !fd->is_request_body)
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:", conv->index);
+  else if (mag == 0x1234 && fd->is_request_body)
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:REQ:Body", conv->index);
+  else if (mag == 0x4142)
+    col_append_fstr(pinfo->cinfo, COL_INFO, "%d:RSP:", conv->index);
+  else
+    col_set_str(pinfo->cinfo, COL_INFO, "AJP13 Error?");
 
   if (tree) {
     proto_item *ti;
