@@ -1237,19 +1237,19 @@ dnp3_al_process_iin(tvbuff_t *tvb, int offset, proto_tree *al_tree)
   proto_item_append_text(tiin, " (0x%04x)", al_iin);
 
   iin_tree = proto_item_add_subtree(tiin, ett_dnp3_al_iin);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_rst, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dt, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dol, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_tsr, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls3d, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls2d, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls1d, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_bmsg, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cc, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_oae, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_ebo, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_pioor, tvb, offset, 2, FALSE);
-  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_obju, tvb, offset, 2, FALSE);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_rst, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dt, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_dol, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_tsr, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls3d, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls2d, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cls1d, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_bmsg, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_cc, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_oae, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_ebo, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_pioor, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(iin_tree, hf_dnp3_al_iin_obju, tvb, offset, 2, ENC_BIG_ENDIAN);
 }
 
 /*****************************************************************/
@@ -1271,32 +1271,32 @@ dnp3_al_obj_procindex(tvbuff_t *tvb, int offset, guint8 al_objq_index, guint32 *
       break;
     case AL_OBJQL_IDX_1O:
       *al_ptaddr = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(item_tree, hf_dnp3_al_index8, tvb, offset, 1, TRUE);
+      proto_tree_add_item(item_tree, hf_dnp3_al_index8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       indexbytes = 1;
       break;
     case AL_OBJQL_IDX_2O:
       *al_ptaddr = tvb_get_letohs(tvb, offset);
-      proto_tree_add_item(item_tree, hf_dnp3_al_index16, tvb, offset, 2, TRUE);
+      proto_tree_add_item(item_tree, hf_dnp3_al_index16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       indexbytes = 2;
       break;
     case AL_OBJQL_IDX_4O:
       *al_ptaddr = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(item_tree, hf_dnp3_al_index32, tvb, offset, 4, TRUE);
+      proto_tree_add_item(item_tree, hf_dnp3_al_index32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       indexbytes = 4;
       break;
     case AL_OBJQL_IDX_1OS:
       *al_ptaddr = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(item_tree, hf_dnp3_al_size8, tvb, offset, 1, TRUE);
+      proto_tree_add_item(item_tree, hf_dnp3_al_size8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       indexbytes = 1;
       break;
     case AL_OBJQL_IDX_2OS:
       *al_ptaddr = tvb_get_letohs(tvb, offset);
-      proto_tree_add_item(item_tree, hf_dnp3_al_size16, tvb, offset, 2, TRUE);
+      proto_tree_add_item(item_tree, hf_dnp3_al_size16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       indexbytes = 2;
       break;
     case AL_OBJQL_IDX_4OS:
       *al_ptaddr = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(item_tree, hf_dnp3_al_size32, tvb, offset, 4, TRUE);
+      proto_tree_add_item(item_tree, hf_dnp3_al_size32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       indexbytes = 4;
       break;
   }
@@ -1407,14 +1407,14 @@ dnp3_al_obj_quality(tvbuff_t *tvb, int offset, guint8 al_ptflags, proto_tree *po
   }
 
   if (quality_tree != NULL) {
-    proto_tree_add_item(quality_tree, hf7, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf6, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf5, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf4, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf3, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf2, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf1, tvb, offset, 1, TRUE);
-    proto_tree_add_item(quality_tree, hf0, tvb, offset, 1, TRUE);
+    proto_tree_add_item(quality_tree, hf7, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf6, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf5, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(quality_tree, hf0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   }
   proto_item_append_text(point_item, ")");
 }
@@ -1501,8 +1501,8 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
     val_to_str_ext_const(al_objq_index, &dnp3_al_objq_index_vals_ext, "Unknown Index Type"),
     val_to_str_ext_const(al_objq_code, &dnp3_al_objq_code_vals_ext, "Unknown Code Type"));
   qualifier_tree = proto_item_add_subtree(qualifier_item, ett_dnp3_al_obj_qualifier);
-  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_index, tvb, offset, 1, FALSE);
-  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_code, tvb, offset, 1, FALSE);
+  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_index, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(qualifier_tree, hf_dnp3_al_objq_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   offset += 1;
 
@@ -1516,68 +1516,68 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
       num_items = ( tvb_get_guint8(tvb, offset+1) - tvb_get_guint8(tvb, offset) + 1);
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, TRUE);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_start8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop8, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       break;
     case AL_OBJQL_CODE_SSI16:          /* 16-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohs(tvb, offset+2) - tvb_get_letohs(tvb, (offset)) + 1);
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_start16, tvb, offset, 2, TRUE);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop16, tvb, offset + 2, 2, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_start16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop16, tvb, offset + 2, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       break;
     case AL_OBJQL_CODE_SSI32:          /* 32-bit Start and Stop Indices in Range Field */
       num_items = ( tvb_get_letohl(tvb, offset+4) - tvb_get_letohl(tvb, offset) + 1);
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_start32, tvb, offset, 4, TRUE);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop32, tvb, offset + 4, 4, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_start32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_stop32, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 8;
       break;
     case AL_OBJQL_CODE_AA8:            /* 8-bit Absolute Address in Range Field */
       num_items = 1;
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs8, tvb, offset, 1, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       break;
     case AL_OBJQL_CODE_AA16:           /* 16-bit Absolute Address in Range Field */
       num_items = 1;
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohs(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs16, tvb, offset, 2, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       break;
     case AL_OBJQL_CODE_AA32:           /* 32-bit Absolute Address in Range Field */
       num_items = 1;
       PROTO_ITEM_SET_GENERATED(range_item);
       al_ptaddr = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs32, tvb, offset, 4, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_abs32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       break;
     case AL_OBJQL_CODE_SF8:            /* 8-bit Single Field Quantity in Range Field */
       num_items = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       proto_item_set_len(range_item, rangebytes);
       break;
     case AL_OBJQL_CODE_SF16:           /* 16-bit Single Field Quantity in Range Field */
       num_items = tvb_get_letohs(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant16, tvb, offset, 2, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
       rangebytes = 2;
       proto_item_set_len(range_item, rangebytes);
       break;
     case AL_OBJQL_CODE_SF32:           /* 32-bit Single Field Quantity in Range Field */
       num_items = tvb_get_letohl(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant32, tvb, offset, 4, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
       rangebytes = 4;
       proto_item_set_len(range_item, rangebytes);
       break;
     case AL_OBJQL_CODE_FF:            /* 8 bit object count in Range Field */
       num_items = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, TRUE);
+      proto_tree_add_item(range_tree, hf_dnp3_al_range_quant8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       rangebytes = 1;
       proto_item_set_len(range_item, rangebytes);
   }
@@ -1829,7 +1829,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             data_pos += 4;
 
             al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
-            proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, TRUE);
+            proto_tree_add_item(point_item, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             data_pos += 1;
 
@@ -1855,25 +1855,25 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
               case AL_OBJ_AO_32OPB:
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val32);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
               case AL_OBJ_AO_16OPB:
                 al_val32 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val32);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
                 data_pos += 2;
                 break;
               case AL_OBJ_AO_FLTOPB:
                 al_valflt = tvb_get_letohieee_float(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valflt);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
               case AL_OBJ_AO_DBLOPB:
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valdbl);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, ENC_LITTLE_ENDIAN);
                 data_pos += 8;
                 break;
             }
@@ -1882,7 +1882,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             al_ctlobj_stat = tvb_get_guint8(tvb, data_pos);
             ctl_status_str = val_to_str_ext(al_ctlobj_stat, &dnp3_al_ctl_status_vals_ext, "Invalid Status (0x%02x)");
             proto_item_append_text(point_item, " [Status: %s (0x%02x)]", ctl_status_str, al_ctlobj_stat);
-            proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_ctrlstatus, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
 
             proto_item_set_len(point_item, data_pos - offset);
@@ -1971,7 +1971,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Count: %u", al_val32);
-                proto_tree_add_item(point_tree, hf_dnp3_al_cnt32, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_cnt32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
 
@@ -1996,7 +1996,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Count: %u", al_val16);
-                proto_tree_add_item(point_tree, hf_dnp3_al_cnt16, tvb, data_pos, 2, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_cnt16, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
                 data_pos += 2;
                 break;
             }
@@ -2079,7 +2079,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val32);
-                proto_tree_add_item(point_tree, hf_dnp3_al_ana32, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_ana32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
 
@@ -2091,7 +2091,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val16);
-                proto_tree_add_item(point_tree, hf_dnp3_al_ana16, tvb, data_pos, 2, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_ana16, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
                 data_pos += 2;
                 break;
 
@@ -2105,7 +2105,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_valflt = tvb_get_letohieee_float(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valflt);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaflt, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaflt, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
 
@@ -2118,7 +2118,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valdbl);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anadbl, tvb, data_pos, 8, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anadbl, tvb, data_pos, 8, ENC_LITTLE_ENDIAN);
                 data_pos += 8;
                 break;
             }
@@ -2170,7 +2170,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_val32 = tvb_get_letohl(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val32);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaout32, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
 
@@ -2180,7 +2180,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_val16 = tvb_get_letohs(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %u", al_val16);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaout16, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
                 data_pos += 2;
                 break;
 
@@ -2190,7 +2190,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_valflt = tvb_get_letohieee_float(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valflt);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutflt, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
                 data_pos += 4;
                 break;
 
@@ -2200,7 +2200,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
 
                 al_valdbl = tvb_get_letohieee_double(tvb, data_pos);
                 proto_item_append_text(point_item, ", Value: %g", al_valdbl);
-                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, TRUE);
+                proto_tree_add_item(point_tree, hf_dnp3_al_anaoutdbl, tvb, data_pos, 8, ENC_LITTLE_ENDIAN);
                 data_pos += 8;
                 break;
             }
@@ -2302,25 +2302,25 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             data_pos += 2;
 
             /* Auth Key */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_auth, tvb, data_pos, 4, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_auth, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             data_pos += 4;
 
             /* File Size */
             if (al_file_ctrl_mode == AL_OBJ_FILE_MODE_WRITE || al_file_ctrl_mode == AL_OBJ_FILE_MODE_APPEND) {
-              proto_tree_add_item(point_tree, hf_dnp3_al_file_size, tvb, data_pos, 4, TRUE);
+              proto_tree_add_item(point_tree, hf_dnp3_al_file_size, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             }
             data_pos += 4;
 
             /* Mode */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_mode, tvb, data_pos, 2, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_mode, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
             data_pos += 2;
 
             /* Max Block Size */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_maxblk, tvb, data_pos, 2, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_maxblk, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
             data_pos += 2;
 
             /* Request ID */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_reqID, tvb, data_pos, 2, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_reqID, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
             data_pos += 2;
 
             /* Filename */
@@ -2337,29 +2337,29 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_FILE_STAT: /* File Control - File Status (Obj:70, Var:04) */
 
             /* File Handle */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_handle, tvb, data_pos, 4, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_handle, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             data_pos += 4;
 
             /* File Size */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_size, tvb, data_pos, 4, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_size, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             data_pos += 4;
 
             /* Max Block Size */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_maxblk, tvb, data_pos, 2, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_maxblk, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
             data_pos += 2;
 
             /* Request ID */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_reqID, tvb, data_pos, 2, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_reqID, tvb, data_pos, 2, ENC_LITTLE_ENDIAN);
             data_pos += 2;
 
             /* Status code */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_status, tvb, data_pos, 1, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_status, tvb, data_pos, 1, ENC_LITTLE_ENDIAN);
             data_pos += 1;
 
             /* Optional text */
             file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
             if ((file_data_size) > 0) {
-              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, TRUE);
+              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_LITTLE_ENDIAN);
               data_pos += file_data_size;
             }
 
@@ -2371,7 +2371,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
           case AL_OBJ_FILE_TRANS: /* File Control - File Transport (Obj:70, Var:05) */
 
             /* File Handle */
-            proto_tree_add_item(point_tree, hf_dnp3_al_file_handle, tvb, data_pos, 4, TRUE);
+            proto_tree_add_item(point_tree, hf_dnp3_al_file_handle, tvb, data_pos, 4, ENC_LITTLE_ENDIAN);
             data_pos += 4;
 
             /* File block (bits 0 - 30) and last block flag (bit 31) */
@@ -2382,7 +2382,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             /* File data */
             file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
             if ((file_data_size) > 0) {
-              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, TRUE);
+              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_LITTLE_ENDIAN);
               data_pos += file_data_size;
             }
 
@@ -2486,12 +2486,10 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   al_func = tvb_get_guint8(tvb, (offset+1));
   func_code_str = val_to_str_ext(al_func, &dnp3_al_func_vals_ext, "Unknown function (0x%02x)");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    /* Clear out lower layer info */
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", func_code_str);
-    col_set_fence(pinfo->cinfo, COL_INFO);
-  }
+  /* Clear out lower layer info */
+  col_clear(pinfo->cinfo, COL_INFO);
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", func_code_str);
+  col_set_fence(pinfo->cinfo, COL_INFO);
 
   /* format up the text representation */
   ti = proto_tree_add_text(tree, tvb, offset, data_len, "Application Layer: (");
@@ -2518,7 +2516,7 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree_add_boolean(field_tree, hf_dnp3_al_fin, tvb, offset, 1, al_ctl);
   proto_tree_add_boolean(field_tree, hf_dnp3_al_con, tvb, offset, 1, al_ctl);
   proto_tree_add_boolean(field_tree, hf_dnp3_al_uns, tvb, offset, 1, al_ctl);
-  proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, FALSE);
+  proto_tree_add_item(field_tree, hf_dnp3_al_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
 #if 0
@@ -2561,12 +2559,10 @@ dissect_dnp3_al(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Update the col info if there were class reads */
-  if (check_col(pinfo->cinfo, COL_INFO) && (al_class > 0)) {
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
-    for (i = 0; i < 4; i++) {
-      if (al_class & (1 << i)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
-      }
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Class ");
+  for (i = 0; i < 4; i++) {
+    if (al_class & (1 << i)) {
+      col_append_fstr(pinfo->cinfo, COL_INFO, "%u", i);
     }
   }
 
@@ -2759,15 +2755,13 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   func_code_str = val_to_str(dl_func, dl_prm ? dnp3_ctl_func_pri_vals : dnp3_ctl_func_sec_vals,
            "Unknown function (0x%02x)");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    /* Make sure source and dest are always in the info column */
-    col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
-    col_set_fence(pinfo->cinfo, COL_INFO);
-    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "len=%u, %s", dl_len, func_code_str);
-  }
+  /* Make sure source and dest are always in the info column */
+  col_append_fstr(pinfo->cinfo, COL_INFO, "from %u to %u", dl_src, dl_dst);
+  col_set_fence(pinfo->cinfo, COL_INFO);
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "len=%u, %s", dl_len, func_code_str);
 
   /* create display subtree for the protocol */
-  ti = proto_tree_add_item(tree, proto_dnp3, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_dnp3, tvb, offset, -1, ENC_BIG_ENDIAN);
   dnp3_tree = proto_item_add_subtree(ti, ett_dnp3);
 
   /* Create Subtree for Data Link Layer */
@@ -2789,11 +2783,11 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   dl_tree = proto_item_add_subtree(tdl, ett_dnp3_dl);
 
   /* start bytes */
-  proto_tree_add_item(dl_tree, hf_dnp3_start, tvb, offset, 2, FALSE);
+  proto_tree_add_item(dl_tree, hf_dnp3_start, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   /* add length field */
-  proto_tree_add_item(dl_tree, hf_dnp3_len, tvb, offset, 1, FALSE);
+  proto_tree_add_item(dl_tree, hf_dnp3_len, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
 
   /* Add Control Byte Subtree */
@@ -2817,24 +2811,24 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* Add Control Byte Subtree Items */
   if (dl_prm) {
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_fcb, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_fcv, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_prifunc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_fcb, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_fcv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_prifunc, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
   else {
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_dfc, tvb, offset, 1, TRUE);
-    proto_tree_add_item(field_tree, hf_dnp3_ctl_secfunc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_dir, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_prm, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_dfc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(field_tree, hf_dnp3_ctl_secfunc, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
     offset += 1;
 
   /* add destination and source addresses */
-  proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, TRUE);
+  proto_tree_add_item(dl_tree, hf_dnp3_dst, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
-  proto_tree_add_item(dl_tree, hf_dnp3_src, tvb, offset, 2, TRUE);
+  proto_tree_add_item(dl_tree, hf_dnp3_src, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   /* and header CRC */
@@ -2846,7 +2840,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
   {
     hidden_item = proto_tree_add_boolean(dl_tree, hf_dnp_hdr_CRC_bad, tvb,
-                                         offset, 2, TRUE);
+                                         offset, 2, ENC_LITTLE_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_uint_format(dl_tree, hf_dnp_hdr_CRC, tvb, offset, 2,
                                dl_crc, "CRC: 0x%04x [incorrect, should be 0x%04x]",
@@ -2877,7 +2871,7 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     tr_tree = proto_item_add_subtree(tc, ett_dnp3_tr_ctl);
     proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fin, tvb, offset, 1, tr_ctl);
     proto_tree_add_boolean(tr_tree, hf_dnp3_tr_fir, tvb, offset, 1, tr_ctl);
-    proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tr_tree, hf_dnp3_tr_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Allocate AL chunk tree */
     al_chunks = proto_tree_add_text(tr_tree, tvb, offset + 1, -1, "Application data chunks");
@@ -2987,14 +2981,12 @@ dissect_dnp3_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         if (next_tvb) { /* Reassembled */
           /* We have the complete payload */
-          if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Reassembled Application Layer");
+          col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Reassembled Application Layer");
         }
         else
         {
           /* We don't have the complete reassembled payload. */
-          if (check_col (pinfo->cinfo, COL_INFO))
-            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Transport Layer fragment %u ", tr_seq);
+          col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "Transport Layer fragment %u ", tr_seq);
         }
 
       }

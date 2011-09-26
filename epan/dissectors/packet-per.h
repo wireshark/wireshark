@@ -29,9 +29,7 @@
 
 #define PER_NOT_DECODED_YET(x) \
 proto_tree_add_text(tree, tvb, 0, 0, "something unknown here [%s]",x); \
-if (check_col(actx->pinfo->cinfo, COL_INFO)){ \
 	col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[UNKNOWN PER: %s]", x); \
-} \
 tvb_get_guint8(tvb, 9999);
 
 typedef int (*per_type_fn)(tvbuff_t*, int, asn1_ctx_t*, proto_tree*, int);

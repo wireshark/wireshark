@@ -107,29 +107,28 @@ dissect_dpnss_link(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	uton = pinfo->pseudo_header->l1event.uton;
 	/* Make entries in src and dst column */
-	if (check_col(pinfo->cinfo, COL_DEF_SRC))
-		col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
-	if (check_col(pinfo->cinfo, COL_DEF_DST))
-		col_set_str(pinfo->cinfo, COL_DEF_DST, uton?"NT":"TE");
 
-	item = proto_tree_add_item(tree, proto_dpnss_link, tvb, 0, -1, FALSE);
+	col_set_str(pinfo->cinfo, COL_DEF_SRC, uton?"TE":"NT");
+	col_set_str(pinfo->cinfo, COL_DEF_DST, uton?"NT":"TE");
+
+	item = proto_tree_add_item(tree, proto_dpnss_link, tvb, 0, -1, ENC_BIG_ENDIAN);
 	dpnss_link_tree = proto_item_add_subtree(item, ett_dpnss_link);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address_framegroup,
-			    tvb, 0, 1, FALSE);
+			    tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address_crbit,
-			    tvb, 0, 1, FALSE);
+			    tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address_extension,
-			    tvb, 0, 1, FALSE);
+			    tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address2_reserved,
-			    tvb, 1, 1, FALSE);
+			    tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address2_dlcId,
-			    tvb, 1, 1, FALSE);
+			    tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address2_dlcIdNr,
-			    tvb, 1, 1, FALSE);
+			    tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_address2_extension,
-			    tvb, 1, 1, FALSE);
+			    tvb, 1, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(dpnss_link_tree, hf_dpnss_link_control_frameType,
-			    tvb, 2, 1, FALSE);
+			    tvb, 2, 1, ENC_BIG_ENDIAN);
 	octet = tvb_get_guint8(tvb, 2);
 	switch (octet){
 	case FRAME_TYPE_UI_EVEN:

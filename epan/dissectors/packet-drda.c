@@ -686,14 +686,12 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint iLengthParam;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DRDA");
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		/* This is a trick to know whether this is the first PDU in this packet or not */
-		if (iPreviousFrameNumber != (gint) pinfo->fd->num)
-			col_clear(pinfo->cinfo, COL_INFO);
-		else
-			col_append_str(pinfo->cinfo, COL_INFO, " | ");
-	}
+	/* This is a trick to know whether this is the first PDU in this packet or not */
+	if (iPreviousFrameNumber != (gint) pinfo->fd->num)
+		col_clear(pinfo->cinfo, COL_INFO);
+	else
+		col_append_str(pinfo->cinfo, COL_INFO, " | ");
+
 	iPreviousFrameNumber = pinfo->fd->num;
 	/* There may be multiple DRDA commands in one frame */
 	while ((guint) (offset + 10) <= tvb_length(tvb))
@@ -703,12 +701,9 @@ dissect_drda(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* iCommandEnd is the length of the packet up to the end of the current command */
 		iCommandEnd += iLength;
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			if (offset > 0)
-				col_append_str(pinfo->cinfo, COL_INFO, " | ");
-			col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
-		}
+		if (offset > 0)
+			col_append_str(pinfo->cinfo, COL_INFO, " | ");
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str_ext(iCommand, &drda_opcode_abbr_ext, "Unknown (0x%02x)"));
 
 		if (tree)
 		{
