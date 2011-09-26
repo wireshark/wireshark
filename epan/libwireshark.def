@@ -655,7 +655,6 @@ md5_hmac
 md5_init
 mtp3_addr_to_str_buf
 mtp3_service_indicator_code_short_vals DATA
-new_octet_aligned_subset_bits
 new_create_dissector_handle
 new_register_dissector
 next_tvb_init
@@ -1144,12 +1143,13 @@ tvb_ip6_to_str
 tvb_ip_to_str
 tvb_length
 tvb_length_remaining
-tvb_new_composite
 tvb_memcpy
 tvb_memdup
 tvb_memeql
-tvb_new_real_data
 tvb_new_child_real_data
+tvb_new_composite
+tvb_new_octet_aligned
+tvb_new_real_data
 tvb_new_subset
 tvb_new_subset_remaining
 tvb_offset_exists

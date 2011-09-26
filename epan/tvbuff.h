@@ -86,6 +86,13 @@ typedef void (*tvbuff_free_cb_t)(void*);
  * require further initialization via the appropriate functions */
 extern tvbuff_t* tvb_new(tvbuff_type);
 
+/** Extracs from bit offset number of bits and 
+ * Returns a pointer to a newly initialized tvbuff. with the bits
+ * octet aligned.
+ */
+extern tvbuff_t* tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits);
+
+
 /** Marks a tvbuff for freeing. The guint8* data of a TVBUFF_REAL_DATA
  * is *never* freed by the tvbuff routines. The tvbuff itself is actually freed
  * once its usage count drops to 0.

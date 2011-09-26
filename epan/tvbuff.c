@@ -115,6 +115,54 @@ tvb_new(const tvbuff_type type)
 	return tvb;
 }
 
+tvbuff_t *
+tvb_new_octet_aligned(tvbuff_t *tvb, guint32 bit_offset, gint32 no_of_bits)
+{
+	tvbuff_t *sub_tvb = NULL;
+	guint32 byte_offset;
+	gint32 datalen, i; 
+	guint8 left, right, *buf;
+	const guint8 *data;
+
+	byte_offset = bit_offset >> 3;
+	left = bit_offset % 8; /* for left-shifting */
+	right = 8 - left; /* for right-shifting */
+
+	if (no_of_bits == -1) {
+		datalen = tvb_length_remaining(tvb, byte_offset);
+	} else {
+		datalen = no_of_bits >> 3;
+		if (no_of_bits % 8) datalen++;
+	}
+
+	/* already aligned -> shortcut */
+	if (left == 0) {
+		return tvb_new_subset(tvb, byte_offset, datalen, -1);
+	}
+
+	buf = ep_alloc0(datalen);
+
+	/* if at least one trailing byte is available, we must use the content
+ 	* of that byte for the last shift (i.e. tvb_get_ptr() must use datalen + 1
+ 	* if non extra byte is available, the last shifted byte requires
+ 	* special treatment
+ 	*/
+	if (tvb_length_remaining(tvb, byte_offset) > datalen) {
+		data = tvb_get_ptr(tvb, byte_offset, datalen + 1);
+	} else {
+		data = tvb_get_ptr(tvb, byte_offset, datalen);
+		datalen--; /* correct 'datalen' for 'for' loop */
+		buf[datalen] = data[datalen] << left; /* set last octet */
+	}
+	/* shift tvb data bit_offset bits to the left */
+	for (i = 0; i < datalen; i++)
+		buf[i] = (data[i] << left) | (data[i+1] >> right);
+
+	sub_tvb = tvb_new_child_real_data(tvb, buf, datalen, datalen);
+	
+	return sub_tvb;
+}
+
 static tvbuff_t*
 tvb_new_with_subset(const guint subset_tvb_offset, const guint subset_tvb_length)
 {

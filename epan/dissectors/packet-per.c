@@ -180,91 +180,6 @@ static tvbuff_t *new_octet_aligned_subset(tvbuff_t *tvb, guint32 offset, asn1_ct
   return sub_tvb;
 }
 
-static const guint16 bit_mask16_unaligned[] = {
-    0xff00,
-    0x8000,
-    0xc000,
-    0xe000,
-    0xf000,
-    0xf800,
-    0xfc00,
-    0xfe00
-};
-
-/* Fetch the number of bits left adjusted to a new tvb with a size of the nearest number of bytes.
- * pad the remaining bits with 0
- */
-tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 boffset, asn1_ctx_t *actx, guint32 no_of_bits)
-{
-  tvbuff_t *sub_tvb = NULL;
-  /* offset is offset in bytes boffset is in bits */
-  guint32 offset = boffset >> 3;
-  unsigned int i, shift0, shift1;
-  guint8 octet0, octet1, *buf;
-  guint16	word;
-
-  guint32	new_length, check_length;
-  guint32	remainderval, tvb_bits;
-
-  /* Calculate the size required */
-
-  new_length = no_of_bits/8;
-  remainderval = no_of_bits % 8;
-
-  if(remainderval){
-	  new_length++;
-  }else{
-	  /* Number of bits = even number of octets */
-	return new_octet_aligned_subset(tvb, boffset, actx, new_length);
-  }
-
-  /* The bits can be contained in two "extra octets" .... .xxx [xxxx]*n xx... ....*/
-  tvb_bits = (boffset & 7)+ no_of_bits;
-  check_length = tvb_bits/8;
-  if(tvb_bits % 8){
-	  check_length++;
-  }
-
-
-  /*  Throw an exception if we're asked to display more bits than exist.
-   *  We check now to ensure we don't cause g_malloc() to abort because
-   *  we asked for entirely too much memory.
-   */
-  if (new_length > check_length)
-    THROW(ReportedBoundsError);	/* indicate that the packet is malformed */
-  tvb_ensure_bytes_exist(tvb, offset, check_length);
-  buf = g_malloc(new_length);
-
-  i = 0;
-  shift1 = boffset & 0x07;
-  shift0 = 8 - shift1;
-
-  if (new_length > 1){
-    octet0 = tvb_get_guint8(tvb, offset);
-    for (; i < new_length-1; i++) {
-      octet1 = octet0;
-      octet0 = tvb_get_guint8(tvb, offset + i + 1);
-      buf[i] = (octet1 << shift1) | (octet0 >> shift0);
-    }
-  }
-  /* get the 'odd' bits */
-  if ((no_of_bits - 8*i) > shift0){
-    word = tvb_get_ntohs(tvb,offset+i) << shift1;
-  }else{
-    word = tvb_get_guint8(tvb,offset+i) << (shift1 + 8);
-  }
-  word = word & bit_mask16_unaligned[remainderval];
-  word = word >> 8;
-  buf[i] = (guint8) (word & 0x00ff);
-
-  sub_tvb = tvb_new_child_real_data(tvb, buf, new_length, new_length);
-  tvb_set_free_cb(sub_tvb, g_free);
-  add_new_data_source(actx->pinfo, sub_tvb, "Bitstring tvb");
-
-  return sub_tvb;
-}
-
-
 /* 10 Encoding procedures -------------------------------------------------- */
 
 /* 10.2 Open type fields --------------------------------------------------- */
@@ -2065,7 +1980,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	guint32  pad_length=0;
 	guint64  value;
 
-	out_tvb = new_octet_aligned_subset_bits(tvb, offset, actx, length);
+	out_tvb = tvb_new_octet_aligned(tvb, offset, length);
 
 	if (hfi) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);

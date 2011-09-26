@@ -132,5 +132,4 @@ extern gboolean get_size_constraint_from_stack(asn1_ctx_t *actx, const gchar *na
 
 extern guint32 dissect_per_length_determinant(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx _U_, proto_tree *tree, int hf_index, guint32 *length);
 
-extern tvbuff_t *new_octet_aligned_subset_bits(tvbuff_t *tvb, guint32 offset, asn1_ctx_t *actx, guint32 no_of_bits);
 #endif  /* __PACKET_PER_H__ */
