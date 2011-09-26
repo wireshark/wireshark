@@ -82,10 +82,8 @@ dissect_oxid_simple_ping_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -101,10 +99,8 @@ dissect_oxid_server_alive_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -130,10 +126,8 @@ dissect_oxid_complex_ping_rqst(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_WORD(tvb, offset, pinfo, tree, drep,
 						hf_oxid_delfromset, &u16DelFromSet);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " AddToSet=%u DelFromSet=%u",
+	col_append_fstr(pinfo->cinfo, COL_INFO, " AddToSet=%u DelFromSet=%u",
 			u16AddToSet, u16DelFromSet);
-	}
 
 	offset = dissect_dcom_dcerpc_pointer(tvb, offset, pinfo, tree, drep,
 						&u32Pointer);
@@ -179,10 +173,8 @@ dissect_oxid_complex_ping_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+	  val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
 	return offset;
 }
@@ -252,10 +244,8 @@ dissect_oxid_resolve_oxid2_resp(tvbuff_t *tvb, int offset,
 	offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
 						&u32HResult);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-	  col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+     col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
 		val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-	}
 
 	return offset;
 }

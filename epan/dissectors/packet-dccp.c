@@ -644,12 +644,11 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* DBG("dccph->seq[24bits]: %" G_GINT64_MODIFIER "u\n", dccph->seq); */
 	}
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s [%s] Seq=%" G_GINT64_MODIFIER "u",
-			     get_dccp_port(dccph->sport),
-			     get_dccp_port(dccph->dport),
-			     val_to_str(dccph->type, dccp_packet_type_vals, "Unknown Type"),
-			     dccph->seq);
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s > %s [%s] Seq=%" G_GINT64_MODIFIER "u",
+		     get_dccp_port(dccph->sport),
+		     get_dccp_port(dccph->dport),
+		     val_to_str(dccph->type, dccp_packet_type_vals, "Unknown Type"),
+		     dccph->seq);
 
 
 	if (tree) {
@@ -663,7 +662,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							       val_to_str(dccph->type, dccp_packet_type_vals, "Unknown Type"),
 							       dccph->seq);
 		} else {
-			dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, 8, FALSE);
+			dccp_item = proto_tree_add_item(tree, proto_dccp, tvb, offset, 8, ENC_BIG_ENDIAN);
 		}
 
 		dccp_tree = proto_item_add_subtree(dccp_item, ett_dccp);
@@ -772,8 +771,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dccph->service_code=tvb_get_ntohl(tvb, offset);
 		if(tree)
 			proto_tree_add_uint(dccp_tree, hf_dccp_service_code, tvb, offset, 4, dccph->service_code);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%u)", dccph->service_code);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%u)", dccph->service_code);
 
 		offset+=4; /* Skip over service code */
 		break;
@@ -795,8 +793,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if(tree)
 			proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6, dccph->ack);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 
@@ -808,8 +805,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dccph->service_code=tvb_get_ntohl(tvb, offset);
 		if(tree)
 			proto_tree_add_uint(dccp_tree, hf_dccp_service_code, tvb, offset, 4, dccph->service_code);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%u)", dccph->service_code);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (service=%u)", dccph->service_code);
 
 		offset+=4; /* Skip over service code */
 		break;
@@ -836,8 +832,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dccph->ack+=tvb_get_ntohl(tvb, offset+4);
 			if(tree)
 				proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6, dccph->ack);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
 
 			offset+=8; /* Skip over Acknowledgement Number Subheader */
 		} else {
@@ -856,8 +851,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dccph->ack+=tvb_get_ntohs(tvb, offset+2);
 			if(tree)
 				proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 1, 3, dccph->ack);
-			if (check_col(pinfo->cinfo, COL_INFO))
-				col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
 
 			offset+=4; /* Skip over Acknowledgement Number Subheader */
 		}
@@ -879,8 +873,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dccph->ack+=tvb_get_ntohl(tvb, offset+4);
 		if(tree)
 			proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6, dccph->ack);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 
@@ -894,8 +887,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(dccp_tree, hf_dccp_data2, tvb, offset + 2, 1, dccph->data2);
 			proto_tree_add_uint(dccp_tree, hf_dccp_data3, tvb, offset + 3, 1, dccph->data3);
 		}
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (code=%s)", val_to_str(dccph->reset_code, dccp_reset_code_vals, "Unknown"));
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (code=%s)", val_to_str(dccph->reset_code, dccp_reset_code_vals, "Unknown"));
 
 		offset+=4; /* Skip over Reset Code and data123 */
 		break;
@@ -919,8 +911,7 @@ static void dissect_dccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dccph->ack+=tvb_get_ntohl(tvb, offset+4);
 		if(tree)
 			proto_tree_add_uint64(dccp_tree, hf_dccp_ack, tvb, offset + 2, 6, dccph->ack);
-		if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
+		col_append_fstr(pinfo->cinfo, COL_INFO, " (Ack=%" G_GINT64_MODIFIER "u)", dccph->ack);
 
 		offset+=8; /* Skip over Acknowledgement Number Subheader */
 		break;

@@ -183,11 +183,9 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 		offset = dissect_dcom_indexed_HRESULT(tvb, offset, pinfo, tree, drep,
 						      &u32HResult, u32Idx);
 		/* update column info now */
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]",
-					val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
-					u32Idx);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]",
+				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
+				u32Idx);
 		u32Idx++;
 	}
 
@@ -195,10 +193,8 @@ dissect_remact_remote_activation_resp(tvbuff_t *tvb, int offset,
 				      &u32HResult);
 
 	/* update column info now */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-				val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+			val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"));
 
 	return offset;
 }

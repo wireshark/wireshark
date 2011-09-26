@@ -161,7 +161,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     u32ItemIdx = 1;
     while (u32ArraySize--) {
         /* add subtree */
-        sub_item = proto_tree_add_item(tree, hf_remunk_qiresult, tvb, offset, 0, FALSE);
+        sub_item = proto_tree_add_item(tree, hf_remunk_qiresult, tvb, offset, 0, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_rqi_result);
 
         /* REMQIRESULT */
@@ -198,12 +198,9 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
         proto_item_set_len(sub_item, offset - u32SubStart);
 
         /* update column info now */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]",
-                            val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
-                            u32ItemIdx);
-        }
-
+        col_append_fstr(pinfo->cinfo, COL_INFO, " %s[%u]",
+                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"),
+                        u32ItemIdx);
         u32ItemIdx++;
     }
 
@@ -212,10 +209,8 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
                                   &u32HResult);
 
     /* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)"));
 
     return offset;
 }
@@ -246,18 +241,17 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
                                 hf_remunk_interface_refs, &u32IntRefs);
 
     /* update column info now */
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        if (u32IntRefs) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u Refs=", u32IntRefs);
-        } else {
-            col_append_str(pinfo->cinfo, COL_INFO, " Cnt=0");
-        }
+    if (u32IntRefs) {
+        col_append_fstr(pinfo->cinfo, COL_INFO, " Cnt=%u Refs=", u32IntRefs);
+    } else {
+        col_append_str(pinfo->cinfo, COL_INFO, " Cnt=0");
     }
+
 
     u32ItemIdx = 1;
     while (u32IntRefs--) {
         /* add subtree */
-        sub_item = proto_tree_add_item(tree, hf_remunk_reminterfaceref, tvb, offset, 0, FALSE);
+        sub_item = proto_tree_add_item(tree, hf_remunk_reminterfaceref, tvb, offset, 0, ENC_BIG_ENDIAN);
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_reminterfaceref);
         u32SubStart = offset;
 
@@ -278,18 +272,16 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
         proto_item_set_len(sub_item, offset - u32SubStart);
 
         /* update column info now */
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            pszFormat = "";
-            if (u32ItemIdx == 1) {
-                pszFormat = "%u-%u";
-            } else if (u32ItemIdx < 10) {
-                pszFormat = ",%u-%u";
-            } else if (u32ItemIdx == 10) {
-                pszFormat = ",...";
-            }
-            col_append_fstr(pinfo->cinfo, COL_INFO, pszFormat, u32PublicRefs, u32PrivateRefs);
+        pszFormat = "";
+        if (u32ItemIdx == 1) {
+            pszFormat = "%u-%u";
+        } else if (u32ItemIdx < 10) {
+            pszFormat = ",%u-%u";
+        } else if (u32ItemIdx == 10) {
+            pszFormat = ",...";
         }
-
+        col_append_fstr(pinfo->cinfo, COL_INFO, pszFormat, u32PublicRefs, u32PrivateRefs);
+ 
         u32ItemIdx++;
     }
 

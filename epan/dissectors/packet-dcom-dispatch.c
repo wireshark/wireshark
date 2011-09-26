@@ -121,10 +121,8 @@ dissect_IDispatch_GetTypeInfoCount_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                                   &u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -167,10 +165,8 @@ dissect_IDispatch_GetTypeInfo_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                                   &u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -207,9 +203,7 @@ dissect_IDispatch_GetIDsOfNames_rqst(tvbuff_t *tvb, int offset,
         if (u32Pointer) {
             u32VariableOffset = dissect_dcom_LPWSTR(tvb, u32VariableOffset, pinfo, tree, drep,
                                                     hf_dispatch_name, szName, sizeof(szName));
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", szName);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO, " \"%s\"", szName);
         }
     }
 
@@ -245,19 +239,15 @@ dissect_IDispatch_GetIDsOfNames_resp(tvbuff_t *tvb, int offset,
     while (u32Tmp--) {
         offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                                     hf_dispatch_id, &u32DispId);
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-            col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%x", u32DispId);
-        }
+        col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%x", u32DispId);
     }
 
     /* HRESULT of call */
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                                   &u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
-                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " -> %s",
+                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }
@@ -293,9 +283,7 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 
     offset = dissect_dcom_DWORD(tvb, offset, pinfo, tree, drep,
                                 hf_dispatch_id, &u32DispIdMember);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%x", u32DispIdMember);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " ID=0x%x", u32DispIdMember);
 
     offset = dissect_dcom_UUID(tvb, offset, pinfo, tree, drep,
                                hf_dispatch_riid, &riid);
@@ -333,7 +321,7 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 
     offset = u32TmpOffset;
 
-    dispparams_item = proto_tree_add_item(tree, hf_dispatch_dispparams, tvb, offset, 0, FALSE);
+    dispparams_item = proto_tree_add_item(tree, hf_dispatch_dispparams, tvb, offset, 0, ENC_BIG_ENDIAN);
     dispparams_tree = proto_item_add_subtree (dispparams_item, ett_dispatch_params);
     u32SubStart = offset;
 
@@ -404,10 +392,8 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
         }
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO,
-                        " Args=%u NamedArgs=%u VarRef=%u", u32Args, u32NamedArgs, u32VarRef);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO,
+                    " Args=%u NamedArgs=%u VarRef=%u", u32Args, u32NamedArgs, u32VarRef);
 
     return u32VariableOffset;
 }
@@ -445,7 +431,7 @@ dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
     }
 
     /* ExcepInfo */
-    excepinfo_item = proto_tree_add_item(tree, hf_dispatch_excepinfo, tvb, offset, 0, FALSE);
+    excepinfo_item = proto_tree_add_item(tree, hf_dispatch_excepinfo, tvb, offset, 0, ENC_BIG_ENDIAN);
     excepinfo_tree = proto_item_add_subtree (excepinfo_item, ett_dispatch_excepinfo);
     u32SubStart = offset;
 
@@ -507,12 +493,10 @@ dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
     offset = dissect_dcom_HRESULT(tvb, offset, pinfo, tree, drep,
                                   &u32HResult);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_append_fstr(pinfo->cinfo, COL_INFO, " SCode=%s VarRef=%u -> %s",
-                        val_to_str(u32SCode, dcom_hresult_vals, "Unknown (0x%08x)"),
-                        u32VarRef,
-                        val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " SCode=%s VarRef=%u -> %s",
+                    val_to_str(u32SCode, dcom_hresult_vals, "Unknown (0x%08x)"),
+                    u32VarRef,
+                    val_to_str(u32HResult, dcom_hresult_vals, "Unknown (0x%08x)") );
 
     return offset;
 }

@@ -47,20 +47,18 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "DAYTIME");
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "DAYTIME %s",
-		 pinfo->srcport == pinfo->match_uint ? "Response":"Request");
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "DAYTIME %s",
+    pinfo->srcport == pinfo->match_uint ? "Response":"Request");
 
   if (tree) {
 
-    ti = proto_tree_add_item(tree, proto_daytime, tvb, 0, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_daytime, tvb, 0, -1, ENC_BIG_ENDIAN);
     daytime_tree = proto_item_add_subtree(ti, ett_daytime);
 
     proto_tree_add_text(daytime_tree, tvb, 0, 0,
 			pinfo->srcport==DAYTIME_PORT ? "Type: Response":"Type: Request");
     if (pinfo->srcport == DAYTIME_PORT) {
-      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, FALSE);
+      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, ENC_BIG_ENDIAN);
     }
   }
 }
