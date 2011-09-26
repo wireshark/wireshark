@@ -261,12 +261,12 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 	ti = proto_tree_add_text(t, tvb, offset, 1, "I1-I4: 0x%x, C1-C4: 0x%x", flags&0xf, (flags>>4)&0xf);
 	st = proto_item_add_subtree(ti, ett_ctrl_pn_ci);
 
-	proto_tree_add_item(st, hf_pn_c14, tvb, offset, 1, TRUE);
-	proto_tree_add_item(st, hf_pn_i14, tvb, offset, 1, TRUE);
+	proto_tree_add_item(st, hf_pn_c14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_pn_i14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
 	/* priority */
-	proto_tree_add_item(t, hf_priority, tvb, offset, 1, TRUE);
+	proto_tree_add_item(t, hf_priority, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
 	/* Ack timer */
@@ -274,15 +274,15 @@ dissect_ctrl_pn(packet_info *pinfo, proto_tree *t, tvbuff_t *tvb, int offset, in
 	offset++;
 
 	/* max frame size */
-	proto_tree_add_item(t, hf_max_frame_size, tvb, offset, 2, TRUE);
+	proto_tree_add_item(t, hf_max_frame_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	/* max retrans */
-	proto_tree_add_item(t, hf_max_retrans, tvb, offset, 1, TRUE);
+	proto_tree_add_item(t, hf_max_retrans, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
 	/* error recovery mode */
-	proto_tree_add_item(t, hf_error_recovery_mode, tvb, offset, 1, TRUE);
+	proto_tree_add_item(t, hf_error_recovery_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
 	if(!pinfo->fd->flags.visited){
@@ -333,16 +333,16 @@ dissect_ctrl_msc(proto_tree *t, tvbuff_t *tvb, int offset, int length)
 				 (status >> 6) & 1, (status >> 7) & 1);
 	st = proto_item_add_subtree(it, ett_ctrl_pn_v24);
 
-	proto_tree_add_item(st, hf_msc_fc, tvb, offset, 1, TRUE);
-	proto_tree_add_item(st, hf_msc_rtc, tvb, offset, 1, TRUE);
-	proto_tree_add_item(st, hf_msc_rtr, tvb, offset, 1, TRUE);
-	proto_tree_add_item(st, hf_msc_ic, tvb, offset, 1, TRUE);
-	proto_tree_add_item(st, hf_msc_dv, tvb, offset, 1, TRUE);
+	proto_tree_add_item(st, hf_msc_fc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_msc_rtc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_msc_rtr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_msc_ic, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_msc_dv, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
 	if(length==3){
 		proto_tree_add_text(t, tvb, offset, 1, "Break bits B1-B3: 0x%x", (tvb_get_guint8(tvb, offset) & 0xf) >> 1);
-		proto_tree_add_item(t, hf_msc_l, tvb, offset, 1, TRUE);
+		proto_tree_add_item(t, hf_msc_l, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 	}
 
@@ -379,8 +379,8 @@ dissect_btrfcomm_Address(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *ea
 	addr_tree = proto_item_add_subtree(ti, ett_addr);
 
 	proto_tree_add_uint(addr_tree, hf_dlci, tvb, offset, 1, dlci);
-	proto_tree_add_item(addr_tree, hf_cr, tvb, offset, 1, TRUE);
-	proto_tree_add_item(addr_tree, hf_ea, tvb, offset, 1, TRUE);
+	proto_tree_add_item(addr_tree, hf_cr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(addr_tree, hf_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset++;
 
 	return offset;
@@ -408,8 +408,8 @@ dissect_btrfcomm_Control(tvbuff_t *tvb, int offset, proto_tree *tree, guint8 *pf
 	ti = proto_tree_add_text(tree, tvb, offset, 1, "Control: Frame type: %s (0x%x), P/F flag: %d", val_to_str(frame_type, vs_frame_type, "Unknown"), frame_type, pf_flag);
 	hctl_tree = proto_item_add_subtree(ti, ett_control);
 
-	proto_tree_add_item(hctl_tree, hf_pf, tvb, offset, 1, TRUE);
-	proto_tree_add_item(hctl_tree, hf_frame_type, tvb, offset, 1, TRUE);
+	proto_tree_add_item(hctl_tree, hf_pf, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(hctl_tree, hf_frame_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 	offset++;
 	return offset;
@@ -473,18 +473,16 @@ dissect_btrfcomm_MccType(tvbuff_t *tvb, int offset, proto_tree *tree, packet_inf
 
 
 	if(mcc_type){
-		if ((check_col(pinfo->cinfo, COL_INFO))){
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(mcc_type, vs_ctl, "Unknown"));
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(mcc_type, vs_ctl, "Unknown"));
 	}
 
 
 	ti = proto_tree_add_text(tree, tvb, start_offset, offset-start_offset, "Type: %s (0x%x), C/R flag = %d, E/A flag = %d", val_to_str(mcc_type, vs_ctl, "Unknown"), mcc_type, mcc_cr_flag, mcc_ea_flag);
 	mcc_tree = proto_item_add_subtree(ti, ett_mcc);
 
-	proto_tree_add_item(mcc_tree, hf_mcc_cmd, tvb, start_offset, offset-start_offset, TRUE);
-	proto_tree_add_item(mcc_tree, hf_mcc_cr, tvb, start_offset, 1, TRUE);
-	proto_tree_add_item(mcc_tree, hf_mcc_ea, tvb, start_offset, 1, TRUE);
+	proto_tree_add_item(mcc_tree, hf_mcc_cmd, tvb, start_offset, offset-start_offset, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mcc_tree, hf_mcc_cr, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(mcc_tree, hf_mcc_ea, tvb, start_offset, 1, ENC_LITTLE_ENDIAN);
 
 	return offset;
 }
@@ -507,7 +505,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	guint16 frame_len;
 	dlci_state_t *dlci_state = NULL;
 
-	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, TRUE);
+	ti = proto_tree_add_item(tree, proto_btrfcomm, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 	rfcomm_tree = proto_item_add_subtree(ti, ett_btrfcomm);
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RFCOMM");
@@ -554,11 +552,9 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	if ((check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);
-		if(dlci && (frame_type == 0x2f))
-			col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(dlci_state->service, vs_service_classes, "Unknown"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s DLCI=%d ", val_to_str(frame_type, vs_frame_type_short, "Unknown"), dlci);
+	if(dlci && (frame_type == 0x2f))
+		col_append_fstr(pinfo->cinfo, COL_INFO, "(%s) ", val_to_str(dlci_state->service, vs_service_classes, "Unknown"));
 
 	/* UID frame */
 	if(frame_type==0xef && dlci && pf_flag) {
@@ -566,7 +562,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if((dlci_state->do_credit_fc&0x03)==0x03){
 /*QQQ use tvb_length_remaining()==2 and !frame_len as heuristics to catch this as well? */
 			/* add credit based flow control byte */
-			proto_tree_add_item(rfcomm_tree, hf_fc_credits, tvb, offset, 1, TRUE);
+			proto_tree_add_item(rfcomm_tree, hf_fc_credits, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 		}
 	}
@@ -638,7 +634,7 @@ dissect_btrfcomm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 	}
 
-	proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, TRUE);
+	proto_tree_add_item(rfcomm_tree, hf_fcs, tvb, fcs_offset, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -844,13 +840,13 @@ dissect_bthf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HANDSFREE");
 
-	ti = proto_tree_add_item(tree, proto_bthf, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_bthf, tvb, 0, -1, ENC_BIG_ENDIAN);
 	st = proto_item_add_subtree(ti, ett_bthf);
 
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
 				pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", tvb_format_text(tvb, 0, length));
 
-	proto_tree_add_item(st, hf_at_cmd, tvb, 0, -1, TRUE);
+	proto_tree_add_item(st, hf_at_cmd, tvb, 0, -1, ENC_LITTLE_ENDIAN);
 }
 
 void
@@ -900,7 +896,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "DUN");
 
-	ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_btdun, tvb, 0, -1, ENC_BIG_ENDIAN);
 	st = proto_item_add_subtree(ti, ett_btdun);
 
 	is_at_cmd = TRUE;
@@ -913,7 +909,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
 	                pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", tvb_format_text(tvb, 0, length));
 
-	       proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, -1, TRUE);
+	       proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, -1, ENC_LITTLE_ENDIAN);
 	}
 	else {
 		/* ... or raw PPP */
@@ -976,7 +972,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SPP");
 
-	ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_btspp, tvb, 0, -1, ENC_BIG_ENDIAN);
 	st = proto_item_add_subtree(ti, ett_btspp);
 
 	length = MIN(length,60);
@@ -992,7 +988,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                tvb_length(tvb) > length ? "...":"");
 	}
 
-	proto_tree_add_item(st, hf_data, tvb, 0, -1, TRUE);
+	proto_tree_add_item(st, hf_data, tvb, 0, -1, ENC_LITTLE_ENDIAN);
 }
 
 void

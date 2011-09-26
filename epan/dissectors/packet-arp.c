@@ -343,9 +343,9 @@ dissect_atm_number(tvbuff_t *tvb, int offset, int tl, int hf_e164,
   proto_tree *nsap_tree;
 
   if (tl & ATMARP_IS_E164)
-    proto_tree_add_item(tree, hf_e164, tvb, offset, len, FALSE);
+    proto_tree_add_item(tree, hf_e164, tvb, offset, len, ENC_BIG_ENDIAN);
   else {
-    ti = proto_tree_add_item(tree, hf_nsap, tvb, offset, len, FALSE);
+    ti = proto_tree_add_item(tree, hf_nsap, tvb, offset, len, ENC_BIG_ENDIAN);
     if (len >= 20) {
       nsap_tree = proto_item_add_subtree(ti, ett_atmarp_nsap);
       dissect_atm_nsap(tvb, offset, len, nsap_tree);
@@ -703,62 +703,58 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   tpa_val = tvb_get_ptr(tvb, tpa_offset, ar_tpln);
   tpa_str = arpproaddr_to_str(tpa_val, ar_tpln, ar_pro);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    switch (ar_op) {
+  switch (ar_op) {
 
-      case ARPOP_REQUEST:
-      case ARPOP_REPLY:
-      case ATMARPOP_NAK:
-      default:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMARP");
-        break;
+  case ARPOP_REQUEST:
+  case ARPOP_REPLY:
+  case ATMARPOP_NAK:
+  default:
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMARP");
+	break;
 
-      case ARPOP_RREQUEST:
-      case ARPOP_RREPLY:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMRARP");
-        break;
+  case ARPOP_RREQUEST:
+  case ARPOP_RREPLY:
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ATMRARP");
+	break;
 
-      case ARPOP_IREQUEST:
-      case ARPOP_IREPLY:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ATMARP");
-        break;
-    }
+  case ARPOP_IREQUEST:
+  case ARPOP_IREPLY:
+	col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ATMARP");
+	break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (ar_op) {
-      case ARPOP_REQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
-                     tpa_str, spa_str);
-        break;
-      case ARPOP_REPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
-                     ((ssa_str != NULL) ? "," : ""),
-                     ((ssa_str != NULL) ? ssa_str : ""));
-        break;
-      case ARPOP_IREQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
-                     tha_str,
-                     ((tsa_str != NULL) ? "," : ""),
-                     ((tsa_str != NULL) ? tsa_str : ""),
-                     sha_str,
-                     ((ssa_str != NULL) ? "," : ""),
-                     ((ssa_str != NULL) ? ssa_str : ""));
-        break;
-      case ARPOP_IREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s%s is at %s",
-                     sha_str,
-                     ((ssa_str != NULL) ? "," : ""),
-                     ((ssa_str != NULL) ? ssa_str : ""),
-                     spa_str);
-        break;
-      case ATMARPOP_NAK:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "I don't know where %s is", spa_str);
-        break;
-      default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
-        break;
-    }
+  switch (ar_op) {
+  case ARPOP_REQUEST:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+                 tpa_str, spa_str);
+    break;
+  case ARPOP_REPLY:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s%s%s", spa_str, sha_str,
+                 ((ssa_str != NULL) ? "," : ""),
+                 ((ssa_str != NULL) ? ssa_str : ""));
+    break;
+  case ARPOP_IREQUEST:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s%s%s?  Tell %s%s%s",
+                 tha_str,
+                 ((tsa_str != NULL) ? "," : ""),
+                 ((tsa_str != NULL) ? tsa_str : ""),
+                 sha_str,
+                 ((ssa_str != NULL) ? "," : ""),
+                 ((ssa_str != NULL) ? ssa_str : ""));
+    break;
+  case ARPOP_IREPLY:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s%s%s is at %s",
+                 sha_str,
+                 ((ssa_str != NULL) ? "," : ""),
+                 ((ssa_str != NULL) ? ssa_str : ""),
+                 spa_str);
+    break;
+  case ATMARPOP_NAK:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "I don't know where %s is", spa_str);
+    break;
+  default:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ATMARP opcode 0x%04x", ar_op);
+    break;
   }
 
   if (tree) {
@@ -836,7 +832,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(arp_tree,
                           ARP_PRO_IS_IPv4(ar_pro, ar_spln) ? hf_arp_src_proto_ipv4
                           : hf_arp_src_proto,
-                          tvb, spa_offset, ar_spln, FALSE);
+                          tvb, spa_offset, ar_spln, ENC_BIG_ENDIAN);
     }
 
     if (ar_thl != 0)
@@ -853,7 +849,7 @@ dissect_atmarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(arp_tree,
                           ARP_PRO_IS_IPv4(ar_pro, ar_tpln) ? hf_arp_dst_proto_ipv4
                           : hf_arp_dst_proto,
-                          tvb, tpa_offset, ar_tpln, FALSE);
+                          tvb, tpa_offset, ar_tpln, ENC_BIG_ENDIAN);
     }
   }
 }
@@ -909,30 +905,28 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      was padding. */
   tvb_set_reported_length(tvb, tot_len);
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    switch (ar_op) {
+  switch (ar_op) {
 
-      case ARPOP_REQUEST:
-        if (global_arp_detect_request_storm)
-        {
-          request_seen(pinfo);
-        }
-	/* FALLTHRU */
-      case ARPOP_REPLY:
-      default:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
-        break;
+    case ARPOP_REQUEST:
+      if (global_arp_detect_request_storm)
+      {
+        request_seen(pinfo);
+      }
+      /* FALLTHRU */
+    case ARPOP_REPLY:
+    default:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "ARP");
+      break;
 
-      case ARPOP_RREQUEST:
-      case ARPOP_RREPLY:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
-        break;
+    case ARPOP_RREQUEST:
+    case ARPOP_RREPLY:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "RARP");
+      break;
 
-      case ARPOP_IREQUEST:
-      case ARPOP_IREPLY:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
-        break;
-    }
+    case ARPOP_IREQUEST:
+    case ARPOP_IREPLY:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "Inverse ARP");
+      break;
   }
 
   /* Get the offsets of the addresses. */
@@ -992,7 +986,7 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  if (!tree && !check_col(pinfo->cinfo, COL_INFO)) {
+  if (!tree) {
     /* We're not building a protocol tree and we're not setting the Info
        column, so we don't have any more work to do. */
     return;
@@ -1013,46 +1007,44 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else
     is_gratuitous = FALSE;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (ar_op) {
-      case ARPOP_REQUEST:
-	if (is_gratuitous)
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
-                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
-	else
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
-                       arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
-                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
-        break;
-      case ARPOP_REPLY:
-        if (is_gratuitous)
-          col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
-                       arpproaddr_to_str(spa_val, ar_pln, ar_pro));
-        else
-          col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                       arpproaddr_to_str(spa_val, ar_pln, ar_pro),
-                       tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
-        break;
-      case ARPOP_RREQUEST:
-      case ARPOP_IREQUEST:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
-                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
-                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
-        break;
-      case ARPOP_RREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+  switch (ar_op) {
+    case ARPOP_REQUEST:
+  if (is_gratuitous)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Request)",
                      arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
-        break;
-      case ARPOP_IREPLY:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
-                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
+  else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Who has %s?  Tell %s",
+                     arpproaddr_to_str(tpa_val, ar_pln, ar_pro),
                      arpproaddr_to_str(spa_val, ar_pln, ar_pro));
-        break;
-      default:
-        col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
-        break;
-    }
+      break;
+    case ARPOP_REPLY:
+      if (is_gratuitous)
+        col_add_fstr(pinfo->cinfo, COL_INFO, "Gratuitous ARP for %s (Reply)",
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+      else
+        col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                     arpproaddr_to_str(spa_val, ar_pln, ar_pro),
+                     tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+      break;
+    case ARPOP_RREQUEST:
+    case ARPOP_IREQUEST:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Who is %s?  Tell %s",
+                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd));
+      break;
+    case ARPOP_RREPLY:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                   tvb_arphrdaddr_to_str(tvb, tha_offset, ar_hln, ar_hrd),
+                   arpproaddr_to_str(tpa_val, ar_pln, ar_pro));
+      break;
+    case ARPOP_IREPLY:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s is at %s",
+                   tvb_arphrdaddr_to_str(tvb, sha_offset, ar_hln, ar_hrd),
+                   arpproaddr_to_str(spa_val, ar_pln, ar_pro));
+      break;
+    default:
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown ARP opcode 0x%04x", ar_op);
+      break;
   }
 
   if (tree) {
@@ -1079,28 +1071,28 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
                           hf_arp_src_hw_mac :
                           hf_arp_src_hw,
-                          tvb, sha_offset, ar_hln, FALSE);
+                          tvb, sha_offset, ar_hln, ENC_BIG_ENDIAN);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_PRO_IS_IPv4(ar_pro, ar_pln) ?
                           hf_arp_src_proto_ipv4 :
                           hf_arp_src_proto,
-                          tvb, spa_offset, ar_pln, FALSE);
+                          tvb, spa_offset, ar_pln, ENC_BIG_ENDIAN);
     }
     if (ar_hln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_HW_IS_ETHER(ar_hrd, ar_hln) ?
                           hf_arp_dst_hw_mac :
                           hf_arp_dst_hw,
-                          tvb, tha_offset, ar_hln, FALSE);
+                          tvb, tha_offset, ar_hln, ENC_BIG_ENDIAN);
     }
     if (ar_pln != 0) {
       proto_tree_add_item(arp_tree,
                           ARP_PRO_IS_IPv4(ar_pro, ar_pln) ?
                           hf_arp_dst_proto_ipv4 :
                           hf_arp_dst_proto,
-                          tvb, tpa_offset, ar_pln, FALSE);
+                          tvb, tpa_offset, ar_pln, ENC_BIG_ENDIAN);
     }
   }
 
@@ -1112,11 +1104,8 @@ dissect_arp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (duplicate_detected)
   {
     /* Also indicate in info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " (duplicate use of %s detected!)",
-                      arpproaddr_to_str((guint8*)&duplicate_ip, 4, ETHERTYPE_IP));
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " (duplicate use of %s detected!)",
+                    arpproaddr_to_str((guint8*)&duplicate_ip, 4, ETHERTYPE_IP));
   }
 }
 

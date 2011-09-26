@@ -271,16 +271,16 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 							    "B.A.T.M.A.N., Orig: %s (%s)",
 							    get_hostname(orig), ip_to_str(batman_packeth->orig.data));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, offset, BATMAN_PACKET_V5_SIZE, ENC_BIG_ENDIAN);
 		}
 		bat_batman_tree = proto_item_add_subtree(ti, ett_bat_batman);
 	}
 
 	/* items */
-	proto_tree_add_item(bat_batman_tree, hf_bat_batman_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tf = proto_tree_add_item(bat_batman_tree, hf_bat_batman_flags, tvb, offset, 1, FALSE);
+	tf = proto_tree_add_item(bat_batman_tree, hf_bat_batman_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* <flags> */
 	flag_tree =  proto_item_add_subtree(tf, ett_bat_batman_flags);
 	proto_tree_add_boolean(flag_tree, hf_bat_batman_flags_unidirectional, tvb, offset, 1, batman_packeth->flags);
@@ -288,17 +288,17 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	/* </flags> */
 	offset += 1;
 
-	proto_tree_add_item(bat_batman_tree, hf_bat_batman_ttl, tvb, offset, 1, FALSE);
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	tgw = proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwflags, tvb, offset, 1, FALSE);
+	tgw = proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwflags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	dissect_bat_gwflags(tvb, batman_packeth->gwflags, offset, tgw);
 	offset += 1;
 
-	proto_tree_add_item(bat_batman_tree, hf_bat_batman_seqno, tvb, offset, 2, FALSE);
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwport, tvb, offset, 2, FALSE);
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_gwport, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	proto_tree_add_ipv4(bat_batman_tree, hf_bat_batman_orig, tvb, offset, 4, orig);
@@ -307,10 +307,10 @@ static int dissect_bat_batman_v5(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_tree_add_ipv4(bat_batman_tree, hf_bat_batman_old_orig, tvb, offset, 4,  old_orig);
 	offset += 4;
 
-	proto_tree_add_item(bat_batman_tree, hf_bat_batman_tq, tvb, offset, 1, FALSE);
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_tq, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(bat_batman_tree, hf_bat_batman_hna_len, tvb, offset, 1, FALSE);
+	proto_tree_add_item(bat_batman_tree, hf_bat_batman_hna_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	tap_queue_packet(bat_tap, pinfo, batman_packeth);
@@ -348,12 +348,12 @@ static void dissect_bat_hna(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 							    "B.A.T.M.A.N. HNA: %s/%d",
 							    tvb_ip_to_str(tvb, 0), hna_netmask);
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 5, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 5, ENC_BIG_ENDIAN);
 		}
 		bat_batman_hna_tree = proto_item_add_subtree(ti, ett_bat_batman_hna);
 
 		proto_tree_add_ipv4(bat_batman_hna_tree, hf_bat_batman_hna_network, tvb, 0, 4, hna);
-		proto_tree_add_item(bat_batman_hna_tree, hf_bat_batman_hna_netmask, tvb, 4, 1, FALSE);
+		proto_tree_add_item(bat_batman_hna_tree, hf_bat_batman_hna_netmask, tvb, 4, 1, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -384,13 +384,11 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_GW");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
-			     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
-		if (ip != 0) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
-					get_hostname(ip), tvb_ip_to_str(tvb, ip_pos));
-		}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Type=%s",
+		     val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
+	if (ip != 0) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, " IP: %s (%s)",
+				get_hostname(ip), tvb_ip_to_str(tvb, ip_pos));
 	}
 
 
@@ -404,11 +402,11 @@ static void dissect_bat_gw(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							    "B.A.T.M.A.N. GW [%s]",
 							    val_to_str(gw_packeth->type, gw_packettypenames, "Unknown (0x%02x)"));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 1, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 1, ENC_BIG_ENDIAN);
 		}
 		bat_gw_entry_tree = proto_item_add_subtree(ti, ett_bat_gw);
 
-		proto_tree_add_item(bat_gw_entry_tree, hf_bat_gw_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bat_gw_entry_tree, hf_bat_gw_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		if (gw_packeth->type != TUNNEL_DATA && ip != 0) {
@@ -484,10 +482,8 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-			     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
+		     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 
 	/* Set tree info */
 	if (tree) {
@@ -498,7 +494,7 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 							    "B.A.T.M.A.N. Vis, Src: %s (%s)",
 							    get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V22_SIZE, ENC_BIG_ENDIAN);
 		}
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
 
@@ -506,13 +502,13 @@ static void dissect_bat_vis_v22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		proto_tree_add_ipv4(bat_vis_tree, hf_bat_vis_vis_orig, tvb, offset, 4, sender_ip);
 		offset += 4;
 
-		proto_tree_add_item(bat_vis_tree, hf_bat_vis_version, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bat_vis_tree, hf_bat_vis_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(bat_vis_tree, hf_bat_vis_gwflags, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bat_vis_tree, hf_bat_vis_gwflags, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v22, tvb, offset, 2, FALSE);
+		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v22, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
@@ -574,18 +570,18 @@ static void dissect_vis_entry_v22(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
 							    get_hostname(ip), ip_to_str(vis_datah->ip.data));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, ENC_BIG_ENDIAN);
 		}
 		bat_vis_entry_tree = proto_item_add_subtree(ti, ett_bat_vis_entry);
 
-		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, FALSE);
+		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 		switch (vis_datah->type) {
 		case DATA_TYPE_NEIGH:
-			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_tq_v22, tvb, 1, 2, FALSE);
+			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_tq_v22, tvb, 1, 2, ENC_BIG_ENDIAN);
 			break;
 		case DATA_TYPE_HNA:
-			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_netmask, tvb, 1, 1, FALSE);
+			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_netmask, tvb, 1, 1, ENC_BIG_ENDIAN);
 			break;
 		case DATA_TYPE_SEC_IF:
 		default:
@@ -619,10 +615,8 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "BAT_VIS");
 
 	/* Set info column */
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
-			     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Src: %s (%s)",
+		     get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 
 	/* Set tree info */
 	if (tree) {
@@ -633,7 +627,7 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 							    "B.A.T.M.A.N. Vis, Src: %s (%s)",
 							    get_hostname(sender_ip), ip_to_str(vis_packeth->sender_ip.data));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, VIS_PACKET_V23_SIZE, ENC_BIG_ENDIAN);
 		}
 		bat_vis_tree = proto_item_add_subtree(ti, ett_bat_vis);
 
@@ -641,13 +635,13 @@ static void dissect_bat_vis_v23(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		proto_tree_add_ipv4(bat_vis_tree, hf_bat_vis_vis_orig, tvb, offset, 4, sender_ip);
 		offset += 4;
 
-		proto_tree_add_item(bat_vis_tree, hf_bat_vis_version, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bat_vis_tree, hf_bat_vis_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(bat_vis_tree, hf_bat_vis_gwflags, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bat_vis_tree, hf_bat_vis_gwflags, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v23, tvb, offset, 1, FALSE);
+		proto_tree_add_item(bat_vis_tree, hf_bat_max_tq_v23, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 
@@ -709,18 +703,18 @@ static void dissect_vis_entry_v23(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 							    val_to_str(vis_datah->type, vis_packettypenames, "Unknown (0x%02x)"),
 							    get_hostname(ip), ip_to_str(vis_datah->ip.data));
 		} else {
-			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, FALSE);
+			ti = proto_tree_add_item(tree, proto_bat_plugin, tvb, 0, 7, ENC_BIG_ENDIAN);
 		}
 		bat_vis_entry_tree = proto_item_add_subtree(ti, ett_bat_vis_entry);
 
-		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, FALSE);
+		proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_data_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 		switch (vis_datah->type) {
 		case DATA_TYPE_NEIGH:
-			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_tq_v23, tvb, 1, 1, FALSE);
+			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_tq_v23, tvb, 1, 1, ENC_BIG_ENDIAN);
 			break;
 		case DATA_TYPE_HNA:
-			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_netmask, tvb, 1, 1, FALSE);
+			proto_tree_add_item(bat_vis_entry_tree, hf_bat_vis_netmask, tvb, 1, 1, ENC_BIG_ENDIAN);
 			break;
 		case DATA_TYPE_SEC_IF:
 		default:

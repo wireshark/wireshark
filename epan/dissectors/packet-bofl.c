@@ -73,25 +73,22 @@ dissect_bofl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_clear(pinfo->cinfo, COL_INFO);
 
     if (tree) {
-	ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, FALSE);
+	ti = proto_tree_add_item(tree, proto_bofl, tvb, 0, -1, ENC_BIG_ENDIAN);
 	bofl_tree = proto_item_add_subtree(ti, ett_bofl);
     }
 
     pdu = tvb_get_ntohl(tvb, 0);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 	    "PDU: 0x%08x", pdu);
-    }
     if (tree)
-	proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
+		proto_tree_add_uint(bofl_tree, hf_bofl_pdu, tvb, 0, 4, pdu);
 
     sequence = tvb_get_ntohl(tvb, 4);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
+
 	col_append_fstr(pinfo->cinfo, COL_INFO,
 	    " Sequence: %u", sequence);
-    }
     if (tree) {
-	proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
+		proto_tree_add_uint(bofl_tree, hf_bofl_sequence, tvb, 4, 4, sequence);
 
 	len = tvb_length_remaining(tvb, 8);
 	if (len > 0)

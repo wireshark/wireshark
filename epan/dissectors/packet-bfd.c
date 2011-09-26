@@ -294,12 +294,12 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
 	    val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
     auth_tree = proto_item_add_subtree(auth_item, ett_bfd_auth);
 
-    proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(auth_tree, hf_bfd_auth_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-    ti = proto_tree_add_item(auth_tree, hf_bfd_auth_len, tvb, offset + 1, 1, FALSE);
+    ti = proto_tree_add_item(auth_tree, hf_bfd_auth_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(ti, " bytes");
 
-    proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, FALSE);
+    proto_tree_add_item(auth_tree, hf_bfd_auth_key, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 
     switch (auth_type) {
 	case BFD_AUTH_SIMPLE:
@@ -321,7 +321,7 @@ static void dissect_bfd_authentication(tvbuff_t *tvb, packet_info *pinfo, proto_
 			val_to_str(auth_type, bfd_control_auth_type_values, "Unknown Authentication Type (%d)") );
 	    }
 
-	    proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, FALSE);
+	    proto_tree_add_item(auth_tree, hf_bfd_auth_seq_num, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
 	    proto_tree_add_text(auth_tree, tvb, offset+8, get_bfd_checksum_len(auth_type), "Checksum: 0x%s",
 		    tvb_bytes_to_str(tvb, offset+8, get_bfd_checksum_len(auth_type)) );
@@ -396,7 +396,6 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     bfd_required_min_rx_interval = tvb_get_ntohl(tvb, 16);
     bfd_required_min_echo_interval = tvb_get_ntohl(tvb, 20);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	switch (bfd_version) {
             case 0:
                 col_add_fstr(pinfo->cinfo, COL_INFO, "Diag: %s, Flags: 0x%02x",
@@ -410,7 +409,6 @@ static void dissect_bfd_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                              val_to_str(bfd_sta >> 6 , bfd_control_sta_values, "UNKNOWN"),
                              bfd_flags);
                 break;
-	}
     }
 
     if (tree) {

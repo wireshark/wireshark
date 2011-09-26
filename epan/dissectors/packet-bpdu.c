@@ -291,24 +291,18 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       pinfo->current_proto = "GARP";
 
-      if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "GARP");
         /* Generic Attribute Registration Protocol */
-      }
 
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Unknown GARP application (0x%02X)",
-                     dstaddr[5]);
-      }
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "Unknown GARP application (0x%02X)",
+                   dstaddr[5]);
 
       return;
     }
   }
 
-  if (check_col(pinfo->cinfo, COL_PROTOCOL)) {
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
-  }
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, "STP"); /* Spanning Tree Protocol */
   col_clear(pinfo->cinfo, COL_INFO);
 
   bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
@@ -342,55 +336,53 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    switch (bpdu_type) {
+  switch (bpdu_type) {
 
-    case BPDU_TYPE_CONF:
-      if (bpdu_use_system_id_extensions ) {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Conf. %sRoot = %d/%d/%s  Cost = %d  Port = 0x%04x",
-                     flags & 0x1 ? "TC + " : "",
-                     root_identifier_bridge_priority,
-                     root_identifier_system_id_extension,
-                     root_identifier_mac_str,
-                     root_path_cost, port_identifier);
-      } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
-                     flags & 0x1 ? "TC + " : "",
-                     root_identifier_bridge_priority, root_identifier_mac_str,
-                     root_path_cost, port_identifier);
-      }
-      break;
-
-    case BPDU_TYPE_TOPOLOGY_CHANGE:
-      col_set_str(pinfo->cinfo, COL_INFO, "Topology Change Notification");
-      break;
-
-    case BPDU_TYPE_RST:
-      if (bpdu_use_system_id_extensions ) {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "%cST. %sRoot = %d/%d/%s  Cost = %d  Port = 0x%04x",
-                     protocol_version_identifier == 3 ? 'M':'R',
-                     flags & 0x1 ? "TC + " : "",
-                     root_identifier_bridge_priority,
-                     root_identifier_system_id_extension,
-                     root_identifier_mac_str,
-                     root_path_cost, port_identifier);
-      } else {
-        col_add_fstr(pinfo->cinfo, COL_INFO,
-                     "%cST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
-                     protocol_version_identifier == 3 ? 'M':'R',
-                     flags & 0x1 ? "TC + " : "",
-                     root_identifier_bridge_priority, root_identifier_mac_str,
-                     root_path_cost, port_identifier);
-      }
-      break;
-
-    default:
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BPDU type (%u)", bpdu_type);
-      break;
+  case BPDU_TYPE_CONF:
+    if (bpdu_use_system_id_extensions ) {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "Conf. %sRoot = %d/%d/%s  Cost = %d  Port = 0x%04x",
+                   flags & 0x1 ? "TC + " : "",
+                   root_identifier_bridge_priority,
+                   root_identifier_system_id_extension,
+                   root_identifier_mac_str,
+                   root_path_cost, port_identifier);
+    } else {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "Conf. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
+                   flags & 0x1 ? "TC + " : "",
+                   root_identifier_bridge_priority, root_identifier_mac_str,
+                   root_path_cost, port_identifier);
     }
+    break;
+
+  case BPDU_TYPE_TOPOLOGY_CHANGE:
+    col_set_str(pinfo->cinfo, COL_INFO, "Topology Change Notification");
+    break;
+
+  case BPDU_TYPE_RST:
+    if (bpdu_use_system_id_extensions ) {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "%cST. %sRoot = %d/%d/%s  Cost = %d  Port = 0x%04x",
+                     protocol_version_identifier == 3 ? 'M':'R',
+                     flags & 0x1 ? "TC + " : "",
+                     root_identifier_bridge_priority,
+                     root_identifier_system_id_extension,
+                     root_identifier_mac_str,
+                     root_path_cost, port_identifier);
+    } else {
+      col_add_fstr(pinfo->cinfo, COL_INFO,
+                   "%cST. %sRoot = %d/%s  Cost = %d  Port = 0x%04x",
+                   protocol_version_identifier == 3 ? 'M':'R',
+                   flags & 0x1 ? "TC + " : "",
+                   root_identifier_bridge_priority, root_identifier_mac_str,
+                   root_path_cost, port_identifier);
+    }
+    break;
+
+  default:
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown BPDU type (%u)", bpdu_type);
+    break;
   }
 
   if (tree) {
@@ -664,20 +656,20 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       mstp_tree = proto_item_add_subtree(mstp_item, ett_mstp);
 
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_format_selector, tvb,
-                          BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, FALSE);
+                          BPDU_MST_CONFIG_FORMAT_SELECTOR, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_name, tvb,
-                          BPDU_MST_CONFIG_NAME, 32, FALSE);
+                          BPDU_MST_CONFIG_NAME, 32, ENC_BIG_ENDIAN);
 
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_revision_level, tvb,
-                          BPDU_MST_CONFIG_REVISION_LEVEL, 2, FALSE);
+                          BPDU_MST_CONFIG_REVISION_LEVEL, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_digest, tvb,
-                          BPDU_MST_CONFIG_DIGEST, 16, FALSE);
+                          BPDU_MST_CONFIG_DIGEST, 16, ENC_BIG_ENDIAN);
 
       switch(msti_format) {
 
       case MSTI_FORMAT_IEEE_8021S:
 	proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
-			    BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, FALSE);
+			    BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
 	cist_bridge_identifier_bridge_priority = tvb_get_ntohs(tvb,BPDU_CIST_BRIDGE_IDENTIFIER);
 	cist_bridge_identifier_mac = tvb_get_ptr(tvb, BPDU_CIST_BRIDGE_IDENTIFIER + 2, 6);
@@ -773,13 +765,13 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* end of Identifier formatting */
 
 	proto_tree_add_item(mstp_tree, hf_bpdu_cist_internal_root_path_cost, tvb,
-			    ALT_BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, FALSE);
+			    ALT_BPDU_CIST_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
 	break;
       }
 
       proto_tree_add_item(mstp_tree, hf_bpdu_cist_remaining_hops, tvb,
-                          BPDU_CIST_REMAINING_HOPS, 1, FALSE);
+                          BPDU_CIST_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
       /* MSTI messages */
       offset = BPDU_MSTI;
       msti = 1;
@@ -853,7 +845,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
-			      offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, FALSE);
+			      offset+MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
 	  msti_bridge_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_BRIDGE_IDENTIFIER_PRIORITY) >> 4;
 	  msti_port_identifier_priority = tvb_get_guint8(tvb, offset+MSTI_PORT_IDENTIFIER_PRIORITY) >> 4;
@@ -866,7 +858,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      msti_port_identifier_priority);
 
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
-			      offset + MSTI_REMAINING_HOPS, 1, FALSE);
+			      offset + MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
 
 	  total_msti_length -= MSTI_MESSAGE_SIZE;
 	  offset += MSTI_MESSAGE_SIZE;
@@ -943,7 +935,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_internal_root_path_cost, tvb,
-			      offset+ALT_MSTI_INTERNAL_ROOT_PATH_COST, 4, FALSE);
+			      offset+ALT_MSTI_INTERNAL_ROOT_PATH_COST, 4, ENC_BIG_ENDIAN);
 
 	  msti_bridge_identifier_priority = tvb_get_ntohs(tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER);
 	  msti_bridge_identifier_mac = tvb_get_ptr(tvb, offset+ALT_MSTI_BRIDGE_IDENTIFIER + 2, 6);
@@ -959,7 +951,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			      offset+ALT_MSTI_PORT_IDENTIFIER, 2, msti_port_identifier_priority);
 
 	  proto_tree_add_item(msti_tree, hf_bpdu_msti_remaining_hops, tvb,
-			      offset + ALT_MSTI_REMAINING_HOPS, 1, FALSE);
+			      offset + ALT_MSTI_REMAINING_HOPS, 1, ENC_BIG_ENDIAN);
 
 	  total_msti_length -= ALT_MSTI_MESSAGE_SIZE;
 	  offset += ALT_MSTI_MESSAGE_SIZE;

@@ -594,12 +594,11 @@ dissect_rtmp_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   function = tvb_get_guint8(tvb, 0);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
+  col_add_str(pinfo->cinfo, COL_INFO,
+              val_to_str(function, rtmp_function_vals, "Unknown function (%02x)"));
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, FALSE);
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, 0, 1, ENC_BIG_ENDIAN);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
     proto_tree_add_uint(rtmp_tree, hf_rtmp_function, tvb, 0, 1, function);
@@ -629,12 +628,11 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     nodelen = 2;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
-                 net, nodelen_bits, node);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Net: %u  Node Len: %u  Node: %u",
+               net, nodelen_bits, node);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_rtmp, tvb, offset, -1, ENC_BIG_ENDIAN);
     rtmp_tree = proto_item_add_subtree(ti, ett_rtmp);
 
     proto_tree_add_uint(rtmp_tree, hf_rtmp_net, tvb, offset, 2, net);
@@ -681,7 +679,7 @@ dissect_rtmp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          * Extended network tuple.
          */
         proto_tree_add_item(tuple_tree, hf_rtmp_tuple_range_end, tvb, offset+3, 2,
-                            FALSE);
+                            ENC_BIG_ENDIAN);
         offset += 6;
       } else
         offset += 3;
@@ -708,12 +706,11 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   op = info >> 4;
   count = info & 0x0F;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "Op: %s  Count: %u",
-      val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "Op: %s  Count: %u",
+    val_to_str(op, nbp_op_vals, "Unknown (0x%01x)"), count);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_nbp, tvb, offset, -1, ENC_BIG_ENDIAN);
     nbp_tree = proto_item_add_subtree(ti, ett_nbp);
 
     info_item = proto_tree_add_uint_format(nbp_tree, hf_nbp_info, tvb, offset, 1,
@@ -724,7 +721,7 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     nbp_info_tree = proto_item_add_subtree(info_item, ett_nbp_info);
     proto_tree_add_uint(nbp_info_tree, hf_nbp_op, tvb, offset, 1, info);
     proto_tree_add_uint(nbp_info_tree, hf_nbp_count, tvb, offset, 1, info);
-    proto_tree_add_item(nbp_tree, hf_nbp_tid, tvb, offset+1, 1, FALSE);
+    proto_tree_add_item(nbp_tree, hf_nbp_tid, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     offset += 2;
 
     for (i=0; i<count; i++) {
@@ -735,13 +732,13 @@ dissect_nbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                       "Node %u", i+1);
       node_tree = proto_item_add_subtree(node_item, ett_nbp_node);
 
-      proto_tree_add_item(node_tree, hf_nbp_node_net, tvb, offset, 2, FALSE);
+      proto_tree_add_item(node_tree, hf_nbp_node_net, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(node_tree, hf_nbp_node_node, tvb, offset, 1, FALSE);
+      proto_tree_add_item(node_tree, hf_nbp_node_node, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(node_tree, hf_nbp_node_port, tvb, offset, 1, FALSE);
+      proto_tree_add_item(node_tree, hf_nbp_node_port, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(node_tree, hf_nbp_node_enum, tvb, offset, 1, FALSE);
+      proto_tree_add_item(node_tree, hf_nbp_node_enum, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
       offset = dissect_pascal_string(tvb, offset, node_tree, hf_nbp_node_object);
@@ -843,41 +840,39 @@ dissect_atp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     frag_number = bitmap;
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_clear(pinfo->cinfo, COL_INFO);
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u",
-                 val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
-    if (more_fragment)
-      col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
-  }
+  col_clear(pinfo->cinfo, COL_INFO);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s transaction %u",
+               val_to_str(op, atp_function_vals, "Unknown (0x%01x)"),tid);
+  if (more_fragment)
+    col_append_str(pinfo->cinfo, COL_INFO, " [fragment]");
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_atp, tvb, offset, -1, ENC_BIG_ENDIAN);
     atp_tree = proto_item_add_subtree(ti, ett_atp);
     proto_item_set_len(atp_tree, aspinfo.release?8:ATP_HDRSIZE -1);
 
-    info_item = proto_tree_add_item(atp_tree, hf_atp_ctrlinfo, tvb, offset, 1, FALSE);
+    info_item = proto_tree_add_item(atp_tree, hf_atp_ctrlinfo, tvb, offset, 1, ENC_BIG_ENDIAN);
     atp_info_tree = proto_item_add_subtree(info_item, ett_atp_info);
 
-    proto_tree_add_item(atp_info_tree, hf_atp_function, tvb, offset, 1, FALSE);
-    proto_tree_add_item(atp_info_tree, hf_atp_xo, tvb, offset, 1, FALSE);
-    proto_tree_add_item(atp_info_tree, hf_atp_eom, tvb, offset, 1, FALSE);
-    proto_tree_add_item(atp_info_tree, hf_atp_sts, tvb, offset, 1, FALSE);
+    proto_tree_add_item(atp_info_tree, hf_atp_function, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(atp_info_tree, hf_atp_xo, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(atp_info_tree, hf_atp_eom, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(atp_info_tree, hf_atp_sts, tvb, offset, 1, ENC_BIG_ENDIAN);
     if ((ctrlinfo & (ATP_FUNCMASK|ATP_XO)) == (0x40|ATP_XO)) {
       /* TReq with XO set */
-      proto_tree_add_item(atp_info_tree, hf_atp_treltimer, tvb, offset, 1, FALSE);
+      proto_tree_add_item(atp_info_tree, hf_atp_treltimer, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     if (query) {
       proto_tree_add_text(atp_tree, tvb, offset +1, 1,
                           "Bitmap: 0x%02x  %u packet(s) max", bitmap, nbe);
     }
     else {
-      proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, FALSE);
+      proto_tree_add_item(atp_tree, hf_atp_bitmap, tvb, offset +1, 1, ENC_BIG_ENDIAN);
     }
-    proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, FALSE);
+    proto_tree_add_item(atp_tree, hf_atp_tid, tvb, offset +2, 2, ENC_BIG_ENDIAN);
 
     if (aspinfo.release)
-      proto_tree_add_item(atp_tree, hf_atp_user_bytes, tvb, offset +4, 4, FALSE);
+      proto_tree_add_item(atp_tree, hf_atp_user_bytes, tvb, offset +4, 4, ENC_BIG_ENDIAN);
 
   }
 
@@ -1010,21 +1005,21 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %u", ofs);
 
   ofs = offset +AFPSTATUS_FLAGOFF;
-  ti = proto_tree_add_item(tree, hf_asp_server_flag, tvb, ofs, 2, FALSE);
+  ti = proto_tree_add_item(tree, hf_asp_server_flag, tvb, ofs, 2, ENC_BIG_ENDIAN);
   sub_tree = proto_item_add_subtree(ti, ett_asp_status_server_flag);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_copyfile      , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_passwd        , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_no_save_passwd, tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_msg       , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_sig       , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_tcpip         , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_notify        , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_reconnect     , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_directory     , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
-  proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_copyfile      , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_passwd        , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_no_save_passwd, tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_msg       , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_srv_sig       , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_tcpip         , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_notify        , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_reconnect     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_directory     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
+  proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, ENC_BIG_ENDIAN);
 
   flag = tvb_get_ntohs(tvb, ofs);
   if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
@@ -1059,7 +1054,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   }
 
   if (machine_ofs)
-    proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, FALSE);
+    proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, ENC_BIG_ENDIAN);
 
   ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
   if (ofs) {
@@ -1069,7 +1064,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
     for (i = 0; i < nbe; i++) {
       len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, FALSE);
+      proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, ENC_BIG_ENDIAN);
       ofs += len + 1;
     }
   }
@@ -1082,17 +1077,17 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
     for (i = 0; i < nbe; i++) {
       len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, FALSE);
+      proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, ENC_BIG_ENDIAN);
       ofs += len + 1;
     }
   }
 
   ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
   if (ofs)
-    proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, FALSE);
+    proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, ENC_BIG_ENDIAN);
 
   if (sign_ofs) {
-    proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, FALSE);
+    proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, ENC_BIG_ENDIAN);
   }
 
   if (adr_ofs) {
@@ -1141,11 +1136,11 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
       }
       len -= 2;
       sub_tree = proto_item_add_subtree(ti,ett_asp_addr_line);
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, FALSE);
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_len, tvb, ofs, 1, ENC_BIG_ENDIAN);
       ofs++;
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, FALSE);
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, ENC_BIG_ENDIAN);
       ofs++;
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, FALSE);
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, ENC_BIG_ENDIAN);
       ofs += len;
     }
   }
@@ -1158,7 +1153,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
     for (i = 0; i < nbe; i++) {
       len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, FALSE);
+      proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, ENC_BIG_ENDIAN);
       ofs += len + 1;
     }
   }
@@ -1181,7 +1176,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 /* -----------------------------
    PAP protocol cf. inside appletalk chap. 10
 */
-#define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, FALSE); offset += x; }
+#define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, ENC_BIG_ENDIAN); offset += x; }
 
 static void
 dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1197,51 +1192,50 @@ dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_pap, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_pap, tvb, offset, -1, ENC_BIG_ENDIAN);
     pap_tree = proto_item_add_subtree(ti, ett_pap);
   }
 
   connID = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(pap_tree, hf_pap_connid, tvb, offset, 1, FALSE);
+  proto_tree_add_item(pap_tree, hf_pap_connid, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
   fn = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(pap_tree, hf_pap_function, tvb, offset, 1, FALSE);
+  proto_tree_add_item(pap_tree, hf_pap_function, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
-                 val_to_str_ext(fn, &pap_function_vals_ext, "Unknown (0x%01x)"), connID);
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s  ID: %d",
+               val_to_str_ext(fn, &pap_function_vals_ext, "Unknown (0x%01x)"), connID);
+
   switch(fn) {
   case PAPOpenConn:
     PAD(2);
-    proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(pap_tree, hf_pap_waittime, tvb, offset, 2, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_waittime, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     break;
 
   case PAPOpenConnReply:
     PAD(2);
-    proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_socket, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_quantum, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(pap_tree, hf_pap_result, tvb, offset, 2, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_result, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     offset = dissect_pascal_string(tvb, offset, pap_tree, hf_pap_status);
     break;
 
   case PAPSendData:
-    proto_tree_add_item(pap_tree, hf_pap_seq, tvb, offset, 2, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     break;
 
   case PAPData:
-    proto_tree_add_item(pap_tree, hf_pap_eof, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pap_tree, hf_pap_eof, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     PAD(1);
     /* follow by data */
@@ -1334,67 +1328,65 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   fn = (guint8) aspinfo->command;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (aspinfo->reply)
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
-    else
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                   val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), aspinfo->seq);
-  }
+  if (aspinfo->reply)
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
+  else
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
+                 val_to_str_ext(fn, &asp_func_vals_ext, "Unknown (0x%01x)"), aspinfo->seq);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_asp, tvb, offset, -1, ENC_BIG_ENDIAN);
     asp_tree = proto_item_add_subtree(ti, ett_asp);
   }
   if (!aspinfo->reply) {
     tvbuff_t   *new_tvb;
     /* let the called deal with asp_tree == NULL */
 
-    proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, FALSE);
+    proto_tree_add_item(asp_tree, hf_asp_func, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     switch(fn) {
     case ASPFUNC_OPEN:
-      proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_version, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       break;
     case ASPFUNC_TICKLE:
     case ASPFUNC_CLOSE:
-      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset +=2;
       break;
     case ASPFUNC_STAT:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       break;
     case ASPFUNC_ATTN:
-      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_attn_code, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_attn_code, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset +=2;
       break;
     case ASPFUNC_CMD:
     case ASPFUNC_WRITE:
       proto_item_set_len(asp_tree, 4);
-      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       len = tvb_reported_length_remaining(tvb,offset);
       new_tvb = tvb_new_subset(tvb, offset,-1,len);
       call_dissector(afp_handle, new_tvb, pinfo, tree);
       break;
     case ASPFUNC_WRTCONT:
-      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
-      proto_tree_add_item(asp_tree, hf_asp_size, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_size, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       break;
     default:
@@ -1411,23 +1403,23 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(asp_tree, hf_asp_func, tvb, 0, 0, fn);
     switch(fn) {
     case ASPFUNC_OPEN:
-      proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_socket, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_init_error, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_init_error, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       break;
     case ASPFUNC_CLOSE:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       break;
     case ASPFUNC_STAT:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       dissect_asp_reply_get_status(tvb, pinfo, asp_tree, offset);
       break;
@@ -1435,7 +1427,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ASPFUNC_WRITE:
       proto_item_set_len(asp_tree, 4);
       aspinfo->code = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
       len = tvb_reported_length_remaining(tvb,offset);
       new_tvb = tvb_new_subset(tvb, offset,-1,len);
@@ -1443,7 +1435,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case ASPFUNC_TICKLE:
     case ASPFUNC_WRTCONT:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, FALSE);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
       /* fall */
     case ASPFUNC_ATTN:  /* FIXME capture and spec disagree */
     default:
@@ -1480,30 +1472,28 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   fn = (guint8) aspinfo->command;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (aspinfo->reply)
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
-    else
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
-                   val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
-  }
+  if (aspinfo->reply)
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Reply tid %u",aspinfo->seq);
+  else
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Function: %s  tid %u",
+                 val_to_str(fn, zip_atp_function_vals, "Unknown (0x%01x)"), aspinfo->seq);
 
   if (!tree)
     return;
 
-  ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_zip, tvb, offset, -1, ENC_BIG_ENDIAN);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
   if (!aspinfo->reply) {
-    proto_tree_add_item(zip_tree, hf_zip_atp_function, tvb, offset, 1, FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_atp_function, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     switch(fn) {
     case 7:     /* start_index = 0 */
     case 8:
     case 9:
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(zip_tree, hf_zip_start_index, tvb, offset, 2, FALSE);
+      proto_tree_add_item(zip_tree, hf_zip_start_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
     }
   }
@@ -1515,18 +1505,18 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 7:
     case 8:
     case 9:
-      proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, FALSE);
+      proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
       count = tvb_get_ntohs(tvb, offset);
-      ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, FALSE);
+      ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
       for (i= 0; i < count; i++) {
         len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
         offset += len +1;
       }
       break;
@@ -1554,28 +1544,26 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   fn = tvb_get_guint8(tvb, 0);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_ext(fn, &zip_function_vals_ext, "Unknown ZIP function (%02x)"));
-  }
+  col_add_str(pinfo->cinfo, COL_INFO,
+              val_to_str_ext(fn, &zip_function_vals_ext, "Unknown ZIP function (%02x)"));
 
   if (!tree)
     return;
 
-  ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, FALSE);
+  ti = proto_tree_add_item(tree, proto_zip, tvb, 0, -1, ENC_BIG_ENDIAN);
   zip_tree = proto_item_add_subtree(ti, ett_zip);
 
-  proto_tree_add_item(zip_tree, hf_zip_function, tvb, offset, 1,FALSE);
+  proto_tree_add_item(zip_tree, hf_zip_function, tvb, offset, 1,ENC_BIG_ENDIAN);
   offset++;
   /* fn 1,7,2,8 are not tested */
   switch (fn) {
   case 1: /* Query */
     count = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
     for (i= 0; i < count; i++) {
-      proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, FALSE);
+      proto_tree_add_item(sub_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
     }
     break;
@@ -1583,79 +1571,79 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     flag = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
     flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
-    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
-    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
-    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
+    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
     offset += len +1;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_BIG_ENDIAN);
     offset += len;
 
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
     break;
 
   case 2: /* Reply */
   case 8: /* Extended Reply */
     count = tvb_get_guint8(tvb, offset);
-    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(zip_tree, hf_zip_network_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     sub_tree = proto_item_add_subtree(ti, ett_zip_network_list);
     for (i= 0; i < count; i++) {
       net = tvb_get_ntohs(tvb, offset);
       ti = proto_tree_add_text(sub_tree, tvb, offset , 2, "Zone for network : %u", net);
       net_tree = proto_item_add_subtree(ti, ett_zip_network_list);
-      proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, FALSE);
+      proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       len = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
       offset += len +1;
     }
     break;
 
   case 5 :  /* GetNetInfo request */
-    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
     break;
 
   case 6 :  /* GetNetInfo reply */
     flag = tvb_get_guint8(tvb, offset);
     ti = proto_tree_add_text(zip_tree, tvb, offset , 1,"Flags : 0x%02x", flag);
     flag_tree = proto_item_add_subtree(ti, ett_zip_flags);
-    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,FALSE);
-    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,FALSE);
-    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,FALSE);
+    proto_tree_add_item(flag_tree, hf_zip_flags_zone_invalid, tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_zip_flags_use_broadcast,tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(zip_tree, hf_zip_network_start, tvb, offset, 2, FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_network_start, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(zip_tree, hf_zip_network_end, tvb, offset, 2, FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_network_end, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
     offset += len +1;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,FALSE);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_BIG_ENDIAN);
     offset += len;
     if ((flag & 0x80) != 0)
-      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,FALSE);
+      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,ENC_BIG_ENDIAN);
     break;
 
   default:
@@ -1681,7 +1669,7 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_SHORT_HEADER_SIZE,
-                             FALSE);
+                             ENC_BIG_ENDIAN);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
   }
   len = tvb_get_ntohs(tvb, 0);
@@ -1708,10 +1696,9 @@ dissect_ddp_short(tvbuff_t *tvb, packet_info *pinfo, guint8 dnode,
   pinfo->destport = dport;
   pinfo->srcport = sport;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
-                val_to_str_ext(type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
-  }
+  col_add_str(pinfo->cinfo, COL_INFO,
+              val_to_str_ext(type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
+
   if (tree) {
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
                                         4, 3, atalk_addr_to_str(&src));
@@ -1759,13 +1746,12 @@ dissect_ddp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   pinfo->destport = ddp.dport;
   pinfo->srcport = ddp.sport;
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_str(pinfo->cinfo, COL_INFO,
-      val_to_str_ext(ddp.type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
+  col_add_str(pinfo->cinfo, COL_INFO,
+    val_to_str_ext(ddp.type, &op_vals_ext, "Unknown DDP protocol (%02x)"));
 
   if (tree) {
     ti = proto_tree_add_item(tree, proto_ddp, tvb, 0, DDP_HEADER_SIZE,
-                             FALSE);
+                             ENC_BIG_ENDIAN);
     ddp_tree = proto_item_add_subtree(ti, ett_ddp);
 
     hidden_item = proto_tree_add_string(ddp_tree, hf_ddp_src, tvb,
@@ -1835,7 +1821,7 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   col_clear(pinfo->cinfo, COL_INFO);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, FALSE);
+    ti = proto_tree_add_item(tree, proto_llap, tvb, 0, 3, ENC_BIG_ENDIAN);
     llap_tree = proto_item_add_subtree(ti, ett_llap);
   }
 
@@ -1846,10 +1832,9 @@ dissect_llap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_src, tvb, 1, 1, snode);
   type = tvb_get_guint8(tvb, 2);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_str(pinfo->cinfo, COL_INFO,
-      val_to_str_ext(type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
-  }
+  col_add_str(pinfo->cinfo, COL_INFO,
+    val_to_str_ext(type, &llap_type_vals_ext, "Unknown LLAP type (%02x)"));
+
   if (tree)
     proto_tree_add_uint(llap_tree, hf_llap_type, tvb, 2, 1, type);
 

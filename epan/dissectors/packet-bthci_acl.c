@@ -106,15 +106,15 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_ACL");
 
 	if(tree){
-		ti=proto_tree_add_item(tree, proto_btacl, tvb, offset, -1, FALSE);
+		ti=proto_tree_add_item(tree, proto_btacl, tvb, offset, -1, ENC_BIG_ENDIAN);
 		btacl_tree = proto_item_add_subtree(ti, ett_btacl);
 	}
 
 	flags=tvb_get_letohs(tvb, offset);
 	pb_flag = (flags & 0x3000) >> 12;
-	proto_tree_add_item(btacl_tree, hf_btacl_chandle, tvb, offset, 2, TRUE);
-	proto_tree_add_item(btacl_tree, hf_btacl_pb_flag, tvb, offset, 2, TRUE);
-	proto_tree_add_item(btacl_tree, hf_btacl_bc_flag, tvb, offset, 2, TRUE);
+	proto_tree_add_item(btacl_tree, hf_btacl_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(btacl_tree, hf_btacl_pb_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(btacl_tree, hf_btacl_bc_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	acl_data=ep_alloc(sizeof(bthci_acl_data_t));
@@ -131,7 +131,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(btacl_tree, hf_btacl_length, tvb, offset, 2, TRUE);
+	proto_tree_add_item(btacl_tree, hf_btacl_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	/* determine if packet is fragmented */
@@ -187,9 +187,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item *item;
 				item=proto_tree_add_uint(btacl_tree, hf_btacl_reassembled_in, tvb, 0, 0, mfp->last_frame);
 				PROTO_ITEM_SET_GENERATED(item);
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]", mfp->last_frame);
 			}
 		}
 		if(pb_flag==0x01){ /* continuation fragment */
@@ -208,9 +206,7 @@ dissect_btacl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_item *item;
 				item=proto_tree_add_uint(btacl_tree, hf_btacl_continuation_to, tvb, 0, 0, mfp->first_frame);
 				PROTO_ITEM_SET_GENERATED(item);
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
-				}
+				col_append_fstr(pinfo->cinfo, COL_INFO, " [Continuation to #%u]", mfp->first_frame);
 			}
 			if(mfp != NULL && mfp->last_frame==pinfo->fd->num){
 				next_tvb = tvb_new_child_real_data(tvb, (guint8*)mfp->reassembled, mfp->tot_len, mfp->tot_len);

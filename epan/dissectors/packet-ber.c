@@ -757,7 +757,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
 						offset = dissect_ber_identifier(pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
 						offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
 					}
-					item = ber_proto_tree_add_item(pinfo, tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, FALSE);
+					item = ber_proto_tree_add_item(pinfo, tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, ENC_BIG_ENDIAN);
 					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
 					offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 				}
@@ -1331,7 +1331,7 @@ reassemble_octet_string(asn1_ctx_t *actx, proto_tree *tree, gint hf_id, tvbuff_t
 
       reassembled_tvb = tvb_new_child_real_data(next_tvb, fd_head->data, fd_head->len, fd_head->len);
 
-      actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, FALSE);
+      actx->created_item = proto_tree_add_item(tree, hf_id, reassembled_tvb, 0, -1, ENC_BIG_ENDIAN);
       next_tree = proto_item_add_subtree (actx->created_item, ett_ber_reassembled_octet_string);
 
       add_new_data_source(actx->pinfo, reassembled_tvb, "Reassembled OCTET STRING");
@@ -1451,9 +1451,9 @@ printf("OCTET STRING dissect_ber_octet_string(%s) entered\n",name);
 			length_remaining=len;
 		}
 		if(hf_id >= 0) {
-			it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, FALSE);
+			it = ber_proto_tree_add_item(actx->pinfo, tree, hf_id, tvb, offset, length_remaining, ENC_BIG_ENDIAN);
 			actx->created_item = it;
-			ber_check_length(length_remaining, min_len, max_len, actx, it, FALSE);
+			ber_check_length(length_remaining, min_len, max_len, actx, it, ENC_BIG_ENDIAN);
 		} else {
 			proto_item *pi;
 
@@ -1535,7 +1535,7 @@ if (!implicit_tag)
   }
 }
   if (hf_id >= 0)
-	  proto_tree_add_item(tree, hf_id, tvb, offset, 0, FALSE);
+	  proto_tree_add_item(tree, hf_id, tvb, offset, 0, ENC_BIG_ENDIAN);
   return offset;
 }
 
@@ -1745,7 +1745,7 @@ dissect_ber_boolean(gboolean implicit_tag, asn1_ctx_t *actx, proto_tree *tree, t
 	}
 
 	if(value){
-		*value=(val?TRUE:FALSE);
+		*value=(val?TRUE:ENC_BIG_ENDIAN);
 	}
 
 	return offset;
@@ -1832,7 +1832,7 @@ printf("SEQUENCE dissect_ber_sequence(%s) entered\n",name);
 	/* create subtree */
 	if(hf_id >= 0) {
 		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, lenx + offset - hoffset, FALSE);
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, lenx + offset - hoffset, ENC_BIG_ENDIAN);
 			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
@@ -2154,7 +2154,7 @@ printf("SEQUENCE dissect_ber_old_sequence(%s) entered\n",name);
 	/* create subtree */
 	if(hf_id >= 0) {
 		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, lenx + offset - hoffset, FALSE);
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, hoffset, lenx + offset - hoffset, ENC_BIG_ENDIAN);
 			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
@@ -2503,7 +2503,7 @@ printf("SET dissect_ber_set(%s) entered\n",name);
 	/* create subtree */
 	if (hf_id >= 0) {
 		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, FALSE);
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, ENC_BIG_ENDIAN);
 			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
@@ -2763,7 +2763,7 @@ printf("SET dissect_old_ber_set(%s) entered\n",name);
 	/* create subtree */
 	if (hf_id >= 0) {
 		if(parent_tree){
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, FALSE);
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, ENC_BIG_ENDIAN);
 			tree = proto_item_add_subtree(item, ett_id);
 		}
 	}
@@ -3614,7 +3614,7 @@ printf("OBJECT IDENTIFIER dissect_ber_object_identifier(%s) entered\n",name);
 	actx->created_item=NULL;
 	hfi = proto_registrar_get_nth(hf_id);
 	if (hfi->type == FT_OID) {
-		actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, FALSE);
+		actx->created_item = proto_tree_add_item(tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
 	} else if (IS_FT_STRING(hfi->type)) {
 		str = oid_encoded2string(tvb_get_ptr(tvb, offset, len), len);
 		actx->created_item = proto_tree_add_string(tree, hf_id, tvb, offset, len, str);
@@ -3765,7 +3765,7 @@ printf("SQ OF dissect_ber_sq_of(%s) entered\n",name);
 		hfi = proto_registrar_get_nth(hf_id);
 		if(parent_tree){
 			if(hfi->type == FT_NONE) {
-				item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, FALSE);
+				item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, ENC_BIG_ENDIAN);
 				proto_item_append_text(item, ":");
 			} else {
 				item = proto_tree_add_uint(parent_tree, hf_id, tvb, offset, lenx, cnt);
@@ -3977,7 +3977,7 @@ printf("SQ OF dissect_ber_old_sq_of(%s) entered\n",name);
 		hfi = proto_registrar_get_nth(hf_id);
 		if(parent_tree){
 			if(hfi->type == FT_NONE) {
-				item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, FALSE);
+				item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, lenx, ENC_BIG_ENDIAN);
 				proto_item_append_text(item, ":");
 			} else {
 				item = proto_tree_add_uint(parent_tree, hf_id, tvb, offset, lenx, cnt);
@@ -4415,10 +4415,10 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 		pad = tvb_get_guint8(tvb, offset);
 		if(pad == 0 && len == 1) {
 			/* empty */
-			proto_tree_add_item(parent_tree, hf_ber_bitstring_empty, tvb, offset, 1, FALSE);
+			proto_tree_add_item(parent_tree, hf_ber_bitstring_empty, tvb, offset, 1, ENC_BIG_ENDIAN);
 		} else {
 			/* padding */
-			proto_item *pad_item = proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, FALSE);
+			proto_item *pad_item = proto_tree_add_item(parent_tree, hf_ber_bitstring_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
 			if (pad > 7) {
 				expert_add_info_format(actx->pinfo, pad_item, PI_UNDECODED, PI_WARN,
 						       "Illegal padding (0 .. 7): %d", pad);
@@ -4427,7 +4427,7 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 		offset++;
 		len--;
 		if(hf_id >= 0) {
-			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, FALSE);
+			item = proto_tree_add_item(parent_tree, hf_id, tvb, offset, len, ENC_BIG_ENDIAN);
 			actx->created_item = item;
 			if(ett_id != -1) {
 				tree = proto_item_add_subtree(item, ett_id);
@@ -4457,7 +4457,7 @@ int dissect_ber_constrained_bitstring(gboolean implicit_tag, asn1_ctx_t *actx, p
 						       ((guint32)nb->gb0)/8;
 				b1 = (nb->gb1 == -1) ? nb->bit/8 :
 						       ((guint32)nb->gb1)/8;
-				proto_tree_add_item(tree, *(nb->p_id), tvb, offset + b0, b1 - b0 + 1, FALSE);
+				proto_tree_add_item(tree, *(nb->p_id), tvb, offset + b0, b1 - b0 + 1, ENC_BIG_ENDIAN);
 			} else {  /* 8.6.2.4 */
 				val = 0;
 				proto_tree_add_boolean(tree, *(nb->p_id), tvb, offset + len, 0, 0x00);
@@ -4732,13 +4732,9 @@ dissect_ber(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     (void) call_ber_syntax_callback(decode_as_syntax, tvb, 0, pinfo, tree);
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-
-      /* see if we have a better name */
-      name = get_ber_oid_syntax(decode_as_syntax);
-
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
-    }
+	/* see if we have a better name */
+    name = get_ber_oid_syntax(decode_as_syntax);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Decoded as %s", name ? name : decode_as_syntax);
   }
 }
 

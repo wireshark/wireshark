@@ -511,11 +511,10 @@ dissect_le_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   offset += 1;
 
   opcode = tvb_get_ntohs(tvb, offset);
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
-                    val_to_str(opcode, le_control_opcode_vals,
-                               "Unknown opcode (0x%04X)"));
-  }
+  col_append_fstr(pinfo->cinfo, COL_INFO, ": %s",
+                  val_to_str(opcode, le_control_opcode_vals,
+                             "Unknown opcode (0x%04X)"));
+
   if (tree) {
     proto_tree_add_text(lane_tree, tvb, offset, 2, "Opcode: %s",
                         val_to_str(opcode, le_control_opcode_vals,
@@ -701,7 +700,7 @@ dissect_lane(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_ilmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, FALSE);
+  dissect_snmp_pdu(tvb, 0, pinfo, tree, proto_ilmi, ett_ilmi, ENC_BIG_ENDIAN);
 }
 
 /* AAL types */
@@ -975,12 +974,9 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         pinfo->pseudo_header->atm.vci);
 
     /* Also show vpi/vci in info column */
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-      col_append_fstr(pinfo->cinfo, COL_INFO, " VPI=%u, VCI=%u",
-                      pinfo->pseudo_header->atm.vpi,
-                      pinfo->pseudo_header->atm.vci);
-    }
+    col_append_fstr(pinfo->cinfo, COL_INFO, " VPI=%u, VCI=%u",
+                    pinfo->pseudo_header->atm.vpi,
+                    pinfo->pseudo_header->atm.vci);
   }
 
   next_tvb = tvb;
@@ -1686,16 +1682,14 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case AAL_1:
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL1");
     col_clear(pinfo->cinfo, COL_INFO);
-    ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_aal1, tvb, offset, -1, ENC_BIG_ENDIAN);
     aal_tree = proto_item_add_subtree(ti, ett_aal1);
     octet = tvb_get_guint8(tvb, offset);
     proto_tree_add_text(aal_tree, tvb, offset, 1, "CSI: %u", octet >> 7);
     proto_tree_add_text(aal_tree, tvb, offset, 1, "Sequence Count: %u",
                         (octet >> 4) & 0x7);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence count = %u",
-                   (octet >> 4) & 0x7);
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Sequence count = %u",
+                 (octet >> 4) & 0x7);
     proto_tree_add_text(aal_tree, tvb, offset, 1, "CRC: 0x%x",
                         (octet >> 1) & 0x7);
     proto_tree_add_text(aal_tree, tvb, offset, 1, "Parity: %u",
@@ -1711,14 +1705,12 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
      */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "AAL3/4");
     col_clear(pinfo->cinfo, COL_INFO);
-    ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_aal3_4, tvb, offset, -1, ENC_BIG_ENDIAN);
     aal_tree = proto_item_add_subtree(ti, ett_aal3_4);
     aal3_4_hdr = tvb_get_ntohs(tvb, offset);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s, sequence number = %u",
-                   val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"),
-                   (aal3_4_hdr >> 10) & 0xF);
-    }
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s, sequence number = %u",
+                 val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"),
+                 (aal3_4_hdr >> 10) & 0xF);
     proto_tree_add_text(aal_tree, tvb, offset, 2, "Segment Type: %s",
                         val_to_str(aal3_4_hdr >> 14, st_vals, "Unknown (%u)"));
     proto_tree_add_text(aal_tree, tvb, offset, 2, "Sequence Number: %u",
@@ -1747,14 +1739,13 @@ dissect_atm_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       col_set_str(pinfo->cinfo, COL_PROTOCOL, "OAM AAL");
       col_clear(pinfo->cinfo, COL_INFO);
     }
-    ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_oamaal, tvb, offset, -1, ENC_BIG_ENDIAN);
     aal_tree = proto_item_add_subtree(ti, ett_oamaal);
     octet = tvb_get_guint8(tvb, offset);
     if (NULL == pwpd || pwpd->enable_fill_columns_by_atm_dissector)
     {
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
-                     val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
+      col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+                   val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
     }
     proto_tree_add_text(aal_tree, tvb, offset, 1, "OAM Type: %s",
                         val_to_str(octet >> 4, oam_type_vals, "Unknown (%u)"));
@@ -1834,20 +1825,18 @@ dissect_atm_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
   }
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    if (pinfo->pseudo_header->atm.aal == AAL_5) {
-      col_add_fstr(pinfo->cinfo, COL_INFO, "AAL5 %s",
-                   val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
-                              "Unknown traffic type (%u)"));
-    } else {
-      col_add_str(pinfo->cinfo, COL_INFO,
-                  val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
-                             "Unknown AAL (%u)"));
-    }
+  if (pinfo->pseudo_header->atm.aal == AAL_5) {
+    col_add_fstr(pinfo->cinfo, COL_INFO, "AAL5 %s",
+                 val_to_str(pinfo->pseudo_header->atm.type, aal5_hltype_vals,
+                            "Unknown traffic type (%u)"));
+  } else {
+    col_add_str(pinfo->cinfo, COL_INFO,
+                val_to_str(pinfo->pseudo_header->atm.aal, aal_vals,
+                           "Unknown AAL (%u)"));
   }
 
   if (tree) {
-    atm_ti = proto_tree_add_item(tree, proto_atm, tvb, 0, -1, FALSE);
+    atm_ti = proto_tree_add_item(tree, proto_atm, tvb, 0, -1, ENC_BIG_ENDIAN);
     atm_tree = proto_item_add_subtree(atm_ti, ett_atm);
 
     if (!pseudowire_mode) {
@@ -1902,7 +1891,7 @@ dissect_atm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 dissect_atm_untruncated(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  dissect_atm_common(tvb, pinfo, tree, FALSE);
+  dissect_atm_common(tvb, pinfo, tree, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1921,7 +1910,7 @@ dissect_atm_oam_cell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, FALSE);
+  dissect_atm_cell(tvb, pinfo, tree, atm_tree, AAL_OAMCELL, FALSE, ENC_BIG_ENDIAN);
 }
 
 
@@ -1993,7 +1982,7 @@ proto_register_atm(void)
   prefs_register_enum_preference ( atm_module, "unknown_aal2_type",
                                    "Decode unknown AAL2 traffic as",
                                    "Type used to dissect unknown AAL2 traffic",
-                                   &unknown_aal2_type, unknown_aal2_options, FALSE);
+                                   &unknown_aal2_type, unknown_aal2_options, ENC_BIG_ENDIAN);
 
 }
 
