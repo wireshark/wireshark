@@ -286,7 +286,8 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb,
             val_to_str( (u8FragStatus & 0x40) >> 6, pn_rt_frag_status_error, "Unknown"));
 
 
-        proto_tree_add_string_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, "data", 
+        /* XXX - should this use u8FragDataLength? */
+        proto_tree_add_none_format(sub_tree, hf_pn_rt_frag_data, tvb, offset, tvb_length(tvb) - offset, 
             "FragData: %d bytes", tvb_length(tvb) - offset);
 
         /* note: the actual defragmentation implementation is still missing here */
@@ -730,7 +731,7 @@ proto_register_pn_rt(void)
     { &hf_pn_rt_frag_status_fragment_number, { 
         "FragmentNumber (zero based)", "pn_rt.frag_status.fragment_number", FT_UINT8, BASE_DEC, NULL, 0x3F, NULL, HFILL }},
     { &hf_pn_rt_frag_data, { 
-        "FragData", "pn_rt.frag_data", FT_STRING, BASE_NONE, NULL, 0x00, NULL, HFILL }},
+        "FragData", "pn_rt.frag_data", FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL }},
   };
   static gint *ett[] = {
     &ett_pn_rt,
