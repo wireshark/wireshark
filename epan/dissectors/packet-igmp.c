@@ -316,11 +316,8 @@ static const value_string mtrace_fwd_code_vals[] = {
 	do {								\
 		proto_item *ti;						\
 		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "IGMPv%d",version);    \
-		if (check_col(pinfo->cinfo, COL_INFO)) {		\
-			col_add_fstr(pinfo->cinfo, COL_INFO,		\
-				"%s",val_to_str(type, commands, 	\
-					"Unknown Type:0x%02x"));	\
-		}							\
+		col_add_fstr(pinfo->cinfo, COL_INFO,		\
+			"%s",val_to_str(type, commands, "Unknown Type:0x%02x"));	\
 		/* version of IGMP protocol */				\
 		ti = proto_tree_add_uint(tree, hf_version, tvb, 0, 0, version);	\
 		PROTO_ITEM_SET_GENERATED(ti);				\
@@ -330,7 +327,7 @@ static const value_string mtrace_fwd_code_vals[] = {
 	} while (0);
 
 void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
-    int hf_index_bad, packet_info *pinfo, guint len)
+	int hf_index_bad, packet_info *pinfo, guint len)
 {
 	guint16 cksum, hdrcksum;
 	vec_t cksum_vec[1];
@@ -355,16 +352,15 @@ void igmp_checksum(proto_tree *tree, tvbuff_t *tvb, int hf_index,
 		cksum = in_cksum(&cksum_vec[0],1);
 
 		if (cksum == 0) {
-			proto_tree_add_uint_format(tree, hf_index,
-			    tvb, 2, 2, hdrcksum,
-			    "Header checksum: 0x%04x [correct]", hdrcksum);
+			proto_tree_add_uint_format(tree, hf_index, tvb, 2, 2, hdrcksum,
+				"Header checksum: 0x%04x [correct]", hdrcksum);
 		} else {
 			hidden_item = proto_tree_add_boolean(tree, hf_index_bad,
-			    tvb, 2, 2, TRUE);
+				tvb, 2, 2, TRUE);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
-			proto_tree_add_uint_format(tree, hf_index,
-			    tvb, 2, 2, hdrcksum,
-			    "Header checksum: 0x%04x [incorrect, should be 0x%04x]", hdrcksum,in_cksum_shouldbe(hdrcksum,cksum));
+			proto_tree_add_uint_format(tree, hf_index, tvb, 2, 2, hdrcksum,
+				"Header checksum: 0x%04x [incorrect, should be 0x%04x]",
+				hdrcksum, in_cksum_shouldbe(hdrcksum,cksum));
 		}
 	} else
 		proto_tree_add_uint(tree, hf_index, tvb, 2, 2, hdrcksum);
@@ -379,10 +375,8 @@ dissect_igmp_unknown(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int ty
 {
 	int len;
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(type, commands, "Unknown Type:0x%02x"));
-	}
+	col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(type, commands, "Unknown Type:0x%02x"));
 
 	/* type of command */
 	proto_tree_add_uint(tree, hf_type, tvb, offset, 1, type);
@@ -467,7 +461,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	guint16 num;
 	guint32 ip;
 	guint32 maddr;
-        guint8 record_type;
+	guint8 record_type;
 
 	ip = tvb_get_ipv4(tvb, offset+4);
 	item = proto_tree_add_text(parent_tree, tvb, offset, -1,
@@ -479,7 +473,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* record type */
 	record_type = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_record_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_record_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* aux data len */
@@ -493,82 +487,83 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	offset += 2;
 
 	/* multicast address */
-	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	maddr = tvb_get_ipv4(tvb, offset);
 	offset += 4;
 
-        if (check_col(pinfo->cinfo, COL_INFO)) {
-           if (num == 0) {
-              switch(record_type) {
-               case IGMP_V3_MODE_IS_INCLUDE:
-               case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Leave group %s",
-                                   ip_to_str((guint8*)&maddr) );
-                   break;
-	       case IGMP_V3_MODE_IS_EXCLUDE:
-               case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s for any sources",
-                                   ip_to_str((guint8*)&maddr) );
-                   break;
-               case IGMP_V3_ALLOW_NEW_SOURCES:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, ALLOW_NEW_SOURCES but no source specified (?)",
-                                                           ip_to_str((guint8*)&maddr) );
-                   break;
-               case IGMP_V3_BLOCK_OLD_SOURCES:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, BLOCK_OLD_SOURCES but no source specified (?)",
-                                                           ip_to_str((guint8*)&maddr) );
-                   break;
-               default:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, unknown record type (?)",
-                                                           ip_to_str((guint8*)&maddr) );
-              }
-           } else {
-              switch(record_type) {
-               case IGMP_V3_MODE_IS_INCLUDE:
-               case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s for source%s {",
-                                   ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s in" : "" );
-                   break;
-	       case IGMP_V3_MODE_IS_EXCLUDE:
-               case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s, for source%s {",
-                                   ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s not in" : " not" );
-                   break;
-               case IGMP_V3_ALLOW_NEW_SOURCES:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, new source%s {",
-                                   ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s" : "" );
-                   break;
-               case IGMP_V3_BLOCK_OLD_SOURCES:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, block source%s {",
-                                   ip_to_str((guint8*)&maddr),
-                                   (num>1) ? "s" : "" );
-                   break;
-               default:
-                   col_append_fstr(pinfo->cinfo, COL_INFO, " / Group %s, unknown record type (?), sources {",
-                                                           ip_to_str((guint8*)&maddr) );
-              }
-           }
-        }
+	if (num == 0) {
+		switch(record_type) {
+		case IGMP_V3_MODE_IS_INCLUDE:
+		case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
+			col_append_fstr(pinfo->cinfo, COL_INFO, " / Leave group %s",
+				ip_to_str((guint8*)&maddr));
+			break;
+		case IGMP_V3_MODE_IS_EXCLUDE:
+		case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Join group %s for any sources", ip_to_str((guint8*)&maddr));
+			break;
+		case IGMP_V3_ALLOW_NEW_SOURCES:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Group %s, ALLOW_NEW_SOURCES but no source specified (?)",
+				ip_to_str((guint8*)&maddr));
+			break;
+		case IGMP_V3_BLOCK_OLD_SOURCES:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Group %s, BLOCK_OLD_SOURCES but no source specified (?)",
+				ip_to_str((guint8*)&maddr));
+			break;
+		default:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Group %s, unknown record type (?)",
+				ip_to_str((guint8*)&maddr));
+				break;;
+		}
+	} else {
+		switch(record_type) {
+		case IGMP_V3_MODE_IS_INCLUDE:
+		case IGMP_V3_CHANGE_TO_INCLUDE_MODE:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Join group %s for source%s {",
+				ip_to_str((guint8*)&maddr), (num>1) ? "s in" : "");
+			break;
+		case IGMP_V3_MODE_IS_EXCLUDE:
+		case IGMP_V3_CHANGE_TO_EXCLUDE_MODE:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Join group %s, for source%s {",
+				ip_to_str((guint8*)&maddr), (num>1) ? "s not in" : " not");
+			break;
+		case IGMP_V3_ALLOW_NEW_SOURCES:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Group %s, new source%s {",
+				ip_to_str((guint8*)&maddr), (num>1) ? "s" : "");
+			break;
+		case IGMP_V3_BLOCK_OLD_SOURCES:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Group %s, block source%s {",
+				ip_to_str((guint8*)&maddr), (num>1) ? "s" : "");
+			break;
+		default:
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" / Group %s, unknown record type (?), sources {",
+				ip_to_str((guint8*)&maddr));
+			break;
+		}
+	}
 
 	/* source addresses */
 	while(num--){
-                if (check_col(pinfo->cinfo, COL_INFO)) {
-                   col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
-                                         tvb_ip_to_str(tvb, offset),
-                                         (num?", ":"}")
-                                  );
-                }
-		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO)) {
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
+				tvb_ip_to_str(tvb, offset), (num?", ":"}"));
+		}
+		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
 	/* aux data */
 	if(adl){
-		proto_tree_add_item(tree, hf_aux_data, tvb, offset, adl*4,
-		    FALSE);
+		proto_tree_add_item(tree, hf_aux_data, tvb, offset, adl*4, ENC_BIG_ENDIAN);
 		offset += adl*4;
 	}
 
@@ -596,17 +591,14 @@ dissect_igmp_v3_report(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 
 	/* number of group records */
 	num = tvb_get_ntohs(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-          if (!num) {
-              col_append_fstr(pinfo->cinfo, COL_INFO, " - General query" );
-          }
-        }
+	if (!num)
+		col_append_fstr(pinfo->cinfo, COL_INFO, " - General query");
+
 	proto_tree_add_uint(tree, hf_num_grp_recs, tvb, offset, 2, num);
 	offset += 2;
 
-	while (num--) {
+	while (num--)
 		offset = dissect_v3_group_record(tvb, pinfo, tree, offset);
-	}
 
 	return offset;
 }
@@ -628,39 +620,35 @@ dissect_igmp_v3_query(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int t
 	offset += 2;
 
 	/* group address */
-	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 	maddr = tvb_get_ipv4(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-           if (! maddr) {
-               col_append_fstr(pinfo->cinfo, COL_INFO, ", general" );
-           } else {
-               col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s"
-                   , ip_to_str((guint8*)&maddr) );
-           }
-        }
-
+	if (! maddr) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", general");
+	} else {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s",
+			ip_to_str((guint8*)&maddr));
+	}
 	offset +=4;
 
 	/* bitmask for S and QRV */
 	offset = dissect_v3_sqrv_bits(tvb, tree, offset);
 
 	/* qqic */
-	proto_tree_add_item(tree, hf_qqic, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_qqic, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/*number of sources*/
 	proto_tree_add_uint(tree, hf_num_src, tvb, offset, 2, num);
-        if (num) {
-	    if (check_col(pinfo->cinfo, COL_INFO))
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", source%s {", (num>1)?"s":"");
-        }
+	if (num) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", source%s {", (num>1)?"s":"");
+	}
 	offset += 2;
 
 	while(num--){
-	        if (check_col(pinfo->cinfo, COL_INFO))
-                    col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", tvb_ip_to_str(tvb, offset), (num?", ":"}"));
-		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, FALSE);
+		if (check_col(pinfo->cinfo, COL_INFO))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s", tvb_ip_to_str(tvb, offset), (num?", ":"}"));
+		proto_tree_add_item(tree, hf_saddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
@@ -687,22 +675,23 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 2;
 
 	/* group address */
-	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 	maddr = tvb_get_ipv4(tvb, offset);
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		if (! maddr) {
-		    col_append_fstr(pinfo->cinfo, COL_INFO, ", general" );
-		} else {
-                    if (type == IGMP_V2_LEAVE_GROUP) {
-                       col_append_fstr(pinfo->cinfo, COL_INFO, " %s", ip_to_str((guint8*)&maddr) );
-                    } else if (type == IGMP_V1_HOST_MEMBERSHIP_QUERY) {
-                       col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s", ip_to_str((guint8*)&maddr) );
-                    } else { /* IGMP_V2_MEMBERSHIP_REPORT is the only case left */
-                       col_append_fstr(pinfo->cinfo, COL_INFO, " group %s", ip_to_str((guint8*)&maddr) );
-                    }
+	if (! maddr) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", general");
+	} else {
+		if (type == IGMP_V2_LEAVE_GROUP) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" %s", ip_to_str((guint8*)&maddr));
+		} else if (type == IGMP_V1_HOST_MEMBERSHIP_QUERY) {
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+			", specific for group %s", ip_to_str((guint8*)&maddr));
+		} else { /* IGMP_V2_MEMBERSHIP_REPORT is the only case left */
+			col_append_fstr(pinfo->cinfo, COL_INFO,
+				" group %s", ip_to_str((guint8*)&maddr));
 		}
-        }
+	}
 	offset +=4;
 
 	return offset;
@@ -722,7 +711,7 @@ dissect_igmp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 2;
 
 	/* group address */
-	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset +=4;
 
 	return offset;
@@ -754,16 +743,16 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 2;
 
 	/* identifier */
-	proto_tree_add_item(tree, hf_identifier, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_identifier, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* group address */
-	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
-	offset +=4;
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
+	offset += 4;
 
 	/* access key */
-	proto_tree_add_item(tree, hf_access_key, tvb, offset, 8, FALSE);
-	offset +=8;
+	proto_tree_add_item(tree, hf_access_key, tvb, offset, 8, ENC_BIG_ENDIAN);
+	offset += 8;
 
 	return offset;
 }
@@ -793,17 +782,16 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 	else
 		typestr = "Traceroute Request";
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_set_str(pinfo->cinfo, COL_INFO, typestr);
-		if (blocks) col_append_str(pinfo->cinfo, COL_INFO, blocks);
-	}
+	col_set_str(pinfo->cinfo, COL_INFO, typestr);
+	if (blocks)
+		col_append_str(pinfo->cinfo, COL_INFO, blocks);
 
 	proto_tree_add_uint_format(tree, hf_type, tvb, offset, 1, type,
-	    "Type: %s (0x%02x)", typestr, type);
+		"Type: %s (0x%02x)", typestr, type);
 	offset += 1;
 
 	/* maximum number of hops that the requester wants to trace */
-	proto_tree_add_item(tree, hf_mtrace_max_hops, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_mtrace_max_hops, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* checksum */
@@ -811,27 +799,27 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 	offset += 2;
 
 	/* group address to be traced */
-	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* address of multicast source for the path being traced */
-	proto_tree_add_item(tree, hf_mtrace_saddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_mtrace_saddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* address of multicast receiver for the path being traced */
-	proto_tree_add_item(tree, hf_mtrace_raddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_mtrace_raddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* address where the completed traceroute response packet gets sent */
-	proto_tree_add_item(tree, hf_mtrace_rspaddr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_mtrace_rspaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* for multicasted responses, TTL at which to multicast the response */
-	proto_tree_add_item(tree, hf_mtrace_resp_ttl, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_mtrace_resp_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* unique identifier for this traceroute request (for e.g. duplicate/delay detection) */
-	proto_tree_add_item(tree, hf_mtrace_q_id, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_mtrace_q_id, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 
 	/* If this was Query, we only had the fixed header */
@@ -839,65 +827,64 @@ dissect_igmp_mtrace(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int typ
 		return offset;
 
 	/* Loop through the response data blocks */
-        while (tvb_reported_length_remaining(tvb, offset) >= IGMP_TRACEROUTE_RSP_LEN) {
-                proto_item *bi;
-                proto_tree *block_tree;
+	while (tvb_reported_length_remaining(tvb, offset) >= IGMP_TRACEROUTE_RSP_LEN) {
+		proto_item *bi;
+		proto_tree *block_tree;
 
-                bi = proto_tree_add_text(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
-                                         "Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
-                                         tvb_ip_to_str(tvb, offset + 4),
-                                         tvb_ip_to_str(tvb, offset + 8),
-                                         val_to_str(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
-                                         val_to_str(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
-                block_tree = proto_item_add_subtree(bi, ett_mtrace_block);
+		bi = proto_tree_add_text(tree, tvb, offset, IGMP_TRACEROUTE_RSP_LEN,
+			"Response data block: %s -> %s,  Proto: %s,  Forwarding Code: %s",
+			tvb_ip_to_str(tvb, offset + 4),
+			tvb_ip_to_str(tvb, offset + 8),
+			val_to_str(tvb_get_guint8(tvb, offset + 28), mtrace_rtg_vals, "Unknown"),
+			val_to_str(tvb_get_guint8(tvb, offset + 31), mtrace_fwd_code_vals, "Unknown"));
+		block_tree = proto_item_add_subtree(bi, ett_mtrace_block);
 
 		/* Query Arrival Time */
-		proto_tree_add_item(block_tree, hf_mtrace_q_arrival, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_arrival, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Incoming Interface Address */
-		proto_tree_add_item(block_tree, hf_mtrace_q_inaddr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_inaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Outgoing Interface Address */
-		proto_tree_add_item(block_tree, hf_mtrace_q_outaddr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_outaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Previous-Hop Router Address */
-		proto_tree_add_item(block_tree, hf_mtrace_q_prevrtr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_prevrtr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Input packet count on incoming interface */
-		proto_tree_add_item(block_tree, hf_mtrace_q_inpkt, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_inpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Output packet count on outgoing interface */
-		proto_tree_add_item(block_tree, hf_mtrace_q_outpkt, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_outpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Total number of packets for this source-group pair */
-		proto_tree_add_item(block_tree, hf_mtrace_q_total, tvb, offset, 4, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_total, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Routing protocol in use between this and previous-hop router */
-		proto_tree_add_item(block_tree, hf_mtrace_q_rtg_proto, tvb, offset, 1, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_rtg_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		/* TTL that a packet is required to be forwarded */
-		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_ttl, tvb, offset, 1, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		/* Must be zeroed and ignored bit, S bit and src network mask length */
-		proto_tree_add_item(block_tree, hf_mtrace_q_mbz, tvb, offset, 1, FALSE);
-		proto_tree_add_item(block_tree, hf_mtrace_q_s, tvb, offset, 1, FALSE);
-		proto_tree_add_item(block_tree, hf_mtrace_q_src_mask, tvb, offset, 1, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(block_tree, hf_mtrace_q_s, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(block_tree, hf_mtrace_q_src_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		/* Forwarding information/error code */
-		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(block_tree, hf_mtrace_q_fwd_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 	}
-
 
 	return offset;
 }
@@ -911,25 +898,20 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	unsigned char type;
 	guint32 dst;
 
-	item = proto_tree_add_item(parent_tree, proto_igmp, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, proto_igmp, tvb, offset, -1, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(item, ett_igmp);
-
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "IGMP");
 	col_clear(pinfo->cinfo, COL_INFO);
 
-
 	type = tvb_get_guint8(tvb, offset);
-
 
 	/* version 0 */
 	if ((type&0xf0)==0){
 		offset = dissect_igmp_v0(tvb, pinfo, tree, type, offset);
 	}
 
-
 	switch (type) {
-
 	case IGMP_V1_HOST_MEMBERSHIP_QUERY:	/* 0x11 v1/v2/v3 */
 		if ( (pinfo->iplen-pinfo->iphdrlen)>=12 ) {
 			/* version 3 */
@@ -1028,7 +1010,6 @@ dissect_igmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset = dissect_igmp_unknown(tvb, pinfo, tree, type, offset);
 		break;
 	}
-
 
 	proto_item_set_len(item, offset);
 }
