@@ -142,7 +142,7 @@ dissect_sccpmg_affected_ssn(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 {
 	proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_ssn, tvb,
 			    SCCPMG_AFFECTED_SSN_OFFSET, SCCPMG_SSN_LENGTH,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 }
 
 static void
@@ -152,10 +152,10 @@ dissect_sccpmg_affected_pc(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 
 	if (mtp3_standard == ITU_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_itu_pc, tvb,
-				    offset, ITU_PC_LENGTH, TRUE);
+				    offset, ITU_PC_LENGTH, ENC_LITTLE_ENDIAN);
 	} else if (mtp3_standard == JAPAN_STANDARD) {
 		proto_tree_add_item(sccpmg_tree, hf_sccpmg_affected_japan_pc,
-				    tvb, offset, JAPAN_PC_LENGTH, TRUE);
+				    tvb, offset, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
 	} else /* ANSI_STANDARD and CHINESE_ITU_STANDARD */ {
 		int *hf_affected_pc;
 
@@ -188,7 +188,7 @@ dissect_sccpmg_smi(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 		offset = ANSI_SCCPMG_SMI_OFFSET;
 
 	proto_tree_add_item(sccpmg_tree, hf_sccpmg_smi, tvb, offset,
-			    SCCPMG_SMI_LENGTH, FALSE);
+			    SCCPMG_SMI_LENGTH, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -202,7 +202,7 @@ dissect_sccpmg_congestion_level(tvbuff_t *tvb, proto_tree *sccpmg_tree)
 		offset = ITU_SCCPMG_CONGESTION_OFFSET;
 
 	proto_tree_add_item(sccpmg_tree, hf_sccpmg_congestion_level, tvb,
-			    offset, ITU_SCCPMG_CONGESTION_LENGTH, FALSE);
+			    offset, ITU_SCCPMG_CONGESTION_LENGTH, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -213,8 +213,7 @@ dissect_sccpmg_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccpmg_tre
 	/* Extract the message type;  all other processing is based on this */
 	message_type   = tvb_get_guint8(tvb, SCCPMG_MESSAGE_TYPE_OFFSET);
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_type, sccpmg_message_type_acro_values, "Unknown"));
 
 	if (sccpmg_tree) {
 		/* add the message type to the protocol tree */
@@ -265,18 +264,17 @@ dissect_sccpmg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *sccpmg_tree = NULL;
 
 	/* Make entry in the Protocol column on summary display */
-	if (check_col(pinfo->cinfo, COL_PROTOCOL))
-		switch(mtp3_standard) {
-		case ITU_STANDARD:
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Int. ITU)");
-			break;
-		case ANSI_STANDARD:
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (ANSI)");
-			break;
-		case CHINESE_ITU_STANDARD:
-			col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Chin. ITU)");
-			break;
-		};
+	switch(mtp3_standard) {
+	case ITU_STANDARD:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Int. ITU)");
+		break;
+	case ANSI_STANDARD:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (ANSI)");
+		break;
+	case CHINESE_ITU_STANDARD:
+		col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCPMG (Chin. ITU)");
+		break;
+	};
 
 	/* In the interest of speed, if "tree" is NULL, don't do any work not
 	   necessary to generate protocol tree items. */

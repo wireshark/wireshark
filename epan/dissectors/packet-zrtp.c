@@ -337,15 +337,15 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_protocol_format(tree,proto_zrtp,tvb,0,-1,"ZRTP protocol");
   zrtp_tree = proto_item_add_subtree(ti,ett_zrtp);
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_rtpversion,tvb,prime_offset+0,1,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_rtppadding,tvb,prime_offset+0,1,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_rtpextension,tvb,prime_offset+0,1,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_rtpversion,tvb,prime_offset+0,1,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_rtppadding,tvb,prime_offset+0,1,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_rtpextension,tvb,prime_offset+0,1,ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_sequence,tvb,prime_offset+2,2,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_sequence,tvb,prime_offset+2,2,ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_cookie,tvb,prime_offset+4,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_cookie,tvb,prime_offset+4,4,ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_source_id,tvb,prime_offset+8,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_source_id,tvb,prime_offset+8,4,ENC_BIG_ENDIAN);
 
   linelen = tvb_reported_length_remaining(tvb,msg_offset);
   checksum_offset = linelen-4;
@@ -353,13 +353,13 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,msg_offset,linelen-4,"Message");
   zrtp_msg_tree = proto_item_add_subtree(ti,ett_zrtp_msg);
 
-  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_signature,tvb,msg_offset+0,2,FALSE);
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_signature,tvb,msg_offset+0,2,ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_length,tvb,msg_offset+2,2,FALSE);
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_length,tvb,msg_offset+2,2,ENC_BIG_ENDIAN);
 
   tvb_memcpy(tvb,(void *)message_type,msg_offset+4,8);
   message_type[8] = '\0';
-  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_type,tvb,msg_offset+4,8,FALSE);
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_type,tvb,msg_offset+4,8,ENC_BIG_ENDIAN);
 
   linelen = tvb_reported_length_remaining(tvb,msg_offset+12);
 
@@ -428,13 +428,13 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
     ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, TRUE);
     PROTO_ITEM_SET_GENERATED(ti);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, FALSE);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(ti);
   } else {
     ti = proto_tree_add_uint_format_value(zrtp_tree, hf_zrtp_checksum, tvb, msg_offset+checksum_offset, 4, sent_crc,
                                           "0x%04x [incorrect, should be 0x%04x]", sent_crc, calc_crc);
     checksum_tree = proto_item_add_subtree(ti, ett_zrtp_checksum);
-    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, FALSE);
+    ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_good, tvb, msg_offset+checksum_offset, 4, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_GENERATED(ti);
     ti = proto_tree_add_boolean(checksum_tree, hf_zrtp_checksum_bad, tvb, msg_offset+checksum_offset, 4, TRUE);
     PROTO_ITEM_SET_GENERATED(ti);
@@ -494,8 +494,8 @@ dissect_Ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "Ping Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+4,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+4,8,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -504,10 +504,10 @@ dissect_PingACK(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "PingACK Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pingack_endpointhash,tvb,data_offset+4,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+12,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_ssrc,tvb,data_offset+20,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pingack_endpointhash,tvb,data_offset+4,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+12,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_ssrc,tvb,data_offset+20,4,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -518,7 +518,7 @@ dissect_GoClear(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   /* Now we should clear the SRT(C)P session... */
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -527,7 +527,7 @@ dissect_Error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "Error Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_error,tvb,data_offset,4,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_error,tvb,data_offset,4,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -535,12 +535,10 @@ dissect_Confirm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int par
   unsigned int data_offset=24;
   int linelen;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, (part == 1) ? "Confirm1 Packet" : "Confirm2 Packet");
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, (part == 1) ? "Confirm1 Packet" : "Confirm2 Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,ENC_BIG_ENDIAN);
   linelen = tvb_reported_length_remaining(tvb,data_offset+24);
   proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
 }
@@ -552,8 +550,8 @@ dissect_SASrelay(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "SASrelay Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+0,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_cfb,tvb,data_offset+8,16,ENC_BIG_ENDIAN);
   linelen = tvb_reported_length_remaining(tvb,data_offset+24);
   proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+24,linelen-4,"Encrypted Data");
 }
@@ -564,19 +562,17 @@ dissect_DHPart(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree,int part
   unsigned int data_offset=56;
   int linelen, pvr_len;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    col_add_fstr(pinfo->cinfo, COL_INFO, (part == 1) ? "DHPart1 Packet" : "DHPart2 Packet");
-  }
+  col_add_fstr(pinfo->cinfo, COL_INFO, (part == 1) ? "DHPart1 Packet" : "DHPart2 Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+12,32,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_rs1ID,tvb,data_offset+0,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_rs2ID,tvb,data_offset+8,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_auxs,tvb,data_offset+16,8,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pbxs,tvb,data_offset+24,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+12,32,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_rs1ID,tvb,data_offset+0,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_rs2ID,tvb,data_offset+8,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_auxs,tvb,data_offset+16,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pbxs,tvb,data_offset+24,8,ENC_BIG_ENDIAN);
   linelen = tvb_reported_length_remaining(tvb,data_offset+32);
   pvr_len = linelen-8-4;
   proto_tree_add_protocol_format(zrtp_tree,proto_zrtp,tvb,data_offset+32,pvr_len,(part==1)?"pvr Data":"pvi Data");
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+32+pvr_len,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+32+pvr_len,8,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -594,9 +590,9 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "Commit Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+12,32,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+12,32,ENC_BIG_ENDIAN);
   /* ZID */
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,data_offset+0,12,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,data_offset+0,12,ENC_BIG_ENDIAN);
   tvb_memcpy(tvb,(void *)value,data_offset+12,4);
   value[4]='\0';
   proto_tree_add_string_format(zrtp_tree,hf_zrtp_msg_hash,tvb,data_offset+12,4,value,
@@ -628,25 +624,25 @@ dissect_Commit(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   case 1: /*
 	     Mult
 	  */
-    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_nonce,tvb,data_offset+32,16,FALSE);
+    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_nonce,tvb,data_offset+32,16,ENC_BIG_ENDIAN);
     offset = 48;
     break;
   case 2: /*
 	    Prsh
 	  */
-    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_nonce,tvb,data_offset+32,16,FALSE);
-    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_key_id,tvb,data_offset+48,8,FALSE);
+    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_nonce,tvb,data_offset+32,16,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_key_id,tvb,data_offset+48,8,ENC_BIG_ENDIAN);
     offset = 56;
     break;
   default: /*
 	     other
 	   */
-    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hvi,tvb,data_offset+32, 32, FALSE);
+    proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hvi,tvb,data_offset+32, 32, ENC_BIG_ENDIAN);
     offset = 64;
     break;
   }
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+offset,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,data_offset+offset,8,ENC_BIG_ENDIAN);
 }
 
 static void
@@ -670,13 +666,13 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   if (check_valid_version(version_str) == NULL){
     col_set_str(pinfo->cinfo, COL_INFO, "Unsupported version of ZRTP protocol");
   }
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_version,tvb,msg_offset+12,4,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_client_id,tvb,msg_offset+16,16,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+32,32,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,msg_offset+64,12,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_sigcap,tvb,data_offset+0,1,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_mitm,tvb,data_offset+0,1,FALSE);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_passive,tvb,data_offset+0,1,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_version,tvb,msg_offset+12,4,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_client_id,tvb,msg_offset+16,16,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+32,32,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,msg_offset+64,12,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_sigcap,tvb,data_offset+0,1,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_mitm,tvb,data_offset+0,1,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_passive,tvb,data_offset+0,1,ENC_BIG_ENDIAN);
 
   val_b = tvb_get_guint8(tvb,data_offset+1);
   hc = val_b & 0x0F;
@@ -741,7 +737,7 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
     run_offset+=4;
   }
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,run_offset,8,FALSE);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hmac,tvb,run_offset,8,ENC_BIG_ENDIAN);
 }
 
 void

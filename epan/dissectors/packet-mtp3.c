@@ -656,20 +656,19 @@ dissect_mtp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *mtp3_tree = NULL;
 
   /* Make entries in Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    switch(mtp3_standard) {
-      case ITU_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
-        break;
-      case ANSI_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (ANSI)");
-        break;
-      case CHINESE_ITU_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
-        break;
-      case JAPAN_STANDARD:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
-        break;
+  switch(mtp3_standard) {
+    case ITU_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Int. ITU)");
+      break;
+    case ANSI_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (ANSI)");
+      break;
+    case CHINESE_ITU_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Chin. ITU)");
+      break;
+    case JAPAN_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3 (Japan)");
+      break;
     };
 
   if (tree) {

@@ -601,7 +601,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	gboolean last_field = FALSE;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, FALSE);
+		ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_multipart_body);
 	}
 	/*
@@ -833,7 +833,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
 	if (tree) {
 		proto_item *type_ti;
 		ti = proto_tree_add_item(tree, proto_multipart,
-				tvb, 0, -1, FALSE);
+				tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_multipart);
 		proto_item_append_text(ti, ", Type: %s, Boundary: \"%s\"",
 				m_info->type, m_info->boundary);
@@ -848,8 +848,7 @@ static void dissect_multipart(tvbuff_t *tvb, packet_info *pinfo,
 	 * Make no entries in Protocol column and Info column on summary display,
 	 * but stop sub-dissectors from clearing entered text in summary display.
 	 */
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_set_fence(pinfo->cinfo, COL_INFO);
+	col_set_fence(pinfo->cinfo, COL_INFO);
 
 	/*
 	 * Process the multipart preamble

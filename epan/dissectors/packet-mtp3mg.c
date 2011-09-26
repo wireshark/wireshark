@@ -466,7 +466,6 @@ static void
 dissect_mtp3mg_chm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, chm_h1_message_type_acro_values, "Unknown"));
 
@@ -526,7 +525,6 @@ static void
 dissect_mtp3mg_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, ecm_h1_message_type_acro_values, "Unknown"));
 
@@ -553,7 +551,6 @@ dissect_mtp3mg_fcm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *apc_item;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, fcm_h1_message_type_acro_values, "Unknown"));
 
@@ -644,7 +641,6 @@ dissect_mtp3mg_tfm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *apc_item;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, tfm_h1_message_type_acro_values, "Unknown"));
 
@@ -730,7 +726,6 @@ dissect_mtp3mg_rsm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *apc_item;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, rsm_h1_message_type_acro_values, "Unknown"));
 
@@ -821,7 +816,6 @@ static void
 dissect_mtp3mg_mim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, mim_h1_message_type_acro_values, "Unknown"));
 
@@ -852,7 +846,6 @@ static void
 dissect_mtp3mg_trm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, trm_h1_message_type_acro_values, "Unknown"));
 
@@ -876,7 +869,6 @@ static void
 dissect_mtp3mg_dlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		   guint8 h1)
 {
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, dlm_h1_message_type_acro_values, "Unknown"));
 
@@ -911,7 +903,6 @@ dissect_mtp3mg_ufc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     proto_item *apc_item;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, ufc_h1_message_type_acro_values, "Unknown"));
 
@@ -984,7 +975,6 @@ dissect_mtp3mg_test(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 {
     guint8 length;
 
-    if (check_col(pinfo->cinfo, COL_INFO))
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 		     val_to_str(h1, test_h1_message_type_acro_values, "Unknown"));
 
@@ -1024,20 +1014,19 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree *mtp3mg_tree = NULL;
 
     /* Make entries in Protocol column on summary display */
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      switch(mtp3_standard) {
-        case ITU_STANDARD:
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Int. ITU)");
-          break;
-        case ANSI_STANDARD:
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (ANSI)");
-          break;
-        case CHINESE_ITU_STANDARD:
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Chin. ITU)");
-          break;
-        case JAPAN_STANDARD:
-          col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Japan)");
-          break;
+    switch(mtp3_standard) {
+      case ITU_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Int. ITU)");
+        break;
+      case ANSI_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (ANSI)");
+        break;
+      case CHINESE_ITU_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Chin. ITU)");
+        break;
+      case JAPAN_STANDARD:
+        col_set_str(pinfo->cinfo, COL_PROTOCOL, "MTP3MG (Japan)");
+        break;
       };
 
     if (tree) {
@@ -1067,7 +1056,6 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(mtp3mg_tree, hf_mtp3mg_japan_test, tvb,
 				JAPAN_SPARE_LENGTH, H0H1_LENGTH, ENC_NA);
 
-	    if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
 			     val_to_str(h0h1, japan_test_message_type_acro_values, "Unknown"));
 

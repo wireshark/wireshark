@@ -520,8 +520,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, message_class_type_acro_values, "reserved"));
 
   if (sua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -2216,15 +2215,14 @@ dissect_sua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *sua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    switch (version) {
-      case SUA_V08:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (ID 08)");
-        break;
-      case SUA_RFC:
-        col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (RFC 3868)");
-        break;
-    }
+
+  switch (version) {
+    case SUA_V08:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (ID 08)");
+      break;
+    case SUA_RFC:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SUA (RFC 3868)");
+      break;
 
   /* Clear entries in Info column on summary display */
   col_clear(pinfo->cinfo, COL_INFO);

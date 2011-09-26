@@ -1042,7 +1042,7 @@ dissect_sccp_dlr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, dlr);
   PROTO_ITEM_SET_HIDDEN(lr_item);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "DLR=%d ", dlr);
 }
 
@@ -1063,7 +1063,7 @@ dissect_sccp_slr_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guin
   lr_item = proto_tree_add_uint(tree, hf_sccp_lr, tvb, 0, length, slr);
   PROTO_ITEM_SET_HIDDEN(lr_item);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "SLR=%d ", slr);
 }
 
@@ -1365,7 +1365,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
         proto_tree_add_item(call_tree, called ? hf_sccp_called_itu_pc
                                               : hf_sccp_calling_itu_pc,
-                            tvb, offset, ITU_PC_LENGTH, TRUE);
+                            tvb, offset, ITU_PC_LENGTH, ENC_LITTLE_ENDIAN);
         offset += ITU_PC_LENGTH;
 
       } else if (decode_mtp3_standard == JAPAN_STANDARD) {
@@ -1378,7 +1378,7 @@ dissect_sccp_called_calling_param(tvbuff_t *tvb, proto_tree *tree, packet_info *
         }
         proto_tree_add_item(call_tree, called ? hf_sccp_called_japan_pc
                                               : hf_sccp_calling_japan_pc,
-                            tvb, offset, JAPAN_PC_LENGTH, TRUE);
+                            tvb, offset, JAPAN_PC_LENGTH, ENC_LITTLE_ENDIAN);
 
         offset += JAPAN_PC_LENGTH;
 
@@ -1621,7 +1621,7 @@ dissect_sccp_segmenting_reassembling_param(tvbuff_t *tvb, packet_info *pinfo, pr
     return;
   }
 
-  proto_tree_add_item(tree, hf_sccp_more, tvb, 0, length, FALSE);
+  proto_tree_add_item(tree, hf_sccp_more, tvb, 0, length, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1697,7 +1697,7 @@ dissect_sccp_release_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_release_cause, tvb, 0, length, cause);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
 }
 
@@ -1717,7 +1717,7 @@ dissect_sccp_return_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_return_cause, tvb, 0, length, cause);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
 }
 
@@ -1737,7 +1737,7 @@ dissect_sccp_reset_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_reset_cause, tvb, 0, length, cause);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
 }
 
@@ -1757,7 +1757,7 @@ dissect_sccp_error_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_error_cause, tvb, 0, length, cause);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
 }
 
@@ -1777,7 +1777,7 @@ dissect_sccp_refusal_cause_param(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
   cause = tvb_get_guint8(tvb, 0);
   proto_tree_add_uint(tree, hf_sccp_refusal_cause, tvb, 0, length, cause);
 
-  if (show_key_params && check_col(pinfo->cinfo, COL_INFO))
+  if (show_key_params)
     col_append_fstr(pinfo->cinfo, COL_INFO, "Cause=%d ", cause);
 }
 
@@ -2245,17 +2245,15 @@ dissect_sccp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sccp_tree,
   message_type   = tvb_get_guint8(tvb, SCCP_MSG_TYPE_OFFSET);
   offset = SCCP_MSG_TYPE_LENGTH;
 
-  if (check_col(pinfo->cinfo, COL_INFO)) {
-    /*  Do not change col_add_fstr() to col_append_fstr() here: we _want_
-     *  this call to overwrite whatever's currently in the INFO column (e.g.,
-     *  "DATA" from the SCTP dissector).
-     *
-     *  If there's something there that should not be overwritten, whoever
-     *  put that info there should call col_set_fence() to protect it.
-     */
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
-		 val_to_str(message_type, sccp_message_type_acro_values, "Unknown: %d"));
-  };
+  /*  Do not change col_add_fstr() to col_append_fstr() here: we _want_
+   *  this call to overwrite whatever's currently in the INFO column (e.g.,
+   *  "DATA" from the SCTP dissector).
+   *
+   *  If there's something there that should not be overwritten, whoever
+   *  put that info there should call col_set_fence() to protect it.
+   */
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",
+    val_to_str(message_type, sccp_message_type_acro_values, "Unknown: %d"));
 
   if (sccp_tree) {
     /* add the message type to the protocol tree */
@@ -2868,27 +2866,26 @@ dissect_sccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* Make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    switch(decode_mtp3_standard) {
-      case ITU_STANDARD:
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
-	break;
-      case ANSI_STANDARD:
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (ANSI)");
-	break;
-      case CHINESE_ITU_STANDARD:
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
-	break;
-      case JAPAN_STANDARD:
-	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Japan)");
-	break;
-    };
+  switch(decode_mtp3_standard) {
+    case ITU_STANDARD:
+      col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Int. ITU)");
+      break;
+    case ANSI_STANDARD:
+	  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (ANSI)");
+	  break;
+    case CHINESE_ITU_STANDARD:
+	  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Chin. ITU)");
+	  break;
+    case JAPAN_STANDARD:
+	  col_set_str(pinfo->cinfo, COL_PROTOCOL, "SCCP (Japan)");
+	  break;
+  };
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the sccp protocol tree */
-    sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0, -1, FALSE);
+    sccp_item = proto_tree_add_item(tree, proto_sccp, tvb, 0, -1, ENC_BIG_ENDIAN);
     sccp_tree = proto_item_add_subtree(sccp_item, ett_sccp);
   }
 
