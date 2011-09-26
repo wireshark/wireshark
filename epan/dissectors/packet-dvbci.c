@@ -23,9 +23,9 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
-/* The dissector supports DVB-CI as defined in EN50221.
- * Low-level MMI and low-speed communication are unsupported.
- * CI+ support (www.ci-plus.com) will be added in future versions.
+/* This dissector supports DVB-CI as defined in EN50221 and
+ * CI+ version 1.2 (www.ci-plus.com).
+ * For more details, see http://wiki.wireshark.org/DVB-CI.
  *
  * The pcap input format for this dissector is documented at
  * http://www.kaiser.cx/pcap-dvbci.html.
@@ -239,6 +239,32 @@
 #define CUP_RESET_CMDIF  0x1
 #define CUP_RESET_NONE   0x2
 
+/* content control resource */
+#define CC_ID_HOST_ID          0x05
+#define CC_ID_CICAM_ID         0x06
+#define CC_ID_HOST_BRAND_CERT  0x07
+#define CC_ID_CICAM_BRAND_CERT 0x08
+#define CC_ID_DHPH             0x0D
+#define CC_ID_DHPM             0x0E
+#define CC_ID_HOST_DEV_CERT    0x0F
+#define CC_ID_CICAM_DEV_CERT   0x10
+#define CC_ID_SIG_A            0x11
+#define CC_ID_SIG_B            0x12
+#define CC_ID_AUTH_NONCE       0x13
+#define CC_ID_NS_HOST          0x14
+#define CC_ID_NS_MODULE        0x15
+#define CC_ID_AKH              0x16
+#define CC_ID_STATUS_FIELD     0x1E
+
+#define CC_STATUS_OK            0x0
+#define CC_STATUS_NO_CC_SUPPORT 0x1
+#define CC_STATUS_HOST_BUSY     0x2
+#define CC_STATUS_AUTH_FAILED   0x3
+#define CC_STATUS_CICAM_BUSY    0x4
+
+#define CC_SAC_AUTH_AES128_XCBC_MAC 0x0
+#define CC_SAC_ENC_AES128_CBC       0x0
+
 /* application mmi resource */
 #define ACK_CODE_OK        0x1
 #define ACK_CODE_WRONG_API 0x2
@@ -310,6 +336,10 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
 static void
+dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
+static void
 dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
@@ -356,6 +386,16 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_CAM_FIRMWARE_UPGRADE_REPLY    0x9F9D02
 #define T_CAM_FIRMWARE_UPGRADE_PROGRESS 0x9F9D03
 #define T_CAM_FIRMWARE_UPGRADE_COMPLETE 0x9F9D04
+#define T_CC_OPEN_REQ                   0x9F9001
+#define T_CC_OPEN_CNF                   0x9F9002
+#define T_CC_DATA_REQ                   0x9F9003
+#define T_CC_DATA_CNF                   0x9F9004
+#define T_CC_SYNC_REQ                   0x9F9005
+#define T_CC_SYNC_CNF                   0x9F9006
+#define T_CC_SAC_DATA_REQ               0x9F9007
+#define T_CC_SAC_DATA_CNF               0x9F9008
+#define T_CC_SAC_SYNC_REQ               0x9F9009
+#define T_CC_SAC_SYNC_CNF               0x9F9010
 #define T_REQUEST_START                 0x9F8000
 #define T_REQUEST_START_ACK             0x9F8001
 #define T_FILE_REQUEST                  0x9F8002
@@ -380,6 +420,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_CONNECTION_DESCRIPTOR 0x9F8C01
 
 #define IS_MENU_APDU(t) (t==T_MENU_MORE || t==T_MENU_LAST)
+
 
 static const apdu_info_t apdu_info[] = {
     {T_PROFILE_ENQ,         0, 0,             DIRECTION_ANY,    NULL},
@@ -426,6 +467,16 @@ static const apdu_info_t apdu_info[] = {
     {T_CAM_FIRMWARE_UPGRADE_PROGRESS, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
     {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
 
+    {T_CC_OPEN_REQ,         0, 0,             DATA_CAM_TO_HOST, NULL},
+    {T_CC_OPEN_CNF,         0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_DATA_REQ,         3, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_DATA_CNF,         2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_SYNC_REQ,         0, 0,             DATA_CAM_TO_HOST, NULL},
+    {T_CC_SYNC_CNF,         0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_SAC_DATA_REQ,     8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_SAC_DATA_CNF,     8, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_SAC_SYNC_REQ,     8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_SAC_SYNC_CNF,     8, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
 
     {T_REQUEST_START,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
     {T_REQUEST_START_ACK,   0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
@@ -484,6 +535,16 @@ static const value_string dvbci_apdu_tag[] = {
     { T_CAM_FIRMWARE_UPGRADE_REPLY,    "CAM firmware upgrade reply" },
     { T_CAM_FIRMWARE_UPGRADE_PROGRESS, "CAM firmware upgrade progress" },
     { T_CAM_FIRMWARE_UPGRADE_COMPLETE, "CAM firmware upgrade complete" },
+    { T_CC_OPEN_REQ,                   "CC open request" },
+    { T_CC_OPEN_CNF,                   "CC open confirm" },
+    { T_CC_DATA_REQ,                   "CC data request" },
+    { T_CC_DATA_CNF,                   "CC data confirm" },
+    { T_CC_SYNC_REQ,                   "CC sync request" },
+    { T_CC_SYNC_CNF,                   "CC sync confirm" },
+    { T_CC_SAC_DATA_REQ,               "CC SAC data request" },
+    { T_CC_SAC_DATA_CNF,               "CC SAC data confirm" },
+    { T_CC_SAC_SYNC_REQ,               "CC SAC sync request" },
+    { T_CC_SAC_SYNC_CNF,               "CC SAC sync confirm" },
     { T_REQUEST_START,                 "Request start" },
     { T_REQUEST_START_ACK,             "Request start ack" },
     { T_FILE_REQUEST,                  "File request" },
@@ -518,6 +579,7 @@ static gint ett_dvbci_application = -1;
 static gint ett_dvbci_es = -1;
 static gint ett_dvbci_ca_desc = -1;
 static gint ett_dvbci_text = -1;
+static gint ett_dvbci_cc_item = -1;
 static gint ett_dvbci_ami_req_types = -1;
 
 static int hf_dvbci_event = -1;
@@ -602,6 +664,17 @@ static int hf_dvbci_cup_download_time = -1;
 static int hf_dvbci_cup_answer = -1;
 static int hf_dvbci_cup_progress = -1;
 static int hf_dvbci_cup_reset = -1;
+static int hf_dvbci_cc_sys_id_bitmask = -1;
+static int hf_dvbci_cc_dat_id = -1;
+static int hf_dvbci_cc_status_field = -1;
+static int hf_dvbci_cc_data = -1;
+static int hf_dvbci_sac_msg_ctr = -1;
+static int hf_dvbci_sac_proto_ver = -1;
+static int hf_dvbci_sac_auth_cip = -1;
+static int hf_dvbci_sac_payload_enc = -1;
+static int hf_dvbci_sac_enc_cip = -1;
+static int hf_dvbci_sac_payload_len = -1;
+static int hf_dvbci_sac_body = -1;
 static int hf_dvbci_app_dom_id = -1;
 static int hf_dvbci_init_obj = -1;
 static int hf_dvbci_ack_code = -1;
@@ -894,6 +967,40 @@ static const value_string dvbci_cup_reset[] = {
     { CUP_RESET_NONE,   "no reset" },
     { 0, NULL }
 };
+static const value_string dvbci_cc_dat_id[] = {
+    { CC_ID_HOST_ID,          "Host ID" },
+    { CC_ID_CICAM_ID,         "Cicam ID" },
+    { CC_ID_HOST_BRAND_CERT,  "Host brand certificate" },
+    { CC_ID_CICAM_BRAND_CERT, "Cicam brand certificate" },
+    { CC_ID_DHPH,             "Host Diffie-Hellman public key" },
+    { CC_ID_DHPM,             "Cicam Diffie-Hellman public key" },
+    { CC_ID_HOST_DEV_CERT,    "Host device certificate" },
+    { CC_ID_CICAM_DEV_CERT,   "Cicam device certificate" },
+    { CC_ID_SIG_A,            "Signature of host Diffie-Hellman public key" },
+    { CC_ID_SIG_B,            "Signature of cicam Diffie-Hellman public key" },
+    { CC_ID_NS_HOST,          "Host nonce" },
+    { CC_ID_AUTH_NONCE,       "Nonce for authentication" },
+    { CC_ID_NS_MODULE,        "Cicam nonce" },
+    { CC_ID_AKH,              "Host authentication key" },
+    { CC_ID_STATUS_FIELD,     "Status field" },
+    { 0, NULL }
+};
+static const value_string dvbci_cc_status[] = {
+    { CC_STATUS_OK,            "Ok" },
+    { CC_STATUS_NO_CC_SUPPORT, "No CC support" },
+    { CC_STATUS_HOST_BUSY,     "Host busy" },
+    { CC_STATUS_AUTH_FAILED,   "Authentication failed" },
+    { CC_STATUS_CICAM_BUSY,    "CICAM busy" },
+    { 0, NULL }
+};
+static const value_string dvbci_cc_sac_auth[] = {
+    { CC_SAC_AUTH_AES128_XCBC_MAC, "AES 128 XCBC MAC" },
+    { 0, NULL }
+};
+static const value_string dvbci_cc_sac_enc[] = {
+    { CC_SAC_ENC_AES128_CBC, "AES 128 CBC" },
+    { 0, NULL }
+};
 static const value_string dvbci_ack_code[] = {
     { ACK_CODE_OK, "Ok" },
     { ACK_CODE_WRONG_API,  "Application Domain unsupported" },
@@ -941,7 +1048,51 @@ dvbci_init(void)
 }
 
 
-/* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
+
+/* dissect an item from cc_data_req/cc_data_cnf,
+   returns its length or -1 for error */
+static gint
+dissect_cc_item(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    proto_item *ti = NULL;
+    proto_tree *cc_item_tree = NULL;
+    gint offset_start;
+    guint16 dat_len;
+    guint8 dat_id;
+
+    offset_start = offset;
+    if (tree) {
+        ti = proto_tree_add_text(tree, tvb, offset_start, -1, "CC data item");
+        cc_item_tree = proto_item_add_subtree(ti, ett_dvbci_cc_item);
+    }
+    dat_id = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(cc_item_tree, hf_dvbci_cc_dat_id,
+            tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+    dat_len = tvb_get_ntohs(tvb, offset);
+    proto_tree_add_text(cc_item_tree, tvb, offset, 2, "Length: %d", dat_len);
+    offset += 2;
+    /* this will be extended to handle more data items */
+    switch (dat_id) {
+        case CC_ID_STATUS_FIELD:
+            proto_tree_add_item(cc_item_tree, hf_dvbci_cc_status_field,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        default:
+            proto_tree_add_item(cc_item_tree, hf_dvbci_cc_data,
+                    tvb, offset, dat_len, ENC_BIG_ENDIAN);
+            break;
+    }
+    offset += dat_len;
+    if (ti)
+        proto_item_set_len(ti, offset-offset_start);
+
+    return offset-offset_start;
+}
+
+
+ /* dissect a text string that is encoded according to DVB-SI (EN 300 468) */
 static void
 dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
         packet_info *pinfo, proto_tree *tree, const gchar *title,
@@ -958,7 +1109,7 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
 
     byte0 = tvb_get_guint8(tvb, offset);
     if (byte0>=0x01 && byte0<=0x0F) {
-        proto_tree_add_item(tree, hf_dvbci_char_tbl, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dvbci_char_tbl, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         str_len--;
     }
@@ -975,7 +1126,7 @@ dissect_si_string(tvbuff_t *tvb, gint offset, gint str_len,
     /* for now, control characters are supported only at the beginning
      * of a string (this should cover all cases found in practice) */
     else if (byte0>=0x80 && byte0<=0x9F) {
-        proto_tree_add_item(tree, hf_dvbci_text_ctrl, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dvbci_text_ctrl, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         str_len--;
     }
@@ -1000,10 +1151,10 @@ dissect_ca_enable(tvbuff_t *tvb, gint offset, packet_info *pinfo _U_,
     guint8 byte, ca_enab;
 
     byte = tvb_get_guint8(tvb,offset);
-    proto_tree_add_item(tree, hf_dvbci_ca_enable_flag, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_dvbci_ca_enable_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (byte&0x80) {
         ca_enab = byte & ~0x80;
-        proto_tree_add_item(tree, hf_dvbci_ca_enable, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dvbci_ca_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (ca_enab==CA_ENAB_DESC_OK ||
             ca_enab==CA_ENAB_DESC_OK_PURCHASE ||
             ca_enab==CA_ENAB_DESC_OK_TECH) {
@@ -1045,7 +1196,7 @@ dissect_ca_desc(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     len_byte = tvb_get_guint8(tvb,offset);
     proto_tree_add_item(
-            ca_desc_tree, hf_dvbci_descr_len, tvb, offset, 1, ENC_NA);
+            ca_desc_tree, hf_dvbci_descr_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     proto_tree_add_item(
@@ -1086,7 +1237,7 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
     }
 
     proto_tree_add_item(
-            es_tree, hf_dvbci_stream_type, tvb, offset, 1, ENC_NA);
+            es_tree, hf_dvbci_stream_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(
             es_tree, hf_dvbci_es_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1100,7 +1251,7 @@ dissect_es(tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
         all_len = offset + es_info_len;
 
         proto_tree_add_item(
-                es_tree, hf_dvbci_ca_pmt_cmd_id, tvb, offset, 1, ENC_NA);
+                es_tree, hf_dvbci_ca_pmt_cmd_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         while (offset < all_len) {
             ca_desc_len = dissect_ca_desc(tvb, offset, pinfo, es_tree);
@@ -1232,7 +1383,7 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
     guint8 data_rate;
 
     if (tag==T_APP_INFO) {
-        proto_tree_add_item(tree, hf_dvbci_app_type, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dvbci_app_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         proto_tree_add_item(
                 tree, hf_dvbci_app_manf, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1242,7 +1393,7 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         offset+=2;
         menu_str_len = tvb_get_guint8(tvb,offset);
         proto_tree_add_item(
-                tree, hf_dvbci_menu_str_len, tvb, offset, 1, ENC_NA);
+                tree, hf_dvbci_menu_str_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         /* ephemeral -> string is freed automatically when dissection
            of this packet is finished
@@ -1259,7 +1410,7 @@ dissect_dvbci_payload_ap(guint32 tag, gint len_field _U_,
         data_rate = tvb_get_guint8(tvb, offset);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
                     val_to_str(data_rate, dvbci_data_rate, "unknown (0x%x)"));
-        proto_tree_add_item(tree, hf_dvbci_data_rate, tvb, offset, 1, ENC_NA);
+        proto_tree_add_item(tree, hf_dvbci_data_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1298,7 +1449,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
     }
     else if (tag==T_CA_PMT) {
         proto_tree_add_item(
-                tree, hf_dvbci_ca_pmt_list_mgmt, tvb, offset, 1, ENC_NA);
+                tree, hf_dvbci_ca_pmt_list_mgmt, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         prog_num = tvb_get_ntohs(tvb, offset);
         col_append_sep_fstr(
@@ -1320,7 +1471,7 @@ dissect_dvbci_payload_ca(guint32 tag, gint len_field,
             all_len = offset + prog_info_len;
 
             proto_tree_add_item(
-                    tree, hf_dvbci_ca_pmt_cmd_id, tvb, offset, 1, ENC_NA);
+                    tree, hf_dvbci_ca_pmt_cmd_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             while (offset < all_len) {
                 ca_desc_len = dissect_ca_desc(tvb, offset, pinfo, tree);
@@ -1412,7 +1563,7 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
     else if (tag==T_REPLACE) {
         ref = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(
-            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_NA);
+            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
         old_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
         proto_tree_add_item(
@@ -1427,7 +1578,7 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
     else if (tag==T_CLEAR_REPLACE) {
         ref = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(
-            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_NA);
+            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "ref 0x%x", ref);
     }
 }
@@ -1535,7 +1686,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
         case T_CLOSE_MMI:
             close_mmi_cmd_id = tvb_get_guint8(tvb,offset);
             proto_tree_add_item(tree, hf_dvbci_close_mmi_cmd_id,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* apdu layer len field checks are sufficient for "immediate" */
             if (close_mmi_cmd_id == CLOSE_MMI_CMD_ID_DELAY) {
@@ -1548,7 +1699,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
                     return;
                 }
                 proto_tree_add_item(tree, hf_dvbci_close_mmi_delay, tvb,
-                        offset, 1, ENC_NA);
+                        offset, 1, ENC_BIG_ENDIAN);
             }
             break;
         case T_DISPLAY_CONTROL:
@@ -1558,12 +1709,12 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "%s", disp_ctl_cmd_str);
             proto_tree_add_item(tree, hf_dvbci_disp_ctl_cmd, tvb,
-                    offset, 1, ENC_NA);
+                    offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (disp_ctl_cmd == DISP_CMD_SET_MMI_MODE)
             {
                 proto_tree_add_item(tree, hf_dvbci_mmi_mode, tvb,
-                        offset, 1, ENC_NA);
+                        offset, 1, ENC_BIG_ENDIAN);
                 if (len_field != 2) {
                     pi = proto_tree_add_text(tree, tvb,
                             APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
@@ -1581,24 +1732,24 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "%s", disp_rep_id_str);
             proto_tree_add_item(tree, hf_dvbci_disp_rep_id,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (disp_rep_id == DISP_REP_ID_MMI_MODE_ACK) {
                 proto_tree_add_item(tree, hf_dvbci_mmi_mode,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             else if (disp_rep_id == DISP_REP_ID_DISP_CHAR_TBL ||
                      disp_rep_id == DISP_REP_ID_INP_CHAR_TBL) {
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(tree, hf_dvbci_char_tbl,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                  }
             }
             break;
         case T_ENQ:
             proto_tree_add_item(tree, hf_dvbci_blind_ans,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             ans_txt_len = tvb_get_guint8(tvb,offset);
             if (ans_txt_len == NB_UNKNOWN) {
@@ -1607,7 +1758,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             }
             else
                 proto_tree_add_item(tree, hf_dvbci_ans_txt_len,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             dissect_si_string(tvb, offset,
                     tvb_reported_length_remaining(tvb, offset),
@@ -1615,7 +1766,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             break;
         case T_ANSW:
             ans_id = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(tree, hf_dvbci_ans_id, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_dvbci_ans_id, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (ans_id == ANSW_ID_ANSWER) {
                 dissect_si_string(tvb, offset,
@@ -1637,11 +1788,11 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             {
                 if (IS_MENU_APDU(tag)) {
                     proto_tree_add_item(
-                            tree, hf_dvbci_choice_nb, tvb, offset, 1, ENC_NA);
+                            tree, hf_dvbci_choice_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
                 else {
                     proto_tree_add_item(
-                            tree, hf_dvbci_item_nb, tvb, offset, 1, ENC_NA);
+                            tree, hf_dvbci_item_nb, tvb, offset, 1, ENC_BIG_ENDIAN);
                 }
             }
             offset++;
@@ -1675,7 +1826,7 @@ dissect_dvbci_payload_mmi(guint32 tag, gint len_field,
             }
             else {
                 proto_tree_add_item(
-                        tree, hf_dvbci_choice_ref, tvb, offset, 1, ENC_NA);
+                        tree, hf_dvbci_choice_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                         "Item %d", choice_ref);
             }
@@ -1694,11 +1845,11 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
 
   if (tag==T_HOST_COUNTRY) {
       proto_tree_add_item(tree, hf_dvbci_host_country,
-              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
   }
   else if (tag==T_HOST_LANGUAGE) {
       proto_tree_add_item(tree, hf_dvbci_host_language,
-              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
+              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
   }
 
   /* both apdus' body is only a country code, this can be shared */
@@ -1722,7 +1873,7 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
   switch(tag) {
     case T_CAM_FIRMWARE_UPGRADE:
       upgrade_type = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_dvbci_cup_type, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_dvbci_cup_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ", "(%s)",
                     val_to_str(upgrade_type, dvbci_cup_type, "unknown"));
       offset++;
@@ -1741,7 +1892,7 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
       break;
     case T_CAM_FIRMWARE_UPGRADE_REPLY:
       answer = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(tree, hf_dvbci_cup_answer, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_dvbci_cup_answer, tvb, offset, 1, ENC_BIG_ENDIAN);
       col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
                     val_to_str(answer, dvbci_cup_answer, "unknown"));
       break;
@@ -1761,11 +1912,104 @@ dissect_dvbci_payload_cup(guint32 tag, gint len_field _U_,
       }
       break;
     case T_CAM_FIRMWARE_UPGRADE_COMPLETE:
-      proto_tree_add_item(tree, hf_dvbci_cup_reset, tvb, offset, 1, ENC_NA);
+      proto_tree_add_item(tree, hf_dvbci_cup_reset, tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
     default:
       break;
   }
+}
+
+
+static void
+dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree)
+{
+    guint8 i, snd_dat_nbr, req_dat_nbr;
+    gint item_len;
+    guint8 status;
+    guint32 msg_ctr;
+    guint8 enc_flag;
+
+    switch(tag) {
+        case T_CC_OPEN_CNF:
+            proto_tree_add_item(
+                    tree, hf_dvbci_cc_sys_id_bitmask, tvb, offset, 1, ENC_BIG_ENDIAN);
+            break;
+        case T_CC_DATA_REQ:
+        case T_CC_DATA_CNF:
+            proto_tree_add_item(
+                    tree, hf_dvbci_cc_sys_id_bitmask, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            snd_dat_nbr = tvb_get_guint8(tvb, offset);
+            proto_tree_add_text(tree, tvb, offset, 1,
+                    "Number of sent data items: %d", snd_dat_nbr);
+            offset++;
+            for(i=0; i<snd_dat_nbr &&
+                    tvb_reported_length_remaining(tvb, offset)>0; i++) {
+                item_len = dissect_cc_item(tvb, offset, pinfo, tree);
+                if (item_len < 0)
+                    return;
+                offset += item_len;
+            }
+            if (tag==T_CC_DATA_REQ) {
+                req_dat_nbr = tvb_get_guint8(tvb, offset);
+                proto_tree_add_text(tree, tvb, offset, 1,
+                        "Number of requested data items: %d", req_dat_nbr);
+                offset++;
+                for(i=0; i<req_dat_nbr &&
+                        tvb_reported_length_remaining(tvb, offset)>0; i++) {
+                    proto_tree_add_item(
+                            tree, hf_dvbci_cc_dat_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset++;
+                }
+            }
+            break;
+        case T_CC_SYNC_CNF:
+            status = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(
+                    tree, hf_dvbci_cc_status_field, tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(status, dvbci_cc_status, "unknown"));
+            break;
+        case T_CC_SAC_DATA_REQ:
+        case T_CC_SAC_DATA_CNF:
+        case T_CC_SAC_SYNC_REQ:
+        case T_CC_SAC_SYNC_CNF:
+            /* it's not useful to move sac header dissection to a separate
+                funtion, we need enc/auth cipher etc here to handle the body
+               later, we'll have dissect_sac_body(tag, enc, auth, ...) */
+            msg_ctr = tvb_get_ntohl(tvb, offset);
+            proto_tree_add_item(
+                    tree, hf_dvbci_sac_msg_ctr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                    "message #%d", msg_ctr);
+            offset += 4;
+            proto_tree_add_item(
+                    tree, hf_dvbci_sac_proto_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(
+                    tree, hf_dvbci_sac_auth_cip, tvb, offset, 1, ENC_BIG_ENDIAN);
+            enc_flag = tvb_get_guint8(tvb, offset) & 0x1;
+            proto_tree_add_item(
+                    tree, hf_dvbci_sac_payload_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
+            if (enc_flag)
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "encrypted");
+            offset++;
+            proto_tree_add_item(
+                    tree, hf_dvbci_sac_enc_cip, tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(
+                    tree, hf_dvbci_sac_payload_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            if (tvb_reported_length_remaining(tvb, offset) < 0)
+                break;
+            /* please note that payload != body */
+            proto_tree_add_item(tree, hf_dvbci_sac_body, tvb, offset, 
+                    tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+            break;
+        default:
+            break;
+    }
 }
 
 
@@ -1797,7 +2041,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                     "Initial Object length %d", init_obj_len);
             offset++;
             proto_tree_add_item(tree, hf_dvbci_app_dom_id,
-                    tvb, offset, app_dom_id_len, ENC_NA);
+                    tvb, offset, app_dom_id_len, ENC_BIG_ENDIAN);
             app_dom_id = tvb_get_ephemeral_string(tvb, offset, app_dom_id_len);
             if (app_dom_id) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
@@ -1805,24 +2049,24 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             }
             offset += app_dom_id_len;
             proto_tree_add_item(tree, hf_dvbci_init_obj,
-                    tvb, offset, init_obj_len, ENC_NA);
+                    tvb, offset, init_obj_len, ENC_BIG_ENDIAN);
             break;
         case T_REQUEST_START_ACK:
             ack_code = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(
-                    tree, hf_dvbci_ack_code, tvb, offset, 1, ENC_NA);
+                    tree, hf_dvbci_ack_code, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
                     val_to_str(ack_code, dvbci_ack_code, "unknown"));
             break;
         case T_FILE_REQUEST:
             req_type = tvb_get_guint8(tvb, offset);
-            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
                     val_to_str(req_type, dvbci_req_type, "unknown"));
             offset++;
             if (req_type==REQ_TYPE_FILE_HASH) {
                 proto_tree_add_item(tree, hf_dvbci_file_hash,
-                        tvb, offset, 16, ENC_NA);
+                        tvb, offset, 16, ENC_BIG_ENDIAN);
                 offset += 16;
             }
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
@@ -1839,7 +2083,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             }
             else if (req_type==REQ_TYPE_DATA) {
                 proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
             }
             break;
         case T_FILE_ACKNOWLEDGE:
@@ -1847,12 +2091,12 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             if (req_type==REQ_TYPE_FILE_HASH) {
                 req_ok = ((tvb_get_guint8(tvb, offset) & 0x02) == 0x02);
                 proto_tree_add_item(tree, hf_dvbci_req_ok,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             file_ok = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
-            proto_tree_add_item(tree, hf_dvbci_file_ok, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_dvbci_file_ok, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
-            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_dvbci_req_type, tvb, offset, 1, ENC_BIG_ENDIAN);
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
                     val_to_str(req_type, dvbci_req_type, "unknown"));
             offset++;
@@ -1877,14 +2121,14 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                 offset += 4;
                 if (file_data_len > 0) {
                     proto_tree_add_item(tree, hf_dvbci_file_data,
-                            tvb, offset, file_data_len, ENC_NA);
+                            tvb, offset, file_data_len, ENC_BIG_ENDIAN);
                 }
              }
             else if (req_type==REQ_TYPE_DATA) {
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
                     break;
                 proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
             }
             else if (req_type==REQ_TYPE_REQ) {
                 if (tree) {
@@ -1896,7 +2140,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                 }
                 while (tvb_reported_length_remaining(tvb, offset) > 0) {
                     proto_tree_add_item(req_tree, hf_dvbci_req_type,
-                            tvb, offset, 1, ENC_NA);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
             }
@@ -1909,13 +2153,13 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         case T_APP_ABORT_REQUEST:
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 proto_tree_add_item(tree, hf_dvbci_abort_req_code, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
             }
             break;
         case T_APP_ABORT_ACK:
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 proto_tree_add_item(tree, hf_dvbci_abort_ack_code, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
             }
             break;
         default:
@@ -1948,7 +2192,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                         (sas_status == SAS_SESS_STATE_CONNECTED ?
                          "Ok" : "Error"));
                 proto_tree_add_item(tree, hf_dvbci_sas_sess_state,
-                        tvb, offset, 1, ENC_NA);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             break;
         case T_SAS_ASYNC_MSG:
@@ -1956,14 +2200,14 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
                     "Message #%d ", msg_nb);
             proto_tree_add_item(tree, hf_dvbci_sas_msg_nb,
-                    tvb, offset, 1, ENC_NA);
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             msg_len = tvb_get_ntohs(tvb, offset);
             proto_tree_add_item(tree, hf_dvbci_sas_msg_len,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_dvbci_sas_msg,
-                    tvb, offset, msg_len, ENC_NA);
+                    tvb, offset, msg_len, ENC_BIG_ENDIAN);
             break;
         default:
           break;
@@ -1999,7 +2243,7 @@ dissect_dvbci_apdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             val_to_str_const(tag, dvbci_apdu_tag, "Unknown/invalid APDU"));
     if (tag_str) {
         proto_tree_add_item(
-                app_tree, hf_dvbci_apdu_tag, tvb, 0, APDU_TAG_SIZE, ENC_NA);
+                app_tree, hf_dvbci_apdu_tag, tvb, 0, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
     }
     else {
         pi = proto_tree_add_text(app_tree, tvb, 0, APDU_TAG_SIZE,
@@ -2097,7 +2341,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     col_add_str(pinfo->cinfo, COL_INFO,
             val_to_str_const(tag, dvbci_spdu_tag, "Invalid SPDU"));
     if (tag_str) {
-        proto_tree_add_item(sess_tree, hf_dvbci_spdu_tag, tvb, 0, 1, ENC_NA);
+        proto_tree_add_item(sess_tree, hf_dvbci_spdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
     }
     else {
         pi = proto_tree_add_text(sess_tree, tvb, 0, 1, "Invalid SPDU tag");
@@ -2151,7 +2395,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         case T_CREATE_SESSION_RESPONSE:
             sess_stat = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(
-                    sess_tree, hf_dvbci_sess_status, tvb, offset, 1, ENC_NA);
+                    sess_tree, hf_dvbci_sess_status, tvb, offset, 1, ENC_BIG_ENDIAN);
             res_id = tvb_get_ntohl(tvb, offset+1);
             dissect_dvbci_res_id(tvb, offset+1, pinfo, sess_tree, res_id, TRUE);
             proto_tree_add_item(sess_tree, hf_dvbci_sess_nb, tvb,
@@ -2171,7 +2415,7 @@ dissect_dvbci_spdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             sess_stat = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(
                     sess_tree, hf_dvbci_close_sess_status, tvb,
-                    offset, 1, ENC_NA);
+                    offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(
                     sess_tree, hf_dvbci_sess_nb, tvb,
                     offset+1, 2, ENC_BIG_ENDIAN);
@@ -2244,7 +2488,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
     }
 
     t_c_id = tvb_get_guint8(tvb, offset_new);
-    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset_new, 1, ENC_BIG_ENDIAN);
     /* tcid in transport header and link layer must only match for data
      * transmission commands */
     if (t_c_id!=lpdu_tcid) {
@@ -2267,7 +2511,7 @@ dissect_dvbci_tpdu_status(tvbuff_t *tvb, gint offset,
     if (sb_str) {
         col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", sb_str);
         proto_tree_add_item(tree, hf_dvbci_sb_value, tvb,
-                offset_new, 1, ENC_NA);
+                offset_new, 1, ENC_BIG_ENDIAN);
     }
     else {
         pi = proto_tree_add_text(tree, tvb, offset_new, 1,
@@ -2301,7 +2545,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         c_tpdu_str = match_strval(c_tpdu_tag, dvbci_c_tpdu);
         if (c_tpdu_str) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", c_tpdu_str);
-            proto_tree_add_item(tree, hf_dvbci_c_tpdu_tag, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_dvbci_c_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
         }
         else {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
@@ -2319,7 +2563,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         r_tpdu_str = match_strval(r_tpdu_tag, dvbci_r_tpdu);
         if (r_tpdu_str) {
             col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", r_tpdu_str);
-            proto_tree_add_item(tree, hf_dvbci_r_tpdu_tag, tvb, 0, 1, ENC_NA);
+            proto_tree_add_item(tree, hf_dvbci_r_tpdu_tag, tvb, 0, 1, ENC_BIG_ENDIAN);
         }
         else {
             if (r_tpdu_tag == T_SB) {
@@ -2355,7 +2599,7 @@ dissect_dvbci_tpdu_hdr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
 
     t_c_id = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset, 1, ENC_NA);
+    proto_tree_add_item(tree, hf_dvbci_t_c_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* tcid in transport header and link layer must only match for
      * data transmission commands */
     if (t_c_id!=lpdu_tcid) {
@@ -2482,11 +2726,11 @@ dissect_dvbci_lpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     tcid = tvb_get_guint8(tvb, 0);
     col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "tcid %d", tcid);
-    proto_tree_add_item(link_tree, hf_dvbci_tcid, tvb, 0, 1, ENC_NA);
+    proto_tree_add_item(link_tree, hf_dvbci_tcid, tvb, 0, 1, ENC_BIG_ENDIAN);
 
     more_last = tvb_get_guint8(tvb, 1);
     if (match_strval(more_last, dvbci_ml)) {
-        proto_tree_add_item(link_tree, hf_dvbci_ml, tvb, 1, 1, ENC_NA);
+        proto_tree_add_item(link_tree, hf_dvbci_ml, tvb, 1, 1, ENC_BIG_ENDIAN);
     }
     else {
         pi = proto_tree_add_text(
@@ -2667,7 +2911,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti_hdr = proto_tree_add_text(dvbci_tree, tvb, 0, offset, "Pseudo header");
         hdr_tree = proto_item_add_subtree(ti_hdr, ett_dvbci_hdr);
         proto_tree_add_text(hdr_tree, tvb, offset_ver, 1, "Version: %d", version);
-        proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_NA);
+        proto_tree_add_item(hdr_tree, hf_dvbci_event, tvb, offset_evt, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text(hdr_tree, tvb, offset_len_field, 2,
                 "Length field: %d", len_field);
     }
@@ -2725,7 +2969,7 @@ dissect_dvbci(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(hw_event, dvbci_hw_event, "Invalid hardware event"));
         proto_tree_add_item(dvbci_tree, hf_dvbci_hw_event,
-                tvb, offset, 1, ENC_NA);
+                tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
     return packet_len;
@@ -2754,7 +2998,8 @@ proto_register_dvbci(void)
         &ett_dvbci_es,
         &ett_dvbci_ca_desc,
         &ett_dvbci_text,
-        &ett_dvbci_ami_req_types,
+        &ett_dvbci_cc_item,
+        &ett_dvbci_ami_req_types
     };
 
     static hf_register_info hf[] = {
@@ -3014,6 +3259,39 @@ proto_register_dvbci(void)
         { &hf_dvbci_cup_reset,
             { "requested CAM reset", "dvb-ci.cup.reset", FT_UINT8, BASE_HEX,
                 VALS(dvbci_cup_reset), 0, NULL, HFILL } },
+        { &hf_dvbci_cc_sys_id_bitmask,
+            { "CC system id bitmask", "dvb-ci.cc.sys_id_bitmask", FT_UINT8,
+                BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_cc_dat_id,
+            { "CC datatype id", "dvb-ci.cc.datatype_id", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cc_dat_id), 0, NULL, HFILL } },
+        { &hf_dvbci_cc_status_field,
+            { "Status field", "dvb-ci.cc.status_field", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cc_status), 0, NULL, HFILL } },
+        { &hf_dvbci_cc_data,
+            { "Data", "dvb-ci.cc.data", FT_BYTES, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sac_msg_ctr,
+            { "Message counter", "dvb-ci.cc.sac.msg_ctr", FT_UINT32, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sac_proto_ver,
+            { "Protocol version", "dvb-ci.cc.sac.proto_ver", FT_UINT8, BASE_HEX,
+                NULL, 0xF0, NULL, HFILL } },
+        { &hf_dvbci_sac_auth_cip,
+            { "Authentication cipher", "dvb-ci.cc.sac.auth_cip", FT_UINT8,
+                BASE_HEX, VALS(dvbci_cc_sac_auth), 0x0E, NULL, HFILL } },
+        { &hf_dvbci_sac_payload_enc,
+            { "Payload encryption flag", "dvb-ci.cc.sac.payload_enc", FT_UINT8,
+                BASE_HEX, NULL, 0x01, NULL, HFILL } },
+        { &hf_dvbci_sac_enc_cip,
+            { "Encryption cipher", "dvb-ci.cc.sac.enc_cip", FT_UINT8, BASE_HEX,
+                VALS(dvbci_cc_sac_enc), 0xE0, NULL, HFILL } },
+        { &hf_dvbci_sac_payload_len,
+            { "Payload length", "dvb-ci.cc.sac.payload_len", FT_UINT16,
+                BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_sac_body,
+            { "SAC body", "dvb-ci.cc.sac_body", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_app_dom_id,
             { "Application Domain Identifier", "dvb-ci.ami.app_dom_id",
                 FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL } },
@@ -3064,7 +3342,7 @@ proto_register_dvbci(void)
                NULL, 0, NULL, HFILL } },
         { &hf_dvbci_sas_msg,
             { "Message", "dvb-ci.sas.message", FT_BYTES, BASE_NONE,
-                NULL, 0, NULL, HFILL } }
+               NULL, 0, NULL, HFILL } }
     };
 
     spdu_table = g_hash_table_new(g_direct_hash, g_direct_equal);
