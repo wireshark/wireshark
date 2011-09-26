@@ -97,9 +97,7 @@ dissect_distcc_dist(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 {
 	proto_tree_add_uint_format(tree, hf_distcc_version, tvb, offset-12, 12, parameter, "DIST: %d", parameter);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "DIST:%d ", parameter);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "DIST:%d ", parameter);
 
 	return offset;
 }
@@ -109,9 +107,7 @@ dissect_distcc_done(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 {
 	proto_tree_add_uint_format(tree, hf_distcc_version, tvb, offset-12, 12, parameter, "DONE: %d", parameter);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "DONE:%d ", parameter);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "DONE:%d ", parameter);
 
 	return offset;
 }
@@ -121,9 +117,7 @@ dissect_distcc_stat(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 {
 	proto_tree_add_uint_format(tree, hf_distcc_stat, tvb, offset-12, 12, parameter, "STAT: %d", parameter);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "STAT:%d ", parameter);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "STAT:%d ", parameter);
 
 	return offset;
 }
@@ -133,9 +127,7 @@ dissect_distcc_argc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 {
 	proto_tree_add_uint_format(tree, hf_distcc_argc, tvb, offset-12, 12, parameter, "ARGC: %d", parameter);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "ARGC:%d ", parameter);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "ARGC:%d ", parameter);
 
 	return offset;
 }
@@ -159,11 +151,9 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
-	proto_tree_add_item(tree, hf_distcc_argv, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hf_distcc_argv, tvb, offset, len, ENC_BIG_ENDIAN);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", argv);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", argv);
 
 	if(len!=parameter){
 		proto_tree_add_text(tree, tvb, 0, 0, "[Short ARGV PDU]");
@@ -190,11 +180,9 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
-	proto_tree_add_item(tree, hf_distcc_serr, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hf_distcc_serr, tvb, offset, len, ENC_BIG_ENDIAN);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", argv);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", argv);
 
 	if(len!=parameter){
 		proto_tree_add_text(tree, tvb, 0, 0, "[Short SERR PDU]");
@@ -221,11 +209,9 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
-	proto_tree_add_item(tree, hf_distcc_sout, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hf_distcc_sout, tvb, offset, len, ENC_BIG_ENDIAN);
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", argv);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", argv);
 
 	if(len!=parameter){
 		proto_tree_add_text(tree, tvb, 0, 0, "[Short SOUT PDU]");
@@ -247,7 +233,7 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
 	col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
 
-	proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, ENC_BIG_ENDIAN);
 	if(len!=parameter){
 		proto_tree_add_text(tree, tvb, 0, 0, "[Short DOTI PDU]");
 	}
@@ -267,7 +253,7 @@ dissect_distcc_doto(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
 	col_append_str(pinfo->cinfo, COL_INFO, "DOTO object ");
 
-	proto_tree_add_item(tree, hf_distcc_doto_object, tvb, offset, len, FALSE);
+	proto_tree_add_item(tree, hf_distcc_doto_object, tvb, offset, len, ENC_BIG_ENDIAN);
 	if(len!=parameter){
 		proto_tree_add_text(tree, tvb, 0, 0, "[Short DOTO PDU]");
 	}
@@ -293,7 +279,7 @@ dissect_distcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, proto_distcc, tvb, offset,
-			-1, FALSE);
+			-1, ENC_BIG_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_distcc);
 	}
 

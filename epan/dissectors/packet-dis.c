@@ -405,45 +405,42 @@ static gint dissect_dis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_item_set_end(dis_payload_node, tvb, offset);
     }
 
-    /* add detail to the INFO column if avalaible */
-    if ( check_col( pinfo->cinfo, COL_INFO) ) {
+    /* Add detail to the INFO column */
+    switch (pduType)
+    {
+    /* DIS Entity Information / Interaction PDUs */
+    case DIS_PDUTYPE_ENTITY_STATE:
+        col_add_fstr( pinfo->cinfo, COL_INFO,
+                      "PDUType: %s, %s, %s",
+                      pduString,
+                      val_to_str(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
+                      val_to_str(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
+                     );
+        break;
 
-        switch (pduType)
-        {
-        /* DIS Entity Information / Interaction PDUs */
-        case DIS_PDUTYPE_ENTITY_STATE:
-            col_add_fstr( pinfo->cinfo, COL_INFO,
-                          "PDUType: %s, %s, %s",
-                          pduString,
-                          val_to_str(entityKind, DIS_PDU_EntityKind_Strings, "Unknown Entity Kind"),
-                          val_to_str(entityDomain, DIS_PDU_Domain_Strings, "Unknown Entity Domain")
-                         );
-            break;
-
-        case DIS_PDUTYPE_SIGNAL:
-            col_add_fstr( pinfo->cinfo, COL_INFO,
-                          "PDUType: %s, RadioID=%u, Encoding Type=%s, Number of Samples=%u",
-                          pduString,
-                          radioID,
-                          val_to_str(DIS_ENCODING_TYPE(encodingScheme), DIS_PDU_Encoding_Type_Strings, "Unknown Encoding Type"),
-                          numSamples
-                          );
-            break;
-        case DIS_PDUTYPE_TRANSMITTER:
-            col_add_fstr( pinfo->cinfo, COL_INFO,
-                          "PDUType: %s, RadioID=%u, Transmit State=%s",
-                          pduString,
-                          radioID,
-                          val_to_str(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State")
-                          );
-            break;
-        default:
-            /* set the basic info column (pdu type) */
-            col_add_fstr( pinfo->cinfo, COL_INFO,
-                         "PDUType: %s",
-                          pduString);
-            break;
-        }
+    case DIS_PDUTYPE_SIGNAL:
+        col_add_fstr( pinfo->cinfo, COL_INFO,
+                      "PDUType: %s, RadioID=%u, Encoding Type=%s, Number of Samples=%u",
+                      pduString,
+                      radioID,
+                      val_to_str(DIS_ENCODING_TYPE(encodingScheme), DIS_PDU_Encoding_Type_Strings, "Unknown Encoding Type"),
+                      numSamples
+                      );
+        break;
+    case DIS_PDUTYPE_TRANSMITTER:
+        col_add_fstr( pinfo->cinfo, COL_INFO,
+                      "PDUType: %s, RadioID=%u, Transmit State=%s",
+                      pduString,
+                      radioID,
+                      val_to_str(disRadioTransmitState, DIS_PDU_RadioTransmitState_Strings, "Unknown Transmit State")
+                      );
+        break;
+    default:
+        /* set the basic info column (pdu type) */
+        col_add_fstr( pinfo->cinfo, COL_INFO,
+                     "PDUType: %s",
+                      pduString);
+        break;
     }
 
     return tvb_length(tvb);

@@ -120,27 +120,25 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       bpdu_type = tvb_get_guint8(tvb, BPDU_TYPE);
 
-      if (check_col(pinfo->cinfo, COL_INFO)) {
-	    col_add_str(pinfo->cinfo, COL_INFO,
-			val_to_str(bpdu_type, bpdu_type_vals,
-				   "Unknown BPDU type (%u)"));
-      }
+	  col_add_str(pinfo->cinfo, COL_INFO,
+		val_to_str(bpdu_type, bpdu_type_vals,
+			   "Unknown BPDU type (%u)"));
 
       set_actual_length(tvb, DEC_BPDU_SIZE);
 
       if (tree) {
 	    ti = proto_tree_add_item(tree, proto_dec_bpdu, tvb, 0, DEC_BPDU_SIZE,
-			    	FALSE);
+			    	ENC_BIG_ENDIAN);
 	    bpdu_tree = proto_item_add_subtree(ti, ett_dec_bpdu);
 
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_proto_id, tvb,
-				BPDU_DEC_CODE, 1, FALSE);
+				BPDU_DEC_CODE, 1, ENC_BIG_ENDIAN);
 
 	    proto_tree_add_uint(bpdu_tree, hf_dec_bpdu_type, tvb,
 				BPDU_TYPE, 1, bpdu_type);
 
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_version_id, tvb,
-				BPDU_VERSION, 1, FALSE);
+				BPDU_VERSION, 1, ENC_BIG_ENDIAN);
 
 	    flags = tvb_get_guint8(tvb, BPDU_FLAGS);
 	    ti = proto_tree_add_uint(bpdu_tree, hf_dec_bpdu_flags, tvb,
@@ -165,25 +163,25 @@ dissect_dec_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    }
 
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_pri, tvb,
-				BPDU_ROOT_PRI, 2, FALSE);
+				BPDU_ROOT_PRI, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_mac, tvb,
-				BPDU_ROOT_MAC, 6, FALSE);
+				BPDU_ROOT_MAC, 6, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_root_cost, tvb,
-				BPDU_ROOT_PATH_COST, 2, FALSE);
+				BPDU_ROOT_PATH_COST, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_bridge_pri, tvb,
-				BPDU_BRIDGE_PRI, 2, FALSE);
+				BPDU_BRIDGE_PRI, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_bridge_mac, tvb,
-				BPDU_BRIDGE_MAC, 6, FALSE);
+				BPDU_BRIDGE_MAC, 6, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_port_id, tvb,
-				BPDU_PORT_IDENTIFIER, 1, FALSE);
+				BPDU_PORT_IDENTIFIER, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_msg_age, tvb,
-				BPDU_MESSAGE_AGE, 1, FALSE);
+				BPDU_MESSAGE_AGE, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_hello_time, tvb,
-				BPDU_HELLO_TIME, 1, FALSE);
+				BPDU_HELLO_TIME, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_max_age, tvb,
-				BPDU_MAX_AGE, 1, FALSE);
+				BPDU_MAX_AGE, 1, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(bpdu_tree, hf_dec_bpdu_forward_delay, tvb,
-				BPDU_FORWARD_DELAY, 1, FALSE);
+				BPDU_FORWARD_DELAY, 1, ENC_BIG_ENDIAN);
 
       }
 }

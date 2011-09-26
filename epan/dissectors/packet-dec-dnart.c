@@ -472,7 +472,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          */
         offset += 3;
         ti = proto_tree_add_item(rt_tree, hf_dec_rt_dst_addr, tvb,
-                offset, 6, FALSE);
+                offset, 6, ENC_BIG_ENDIAN);
         addr = dnet_ntoa(ep_tvb_memdup(tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
@@ -483,7 +483,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             */
         offset += 8;
         ti = proto_tree_add_item(rt_tree, hf_dec_rt_src_addr, tvb,
-            offset, 6, FALSE);
+            offset, 6, ENC_BIG_ENDIAN);
         addr = dnet_ntoa(ep_tvb_memdup(tvb, offset, 6));
         if (addr != NULL) {
             proto_item_append_text(ti, " (%s)", addr);
@@ -907,26 +907,24 @@ handle_nsp_msg(
              * There is still the segnum field
              */
             seg_num = tvb_get_letohs(tvb, my_offset);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                if (nsp_msg_type == BOM_MSG) {
-                    dec_dna_total_bytes_this_segment = 0;
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "msg nr. %d: start of segment",
-                        seg_num & 0xfff);
-                } else if (nsp_msg_type == DATA_SEGMENT_MSG) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "msg nr. %d: continuation segment ",
-                        seg_num & 0xfff);
-                } else if (nsp_msg_type == EOM_MSG) {
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "msg nr. %d: end of segment",
-                        seg_num & 0xfff);
-                } else if (nsp_msg_type == BOM_EOM_MSG) {
-                    dec_dna_total_bytes_this_segment = 0;
-                    col_append_fstr(pinfo->cinfo, COL_INFO,
-                        "msg nr. %d single segment",
-                        seg_num & 0xfff);
-                }
+            if (nsp_msg_type == BOM_MSG) {
+                dec_dna_total_bytes_this_segment = 0;
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "msg nr. %d: start of segment",
+                    seg_num & 0xfff);
+            } else if (nsp_msg_type == DATA_SEGMENT_MSG) {
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "msg nr. %d: continuation segment ",
+                    seg_num & 0xfff);
+            } else if (nsp_msg_type == EOM_MSG) {
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "msg nr. %d: end of segment",
+                    seg_num & 0xfff);
+            } else if (nsp_msg_type == BOM_EOM_MSG) {
+                dec_dna_total_bytes_this_segment = 0;
+                col_append_fstr(pinfo->cinfo, COL_INFO,
+                    "msg nr. %d single segment",
+                    seg_num & 0xfff);
             }
             /* This is the last field, the rest are data */
             proto_tree_add_item(tree, hf_dec_rt_segnum,
@@ -939,11 +937,9 @@ handle_nsp_msg(
                 tvb_reported_length_remaining(tvb, my_offset);
             dec_dna_previous_total = dec_dna_total_bytes_this_segment;
             dec_dna_total_bytes_this_segment += data_length;
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO,
-                    ", bytes this segment: %d, total so far:%d",
-                    data_length, dec_dna_total_bytes_this_segment);
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                ", bytes this segment: %d, total so far:%d",
+                data_length, dec_dna_total_bytes_this_segment);
             /* We are done, return my_offset */
             break;
         case INTERRUPT_MSG:        /* "Interrupt message" */
@@ -1025,23 +1021,21 @@ handle_nsp_msg(
             my_offset += 2;
             /* Now follows the ls_flags field */
             ls_flags = tvb_get_guint8(tvb, my_offset);
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-              switch(ls_flags) {
-                  case 0: /* no change */
-                      col_append_str(pinfo->cinfo, COL_INFO,
-                         "(no change)");
-                  break;
-                  case 1: /* stop sending data */
-                      col_append_str(pinfo->cinfo, COL_INFO,
-                         "(stop)");
-                  break;
-                  case 2: /* send data */
-                      col_append_str(pinfo->cinfo, COL_INFO,
-                         "(go)");
-                  break;
-                  default:
-                  break;
-              }
+            switch(ls_flags) {
+                case 0: /* no change */
+                    col_append_str(pinfo->cinfo, COL_INFO,
+                       "(no change)");
+                break;
+                case 1: /* stop sending data */
+                    col_append_str(pinfo->cinfo, COL_INFO,
+                       "(stop)");
+                break;
+                case 2: /* send data */
+                    col_append_str(pinfo->cinfo, COL_INFO,
+                       "(go)");
+                break;
+                default:
+                break;
             }
             fc_val = tvb_get_guint8(tvb, my_offset + 1);
             ti = proto_tree_add_uint(tree, hf_dec_flow_control, tvb,
@@ -1063,13 +1057,12 @@ handle_nsp_msg(
                 ack_num & 0xfff);
             my_offset += 2;
             /* There may be an optional ack_oth field */
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-              col_append_fstr(pinfo->cinfo, COL_INFO,
-                  "NSP data %s message(%d)",
-                      (ack_num & 0x1000) ? "NAK" : "ACK",
-                      ack_num & 0xfff);
-            }
-            if (tvb_length_remaining(tvb, my_offset) > 0) {
+            col_append_fstr(pinfo->cinfo, COL_INFO,
+                "NSP data %s message(%d)",
+                    (ack_num & 0x1000) ? "NAK" : "ACK",
+                    ack_num & 0xfff);
+
+			if (tvb_length_remaining(tvb, my_offset) > 0) {
                 ack_oth = tvb_get_letohs(tvb, my_offset);
                 if (ack_oth & 0x8000) {
                     /* There is an ack_oth field */

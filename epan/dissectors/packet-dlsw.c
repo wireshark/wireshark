@@ -225,12 +225,11 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
  version=tvb_get_guint8(tvb,0);
 
- if (check_col(pinfo->cinfo, COL_INFO))
-   col_add_fstr(pinfo->cinfo, COL_INFO, "DLSw %s",val_to_str(version , dlsw_version_vals, "Unknown Version"));
+ col_add_fstr(pinfo->cinfo, COL_INFO, "DLSw %s",val_to_str(version , dlsw_version_vals, "Unknown Version"));
 
  if (tree)
  {
-   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, FALSE);
+   ti = proto_tree_add_item(tree, proto_dlsw, tvb, 0, -1, ENC_BIG_ENDIAN);
    dlsw_tree = proto_item_add_subtree(ti, ett_dlsw);
 
    hlen=tvb_get_guint8(tvb,1);
@@ -250,8 +249,7 @@ dissect_dlsw_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   } ;
 
   mtype=tvb_get_guint8(tvb,14);
-  if (check_col(pinfo->cinfo, COL_INFO))
-     col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str(mtype , dlsw_type_vals, "Unknown message Type"));
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",val_to_str(mtype , dlsw_type_vals, "Unknown message Type"));
   if (tree)
   {
    proto_tree_add_text (dlsw_header_tree,tvb,14,1,"Message Type   = %s (0x%02x)",

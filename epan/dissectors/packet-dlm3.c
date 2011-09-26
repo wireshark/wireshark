@@ -463,86 +463,85 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   m_type   = tvb_get_letohl(tvb, offset);
   proto_tree_add_uint(tree,
                       hf_dlm3_m_type, tvb, offset, 4, m_type);
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO,
-                    ": %s",
-                    val_to_str(m_type,
-                               dlm3_msg,
-                               "Unknown"));
+  col_append_fstr(pinfo->cinfo, COL_INFO,
+                ": %s",
+                val_to_str(m_type,
+                           dlm3_msg,
+                           "Unknown"));
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_nodeid, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_nodeid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_pid, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_pid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_lkid, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_lkid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   /* TODO: See `create_lkb'
      lkid has some structure. We dissect more. */
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_remid, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_remid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_parent_lkid, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_parent_lkid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_parent_remid, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_parent_remid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_exflags, ett_dlm3_m_exflags,
-                         m_exflags_fields, TRUE);
+                         m_exflags_fields, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_sbflags, ett_dlm3_sbflags,
-                         m_sbflags_fields, TRUE);
+                         m_sbflags_fields, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_flags, ett_dlm3_m_flags,
-                         m_flags_fields, TRUE);
+                         m_flags_fields, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_lvbseq, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_lvbseq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_hash, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_hash, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_status, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_grmode, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_grmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_rqmode, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_rqmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_bastmode, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_bastmode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_m_asts, ett_dlm3_m_asts,
-                         m_asts_fields, TRUE);
+                         m_asts_fields, ENC_LITTLE_ENDIAN);
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_m_result, tvb, offset, 4, TRUE);
+                      hf_dlm3_m_result, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   if ((length - offset) > 0) {
@@ -551,7 +550,7 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         tvb,
                         offset,
                         -1,
-                        TRUE);
+                        ENC_LITTLE_ENDIAN);
   }
 }
 
@@ -574,64 +573,64 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
 
 
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_ownpid, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_ownpid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_lkid, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_lkid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_remid, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_remid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_parent_lkid, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_parent_lkid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_parent_remid, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_parent_remid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rl_exflags, ett_dlm3_rl_exflags,
-                         rl_exflags_fields, TRUE);
+                         rl_exflags_fields, ENC_LITTLE_ENDIAN);
   exflags = tvb_get_letohl(tvb, offset);
 
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rl_flags, ett_dlm3_rl_flags,
-                         rl_flags_fields, TRUE);
+                         rl_flags_fields, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_lvbseq, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_lvbseq, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_result, tvb, offset, 4, TRUE);
+                      hf_dlm3_rl_result, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_rqmode, tvb, offset, 1, TRUE);
+                      hf_dlm3_rl_rqmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   offset += 1;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_grmode, tvb, offset, 1, TRUE);
+                      hf_dlm3_rl_grmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   offset += 1;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_status, tvb, offset, 1, TRUE);
+                      hf_dlm3_rl_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
   offset += 1;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rl_asts, ett_dlm3_rl_asts,
-                         rl_asts_fields, TRUE);
+                         rl_asts_fields, ENC_LITTLE_ENDIAN);
 
   offset += 1;
   proto_tree_add_item(tree,
-                      hf_dlm3_rl_wait_type, tvb, offset, 2, TRUE);
+                      hf_dlm3_rl_wait_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
   offset += 2;
   namelen = tvb_get_letohs(tvb, offset);
@@ -642,26 +641,26 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   offset += 2;
   sub_item = proto_tree_add_item(tree,
                                  hf_dlm3_rl_name, tvb, offset,
-                                 DLM3_RESNAME_MAXLEN, TRUE);
+                                 DLM3_RESNAME_MAXLEN, ENC_LITTLE_ENDIAN);
 
   sub_tree = proto_item_add_subtree(sub_item,
                                     ett_dlm3_rl_name);
   sub_offset = offset;
   proto_tree_add_item(sub_tree,
                       hf_dlm3_rl_name_contents, tvb, sub_offset,
-                      namelen, TRUE);
+                      namelen, ENC_LITTLE_ENDIAN);
 
   sub_offset += namelen;
   proto_tree_add_item(sub_tree,
                       hf_dlm3_rl_name_padding, tvb, sub_offset,
-                      DLM3_RESNAME_MAXLEN - namelen, TRUE);
+                      DLM3_RESNAME_MAXLEN - namelen, ENC_LITTLE_ENDIAN);
 
   offset += DLM3_RESNAME_MAXLEN;
   if (((length - offset) > 0) && (exflags & DLM3_LKF_VALBLK))
     proto_tree_add_item(tree,
                         hf_dlm3_rl_lvb, tvb, offset,
                         -1,
-                        TRUE);
+                        ENC_LITTLE_ENDIAN);
 }
 
 
@@ -673,16 +672,16 @@ dissect_dlm3_rcom_config(tvbuff_t *tvb, proto_tree *tree,
     return;
 
   proto_tree_add_item(tree,
-                      hf_dlm3_rf_lvblen, tvb, offset, 4, TRUE);
+                      hf_dlm3_rf_lvblen, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_bitmask(tree, tvb, offset,
                          hf_dlm3_rf_lsflags, ett_dlm3_rf_lsflags,
-                         rf_lsflags_fields, TRUE);
+                         rf_lsflags_fields, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rf_unused, tvb, offset, 8, TRUE);
+                      hf_dlm3_rf_unused, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
 
   offset += 8;
@@ -702,28 +701,27 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   rc_type  = tvb_get_letohl(tvb, offset);
   proto_tree_add_uint(tree,
                       hf_dlm3_rc_type, tvb, offset, 4, rc_type);
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_append_fstr(pinfo->cinfo, COL_INFO,
-                    ": %s",
-                    val_to_str(rc_type,
-                               dlm3_rcom,
-                               "Unknown"));
+  col_append_fstr(pinfo->cinfo, COL_INFO,
+                  ": %s",
+                  val_to_str(rc_type,
+                             dlm3_rcom,
+                             "Unknown"));
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rc_result, tvb, offset, 4, TRUE);
+                      hf_dlm3_rc_result, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
   proto_tree_add_item(tree,
-                      hf_dlm3_rc_id, tvb, offset, 8, TRUE);
+                      hf_dlm3_rc_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
   offset += 8;
   proto_tree_add_item(tree,
-                      hf_dlm3_rc_seq, tvb, offset, 8, TRUE);
+                      hf_dlm3_rc_seq, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
   offset += 8;
   proto_tree_add_item(tree,
-                      hf_dlm3_rc_seq_reply, tvb, offset, 8, TRUE);
+                      hf_dlm3_rc_seq_reply, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 
   offset += 8;
   if ((length - offset) == 0) {
@@ -737,7 +735,7 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  tvb,
                                  offset,
                                  -1,
-                                 TRUE);
+                                 ENC_LITTLE_ENDIAN);
 
   offset += 0;
   if (rc_type == DLM3_RCOM_LOCK) {
@@ -791,8 +789,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
   col_set_str(pinfo->cinfo, COL_INFO, "DLM3");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_set_str(pinfo->cinfo, COL_INFO,
+  col_set_str(pinfo->cinfo, COL_INFO,
                 val_to_str_const(h_cmd,
                            dlm3_cmd,
                            "packet-dlm3.c internal bug"));
@@ -801,7 +798,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
     offset = 0;
 
     item = proto_tree_add_item(parent_tree, proto_dlm3, tvb, offset,
-                               -1, TRUE);
+                               -1, ENC_LITTLE_ENDIAN);
     tree = proto_item_add_subtree(item, ett_dlm3);
 
     sub_item = proto_tree_add_uint(tree,
@@ -818,14 +815,14 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     offset += 4;
     proto_tree_add_item(tree,
-                        hf_dlm3_h_lockspace, tvb, offset, 4, TRUE);
+                        hf_dlm3_h_lockspace, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
     offset += 4;
     proto_tree_add_item(tree,
-                        hf_dlm3_h_nodeid, tvb, offset, 4, TRUE);
+                        hf_dlm3_h_nodeid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     proto_tree_add_item(tree,
-                        hf_dlm3_h_length, tvb, offset, 2, TRUE);
+                        hf_dlm3_h_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
     offset += 2;
     sub_item = proto_tree_add_uint(tree,
@@ -833,7 +830,7 @@ dissect_dlm3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     offset += 1;
     proto_tree_add_item(tree,
-                        hf_dlm3_h_pad, tvb, offset, 1, TRUE);
+                        hf_dlm3_h_pad, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 
     offset += 1;

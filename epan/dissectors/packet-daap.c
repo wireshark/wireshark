@@ -408,22 +408,20 @@ dissect_daap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     * XXX - what if the body is gzipped?  This isn't the only protocol
     * running atop HTTP that might have a problem with that....
     */
-   if (check_col(pinfo->cinfo, COL_INFO)) {
-      if (is_request) {
-         col_set_str(pinfo->cinfo, COL_INFO, "DAAP Request");
-      } else {
-         /* This is done in two functions on purpose. If the tvb_get_xxx()
-          * functions fail, at least something will be in the info column
-          */
-         col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
-         col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
-                         tvb_format_text(tvb, 0, 4),
-                         tvb_get_ntohl(tvb, 4));
-      }
+   if (is_request) {
+      col_set_str(pinfo->cinfo, COL_INFO, "DAAP Request");
+   } else {
+      /* This is done in two functions on purpose. If the tvb_get_xxx()
+       * functions fail, at least something will be in the info column
+       */
+      col_set_str(pinfo->cinfo, COL_INFO, "DAAP Response");
+      col_append_fstr(pinfo->cinfo, COL_INFO, " [first tag: %s, size: %d]",
+                      tvb_format_text(tvb, 0, 4),
+                      tvb_get_ntohl(tvb, 4));
    }
 
    if (tree) {
-      ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, FALSE);
+      ti = proto_tree_add_item(tree, proto_daap, tvb, 0, -1, ENC_BIG_ENDIAN);
       daap_tree = proto_item_add_subtree(ti, ett_daap);
       dissect_daap_one_tag(daap_tree, tvb);
    }
@@ -453,9 +451,9 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
                                tagsize,
                                plurality(tagsize, ' ', 's'));
 
-      ti2 = proto_tree_add_item(tree, hf_daap_name, tvb, offset, 4, FALSE);
+      ti2 = proto_tree_add_item(tree, hf_daap_name, tvb, offset, 4, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_HIDDEN(ti2);
-      ti2 = proto_tree_add_item(tree, hf_daap_size, tvb, offset+4, 4, FALSE);
+      ti2 = proto_tree_add_item(tree, hf_daap_size, tvb, offset+4, 4, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_HIDDEN(ti2);
 
       offset += 8;

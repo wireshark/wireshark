@@ -4034,7 +4034,6 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
     dmp_add_seq_ack_analysis (tvb, pinfo, dmp_tree, offset);
   }
 
-  if (check_col (pinfo->cinfo, COL_INFO)) {
     if (((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
          (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF)) &&
         dmp.id_val && dmp.id_val->msg_resend_count)
@@ -4054,48 +4053,47 @@ static void dissect_dmp (tvbuff_t *tvb, packet_info *pinfo,
       col_append_fstr (pinfo->cinfo, COL_INFO, "[Dup ACK %d#%d] ",
                        dmp.id_val->ack_id, dmp.id_val->ack_resend_count);
       retrans_or_dup_ack = TRUE;
-    }
-    if (dmp_align && !retrans_or_dup_ack) {
-      if (dmp.msg_type == ACK) {
-        /* ACK does not have "Msg Id" */
-        col_append_fstr (pinfo->cinfo, COL_INFO, "%-45.45s", msg_type_to_str ());
-      } else {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "%-31.31s", msg_type_to_str ());
-      }
+  }
+  if (dmp_align && !retrans_or_dup_ack) {
+    if (dmp.msg_type == ACK) {
+      /* ACK does not have "Msg Id" */
+      col_append_fstr (pinfo->cinfo, COL_INFO, "%-45.45s", msg_type_to_str ());
     } else {
-      col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str ());
+      col_append_fstr (pinfo->cinfo, COL_INFO, "%-31.31s", msg_type_to_str ());
     }
-    if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
-        (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF))
-    {
-      if (dmp_align && !retrans_or_dup_ack) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, " Msg Id: %5d", dmp.msg_id);
-      } else {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", Msg Id: %d", dmp.msg_id);
-      }
+  } else {
+    col_append_str (pinfo->cinfo, COL_INFO, msg_type_to_str ());
+  }
+  if ((dmp.msg_type == STANAG) || (dmp.msg_type == IPM) ||
+      (dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF))
+  {
+    if (dmp_align && !retrans_or_dup_ack) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, " Msg Id: %5d", dmp.msg_id);
+    } else {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Msg Id: %d", dmp.msg_id);
     }
-    if ((dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF) ||
-        (dmp.msg_type == ACK))
-    {
-      if (dmp_align && !retrans_or_dup_ack) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "  Subj Id: %5d",
-                         dmp.subj_id);
-      } else {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", Subj Id: %d",
-                         dmp.subj_id);
-      }
-    } else if (dmp.struct_id) {
-      if (dmp_align && !retrans_or_dup_ack) {
-        col_append_fstr (pinfo->cinfo, COL_INFO, "  Body Id: %s",
-                         format_text (dmp.struct_id, strlen (dmp.struct_id)));
-      } else {
-        col_append_fstr (pinfo->cinfo, COL_INFO, ", Body Id: %s",
-                         format_text (dmp.struct_id, strlen (dmp.struct_id)));
-      }
+  }
+  if ((dmp.msg_type == REPORT) || (dmp.msg_type == NOTIF) ||
+      (dmp.msg_type == ACK))
+  {
+    if (dmp_align && !retrans_or_dup_ack) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, "  Subj Id: %5d",
+                       dmp.subj_id);
+    } else {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Subj Id: %d",
+                       dmp.subj_id);
     }
-    if (dmp.checksum && (checksum1 != checksum2)) {
-      col_append_str (pinfo->cinfo, COL_INFO, ", Checksum incorrect");
+  } else if (dmp.struct_id) {
+    if (dmp_align && !retrans_or_dup_ack) {
+      col_append_fstr (pinfo->cinfo, COL_INFO, "  Body Id: %s",
+                       format_text (dmp.struct_id, strlen (dmp.struct_id)));
+    } else {
+      col_append_fstr (pinfo->cinfo, COL_INFO, ", Body Id: %s",
+                       format_text (dmp.struct_id, strlen (dmp.struct_id)));
     }
+  }
+  if (dmp.checksum && (checksum1 != checksum2)) {
+    col_append_str (pinfo->cinfo, COL_INFO, ", Checksum incorrect");
   }
 
   proto_item_append_text (ti, ", Version: %d%s, %s", dmp.version,
