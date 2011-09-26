@@ -315,9 +315,10 @@ static const value_string mtrace_fwd_code_vals[] = {
 #define PRINT_IGMP_VERSION(version) 					\
 	do {								\
 		proto_item *ti;						\
+		col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "IGMPv%d",version);    \
 		if (check_col(pinfo->cinfo, COL_INFO)) {		\
 			col_add_fstr(pinfo->cinfo, COL_INFO,		\
-				"V%d %s",version,val_to_str(type, commands,	\
+				"%s",val_to_str(type, commands, 	\
 					"Unknown Type:0x%02x"));	\
 		}							\
 		/* version of IGMP protocol */				\
@@ -695,8 +696,10 @@ dissect_igmp_v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 		} else {
                     if (type == IGMP_V2_LEAVE_GROUP) {
                        col_append_fstr(pinfo->cinfo, COL_INFO, " %s", ip_to_str((guint8*)&maddr) );
-                    } else {
-                       col_append_fstr(pinfo->cinfo, COL_INFO, " / Join group %s", ip_to_str((guint8*)&maddr) );
+                    } else if (type == IGMP_V1_HOST_MEMBERSHIP_QUERY) {
+                       col_append_fstr(pinfo->cinfo, COL_INFO, ", specific for group %s", ip_to_str((guint8*)&maddr) );
+                    } else { /* IGMP_V2_MEMBERSHIP_REPORT is the only case left */
+                       col_append_fstr(pinfo->cinfo, COL_INFO, " group %s", ip_to_str((guint8*)&maddr) );
                     }
 		}
         }
