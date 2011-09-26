@@ -818,7 +818,7 @@ dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	for(i=6; i; i--)
 		bd_addr[6-i] = tvb_get_guint8(tvb, offset+i-1);
 
-	item = proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, TRUE);
+	item = proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, ENC_LITTLE_ENDIAN);
 	proto_item_append_text(item, "%02x%02x:%02x:%02x%02x%02x (%s)",
 							bd_addr[0], bd_addr[1], bd_addr[2], bd_addr[3], bd_addr[4], bd_addr[5],
 							get_ether_name(bd_addr));
@@ -834,7 +834,7 @@ dissect_bthci_cmd_cod(int type, tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	guint8 cod1, cod2;
 	proto_item *item;
 
-	item = proto_tree_add_item(tree, type, tvb, offset, 3, TRUE);
+	item = proto_tree_add_item(tree, type, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 
 	cod1 = tvb_get_guint8(tvb, offset+1);
 	cod2 = tvb_get_guint8(tvb, offset+2);
@@ -896,8 +896,8 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 
 			proto_item_append_text(ti_eir_struct,"%s", val_to_str_ext_const(type, &bthci_cmd_eir_data_type_vals_ext, "Unknown"));
 
-			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset+i, 1, TRUE);
-			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset+i+1, 1, TRUE);
+			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_length, tvb, offset+i, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_eir_struct_subtree,hf_bthci_cmd_eir_struct_type, tvb, offset+i+1, 1, ENC_LITTLE_ENDIAN);
 
 			switch(type) {
 				case 0x02: /* 16-bit Service Class UUIDs, incomplete list */
@@ -905,7 +905,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 					j=0;
 					while(j<(length-1))
 					{
-						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid16, tvb, offset+i+j+2, 2, TRUE);
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid16, tvb, offset+i+j+2, 2, ENC_LITTLE_ENDIAN);
 						j+=2;
 					}
 					break;
@@ -914,7 +914,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 					j=0;
 					while(j<(length-1))
 					{
-						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid32, tvb, offset+i+j+2, 4, TRUE);
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid32, tvb, offset+i+j+2, 4, ENC_LITTLE_ENDIAN);
 						j+=4;
 					}
 					break;
@@ -923,20 +923,20 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 					j=0;
 					while(j<(length-1))
 					{
-						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid128, tvb, offset+i+j+2, 16, TRUE);
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid128, tvb, offset+i+j+2, 16, ENC_LITTLE_ENDIAN);
 						j+=16;
 					}
 					break;
 				case 0x08: /* Device Name, shortened */
 				case 0x09: /* Device Name, full */
-					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_device_name, tvb, offset+i+2, length-1, TRUE);
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_device_name, tvb, offset+i+2, length-1, ENC_LITTLE_ENDIAN);
 					proto_item_append_text(ti_eir_struct,": %s", tvb_format_text(tvb,offset+i+2,length-1));
 					break;
 				case 0x0A: /* Tx Power Level */
-					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_tx_power, tvb, offset+i+2, 1, TRUE);
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_tx_power, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
 
 				default:
-					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, TRUE);
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, ENC_LITTLE_ENDIAN);
 					break;
 			}
 			i += length+1;
@@ -957,11 +957,11 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 	switch(cmd_ocf) {
 		case 0x0001: /* Inquiry */
-			proto_tree_add_item(tree, hf_bthci_cmd_lap, tvb, offset, 3, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_lap, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 			offset+=3;
-			proto_tree_add_item(tree, hf_bthci_cmd_inq_length, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_inq_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_num_responses, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
@@ -970,15 +970,15 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		case 0x0003: /* Periodic Inquiry Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_max_period_length, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_max_period_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_min_period_length, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_min_period_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_lap, tvb, offset, 3, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_lap, tvb, offset, 3, ENC_LITTLE_ENDIAN);
 			offset+=3;
-			proto_tree_add_item(tree, hf_bthci_cmd_inq_length, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_inq_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_num_responses, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_num_responses, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
@@ -989,49 +989,49 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		case 0x0005: /* Create Connection */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_repetition_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			clock_value = tvb_get_letohs(tvb, 13) & 32767; /* only bit0-14 are valid  */
 			proto_item_append_text(item, " (%g ms)", 1.25*clock_value);
-			proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_allow_role_switch, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_allow_role_switch, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0006: /* Disconnect */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0007: /* Add SCO Connection */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv2, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv3, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_hv3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
@@ -1042,21 +1042,21 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		case 0x0009: /* Accept Connection Request */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x000a: /* Reject Connection Request */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x000b: /* Link Key Request Reply */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 			offset+=16;
 			break;
 
@@ -1067,9 +1067,9 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		case 0x000d: /* PIN Code Request Reply */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_pin_code_length ,tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_pin_code_length ,tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_pin_code ,tvb, offset, 16, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_pin_code ,tvb, offset, 16, ENC_LITTLE_ENDIAN);
 			offset+=16;
 			break;
 
@@ -1078,53 +1078,53 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		case 0x000f: /* Change Connection Packet Type */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_2dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_3dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dm5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_packet_type_dh5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0011: /* Authentication Request */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0013: /* Set Connection Encryption */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_encryption_enable, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_encryption_enable, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0017: /* Master Link Key */
-			proto_tree_add_item(tree, hf_bthci_cmd_key_flag, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_key_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0019: /* Remote Name Request */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_repetition_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_repetition_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_clock_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			clock_value = tvb_get_letohs(tvb, offset) & 32767; /* only bit0-14 are valid  */
 			proto_item_append_text(item, " (%g ms)", 1.25*clock_value);
-			proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_clock_offset_valid , tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
@@ -1133,50 +1133,50 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		case 0x001c: /* Read Remote Extended Features */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_page_number, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_page_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0028: /* Setup Synchronous Connection */
 		case 0x0029: /* Accept Synchronous Connection Request */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_transmit_bandwidth, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_transmit_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_receive_bandwidth, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_receive_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_max_latency_ms, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_max_latency_ms, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_input_coding, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_input_data_format, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_input_sample_size, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_linear_pcm_bit_pos, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_input_coding, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_input_data_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_input_sample_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_linear_pcm_bit_pos, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_retransmission_effort, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_retransmission_effort, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv1, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv2, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev4, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_2ev3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev3, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_2ev5, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev5, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv1, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv2, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_hv3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev4, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_ev5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_2ev3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev3, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_2ev5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_sco_packet_type_3ev5, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x002a: /* Reject Synchronous Connection Request */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_reason, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
@@ -1185,18 +1185,18 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		case 0x001d: /* Read Remote Version Information */
 		case 0x001f: /* Read Clock Offset*/
 		case 0x0020: /* Read LMP Handle */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x002b: /* IO Capability Response */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_io_capability, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_io_capability, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_oob_data_present, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_oob_data_present, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_auth_requirements, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_auth_requirements, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
@@ -1210,21 +1210,21 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		case 0x002e: /* User Passkey Request Reply */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_passkey, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_passkey, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
 			break;
 
 		case 0x0030: /* Remote OOB Data Request Reply */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_hash_c, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_hash_c, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_randomizer_r, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_randomizer_r, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 	}
@@ -1239,28 +1239,28 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	switch(cmd_ocf) {
 
 		case 0x0001: /* Hold Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_hold, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_hold, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_hold, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_hold, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
 			break;
 
 		case 0x0003: /* sniff mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_sniff, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_sniff, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_sniff, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_sniff, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_sniff_attempt, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_sniff_attempt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			if(timeout>0){
 				proto_item_append_text(item, " (%g msec)", (2*timeout-1)*0.625);
@@ -1268,45 +1268,45 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 				proto_item_append_text(item, " (0 msec)");
 			}
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*1.25);
 			offset+=2;
 			break;
 
 		case 0x0005: /* Park Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_beacon, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_interval_beacon, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_beacon, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_interval_beacon, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
 			break;
 
 		case 0x0007: /* QoS Setup */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_flags, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_service_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_service_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_token_rate, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_token_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_peak_bandwidth, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_peak_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_latency, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_delay_variation, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_delay_variation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
 			break;
 
 		case 0x000b: /* Switch Role */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_role, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
@@ -1314,57 +1314,57 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 		case 0x0006: /* Exit Park Mode */
 		case 0x0009: /* Role Discovery */
 		case 0x000c: /* Read Link Policy Settings */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x000d: /* Write Link Policy Settings */
 		case 0x000f: /* Write Default Link Policy Settings */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_switch, tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_hold  , tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_sniff , tvb, offset, 2, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_park  , tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_switch, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_hold  , tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_sniff , tvb, offset, 2, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_link_policy_setting_park  , tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0010: /* Flow Specification */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_flags, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_service_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_service_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_token_rate, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_token_rate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_token_bucket_size, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_token_bucket_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_peak_bandwidth, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_peak_bandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(tree, hf_bthci_cmd_latency, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
 			break;
 
 		case 0x0011: /* Sniff Subrating */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 
-			item = proto_tree_add_item(tree, hf_bthci_cmd_max_latency, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_max_latency, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
 
-			item = proto_tree_add_item(tree, hf_bthci_cmd_min_remote_timeout, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_remote_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
 
-			item = proto_tree_add_item(tree, hf_bthci_cmd_min_local_timeout, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_min_local_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1383,79 +1383,79 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 	switch(cmd_ocf) {
 
 		case 0x0001: /* Set Event Mask */
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_00, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_01, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_02, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_03, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_04, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_05, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_06, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_07, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_00, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_01, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_02, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_03, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_04, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_05, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_06, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_07, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_10, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_11, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_12, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_13, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_14, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_17, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_10, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_11, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_12, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_13, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_14, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_17, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_20, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_21, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_23, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_24, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_25, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_26, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_27, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_20, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_21, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_23, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_24, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_25, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_26, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_27, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_30, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_31, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_32, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_33, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_34, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_35, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_36, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_37, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_30, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_31, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_32, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_33, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_34, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_35, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_36, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_37, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_40, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_41, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_42, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_41, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_42, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_53, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_54, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_55, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_56, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_57, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_53, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_54, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_55, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_56, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_57, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_60, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_61, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_62, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_63, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_64, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_65, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_67, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_60, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_61, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_62, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_63, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_64, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_65, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_67, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_70, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_72, tvb, offset, 1, TRUE);
-			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_73, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_70, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_72, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_evt_mask_73, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0005: /* Set Event Filter */
-			proto_tree_add_item(tree, hf_bthci_cmd_filter_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_filter_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			filter_type = tvb_get_guint8(tvb, 3);
 			offset++;
 			switch (filter_type) {
 
 				case 0x01: /* Inquiry Result Filter */
 					proto_tree_add_item(tree, hf_bthci_cmd_inquiry_result_filter_condition_type,
-							tvb, offset, 1, TRUE);
+							tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					filter_condition_type = tvb_get_guint8(tvb, offset);
 					offset++;
 					switch (filter_condition_type) {
@@ -1476,12 +1476,12 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
 				case 0x02: /* Connection Setup Filter */
 					proto_tree_add_item(tree, hf_bthci_cmd_connection_setup_filter_condition_type,
-							tvb, offset, 1, TRUE);
+							tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					filter_condition_type = tvb_get_guint8(tvb, offset);
 					offset++;
 					switch (filter_condition_type) {
 						case 0x00:
-							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, TRUE);
+							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 							offset++;
 							break;
 
@@ -1489,14 +1489,14 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 							offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device, tvb, offset, pinfo, tree);
 							offset=dissect_bthci_cmd_cod(hf_bthci_cmd_class_of_device_mask, tvb, offset, pinfo, tree);
 
-							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, TRUE);
+							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 							offset++;
 							break;
 
 						case 0x02:
 							offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, TRUE);
+							proto_tree_add_item(tree, hf_bthci_cmd_auto_acc_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 							offset++;
 							break;
 
@@ -1513,49 +1513,49 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
 			break;
 		case 0x000a: /* Write PIN Type */
-			proto_tree_add_item(tree, hf_bthci_cmd_pin_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_pin_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x000d: /* Read Stored Link Key */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_read_all_flag, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_read_all_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0011: /* Write Stored Link Key */
-			proto_tree_add_item(tree, hf_bthci_cmd_num_link_keys, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_num_link_keys, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			num8 = tvb_get_guint8(tvb, offset);
 			offset++;
 			for (i=0; i<num8; i++) {
 				dissect_bthci_cmd_bd_addr(tvb, offset+(i*22), pinfo, tree);
-				proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset+6+(i*22), 16, TRUE);
+				proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset+6+(i*22), 16, ENC_LITTLE_ENDIAN);
 			}
 			break;
 
 		case 0x0012: /* Delete Stored Link Key */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_delete_all_flag, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_delete_all_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0013: /* Change Local Name */
 			proto_tree_add_item(tree, hf_bthci_cmd_device_name,
-					tvb, offset, 248, FALSE);
+					tvb, offset, 248, ENC_BIG_ENDIAN);
 			offset+=248;
 			break;
 
 		case 0x0016: /* Write Connection Accept Timeout */
-			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
 			offset+=2;
 			break;
 
 		case 0x0018: /* Write Page Timeout */
-			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			if(timeout > 0){
 				proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
@@ -1567,18 +1567,18 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
 		case 0x001a: /* Write Scan Enable */
 			proto_tree_add_item(tree, hf_bthci_cmd_scan_enable,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0020: /* Write Authentication Enable */
 			proto_tree_add_item(tree, hf_bthci_cmd_authentication_enable,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0022: /* Write Encryption Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_encrypt_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_encrypt_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
@@ -1588,22 +1588,22 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
 		case 0x0026: /* Write Voice Setting */
 			proto_tree_add_item(tree, hf_bthci_cmd_input_coding,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(tree, hf_bthci_cmd_input_data_format,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(tree, hf_bthci_cmd_input_sample_size,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(tree, hf_bthci_cmd_linear_pcm_bit_pos,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(tree, hf_bthci_cmd_air_coding_format,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0028: /* Write Automatic Flush Timeout */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			if(timeout>0){
 				proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
@@ -1615,75 +1615,75 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
 		case 0x002a: /* Write Num of Broadcast Retransmissions */
 			proto_tree_add_item(tree, hf_bthci_cmd_num_broadcast_retransmissions,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x002c: /* Write Hold Mode Activity */
 			proto_tree_add_item(tree, hf_bthci_cmd_hold_mode_act_page,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(tree, hf_bthci_cmd_hold_mode_act_inquiry,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(tree, hf_bthci_cmd_hold_mode_act_periodic,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x002d: /* Read Transmit Power Level */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			proto_tree_add_item(tree, hf_bthci_cmd_power_level_type,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x002f: /* Write SCO Flow Control Enable */
 			proto_tree_add_item(tree, hf_bthci_cmd_sco_flow_control,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0031: /* Set Host Controller To Host Flow Control */
 			proto_tree_add_item(tree, hf_bthci_cmd_flow_contr_enable,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0033: /* Host Buffer Size */
 			proto_tree_add_item(tree, hf_bthci_cmd_host_data_packet_length_acl,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			proto_tree_add_item(tree, hf_bthci_cmd_host_data_packet_length_sco,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			proto_tree_add_item(tree, hf_bthci_cmd_host_total_num_acl_data_packets,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			proto_tree_add_item(tree, hf_bthci_cmd_host_total_num_sco_data_packets,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0035: /* Host Number Of Completed Packets */
 			proto_tree_add_item(tree, hf_bthci_cmd_num_handles,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			num8 = tvb_get_guint8(tvb, offset);
 			offset++;
 			for (i=0; i<num8; i++) {
 				proto_tree_add_item(tree, hf_bthci_cmd_connection_handle,
-						tvb, offset+(i*4), 2, TRUE);
+						tvb, offset+(i*4), 2, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(tree, hf_bthci_cmd_num_compl_packets,
-						tvb, offset+2+(i*4), 2, TRUE);
+						tvb, offset+2+(i*4), 2, ENC_LITTLE_ENDIAN);
 			}
 			break;
 
 		case 0x0037: /* Write Link Supervision Timeout */
 			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			item = proto_tree_add_item(tree, hf_bthci_cmd_timeout,
-					tvb, offset, 2, TRUE);
+					tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			timeout = tvb_get_letohs(tvb, offset);
 			if(timeout>0){
 				proto_item_append_text(item, " slots (%g msec)", timeout*0.625);
@@ -1694,110 +1694,110 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 		case 0x003a: /* Write Current IAC LAP */
-			proto_tree_add_item(tree, hf_bthci_cmd_num_curr_iac, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_num_curr_iac, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			num8 = tvb_get_guint8(tvb, offset);
 			offset++;
 			for (i=0; i<num8; i++) {
-				proto_tree_add_item(tree, hf_bthci_cmd_iac_lap, tvb, offset+(i*3), 3, TRUE);
+				proto_tree_add_item(tree, hf_bthci_cmd_iac_lap, tvb, offset+(i*3), 3, ENC_LITTLE_ENDIAN);
 			}
 			break;
 
 		case 0x003c: /* Write Page Scan Period Mode */
 			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_period_mode,
-					tvb, offset, 1, TRUE);
+					tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x003e: /* Write Page Scan Mode */
 			proto_tree_add_item(tree, hf_bthci_cmd_page_scan_mode,
-					tvb, 3, 1, TRUE);
+					tvb, 3, 1, ENC_LITTLE_ENDIAN);
 			break;
 
 		case 0x003f: /* Set AFH Host Channel Classification */
-			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_classification, tvb, offset, 10, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_classification, tvb, offset, 10, ENC_LITTLE_ENDIAN);
 			offset+=10;
 			break;
 
 		case 0x0008: /* Flush */
 		case 0x0027: /* Read Automatic Flush Timeout */
 		case 0x0036: /* Read Link Supervision Timeout */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x001c: /* Write Page Scan Activity */
 		case 0x001e: /* Write Inquiry Scan Activity */
-			item = proto_tree_add_item(tree, hf_bthci_cmd_interval, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_interval, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
-			item = proto_tree_add_item(tree, hf_bthci_cmd_window, tvb, offset, 2, TRUE);
+			item = proto_tree_add_item(tree, hf_bthci_cmd_window, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(item, " slots (%g msec)",  tvb_get_letohs(tvb, offset)*0.625);
 			offset+=2;
 			break;
 
 
 		case 0x0043: /* Write Inquiry Scan Type */
-			proto_tree_add_item(tree, hf_bthci_cmd_scan_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_scan_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0045: /* Write Inquiry Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_inq_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_inq_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0047: /* Write Page Scan Type */
-			proto_tree_add_item(tree, hf_bthci_cmd_scan_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_scan_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0049: /* Write AFH Channel Assessment Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_assessment_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_assessment_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0052: /* Write Extended Inquiry Response */
-			proto_tree_add_item(tree, hf_bthci_cmd_fec_required, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_fec_required, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			offset=dissect_bthci_ext_inquiry_response(tvb, offset, pinfo, tree);
 			break;
 
 		case 0x0053: /* Refresh Encryption Key */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0056: /* Write Simple Pairing Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0059: /* Write Inquiry Tx Response Power Level */
-			proto_tree_add_item(tree, hf_bthci_cmd_tx_power, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_tx_power, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x005b: /* Write Default Erroneous Data Reporting */
-			proto_tree_add_item(tree, hf_bthci_cmd_err_data_reporting, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_err_data_reporting, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x005f: /* Enhanced Flush */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_flush_packet_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_flush_packet_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0060: /* Send Keypress Notification */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_notification_type, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_notification_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1811,12 +1811,12 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 	switch(cmd_ocf) {
 
 		case 0x0004: /* Read Local Extended Features */
-			proto_tree_add_item(tree, hf_bthci_cmd_page_number, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_page_number, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1834,19 +1834,19 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		case 0x0003: /* Get Link Quality */
 		case 0x0005: /* Read RSSI */
 		case 0x0006: /* Read AFH Channel Map */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 			break;
 
 		case 0x0007: /* Read Clock */
-			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_connection_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
-			proto_tree_add_item(tree, hf_bthci_cmd_which_clock, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_which_clock, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1859,17 +1859,17 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	switch(cmd_ocf) {
 
 		case 0x0002: /* Write Loopback Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_loopback_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_loopback_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		case 0x0004: /* Write Simple Pairing Debug Mode */
-			proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_debug_mode, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_simple_pairing_debug_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1890,7 +1890,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree *opcode_tree;
 
 	if(tree){
-		ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, FALSE);
+		ti_cmd = proto_tree_add_item(tree, proto_bthci_cmd, tvb, offset, -1, ENC_BIG_ENDIAN);
 		bthci_cmd_tree = proto_item_add_subtree(ti_cmd, ett_bthci_cmd);
 	}
 
@@ -1902,19 +1902,16 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "HCI_CMD");
 
-	if((check_col(pinfo->cinfo, COL_INFO))){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s", val_to_str_ext(opcode, &bthci_cmd_opcode_vals_ext, "Unknown 0x%04x"));
 
-
-	ti_opcode = proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_opcode, tvb, offset, 2, TRUE);
+	ti_opcode = proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_opcode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	opcode_tree = proto_item_add_subtree(ti_opcode, ett_opcode);
-	proto_tree_add_item(opcode_tree, hf_bthci_cmd_ogf, tvb, offset, 2, TRUE);
-	proto_tree_add_item(opcode_tree, hf_bthci_cmd_ocf, tvb, offset, 2, TRUE);
+	proto_tree_add_item(opcode_tree, hf_bthci_cmd_ogf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(opcode_tree, hf_bthci_cmd_ocf, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 
-	proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_param_length, tvb, offset, 1, TRUE);
+	proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_param_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	param_length = tvb_get_guint8(tvb, offset);
 	offset++;
 
@@ -1945,7 +1942,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_params, tvb, 3, -1, TRUE);
+				proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_params, tvb, 3, -1, ENC_LITTLE_ENDIAN);
 				break;
 		}
 	}

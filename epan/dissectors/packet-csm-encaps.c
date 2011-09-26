@@ -240,38 +240,36 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CSM_ENCAPS");
 
-	if (check_col(pinfo->cinfo, COL_INFO)) {
-		col_clear(pinfo->cinfo, COL_INFO);
+	col_clear(pinfo->cinfo, COL_INFO);
 
 
-		if (CSM_ENCAPS_CTRL_ACK&control)
-		{
-			if (CSM_ENCAPS_CTRL_ACK_TO_HOST&control)
-				col_append_fstr(pinfo->cinfo, COL_INFO, "<-- ACK                                 Ch: 0x%04X, Seq: %2d (To Host)", channel, sequence);
-			else
-				col_append_fstr(pinfo->cinfo, COL_INFO, "--> ACK                                 Ch: 0x%04X, Seq: %2d (From Host)", channel, sequence);
-		}
+	if (CSM_ENCAPS_CTRL_ACK&control)
+	{
+		if (CSM_ENCAPS_CTRL_ACK_TO_HOST&control)
+			col_append_fstr(pinfo->cinfo, COL_INFO, "<-- ACK                                 Ch: 0x%04X, Seq: %2d (To Host)", channel, sequence);
 		else
-		{
-			str_function_name= csm_fc(function_code, class_type);
-			if ((type == CSM_ENCAPS_TYPE_RESPONSE) || (csm_to_host(function_code, class_type)))
-				col_append_fstr(pinfo->cinfo, COL_INFO, "<-- %-35s Ch: 0x%04X, Seq: %2d (To Host)", str_function_name, channel, sequence);
-			else
-				col_append_fstr(pinfo->cinfo, COL_INFO, "--> %-35s Ch: 0x%04X, Seq: %2d (From Host)", str_function_name, channel, sequence);
-			g_free(str_function_name);
-		}
+			col_append_fstr(pinfo->cinfo, COL_INFO, "--> ACK                                 Ch: 0x%04X, Seq: %2d (From Host)", channel, sequence);
+	}
+	else
+	{
+		str_function_name= csm_fc(function_code, class_type);
+		if ((type == CSM_ENCAPS_TYPE_RESPONSE) || (csm_to_host(function_code, class_type)))
+			col_append_fstr(pinfo->cinfo, COL_INFO, "<-- %-35s Ch: 0x%04X, Seq: %2d (To Host)", str_function_name, channel, sequence);
+		else
+			col_append_fstr(pinfo->cinfo, COL_INFO, "--> %-35s Ch: 0x%04X, Seq: %2d (From Host)", str_function_name, channel, sequence);
+		g_free(str_function_name);
 	}
 
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, proto_csm_encaps, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_csm_encaps, tvb, 0, -1, ENC_BIG_ENDIAN);
 		csm_encaps_tree = proto_item_add_subtree(ti, ett_csm_encaps);
 
 
 
 
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_opcode, tvb, 0, 2, FALSE);
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_seq, tvb, 2, 1, FALSE);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_opcode, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_seq, tvb, 2, 1, ENC_BIG_ENDIAN);
 
 		subitem = proto_tree_add_uint(csm_encaps_tree, hf_csm_encaps_ctrl, tvb, 3, 1, control);
 		csm_encaps_control_tree = proto_item_add_subtree(subitem, ett_csm_encaps_control);
@@ -280,66 +278,66 @@ dissect_csm_encaps(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     		proto_tree_add_boolean(csm_encaps_control_tree, hf_csm_encaps_ctrl_ack_suppress, tvb, 3, 1, control);
 		    proto_tree_add_boolean(csm_encaps_control_tree, hf_csm_encaps_ctrl_endian, tvb, 3, 1, control);
 
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_channel, tvb, 4, 2, FALSE);
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_length, tvb, 6, 1, FALSE);
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_index, tvb, 7, 1, FALSE);
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_class, tvb, 9, 1, FALSE);
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_type, tvb, 8, 1, FALSE);
-		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_function_code, tvb, 10, 2, TRUE);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_channel, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_length, tvb, 6, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_index, tvb, 7, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_class, tvb, 9, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_type, tvb, 8, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_function_code, tvb, 10, 2, ENC_LITTLE_ENDIAN);
 
 		i=6;
 
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_reserved, tvb, 12 + i-6, 2, TRUE); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_reserved, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
 		if (i<length)
 		{
 			if (show_error_param)
-				proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param_error, tvb, 12 + i-6, 2, TRUE);
+				proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param_error, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN);
 			else
-				proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param1, tvb, 12 + i-6, 2, TRUE);
+				proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param1, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN);
 			i+=2;
 		}
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param2, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param3, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param4, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param5, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param6, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param7, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param8, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param9, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param10, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param11, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param12, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param13, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param14, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param15, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param16, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param17, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param18, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param19, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param20, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param21, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param22, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param23, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param24, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param25, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param26, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param27, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param28, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param29, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param30, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param31, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param32, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param33, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param34, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param35, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param36, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param37, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param38, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param39, tvb, 12 + i-6, 2, TRUE); i+=2;
-		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param40, tvb, 12 + i-6, 2, TRUE); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param2, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param3, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param4, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param5, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param6, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param7, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param8, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param9, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param10, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param11, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param12, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param13, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param14, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param15, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param16, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param17, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param18, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param19, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param20, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param21, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param22, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param23, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param24, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param25, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param26, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param27, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param28, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param29, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param30, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param31, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param32, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param33, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param34, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param35, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param36, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param37, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param38, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param39, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
+		if (i<length) proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param40, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN); i+=2;
 
 		for (; i<length; i+=2)
-			proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param, tvb, 12 + i-6, 2, TRUE);
+			proto_tree_add_item(csm_encaps_tree, hf_csm_encaps_param, tvb, 12 + i-6, 2, ENC_LITTLE_ENDIAN);
 	}
 }
 

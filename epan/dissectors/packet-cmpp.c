@@ -350,7 +350,7 @@ cmpp_msg_id(proto_tree *tree, tvbuff_t *tvb, gint  field, gint offset)
 	proto_tree *sub_tree;
 	char *strval;
 
-	pi = proto_tree_add_item(tree, field, tvb, offset, 8, FALSE);
+	pi = proto_tree_add_item(tree, field, tvb, offset, 8, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(pi, ett_msg_id);
 
 	month = (tvb_get_guint8(tvb, offset) & 0xF0) >> 4;
@@ -475,7 +475,7 @@ cmpp_deliver_report(proto_tree *tree, tvbuff_t *tvb, gint  field, guint offset)
 	proto_item *pi;
 	proto_tree *sub_tree;
 
-	pi = proto_tree_add_item(tree, field, tvb, offset, CMPP_DELIVER_REPORT_LEN, FALSE);
+	pi = proto_tree_add_item(tree, field, tvb, offset, CMPP_DELIVER_REPORT_LEN, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(pi, ett_deliver_report);
 	cmpp_msg_id(sub_tree, tvb, hf_cmpp_msg_id, offset);
 	offset += 8;
@@ -576,14 +576,11 @@ dissect_cmpp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "CMPP");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-	{
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s. ", command_str);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s. ", command_str);
 
 	if (tree)
 	{
-		ti = proto_tree_add_item(tree, proto_cmpp, tvb, 0, -1, FALSE);
+		ti = proto_tree_add_item(tree, proto_cmpp, tvb, 0, -1, ENC_BIG_ENDIAN);
 
 		cmpp_tree = proto_item_add_subtree(ti, ett_cmpp);
 

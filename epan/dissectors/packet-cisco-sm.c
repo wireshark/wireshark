@@ -151,11 +151,10 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "SM");
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",
-			val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
+	col_add_fstr(pinfo->cinfo, COL_INFO, "Cisco SM Packet (%s)",
+		val_to_str(sm_message_type, sm_message_type_value_info,"reserved"));
 
-	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, FALSE);
+	ti = proto_tree_add_item(tree, proto_sm, tvb, offset, 0, ENC_BIG_ENDIAN);
 	sm_tree = proto_item_add_subtree(ti, ett_sm);
 
 	proto_tree_add_uint_format(sm_tree, hf_sm_sm_msg_type, tvb, offset, 4, sm_message_type,
@@ -163,7 +162,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	offset = offset + 4;
 	if (sm_message_type ==  MESSAGE_TYPE_PDU) {
-		proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, offset, 2, FALSE);
+		proto_tree_add_item(sm_tree, hf_sm_protocol, tvb, offset, 2, ENC_BIG_ENDIAN);
 		protocol = tvb_get_ntohs(tvb,offset);
 		offset = offset + 2;
 		switch(protocol){
@@ -172,7 +171,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (!tree)
 				return;
 			/* Protocol 0x100/0x122 only contains a length and then an EISUP packet */
-			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
 			proto_item_set_len(ti, 8);
@@ -192,26 +191,26 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * Protocol stack is RUDP->Cisco SM->SDP.
 			 * This implementation is PROPRIETARY
 			 */
-			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
 			proto_item_set_len(ti, length + offset);
 			/* The next stuff seems to be IP addr */
-			proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset + 4;
 			/* This part looks to be the same per session */
-			proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset +4;
 			/* Some sort of message type? */
-			proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset = offset + 1;
 			/* XXX Problem are tags 1 or two bytes???*/
-			proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 			tag = tvb_get_ntohs(tvb,offset);
 			offset = offset +2;
 			if (tag== 0x01ac) {
-				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 				length = tvb_get_ntohs(tvb,offset);
 				offset = offset +2;
 				next_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -225,25 +224,25 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (!tree)
 				return;
 			/* XXX Reveres enginered so this may not be correct!!! */
-			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
 			proto_item_set_len(ti, length + offset);
 			/* The next stuff seems to be IP addr */
-			proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset + 4;
-			proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_context, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset = offset +4;
 			/* Some sort of message type? */
-			proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_eisup_msg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset = offset + 1;
 			/* XXX Problem are tags 1 or two bytes???*/
-			proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 			tag = tvb_get_ntohs(tvb,offset);
 			offset = offset +2;
 			if (tag== 0x01ac) {
-				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+				proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 				length = tvb_get_ntohs(tvb,offset);
 				offset = offset +2;
 				next_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -253,7 +252,7 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			}
 			break;
 		default:
-			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_msg_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
 			msg_type = tvb_get_ntohs(tvb,offset);
 			proto_tree_add_uint_format(sm_tree, hf_sm_msg_type, tvb, offset, 2, msg_type,
@@ -261,11 +260,11 @@ dissect_sm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				msg_type);
 			msg_type = tvb_get_ntohs(tvb,offset);
 			offset = offset + 2;
-			proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_channel, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset + 2;
-			proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_bearer, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset = offset +2;
-			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sm_tree, hf_sm_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = tvb_get_ntohs(tvb,offset);
 			offset = offset +2;
 			proto_item_set_len(ti, 16);

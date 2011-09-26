@@ -612,7 +612,7 @@ dissect_cimd_operation(tvbuff_t *tvb, proto_tree *tree, gint etxp, guint16 check
   if (tree)
   {
     /* create display subtree for the protocol */
-    cimd_item = proto_tree_add_item(tree, proto_cimd, tvb, 0, etxp + 1, TRUE);
+    cimd_item = proto_tree_add_item(tree, proto_cimd, tvb, 0, etxp + 1, ENC_LITTLE_ENDIAN);
     cimd_tree = proto_item_add_subtree(cimd_item, ett_cimd);
     proto_tree_add_uint(cimd_tree, hf_cimd_opcode_indicator, tvb, CIMD_OC_OFFSET, CIMD_OC_LENGTH, OC);
     proto_tree_add_uint(cimd_tree, hf_cimd_packet_number_indicator, tvb, CIMD_PN_OFFSET, CIMD_PN_LENGTH, PN);
@@ -683,13 +683,10 @@ dissect_cimd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* Make entries in Protocol column on summary display */
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "CIMD");
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-    if (checksumIsValid)
-      col_add_str(pinfo->cinfo, COL_INFO, val_to_str(OC, vals_hdr_OC, "Unknown (%d)"));
-    else
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", val_to_str(OC, vals_hdr_OC, "Unknown (%d)"), "invalid checksum");
-  }
+  if (checksumIsValid)
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(OC, vals_hdr_OC, "Unknown (%d)"));
+  else
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s - %s", val_to_str(OC, vals_hdr_OC, "Unknown (%d)"), "invalid checksum");
 
   dissect_cimd_operation(tvb, tree, etxp, checksum, last1, OC, PN);
 }

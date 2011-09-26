@@ -256,9 +256,7 @@ static int dissect_control_get_recmaster_reply(packet_info *pinfo, proto_tree *t
 {
 	proto_tree_add_uint(tree, hf_ctdb_recmaster, tvb, 0, 0, status);
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " RecMaster:%d", status);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " RecMaster:%d", status);
 
 	return offset;
 }
@@ -273,10 +271,8 @@ static int dissect_control_get_recmode_reply(packet_info *pinfo, proto_tree *tre
 {
 	proto_tree_add_uint(tree, hf_ctdb_recmode, tvb, 0, 0, status);
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " RecMode:%s",
-			val_to_str(status, recmode_vals, "Unknown:%d"));
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " RecMode:%s",
+		val_to_str(status, recmode_vals, "Unknown:%d"));
 
 	return offset;
 }
@@ -304,7 +300,7 @@ static int dissect_control_get_nodemap_reply(packet_info *pinfo _U_, proto_tree 
 		offset+=4;
 
 		/* here comes a sockaddr_in but we only store ipv4 addresses in it */
-		proto_tree_add_item(tree, hf_ctdb_node_ip, tvb, offset+4, 4, FALSE);
+		proto_tree_add_item(tree, hf_ctdb_node_ip, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 		offset+=16;
 	}
 
@@ -324,9 +320,7 @@ static int dissect_control_process_exist_request(packet_info *pinfo, proto_tree 
 	}
 	offset+=4;
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, " pid:%d", pid);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, " pid:%d", pid);
 
 	return offset;
 }
@@ -711,11 +705,9 @@ dissect_ctdb_req_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	}
 	offset+=4;
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request %d->%d",
-			val_to_str(opcode, ctrl_opcode_vals, "Unknown:%d"),
-			src, dst);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Request %d->%d",
+		val_to_str(opcode, ctrl_opcode_vals, "Unknown:%d"),
+		src, dst);
 
 	/* srvid */
 	offset=(offset+7)&0xfffff8; /* fixup alignment*/
@@ -819,11 +811,9 @@ dissect_ctdb_reply_control(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 	item=proto_tree_add_uint(tree, hf_ctdb_ctrl_opcode, tvb, 0, 0, ctdb_control->opcode);
 	PROTO_ITEM_SET_GENERATED(item);
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply %d->%d",
-			val_to_str(ctdb_control->opcode, ctrl_opcode_vals, "Unknown:%d"),
-			src, dst);
-	}
+	col_add_fstr(pinfo->cinfo, COL_INFO, "%s Reply %d->%d",
+		val_to_str(ctdb_control->opcode, ctrl_opcode_vals, "Unknown:%d"),
+		src, dst);
 
 
 	/* status */
@@ -1059,11 +1049,9 @@ dissect_ctdb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 	offset+=4;
 
-	if(check_col(pinfo->cinfo, COL_INFO)){
-		col_append_fstr(pinfo->cinfo, COL_INFO, "%s %d->%d",
-			val_to_str(opcode, ctdb_opcodes, "Unknown:%d"),
-			src, dst);
-	}
+	col_append_fstr(pinfo->cinfo, COL_INFO, "%s %d->%d",
+		val_to_str(opcode, ctdb_opcodes, "Unknown:%d"),
+		src, dst);
 
 	switch(opcode){
 	case CTDB_REQ_CALL:

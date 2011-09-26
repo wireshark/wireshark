@@ -223,7 +223,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (cnf_proto_id == NLPID_NULL) {
     col_set_str(pinfo->cinfo, COL_INFO, "Inactive subset");
     if (tree) {
-      ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, FALSE);
+      ti = proto_tree_add_item(tree, proto_clnp, tvb, P_CLNP_PROTO_ID, 1, ENC_BIG_ENDIAN);
       clnp_tree = proto_item_add_subtree(ti, ett_clnp);
       proto_tree_add_uint_format(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
                                  cnf_proto_id,
@@ -247,7 +247,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   opt_len = cnf_hdr_len;
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, FALSE);
+    ti = proto_tree_add_item(tree, proto_clnp, tvb, 0, cnf_hdr_len, ENC_BIG_ENDIAN);
     clnp_tree = proto_item_add_subtree(ti, ett_clnp);
     proto_tree_add_uint(clnp_tree, hf_clnp_id, tvb, P_CLNP_PROTO_ID, 1,
                         cnf_proto_id);
@@ -303,8 +303,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      we set it otherwise. */
 
   if (tvb_length(tvb) < cnf_hdr_len) {
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
   }
 
   segment_length = tvb_get_ntohs(tvb, P_CLNP_SEGLEN);
@@ -472,9 +471,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (next_tvb == NULL) {
     /* Just show this as a segment. */
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
-                   pdu_type_string, flag_string, segment_offset);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented %s NPDU %s(off=%u)",
+                 pdu_type_string, flag_string, segment_offset);
 
     /* As we haven't reassembled anything, we haven't changed "pi", so
        we don't have to restore it. */
@@ -511,8 +509,8 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* The payload is the header and "none, some, or all of the data
          part of the discarded PDU", i.e. it's like an ICMP error;
          dissect it as a CLNP PDU. */
-      if (check_col(pinfo->cinfo, COL_INFO))
-        col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+
+	  col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
       next_length = tvb_length_remaining(tvb, offset);
       if (next_length != 0) {
           /* We have payload; dissect it. */
@@ -541,8 +539,7 @@ static void dissect_clnp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     }
   }
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s NPDU %s", pdu_type_string, flag_string);
   call_dissector(data_handle,next_tvb, pinfo, tree);
   pinfo->fragmented = save_fragmented;
 } /* dissect_clnp */

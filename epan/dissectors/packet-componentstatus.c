@@ -139,11 +139,11 @@ static const value_string message_type_values[] = {
 static void
 dissect_componentstatusprotocol_componentassociation_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  proto_tree_add_item(message_tree, hf_componentassociation_receiverid, message_tvb, COMPONENTASSOCIATION_RECEIVERID_OFFSET, COMPONENTASSOCIATION_RECEIVERID_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_duration,   message_tvb, COMPONENTASSOCIATION_DURATION_OFFSET,   COMPONENTASSOCIATION_DURATION_LENGTH,   FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_flags,      message_tvb, COMPONENTASSOCIATION_FLAGS_OFFSET,      COMPONENTASSOCIATION_FLAGS_LENGTH,      FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_protocolid, message_tvb, COMPONENTASSOCIATION_PROTOCOLID_OFFSET, COMPONENTASSOCIATION_PROTOCOLID_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentassociation_ppid,       message_tvb, COMPONENTASSOCIATION_PPID_OFFSET,       COMPONENTASSOCIATION_PPID_LENGTH,       FALSE);
+  proto_tree_add_item(message_tree, hf_componentassociation_receiverid, message_tvb, COMPONENTASSOCIATION_RECEIVERID_OFFSET, COMPONENTASSOCIATION_RECEIVERID_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentassociation_duration,   message_tvb, COMPONENTASSOCIATION_DURATION_OFFSET,   COMPONENTASSOCIATION_DURATION_LENGTH,   ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentassociation_flags,      message_tvb, COMPONENTASSOCIATION_FLAGS_OFFSET,      COMPONENTASSOCIATION_FLAGS_LENGTH,      ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentassociation_protocolid, message_tvb, COMPONENTASSOCIATION_PROTOCOLID_OFFSET, COMPONENTASSOCIATION_PROTOCOLID_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentassociation_ppid,       message_tvb, COMPONENTASSOCIATION_PPID_OFFSET,       COMPONENTASSOCIATION_PPID_LENGTH,       ENC_BIG_ENDIAN);
 }
 
 
@@ -157,11 +157,11 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   int         i;
   gint        offset;
 
-  proto_tree_add_item(message_tree, hf_componentstatusreport_reportinterval, message_tvb, COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET, COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_location,       message_tvb, COMPONENTSTATUSREPORT_LOCATION_OFFSET,       COMPONENTSTATUSREPORT_LOCATION_LENGTH,       FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_status,         message_tvb, COMPONENTSTATUSREPORT_STATUS_OFFSET,         COMPONENTSTATUSREPORT_STATUS_LENGTH,         FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_workload,       message_tvb, COMPONENTSTATUSREPORT_WORKLOAD_OFFSET,       COMPONENTSTATUSREPORT_WORKLOAD_LENGTH,       FALSE);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_associations,   message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET,   COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH,   FALSE);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_reportinterval, message_tvb, COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET, COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_location,       message_tvb, COMPONENTSTATUSREPORT_LOCATION_OFFSET,       COMPONENTSTATUSREPORT_LOCATION_LENGTH,       ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_status,         message_tvb, COMPONENTSTATUSREPORT_STATUS_OFFSET,         COMPONENTSTATUSREPORT_STATUS_LENGTH,         ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_workload,       message_tvb, COMPONENTSTATUSREPORT_WORKLOAD_OFFSET,       COMPONENTSTATUSREPORT_WORKLOAD_LENGTH,       ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_associations,   message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET,   COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH,   ENC_BIG_ENDIAN);
 
   /* associations = tvb_get_ntohs(message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET); */
   offset = COMPONENTSTATUSREPORT_ASSOCIATIONARRAY_OFFSET;
@@ -186,15 +186,13 @@ dissect_componentstatusprotocol_message(tvbuff_t *message_tvb, packet_info *pinf
   guint8 type;
 
   type = tvb_get_guint8(message_tvb, MESSAGE_TYPE_OFFSET);
-  if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
-    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, message_type_values, "Unknown ComponentStatusProtocol type"));
-  }
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_type,            message_tvb, MESSAGE_TYPE_OFFSET,     MESSAGE_TYPE_LENGTH,     FALSE);
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_flags,           message_tvb, MESSAGE_FLAGS_OFFSET,    MESSAGE_FLAGS_LENGTH,    FALSE);
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_length,          message_tvb, MESSAGE_LENGTH_OFFSET,   MESSAGE_LENGTH_LENGTH,   FALSE);
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_version,         message_tvb, MESSAGE_VERSION_OFFSET,  MESSAGE_VERSION_LENGTH,  FALSE);
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_senderid,        message_tvb, MESSAGE_SENDERID_OFFSET, MESSAGE_SENDERID_LENGTH, FALSE);
-  proto_tree_add_item(componentstatusprotocol_tree, hf_message_sendertimestamp, message_tvb, MESSAGE_SENDERTIMESTAMP_OFFSET, MESSAGE_SENDERTIMESTAMP_LENGTH, FALSE);
+  col_add_str(pinfo->cinfo, COL_INFO, val_to_str(type, message_type_values, "Unknown ComponentStatusProtocol type"));
+  proto_tree_add_item(componentstatusprotocol_tree, hf_message_type,            message_tvb, MESSAGE_TYPE_OFFSET,     MESSAGE_TYPE_LENGTH,     ENC_BIG_ENDIAN);
+  proto_tree_add_item(componentstatusprotocol_tree, hf_message_flags,           message_tvb, MESSAGE_FLAGS_OFFSET,    MESSAGE_FLAGS_LENGTH,    ENC_BIG_ENDIAN);
+  proto_tree_add_item(componentstatusprotocol_tree, hf_message_length,          message_tvb, MESSAGE_LENGTH_OFFSET,   MESSAGE_LENGTH_LENGTH,   ENC_BIG_ENDIAN);
+  proto_tree_add_item(componentstatusprotocol_tree, hf_message_version,         message_tvb, MESSAGE_VERSION_OFFSET,  MESSAGE_VERSION_LENGTH,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(componentstatusprotocol_tree, hf_message_senderid,        message_tvb, MESSAGE_SENDERID_OFFSET, MESSAGE_SENDERID_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(componentstatusprotocol_tree, hf_message_sendertimestamp, message_tvb, MESSAGE_SENDERTIMESTAMP_OFFSET, MESSAGE_SENDERTIMESTAMP_LENGTH, ENC_BIG_ENDIAN);
   switch (type) {
     case COMPONENTSTATUS_COMPONENTSTATUSREPORT_MESSAGE_TYPE:
       dissect_componentstatusprotocol_componentstatusreport_message(message_tvb, componentstatusprotocol_tree);
@@ -232,7 +230,7 @@ dissect_componentstatusprotocol(tvbuff_t *message_tvb, packet_info *pinfo, proto
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the componentstatusprotocol protocol tree */
-    componentstatusprotocol_item = proto_tree_add_item(tree, proto_componentstatusprotocol, message_tvb, 0, -1, FALSE);
+    componentstatusprotocol_item = proto_tree_add_item(tree, proto_componentstatusprotocol, message_tvb, 0, -1, ENC_BIG_ENDIAN);
     componentstatusprotocol_tree = proto_item_add_subtree(componentstatusprotocol_item, ett_componentstatusprotocol);
   } else {
     componentstatusprotocol_tree = NULL;

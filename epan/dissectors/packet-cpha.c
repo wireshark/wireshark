@@ -225,12 +225,11 @@ dissect_cpha(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   hdr.filler = g_ntohs(hdr.filler);
   opcode  = g_ntohs(hdr.opcode);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "CPHAv%d: %s",
-        hdr.ha_protocol_ver, opcode2str_short(opcode));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "CPHAv%d: %s",
+      hdr.ha_protocol_ver, opcode2str_short(opcode));
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, proto_cphap, tvb, offset, -1, ENC_BIG_ENDIAN);
     cpha_tree = proto_item_add_subtree(ti, ett_cphap);
   }
   if (tree) {

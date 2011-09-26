@@ -122,11 +122,9 @@ dissect_cwids(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			pinfo->private_data = pd_save;
 
-			if (check_col(pinfo->cinfo, COL_INFO)) {
-				col_append_str(pinfo->cinfo, COL_INFO,
-					" [Malformed or short IEEE80211 subpacket] " );
-				col_set_fence(pinfo->cinfo, COL_INFO);
-			}
+			col_append_str(pinfo->cinfo, COL_INFO,
+				" [Malformed or short IEEE80211 subpacket] " );
+			col_set_fence(pinfo->cinfo, COL_INFO);
 #if 0
 	wlan_tvb = tvb_new_subset(tvb, offset, capturelen, capturelen);
 			/* FIXME: Why does this throw an exception? */

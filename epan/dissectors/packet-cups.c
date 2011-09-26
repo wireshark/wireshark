@@ -164,7 +164,7 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, proto_cups, tvb, offset, -1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		cups_tree = proto_item_add_subtree(ti, ett_cups);
 	}
 
@@ -215,11 +215,10 @@ dissect_cups(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(cups_tree, tvb, offset, len,
 		    "URI: %.*s",
 		    (guint16) len, str);
-	if (check_col(pinfo->cinfo, COL_INFO))
-		col_add_fstr(pinfo->cinfo, COL_INFO,
-		    "%.*s (%s)",
-		    (guint16) len, str,
-		    val_to_str(state, cups_state_values, "0x%x"));
+	col_add_fstr(pinfo->cinfo, COL_INFO,
+	    "%.*s (%s)",
+	    (guint16) len, str,
+	    val_to_str(state, cups_state_values, "0x%x"));
 	offset = next_offset;
 
 	if (!cups_tree)

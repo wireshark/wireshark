@@ -147,8 +147,7 @@ chdlctype(guint16 chdlc_type, tvbuff_t *tvb, int offset_after_chdlctype,
 
   /* do lookup with the subdissector table */
   if (!dissector_try_uint(subdissector_table, chdlc_type, next_tvb, pinfo, tree)) {
-    if (check_col(pinfo->cinfo, COL_PROTOCOL))
-      col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
+	col_add_fstr(pinfo->cinfo, COL_PROTOCOL, "0x%04x", chdlc_type);
     call_dissector(data_handle,next_tvb, pinfo, tree);
   }
 }
@@ -188,7 +187,7 @@ dissect_chdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto = tvb_get_ntohs(tvb, 2);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_chdlc, tvb, 0, 4, FALSE);
+    ti = proto_tree_add_item(tree, proto_chdlc, tvb, 0, 4, ENC_BIG_ENDIAN);
     fh_tree = proto_item_add_subtree(ti, ett_chdlc);
 
     proto_tree_add_uint(fh_tree, hf_chdlc_addr, tvb, 0, 1, addr);
@@ -234,7 +233,7 @@ proto_register_chdlc(void)
 	"CHDLC Frame Checksum Type",
 	"The type of CHDLC frame checksum (none, 16-bit, 32-bit)",
 	&chdlc_fcs_decode,
-	fcs_options, FALSE);
+	fcs_options, ENC_BIG_ENDIAN);
 
 }
 
@@ -276,7 +275,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   code = tvb_get_ntohl(tvb, 0);
 
   if (tree) {
-    ti = proto_tree_add_item(tree, proto_slarp, tvb, 0, 14, FALSE);
+    ti = proto_tree_add_item(tree, proto_slarp, tvb, 0, 14, ENC_BIG_ENDIAN);
     slarp_tree = proto_item_add_subtree(ti, ett_slarp);
   }
 
@@ -284,15 +283,13 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   case SLARP_REQUEST:
   case SLARP_REPLY:
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	addr = tvb_get_ipv4(tvb, 4);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s, from %s, mask %s",
 		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
 		     get_hostname(addr), tvb_ip_to_str(tvb, 8));
-    }
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
-      proto_tree_add_item(slarp_tree, hf_slarp_address, tvb, 4, 4, FALSE);
+      proto_tree_add_item(slarp_tree, hf_slarp_address, tvb, 4, 4, ENC_BIG_ENDIAN);
       proto_tree_add_text(slarp_tree, tvb, 8, 4,
 			  "Netmask: %s", tvb_ip_to_str(tvb, 8));
     }
@@ -301,12 +298,10 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case SLARP_LINECHECK:
     mysequence = tvb_get_ntohl(tvb, 4);
     yoursequence = tvb_get_ntohl(tvb, 8);
-    if (check_col(pinfo->cinfo, COL_INFO)) {
 	col_add_fstr(pinfo->cinfo, COL_INFO,
 		     "%s, outgoing sequence %u, returned sequence %u",
 		     val_to_str(code, slarp_ptype_vals, "Unknown (%d)"),
 		     mysequence, yoursequence);
-    }
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       proto_tree_add_uint(slarp_tree, hf_slarp_mysequence, tvb, 4, 4,
@@ -317,8 +312,7 @@ dissect_slarp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
   default:
-    if (check_col(pinfo->cinfo, COL_INFO))
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown packet type 0x%08X", code);
+    col_add_fstr(pinfo->cinfo, COL_INFO, "Unknown packet type 0x%08X", code);
     if (tree) {
       proto_tree_add_uint(slarp_tree, hf_slarp_ptype, tvb, 0, 4, code);
       call_dissector(data_handle, tvb_new_subset_remaining(tvb, 4), pinfo,

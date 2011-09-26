@@ -271,18 +271,18 @@ dissect_cpfi_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
 
     /* add word 1 components to the protocol tree */
-    proto_tree_add_item(extra_tree, hf_cpfi_word_one  , tvb, 0, 4, FALSE);
+    proto_tree_add_item(extra_tree, hf_cpfi_word_one  , tvb, 0, 4, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(extra_tree, hf_cpfi_frame_type, tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_source    , tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_dest      , tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_SOF_type  , tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_speed     , tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_OPM_error , tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_from_LCM  , tvb, 0, 4, FALSE);
+    proto_tree_add_item(extra_tree, hf_cpfi_frame_type, tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_source    , tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_dest      , tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_SOF_type  , tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_speed     , tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_OPM_error , tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_from_LCM  , tvb, 0, 4, ENC_BIG_ENDIAN);
 
     /* add word 2 components to the protocol tree */
-    proto_tree_add_item(extra_tree, hf_cpfi_word_two  , tvb, 4, 4, FALSE);
+    proto_tree_add_item(extra_tree, hf_cpfi_word_two  , tvb, 4, 4, ENC_BIG_ENDIAN);
   };
 }
 
@@ -301,8 +301,8 @@ dissect_cpfi_footer(tvbuff_t *tvb, proto_tree *tree)
   }
 
   if (extra_tree) {
-    proto_tree_add_item(extra_tree, hf_cpfi_CRC_32  , tvb, 0, 4, FALSE);
-    proto_tree_add_item(extra_tree, hf_cpfi_EOF_type, tvb, 4, 4, FALSE);
+    proto_tree_add_item(extra_tree, hf_cpfi_CRC_32  , tvb, 0, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(extra_tree, hf_cpfi_EOF_type, tvb, 4, 4, ENC_BIG_ENDIAN);
   }
 }
 
@@ -354,7 +354,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
      necessary to generate protocol tree items. */
   if (tree) {
     /* create the protocol tree */
-    cpfi_item = proto_tree_add_item(tree, proto_cpfi, message_tvb, 0, -1, FALSE);
+    cpfi_item = proto_tree_add_item(tree, proto_cpfi, message_tvb, 0, -1, ENC_BIG_ENDIAN);
     cpfi_tree = proto_item_add_subtree(cpfi_item, ett_cpfi);
   }
 
@@ -375,10 +375,7 @@ dissect_cpfi(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
 
   /* add more info, now that FC added it's */
   proto_item_append_text(cpfi_item, direction_and_port_string, left, arrow, right);
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-    col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
-  }
+  col_prepend_fstr(pinfo->cinfo, COL_INFO, direction_and_port_string, left, arrow, right);
 
   /* Do the footer */
   footer_tvb = tvb_new_subset(message_tvb, 8+body_length, length, 8);
