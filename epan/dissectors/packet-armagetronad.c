@@ -236,6 +236,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	guint16 sender;
 	gint offset = 0;
 	GString *info;
+	gsize new_len;
 
 	if (!is_armagetronad_packet(tvb))
 		return 0;
@@ -258,7 +259,7 @@ dissect_armagetronad(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	proto_tree_add_item(ti, hf_armagetronad_sender_id, tvb, offset, 2,
 			    ENC_BIG_ENDIAN);
 
-	gsize new_len = info->len - 2;	/* Remove the trailing ", " */
+	new_len = info->len - 2;	/* Remove the trailing ", " */
 	if (new_len > 0)
 		g_string_truncate(info, new_len);
 	else
