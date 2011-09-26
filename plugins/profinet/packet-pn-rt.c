@@ -307,60 +307,60 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb,
 static void
 dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-  gint tvb_len;
-  gint data_len;
-  guint16 u16FrameID;
-  guint8 u8DataStatus;
-  guint8 u8TransferStatus;
-  guint16 u16CycleCounter;
-  const gchar *pszProtAddInfo;
-  const gchar *pszProtShort;
-  const gchar *pszProtSummary;
-  const gchar *pszProtComment;
-  proto_tree *pn_rt_tree, *ti;
-  gchar szFieldSummary[100];
-  tvbuff_t *next_tvb;
-  gboolean  bCyclic;
+    gint pdu_len;
+    gint data_len;
+    guint16 u16FrameID;
+    guint8 u8DataStatus;
+    guint8 u8TransferStatus;
+    guint16 u16CycleCounter;
+    const gchar *pszProtAddInfo;
+    const gchar *pszProtShort;
+    const gchar *pszProtSummary;
+    const gchar *pszProtComment;
+    proto_tree *pn_rt_tree, *ti;
+    gchar szFieldSummary[100];
+    tvbuff_t *next_tvb;
+    gboolean  bCyclic;
 
 
-  /* If the link-layer dissector for the protocol above us knows whether
-   * the packet, as handed to it, includes a link-layer FCS, what it
-   * hands to us should not include the FCS; if that's not the case,
-   * that's a bug in that dissector, and should be fixed there.
-   *
-   * If the link-layer dissector for the protocol above us doesn't know
-   * whether the packet, as handed to us, includes a link-layer FCS,
-   * there are limits as to what can be done there; the dissector
-   * ultimately needs a "yes, it has an FCS" preference setting, which
-   * both the Ethernet and 802.11 dissectors do.  If that's not the case
-   * for a dissector, that's a deficiency in that dissector, and should
-   * be fixed there.
-   *
-   * Therefore, we assume we are not handed a packet that includes an
-   * FCS.  If we are ever handed such a packet, either the link-layer
-   * dissector needs to be fixed or the link-layer dissector's preference
-   * needs to be set for your capture (even if that means adding such
-   * a preference).  This dissector (and other dissectors for protcols
-   * running atop the link layer) should not attempt to process the
-   * FCS themselves, as that will just break things. */
+    /* If the link-layer dissector for the protocol above us knows whether
+     * the packet, as handed to it, includes a link-layer FCS, what it
+     * hands to us should not include the FCS; if that's not the case,
+     * that's a bug in that dissector, and should be fixed there.
+     *
+     * If the link-layer dissector for the protocol above us doesn't know
+     * whether the packet, as handed to us, includes a link-layer FCS,
+     * there are limits as to what can be done there; the dissector
+     * ultimately needs a "yes, it has an FCS" preference setting, which
+     * both the Ethernet and 802.11 dissectors do.  If that's not the case
+     * for a dissector, that's a deficiency in that dissector, and should
+     * be fixed there.
+     *
+     * Therefore, we assume we are not handed a packet that includes an
+     * FCS.  If we are ever handed such a packet, either the link-layer
+     * dissector needs to be fixed or the link-layer dissector's preference
+     * needs to be set for your capture (even if that means adding such
+     * a preference).  This dissector (and other dissectors for protcols
+     * running atop the link layer) should not attempt to process the
+     * FCS themselves, as that will just break things. */
 
-  /* Initialize variables */
-  pn_rt_tree = NULL;
-  ti = NULL;
+    /* Initialize variables */
+    pn_rt_tree = NULL;
+    ti = NULL;
   
-  /*
-   * Set the columns now, so that they'll be set correctly if we throw
-   * an exception.  We can set them (or append things) later again ....
-   */
+    /*
+     * Set the columns now, so that they'll be set correctly if we throw
+     * an exception.  We can set them (or append things) later again ....
+     */
   
-  col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-RT");
-  col_set_str(pinfo->cinfo, COL_INFO, "PROFINET Real-Time");
+    col_set_str(pinfo->cinfo, COL_PROTOCOL, "PN-RT");
+    col_set_str(pinfo->cinfo, COL_INFO, "PROFINET Real-Time");
 
-  if (tvb_len < 6) {
-    dissect_pn_malformed(tvb, 0, pinfo, tree, tvb_len);
-    return;
-  }
-
+    pdu_len = tvb_reported_length(tvb);
+    if (pdu_len < 6) {
+        dissect_pn_malformed(tvb, 0, pinfo, tree, pdu_len);
+        return;
+    }
 
     /* build some "raw" data */
     u16FrameID = tvb_get_ntohs(tvb, 0);
@@ -593,20 +593,20 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* decode optional cyclic fields at the packet end and build the summary line */
     if (bCyclic) {
         /* cyclic transfer has cycle counter, data status and transfer status fields at the end */
-        u16CycleCounter = tvb_get_ntohs(tvb, tvb_len - 4);
-        u8DataStatus = tvb_get_guint8(tvb, tvb_len - 2);
-        u8TransferStatus = tvb_get_guint8(tvb, tvb_len - 1);
+        u16CycleCounter = tvb_get_ntohs(tvb, pdu_len - 4);
+        u8DataStatus = tvb_get_guint8(tvb, pdu_len - 2);
+        u8TransferStatus = tvb_get_guint8(tvb, pdu_len - 1);
 
         g_snprintf (szFieldSummary, sizeof(szFieldSummary),
                   "%sID:0x%04x, Len:%4u, Cycle:%5u (%s,%s,%s,%s)",
-                pszProtAddInfo, u16FrameID, tvb_len - 2 - 4, u16CycleCounter,
+                pszProtAddInfo, u16FrameID, pdu_len - 2 - 4, u16CycleCounter,
                 (u8DataStatus & 0x04) ? "Valid" : "Invalid",
                 (u8DataStatus & 0x01) ? "Primary" : "Backup",
                 (u8DataStatus & 0x20) ? "Ok" : "Problem",
                 (u8DataStatus & 0x10) ? "Run" : "Stop");
 
         /* user data length is packet len - frame id - optional cyclic status fields */
-        data_len = tvb_len - 2 - 4;
+        data_len = pdu_len - 2 - 4;
     } else {
         /* satisfy the gcc compiler, so it won't throw an "uninitialized" warning */
         u16CycleCounter     = 0;
@@ -616,20 +616,20 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* acyclic transfer has no fields at the end */
         g_snprintf (szFieldSummary, sizeof(szFieldSummary),
                   "%sID:0x%04x, Len:%4u",
-                pszProtAddInfo, u16FrameID, tvb_len - 2);
+                pszProtAddInfo, u16FrameID, pdu_len - 2);
 
         /* user data length is packet len - frame id field */
-        data_len = tvb_len - 2;
+        data_len = pdu_len - 2;
     }
 
     /* build protocol tree only, if tree is really used */
     if (tree) {
         /* build pn_rt protocol tree with summary line */
         if (pn_rt_summary_in_tree) {
-          ti = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, 0, tvb_len,
+          ti = proto_tree_add_protocol_format(tree, proto_pn_rt, tvb, 0, pdu_len,
                 "PROFINET %s, %s", pszProtSummary, szFieldSummary);
         } else {
-            ti = proto_tree_add_item(tree, proto_pn_rt, tvb, 0, tvb_len, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(tree, proto_pn_rt, tvb, 0, pdu_len, ENC_BIG_ENDIAN);
         }
         pn_rt_tree = proto_item_add_subtree(ti, ett_pn_rt);
 
@@ -640,19 +640,19 @@ dissect_pn_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (bCyclic) {
             /* add cycle counter */
             proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_cycle_counter, tvb,
-              tvb_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
+              pdu_len - 4, 2, u16CycleCounter, "CycleCounter: %u", u16CycleCounter);
             
             /* add data status subtree */
-            dissect_DataStatus(tvb, tvb_len - 2, tree, u8DataStatus);
+            dissect_DataStatus(tvb, pdu_len - 2, tree, u8DataStatus);
 
             /* add transfer status */
             if (u8TransferStatus) {
                 proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
-                    tvb_len - 1, 1, u8TransferStatus, 
+                    pdu_len - 1, 1, u8TransferStatus, 
                     "TransferStatus: 0x%02x (ignore this frame)", u8TransferStatus);
             } else {
                 proto_tree_add_uint_format(pn_rt_tree, hf_pn_rt_transfer_status, tvb,
-                    tvb_len - 1, 1, u8TransferStatus, 
+                    pdu_len - 1, 1, u8TransferStatus, 
                     "TransferStatus: 0x%02x (OK)", u8TransferStatus);
             }
         }
