@@ -139,6 +139,8 @@ static output_fields_t* output_fields  = NULL;
  */
 static gboolean print_packet_counts;
 
+/* The line separator used between packets, changeable via the -S option */
+static char *separator = "";
 
 static capture_options global_capture_opts;
 
@@ -275,6 +277,7 @@ print_usage(gboolean print_ver)
 
   fprintf(output, "\n");
   fprintf(output, "Processing:\n");
+  fprintf(output, "  -2                       perform a two-pass analysis\n");
   fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
   fprintf(output, "  -n                       disable all name resolutions (def: all enabled)\n");
   fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
@@ -292,7 +295,8 @@ print_usage(gboolean print_ver)
   fprintf(output, "  -V                       add output of packet tree        (Packet Details)\n");
   fprintf(output, "  -O <protocols>           Only show packet details of these protocols, comma\n");
   fprintf(output, "                           separated\n");
-  fprintf(output, "  -S                       display packets even when writing to a file\n");
+  fprintf(output, "  -P                       print packets even when writing to a file\n");
+  fprintf(output, "  -S <separator>           the line separator to print between packets\n");
   fprintf(output, "  -x                       add output of hex and ASCII dump (Packet Bytes)\n");
   fprintf(output, "  -T pdml|ps|psml|text|fields\n");
   fprintf(output, "                           format of text output (def: text)\n");
@@ -845,7 +849,7 @@ main(int argc, char *argv[])
 #define OPTSTRING_I ""
 #endif
 
-#define OPTSTRING "a:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:St:T:u:vVw:W:xX:y:z:"
+#define OPTSTRING "2a:A:b:" OPTSTRING_B "c:C:d:De:E:f:F:G:hH:i:" OPTSTRING_I "K:lLnN:o:O:pPqr:R:s:S:t:T:u:vVw:W:xX:y:z:"
 
   static const char    optstring[] = OPTSTRING;
 
@@ -1074,6 +1078,9 @@ main(int argc, char *argv[])
   /* Now get our args */
   while ((opt = getopt(argc, argv, optstring)) != -1) {
     switch (opt) {
+    case '2':        /* Perform two pass analysis */
+      perform_two_pass_analysis = TRUE;
+      break;
     case 'a':        /* autostop criteria */
     case 'b':        /* Ringbuffer option */
     case 'c':        /* Capture x packets */
@@ -1196,9 +1203,6 @@ main(int argc, char *argv[])
       arg_error = TRUE;
 #endif
       break;
-    case 'P':        /* Perform two pass analysis */
-      perform_two_pass_analysis = TRUE;
-      break;
     case 'n':        /* No name resolution */
       gbl_resolv_flags = RESOLV_NONE;
       break;
@@ -1243,8 +1247,11 @@ main(int argc, char *argv[])
     case 'R':        /* Read file filter */
       rfilter = optarg;
       break;
-    case 'S':        /* show packets in real time */
+    case 'P':        /* Print packets even when writing to a file */
       print_packet_info = TRUE;
+      break;
+    case 'S':        /* Set the line Separator to be printed between packets */
+      separator = strdup(optarg);
       break;
     case 't':        /* Time stamp type */
       if (strcmp(optarg, "r") == 0)
@@ -3325,7 +3332,7 @@ print_packet(capture_file *cf, epan_dissect_t *edt)
         /* "print_hex_data()" will put out a leading blank line, as well
          as a trailing one; print one here, to separate the packets,
          only if "print_hex_data()" won't be called. */
-        if (!print_line(print_stream, 0, ""))
+        if (!print_line(print_stream, 0, separator))
           return FALSE;
       }
       break;

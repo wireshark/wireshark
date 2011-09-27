@@ -27,7 +27,7 @@
     <example id="AppToolstsharkEx">
       <title>Help information available from tshark</title>
       <programlisting>
-TShark 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+TShark 1.7.0 (SVN Rev 39165 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -60,6 +60,7 @@ Input file:
   -r &lt;infile&gt;              set the filename to read from (no pipes or stdin!)
 
 Processing:
+  -2                       perform a two-pass analysis
   -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
   -n                       disable all name resolutions (def: all enabled)
   -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
@@ -75,7 +76,8 @@ Output:
   -V                       add output of packet tree        (Packet Details)
   -O &lt;protocols&gt;           Only show packet details of these protocols, comma
                            separated
-  -S                       display packets even when writing to a file
+  -P                       print packets even when writing to a file
+  -S &lt;separator&gt;           the line separator to print between packets
   -x                       add output of hex and ASCII dump (Packet Bytes)
   -T pdml|ps|psml|text|fields
                            format of text output (def: text)
@@ -166,7 +168,7 @@ tcpdump -i &lt;interface> -s 65535 -w &lt;some-file>
     <example id="AppToolsdumpcapEx">
       <title>Help information available from dumpcap</title>
       <programlisting>
-Dumpcap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+Dumpcap 1.7.0 (SVN Rev 39165 from /trunk)
 Capture network packets and dump them into a libpcap file.
 See http://www.wireshark.org for more information.
 
@@ -182,9 +184,8 @@ Capture interface:
   -D                       print list of interfaces and exit
   -L                       print list of link-layer types of iface and exit
   -d                       print generated BPF code for capture filter
-  -S                       print statistics for each interface once every second
+  -S                       print statistics for each interface once per second
   -M                       for -D, -L, and -S, produce machine-readable output
-
 
 RPCAP options:
   -r                       don't ignore own RPCAP traffic in capture
@@ -205,7 +206,9 @@ Output (files):
                            filesize:NUM - switch to next file after NUM KB
                               files:NUM - ringbuffer: replace after NUM files
   -n                       use pcapng format instead of pcap
+
 Miscellaneous:
+  -t                       use a separate thread per interface
   -q                       don't report packet capture counts
   -v                       print version information and exit
   -h                       display this help and exit
@@ -231,7 +234,7 @@ Use Ctrl-C to stop capturing at any time.
     <example id="AppToolscapinfosEx">
       <title>Help information available from capinfos</title>
       <programlisting>
-Capinfos 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+Capinfos 1.7.0 (SVN Rev 39165 from /trunk)
 Prints various information (infos) about capture files.
 See http://www.wireshark.org for more information.
 
@@ -303,7 +306,7 @@ output format.
     <example id="AppToolsrawsharkEx">
       <title>Help information available from rawshark</title>
       <programlisting>
-Rawshark 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+Rawshark 1.7.0 (SVN Rev 39165 from /trunk)
 Dump and analyze network traffic.
 See http://www.wireshark.org for more information.
 
@@ -322,12 +325,15 @@ Processing:
   -F &lt;field&gt;               field to display
   -n                       disable all name resolution (def: all enabled)
   -N &lt;name resolve flags&gt;  enable specific name resolution(s): "mntC"
-  -p                       use the system's packet header format (which may have 64-bit timestamps)
+  -p                       use the system's packet header format
+                           (which may have 64-bit timestamps)
   -R &lt;read filter&gt;         packet filter in Wireshark display filter syntax
   -s                       skip PCAP header on input
+
 Output:
   -l                       flush output after each packet
-  -S                       format string for fields (%D - name, %S - stringval, %N numval)
+  -S                       format string for fields
+                           (%D - name, %S - stringval, %N numval)
   -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)
 
 Miscellaneous:
@@ -354,7 +360,7 @@ Miscellaneous:
       <title>Help information available from editcap</title>
       <para>
       <programlisting>
-Editcap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+Editcap 1.7.0 (SVN Rev 39165 from /trunk)
 Edit and/or translate the format of capture files.
 See http://www.wireshark.org for more information.
 
@@ -678,7 +684,7 @@ editcap: The available encapsulation types for the "-T" flag are:
     <example id="AppToolsmergecapEx">
       <title>Help information available from mergecap</title>
       <programlisting>
-Mergecap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+Mergecap 1.7.0 (SVN Rev 39165 from /trunk)
 Merge two or more capture files into one.
 See http://www.wireshark.org for more information.
 
@@ -782,7 +788,7 @@ Miscellaneous:
     <example id="AppToolstext2pcapEx">
       <title>Help information available for text2pcap</title>
       <programlisting>
-Text2pcap 1.6.0 (SVN Rev 37205 from /trunk-1.6)
+Text2pcap 1.7.0 (SVN Rev 39165 from /trunk)
 Generate a capture file from an ASCII hexdump of packets.
 See http://www.wireshark.org for more information.
 
@@ -804,6 +810,12 @@ Input:
                          number is assumed to be fractions of a second.
                          NOTE: Date/time fields from the current date/time are
                          used as the default for unspecified fields.
+  -a                     enable ASCII text dump identification.
+                         It allows to identify the start of the ASCII text
+                         dump and not include it in the packet even if it
+                         looks like HEX dump.
+                         NOTE: Do not enable it if the input file does not
+                         contain the ASCII text dump.
 
 Output:
   -l &lt;typenum&gt;           link-layer type number; default is 1 (Ethernet).

@@ -93,6 +93,16 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            The tshark command-line options have changed as follows:  The
+            previously undocumented -P option is now -2 option for performing a
+            two-pass analysis; the former -S option is now the -P option for
+            printing packets even if writing to a file, and the -S option is
+            now used to specify a different line separator between packets.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

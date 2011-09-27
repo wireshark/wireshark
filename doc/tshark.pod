@@ -6,6 +6,7 @@ tshark - Dump and analyze network traffic
 =head1 SYNOPSIS
 
 B<tshark>
+S<[ B<-2> ]>
 S<[ B<-a> E<lt>capture autostop conditionE<gt> ] ...>
 S<[ B<-b> E<lt>capture ring buffer optionE<gt>] ...>
 S<[ B<-B> E<lt>capture buffer sizeE<gt> ] >
@@ -29,11 +30,12 @@ S<[ B<-N> E<lt>name resolving flagsE<gt> ]>
 S<[ B<-o> E<lt>preference settingE<gt> ] ...>
 S<[ B<-O> E<lt>protocolsE<gt> ]>
 S<[ B<-p> ]>
+S<[ B<-P> ]>
 S<[ B<-q> ]>
 S<[ B<-r> E<lt>infileE<gt> ]>
 S<[ B<-R> E<lt>read (display) filterE<gt> ]>
 S<[ B<-s> E<lt>capture snaplenE<gt> ]>
-S<[ B<-S> ]>
+S<[ B<-S> E<lt>separatorE<gt> ]>
 S<[ B<-t> ad|a|r|d|dd|e ]>
 S<[ B<-T> pdml|psml|ps|text|fields ]>
 S<[ B<-v> ]>
@@ -141,6 +143,10 @@ to dump one of several types of internal glossaries and then exit.
 =head1 OPTIONS
 
 =over 4
+
+=item -2
+
+Perform a two-pass analysis.
 
 =item -a  E<lt>capture autostop conditionE<gt>
 
@@ -548,6 +554,11 @@ If used after an B<-i> option, the interface specified by the last B<-i>
 option occurring before this option will not be put into the
 promiscuous mode.
 
+=item -P
+
+Decode and display packets even while writing raw packet data using the
+B<-w> option.
+
 =item -q
 
 When capturing packets, don't display the continuous count of packets
@@ -591,10 +602,9 @@ the interface specified by the last B<-i> option occurring before
 this option.  If the snapshot length is not set specifically,
 the default snapshot length is used if provided.
 
-=item -S
+=item -S  E<lt>separatorE<gt>
 
-Decode and display packets even while writing raw packet data using the
-B<-w> option.
+Set the line separator to be printed between packets.
 
 =item -t  ad|a|r|d|dd|e
 
@@ -838,7 +848,7 @@ Example: B<-z io,stat,0.010,E<34>COUNT(smb.sid)smb.sidE<34>>
 This will count the total number of SIDs seen in each 10ms interval.
 
 B<SUM(I<field>)I<field> [and I<filter>]> - Unlike COUNT, the I<values> of the
-specified field are summed per time interval. 
+specified field are summed per time interval.
 ''I<field>'' can only be a named integer or relative time field.
 
 Example: B<-z io,stat,0.010,E<34>SUM(frame.len)frame.lenE<34>>
@@ -914,15 +924,15 @@ A value of 1.0 represents one I/O in flight.
   Column #0: LOAD(smb.time)smb.time
                           |    Column #0   |
   Time                    |       LOAD     |
-  0000.000000-0000.001000         1.000000 
-  0000.001000-0000.002000         0.741000 
-  0000.002000-0000.003000         0.000000 
-  0000.003000-0000.004000         1.000000 
+  0000.000000-0000.001000         1.000000
+  0000.001000-0000.002000         0.741000
+  0000.002000-0000.003000         0.000000
+  0000.003000-0000.004000         1.000000
 
 
 
 B<FRAMES | BYTES[()I<filter>]> - Displays the total number of frames or bytes.
-The filter field is optional but if included it must be prepended with ''()''.  
+The filter field is optional but if included it must be prepended with ''()''.
 
 The following command displays five columns: the total number of frames and bytes
 (transferred bidirectionally) using a single comma, the same two stats using the FRAMES and BYTES
