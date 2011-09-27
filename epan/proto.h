@@ -1842,7 +1842,7 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const gboolean little_endian);
+proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding);
 
 /** Add bits to a proto_tree, using the text label registered to that item.
    The item is extracted from the tvbuff handed to it.
@@ -1855,7 +1855,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, co
  @param little_endian big or little endian byte representation
  @return the newly created item */
 extern proto_item *
-proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, guint64 *return_value, const gboolean little_endian);
+proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, guint64 *return_value, const guint encoding);
 
 /** Add bits for a FT_UINT8, FT_UINT16, FT_UINT24 or FT_UINT32
     header field to a proto_tree, with the format generating the

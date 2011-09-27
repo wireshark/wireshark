@@ -7212,13 +7212,13 @@ proto_tree_add_bitmask_text(proto_tree *parent_tree, tvbuff_t *tvb,
 proto_item *
 proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			 const gint bit_offset, const gint no_of_bits,
-			 const gboolean little_endian)
+			 const guint encoding)
 {
 	header_field_info	*hfinfo;
 
 	TRY_TO_FAKE_THIS_ITEM(tree, hf_index, hfinfo);
 
-	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, little_endian);
+	return proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, NULL, encoding);
 }
 
 /*
@@ -7230,7 +7230,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 static proto_item *
 _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			    const gint bit_offset, const gint no_of_bits,
-			    guint64 *return_value, const gboolean little_endian)
+			    guint64 *return_value, const guint encoding)
 {
 	gint	offset;
 	guint	length;
@@ -7267,11 +7267,11 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 	if (no_of_bits < 9){
 		value = tvb_get_bits8(tvb, bit_offset, no_of_bits);
 	}else if(no_of_bits < 17){
-		value = tvb_get_bits16(tvb, bit_offset, no_of_bits, little_endian);
+		value = tvb_get_bits16(tvb, bit_offset, no_of_bits, encoding);
 	}else if(no_of_bits < 33){
-		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, little_endian);
+		value = tvb_get_bits32(tvb, bit_offset, no_of_bits, encoding);
 	}else if(no_of_bits < 65){
-		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, little_endian);
+		value = tvb_get_bits64(tvb, bit_offset, no_of_bits, encoding);
 	}else{
 		DISSECTOR_ASSERT_NOT_REACHED();
 		return NULL;
@@ -7352,11 +7352,11 @@ _proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb
 proto_item *
 proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb,
 			    const gint bit_offset, const gint no_of_bits,
-			    guint64 *return_value, const gboolean little_endian)
+			    guint64 *return_value, const guint encoding)
 {
 	proto_item *item;
 
-	if ((item = _proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, return_value, little_endian))) {
+	if ((item = _proto_tree_add_bits_ret_val(tree, hf_index, tvb, bit_offset, no_of_bits, return_value, encoding))) {
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_OFFSET(bit_offset));
 		FI_SET_FLAG(PNODE_FINFO(item), FI_BITS_SIZE(no_of_bits));
 	}
