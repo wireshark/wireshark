@@ -762,7 +762,7 @@ if (parameter_tvb){
 		break;
 	}
 
-	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
+	if (len){
 		col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
         		  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
@@ -797,8 +797,7 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  *  If there's something there that should not be overwritten, whoever
  *  put that info there should call col_set_fence() to protect it.
  */
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Begin_sequence, hf_index, ett_tcap_Begin);
@@ -838,7 +837,7 @@ if (parameter_tvb){
 		break;
 	}
 
-	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
+	if (len){
 		col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
           		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%02x",tvb_get_guint8(parameter_tvb,i));
@@ -860,11 +859,10 @@ static const ber_sequence_t End_sequence[] = {
 
 static int
 dissect_tcap_End(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 206 "../../asn1/tcap/tcap.cnf"
+#line 205 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_END;
 
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    End_sequence, hf_index, ett_tcap_End);
@@ -883,11 +881,10 @@ static const ber_sequence_t Continue_sequence[] = {
 
 static int
 dissect_tcap_Continue(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 214 "../../asn1/tcap/tcap.cnf"
+#line 212 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_CONT;
 
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Continue_sequence, hf_index, ett_tcap_Continue);
@@ -955,11 +952,10 @@ static const ber_sequence_t Abort_sequence[] = {
 
 static int
 dissect_tcap_Abort(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 222 "../../asn1/tcap/tcap.cnf"
+#line 219 "../../asn1/tcap/tcap.cnf"
 gp_tcapsrt_info->ope=TC_ABORT;
 
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 
   offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
                                    Abort_sequence, hf_index, ett_tcap_Abort);
@@ -1484,7 +1480,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     /* create display subtree for the protocol */
     if(parent_tree){
-      item = proto_tree_add_item(parent_tree, proto_tcap, tvb, 0, -1, FALSE);
+      item = proto_tree_add_item(parent_tree, proto_tcap, tvb, 0, -1, ENC_NA);
       tree = proto_item_add_subtree(item, ett_tcap);
       tcap_stat_tree=tree;
     }

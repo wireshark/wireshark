@@ -98,7 +98,7 @@ RTABapdu
   offset = dissect_ber_integer(TRUE, actx, tree, tvb, offset, hf_index, &app_proto);
 
 #.FN_BODY SessionConnectionIdentifier
-  if(open_request && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(open_request)
     col_append_str(actx->pinfo->cinfo, COL_INFO, "Recover");
   %(DEFAULT_BODY)s
 
@@ -107,7 +107,7 @@ RTABapdu
 #.FN_BODY CallingSSuserReference/t61String  VAL_PTR=&string
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
-  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(open_request && string)
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.FN_PARS CommonReference
@@ -115,7 +115,7 @@ RTABapdu
 #.FN_BODY CommonReference
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
-  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(open_request && string)
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.END
@@ -123,7 +123,7 @@ RTABapdu
 #.FN_BODY CallingSSuserReference/octetString  VAL_PTR=&string
   tvbuff_t *string = NULL;
   %(DEFAULT_BODY)s
-  if(open_request && string && check_col(actx->pinfo->cinfo, COL_INFO))
+  if(open_request && string)
     col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %%s", tvb_format_text(string, 0, tvb_length(string)));
 
 #.FN_BODY RTTPapdu  VAL_PTR=&priority

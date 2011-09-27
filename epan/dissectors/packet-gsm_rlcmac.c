@@ -5910,11 +5910,8 @@ dissect_gsm_rlcmac_uplink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
   
-  if (check_col(pinfo->cinfo, COL_INFO))
-  {
-  	 col_add_str(pinfo->cinfo, COL_INFO, "(RLC/MAC) ");
-    col_append_str(pinfo->cinfo, COL_INFO,  MT_UL_TextGet(data->u.MESSAGE_TYPE));
-  }
+  col_add_str(pinfo->cinfo, COL_INFO, "(RLC/MAC) ");
+  col_append_str(pinfo->cinfo, COL_INFO,  MT_UL_TextGet(data->u.MESSAGE_TYPE));
 
   switch (data->u.MESSAGE_TYPE)
   {
@@ -6048,36 +6045,33 @@ dissect_gsm_rlcmac_downlink(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     ti = proto_tree_add_text(tree, tvb, 0, 1, "%s (downlink)", MT_DL_TextGet(data->u.MESSAGE_TYPE));
     rlcmac_tree = proto_item_add_subtree(ti, ett_gsm_rlcmac);
 
-    if (check_col(pinfo->cinfo, COL_INFO))
-    {
-    	col_add_str(pinfo->cinfo, COL_INFO, "(RLC/MAC) ");
-      col_append_str(pinfo->cinfo, COL_INFO,  MT_DL_TextGet(data->u.MESSAGE_TYPE));
-    }
+    col_add_str(pinfo->cinfo, COL_INFO, "(RLC/MAC) ");
+    col_append_str(pinfo->cinfo, COL_INFO,  MT_DL_TextGet(data->u.MESSAGE_TYPE));
     
     /* Dissect the MAC header */
-    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_payload_type, tvb, 0, 2, FALSE);
-    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rrbp, tvb, 2, 2, FALSE);
-    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_s_p, tvb, 4, 1, FALSE);
-    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_usf, tvb, 5, 3, FALSE);
+    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_payload_type, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rrbp, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_s_p, tvb, 4, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_usf, tvb, 5, 3, ENC_BIG_ENDIAN);
 
     if (payload_type == PAYLOAD_TYPE_CTRL_OPT_OCTET)
     {
-      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rbsn, tvb, 8, 1, FALSE);
-      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rti, tvb, 9, 5, FALSE);
-      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_fs, tvb, 14, 1, FALSE);
-      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_ac, tvb, 15, 1, FALSE);
+      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rbsn, tvb, 8, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rti, tvb, 9, 5, ENC_BIG_ENDIAN);
+      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_fs, tvb, 14, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_ac, tvb, 15, 1, ENC_BIG_ENDIAN);
 
       if (ac == 1) /* Indicates presence of TFI optional octet*/
       {
-        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_pr, tvb, 16, 2, FALSE);
-        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_tfi, tvb, 18, 5, FALSE);
-        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_d, tvb, 23, 1, FALSE);
+        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_pr, tvb, 16, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_tfi, tvb, 18, 5, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_d, tvb, 23, 1, ENC_BIG_ENDIAN);
       }
       if ((rbsn == 1) && (fs == 0)) /* Indicates the presence of optional octet 2/3 */
       {
-        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rbsn_e, tvb, 16, 2, FALSE);
-        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_tfi, tvb, 18, 5, FALSE);
-        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_d, tvb, 23, 1, FALSE);
+        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_rbsn_e, tvb, 16, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_tfi, tvb, 18, 5, ENC_BIG_ENDIAN);
+        proto_tree_add_bits_item(rlcmac_tree, hf_dl_ctrl_d, tvb, 23, 1, ENC_BIG_ENDIAN);
       }
     }
   }

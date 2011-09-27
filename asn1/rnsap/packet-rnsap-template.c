@@ -123,7 +123,7 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RNSAP");
 
 	/* create the rnsap protocol tree */
-	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);
+	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, ENC_NA);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
 	
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);

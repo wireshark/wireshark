@@ -354,7 +354,7 @@ static void dissect_iuup_payload(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     guint bit_offset = 0;
     proto_item* pi;
 
-    pi = proto_tree_add_item(tree,hf_iuup_payload,tvb,offset,-1,FALSE);
+    pi = proto_tree_add_item(tree,hf_iuup_payload,tvb,offset,-1,ENC_NA);
 
     if ( ! dissect_fields ) {
         return;
@@ -418,12 +418,12 @@ static guint dissect_rfcis(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tree* tr
 
         DISSECTOR_ASSERT(c < 64);
 
-        pi = proto_tree_add_item(tree,hf_iuup_init_rfci_ind,tvb,*offset,-1,FALSE);
+        pi = proto_tree_add_item(tree,hf_iuup_init_rfci_ind,tvb,*offset,-1,ENC_NA);
         pt = proto_item_add_subtree(pi,ett_rfci);
 
-        proto_tree_add_item(pt,hf_iuup_init_rfci_lri[c],tvb,*offset,1,FALSE);
-        proto_tree_add_item(pt,hf_iuup_init_rfci_li[c],tvb,*offset,1,FALSE);
-        proto_tree_add_item(pt,hf_iuup_init_rfci[c],tvb,*offset,1,FALSE);
+        proto_tree_add_item(pt,hf_iuup_init_rfci_lri[c],tvb,*offset,1,ENC_BIG_ENDIAN);
+        proto_tree_add_item(pt,hf_iuup_init_rfci_li[c],tvb,*offset,1,ENC_BIG_ENDIAN);
+        proto_tree_add_item(pt,hf_iuup_init_rfci[c],tvb,*offset,1,ENC_BIG_ENDIAN);
 
         oct = tvb_get_guint8(tvb,*offset);
         rfci->id = oct & 0x3f;
@@ -499,10 +499,10 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     }
 
     if (tree) {
-        proto_tree_add_item(tree,hf_iuup_spare_e0,tvb,offset,1,FALSE);
-        proto_tree_add_item(tree,hf_iuup_init_ti,tvb,offset,1,FALSE);
-        proto_tree_add_item(tree,hf_iuup_init_subflows_per_rfci,tvb,offset,1,FALSE);
-        proto_tree_add_item(tree,hf_iuup_init_chain_ind,tvb,offset,1,FALSE);
+        proto_tree_add_item(tree,hf_iuup_spare_e0,tvb,offset,1,ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree,hf_iuup_init_ti,tvb,offset,1,ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree,hf_iuup_init_subflows_per_rfci,tvb,offset,1,ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree,hf_iuup_init_chain_ind,tvb,offset,1,ENC_BIG_ENDIAN);
     }
 
     offset++;
@@ -516,7 +516,7 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
         iptis_tree = proto_item_add_subtree(pi,ett_ipti);
 
         for (i = 0; i <= rfcis; i++) {
-            proto_tree_add_item(iptis_tree,hf_iuup_init_ipti[i],tvb,offset,1,FALSE);
+            proto_tree_add_item(iptis_tree,hf_iuup_init_ipti[i],tvb,offset,1,ENC_BIG_ENDIAN);
             if ((i%2)) {
                 offset++;
             }
@@ -528,18 +528,18 @@ static void dissect_iuup_init(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tre
     }
 
     if (tree) {
-        pi = proto_tree_add_item(tree,hf_iuup_mode_versions,tvb,offset,2,FALSE);
+        pi = proto_tree_add_item(tree,hf_iuup_mode_versions,tvb,offset,2,ENC_BIG_ENDIAN);
         support_tree = proto_item_add_subtree(pi,ett_support);
 
         for (i = 0; i < 16; i++) {
-            proto_tree_add_item(support_tree,hf_iuup_mode_versions_a[i],tvb,offset,2,FALSE);
+            proto_tree_add_item(support_tree,hf_iuup_mode_versions_a[i],tvb,offset,2,ENC_BIG_ENDIAN);
         }
 
     }
 
     offset += 2;
 
-    proto_tree_add_item(tree,hf_iuup_data_pdu_type,tvb,offset,1,FALSE);
+    proto_tree_add_item(tree,hf_iuup_data_pdu_type,tvb,offset,1,ENC_BIG_ENDIAN);
 
 }
 
@@ -550,12 +550,12 @@ static void dissect_iuup_ratectl(tvbuff_t* tvb, packet_info* pinfo _U_, proto_tr
     proto_tree* inds_tree;
     int offset = 4;
 
-    pi = proto_tree_add_item(tree,hf_iuup_num_rfci_ind,tvb,4,1,FALSE);
+    pi = proto_tree_add_item(tree,hf_iuup_num_rfci_ind,tvb,4,1,ENC_BIG_ENDIAN);
     inds_tree = proto_item_add_subtree(pi,ett_rfciinds);
 
     for (i = 0; i < num; i++) {
         if (! (i % 8) ) offset++;
-        proto_tree_add_item(inds_tree,hf_iuup_rfci_ratectl[i],tvb,offset,1,FALSE);
+        proto_tree_add_item(inds_tree,hf_iuup_rfci_ratectl[i],tvb,offset,1,ENC_BIG_ENDIAN);
     }
 
 }
@@ -564,10 +564,10 @@ static proto_item *add_hdr_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item* iu
 {
     proto_item *crc_item;
     if (crccheck) {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc_error,tvb,2,1,FALSE);
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc_error,tvb,2,1,ENC_BIG_ENDIAN);
         expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
     } else {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,FALSE);
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_hdr_crc,tvb,2,1,ENC_BIG_ENDIAN);
     }
     return crc_item;
 }
@@ -579,10 +579,10 @@ static proto_item *add_payload_crc(tvbuff_t* tvb, packet_info* pinfo, proto_item
     guint16 crc10 = tvb_get_ntohs(tvb, 2) & 0x3FF;
     guint16 crccheck = update_crc10_by_bytes(crc10, tvb_get_ptr(tvb, 4, length - 4), length - 4);
     if (crccheck) {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc_error,tvb,2,2,FALSE);
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc_error,tvb,2,2,ENC_BIG_ENDIAN);
         expert_add_info_format(pinfo, crc_item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
     } else {
-        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,FALSE);
+        crc_item = proto_tree_add_item(iuup_tree,hf_iuup_payload_crc,tvb,2,2,ENC_BIG_ENDIAN);
     }
     return crc_item;
 }
@@ -613,8 +613,8 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 
         phdr = tvb_get_ntohs(tvb,0);
 
-        proto_tree_add_item(tree,hf_iuup_direction,tvb,0,2,FALSE);
-        proto_tree_add_item(tree,hf_iuup_circuit_id,tvb,0,2,FALSE);
+        proto_tree_add_item(tree,hf_iuup_direction,tvb,0,2,ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree,hf_iuup_circuit_id,tvb,0,2,ENC_BIG_ENDIAN);
 
         phdr &= 0x7fff;
 
@@ -631,79 +631,73 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
     pdutype = ( first_octet & PDUTYPE_MASK ) >> 4;
 
     if (tree) {
-        iuup_item = proto_tree_add_item(tree,proto_iuup,tvb,0,-1,FALSE);
+        iuup_item = proto_tree_add_item(tree,proto_iuup,tvb,0,-1,ENC_NA);
         iuup_tree = proto_item_add_subtree(iuup_item,ett_iuup);
 
-        pdutype_item = proto_tree_add_item(iuup_tree,hf_iuup_pdu_type,tvb,0,1,FALSE);
+        pdutype_item = proto_tree_add_item(iuup_tree,hf_iuup_pdu_type,tvb,0,1,ENC_BIG_ENDIAN);
     }
 
-    if (check_col(pinfo->cinfo, COL_INFO)) {
-        col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdutype, iuup_colinfo_pdu_types, "Unknown PDU Type(%u) "));
-    }
+    col_add_str(pinfo->cinfo, COL_INFO, val_to_str(pdutype, iuup_colinfo_pdu_types, "Unknown PDU Type(%u) "));
 
     switch(pdutype) {
         case PDUTYPE_DATA_WITH_CRC:
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO,"FN: %x RFCI: %u", (guint)(first_octet & 0x0f) ,(guint)(second_octet & 0x3f));
-            }
+            col_append_fstr(pinfo->cinfo, COL_INFO,"FN: %x RFCI: %u", (guint)(first_octet & 0x0f) ,(guint)(second_octet & 0x3f));
 
             if (!tree) return;
-            proto_tree_add_item(iuup_tree,hf_iuup_frame_number,tvb,0,1,FALSE);
-            pi = proto_tree_add_item(iuup_tree,hf_iuup_fqc,tvb,1,1,FALSE);
+            proto_tree_add_item(iuup_tree,hf_iuup_frame_number,tvb,0,1,ENC_BIG_ENDIAN);
+            pi = proto_tree_add_item(iuup_tree,hf_iuup_fqc,tvb,1,1,ENC_BIG_ENDIAN);
 
             if (first_octet & FQC_MASK) {
                 proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
                 proto_item_set_expert_flags(iuup_item, PI_RESPONSE_CODE, PI_WARN);
             }
 
-            proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,FALSE);
+            proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             add_payload_crc(tvb, pinfo, iuup_tree);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,4);
             return;
         case PDUTYPE_DATA_NO_CRC:
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_fstr(pinfo->cinfo, COL_INFO," RFCI %u", (guint)(second_octet & 0x3f));
-            }
-            if (!tree) return;
-            proto_tree_add_item(iuup_tree,hf_iuup_frame_number,tvb,0,1,FALSE);
-            pi = proto_tree_add_item(iuup_tree,hf_iuup_fqc,tvb,1,1,FALSE);
+            col_append_fstr(pinfo->cinfo, COL_INFO," RFCI %u", (guint)(second_octet & 0x3f));
+
+			if (!tree) 
+				return;
+            proto_tree_add_item(iuup_tree,hf_iuup_frame_number,tvb,0,1,ENC_BIG_ENDIAN);
+            pi = proto_tree_add_item(iuup_tree,hf_iuup_fqc,tvb,1,1,ENC_BIG_ENDIAN);
 
             if (first_octet & FQC_MASK) {
                 proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_WARN);
                 proto_item_set_expert_flags(iuup_item, PI_RESPONSE_CODE, PI_WARN);
             }
 
-            proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,FALSE);
+            proto_tree_add_item(iuup_tree,hf_iuup_rfci,tvb,1,1,ENC_BIG_ENDIAN);
             add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             dissect_iuup_payload(tvb,pinfo,iuup_tree,second_octet & 0x3f,3);
             return;
         case PDUTYPE_DATA_CONTROL_PROC:
             if (tree) {
-                ack_item = proto_tree_add_item(iuup_tree,hf_iuup_ack_nack,tvb,0,1,FALSE);
-                proto_tree_add_item(iuup_tree,hf_iuup_frame_number_t14,tvb,0,1,FALSE);
-                proto_tree_add_item(iuup_tree,hf_iuup_mode_version,tvb,1,1,FALSE);
-                proc_item = proto_tree_add_item(iuup_tree,hf_iuup_procedure_indicator,tvb,1,1,FALSE);
+                ack_item = proto_tree_add_item(iuup_tree,hf_iuup_ack_nack,tvb,0,1,ENC_BIG_ENDIAN);
+                proto_tree_add_item(iuup_tree,hf_iuup_frame_number_t14,tvb,0,1,ENC_BIG_ENDIAN);
+                proto_tree_add_item(iuup_tree,hf_iuup_mode_version,tvb,1,1,ENC_BIG_ENDIAN);
+                proc_item = proto_tree_add_item(iuup_tree,hf_iuup_procedure_indicator,tvb,1,1,ENC_BIG_ENDIAN);
                 add_hdr_crc(tvb, pinfo, iuup_tree, crccheck);
             }
 
-            if (check_col(pinfo->cinfo, COL_INFO)) {
-                col_append_str(pinfo->cinfo, COL_INFO,
-                               val_to_str(first_octet & ACKNACK_MASK,
-                                          iuup_colinfo_acknack_vals, "[action:%u] "));
+            col_append_str(pinfo->cinfo, COL_INFO,
+                           val_to_str(first_octet & ACKNACK_MASK,
+                                      iuup_colinfo_acknack_vals, "[action:%u] "));
 
-                col_append_str(pinfo->cinfo, COL_INFO,
-                               val_to_str(second_octet & PROCEDURE_MASK,
-                                          iuup_colinfo_procedures, "[proc:%u] "));
-            }
+            col_append_str(pinfo->cinfo, COL_INFO,
+                           val_to_str(second_octet & PROCEDURE_MASK,
+                                      iuup_colinfo_procedures, "[proc:%u] "));
 
             switch ( first_octet & ACKNACK_MASK ) {
                 case ACKNACK_ACK:
                     switch(second_octet & PROCEDURE_MASK) {
                         case PROC_INIT:
                             if (!tree) return;
-                            proto_tree_add_item(iuup_tree,hf_iuup_spare_03,tvb,2,1,FALSE);
-                            proto_tree_add_item(iuup_tree,hf_iuup_spare_ff,tvb,3,1,FALSE);
+                            proto_tree_add_item(iuup_tree,hf_iuup_spare_03,tvb,2,1,ENC_BIG_ENDIAN);
+                            proto_tree_add_item(iuup_tree,hf_iuup_spare_ff,tvb,3,1,ENC_BIG_ENDIAN);
                             return;
                         case PROC_RATE:
                             if (!tree) return;
@@ -720,7 +714,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                     break;
                 case ACKNACK_NACK:
                     if (!tree) return;
-                    pi = proto_tree_add_item(iuup_tree,hf_iuup_error_cause_val,tvb,4,1,FALSE);
+                    pi = proto_tree_add_item(iuup_tree,hf_iuup_error_cause_val,tvb,4,1,ENC_BIG_ENDIAN);
                     proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_ERROR);
                     return;
                 case ACKNACK_RESERVED:
@@ -750,7 +744,7 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
 
                     ta = tvb_get_guint8(tvb,4);
 
-                    pi = proto_tree_add_item(iuup_tree,hf_iuup_time_align,tvb,4,1,FALSE);
+                    pi = proto_tree_add_item(iuup_tree,hf_iuup_time_align,tvb,4,1,ENC_BIG_ENDIAN);
                     time_tree = proto_item_add_subtree(pi,ett_time);
 
                     if (ta >= 1 && ta <= 80) {
@@ -767,18 +761,18 @@ static void dissect_iuup(tvbuff_t* tvb_in, packet_info* pinfo, proto_tree* tree)
                         proto_item_set_expert_flags(pi, PI_MALFORMED, PI_ERROR);
                     }
 
-                    proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,FALSE);
+                    proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,ENC_NA);
                     return;
                 }
                 case PROC_ERROR:
-                    if (check_col(pinfo->cinfo, COL_INFO)) {
-                        col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
-                    }
-                    if (!tree) return;
-                    proto_tree_add_item(iuup_tree,hf_iuup_error_distance,tvb,4,1,FALSE);
-                    pi = proto_tree_add_item(iuup_tree,hf_iuup_errorevt_cause_val,tvb,4,1,FALSE);
+                    col_append_str(pinfo->cinfo, COL_INFO, val_to_str(tvb_get_guint8(tvb,4) & 0x3f,iuup_error_causes,"Unknown (%u)"));
+
+					if (!tree) 
+						return;
+                    proto_tree_add_item(iuup_tree,hf_iuup_error_distance,tvb,4,1,ENC_BIG_ENDIAN);
+                    pi = proto_tree_add_item(iuup_tree,hf_iuup_errorevt_cause_val,tvb,4,1,ENC_BIG_ENDIAN);
                     proto_item_set_expert_flags(pi, PI_RESPONSE_CODE, PI_ERROR);
-                    proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,FALSE);
+                    proto_tree_add_item(iuup_tree,hf_iuup_spare_bytes,tvb,5,-1,ENC_NA);
                     return;
                 default: /* bad */
                     if (!tree) return;

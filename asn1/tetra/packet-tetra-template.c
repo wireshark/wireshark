@@ -223,7 +223,7 @@ void tetra_dissect_pdu(int channel_type, int dir, tvbuff_t *pdu, proto_tree *tre
 	guint8 p;
 
 	tetra_sub_item = proto_tree_add_item(tree, hf_tetra_pdu,
-					     pdu, 0, tvb_length(pdu), FALSE);
+					     pdu, 0, tvb_length(pdu), ENC_NA);
 
 	tetra_sub_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
 
@@ -484,7 +484,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		guint32 txtimer = 0;
 		guint32 tslot = 0;
 
-		tetra_item = proto_tree_add_item(tree, proto_tetra, tvb, 0, -1, FALSE);
+		tetra_item = proto_tree_add_item(tree, proto_tetra, tvb, 0, -1, ENC_NA);
 		tetra_tree = proto_item_add_subtree(tetra_item, ett_tetra);
 		tetra_header_tree = proto_item_add_subtree(tetra_item, ett_tetra);
 

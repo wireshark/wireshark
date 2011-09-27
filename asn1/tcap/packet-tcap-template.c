@@ -204,7 +204,7 @@ dissect_tcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
     /* create display subtree for the protocol */
     if(parent_tree){
-      item = proto_tree_add_item(parent_tree, proto_tcap, tvb, 0, -1, FALSE);
+      item = proto_tree_add_item(parent_tree, proto_tcap, tvb, 0, -1, ENC_NA);
       tree = proto_item_add_subtree(item, ett_tcap);
       tcap_stat_tree=tree;
     }

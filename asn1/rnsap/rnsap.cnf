@@ -74,10 +74,9 @@ ProtocolIE-ContainerPairList
 
 #.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
 #.FN_FTR ProcedureCode
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
-                              "unknown message"));
+   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
+                           "unknown message"));
 #.END
 #.FN_PARS ProcedureID/ddMode VAL_PTR = &ddMode
 

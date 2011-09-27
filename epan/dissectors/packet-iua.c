@@ -845,8 +845,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   message_class  = tvb_get_guint8(common_header_tvb, MESSAGE_CLASS_OFFSET);
   message_type   = tvb_get_guint8(common_header_tvb, MESSAGE_TYPE_OFFSET);
 
-  if (check_col(pinfo->cinfo, COL_INFO))
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, support_IG?message_class_type_acro_ig_values:message_class_type_acro_values, "UNKNOWN"));
+  col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(message_class * 256 + message_type, support_IG?message_class_type_acro_ig_values:message_class_type_acro_values, "UNKNOWN"));
 
   if (iua_tree) {
     /* add the components of the common header to the protocol tree */
@@ -881,8 +880,8 @@ dissect_iua(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *iua_tree;
 
   /* make entry in the Protocol column on summary display */
-  if (check_col(pinfo->cinfo, COL_PROTOCOL))
-    col_set_str(pinfo->cinfo, COL_PROTOCOL, support_IG?"IUA (RFC 3057 + IG)":"IUA (RFC 3057)");
+
+  col_set_str(pinfo->cinfo, COL_PROTOCOL, support_IG?"IUA (RFC 3057 + IG)":"IUA (RFC 3057)");
 
   /* In the interest of speed, if "tree" is NULL, don't do any work not
      necessary to generate protocol tree items. */

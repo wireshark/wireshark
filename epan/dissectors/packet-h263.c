@@ -187,19 +187,19 @@ dissect_h263_group_of_blocks_layer( tvbuff_t *tvb, proto_tree *tree, gint offset
 
 	if(is_rfc4626){
 		/* GBSC 1xxx xxxx */
-		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, FALSE);
+		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 	}else{
 		/* Group of Block Start Code (GBSC) (17 bits) 
 		 * A word of 17 bits. Its value is 0000 0000 0000 0000 1.
 		 */
-		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 17, FALSE);
+		proto_tree_add_bits_item(tree, hf_h263_gbsc, tvb, offset_in_bits, 17, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +17;
 	}
 	/* 
 	 * Group Number (GN) (5 bits)
 	 */
-	proto_tree_add_bits_item(tree, hf_h263_GN, tvb, offset_in_bits, 5, FALSE);
+	proto_tree_add_bits_item(tree, hf_h263_GN, tvb, offset_in_bits, 5, ENC_BIG_ENDIAN);
 	offset_in_bits = offset_in_bits +5;
 	/* 5.2.4 GOB Sub-Bitstream Indicator (GSBI) (2 bits)
 	 * A fixed length codeword of 2 bits that is only present if CPM is "1" in the picture header.
@@ -239,18 +239,18 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if(is_rfc4626){
 		/* PC 1000 00xx */ 
-		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 6, FALSE);
+		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 6, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +6;
 
 	}else{
 	/* Check for PSC, PSC is a word of 22 bits. 
 	 * Its value is 0000 0000 0000 0000' 1000 00xx xxxx xxxx.
 	 */
-		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 22, FALSE);
+		proto_tree_add_bits_item(tree, hf_h263_psc, tvb, offset_in_bits, 22, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +22;
 
 	}
-	proto_tree_add_bits_item(tree, hf_h263_TR, tvb, offset_in_bits, 8, FALSE);
+	proto_tree_add_bits_item(tree, hf_h263_TR, tvb, offset_in_bits, 8, ENC_BIG_ENDIAN);
 	offset_in_bits = offset_in_bits +8;
 	/*
 	 * Bit 1: Always "1", in order to avoid start code emulation. 
@@ -258,63 +258,62 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	offset_in_bits = offset_in_bits +2;
 	/* Bit 3: Split screen indicator, "0" off, "1" on. */
-	proto_tree_add_bits_item( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, FALSE);
+	proto_tree_add_bits_item( tree, hf_h263_split_screen_indicator, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 	offset_in_bits++;
 	/* Bit 4: Document camera indicator, */
-	proto_tree_add_bits_item( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1, FALSE);
+	proto_tree_add_bits_item( tree, hf_h263_document_camera_indicator, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 	offset_in_bits++;
 	/* Bit 5: Full Picture Freeze Release, "0" off, "1" on. */
-	proto_tree_add_bits_item( tree, hf_h263_full_picture_freeze_release, tvb, offset_in_bits, 1, FALSE);
+	proto_tree_add_bits_item( tree, hf_h263_full_picture_freeze_release, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 	offset_in_bits++;
 	/* Bits 6-8: Source Format, "000" forbidden, "001" sub-QCIF, "010" QCIF, "011" CIF,
 	 * "100" 4CIF, "101" 16CIF, "110" reserved, "111" extended PTYPE.
 	 */
-	proto_tree_add_bits_ret_val( tree, hf_h263_source_format, tvb, offset_in_bits, 3 ,&source_format, FALSE);
+	proto_tree_add_bits_ret_val( tree, hf_h263_source_format, tvb, offset_in_bits, 3 ,&source_format, ENC_BIG_ENDIAN);
 	offset_in_bits = offset_in_bits +3;
 	if (source_format != H263_PLUSPTYPE){
 		/* Not extended PTYPE */
 		/* Bit 9: Picture Coding Type, "0" INTRA (I-picture), "1" INTER (P-picture). */
-		proto_tree_add_bits_ret_val( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1, &picture_coding_type, FALSE);
-		if ( check_col( pinfo->cinfo, COL_INFO) )
-			col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
+		proto_tree_add_bits_ret_val( tree, hf_h263_payload_picture_coding_type, tvb, offset_in_bits, 1, &picture_coding_type, ENC_BIG_ENDIAN);
+		col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)picture_coding_type, picture_coding_type_vals, "Unknown (%u)"));
 		offset_in_bits++;
 		/* Bit 10: Optional Unrestricted Motion Vector mode (see Annex D), "0" off, "1" on. */
-		proto_tree_add_bits_item( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1, FALSE);
+		proto_tree_add_bits_item( tree, hf_h263_opt_unres_motion_vector_mode, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 		/* Bit 11: Optional Syntax-based Arithmetic Coding mode (see Annex E), "0" off, "1" on.*/
-		proto_tree_add_bits_item( tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset_in_bits, 1, FALSE);
+		proto_tree_add_bits_item( tree, hf_h263_syntax_based_arithmetic_coding_mode, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 		/* Bit 12: Optional Advanced Prediction mode (see Annex F), "0" off, "1" on.*/
-		proto_tree_add_bits_item( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1, FALSE);
+		proto_tree_add_bits_item( tree, hf_h263_optional_advanced_prediction_mode, tvb, offset_in_bits, 1, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 		/* Bit 13: Optional PB-frames mode (see Annex G), "0" normal I- or P-picture, "1" PB-frame.*/
-		proto_tree_add_bits_ret_val( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, &PB_frames_mode, FALSE);
+		proto_tree_add_bits_ret_val( tree, hf_h263_PB_frames_mode, tvb, offset_in_bits, 1, &PB_frames_mode, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 	}else{
 		/* Extended PTYPE 
 		 * Update Full Extended PTYPE (UFEP) (3 bits)
 		 */
 		/* .... ..xx x... .... */
-		proto_tree_add_bits_ret_val( tree, hf_h263_UFEP, tvb, offset_in_bits, 3, &ufep, FALSE);
+		proto_tree_add_bits_ret_val( tree, hf_h263_UFEP, tvb, offset_in_bits, 3, &ufep, ENC_BIG_ENDIAN);
 		offset_in_bits = offset_in_bits +3;
 		if(ufep==1){
 			/* The Optional Part of PLUSPTYPE (OPPTYPE) (18 bits) 
 			 */
 			 /*  .xxx xxxx  xxxx xxxx  xxx. .... */
-			opptype_item = proto_tree_add_bits_item( tree, hf_h263_opptype, tvb, offset_in_bits, 18, FALSE);
+			opptype_item = proto_tree_add_bits_item( tree, hf_h263_opptype, tvb, offset_in_bits, 18, ENC_BIG_ENDIAN);
 			h263_opptype_tree = proto_item_add_subtree( opptype_item, ett_h263_optype );
 			/*
 			 * If UFEP is "001", then the following bits are present in PLUSPTYPE:
 			 *  Bits 1-3 Source Format, "000" reserved, "001" sub-QCIF, "010" QCIF, "011" CIF,
 			 * "100" 4CIF, "101" 16CIF, "110" custom source format, "111" reserved;
 			 */
-			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, FALSE);
+			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_ext_source_format, tvb, offset_in_bits, 3, ENC_BIG_ENDIAN);
 			offset_in_bits+=3;
 			
 			/*
 			 *  Bit 4 Optional Custom PCF, "0" CIF PCF, "1" custom PCF;
 			 */
-			proto_tree_add_bits_ret_val( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 1, &custom_pcf, FALSE);
+			proto_tree_add_bits_ret_val( h263_opptype_tree, hf_h263_custom_pcf, tvb, offset_in_bits, 1, &custom_pcf, ENC_BIG_ENDIAN);
 			offset_in_bits++;
 			saved_bit_offset=offset_in_bits;
 			/*
@@ -373,7 +372,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			 *  Bit 18 Reserved, shall be equal to "0".
 			 */
 			offset_in_bits++;
-			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, FALSE);
+			proto_tree_add_bits_item( h263_opptype_tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_NA);
 			
 		}
 		/*
@@ -389,7 +388,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * "110" Reserved;
 		 * "111" Reserved;
 		 */
-		proto_tree_add_bits_ret_val( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code, FALSE);
+		proto_tree_add_bits_ret_val( tree, hf_h263_picture_type_code, tvb, offset_in_bits, 3, &picture_type_code, ENC_BIG_ENDIAN);
 		offset_in_bits+=3;
 		saved_bit_offset=offset_in_bits;
 		/*
@@ -416,20 +415,20 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 *  Bit 9 Equal to "1" to prevent start code emulation.
 		 */
 		offset_in_bits++;
-		proto_tree_add_bits_item( tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, FALSE);
+		proto_tree_add_bits_item( tree, hf_h263_not_dissected, tvb, saved_bit_offset, offset_in_bits-saved_bit_offset, ENC_NA);
 		/* The picture header location of CPM (1 bit) and PSBI (2 bits)
 		 * the picture header depends on whether or not PLUSPTYPE is present 
 		 * (see 5.1.20 and 5.1.21). If PLUSPTYPE is present, then CPM follows
 		 * immediately after PLUSPTYPE in the picture header.
 		 */
-		proto_tree_add_bits_ret_val( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm, FALSE);
+		proto_tree_add_bits_ret_val( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 		/* 5.1.21 Picture Sub-Bitstream Indicator (PSBI) (2 bits)
 		 * only present if Continuous Presence Multipoint and Video
 		 * Multiplex mode is indicated by CPM.
 		 */
 		if(cpm==1){
-			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, FALSE);
+			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, ENC_BIG_ENDIAN);
 			offset_in_bits+=2;
 		}
 		return offset_in_bits>>3;
@@ -546,17 +545,17 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 */
 	}
 	/* 5.1.19 Quantizer Information (PQUANT) (5 bits) */
-	proto_tree_add_bits_item( tree, hf_h263_pquant, tvb, offset_in_bits, 5, FALSE);
+	proto_tree_add_bits_item( tree, hf_h263_pquant, tvb, offset_in_bits, 5, ENC_BIG_ENDIAN);
 	offset_in_bits = offset_in_bits +5;
 	if (source_format != H263_PLUSPTYPE){
-		proto_tree_add_bits_ret_val( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm, FALSE);
+		proto_tree_add_bits_ret_val( tree, hf_h263_cpm, tvb, offset_in_bits, 1, &cpm, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 		/* 5.1.21 Picture Sub-Bitstream Indicator (PSBI) (2 bits)
 		 * only present if Continuous Presence Multipoint and Video
 		 * Multiplex mode is indicated by CPM.
 		 */
 		if(cpm==1){
-			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, FALSE);
+			proto_tree_add_bits_item( tree, hf_h263_psbi, tvb, offset_in_bits, 2, ENC_BIG_ENDIAN);
 			offset_in_bits = offset_in_bits +2;
 		}
 	}
@@ -567,10 +566,10 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	 */
 	if((PB_frames_mode == 1)||(picture_type_code == 2 )){
 		if(custom_pcf == 0){
-			proto_tree_add_bits_item( tree, hf_h263_trb, tvb, offset_in_bits, 3, FALSE);
+			proto_tree_add_bits_item( tree, hf_h263_trb, tvb, offset_in_bits, 3, ENC_BIG_ENDIAN);
 			offset_in_bits = offset_in_bits +3;
 		}else{
-			proto_tree_add_bits_item( tree, hf_h263_trb, tvb, offset_in_bits, 5, FALSE);
+			proto_tree_add_bits_item( tree, hf_h263_trb, tvb, offset_in_bits, 5, ENC_BIG_ENDIAN);
 			offset_in_bits = offset_in_bits +5;
 		}
 	}
@@ -583,7 +582,7 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	/* 5.1.24 Extra Insertion Information (PEI) (1 bit)
 	 * A bit which when set to "1" signals the presence of the following optional data field.
 	 */
-	proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, FALSE);
+	proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, ENC_BIG_ENDIAN);
 	offset_in_bits++;
 	while(pei==1)
 	{
@@ -591,9 +590,9 @@ dissect_h263_picture_layer( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		 * If PEI is set to "1", then 9 bits follow consisting of 8 bits of data (PSUPP) and then another PEI bit
 		 * to indicate if a further 9 bits follow and so on. Encoders shall use PSUPP as specified in Annex L.
 		 */
-		proto_tree_add_bits_item( tree, hf_h263_psupp, tvb, offset_in_bits, 8, FALSE);
+		proto_tree_add_bits_item( tree, hf_h263_psupp, tvb, offset_in_bits, 8, ENC_BIG_ENDIAN);
 		offset_in_bits+=8;
-		proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, FALSE);
+		proto_tree_add_bits_ret_val( tree, hf_h263_pei, tvb, offset_in_bits, 1, &pei, ENC_BIG_ENDIAN);
 		offset_in_bits++;
 	}
 	/* For the first GOB in each picture (with number 0), no GOB header shall be transmitted.
@@ -668,7 +667,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 				 * ( 1000 00x.)
 				 */
 				col_append_str( pinfo->cinfo, COL_INFO, "(PSC) ");
-				offset = dissect_h263_picture_layer( tvb, pinfo, h263_payload_tree, offset, -1, FALSE);
+				offset = dissect_h263_picture_layer( tvb, pinfo, h263_payload_tree, offset, -1, ENC_NA);
 				break;
 			case 0xfc:
 			case 0xfe:

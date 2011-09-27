@@ -254,7 +254,7 @@ de_bmaple_apdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
 	 */
 
 	apdu_protocol_id = tvb_get_guint8(tvb,curr_offset+1);
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_apdu_protocol_id, tvb, curr_offset+1, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_apdu_protocol_id, tvb, curr_offset+1, 1, ENC_BIG_ENDIAN);
 
 	switch(apdu_protocol_id){
 	case 1:
@@ -312,21 +312,21 @@ de_bmaple_decihp_keys(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
 	/* Spare bits */
 	bit_offset = (offset<<3);
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bit_offset, 7, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bit_offset, 7, ENC_BIG_ENDIAN);
 	bit_offset += 7;
 
 	/* Extract the Ciphering Key Flag and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_ciphering_key_flag, tvb, bit_offset, 1, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_ciphering_key_flag, tvb, bit_offset, 1, ENC_BIG_ENDIAN);
 	bit_offset++;
 	offset++;
 
 	/* Extract the Current Deciphering Key Value and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_current_deciphering_key_value, tvb, bit_offset, 56, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_current_deciphering_key_value, tvb, bit_offset, 56, ENC_NA);
 	bit_offset += 56;
 	offset += 7;
 
 	/* Extract the Next Deciphering Key Value and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_next_deciphering_key_value, tvb, bit_offset, 56, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_next_deciphering_key_value, tvb, bit_offset, 56, ENC_NA);
 	offset += 7;
 
 	return(len);
@@ -348,32 +348,32 @@ de_bmaple_req_gps_ass_data(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _
 
 	/* Octet 3 H G F E D C B A */
 	/* bit H Acquisition Assistance */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_acq_ass, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_acq_ass, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit G Reference Time */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_ref_time, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ref_time, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit F Reference Location */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_ref_loc, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ref_loc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit E DGPS Corrections */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_dgps_corr, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_dgps_corr, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit D Navigation Model */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_nav_mod, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_nav_mod, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit C Ionospheric Model */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_iono_mod, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_iono_mod, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit B UTC Model */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_utc_mod, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_utc_mod, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit A Almanac */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_almanac, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_almanac, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	/* Octet 4 P O N M L K J I
 	 * bits L through P are Spare bits
 	 */
 	/* bit K Ephemeris Extension Check */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_ephemeris_ext_chk, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ephemeris_ext_chk, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit J Ephemeris Extension */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_ephemeris_ext, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_ephemeris_ext, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	/* bit I Real-Time Integrity */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_real_time_int, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_real_time_int, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	/* Octet 5 to Octet 8+2n Satellite related data */
@@ -432,13 +432,13 @@ de_bmaple_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	curr_offset = offset;
 
 	/* cause value  */
-	proto_tree_add_item(tree, hf_gsm_bssmap_le_lcs_cause_value, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bssmap_le_lcs_cause_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	if (len == 2)
 	{
 		/* Diagnostic value (note) */
-		proto_tree_add_item(tree, hf_gsm_bssmap_le_diagnostic_value, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_bssmap_le_diagnostic_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		curr_offset++;
 	}
 
@@ -476,11 +476,11 @@ de_bmaple_client(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	curr_offset = offset;
 
 	/* Extract the client category and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_client_category, tvb, bitCount, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_client_category, tvb, bitCount, 4, ENC_BIG_ENDIAN);
 	bitCount = bitCount + 4;
 
 	/* Extract the client subtype and add to protocol tree */
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_client_subtype, tvb, bitCount, 4, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_client_subtype, tvb, bitCount, 4, ENC_BIG_ENDIAN);
 	bitCount = bitCount + 4;
 	curr_offset++;
 
@@ -501,48 +501,48 @@ de_bmaple_lcs_qos(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint
 
 	bitCount = offset << 3;
 
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 6, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 6, ENC_BIG_ENDIAN);
 	bitCount = bitCount + 6;
 
 	/* Extract Velocity requested element */
-	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_velocity_requested, tvb, bitCount, 1, &velocityRequested, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_velocity_requested, tvb, bitCount, 1, &velocityRequested, ENC_BIG_ENDIAN);
 	bitCount++;
 
 	/* Extract vertical coordinator element */
-	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_vertical_coordinate_indicator, tvb, bitCount, 1, &verticalCoordIndicator, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_vertical_coordinate_indicator, tvb, bitCount, 1, &verticalCoordIndicator, ENC_BIG_ENDIAN);
 	bitCount++;
 
 	/* Extract horizontal accuracy element */
-	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_horizontal_accuracy_indicator, tvb, bitCount, 1, &horizontalAccuracyIndicator, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_horizontal_accuracy_indicator, tvb, bitCount, 1, &horizontalAccuracyIndicator, ENC_BIG_ENDIAN);
 	bitCount++;
 
 	if(horizontalAccuracyIndicator == 1)
 	{
-		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_horizontal_accuracy, tvb, bitCount, 7, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_horizontal_accuracy, tvb, bitCount, 7, ENC_BIG_ENDIAN);
 		bitCount = bitCount + 7;
 	}
 	else
 	{
-		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 7, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 7, ENC_BIG_ENDIAN);
 		bitCount = bitCount + 7;
 	}
 
 	/* Extract vertical accuracy element */
-	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_vertical_accuracy_indicator, tvb, bitCount, 1, &verticalAccuracyIndicator, FALSE);
+	proto_tree_add_bits_ret_val(tree, hf_gsm_bssmap_le_vertical_accuracy_indicator, tvb, bitCount, 1, &verticalAccuracyIndicator, ENC_BIG_ENDIAN);
 	bitCount++;
 
 	if(verticalAccuracyIndicator == 1)
 	{
-		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_vertical_accuracy, tvb, bitCount, 7, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_vertical_accuracy, tvb, bitCount, 7, ENC_BIG_ENDIAN);
 		bitCount = bitCount + 7;
 	}
 	else
 	{
-		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 7, FALSE);
+		proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_spare, tvb, bitCount, 7, ENC_BIG_ENDIAN);
 		bitCount = bitCount + 7;
 	}
 
-	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_response_time_category, tvb, bitCount, 2, FALSE);
+	proto_tree_add_bits_item(tree, hf_gsm_bssmap_le_response_time_category, tvb, bitCount, 2, ENC_BIG_ENDIAN);
 	bitCount = bitCount + 2;
 
 	return(len);
@@ -975,10 +975,7 @@ dissect_bssmap_le(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		bssmap_le_tree = proto_item_add_subtree(bssmap_le_item, ett_gsm_bssmap_le_msg[idx]);
 
-		if (check_col(pinfo->cinfo, COL_INFO))
-		{
-			col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
-		}
+		col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
 
 		/*
 		 * add BSSMAP message name
@@ -1047,12 +1044,12 @@ proto_register_gsm_bssmap_le(void)
 		},
 		{ &hf_gsm_bssmap_le_current_deciphering_key_value,
 		  { "Current Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.current",
-		    FT_UINT8, BASE_DEC, NULL, 0x0, NULL,
+		    FT_UINT64, BASE_HEX, NULL, 0x0, NULL,
 		    HFILL}
 		},
 		{ &hf_gsm_bssmap_le_next_deciphering_key_value,
 		  { "Next Deciphering Key Value", "gsm_bssmap_le.decipheringKeys.next",
-		    FT_UINT8, BASE_DEC, NULL, 0x0,
+		    FT_UINT64, BASE_HEX, NULL, 0x0,
 		    NULL, HFILL}
 		},
 		{ &hf_gsm_bssmap_le_acq_ass,

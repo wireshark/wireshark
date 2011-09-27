@@ -5305,10 +5305,9 @@ dissect_rnsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
                                                             0U, 255U, &ProcedureCode, FALSE);
 
 #line 77 "../../asn1/rnsap/rnsap.cnf"
-	if (check_col(actx->pinfo->cinfo, COL_INFO))
-       col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
-                   val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
-                              "unknown message"));
+   col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s ",
+                val_to_str_ext_const(ProcedureCode, &rnsap_ProcedureCode_vals_ext,
+                           "unknown message"));
 
   return offset;
 }
@@ -5339,7 +5338,7 @@ static const per_sequence_t ProcedureID_sequence[] = {
 
 static int
 dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 85 "../../asn1/rnsap/rnsap.cnf"
+#line 84 "../../asn1/rnsap/rnsap.cnf"
   ProcedureCode = 0xFFFF;
   ddMode = 0xFFFF;
   ProcedureID = NULL;
@@ -5347,7 +5346,7 @@ dissect_rnsap_ProcedureID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_rnsap_ProcedureID, ProcedureID_sequence);
 
-#line 91 "../../asn1/rnsap/rnsap.cnf"
+#line 90 "../../asn1/rnsap/rnsap.cnf"
   ProcedureID = ep_strdup_printf("%s/%s",
                                  val_to_str_ext(ProcedureCode, &rnsap_ProcedureCode_vals_ext, "unknown(%u)"),
                                  val_to_str(ddMode, rnsap_DdMode_vals, "unknown(%u)"));
@@ -22926,7 +22925,7 @@ dissect_rnsap_List_Of_PLMNs(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
 
 static int
 dissect_rnsap_L3_Information(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 104 "../../asn1/rnsap/rnsap.cnf"
+#line 103 "../../asn1/rnsap/rnsap.cnf"
 	tvbuff_t *parameter_tvb;
 	dissector_handle_t parameter_handle = NULL;
 
@@ -43148,7 +43147,7 @@ dissect_rnsap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RNSAP");
 
 	/* create the rnsap protocol tree */
-	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, FALSE);
+	rnsap_item = proto_tree_add_item(tree, proto_rnsap, tvb, 0, -1, ENC_NA);
 	rnsap_tree = proto_item_add_subtree(rnsap_item, ett_rnsap);
 	
 	dissect_RNSAP_PDU_PDU(tvb, pinfo, rnsap_tree);

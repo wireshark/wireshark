@@ -381,8 +381,7 @@ force_reassemble_seq(packet_info *pinfo, guint32 id,
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
 	
 	p_t38_packet_conv_info->packet_lost = packet_lost;
 	p_t38_packet_conv_info->burst_lost = burst_lost;
@@ -590,11 +589,8 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 				break;
-			} 
-			else {
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, " IFPPacket#%u",ifp_packet_number);
-				}
+			}else {
+				col_append_fstr(pinfo->cinfo, COL_INFO, " IFPPacket#%u",ifp_packet_number);
 			}
 		}
 	}

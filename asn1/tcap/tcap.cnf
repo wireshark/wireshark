@@ -141,7 +141,7 @@ if (parameter_tvb){
 		break;
 	}
 
-	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
+	if (len){
 		col_append_str(actx->pinfo->cinfo, COL_INFO, "otid(");
 	   	for(i=0;i<len;i++)
         		  col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
@@ -180,7 +180,7 @@ if (parameter_tvb){
 		break;
 	}
 
-	if ((len)&&(check_col(actx->pinfo->cinfo, COL_INFO))){
+	if (len){
 		col_append_str(actx->pinfo->cinfo, COL_INFO, "dtid(");
 		for(i=0;i<len;i++)
           		col_append_fstr(actx->pinfo->cinfo, COL_INFO, "%%02x",tvb_get_guint8(parameter_tvb,i));
@@ -197,30 +197,26 @@ gp_tcapsrt_info->ope=TC_BEGIN;
  *  If there's something there that should not be overwritten, whoever
  *  put that info there should call col_set_fence() to protect it.
  */
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Begin ");
 #.END
 
 
 #.FN_HDR End
 gp_tcapsrt_info->ope=TC_END;
 
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "End ");
 #.END
 
 
 #.FN_HDR Continue
 gp_tcapsrt_info->ope=TC_CONT;
 
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Continue ");
 #.END
 
 
 #.FN_HDR Abort
 gp_tcapsrt_info->ope=TC_ABORT;
 
-if (check_col(actx->pinfo->cinfo, COL_INFO))
-		col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
+	col_set_str(actx->pinfo->cinfo, COL_INFO, "Abort ");
 #.END

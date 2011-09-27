@@ -426,8 +426,7 @@ force_reassemble_seq(packet_info *pinfo, guint32 id,
 	fd_head->flags |= FD_DEFRAGMENTED;
 	fd_head->reassembled_in=pinfo->fd->num;
 
-	if (check_col(pinfo->cinfo, COL_INFO))
-			col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
+	col_append_fstr(pinfo->cinfo, COL_INFO, " (t4-data Reassembled: %d pack lost, %d pack burst lost)", packet_lost, burst_lost);
 	
 	p_t38_packet_conv_info->packet_lost = packet_lost;
 	p_t38_packet_conv_info->burst_lost = burst_lost;
@@ -474,7 +473,7 @@ dissect_t38_T30_indicator(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U
                                      16, &T30ind_value, TRUE, 7, NULL);
 
 #line 31 "../../asn1/t38/t38.cnf"
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
          val_to_str(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
     }
@@ -513,7 +512,7 @@ dissect_t38_T30_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, pr
                                      9, &Data_value, TRUE, 6, NULL);
 
 #line 43 "../../asn1/t38/t38.cnf"
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
          val_to_str(Data_value,t38_T30_data_vals,"<unknown>"));
     }
@@ -577,7 +576,7 @@ dissect_t38_T_field_type(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
                                      8, &Data_Field_field_type_value, (use_pre_corrigendum_asn1_specification)?FALSE:TRUE, (use_pre_corrigendum_asn1_specification)?0:4, NULL);
 
 #line 63 "../../asn1/t38/t38.cnf"
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s",
          val_to_str(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
     }
@@ -683,7 +682,7 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 
 #line 159 "../../asn1/t38/t38.cnf"
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
                tvb_bytes_to_str(value_tvb,0,value_len));
@@ -731,11 +730,9 @@ dissect_t38_T_field_data(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {
-                    if (check_col(actx->pinfo->cinfo, COL_INFO))
-                        col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 } else {
-                    if (check_col(actx->pinfo->cinfo, COL_INFO))
-                        col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 }
             }
 
@@ -800,14 +797,12 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &seq_number, FALSE);
 
-#line 229 "../../asn1/t38/t38.cnf"
+#line 227 "../../asn1/t38/t38.cnf"
     /* info for tap */
     if (primary_part)
         t38_info->seq_num = seq_number;
 
-      if (check_col(actx->pinfo->cinfo, COL_INFO)){
-        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
-    }
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
 
   return offset;
 }
@@ -816,12 +811,12 @@ dissect_t38_T_seq_number(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_
 
 static int
 dissect_t38_T_primary_ifp_packet(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 239 "../../asn1/t38/t38.cnf"
+#line 235 "../../asn1/t38/t38.cnf"
     primary_part = TRUE;
 
   offset = dissect_per_open_type(tvb, offset, actx, tree, hf_index, dissect_t38_IFPPacket);
 
-#line 241 "../../asn1/t38/t38.cnf"
+#line 237 "../../asn1/t38/t38.cnf"
     /* if is a valid t38 packet, add to tap */
     if (p_t38_packet_conv && (!actx->pinfo->in_error_pkt) && ((gint32) seq_number != p_t38_packet_conv_info->last_seqnum))
         tap_queue_packet(t38_tap, actx->pinfo, t38_info);
@@ -915,14 +910,14 @@ static const per_choice_t T_error_recovery_choice[] = {
 
 static int
 dissect_t38_T_error_recovery(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 249 "../../asn1/t38/t38.cnf"
+#line 245 "../../asn1/t38/t38.cnf"
     primary_part = FALSE;
 
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_t38_T_error_recovery, T_error_recovery_choice,
                                  NULL);
 
-#line 251 "../../asn1/t38/t38.cnf"
+#line 247 "../../asn1/t38/t38.cnf"
     primary_part = TRUE;
 
   return offset;
@@ -938,7 +933,7 @@ static const per_sequence_t UDPTLPacket_sequence[] = {
 
 static int
 dissect_t38_UDPTLPacket(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "../../asn1/t38/t38.cnf"
+#line 221 "../../asn1/t38/t38.cnf"
     /* Initialize to something else than data type */
     Data_Field_field_type_value = 1;
 
@@ -969,7 +964,7 @@ static int dissect_UDPTLPacket_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
 
 
 /*--- End of included file: packet-t38-fn.c ---*/
-#line 395 "../../asn1/t38/packet-t38-template.c"
+#line 394 "../../asn1/t38/packet-t38-template.c"
 
 /* initialize the tap t38_info and the conversation */
 static void
@@ -1168,11 +1163,8 @@ dissect_t38_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				col_append_str(pinfo->cinfo, COL_INFO, " [Malformed?]");
 				break;
-			} 
-			else {
-				if (check_col(pinfo->cinfo, COL_INFO)){
-					col_append_fstr(pinfo->cinfo, COL_INFO, " IFPPacket#%u",ifp_packet_number);
-				}
+			}else {
+				col_append_fstr(pinfo->cinfo, COL_INFO, " IFPPacket#%u",ifp_packet_number);
 			}
 		}
 	}
@@ -1324,7 +1316,7 @@ proto_register_t38(void)
         "OCTET_STRING", HFILL }},
 
 /*--- End of included file: packet-t38-hfarr.c ---*/
-#line 673 "../../asn1/t38/packet-t38-template.c"
+#line 669 "../../asn1/t38/packet-t38-template.c"
 		{   &hf_t38_setup,
 		    { "Stream setup", "t38.setup", FT_STRING, BASE_NONE,
 		    NULL, 0x0, "Stream setup, method and frame number", HFILL }},
@@ -1385,7 +1377,7 @@ proto_register_t38(void)
     &ett_t38_T_fec_data,
 
 /*--- End of included file: packet-t38-ettarr.c ---*/
-#line 720 "../../asn1/t38/packet-t38-template.c"
+#line 716 "../../asn1/t38/packet-t38-template.c"
 		&ett_t38_setup,
 		&ett_data_fragment,
 		&ett_data_fragments

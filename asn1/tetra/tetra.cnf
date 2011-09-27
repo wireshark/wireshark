@@ -68,267 +68,194 @@ BNCH
 
 #.FN_BODY U-RELEASE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-RELEASE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-RELEASE");
 #.END
 
 #.FN_BODY D-RELEASE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
 #.END
 
 
 
 #.FN_BODY D-CALL-PROCEEDING
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CALL-PROCEEDING");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CALL-PROCEEDING");
 #.END
 
 #.FN_BODY D-SETUP
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-SETUP");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-SETUP");
 #.END
 
 
 #.FN_BODY U-LOCATION-UPDATE-DEMAND
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-LOCATION-UPDATE-DEMAND");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-LOCATION-UPDATE-DEMAND");
 #.END
 
 
 #.FN_BODY D-LOCATION-UPDATE-ACCEPT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-LOCATION-UPDATE-ACCEPT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-LOCATION-UPDATE-ACCEPT");
 #.END
 
 
 #.FN_BODY D-CONNECT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CONNECT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CONNECT");
 #.END
 
 #.FN_BODY D-RELEASE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-RELEASE");
 #.END
 
 #.FN_BODY D-CONNECT-ACK
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CONNECT-ACK");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CONNECT-ACK");
 #.END
 
 #.FN_BODY D-INFO
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-INFO");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-INFO");
 #.END
 
 #.FN_BODY D-DISCONNECT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-DISCONNECT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-DISCONNECT");
 #.END
 
 #.FN_BODY D-ALERT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-ALERT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-ALERT");
 #.END
 
 #.FN_BODY D-TX-CEASED
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CEASED");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CEASED");
 #.END
 
 
 #.FN_BODY D-STATUS
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-STATUS");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-STATUS");
 #.END
 
 #.FN_BODY D-TX-CONTINUE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CONTINUE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-CONTINUE");
 #.END
 
 #.FN_BODY D-TX-GRANTED
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-GRANTED");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-GRANTED");
+
 #.END
 
 #.FN_BODY D-TX-WAIT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
 #.END
 
 #.FN_BODY D-CALL-RESTORE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CALL-RESTORE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-CALL-RESTORE");
 #.END
 
 #.FN_BODY D-SDS-DATA
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-SDS-DATA");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-SDS-DATA");
 #.END
 
 #.FN_BODY D-TX-WAIT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-TX-WAIT");
 #.END
 
 
 #.FN_BODY U-ALERT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ALERT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ALERT");
 #.END
 
 #.FN_BODY U-CONNECT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-CONNECT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-CONNECT");
 #.END
 
 #.FN_BODY U-DISCONNECT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-DISCONNECT");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-DISCONNECT");
 #.END
 
 #.FN_BODY U-RELEASE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-RELEASE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-RELEASE");
 #.END
 
 #.FN_BODY U-SETUP
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-SETUP");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-SETUP");
 #.END
 
 #.FN_BODY U-STATUS
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-STATUS");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-STATUS");
 #.END
 
 #.FN_BODY U-SDS-DATA
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-SDS-DATA");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-SDS-DATA");
 #.END
 
 #.FN_BODY U-CALL-RESTORE
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-CALL-RESTORE");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-CALL-RESTORE");
 #.END
 
 #.FN_BODY U-TX-DEMAND
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-TX-DEMAND");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-TX-DEMAND");
 #.END
 
 #.FN_BODY U-TX-CEASED
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-TX-CEASED");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-TX-CEASED");
 #.END
 
 
 #.FN_BODY U-MM-STATUS
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-MM-STATUS");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-MM-STATUS");
 #.END
 
 #.FN_BODY D-MM-STATUS
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-MM-STATUS");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-MM-STATUS");
 #.END
 
 #.FN_BODY U-ATTACH-DETACH-GROUP-IDENTITY
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY");
 #.END
 
 #.FN_BODY U-ATTACH-DETACH-GROUP-IDENTITY-ACK
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
 		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY-ACK");
-	}
 #.END
 
 #.FN_BODY D-LOCATION-UPDATE-REJECT
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
 		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "D-LOCATION-UPDATE-REJECT");
-	}
 #.END
 
 #.FN_BODY D-ATTACH-DETACH-GROUP-IDENTITY
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY");
 #.END
 
 #.FN_BODY D-ATTACH-DETACH-GROUP-IDENTITY-ACK
 %(DEFAULT_BODY)s
-	if (check_col(actx->pinfo->cinfo, COL_INFO)){
-		col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY-ACK");
-	}
+	col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "U-ATTACH-DETACH-GROUP-IDENTITY-ACK");
 #.END

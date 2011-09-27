@@ -28,7 +28,7 @@ UDPTLPacket
 
 #.FN_PARS Type-of-msg/t30-indicator  VAL_PTR=&T30ind_value
 #.FN_FTR Type-of-msg/t30-indicator
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " t30ind: %s",
          val_to_str(T30ind_value,t38_T30_indicator_vals,"<unknown>"));
     }
@@ -40,7 +40,7 @@ UDPTLPacket
 
 #.FN_PARS Type-of-msg/t30-data  VAL_PTR=&Data_value
 #.FN_FTR Type-of-msg/t30-data
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " data:%s:",
          val_to_str(Data_value,t38_T30_data_vals,"<unknown>"));
     }
@@ -60,7 +60,7 @@ EXT=(use_pre_corrigendum_asn1_specification)?FALSE:TRUE
 EXT_NUM=(use_pre_corrigendum_asn1_specification)?0:4
 VAL_PTR=&Data_Field_field_type_value
 #.FN_FTR Data-Field/_item/field-type
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         col_append_fstr(actx->pinfo->cinfo, COL_INFO, " %s",
          val_to_str(Data_Field_field_type_value,t38_T_field_type_vals,"<unknown>"));
     }
@@ -156,7 +156,7 @@ VAL_PTR=&Data_Field_field_type_value
     value_len = tvb_length(value_tvb);
 
 #.FN_FTR Data-Field/_item/field-data
-    if (check_col(actx->pinfo->cinfo, COL_INFO) && primary_part){
+    if (primary_part){
         if(value_len < 8){
             col_append_fstr(actx->pinfo->cinfo, COL_INFO, "[%s]",
                tvb_bytes_to_str(value_tvb,0,value_len));
@@ -204,11 +204,9 @@ VAL_PTR=&Data_Field_field_type_value
 
             if (!frag_msg) { /* Not last packet of reassembled */
                 if (Data_Field_field_type_value == 0) {
-                    if (check_col(actx->pinfo->cinfo, COL_INFO))
-                        col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (HDLC fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 } else {
-                    if (check_col(actx->pinfo->cinfo, COL_INFO))
-                        col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
+                    col_append_fstr(actx->pinfo->cinfo, COL_INFO," (t4-data fragment %u)", seq_number - (guint32)p_t38_packet_conv_info->reass_start_seqnum);
                 }
             }
 
@@ -230,9 +228,7 @@ VAL_PTR=&Data_Field_field_type_value
     if (primary_part)
         t38_info->seq_num = seq_number;
 
-      if (check_col(actx->pinfo->cinfo, COL_INFO)){
-        col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
-    }
+    col_append_fstr(actx->pinfo->cinfo, COL_INFO, "Seq=%05u ",seq_number);
 #.END
 
 #.FN_HDR UDPTLPacket/primary-ifp-packet
