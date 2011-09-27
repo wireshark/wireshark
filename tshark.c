@@ -133,14 +133,14 @@ static print_stream_t *print_stream;
 
 static output_fields_t* output_fields  = NULL;
 
+/* The line separator used between packets, changeable via the -S option */
+static char *separator = "";
+
 #ifdef HAVE_LIBPCAP
 /*
  * TRUE if we're to print packet counts to keep track of captured packets.
  */
 static gboolean print_packet_counts;
-
-/* The line separator used between packets, changeable via the -S option */
-static char *separator = "";
 
 static capture_options global_capture_opts;
 
