@@ -2395,7 +2395,6 @@ static int hf_ieee80211_sched_info_dir = -1;
 static int hf_ieee80211_sched_srv_start = -1;
 static int hf_ieee80211_sched_srv_int = -1;
 static int hf_ieee80211_sched_spec_int = -1;
-static int hf_ieee80211_action = -1;
 static int hf_ieee80211_tclas_up = -1;
 static int hf_ieee80211_tclas_class_type = -1;
 static int hf_ieee80211_tclas_class_mask = -1;
@@ -4502,12 +4501,6 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
 
     case FIELD_ACTION:
       {
-        proto_item *action_item;
-        proto_tree *action_tree;
-
-        action_item = proto_tree_add_item(tree, hf_ieee80211_action, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-        action_tree = tree;
-
         switch (tvb_get_guint8(tvb, offset) & 0x7f)
           {
             case CAT_SPECTRUM_MGMT:
@@ -4518,22 +4511,22 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                     case SM_ACTION_MEASUREMENT_REPORT:
                     case SM_ACTION_TPC_REQUEST:
                     case SM_ACTION_TPC_REPORT:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
                       length += 3;  /* Size of fixed fields */
                       break;
 
                     case SM_ACTION_CHAN_SWITCH_ANNC:
                     case SM_ACTION_EXT_CHAN_SWITCH_ANNC:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_ACTION_CODE);
                       length += 2;  /* Size of fixed fields */
                       break;
 
                     default:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_ACTION_CODE);
                       length += 2;  /* Size of fixed fields */
                       break;
                   }
@@ -4545,36 +4538,36 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 switch (tvb_get_guint8(tvb, offset+1))
                   {
                     case SM_ACTION_ADDTS_REQUEST:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
                       length += 3;
                       break;
 
                     case SM_ACTION_ADDTS_RESPONSE:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
-                      add_fixed_field(action_tree, tvb, offset+3, FIELD_STATUS_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_DIALOG_TOKEN);
+                      add_fixed_field(tree, tvb, offset+3, FIELD_STATUS_CODE);
                       length += 5;
                       break;
 
                     case SM_ACTION_DELTS:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_QOS_TS_INFO);
-                      add_fixed_field(action_tree, tvb, offset+5, FIELD_REASON_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_QOS_TS_INFO);
+                      add_fixed_field(tree, tvb, offset+5, FIELD_REASON_CODE);
                       length += 7;
                       break;
 
                     case SM_ACTION_QOS_SCHEDULE:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_QOS_ACTION_CODE);
                       length += 2;
                       break;
 
                     default:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
                       length += 2;  /* Size of fixed fields */
                       break;
                   }
@@ -4586,37 +4579,37 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 switch (tvb_get_guint8(tvb, offset+1))
                   {
                     case SM_ACTION_DLS_REQUEST:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
-                      add_fixed_field(action_tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
-                      add_fixed_field(action_tree, tvb, offset+14, FIELD_CAP_INFO);
-                      add_fixed_field(action_tree, tvb, offset+16, FIELD_DLS_TIMEOUT);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
+                      add_fixed_field(tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
+                      add_fixed_field(tree, tvb, offset+14, FIELD_CAP_INFO);
+                      add_fixed_field(tree, tvb, offset+16, FIELD_DLS_TIMEOUT);
                       length += 18;
                       break;
 
                     case SM_ACTION_DLS_RESPONSE:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_STATUS_CODE);
-                      add_fixed_field(action_tree, tvb, offset+4, FIELD_DST_MAC_ADDR);
-                      add_fixed_field(action_tree, tvb, offset+10, FIELD_SRC_MAC_ADDR);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_STATUS_CODE);
+                      add_fixed_field(tree, tvb, offset+4, FIELD_DST_MAC_ADDR);
+                      add_fixed_field(tree, tvb, offset+10, FIELD_SRC_MAC_ADDR);
                       length += 16;
                       if (!hf_ieee80211_ff_status_code)
-                        add_fixed_field(action_tree, tvb, offset+16, FIELD_CAP_INFO);
+                        add_fixed_field(tree, tvb, offset+16, FIELD_CAP_INFO);
                       break;
 
                     case SM_ACTION_DLS_TEARDOWN:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                      add_fixed_field(action_tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
-                      add_fixed_field(action_tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
-                      add_fixed_field(action_tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
-                      add_fixed_field(action_tree, tvb, offset+14, FIELD_REASON_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset+1, FIELD_DLS_ACTION_CODE);
+                      add_fixed_field(tree, tvb, offset+2, FIELD_DST_MAC_ADDR);
+                      add_fixed_field(tree, tvb, offset+8, FIELD_SRC_MAC_ADDR);
+                      add_fixed_field(tree, tvb, offset+14, FIELD_REASON_CODE);
                       length += 16;
                       break;
 
                     default:
-                      add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                      add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
                       length += 2;  /* Size of fixed fields */
                       break;
                   }
@@ -4631,12 +4624,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       {
                         guint start = offset;
 
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_SSC);
                         length = offset - start;  /* Size of fixed fields */
                         break;
                       }
@@ -4644,12 +4637,12 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       {
                         guint start = offset;
 
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_PARAM);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_TIMEOUT);
                         length = offset - start;  /* Size of fixed fields */
                         break;
                       }
@@ -4657,10 +4650,10 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       {
                         guint start = offset;
 
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_DELBA_PARAM_SET);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_REASON_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_BLOCK_ACK_ACTION_CODE);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_DELBA_PARAM_SET);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_REASON_CODE);
                         length = offset - start;  /* Size of fixed fields */
                         break;
                       }
@@ -4675,25 +4668,25 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 guint8 code;
                 guint8 subtype;
 
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
                 code = tvb_get_guint8(tvb, offset);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_PA_ACTION_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_PA_ACTION_CODE);
 
                 switch (code)
                   {
                     case PA_VENDOR_SPECIFIC:
                       oui = tvb_get_ntoh24(tvb, offset);
-                      proto_tree_add_item(action_tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+                      proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
                       offset += 3;
                       switch (oui)
                       {
                       case OUI_WFA:
                         subtype = tvb_get_guint8(tvb, offset);
-                        proto_tree_add_text(action_tree, tvb, offset, 1,
+                        proto_tree_add_text(tree, tvb, offset, 1,
                                             "Subtype %u", subtype);
                         offset++;
                         if (subtype == WFA_SUBTYPE_P2P)
-                          offset = dissect_wifi_p2p_public_action(action_tree, tvb, offset);
+                          offset = dissect_wifi_p2p_public_action(tree, tvb, offset);
                         break;
                       default:
                         /* Don't know how to handle this vendor */
@@ -4703,42 +4696,42 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                     case PA_GAS_INITIAL_REQUEST:
                     {
                       gboolean anqp;
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                      offset += dissect_advertisement_protocol(g_pinfo, action_tree, tvb, offset, &anqp);
-                      offset += dissect_gas_initial_request(action_tree, tvb, offset, anqp);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += dissect_advertisement_protocol(g_pinfo, tree, tvb, offset, &anqp);
+                      offset += dissect_gas_initial_request(tree, tvb, offset, anqp);
                       break;
                     }
                     case PA_GAS_INITIAL_RESPONSE:
                     {
                       gboolean anqp;
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
-                      offset += dissect_advertisement_protocol(g_pinfo, action_tree, tvb, offset, &anqp);
-                      offset += dissect_gas_initial_response(action_tree, tvb, offset, anqp);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
+                      offset += dissect_advertisement_protocol(g_pinfo, tree, tvb, offset, &anqp);
+                      offset += dissect_gas_initial_response(tree, tvb, offset, anqp);
                       break;
                     }
                     case PA_GAS_COMEBACK_REQUEST:
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
                       break;
                     case PA_GAS_COMEBACK_RESPONSE:
                     {
                       gboolean anqp;
                       guint8 frag;
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
                       frag = tvb_get_guint8(tvb, offset) & 0x7f;
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_GAS_FRAGMENT_ID);
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
-                      offset += dissect_advertisement_protocol(g_pinfo, action_tree, tvb, offset, &anqp);
-                      offset += dissect_gas_comeback_response(action_tree, tvb, offset, anqp, frag);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_GAS_FRAGMENT_ID);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
+                      offset += dissect_advertisement_protocol(g_pinfo, tree, tvb, offset, &anqp);
+                      offset += dissect_gas_comeback_response(tree, tvb, offset, anqp, frag);
                       break;
                     }
                     case PA_TDLS_DISCOVERY_RESPONSE:
                       col_set_str(g_pinfo->cinfo, COL_PROTOCOL, "TDLS");
                       col_set_str(g_pinfo->cinfo, COL_INFO, "TDLS Discovery Response");
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_CAP_INFO);
                       break;
                   }
                 length += offset - start;  /* Size of fixed fields */
@@ -4749,31 +4742,31 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
                 guint8 code;
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
                 code = tvb_get_guint8(tvb, offset);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_FT_ACTION_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_FT_ACTION_CODE);
 
                 switch (code) {
                 case FT_ACTION_REQUEST:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
                   /* Followed by FT Request frame body (IEs) */
                   break;
                 case FT_ACTION_RESPONSE:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
                   /* Followed by FT Response frame body (IEs) */
                   break;
                 case FT_ACTION_CONFIRM:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
                   /* Followed by FT Confirm frame body (IEs) */
                   break;
                 case FT_ACTION_ACK:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STA_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_STA_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_TARGET_AP_ADDRESS);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
                   /* Followed by FT Ack frame body (IEs) */
                   break;
                 }
@@ -4786,16 +4779,16 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
                 guint8 code;
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
                 code = tvb_get_guint8(tvb, offset);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_SA_QUERY_ACTION_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_SA_QUERY_ACTION_CODE);
 
                 switch (code) {
                 case SA_QUERY_REQUEST:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TRANSACTION_ID);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_TRANSACTION_ID);
                   break;
                 case SA_QUERY_RESPONSE:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_TRANSACTION_ID);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_TRANSACTION_ID);
                   break;
                 }
 
@@ -4804,22 +4797,22 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               }
 
             case CAT_MESH:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_MESH_ACTION);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_MESH_ACTION);
               /* The only fixed fields are the category and mesh action.  The rest are IEs. */
               length = 2;
               if (tvb_get_guint8(tvb, 1) == MESH_ACTION_TBTT_ADJ_RESPONSE) {
                 /* ..except for the TBTT Adjustment Response, which has a status code field */
-                length += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+                length += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
               }
               break;
 
             case CAT_MULTIHOP:
               {
                 guint start = offset;
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_MULTIHOP_ACTION);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_MESH_CONTROL);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_MULTIHOP_ACTION);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_MESH_CONTROL);
                 length += offset - start;
                 break;
               }
@@ -4827,17 +4820,17 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
             case CAT_SELF_PROTECTED:
               {
                 guint start = offset;
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_SELFPROT_ACTION);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_SELFPROT_ACTION);
                 switch (tvb_get_guint8(tvb, start + 1))
                 {
                 case SELFPROT_ACTION_MESH_PEERING_OPEN:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_CAP_INFO);
                   break;
 
                 case SELFPROT_ACTION_MESH_PEERING_CONFIRM:
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
-                  offset += add_fixed_field(action_tree, tvb, offset, FIELD_ASSOC_ID);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_CAP_INFO);
+                  offset += add_fixed_field(tree, tvb, offset, FIELD_ASSOC_ID);
                   break;
                 }
                 length += offset - start;
@@ -4850,62 +4843,62 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
             guint16 status;
             guint start = offset;
 
-            offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+            offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
             code = tvb_get_guint8(tvb, offset);
-            offset += add_fixed_field(action_tree, tvb, offset, FIELD_TDLS_ACTION_CODE);
+            offset += add_fixed_field(tree, tvb, offset, FIELD_TDLS_ACTION_CODE);
             switch (code) {
             case TDLS_SETUP_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_CAP_INFO);
               break;
             case TDLS_SETUP_RESPONSE:
               status = tvb_get_letohs(tvb, offset);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
               if (tvb_reported_length_remaining(tvb, offset) < 2) {
                 if (status == 0) {
-                  expert_add_info_format(g_pinfo, action_item, PI_MALFORMED, PI_ERROR, "TDLS Setup Response (success) does not include mandatory fields");
+                  expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR, "TDLS Setup Response (success) does not include mandatory fields");
                 }
                 break;
               }
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_CAP_INFO);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_CAP_INFO);
               break;
             case TDLS_SETUP_CONFIRM:
               status = tvb_get_letohs(tvb, offset);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
               if (tvb_reported_length_remaining(tvb, offset) < 1) {
                 if (status == 0) {
-                  expert_add_info_format(g_pinfo, action_item, PI_MALFORMED, PI_ERROR, "TDLS Setup Confirm (success) does not include mandatory fields");
+                  expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR, "TDLS Setup Confirm (success) does not include mandatory fields");
                 }
                 break;
               }
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_TEARDOWN:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_REASON_CODE);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_REASON_CODE);
               break;
             case TDLS_PEER_TRAFFIC_INDICATION:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_CHANNEL_SWITCH_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_TARGET_CHANNEL);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_REGULATORY_CLASS);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_TARGET_CHANNEL);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_REGULATORY_CLASS);
               break;
             case TDLS_CHANNEL_SWITCH_RESPONSE:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
               break;
             case TDLS_PEER_PSM_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_PEER_PSM_RESPONSE:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_STATUS_CODE);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
               break;
             case TDLS_PEER_TRAFFIC_RESPONSE:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             case TDLS_DISCOVERY_REQUEST:
-              offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
+              offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
               break;
             }
 
@@ -4917,10 +4910,10 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               {
                 guint start = offset;
 
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_WME_ACTION_CODE);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_DIALOG_TOKEN);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_WME_STATUS_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_WME_ACTION_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_WME_STATUS_CODE);
                 length = offset - start;  /* Size of fixed fields */
                 break;
               }
@@ -4931,23 +4924,22 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 guint32 oui;
                 guint8 subtype;
 
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
                 oui = tvb_get_ntoh24(tvb, offset);
-                proto_tree_add_item(action_tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+                proto_tree_add_item(tree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
                 offset +=3;
                 switch (oui)
                   {
                     case OUI_MARVELL:
-                      offset = dissect_vendor_action_marvell(action_tree, tvb, offset);
+                      offset = dissect_vendor_action_marvell(tree, tvb, offset);
                       break;
                     case OUI_WFA:
                       subtype = tvb_get_guint8(tvb, offset);
-                      proto_tree_add_text(action_tree, tvb, offset, 1,
+                      proto_tree_add_text(tree, tvb, offset, 1,
                                           "Subtype %u", subtype);
                       offset++;
                       if (subtype == WFA_SUBTYPE_P2P)
-                        offset = dissect_wifi_p2p_action(action_tree, tvb,
-                                                         offset);
+                        offset = dissect_wifi_p2p_action(tree, tvb, offset);
                       break;
                     default:
                       /* Don't know how to handle this vendor */
@@ -4962,16 +4954,16 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                 guint start = 0;
                 start = offset;
 
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
-                offset += add_fixed_field(action_tree, tvb, offset, FIELD_HT_ACTION_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+                offset += add_fixed_field(tree, tvb, offset, FIELD_HT_ACTION_CODE);
                 switch (tvb_get_guint8(tvb, offset-1))
                   {
                     case HT_ACTION_NOTIFY_CHAN_WIDTH:
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_CHANNEL_WIDTH);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_CHANNEL_WIDTH);
                       break;
 
                     case HT_ACTION_SM_PWR_SAVE:
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_SM_PWR_CNTRL);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_SM_PWR_CNTRL);
                       break;
 
                     case HT_ACTION_PSMP_ACTION:
@@ -4979,24 +4971,24 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                         guint8 n_sta, i;
 
                         n_sta = tvb_get_guint8(tvb, offset);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_PSMP_PARAM_SET);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_PSMP_PARAM_SET);
 
                         for (i=0; i< (n_sta & 0x0F); i++)
-                          offset += add_fixed_field(action_tree, tvb, offset, FIELD_PSMP_STA_INFO);
+                          offset += add_fixed_field(tree, tvb, offset, FIELD_PSMP_STA_INFO);
 
                         break;
                       }
 
                     case HT_ACTION_SET_PCO_PHASE:
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_PCO_PHASE_CNTRL);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_PCO_PHASE_CNTRL);
                       break;
 
                     case HT_ACTION_MIMO_CSI:
                       {
                         mimo_control_t mimo_cntrl;
                         mimo_cntrl = get_mimo_control(tvb, offset);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
-                        offset += add_mimo_csi_matrices_report(action_tree, tvb, offset, mimo_cntrl);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_MIMO_CNTRL);
+                        offset += add_mimo_csi_matrices_report(tree, tvb, offset, mimo_cntrl);
                         break;
                       }
 
@@ -5004,8 +4996,8 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       {
                         mimo_control_t mimo_cntrl;
                         mimo_cntrl = get_mimo_control(tvb, offset);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
-                        offset += add_mimo_beamforming_feedback_report(action_tree, tvb, offset, mimo_cntrl);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_MIMO_CNTRL);
+                        offset += add_mimo_beamforming_feedback_report(tree, tvb, offset, mimo_cntrl);
                         break;
                       }
 
@@ -5013,17 +5005,17 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
                       {
                         mimo_control_t mimo_cntrl;
                         mimo_cntrl = get_mimo_control(tvb, offset);
-                        offset += add_fixed_field(action_tree, tvb, offset, FIELD_MIMO_CNTRL);
-                        offset += add_mimo_compressed_beamforming_feedback_report(action_tree, tvb, offset, mimo_cntrl);
+                        offset += add_fixed_field(tree, tvb, offset, FIELD_MIMO_CNTRL);
+                        offset += add_mimo_compressed_beamforming_feedback_report(tree, tvb, offset, mimo_cntrl);
                         break;
                       }
 
                     case HT_ACTION_ANT_SEL_FEEDBACK:
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_ANT_SELECTION);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_ANT_SELECTION);
                       break;
 
                     case HT_ACTION_HT_INFO_EXCHANGE:
-                      offset += add_fixed_field(action_tree, tvb, offset, FIELD_HT_INFORMATION);
+                      offset += add_fixed_field(tree, tvb, offset, FIELD_HT_INFORMATION);
                       break;
 
                     default:
@@ -5035,7 +5027,7 @@ add_fixed_field(proto_tree * tree, tvbuff_t * tvb, int offset, int lfcode)
               }
 
             default:
-              add_fixed_field(action_tree, tvb, offset, FIELD_CATEGORY_CODE);
+              add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
               length += 1;  /* Size of fixed fields */
               break;
           }
@@ -16067,11 +16059,6 @@ proto_register_ieee80211 (void)
     {&hf_ieee80211_sched_spec_int,
      {"Specification Interval", "wlan_mgt.sched.spec_int",
       FT_UINT16, BASE_HEX, NULL, 0, NULL, HFILL }},
-
-    {&hf_ieee80211_action,
-     {"Action", "wlan_mgt.fixed.action",
-      FT_UINT8, BASE_HEX, NULL, 0, NULL, HFILL }},
-
 
     {&hf_ieee80211_aruba,
      {"Aruba Type", "wlan_mgt.aruba.type",
