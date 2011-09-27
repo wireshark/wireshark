@@ -1041,6 +1041,8 @@ set(DISSECTOR_SRC
 	dissectors/packet-turnchannel.c
 	dissectors/packet-tuxedo.c
 	dissectors/packet-tzsp.c
+	dissectors/packet-ua.c
+	dissectors/packet-uaudp.c
 	dissectors/packet-ucp.c
 	dissectors/packet-udld.c
 	dissectors/packet-udp.c

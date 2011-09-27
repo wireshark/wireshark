@@ -959,6 +959,8 @@ DISSECTOR_SRC = \
 	packet-turnchannel.c	\
 	packet-tuxedo.c		\
 	packet-tzsp.c		\
+	packet-ua.c		\
+	packet-uaudp.c		\
 	packet-ucp.c		\
 	packet-udld.c		\
 	packet-udp.c		\
