@@ -44,7 +44,7 @@
 /*
  * See
  *
- *	http://www.rts.uni-hannover.de/rtnet/
+ *	http://www.rtnet.org/
  */
 
 #define RTMAC_TYPE_TDMA     0x0001 /* since version 2    */
