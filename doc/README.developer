@@ -2344,9 +2344,9 @@ and, for integral and Boolean fields, the byte order of the value; the
 byte order, for items for which that's relevant, is specified by the
 'encoding' argument, which is ENC_LITTLE_ENDIAN if the value is
 little-endian and ENC_BIG_ENDIAN if it is big-endian.  If the byte order
-is not relevant, use ENC_NA (Not Applicable).  In the future, other
-elements of the encoding, such as the character encoding for
-character strings, might be supported.
+is not relevant, use ENC_NA (Not Applicable).  For some field types,
+additional encoding information, such as the character encoding for
+character strings, are supported.
 
 Now that definitions of fields have detailed information about bitfield
 fields, you can use proto_tree_add_item() with no extra processing to
