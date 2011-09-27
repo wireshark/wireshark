@@ -33,14 +33,6 @@
 #include "config.h"
 #endif
 
-#ifdef HAVE_SYS_TYPES_H
-# include <sys/types.h>
-#endif
-
-#ifdef HAVE_NETINET_IN_H
-#include <netinet/in.h>
-#endif
-
 #include <epan/packet.h>
 #include <epan/prefs.h>
 
@@ -96,50 +88,44 @@ static int dissect_uaudp(tvbuff_t *pTvb, packet_info *pInfo, proto_tree *pTree)
     proto_item *pUAUDP, *pHeaderSubTree;
 
     /* PROTOCOL column */
-    if(check_col(pInfo->cinfo, COL_PROTOCOL))
-        col_set_str(pInfo->cinfo, COL_PROTOCOL, "UAUDP");
+    col_set_str(pInfo->cinfo, COL_PROTOCOL, "UAUDP");
 
-    nLen = tvb_length(pTvb);
+    nLen = tvb_reported_length(pTvb);
     u8Opcode = tvb_get_guint8(pTvb, 0);
 
     /* INFO column */
-    if(check_col(pInfo->cinfo, COL_INFO))
-        col_set_str(pInfo->cinfo, COL_INFO, val_to_str(u8Opcode, szUaOpcode, "Unknown"));
+    col_set_str(pInfo->cinfo, COL_INFO, val_to_str_const(u8Opcode, szUaOpcode, "Unknown"));
 
-    if(pTree)
+    /* opcode "UA/UDP Protocol, ..." */
+    pUAUDP = proto_tree_add_item(pTree, proto_uaudp, pTvb, 0, -1, ENC_BIG_ENDIAN);
+    proto_item_append_text(pUAUDP, ", %s (%d)", val_to_str_const(u8Opcode, szUaOpcode, "Unknown"), u8Opcode);
+
+    pHeaderSubTree = proto_item_add_subtree(pUAUDP, ett_uaudp_header);
+    proto_tree_add_item(pHeaderSubTree, hf_uaudp_opcode, pTvb, 0, 1, ENC_BIG_ENDIAN);
+
+    if(u8Opcode == 7)
     {
-        /* opcode "UA/UDP Protocol, ..." */
-        pUAUDP = proto_tree_add_item(pTree, proto_uaudp, pTvb, 0, -1, ENC_BIG_ENDIAN);
-        proto_item_append_text(pUAUDP, ", %s (%d)", val_to_str(u8Opcode, szUaOpcode, "Unknown"), u8Opcode);
+        int iOffs = 1;
 
-        pHeaderSubTree = proto_item_add_subtree(pUAUDP, ett_uaudp_header);
-        proto_tree_add_item(pHeaderSubTree, hf_uaudp_opcode, pTvb, 0, 1, ENC_BIG_ENDIAN);
+        /* Sequence Number (expected) */
+        proto_tree_add_item(pHeaderSubTree, hf_uaudp_expected, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
+        iOffs += 2;
 
-        if(u8Opcode == 7)
+        /* Sequence Number (sent) */
+        proto_tree_add_item(pHeaderSubTree, hf_uaudp_send, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
+        iOffs += 2;
+
+        /* Create the tvbuffer for the next dissector */
+        if(nLen > iOffs)
         {
-            int iOffs = 1;
-
-            /* Sequence Number (expected) */
-            proto_tree_add_item(pHeaderSubTree, hf_uaudp_expected, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
-            iOffs += 2;
-
-            /* Sequence Number (sent) */
-            proto_tree_add_item(pHeaderSubTree, hf_uaudp_send, pTvb, iOffs, 2, ENC_BIG_ENDIAN);
-            iOffs += 2;
-
-            /* Create the tvbuffer for the next dissector */
-            if(nLen > iOffs)
-            {
-                tvbuff_t *pTvbNext = tvb_new_subset(pTvb, iOffs, -1, -1);
-                if(dissector_try_uint(uaudp_dissector_table, 7, pTvbNext, pInfo, pTree))
-                    iOffs = nLen;
-                return iOffs;
-            }
-            else
-            {
-                if(check_col(pInfo->cinfo, COL_INFO))
-                    col_append_str(pInfo->cinfo, COL_INFO, " ACK");
-            }
+            tvbuff_t *pTvbNext = tvb_new_subset_remaining(pTvb, iOffs);
+            if(dissector_try_uint(uaudp_dissector_table, 7, pTvbNext, pInfo, pTree))
+                iOffs = nLen;
+            return iOffs;
+        }
+        else
+        {
+            col_append_str(pInfo->cinfo, COL_INFO, " ACK");
         }
     }
     return nLen;
