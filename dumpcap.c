@@ -386,11 +386,11 @@ print_usage(gboolean print_ver)
 #ifdef HAVE_BPF_IMAGE
     fprintf(output, "  -d                       print generated BPF code for capture filter\n");
 #endif
-    fprintf(output, "  -S                       print statistics for each interface once every second\n");
+    fprintf(output, "  -S                       print statistics for each interface once per second\n");
     fprintf(output, "  -M                       for -D, -L, and -S, produce machine-readable output\n");
     fprintf(output, "\n");
 #ifdef HAVE_PCAP_REMOTE
-    fprintf(output, "\nRPCAP options:\n");
+    fprintf(output, "RPCAP options:\n");
     fprintf(output, "  -r                       don't ignore own RPCAP traffic in capture\n");
     fprintf(output, "  -u                       use UDP for RPCAP data transfer\n");
     fprintf(output, "  -A <user>:<password>     use RPCAP password authentication\n");
@@ -413,7 +413,7 @@ print_usage(gboolean print_ver)
     fprintf(output, "                           filesize:NUM - switch to next file after NUM KB\n");
     fprintf(output, "                              files:NUM - ringbuffer: replace after NUM files\n");
     fprintf(output, "  -n                       use pcapng format instead of pcap\n");
-    /*fprintf(output, "\n");*/
+    fprintf(output, "\n");
     fprintf(output, "Miscellaneous:\n");
 #ifdef USE_THREADS
     fprintf(output, "  -t                       use a separate thread per interface\n");
