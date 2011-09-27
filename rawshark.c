@@ -207,14 +207,16 @@ print_usage(gboolean print_ver)
     fprintf(output, "  -F <field>               field to display\n");
     fprintf(output, "  -n                       disable all name resolution (def: all enabled)\n");
     fprintf(output, "  -N <name resolve flags>  enable specific name resolution(s): \"mntC\"\n");
-    fprintf(output, "  -p                       use the system's packet header format (which may have 64-bit timestamps)\n");
+    fprintf(output, "  -p                       use the system's packet header format\n");
+    fprintf(output, "                           (which may have 64-bit timestamps)\n");
     fprintf(output, "  -R <read filter>         packet filter in Wireshark display filter syntax\n");
     fprintf(output, "  -s                       skip PCAP header on input\n");
 
-    /*fprintf(output, "\n");*/
+    fprintf(output, "\n");
     fprintf(output, "Output:\n");
     fprintf(output, "  -l                       flush output after each packet\n");
-    fprintf(output, "  -S                       format string for fields (%%D - name, %%S - stringval, %%N numval)\n");
+    fprintf(output, "  -S                       format string for fields\n");
+    fprintf(output, "                           (%%D - name, %%S - stringval, %%N numval)\n");
     fprintf(output, "  -t ad|a|r|d|dd|e         output format of time stamps (def: r: rel. to first)\n");
 
     fprintf(output, "\n");
