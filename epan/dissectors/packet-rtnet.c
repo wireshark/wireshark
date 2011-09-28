@@ -45,6 +45,8 @@
  * See
  *
  *	http://www.rtnet.org/
+ *
+ *	http://www.rts.uni-hannover.de/rtnet/lxr/source/Documentation/RTmac.spec
  */
 
 #define RTMAC_TYPE_TDMA     0x0001 /* since version 2    */
