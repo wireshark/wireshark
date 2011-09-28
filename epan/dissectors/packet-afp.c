@@ -4136,6 +4136,10 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 	while ((offset < (toc_offset - 8)) && (count > 0)) {
 		query_data64 = spotlight_ntoh64(tvb, offset, encoding);
 		query_length = (query_data64 & 0xffff) * 8;
+		if (query_length == 0) {
+			/* XXX - report this as an error */
+			break;
+		}
 		query_type = (query_data64 & 0xffff0000) >> 16;
 		
 		switch (query_type) {
