@@ -1235,9 +1235,6 @@ main(int argc, char *argv[])
         break;
       }
       break;
-    case 'O':        /* Only output these protocols */
-      output_only = g_strdup(optarg);
-      break;
     case 'q':        /* Quiet */
       quiet = TRUE;
       break;
@@ -1328,6 +1325,9 @@ main(int argc, char *argv[])
       return 0;
       break;
     }
+    case 'O':        /* Only output these protocols */
+      output_only = g_strdup(optarg);
+      /* FALLTHROUGH */
     case 'V':        /* Verbose */
       verbose = TRUE;
       /*  The user asked for a verbose output, so let's ensure they get it,

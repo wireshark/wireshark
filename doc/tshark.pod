@@ -90,10 +90,10 @@ pane in B<Wireshark>), although if it's writing packets as it captures
 them, rather than writing packets from a saved capture file, it won't
 show the "frame number" field.  If the B<-V> option is specified, it
 writes instead a view of the details of the packet, showing all the
-fields of all protocols in the packet.  If the B<-O> option is
-specified in combination with B<-V>, it will only show the full
-protocols specified.  Use the output of "tshark -G protocols" to
-find the abbreviations of the protocols you can specify.
+fields of all protocols in the packet.  If the B<-O> option is specified,
+it will only show the full protocols specified.  Use the output of
+"B<tshark -G protocols>" to find the abbreviations of the protocols you can
+specify.
 
 If you want to write the decoded form of packets to a file, run
 B<TShark> without the B<-w> option, and redirect its standard output to
@@ -537,6 +537,13 @@ from a preference file.  The argument to the option is a string of the
 form I<prefname>B<:>I<value>, where I<prefname> is the name of the
 preference (which is the same name that would appear in the preference
 file), and I<value> is the value to which it should be set.
+
+=item -O  E<lt>protocolsE<gt>
+
+Similar to the B<-V> option, but causes B<TShark> to only show a detailed view
+of the comma-separated list of I<protocols> specified, rather than a detailed
+view of all protocols.  Use the output of "B<tshark -G protocols>" to find the
+abbreviations of the protocols you can specify.
 
 =item -p
 
