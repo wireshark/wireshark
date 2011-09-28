@@ -1067,7 +1067,7 @@ dissect_mtp3mg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb, JAPAN_TEST_SPARE_OFFSET,
 				    JAPAN_TEST_SPARE_LENGTH, ENC_NA);
 
-		test_pattern = tvb_get_letohl(tvb, JAPAN_TEST_PATTERN_OFFSET);
+		test_pattern = tvb_get_letohs(tvb, JAPAN_TEST_PATTERN_OFFSET);
 		pattern_item = proto_tree_add_item(mtp3mg_tree,
 						   hf_mtp3mg_japan_test_pattern,
 						   tvb,
