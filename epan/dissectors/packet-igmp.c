@@ -1192,7 +1192,7 @@ proto_register_igmp(void)
 	};
 
 	proto_igmp = proto_register_protocol("Internet Group Management Protocol",
-	    "IGMP", "igmp");
+		"IGMP", "igmp");
 	proto_register_field_array(proto_igmp, hf, array_length(hf));
 	proto_register_subtree_array(ett, array_length(ett));
 }
@@ -1205,3 +1205,17 @@ proto_reg_handoff_igmp(void)
 	igmp_handle = create_dissector_handle(dissect_igmp, proto_igmp);
 	dissector_add_uint("ip.proto", IP_PROTO_IGMP, igmp_handle);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: t
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 noexpandtab:
+ * :indentSize=4:tabSize=8:noTabs=false:
+ */
+
