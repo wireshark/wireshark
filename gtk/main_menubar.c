@@ -3066,7 +3066,6 @@ main_menu_new(GtkAccelGroup ** table) {
 #ifdef HAVE_GTKOSXAPPLICATION
     GtkOSXApplication *theApp;
     GtkWidget * item;
-    GtkOSXApplicationMenuGroup *group;
     GtkWidget * dock_menu;
 #endif
 
@@ -3113,15 +3112,13 @@ main_menu_new(GtkAccelGroup ** table) {
         gtk_osxapplication_set_menu_bar(theApp, GTK_MENU_SHELL(menubar));
         gtk_osxapplication_set_use_quartz_accelerators(theApp, TRUE);
 
-        group = gtk_osxapplication_add_app_menu_group (theApp);
+
         item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu/AboutWireshark");
-        gtk_osxapplication_add_app_menu_item(theApp, group,GTK_MENU_ITEM (item));
+        gtk_osxapplication_insert_app_menu_item(theApp, item, 0);
 
-        group = gtk_osxapplication_add_app_menu_group (theApp);
         item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/EditMenu/Preferences");
-        gtk_osxapplication_add_app_menu_item(theApp, group,GTK_MENU_ITEM (item));
+        gtk_osxapplication_insert_app_menu_item(theApp, item, 0);
 
-        group = gtk_osxapplication_add_app_menu_group (theApp);
         item = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/HelpMenu");
         gtk_osxapplication_set_help_menu(theApp,GTK_MENU_ITEM(item));
 

@@ -371,19 +371,20 @@ gboolean
 gtk_osx_openFile (GtkOSXApplication *app _U_, gchar *path, gpointer user_data _U_)
 {
     GtkSelectionData selection_data;
-    int length = strlen(path);
+    gchar *selection_path;
+    int length = strlen(path) + 3;
+
+    selection_path = g_malloc(length + 3);
+    memcpy(selection_path, path, length);
+
+    selection_path[length] = '\r';
+    selection_path[length + 1] = '\n';
+    selection_path[length + 2] = '\0';
 	
-    selection_data.length = length + 3;
-    selection_data.data = g_malloc(length + 3);
-    memcpy(selection_data.data, path, length);
-	
-    selection_data.data[length] = '\r';
-    selection_data.data[length + 1] = '\n';
-    selection_data.data[length + 2] = '\0';
-	
+    gtk_selection_data_set_text(&selection_data, selection_path, length);
     dnd_data_received(NULL, NULL, 0, 0, &selection_data, DND_TARGET_URL, 0, 0);
 	
-    g_free(selection_data.data);
+    g_free(selection_path);
 	
     return TRUE;
 }
