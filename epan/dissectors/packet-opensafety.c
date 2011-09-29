@@ -403,7 +403,7 @@ static guint16 crc16_opensafety(guint32 len, guint8 * pBuffer, guint16 initCRC);
 
 static guint stringToBytes( const char * string, guint8 * pBuffer, guint32 length );
 
-static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, guint *u_frameOffset, guint *u_frameLength );
+static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength );
 
 static guint stringToBytes( const char * stringToBytes, guint8 * pBuffer, guint32 length )
 {
@@ -416,6 +416,8 @@ static guint stringToBytes( const char * stringToBytes, guint8 * pBuffer, guint3
 
     str = ep_strdup(stringToBytes);
     token = strtok( str, ":" );
+    if ( token == NULL )
+    	return k;
     temp = token;
 
     byte = strtol ( temp, &endptr, 16 );
@@ -643,7 +645,7 @@ static guint8 crc8_opensafety(guint32 len, guint8 * pBuffer, guint8 initCRC)
     return crc;
 }
 
-static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, guint *u_frameOffset, guint *u_frameLength )
+static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset, gboolean b_frame2first, guint *u_frameOffset, guint *u_frameLength )
 {
     guint n;
     guint16 crc, calcCrc;
@@ -723,6 +725,11 @@ static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset
             }
         }
     }
+
+    /** Seem redundant if b_frame2First is false. But in this case, the function is needed for the
+     * simple detection of a possible openSAFETY frame.  */
+    if ( b_frame2first && found )
+    	*u_frameOffset = u_Offset;
 
     return (found ? 1 : 0);
 }
@@ -929,7 +936,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info * pinfo, pro
             payloadOffset += 4;
             /* using payloadSize as helper var for for-loop */
             payloadSize = dataLength - (payloadOffset - db0Offset);
-            payload = (guint8*)ep_alloc(sizeof(guint8*)*payloadSize);
+            payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
             for ( n = 0; n < payloadSize; n++)
                 payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
 
@@ -948,7 +955,7 @@ dissect_opensafety_ssdo_message(tvbuff_t *message_tvb , packet_info * pinfo, pro
         else
         {
             payloadSize = dataLength - (payloadOffset - db0Offset);
-            payload = (guint8*)ep_alloc(sizeof(guint8*)*payloadSize);
+            payload = (guint8*)ep_alloc(sizeof(guint8)*payloadSize);
             for ( n = 0; n < payloadSize; n++)
                 payload[payloadSize - n - 1] = bytes[frameStart1 + OSS_FRAME_POS_DATA + (payloadOffset - db0Offset) + n];
 
@@ -1224,7 +1231,6 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
     proto_item *opensafety_item;
     proto_tree *opensafety_tree;
 
-
     handled = FALSE;
     dissectorCalled = FALSE;
     call_sub_dissector = FALSE;
@@ -1263,10 +1269,10 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
 
     while ( frameOffset < length )
     {
-        if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, &frameOffset, &frameLength) )
+        if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, b_frame2First, &frameOffset, &frameLength) )
         {
-            if ((frameOffset + frameLength) > (guint)reported_len )
-                break;
+        	if ( ( frameOffset + frameLength ) > (guint)reported_len )
+        		break;
             found++;
 
             /* Freeing memory before dissector, as otherwise we would waste it */
@@ -1284,7 +1290,7 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
                 add_new_data_source(pinfo, next_tvb, "openSAFETY Frame");
             }
 
-            bytesOffset = &bytes[frameOffset];
+            bytesOffset = &bytes[( b_frame2First ? 0 : frameOffset )];
             /* We determine a possible position for frame 1 and frame 2 */
             if ( b_frame2First )
             {
@@ -1370,12 +1376,8 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
             		call_dissector(protocol_dissector, message_tvb, pinfo, tree);
                 dissectorCalled = TRUE;
 
-                /* pinfo is NULL only if dissect_opensafety_message is called from dissect_error cause */
-                if (pinfo)
-                {
-                    col_set_str(pinfo->cinfo, COL_PROTOCOL, protocolName);
-                    col_clear(pinfo->cinfo,COL_INFO);
-                }
+                col_set_str(pinfo->cinfo, COL_PROTOCOL, protocolName);
+                col_clear(pinfo->cinfo,COL_INFO);
             }
 
             /* if the tree is NULL, we are called for the overview, otherwise for the
