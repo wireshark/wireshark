@@ -525,8 +525,8 @@ typedef enum mysql_state
 	FIELD_PACKET,
 	ROW_PACKET,
 	RESPONSE_PREPARE,
-    PREPARED_PARAMETERS,
-    PREPARED_FIELDS
+	PREPARED_PARAMETERS,
+	PREPARED_FIELDS
 } mysql_state_t;
 
 #ifdef CTDEBUG
@@ -563,7 +563,7 @@ typedef struct mysql_conn_data
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
-	mysql_state_t 	state;
+	mysql_state_t state;
 };
 
 typedef struct my_stmt_data
@@ -643,7 +643,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef CTDEBUG
 		conn_data->generation= 0;
 #endif
-                conn_data->major_version= 0;
+		conn_data->major_version= 0;
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
@@ -1159,7 +1159,7 @@ mysql_dissect_response(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	gint response_code;
 	gint strlen;
-    gint server_status = 0;
+	gint server_status = 0;
 
 	response_code = tvb_get_guint8(tvb, offset);
 
@@ -1535,7 +1535,7 @@ mysql_dissect_field_packet(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_co
 static int
 mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	while (tvb_reported_length_remaining(tvb, offset) > 0)	{
+	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 		offset = mysql_field_add_lestring(tvb, offset, tree, hf_mysql_row_text);
 	}
 
@@ -1546,26 +1546,26 @@ mysql_dissect_row_packet(tvbuff_t *tvb, int offset, proto_tree *tree)
 static int
 mysql_dissect_response_prepare(tvbuff_t *tvb, int offset, proto_tree *tree, mysql_conn_data_t *conn_data)
 {
-    /* 0, marker for OK packet */
-    offset += 1;
-    proto_tree_add_item(tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-    offset += 4;
-    proto_tree_add_item(tree, hf_mysql_num_fields, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    conn_data->stmt_num_fields = tvb_get_letohs(tvb, offset);
-    offset += 2;
-    proto_tree_add_item(tree, hf_mysql_num_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-    conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
-    offset += 2;
-    /* Filler */
-    offset += 1;
-    proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	/* 0, marker for OK packet */
+	offset += 1;
+	proto_tree_add_item(tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+	offset += 4;
+	proto_tree_add_item(tree, hf_mysql_num_fields, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	conn_data->stmt_num_fields = tvb_get_letohs(tvb, offset);
+	offset += 2;
+	proto_tree_add_item(tree, hf_mysql_num_params, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	conn_data->stmt_num_params = tvb_get_letohs(tvb, offset);
+	offset += 2;
+	/* Filler */
+	offset += 1;
+	proto_tree_add_item(tree, hf_mysql_num_warn, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
-    if (conn_data->stmt_num_params > 0)
-        conn_data->state = PREPARED_PARAMETERS;
-    else if (conn_data->stmt_num_fields > 0)
-        conn_data->state = PREPARED_FIELDS;
-    else
-        conn_data->state = REQUEST;
+	if (conn_data->stmt_num_params > 0)
+		conn_data->state = PREPARED_PARAMETERS;
+	else if (conn_data->stmt_num_fields > 0)
+		conn_data->state = PREPARED_FIELDS;
+	else
+		conn_data->state = REQUEST;
 
 	return offset + tvb_reported_length_remaining(tvb, offset);
 }
