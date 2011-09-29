@@ -142,6 +142,13 @@
 #define MYSQL_SET_OPTION          27
 #define MYSQL_STMT_FETCH          28
 
+/* MySQL cursor types */
+
+#define MYSQL_CURSOR_TYPE_NO_CURSOR  0
+#define MYSQL_CURSOR_TYPE_READ_ONLY  1
+#define MYSQL_CURSOR_TYPE_FOR_UPDATE 2
+#define MYSQL_CURSOR_TYPE_SCROLLABLE 4
+
 
 /* decoding table: command */
 static const value_string mysql_command_vals[] = {
@@ -177,6 +184,14 @@ static const value_string mysql_command_vals[] = {
 	{0, NULL}
 };
 
+/* decoding table: exec_flags */
+static const value_string mysql_exec_flags_vals[] = {
+	{MYSQL_CURSOR_TYPE_NO_CURSOR, "Defaults"},
+	{MYSQL_CURSOR_TYPE_READ_ONLY, "Read-only cursor"},
+	{MYSQL_CURSOR_TYPE_FOR_UPDATE, "Cursor for update"},
+	{MYSQL_CURSOR_TYPE_SCROLLABLE, "Scrollable cursor"},
+	{0, NULL}
+};
 
 /* charset: pre-4.1 used the term 'charset', later changed to 'collation' */
 static const value_string mysql_charset_vals[] = {
@@ -429,7 +444,8 @@ static int hf_mysql_option = -1;
 static int hf_mysql_num_rows = -1;
 static int hf_mysql_param = -1;
 static int hf_mysql_num_params = -1;
-static int hf_mysql_exec_flags = -1;
+static int hf_mysql_exec_flags4 = -1;
+static int hf_mysql_exec_flags5 = -1;
 static int hf_mysql_exec_iter = -1;
 static int hf_mysql_binlog_position = -1;
 static int hf_mysql_binlog_flags = -1;
@@ -543,6 +559,7 @@ typedef struct mysql_conn_data
 #ifdef CTDEBUG
 	guint32 generation;
 #endif
+	guint8 major_version;
 } mysql_conn_data_t;
 
 struct mysql_frame_data {
@@ -626,6 +643,7 @@ dissect_mysql_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #ifdef CTDEBUG
 		conn_data->generation= 0;
 #endif
+                conn_data->major_version= 0;
 		conversation_add_proto_data(conversation, proto_mysql, conn_data);
 	}
 
@@ -738,6 +756,7 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 {
 	gint protocol;
 	gint strlen;
+	int ver_offset;
 
 	proto_item *tf;
 	proto_item *greeting_tree= NULL;
@@ -768,6 +787,12 @@ mysql_dissect_greeting(tvbuff_t *tvb, packet_info *pinfo, int offset,
 		col_append_fstr(pinfo->cinfo, COL_INFO, " version=%s", tvb_get_ephemeral_string(tvb, offset, strlen));
 	}
 	proto_tree_add_item(greeting_tree, hf_mysql_version, tvb, offset, strlen, ENC_NA);
+	conn_data->major_version = 0;
+	for (ver_offset = 0; ver_offset < strlen; ver_offset++) {
+		guint8 ver_char = tvb_get_guint8(tvb, offset + ver_offset);
+		if (ver_char == '.') break;
+		conn_data->major_version = conn_data->major_version * 10 + ver_char - '0';
+	}
 	offset += strlen;
 
 	/* 4 bytes little endian thread_id */
@@ -1065,7 +1090,11 @@ mysql_dissect_request(tvbuff_t *tvb,packet_info *pinfo, int offset,
 		proto_tree_add_item(req_tree, hf_mysql_stmt_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(req_tree, hf_mysql_exec_flags, tvb, offset, 1, ENC_NA);
+		if (conn_data->major_version >= 5) {
+			proto_tree_add_item(req_tree, hf_mysql_exec_flags5, tvb, offset, 1, ENC_NA);
+		} else {
+			proto_tree_add_item(req_tree, hf_mysql_exec_flags4, tvb, offset, 1, ENC_NA);
+		}
 		offset += 1;
 
 		proto_tree_add_item(req_tree, hf_mysql_exec_iter, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -2010,9 +2039,14 @@ void proto_register_mysql(void)
 		FT_UINT32, BASE_DEC, NULL, 0x0,
 		NULL, HFILL }},
 
-		{ &hf_mysql_exec_flags,
+		{ &hf_mysql_exec_flags4,
 		{ "Flags (unused)", "mysql.exec_flags",
 		FT_UINT8, BASE_DEC, NULL, 0x0,
+		NULL, HFILL }},
+
+		{ &hf_mysql_exec_flags5,
+		{ "Flags", "mysql.exec_flags",
+		FT_UINT8, BASE_DEC, VALS(mysql_exec_flags_vals), 0x0,
 		NULL, HFILL }},
 
 		{ &hf_mysql_exec_iter,
