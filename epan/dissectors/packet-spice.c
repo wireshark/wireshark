@@ -953,7 +953,7 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     proto_item *ti=NULL;
     proto_tree *Pixmap_tree;
     guint32 PixmapSize;
-    guint32 strides, height, pallete_ptr;
+    guint32 strides, height/**, pallete_ptr**/;
 
     ti = proto_tree_add_text(tree, tvb, offset, 0, "Pixmap"); /* size is fixed later */
     Pixmap_tree = proto_item_add_subtree(ti, ett_Pixmap);
@@ -969,7 +969,7 @@ dissect_Pixmap(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     strides = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(Pixmap_tree, hf_pixmap_stride, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
-    pallete_ptr = tvb_get_letohl(tvb, offset);
+    /**  pallete_ptr = tvb_get_letohl(tvb, offset);  **/
     proto_tree_add_item(Pixmap_tree, hf_pixmap_address, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
     PixmapSize = height * strides;
@@ -2490,13 +2490,13 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     proto_item *ti=NULL;
     proto_tree *data_header_tree;
     guint16 message_type;
-    guint32 message_size, sublist_size;
+    guint32 /** message_size,**/ sublist_size;
 
     ti = proto_tree_add_item(tree, hf_data, tvb, 0, sizeof_SpiceDataHeader, ENC_LITTLE_ENDIAN);
     data_header_tree = proto_item_add_subtree(ti, ett_data);
 
     message_type = tvb_get_letohs(tvb, offset + 8);
-    message_size = tvb_get_letohl(tvb, offset + 10);
+    /** message_size = tvb_get_letohl(tvb, offset + 10);  **/
 
     dissect_spice_data_header(tvb, data_header_tree, spice_info, TRUE, message_type, &sublist_size, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, "%s", get_message_type_string(message_type, spice_info, TRUE));
