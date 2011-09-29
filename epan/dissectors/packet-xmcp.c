@@ -855,16 +855,24 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   xmcp_conv_info_t *xmcp_conv_info;
   xmcp_transaction_t *xmcp_trans;
 
+  if (tvb_reported_length(tvb) < XMCP_HDR_LEN) {
+    return;
+  }
+  /* Check for valid message type field */
+  msg_type = tvb_get_ntohs(tvb, 0);
+  if (msg_type & XMCP_TYPE_RESERVED) { /* First 2 bits must be 0 */
+    return;
+  }
+  /* Check for valid "magic cookie" field */
+  if (tvb_get_ntohl(tvb, 4) != XMCP_MAGIC_COOKIE) {
+    return;
+  }
+
   col_set_str(pinfo->cinfo, COL_PROTOCOL, "XMCP");
   /* Clear out stuff in the info column */
   col_clear(pinfo->cinfo, COL_INFO);
 
-  if (tvb_reported_length(tvb) < XMCP_HDR_LEN) {
-    return;
-  }
-
   /* As in STUN, the first 2 bytes contain the message class and method */
-  msg_type = tvb_get_ntohs(tvb, 0);
   xmcp_msg_type_class = ((msg_type & XMCP_TYPE_CLASS) >> 4);
   xmcp_msg_type_method = (msg_type & XMCP_TYPE_METHOD);
   if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -920,10 +928,6 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         xmcp_trans->response_frame = pinfo->fd->num;
       }
     }
-  }
-
-  if (!tree) { /* no details requested */
-    return;
   }
 
   ti = proto_tree_add_item(tree, proto_xmcp, tvb, 0, -1, FALSE);
