@@ -52,6 +52,9 @@ SS-InfoList
 LCS-ClientID
 ISDN-AddressString
 
+#.USE_VALS_EXT
+GSMMAPOperationLocalvalue
+
 #.EXPORTS
 AddressString
 Add-GeographicalInformation
@@ -111,6 +114,7 @@ LocationMethod
 LocationType
 LSAIdentity
 MS-Classmark2
+NetworkResource
 NewPassword
 NotificationToMSUser
 O-CSI
@@ -122,6 +126,8 @@ QoS-Subscribed
 RAIdentity
 RegisterCC-EntryRes
 RegisterSS-Arg
+SM-RP-DA
+SM-RP-OA
 SubscriberState
 SecurityHeader
 ServiceKey

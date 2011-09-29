@@ -175,7 +175,9 @@ static dissector_handle_t	data_handle;
 static dissector_handle_t	ranap_handle;
 static dissector_handle_t	dtap_handle;
 static dissector_handle_t	map_handle;
-
+static dissector_table_t	map_prop_arg_opcode_table; /* prorietary operation codes */
+static dissector_table_t	map_prop_res_opcode_table; /* prorietary operation codes */
+static dissector_table_t	map_prop_err_opcode_table; /* prorietary operation codes */
 /* Preferenc settings default */
 #define MAX_SSN 254
 static range_t *global_ssn_range;
@@ -838,11 +840,11 @@ const gchar* gsm_map_opr_code(guint32 val) {
   case 46: /*mo-forwardSM*/
 	  /* FALLTHRU */
     if (application_context_version < 3) {
-      return val_to_str(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP (%u)");
+      return val_to_str_const(val, gsm_map_V1V2_opr_code_strings, "Unknown GSM-MAP opcode");
     }
     /* Else use the default map operation translation */
   default:
-    return val_to_str(val, gsm_old_GSMMAPOperationLocalvalue_vals, "Unknown GSM-MAP opcode (%u)");
+    return val_to_str_ext_const(val, &gsm_old_GSMMAPOperationLocalvalue_vals_ext, "Unknown GSM-MAP opcode");
     break;
   }
 }
@@ -1264,9 +1266,13 @@ static int dissect_invokeData(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_
   case 126: /*SS-protocol explicitCT no Argument*/
     break;
   default:
-    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
-    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+    if(!dissector_try_uint(map_prop_arg_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+        cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown invokeData blob");
+        proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+        expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+	}
+	offset+= tvb_length_remaining(tvb,offset);
+	break;
   }
   return offset;
 }
@@ -1568,9 +1574,13 @@ static int dissect_returnResultData(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
 
  default:
-   cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
-   proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-   expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+   if(!dissector_try_uint(map_prop_res_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+       cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnResultData blob");
+       proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+       expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",opcode);
+   }
+   offset+= tvb_length_remaining(tvb,offset);
+   break;
   }
   return offset;
 }
@@ -1729,9 +1739,12 @@ static int dissect_returnErrorData(proto_tree *tree, tvbuff_t *tvb, int offset, 
 	  offset=dissect_gsm_map_er_InformationNotAvailableParam(FALSE, tvb, offset, actx, tree, -1);
 	  break;
   default:
-    cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
-    proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
-    expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",errorCode);
+    if(!dissector_try_uint(map_prop_err_opcode_table, (guint8)opcode, tvb, actx->pinfo, tree)){
+        cause=proto_tree_add_text(tree, tvb, offset, -1, "Unknown returnErrorData blob");
+        proto_item_set_expert_flags(cause, PI_MALFORMED, PI_WARN);
+        expert_add_info_format(actx->pinfo, cause, PI_MALFORMED, PI_WARN, "Unknown invokeData %d",errorCode);
+    }
+	offset+= tvb_length_remaining(tvb,offset);
     break;
   }
   return offset;
@@ -1777,7 +1790,7 @@ dissect_gsm_map_GSMMAPPDU(gboolean implicit_tag _U_, tvbuff_t *tvb, int offset, 
   /* Get the length and add 2 */
   gsm_map_pdu_size = tvb_get_guint8(tvb, offset+1)+2;
 
-  col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP PDU (%u)"));
+  col_add_str(actx->pinfo->cinfo, COL_INFO, val_to_str_const(gsmmap_pdu_type, gsm_old_Component_vals, "Unknown GSM-MAP Component"));
   col_append_fstr(actx->pinfo->cinfo, COL_INFO, " ");
   offset = dissect_gsm_old_Component(FALSE, tvb, 0, actx, tree, hf_gsm_map_old_Component_PDU);
 /*
@@ -1799,7 +1812,6 @@ dissect_gsm_map(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	asn1_ctx_t asn1_ctx;
 
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "GSM MAP");
 
@@ -2511,6 +2523,10 @@ void proto_register_gsm_map(void) {
   sms_dissector_table = register_dissector_table("gsm_map.sms_tpdu",
 						 "GSM SMS TPDU", FT_UINT8,
 						 BASE_DEC);
+
+  map_prop_arg_opcode_table = register_dissector_table("gsm_map.prop.arg.opcode", "Proprietary Opcodes", FT_UINT8, BASE_DEC);
+  map_prop_res_opcode_table = register_dissector_table("gsm_map.prop.res.opcode", "Proprietary Opcodes", FT_UINT8, BASE_DEC);
+  map_prop_err_opcode_table = register_dissector_table("gsm_map.prop.err.opcode", "Proprietary Opcodes", FT_UINT8, BASE_DEC);
 
   gsm_map_tap = register_tap("gsm_map");
 

@@ -76,6 +76,7 @@ int dissect_gsm_map_ExtensionContainer(gboolean implicit_tag _U_, tvbuff_t *tvb 
 
 /* --- Module MAP-CommonDataTypes --- --- ---                                 */
 
+extern const value_string gsm_map_NetworkResource_vals[];
 extern const value_string gsm_map_LCSClientInternalID_vals[];
 extern const value_string gsm_map_LCSServiceTypeID_vals[];
 extern const value_string gsm_map_Ext_BasicServiceCode_vals[];
@@ -87,6 +88,7 @@ int dissect_gsm_map_GSN_Address(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 int dissect_gsm_map_IMSI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_IMEI(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_GlobalCellId(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_gsm_map_NetworkResource(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_LCSClientExternalID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_LCSClientInternalID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_LCSServiceTypeID(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
@@ -120,6 +122,13 @@ extern const value_string gsm_map_er_UnauthorizedLCSClient_Diagnostic_vals[];
 extern const value_string gsm_map_er_PositionMethodFailure_Diagnostic_vals[];
 int dissect_gsm_map_er_UnauthorizedLCSClient_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_er_PositionMethodFailure_Diagnostic(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* --- Module MAP-SM-DataTypes --- --- ---                                    */
+
+extern const value_string gsm_map_sm_SM_RP_DA_vals[];
+extern const value_string gsm_map_sm_SM_RP_OA_vals[];
+int dissect_gsm_map_sm_SM_RP_DA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+int dissect_gsm_map_sm_SM_RP_OA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
