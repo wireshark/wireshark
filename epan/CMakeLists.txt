@@ -986,6 +986,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-socketcan.c
 	dissectors/packet-socks.c
 	dissectors/packet-nasdaq-soup.c
+	dissectors/packet-spice.c
 	dissectors/packet-spp.c
 	dissectors/packet-spray.c
 	dissectors/packet-srp.c

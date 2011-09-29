@@ -906,6 +906,7 @@ DISSECTOR_SRC = \
 	packet-sndcp-xid.c	\
 	packet-socketcan.c	\
 	packet-socks.c		\
+	packet-spice.c		\
 	packet-spp.c		\
 	packet-spray.c		\
 	packet-srp.c		\

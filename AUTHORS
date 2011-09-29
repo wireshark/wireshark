@@ -410,7 +410,7 @@ Ralf Schneider          <ralf.schneider[AT]alcatel.se> {
 	OSI ESIS support
 }
 
-Yaniv Kaul              <ykaul[AT]netvision.net.il> {
+Yaniv Kaul              <mykaul [AT] gmail.com> {
 	Enhancements to ISAKMP
 	CPHA support
 	DCERPC OXID operation #5 dissection
@@ -421,6 +421,7 @@ Yaniv Kaul              <ykaul[AT]netvision.net.il> {
 	VNC heuristic dissection
 	TightVNC dissection
 	More tags in the DAAP dissector
+	SPICE dissector
 }
 
 Paul Ionescu            <paul[AT]acorp.ro> {
@@ -3316,6 +3317,7 @@ Elliott Aldrich		<elliott [at] aldrichart.com> {
 Glenn Matthews		<glenn.matthews@cisco.com> {
 	XMCP dissector
 }
+
 
 and by:
 
