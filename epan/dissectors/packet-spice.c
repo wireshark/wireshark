@@ -1062,7 +1062,7 @@ dissect_RedCursor(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     } else {
         proto_tree_add_text(RedCursor_tree, tvb, offset, -1, "Cursor data");
     }
-        offset += data_size;
+    offset += data_size;
 
 
     return (offset - init_offset);
@@ -1275,9 +1275,9 @@ dissect_ImageLZ_PLT(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
 static guint32
 dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
-        proto_item *ti=NULL;
-        proto_tree *JPEG_tree;
-        tvbuff_t *jpeg_tvb;
+    proto_item *ti=NULL;
+    proto_tree *JPEG_tree;
+    tvbuff_t *jpeg_tvb;
     guint32 JPEG_Size, Data_Size;
 
     /*TODO: const guint8 flags = tvb_get_guint8(tvb, offset); dissect and present */
@@ -1289,16 +1289,16 @@ dissect_ImageJPEG_Alpha(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, gui
     Data_Size = tvb_get_letohl(tvb, offset);
     offset += 4;
 
-        ti = proto_tree_add_text(tree, tvb, offset - 9, Data_Size + 5, "RGB JPEG Image, Alpha channel (%u bytes)", Data_Size);
-        JPEG_tree = proto_item_add_subtree(ti, ett_JPEG);
+    ti = proto_tree_add_text(tree, tvb, offset - 9, Data_Size + 5, "RGB JPEG Image, Alpha channel (%u bytes)", Data_Size);
+    JPEG_tree = proto_item_add_subtree(ti, ett_JPEG);
 
-        jpeg_tvb = tvb_new_subset(tvb, offset, JPEG_Size, JPEG_Size);
-        call_dissector(jpeg_handle, jpeg_tvb, pinfo, JPEG_tree);
+    jpeg_tvb = tvb_new_subset(tvb, offset, JPEG_Size, JPEG_Size);
+    call_dissector(jpeg_handle, jpeg_tvb, pinfo, JPEG_tree);
     offset += JPEG_Size;
 
     offset += dissect_ImageLZ_JPEG(tvb, JPEG_tree, offset - 4);
 
-        return Data_Size + 1;
+    return Data_Size + 1;
 }
 
 static guint32
@@ -2553,7 +2553,7 @@ dissect_spice_link_common_header(tvbuff_t *tvb, proto_tree *tree)
 {
      if (tree) {
         /* dissect common header */
-        proto_tree_add_item(tree, hf_spice_magic,   tvb,  0, 4, ENC_NA);
+        proto_tree_add_item(tree, hf_spice_magic,   tvb,  0, 4, ENC_ASCII|ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_major_version, tvb,  4, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_minor_version, tvb,  8, 4, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(tree, hf_message_size,  tvb, 12, 4, ENC_LITTLE_ENDIAN);
