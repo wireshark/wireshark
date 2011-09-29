@@ -1318,12 +1318,39 @@ dissect_ImageJPEG(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, const gui
     return JPEG_Size + 4;
 }
 
+#ifdef HAVE_LIBZ
+static void
+dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_info *pinfo,
+                             guint32 offset, guint32 ZLIB_GLZSize, guint32 ZLIB_uncompSize)
+{
+    proto_item *ti;
+    proto_tree *Uncomp_tree;
+    tvbuff_t   *uncompressed_tvb;
+
+    ti = proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, ZLIB_GLZSize, "ZLIB stream (%u bytes)", ZLIB_GLZSize);
+    uncompressed_tvb = tvb_uncompress(tvb, offset, ZLIB_GLZSize);
+    if (uncompressed_tvb != NULL) {
+        add_new_data_source(pinfo, uncompressed_tvb, "Uncompressed GLZ stream");
+        Uncomp_tree = proto_item_add_subtree(ti, ett_Uncomp_tree);
+        dissect_ImageGLZ_RGB(uncompressed_tvb, Uncomp_tree, 0, ZLIB_uncompSize, TRUE);
+    } else {
+        proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, -1, "Error: Unable to decompress content");
+    }
+}
+#else
+static void
+dissect_ImageZLIB_GLZ_stream(tvbuff_t *tvb, proto_tree *ZLIB_GLZ_tree, packet_info *pinfo _U_,
+                             guint32 offset, guint32 ZLIB_GLZSize, guint32 ZLIB_uncompSize _U_)
+{
+    proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, ZLIB_GLZSize, "ZLIB stream (%u bytes)", ZLIB_GLZSize);
+}
+#endif
+
 static guint32
 dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset)
 {
     proto_item *ti=NULL;
-    proto_tree *ZLIB_GLZ_tree, *Uncomp_tree = NULL;
-    tvbuff_t* uncompressed_tvb = NULL;
+    proto_tree *ZLIB_GLZ_tree;
     guint32 ZLIB_GLZSize, ZLIB_uncompSize;
 
     ZLIB_uncompSize = tvb_get_letohl(tvb, offset);
@@ -1336,17 +1363,7 @@ dissect_ImageZLIB_GLZ(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint
         offset += 4;
         proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, 4, "ZLIB stream compressed size: %u bytes", ZLIB_GLZSize);
         offset += 4;
-        ti = proto_tree_add_text(ZLIB_GLZ_tree, tvb, offset, ZLIB_GLZSize, "ZLIB stream (%u bytes)", ZLIB_GLZSize);
-#ifdef HAVE_LIBZ
-        uncompressed_tvb = tvb_uncompress(tvb, offset, ZLIB_GLZSize);
-        if (uncompressed_tvb != NULL) {
-            add_new_data_source(pinfo, uncompressed_tvb, "Uncompressed GLZ stream");
-            Uncomp_tree = proto_item_add_subtree(ti, ett_Uncomp_tree);
-            dissect_ImageGLZ_RGB(uncompressed_tvb, Uncomp_tree, 0, ZLIB_uncompSize, TRUE);
-        } else {
-                proto_tree_add_text (ZLIB_GLZ_tree, tvb, offset, -1, "Error: Unable to decompress content");
-            }
-#endif
+        dissect_ImageZLIB_GLZ_stream(tvb, ZLIB_GLZ_tree, pinfo, offset, ZLIB_GLZSize, ZLIB_uncompSize);
     }
 
     return ZLIB_GLZSize + 8;
