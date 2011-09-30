@@ -70,7 +70,7 @@ svn_version.xml: svn_version_check
 
 # Wireshark User Guide
 if HAVE_FOP
-WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf 
+WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html user-guide-a4.pdf user-guide-us.pdf
 else
 WSUG_TARGETS=wsug.validated wsug_html_chunked user-guide.html
 endif
@@ -163,7 +163,7 @@ wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	mkdir -p wsdg_html/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html/wsdg_graphics
-	cp wsug_graphics/toolbar/* wsug_html/wsug_graphics/toolbar/
+	cp wsdg_graphaphics/toolbar/* wsug_html/wsdg_graphaphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ \
@@ -179,7 +179,7 @@ wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
 	mkdir -p wsdg_html_chunked/wsdg_graphics/toolbar
 	cp $(srcdir)/wsdg_graphics/*.* wsdg_html_chunked/wsdg_graphics
-	cp wsug_graphics/toolbar/* wsug_html_chunked/wsug_graphics/toolbar/
+	cp wsdg_graphaphics/toolbar/* wsug_html_chunked/wsdg_graphaphics/toolbar/
 	cp $(srcdir)/ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 \
 		    --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/  \
@@ -231,7 +231,7 @@ release-notes.txt: $(RELEASE_NOTES_SOURCE)
 		    --nonet http://docbook.sourceforge.net/release/xsl/current/xhtml/docbook.xsl $< | $(HTML2TXT) > $@
 
 news: release-notes.txt
-	cp release-notes.txt ../NEWS 
+	cp release-notes.txt ../NEWS
 
 # create pdf file (through XSL-FO), portrait pages on US letter paper
 # you will get lot's of errors, but that's ok
@@ -258,8 +258,7 @@ EXTRA_DIST = \
 	make-wsluarm.pl		\
 	README.txt		\
 	Makefile.nmake		\
-	CMakeLists.txt	
+	CMakeLists.txt
 
 MAINTAINERCLEANFILES = \
 	Makefile.in
-
