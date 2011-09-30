@@ -377,8 +377,17 @@ static const value_string ehdr_type_vals[] = {
 
 
 static const value_string raw_link_types[] = {
-  { 0x00, "sonet"},
-  { 0x01, "sdh"},
+  { 0x00, "raw SONET"},
+  { 0x01, "raw SDH"},
+  { 0x02, "SONET spe"},
+  { 0x03, "SDH spe"},
+  { 0x04, "ds3"},
+  { 0x05, "SONET spe w/o POH"},
+  { 0x06, "SDH spe w/o POH"},
+  { 0x07, "SONET line mode 2"},
+  { 0x08, "SHD line mode 2"},
+  { 0x09, "raw bit-level"},
+  { 0x0A, "raw 10Gbe 66b"},
   { 0, NULL },
 };
 
