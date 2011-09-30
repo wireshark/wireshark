@@ -190,9 +190,9 @@ developer-guide.chm: $(WSDG_SOURCE)
 !ifdef HHC_EXE
 	@ echo --- WSDG - MICROSOFT HTML HELP ---
 	if not exist wsdg_chm\wsdg_graphics md wsdg_chm\wsdg_graphics
-	if not exist wsdg_chm\wsdg_graphaphics\toolbar md wsdg_chm\wsdg_graphaphics\toolbar
-	cp wsdg_graphaphics/*.* wsdg_chm/wsdg_graphaphics/
-	cp wsdg_graphaphics/toolbar/* wsdg_chm/wsdg_graphaphics/toolbar/
+	if not exist wsdg_chm\wsdg_graphics\toolbar md wsdg_chm\wsdg_graphics\toolbar
+	cp wsdg_graphics/*.* wsdg_chm/wsdg_graphics/
+	cp wsdg_graphics/toolbar/* wsdg_chm/wsdg_graphics/toolbar/
 	$(XSLTPROC) --stringparam base.dir wsdg_chm/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/htmlhelp/htmlhelp.xsl developer-guide.xml
 	-$(HHC_EXE) htmlhelp.hhp
 	-mv htmlhelp.chm $@
