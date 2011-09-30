@@ -2387,6 +2387,17 @@ static int hf_ieee80211_tspec_medium = -1;
 static int hf_ieee80211_ts_delay = -1;
 static int hf_ieee80211_tclas_process = -1;
 static int hf_ieee80211_tag_qos_cap_qos_info = -1;
+static int hf_ieee80211_qos_info_field_vo_uapsd = -1;
+static int hf_ieee80211_qos_info_field_vi_uapsd = -1;
+static int hf_ieee80211_qos_info_field_bk_uapsd = -1;
+static int hf_ieee80211_qos_info_field_be_uapsd = -1;
+static int hf_ieee80211_qos_info_field_qack = -1;
+static int hf_ieee80211_qos_info_field_max_sp_length = -1;
+static int hf_ieee80211_qos_info_field_more_data_ack = -1;
+static int hf_ieee80211_qos_info_field_edca_upd_cnt = -1;
+static int hf_ieee80211_qos_info_field_queue_req = -1;
+static int hf_ieee80211_qos_info_field_txop_req = -1;
+static int hf_ieee80211_qos_info_field_reserved = -1;
 static int hf_ieee80211_tag_ext_supp_rates = -1;
 static int hf_ieee80211_sched_info = -1;
 static int hf_ieee80211_sched_info_agg = -1;
@@ -2475,6 +2486,7 @@ static gint ett_tag_country_fnm_tree = -1;
 static gint ett_tag_country_rcc_tree = -1;
 static gint ett_qos_parameters = -1;
 static gint ett_qos_ps_buf_state = -1;
+static gint ett_qos_info_field_tree = -1;
 static gint ett_wep_parameters = -1;
 static gint ett_msh_control = -1;
 static gint ett_hwmp_targ_flags_tree = -1;
@@ -5913,6 +5925,51 @@ dissect_vendor_ie_aironet(proto_item * aironet_item, proto_tree * ietree,
       val_to_str(type, aironet_ie_type_vals, "Unknown"));
   }
 }
+
+/* 802.11e 7.3.2.33 QoS Capability element */
+static int dissect_qos_capability(proto_tree * tree, tvbuff_t * tvb, int offset, int ftype)
+{
+  proto_item *cap_info_item;
+  proto_tree *cap_info_tree;
+
+  cap_info_item = proto_tree_add_item(tree, hf_ieee80211_tag_qos_cap_qos_info, tvb, offset, 1, ENC_NA);
+  cap_info_tree = proto_item_add_subtree(cap_info_item, ett_qos_info_field_tree);
+  switch(ftype){
+    case MGT_ASSOC_REQ:
+    case MGT_PROBE_REQ:
+    case MGT_REASSOC_REQ:
+    {
+      /* To AP so decode as STA: Figure 33h-QoS Info field when set by a non-AP QSTA */
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_vo_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_vi_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_bk_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_be_uapsd, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_qack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_max_sp_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_more_data_ack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      break;
+    }
+    case MGT_BEACON:
+    case MGT_PROBE_RESP:
+    case MGT_ASSOC_RESP:
+    case MGT_REASSOC_RESP:
+    {
+      /* From AP so decode as AP: Figure 33g-QoS Info field when sent by a QAP */
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_edca_upd_cnt, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_qack, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_queue_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_txop_req, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(cap_info_tree, hf_ieee80211_qos_info_field_reserved, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      break;
+    }
+    default:
+        expert_add_info_format(g_pinfo, cap_info_item, PI_UNDECODED, PI_WARN, "Could not deduce direction to decode correctly, ftype %u", ftype);
+      break;
+  }
+
+  return offset + 1;
+}
+
 /* 7.3.2.25 RSN information element */
 static int
 dissect_rsn_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len)
@@ -8309,10 +8366,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
         /* proto_item *ti_cap;
         proto_tree *cap_tree; */
         offset += 2;
-
-        proto_tree_add_item(tree, hf_ieee80211_tag_qos_cap_qos_info, tvb, offset, 1, ENC_NA);
-        /* TODO : Add detail of QoS Info Field 7.3.1.17 QoS Info field ) */
-        offset += 1;
+        offset = dissect_qos_capability(tree, tvb, offset, ftype);
       }
       break;
 
@@ -12653,6 +12707,31 @@ proto_register_ieee80211 (void)
                            BASE_NONE, NULL, 0x0, NULL, HFILL } }
   };
 
+  static const true_false_string qos_info_field_qack_flags = {
+    "STAs/APs MIB attribute dot11QAckOptionImplemented is true",
+    "STAs/APs MIB attribute dot11QAckOptionImplemented is false"
+  };
+
+  static const true_false_string qos_info_field_more_data_ack_flags = {
+    "STA can process Ack frames with More Data bit and will remain in the awake state.",
+    "STA cannot process Ack frames with More Data bit in Frame Controll field."
+  };
+
+  static const true_false_string qos_info_field_queue_req_flags = {
+    "AP can process a nonzero Queue Size subfield in the QoS Control field in QoS data frames",
+    "AP cannot process Queue Size subfield in QoS data frames."
+  };
+
+  /* 7.3.1.17 Table 19b-Settings of the Max SP Length subfield */
+  static const value_string qos_info_field_max_sp_lenght_flags[] =
+  {
+    { 0x0, "QAP may deliver all buffered MSDUs and MMPDUs." },
+    { 0x2, "QAP may deliver a maximum of two MSDUs and MMPDUs per SP." },
+    { 0x1, "QAP may deliver a maximum of four MSDUs and MMPDUs per SP." },
+    { 0x3, "QAP may deliver a maximum of six MSDUs and MMPDUs per SP." },
+    { 0, NULL}
+  };
+
   static const true_false_string rsn_preauth_flags = {
     "Transmitter supports pre-authentication",
     "Transmitter does not support pre-authentication"
@@ -16027,6 +16106,51 @@ proto_register_ieee80211 (void)
      {"QoS Info", "wlan_mgt.tag.qos_cap.qos_info", FT_UINT8, BASE_HEX,
       NULL, 0, "TCLAS Processing", HFILL }},
 
+    {&hf_ieee80211_qos_info_field_vo_uapsd,
+     {"AC_VO U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vo_uapsd", 
+       FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x01, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_info_field_vi_uapsd,
+     {"AC_VI U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.vi_uapsd", 
+       FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x02, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_info_field_bk_uapsd,
+     {"AC_BK U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.bk_uapsd", 
+       FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x04, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_info_field_be_uapsd,
+     {"AC_BE U-APSD Flag", "wlan_mgt.tag.qos_cap.qos_info.be_uapsd", 
+       FT_BOOLEAN, 8, TFS(&tfs_enabled_disabled), 0x08, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_info_field_qack,
+     {"Q-ACK", "wlan_mgt.tag.qos_cap.qos_info.qack", 
+       FT_BOOLEAN, 8, TFS(&qos_info_field_qack_flags), 0x10, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_info_field_max_sp_length,
+     {"Max SP-Lenght", "wlan_mgt.tag.qos_cap.qos_info.max_sp_length", 
+       FT_UINT8, BASE_HEX, VALS(qos_info_field_max_sp_lenght_flags),
+       0x60, NULL , HFILL }},
+
+    {&hf_ieee80211_qos_info_field_more_data_ack,
+     {"More Data Ack", "wlan_mgt.tag.qos_cap.qos_info.more_data_ack", 
+       FT_BOOLEAN, 8, TFS(&qos_info_field_more_data_ack_flags) , 0x80, NULL, HFILL }},
+
+    {&hf_ieee80211_qos_info_field_edca_upd_cnt,
+      {"EDCA Parameter Set Update Count", "wlan_mgt.tag.qos_cap.qos_info.edca_upd_cnt",
+        FT_UINT8, BASE_DEC, NULL, 0x07, NULL, HFILL}},
+
+    {&hf_ieee80211_qos_info_field_queue_req,
+      {"Queue Request", "wlan_mgt.tag.qos_cap.qos_info.queue_req",
+        FT_UINT8, BASE_DEC, TFS(&qos_info_field_queue_req_flags), 0x07, NULL, HFILL}},
+
+    {&hf_ieee80211_qos_info_field_txop_req,
+      {"TXOP Request", "wlan_mgt.tag.qos_cap.qos_info.txop_req",
+        FT_BOOLEAN, BASE_NONE, TFS(&tfs_true_false), 0x40, NULL, HFILL}},
+
+    {&hf_ieee80211_qos_info_field_reserved,
+      {"Reserved", "wlan_mgt.tag.qos_cap.qos_info.reserved",
+        FT_BOOLEAN, BASE_NONE, NULL, 0x80, NULL, HFILL}},
+
     {&hf_ieee80211_tag_ext_supp_rates,
      {"Extented Supported Rates", "wlan_mgt.extented_supported_rates",
       FT_UINT8, BASE_NONE, VALS(ieee80211_supported_rates_vals), 0x0,
@@ -16375,6 +16499,7 @@ proto_register_ieee80211 (void)
     &ett_tag_country_rcc_tree,
     &ett_qos_parameters,
     &ett_qos_ps_buf_state,
+    &ett_qos_info_field_tree,
     &ett_wep_parameters,
     &ett_msh_control,
     &ett_hwmp_targ_flags_tree,
