@@ -2335,11 +2335,11 @@ proto_register_*() function) and a value.  The value will be fetched
 from the tvbuff by proto_tree_add_item(), based on the type of the field
 and the encoding of the value as specified by the "encoding" argument.
 
-For protocols, FT_NONE fields, FT_BYTES fields, FT_EUI64 fields, FT_IPv6
+For protocols, FT_NONE fields, FT_BYTES fields fields, FT_IPv6
 fields, FT_IPXNET fields, and FT_OID fields, the encoding is not
 relevant; the 'encoding' argument should be ENC_NA (Not Applicable).
 
-For integral, floating-point, Boolean, and FT_GUID fields, the encoding
+For integral, floating-point, Boolean, and FT_GUID, FT_EUI64 fields, the encoding
 specifies the byte order of the value; the 'encoding' argument should be
 is ENC_LITTLE_ENDIAN if the value is little-endian and ENC_BIG_ENDIAN if
 it is big-endian.
