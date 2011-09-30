@@ -34,6 +34,7 @@ SUBDIRS = 		\
 	charging_ase	\
 	cmip		\
 	cmp		\
+	credssp		\
 	crmf		\
 	cms		\
 	dap		\
