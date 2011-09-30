@@ -13,7 +13,9 @@ ATTRIBUTE	Aruba-Priv-Admin-User			3	integer
 ATTRIBUTE	Aruba-Admin-Role			4	string
 ATTRIBUTE	Aruba-Essid-Name			5	string
 ATTRIBUTE	Aruba-Location-Id			6	string
-ATTRIBUTE	Aruba-Port-Identifier			7	string	## [wireshark]
+ATTRIBUTE	Aruba-Port-Identifier			7	string  ## [wireshark]
 ATTRIBUTE	Aruba-Template-User			8	string  ## [wireshark]
+ATTRIBUTE	Aruba-Named-User-Vlan			9	string  ## [wireshark]
+ATTRIBUTE	Aruba-AP-Group				10	string  ## [wireshark]
 
 END-VENDOR	Aruba
