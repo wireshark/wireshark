@@ -338,7 +338,6 @@ static int proto_bgp = -1;
 static int hf_bgp_type = -1;
 static int hf_bgp_next_hop = -1;
 static int hf_bgp_as_path = -1;
-static int hf_bgp_cluster_identifier = -1;
 static int hf_bgp_community_as = -1;
 static int hf_bgp_community_value = -1;
 static int hf_bgp_origin = -1;
@@ -3359,9 +3358,6 @@ proto_register_bgp(void)
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_as_path,
         { "AS Path", "bgp.as_path", FT_UINT16, BASE_DEC,
-          NULL, 0x0, NULL, HFILL}},
-      { &hf_bgp_cluster_identifier,
-        { "Cluster identifier", "bgp.cluster_identifier", FT_IPv4, BASE_NONE,
           NULL, 0x0, NULL, HFILL}},
       { &hf_bgp_community_as,
         { "Community AS", "bgp.community_as", FT_UINT16, BASE_DEC,
