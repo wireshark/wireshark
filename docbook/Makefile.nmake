@@ -150,8 +150,8 @@ wsdg_html/developer-guide.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML SINGLE PAGE ---
 	if not exist wsdg_html\wsdg_graphics md wsdg_html\wsdg_graphics
 	if not exist wsdg_html\wsdg_graphics\toolbar md wsdg_html\wsdg_graphics\toolbar
-	cp wsdg_graphics/*.* wsdg_html/wsdg_graphhics/
-	cp wsdg_graphhics/toolbar/* wsdg_html/wsdg_graphhics/toolbar/
+	cp wsdg_graphics/*.* wsdg_html/wsdg_graphics/
+	cp wsdg_graphics/toolbar/* wsdg_html/wsdg_graphics/toolbar/
 	cp ws.css wsdg_html
 	$(XSLTPROC) --stringparam base.dir wsdg_html/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/docbook.xsl developer-guide.xml > $@
 	-chmod -R og+rX wsdg_html
@@ -162,9 +162,9 @@ wsdg_html_chunked: wsdg_html_chunked/index.html
 wsdg_html_chunked/index.html: $(WSDG_SOURCE)
 	@ echo --- WSDG - HTML CHUNKED ---
 	if not exist wsdg_html_chunked\wsdg_graphics md wsdg_html_chunked\wsdg_graphics
-	if not exist wsdg_html_chunked\wsdg_graphhics\toolbar md wsdg_html_chunked\wsdg_graphhics\toolbar
-	cp wsdg_graphhics/*.* wsdg_html_chunked/wsdg_graphhics/
-	cp wsdg_graphhics/toolbar/* wsdg_html_chunked/wsdg_graphhics/toolbar/
+	if not exist wsdg_html_chunked\wsdg_graphics\toolbar md wsdg_html_chunked\wsdg_graphics\toolbar
+	cp wsdg_graphics/*.* wsdg_html_chunked/wsdg_graphics/
+	cp wsdg_graphics/toolbar/* wsdg_html_chunked/wsdg_graphics/toolbar/
 	cp ws.css wsdg_html_chunked
 	$(XSLTPROC) --stringparam base.dir wsdg_html_chunked/ --stringparam  use.id.as.filename 1 --stringparam admon.graphics 1 --stringparam admon.graphics.path wsdg_graphics/ --stringparam section.autolabel 1 --stringparam  section.label.includes.component.label 1 --stringparam html.stylesheet ws.css --nonet http://docbook.sourceforge.net/release/xsl/current/html/chunk.xsl developer-guide.xml
 	-chmod -R og+rX wsdg_html_chunked
