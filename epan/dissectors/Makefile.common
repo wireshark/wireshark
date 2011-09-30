@@ -103,6 +103,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-cmp.c \
 	packet-cms.c \
 	packet-coap.c \
+	packet-credssp.c \
 	packet-crmf.c \
 	packet-dap.c \
 	packet-disp.c \

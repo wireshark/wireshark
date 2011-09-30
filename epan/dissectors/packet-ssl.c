@@ -315,6 +315,9 @@ static gchar* ssl_keys_list = NULL;
 static gchar* ssl_psk = NULL;
 static gchar* ssl_keylog_filename = NULL;
 
+/* List of dissectors to call for SSL data */
+static heur_dissector_list_t ssl_heur_subdissector_list;
+
 #if defined(SSL_DECRYPT_DEBUG) || defined(HAVE_LIBGNUTLS)
 static gchar* ssl_debug_file_name     = NULL;
 #endif
@@ -1242,7 +1245,12 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
     if (association && association->handle) {
         ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);
+        
+      if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
+				  pinfo, proto_tree_get_root(tree))) {
+      } else {
         call_dissector(association->handle, next_tvb, pinfo, proto_tree_get_root(tree));
+      }
     }
 }
 
@@ -5052,6 +5060,8 @@ proto_register_ssl(void)
 #endif
     }
 
+    /* heuristic dissectors for any premable e.g. CredSSP before RDP */
+    register_heur_dissector_list("ssl", &ssl_heur_subdissector_list);
 
     register_dissector("ssl", dissect_ssl, proto_ssl);
     ssl_handle = find_dissector("ssl");

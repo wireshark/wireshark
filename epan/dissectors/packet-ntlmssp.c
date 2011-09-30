@@ -1750,7 +1750,7 @@ dissect_ntlmssp_auth (tvbuff_t *tvb, packet_info *pinfo, int offset,
   data_start = MIN(data_start, item_start);
   data_end = MAX(data_end, item_end);
 
-  col_append_fstr(pinfo->cinfo, COL_INFO, ", User: %s\\%s",
+  col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ", "User: %s\\%s",
                   ntlmssph->domain_name, ntlmssph->acct_name);
 
   /* hostname */
@@ -2164,7 +2164,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4;
 
-    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
+    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ", ","%s",
                     val_to_str(ntlmssph->type,
                                ntlmssp_message_types,
                                "Unknown message type"));
@@ -2204,6 +2204,18 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*tap_queue_packet(ntlmssp_tap, pinfo, ntlmssph);*/
 }
 
+static gboolean
+dissect_ntlmssp_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
+{
+
+  if(tvb_memeql(tvb, 0, "NTLMSSP", 8) == 0) {
+
+    dissect_ntlmssp(tvb, pinfo, parent_tree);
+    return TRUE;
+  }
+  
+  return FALSE;
+}
 
 
 /*
@@ -3021,6 +3033,9 @@ proto_reg_handoff_ntlmssp(void)
                                     DCE_C_RPC_AUTHN_PROTOCOL_NTLMSSP,
                                     &ntlmssp_seal_fns);
   ntlmssp_tap = register_tap("ntlmssp");
+
+  heur_dissector_add("credssp", dissect_ntlmssp_heur, proto_ntlmssp);
+
 }
 
 /*

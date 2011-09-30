@@ -1899,6 +1899,7 @@ AC_OUTPUT(
   asn1/cmp/Makefile
   asn1/crmf/Makefile
   asn1/cms/Makefile
+  asn1/credssp/Makefile
   asn1/dap/Makefile
   asn1/disp/Makefile
   asn1/dop/Makefile

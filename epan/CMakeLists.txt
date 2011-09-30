@@ -190,6 +190,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-cmip.c
 	dissectors/packet-cmp.c
 	dissectors/packet-cms.c
+	dissectors/packet-credssp.c
 	dissectors/packet-crmf.c
 	dissectors/packet-dap.c
 	dissectors/packet-disp.c

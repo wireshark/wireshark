@@ -1,0 +1,46 @@
+-- $Id$
+--
+-- Derived from http://download.microsoft.com/download/9/5/E/95EF66AF-9026-4BB0-A41D-A4F81802D92C/%5BMS-CSSP%5D.pdf 
+
+CredSSP DEFINITIONS EXPLICIT TAGS ::=
+
+BEGIN
+
+NegoData ::= SEQUENCE OF SEQUENCE {
+	 negoToken    [0] OCTET STRING
+}
+
+TSPasswordCreds ::=  SEQUENCE {
+		domainName	[0] OCTET STRING,
+		userName 	[1] OCTET STRING,
+		password 	[2] OCTET STRING
+}
+
+TSCspDataDetail ::= SEQUENCE {
+		keySpec		[0] INTEGER,
+		cardName 	[1] OCTET STRING OPTIONAL,
+		readerName 	[2] OCTET STRING OPTIONAL,
+		containerName 	[3] OCTET STRING OPTIONAL,
+		cspName 	[4] OCTET STRING OPTIONAL
+}
+
+TSSmartCardCreds ::=  SEQUENCE {
+		 pin		[0] OCTET STRING,
+		 cspData 	[1] TSCspDataDetail,
+		 userHint 	[2] OCTET STRING OPTIONAL,
+		 domainHint 	[3] OCTET STRING OPTIONAL
+}
+
+TSCredentials ::= SEQUENCE {
+	      credType 	   [0] INTEGER,
+	      credentials  [1] OCTET STRING
+}
+
+TSRequest ::= SEQUENCE {
+	version	       [0] INTEGER,
+	negoTokens     [1] NegoData OPTIONAL,
+	authInfo       [2] OCTET STRING OPTIONAL,
+	pubKeyAuth     [3] OCTET STRING OPTIONAL
+}
+
+END

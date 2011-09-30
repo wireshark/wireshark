@@ -1,0 +1,57 @@
+# credssp.cnf
+# Credential Security Support Provider (CredSSP) conformance file
+# $Id$
+
+#.PDU
+TSRequest
+
+#.FN_PARS TSRequest/authInfo VAL_PTR = &auth_tvb
+
+#.FN_BODY TSRequest/authInfo
+	tvbuff_t *auth_tvb = NULL;
+	tvbuff_t *decr_tvb = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(decr_tvb != NULL)
+		    offset = dissect_credssp_TSCredentials(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSCredentials);
+
+
+#.FN_PARS TSCredentials/credType VAL_PTR = &creds_type
+#.FN_PARS TSCredentials/credentials VAL_PTR = &creds_tvb
+
+#.FN_BODY TSCredentials/credentials
+	tvbuff_t *creds_tvb = NULL;
+	tvbuff_t *decr_tvb = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if((decr_tvb != NULL) && 
+	((creds_type == TS_PASSWORD_CREDS) || (creds_type == TS_SMARTCARD_CREDS))) {
+
+		      switch(creds_type) {
+		      case TS_PASSWORD_CREDS:
+		    offset = dissect_credssp_TSPasswordCreds(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSPasswordCreds);
+		    	   break;
+			   case TS_SMARTCARD_CREDS:
+		    offset = dissect_credssp_TSSmartCardCreds(FALSE, decr_tvb, 0, actx, tree, hf_credssp_TSSmartCardCreds);
+		    	   break;
+		   }
+	}
+
+
+#.FN_PARS NegoData/_item/negoToken VAL_PTR = &token_tvb
+
+#.FN_BODY NegoData/_item/negoToken
+	tvbuff_t *token_tvb = NULL;
+
+	%(DEFAULT_BODY)s
+
+	if(token_tvb != NULL)
+		      dissector_try_heuristic(credssp_heur_subdissector_list, 
+		      token_tvb, actx->pinfo, proto_tree_get_root(tree));
+
+
+#.END
+
+
