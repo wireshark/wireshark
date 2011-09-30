@@ -192,12 +192,12 @@ static const value_string bgpext_com8_type[] = {
 };
 
 static const value_string bgpext_com_type[] = {
-    { BGP_EXT_COM_RT_0, "Route Target" },
-    { BGP_EXT_COM_RT_1, "Route Target" },
-    { BGP_EXT_COM_RT_2, "Route Target" },
-    { BGP_EXT_COM_RO_0, "Route Origin" },
-    { BGP_EXT_COM_RO_1, "Route Origin" },
-    { BGP_EXT_COM_RO_2, "Route Origin" },
+    { BGP_EXT_COM_RT_0, "two-octet AS specific Route Target" },
+    { BGP_EXT_COM_RT_1, "IPv4 address specific Route Target" },
+    { BGP_EXT_COM_RT_2, "four-octet AS specific Route Target" },
+    { BGP_EXT_COM_RO_0, "two-octet AS specific Route Origin" },
+    { BGP_EXT_COM_RO_1, "IPv4 address specific Route Origin" },
+    { BGP_EXT_COM_RO_2, "four-octet AS specific Route Origin" },
     { BGP_EXT_COM_LINKBAND, "Link Bandwidth" },
     { BGP_EXT_COM_VPN_ORIGIN, "OSPF Domain" },
     { BGP_EXT_COM_OSPF_RTYPE, "OSPF Route Type" },
@@ -2570,7 +2570,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         while (q < end) {
                             ext_com8 = tvb_get_guint8(tvb,q); /* handle regular types (8 bit) */
                             ext_com  = tvb_get_ntohs(tvb,q);  /* handle extended length types (16 bit) */
-                            ep_strbuf_printf(junk_emstr, "%s", val_to_str(ext_com8,bgpext_com8_type,"Unknown"));
+                            ep_strbuf_printf(junk_emstr, "%s", val_to_str(ext_com8,bgpext_com8_type,"Unknown %d"));
                             is_regular_type = FALSE;
                             is_extended_type = FALSE;
                             /* handle regular types (8 bit) */
@@ -2635,14 +2635,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             } /* switch (ext_com8) */
 
                             if (!is_regular_type) {
-                                ep_strbuf_append(junk_emstr, val_to_str(ext_com,bgpext_com_type,"Unknown"));
+                                ep_strbuf_printf(junk_emstr, "%s", val_to_str(ext_com,bgpext_com_type,"Unknown %d"));
 
                                 /* handle extended length types (16 bit) */
                                 switch (ext_com) {
                                     case BGP_EXT_COM_RT_0:
-                                    case BGP_EXT_COM_RT_2:
                                     case BGP_EXT_COM_RO_0:
-                                    case BGP_EXT_COM_RO_2:
                                         is_extended_type = TRUE;
                                         ep_strbuf_append_printf(junk_emstr, ": %u%s%d",
                                                                 tvb_get_ntohs(tvb,q+2),":",tvb_get_ntohl(tvb,q+4));
@@ -2654,6 +2652,13 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                         ipaddr = tvb_get_ipv4(tvb,q+2);
                                         ep_strbuf_append_printf(junk_emstr, ": %s%s%u",
                                                                 ip_to_str((guint8 *)&ipaddr),":",tvb_get_ntohs(tvb,q+6));
+                                        proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
+                                        break;
+                                    case BGP_EXT_COM_RT_2:
+                                    case BGP_EXT_COM_RO_2:
+                                        is_extended_type = TRUE;
+                                        ep_strbuf_append_printf(junk_emstr, ": %u.%u:%u",
+                                                                tvb_get_ntohs(tvb,q+2),tvb_get_ntohs(tvb,q+4) ,tvb_get_ntohs(tvb,q+6));
                                         proto_tree_add_text(subtree3,tvb,q,8, "%s",junk_emstr->str);
                                         break;
                                     case BGP_EXT_COM_VPN_ORIGIN:
