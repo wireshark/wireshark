@@ -1082,6 +1082,7 @@ DISSECTOR_INCLUDES =	\
 	packet-cmip.h \
 	packet-cmp.h	\
 	packet-cms.h	\
+	packet-credssp.h \
 	packet-crmf.h	\
 	packet-csn1.h	\
 	packet-dap.h	\
