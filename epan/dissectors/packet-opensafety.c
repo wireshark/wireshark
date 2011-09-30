@@ -417,7 +417,7 @@ static guint stringToBytes( const char * stringToBytes, guint8 * pBuffer, guint3
     str = ep_strdup(stringToBytes);
     token = strtok( str, ":" );
     if ( token == NULL )
-    	return k;
+        return k;
     temp = token;
 
     byte = strtol ( temp, &endptr, 16 );
@@ -729,7 +729,7 @@ static guint8 findSafetyFrame ( guint8 * pBuffer, guint32 length, guint u_Offset
     /** Seem redundant if b_frame2First is false. But in this case, the function is needed for the
      * simple detection of a possible openSAFETY frame.  */
     if ( b_frame2first && found )
-    	*u_frameOffset = u_Offset;
+        *u_frameOffset = u_Offset;
 
     return (found ? 1 : 0);
 }
@@ -1144,7 +1144,7 @@ dissect_opensafety_checksum(tvbuff_t *message_tvb, proto_tree *opensafety_tree ,
 
 static gboolean
 dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type,
-		tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree, guint8 u_nrInPackage)
+        tvbuff_t *message_tvb, packet_info *pinfo, proto_tree *opensafety_tree, guint8 u_nrInPackage)
 {
     guint8 b_ID;
     guint length;
@@ -1217,8 +1217,8 @@ dissect_opensafety_message(guint16 frameStart1, guint16 frameStart2, guint8 type
 
 static gboolean
 opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_handle,
-		gboolean b_frame2First, gboolean do_byte_swap,
-		tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
+        gboolean b_frame2First, gboolean do_byte_swap,
+        tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
     tvbuff_t *next_tvb;
     guint length, len, frameOffset, frameLength, address;
@@ -1242,10 +1242,10 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
 
     if ( strlen( sub_diss_handle ) > 0 )
     {
-    	call_sub_dissector = TRUE;
-    	protocol_dissector = find_dissector ( sub_diss_handle );
-    	if ( protocol_dissector == NULL )
-    		protocol_dissector = find_dissector ( "data" );
+        call_sub_dissector = TRUE;
+        protocol_dissector = find_dissector ( sub_diss_handle );
+        if ( protocol_dissector == NULL )
+            protocol_dissector = find_dissector ( "data" );
     }
 
     reported_len = tvb_reported_length_remaining(message_tvb, 0);
@@ -1271,8 +1271,8 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
     {
         if ( findSafetyFrame(bytes, length - frameOffset, frameOffset, b_frame2First, &frameOffset, &frameLength) )
         {
-        	if ( ( frameOffset + frameLength ) > (guint)reported_len )
-        		break;
+            if ( ( frameOffset + frameLength ) > (guint)reported_len )
+                break;
             found++;
 
             /* Freeing memory before dissector, as otherwise we would waste it */
@@ -1333,9 +1333,9 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
                     else if ( ( OSS_FRAME_ID(bytesOffset, frameStart1) & OPENSAFETY_SNMT_MESSAGE_TYPE ) == OPENSAFETY_SNMT_MESSAGE_TYPE )
                         type = OPENSAFETY_SNMT_MESSAGE_TYPE;
                     else {
-                    	/* Skip this frame.  We cannot continue without
-                    	   advancing frameOffset - just doing a continue
-                    	   will result in an infinite loop. */
+                        /* Skip this frame.  We cannot continue without
+                           advancing frameOffset - just doing a continue
+                           will result in an infinite loop. */
                         frameOffset += frameLength;
                         continue;
                     }
@@ -1354,8 +1354,8 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
              * is malformed. Instead of declining dissection, the package get's marked as malformed */
             if ( type == OPENSAFETY_SPDO_MESSAGE_TYPE )
             {
-            	address = OSS_FRAME_ADDR(bytesOffset, frameStart1);
-            	if ( address > 1024 ) {
+                address = OSS_FRAME_ADDR(bytesOffset, frameStart1);
+                if ( address > 1024 ) {
                     /* As stated above, you cannot just continue
                        without advancing frameOffset. */
                     frameOffset += frameLength;
@@ -1368,12 +1368,12 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
              * is fault, and therefore we return false.
              */
             if ( ( (gint)frameLength - (gint)( frameStart2 > frameStart1 ? frameStart2 : frameLength - frameStart1 ) ) < 0 )
-            	return FALSE;
+                return FALSE;
 
             if ( ! dissectorCalled )
             {
-            	if ( call_sub_dissector )
-            		call_dissector(protocol_dissector, message_tvb, pinfo, tree);
+                if ( call_sub_dissector )
+                    call_dissector(protocol_dissector, message_tvb, pinfo, tree);
                 dissectorCalled = TRUE;
 
                 col_set_str(pinfo->cinfo, COL_PROTOCOL, protocolName);
@@ -1406,8 +1406,8 @@ opensafety_package_dissector(const gchar * protocolName, const gchar * sub_diss_
 
     if ( ! handled )
     {
-    	if ( call_sub_dissector )
-    		call_dissector(protocol_dissector, message_tvb, pinfo, tree);
+        if ( call_sub_dissector )
+            call_dissector(protocol_dissector, message_tvb, pinfo, tree);
         handled = TRUE;
     }
     return ( handled ? TRUE : FALSE );
@@ -1427,19 +1427,19 @@ dissect_opensafety_epl(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *
     {
         calledOnce = TRUE;
 
-		firstByte = ( tvb_get_guint8(message_tvb, 0) << 1 );
+        firstByte = ( tvb_get_guint8(message_tvb, 0) << 1 );
 
-		/* No frames can be sent in SoA and SoC messages, therefore those get filtered right away */
-		if ( ( firstByte != 0x02 ) && ( firstByte != 0x0A ) )
-		{
-			result = opensafety_package_dissector("openSAFETY/Powerlink", "epl",
-					FALSE, FALSE, message_tvb, pinfo, tree);
-		}
+        /* No frames can be sent in SoA and SoC messages, therefore those get filtered right away */
+        if ( ( firstByte != 0x02 ) && ( firstByte != 0x0A ) )
+        {
+            result = opensafety_package_dissector("openSAFETY/Powerlink", "epl",
+                    FALSE, FALSE, message_tvb, pinfo, tree);
+        }
 
-		calledOnce = FALSE;
-	}
+        calledOnce = FALSE;
+    }
 
-	return result;
+    return result;
 }
 
 
@@ -1452,7 +1452,7 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
 
     if ( pinfo->ipproto == IPPROTO_UDP )
     {
-    	return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, message_tvb, pinfo, tree);
+        return  opensafety_package_dissector("openSAFETY/SercosIII UDP", "", FALSE, FALSE, message_tvb, pinfo, tree);
     }
 
     /* We can assume to have a SercosIII package, as the SercosIII dissector won't detect
@@ -1466,10 +1466,10 @@ dissect_opensafety_siii(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree 
         calledOnce = TRUE;
         /* No frames can be sent in AT messages, therefore those get filtered right away */
         firstByte = ( tvb_get_guint8(message_tvb, 0) << 1 );
-        if ( ( (!firstByte) & 0x40 ) != 0x40 )
+        if ( !((firstByte & 0x40) == 0x40) )
         {
-        	result = opensafety_package_dissector("openSAFETY/SercosIII", "sercosiii",
-        			FALSE, FALSE, message_tvb, pinfo, tree);
+            result = opensafety_package_dissector("openSAFETY/SercosIII", "sercosiii",
+                    FALSE, FALSE, message_tvb, pinfo, tree);
         }
         calledOnce = FALSE;
     }
@@ -1489,29 +1489,30 @@ dissect_opensafety_pn_io(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree
     if ( calledOnce == FALSE )
     {
         calledOnce = TRUE;
-		result = opensafety_package_dissector("openSAFETY/Profinet IO", "pn_io",
-				FALSE, FALSE, message_tvb, pinfo, tree);
-		calledOnce = FALSE;
-	}
+        result = opensafety_package_dissector("openSAFETY/Profinet IO", "pn_io",
+                FALSE, FALSE, message_tvb, pinfo, tree);
+        calledOnce = FALSE;
+    }
 
-	return result;
+    return result;
 }
 
 static gboolean
 dissect_opensafety_mbtcp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
-	/* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
-	 * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
-	 * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
-	return opensafety_package_dissector("openSAFETY/Modbus TCP", "", FALSE, TRUE,
-		message_tvb, pinfo, ( tree->parent != NULL ? tree->parent : tree ));
+    /* When Modbus/TCP get's dissected, openSAFETY would be sorted as a child protocol. Although,
+     * this behaviour is technically correct, it differs from other implemented IEM protocol handlers.
+     * Therefore, the openSAFETY frame get's put one up, if the parent is not NULL */
+    return opensafety_package_dissector("openSAFETY/Modbus TCP", "", FALSE, TRUE,
+        message_tvb, pinfo, ( tree->parent != NULL ? tree->parent : tree ));
 }
 
 static gboolean
 dissect_opensafety_udp(tvbuff_t *message_tvb , packet_info *pinfo , proto_tree *tree )
 {
-	return opensafety_package_dissector((pinfo->destport == UDP_PORT_SIII ? "openSAFETY/SercosIII" : "openSAFETY/UDP" ),
-			"", TRUE, FALSE, message_tvb, pinfo, tree);
+    return opensafety_package_dissector(
+        (pinfo->destport == UDP_PORT_SIII ? "openSAFETY/SercosIII" : "openSAFETY/UDP" ),
+        "", TRUE, FALSE, message_tvb, pinfo, tree);
 }
 
 static void
@@ -1689,3 +1690,17 @@ proto_reg_handoff_opensafety(void)
     }
 
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 4
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=4 expandtab:
+ * :indentSize=4:tabSize=4:noTabs=true:
+ */
+
