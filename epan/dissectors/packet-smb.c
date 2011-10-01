@@ -2177,7 +2177,7 @@ dissect_negprot_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* Buffer Format */
 		CHECK_BYTE_COUNT(1);
 		proto_tree_add_item(dtr, hf_smb_buffer_format, tvb, offset, 1,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 		COUNT_BYTES(1);
 
 		/*Dialect Name */
@@ -2266,17 +2266,17 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* Maximum Transmit Buffer Size */
 		proto_tree_add_item(tree, hf_smb_max_trans_buf_size,
-			tvb, offset, 2, TRUE);
+			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Maximum Multiplex Count */
 		proto_tree_add_item(tree, hf_smb_max_mpx_count,
-			tvb, offset, 2, TRUE);
+			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Maximum Vcs Number */
 		proto_tree_add_item(tree, hf_smb_max_vcs_num,
-			tvb, offset, 2, TRUE);
+			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* raw mode */
@@ -2284,7 +2284,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* session key */
 		proto_tree_add_item(tree, hf_smb_session_key,
-			tvb, offset, 4, TRUE);
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* current time and date at server */
@@ -2302,7 +2302,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		offset += 2;
 
 		/* 2 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 
 		break;
@@ -2313,27 +2313,27 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 
 		/* Maximum Multiplex Count */
 		proto_tree_add_item(tree, hf_smb_max_mpx_count,
-			tvb, offset, 2, TRUE);
+			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Maximum Vcs Number */
 		proto_tree_add_item(tree, hf_smb_max_vcs_num,
-			tvb, offset, 2, TRUE);
+			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Maximum Transmit Buffer Size */
 		proto_tree_add_item(tree, hf_smb_max_trans_buf_size,
-			tvb, offset, 4, TRUE);
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* maximum raw buffer size */
 		proto_tree_add_item(tree, hf_smb_max_raw_buf_size,
-			tvb, offset, 4, TRUE);
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* session key */
 		proto_tree_add_item(tree, hf_smb_session_key,
-			tvb, offset, 4, TRUE);
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* server capabilities */
@@ -2367,7 +2367,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		/* challenge/response encryption key */
 		if(ekl){
 			CHECK_BYTE_COUNT(ekl);
-			proto_tree_add_item(tree, hf_smb_encryption_key, tvb, offset, ekl, TRUE);
+			proto_tree_add_item(tree, hf_smb_encryption_key, tvb, offset, ekl, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES(ekl);
 		}
 
@@ -2401,7 +2401,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			if(ekl){
 				CHECK_BYTE_COUNT(ekl);
 				proto_tree_add_item(tree, hf_smb_encryption_key,
-					tvb, offset, ekl, TRUE);
+					tvb, offset, ekl, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(ekl);
 			}
 
@@ -2445,7 +2445,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			   for GUIDs? */
 			CHECK_BYTE_COUNT(16);
 			proto_tree_add_item(tree, hf_smb_server_guid,
-				tvb, offset, 16, TRUE);
+				tvb, offset, 16, ENC_NA);
 			COUNT_BYTES(16);
 
 			/* security blob */
@@ -2461,7 +2461,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			}
 			blob_item = proto_tree_add_item(
 				tree, hf_smb_security_blob,
-				tvb, offset, sbloblen, TRUE);
+				tvb, offset, sbloblen, ENC_NA);
 
 			/*
 			 * If Extended security and BCC == 16, then raw
@@ -2534,7 +2534,7 @@ dissect_old_dir_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* dir name */
@@ -2633,7 +2633,7 @@ dissect_echo_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 
 	if (bc != 0) {
 		/* echo data */
-		proto_tree_add_item(tree, hf_smb_echo_data, tvb, offset, bc, TRUE);
+		proto_tree_add_item(tree, hf_smb_echo_data, tvb, offset, bc, ENC_NA);
 		COUNT_BYTES(bc);
 	}
 
@@ -2651,14 +2651,14 @@ dissect_echo_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 	WORD_COUNT;
 
 	/* echo sequence number */
-	proto_tree_add_item(tree, hf_smb_echo_seq_num, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_echo_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
 
 	if (bc != 0) {
 		/* echo data */
-		proto_tree_add_item(tree, hf_smb_echo_data, tvb, offset, bc, TRUE);
+		proto_tree_add_item(tree, hf_smb_echo_data, tvb, offset, bc, ENC_NA);
 		COUNT_BYTES(bc);
 	}
 
@@ -2684,7 +2684,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* Path */
@@ -2703,7 +2703,7 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* password, ANSI */
@@ -2711,12 +2711,12 @@ dissect_tree_connect_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	pwlen = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(pwlen);
 	proto_tree_add_item(tree, hf_smb_password,
-		tvb, offset, pwlen, TRUE);
+		tvb, offset, pwlen, ENC_NA);
 	COUNT_BYTES(pwlen);
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* Service */
@@ -2846,7 +2846,7 @@ dissect_tree_connect_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	WORD_COUNT;
 
 	/* Maximum Buffer Size */
-	proto_tree_add_item(tree, hf_smb_max_buf_size, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_buf_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* tid */
@@ -3010,7 +3010,7 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3029,7 +3029,7 @@ dissect_move_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3079,7 +3079,7 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3098,7 +3098,7 @@ dissect_copy_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int of
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3134,14 +3134,14 @@ dissect_move_copy_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	WORD_COUNT;
 
 	/* # of files moved */
-	proto_tree_add_item(tree, hf_smb_files_moved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_files_moved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3181,7 +3181,7 @@ dissect_open_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3583,7 +3583,7 @@ dissect_open_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
 
 	/* File Size */
-	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* granted access */
@@ -3745,7 +3745,7 @@ dissect_create_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* File Name */
@@ -3810,7 +3810,7 @@ dissect_delete_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3859,7 +3859,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* old file name */
@@ -3879,7 +3879,7 @@ dissect_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3931,14 +3931,14 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	proto_tree_add_uint(tree, hf_smb_nt_rename_level, tvb, offset, 2, tvb_get_letohs(tvb, offset));
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_smb_cluster_count, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_cluster_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* old file name */
@@ -3957,7 +3957,7 @@ dissect_nt_rename_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -3997,7 +3997,7 @@ dissect_query_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* Buffer Format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* File Name */
@@ -4034,11 +4034,11 @@ dissect_query_information_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
 
 	/* File Size */
-	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* 10 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, ENC_NA);
 	offset += 10;
 
 	BYTE_COUNT;
@@ -4068,14 +4068,14 @@ dissect_set_information_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset = dissect_smb_UTIME(tvb, tree, offset, hf_smb_last_write_time);
 
 	/* 10 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, ENC_NA);
 	offset += 10;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -4114,12 +4114,12 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 
 	/* read count */
 	cnt = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* offset */
 	ofs = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -4128,7 +4128,7 @@ dissect_read_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 				(cnt == 1) ? "" : "s", ofs);
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4147,7 +4147,7 @@ dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 bc, guint
 		/* We have some initial padding bytes. */
 		/* XXX - use the data offset here instead? */
 		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
-			TRUE);
+			ENC_NA);
 		offset += bc-datalen;
 		bc = datalen;
 	}
@@ -4156,7 +4156,7 @@ dissect_file_data(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 bc, guint
 		proto_tree_add_bytes_format(tree, hf_smb_file_data, tvb, offset, tvblen, NULL,"File Data: Incomplete. Only %d of %u bytes", tvblen, bc);
 		offset += tvblen;
 	} else {
-		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, TRUE);
+		proto_tree_add_item(tree, hf_smb_file_data, tvb, offset, bc, ENC_NA);
 		offset += bc;
 	}
 	return offset;
@@ -4173,7 +4173,7 @@ dissect_file_data_dcerpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* We have some initial padding bytes. */
 		/* XXX - use the data offset here instead? */
 		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, bc-datalen,
-			TRUE);
+			ENC_NA);
 		offset += bc-datalen;
 		bc = datalen;
 	}
@@ -4232,18 +4232,18 @@ dissect_read_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	offset += 2;
 
 	/* 8 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, ENC_NA);
 	offset += 8;
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
 	CHECK_BYTE_COUNT(2);
-	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(2);
 
 	/* file data, might be DCERPC on a pipe */
@@ -4272,19 +4272,19 @@ dissect_lock_and_read_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	offset += 2;
 
 	/* 8 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
 	CHECK_BYTE_COUNT(2);
-	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(2);
 
 	END_OF_SMB
@@ -4324,7 +4324,7 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
 	/* offset */
 	ofs = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -4356,19 +4356,19 @@ dissect_write_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	}
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
 	CHECK_BYTE_COUNT(2);
-	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(2);
 
 	/* file data, might be DCERPC on a pipe */
@@ -4397,7 +4397,7 @@ dissect_write_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
 	/* write count */
 	cnt = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	if (check_col(pinfo->cinfo, COL_INFO))
@@ -4438,11 +4438,11 @@ dissect_lock_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, in
 	offset += 2;
 
 	/* lock count */
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	BYTE_COUNT;
@@ -4466,7 +4466,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	WORD_COUNT;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* Creation time */
@@ -4476,7 +4476,7 @@ dissect_create_temporary_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* directory name */
@@ -4520,7 +4520,7 @@ dissect_create_temporary_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -4558,11 +4558,11 @@ dissect_seek_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* Seek Mode */
-	proto_tree_add_item(tree, hf_smb_seek_mode, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_seek_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	BYTE_COUNT;
@@ -4581,7 +4581,7 @@ dissect_seek_file_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	WORD_COUNT;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	BYTE_COUNT;
@@ -4650,11 +4650,11 @@ dissect_query_information2_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 		hf_smb_last_write_dos_date, hf_smb_last_write_dos_time, FALSE);
 
 	/* data size */
-	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* allocation size */
-	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* File Attributes */
@@ -4687,7 +4687,7 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	offset += 2;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* last write time */
@@ -4695,7 +4695,7 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	if(wc==12){
 		/* 12 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 12, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 12, ENC_NA);
 		offset += 12;
 	}
 
@@ -4703,7 +4703,7 @@ dissect_write_and_close_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
 	/* 1 pad byte */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, ENC_NA);
 	COUNT_BYTES(1);
 
 	offset = dissect_file_data(tvb, tree, offset, cnt, cnt);
@@ -4723,7 +4723,7 @@ dissect_write_and_close_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	WORD_COUNT;
 
 	/* write count */
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4774,15 +4774,15 @@ dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	offset += 2;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* max count */
-	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* min count */
-	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* timeout */
@@ -4791,12 +4791,12 @@ dissect_read_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	offset += 4;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	if(wc==10){
 		/* high offset */
-		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
 
@@ -4816,23 +4816,23 @@ dissect_query_information_disk_response(tvbuff_t *tvb, packet_info *pinfo _U_, p
 	WORD_COUNT;
 
 	/* units */
-	proto_tree_add_item(tree, hf_smb_units, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_units, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* bpu */
-	proto_tree_add_item(tree, hf_smb_bpu, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_bpu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* block size */
-	proto_tree_add_item(tree, hf_smb_blocksize, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_blocksize, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* free units */
-	proto_tree_add_item(tree, hf_smb_freeunits, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_freeunits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -4856,19 +4856,19 @@ dissect_read_mpx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	offset += 2;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* max count */
-	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* min count */
-	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 6 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 6, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	BYTE_COUNT;
@@ -4887,23 +4887,23 @@ dissect_read_mpx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	WORD_COUNT;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* count */
-	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* data compaction mode */
-	proto_tree_add_item(tree, hf_smb_dcm, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_dcm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* data len */
@@ -4912,7 +4912,7 @@ dissect_read_mpx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* data offset */
-	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -5009,15 +5009,15 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* total data length */
-	proto_tree_add_item(tree, hf_smb_total_data_len, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_total_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* timeout */
@@ -5029,7 +5029,7 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset = dissect_write_mode(tvb, tree, offset, 0x0003);
 
 	/* 4 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* data len */
@@ -5038,7 +5038,7 @@ dissect_write_raw_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* data offset */
-	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -5062,7 +5062,7 @@ dissect_write_raw_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	WORD_COUNT;
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -5087,15 +5087,15 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* total data length */
-	proto_tree_add_item(tree, hf_smb_total_data_len, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_total_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* offset */
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* timeout */
@@ -5107,7 +5107,7 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset = dissect_write_mode(tvb, tree, offset, 0x0083);
 
 	/* request mask */
-	proto_tree_add_item(tree, hf_smb_request_mask, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_request_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* data len */
@@ -5116,7 +5116,7 @@ dissect_write_mpx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	offset += 2;
 
 	/* data offset */
-	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -5140,7 +5140,7 @@ dissect_write_mpx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	WORD_COUNT;
 
 	/* response mask */
-	proto_tree_add_item(tree, hf_smb_response_mask, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_response_mask, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	BYTE_COUNT;
@@ -5159,7 +5159,7 @@ dissect_sid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int offset,
 	WORD_COUNT;
 
 	/* sid */
-	proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -5191,7 +5191,7 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* reserved byte */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	COUNT_BYTES_SUBR(1);
 
 	/* file name */
@@ -5207,23 +5207,23 @@ dissect_search_resume_key(tvbuff_t *tvb, packet_info *pinfo,
 
 	if (has_find_id) {
 		CHECK_BYTE_COUNT_SUBR(1);
-		proto_tree_add_item(tree, hf_smb_resume_find_id, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_resume_find_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(1);
 
 		/* server cookie */
 		CHECK_BYTE_COUNT_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_resume_server_cookie, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_resume_server_cookie, tvb, offset, 4, ENC_NA);
 		COUNT_BYTES_SUBR(4);
 	} else {
 		/* server cookie */
 		CHECK_BYTE_COUNT_SUBR(5);
-		proto_tree_add_item(tree, hf_smb_resume_server_cookie, tvb, offset, 5, TRUE);
+		proto_tree_add_item(tree, hf_smb_resume_server_cookie, tvb, offset, 5, ENC_NA);
 		COUNT_BYTES_SUBR(5);
 	}
 
 	/* client cookie */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_resume_client_cookie, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_resume_client_cookie, tvb, offset, 4, ENC_NA);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -5271,7 +5271,7 @@ dissect_search_dir_info(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* File Size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
@@ -5308,7 +5308,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 	WORD_COUNT;
 
 	/* max count */
-	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* Search Attributes */
@@ -5318,7 +5318,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* file name */
@@ -5337,7 +5337,7 @@ dissect_search_find_request(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* resume key length */
@@ -5404,12 +5404,12 @@ dissect_search_find_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
 	CHECK_BYTE_COUNT(2);
-	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(2);
 
 	while(count--){
@@ -5449,14 +5449,14 @@ dissect_find_close_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	WORD_COUNT;
 
 	/* reserved */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
@@ -5468,7 +5468,7 @@ dissect_find_close_response(tvbuff_t *tvb, packet_info *pinfo _U_,
 	if (data_len != 0) {
 		CHECK_BYTE_COUNT(data_len);
 		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset,
-		    data_len, TRUE);
+		    data_len, ENC_NA);
 		COUNT_BYTES(data_len);
 	}
 
@@ -5532,7 +5532,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -5567,7 +5567,7 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 	/* oplock level */
 	ol = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_locking_ol, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_locking_ol, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* timeout */
@@ -5626,12 +5626,12 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				/* PID */
 				CHECK_BYTE_COUNT(2);
 				lock_pid=tvb_get_letohs(tvb, offset);
-				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(2);
 
 				/* 2 reserved bytes */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree_2, hf_smb_reserved, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 				COUNT_BYTES(2);
 
 				/* offset */
@@ -5668,17 +5668,17 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(2);
 
 				/* offset */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree_2, hf_smb_offset, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(4);
 
 				/* lock count */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree_2, hf_smb_count, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(4);
 			}
 		}
@@ -5710,12 +5710,12 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 				/* PID */
 				CHECK_BYTE_COUNT(2);
 				lock_pid=tvb_get_letohs(tvb, offset);
-				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(2);
 
 				/* 2 reserved bytes */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree_2, hf_smb_reserved, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 				COUNT_BYTES(2);
 
 				/* offset */
@@ -5752,17 +5752,17 @@ dissect_locking_andx_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
 				/* PID */
 				CHECK_BYTE_COUNT(2);
-				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_pid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(2);
 
 				/* offset */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree_2, hf_smb_offset, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(4);
 
 				/* lock count */
 				CHECK_BYTE_COUNT(4);
-				proto_tree_add_item(ltree_2, hf_smb_count, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ltree_2, hf_smb_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				COUNT_BYTES(4);
 			}
 		}
@@ -5861,7 +5861,7 @@ dissect_locking_andx_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6005,7 +6005,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6032,7 +6032,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset = dissect_open_function(tvb, tree, offset);
 
 	/* allocation size */
-	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* timeout, described at http://us1.samba.org/samba/ftp/SMB-info/DOSEXTP.TXT */
@@ -6041,7 +6041,7 @@ dissect_open_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 4;
 
 	/* 4 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	BYTE_COUNT;
@@ -6162,7 +6162,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6190,7 +6190,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
         if (fid_info) {
                 fid_info->end_of_file=(guint64) tvb_get_letohl(tvb, offset);
         }
-	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* granted access */
@@ -6198,7 +6198,7 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* File Type */
         ftype=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
         /* Copied from dissect_nt_create_andx_response
            Try to remember the type of this fid so that we can dissect
@@ -6231,11 +6231,11 @@ dissect_open_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_open_action(tvb, tree, offset);
 
 	/* server fid */
-	proto_tree_add_item(tree, hf_smb_server_fid, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_server_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -6279,7 +6279,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6294,7 +6294,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 
 	/* offset */
 	offsetlow = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* max count low */
@@ -6303,7 +6303,7 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	offset += 2;
 
 	/* min count */
-	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_min_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/*
@@ -6357,13 +6357,13 @@ dissect_read_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, i
 	maxcnt=(maxcnt<<16)|maxcnt_low;
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	if(wc==12){
 		/* high offset */
 		offsethigh=tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
 
@@ -6454,7 +6454,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6486,15 +6486,15 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	}
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* data compaction mode */
-	proto_tree_add_item(tree, hf_smb_dcm, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_dcm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* data len low */
@@ -6535,7 +6535,7 @@ dissect_read_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 
 	/* 6 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 6, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 6, ENC_NA);
 	offset += 6;
 
 	BYTE_COUNT;
@@ -6646,7 +6646,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6661,11 +6661,11 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 
 	/* offset */
 	offsetlow = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* reserved */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 	offset += 4;
 
 	/* mode */
@@ -6673,7 +6673,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	offset = dissect_write_mode(tvb, tree, offset, 0x000f);
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/*
@@ -6702,7 +6702,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	if(wc==14){
 		/* high offset */
 		offsethigh=tvb_get_letohl(tvb, offset);
-		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_high_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
 
@@ -6748,7 +6748,7 @@ dissect_write_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, 
 	*/
 	if(mode&WRITE_MODE_MESSAGE_START){
 		if(mode&WRITE_MODE_RAW){
-			proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_smb_pipe_write_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			dataoffset += 2;
 			bc -= 2;
@@ -6869,7 +6869,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -6898,7 +6898,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	offset += 2;
 
 	/* remaining */
-	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_remaining, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* XXX we should really only do this in case we have seen LARGE FILE being negotiated */
@@ -6916,7 +6916,7 @@ dissect_write_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				(count == 1) ? "" : "s");
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -7006,7 +7006,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -7015,19 +7015,19 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset += 2;
 
 	/* Maximum Buffer Size */
-	proto_tree_add_item(tree, hf_smb_max_buf_size, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_buf_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* Maximum Multiplex Count */
-	proto_tree_add_item(tree, hf_smb_max_mpx_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_mpx_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* VC Number */
-	proto_tree_add_item(tree, hf_smb_vc_num, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_vc_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* session key */
-	proto_tree_add_item(tree, hf_smb_session_key, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_session_key, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	switch (wc) {
@@ -7039,7 +7039,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		offset += 2;
 
 		/* 4 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		break;
@@ -7051,7 +7051,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		offset += 2;
 
 		/* 4 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		/* capabilities */
@@ -7074,7 +7074,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		offset += 2;
 
 		/* 4 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		offset += 4;
 
 		/* capabilities */
@@ -7102,7 +7102,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 		}
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
 						tvb, offset, sbloblen_short,
-						TRUE);
+						ENC_NA);
 
 		/* As an optimization, because Windows is perverse,
 		   we check to see if NTLMSSP is the first part of the
@@ -7228,7 +7228,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				/* password, ASCII */
 				CHECK_BYTE_COUNT(pwlen);
 				proto_tree_add_item(tree, hf_smb_password,
-					tvb, offset, pwlen, TRUE);
+					tvb, offset, pwlen, ENC_NA);
 				COUNT_BYTES(pwlen);
 			}
 
@@ -7239,7 +7239,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				/* password, ANSI */
 				CHECK_BYTE_COUNT(apwlen);
 				proto_tree_add_item(tree, hf_smb_ansi_password,
-					tvb, offset, apwlen, TRUE);
+					tvb, offset, apwlen, ENC_NA);
 				COUNT_BYTES(apwlen);
 			}
 
@@ -7249,7 +7249,7 @@ dissect_session_setup_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 				/* password, Unicode */
 				CHECK_BYTE_COUNT(upwlen);
 				item = proto_tree_add_item(tree, hf_smb_unicode_password,
-					tvb, offset, upwlen, TRUE);
+					tvb, offset, upwlen, ENC_NA);
 
 				if (upwlen > 24) {
 					proto_tree *subtree;
@@ -7371,7 +7371,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -7403,7 +7403,7 @@ dissect_session_setup_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 			sbloblen=tvb_length_remaining(tvb,offset);
 		}
 		blob_item = proto_tree_add_item(tree, hf_smb_security_blob,
-						tvb, offset, sbloblen, TRUE);
+						tvb, offset, sbloblen, ENC_NA);
 
 		if(sbloblen){
 			tvbuff_t *blob_tvb;
@@ -7493,7 +7493,7 @@ dissect_empty_andx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offs
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -7641,7 +7641,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -7662,7 +7662,7 @@ dissect_tree_connect_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	/* password */
 	CHECK_BYTE_COUNT(pwlen);
 	proto_tree_add_item(tree, hf_smb_password,
-		tvb, offset, pwlen, TRUE);
+		tvb, offset, pwlen, ENC_NA);
 	COUNT_BYTES(pwlen);
 
 	/* Path */
@@ -7743,7 +7743,7 @@ dissect_tree_connect_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	wleft--;
@@ -8468,22 +8468,22 @@ dissect_nt_user_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 		/* 16 unknown bytes */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
 		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 8, TRUE);
+			    offset, 8, ENC_NA);
 		COUNT_BYTES_TRANS_SUBR(8);
 
 		/* number of bytes for used quota */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_user_quota_used, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_user_quota_used, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(8);
 
 		/* number of bytes for quota warning */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(8);
 
 		/* number of bytes for quota limit */
 		CHECK_BYTE_COUNT_TRANS_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(8);
 
 		/* SID of the user */
@@ -8535,7 +8535,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		/* extended attributes */
 		if(ntd->ea_len){
-			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ntd->ea_len, TRUE);
+			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ntd->ea_len, ENC_LITTLE_ENDIAN);
 			offset += ntd->ea_len;
 		}
 
@@ -8575,7 +8575,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	case NT_TRANS_GET_USER_QUOTA:
 		/* unknown 4 bytes */
 		proto_tree_add_item(tree, hf_smb_unknown, tvb,
-			    offset, 4, TRUE);
+			    offset, 4, ENC_NA);
 		offset += 4;
 
 		/* length of SID */
@@ -8592,7 +8592,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 	/* ooops there were data we didnt know how to process */
 	if((offset-old_offset) < bc){
 		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset,
-		    bc - (offset-old_offset), TRUE);
+		    bc - (offset-old_offset), ENC_NA);
 		offset += bc - (offset-old_offset);
 	}
 
@@ -8627,7 +8627,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 4;
 
 		/* root directory fid */
-		proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES(4);
 
 		/* nt access mask */
@@ -8636,7 +8636,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 4;
 
 		/* allocation size */
-		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES(8);
 
 		/* Extended File Attributes */
@@ -8649,7 +8649,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		bc -= 4;
 
 		/* create disposition */
-		proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES(4);
 
 		/* create options */
@@ -8673,7 +8673,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		COUNT_BYTES(4);
 
 		/* impersonation level */
-		proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES(4);
 
 		/* security flags */
@@ -8708,7 +8708,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		}
 
 		/* 2 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 
 		/* security information */
@@ -8737,7 +8737,7 @@ dissect_nt_trans_param_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		}
 
 		/* 2 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 
 		/* security information */
@@ -8796,7 +8796,7 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset += 2;
 
 		/* isfsctl */
-		proto_tree_add_item(tree, hf_smb_nt_ioctl_isfsctl, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_nt_ioctl_isfsctl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* isflags */
@@ -8819,11 +8819,11 @@ dissect_nt_trans_setup_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pr
 		offset += 2;
 
 		/* watch tree */
-		proto_tree_add_item(tree, hf_smb_nt_notify_watch_tree, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_nt_notify_watch_tree, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* reserved byte */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		break;
@@ -8872,36 +8872,36 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	if(wc>=19){
 		/* primary request */
 		/* max setup count */
-		proto_tree_add_item(tree, hf_smb_max_setup_count, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_max_setup_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* 2 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 	} else {
 		/* secondary request */
 		/* 3 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, ENC_NA);
 		offset += 3;
 	}
 
 
 	/* total param count */
-	proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_total_param_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* total data count */
-	proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_total_data_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	if(wc>=19){
 		/* primary request */
 		/* max param count */
-		proto_tree_add_item(tree, hf_smb_max_param_count, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_max_param_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* max data count */
-		proto_tree_add_item(tree, hf_smb_max_data_count, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_max_data_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	}
 
@@ -8991,7 +8991,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	/* this is a padding byte */
 	if(offset%1){
 		/* pad byte */
-	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, TRUE);
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 1, ENC_NA);
 		offset += 1;
 	}
 
@@ -9011,7 +9011,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		if (padcnt > bc)
 			padcnt = bc;
 		CHECK_BYTE_COUNT(padcnt);
-	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
 	if(pc){
@@ -9027,7 +9027,7 @@ dissect_nt_transaction_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		padcnt = od-offset;
 		if (padcnt > bc)
 			padcnt = bc;
-	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+	        proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
 	if(dc){
@@ -9176,11 +9176,11 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 	switch(nti->subcmd){
 	case NT_TRANS_CREATE:
 		/* oplock level */
-	        proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, TRUE);
+	        proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* reserved byte */
-	        proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	        proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* fid */
@@ -9189,11 +9189,11 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset += 2;
 
 		/* create action */
-		proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* ea error offset */
-		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_ea_error_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* create time */
@@ -9216,16 +9216,16 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		offset = dissect_file_ext_attr(tvb, tree, offset);
 
 		/* allocation size */
-		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		/* end of file */
-		proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		offset += 8;
 
 		/* File Type */
 		ftype=tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* device state */
@@ -9233,7 +9233,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* is directory */
 		isdir=tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* Try to remember the type of this fid so that we can dissect
@@ -9273,7 +9273,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 			if(len<0)break;
 
 			/* action */
-			proto_tree_add_item(tree, hf_smb_nt_notify_action, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tree, hf_smb_nt_notify_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES(4);
 			len -= 4;
 			/* broken implementations */
@@ -9330,7 +9330,7 @@ dissect_nt_trans_param_response(tvbuff_t *tvb, packet_info *pinfo,
 		 * was smaller; this lets the client know how
 		 * big a buffer it needs to provide.
 		 */
-		proto_tree_add_item(tree, hf_smb_sec_desc_len, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_sec_desc_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		break;
 	case NT_TRANS_GET_USER_QUOTA:
@@ -9449,7 +9449,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	WORD_COUNT;
 
 	/* 3 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, ENC_NA);
 	offset += 3;
 
 	/* total param count */
@@ -9561,7 +9561,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	    if (padcnt > bc)
 	      padcnt = bc;
 	    CHECK_BYTE_COUNT(padcnt);
-	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 	    COUNT_BYTES(padcnt);
 	  }
 	  if(pc){
@@ -9577,7 +9577,7 @@ dissect_nt_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	    padcnt = od-offset;
 	    if (padcnt > bc)
 	      padcnt = bc;
-	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+	    proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 	    COUNT_BYTES(padcnt);
 	  }
 	  if(dc){
@@ -9617,18 +9617,18 @@ dissect_open_print_file_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	WORD_COUNT;
 
 	/* setup len */
-        proto_tree_add_item(tree, hf_smb_setup_len, tvb, offset, 2, TRUE);
+        proto_tree_add_item(tree, hf_smb_setup_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* print mode */
-        proto_tree_add_item(tree, hf_smb_print_mode, tvb, offset, 2, TRUE);
+        proto_tree_add_item(tree, hf_smb_print_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* print identifier */
@@ -9663,7 +9663,7 @@ dissect_write_print_file_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
@@ -9700,11 +9700,11 @@ dissect_get_print_queue_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	WORD_COUNT;
 
 	/* max count */
-	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* start index */
-	proto_tree_add_item(tree, hf_smb_start_index, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_start_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -9741,22 +9741,22 @@ dissect_print_queue_element(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* status */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_print_status, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_print_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* spool file number */
 	CHECK_BYTE_COUNT_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_print_spool_file_number, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_print_spool_file_number, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(2);
 
 	/* spool file size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_print_spool_file_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_print_spool_file_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* reserved byte */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	COUNT_BYTES_SUBR(1);
 
 	/* file name */
@@ -9787,14 +9787,14 @@ dissect_get_print_queue_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset += 2;
 
 	/* restart index */
-	proto_tree_add_item(tree, hf_smb_restart_index, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_restart_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* data len */
@@ -9831,7 +9831,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* originator name */
@@ -9839,12 +9839,12 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
-	    name_len, TRUE);
+	    name_len, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* destination name */
@@ -9852,12 +9852,12 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
-	    name_len, TRUE);
+	    name_len, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* message len */
@@ -9870,7 +9870,7 @@ dissect_send_single_block_message_request(tvbuff_t *tvb, packet_info *pinfo _U_,
 	/* message */
 	CHECK_BYTE_COUNT(message_len);
 	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
-	    TRUE);
+	    ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(message_len);
 
 	END_OF_SMB
@@ -9891,7 +9891,7 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* originator name */
@@ -9899,12 +9899,12 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_originator_name, tvb, offset,
-	    name_len, TRUE);
+	    name_len, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(name_len);
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* destination name */
@@ -9912,7 +9912,7 @@ dissect_send_multi_block_message_start_request(tvbuff_t *tvb, packet_info *pinfo
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_destination_name, tvb, offset,
-	    name_len, TRUE);
+	    name_len, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -9929,7 +9929,7 @@ dissect_message_group_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	WORD_COUNT;
 
 	/* message group ID */
-	proto_tree_add_item(tree, hf_smb_mgid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_mgid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -9952,7 +9952,7 @@ dissect_send_multi_block_message_text_request(tvbuff_t *tvb, packet_info *pinfo 
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* message len */
@@ -9965,7 +9965,7 @@ dissect_send_multi_block_message_text_request(tvbuff_t *tvb, packet_info *pinfo 
 	/* message */
 	CHECK_BYTE_COUNT(message_len);
 	proto_tree_add_item(tree, hf_smb_message, tvb, offset, message_len,
-	    TRUE);
+	    ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(message_len);
 
 	END_OF_SMB
@@ -9986,7 +9986,7 @@ dissect_forwarded_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* forwarded name */
@@ -9994,7 +9994,7 @@ dissect_forwarded_name(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_forwarded_name, tvb, offset,
-	    name_len, TRUE);
+	    name_len, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -10015,7 +10015,7 @@ dissect_get_machine_name_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
 	/* buffer format */
 	CHECK_BYTE_COUNT(1);
-	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_buffer_format, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(1);
 
 	/* machine name */
@@ -10023,7 +10023,7 @@ dissect_get_machine_name_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 	name_len = tvb_strsize(tvb, offset);
 	CHECK_BYTE_COUNT(name_len);
 	proto_tree_add_item(tree, hf_smb_machine_name, tvb, offset,
-	    name_len, TRUE);
+	    name_len, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES(name_len);
 
 	END_OF_SMB
@@ -10057,7 +10057,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -10066,7 +10066,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset += 2;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* file name len */
@@ -10079,7 +10079,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_nt_create_bits(tvb, tree, offset, 4, create_flags);
 
 	/* root directory fid */
-	proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_root_dir_fid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* nt access mask */
@@ -10087,7 +10087,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_smb_access_mask_bits(tvb, tree, offset, 4, access_mask);
 
 	/* allocation size */
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* Extended File Attributes */
@@ -10100,7 +10100,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* create disposition */
 	create_disposition=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_nt_create_disposition, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* create options */
@@ -10108,7 +10108,7 @@ dissect_nt_create_andx_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 	offset = dissect_nt_create_options_bits(tvb, tree, offset, 4, create_options);
 
 	/* impersonation level */
-	proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_nt_impersonation_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* security flags */
@@ -10186,7 +10186,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 	/* andxoffset */
@@ -10195,7 +10195,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset += 2;
 
 	/* oplock level */
-	proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_oplock_level, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* fid */
@@ -10206,7 +10206,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	/* create action */
 	/*XXX is this really the same as create disposition in the request? it looks so*/
 	/* No, it is not. It is the same as the create action from an Open&X request ... RJS */
-	proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_create_action, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* create time */
@@ -10226,7 +10226,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	offset = dissect_file_ext_attr(tvb, tree, offset);
 
 	/* allocation size */
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* end of file */
@@ -10234,12 +10234,12 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
         if (fid_info) {
                 fid_info->end_of_file=tvb_get_letoh64(tvb, offset);
         }
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	offset += 8;
 
 	/* File Type */
 	ftype=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* IPC State */
@@ -10247,7 +10247,7 @@ dissect_nt_create_andx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
 	/* is directory */
 	isdir=tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* Try to remember the type of this fid so that we can dissect
@@ -10741,7 +10741,7 @@ dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* referral level */
 	CHECK_BYTE_COUNT_TRANS(2);
-	proto_tree_add_item(tree, hf_smb_max_referral_level, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_referral_level, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS(2);
 
 	/* file name */
@@ -10825,12 +10825,12 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* allocation size */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(4);
 
 		/* 10 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(10);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 10, ENC_NA);
 		COUNT_BYTES_TRANS(10);
 
 		/* file name */
@@ -10853,7 +10853,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* search count */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* Find First2 flags */
@@ -10871,7 +10871,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* storage type */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_storage_type, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_storage_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(4);
 
 		/* search pattern */
@@ -10893,12 +10893,12 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	case 0x0002:	/*TRANS2_FIND_NEXT2*/
 		/* sid */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* search count */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_search_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* Find First2 information level */
@@ -10911,7 +10911,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* resume key */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(4);
 
 		/* Find First2 flags */
@@ -10965,7 +10965,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
@@ -10999,7 +10999,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
@@ -11080,7 +11080,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 #else
 		/* 2 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		COUNT_BYTES_TRANS(2);
 #endif
 
@@ -11116,7 +11116,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* Number of changes to wait for */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_change_count, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_change_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* Find Notify information level */
@@ -11129,7 +11129,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		COUNT_BYTES_TRANS(4);
 
 		/* file name */
@@ -11148,19 +11148,19 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 	case 0x000c:	/*TRANS2_FIND_NOTIFY_NEXT*/
 		/* Monitor handle */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		/* Number of changes to wait for */
 		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_change_count, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_change_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS(2);
 
 		break;
 	case 0x000d:	/*TRANS2_CREATE_DIRECTORY*/
 		/* 4 reserved bytes */
 		CHECK_BYTE_COUNT_TRANS(4);
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 4, ENC_NA);
 		COUNT_BYTES_TRANS(4);
 
 		/* dir name */
@@ -11200,7 +11200,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* ooops there were data we didnt know how to process */
 	if(bc != 0){
-		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, bc, TRUE);
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, bc, ENC_NA);
 		offset += bc;
 	}
 
@@ -11299,17 +11299,17 @@ dissect_dfs_inconsistency_data(tvbuff_t *tvb, packet_info *pinfo,
 	/*XXX shouldn this data hold version and size? unclear from doc*/
 	/* referral version */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_dfs_referral_version, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(2);
 
 	/* referral size */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_dfs_referral_size, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(2);
 
 	/* referral server type */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_dfs_referral_server_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_server_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(2);
 
 	/* referral flags */
@@ -11377,12 +11377,12 @@ dissect_dfs_referral_entry_v2(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 	/* proximity */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_dfs_referral_proximity, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_proximity, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* ttl */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_dfs_referral_ttl, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_ttl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* path offset */
@@ -11442,7 +11442,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 	/* ttl */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_dfs_referral_ttl, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_referral_ttl, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	if (refflags & REFENT_FLAGS_NAME_LIST_REFERRAL) {
@@ -11507,7 +11507,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 		/* service site guid */
 		CHECK_BYTE_COUNT_TRANS_SUBR(16);
-		proto_tree_add_item(tree, hf_smb_dfs_referral_server_guid, tvb, offset, 16, TRUE);
+		proto_tree_add_item(tree, hf_smb_dfs_referral_server_guid, tvb, offset, 16, ENC_NA);
 		COUNT_BYTES_TRANS_SUBR(16);
 
 		/* path */
@@ -11556,7 +11556,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* path consumed */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_dfs_path_consumed, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_dfs_path_consumed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(2);
 
 	/* num referrals */
@@ -11574,7 +11574,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 	   of stuff after the Dfs flags, perhaps so that the header
 	   in front of the referral list is a multiple of 4 bytes long. */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_padding, tvb, offset, 2, ENC_NA);
 	COUNT_BYTES_TRANS_SUBR(2);
 
 	/* if there are any referrals */
@@ -11621,7 +11621,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 
 			/* referral server type */
 			CHECK_BYTE_COUNT_TRANS_SUBR(2);
-			proto_tree_add_item(rt, hf_smb_dfs_referral_server_type, tvb, offset, 2, TRUE);
+			proto_tree_add_item(rt, hf_smb_dfs_referral_server_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES_TRANS_SUBR(2);
 
 			/* referral flags */
@@ -11671,7 +11671,7 @@ dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
 			if (unklen != 0) {
 				CHECK_BYTE_COUNT_TRANS_SUBR(unklen);
 				proto_tree_add_item(rt, hf_smb_unknown, tvb,
-				    offset, unklen, TRUE);
+				    offset, unklen, ENC_NA);
 				COUNT_BYTES_TRANS_SUBR(unklen);
 			}
 
@@ -11763,12 +11763,12 @@ dissect_qsfi_SMB_INFO_STANDARD(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	/* data size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* File Attributes */
@@ -11802,7 +11802,7 @@ dissect_qsfi_SMB_INFO_STANDARD(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	if (*bcp != 0) {
 		CHECK_BYTE_COUNT_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset,
-		    4, TRUE);
+		    4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(4);
 	}
 
@@ -11841,12 +11841,12 @@ dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 	/* data size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* File Attributes */
@@ -11856,7 +11856,7 @@ dissect_qfi_SMB_INFO_QUERY_EA_SIZE(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -11875,7 +11875,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/* EA size */
 
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	while (*bcp > 0) {
@@ -11892,7 +11892,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		CHECK_BYTE_COUNT_SUBR(1);
 		proto_tree_add_item(
-			subtree, hf_smb_ea_flags, tvb, offset, 1, TRUE);
+			subtree, hf_smb_ea_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(1);
 
 		/* EA name length */
@@ -11901,7 +11901,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		CHECK_BYTE_COUNT_SUBR(1);
 		proto_tree_add_item(
-			subtree, hf_smb_ea_name_length, tvb, offset, 1, TRUE);
+			subtree, hf_smb_ea_name_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(1);
 
 		/* EA data length */
@@ -11910,7 +11910,7 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		CHECK_BYTE_COUNT_SUBR(2);
 		proto_tree_add_item(
-			subtree, hf_smb_ea_data_length, tvb, offset, 2, TRUE);
+			subtree, hf_smb_ea_data_length, tvb, offset, 2, ENC_NA);
 		COUNT_BYTES_SUBR(2);
 
 		/* EA name */
@@ -11921,14 +11921,14 @@ dissect_4_2_16_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		CHECK_BYTE_COUNT_SUBR(name_len + 1);
 		proto_tree_add_item(
 			subtree, hf_smb_ea_name, tvb, offset, name_len + 1,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(name_len + 1);
 
 		/* EA data */
 
 		CHECK_BYTE_COUNT_SUBR(data_len);
 		proto_tree_add_item(
-			subtree, hf_smb_ea_data, tvb, offset, data_len, TRUE);
+			subtree, hf_smb_ea_data, tvb, offset, data_len, ENC_NA);
 		COUNT_BYTES_SUBR(data_len);
 
 		proto_item_set_len(item, offset - start_offset);
@@ -11994,27 +11994,27 @@ dissect_qfi_SMB_FILE_STANDARD_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* number of links */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_number_of_links, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_number_of_links, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* delete pending */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* is directory */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	*trunc = FALSE;
@@ -12029,7 +12029,7 @@ dissect_qfi_SMB_FILE_INTERNAL_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 {
 	/* file id */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	*trunc = FALSE;
@@ -12044,7 +12044,7 @@ dissect_qsfi_SMB_FILE_POSITION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
 	/* file position */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_position, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_position, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	*trunc = FALSE;
@@ -12059,7 +12059,7 @@ dissect_qsfi_SMB_FILE_MODE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 {
 	/* mode */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_mode, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -12074,7 +12074,7 @@ dissect_qfi_SMB_FILE_ALIGNMENT_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 {
 	/* alignment */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_alignment, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -12091,7 +12091,7 @@ dissect_qfi_SMB_FILE_EA_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -12110,7 +12110,7 @@ dissect_qsfi_SMB_FILE_ALLOCATION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 {
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	*trunc = FALSE;
@@ -12129,7 +12129,7 @@ dissect_qsfi_SMB_FILE_ENDOFFILE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 {
 	/* offset of end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	*trunc = FALSE;
@@ -12157,7 +12157,7 @@ dissect_qfi_SMB_FILE_NAME_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* file name len */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_name_len, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
@@ -12203,27 +12203,27 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* number of links */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_number_of_links, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_number_of_links, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* delete pending */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_delete_pending, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* is directory */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_is_directory, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* 2 pad bytes */
@@ -12232,7 +12232,7 @@ dissect_qfi_SMB_FILE_ALL_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name len */
@@ -12301,12 +12301,12 @@ dissect_qfi_SMB_FILE_STREAM_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
 		/* stream size */
 		CHECK_BYTE_COUNT_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_t2_stream_size, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_t2_stream_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(8);
 
 		/* allocation size */
 		CHECK_BYTE_COUNT_SUBR(8);
-		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+		proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(8);
 
 		/* stream name */
@@ -12350,32 +12350,32 @@ dissect_qfi_SMB_FILE_COMPRESSION_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 {
 	/* compressed file size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_t2_compressed_file_size, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_file_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* compression format */
 	CHECK_BYTE_COUNT_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_t2_compressed_format, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_format, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(2);
 
 	/* compression unit shift */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_t2_compressed_unit_shift,tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_unit_shift,tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* compression chunk shift */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_t2_compressed_chunk_shift, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_chunk_shift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* compression cluster shift */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_t2_compressed_cluster_shift, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_compressed_cluster_shift, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	/* 3 reserved bytes */
 	CHECK_BYTE_COUNT_SUBR(3);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 3, ENC_NA);
 	COUNT_BYTES_SUBR(3);
 
 	*trunc = FALSE;
@@ -12401,12 +12401,12 @@ dissect_4_2_16_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	/* End of file (file size) */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Number of bytes */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Last status change */
@@ -12426,42 +12426,42 @@ dissect_4_2_16_12(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* File owner uid */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* File group gid */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* File type */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* Major device number */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Minor device number */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Unique id */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Permissions */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Nlinks */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Sometimes there is one extra byte in the data field which I
@@ -12514,18 +12514,18 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* version */
 	CHECK_BYTE_COUNT_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_posix_acl_version, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_posix_acl_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(2);
 
 	/* num file acls */
 	CHECK_BYTE_COUNT_SUBR(2);
 	num_file_aces = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_smb_posix_num_file_aces, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_posix_num_file_aces, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(2);
 
 	/* num default acls */
 	CHECK_BYTE_COUNT_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_posix_num_def_aces, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_posix_num_def_aces, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(2);
 
 	while(num_file_aces--){
@@ -12540,7 +12540,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		/* ace type */
 		CHECK_BYTE_COUNT_SUBR(1);
 		ace_type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tr, hf_smb_posix_ace_type, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tr, hf_smb_posix_ace_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(1);
 
 		CHECK_BYTE_COUNT_SUBR(1);
@@ -12550,7 +12550,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		switch(ace_type){
 		case POSIX_ACE_TYPE_USER_OBJ:
 			CHECK_BYTE_COUNT_SUBR(4);
-			proto_tree_add_item(tr, hf_smb_posix_ace_perm_owner_uid, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_owner_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES_SUBR(4);
 
 			CHECK_BYTE_COUNT_SUBR(4);
@@ -12559,7 +12559,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			break;
 		case POSIX_ACE_TYPE_GROUP_OBJ:
 			CHECK_BYTE_COUNT_SUBR(4);
-			proto_tree_add_item(tr, hf_smb_posix_ace_perm_owner_gid, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_owner_gid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES_SUBR(4);
 
 			CHECK_BYTE_COUNT_SUBR(4);
@@ -12576,7 +12576,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		case POSIX_ACE_TYPE_USER:
 			CHECK_BYTE_COUNT_SUBR(4);
-			proto_tree_add_item(tr, hf_smb_posix_ace_perm_uid, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES_SUBR(4);
 
 			CHECK_BYTE_COUNT_SUBR(4);
@@ -12586,7 +12586,7 @@ dissect_qspi_unix_acl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 		case POSIX_ACE_TYPE_GROUP:
 			CHECK_BYTE_COUNT_SUBR(4);
-			proto_tree_add_item(tr, hf_smb_posix_ace_perm_gid, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tr, hf_smb_posix_ace_perm_gid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			COUNT_BYTES_SUBR(4);
 
 			CHECK_BYTE_COUNT_SUBR(4);
@@ -12744,13 +12744,13 @@ dissect_qspi_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	/* End of file (file size) */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_size, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Number of bytes (or blocks?  The SNIA spec for UNIX basic
 	   info says "bytes", the Samba page for this says "blocks") */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_num_bytes, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Last status change */
@@ -12770,42 +12770,42 @@ dissect_qspi_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* File owner uid */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_uid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* File group gid */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_gid, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* File type */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* Major device number */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_dev_major, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Minor device number */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_dev_minor, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Unique id */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_unique_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Permissions */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_permissions, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Nlinks */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_file_nlinks, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Creation time */
@@ -12842,12 +12842,12 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* File Attributes */
@@ -12857,7 +12857,7 @@ dissect_qfi_SMB_FILE_NETWORK_OPEN_INFO(tvbuff_t *tvb,
 
         /* Unknown, possibly count of network accessors ... */
         CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_network_unknown, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_network_unknown, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -12873,12 +12873,12 @@ dissect_qfi_SMB_FILE_ATTRIBUTE_TAG_INFO(tvbuff_t *tvb,
 {
 	/* attribute */
         CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_attribute, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_attribute, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         COUNT_BYTES_SUBR(4);
 
 	/* reparse tag */
         CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_reparse_tag, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_reparse_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         COUNT_BYTES_SUBR(4);
 
 	*trunc = FALSE;
@@ -12894,7 +12894,7 @@ dissect_4_2_19_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 {
 	/* marked for deletion? */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_t2_marked_for_deletion, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_t2_marked_for_deletion, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	*trunc = FALSE;
@@ -12921,12 +12921,12 @@ dissect_rename_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 
 	/* Replace flag */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_replace, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_replace, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* Root directory handle */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_root_dir_handle, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_root_dir_handle, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* Target name length */
@@ -12962,7 +12962,7 @@ dissect_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 
 	/* Disposition flags */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_disposition_delete_on_close, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_disposition_delete_on_close, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	*trunc = FALSE;
@@ -12979,7 +12979,7 @@ dissect_sfi_SMB_FILE_PIPE_INFO(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	/* pipe info flag */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_pipe_info_flag, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_pipe_info_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(1);
 
 	*trunc = FALSE;
@@ -13340,17 +13340,17 @@ dissect_nt_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 	/* first 24 bytes are unknown */
 	CHECK_BYTE_COUNT_TRANS_SUBR(24);
 	proto_tree_add_item(tree, hf_smb_unknown, tvb,
-		    offset, 24, TRUE);
+		    offset, 24, ENC_NA);
 	COUNT_BYTES_TRANS_SUBR(24);
 
 	/* number of bytes for quota warning */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_soft_quota_limit, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* number of bytes for quota limit */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_hard_quota_limit, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* one byte of quota flags */
@@ -13361,7 +13361,7 @@ dissect_nt_quota(tvbuff_t *tvb, proto_tree *tree, int offset, guint16 *bcp)
 	/* these 7 bytes are unknown */
 	CHECK_BYTE_COUNT_TRANS_SUBR(7);
 	proto_tree_add_item(tree, hf_smb_unknown, tvb,
-		    offset, 7, TRUE);
+		    offset, 7, ENC_NA);
 	COUNT_BYTES_TRANS_SUBR(7);
 
 	return offset;
@@ -13493,7 +13493,7 @@ dissect_transaction2_request_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* ooops there were data we didnt know how to process */
 	if(dc != 0){
-		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, TRUE);
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
 		offset += dc;
 	}
 
@@ -13658,7 +13658,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 1;
 
 		/* reserved byte */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* transaction flags */
@@ -13671,7 +13671,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 4;
 
 		/* 2 reserved bytes */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 
 		/* param count */
@@ -13703,7 +13703,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += 1;
 
 		/* reserved byte */
-		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* this is where the setup bytes, if any start */
@@ -13795,7 +13795,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (padcnt > bc)
 			padcnt = bc;
 		tvb_ensure_bytes_exist(tvb, offset, padcnt);
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
 	if(pc){
@@ -13824,7 +13824,7 @@ dissect_transaction_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (padcnt > bc)
 			padcnt = bc;
 		tvb_ensure_bytes_exist(tvb, offset, padcnt);
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
 	if(dc){
@@ -14006,7 +14006,7 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (resume_keys) {
 		/* resume key */
 		CHECK_BYTE_COUNT_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(4);
 	}
 
@@ -14033,12 +14033,12 @@ dissect_4_3_4_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* data size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* File Attributes */
@@ -14107,7 +14107,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	if (resume_keys) {
 		/* resume key */
 		CHECK_BYTE_COUNT_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_resume, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_SUBR(4);
 	}
 
@@ -14134,12 +14134,12 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* data size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* File Attributes */
@@ -14149,7 +14149,7 @@ dissect_4_3_4_2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name len */
@@ -14217,7 +14217,7 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* file index */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	offset = dissect_smb_standard_8byte_timestamps(tvb, pinfo, tree, offset, bcp, trunc);
@@ -14227,12 +14227,12 @@ dissect_4_3_4_4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Extended File Attributes */
@@ -14316,7 +14316,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* file index */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* standard 8-byte timestamps */
@@ -14327,12 +14327,12 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Extended File Attributes */
@@ -14348,7 +14348,7 @@ dissect_4_3_4_5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* ea length */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name */
@@ -14422,7 +14422,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* file index */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
         /* dissect standard 8-byte timestamps */
@@ -14433,12 +14433,12 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Extended File Attributes */
@@ -14461,7 +14461,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * the EAs?
 	 */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* short file name len */
@@ -14472,7 +14472,7 @@ dissect_4_3_4_6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* reserved byte */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	COUNT_BYTES_SUBR(1);
 
 	/* short file name - it's not always in Unicode */
@@ -14553,7 +14553,7 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* file index */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
         /* dissect standard 8-byte timestamps */
@@ -14564,12 +14564,12 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Extended File Attributes */
@@ -14592,14 +14592,14 @@ dissect_4_3_4_6full(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	 * the EAs?
 	 */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* skip 4 bytes */
 	COUNT_BYTES_SUBR(4);
 
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* file name */
@@ -14673,7 +14673,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* file index */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
         /* dissect standard 8-byte timestamps */
@@ -14684,12 +14684,12 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* end of file */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_end_of_file, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* allocation size */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* Extended File Attributes */
@@ -14712,7 +14712,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	 * the EAs?
 	 */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* short file name len */
@@ -14723,7 +14723,7 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* reserved byte */
 	CHECK_BYTE_COUNT_SUBR(1);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	COUNT_BYTES_SUBR(1);
 
 	/* short file name - it's not always in Unicode */
@@ -14735,12 +14735,12 @@ dissect_4_3_4_6_id_both(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* reserved bytes */
 	CHECK_BYTE_COUNT_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	COUNT_BYTES_SUBR(2);
 
 	/* file id */
 	CHECK_BYTE_COUNT_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_index_number, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(8);
 
 	/* file name */
@@ -14813,7 +14813,7 @@ dissect_4_3_4_7(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 
 	/* file index */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_file_index, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* file name len */
@@ -14872,12 +14872,12 @@ dissect_4_3_4_8(tvbuff_t *tvb _U_, packet_info *pinfo _U_,
 
 	/* NextEntryOffset */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_find_file_nextoffset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_find_file_nextoffset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* ResumeKey */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* Unix basic info */
@@ -14921,12 +14921,12 @@ dissect_find_file_unix_info2(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 	/* NextEntryOffset */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_find_file_nextoffset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_find_file_nextoffset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* ResumeKey */
 	CHECK_BYTE_COUNT_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_unix_find_file_resumekey, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_SUBR(4);
 
 	/* Unix Info2 */
@@ -15178,7 +15178,7 @@ dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree 
 
 	/* volume serial number */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* volume label length */
@@ -15189,7 +15189,7 @@ dissect_qfsi_FS_VOLUME_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree 
 
 	/* 2 reserved bytes */
 	CHECK_BYTE_COUNT_TRANS_SUBR(2);
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	COUNT_BYTES_TRANS_SUBR(2);
 
 	/* label */
@@ -15208,22 +15208,22 @@ dissect_qfsi_FS_SIZE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * 
 {
 	/* allocation size */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* free allocation units */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_free_alloc_units64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_free_alloc_units64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* sectors per unit */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* bytes per sector */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	return offset;
@@ -15234,7 +15234,7 @@ dissect_qfsi_FS_DEVICE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree 
 {
 	/* device type */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_device_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* device characteristics */
@@ -15258,7 +15258,7 @@ dissect_qfsi_FS_ATTRIBUTE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tr
 
 	/* max name len */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_max_name_len, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_max_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* fs name length */
@@ -15295,27 +15295,27 @@ dissect_qfsi_FS_FULL_SIZE_INFO(tvbuff_t * tvb, packet_info * pinfo _U_, proto_tr
 {
 	/* allocation size */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_alloc_size64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* caller free allocation units */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_caller_free_alloc_units64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_caller_free_alloc_units64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* actual free allocation units */
 	CHECK_BYTE_COUNT_TRANS_SUBR(8);
-	proto_tree_add_item(tree, hf_smb_actual_free_alloc_units64, tvb, offset, 8, TRUE);
+	proto_tree_add_item(tree, hf_smb_actual_free_alloc_units64, tvb, offset, 8, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(8);
 
 	/* sectors per unit */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	/* bytes per sector */
 	CHECK_BYTE_COUNT_TRANS_SUBR(4);
-	proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_smb_fs_sector, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	COUNT_BYTES_TRANS_SUBR(4);
 
 	return offset;
@@ -15343,22 +15343,22 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 1:		/* SMB_INFO_ALLOCATION */
 		/* filesystem id */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_fs_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_fs_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* sectors per unit */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_sector_unit, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* units */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_fs_units, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_fs_units, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* avail units */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_avail_units, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_avail_units, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* bytes per sector, only 16bit integer here */
@@ -15370,7 +15370,7 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 	case 2:		/* SMB_INFO_VOLUME */
 		/* volume serial number */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
-		proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_volume_serial_num, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 
 		/* volume label length, only one byte here */
@@ -15426,12 +15426,12 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 
 		/* MajorVersionNumber */
 		CHECK_BYTE_COUNT_TRANS_SUBR(2);
-		proto_tree_add_item(tree, hf_smb_unix_major_version, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_unix_major_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(2);
 
 		/* MinorVersionNumber */
 		CHECK_BYTE_COUNT_TRANS_SUBR(2);
-		proto_tree_add_item(tree, hf_smb_unix_minor_version, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_unix_minor_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(2);
 
 		/* Capability */
@@ -15478,17 +15478,17 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_alloc_block_count, tvb,
 				    offset,
-				    4, TRUE);
+				    4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Allocation Block Size */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_alloc_block_size, tvb,
-				    offset, 4, TRUE);
+				    offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Free Block Count */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_free_block_count, tvb,
-				    offset, 4, TRUE);
+				    offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Finder Info ... */
 		CHECK_BYTE_COUNT_TRANS_SUBR(32);
@@ -15500,22 +15500,22 @@ dissect_qfsi_vals(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
 		/* Number Files */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_root_file_count, tvb,
-				    offset, 4, TRUE);
+				    offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Number of Root Directories */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_root_dir_count, tvb,
-				    offset, 4, TRUE);
+				    offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Number of files */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_file_count, tvb,
-				    offset, 4, TRUE);
+				    offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Dir Count */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
 		proto_tree_add_item(tree, hf_smb_mac_dir_count, tvb,
-				    offset, 4, TRUE);
+				    offset, 4, ENC_LITTLE_ENDIAN);
 		COUNT_BYTES_TRANS_SUBR(4);
 		/* Mac Support Flags */
 		CHECK_BYTE_COUNT_TRANS_SUBR(4);
@@ -15719,7 +15719,7 @@ dissect_transaction2_response_data(tvbuff_t *tvb, packet_info *pinfo,
 
 	/* ooops there were data we didnt know how to process */
 	if(dc != 0){
-		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, TRUE);
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, dc, ENC_NA);
 		offset += dc;
 	}
 
@@ -15796,14 +15796,14 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 			hf_smb_create_dos_date, hf_smb_create_dos_time, TRUE);
 
 		/* data size */
-		proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* granted access */
 		offset = dissect_access(tvb, tree, offset, "Granted");
 
 		/* File Type */
-		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_file_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* IPC State */
@@ -15813,7 +15813,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset = dissect_open_action(tvb, tree, offset);
 
 		/* server unique file ID */
-		proto_tree_add_item(tree, hf_smb_file_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_file_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* ea error offset, only a 16 bit integer here */
@@ -15821,7 +15821,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* ea length */
-		proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_smb_ea_list_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		break;
@@ -15830,7 +15830,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_uint(tree, hf_smb_ff2_information_level, tvb, 0, 0, si->info_level);
 
 		/* sid */
-		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_search_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* search count */
@@ -15839,7 +15839,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* end of search */
-		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* ea error offset, only a 16 bit integer here */
@@ -15859,7 +15859,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		offset += 2;
 
 		/* end of search */
-		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_end_of_search, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* ea_error_offset, only a 16 bit integer here*/
@@ -15928,7 +15928,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 		proto_tree_add_uint(tree, hf_smb_fn_information_level, tvb, 0, 0, si->info_level);
 
 		/* Monitor handle */
-		proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Change count */
@@ -15981,7 +15981,7 @@ dissect_transaction2_response_parameters(tvbuff_t *tvb, packet_info *pinfo, prot
 
 	/* ooops there were data we didnt know how to process */
 	if(offset<pc){
-		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-offset, TRUE);
+		proto_tree_add_item(tree, hf_smb_unknown, tvb, offset, pc-offset, ENC_NA);
 		offset += pc-offset;
 	}
 	return offset;
@@ -16103,7 +16103,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 2;
 
 	/* 2 reserved bytes */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* param count */
@@ -16142,7 +16142,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 	offset += 1;
 
 	/* reserved byte */
-	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 	offset += 1;
 
 
@@ -16249,7 +16249,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		padcnt = po-offset;
 		if (padcnt > bc)
 			padcnt = bc;
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
 	if(si->cmd==SMB_COM_TRANSACTION2 && p_tvb){
@@ -16266,7 +16266,7 @@ dissect_transaction_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 		padcnt = od-offset;
 		if (padcnt > bc)
 			padcnt = bc;
-		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, TRUE);
+		proto_tree_add_item(tree, hf_smb_padding, tvb, offset, padcnt, ENC_NA);
 		COUNT_BYTES(padcnt);
 	}
 	/*
@@ -16357,7 +16357,7 @@ dissect_find_notify_close(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	WORD_COUNT;
 
 	/* Monitor handle */
-	proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_smb_monitor_handle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	BYTE_COUNT;
@@ -17678,7 +17678,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		si->nt_status = tvb_get_letohl(tvb, offset);
 
 		proto_tree_add_item(htree, hf_smb_nt_status, tvb, offset, 4,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 	} else {
@@ -17689,7 +17689,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset += 1;
 
 		/* reserved byte */
-		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 1, TRUE);
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 1, ENC_NA);
 		offset += 1;
 
 		/* error code */
@@ -17735,7 +17735,7 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 * Create and X, although most of them appear to be I/O on DCE RPC
 	 * pipes opened with the NT Create and X in question.
 	 */
-	proto_tree_add_item(htree, hf_smb_pid_high, tvb, offset, 2, TRUE);
+	proto_tree_add_item(htree, hf_smb_pid_high, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	if (pinfo->ptype == PT_IPX &&
@@ -17754,22 +17754,22 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 */
 		/* Key */
 		proto_tree_add_item(htree, hf_smb_key, tvb, offset, 4,
-		    TRUE);
+		    ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* Session ID */
 		proto_tree_add_item(htree, hf_smb_session_id, tvb, offset, 2,
-		    TRUE);
+		    ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Sequence number */
 		proto_tree_add_item(htree, hf_smb_sequence_num, tvb, offset, 2,
-		    TRUE);
+		    ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* Group ID */
 		proto_tree_add_item(htree, hf_smb_group_id, tvb, offset, 2,
-		    TRUE);
+		    ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 		/*
@@ -17778,10 +17778,10 @@ dissect_smb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		 * bytes after the "High part of PID" are an 8-byte
 		 * signature ...
 		 */
-		proto_tree_add_item(htree, hf_smb_sig, tvb, offset, 8, TRUE);
+		proto_tree_add_item(htree, hf_smb_sig, tvb, offset, 8, ENC_NA);
 		offset += 8;
 
-		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2, TRUE);
+		proto_tree_add_item(htree, hf_smb_reserved, tvb, offset, 2, ENC_NA);
 		offset += 2;
 	}
 
