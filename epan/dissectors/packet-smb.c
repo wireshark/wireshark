@@ -10728,6 +10728,38 @@ dissect_sfi_ioflag(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 }
 #endif
 
+int
+dissect_get_dfs_request_data(tvbuff_t *tvb, packet_info *pinfo,
+    proto_tree *tree, int offset, guint16 *bcp)
+{
+	smb_info_t *si = pinfo->private_data;
+	int fn_len;
+	const char *fn;
+	guint16 bc = *bcp;
+
+	DISSECTOR_ASSERT(si);
+
+	/* referral level */
+	CHECK_BYTE_COUNT_TRANS(2);
+	proto_tree_add_item(tree, hf_smb_max_referral_level, tvb, offset, 2, TRUE);
+	COUNT_BYTES_TRANS(2);
+
+	/* file name */
+	fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, &bc);
+	CHECK_STRING_TRANS(fn);
+	proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
+		fn);
+	COUNT_BYTES_TRANS(fn_len);
+
+	if (check_col(pinfo->cinfo, COL_INFO)) {
+		col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
+		    format_text(fn, strlen(fn)));
+	}
+
+	*bcp = bc;
+	return offset;
+}
+
 static int
 dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *parent_tree, int offset, int subcmd, guint16 bc)
@@ -11148,23 +11180,7 @@ dissect_transaction2_request_parameters(tvbuff_t *tvb, packet_info *pinfo,
 		/* XXX unknown structure*/
 		break;
 	case 0x0010:	/*TRANS2_GET_DFS_REFERRAL*/
-		/* referral level */
-		CHECK_BYTE_COUNT_TRANS(2);
-		proto_tree_add_item(tree, hf_smb_max_referral_level, tvb, offset, 2, TRUE);
-		COUNT_BYTES_TRANS(2);
-
-		/* file name */
-		fn = get_unicode_or_ascii_string(tvb, &offset, si->unicode, &fn_len, FALSE, FALSE, &bc);
-		CHECK_STRING_TRANS(fn);
-		proto_tree_add_string(tree, hf_smb_file_name, tvb, offset, fn_len,
-			fn);
-		COUNT_BYTES_TRANS(fn_len);
-
-		if (check_col(pinfo->cinfo, COL_INFO)) {
-			col_append_fstr(pinfo->cinfo, COL_INFO, ", File: %s",
-			    format_text(fn, strlen(fn)));
-		}
-
+		offset = dissect_get_dfs_request_data(tvb, pinfo, tree, offset, &bc);
 		break;
 	case 0x0011:	/*TRANS2_REPORT_DFS_INCONSISTENCY*/
 		/* file name */
@@ -11522,7 +11538,7 @@ dissect_dfs_referral_entry_v3(tvbuff_t *tvb, proto_tree *tree, int oldoffset, in
 
 /* get dfs referral data  (4.4.1)
 */
-static int
+int
 dissect_get_dfs_referral_data(tvbuff_t *tvb, packet_info *pinfo,
     proto_tree *tree, int offset, guint16 *bcp)
 {
