@@ -2395,6 +2395,7 @@ Peter Johansson		<PeterJohansson73 [AT] gmail.com> {
 Stefan Metzmacher	<metze [AT] samba.org> {
 	LDAP Controls support in the LDAP dissector
 	WINS Replication protocol
+	Various SMB/SMB2 dissector enhancements
 }
 
 Abhijit Menon-Sen	<ams [AT] oryx.com> {
