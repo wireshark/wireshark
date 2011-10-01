@@ -4006,7 +4006,6 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	int len=-1;
 	proto_item *sub_item=NULL;
 	proto_tree *sub_tree=NULL;
-	proto_item *parent_item=NULL;
 	proto_item *item=NULL;
 	guint32 capabilities;
 	guint64 link_speed;
@@ -4021,7 +4020,6 @@ dissect_smb2_NETWORK_INTERFACE_INFO(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 	if(parent_tree){
 		sub_item = proto_tree_add_text(parent_tree, tvb, offset, len, "Network Interface");
 		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_ioctl_network_interface);
-		parent_item = proto_tree_get_parent(parent_tree);
 	}
 
 	/* next offset */
