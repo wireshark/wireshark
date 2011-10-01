@@ -7227,7 +7227,7 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_ses_req_flags,
 		{ "Flags", "smb2.ses_req_flags", FT_UINT8, BASE_DEC,
-		NULL, 0, "Flags", HFILL }},
+		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_ses_req_flags_session_binding,
 		{ "Session Binding Request", "smb2.ses_req_flags.session_binding", FT_BOOLEAN, 8,
