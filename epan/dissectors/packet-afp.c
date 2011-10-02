@@ -4321,25 +4321,25 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			    querylen);
 	offset += 8;
 
-	toc_entries = (gint)(spotlight_ntoh64(tvb, offset + toc_offset, encoding) & 0xffff);
+	toc_entries = (gint)(spotlight_ntoh64(tvb, offset + (gint)toc_offset, encoding) & 0xffff);
 
 	item_queries_data = proto_tree_add_text(tree,
 						tvb,
 						offset,
-						toc_offset,
+						(gint)toc_offset,
 						"Spotlight RPC data");
 	sub_tree_queries = proto_item_add_subtree(item_queries_data, ett_afp_spotlight_queries);
 
 	/* Queries */
-	offset = spotlight_dissect_query_loop(tvb, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + toc_offset + 8, encoding);
+	offset = spotlight_dissect_query_loop(tvb, sub_tree_queries, offset, SQ_CPX_TYPE_ARRAY, INT_MAX, offset + (gint)toc_offset + 8, encoding);
 
 	/* ToC */
-	offset += toc_offset;
+	offset += (gint)toc_offset;
 	if (toc_entries < 1) {
 		item_toc = proto_tree_add_text(tree,
 					       tvb,
 					       offset,
-					       querylen - toc_offset,
+					       querylen - (gint)toc_offset,
 					       "Complex types ToC (%u < 1 - bogus)",
 					       toc_entries);
 		return -1;
@@ -4348,7 +4348,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	item_toc = proto_tree_add_text(tree,
 				       tvb,
 				       offset,
-				       querylen - toc_offset,
+				       querylen - (gint)toc_offset,
 				       "Complex types ToC (%u entries)",
 				       toc_entries);
 	sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
