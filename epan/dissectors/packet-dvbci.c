@@ -182,6 +182,15 @@
 #define CA_ENAB_DESC_NG_ENTITLEMENT 0x71
 #define CA_ENAB_DESC_NG_TECH        0x73
 
+/* host control resource */
+#define HC_STAT_OK            0x0
+#define HC_STAT_ERR_DLVRY     0x1
+#define HC_STAT_ERR_LOCK      0x2
+#define HC_STAT_ERR_BUSY      0x3
+#define HC_STAT_ERR_PARAM     0x4
+#define HC_STAT_ERR_NOT_FOUND 0x5
+#define HC_STAT_ERR_UNKNOWN   0x6
+
 /* mmi resource */
 #define CLOSE_MMI_CMD_ID_IMMEDIATE 0x0
 #define CLOSE_MMI_CMD_ID_DELAY     0x1
@@ -366,6 +375,9 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_REPLACE                       0x9F8401
 #define T_CLEAR_REPLACE                 0x9F8402
 #define T_ASK_RELEASE                   0x9F8403
+#define T_TUNE_BROADCAST_REQ            0x9F8404
+#define T_TUNE_REPLY                    0x9F8405
+#define T_ASK_RELEASE_REPLY             0x9F8406
 #define T_DATE_TIME_ENQ                 0x9F8440
 #define T_DATE_TIME                     0x9F8441
 #define T_CLOSE_MMI                     0x9F8800
@@ -442,6 +454,9 @@ static const apdu_info_t apdu_info[] = {
     {T_REPLACE,             0, 5,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_CLEAR_REPLACE,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc},
     {T_ASK_RELEASE,         0, 0,             DATA_HOST_TO_CAM, NULL},
+    {T_TUNE_BROADCAST_REQ,  5, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_hc}, 
+    {T_TUNE_REPLY,          1, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_hc},  
+    {T_ASK_RELEASE_REPLY,   1, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_hc}, 
 
     {T_DATE_TIME_ENQ,       0, 1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_dt},
     {T_DATE_TIME,           5, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_dt},
@@ -502,13 +517,16 @@ static const value_string dvbci_apdu_tag[] = {
     { T_CA_INFO_ENQ,                   "CA info enquiry" },
     { T_CA_INFO,                       "CA info" },
     { T_CA_PMT,                        "CA PMT" },
-    { T_DATE_TIME_ENQ,                 "Date-Time enquiry" },
-    { T_DATE_TIME,                     "Date-Time" },
     { T_CA_PMT_REPLY,                  "CA PMT reply" },
     { T_TUNE,                          "Tune" },
     { T_REPLACE,                       "Replace" },
     { T_CLEAR_REPLACE,                 "Clear replace" },
     { T_ASK_RELEASE,                   "Ask release" },
+    { T_TUNE_BROADCAST_REQ,            "Tune broadcast request" },
+    { T_TUNE_REPLY,                    "Tune reply" },
+    { T_ASK_RELEASE_REPLY,             "Ask release reply" },
+    { T_DATE_TIME_ENQ,                 "Date-Time enquiry" },
+    { T_DATE_TIME,                     "Date-Time" },
     { T_CLOSE_MMI,                     "Close MMI" },
     { T_DISPLAY_CONTROL,               "Display control" },
     { T_DISPLAY_REPLY,                 "Display reply" },
@@ -641,6 +659,11 @@ static int hf_dvbci_service_id = -1;
 static int hf_dvbci_replacement_ref = -1;
 static int hf_dvbci_replaced_pid = -1;
 static int hf_dvbci_replacement_pid = -1;
+static int hf_dvbci_pmt_flag = -1;
+static int hf_dvbci_hc_desc_loop_len = -1;
+static int hf_dvbci_hc_desc_loop = -1;
+static int hf_dvbci_hc_pmt = -1;
+static int hf_dvbci_hc_status = -1;
 static int hf_dvbci_resp_intv = -1;
 static int hf_dvbci_utc_time = -1;
 static int hf_dvbci_local_offset = -1;
@@ -894,6 +917,16 @@ static const value_string dvbci_ca_enable[] = {
         "descrambling not possible (because no entitlement)" },
     { CA_ENAB_DESC_NG_TECH,
         "descrambling not possible (for technical reasons)" },
+    { 0, NULL }
+};
+static const value_string dvbci_hc_status[] = {
+    { HC_STAT_OK, "ok" },
+    { HC_STAT_ERR_DLVRY, "unsupported delivery system descriptor" },
+    { HC_STAT_ERR_LOCK, "tuner not locking" },
+    { HC_STAT_ERR_BUSY, "tuner busy" },
+    { HC_STAT_ERR_PARAM, "bad or missing parameters" },
+    { HC_STAT_ERR_NOT_FOUND, "service not found" },
+    { HC_STAT_ERR_UNKNOWN, "unknown error" },
     { 0, NULL }
 };
 static const value_string dvbci_close_mmi_cmd_id[] = {
@@ -1534,52 +1567,87 @@ dissect_dvbci_payload_hc(guint32 tag, gint len_field _U_,
     guint16 nid, onid, tsid, svcid;
     guint8 ref;
     guint16 old_pid, new_pid;
+    gboolean pmt_flag;
+    guint16 desc_loop_len;
+    guint8 status;
 
 
-    if (tag==T_TUNE) {
-        nid = tvb_get_ntohs(tvb, offset);
-        pi = proto_tree_add_item(
-            tree, hf_dvbci_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        if (nid) {
-            expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_NOTE,
-                    "Network ID is usually ignored by hosts");
-        }
-        offset += 2;
-        onid = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(
-            tree, hf_dvbci_original_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        tsid = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(
-            tree, hf_dvbci_transport_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        svcid = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(
-            tree, hf_dvbci_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
-                "nid 0x%x, onid 0x%x, tsid 0x%x, svcid 0x%x",
-                nid, onid, tsid, svcid);
-    }
-    else if (tag==T_REPLACE) {
-        ref = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(
-            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
-        offset++;
-        old_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
-        proto_tree_add_item(
-            tree, hf_dvbci_replaced_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-        new_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
-        proto_tree_add_item(
-            tree, hf_dvbci_replacement_pid, tvb, offset, 2, ENC_BIG_ENDIAN);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
-                "ref 0x%x, 0x%x -> 0x%x", ref, old_pid, new_pid);
-    }
-    else if (tag==T_CLEAR_REPLACE) {
-        ref = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(
-            tree, hf_dvbci_replacement_ref, tvb, offset, 1, ENC_BIG_ENDIAN);
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "ref 0x%x", ref);
+    switch (tag) {
+        case T_TUNE:
+            nid = tvb_get_ntohs(tvb, offset);
+            pi = proto_tree_add_item(
+                    tree, hf_dvbci_network_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            if (nid) {
+                expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_NOTE,
+                        "Network ID is usually ignored by hosts");
+            }
+            offset += 2;
+            onid = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_original_network_id,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            tsid = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_transport_stream_id,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            svcid = tvb_get_ntohs(tvb, offset);
+            proto_tree_add_item(
+                    tree, hf_dvbci_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "nid 0x%x, onid 0x%x, tsid 0x%x, svcid 0x%x",
+                    nid, onid, tsid, svcid);
+            break;
+        case T_REPLACE:
+            ref = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_replacement_ref,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            old_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
+            proto_tree_add_item(tree, hf_dvbci_replaced_pid,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            new_pid = tvb_get_ntohs(tvb, offset) & 0x1FFF;
+            proto_tree_add_item( tree, hf_dvbci_replacement_pid,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "ref 0x%x, 0x%x -> 0x%x", ref, old_pid, new_pid);
+            break;
+        case T_CLEAR_REPLACE:
+            ref = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_replacement_ref,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "ref 0x%x", ref);
+            break;
+        case T_TUNE_BROADCAST_REQ:
+            pmt_flag = ((tvb_get_guint8(tvb, offset) & 0x01) == 0x01);
+            proto_tree_add_item(tree, hf_dvbci_pmt_flag,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            proto_tree_add_item(
+                    tree, hf_dvbci_service_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            desc_loop_len = tvb_get_ntohs(tvb, offset) & 0x0FFF;
+            proto_tree_add_item(tree, hf_dvbci_hc_desc_loop_len,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_dvbci_hc_desc_loop,
+                    tvb, offset, desc_loop_len, ENC_NA);
+            offset += desc_loop_len;
+            if (pmt_flag) {
+                /* no need for len check, missing field is handled internally */
+                proto_tree_add_item(tree, hf_dvbci_hc_pmt, tvb, offset,
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            break;
+        case T_TUNE_REPLY:
+            status = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_hc_status,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                        (status == HC_STAT_OK ?  "ok" : "error"));
+            break;
+        default:
+            break;
     }
 }
 
@@ -3188,7 +3256,22 @@ proto_register_dvbci(void)
         { &hf_dvbci_replacement_pid,
            { "Replacement PID", "dvb-ci.hc.replacement_pid", FT_UINT16,
               BASE_HEX, NULL, 0x1FFF, NULL, HFILL } },
-        { &hf_dvbci_resp_intv,
+        { &hf_dvbci_pmt_flag,
+           { "PMT flag", "dvb-ci.hc.pmt_flag", FT_UINT8, BASE_HEX,
+               NULL, 0x01, NULL, HFILL } },
+        { &hf_dvbci_hc_desc_loop_len,
+           { "Descriptor loop length", "dvb-ci.hc.desc_loop_len", FT_UINT16,
+               BASE_DEC, NULL, 0x0FFF, NULL, HFILL } },
+        { &hf_dvbci_hc_desc_loop,
+           { "Descriptor loop", "dvb-ci.hc.desc_loop", FT_BYTES, BASE_NONE,
+               NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_hc_pmt,
+           { "Program map section", "dvb-ci.hc.pmt", FT_BYTES, BASE_NONE,
+               NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_hc_status,
+           { "Status field", "dvb-ci.hc.status_field", FT_UINT8, BASE_HEX,
+               VALS(dvbci_hc_status), 0, NULL, HFILL } },
+         { &hf_dvbci_resp_intv,
             { "Response interval", "dvb-ci.dt.resp_interval",
                 FT_RELATIVE_TIME, BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_utc_time,
