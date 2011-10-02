@@ -403,7 +403,7 @@ extern void clear_outstanding_TreeItem(void);
 
 extern void wslua_print_stack(char* s, lua_State* L);
 
-extern int wslua_init(lua_State* L);
+extern int wslua_init(register_cb cb, gpointer client_data);
 
 extern tap_extractor_t wslua_get_tap_extractor(const gchar* name);
 extern int wslua_set_tap_enums(lua_State* L);

@@ -216,6 +216,9 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       case RA_PLUGIN_HANDOFF:
 	action_msg = "Handing off plugins ...";
 	break;
+      case RA_LUA_PLUGINS:
+	action_msg = "Loading Lua plugins ...";
+	break;
       case RA_PREFERENCES:
 	action_msg = "Loading module preferences ...";
 	break;
@@ -230,11 +233,15 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
       last_action = action;
     }
 
-    if(ul_count == 0) /* get the count of dissectors */
+    if(ul_count == 0) { /* get the count of dissectors */
       ul_count = register_count() + 6; /* additional 6 for:
 					  dissectors, listeners,
 					  registering plugins, handingoff plugins,
 					  preferences and configuration */
+#ifdef HAVE_LUA_5_1
+      ul_count++;   /* additional one for lua plugins */
+#endif
+    }
 
     main_lb = g_object_get_data(G_OBJECT(win), "protocol_label");
     /* make_dissector_reg.py changed -

@@ -317,10 +317,17 @@ static void lua_load_plugins (const char *dirname)
     }
 }
 
-int wslua_init(lua_State* LS) {
+int wslua_init(register_cb cb, gpointer client_data) {
     gchar* filename;
     const funnel_ops_t* ops = funnel_get_funnel_ops();
     gboolean run_anyway = FALSE;
+
+    /*
+    ** TBD: count the number of lua scripts to load in splash_update()
+    ** and call cb for each file instead of once for all files.
+    */
+    if(cb)
+        (*cb)(RA_LUA_PLUGINS, NULL, client_data);
 
     /* set up the logger */
     g_log_set_handler(LOG_DOMAIN_LUA, G_LOG_LEVEL_CRITICAL|
@@ -331,10 +338,7 @@ int wslua_init(lua_State* LS) {
                       ops ? ops->logger : basic_logger, NULL);
 
     if (!L) {
-        if (LS)
-            L = LS;
-        else
-            L = luaL_newstate();
+        L = luaL_newstate();
     }
 
     WSLUA_INIT(L);

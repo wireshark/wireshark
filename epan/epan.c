@@ -111,7 +111,7 @@ epan_init(void (*register_all_protocols_func)(register_cb cb, gpointer client_da
 	host_name_lookup_init();
 	expert_init();
 #ifdef HAVE_LUA_5_1
-	wslua_init(NULL);
+	wslua_init(cb, client_data);
 #endif
 #ifdef HAVE_GEOIP
 	geoip_db_init();

@@ -35,6 +35,7 @@ typedef enum {
   RA_PLUGIN_REGISTER,   /* plugin register */
   RA_HANDOFF,           /* handoff */
   RA_PLUGIN_HANDOFF,    /* plugin handoff */
+  RA_LUA_PLUGINS,       /* lua plugin register */
   RA_PREFERENCES,       /* module preferences */
   RA_CONFIGURATION      /* configuration files */
 } register_action_e;
