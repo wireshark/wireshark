@@ -14,7 +14,7 @@
 # Service Name and Transport Protocol Port Number Registry
 # 
 # Last Updated
-# 2011-09-23
+# 2011-09-28
 # 
 # Note
 # 
@@ -11586,7 +11586,10 @@ icmpd	5813/tcp	# ICMPD                        [Shane_O_Donnell]                 
 icmpd	5813/udp	# ICMPD                        [Shane_O_Donnell]                         [Shane_O_Donnell]
 spt-automation	5814/tcp	# Support Automation           [Joshua_Hawkins]                          [Joshua_Hawkins]                                          2003-11
 spt-automation	5814/udp	# Support Automation           [Joshua_Hawkins]                          [Joshua_Hawkins]                                          2003-11
-# 5815-5858            Unassigned
+# 5815-5841            Unassigned
+reversion	5842/tcp	# Reversion Backup/Restore     [Cameo_Systems_Inc]                       [Craig_Nelson]                                            2011-09-26
+# 5842        udp    Reserved
+# 5843-5858            Unassigned
 wherehoo	5859/tcp	# WHEREHOO                     [Jim_Youll]                               [Jim_Youll]
 wherehoo	5859/udp	# WHEREHOO                     [Jim_Youll]                               [Jim_Youll]
 # 5860-5862            Unassigned
@@ -12646,7 +12649,10 @@ mzca-action	7282/tcp	# eventACTION/ussACTION (MZCA) [Gord_Tomlin]               
 # server
 mzca-alert	7282/udp	# eventACTION/ussACTION (MZCA) [Gord_Tomlin]                             [Gord_Tomlin]                                             2010-01-21
 # alert
-# 7283-7299            Unassigned
+genstat	7283/tcp	# General Statistics           [VSN_International_Ltd]                   [Sean_D_Solle]                                            2011-09-28
+# Rendezvous Protocol
+# 7283        udp    Reserved
+# 7284-7299            Unassigned
 # swx              7300-7359            The Swiss Exchange           [Edgar_Blum]                              [Edgar_Blum]
 # 7360-7364            Unassigned                                                                                                                                    2006-02-06
 lcm-server	7365/tcp	# LifeKeeper Communications    [James_Bottomley]                         [James_Bottomley]                                         2006-02
@@ -15801,6 +15807,7 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # Configuration Web Services
 # ipbroadcaster                         IP Broadcaster               [base_t_Interactive]                      [base_t_Interactive]                                                                                                                          Defined TXT keys: None
 # ipspeaker                             IP Speaker Control Protocol  [Dan_Mahn]                                [Dan_Mahn]                                                                                                                                    Defined TXT keys: None
+# ir-hvac-000                    tcp    HVAC SMIL Server             [Ingersoll_Rand_Inc]                      [John_Taylor]                                             2011-09-28                                                                          Defined TXT keys: None
 # irelay                                iRelay application discovery [Marc_Diamante]                           [Marc_Diamante]                                                                                                                               Defined TXT keys: Proprietary
 # service
 # irmc                                  Intego Remote Management     [Olivier_Delecluse]                       [Olivier_Delecluse]                                                                                                                           Defined TXT keys: RMC Client Version=<version>, MAC
@@ -16891,6 +16898,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [C_Enrique_Ortiz]                                         C. Enrique Ortiz                          mailto:eortiz&j2medeveloper.com                               2003-01
 # [C_Philip_Wood]                                           C. Philip Wood                            mailto:cpw&lanl.gov
 # [CaldSoft]                                                CaldSoft                                  mailto:development&caldsoft.co.uk                             2011-08-12
+# [Cameo_Systems_Inc]                                                                 Cameo Systems   mailto:craig&reversion.ca                                     2011-09-26
+# Inc.
 # [Cameron_Young]                                           Cameron Young                             mailto:Cameron_Young&inetco.com
 # [Candace_Niccolson]                                       Candace Niccolson                         mailto:cniccolson&genisar.com                                 2002-04
 # [Carl_Banzhof]                                            Carl Banzhof                              mailto:cbanzhof&citadel.com                                   2003-06
@@ -17104,6 +17113,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Craig_Fowler]                                            Craig Fowler                              mailto:cfowler&us.oracle.com
 # [Craig_Langfahl]                                          Craig Langfahl                            mailto:Craig_J_Langfahl&ccm.ch.intel.com
 # [Craig_N_Bissell]                                         Craig N. Bissell                          mailto:craig&quailnetworks.com                                2006-04
+# [Craig_Nelson]                                            Craig Nelson              Cameo Systems   mailto:craig&reversion.ca                                     2011-09-26
+# Inc.
 # [Craig_Rogers]                                            Craig Rogers                              mailto:Rogers&isi.edu
 # [Craig_Steffen]                                           Craig Steffen                             mailto:csteffen&ncsa.uiuc.edu                                 2005-08
 # [Craig_Weeks]                                             Craig Weeks                               mailto:cweeks&syspace.co.uk
@@ -18026,6 +18037,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Ines_Homem_de_Melo]                                      Ines Homem de Melo                        mailto:sidinf&brfapesp.bitnet
 # [Ing_Markus_Huemer]                                       Ing. Markus Huemer                        mailto:markus.huemer&hsd.at
 # [Ing_Tomas_Halabala]                                      Ing. Tomas Halabala                       mailto:tomas.halabala&regulace.org                            2010-10-06
+# [Ingersoll_Rand_Inc]                                                                Ingersoll Rand, mailto:john.taylor&irco.com                                   2011-09-28
+# Inc.
 # [Ingo_Franzki]                                            Ingo Franzki                              mailto:ifranzki&de.ibm.com
 # [Insider_Software]                                                                  Insider         http://www.insidersoftware.com
 # Software
@@ -18397,6 +18410,8 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [John_Stephen]                                            John Stephen                              mailto:iana&mundocani.com                                     2002-07
 # [John_T_McCann]                                           John T. McCann                            mailto:jmccann&softwaremetering.com                           2003-10
 # [John_Tafoya]                                             John Tafoya                               mailto:johnt&microsoft.com
+# [John_Taylor]                                             John Taylor               Ingersoll Rand, mailto:john.taylor&irco.com                                   2011-09-28
+# Inc.
 # [John_Tintor]                                             John Tintor                               mailto:jt&yo.net
 # [John_Tokash]                                             John Tokash                               mailto:jtokash&homestead.com
 # [John_Trudeau]                                            John Trudeau                              mailto:jtrudeau&cup.hp.com
@@ -20030,6 +20045,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Scott_Tarone]                                            Scott Tarone                              mailto:starone&proactivethought.com                           2003-04
 # [Scott_Tooker]                                            Scott Tooker                              mailto:tooker&apple.com
 # [Sean_Adams]                                              Sean Adams                                mailto:sean&slimdevices.com                                   2002-05
+# VSN
+# [Sean_D_Solle]                                            Sean D. Solle             International   mailto:sean&vsni.co.uk                                        2011-09-28
+# Ltd.
 # [Sean_MacGuire]                                           Sean MacGuire                             mailto:sean&maclawran.ca
 # [Sean_Ni]                                                 Sean Ni                                   mailto:seanni&digitalinstinct.com.tw                          2006-02
 # [Seb_Ibis]                                                Seb Ibis                                  mailto:seb_ibis&pkworld.com
@@ -20604,6 +20622,9 @@ matahari	49000/tcp	# Matahari Broker              [Matahari_Project]            
 # [Voiko_Loukanov]                                          Voiko Loukanov                            mailto:v.loukanov&dvelectronics.com                           2003-10
 # [Volker_Wiegand]                                          Volker Wiegand                            mailto:volker.wiegand&t-online.de                             2007-07-10
 # [Von_Welch]                                               Von Welch                                 mailto:vwelch&ncsa.uiuc.edu
+# VSN
+# [VSN_International_Ltd]                                                             International   mailto:sean&vsni.co.uk                                        2011-09-28
+# Ltd.
 # [WAP_Forum]                                               WAP Forum                                 mailto:wap-feedback&mail.wapforum.org
 # mailto:pg&uplanet.com
 # [W_Jordan_Fitzhugh]                                       W. Jordan Fitzhugh                        mailto:jfitz&pcare.com
