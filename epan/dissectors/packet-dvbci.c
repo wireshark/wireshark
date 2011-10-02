@@ -36,6 +36,7 @@
 #endif
 
 #include <glib.h>
+#include <epan/addr_resolv.h>
 #include <epan/packet.h>
 #include <epan/reassemble.h>
 #include <epan/prefs.h>
@@ -284,6 +285,38 @@
 #define REQ_TYPE_FILE_HASH 0x2
 #define REQ_TYPE_REQ       0x3
 
+/* lsc resource */
+#define COMMS_CMD_ID_CONNECT_ON_CHANNEL    1
+#define COMMS_CMD_ID_DISCONNECT_ON_CHANNEL 2
+#define COMMS_CMD_ID_SET_PARAMS            3
+#define COMMS_CMD_ID_ENQUIRE_STATUS        4
+#define COMMS_CMD_ID_GET_NEXT_BUFFER       5
+
+#define CONN_DESC_TEL      1
+#define CONN_DESC_CABLE    2
+#define CONN_DESC_IP       3
+#define CONN_DESC_HOSTNAME 4
+
+#define LSC_DESC_IP       0xCF
+#define LSC_DESC_HOSTNAME 0xCD
+
+#define LSC_IPV4 1
+#define LSC_IPV6 2
+
+#define LSC_TCP 1
+#define LSC_UDP 2
+
+#define COMMS_REP_ID_CONNECT_ACK         1
+#define COMMS_REP_ID_DISCONNECT_ACK      2
+#define COMMS_REP_ID_SET_PARAMS_ACK      3
+#define COMMS_REP_ID_STATUS_REPLY        4
+#define COMMS_REP_ID_GET_NEXT_BUFFER_ACK 5
+#define COMMS_REP_ID_SEND_ACK            6
+
+#define LSC_RET_OK 0
+#define LSC_RET_DISCONNECTED 0
+#define LSC_RET_CONNECTED    1
+#define LSC_RET_TOO_BIG 0xFE
 
 /* sas resource */
 #define SAS_SESS_STATE_CONNECTED 0
@@ -353,6 +386,10 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
 static void
+dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo,
+        proto_tree *tree);
+static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo,
         proto_tree *tree);
@@ -414,17 +451,17 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_FILE_ACKNOWLEDGE              0x9F8003
 #define T_APP_ABORT_REQUEST             0x9F8004
 #define T_APP_ABORT_ACK                 0x9F8005
-#define T_SAS_CONNECT_RQST              0x9F9A00
-#define T_SAS_CONNECT_CNF               0x9F9A01
-#define T_SAS_ASYNC_MSG                 0x9F9A07
-
-/* the following apdus are recognized but not dissected in this release */
 #define T_COMMS_CMD                     0x9F8C00
 #define T_COMMS_REPLY                   0x9F8C02
 #define T_COMMS_SEND_LAST               0x9F8C03
 #define T_COMMS_SEND_MORE               0x9F8C04
 #define T_COMMS_RCV_LAST                0x9F8C05
 #define T_COMMS_RCV_MORE                0x9F8C06
+#define T_SAS_CONNECT_RQST              0x9F9A00
+#define T_SAS_CONNECT_CNF               0x9F9A01
+#define T_SAS_ASYNC_MSG                 0x9F9A07
+
+/* the following apdus are recognized but not dissected in this release */
 
 /* these are no real apdus, they just use the same format */
 #define T_TEXT_LAST             0x9F8803
@@ -500,6 +537,13 @@ static const apdu_info_t apdu_info[] = {
     {T_APP_ABORT_REQUEST,   0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
     {T_APP_ABORT_ACK,       0, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_ami},
 
+    {T_COMMS_CMD,           1, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_lsc},
+    {T_COMMS_REPLY,         0, 2,             DATA_HOST_TO_CAM, dissect_dvbci_payload_lsc},
+    {T_COMMS_SEND_LAST,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_lsc},
+    {T_COMMS_SEND_MORE,     2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_lsc},
+    {T_COMMS_RCV_LAST,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_lsc},
+    {T_COMMS_RCV_MORE,      2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_lsc},
+
     {T_SAS_CONNECT_RQST,    0, 8,             DATA_HOST_TO_CAM, dissect_dvbci_payload_sas},
     {T_SAS_CONNECT_CNF,     0, 9,             DATA_CAM_TO_HOST, dissect_dvbci_payload_sas},
     {T_SAS_ASYNC_MSG,       3, LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_sas}
@@ -539,12 +583,6 @@ static const value_string dvbci_apdu_tag[] = {
     { T_MENU_ANSW,                     "Menu answer" },
     { T_LIST_LAST,                     "List last" },
     { T_LIST_MORE,                     "List more" },
-    { T_COMMS_CMD,                     "Comms command" },
-    { T_COMMS_REPLY,                   "Comms reply" },
-    { T_COMMS_SEND_LAST,               "Comms send last" },
-    { T_COMMS_SEND_MORE,               "Comms send more" },
-    { T_COMMS_RCV_LAST,                "Comms receive last" },
-    { T_COMMS_RCV_MORE,                "Comms receive more" },
     { T_HOST_COUNTRY_ENQ,              "Host country enquiry" },
     { T_HOST_COUNTRY,                  "Host country" },
     { T_HOST_LANGUAGE_ENQ,             "Host language enquiry" },
@@ -569,6 +607,13 @@ static const value_string dvbci_apdu_tag[] = {
     { T_FILE_ACKNOWLEDGE,              "File acknowledge" },
     { T_APP_ABORT_REQUEST,             "App abort request" },
     { T_APP_ABORT_ACK,                 "App abort ack" },
+    { T_COMMS_CMD,                     "Comms command" },
+    { T_COMMS_REPLY,                   "Comms reply" },
+    { T_CONNECTION_DESCRIPTOR,         "Connection descriptor" },
+    { T_COMMS_SEND_LAST,               "Comms send last" },
+    { T_COMMS_SEND_MORE,               "Comms send more" },
+    { T_COMMS_RCV_LAST,                "Comms receive last" },
+    { T_COMMS_RCV_MORE,                "Comms receive more" },
     { T_SAS_CONNECT_RQST,              "SAS connect request" },
     { T_SAS_CONNECT_CNF,               "SAS connect confirm" },
     { T_SAS_ASYNC_MSG,                 "SAS async message" },
@@ -599,6 +644,8 @@ static gint ett_dvbci_ca_desc = -1;
 static gint ett_dvbci_text = -1;
 static gint ett_dvbci_cc_item = -1;
 static gint ett_dvbci_ami_req_types = -1;
+static gint ett_dvbci_lsc_conn_desc = -1;
+
 
 static int hf_dvbci_event = -1;
 static int hf_dvbci_hw_event = -1;
@@ -710,6 +757,23 @@ static int hf_dvbci_file_ok = -1;
 static int hf_dvbci_file_data = -1;
 static int hf_dvbci_abort_req_code = -1;
 static int hf_dvbci_abort_ack_code = -1;
+static int hf_dvbci_phase_id = -1;
+static int hf_dvbci_comms_rep_id = -1;
+static int hf_dvbci_lsc_buf_size = -1;
+static int hf_dvbci_lsc_ret_val = -1;
+static int hf_dvbci_comms_cmd_id = -1;
+static int hf_dvbci_conn_desc_type = -1;
+static int hf_dvbci_lsc_media_tag = -1;
+static int hf_dvbci_lsc_media_len = -1;
+static int hf_dvbci_lsc_ip_ver = -1;
+static int hf_dvbci_lsc_ipv4_addr = -1;
+static int hf_dvbci_lsc_ipv6_addr = -1;
+static int hf_dvbci_lsc_dst_port = -1;
+static int hf_dvbci_lsc_proto = -1;
+static int hf_dvbci_lsc_hostname = -1;
+static int hf_dvbci_lsc_retry_count = -1;
+static int hf_dvbci_lsc_timeout = -1;
+static int hf_dvbci_lsc_msg = -1;
 static int hf_dvbci_sas_app_id = -1;
 static int hf_dvbci_sas_sess_state = -1;
 static int hf_dvbci_sas_msg_nb = -1;
@@ -1047,6 +1111,59 @@ static const value_string dvbci_req_type[] = {
     { REQ_TYPE_REQ, "List supported request types" },
     { 0, NULL }
 };
+static const value_string dvbci_comms_cmd_id[] = {
+    { COMMS_CMD_ID_CONNECT_ON_CHANNEL, "connect on channel" },
+    { COMMS_CMD_ID_DISCONNECT_ON_CHANNEL, "disconnect on channel" },
+    { COMMS_CMD_ID_SET_PARAMS, "set parameters" },
+    { COMMS_CMD_ID_ENQUIRE_STATUS, "status enquiry" },
+    { COMMS_CMD_ID_GET_NEXT_BUFFER, "get next buffer" },
+    { 0, NULL }
+};
+static const value_string dvbci_conn_desc_type[] = {
+    { CONN_DESC_TEL, "DVB-SI telephone descriptor" },
+    { CONN_DESC_CABLE, "cable return channel" },
+    { CONN_DESC_IP, "IP descriptor" },
+    { CONN_DESC_HOSTNAME, "hostname descriptor" },
+    { 0, NULL }
+};
+static const value_string dvbci_lsc_desc_tag[] = {
+    { LSC_DESC_IP, "IP descriptor" },
+    { LSC_DESC_HOSTNAME, "hostname descriptor" },
+    { 0, NULL }
+};
+static const value_string dvbci_lsc_ip_ver[] = {
+    { LSC_IPV4, "IPv4" },
+    { LSC_IPV6, "IPv6" },
+    { 0, NULL }
+};
+static const value_string dvbci_lsc_proto[] = {
+    { LSC_TCP, "TCP" },
+    { LSC_UDP, "UDP" },
+    { 0, NULL }
+};
+static const value_string dvbci_comms_rep_id[] = {
+    { COMMS_REP_ID_CONNECT_ACK, "connect ack" },
+    { COMMS_REP_ID_DISCONNECT_ACK, "disconnect ack" },
+    { COMMS_REP_ID_SET_PARAMS_ACK, "set parameters ack" },
+    { COMMS_REP_ID_STATUS_REPLY, "status reply" },
+    { COMMS_REP_ID_GET_NEXT_BUFFER_ACK, "get next buffer ack" },
+    { COMMS_REP_ID_SEND_ACK, "send ack" },
+    { 0, NULL }
+};
+static const value_string dvbci_lsc_ret_val[] = {
+    { LSC_RET_OK, "ok" },
+    { 0, NULL }
+};
+static const value_string dvbci_lsc_ret_val_connect[] = {
+    { LSC_RET_DISCONNECTED, "disconnected" },
+    { LSC_RET_CONNECTED, "connected" },
+    { 0, NULL }
+};
+static const value_string dvbci_lsc_ret_val_params[] = {
+    { LSC_RET_OK, "ok" },
+    { LSC_RET_TOO_BIG, "buffer size too big" },
+    { 0, NULL }
+};
 static const value_string dvbci_sas_sess_state[] = {
     { SAS_SESS_STATE_CONNECTED, "connected" },
     { SAS_SESS_STATE_NOT_FOUND, "application not found" },
@@ -1080,6 +1197,135 @@ dvbci_init(void)
     reassembled_table_init(&spdu_reassembled_table);
 }
 
+
+
+/* dissect a connection_descriptor for the lsc resource
+   returns its length or -1 for error */
+static gint
+dissect_conn_desc(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo, proto_tree *tree)
+{
+    proto_item *ti = NULL;
+    proto_tree *conn_desc_tree = NULL;
+    guint32 tag;
+    gint offset_start, offset_body;
+    gint len_field;
+    guint8 conn_desc_type;
+    guint8 ip_ver, ip_proto;
+    guint16 port;
+    proto_item *port_item = NULL;
+    gint hostname_len;
+
+    offset_start = offset;
+
+    tag = tvb_get_ntoh24(tvb, offset);
+    if (tag!= T_CONNECTION_DESCRIPTOR)
+        return 0;
+
+    if (tree) {
+        ti = proto_tree_add_text(tree, tvb,
+                        offset_start, -1, "Connection descriptor");
+        conn_desc_tree = proto_item_add_subtree(ti, ett_dvbci_lsc_conn_desc);
+    }
+
+    proto_tree_add_item(conn_desc_tree, hf_dvbci_apdu_tag,
+            tvb, offset, APDU_TAG_SIZE, ENC_BIG_ENDIAN);
+    offset += APDU_TAG_SIZE;
+    offset = dissect_ber_length(pinfo, conn_desc_tree,
+                    tvb, offset, &len_field, NULL);
+    offset_body = offset;
+
+    conn_desc_type = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(conn_desc_tree, hf_dvbci_conn_desc_type,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset++;
+
+    if (conn_desc_type == CONN_DESC_IP) {
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_tag,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_len,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        ip_ver = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_ip_ver,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+
+        if (ip_ver == LSC_IPV4) {
+            offset += FT_IPv6_LEN-FT_IPv4_LEN;
+            proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_ipv4_addr,
+                    tvb, offset, FT_IPv4_LEN, ENC_BIG_ENDIAN);
+            offset += FT_IPv4_LEN;
+        }
+        else if (ip_ver == LSC_IPV6) {
+            proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_ipv6_addr,
+                    tvb, offset, FT_IPv6_LEN, ENC_BIG_ENDIAN);
+            offset += FT_IPv6_LEN;
+        }
+        else 
+            offset += FT_IPv6_LEN;
+
+        port = tvb_get_ntohs(tvb, offset);
+        port_item = proto_tree_add_item(conn_desc_tree,
+                hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset +=2;
+        ip_proto = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_proto,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset ++;
+
+        if (port_item) {
+            if (ip_proto==LSC_TCP && get_tcp_port(port)) {
+                proto_item_append_text(port_item, " (%s)",
+                        get_tcp_port(port));
+            }
+            else if (ip_proto==LSC_UDP && get_udp_port(port)) {
+                proto_item_append_text(port_item, " (%s)",
+                        get_udp_port(port));
+            }
+        }
+    } else if (conn_desc_type == CONN_DESC_HOSTNAME) {
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_tag,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_media_len,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset++;
+        ip_proto = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_proto,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+        offset ++;
+        port = tvb_get_ntohs(tvb, offset);
+        port_item = proto_tree_add_item(conn_desc_tree,
+                hf_dvbci_lsc_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
+        offset +=2;
+        if (port_item) {
+            if (ip_proto==LSC_TCP && get_tcp_port(port)) {
+                proto_item_append_text(port_item, " (%s)",
+                        get_tcp_port(port));
+            }
+            else if (ip_proto==LSC_UDP && get_udp_port(port)) {
+                proto_item_append_text(port_item, " (%s)",
+                        get_udp_port(port));
+            }
+        }
+        /* everything from here to the descriptor's end is a hostname */
+        hostname_len = (offset_body+len_field)-offset;
+        proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_hostname,
+                tvb, offset, hostname_len, ENC_ASCII|ENC_BIG_ENDIAN);
+        offset += hostname_len;
+    } else {
+        proto_tree_add_text(conn_desc_tree, tvb,
+                offset, len_field-1, "media specific data");
+        offset += len_field-1;
+    }
+
+    if (ti)
+        proto_item_set_len(ti, offset-offset_start);
+
+    return offset-offset_start;
+}
 
 
 /* dissect an item from cc_data_req/cc_data_cnf,
@@ -2237,6 +2483,151 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
 
 
 static void
+dissect_dvbci_payload_lsc(guint32 tag, gint len_field,
+        tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
+{
+    gint offset_start;
+    guint8 id, timeout, ret_val, phase_id;
+    gint conn_desc_len, param_len;
+    guint16 buf_size;
+    proto_item *pi = NULL;
+    const gchar *ret_val_str = NULL;
+
+
+    offset_start = offset;
+
+    switch(tag) {
+        case T_COMMS_CMD:
+            proto_tree_add_item(tree, hf_dvbci_comms_cmd_id,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            id = tvb_get_guint8(tvb, offset);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s", 
+                    val_to_str(id, dvbci_comms_cmd_id, "Unknown: %d"));
+            offset++;
+            switch(id) {
+                case COMMS_CMD_ID_CONNECT_ON_CHANNEL:
+                    conn_desc_len = dissect_conn_desc(tvb, offset, pinfo, tree);
+                    if (conn_desc_len < 0)
+                        break;
+                    offset += conn_desc_len;
+                    proto_tree_add_item(tree, hf_dvbci_lsc_retry_count,
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
+                    offset++;
+                    timeout = tvb_get_guint8(tvb, offset);
+                    if (timeout==0) {
+                        proto_tree_add_uint_format(tree, hf_dvbci_lsc_timeout,
+                                tvb, offset, 1, timeout, "Infinite timeout");
+                    } else {
+                        proto_tree_add_uint_format(tree, hf_dvbci_lsc_timeout,
+                                tvb, offset, 1, timeout,
+                                "Timeout is %d seconds", timeout);
+                    }
+                    break;
+                case COMMS_CMD_ID_DISCONNECT_ON_CHANNEL:
+                case COMMS_CMD_ID_ENQUIRE_STATUS:
+                    /* len_field == 1 -> only id, no further parameters */
+                    if (len_field != 1) {
+                        pi = proto_tree_add_text(tree, tvb,
+                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
+                            "Length field mismatch");
+                        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                            "Length field must be 1");
+                    }
+                    break;
+                case COMMS_CMD_ID_SET_PARAMS:
+                    param_len = tvb_reported_length_remaining(tvb, offset);
+                    if (param_len == 2)
+                        buf_size = (guint16)tvb_get_guint8(tvb, offset);
+                    else if (param_len == 3)
+                        buf_size = tvb_get_ntohs(tvb, offset);
+                    else {
+                        pi = proto_tree_add_text(tree, tvb,
+                            APDU_TAG_SIZE, offset_start-APDU_TAG_SIZE,
+                            "Length field mismatch");
+                        /* length field == 1 byte id + param_len */
+                        expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                            "Length field must be 3 or 4");
+                        break;
+                    }
+                    proto_tree_add_uint_format(tree, hf_dvbci_lsc_buf_size,
+                            tvb, offset, param_len-1, buf_size,
+                            "buffer size %d bytes", buf_size);
+                    offset += param_len-1;
+                    timeout = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint_format(tree, hf_dvbci_lsc_timeout,
+                            tvb, offset, 1, timeout,
+                            "timeout is %d milliseconds", timeout*10);
+                    break;
+                case COMMS_CMD_ID_GET_NEXT_BUFFER:
+                    phase_id = tvb_get_guint8(tvb, offset);
+                    proto_tree_add_uint_format(tree, hf_dvbci_phase_id,
+                            tvb, offset, 1, phase_id, "Phase ID %d", phase_id);
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL,
+                            "received #%d", phase_id); 
+                    break;
+                default:
+                    break;
+            }
+            break;
+        case T_COMMS_REPLY:
+            proto_tree_add_item(tree, hf_dvbci_comms_rep_id,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            id = tvb_get_guint8(tvb,offset);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, NULL, "%s", 
+                    val_to_str(id, dvbci_comms_rep_id, "Unknown: %d"));
+            offset++;
+            ret_val = tvb_get_guint8(tvb,offset);
+            pi = proto_tree_add_item(tree, hf_dvbci_lsc_ret_val,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            switch (id) {
+                case COMMS_REP_ID_SEND_ACK:
+                    col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                        "sent #%d", ret_val);
+                    if (pi)
+                        proto_item_append_text(pi, " (sent #%d)", ret_val);
+                    break;
+                case COMMS_REP_ID_SET_PARAMS_ACK:
+                    ret_val_str = val_to_str_const(ret_val,
+                            dvbci_lsc_ret_val_params, "unknown/error");
+                    break;
+                case COMMS_REP_ID_STATUS_REPLY:
+                    ret_val_str = val_to_str_const(ret_val,
+                            dvbci_lsc_ret_val_connect, "unknown/error");
+                    break;
+                default:
+                    ret_val_str = val_to_str_const(ret_val,
+                            dvbci_lsc_ret_val, "unknown/error");
+                    break;
+            }
+            if (ret_val_str) {
+                col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                            "%s", ret_val_str);
+                if (pi)
+                    proto_item_append_text(pi, " (%s)", ret_val_str);
+            }
+            break;
+        case T_COMMS_SEND_LAST:
+        case T_COMMS_SEND_MORE:
+        case T_COMMS_RCV_LAST:
+        case T_COMMS_RCV_MORE:
+            phase_id = tvb_get_guint8(tvb, offset);
+            proto_tree_add_uint_format(tree, hf_dvbci_phase_id,
+                    tvb, offset, 1, phase_id, "Phase ID %d", phase_id);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
+                    "Phase ID %d", phase_id);
+            offset++;
+            if (tvb_reported_length_remaining(tvb, offset) > 0) {
+                proto_tree_add_item(tree, hf_dvbci_lsc_msg, tvb, offset,
+                    tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            }
+            break;
+        default:
+            break;
+    }
+}
+
+
+static void
 dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
         tvbuff_t *tvb, gint offset, packet_info *pinfo, proto_tree *tree)
 {
@@ -3067,7 +3458,8 @@ proto_register_dvbci(void)
         &ett_dvbci_ca_desc,
         &ett_dvbci_text,
         &ett_dvbci_cc_item,
-        &ett_dvbci_ami_req_types
+        &ett_dvbci_ami_req_types,
+        &ett_dvbci_lsc_conn_desc
     };
 
     static hf_register_info hf[] = {
@@ -3411,6 +3803,57 @@ proto_register_dvbci(void)
         { &hf_dvbci_abort_ack_code,
             { "Abort acknowledgement code", "dvb-ci.ami.abort_ack_code",
                 FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_phase_id,
+            { "Phase ID", "dvb-ci.lsc.comms_phase_id", FT_UINT8, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_comms_rep_id,
+            { "Comms reply ID", "dvb-ci.lsc.comms_reply_id", FT_UINT8, BASE_HEX,
+                VALS(dvbci_comms_rep_id), 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_buf_size,
+            { "Buffer size", "dvb-ci.lsc.buf_size", FT_UINT16, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_ret_val,
+            { "Return value", "dvb-ci.lsc.return_value", FT_UINT8, BASE_HEX,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_comms_cmd_id,
+            { "Comms command ID", "dvb-ci.lsc.comms_cmd_id", FT_UINT8, BASE_HEX,
+                VALS(dvbci_comms_cmd_id), 0, NULL, HFILL } },
+        { &hf_dvbci_conn_desc_type,
+            { "Type", "dvb-ci.lsc.conn_desc_type", FT_UINT8,
+                BASE_HEX, VALS(dvbci_conn_desc_type), 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_media_tag,
+            { "Tag", "dvb-ci.lsc.media_tag", FT_UINT8, BASE_HEX,
+                VALS(dvbci_lsc_desc_tag), 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_media_len,
+            { "Length", "dvb-ci.lsc.media_len", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_ip_ver,
+            { "IP version", "dvb-ci.lsc.ip_version", FT_UINT8, BASE_DEC,
+                VALS(dvbci_lsc_ip_ver), 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_ipv4_addr,
+            { "IP address", "dvb-ci.lsc.ipv4_addr", FT_IPv4, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_ipv6_addr,
+            { "IPv6 address", "dvb-ci.lsc.ipv6_addr", FT_IPv6, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_dst_port,
+            { "Destination port", "dvb-ci.lsc.dst_port", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_proto,
+            { "Protocol", "dvb-ci.lsc.protocol", FT_UINT8, BASE_HEX,
+                VALS(dvbci_lsc_proto), 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_hostname,
+            { "Hostname", "dvb-ci.lsc.hostname", FT_STRING, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_retry_count,
+            { "Retry count", "dvb-ci.lsc.retry_count", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_timeout,
+            { "Timeout", "dvb-ci.lsc.timeout", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_lsc_msg,
+            { "Message", "dvb-ci.lsc.message", FT_BYTES, BASE_NONE,
+                NULL, 0, NULL, HFILL } },
         { &hf_dvbci_sas_app_id,
             { "Application ID", "dvb-ci.sas.app_id", FT_UINT64, BASE_HEX,
                NULL, 0, NULL, HFILL } },
