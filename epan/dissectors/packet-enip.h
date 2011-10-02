@@ -89,6 +89,3 @@ void enip_open_cip_connection( packet_info *pinfo,
                                guint32 O2TConnID, guint32 T2OConnID );
 void enip_close_cip_connection( packet_info *pinfo,
                                 guint16 ConnSerialNumber, guint16 VendorID, guint32 DeviceSerialNumber );
-
-
-extern attribute_info_t enip_attribute_vals[29];
