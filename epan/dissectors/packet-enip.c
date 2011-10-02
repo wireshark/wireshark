@@ -817,8 +817,8 @@ enip_get_connid(packet_info *pinfo, enip_request_key_t *prequest_key, guint32 co
    return conn_val->connid;
 }
 
-int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_status(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_item* status_item;
@@ -835,8 +835,8 @@ int dissect_tcpip_status(packet_info *pinfo, proto_tree *tree, proto_item *item,
    return 4;
 }
 
-int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_config_cap(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_item* cap_item;
@@ -857,8 +857,8 @@ int dissect_tcpip_config_cap(packet_info *pinfo, proto_tree *tree, proto_item *i
    return 4;
 }
 
-int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_config_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_item* control_item;
@@ -873,8 +873,8 @@ int dissect_tcpip_config_control(packet_info *pinfo, proto_tree *tree, proto_ite
    return 4;
 }
 
-int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    guint16 path_size;
@@ -889,8 +889,8 @@ int dissect_tcpip_physical_link(packet_info *pinfo, proto_tree *tree, proto_item
    return path_size+2;
 }
 
-int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_interface_config(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    guint16 domain_length;
@@ -907,8 +907,8 @@ int dissect_tcpip_interface_config(packet_info *pinfo, proto_tree *tree, proto_i
    return (22+domain_length);
 }
 
-int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_mcast_config(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_tree_add_item(tree, hf_tcpip_mcast_alloc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -918,8 +918,8 @@ int dissect_tcpip_mcast_config(packet_info *pinfo, proto_tree *tree, proto_item 
    return 8;
 }
 
-int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_tcpip_last_conflict(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_tree_add_item(tree, hf_tcpip_lcd_acd_activity, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -929,8 +929,8 @@ int dissect_tcpip_last_conflict(packet_info *pinfo, proto_tree *tree, proto_item
    return 35;
 }
 
-int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_elink_interface_flags(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_item* flag_item;
@@ -948,8 +948,8 @@ int dissect_elink_interface_flags(packet_info *pinfo, proto_tree *tree, proto_it
    return 4;
 }
 
-int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_elink_interface_counters(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_tree_add_item(tree, hf_elink_icount_in_octets, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -966,8 +966,8 @@ int dissect_elink_interface_counters(packet_info *pinfo, proto_tree *tree, proto
    return 44;
 }
 
-int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_elink_media_counters(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_tree_add_item(tree, hf_elink_mcount_alignment_errors, tvb, offset, 4, ENC_LITTLE_ENDIAN);
@@ -985,8 +985,8 @@ int dissect_elink_media_counters(packet_info *pinfo, proto_tree *tree, proto_ite
    return 48;
 }
 
-int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_elink_interface_control(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 
 {
    proto_item* control_item;
@@ -994,9 +994,9 @@ int dissect_elink_interface_control(packet_info *pinfo, proto_tree *tree, proto_
 
    control_item = proto_tree_add_item(tree, hf_elink_icontrol_control_bits, tvb, offset, 2, ENC_LITTLE_ENDIAN);
    control_tree = proto_item_add_subtree(control_item, ett_elink_icontrol_bits);
-      proto_tree_add_item(control_tree, hf_elink_icontrol_control_bits_auto_neg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(control_tree, hf_elink_icontrol_control_bits_forced_duplex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(control_tree, hf_elink_icontrol_control_bits_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(control_tree, hf_elink_icontrol_control_bits_auto_neg, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(control_tree, hf_elink_icontrol_control_bits_forced_duplex, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+   proto_tree_add_item(control_tree, hf_elink_icontrol_control_bits_reserved, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
    proto_tree_add_item(tree, hf_elink_icontrol_forced_speed, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
    return 4;
