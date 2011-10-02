@@ -183,7 +183,7 @@ splash_update(register_action_e action, const char *message, gpointer client_dat
     if (win == NULL) return;
 
     g_get_current_time(&cur_tv);
-    if (cur_tv.tv_sec <= next_tv.tv_sec && cur_tv.tv_usec <= next_tv.tv_usec && ul_sofar < ul_count - 1) {
+    if (last_action == action && cur_tv.tv_sec <= next_tv.tv_sec && cur_tv.tv_usec <= next_tv.tv_usec && ul_sofar < ul_count - 1) {
       /* Only update every splash_register_freq milliseconds */
       ul_sofar++;
       return;
