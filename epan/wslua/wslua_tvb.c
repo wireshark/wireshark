@@ -1065,6 +1065,31 @@ WSLUA_METHOD TvbRange_string(lua_State* L) {
     WSLUA_RETURN(1); /* The string */
 }
 
+static int TvbRange_ustring_any(lua_State* L, gboolean little_endian) {
+	/* Obtain a UTF-16 encoded string from a TvbRange */
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    lua_pushlstring(L, (gchar*)tvb_get_ephemeral_unicode_string(tvbr->tvb->ws_tvb,tvbr->offset,tvbr->len,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)), tvbr->len );
+
+    return 1; /* The string */
+}
+
+WSLUA_METHOD TvbRange_ustring(lua_State* L) {
+	/* Obtain a Big Endian (network order) UTF-16 encoded string from a TvbRange */
+    WSLUA_RETURN(TvbRange_ustring_any(L, FALSE)); /* The string */
+}
+
+WSLUA_METHOD TvbRange_le_ustring(lua_State* L) {
+	/* Obtain a Little Endian UTF-16 encoded string from a TvbRange */
+    WSLUA_RETURN(TvbRange_ustring_any(L, TRUE)); /* The string */
+}
+
 WSLUA_METHOD TvbRange_stringz(lua_State* L) {
 	/* Obtain a zero terminated string from a TvbRange */
     TvbRange tvbr = checkTvbRange(L,1);
@@ -1078,6 +1103,33 @@ WSLUA_METHOD TvbRange_stringz(lua_State* L) {
     lua_pushstring(L, (gchar*)tvb_get_ephemeral_stringz(tvbr->tvb->ws_tvb,tvbr->offset,NULL) );
 
     WSLUA_RETURN(1); /* The zero terminated string */
+}
+
+static int TvbRange_ustringz_any(lua_State* L, gboolean little_endian) {
+	/* Obtain a zero terminated string from a TvbRange */
+    gint count;
+    TvbRange tvbr = checkTvbRange(L,1);
+
+    if ( !(tvbr && tvbr->tvb)) return 0;
+    if (tvbr->tvb->expired) {
+        luaL_error(L,"expired tvb");
+        return 0;
+    }
+
+    lua_pushstring(L, (gchar*)tvb_get_ephemeral_unicode_stringz(tvbr->tvb->ws_tvb,tvbr->offset,&count,(little_endian ? ENC_LITTLE_ENDIAN : ENC_BIG_ENDIAN)) );
+    lua_pushinteger(L,count);
+
+    return 2; /* The zero terminated string, the length found in tvbr */
+}
+
+WSLUA_METHOD TvbRange_ustringz(lua_State* L) {
+	/* Obtain a Big Endian (network order) UTF-16 encoded zero terminated string from a TvbRange */
+    WSLUA_RETURN(TvbRange_ustringz_any(L, FALSE)); /* The zero terminated string, the length found in tvbr */
+}
+
+WSLUA_METHOD TvbRange_le_ustringz(lua_State* L) {
+	/* Obtain a Little Endian UTF-16 encoded zero terminated string from a TvbRange */
+    WSLUA_RETURN(TvbRange_ustringz_any(L, TRUE)); /* The zero terminated string, the length found in tvbr */
 }
 
 WSLUA_METHOD TvbRange_bytes(lua_State* L) {
@@ -1234,6 +1286,10 @@ static const luaL_reg TvbRange_methods[] = {
     {"len", TvbRange_len},
     {"offset", TvbRange_offset},
     {"tvb", TvbRange_tvb},
+    {"le_ustring", TvbRange_le_ustring},
+    {"ustring", TvbRange_ustring},
+    {"le_ustringz", TvbRange_le_ustringz},
+    {"ustringz", TvbRange_ustringz},
     { NULL, NULL }
 };
 
