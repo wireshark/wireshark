@@ -98,6 +98,7 @@ static int ett_lte_rrc = -1;
 #include "packet-lte-rrc-ett.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
+static gint ett_lte_rrc_neighCellConfig = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
@@ -475,6 +476,7 @@ void proto_register_lte_rrc(void) {
 #include "packet-lte-rrc-ettarr.c"
 
     &ett_lte_rrc_featureGroupIndicators,
+    &ett_lte_rrc_neighCellConfig,
   };
 
 

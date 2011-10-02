@@ -2088,6 +2088,7 @@ static gint ett_lte_rrc_RRM_Config = -1;
 #line 99 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
+static gint ett_lte_rrc_neighCellConfig = -1;
 
 /* Forward declarations */
 static int dissect_DL_DCCH_Message_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
@@ -4074,8 +4075,33 @@ dissect_lte_rrc_PresenceAntennaPort1(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx
 
 static int
 dissect_lte_rrc_NeighCellConfig(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *neigh_cell_config_tvb = NULL;
   offset = dissect_per_bit_string(tvb, offset, actx, tree, hf_index,
-                                     2, 2, FALSE, NULL);
+                                     2, 2, FALSE, &neigh_cell_config_tvb);
+
+  if (neigh_cell_config_tvb) {
+    guint8 bits;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
+    bits = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
+    switch (bits) {
+    case 0:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "Not all neighbour cells have the same MBSFN subframe allocation as serving cell");
+      break;
+    case 1:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "No MBSFN subframes are present in all neighbour cells");
+      break;
+    case 2:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "The MBSFN subframe allocations of all neighbour cells are identical to or subsets of that in the serving cell");
+      break;
+    case 3:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "Different UL/DL allocation in neighbouring cells for TDD compared to the serving cell");
+      break;
+    default:
+      break;
+    }
+  }
+
 
   return offset;
 }
@@ -19642,7 +19668,7 @@ static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 236 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 237 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -24816,7 +24842,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 341 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 342 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -25624,9 +25650,10 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 476 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 477 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
+    &ett_lte_rrc_neighCellConfig,
   };
 
 
@@ -25662,7 +25689,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 498 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 500 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 

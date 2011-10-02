@@ -291,6 +291,32 @@ if(ue_eutra_cap_tvb){
   if (utra_bcch_cont_tvb && rrc_sys_info_cont_handle)
     call_dissector(rrc_sys_info_cont_handle, utra_bcch_cont_tvb, actx->pinfo, tree);
 
+#.FN_BODY NeighCellConfig VAL_PTR = &neigh_cell_config_tvb
+  tvbuff_t *neigh_cell_config_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (neigh_cell_config_tvb) {
+    guint8 bits;
+    proto_tree *subtree;
+    subtree = proto_item_add_subtree(actx->created_item, ett_lte_rrc_neighCellConfig);
+    bits = tvb_get_bits8(neigh_cell_config_tvb, 0, 2);
+    switch (bits) {
+    case 0:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "Not all neighbour cells have the same MBSFN subframe allocation as serving cell");
+      break;
+    case 1:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "No MBSFN subframes are present in all neighbour cells");
+      break;
+    case 2:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "The MBSFN subframe allocations of all neighbour cells are identical to or subsets of that in the serving cell");
+      break;
+    case 3:
+      proto_tree_add_text(subtree, neigh_cell_config_tvb, 0, 1, "Different UL/DL allocation in neighbouring cells for TDD compared to the serving cell");
+      break;
+    default:
+      break;
+    }
+  }
+
 #.FN_HDR MasterInformationBlock
 
 col_append_str(actx->pinfo->cinfo, COL_INFO, "MasterInformationBlock ");
