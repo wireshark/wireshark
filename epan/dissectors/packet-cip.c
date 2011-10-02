@@ -2914,6 +2914,7 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
    case cip_bool:
    case cip_usint:
    case cip_sint:
+	   /* fall trough */
    case cip_byte:
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, 1, ENC_LITTLE_ENDIAN);
       consumed = 1;
@@ -2921,6 +2922,7 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
    case cip_uint:
    case cip_int:
    case cip_word:
+	   /* fall trough */
    case cip_itime:
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, 2, ENC_LITTLE_ENDIAN);
       consumed = 2;
@@ -2940,6 +2942,7 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
    case cip_dword:
    case cip_real:
    case cip_time:
+	   /* fall trough */
    case cip_ftime:
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, 4, ENC_LITTLE_ENDIAN);
       consumed = 4;
@@ -2948,6 +2951,7 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
    case cip_lint:
    case cip_lword:
    case cip_lreal:
+	   /* fall trough */
    case cip_ltime:
       proto_tree_add_item(tree, *(attr->phf), tvb, offset, 8, ENC_LITTLE_ENDIAN);
       consumed = 8;
@@ -2966,6 +2970,7 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
       consumed = attr->pdissect(pinfo, tree, item, tvb, offset, total_len);
       break;
    default:
+	   /* 'cip_date', 'cip_time_of_day','cip_date_and_time', 'cip_string2','cip_stringN', 'cip_stringi'  */
       break;
    }
 
