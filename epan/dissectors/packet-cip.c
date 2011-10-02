@@ -2180,16 +2180,16 @@ static const value_string cip_class_names_vals[] = {
 value_string_ext cip_class_names_vals_ext = VALUE_STRING_EXT_INIT(cip_class_names_vals);
 
 
-int dissect_id_revision(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_id_revision(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 {
    proto_tree_add_item( tree, hf_id_major_rev, tvb, offset, 1, ENC_LITTLE_ENDIAN);
    proto_tree_add_item( tree, hf_id_minor_rev, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
    return 2;
 }
 
-int dissect_msg_rout_num_classes(packet_info *pinfo, proto_tree *tree, proto_item *item, tvbuff_t *tvb, 
-                             int offset, int total_len)
+int dissect_msg_rout_num_classes(packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, tvbuff_t *tvb,
+                             int offset, int total_len _U_)
 {
    guint16 i, num_classes;
    
@@ -2241,14 +2241,14 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
 static attribute_info_t* cip_get_attribute(guint class_id, guint instance, guint attribute)
 {
-   gint i, j;
+   size_t i, j;
    attribute_val_array_t* att_array;
    attribute_info_t* pattr;
    
    for (i = 0; i < sizeof(all_attribute_vals)/sizeof(attribute_val_array_t); i++)
    {
       att_array = &all_attribute_vals[i];
-      for (j = 0; j < att_array->size; j++)
+      for (j = 0; j < (size_t)att_array->size; j++)
       {
          pattr = &att_array->attrs[j];
          if ((pattr->class_id == class_id) &&
@@ -2965,6 +2965,8 @@ dissect_cip_attribute(packet_info *pinfo, proto_tree *tree, proto_item *item, tv
    case cip_dissector_func:
       consumed = attr->pdissect(pinfo, tree, item, tvb, offset, total_len);
       break;
+   default:
+      break;
    }
 
    return consumed;
@@ -3168,8 +3170,8 @@ dissect_cip_set_attribute_list_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 }
 
 static void
-dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
-                                  int offset, cip_simple_request_info_t* req_data)
+dissect_cip_multiple_service_packet_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item _U_,
+                                  int offset, cip_simple_request_info_t* req_data _U_)
 {
    proto_item *mult_serv_item;
    proto_tree *mult_serv_tree;
@@ -3264,7 +3266,7 @@ dissect_cip_generic_service_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
             val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)") );
 
    /* Create service tree */
-   cmd_data_item = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb),
+   cmd_data_item = proto_tree_add_text(tree, tvb, 0, tvb_length(tvb), "%s",
                         val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
    proto_item_append_text(cmd_data_item, " (Request)");
    cmd_data_tree = proto_item_add_subtree( cmd_data_item, ett_cmd_data );
@@ -3489,7 +3491,7 @@ dissect_cip_get_attribute_single_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
 static void
 dissect_cip_multiple_service_packet_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_item * item,
-                                  int offset, cip_simple_request_info_t* req_data)
+                                  int offset, cip_simple_request_info_t* req_data _U_)
 {
    proto_item *mult_serv_item;
    proto_tree *mult_serv_tree;
@@ -3615,7 +3617,7 @@ dissect_cip_generic_service_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
    /* If there is any command specific data create a sub-tree for it */
    if( (item_length-4-add_stat_size ) != 0 )
    {
-      cmd_data_item = proto_tree_add_text(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size,
+      cmd_data_item = proto_tree_add_text(tree, tvb, offset+4+add_stat_size, item_length-4-add_stat_size, "%s",
                            val_to_str(service, cip_sc_vals , "Unknown Service (0x%02x)"));
       proto_item_append_text(cmd_data_item, " (Response)");
       cmd_data_tree = proto_item_add_subtree( cmd_data_item, ett_cmd_data );
