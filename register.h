@@ -33,8 +33,10 @@ typedef enum {
   RA_LISTENERS,         /* Tap listeners */
   RA_REGISTER,          /* register */
   RA_PLUGIN_REGISTER,   /* plugin register */
+  RA_PYTHON_REGISTER,   /* python register */
   RA_HANDOFF,           /* handoff */
   RA_PLUGIN_HANDOFF,    /* plugin handoff */
+  RA_PYTHON_HANDOFF,    /* python handoff */
   RA_LUA_PLUGINS,       /* lua plugin register */
   RA_PREFERENCES,       /* module preferences */
   RA_CONFIGURATION      /* configuration files */

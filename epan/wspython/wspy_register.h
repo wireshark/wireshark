@@ -29,8 +29,8 @@ extern "C" {
 #endif /* __cplusplus */
 
 #ifdef HAVE_PYTHON
-void register_all_py_protocols_func(register_cb cb, gpointer client_data);
-void register_all_py_handoffs_func(register_cb cb, gpointer client_data);
+void register_all_py_protocols_func(void);
+void register_all_py_handoffs_func(void);
 #endif
 
 #ifdef __cplusplus

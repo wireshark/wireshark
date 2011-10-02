@@ -88,17 +88,8 @@ char * py_dissector_name(PyObject * py_dissector)
 /**
  * Register the dissector
  */
-void py_dissector_register(PyObject * py_dissector, char * py_name, register_cb cb, gpointer client_data)
+void py_dissector_register(PyObject * py_dissector)
 {
-/*  const char * py_name; */
-
-  /* Get the name of the dissector */
-/*  py_name = py_dissector_name(py_dissector); */
-
-  /* Register dissector in register_cb */
-  if (cb)
-    (*cb)(RA_REGISTER, py_name, client_data);
-
   /**
    * Register protocol, fields, subtrees
    *
@@ -125,7 +116,7 @@ static const char *get_py_register_file(void)
 /**
  * Finds out all the python dissectors and register them
  */
-void register_all_py_protocols_func(register_cb cb _U_, gpointer client_data _U_)
+void register_all_py_protocols_func(void)
 {
   FILE * py_reg;
   PyObject * global_dict, * main_module, * register_fn;
@@ -177,7 +168,7 @@ void register_all_py_protocols_func(register_cb cb _U_, gpointer client_data _U_
   for (index = 0; (py_dissector = PySequence_GetItem(py_dissectors, index)); index++)
   {
     name = py_dissector_name(py_dissector);
-    py_dissector_register(py_dissector, name, cb, client_data);
+    py_dissector_register(py_dissector);
     g_hash_table_insert(g_py_dissectors, (gpointer*)name, py_dissector);
   }
 }
@@ -236,21 +227,9 @@ dissector_t py_generic_dissector(void)
   return &py_dissect;
 }
 
-struct SRegisterHandoffsForeach {
-  register_cb cb;
-  gpointer client_data;
-};
-
-static void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, gpointer user_data)
+static void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, gpointer user_data _U_)
 {
   PyObject * py_dissector = (PyObject *)value;
-  struct SRegisterHandoffsForeach *rhf = (struct SRegisterHandoffsForeach*)user_data;
-
-  /* STA TODO : it's the short_desc field ... not really the filter field! */
-  char * handoff_name = g_strdup_printf("handoff_%s", py_dissector_name(py_dissector));
-
-  if (rhf->cb)
-    (*(rhf->cb))(RA_HANDOFF, handoff_name, rhf->client_data);
 
   PyObject_CallMethod(py_dissector, "register_handoff", NULL);
 }
@@ -259,14 +238,9 @@ static void register_all_py_handoffs_foreach(gpointer key _U_, gpointer value, g
  * Finalize the registration of the python protocol dissectors
  */
 void
-register_all_py_handoffs_func(register_cb cb, gpointer client_data)
+register_all_py_handoffs_func(void)
 {
-  struct SRegisterHandoffsForeach rhf;
-
-  rhf.cb = cb;
-  rhf.client_data = client_data;
-
-  g_hash_table_foreach(g_py_dissectors, register_all_py_handoffs_foreach, &rhf);
+  g_hash_table_foreach(g_py_dissectors, register_all_py_handoffs_foreach, NULL);
 }
 
 #endif /* HAVE_PYTHON */

@@ -393,7 +393,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 	register_all_protocols_func(cb, client_data);
 #ifdef HAVE_PYTHON
 	/* Now scan for python protocols */
-	register_all_py_protocols_func(cb, client_data);
+	if(cb)
+		(*cb)(RA_PYTHON_REGISTER, NULL, client_data);
+	register_all_py_protocols_func();
 #endif
 
 #ifdef HAVE_PLUGINS
@@ -413,7 +415,9 @@ proto_init(void (register_all_protocols_func)(register_cb cb, gpointer client_da
 
 #ifdef HAVE_PYTHON
 	/* Now do the same with python dissectors */
-	register_all_py_handoffs_func(cb, client_data);
+	if(cb)
+		(*cb)(RA_PYTHON_HANDOFF, NULL, client_data);
+	register_all_py_handoffs_func();
 #endif
 
 #ifdef HAVE_PLUGINS
