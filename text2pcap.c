@@ -275,7 +275,13 @@ typedef struct {
     guint32 dest_addr;
 } hdr_ip_t;
 
-static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 0x0101010a, 0x0202020a};
+static hdr_ip_t HDR_IP = {0x45, 0, 0, 0x3412, 0, 0, 0xff, 0, 0, 
+#ifdef WORDS_BIGENDIAN
+0x0a010101, 0x0a020202
+#else
+0x0101010a, 0x0202020a
+#endif
+};
 
 static struct {			/* pseudo header for checksum calculation */
 	guint32 src_addr;
