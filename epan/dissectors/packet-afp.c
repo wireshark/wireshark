@@ -4339,7 +4339,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		item_toc = proto_tree_add_text(tree,
 					       tvb,
 					       offset,
-					       querylen - (gint)toc_offset,
+					       (gint)querylen - (gint)toc_offset,
 					       "Complex types ToC (%u < 1 - bogus)",
 					       toc_entries);
 		return -1;
@@ -4348,7 +4348,7 @@ dissect_spotlight(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	item_toc = proto_tree_add_text(tree,
 				       tvb,
 				       offset,
-				       querylen - (gint)toc_offset,
+				       (gint)querylen - (gint)toc_offset,
 				       "Complex types ToC (%u entries)",
 				       toc_entries);
 	sub_tree_toc = proto_item_add_subtree(item_toc, ett_afp_spotlight_toc);
