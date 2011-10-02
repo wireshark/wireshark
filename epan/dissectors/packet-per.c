@@ -1981,6 +1981,7 @@ static tvbuff_t *dissect_per_bit_string_display(tvbuff_t *tvb, guint32 offset, a
 	guint64  value;
 
 	out_tvb = tvb_new_octet_aligned(tvb, offset, length);
+	add_new_data_source(actx->pinfo, out_tvb, "Bitstring tvb");
 
 	if (hfi) {
 		actx->created_item = proto_tree_add_item(tree, hf_index, out_tvb, 0, -1, FALSE);
