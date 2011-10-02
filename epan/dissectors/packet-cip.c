@@ -2848,16 +2848,16 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                case CI_NETWORK_SEG_SCHEDULE:
                   proto_tree_add_item(net_tree, hf_cip_seg_schedule, tvb, offset+pathpos+1, 1, ENC_LITTLE_ENDIAN );
 
-                  proto_item_set_len( net_item, 2 + seg_size );
-                  proto_item_set_len( path_seg_item, 2 + seg_size );
+                  proto_item_set_len( net_item, 2 );
+                  proto_item_set_len( path_seg_item, 2 );
                   pathpos += 2;
                   break;
 
                case CI_NETWORK_SEG_FIXED_TAG:
                   proto_tree_add_item(net_tree, hf_cip_seg_fixed_tag, tvb, offset+pathpos+1, 1, ENC_LITTLE_ENDIAN );
 
-                  proto_item_set_len( net_item, 2 + seg_size );
-                  proto_item_set_len( path_seg_item, 2 + seg_size );
+                  proto_item_set_len( net_item, 2 );
+                  proto_item_set_len( path_seg_item, 2 );
                   pathpos += 2;
                   break;
 
@@ -2867,8 +2867,8 @@ void dissect_epath( tvbuff_t *tvb, packet_info *pinfo, proto_item *epath_item, i
                   proto_tree_add_uint_format_value(net_tree, hf_cip_seg_prod_inhibit_time,
                      tvb, offset + pathpos+1, 1, temp_data, "%dms", temp_data);
 
-                  proto_item_set_len( net_item, 2 + seg_size );
-                  proto_item_set_len( path_seg_item, 2 + seg_size );
+                  proto_item_set_len( net_item, 2 );
+                  proto_item_set_len( path_seg_item, 2 );
                   pathpos += 2;
                   break;
 
