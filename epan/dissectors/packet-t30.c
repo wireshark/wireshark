@@ -644,7 +644,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 	proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
 	if (buf_top > buf+1) {
 		buf_top[-2] = '\0';
-		proto_tree_add_string_format(tree, hf_t30_partial_page_request_frames, tvb, offset, buf_top-buf, buf, "Frames: %s", buf);
+		proto_tree_add_string_format(tree, hf_t30_partial_page_request_frames, tvb, offset, (gint)(buf_top-buf), buf, "Frames: %s", buf);
 	}
 
     if (check_col(pinfo->cinfo, COL_INFO))
