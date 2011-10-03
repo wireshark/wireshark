@@ -69,9 +69,6 @@ static int hf_smb2_flags_dfs_op = -1;
 static int hf_smb2_flags_chained = -1;
 static int hf_smb2_flags_signature = -1;
 static int hf_smb2_chain_offset = -1;
-static int hf_smb2_response_buffer_offset = -1;
-static int hf_smb2_security_blob_offset = -1;
-static int hf_smb2_security_blob_len = -1;
 static int hf_smb2_security_blob = -1;
 static int hf_smb2_ioctl_in_data = -1;
 static int hf_smb2_ioctl_out_data = -1;
@@ -116,7 +113,6 @@ static int hf_smb2_max_response_size = -1;
 static int hf_smb2_max_ioctl_in_size = -1;
 static int hf_smb2_max_ioctl_out_size = -1;
 static int hf_smb2_required_buffer_size = -1;
-static int hf_smb2_response_size = -1;
 static int hf_smb2_setinfo_size = -1;
 static int hf_smb2_setinfo_offset = -1;
 static int hf_smb2_file_basic_info = -1;
@@ -163,7 +159,6 @@ static int hf_smb2_create_disposition = -1;
 static int hf_smb2_create_chain_offset = -1;
 static int hf_smb2_create_chain_data = -1;
 static int hf_smb2_data_offset = -1;
-static int hf_smb2_data_length = -1;
 static int hf_smb2_extrainfo = -1;
 static int hf_smb2_create_action = -1;
 static int hf_smb2_create_rep_flags = -1;
@@ -291,7 +286,6 @@ static int hf_smb2_short_name_len = -1;
 static int hf_smb2_short_name = -1;
 static int hf_smb2_id_both_directory_info = -1;
 static int hf_smb2_full_directory_info = -1;
-static int hf_smb2_file_name_info = -1;
 static int hf_smb2_lock_info = -1;
 static int hf_smb2_lock_length = -1;
 static int hf_smb2_lock_flags = -1;
@@ -6545,9 +6539,6 @@ proto_register_smb2(void)
 	{ &hf_smb2_max_ioctl_in_size,
 		{ "Max Ioctl In Size", "smb2.max_ioctl_in_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 Maximum ioctl out size", HFILL }},
-	{ &hf_smb2_response_size,
-		{ "Response Size", "smb2.response_size", FT_UINT32, BASE_DEC,
-		NULL, 0, "SMB2 response size", HFILL }},
 	{ &hf_smb2_required_buffer_size,
 		{ "Required Buffer Size", "smb2.required_size", FT_UINT32, BASE_DEC,
 		NULL, 0, "SMB2 required buffer size", HFILL }},
@@ -6578,18 +6569,6 @@ proto_register_smb2(void)
 	{ &hf_smb2_filename_len,
 		{ "Filename Length", "smb2.filename.len", FT_UINT32, BASE_DEC,
 		NULL, 0, "Length of the file name", HFILL }},
-
-	{ &hf_smb2_security_blob_len,
-		{ "Security Blob Length", "smb2.security_blob_len", FT_UINT16, BASE_DEC,
-		NULL, 0, NULL, HFILL }},
-
-	{ &hf_smb2_security_blob_offset,
-		{ "Security Blob Offset", "smb2.security_blob_offset", FT_UINT16, BASE_HEX,
-		NULL, 0, "Offset into the SMB2 PDU of the blob", HFILL }},
-
-	{ &hf_smb2_response_buffer_offset,
-		{ "Response Buffer Offset", "smb2.response_buffer_offset", FT_UINT16, BASE_HEX,
-		NULL, 0, "Offset of the response buffer", HFILL }},
 
 	{ &hf_smb2_data_offset,
 		{ "Data Offset", "smb2.data_offset", FT_UINT16, BASE_HEX,
@@ -6942,10 +6921,6 @@ proto_register_smb2(void)
 	{ &hf_smb2_lease_share_mask_hint,
 	  { "Share Mask Hint", "smb2.lease.share_mask_hint", FT_UINT32, BASE_HEX,
 		NULL, 0, NULL, HFILL }},
-
-	{ &hf_smb2_data_length,
-		{ "Data Length", "smb2.create.data_length", FT_UINT32, BASE_DEC,
-		NULL, 0, "Length Data or 0", HFILL }},
 
 	{ &hf_smb2_next_offset,
 		{ "Next Offset", "smb2.next_offset", FT_UINT32, BASE_DEC,
@@ -7417,9 +7392,6 @@ proto_register_smb2(void)
 
 	{ &hf_smb2_short_name,
 		{ "Short Name", "smb2.shortname", FT_STRING, BASE_NONE,
-		NULL, 0, NULL, HFILL }},
-	{ &hf_smb2_file_name_info,
-		{ "FileNameInfo", "smb2.find.name_info", FT_NONE, BASE_NONE,
 		NULL, 0, NULL, HFILL }},
 
 	{ &hf_smb2_lock_info,
