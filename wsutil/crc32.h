@@ -41,14 +41,6 @@ extern "C" {
 	 ((crc32c_value & 0x0000ff00) <<  8)	|	\
 	 ((crc32c_value & 0x000000ff) << 24))
 
-#define CRC32C(c,d) (c=(c>>8)^crc32c_table_lookup((c^(d))&0xFF))
-
-extern const guint32 crc32_ccitt_table[256];
-
-/** Lookup the crc value in the crc32c_table
- @param pos Position in the table. */
-extern guint32 crc32c_table_lookup (guchar pos);
-
 /** Lookup the crc value in the crc32_ccitt_table
  @param pos Position in the table. */
 extern guint32 crc32_ccitt_table_lookup (guchar pos);
@@ -59,6 +51,14 @@ extern guint32 crc32_ccitt_table_lookup (guchar pos);
  @param crc The preload value for the CRC32C computation.
  @return The CRC32C checksum. */
 extern guint32 crc32c_calculate(const void *buf, int len, guint32 crc);
+
+/** Compute CRC32C checksum of a buffer of data without swapping seed crc
+ or completed checksum
+ @param buf The buffer containing the data.
+ @param len The number of bytes to include in the computation.
+ @param crc The preload value for the CRC32C computation.
+ @return The CRC32C checksum. */
+extern guint32 crc32c_calculate_no_swap(const void *buf, int len, guint32 crc);
 
 /** Compute CRC32 CCITT checksum of a buffer of data.
  @param buf The buffer containing the data.

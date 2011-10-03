@@ -446,23 +446,19 @@ sctp_adler32(const unsigned char* buf, unsigned int len)
 static guint32
 sctp_crc32c(const unsigned char* buf, unsigned int len)
 {
-  unsigned int i;
-  guint32 crc32 = CRC32C_PRELOAD;
+  guint32 crc32,
+          zero = 0;
   guint32 result;
 
-  for (i = 0; i < SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH; i++)
-  {
-    CRC32C(crc32, buf[i]);
-  }
+  /* CRC for header */
+  crc32 = crc32c_calculate_no_swap(buf, SOURCE_PORT_LENGTH + DESTINATION_PORT_LENGTH + VERIFICATION_TAG_LENGTH, CRC32C_PRELOAD);
+
   /* handle four 0 bytes as checksum */
-  CRC32C(crc32, 0);
-  CRC32C(crc32, 0);
-  CRC32C(crc32, 0);
-  CRC32C(crc32, 0);
-  for (i = COMMON_HEADER_LENGTH; i < len; i++)
-  {
-    CRC32C(crc32, buf[i]);
-  }
+  crc32 = crc32c_calculate_no_swap(&zero, 4, crc32);
+
+  /* CRC for the rest of the packet */
+  crc32 = crc32c_calculate_no_swap(&buf[COMMON_HEADER_LENGTH], len-COMMON_HEADER_LENGTH, crc32);
+
   result = CRC32C_SWAP(crc32);
 
   return ( ~result );
