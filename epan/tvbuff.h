@@ -287,7 +287,7 @@ extern void tvb_get_guid(tvbuff_t *tvb, const gint offset, e_guid_t *guid, const
 
 /* Fetch a specified number of bits from bit offset in a tvb */
 extern guint8 tvb_get_bits8(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits);
-extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gint encoding);
+extern guint16 tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
 extern guint32 tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
 extern guint64 tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding);
 
