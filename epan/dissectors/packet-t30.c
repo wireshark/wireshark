@@ -617,7 +617,8 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 {
 	int frame_count = 0;
 	int frame;
-	gchar *buf = ep_alloc(10*1 + 90*2 + 156*3 + 256*2 + 1); /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
+#define BUF_SIZE	(10*1 + 90*2 + 156*3 + 256*2 + 1) /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
+	gchar *buf = ep_alloc(BUF_SIZE);
 	gchar *buf_top = buf;
 	
 	if (len != 32) {
@@ -634,7 +635,7 @@ dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, 
 		for (;bit;) {
 			if (octet & bit) {
 				++frame_count;
-				buf_top += g_sprintf(buf_top, "%u, ", frame);
+				buf_top += g_snprintf(buf_top, BUF_SIZE - (gulong)(buf_top - buf), "%u, ", frame);
 			}
 			bit >>= 1;
 			++frame;
