@@ -1596,7 +1596,7 @@ dissect_smb2_file_disposition_info(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	}
 
 	/* file disposition */
-	proto_tree_add_item(tree, hf_smb2_disposition_delete_on_close, tvb, offset, 1, ENC_LITTLE_ENDIAN););
+	proto_tree_add_item(tree, hf_smb2_disposition_delete_on_close, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 	return offset;
 }
