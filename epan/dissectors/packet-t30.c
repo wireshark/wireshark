@@ -28,6 +28,7 @@
 #endif
 
 #include <glib.h>
+#include <glib/gprintf.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
 #include <string.h>
@@ -143,6 +144,8 @@ static int hf_t30_partial_page_fcf2 = -1;
 static int hf_t30_partial_page_i1 = -1;
 static int hf_t30_partial_page_i2 = -1;
 static int hf_t30_partial_page_i3 = -1;
+static int hf_t30_partial_page_request_frame_count = -1;
+static int hf_t30_partial_page_request_frames = -1;
 
 static gint ett_t30 = -1;
 static gint ett_t30_fif = -1;
@@ -610,6 +613,46 @@ dissect_t30_partial_page_signal(tvbuff_t *tvb, int offset, packet_info *pinfo, i
 }
 
 static void
+dissect_t30_partial_page_request(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree)
+{
+	int frame_count = 0;
+	int frame;
+	gchar *buf = ep_alloc(10*1 + 90*2 + 156*3 + 256*2 + 1); /* 0..9 + 10..99 + 100..255 + 256*', ' + \0 */
+	gchar *buf_top = buf;
+	
+	if (len != 32) {
+		proto_tree_add_text(tree, tvb, offset, tvb_reported_length_remaining(tvb, offset), "[MALFORMED OR SHORT PACKET: PPR length must be 32 bytes]");
+		expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "T30 PPR length must be 32 bytes");
+		col_append_str(pinfo->cinfo, COL_INFO, " [MALFORMED OR SHORT PACKET]");
+		return;
+	}
+	
+	for (frame=0; frame < 255; ) {
+		guint8 octet = tvb_get_guint8(tvb, offset);
+		guint8 bit = 1<<7;
+		
+		for (;bit;) {
+			if (octet & bit) {
+				++frame_count;
+				buf_top += g_sprintf(buf_top, "%hhu, ", frame);
+			}
+			bit >>= 1;
+			++frame;
+		}
+		++offset;
+	}
+	proto_tree_add_uint(tree, hf_t30_partial_page_request_frame_count, tvb, offset, 1, frame_count);
+	if (buf_top > buf+1) {
+		buf_top[-2] = '\0';
+		proto_tree_add_string_format(tree, hf_t30_partial_page_request_frames, tvb, offset, buf_top-buf, buf, "Frames: %s", buf);
+	}
+
+    if (check_col(pinfo->cinfo, COL_INFO))
+        col_append_fstr(pinfo->cinfo, COL_INFO, " - %d frames", frame_count);
+
+}
+
+static void
 dissect_t30_dis_dtc(tvbuff_t *tvb, int offset, packet_info *pinfo, int len, proto_tree *tree, gboolean dis_dtc)
 {
     guint8 octet;
@@ -935,6 +978,9 @@ dissect_t30_hdlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case T30_FC_PPS:
             dissect_t30_partial_page_signal(tvb, offset, pinfo, frag_len, tr_fif);
+            break;
+        case T30_FC_PPR:
+            dissect_t30_partial_page_request(tvb, offset, pinfo, frag_len, tr_fif);
             break;
         }
 
@@ -1280,6 +1326,14 @@ proto_register_t30(void)
         {  &hf_t30_partial_page_i3,
             { "Frame counter", "t30.t4.frame_count", FT_UINT8, BASE_DEC,
               NULL, 0, NULL, HFILL }},
+			  
+        {  &hf_t30_partial_page_request_frame_count,
+            { "Frame counter", "t30.ppr.frame_count", FT_UINT8, BASE_DEC,
+              NULL, 0, NULL, HFILL }},
+        {  &hf_t30_partial_page_request_frames,
+            { "Frames", "t30.ppr.frames", FT_STRING, BASE_NONE,
+              NULL, 0x0, NULL, HFILL }},
+			  
     };
 
     static gint *t30_ett[] =
