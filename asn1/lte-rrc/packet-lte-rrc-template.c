@@ -46,10 +46,13 @@
 #define PFNAME "lte_rrc"
 
 static dissector_handle_t nas_eps_handle = NULL;
-static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
-static dissector_handle_t rrc_sys_info_cont_handle;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
+static dissector_handle_t rrc_sys_info_cont_handle = NULL;
+static dissector_handle_t gsm_a_dtap_handle = NULL;
+static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static guint32 lte_rrc_rat_type_value = -1;
 static guint32 lte_rrc_ho_target_rat_type_value = -1;
+static gint lte_rrc_si_or_psi_geran_val = -1;
 
 /* Include constants */
 #include "packet-lte-rrc-val.h"
@@ -512,6 +515,8 @@ proto_reg_handoff_lte_rrc(void)
 	nas_eps_handle = find_dissector("nas-eps");
 	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
 	rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
+	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+	gsm_rlcmac_dl_handle = find_dissector("gsm_rlcmac_dl");
 }
 
 

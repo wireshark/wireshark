@@ -234,6 +234,7 @@ if(ue_eutra_cap_tvb){
   tvbuff_t *target_rat_msg_cont_tvb = NULL;
 %(DEFAULT_BODY)s
   if(target_rat_msg_cont_tvb){
+    guint8 byte;
     switch(lte_rrc_ho_target_rat_type_value){
     case 0:
       /* utra */
@@ -242,6 +243,16 @@ if(ue_eutra_cap_tvb){
       break;
     case 1:
       /* geran */
+      byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
+      if (byte == 0x06) {
+        if (gsm_a_dtap_handle) {
+          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+        }
+      } else {
+        if (gsm_rlcmac_dl_handle) {
+          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+        }
+      }
       break;
     case 2:
       /* cdma2000-1XRTT */
@@ -278,6 +289,34 @@ if(ue_eutra_cap_tvb){
   subtree = proto_item_add_subtree(item, hf_lte_rrc_nas_SecurityParamToEUTRA);
   de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 
+#.FN_BODY SI-OrPSI-GERAN VAL_PTR = &lte_rrc_si_or_psi_geran_val
+%(DEFAULT_BODY)s
+
+#.FN_BODY CellInfoGERAN-r9
+  lte_rrc_si_or_psi_geran_val = 0; /* SI message */
+%(DEFAULT_BODY)s
+
+#.FN_BODY SystemInfoListGERAN/_item VAL_PTR = &sys_info_list_tvb
+  tvbuff_t *sys_info_list_tvb = NULL;
+%(DEFAULT_BODY)s
+  if (sys_info_list_tvb) {
+    switch (lte_rrc_si_or_psi_geran_val) {
+    case 0:
+      /* SI message */
+      if (gsm_a_dtap_handle) {
+        call_dissector(gsm_a_dtap_handle, sys_info_list_tvb ,actx->pinfo, tree);
+      }
+      break;
+    case 1:
+      /* PSI message */
+      if (gsm_rlcmac_dl_handle) {
+        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb ,actx->pinfo, tree);
+      }
+      break;
+    default:
+      break;
+    }
+  }
 
 #.FN_BODY CellInfoUTRA-FDD-r9/utra-BCCH-Container-r9 VAL_PTR = &utra_bcch_cont_tvb
   tvbuff_t *utra_bcch_cont_tvb = NULL;

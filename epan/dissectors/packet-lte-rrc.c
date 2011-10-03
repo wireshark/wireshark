@@ -54,10 +54,13 @@
 #define PFNAME "lte_rrc"
 
 static dissector_handle_t nas_eps_handle = NULL;
-static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle;
-static dissector_handle_t rrc_sys_info_cont_handle;
+static dissector_handle_t rrc_irat_ho_to_utran_cmd_handle = NULL;
+static dissector_handle_t rrc_sys_info_cont_handle = NULL;
+static dissector_handle_t gsm_a_dtap_handle = NULL;
+static dissector_handle_t gsm_rlcmac_dl_handle = NULL;
 static guint32 lte_rrc_rat_type_value = -1;
 static guint32 lte_rrc_ho_target_rat_type_value = -1;
+static gint lte_rrc_si_or_psi_geran_val = -1;
 
 /* Include constants */
 
@@ -97,7 +100,7 @@ static guint32 lte_rrc_ho_target_rat_type_value = -1;
 #define maxReestabInfo                 32
 
 /*--- End of included file: packet-lte-rrc-val.h ---*/
-#line 56 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 59 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 /* Initialize the protocol and registered fields */
 static int proto_lte_rrc = -1;
@@ -1040,7 +1043,7 @@ static int hf_lte_rrc_secondaryPreRegistrationZoneIdList = -1;  /* SecondaryPreR
 static int hf_lte_rrc_SecondaryPreRegistrationZoneIdListHRPD_item = -1;  /* PreRegistrationZoneIdHRPD */
 static int hf_lte_rrc_sf_Medium_01 = -1;          /* T_sf_Medium_01 */
 static int hf_lte_rrc_sf_High_01 = -1;            /* T_sf_High_01 */
-static int hf_lte_rrc_SystemInfoListGERAN_item = -1;  /* OCTET_STRING_SIZE_1_23 */
+static int hf_lte_rrc_SystemInfoListGERAN_item = -1;  /* SystemInfoListGERAN_item */
 static int hf_lte_rrc_cdma_EUTRA_Synchronisation = -1;  /* BOOLEAN */
 static int hf_lte_rrc_cdma_SystemTime = -1;       /* T_cdma_SystemTime */
 static int hf_lte_rrc_synchronousSystemTime = -1;  /* BIT_STRING_SIZE_39 */
@@ -1374,7 +1377,7 @@ static int hf_lte_rrc_ue_InactiveTime = -1;       /* T_ue_InactiveTime */
 static int hf_lte_rrc_dummy_eag_field = -1; /* never registered */ 
 
 /*--- End of included file: packet-lte-rrc-hf.c ---*/
-#line 61 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 64 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static int hf_lte_rrc_eutra_cap_feat_group_ind_1 = -1;
 static int hf_lte_rrc_eutra_cap_feat_group_ind_2 = -1;
@@ -2085,7 +2088,7 @@ static gint ett_lte_rrc_AdditionalReestabInfo = -1;
 static gint ett_lte_rrc_RRM_Config = -1;
 
 /*--- End of included file: packet-lte-rrc-ett.c ---*/
-#line 99 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 102 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static gint ett_lte_rrc_featureGroupIndicators = -1;
 static gint ett_lte_rrc_neighCellConfig = -1;
@@ -10945,6 +10948,7 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
                                        NO_BOUND, NO_BOUND, FALSE, &target_rat_msg_cont_tvb);
 
   if(target_rat_msg_cont_tvb){
+    guint8 byte;
     switch(lte_rrc_ho_target_rat_type_value){
     case 0:
       /* utra */
@@ -10953,6 +10957,16 @@ dissect_lte_rrc_T_targetRAT_MessageContainer(tvbuff_t *tvb _U_, int offset _U_, 
       break;
     case 1:
       /* geran */
+      byte = tvb_get_guint8(target_rat_msg_cont_tvb, 0);
+      if (byte == 0x06) {
+        if (gsm_a_dtap_handle) {
+          call_dissector(gsm_a_dtap_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+        }
+      } else {
+        if (gsm_rlcmac_dl_handle) {
+          call_dissector(gsm_rlcmac_dl_handle, target_rat_msg_cont_tvb, actx->pinfo, tree);
+        }
+      }
       break;
     case 2:
       /* cdma2000-1XRTT */
@@ -10993,16 +11007,37 @@ dissect_lte_rrc_T_nas_SecurityParamFromEUTRA(tvbuff_t *tvb _U_, int offset _U_, 
 
 
 static int
-dissect_lte_rrc_OCTET_STRING_SIZE_1_23(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_lte_rrc_SystemInfoListGERAN_item(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  tvbuff_t *sys_info_list_tvb = NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
-                                       1, 23, FALSE, NULL);
+                                       1, 23, FALSE, &sys_info_list_tvb);
+
+  if (sys_info_list_tvb) {
+    switch (lte_rrc_si_or_psi_geran_val) {
+    case 0:
+      /* SI message */
+      if (gsm_a_dtap_handle) {
+        call_dissector(gsm_a_dtap_handle, sys_info_list_tvb ,actx->pinfo, tree);
+      }
+      break;
+    case 1:
+      /* PSI message */
+      if (gsm_rlcmac_dl_handle) {
+        call_dissector(gsm_rlcmac_dl_handle, sys_info_list_tvb ,actx->pinfo, tree);
+      }
+      break;
+    default:
+      break;
+    }
+  }
+
 
   return offset;
 }
 
 
 static const per_sequence_t SystemInfoListGERAN_sequence_of[1] = {
-  { &hf_lte_rrc_SystemInfoListGERAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_OCTET_STRING_SIZE_1_23 },
+  { &hf_lte_rrc_SystemInfoListGERAN_item, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_lte_rrc_SystemInfoListGERAN_item },
 };
 
 static int
@@ -11031,7 +11066,9 @@ static int
 dissect_lte_rrc_SI_OrPSI_GERAN(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
                                  ett_lte_rrc_SI_OrPSI_GERAN, SI_OrPSI_GERAN_choice,
-                                 NULL);
+                                 &lte_rrc_si_or_psi_geran_val);
+
+
 
   return offset;
 }
@@ -13359,7 +13396,6 @@ dissect_lte_rrc_T_nas_SecurityParamToEUTRA(tvbuff_t *tvb _U_, int offset _U_, as
   de_emm_sec_par_to_eutra(nas_sec_param_to_eutra_tvb, subtree, actx->pinfo, 0, length, NULL, 0);
 
 
-
   return offset;
 }
 
@@ -13912,8 +13948,11 @@ static const per_sequence_t CellInfoGERAN_r9_sequence[] = {
 
 static int
 dissect_lte_rrc_CellInfoGERAN_r9(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  lte_rrc_si_or_psi_geran_val = 0; /* SI message */
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_lte_rrc_CellInfoGERAN_r9, CellInfoGERAN_r9_sequence);
+
+
 
   return offset;
 }
@@ -19668,7 +19707,7 @@ static int dissect_SystemInformationBlockType1_v890_IEs_PDU(tvbuff_t *tvb _U_, p
 
 
 /*--- End of included file: packet-lte-rrc-fn.c ---*/
-#line 237 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 240 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 static void
 dissect_lte_rrc_DL_CCCH(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -23519,7 +23558,7 @@ void proto_register_lte_rrc(void) {
     { &hf_lte_rrc_SystemInfoListGERAN_item,
       { "SystemInfoListGERAN item", "lte-rrc.SystemInfoListGERAN_item",
         FT_BYTES, BASE_NONE, NULL, 0,
-        "OCTET_STRING_SIZE_1_23", HFILL }},
+        NULL, HFILL }},
     { &hf_lte_rrc_cdma_EUTRA_Synchronisation,
       { "cdma-EUTRA-Synchronisation", "lte-rrc.cdma_EUTRA_Synchronisation",
         FT_BOOLEAN, BASE_NONE, NULL, 0,
@@ -24842,7 +24881,7 @@ void proto_register_lte_rrc(void) {
         NULL, HFILL }},
 
 /*--- End of included file: packet-lte-rrc-hfarr.c ---*/
-#line 342 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 345 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     { &hf_lte_rrc_eutra_cap_feat_group_ind_1,
       { "Indicator 1", "lte-rrc.eutra_cap_feat_group_ind_1",
@@ -25650,7 +25689,7 @@ void proto_register_lte_rrc(void) {
     &ett_lte_rrc_RRM_Config,
 
 /*--- End of included file: packet-lte-rrc-ettarr.c ---*/
-#line 477 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 480 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
     &ett_lte_rrc_featureGroupIndicators,
     &ett_lte_rrc_neighCellConfig,
@@ -25689,7 +25728,7 @@ void proto_register_lte_rrc(void) {
 
 
 /*--- End of included file: packet-lte-rrc-dis-reg.c ---*/
-#line 500 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
+#line 503 "../../asn1/lte-rrc/packet-lte-rrc-template.c"
 
 }
 
@@ -25705,6 +25744,8 @@ proto_reg_handoff_lte_rrc(void)
 	nas_eps_handle = find_dissector("nas-eps");
 	rrc_irat_ho_to_utran_cmd_handle = find_dissector("rrc.irat.ho_to_utran_cmd");
 	rrc_sys_info_cont_handle = find_dissector("rrc.sysinfo.cont");
+	gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
+	gsm_rlcmac_dl_handle = find_dissector("gsm_rlcmac_dl");
 }
 
 
