@@ -742,20 +742,20 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
 
     octet = tvb_get_guint8(tvb,offset);
     type_of_data = (octet & 0x70)>>4;
-    proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tree, hf_dpnss_sic_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dpnss_sic_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     switch(type_of_data){
     case 1:
         /* Type of Data (001) : Details for Speech */
-        proto_tree_add_item(tree, hf_dpnss_sic_details_for_speech, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_sic_details_for_speech, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 2:
         /* Type of Data (010) : Data Rates */
-        proto_tree_add_item(tree, hf_dpnss_sic_details_for_data1, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_sic_details_for_data1, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     case 3:
         /* Type of Data (011) : Data Rates */
-        proto_tree_add_item(tree, hf_dpnss_sic_details_for_data2, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_sic_details_for_data2, tvb, offset, 1, ENC_BIG_ENDIAN);
         break;
     default:
         /* Illegal */
@@ -768,15 +768,15 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
          */
         octet = tvb_get_guint8(tvb,offset);
         type_of_data = octet&0x3;
-        proto_tree_add_item(tree, hf_dpnss_ext_bit_notall, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_ext_bit_notall, tvb, offset, 1, ENC_BIG_ENDIAN);
         switch(type_of_data){
         case 3:
             /* Synchronous */
         case 4:
             /* Synchronous */
-            proto_tree_add_item(tree, hf_dpnss_sic_oct2_net_ind_clk, tvb, offset, 1, FALSE);
-            proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_data_format, tvb, offset, 1, FALSE);
-            proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_byte_timing, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_sic_oct2_net_ind_clk, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_data_format, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_dpnss_sic_oct2_sync_byte_timing, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         case 5:
             /* Asynchronous */
@@ -784,14 +784,14 @@ dissect_dpnss_sic(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int o
             /* Asynchronous */
         case 7:
             /* Asynchronous */
-            proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_flow_ctrl, tvb, offset, 1, FALSE);
-            proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_data, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_flow_ctrl, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_dpnss_sic_oct2_async_data, tvb, offset, 1, ENC_BIG_ENDIAN);
             break;
         default:
             break;
         }
-        proto_tree_add_item(tree, hf_dpnss_sic_oct2_duplex, tvb, offset, 1, FALSE);
-        proto_tree_add_item(tree, hf_dpnss_sic_oct2_data_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_sic_oct2_duplex, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dpnss_sic_oct2_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
     }
     return offset;
@@ -936,7 +936,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_SIC:
     */
     case DPNSS_A_B_PARTY_ADDR:
-        proto_tree_add_item(tree, hf_dpnss_a_b_party_addr, tvb, par_start_offset, par_len, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_a_b_party_addr, tvb, par_start_offset, par_len, ENC_BIG_ENDIAN);
         break;
 
         /*
@@ -946,7 +946,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_TEXT:
     */
     case DPNSS_CALL_INDEX:
-        proto_tree_add_item(tree, hf_dpnss_call_idx, tvb, par_start_offset, par_len, FALSE);
+        proto_tree_add_item(tree, hf_dpnss_call_idx, tvb, par_start_offset, par_len, ENC_BIG_ENDIAN);
         break;
         /*
 
@@ -1152,7 +1152,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             str_no++;
         }else{
             last_string = TRUE;
-            proto_tree_add_item(tree, hf_dpnss_dest_addr, tvb, offset, -1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_dest_addr, tvb, offset, -1, ENC_BIG_ENDIAN);
         }
     }
     return offset;
@@ -1170,7 +1170,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvb_end_offset = tvb_length(tvb);
 
-    proto_tree_add_item(tree, hf_dpnss_LbL_msg_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_dpnss_LbL_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
     if(check_col(pinfo->cinfo, COL_INFO))
@@ -1192,7 +1192,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_LbL_MSG_LLRM:
             /* 2.3.3 LINK-by-LINK REJECT Message - LLRM */
             /* Rejection Cause */
-            proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* Indication Field (Optional) */
             if(tvb_end_offset>offset){
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1226,7 +1226,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * the response being made. The Maintenance Action field is coded
              * as shown in ANNEX 6.
              */
-            proto_tree_add_item(tree, hf_dpnss_maintenance_action, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_maintenance_action, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1237,7 +1237,7 @@ dissect_dpnss_LbL_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
         case DPNSS_LbL_MSG_LMRM:
             /* 2.3.6 LINK MAINTENANCE REJECT Message - LMRM */
-            proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Indication Field */
             ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1265,7 +1265,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     tvb_end_offset = tvb_length(tvb);
 
-    proto_tree_add_item(tree, hf_dpnss_e2e_msg_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_dpnss_e2e_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
     if(check_col(pinfo->cinfo, COL_INFO))
@@ -1289,7 +1289,7 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_E2E_MSG_SCIM:
             /* 2.2.4 SINGLE-CHANNEL CLEAR INDICATION Message - SCIM */
             /* Clearing Cause */
-            proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Indication Field (Optional) */
             if(tvb_end_offset>offset){
@@ -1332,9 +1332,9 @@ dissect_dpnss_e2e_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              *     ext | Manufacturer code | subcode
              */
             octet = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, FALSE);
-            proto_tree_add_item(tree, hf_dpnss_man_code, tvb, offset, 1, FALSE);
-            proto_tree_add_item(tree, hf_dpnss_subcode, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_ext_bit, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_dpnss_man_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_dpnss_subcode, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if((octet&0x80)==0x80){
                 /* Extension bit set */
@@ -1361,7 +1361,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     guint8 octet;
 
     tvb_end_offset = tvb_length(tvb);
-    proto_tree_add_item(tree, hf_dpnss_cc_msg_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_dpnss_cc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)&0x0f;
     offset++;
     if(check_col(pinfo->cinfo, COL_INFO))
@@ -1427,7 +1427,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /* 2.1.7 CLEAR REQUEST Message - CRM */
             /* 2.1.8 CLEAR INDICATION Message - CIM */
             /* Clearing Cause */
-            proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_clearing_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             /* Indication Field (Optional) */
             if(tvb_end_offset>offset){
@@ -1441,7 +1441,7 @@ dissect_dpnss_cc_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case DPNSS_CC_MSG_RRM:
             /* 2.1.10 RECALL REJECTION Message - RRM */
             /* Rejection Cause */
-            proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_dpnss_rejection_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* Indication Field (Optional) */
             if(tvb_end_offset>offset){
                 ind_field_item = proto_tree_add_text(tree, tvb, offset, -1,
@@ -1492,9 +1492,9 @@ dissect_dpnss(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Make entries in Protocol column and Info column on summary display */
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "DPNSS");
 
-    item = proto_tree_add_item(tree, proto_dpnss, tvb, 0, -1, FALSE);
+    item = proto_tree_add_item(tree, proto_dpnss, tvb, 0, -1, ENC_NA);
     dpnss_tree = proto_item_add_subtree(item, ett_dpnss);
-    proto_tree_add_item(dpnss_tree, hf_dpnss_msg_grp_id, tvb, offset, 1, FALSE);
+    proto_tree_add_item(dpnss_tree, hf_dpnss_msg_grp_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     octet = tvb_get_guint8(tvb,offset)>>4;
     switch (octet){
     case DPNNS_MESSAGE_GROUP_CC:
