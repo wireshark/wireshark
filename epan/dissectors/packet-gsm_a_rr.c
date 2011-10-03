@@ -514,7 +514,6 @@ static int hf_gsm_a_rr_chnl_needed_ch4 = -1;
 static int hf_gsm_a_rr_suspension_cause = -1;
 static int hf_gsm_a_rr_apdu_id = -1;
 static int hf_gsm_a_rr_apdu_flags = -1;
-static int hf_gsm_a_rr_apdu_data = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b7 = -1;
 static int hf_gsm_a_rr_set_of_amr_codec_modes_v1_b6 = -1;
@@ -11475,11 +11474,6 @@ proto_register_gsm_a_rr(void)
             { &hf_gsm_a_rr_apdu_flags,
               { "APDU Flags","gsm_a.rr.apdu_flags",
                 FT_UINT8,BASE_HEX,  VALS(gsm_a_rr_apdu_flags_vals), 0xf0,
-                NULL, HFILL }
-            },
-            { &hf_gsm_a_rr_apdu_data,
-              { "APDU Data","gsm_a.rr.apdu_data",
-                FT_BYTES,BASE_NONE,  NULL, 0x00,
                 NULL, HFILL }
             },
             { &hf_gsm_a_rr_set_of_amr_codec_modes_v1_b8,
