@@ -1790,7 +1790,7 @@ static const guint32 bit_mask32[] = {
 };
 
 guint16
-tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const gboolean little_endian)
+tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const guint encoding)
 {
 	gint	offset;
 	guint16	value = 0;
@@ -1801,7 +1801,11 @@ tvb_get_bits16(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits,const gbool
 		/* If bits <= 8 use tvb_get_bits8 */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	if(little_endian){
+	/*
+	 * For backwards compatibility, treat all non-zero values as
+	 * meaning "little-endian".
+	 */
+	if(encoding){
 		DISSECTOR_ASSERT_NOT_REACHED();
 		/* This part is not implemented yet */
 	}
@@ -1844,7 +1848,7 @@ static const guint64 bit_mask64[] = {
 };
 
 guint32
-tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboolean little_endian)
+tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding)
 {
 	gint	offset;
 	guint32	value = 0;
@@ -1858,7 +1862,11 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 		/* If bits <= 16 use tvb_get_bits8 or tvb_get_bits16 */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	if(little_endian){
+	/*
+	 * For backwards compatibility, treat all non-zero values as
+	 * meaning "little-endian".
+	 */
+	if(encoding){
 		DISSECTOR_ASSERT_NOT_REACHED();
 		/* This part is not implemented yet */
 	}
@@ -1895,7 +1903,7 @@ tvb_get_bits32(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 }
 
 guint64
-tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboolean little_endian)
+tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const guint encoding)
 {
 	gint	offset;
 	guint64	value = 0;
@@ -1906,7 +1914,11 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 		/* If bits <= 32 use tvb_get_bits8, tvb_get_bits16 or tvb_get_bits32 */
 		DISSECTOR_ASSERT_NOT_REACHED();
 	}
-	if(little_endian){
+	/*
+	 * For backwards compatibility, treat all non-zero values as
+	 * meaning "little-endian".
+	 */
+	if(encoding){
 		DISSECTOR_ASSERT_NOT_REACHED();
 		/* This part is not implemented yet */
 	}
@@ -1937,7 +1949,7 @@ tvb_get_bits64(tvbuff_t *tvb, gint bit_offset, const gint no_of_bits, const gboo
 }
 
 guint32
-tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const gboolean little_endian)
+tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding)
 {
 	/* This function can handle only up to 32 requested bits */
 	if (no_of_bits > 32)
@@ -1948,11 +1960,11 @@ tvb_get_bits(tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const 
 
 	/* Number of requested bits is in range [17, 32] */
 	if (no_of_bits > 16)
-		return tvb_get_bits32(tvb, bit_offset, no_of_bits, little_endian);
+		return tvb_get_bits32(tvb, bit_offset, no_of_bits, encoding);
 
 	/* Number of requested bits is in range [9, 16] */
 	if (no_of_bits > 8)
-		return tvb_get_bits16(tvb, bit_offset, no_of_bits, little_endian);
+		return tvb_get_bits16(tvb, bit_offset, no_of_bits, encoding);
 
 	/* Number of requested bits is in range [1, 8] */
 	return tvb_get_bits8(tvb, bit_offset, no_of_bits);
