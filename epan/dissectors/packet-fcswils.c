@@ -1262,7 +1262,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
                                offset+4, 4, dpbuf);
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
-                             offset+8, 8, FALSE);
+                             offset+8, 8, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_FCID_LUN:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,

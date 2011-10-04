@@ -849,7 +849,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                /* Socket address struct - sin_zero */
                proto_tree_add_item(sockaddr_tree, hf_enip_sinzero,
-                     tvb, offset+16, 8, ENC_BIG_ENDIAN );
+                     tvb, offset+16, 8, ENC_NA );
 
                /* Vendor ID */
                proto_tree_add_item(item_tree, hf_enip_lir_vendor,
@@ -914,7 +914,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                /* Socket address struct - sin_zero */
                proto_tree_add_item( item_tree, hf_enip_sinzero,
-                     tvb, offset+14, 8, ENC_BIG_ENDIAN );
+                     tvb, offset+14, 8, ENC_NA );
                break;
 
 
@@ -1101,7 +1101,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item( header_tree, hf_enip_length, tvb, 2, 2, ENC_LITTLE_ENDIAN );
       proto_tree_add_item( header_tree, hf_enip_session, tvb, 4, 4, ENC_LITTLE_ENDIAN );
       proto_tree_add_item( header_tree, hf_enip_status, tvb, 8, 4, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item( header_tree, hf_enip_sendercontex, tvb, 12, 8, ENC_NA );
       proto_tree_add_item( header_tree, hf_enip_options, tvb, 20, 4, ENC_LITTLE_ENDIAN );
 
       /* Append session and command to the protocol tree */

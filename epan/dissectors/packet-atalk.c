@@ -1084,10 +1084,10 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 
   ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
   if (ofs)
-    proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_asp_server_icon, tvb, ofs, 256, ENC_NA);
 
   if (sign_ofs) {
-    proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_asp_server_signature, tvb, sign_ofs, 16, ENC_NA);
   }
 
   if (adr_ofs) {
@@ -1140,7 +1140,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
       ofs++;
       proto_tree_add_item(sub_tree, hf_asp_server_addr_type, tvb, ofs, 1, ENC_BIG_ENDIAN);
       ofs++;
-      proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_asp_server_addr_value,tvb, ofs, len, ENC_NA);
       ofs += len;
     }
   }
@@ -1176,7 +1176,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 /* -----------------------------
    PAP protocol cf. inside appletalk chap. 10
 */
-#define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, ENC_BIG_ENDIAN); offset += x; }
+#define PAD(x)      { proto_tree_add_item(pap_tree, hf_pap_pad, tvb, offset,  x, ENC_NA); offset += x; }
 
 static void
 dissect_pap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -1355,13 +1355,13 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case ASPFUNC_CLOSE:
       proto_tree_add_item(asp_tree, hf_asp_session_id, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_NA);
       offset +=2;
       break;
     case ASPFUNC_STAT:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_NA);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_NA);
       offset += 2;
       break;
     case ASPFUNC_ATTN:
@@ -1411,15 +1411,15 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 2;
       break;
     case ASPFUNC_CLOSE:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_NA);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 1, ENC_NA);
       offset++;
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 2, ENC_NA);
       offset += 2;
       break;
     case ASPFUNC_STAT:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_NA);
       offset += 4;
       dissect_asp_reply_get_status(tvb, pinfo, asp_tree, offset);
       break;
@@ -1435,7 +1435,7 @@ dissect_asp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case ASPFUNC_TICKLE:
     case ASPFUNC_WRTCONT:
-      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(asp_tree, hf_asp_zero_value, tvb, offset, 4, ENC_NA);
       /* fall */
     case ASPFUNC_ATTN:  /* FIXME capture and spec disagree */
     default:
@@ -1491,7 +1491,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 7:     /* start_index = 0 */
     case 8:
     case 9:
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_NA);
       offset++;
       proto_tree_add_item(zip_tree, hf_zip_start_index, tvb, offset, 2, ENC_BIG_ENDIAN);
       break;
@@ -1508,7 +1508,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(zip_tree, hf_zip_last_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
-      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_NA);
       offset++;
       count = tvb_get_ntohs(tvb, offset);
       ti = proto_tree_add_item(zip_tree, hf_zip_count, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1576,7 +1576,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(flag_tree, hf_zip_flags_only_one_zone,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_NA);
     offset += 4;
 
     len = tvb_get_guint8(tvb, offset);
@@ -1586,7 +1586,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
     offset += len;
 
     proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
@@ -1611,9 +1611,9 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     break;
 
   case 5 :  /* GetNetInfo request */
-    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 1, ENC_NA);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_NA);
     offset += 4;
     proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
     break;
@@ -1640,7 +1640,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     len = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(zip_tree, hf_zip_multicast_length,tvb, offset, 1,ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
     offset += len;
     if ((flag & 0x80) != 0)
       proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,ENC_BIG_ENDIAN);

@@ -722,7 +722,7 @@ de_emm_auth_resp_par(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_nas_eps_emm_res, tvb, curr_offset, len, ENC_NA);
 
     return len;
 }
@@ -1096,7 +1096,7 @@ de_emm_esm_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
     curr_offset = offset;
 
 
-    item = proto_tree_add_item(tree, hf_nas_eps_esm_msg_cont, tvb, curr_offset, len, ENC_BIG_ENDIAN);
+    item = proto_tree_add_item(tree, hf_nas_eps_esm_msg_cont, tvb, curr_offset, len, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_nas_eps_esm_msg_cont);
 
     /* This IE can contain any ESM PDU as defined in subclause 8.3. */
@@ -2372,7 +2372,7 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
              * contains an IPv6 interface identifier. Bit 8 of octet 4 represents the most significant bit
              * of the IPv6 interface identifier and bit 1 of octet 11 the least significant bit.
              */
-            proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_NA);
             offset+=8;
             break;
         case 3:
@@ -2383,7 +2383,7 @@ de_esm_pdn_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
              * significant bit. Bit 8 of octet 12 represents the most significant bit of the IPv4 address
              * and bit 1 of octet 15 the least significant bit.
              */
-            proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv6_if_id, tvb, curr_offset, 8, ENC_NA);
             curr_offset+=8;
             proto_tree_add_item(tree, hf_nas_eps_esm_pdn_ipv4, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
             curr_offset+=4;

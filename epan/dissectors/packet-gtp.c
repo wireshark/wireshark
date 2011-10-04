@@ -5479,7 +5479,7 @@ static int decode_gtp_tmgi(tvbuff_t * tvb, int offset, packet_info * pinfo, prot
     proto_tree_add_item(ext_tree, hf_gtp_ext_length, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
 
-    ti = proto_tree_add_item(ext_tree, hf_gtp_tmgi, tvb, offset, length, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item(ext_tree, hf_gtp_tmgi, tvb, offset, length, ENC_NA);
 
     tmgi_tree = proto_item_add_subtree(ti, ett_gtp_tmgi);
     next_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -6587,7 +6587,7 @@ static int decode_gtp_priv_ext(tvbuff_t * tvb, int offset, packet_info * pinfo _
          * displayed as hex data?
          */
        if (length > 2){
-            proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(ext_tree_priv_ext, hf_gtp_ext_val, tvb, offset, length - 2, ENC_NA);
             next_tvb = tvb_new_subset_remaining(tvb, offset);
             dissector_try_uint(gtp_priv_ext_dissector_table, ext_id, next_tvb, pinfo, ext_tree_priv_ext);
        }

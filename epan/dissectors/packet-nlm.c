@@ -375,7 +375,7 @@ dissect_lock(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int version, i
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_lock, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, ett_nlm_lock);
 	}
@@ -578,7 +578,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_test_stat, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item,
 				ett_nlm_lock);
@@ -594,7 +594,7 @@ dissect_nlm_test_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (tree) {
 		lock_item = proto_tree_add_item(lock_tree, hf_nlm_holder, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item,
 				ett_nlm_lock);
@@ -636,7 +636,7 @@ dissect_nlm_share(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_nlm_share, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item,
 				ett_nlm_lock);

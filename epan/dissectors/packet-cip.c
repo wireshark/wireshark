@@ -600,7 +600,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
    if ( !generate )
    {
       hidden_item = proto_tree_add_item(path_tree, hf_cip_epath,
-                                        tvb, offset, path_length, TRUE );
+                                        tvb, offset, path_length, ENC_NA );
       PROTO_ITEM_SET_HIDDEN(hidden_item);
    }
 

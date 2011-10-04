@@ -216,11 +216,11 @@ static gint dissect_netsync_cmd_hello(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_hello_key, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_NA );
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonce, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	return offset;
@@ -242,7 +242,7 @@ static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tre
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonce, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	return offset;
@@ -265,25 +265,25 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_nonce1, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_nonce2, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_sig, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_NA );
 	offset += len;
 
 	return offset;
@@ -297,7 +297,7 @@ static gint dissect_netsync_cmd_confirm(tvbuff_t *tvb,  gint offset, proto_tree 
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_confirm_sig, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_NA );
 	offset += len;
 
 
@@ -308,7 +308,7 @@ static gint dissect_netsync_cmd_confirm(tvbuff_t *tvb,  gint offset, proto_tree 
 static gint dissect_netsync_cmd_refine(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size)
 {
 	proto_tree_add_item(tree, hf_netsync_cmd_refine_tree_node, tvb,
-				offset, size, FALSE );
+				offset, size, ENC_NA );
 	offset += size;
 
 	return offset;
@@ -341,7 +341,7 @@ static gint dissect_netsync_cmd_send_data(tvbuff_t *tvb,  gint offset, proto_tre
         offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_data_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	return offset;
@@ -355,12 +355,12 @@ static gint dissect_netsync_cmd_send_delta(tvbuff_t *tvb,  gint offset, proto_tr
         offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_delta_base_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_delta_ident_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	return offset;
@@ -376,7 +376,7 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_compressed, tvb,
@@ -386,7 +386,7 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_payload, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_NA );
 	offset += len;
 
 	return offset;
@@ -402,11 +402,11 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_base_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_ident_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_compressed, tvb,
@@ -416,7 +416,7 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_payload, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_NA );
 	offset += len;
 
 	return offset;
@@ -430,7 +430,7 @@ static gint dissect_netsync_cmd_nonexistent(tvbuff_t *tvb,  gint offset, proto_t
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonexistent_id, tvb,
-				offset, NETSNYC_MERKLE_HASH_LENGTH, FALSE );
+				offset, NETSNYC_MERKLE_HASH_LENGTH, ENC_NA );
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	return offset;
@@ -557,7 +557,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			default:
 				proto_tree_add_item(netsync_tree, hf_netsync_data, tvb,
-					offset, size, FALSE );
+					offset, size, ENC_NA );
 				break;
 		}
 

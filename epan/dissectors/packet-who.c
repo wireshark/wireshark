@@ -196,7 +196,7 @@ dissect_whoent(tvbuff_t *tvb, int offset, proto_tree *tree)
 	while (tvb_reported_length_remaining(tvb, line_offset) > 0
 	    && whoent_num < MAX_NUM_WHOENTS) {
 		whoent_ti = proto_tree_add_item(tree, hf_who_whoent, tvb,
-		    line_offset, SIZE_OF_WHOENT, FALSE);
+		    line_offset, SIZE_OF_WHOENT, ENC_NA);
 		whoent_tree = proto_item_add_subtree(whoent_ti, ett_whoent);
 
 	    	tvb_get_nstringz0(tvb, line_offset, sizeof(out_line), (guint8*)out_line);

@@ -1384,7 +1384,7 @@ dissect_mip6_opt_bad(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
     proto_tree_add_item(field_tree, hf_mip6_bad_auth, tvb,
             offset + MIP6_BAD_AUTH_OFF,
-            optlen - MIP6_BAD_AUTH_OFF, FALSE);
+            optlen - MIP6_BAD_AUTH_OFF, ENC_NA);
 }
 
 /* 7 Mobility Header Link-Layer Address option [RFC5568] */

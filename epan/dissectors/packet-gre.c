@@ -217,7 +217,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
   guint8 value;
   int start_offset = offset;
 
-  proto_item* ti = proto_tree_add_item(tree, hf_gre_3ggp2_attrib, tvb, offset, 0, FALSE);
+  proto_item* ti = proto_tree_add_item(tree, hf_gre_3ggp2_attrib, tvb, offset, 0, ENC_NA);
   proto_tree* atree = proto_item_add_subtree(ti, ett_3gpp2_attribs);
 
   while(last_attrib != TRUE)
@@ -241,7 +241,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         case ID_3GPP2_FLOW_DISCRIMINATOR:
              {
 			  value = tvb_get_guint8(tvb,offset);
-              proto_tree_add_item(attr_tree, hf_gre_3ggp2_flow_disc, tvb, offset, attrib_length, FALSE);
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_flow_disc, tvb, offset, attrib_length, ENC_NA);
 			  proto_item_append_text(attr_item," - 0x%x",value);
              }
              break;
@@ -287,7 +287,7 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
   proto_item *	ti;
   proto_tree *	rh_tree;
 
-  ti = proto_tree_add_item(tree, hf_gre_wccp_redirect_header, tvb, offset, 4, FALSE);
+  ti = proto_tree_add_item(tree, hf_gre_wccp_redirect_header, tvb, offset, 4, ENC_NA);
   rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
 
   proto_tree_add_item(rh_tree, hf_gre_wccp_dynamic_service, tvb, offset, 1, FALSE);
@@ -450,7 +450,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *r_tree;
       for (;;) {
 
-        it_routing = proto_tree_add_item(gre_tree, hf_gre_routing, tvb, offset, -1, FALSE);
+        it_routing = proto_tree_add_item(gre_tree, hf_gre_routing, tvb, offset, -1, ENC_NA);
         r_tree = proto_item_add_subtree(ti, ett_gre_routing);
 
         sre_af = tvb_get_ntohs(tvb, offset);
@@ -468,7 +468,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (sre_af == 0 && sre_length == 0)
 	  break;
 
-        proto_tree_add_item(r_tree, hf_gre_routing_information , tvb, offset, sre_length, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_information , tvb, offset, sre_length, ENC_NA);
        	offset += sre_length;
       }
     }

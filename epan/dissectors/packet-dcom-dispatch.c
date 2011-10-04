@@ -321,7 +321,7 @@ dissect_IDispatch_Invoke_rqst(tvbuff_t *tvb, int offset,
 
     offset = u32TmpOffset;
 
-    dispparams_item = proto_tree_add_item(tree, hf_dispatch_dispparams, tvb, offset, 0, ENC_BIG_ENDIAN);
+    dispparams_item = proto_tree_add_item(tree, hf_dispatch_dispparams, tvb, offset, 0, ENC_NA);
     dispparams_tree = proto_item_add_subtree (dispparams_item, ett_dispatch_params);
     u32SubStart = offset;
 
@@ -431,7 +431,7 @@ dissect_IDispatch_Invoke_resp(tvbuff_t *tvb, int offset,
     }
 
     /* ExcepInfo */
-    excepinfo_item = proto_tree_add_item(tree, hf_dispatch_excepinfo, tvb, offset, 0, ENC_BIG_ENDIAN);
+    excepinfo_item = proto_tree_add_item(tree, hf_dispatch_excepinfo, tvb, offset, 0, ENC_NA);
     excepinfo_tree = proto_item_add_subtree (excepinfo_item, ett_dispatch_excepinfo);
     u32SubStart = offset;
 

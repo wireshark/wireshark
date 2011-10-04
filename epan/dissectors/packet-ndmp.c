@@ -791,7 +791,7 @@ dissect_auth_attr_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 	case NDMP_AUTH_MD5:
 		proto_tree_add_item(tree, hf_ndmp_auth_challenge,
-			tvb, offset, 64, FALSE);
+			tvb, offset, 64, ENC_NA);
 		offset+=64;
 	}
 
@@ -2279,7 +2279,7 @@ dissect_auth_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 		/* digest */
 		proto_tree_add_item(tree, hf_ndmp_auth_digest,
-			tvb, offset, 16, FALSE);
+			tvb, offset, 16, ENC_NA);
 		offset+=16;
 	}
 
@@ -3004,7 +3004,7 @@ dissect_ndmp_header(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_ndmp_header, tvb,
-				offset, 24, FALSE);
+				offset, 24, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_ndmp_header);
 	}
 

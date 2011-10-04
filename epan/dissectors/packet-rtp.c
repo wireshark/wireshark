@@ -770,18 +770,18 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 #endif
 		{
 			if (rtp_tree)
-				proto_tree_add_item(rtp_tree, hf_srtp_encrypted_payload, newtvb, offset, payload_len, FALSE);
+				proto_tree_add_item(rtp_tree, hf_srtp_encrypted_payload, newtvb, offset, payload_len, ENC_NA);
 			found_match = TRUE;	/* use this flag to prevent dissection below */
 		}
 		offset += payload_len;
 
 		if (srtp_info->mki_len) {
-			proto_tree_add_item(rtp_tree, hf_srtp_mki, newtvb, offset, srtp_info->mki_len, FALSE);
+			proto_tree_add_item(rtp_tree, hf_srtp_mki, newtvb, offset, srtp_info->mki_len, ENC_NA);
 			offset += srtp_info->mki_len;
 		}
 
 		if (srtp_info->auth_tag_len) {
-			proto_tree_add_item(rtp_tree, hf_srtp_auth_tag, newtvb, offset, srtp_info->auth_tag_len, FALSE);
+			proto_tree_add_item(rtp_tree, hf_srtp_auth_tag, newtvb, offset, srtp_info->auth_tag_len, ENC_NA);
 			offset += srtp_info->auth_tag_len;
 		}
 	}
@@ -805,7 +805,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 				 * Just add it as data.
 				 */
 				if(found_match==FALSE)
-					proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+					proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
 				return;
 			}
 
@@ -814,7 +814,7 @@ process_rtp_payload(tvbuff_t *newtvb, packet_info *pinfo, proto_tree *tree,
 
 	/* if we don't found, it is static OR could be set static from the preferences */
 	if (!found_match && !dissector_try_uint(rtp_pt_dissector_table, payload_type, newtvb, pinfo, tree))
-		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, FALSE );
+		proto_tree_add_item( rtp_tree, hf_rtp_data, newtvb, 0, -1, ENC_NA );
 
 }
 
@@ -1381,7 +1381,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	if ( csrc_count > 0 ) {
 		if ( tree ) {
 			ti = proto_tree_add_item(rtp_tree, hf_rtp_csrc_items, tvb, offset,
-			                         csrc_count * 4, FALSE);
+			                         csrc_count * 4, ENC_NA);
 			proto_item_append_text(ti, " (%u items)", csrc_count);
 			rtp_csrc_tree = proto_item_add_subtree( ti, ett_csrc_list );
 		}
@@ -1407,7 +1407,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset += 2;
 		if ( hdr_extension > 0 ) {
 			if ( tree ) {
-				ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension * 4, FALSE);
+				ti = proto_tree_add_item(rtp_tree, hf_rtp_hdr_exts, tvb, offset, hdr_extension * 4, ENC_NA);
 				rtp_hext_tree = proto_item_add_subtree( ti, ett_hdr_ext );
 			}
 
@@ -1490,7 +1490,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			 * data.
 			 */
 			if ( tree ) proto_tree_add_item( rtp_tree, hf_rtp_padding_data,
-			    tvb, offset, padding_count - 1, FALSE );
+			    tvb, offset, padding_count - 1, ENC_NA );
 			offset += padding_count - 1;
 		}
 		/*

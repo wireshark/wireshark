@@ -151,7 +151,7 @@ static void before_object(void *tvbparse_data, const void *wanted_data _U_, tvbp
 	proto_tree *subtree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, hf_json_object, tok->tvb, tok->offset, tok->len, FALSE);
+	ti = proto_tree_add_item(tree, hf_json_object, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_object);
 	ep_stack_push(data->stack, subtree);
@@ -170,7 +170,7 @@ static void before_member(void *tvbparse_data, const void *wanted_data _U_, tvbp
 	proto_tree *subtree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, hf_json_member, tok->tvb, tok->offset, tok->len, FALSE);
+	ti = proto_tree_add_item(tree, hf_json_member, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_member);
 	ep_stack_push(data->stack, subtree);
@@ -200,7 +200,7 @@ static void before_array(void *tvbparse_data, const void *wanted_data _U_, tvbpa
 	proto_tree *subtree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, hf_json_array, tok->tvb, tok->offset, tok->len, FALSE);
+	ti = proto_tree_add_item(tree, hf_json_array, tok->tvb, tok->offset, tok->len, ENC_NA);
 
 	subtree = proto_item_add_subtree(ti, ett_json_array);
 	ep_stack_push(data->stack, subtree);
@@ -240,15 +240,15 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 			break;
 
 		case JSON_TOKEN_FALSE:
-			proto_tree_add_item(tree, hf_json_value_false, tok->tvb, tok->offset, tok->len, FALSE);
+			proto_tree_add_item(tree, hf_json_value_false, tok->tvb, tok->offset, tok->len, ENC_NA);
 			break;
 
 		case JSON_TOKEN_NULL:
-			proto_tree_add_item(tree, hf_json_value_null, tok->tvb, tok->offset, tok->len, FALSE);
+			proto_tree_add_item(tree, hf_json_value_null, tok->tvb, tok->offset, tok->len, ENC_NA);
 			break;
 
 		case JSON_TOKEN_TRUE:
-			proto_tree_add_item(tree, hf_json_value_true, tok->tvb, tok->offset, tok->len, FALSE);
+			proto_tree_add_item(tree, hf_json_value_true, tok->tvb, tok->offset, tok->len, ENC_NA);
 			break;
 
 		case JSON_OBJECT:

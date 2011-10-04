@@ -680,7 +680,7 @@ dissect_ltp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	frame_offset++;
 	/* Adding the session id subtree */
-	ltp_session_item = proto_tree_add_item(ltp_header_item,hf_ltp_session_id,tvb,frame_offset, engine_id_size + session_num_size,FALSE);
+	ltp_session_item = proto_tree_add_item(ltp_header_item,hf_ltp_session_id,tvb,frame_offset, engine_id_size + session_num_size,ENC_NA);
 	ltp_session_tree = proto_item_add_subtree(ltp_session_item,ett_hdr_session);
 	proto_tree_add_uint64(ltp_session_tree,hf_ltp_session_orig,tvb,frame_offset,engine_id_size,engine_id);
 	frame_offset+=engine_id_size;

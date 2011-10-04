@@ -211,13 +211,13 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0x4018:
 			proto_tree_add_item(tree, hf_rpl_data,
-				tvb, offset, len-4, FALSE);
+				tvb, offset, len-4, ENC_NA);
 			offset += len - 4;
 			break;
 
 		case 0xc005:
 			proto_tree_add_item(tree, hf_rpl_config,
-				tvb, offset, 8, FALSE);
+				tvb, offset, 8, ENC_NA);
 			offset += 8;
 			proto_tree_add_item(tree, hf_rpl_equipment,
 				tvb, offset, 2, FALSE);
@@ -229,13 +229,13 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 2, FALSE);
 			offset += 2;
 			proto_tree_add_item(tree, hf_rpl_ec,
-				tvb, offset, 6, FALSE);
+				tvb, offset, 6, ENC_NA);
 			offset += 6;
 			proto_tree_add_item(tree, hf_rpl_adapterid,
 				tvb, offset, 2, FALSE);
 			offset += 2;
 			proto_tree_add_item(tree, hf_rpl_shortname,
-				tvb, offset, 10, FALSE);
+				tvb, offset, 10, ENC_NA);
 			offset += 10;
 			break;
 

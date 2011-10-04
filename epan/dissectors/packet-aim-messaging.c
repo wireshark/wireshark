@@ -305,7 +305,7 @@ dissect_aim_tlv_value_rendezvous(proto_item *ti, guint16 valueid _U_, tvbuff_t *
 	proto_tree_add_item(entry, hf_aim_rendezvous_msg_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(entry, hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+	proto_tree_add_item(entry, hf_aim_icbm_cookie, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	offset = dissect_aim_capability(entry, tvb, offset);
@@ -324,7 +324,7 @@ dissect_aim_msg_outgoing(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	int buddyname_length;
 
 	/* ICBM Cookie */
-	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	/* Message Channel ID */
@@ -359,7 +359,7 @@ dissect_aim_msg_incoming(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree
 	guint16 channel_id;
 
 	/* ICBM Cookie */
-	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN);
+	proto_tree_add_item(msg_tree, hf_aim_icbm_cookie, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	/* Message Channel ID */
@@ -414,7 +414,7 @@ static int
 dissect_aim_msg_minityping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, ENC_BIG_ENDIAN); offset+=8;
+	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_cookie, tvb, offset, 8, ENC_NA); offset+=8;
 	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_channel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);
 	proto_tree_add_item(msg_tree,hf_aim_icbm_notification_type, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
@@ -581,7 +581,7 @@ dissect_aim_msg_ack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tree)
 {
 	int offset = 0;
 
-	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN); offset+=8;
+	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_NA); offset+=8;
 
 	proto_tree_add_item(msg_tree, hf_aim_message_channel_id, tvb, offset, 2,
                         ENC_BIG_ENDIAN); offset += 2;
@@ -597,7 +597,7 @@ dissect_aim_msg_client_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *msg_tr
 	int offset = 0;
 	guint16 channel, reason;
 
-	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_BIG_ENDIAN); offset+=8;
+	proto_tree_add_item(msg_tree,hf_aim_icbm_cookie, tvb, offset, 8, ENC_NA); offset+=8;
 	channel = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(msg_tree,hf_aim_icbm_channel, tvb, offset, 2, ENC_BIG_ENDIAN); offset+=2;
 	offset = dissect_aim_buddyname(tvb, pinfo, offset, msg_tree);

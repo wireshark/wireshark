@@ -278,7 +278,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (packet_plsize >= 8) {
           proto_tree_add_item(gvcp_tree, hf_gvcp_address2, tvb, 12, 4, FALSE);
           if (packet_plsize >= 12)
-            proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 16, -1, FALSE);
+            proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 16, -1, ENC_NA);
         }
       }
       break;
@@ -288,7 +288,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (packet_plsize >= 8) {
           proto_tree_add_item(gvcp_tree, hf_gvcp_value2, tvb, 12, 4, FALSE);
           if (packet_plsize >= 12)
-            proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 16, -1, FALSE);
+            proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 16, -1, ENC_NA);
         }
       }
       break;
@@ -300,7 +300,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           proto_tree_add_item(gvcp_tree, hf_gvcp_address2, tvb, 16, 4, FALSE);
           proto_tree_add_item(gvcp_tree, hf_gvcp_value2, tvb, 20, 4, FALSE);
           if (packet_plsize >= 24)
-            proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 24, -1, FALSE);
+            proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 24, -1, ENC_NA);
         }
       }
       break;
@@ -319,7 +319,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x86: /* Block Write Request */
       if (packet_plsize >= 8) {
         proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, FALSE);
-        proto_tree_add_item(gvcp_tree, hf_gvcp_data, tvb, 12, -1, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_data, tvb, 12, -1, ENC_NA);
       }
       break;
     case 0x87: /* Block Write Answer */
@@ -328,7 +328,7 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     default:
       if (packet_plsize > 0)
-        proto_tree_add_item(gvcp_tree, hf_gvcp_data, tvb, 8, -1, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_data, tvb, 8, -1, ENC_NA);
       break;
     }
 

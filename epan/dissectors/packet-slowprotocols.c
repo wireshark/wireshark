@@ -1704,7 +1704,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         {
             proto_item *item_b;
             guint8 type;
-            item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 4, FALSE);
+            item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 4, ENC_NA);
             {
                 proto_tree *tree_b;
                 tree_b = proto_item_add_subtree(item_b, ett_esmc);
@@ -1783,7 +1783,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
             if (timestamp_valid_flag || type == ESMC_TIMESTAMP_TLV_TYPE)
             {
                 proto_item *item_b;
-                item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 8, FALSE);
+                item_b = proto_tree_add_item(tree_a, hf_esmc_tlv, tvb, offset, 8, ENC_NA);
                 {
                     proto_tree *tree_b;
                     tree_b = proto_item_add_subtree(item_b, ett_esmc);
@@ -1857,7 +1857,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                 proto_item* item_b;
                 tvbuff_t* tvb_next;
                 tvb_next = tvb_new_subset(tvb, offset, padding_size, -1);
-                item_b = proto_tree_add_item(tree_a, hf_esmc_padding, tvb_next, 0, -1, FALSE);
+                item_b = proto_tree_add_item(tree_a, hf_esmc_padding, tvb_next, 0, -1, ENC_NA);
                 proto_item_append_text(item_b, ", %d %s%s", padding_size
                 , "octet", plurality(padding_size,"","s"));
                 {

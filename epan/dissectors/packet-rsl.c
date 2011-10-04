@@ -999,7 +999,7 @@ dissect_rsl_ie_enc_inf(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
     proto_tree_add_item(ie_tree, hf_rsl_alg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* key */
-    proto_tree_add_item(ie_tree, hf_rsl_key, tvb, offset+1, length -1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_key, tvb, offset+1, length -1, ENC_NA);
 
     return offset + length;
 
@@ -1321,7 +1321,7 @@ dissect_rsl_ie_phy_ctx(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
      *  This information should not be analysed by BSC, but merely
      *  forwarded from one TRX/channel to another.
      */
-    proto_tree_add_item(ie_tree, hf_rsl_phy_ctx, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ie_tree, hf_rsl_phy_ctx, tvb, offset, length, ENC_NA);
     offset = offset + length;
 
     return offset;

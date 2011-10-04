@@ -180,7 +180,7 @@ dissect_sap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                   auth_data_len = auth_len * sizeof(guint32);
 
-                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, tvb, offset, auth_data_len, FALSE);
+                  sdi = proto_tree_add_item(sap_tree, hf_auth_data, tvb, offset, auth_data_len, ENC_NA);
                   sa_tree = proto_item_add_subtree(sdi, ett_sap_auth);
 
                   auth_flags = tvb_get_guint8(tvb, offset);

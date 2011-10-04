@@ -412,7 +412,7 @@ static void
 bootopt_07(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_selector, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
 
@@ -682,7 +682,7 @@ rs09(tvbuff_t *tvb, proto_tree *tree)
 		boot_options[pno].intrp(sub, tree);
 	} else {
 		proto_tree_add_item(tree, hf_ipmi_chs_09_rs_param_data, tvb, 2,
-				tvb_length(tvb) - 2, TRUE);
+				tvb_length(tvb) - 2, ENC_NA);
 	}
 }
 

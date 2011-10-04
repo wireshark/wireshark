@@ -77,7 +77,7 @@ dissect_rquota(tvbuff_t *tvb, int offset, proto_tree *tree)
 	proto_tree *lock_tree = NULL;
 
 	lock_item = proto_tree_add_item(tree, hf_rquota_rquota, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_rquota_rquota);
 

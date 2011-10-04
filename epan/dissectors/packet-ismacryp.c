@@ -387,7 +387,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		}
 		/* ADD MESSAGE BRANCH  */
 		ismacryp_item = proto_tree_add_item( ismacryp_tree, hf_ismacryp_message,
-						     tvb, poffset->offset_bytes, -1, FALSE );
+						     tvb, poffset->offset_bytes, -1, ENC_NA );
 		ismacryp_message_tree = proto_item_add_subtree(ismacryp_item, ett_ismacryp_message);
 		proto_item_append_text(ismacryp_item, ", %s", "Encrypted data"); /* add text to Message tree */
 		nbmessage_bytes = tvb_reported_length_remaining(tvb, poffset->offset_bytes);
@@ -475,7 +475,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 		header_len_bytes=((header_len)/8);
 
 	/* add AU header tree  */
-	ismacryp_item = proto_tree_add_item(ismacryp_tree, hf_ismacryp_header, tvb, poffset->offset_bytes, header_len_bytes, FALSE );
+	ismacryp_item = proto_tree_add_item(ismacryp_tree, hf_ismacryp_header, tvb, poffset->offset_bytes, header_len_bytes, ENC_NA );
 	proto_item_append_text(ismacryp_item, ": Length=%d bits", header_len); /* add text to Header tree indicating length */
 	/* sanity check if actual AU header length is zero bits, which indicates an error */
 	if ( header_len == 0) /* something wrong */
@@ -494,7 +494,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 
 		/* add  header byte tree	*/
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_header_byte,
-						    tvb, poffset->offset_bytes, 1, FALSE );
+						    tvb, poffset->offset_bytes, 1, ENC_NA );
 		proto_item_append_text(ismacryp_item, ": Length=8 bits"); /* add text to Header byte tree indicating length */
 		ismacryp_header_byte_tree = proto_item_add_subtree(ismacryp_item, ett_ismacryp_header_byte);
 

@@ -104,7 +104,7 @@ dissect_h261( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset++;
 
 		/* The rest of the packet is the H.261 stream */
-		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, -1, FALSE );
+		proto_tree_add_item( h261_tree, hf_h261_data, tvb, offset, -1, ENC_NA );
 	}
 }
 

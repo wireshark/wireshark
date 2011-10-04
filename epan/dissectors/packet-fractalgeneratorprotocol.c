@@ -144,7 +144,7 @@ dissect_fractalgeneratorprotocol_data_message(tvbuff_t *message_tvb, proto_tree 
 
   buffer_length = tvb_get_ntohl(message_tvb, DATA_POINTS_OFFSET)*4;
   if (buffer_length > 0) {
-    proto_tree_add_item(message_tree, hf_buffer, message_tvb, DATA_BUFFER_OFFSET, buffer_length, FALSE);
+    proto_tree_add_item(message_tree, hf_buffer, message_tvb, DATA_BUFFER_OFFSET, buffer_length, ENC_NA);
   }
 }
 

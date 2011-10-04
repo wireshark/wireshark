@@ -2904,7 +2904,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     default:
-      proto_tree_add_item(skinny_tree, hf_skinny_rawData, tvb, offset+12, hdr_data_length-4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_rawData, tvb, offset+12, hdr_data_length-4, ENC_NA);
       break;
     }
   }

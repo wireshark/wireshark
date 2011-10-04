@@ -762,7 +762,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             /* TODO Check if buff needs to be free'd */
             udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
                                                 udvm2_tvb, 0, state_length,
-                                                ENC_BIG_ENDIAN);
+                                                ENC_NA);
             sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
 
             decomp_tvb = decompress_sigcomp_message(udvm2_tvb, msg_tvb, pinfo,
@@ -838,7 +838,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
             proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_pc, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset = offset +2;
-            proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, 20, ENC_BIG_ENDIAN);
+            proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_sha1, tvb, offset, 20, ENC_NA);
             offset = offset +20;
 
             /* Add NACK info to info column */
@@ -851,7 +851,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             case SIGCOMP_NACK_ID_NOT_UNIQUE:
             case SIGCOMP_NACK_STATE_TOO_SHORT:
                 /* State ID (6 - 20 bytes) */
-                proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_state_id, tvb, offset, -1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(sigcomp_tree,hf_sigcomp_nack_state_id, tvb, offset, -1, ENC_NA);
                 break;
             case SIGCOMP_NACK_CYCLES_EXHAUSTED:
                 /* Cycles Per Bit (1 byte) */
@@ -876,7 +876,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
             bytecode_len = len;
             bytecode_offset = offset;
             udvm_bytecode_item = proto_tree_add_item(sigcomp_tree, hf_sigcomp_udvm_bytecode, tvb,
-                                                     bytecode_offset, bytecode_len, ENC_BIG_ENDIAN);
+                                                     bytecode_offset, bytecode_len, ENC_NA);
             proto_item_append_text(udvm_bytecode_item,
                                    " %u (0x%x) bytes", bytecode_len, bytecode_len);
             sigcomp_udvm_tree = proto_item_add_subtree( udvm_bytecode_item, ett_sigcomp_udvm);
@@ -899,7 +899,7 @@ dissect_sigcomp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *sigcomp_tr
 
                 udvm_exe_item = proto_tree_add_item(sigcomp_tree, hf_udvm_execution_trace,
                                                     tvb, bytecode_offset, bytecode_len,
-                                                    ENC_BIG_ENDIAN);
+                                                    ENC_NA);
                 sigcomp_udvm_exe_tree = proto_item_add_subtree( udvm_exe_item, ett_sigcomp_udvm_exe);
                 decomp_tvb = decompress_sigcomp_message(udvm_tvb, msg_tvb, pinfo,
                            sigcomp_udvm_exe_tree, destination,

@@ -372,7 +372,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 				proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, FALSE);
 				offset += 2;
 
-				handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, item_length - 3, FALSE);
+				handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, item_length - 3, ENC_NA);
 
 				if( ((hdr_id == 0x46) || (hdr_id == 0x4a)) && (item_length == 19) ) { /* target or who */
 					for( i=0; target_vals[i].strptr != NULL; i++) {

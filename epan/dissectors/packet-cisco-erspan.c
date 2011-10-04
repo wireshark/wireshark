@@ -168,7 +168,7 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 4;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown4, tvb,
-				offset, 2, ENC_BIG_ENDIAN);
+				offset, 2, ENC_NA);
 			offset += 2;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_direction2, tvb,
@@ -178,11 +178,11 @@ dissect_erspan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 2;
 
 			proto_tree_add_item(erspan_tree, hf_erspan_unknown6, tvb,
-				offset, 4, ENC_BIG_ENDIAN);
+				offset, 4, ENC_NA);
 			offset += 4;
 		}
 		proto_tree_add_item(erspan_tree, hf_erspan_unknown7, tvb, offset, 4,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += 4;
 	}
 	else {

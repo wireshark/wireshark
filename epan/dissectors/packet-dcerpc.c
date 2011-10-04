@@ -2844,7 +2844,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
         dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &if_id);
         if (ctx_tree) {
 
-            iface_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_abstract_syntax, tvb, offset, 0, FALSE);
+            iface_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_abstract_syntax, tvb, offset, 0, ENC_NA);
             iface_tree = proto_item_add_subtree(iface_item, ett_dcerpc_cn_iface);
 
             uuid_str = guid_to_str((e_guid_t*)&if_id);
@@ -2887,7 +2887,7 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             dcerpc_tvb_get_uuid (tvb, offset, hdr->drep, &trans_id);
             if (ctx_tree) {
 
-                trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, FALSE);
+                trans_item = proto_tree_add_item(ctx_tree, hf_dcerpc_cn_bind_trans_syntax, tvb, offset, 0, ENC_NA);
                 trans_tree = proto_item_add_subtree(trans_item, ett_dcerpc_cn_trans_syntax);
 
                 uuid_str = guid_to_str((e_guid_t *) &trans_id);
@@ -4729,7 +4729,7 @@ dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
                 offset += 6;    /* 6 bytes of padding */
             else
                 offset += 2;    /* 6 bytes of padding */
-            proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_auth_verifier, tvb, offset, 16, FALSE);
+            proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_auth_verifier, tvb, offset, 16, ENC_NA);
             offset += 16;
             break;
 

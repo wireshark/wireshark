@@ -128,7 +128,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Timestamp (TS) */
 			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, FALSE);
 			if (length != 0)
-				proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, FALSE);
+				proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, ENC_NA);
 
 		}else{
 			/* 6.4.2.3 Transport Format for multiplexing without RTP Header Compression */
@@ -156,7 +156,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				else
 				{
 					proto_tree_add_item(nb_rtpmux_tree,
-						hf_nb_rtpmux_data, tvb, offset+5, length, FALSE);
+						hf_nb_rtpmux_data, tvb, offset+5, length, ENC_NA);
 				}
 			}
 		} /* if tbit */

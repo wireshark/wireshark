@@ -839,7 +839,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_ACCESS_CRITERIA:
-		proto_tree_add_item(tree, hf_simulcrypt_access_criteria, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_access_criteria, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_ECMG_ECM_STREAM_ID:
 		proto_tree_add_item(tree, hf_simulcrypt_ecm_stream_id, tvb, offset, plen, FALSE);
@@ -865,10 +865,10 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_item_append_text(simulcrypt_item, " (%d ms)", pvaluedec);
 		break;
 	case SIMULCRYPT_ECMG_CP_CW_COMBINATION:
-		proto_tree_add_item(tree, hf_simulcrypt_cp_cw_combination, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_cp_cw_combination, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_ECMG_ECM_DATAGRAM:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ecm_datagram, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ecm_datagram, tvb, offset, plen, ENC_NA);
 		/* Test srcport against table of ECMG ports & CA_System_ID for known protocol types */
 		for(i=0;i<ECM_INTERPRETATION_SIZE;i++)
 		{
@@ -885,7 +885,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		}
 		break;
 	case SIMULCRYPT_ECMG_CW_ENCRYPTION:
-		proto_tree_add_item(tree, hf_simulcrypt_cw_encryption, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_cw_encryption, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_ECMG_ECM_ID:
 		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, FALSE);
@@ -894,7 +894,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_ecmg_error_status, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_ECMG_ERROR_INFORMATION:
-		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	default:  /* Unknown parameter type */
 		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
@@ -922,7 +922,7 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_data_stream_id, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EMMG_DATAGRAM:
-		proto_tree_add_item(tree, hf_simulcrypt_datagram, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_datagram, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_EMMG_BANDWIDTH:
 		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_bandwidth, tvb, offset, plen, FALSE);
@@ -938,7 +938,7 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_emmg_error_status, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EMMG_ERROR_INFORMATION:
-		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	default:  /* Unknown parameter type */
 		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
@@ -974,7 +974,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		break;
 	case SIMULCRYPT_EIS_ECM_GROUP:
 		/* add ECM_Group item */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ecm_group, tvb, offset, plen, FALSE); /* value item */
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ecm_group, tvb, offset, plen, ENC_NA); /* value item */
 
 		/* create subtree */
 		simulcrypt_ecm_group_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_ecm_group);
@@ -1013,10 +1013,10 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EIS_ACCESS_CRITERIA:
-		proto_tree_add_item(tree, hf_simulcrypt_access_criteria, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_access_criteria, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_EIS_ACTIVATION_TIME:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_activation_time, tvb, offset, plen, FALSE); /* value item */
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_activation_time, tvb, offset, plen, ENC_NA); /* value item */
 
 		/* create subtree */
 		simulcrypt_activation_time_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_activation_time);
@@ -1076,7 +1076,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_eis_error_status, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EIS_ERROR_INFORMATION:
-		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_EIS_ERROR_DESCRIPTION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_description, tvb, offset, plen, FALSE);
@@ -1137,7 +1137,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_max_stream, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_PSIG_TABLE_PERIOD_PAIR:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_table_period_pair, tvb, offset, plen, FALSE); /* value item */
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_table_period_pair, tvb, offset, plen, ENC_NA); /* value item */
 
 		/* create subtree */
 		simulcrypt_psig_table_period_pair_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_table_period_pair);
@@ -1146,13 +1146,13 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		dissect_simulcrypt_data(simulcrypt_psig_table_period_pair_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_MUX_CIM, TRUE);
 		break;
 	case SIMULCRYPT_PSIG_MPEG_SECTION:
-		proto_tree_add_item(tree, hf_simulcrypt_mpeg_section, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_mpeg_section, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_PSIG_REPETITION_RATE:
 		proto_tree_add_item(tree, hf_simulcrypt_repetition_rate, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_PSIG_ACTIVATION_TIME:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_activation_time, tvb, offset, plen, FALSE); /* value item */
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_activation_time, tvb, offset, plen, ENC_NA); /* value item */
 
 		/* create subtree */
 		simulcrypt_activation_time_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_activation_time);
@@ -1167,7 +1167,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hundredth_second, tvb, offset+7, 1, FALSE); /* eighth byte */
 		break;
 	case SIMULCRYPT_PSIG_DATAGRAM:
-		proto_tree_add_item(tree, hf_simulcrypt_datagram, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_datagram, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_PSIG_BANDWIDTH:
 		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_bandwidth, tvb, offset, plen, FALSE);
@@ -1188,7 +1188,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_psig_error_status, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_PSIG_ERROR_INFORMATION:
-		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	default:  /* Unknown parameter type */
 		proto_tree_add_text(tree, tvb, offset, plen, "Parameter Value: %s", pvalue_char);
@@ -1231,7 +1231,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Simulcrypt_tree analysis */
 		/* we are being asked for details */
 		/* ADD HEADER BRANCH */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_header, tvb, offset, 5, FALSE );
+		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_header, tvb, offset, 5, ENC_NA );
 		simulcrypt_header_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_header);
 		proto_item_append_text(simulcrypt_header_tree, ", Length: %s", "5 bytes"); /* add text to Header tree indicating Length 5 bytes */
 
@@ -1254,7 +1254,7 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset+=2;
 
 		/* ADD MESSAGE BRANCH */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_message, tvb, offset, -1, FALSE );
+		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_message, tvb, offset, -1, ENC_NA );
 		simulcrypt_message_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_message);
 		proto_item_append_text(simulcrypt_message_tree, " containing TLV parameters"); /* add text to Message tree	*/
 		proto_item_append_text(simulcrypt_message_tree, ", Length: %d (bytes)", msg_length); /* add length info to message_tree */
@@ -1303,7 +1303,7 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 		/* Parameter  Value plen Bytes */
 		pvalue_char = tvb_bytes_to_str(tvb, offset+4, plen);
 
-		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_parameter, tvb, offset, plen+2+2, FALSE );
+		simulcrypt_item = proto_tree_add_item(simulcrypt_tree, hf_simulcrypt_parameter, tvb, offset, plen+2+2, ENC_NA );
 
 		/* add length and value info to type */
 		switch (iftype) {

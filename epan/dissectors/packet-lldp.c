@@ -761,7 +761,7 @@ dissect_lldp_chassis_id(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gui
 			break;
 		case 1:	/* Chassis component */
 		case 3:	/* Port component */
-			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+3), (tempLen-1), FALSE);
+			proto_tree_add_item(chassis_tree, hf_chassis_id, tvb, (offset+3), (tempLen-1), ENC_NA);
 			break;
 		}
 	}
@@ -1212,7 +1212,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 			proto_tree_add_item(system_mgm_addr, hf_mgn_addr_ipv6, tvb, tempOffset, 16, FALSE);
 			break;
 		default:
-			proto_tree_add_item(system_mgm_addr, hf_mgn_addr_hex, tvb, tempOffset, (stringLen-1), FALSE);
+			proto_tree_add_item(system_mgm_addr, hf_mgn_addr_hex, tvb, tempOffset, (stringLen-1), ENC_NA);
 			break;
 		}
 
@@ -1241,7 +1241,7 @@ dissect_lldp_management_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 			tempOffset++;
 
 			/* Get OID identifier */
-			proto_tree_add_item(system_mgm_addr, hf_mgn_obj_id, tvb, tempOffset, stringLen, FALSE);
+			proto_tree_add_item(system_mgm_addr, hf_mgn_obj_id, tvb, tempOffset, stringLen, ENC_NA);
 		}
 	}
 
@@ -2538,7 +2538,7 @@ dissect_profinet_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gu
         break;
     }
 	default:
-		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2-1, FALSE);
+		proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, tlvLen2-1, ENC_NA);
 	}
 }
 
@@ -2590,7 +2590,7 @@ dissect_cisco_tlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint
 	  }
 	  break;
 	default:
-	  proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(tree, hf_unknown_subtype, tvb, offset, 1, ENC_NA);
 	  break;
 	}
 }
@@ -2690,7 +2690,7 @@ dissect_organizational_specific_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		dissect_ieee_802_1qbg_tlv(tvb, pinfo, org_tlv_tree, (offset+5));
 		break;
 	default:
-		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), FALSE);
+		proto_tree_add_item(org_tlv_tree, hf_unknown_subtype, tvb, (offset+5), (guint16) (tempLen-3), ENC_NA);
 	}
 
 	return (tempLen + 2);

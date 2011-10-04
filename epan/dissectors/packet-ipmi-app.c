@@ -444,7 +444,7 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_app_01_product, tvb, 9, 2, TRUE);
 	if (len > 11) {
 		/* IPMI states that Aux Revision should be displayed in MSB order */
-		proto_tree_add_item(tree, hf_ipmi_app_01_fw_aux, tvb, 11, 4, FALSE);
+		proto_tree_add_item(tree, hf_ipmi_app_01_fw_aux, tvb, 11, 4, ENC_NA);
 	}
 }
 
@@ -488,7 +488,7 @@ rs04(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq05(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_app_05_devspec, tvb, 0, tvb_length(tvb), TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_05_devspec, tvb, 0, tvb_length(tvb), ENC_NA);
 }
 
 /* Set ACPI Power State.
@@ -776,7 +776,7 @@ static void
 rs39(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_app_39_temp_session, tvb, 0, 4, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_app_39_challenge, tvb, 4, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_39_challenge, tvb, 4, 16, ENC_NA);
 }
 
 static const value_string cc39[] = {
@@ -797,7 +797,7 @@ rq3a(tvbuff_t *tvb, proto_tree *tree)
 			ett_ipmi_app_3a_rq_byte1, byte1, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
 			ett_ipmi_app_3a_rq_byte2, byte2, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_3a_authcode, tvb, 2, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_3a_authcode, tvb, 2, 16, ENC_NA);
 	proto_tree_add_item(tree, hf_ipmi_app_3a_outbound_seq, tvb, 18, 4, TRUE);
 }
 

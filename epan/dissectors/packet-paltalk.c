@@ -107,7 +107,7 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(pt_tree, hf_paltalk_pdu_type, tvb, 0, 2, FALSE);
 		proto_tree_add_item(pt_tree, hf_paltalk_version, tvb, 2, 2, FALSE);
 		proto_tree_add_item(pt_tree, hf_paltalk_length, tvb, 4, 2, FALSE);
-		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), FALSE);
+		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), ENC_NA);
 	}
 }
 

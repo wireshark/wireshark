@@ -119,7 +119,7 @@ dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(netdump_tree, hf_netdump_seq_nr, tvb, 1, 4, FALSE);
 			proto_tree_add_item(netdump_tree, hf_netdump_code, tvb, 5, 4, FALSE);
 			proto_tree_add_item(netdump_tree, hf_netdump_info, tvb, 9, 4, TRUE);
-			proto_tree_add_item(netdump_tree, hf_netdump_payload, tvb, 13, -1, FALSE);
+			proto_tree_add_item(netdump_tree, hf_netdump_payload, tvb, 13, -1, ENC_NA);
 		}
 	}
 }

@@ -921,7 +921,7 @@ dissect_optional_10(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;
 
 	proto_tree_add_text(tree, tvb, 2, 2, "Reserved");
-	proto_tree_add_item(tree, hf_sna_nlp_opti_10_tcid, tvb, 4, 8, FALSE);
+	proto_tree_add_item(tree, hf_sna_nlp_opti_10_tcid, tvb, 4, 8, ENC_NA);
 	if (tvb_offset_exists(tvb, 12))
 		call_dissector(data_handle,
 		    tvb_new_subset_remaining(tvb, 12), pinfo, tree);
@@ -934,7 +934,7 @@ dissect_optional_12(tvbuff_t *tvb, proto_tree *tree)
 		return;
 
 	proto_tree_add_text(tree, tvb, 2, 2, "Reserved");
-	proto_tree_add_item(tree, hf_sna_nlp_opti_12_sense, tvb, 4, -1, FALSE);
+	proto_tree_add_item(tree, hf_sna_nlp_opti_12_sense, tvb, 4, -1, ENC_NA);
 }
 
 static void
@@ -1215,7 +1215,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Don't bother setting length. We'll set it later after we
 		 * find the lengths of NHDR */
 		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_nhdr, tvb,
-		    index, -1, FALSE);
+		    index, -1, ENC_NA);
 		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_nhdr);
 
 		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_nhdr_0, tvb,
@@ -1252,7 +1252,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} while (nhdr_x != 0xff);
 		if (tree)
 			proto_tree_add_item(nlp_tree,
-			    hf_sna_nlp_fra, tvb, index, counter, FALSE);
+			    hf_sna_nlp_fra, tvb, index, counter, ENC_NA);
 		index += counter;
 		if (tree)
 			proto_tree_add_text(nlp_tree, tvb, index, 1,
@@ -1283,7 +1283,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		} while (nhdr_x != 0xff);
 		if (tree)
 			proto_tree_add_item(nlp_tree, hf_sna_nlp_anr,
-			    tvb, index, counter, FALSE);
+			    tvb, index, counter, ENC_NA);
 		index += counter;
 
 		if (tree)
@@ -1302,11 +1302,11 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		nlp_item = proto_tree_add_item(tree, hf_sna_nlp_thdr, tvb,
-		    index, thdr_len << 2, FALSE);
+		    index, thdr_len << 2, ENC_NA);
 		nlp_tree = proto_item_add_subtree(nlp_item, ett_sna_nlp_thdr);
 
 		proto_tree_add_item(nlp_tree, hf_sna_nlp_tcid, tvb,
-		    index, 8, FALSE);
+		    index, 8, ENC_NA);
 		bf_item = proto_tree_add_uint(nlp_tree, hf_sna_nlp_thdr_8, tvb,
 		    index+8, 1, thdr_8);
 		bf_tree = proto_item_add_subtree(bf_item, ett_sna_nlp_thdr_8);
@@ -2097,7 +2097,7 @@ dissect_fid5(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_text(tree, tvb, 1, 1, "Reserved");
 	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 2, 2, FALSE);
 
-	proto_tree_add_item(tree, hf_sna_th_sa, tvb, 4, 8, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_sa, tvb, 4, 8, ENC_NA);
 
 	return bytes_in_header;
 
@@ -2164,7 +2164,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* Don't bother setting length. We'll set it later after we
 		 * find the length of TH */
 		th_ti = proto_tree_add_item(tree, hf_sna_th, tvb,  0, -1,
-		    FALSE);
+		    ENC_NA);
 		th_tree = proto_item_add_subtree(th_ti, ett_sna_th);
 	}
 
@@ -2219,7 +2219,7 @@ dissect_fid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		/* --- RH --- */
 		rh_ti = proto_tree_add_item(tree, hf_sna_rh, rh_tvb, rh_offset,
-		    RH_LEN, FALSE);
+		    RH_LEN, ENC_NA);
 		rh_tree = proto_item_add_subtree(rh_ti, ett_sna_rh);
 		dissect_rh(rh_tvb, rh_offset, rh_tree);
 	}
@@ -2531,7 +2531,7 @@ dissect_gds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			return;
 		if (tree) {
 			gds_item = proto_tree_add_item(tree, hf_sna_gds, tvb,
-			    offset, length, FALSE);
+			    offset, length, ENC_NA);
 			gds_tree = proto_item_add_subtree(gds_item,
 			    ett_sna_gds);
 

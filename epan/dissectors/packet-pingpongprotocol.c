@@ -103,7 +103,7 @@ dissect_pingpongprotocol_ping_message(tvbuff_t *message_tvb, proto_tree *message
 
   ping_data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - PING_DATA_OFFSET;
   if (ping_data_length > 0)
-    proto_tree_add_item(message_tree, hf_ping_data, message_tvb, PING_DATA_OFFSET, ping_data_length, FALSE);
+    proto_tree_add_item(message_tree, hf_ping_data, message_tvb, PING_DATA_OFFSET, ping_data_length, ENC_NA);
 }
 
 static void
@@ -116,7 +116,7 @@ dissect_pingpongprotocol_pong_message(tvbuff_t *message_tvb, proto_tree *message
 
   pong_data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - PONG_DATA_OFFSET;
   if (pong_data_length > 0) {
-    proto_tree_add_item(message_tree, hf_pong_data, message_tvb, PONG_DATA_OFFSET, pong_data_length, FALSE);
+    proto_tree_add_item(message_tree, hf_pong_data, message_tvb, PONG_DATA_OFFSET, pong_data_length, ENC_NA);
   }
 }
 

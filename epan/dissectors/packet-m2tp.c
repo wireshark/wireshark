@@ -351,7 +351,7 @@ dissect_m2tp_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tre
   if (parameter_tree) {
     length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
     diagnostic_info_length = length - PARAMETER_HEADER_LENGTH;
-    proto_tree_add_item(parameter_tree, hf_m2tp_diagnostic_info, parameter_tvb, PARAMETER_VALUE_OFFSET, diagnostic_info_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_m2tp_diagnostic_info, parameter_tvb, PARAMETER_VALUE_OFFSET, diagnostic_info_length, ENC_NA);
     proto_item_set_text(parameter_item, "Diagnostic information (%u byte%s)", diagnostic_info_length, plurality(diagnostic_info_length, "", "s"));
   }
 }
@@ -365,7 +365,7 @@ dissect_m2tp_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *param
   if (parameter_tree) {
     length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
     heartbeat_data_length = length - PARAMETER_HEADER_LENGTH;
-    proto_tree_add_item(parameter_tree, hf_m2tp_heartbeat_data, parameter_tvb, PARAMETER_VALUE_OFFSET, heartbeat_data_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_m2tp_heartbeat_data, parameter_tvb, PARAMETER_VALUE_OFFSET, heartbeat_data_length, ENC_NA);
     proto_item_set_text(parameter_item, "Heartbeat data (%u byte%s)", heartbeat_data_length, plurality(heartbeat_data_length, "", "s"));
   }
 }
@@ -429,7 +429,7 @@ dissect_m2tp_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
     length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET);
 
     parameter_value_length = length - PARAMETER_HEADER_LENGTH;
-    proto_tree_add_item(parameter_tree, hf_m2tp_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_m2tp_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
 
     proto_item_set_text(parameter_item, "Parameter with tag %u and %u byte%s value", tag, parameter_value_length, plurality(parameter_value_length, "", "s"));
   }
@@ -495,7 +495,7 @@ dissect_m2tp_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *
   };
 
   if ((parameter_tree) && (padding_length > 0))
-    proto_tree_add_item(parameter_tree, hf_m2tp_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_m2tp_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 /* M2TP Message */

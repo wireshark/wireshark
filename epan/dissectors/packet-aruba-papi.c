@@ -84,7 +84,7 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	proto_tree *debug_tree, *debug_sub_tree;
 
 
-	ti = proto_tree_add_item(tree, hf_papi_debug, tvb, offset, -1, FALSE);
+	ti = proto_tree_add_item(tree, hf_papi_debug, tvb, offset, -1, ENC_NA);
 	debug_tree = proto_item_add_subtree(ti, ett_papi);
 
 	while(offset < tvb_reported_length(tvb)) {
@@ -120,7 +120,7 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		    offset += 3;
 		break;
 		case 0x08:
-		    ti = proto_tree_add_item(debug_tree, hf_papi_debug_bytes, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), FALSE);
+		    ti = proto_tree_add_item(debug_tree, hf_papi_debug_bytes, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), ENC_NA);
 		    debug_sub_tree = proto_item_add_subtree(ti, ett_papi);
 		    proto_tree_add_item(debug_sub_tree, hf_papi_debug_bytes_length, tvb, offset+1, 2, FALSE);
 		    offset += tvb_get_ntohs(tvb,offset+1) + 3;
@@ -196,7 +196,7 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, ENC_NA);
 		offset += 16;
 
 		if(g_papi_debug)

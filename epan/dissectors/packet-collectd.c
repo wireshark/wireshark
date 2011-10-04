@@ -703,7 +703,7 @@ dissect_collectd_signature (tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_uint (pt, hf_collectd_type, tvb, offset, 2, type);
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2,
 			     length);
-	proto_tree_add_item (pt, hf_collectd_data_sighash, tvb, offset + 4, 32, FALSE);
+	proto_tree_add_item (pt, hf_collectd_data_sighash, tvb, offset + 4, 32, ENC_NA);
 	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 36, length - 36, FALSE);
 
 	return (0);
@@ -795,10 +795,10 @@ dissect_collectd_encrypted (tvbuff_t *tvb, packet_info *pinfo,
 	proto_tree_add_uint (pt, hf_collectd_data_username_len, tvb, offset + 4, 2, username_length);
 	proto_tree_add_item (pt, hf_collectd_data_username, tvb, offset + 6, username_length, FALSE);
 	proto_tree_add_item (pt, hf_collectd_data_initvec, tvb,
-			     offset + (6 + username_length), 16, FALSE);
+			     offset + (6 + username_length), 16, ENC_NA);
 	proto_tree_add_item (pt, hf_collectd_data_encrypted, tvb,
 			     offset + (22 + username_length),
-			     length - (22 + username_length), FALSE);
+			     length - (22 + username_length), ENC_NA);
 
 	return (0);
 } /* int dissect_collectd_encrypted */
@@ -1254,7 +1254,7 @@ dissect_collectd (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint (pt, hf_collectd_length, tvb,
 						  offset + 2, 2, part_length);
 			proto_tree_add_item (pt, hf_collectd_data, tvb,
-					     offset + 4, part_length - 4, FALSE);
+					     offset + 4, part_length - 4, ENC_NA);
 
 			expert_add_info_format (pinfo, pi,
 						PI_UNDECODED, PI_NOTE,

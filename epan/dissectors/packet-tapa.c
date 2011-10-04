@@ -171,7 +171,7 @@ dissect_tapa_discover_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_
 
 	remaining -= 6;
 	proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_reply_pad, tvb, offset, remaining,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += remaining;
 
 	return offset;
@@ -217,7 +217,7 @@ dissect_tapa_discover_req(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tapa_di
 			ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_req_value, tvb, offset, item_length,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += item_length;
 
 		remaining -= (item_length + 4);
@@ -276,7 +276,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				tvb, offset, item_length, ENC_BIG_ENDIAN);
 		else
 			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuehex,
-				tvb, offset, item_length, ENC_BIG_ENDIAN);
+				tvb, offset, item_length, ENC_NA);
 		offset += item_length;
 
 		remaining -= (item_length + 4);
@@ -334,7 +334,7 @@ dissect_tapa_discover(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 		default:
 			proto_tree_add_item(tapa_discover_tree, hf_tapa_discover_unknown, tvb, offset,
-					remaining, ENC_BIG_ENDIAN);
+					remaining, ENC_NA);
 		offset += 1;
 
 			break;
@@ -378,7 +378,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 1;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_zero, tvb, offset, 8,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += 8;
 
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_dmac, tvb, offset, 6,
@@ -416,7 +416,7 @@ dissect_tapa_tunnel(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* FIXME: This is just to help figuring out what the bytes mean */
 		proto_tree_add_item(tapa_tunnel_tree, hf_tapa_tunnel_remaining, tvb,
-			offset, remaining - offset, ENC_BIG_ENDIAN);
+			offset, remaining - offset, ENC_NA);
 		offset = remaining;
 
 	}

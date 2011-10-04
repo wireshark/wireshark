@@ -508,7 +508,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (fcount > 1) {             /* fragmented*/
     gboolean save_fragmented = pinfo->fragmented;
     guint16 real_len = tvb_length(tvb)-offset;
-    proto_tree_add_item (pft_tree, hf_edcp_pft_payload, tvb, offset, real_len, ENC_BIG_ENDIAN);
+    proto_tree_add_item (pft_tree, hf_edcp_pft_payload, tvb, offset, real_len, ENC_NA);
     if(real_len != payload_len) {
       if(li)
         proto_item_append_text(li, " (length error (%d))", real_len);

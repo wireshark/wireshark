@@ -893,7 +893,7 @@ dissect_rtcp_rtpfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree, proto_item
         offset = dissect_rtcp_rtpfb_tmmbr(tvb, offset, rtcp_tree, top_item, counter, 1);
       } else {
         /* Unknown FMT */
-        proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, FALSE );
+        proto_tree_add_item(rtcp_tree, hf_rtcp_fci, tvb, offset, start_offset + packet_length - offset, ENC_NA );
         offset = start_offset + packet_length;
       }
     }
@@ -959,7 +959,7 @@ dissect_rtcp_psfb( tvbuff_t *tvb, int offset, proto_tree *rtcp_tree,
 
     /* Append undecoded FCI information */
     if ((packet_length - (offset - base_offset)) > 0) {
-      proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - (offset - base_offset), FALSE );
+      proto_tree_add_item( rtcp_tree, hf_rtcp_fci, tvb, offset, packet_length - (offset - base_offset), ENC_NA );
       offset = base_offset + packet_length;
     }
     return offset;
@@ -1041,7 +1041,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		   the length */
 
 		/* Top-level poc tree */
-		PoC1_item = proto_tree_add_item(tree, hf_rtcp_app_poc1, tvb, offset, packet_len, ENC_BIG_ENDIAN);
+		PoC1_item = proto_tree_add_item(tree, hf_rtcp_app_poc1, tvb, offset, packet_len, ENC_NA);
 		PoC1_tree = proto_item_add_subtree( PoC1_item, ett_PoC1 );
 
 		/* Dissect it according to its subtype */
@@ -1534,7 +1534,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		{
 			guint16 local_port = 0;
 
-			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, ENC_BIG_ENDIAN);
+			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, ENC_NA);
 			proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
 			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
 			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
@@ -1545,7 +1545,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 		else
 		{
 			/* fall back to just showing the data if it's the wrong length */
-			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA );
 		}
 		offset += packet_len;
 
@@ -1585,7 +1585,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				*/
 				packet_len -= tvb_get_guint8( tvb, offset + packet_len - 1 );
 			}
-			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, FALSE );
+			proto_tree_add_item( tree, hf_rtcp_app_data, tvb, offset, packet_len, ENC_NA );
 			offset += packet_len;
 
 			return offset;
@@ -2318,7 +2318,7 @@ dissect_rtcp_rr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 	if ((offset-rr_offset) < (int)packet_length)
 	{
 		proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
-		                    packet_length - (offset - rr_offset), ENC_BIG_ENDIAN);
+		                    packet_length - (offset - rr_offset), ENC_NA);
 		offset = rr_offset + packet_length;
 	}
 
@@ -2373,7 +2373,7 @@ dissect_rtcp_sr( packet_info *pinfo, tvbuff_t *tvb, int offset, proto_tree *tree
 		if ((offset-sr_offset) < (int)packet_length)
 		{
 			proto_tree_add_item(tree, hf_rtcp_profile_specific_extension, tvb, offset,
-			                    packet_length - (offset - sr_offset), ENC_BIG_ENDIAN);
+			                    packet_length - (offset - sr_offset), ENC_NA);
 			offset = sr_offset + packet_length;
 		}
 	}
@@ -2922,7 +2922,7 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         /* This length includes the padding length byte itself, so 0 is not
          * a valid value. */
         if (padding_length != 0) {
-            proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, padding_length - 1, FALSE );
+            proto_tree_add_item( rtcp_tree, hf_rtcp_padding_data, tvb, offset, padding_length - 1, ENC_NA );
             offset += padding_length - 1;
         }
         proto_tree_add_item( rtcp_tree, hf_rtcp_padding_count, tvb, offset, 1, FALSE );
@@ -2936,12 +2936,12 @@ dissect_rtcp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
         proto_tree_add_uint(rtcp_tree, hf_srtcp_index, tvb, srtcp_offset, 4, srtcp_index);
         srtcp_offset += 4;
         if (srtcp_info->mki_len) {
-            proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rtcp_tree, hf_srtcp_mki, tvb, srtcp_offset, srtcp_info->mki_len, ENC_NA);
             srtcp_offset += srtcp_info->mki_len;
         }
 
         if (srtcp_info->auth_tag_len) {
-            proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, ENC_BIG_ENDIAN);
+            proto_tree_add_item(rtcp_tree, hf_srtcp_auth_tag, tvb, srtcp_offset, srtcp_info->auth_tag_len, ENC_NA);
             srtcp_offset += srtcp_info->auth_tag_len;
         }
     }

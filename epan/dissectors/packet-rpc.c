@@ -2154,7 +2154,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						 "[RPC retransmission of #%d]",
 						 rpc_call->req_num);
 				proto_tree_add_item(rpc_tree, hf_rpc_dup, tvb,
-						    0, 0, TRUE);
+						    0, 0, ENC_NA);
 				proto_tree_add_uint(rpc_tree, hf_rpc_call_dup,
 						    tvb, 0,0, rpc_call->req_num);
 			}
@@ -2333,7 +2333,7 @@ dissect_rpc_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 				col_prepend_fstr(pinfo->cinfo, COL_INFO,
 						"[RPC duplicate of #%d]", rpc_call->rep_num);
 				tmp_item=proto_tree_add_item(rpc_tree,
-					hf_rpc_dup, tvb, 0,0, TRUE);
+					hf_rpc_dup, tvb, 0,0, ENC_NA);
 				PROTO_ITEM_SET_GENERATED(tmp_item);
 
 				tmp_item=proto_tree_add_uint(rpc_tree,

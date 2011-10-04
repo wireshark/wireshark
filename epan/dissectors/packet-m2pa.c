@@ -348,7 +348,7 @@ dissect_v8_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, p
 
   proto_tree_add_item(m2pa_tree, hf_v8_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, ENC_BIG_ENDIAN);
   if (filler_length > 0)
-      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, ENC_BIG_ENDIAN);
+      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, ENC_NA);
 }
 
 static const value_string link_status_values[] = {
@@ -375,7 +375,7 @@ dissect_link_status_message(tvbuff_t *message_data_tvb, packet_info *pinfo, prot
 
   proto_tree_add_item(m2pa_tree, hf_status, message_data_tvb, STATUS_OFFSET, STATUS_LENGTH, ENC_BIG_ENDIAN);
   if (filler_length > 0)
-      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, ENC_BIG_ENDIAN);
+      proto_tree_add_item(m2pa_tree, hf_filler, message_data_tvb, FILLER_OFFSET, filler_length, ENC_NA);
 }
 
 static void
@@ -385,7 +385,7 @@ dissect_unknown_message(tvbuff_t *message_data_tvb, proto_tree *m2pa_tree)
 
   length = tvb_length(message_data_tvb);
   if ((m2pa_tree) && (length > 0))
-    proto_tree_add_item(m2pa_tree, hf_unknown_data, message_data_tvb, 0, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(m2pa_tree, hf_unknown_data, message_data_tvb, 0, length, ENC_NA);
 }
 
 #define V2_MESSAGE_DATA_OFFSET (HEADER_OFFSET + V2_HEADER_LENGTH)
@@ -484,7 +484,7 @@ dissect_message_data(tvbuff_t *message_tvb, packet_info *pinfo, proto_item *m2pa
   {
     proto_item *pi;
 
-    pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(m2pa_tree, hf_undecode_data, message_tvb, length, (actual_length - length), ENC_NA);
     expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_WARN,
 			   "There are %d bytes of data which is greater than M2PA's length parameter (%d)",
 			   actual_length, length);

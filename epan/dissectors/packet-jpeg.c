@@ -91,7 +91,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		ti = proto_tree_add_item( tree, proto_jpeg, tvb, offset, -1, FALSE );
 		jpeg_tree = proto_item_add_subtree( ti, ett_jpeg );
 
-		ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_main_hdr, tvb, offset, 8, FALSE);
+		ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_main_hdr, tvb, offset, 8, ENC_NA);
 		main_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
 
 		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_ts, tvb, offset, 1, FALSE);
@@ -113,7 +113,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		offset += 1;
 
 		if (type >= 64 && type <= 127) {
-			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_restart_hdr, tvb, offset, 4, FALSE);
+			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_restart_hdr, tvb, offset, 4, ENC_NA);
 			restart_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
 			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_interval, tvb, offset, 2, FALSE);
 			offset += 2;
@@ -124,7 +124,7 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		}
 
 		if (q >= 128 && fragment_offset == 0) {
-			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_qtable_hdr, tvb, offset, -1, FALSE);
+			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_qtable_hdr, tvb, offset, -1, ENC_NA);
 			qtable_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
 			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_mbz, tvb, offset, 1, FALSE);
 			offset += 1;
@@ -134,14 +134,14 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 			len = tvb_get_ntohs(tvb, offset);
 			offset += 2;
 			if (len > 0) {
-				proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_data, tvb, offset, len, FALSE);
+				proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_data, tvb, offset, len, ENC_NA);
 				offset += len;
 			}
 			proto_item_set_len(ti, len + 4);
 		}
 
 		/* The rest of the packet is the JPEG data */
-		proto_tree_add_item( jpeg_tree, hf_rtp_jpeg_payload, tvb, offset, -1, FALSE );
+		proto_tree_add_item( jpeg_tree, hf_rtp_jpeg_payload, tvb, offset, -1, ENC_NA );
 	}
 }
 

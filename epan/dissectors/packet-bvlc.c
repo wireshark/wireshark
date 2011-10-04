@@ -218,7 +218,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 2;
 				proto_tree_add_item(bdt_tree,
 					hf_bvlc_bdt_mask, tvb, offset, 4,
-					FALSE);
+					ENC_NA);
 				offset += 4;
 			}
 			/* We check this if we get a BDT-packet somewhere */

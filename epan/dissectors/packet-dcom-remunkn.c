@@ -161,7 +161,7 @@ dissect_remunk_remqueryinterface_resp(tvbuff_t *tvb, int offset,
     u32ItemIdx = 1;
     while (u32ArraySize--) {
         /* add subtree */
-        sub_item = proto_tree_add_item(tree, hf_remunk_qiresult, tvb, offset, 0, ENC_BIG_ENDIAN);
+        sub_item = proto_tree_add_item(tree, hf_remunk_qiresult, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_rqi_result);
 
         /* REMQIRESULT */
@@ -251,7 +251,7 @@ dissect_remunk_remrelease_rqst(tvbuff_t *tvb, int offset,
     u32ItemIdx = 1;
     while (u32IntRefs--) {
         /* add subtree */
-        sub_item = proto_tree_add_item(tree, hf_remunk_reminterfaceref, tvb, offset, 0, ENC_BIG_ENDIAN);
+        sub_item = proto_tree_add_item(tree, hf_remunk_reminterfaceref, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_remunk_reminterfaceref);
         u32SubStart = offset;
 

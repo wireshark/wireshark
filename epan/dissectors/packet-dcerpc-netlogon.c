@@ -1071,7 +1071,7 @@ netlogon_dissect_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
     }
 
     proto_tree_add_item(tree, hf_netlogon_lm_owf_password, tvb, offset, 16,
-                        FALSE);
+                        ENC_NA);
     offset += 16;
 
     return offset;
@@ -1104,7 +1104,7 @@ netlogon_dissect_NT_OWF_PASSWORD(tvbuff_t *tvb, int offset,
     }
 
     proto_tree_add_item(tree, hf_netlogon_nt_owf_password, tvb, offset, 16,
-                        FALSE);
+                        ENC_NA);
     offset += 16;
 
     return offset;
@@ -1154,7 +1154,7 @@ netlogon_dissect_CHALLENGE(tvbuff_t *tvb, int offset,
     }
 
     proto_tree_add_item(tree, hf_netlogon_challenge, tvb, offset, 8,
-                        FALSE);
+                        ENC_NA);
     offset += 8;
 
     return offset;
@@ -1373,7 +1373,7 @@ netlogon_dissect_CREDENTIAL(tvbuff_t *tvb, int offset,
     }
 
     proto_tree_add_item(tree, hf_netlogon_credential, tvb, offset, 8,
-                        FALSE);
+                        ENC_NA);
     offset += 8;
 
     return offset;
@@ -1525,7 +1525,7 @@ netlogon_dissect_USER_SESSION_KEY(tvbuff_t *tvb, int offset,
     }
 
     proto_tree_add_item(tree, hf_netlogon_user_session_key, tvb, offset, 16,
-                        FALSE);
+                        ENC_NA);
     offset += 16;
 
     return offset;
@@ -2095,7 +2095,7 @@ netlogon_dissect_PAC(tvbuff_t *tvb, int offset,
                                 hf_netlogon_pac_size, &pac_size);
 
     proto_tree_add_item(tree, hf_netlogon_pac_data, tvb, offset, pac_size,
-                        FALSE);
+                        ENC_NA);
     offset += pac_size;
 
     return offset;
@@ -2118,7 +2118,7 @@ netlogon_dissect_AUTH(tvbuff_t *tvb, int offset,
                                 hf_netlogon_auth_size, &auth_size);
 
     proto_tree_add_item(tree, hf_netlogon_auth_data, tvb, offset, auth_size,
-                        FALSE);
+                        ENC_NA);
     offset += auth_size;
 
     return offset;
@@ -2696,7 +2696,7 @@ netlogon_dissect_ENCRYPTED_LM_OWF_PASSWORD(tvbuff_t *tvb, int offset,
     }
 
     proto_tree_add_item(tree, hf_netlogon_encrypted_lm_owf_password, tvb, offset, 16,
-                        FALSE);
+                        ENC_NA);
     offset += 16;
 
     return offset;
@@ -2828,7 +2828,7 @@ netlogon_dissect_SENSITIVE_DATA(tvbuff_t *tvb, int offset,
                                 hf_netlogon_sensitive_data_len, &data_len);
 
     proto_tree_add_item(tree, hf_netlogon_sensitive_data, tvb, offset,
-                        data_len, FALSE);
+                        data_len, ENC_NA);
     offset += data_len;
 
     return offset;
@@ -5767,7 +5767,7 @@ netlogon_dissect_BLOB_array(tvbuff_t *tvb, int offset,
                                 hf_netlogon_blob_size, &len);
 
     proto_tree_add_item(tree, hf_netlogon_blob, tvb, offset, len,
-                        FALSE);
+                        ENC_NA);
     offset += len;
 
     return offset;
@@ -8014,7 +8014,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
          * Create a new tree, and split into x components ...
          */
         vf = proto_tree_add_item(tree, hf_netlogon_secchan_verf, tvb,
-                                 offset, -1, FALSE);
+                                 offset, -1, ENC_NA);
         subtree = proto_item_add_subtree(vf, ett_secchan_verf);
 
         proto_tree_add_item(subtree, hf_netlogon_secchan_verf_signalg, tvb,
@@ -8023,7 +8023,7 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                             offset+2, 2, TRUE);
         /* 2 pad bytes */
         proto_tree_add_item(subtree, hf_netlogon_secchan_verf_flag, tvb,
-                            offset+6, 2, FALSE);
+                            offset+6, 2, ENC_NA);
         offset += 8;
 
         offset = dissect_dcerpc_8bytes(tvb, offset, pinfo, subtree, drep,

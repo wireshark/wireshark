@@ -86,13 +86,13 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	offset += 1;
 
 	/* Reserved */
-	proto_tree_add_item(ripng_tree, hf_ripng_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(ripng_tree, hf_ripng_reserved, tvb, offset, 2, ENC_NA);
 	offset += 2;
 
 	/* Route Table Entry */
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {
 
-		rte_ti = proto_tree_add_item(ripng_tree, hf_ripng_rte, tvb, offset, 16 + 2 + 1 + 1, FALSE);
+		rte_ti = proto_tree_add_item(ripng_tree, hf_ripng_rte, tvb, offset, 16 + 2 + 1 + 1, ENC_NA);
 		rte_tree = proto_item_add_subtree(rte_ti, ett_ripng_rte);
 
 		/* IPv6 Prefix */

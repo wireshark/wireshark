@@ -2833,7 +2833,7 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
 
       proto_tree_add_text(parameter_tree,parameter_tvb, cc_offset, length,"DSP length %u(len %u -9 )",(len-9),len );
 
-      proto_tree_add_item(parameter_tree, hf_bicc_nsap_dsp, parameter_tvb, offset + 8, (len - 9),FALSE);
+      proto_tree_add_item(parameter_tree, hf_bicc_nsap_dsp, parameter_tvb, offset + 8, (len - 9),ENC_NA);
 
       break;
     default:
@@ -3416,7 +3416,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
         break;
       case INTERWORKING_FUNCTION_ADDRESS :
         bat_ase_iwfa_item = proto_tree_add_item(bat_ase_element_tree, hf_bat_ase_biwfa, parameter_tvb, offset, content_len,
-                                                FALSE);
+                                                ENC_NA);
         bat_ase_iwfa_tree = proto_item_add_subtree(bat_ase_iwfa_item , ett_bat_ase_iwfa);
         dissect_nsap(parameter_tvb, offset, content_len, bat_ase_iwfa_tree);
 

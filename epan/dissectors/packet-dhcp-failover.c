@@ -462,7 +462,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* if there are any additional header bytes */
 	if (poffset != offset) {
 		proto_tree_add_item(dhcpfo_tree, hf_dhcpfo_additional_HB, tvb,
-		    offset, poffset-offset, ENC_BIG_ENDIAN);
+		    offset, poffset-offset, ENC_NA);
 		offset = poffset;
 	}
 
@@ -471,7 +471,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		return;	/* no payload */
 	/* create display subtree for the payload */
 	pi = proto_tree_add_item(dhcpfo_tree, hf_dhcpfo_payload_data,
-	    tvb, poffset, length-poffset, ENC_BIG_ENDIAN);
+	    tvb, poffset, length-poffset, ENC_NA);
 	payload_tree = proto_item_add_subtree(pi, ett_fo_payload);
 	while (offset < length) {
 		opcode = tvb_get_ntohs(tvb, offset);
@@ -479,7 +479,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		oi = proto_tree_add_item(payload_tree,
 		    hf_dhcpfo_dhcp_style_option, tvb, offset,
-		    option_length+4, ENC_BIG_ENDIAN);
+		    option_length+4, ENC_NA);
 		option_tree = proto_item_add_subtree(oi, ett_fo_option);
 
 		/*** DHCP-Style-Options ****/
@@ -818,7 +818,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case DHCP_FO_PD_VENDOR_OPTION:
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_vendor_option, tvb, offset,
-			    option_length, ENC_BIG_ENDIAN);
+			    option_length, ENC_NA);
 			break;
 
 		case DHCP_FO_PD_MAX_UNACKED_BNDUPD:
@@ -857,7 +857,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case DHCP_FO_PD_HASH_BUCKET_ASSIGNMENT:
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_hash_bucket_assignment, tvb,
-			    offset, option_length, ENC_BIG_ENDIAN);
+			    offset, option_length, ENC_NA);
 			break;
 
 		case DHCP_FO_PD_MESSAGE_DIGEST:

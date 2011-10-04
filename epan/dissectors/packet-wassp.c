@@ -879,7 +879,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *wassp_tree,
 			tvb, offset, tlv_length, ENC_BIG_ENDIAN);
 	} else {
 		proto_tree_add_item(tlv_tree, hf_wassp_tlv_data,
-			tvb, offset, tlv_length, ENC_BIG_ENDIAN);
+			tvb, offset, tlv_length, ENC_NA);
 	}
 	if ( type_index != -1 && value_array[type_index].specialfunction ) {
 		guint32 newoffset;

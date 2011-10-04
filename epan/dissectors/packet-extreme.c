@@ -493,7 +493,7 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 2;
 
 	proto_tree_add_item(info_tree, hf_edp_info_reserved, tvb, offset, 6,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 6;
 
 	/* Begin version subtree */
@@ -524,7 +524,7 @@ dissect_info_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	/* End of version subtree */
 
 	proto_tree_add_item(info_tree, hf_edp_info_vchassconn, tvb, offset, 16,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 16;
 }
 
@@ -577,7 +577,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		return;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved1, tvb, offset, 1,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 1;
 	length -= 1;
 
@@ -603,7 +603,7 @@ dissect_vlan_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 		return;
 	}
 	proto_tree_add_item(vlan_tree, hf_edp_vlan_reserved2, tvb, offset, 4,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 4;
 	length -= 4;
 
@@ -675,7 +675,7 @@ dissect_esrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	offset += 2;
 
 	proto_tree_add_item(esrp_tree, hf_edp_esrp_reserved, tvb, offset, 2,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 2;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ESRP");
@@ -714,7 +714,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	offset += 2;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_reserved0, tvb, offset, 4,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 4;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_sysmac, tvb, offset, 6,
@@ -734,7 +734,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	offset += 1;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_reserved1, tvb, offset, 1,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 1;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_helloseq, tvb, offset, 2,
@@ -742,7 +742,7 @@ dissect_eaps_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length _U_, 
 	offset += 2;
 
 	proto_tree_add_item(eaps_tree, hf_edp_eaps_reserved2, tvb, offset, 38,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 38;
 
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "EAPS");
@@ -789,7 +789,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	length -= 2;
 
 	proto_tree_add_item(esl_tree, hf_edp_esl_reserved0, tvb, offset, 4,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 4;
 	length -= 4;
 
@@ -799,7 +799,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	length -= 6;
 
 	proto_tree_add_item(esl_tree, hf_edp_esl_reserved1, tvb, offset, 4,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 4;
 	length -= 4;
 
@@ -829,7 +829,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	length -= 2;
 
 	proto_tree_add_item(esl_tree, hf_edp_esl_reserved4, tvb, offset, 2,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 2;
 	length -= 2;
 
@@ -839,7 +839,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	length -= 2;
 
 	proto_tree_add_item(esl_tree, hf_edp_esl_reserved5, tvb, offset, 2,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 2;
 	length -= 2;
 
@@ -857,7 +857,7 @@ dissect_esl_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, proto
 	}
 
 	proto_tree_add_item(esl_tree, hf_edp_esl_rest, tvb, offset, length,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += length;
 	length = 0;
 
@@ -908,7 +908,7 @@ dissect_elsm_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length,
 	length -= 1;
 
 	proto_tree_add_item(elsm_tree, hf_edp_elsm_magic, tvb, offset, 2,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 	offset += 2;
 	length -= 2;
 }
@@ -929,7 +929,7 @@ dissect_elrp_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, prot
 	length -= 4;
 
 	proto_tree_add_item(elrp_tree, hf_edp_elrp_unknown, tvb, offset, length,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 }
 
 static void
@@ -951,7 +951,7 @@ dissect_unknown_tlv(tvbuff_t *tvb, packet_info *pinfo, int offset, int length, p
 	length -= 4;
 
 	proto_tree_add_item(unknown_tree, hf_edp_unknown_data, tvb, offset, length,
-		ENC_BIG_ENDIAN);
+		ENC_NA);
 }
 
 static void

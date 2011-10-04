@@ -587,7 +587,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
 
         /* Headers */
-        msrp_headers_item = proto_tree_add_item(msrp_tree, hf_msrp_msg_hdr, tvb, offset,(end_line_offset - offset), ENC_BIG_ENDIAN);
+        msrp_headers_item = proto_tree_add_item(msrp_tree, hf_msrp_msg_hdr, tvb, offset,(end_line_offset - offset), ENC_NA);
         msrp_hdr_tree = proto_item_add_subtree(msrp_headers_item, ett_msrp_hdr);
 
         /*

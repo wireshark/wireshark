@@ -63,7 +63,7 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	if (parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_gpef_efskey, tvb, -1, -1, FALSE);
+		item = proto_tree_add_item(parent_tree, hf_gpef_efskey, tvb, -1, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_gpef_efskey);
 	}
 

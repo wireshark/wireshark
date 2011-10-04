@@ -413,7 +413,7 @@ static int dissect_aim_generic_clientver_req(tvbuff_t *tvb, packet_info *pinfo _
 
 static int dissect_aim_generic_clientver_repl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
-	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_hash, tvb, 0, 16, FALSE);
+	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_hash, tvb, 0, 16, ENC_NA);
 	return 16;
 }
 
@@ -424,7 +424,7 @@ static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_type, tvb, offset, 2, FALSE); offset += 2;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, FALSE); offset += 1;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, FALSE); length = tvb_get_guint8(tvb, offset); offset += 1;
-	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, FALSE); offset += 1;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, ENC_NA); offset += 1;
 	return offset;
 }
 

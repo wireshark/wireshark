@@ -109,11 +109,11 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_dest_uid, tvb,
-				offset, 6, FALSE);
+				offset, 6, ENC_NA);
 		offset += 6;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_src_uid, tvb,
-				offset, 6, FALSE);
+				offset, 6, ENC_NA);
 		offset += 6;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_transaction_number, tvb,
@@ -147,13 +147,13 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (parameter_data_length > 0) {
 			proto_tree_add_item(rdm_tree, hf_rdm_parameter_data, tvb,
-					offset, parameter_data_length, FALSE);
+					offset, parameter_data_length, ENC_NA);
 			offset += parameter_data_length;
 		}
 
 		if (offset < message_length) {
 			proto_tree_add_item(rdm_tree, hf_rdm_intron, tvb,
-					offset, message_length - offset, FALSE);
+					offset, message_length - offset, ENC_NA);
 			offset = message_length;
 		}
 
@@ -170,7 +170,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if (offset < tvb_length(tvb))
 			proto_tree_add_item(rdm_tree, hf_rdm_trailer, tvb,
-					offset, -1, FALSE);
+					offset, -1, ENC_NA);
 	}
 }
 

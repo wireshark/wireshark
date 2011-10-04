@@ -374,7 +374,7 @@ dissect_portsettings(tvbuff_t *tvb, proto_tree *port_tree, guint32 offset)
 	 *  Auto MDI-X
 	 */
 	proto_tree_add_item(port_tree, hf_njack_tlv_data,
-		tvb, offset, 8, ENC_BIG_ENDIAN);
+		tvb, offset, 8, ENC_NA);
 	return offset;
 }
 
@@ -502,7 +502,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		default:
 			if (tlv_length != 0) {
 				proto_tree_add_item(tlv_tree, hf_njack_tlv_data,
-					tvb, offset, tlv_length, ENC_BIG_ENDIAN);
+					tvb, offset, tlv_length, ENC_NA);
 				offset += tlv_length;
 			}
 			break;
@@ -601,7 +601,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(njack_tree, hf_njack_set_authdata, tvb, offset,
-				16, ENC_BIG_ENDIAN);
+				16, ENC_NA);
 			offset += 16;
 			offset = dissect_tlvs(tvb, njack_tree, offset);
 			break;
@@ -633,7 +633,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			remaining = tvb_reported_length_remaining(tvb, offset);
 			if (remaining > 0) {
 				proto_tree_add_item(njack_tree, hf_njack_tlv_data,
-					tvb, offset, remaining, ENC_BIG_ENDIAN);
+					tvb, offset, remaining, ENC_NA);
 				offset += remaining;
 			}
 			break;

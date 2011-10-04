@@ -358,13 +358,13 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		proto_tree_add_uint(classicstun_tree, hf_classicstun_type, tvb, 0, 2, msg_type);
 		proto_tree_add_uint(classicstun_tree, hf_classicstun_length, tvb, 2, 2, msg_length);
-		proto_tree_add_item(classicstun_tree, hf_classicstun_id, tvb, 4, 16, FALSE);
+		proto_tree_add_item(classicstun_tree, hf_classicstun_id, tvb, 4, 16, ENC_NA);
 
 		/* Remember this (in host order) so we can show clear xor'd addresses */
 		transaction_id_first_word = tvb_get_ntohl(tvb, 4);
 
 		if (msg_length > 0) {
-			ta = proto_tree_add_item(classicstun_tree, hf_classicstun_att, tvb, CLASSICSTUN_HDR_LEN, msg_length, FALSE);
+			ta = proto_tree_add_item(classicstun_tree, hf_classicstun_att, tvb, CLASSICSTUN_HDR_LEN, msg_length, ENC_NA);
 			att_type_tree = proto_item_add_subtree(ta, ett_classicstun_att_type);
 
 			offset = CLASSICSTUN_HDR_LEN;
@@ -437,7 +437,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case REALM:
 						if (att_length < 1)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_value, tvb, offset, att_length, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_value, tvb, offset, att_length, ENC_NA);
 						break;
 
 					case ERROR_CODE:
@@ -471,7 +471,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 
 					case DATA:
-						proto_tree_add_item(att_tree, classicstun_att_data, tvb, offset, att_length, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_data, tvb, offset, att_length, ENC_NA);
 						break;
 
 					case UNKNOWN_ATTRIBUTES:

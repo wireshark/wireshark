@@ -88,7 +88,7 @@ krb5rpc_dissect_sendto_kdc_rqst (tvbuff_t * tvb, int offset,
   offset =
     dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep,
 			hf_krb5rpc_sendto_kdc_rqst_spare1, &spare1);
-  item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, TRUE);
+  item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, ENC_NA);
   subtree = proto_item_add_subtree (item, ett_krb5rpc_krb5);
 
   remain = tvb_length_remaining(tvb, offset);
@@ -134,7 +134,7 @@ krb5rpc_dissect_sendto_kdc_resp (tvbuff_t * tvb, int offset,
 			hf_krb5rpc_sendto_kdc_resp_keysize, &keysize);
 
 
-  item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, TRUE);
+  item = proto_tree_add_item (tree, hf_krb5rpc_krb5, tvb, offset, -1, ENC_NA);
   subtree = proto_item_add_subtree (item, ett_krb5rpc_krb5);
   remain = tvb_length_remaining(tvb, offset);
   krb5_tvb = tvb_new_subset (tvb, offset, remain, remain);

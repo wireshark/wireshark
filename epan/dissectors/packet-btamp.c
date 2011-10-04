@@ -301,7 +301,7 @@ dissect_getampassocrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pr
 static int
 dissect_ampassoc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_amp_assoc, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+    proto_tree_add_item(tree, hf_btamp_amp_assoc, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     offset+=tvb_length_remaining(tvb, offset);
 
     return offset;
@@ -487,7 +487,7 @@ static void dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
     default:
-        proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_data, tvb, offset, -1, TRUE);
+        proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_data, tvb, offset, -1, ENC_NA);
         offset+=tvb_length_remaining(tvb, offset);
         break;
     }

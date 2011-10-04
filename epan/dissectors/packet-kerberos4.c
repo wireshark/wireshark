@@ -117,7 +117,7 @@ dissect_krb4_kdc_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, in
 	guint8 lifetime;
 
 	if(version==TRANSARC_SPECIAL_VERSION){
-		proto_tree_add_item(tree, hf_krb4_unknown_transarc_blob, tvb, offset, 8, FALSE);
+		proto_tree_add_item(tree, hf_krb4_unknown_transarc_blob, tvb, offset, 8, ENC_NA);
 		offset+=8;
 	}
 
@@ -191,7 +191,7 @@ dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	offset+=2;
 
 	/* encrypted blob */
-	proto_tree_add_item(tree, hf_krb4_encrypted_blob, tvb, offset, length, FALSE);
+	proto_tree_add_item(tree, hf_krb4_encrypted_blob, tvb, offset, length, ENC_NA);
 	offset+=length;
 
 	return offset;
@@ -223,11 +223,11 @@ dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	offset++;
 
 	/* ticket */
-	proto_tree_add_item(tree, hf_krb4_ticket_blob, tvb, offset, tlen, FALSE);
+	proto_tree_add_item(tree, hf_krb4_ticket_blob, tvb, offset, tlen, ENC_NA);
 	offset+=tlen;
 
 	/* request */
-	proto_tree_add_item(tree, hf_krb4_request_blob, tvb, offset, rlen, FALSE);
+	proto_tree_add_item(tree, hf_krb4_request_blob, tvb, offset, rlen, ENC_NA);
 	offset+=rlen;
 
 	/* request time */

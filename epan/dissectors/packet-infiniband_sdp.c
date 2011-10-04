@@ -236,10 +236,10 @@ manual_override:
 
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "SDP");
 
-    SDP_header_item = proto_tree_add_item(tree, hf_ib_sdp, tvb, local_offset, -1, FALSE);
+    SDP_header_item = proto_tree_add_item(tree, hf_ib_sdp, tvb, local_offset, -1, ENC_NA);
     SDP_header_tree = proto_item_add_subtree(SDP_header_item, ett_ib_sdp);
 
-    SDP_BSDH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_bsdh, tvb, local_offset, 16, FALSE);
+    SDP_BSDH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_bsdh, tvb, local_offset, 16, ENC_NA);
     SDP_BSDH_header_tree = proto_item_add_subtree(SDP_BSDH_header_item, ett_ib_sdp_bsdh);
 
     mid =  tvb_get_guint8(tvb, local_offset);
@@ -257,7 +257,7 @@ manual_override:
 
     switch (mid) {
         case Hello:
-            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hh, tvb, local_offset, 48, FALSE);
+            SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hh, tvb, local_offset, 48, ENC_NA);
             SDP_EH_header_tree = proto_item_add_subtree(SDP_EH_header_item, ett_ib_sdp_hh);
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_majv, tvb, local_offset, 1, FALSE);
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_minv, tvb, local_offset, 1, FALSE); local_offset += 1;
@@ -277,7 +277,7 @@ manual_override:
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_extmaxadverts, tvb, local_offset, 2, FALSE); local_offset += 2;
             break;
         case HelloAck:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hah, tvb, local_offset, 48, ENC_NA);
             break;
         case DisConn:
             break;
@@ -286,13 +286,13 @@ manual_override:
         case SendSm:
             break;
         case RdmaWrCompl:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rwch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rwch, tvb, local_offset, 48, ENC_NA);
             break;
         case RdmaRdCompl:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rrch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_rrch, tvb, local_offset, 48, ENC_NA);
             break;
         case ModeChange:
-            proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mch, tvb, local_offset, 48, ENC_NA);
             break;
         case SrcAvailCancel:
             break;
@@ -301,24 +301,24 @@ manual_override:
         case SinkCancelAck:
             break;
         case ChRcvBuf:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbh, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbh, tvb, local_offset, 48, ENC_NA);
             break;
         case ChRcvBufAck:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_crbah, tvb, local_offset, 48, ENC_NA);
             break;
         case SuspComm:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_suspch, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_suspch, tvb, local_offset, 48, ENC_NA);
             break;
         case SuspCommAck:
             break;
         case SinkAvail:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_sinkah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_sinkah, tvb, local_offset, 48, ENC_NA);
             break;
         case SrcAvail:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_srcah, tvb, local_offset, 48, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_srcah, tvb, local_offset, 48, ENC_NA);
             break;
         case Data:
-            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_data, tvb, local_offset, -1, FALSE);
+            proto_tree_add_item(SDP_header_tree, hf_ib_sdp_data, tvb, local_offset, -1, ENC_NA);
             break;
         default:
             break;

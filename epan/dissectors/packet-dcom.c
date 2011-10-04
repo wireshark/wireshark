@@ -717,7 +717,7 @@ dissect_dcom_extent(tvbuff_t *tvb, int offset,
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		sub_item = proto_tree_add_item(tree, hf_dcom_extent, tvb, offset, 0, ENC_BIG_ENDIAN);
+		sub_item = proto_tree_add_item(tree, hf_dcom_extent, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_dcom_extent);
 		u32SubStart = offset;
 
@@ -1168,7 +1168,7 @@ dissect_dcom_SAFEARRAY(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* XXX: which alignment do we need here? */
 
-	sub_item = proto_tree_add_item(tree, hf_dcom_safearray, tvb, offset, 0, ENC_BIG_ENDIAN);
+	sub_item = proto_tree_add_item(tree, hf_dcom_safearray, tvb, offset, 0, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_safearray);
 	u32SubStart = offset;
 
@@ -1781,7 +1781,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	while ( tvb_get_ntohs(tvb, offset) ) {
 		u32StringBindings++;
 
-		subsub_item = proto_tree_add_item(sub_tree, hf_dcom_dualstringarray_string, tvb, offset, 0, ENC_BIG_ENDIAN);
+		subsub_item = proto_tree_add_item(sub_tree, hf_dcom_dualstringarray_string, tvb, offset, 0, ENC_NA);
 		subsub_tree = proto_item_add_subtree(subsub_item, ett_dcom_dualstringarray_binding);
 		u32SubSubStart = offset;
 
@@ -1828,7 +1828,7 @@ dissect_dcom_DUALSTRINGARRAY(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 	while ( tvb_get_ntohs(tvb, offset) ) {
 		u32SecurityBindings++;
 
-		subsub_item = proto_tree_add_item(sub_tree, hf_dcom_dualstringarray_security, tvb, offset, 0, ENC_BIG_ENDIAN);
+		subsub_item = proto_tree_add_item(sub_tree, hf_dcom_dualstringarray_security, tvb, offset, 0, ENC_NA);
 		subsub_tree = proto_item_add_subtree(subsub_item, ett_dcom_dualstringarray_binding);
 		u32SubSubStart = offset;
 
@@ -1874,7 +1874,7 @@ dissect_dcom_STDOBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 	/* add subtree header */
-	sub_item = proto_tree_add_item(tree, hf_dcom_stdobjref, tvb, offset, 0, ENC_BIG_ENDIAN);
+	sub_item = proto_tree_add_item(tree, hf_dcom_stdobjref, tvb, offset, 0, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_stdobjref);
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,
@@ -1921,7 +1921,7 @@ dissect_dcom_OBJREF(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
 	/* add subtree header */
-	sub_item = proto_tree_add_item(tree, hf_dcom_objref, tvb, offset, 0, ENC_BIG_ENDIAN);
+	sub_item = proto_tree_add_item(tree, hf_dcom_objref, tvb, offset, 0, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_dcom_objref);
 
 	offset = dissect_dcom_DWORD(tvb, offset, pinfo, sub_tree, drep,

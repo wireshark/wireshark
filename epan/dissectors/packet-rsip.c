@@ -284,7 +284,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	    return consumed;
 
 	vti = proto_tree_add_item(p_tree, hf_rsip_parameter_value,
-	    tvb, off + 3, paramlen, FALSE);
+	    tvb, off + 3, paramlen, ENC_NA);
 	v_tree = proto_item_add_subtree(vti, ett_rsip_param_val);
 
 	switch (paramtype) {
@@ -480,7 +480,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 		    2, FALSE);
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_vendor_specific_value, tvb, off + 9,
-		    paramlen - 4, FALSE);
+		    paramlen - 4, ENC_NA);
 		break;
 	case 22:	/* SPI */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_spi_number, tvb,

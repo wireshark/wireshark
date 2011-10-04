@@ -103,7 +103,7 @@ dissect_msnip_rmr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, in
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups,
-				tvb, offset, -1, FALSE);
+				tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* record type */
@@ -182,7 +182,7 @@ dissect_msnip_gm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_groups,
-				tvb, offset, -1, FALSE);
+				tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_groups);
 
 		/* multicast group */

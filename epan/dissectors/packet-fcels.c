@@ -1032,9 +1032,9 @@ dissect_fcels_logi (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             }
             offset += 16;
         }
-        proto_tree_add_item (logi_tree, hf_fcels_vendorvers, tvb, offset, 16, FALSE);
+        proto_tree_add_item (logi_tree, hf_fcels_vendorvers, tvb, offset, 16, ENC_NA);
         if (svcvld) {
-            proto_tree_add_item (logi_tree, hf_fcels_svcavail, tvb, offset+32, 8, FALSE);
+            proto_tree_add_item (logi_tree, hf_fcels_svcavail, tvb, offset+32, 8, ENC_NA);
         }
     }
 }
@@ -1568,11 +1568,11 @@ dissect_fcels_lsts (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                              1, FALSE);
         proto_tree_add_item (lsts_tree, hf_fcels_loopstate, tvb, offset+2, 1, FALSE);
         proto_tree_add_item (lsts_tree, hf_fcels_publicloop_bmap, tvb, offset+3,
-                             16, FALSE);
+                             16, ENC_NA);
         proto_tree_add_item (lsts_tree, hf_fcels_pvtloop_bmap, tvb, offset+19,
-                             16, FALSE);
+                             16, ENC_NA);
         proto_tree_add_item (lsts_tree, hf_fcels_alpa_map, tvb, offset+35,
-                             128, FALSE);
+                             128, ENC_NA);
     }
 }
 
@@ -1894,7 +1894,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
             if (tvb_get_guint8 (tvb, offset+4) == 0xDF) {
                 /* Decode the Specific Node ID Format as this is known */
                 proto_tree_add_item (rnid_tree, hf_fcels_vendoruniq, tvb,
-                                     offset+24, 16, FALSE);
+                                     offset+24, 16, ENC_NA);
                 proto_tree_add_item (rnid_tree, hf_fcels_asstype, tvb,
                                      offset+40, 4, FALSE);
                 proto_tree_add_item (rnid_tree, hf_fcels_physport, tvb,

@@ -330,7 +330,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 	if (tree)
 	{
 		/* Create tags subtree */
-		ti = proto_tree_add_item(tree, hf_pppoed_tag_vspec_tags, tvb, offset, payload_length, FALSE);
+		ti = proto_tree_add_item(tree, hf_pppoed_tag_vspec_tags, tvb, offset, payload_length, ENC_NA);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed_tags);
 
 		tagstart = offset;
@@ -385,7 +385,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 						hf_pppoed_tag_vspec_act_int_delay_down)
 				case PPPOE_TAG_VSPEC_DSLF_ACCESS_LOOP_ENCAPSULATION:
 					ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_access_loop_encapsulation, tvb,
-							tagstart+2, 3, FALSE);
+							tagstart+2, 3, ENC_NA);
 					if (poe_tag_length != 3) {
 						expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_WARN,
 								"%s: Wrong length: %u (expected 3)",
@@ -411,7 +411,7 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, FALSE);
 						}
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
-								tagstart+1, poe_tag_length, FALSE);
+								tagstart+1, poe_tag_length, ENC_NA);
 					}
 			}
 
@@ -440,7 +440,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 	if (tree)
 	{
 		/* Create tags subtree */
-		ti = proto_tree_add_item(tree, hf_pppoed_tags, tvb, offset, payload_length-6, FALSE);
+		ti = proto_tree_add_item(tree, hf_pppoed_tags, tvb, offset, payload_length-6, ENC_NA);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed_tags);
 
 		tagstart = offset;
@@ -481,11 +481,11 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					break;
 				case PPPOE_TAG_HOST_UNIQ:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_host_uniq, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 				case PPPOE_TAG_AC_COOKIE:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ac_cookie, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 				case PPPOE_TAG_VENDOR:
 					if (poe_tag_length >= 4)
@@ -503,7 +503,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 								break;
 							default:
 								proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_unspecified, tvb,
-										    tagstart+4+4, poe_tag_length-4, FALSE);
+										    tagstart+4+4, poe_tag_length-4, ENC_NA);
 
 						}
 					}
@@ -517,7 +517,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						                    tagstart+6, 2, FALSE);
 					} else {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits, tvb,
-						                    tagstart+4, poe_tag_length, FALSE);
+						                    tagstart+4, poe_tag_length, ENC_NA);
 					}
 					break;
 				case PPPOE_TAG_METRICS:
@@ -580,7 +580,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 
 					} else {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics, tvb,
-						                    tagstart+4, poe_tag_length, FALSE);
+						                    tagstart+4, poe_tag_length, ENC_NA);
 					}
 					break;
 				case PPPOE_TAG_SEQ_NUM:
@@ -623,23 +623,23 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
                                         break;
 				case PPPOE_TAG_RELAY_ID:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_relay_session_id, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 				case PPPOE_TAG_HURL:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_hurl, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 				case PPPOE_TAG_MOTM:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_motm, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 				case PPPOE_TAG_MAX_PAYLD:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_max_payload, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 				case PPPOE_TAG_IP_RT_ADD:
 					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_ip_route_add, tvb,
-					                    tagstart+4, poe_tag_length, FALSE);
+					                    tagstart+4, poe_tag_length, ENC_NA);
 					break;
 
 				/* These error tag values should be interpreted as a utf-8 unterminated
@@ -673,7 +673,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
 						}
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
-								tagstart+2, poe_tag_length, FALSE);
+								tagstart+2, poe_tag_length, ENC_NA);
 					}
 			}
 
@@ -1088,7 +1088,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			poe_tag_length = tvb_get_ntohs(tvb, tagstart + 2);
 
 			/* Create tags subtree */
-			ti = proto_tree_add_item(pppoe_tree, hf_pppoes_tags, tvb, tagstart, 8, FALSE);
+			ti = proto_tree_add_item(pppoe_tree, hf_pppoes_tags, tvb, tagstart, 8, ENC_NA);
 			pppoe_tree = proto_item_add_subtree(ti, ett_pppoes_tags);
 
 			/* Show tag data */
@@ -1100,7 +1100,7 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tagstart+6, 2, FALSE);
 			} else {
 				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits, tvb,
-					tagstart+4, poe_tag_length, FALSE);
+					tagstart+4, poe_tag_length, ENC_NA);
 			}
 
 			credit_offset = 8;

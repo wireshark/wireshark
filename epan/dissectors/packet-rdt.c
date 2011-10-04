@@ -527,7 +527,7 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                     stream_id, asm_rule_number, sequence_number, timestamp);
 
     /* The remaining data is unparsed. */
-    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
     offset += tvb_length_remaining(tvb, offset);
 
     if (packet_length < (offset - start_offset) ||
@@ -609,7 +609,7 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                     stream_id, rel_seqno);
 
     /* The remaining data is unparsed. */
-    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
 
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
@@ -737,7 +737,7 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
 
     /* XXX: The remaining data is unparsed. */
-    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "ACK: lh=%u  ", lost_high_flag);
 
@@ -933,7 +933,7 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
     col_append_str(pinfo->cinfo, COL_INFO, "REPORT:  ");
 
     /* The remaining data is unparsed. */
-    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
 
     if (packet_length < (offset - start_offset) ||
         packet_length > tvb_length_remaining(tvb, start_offset))
@@ -1219,7 +1219,7 @@ guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     offset += 2;
 
     /* The remaining data is unparsed. */
-    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_data, tvb, offset, -1, ENC_NA);
     offset += tvb_length_remaining(tvb, offset);
 
     col_append_str(pinfo->cinfo, COL_INFO, "UNKNOWN-CTL:  ");

@@ -1540,7 +1540,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					    offset + 4, 2, TRUE);
 			proto_tree_add_item(ven_tree, hf_radiotap_ven_data, tvb,
 					    offset + 6, iter.this_arg_size - 6,
-					    TRUE);
+					    ENC_NA);
 		}
 
 		if (!iter.is_radiotap_ns)
@@ -1949,7 +1949,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			if (tree) {
 				it = proto_tree_add_item(radiotap_tree, hf_radiotap_mcs,
-							 tvb, offset, 3, FALSE);
+							 tvb, offset, 3, ENC_NA);
 				mcs_tree = proto_item_add_subtree(it, ett_radiotap_mcs);
 				it = proto_tree_add_uint(mcs_tree, hf_radiotap_mcs_known,
 							 tvb, offset, 1, mcs_known);

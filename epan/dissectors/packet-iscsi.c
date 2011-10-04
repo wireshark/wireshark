@@ -669,7 +669,7 @@ handleDataDigest(proto_item *ti, tvbuff_t *tvb, guint offset, int dataLen) {
 	    return offset + dataLen + 4;
 	}
 	if((unsigned)available_bytes >= (dataLen + dataDigestSize)) {
-	    proto_tree_add_item(ti, hf_iscsi_DataDigest, tvb, offset + dataLen, dataDigestSize, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_DataDigest, tvb, offset + dataLen, dataDigestSize, ENC_NA);
 	}
 	return offset + dataLen + dataDigestSize;
     }
@@ -687,7 +687,7 @@ handleDataSegment(proto_item *ti, tvbuff_t *tvb, guint offset, guint dataSegment
 	}
 	if(offset < endOffset && (offset & 3) != 0) {
 	    int padding = 4 - (offset & 3);
-	    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, ENC_NA);
 	    offset += padding;
 	}
 	if(dataSegmentLen > 0 && offset < endOffset)
@@ -709,7 +709,7 @@ handleDataSegmentAsTextKeys(packet_info *pinfo, proto_item *ti, tvbuff_t *tvb, g
 	}
 	if(offset < endOffset && (offset & 3) != 0) {
 	    int padding = 4 - (offset & 3);
-	    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_Padding, tvb, offset, padding, ENC_NA);
 	    offset += padding;
 	}
 	if(digestsActive && dataSegmentLen > 0 && offset < endOffset)
@@ -916,7 +916,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
@@ -929,7 +929,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
@@ -962,7 +962,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpectedDataTransferLength, tvb, offset + 20, 4, FALSE);
 	    cdata->itlq.data_length=tvb_get_ntohl(tvb, offset+20);
@@ -988,7 +988,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 			/* additional cdb */
 			ahs_cdb_offset=ahs_offset+1;
 			ahs_cdb_length=ahs_length-1;
-			proto_tree_add_item(ti, hf_iscsi_AHS_extended_cdb, tvb, ahs_cdb_offset, ahs_cdb_length, FALSE);
+			proto_tree_add_item(ti, hf_iscsi_AHS_extended_cdb, tvb, ahs_cdb_offset, ahs_cdb_length, ENC_NA);
 			ahs_offset+=ahs_length;
 			break;
 		    case 0x02: /* bidirectional read data length */
@@ -1000,7 +1000,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 			ahs_offset+=4;
 			break;
 		    default:
-			proto_tree_add_item(ti, hf_iscsi_AHS_blob, tvb, ahs_offset, ahs_length, FALSE);
+			proto_tree_add_item(ti, hf_iscsi_AHS_blob, tvb, ahs_offset, ahs_length, ENC_NA);
 			ahs_offset+=ahs_length;
 		    }
 
@@ -1061,7 +1061,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
 	    }
-	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TaskManagementFunction_ReferencedTaskTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_CmdSN, tvb, offset + 24, 4, FALSE);
@@ -1122,7 +1122,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_ISID8, tvb, offset + 12, 2, FALSE);
 	    }
 	    else {
-		proto_item *tf = proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 8, 6, FALSE);
+		proto_item *tf = proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 8, 6, ENC_NA);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_ISID);
 		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT09) {
 		    proto_tree_add_item(tt, hf_iscsi_ISID_Type, tvb, offset + 8, 1, FALSE);
@@ -1190,7 +1190,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_ISID8, tvb, offset + 12, 2, FALSE);
 	    }
 	    else {
-		proto_item *tf = proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 8, 6, FALSE);
+		proto_item *tf = proto_tree_add_item(ti, hf_iscsi_ISID, tvb, offset + 8, 6, ENC_NA);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_ISID);
 		if(iscsi_protocol_version == ISCSI_PROTOCOL_DRAFT09) {
 		    proto_tree_add_item(tt, hf_iscsi_ISID_Type, tvb, offset + 8, 1, FALSE);
@@ -1239,7 +1239,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
-		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
@@ -1264,7 +1264,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
-		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
@@ -1286,7 +1286,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpStatSN, tvb, offset + 28, 4, FALSE);
@@ -1324,7 +1324,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
-		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(iscsi_protocol_version <= ISCSI_PROTOCOL_DRAFT09) {
@@ -1398,7 +1398,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    if(iscsi_protocol_version <= ISCSI_PROTOCOL_DRAFT09) {
@@ -1419,7 +1419,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    if(iscsi_protocol_version > ISCSI_PROTOCOL_DRAFT09) {
 		proto_tree_add_item(ti, hf_iscsi_TotalAHSLength, tvb, offset + 4, 1, FALSE);
 		proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+		proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    }
 	    proto_tree_add_item(ti, hf_iscsi_InitiatorTaskTag, tvb, offset + 16, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_TargetTransferTag, tvb, offset + 20, 4, FALSE);
@@ -1439,7 +1439,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 	    }
 	    dsl=tvb_get_ntoh24(tvb, offset+5);
 	    proto_tree_add_uint(ti, hf_iscsi_DataSegmentLength, tvb, offset + 5, 3, tvb_get_ntoh24(tvb, offset + 5));
-	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, FALSE);
+	    proto_tree_add_item(ti, hf_iscsi_LUN, tvb, offset + 8, 8, ENC_NA);
 	    proto_tree_add_item(ti, hf_iscsi_StatSN, tvb, offset + 24, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_ExpCmdSN, tvb, offset + 28, 4, FALSE);
 	    proto_tree_add_item(ti, hf_iscsi_MaxCmdSN, tvb, offset + 32, 4, FALSE);
@@ -1474,7 +1474,7 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
 		    offset+=snsl;
 		}
 		if((end_offset-offset)>0){
-		    proto_tree_add_item(ti, hf_iscsi_async_event_data, tvb, offset, end_offset-offset, FALSE);
+		    proto_tree_add_item(ti, hf_iscsi_async_event_data, tvb, offset, end_offset-offset, ENC_NA);
 		}
 	    }
 	    offset=end_offset;

@@ -813,7 +813,7 @@ void dissect_siii_mdt_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_svc_switch, tvb, 2, 2, TRUE);
   proto_tree_add_item(subtree2, hf_siii_mdt_hotplug_control_param, tvb, 2, 2, TRUE);
 
-  proto_tree_add_item(subtree, hf_siii_mdt_hp_info, tvb, 4, 4, TRUE);
+  proto_tree_add_item(subtree, hf_siii_mdt_hp_info, tvb, 4, 4, ENC_NA);
 }
 
 void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -846,7 +846,7 @@ void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
   proto_tree_add_item(subtree, hf_siii_mdt_svch_rw, tvb, 0, 2, TRUE);  /* read or write */
   proto_tree_add_item(subtree, hf_siii_mdt_svch_mhs, tvb, 0, 2, TRUE); /* master hand shake */
 
-  ti = proto_tree_add_item(tree, hf_siii_mdt_svch_info, tvb, 2, 4, TRUE);
+  ti = proto_tree_add_item(tree, hf_siii_mdt_svch_info, tvb, 2, 4, ENC_NA);
 
   if(1 == svc_dbe)
   {
@@ -991,7 +991,7 @@ void dissect_siii_at_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
   proto_tree_add_item(subtree, hf_siii_at_svch_busy, tvb, 0, 2, TRUE);
   proto_tree_add_item(subtree, hf_siii_at_svch_ahs, tvb, 0, 2, TRUE);
 
-  proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, TRUE);
+  proto_tree_add_item(tree, hf_siii_at_svch_info, tvb, 2, 4, ENC_NA);
 }
 
 void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
@@ -1030,7 +1030,7 @@ void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_hp0_finished, tvb, 2, 2, TRUE);
   proto_tree_add_item(subtree2, hf_siii_at_hotplug_status_param, tvb, 2, 2, TRUE);
 
-  proto_tree_add_item(subtree, hf_siii_at_hp_info, tvb, 4, 4, TRUE);
+  proto_tree_add_item(subtree, hf_siii_at_hp_info, tvb, 4, 4, ENC_NA);
 }
 
 static void dissect_siii_at_cp0(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)

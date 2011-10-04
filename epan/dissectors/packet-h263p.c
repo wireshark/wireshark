@@ -148,14 +148,14 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  /* Length, in bytes, of the extra picture header. */
 	  plen = (data16 & 0x01f8) >> 3;
 	  if (plen != 0){
-		  extra_hdr_item = proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, FALSE );
+		  extra_hdr_item = proto_tree_add_item( h263P_tree, hf_h263P_extra_hdr, tvb, offset, plen, ENC_NA );
 		  h263P_extr_hdr_tree = proto_item_add_subtree( extra_hdr_item, ett_h263P_extra_hdr );
 		  dissect_h263_picture_layer( tvb, pinfo, h263P_extr_hdr_tree, offset, plen, TRUE);
 		  offset += plen;		
 	  }
 	  if ((data16&0x0400)!=0){
 		  /* P bit = 1 */
-		  data_item = proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
+		  data_item = proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, ENC_NA );
 		  h263P_data_tree = proto_item_add_subtree( data_item, ett_h263P_data );
 		  /* Startc code holds bit 17 -23 of the codeword */
 		  startcode = tvb_get_guint8(tvb,offset)&0xfe;
@@ -196,7 +196,7 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		  }
 		  return;
 	  }
-	  proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_payload, tvb, offset, -1, ENC_NA );
 	}
 }
 

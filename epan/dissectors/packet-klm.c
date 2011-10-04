@@ -68,7 +68,7 @@ dissect_holder(tvbuff_t *tvb, proto_tree *tree, int offset)
 	proto_tree* lock_tree = NULL;
 
 	lock_item = proto_tree_add_item(tree, hf_klm_holder, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_klm_holder);
 
@@ -94,7 +94,7 @@ dissect_lock(tvbuff_t *tvb, packet_info* pinfo, proto_tree *tree, int offset)
 	proto_tree* lock_tree = NULL;
 
 	lock_item = proto_tree_add_item(tree, hf_klm_lock, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_klm_lock);
 

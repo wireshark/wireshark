@@ -1189,13 +1189,13 @@ rq20(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_fruid, tvb, 0, 1, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_lockid, tvb, 1, 2, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_offset, tvb, 3, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_20_data, tvb, 5, tvb_length(tvb) - 5, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_20_data, tvb, 5, tvb_length(tvb) - 5, ENC_NA);
 }
 
 static void
 rs20(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_20_count, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_20_count, tvb, 0, 1, ENC_NA);
 }
 
 static const value_string cc20[] = {
@@ -1320,7 +1320,7 @@ parse_version(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_picmg_prop01_byte1, byte1, TRUE, 0);
 	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_minor, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_aux, tvb, 2, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_aux, tvb, 2, 4, ENC_NA);
 }
 
 static void
@@ -1378,7 +1378,7 @@ rs2f(tvbuff_t *tvb, proto_tree *tree)
 
 	if (!ipmi_getsaveddata(0, &pno)) {
 		/* Can't parse further if property selector is not known */
-		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, tvb_length(tvb), TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, tvb_length(tvb), ENC_NA);
 		return;
 	}
 
@@ -1395,7 +1395,7 @@ rs2f(tvbuff_t *tvb, proto_tree *tree)
 	if (pno < array_length(compprops)) {
 		compprops[pno].intrp(tvb, tree);
 	} else {
-		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, tvb_length(tvb), TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_2f_prop_data, tvb, 0, tvb_length(tvb), ENC_NA);
 	}
 }
 
@@ -1435,7 +1435,7 @@ static void
 rq32(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_picmg_32_block, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_32_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_32_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
 static void

@@ -1314,7 +1314,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
                              p_mac_lte_info->rnti, p_mac_lte_info->subframeNumber);
 
     /* Create hidden 'virtual root' so can filter on mac-lte.rar */
-    ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_mac_lte_rar, tvb, offset, -1, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create headers tree */
@@ -1428,7 +1428,7 @@ static void dissect_rar(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, pro
     /* Padding may follow */
     if (tvb_length_remaining(tvb, offset) > 0) {
         proto_tree_add_item(tree, hf_mac_lte_padding_data,
-                            tvb, offset, -1, FALSE);
+                            tvb, offset, -1, ENC_NA);
     }
     padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
                                            tvb, offset, 0,
@@ -1464,7 +1464,7 @@ static void dissect_bch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Raw data */
     ti = proto_tree_add_item(tree, hf_mac_lte_bch_pdu,
-                             tvb, offset, -1, FALSE);
+                             tvb, offset, -1, ENC_NA);
 
     if (global_mac_lte_attempt_rrc_decode) {
         /* Attempt to decode payload using LTE RRC dissector */
@@ -1508,7 +1508,7 @@ static void dissect_pch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* Always show as raw data */
     ti = proto_tree_add_item(tree, hf_mac_lte_pch_pdu,
-                             tvb, offset, -1, FALSE);
+                             tvb, offset, -1, ENC_NA);
 
     if (global_mac_lte_attempt_rrc_decode) {
 
@@ -2666,7 +2666,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
 
 
                         proto_tree_add_item(cr_tree, hf_mac_lte_control_ue_contention_resolution_identity,
-                                            tvb, offset, 6, FALSE);
+                                            tvb, offset, 6, ENC_NA);
 
                         /* Get pointer to result struct for this frame */
                         crResult =  g_hash_table_lookup(mac_lte_cr_result_hash, GUINT_TO_POINTER(pinfo->fd->num));
@@ -3137,7 +3137,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
     if (lcids[number_of_headers-1] == PADDING_LCID) {
         if (tvb_length_remaining(tvb, offset) > 0) {
             proto_tree_add_item(tree, hf_mac_lte_padding_data,
-                                tvb, offset, -1, FALSE);
+                                tvb, offset, -1, ENC_NA);
         }
         padding_length_ti = proto_tree_add_int(tree, hf_mac_lte_padding_length,
                                                tvb, offset, 0,
@@ -3279,7 +3279,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                      
                     /* SR event is subtree */
                     sr_ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_send_sr,
-                                                tvb, 0, 0, FALSE);
+                                                tvb, 0, 0, ENC_NA);
                     sr_tree = proto_item_add_subtree(sr_ti, ett_mac_lte_oob);
                     PROTO_ITEM_SET_GENERATED(sr_ti);
 
@@ -3332,7 +3332,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 ti = proto_tree_add_item(mac_lte_tree, hf_mac_lte_oob_sr_failure,
-                                         tvb, 0, 0, FALSE);
+                                         tvb, 0, 0, ENC_NA);
                 PROTO_ITEM_SET_GENERATED(ti);
 
                 /* Info column */
@@ -3507,7 +3507,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* If we know its predefined data, don't try to decode any further */
     if (p_mac_lte_info->isPredefinedData) {
-        proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, FALSE);
+        proto_tree_add_item(mac_lte_tree, hf_mac_lte_predefined_pdu, tvb, offset, -1, ENC_NA);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo,
                                  "Predefined data (%u bytes%s)",
                                  p_mac_lte_info->length,
@@ -3528,7 +3528,7 @@ void dissect_mac_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         (p_mac_lte_info->crcStatusValid &&
          (p_mac_lte_info->detailed_phy_info.dl_info.crc_status != crc_success))) {
 
-        proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, FALSE);
+        proto_tree_add_item(mac_lte_tree, hf_mac_lte_raw_pdu, tvb, offset, -1, ENC_NA);
         write_pdu_label_and_info(pdu_ti, NULL, pinfo, "Raw data (%u bytes)", tvb_length_remaining(tvb, offset));
 
         /* Queue tap info.

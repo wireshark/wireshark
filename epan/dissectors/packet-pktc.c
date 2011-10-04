@@ -179,7 +179,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
     guint8 len;
 
     if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_pktc_app_spec_data, tvb, offset, -1, FALSE);
+        item = proto_tree_add_item(parent_tree, hf_pktc_app_spec_data, tvb, offset, -1, ENC_NA);
         tree = proto_item_add_subtree(item, ett_pktc_app_spec_data);
     }
 
@@ -197,7 +197,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             offset+=1;
 
             /* snmpEngineID */
-            engineid_item = proto_tree_add_item(tree, hf_pktc_snmpEngineID, tvb, offset, len, FALSE);
+            engineid_item = proto_tree_add_item(tree, hf_pktc_snmpEngineID, tvb, offset, len, ENC_NA);
 	    engineid_tree = proto_item_add_subtree(engineid_item, ett_pktc_engineid);
 	    dissect_snmp_engineid(engineid_tree, tvb, offset, len);
             offset+=len;
@@ -261,7 +261,7 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
     guint8 len, i;
 
     if (parent_tree) {
-        item = proto_tree_add_item(parent_tree, hf_pktc_list_of_ciphersuites, tvb, offset, -1, FALSE);
+        item = proto_tree_add_item(parent_tree, hf_pktc_list_of_ciphersuites, tvb, offset, -1, ENC_NA);
         tree = proto_item_add_subtree(item, ett_pktc_list_of_ciphersuites);
     }
 
@@ -356,7 +356,7 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
     offset+=1;
 
     /* sha-1 hmac */
-    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, ENC_NA);
     offset+=20;
 
     return offset;
@@ -397,7 +397,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     offset+=1;
 
     /* sha-1 hmac */
-    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, ENC_NA);
     offset+=20;
 
     return offset;
@@ -407,7 +407,7 @@ static int
 dissect_pktc_sec_param_rec(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
     /* sha-1 hmac of the subkey of the preceding AP-REP */
-    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, ENC_NA);
     offset+=20;
 
     return offset;
@@ -458,7 +458,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     offset+=1;
 
     /* sha-1 hmac */
-    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, FALSE);
+    proto_tree_add_item(tree, hf_pktc_sha1_hmac, tvb, offset, 20, ENC_NA);
     offset+=20;
 
     return offset;
@@ -508,7 +508,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
        offset+=6;
 
        /* MTA pub key hash */
-       proto_tree_add_item(tree, hf_pktc_mtafqdn_pub_key_hash, tvb, offset, 20, FALSE);
+       proto_tree_add_item(tree, hf_pktc_mtafqdn_pub_key_hash, tvb, offset, 20, ENC_NA);
        offset+=20;
 
        /* manufacturer cert revocation time */

@@ -155,7 +155,7 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_offset,          tvb, offset, 1, FALSE); offset += 1;
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_na,              tvb, offset, 1, FALSE); offset += 1;
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_snbase_ext,      tvb, offset, 1, FALSE); offset += 1;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_payload,         tvb, offset, -1, FALSE);
+      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_payload,         tvb, offset, -1, ENC_NA);
    }
 }
 

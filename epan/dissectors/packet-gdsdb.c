@@ -452,7 +452,7 @@ gdsdb_connect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += length + 5;
 		for(i=0;i<count;i++){
 			ti = proto_tree_add_item(tree, hf_gdsdb_connect_pref,
-						tvb, offset, 20, FALSE);
+						tvb, offset, 20, ENC_NA);
 			pref_tree = proto_item_add_subtree(ti,
 						 ett_gdsdb_connect_pref);
 			proto_tree_add_item(pref_tree,
@@ -666,7 +666,7 @@ gdsdb_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		length = tvb_get_ntohl(tvb, offset);
 		offset += length + 4;
 		proto_tree_add_item(tree, hf_gdsdb_response_status, tvb,
-				offset, tvb_length(tvb) - offset, FALSE);
+				offset, tvb_length(tvb) - offset, ENC_NA);
 	}
 
 	return tvb_length(tvb);

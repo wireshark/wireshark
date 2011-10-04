@@ -916,7 +916,7 @@ dissect_epl_preq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint o
 
     if (epl_tree && (len > 0))
     {
-        proto_tree_add_item(epl_tree, hf_epl_preq_pl, tvb, offset, len, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_preq_pl, tvb, offset, len, ENC_NA);
     }
     offset += len;
 
@@ -985,7 +985,7 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     offset += 2;
     if (epl_tree && (len > 0))
     {
-        proto_tree_add_item(epl_tree, hf_epl_pres_pl, tvb, offset, len, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_pres_pl, tvb, offset, len, ENC_NA);
     }
     offset += len;
 
@@ -1120,7 +1120,7 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
         proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rct, tvb, offset+1, 1, TRUE);
 
-        proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rcd, tvb, offset+2, -1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rcd, tvb, offset+2, -1, ENC_NA);
     }
 
     offset += 2;
@@ -1148,7 +1148,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     switch (epl_asnd_nmtcommand_cid)
     {
         case EPL_ASND_NMTCOMMAND_NMTNETHOSTNAMESET:
-            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtnethostnameset_hn, tvb, offset, 32, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtnethostnameset_hn, tvb, offset, 32, ENC_NA);
             offset += 32;
             break;
 
@@ -1158,12 +1158,12 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case EPL_ASND_NMTCOMMAND_NMTPUBLISHTIME:
-            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtpublishtime_dt, tvb, offset, 6, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtpublishtime_dt, tvb, offset, 6, ENC_NA);
             offset += 6;
             break;
 
         default:
-            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_cdat, tvb, offset, -1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_cdat, tvb, offset, -1, ENC_NA);
     }
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -1293,7 +1293,7 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_hn, tvb, offset, 32, TRUE);
     offset += 32;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex2, tvb, offset, 48, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex2, tvb, offset, 48, ENC_NA);
     offset += 48;
 
     if (check_col(pinfo->cinfo, COL_INFO))
@@ -1359,7 +1359,7 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7, tvb, offset, 1, TRUE);
     offset += 2;
 
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_devicespecific_err, tvb,offset, 6, TRUE);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_devicespecific_err, tvb,offset, 6, ENC_NA);
     offset += 6;
 
     /* List of errors / events */
@@ -1603,7 +1603,7 @@ dissect_epl_sdo_command_write_by_index(proto_tree *epl_tree, tvbuff_t *tvb, pack
         }
 
         size = tvb_reported_length_remaining(tvb, offset);
-        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_data, tvb, offset, size, TRUE);
+        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_write_by_index_data, tvb, offset, size, ENC_NA);
 
         if (size == 4)
         {
@@ -1673,7 +1673,7 @@ dissect_epl_sdo_command_read_by_index(proto_tree *epl_tree, tvbuff_t *tvb, packe
         }
 
         size = tvb_reported_length_remaining(tvb, offset);
-        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_data, tvb, offset, size, TRUE);
+        item = proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_read_by_index_data, tvb, offset, size, ENC_NA);
 
         if (size == 4)
         {

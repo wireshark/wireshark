@@ -144,7 +144,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
     case SS_DOWNLOAD_TYPE:
       data_length = tvb_get_ntohs(message_tvb, MESSAGE_LENGTH_OFFSET) - MESSAGE_DATA_OFFSET;
       if (data_length > 0) {
-        proto_tree_add_item(ssprotocol_tree, hf_message_data, message_tvb, MESSAGE_DATA_OFFSET, data_length, FALSE);
+        proto_tree_add_item(ssprotocol_tree, hf_message_data, message_tvb, MESSAGE_DATA_OFFSET, data_length, ENC_NA);
         total_length += data_length;
       }
       break;
@@ -166,7 +166,7 @@ dissect_ssprotocol_message(tvbuff_t *message_tvb, packet_info *pinfo, proto_tree
     case SS_ENVIRONMENT_TYPE:
         flags_tree = proto_item_add_subtree(flags_item, ett_environment_flags);
         proto_tree_add_item(flags_tree, hf_environment_u_bit, message_tvb, MESSAGE_FLAGS_OFFSET, MESSAGE_FLAGS_LENGTH, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ssprotocol_tree, hf_message_hash, message_tvb, MESSAGE_ENVIRON_HASH_OFFSET, MESSAGE_ENVIRON_HASH_LENGTH, FALSE);
+        proto_tree_add_item(ssprotocol_tree, hf_message_hash, message_tvb, MESSAGE_ENVIRON_HASH_OFFSET, MESSAGE_ENVIRON_HASH_LENGTH, ENC_NA);
       break;
     default:
       break;

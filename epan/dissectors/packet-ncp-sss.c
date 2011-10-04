@@ -603,11 +603,11 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
                     foffset += 4;
                     if (tvb_length_remaining(tvb, foffset) < (gint) msg_length)
                     {
-                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, -1, TRUE);
+                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, -1, ENC_NA);
                     }
                     else
                     {
-                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, TRUE);
+                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, ENC_NA);
                     }
                 }
                 break;
@@ -631,7 +631,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             case 7:
                 msg_length = tvb_get_letohl(tvb, foffset);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_enc_cred, tvb, foffset, msg_length, FALSE);
+                proto_tree_add_item(atree, hf_enc_cred, tvb, foffset, msg_length, ENC_NA);
                 break;
             case 8:
             case 9:
@@ -653,7 +653,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             if (tvb_length_remaining(tvb, foffset) > 8)
             {
                 foffset += 4;
-                proto_tree_add_item(ncp_tree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), TRUE);
+                proto_tree_add_item(ncp_tree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
             }
         }
         break;
@@ -753,7 +753,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                     }
                     else
                     {
-                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), TRUE);
+                        proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
                     }
                 }
             }
@@ -763,7 +763,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
             proto_tree_add_text(atree, tvb, foffset, 4, "Return Code: Success (0x00000000)");
             if (tvb_length_remaining(tvb, foffset) > 8) {
                 foffset += 4;
-                proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), TRUE);
+                proto_tree_add_item(atree, hf_enc_data, tvb, foffset, tvb_length_remaining(tvb, foffset), ENC_NA);
             }
         }
         break;

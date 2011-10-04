@@ -1074,7 +1074,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
         do {
             guint8 headernamelen = tvb_get_guint8(tvb, tree_offset);
             proto_item *framing_header_tree_item =
-                proto_tree_add_item(framing_tree, hf_jxta_framing_header, tvb, tree_offset, -1, FALSE);
+                proto_tree_add_item(framing_tree, hf_jxta_framing_header, tvb, tree_offset, -1, ENC_NA);
             proto_tree *framing_header_tree = proto_item_add_subtree(framing_header_tree_item, ett_jxta_framing_header);
 
             /*
@@ -1105,7 +1105,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
                      * Put header value into protocol tree.
                      */
                     proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_value, tvb, tree_offset + sizeof(guint16),
-                                        headervaluelen, FALSE);
+                                        headervaluelen, ENC_NA);
                 }
 
                 tree_offset += sizeof(guint16) + headervaluelen;
@@ -1596,7 +1596,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
     /* Second (optional) pass : build the proto tree */
     {
         guint tree_offset = 0;
-        proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, FALSE);
+        proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, ENC_NA);
         proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
         guint8 namespaceID;
         proto_item *namespace_ti;
@@ -1853,7 +1853,7 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
     /* Second (optional) pass : build the proto tree */
     {
         guint tree_offset = 0;
-        proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, FALSE);
+        proto_item *jxta_elem_tree_item = proto_tree_add_item(tree, hf_jxta_element, tvb, tree_offset, -1, ENC_NA);
         proto_tree *jxta_elem_tree = proto_item_add_subtree(jxta_elem_tree_item, ett_jxta_elem);
         proto_item *flags_ti;
         proto_tree *jxta_elem_flags_tree = NULL;

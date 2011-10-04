@@ -739,7 +739,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
         header_length += 4 - (header_length % 4);
 
 
-    ti = proto_tree_add_item(tree, hf_sflow_245_header, tvb, offset, header_length, FALSE);
+    ti = proto_tree_add_item(tree, hf_sflow_245_header, tvb, offset, header_length, ENC_NA);
     sflow_245_header_tree = proto_item_add_subtree(ti, ett_sflow_245_sampled_header);
 
     /* hand the header off to the appropriate dissector.  It's probably

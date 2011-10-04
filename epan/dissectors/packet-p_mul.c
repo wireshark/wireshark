@@ -560,7 +560,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       } else {
         en = proto_tree_add_item (analysis_tree,
                                   hf_analysis_addr_pdu_missing,
-                                  tvb, offset, 0, ENC_BIG_ENDIAN);
+                                  tvb, offset, 0, ENC_NA);
         expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                                 "Address PDU missing");
         PROTO_ITEM_SET_GENERATED (en);
@@ -581,7 +581,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
       } else if (!pkg_data->msg_resend_count) {
         en = proto_tree_add_item (analysis_tree,
                                   hf_analysis_ack_missing,
-                                  tvb, offset, 0, ENC_BIG_ENDIAN);
+                                  tvb, offset, 0, ENC_NA);
         if (pinfo->fd->flags.visited) {
           /* We do not know this on first visit and we do not want to
              add a entry in the "Expert Severity Info" for this note */
@@ -626,7 +626,7 @@ static void add_ack_analysis (tvbuff_t *tvb, packet_info *pinfo, proto_tree *p_m
     } else {
       en = proto_tree_add_item (analysis_tree,
                                 hf_analysis_addr_pdu_missing,
-                                tvb, offset, 0, ENC_BIG_ENDIAN);
+                                tvb, offset, 0, ENC_NA);
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Address PDU missing");
       PROTO_ITEM_SET_GENERATED (en);
@@ -709,7 +709,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     } else if (!pkg_data->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree,
                                 hf_analysis_addr_pdu_missing,
-                                tvb, offset, 0, ENC_BIG_ENDIAN);
+                                tvb, offset, 0, ENC_NA);
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Address PDU missing");
       PROTO_ITEM_SET_GENERATED (en);
@@ -732,7 +732,7 @@ static p_mul_seq_val *add_seq_analysis (tvbuff_t *tvb, packet_info *pinfo,
     } else if (!pkg_data->msg_resend_count) {
       en = proto_tree_add_item (analysis_tree,
                                 hf_analysis_prev_pdu_missing,
-                                tvb, offset, 0, ENC_BIG_ENDIAN);
+                                tvb, offset, 0, ENC_NA);
       expert_add_info_format (pinfo, en, PI_SEQUENCE, PI_NOTE,
                               "Previous PDU missing");
       PROTO_ITEM_SET_GENERATED (en);

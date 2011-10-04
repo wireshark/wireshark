@@ -189,13 +189,13 @@ static void dissect_kdp(tvbuff_t *tvb,
 	    offset = offset + 2;
 	    break;
 	  case 4:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, FALSE);
+	    proto_tree_add_item(kdp_tree, hf_kdp_option4, tvb, offset, 0, ENC_NA);
 	    break;
 	  case 5:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, FALSE);
+	    proto_tree_add_item(kdp_tree, hf_kdp_option5, tvb, offset, 0, ENC_NA);
 	    break;
 	  case 6:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, FALSE);
+	    proto_tree_add_item(kdp_tree, hf_kdp_option6, tvb, offset, option_len - 2, ENC_NA);
 	    offset = offset + option_len - 2;
 	    break;
 	  case 7:
@@ -211,7 +211,7 @@ static void dissect_kdp(tvbuff_t *tvb,
 	    offset = offset + 2;
 	    break;
 	  default:
-	    proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, FALSE);
+	    proto_tree_add_item(kdp_tree, hf_kdp_option_unknown, tvb, offset, option_len - 2, ENC_NA);
 	    offset = offset + option_len - 2;
 	    break;
 	  }
@@ -224,7 +224,7 @@ static void dissect_kdp(tvbuff_t *tvb,
 	  proto_tree_add_item(kdp_tree, hf_kdp_fragtotal, tvb, offset, 2, FALSE);
 	  offset = offset + 2;
 
-	  proto_tree_add_item(kdp_tree, hf_kdp_body, tvb, offset, -1, FALSE);
+	  proto_tree_add_item(kdp_tree, hf_kdp_body, tvb, offset, -1, ENC_NA);
 	}
       }
     }

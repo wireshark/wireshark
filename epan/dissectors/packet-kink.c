@@ -265,7 +265,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   proto_tree_add_uint(kink_tree, hf_kink_reserved, tvb, offset, 2, value_reserved);
   offset += 2;
 
-  proto_tree_add_item(kink_tree, hf_kink_checkSum, tvb, offset, chsumlen, FALSE);
+  proto_tree_add_item(kink_tree, hf_kink_checkSum, tvb, offset, chsumlen, ENC_NA);
 
   /* This part consider the padding. Chsumlen don't contain the padding. */
   if((chsumlen % PADDING) != 0){

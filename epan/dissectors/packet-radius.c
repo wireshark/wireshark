@@ -390,7 +390,7 @@ static const gchar *dissect_ascend_data_filter(proto_tree* tree, tvbuff_t* tvb, 
 
 	filterstr=g_string_sized_new(64);
 
-	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, FALSE);
+	proto_tree_add_item(tree, hf_radius_ascend_data_filter, tvb, 0, -1, ENC_NA);
 
 	g_string_printf(filterstr, "%s %s %s",
 		val_to_str(tvb_get_guint8(tvb, 0), ascenddf_filtertype, "%u"),
@@ -1376,7 +1376,7 @@ dissect_radius(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 	{
 		proto_tree_add_uint(radius_tree, hf_radius_length, tvb, 2, 2, rh.rh_pktlength);
-		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4, AUTHENTICATOR_LENGTH,FALSE);
+		proto_tree_add_item(radius_tree, hf_radius_authenticator, tvb, 4, AUTHENTICATOR_LENGTH,ENC_NA);
 	}
 	tvb_memcpy(tvb, authenticator, 4, AUTHENTICATOR_LENGTH);
 

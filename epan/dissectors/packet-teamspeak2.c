@@ -507,7 +507,7 @@ static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree)
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 6, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 6, ENC_NA);
 	offset+=6;
 	proto_tree_add_item(ts2_tree, hf_ts2_nick, tvb, offset, 1, TRUE);
 	offset+=30;
@@ -518,7 +518,7 @@ static void ts2_parse_loginend(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 }
 
 /* Parses a ts2 known player joined (TS2_KNOWNPLAYERUPDATE) packet and adds it to the tree */
@@ -554,7 +554,7 @@ static void ts2_parse_channelchange(tvbuff_t *tvb, proto_tree *ts2_tree)
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 2, ENC_NA);
 
 }
 
@@ -575,11 +575,11 @@ static void ts2_parse_playerleft(tvbuff_t *tvb, proto_tree *ts2_tree)
 	offset=0;
 	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, TRUE);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 }
 
 /* Parses a ts2 login part 2 (TS2T_LOGINPART2) packet and adds it to the tree */
@@ -587,7 +587,7 @@ static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 0, 2, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 0, 2, ENC_NA);
 	offset+=2;
 	proto_tree_add_item(ts2_tree, hf_ts2_channel, tvb, offset, 1, TRUE);
 	offset+=30;
@@ -595,7 +595,7 @@ static void ts2_parse_loginpart2(tvbuff_t *tvb, proto_tree *ts2_tree)
 	offset+=30;
 	proto_tree_add_item(ts2_tree, hf_ts2_channelpassword, tvb, offset, 1, TRUE);
 	offset+=30;
-	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
 
 }
 /* Parses a ts2 channel list (TS2T_CHANNELLIST) and adds it to the tree */
@@ -624,7 +624,7 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 		proto_tree_add_item(subtree, hf_ts2_channel_default, tvb, offset, 1, FALSE);
 		offset+=1;
 
-		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 1, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 1, ENC_NA);
 		offset+=1;
 		proto_tree_add_item(ts2_tree, hf_ts2_codec, tvb, offset, 2, TRUE);
 		offset+=2;
@@ -673,7 +673,7 @@ static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
 		offset+=4;
 		proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
 		offset+=4;
-		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
 		offset+=4;
 		proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, TRUE);
 		ts2_add_statusflags(tvb, ts2_tree, offset);
@@ -682,7 +682,7 @@ static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
 		offset+=30;
 		x++;
 	}
-	proto_tree_add_item(ts2_tree, hf_ts2_emptyspace, tvb, offset, tvb_length_remaining(tvb, 0), TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_emptyspace, tvb, offset, tvb_length_remaining(tvb, 0), ENC_NA);
 }
 
 
@@ -784,7 +784,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case TS2T_LOGINREQUEST:
 						proto_tree_add_item(ts2_tree, hf_ts2_protocol_string, tvb, 20, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_platform_string, tvb, 50, 1, TRUE);
-						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, TRUE);
+						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, ENC_NA);
 						proto_tree_add_item(ts2_tree, hf_ts2_registeredlogin, tvb, 90, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_name, tvb, 90, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_password, tvb, 120, 1, TRUE);
@@ -797,11 +797,11 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case TS2T_LOGINREPLY:
 						proto_tree_add_item(ts2_tree, hf_ts2_server_name, tvb, 20, 1, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_platform_string, tvb, 50, 1, TRUE);
-						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, TRUE);
+						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, ENC_NA);
 						proto_tree_add_item(ts2_tree, hf_ts2_badlogin, tvb, 89, 3, TRUE);
-						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 92, 80, TRUE);
+						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 92, 80, ENC_NA);
 						proto_tree_add_item(ts2_tree, hf_ts2_sessionkey, tvb, 172, 4, TRUE);
-						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 178, 3, TRUE);
+						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 178, 3, ENC_NA);
 						proto_tree_add_item(ts2_tree, hf_ts2_server_welcome_message, tvb, 180, 1, TRUE);
                                                 break;
 				}

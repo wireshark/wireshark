@@ -125,8 +125,8 @@ dissect_ayiya(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tv.secs = tvb_get_ntohl(tvb, 4);
 		tv.nsecs = 0;
 		proto_tree_add_time(ayiya_tree, hf_epoch, tvb, 4, 4, &tv);
-		proto_tree_add_item(ayiya_tree, hf_identity, tvb, 8, idlen, FALSE);
-		proto_tree_add_item(ayiya_tree, hf_signature, tvb, 8+idlen, siglen, FALSE);
+		proto_tree_add_item(ayiya_tree, hf_identity, tvb, 8, idlen, ENC_NA);
+		proto_tree_add_item(ayiya_tree, hf_signature, tvb, 8+idlen, siglen, ENC_NA);
 	}
 	offset = ayiya_len;
 	switch (opcode) {

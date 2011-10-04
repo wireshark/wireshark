@@ -1313,7 +1313,7 @@ smpp_handle_dlist(proto_tree *tree, tvbuff_t *tvb, int *offset)
 
     if ((entries = tvb_get_guint8(tvb, tmpoff++))) {
         proto_item  *pi;
-        pi = proto_tree_add_item(tree, hf_smpp_dlist, tvb, *offset, 1, FALSE);
+        pi = proto_tree_add_item(tree, hf_smpp_dlist, tvb, *offset, 1, ENC_NA);
         sub_tree = proto_item_add_subtree(pi, ett_dlist);
     }
     while (entries--)
@@ -1352,7 +1352,7 @@ smpp_handle_dlist_resp(proto_tree *tree, tvbuff_t *tvb, int *offset)
     if ((entries = tvb_get_guint8(tvb, tmpoff++))) {
         proto_item  *pi;
         pi = proto_tree_add_item(tree, hf_smpp_dlist_resp,
-                                  tvb, *offset, 1, FALSE);
+                                  tvb, *offset, 1, ENC_NA);
         sub_tree = proto_item_add_subtree(pi, ett_dlist_resp);
     }
     while (entries--)
@@ -1383,7 +1383,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
 
     if (tvb_reported_length_remaining(tvb, *offset) >= 1) {
         pi = proto_tree_add_item(tree, hf_smpp_opt_params,
-                                 tvb, *offset, -1, FALSE);
+                                 tvb, *offset, -1, ENC_NA);
         tlvs_tree = proto_item_add_subtree(pi, ett_opt_params);
     }
 
@@ -1475,14 +1475,14 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case  0x0202:       /* source_subaddress    */
                 if (length) {
                     proto_tree_add_item(sub_tree, hf_smpp_source_subaddress,
-                                    tvb, *offset, length, FALSE);
+                                    tvb, *offset, length, ENC_NA);
                     (*offset) += length;
                 }
                 break;
             case  0x0203:       /* dest_subaddress      */
                 if (length) {
                     proto_tree_add_item(sub_tree, hf_smpp_dest_subaddress,
-                                    tvb, *offset, length, FALSE);
+                                    tvb, *offset, length, ENC_NA);
                     (*offset) += length;
                 }
                 break;
@@ -1538,7 +1538,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case  0x0303:       /* callback_num_atag    */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_callback_num_atag,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case  0x0304:       /* number_of_messages   */
@@ -1548,7 +1548,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case  0x0381:       /* callback_num */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_callback_num,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case  0x0420:       /* dpf_result   */
@@ -1572,7 +1572,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case  0x0424:       /* message_payload      */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_message_payload,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case  0x0425:       /* delivery_failure_reason      */
@@ -1611,7 +1611,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case 0x0602:        /* broadcast_content_type_info */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_broadcast_content_type_info,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case 0x0603:        /* broadcast_message_class */
@@ -1634,7 +1634,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 field = tvb_get_guint8(tvb, *offset);
                 proto_tree_add_uint(sub_tree, hf_smpp_broadcast_area_identifier_format, tvb, *offset, 1, field);
                 proto_tree_add_item(sub_tree, hf_smpp_broadcast_area_identifier,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case 0x0607:        /* broadcast_error_status */
@@ -1652,13 +1652,13 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case 0x060A:        /* broadcast_service_group */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_broadcast_service_group,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case 0x060B:        /* billing_identification */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_billing_identification,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             /* 0x060C is skipped in the specs for some reason :-? */
@@ -1673,13 +1673,13 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case 0x060F:        /* source_node_id */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_source_node_id,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case 0x0610:        /* dest_node_id */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_dest_node_id,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case 0x0611:        /* dest_addr_np_resolution */
@@ -1689,14 +1689,14 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case 0x0612:        /* dest_addr_np_information */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_dest_addr_np_information,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case 0x0613:        /* dest_addr_np_country */
                 /* TODO : Fetch values from packet-e164? */
                 if (length)
                     proto_tree_add_item(sub_tree, hf_smpp_dest_addr_np_country,
-                                        tvb, *offset, length, FALSE);
+                                        tvb, *offset, length, ENC_NA);
                 (*offset) += length;
                 break;
             case  0x1201:       /* display_time */
@@ -1716,7 +1716,7 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 if (length == 0) {
                         proto_tree_add_item(sub_tree,
                                     hf_smpp_alert_on_message_delivery_null,
-                                    tvb, *offset, length, FALSE);
+                                    tvb, *offset, length, ENC_NA);
                 } else {
                         smpp_handle_int1(sub_tree, tvb,
                                     hf_smpp_alert_on_message_delivery, offset);
@@ -1742,10 +1742,10 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                  * from a dictionary before treating them as unknown! */
                 if ((tag >= 0x1400) && (tag <= 0x3FFF)) {
                     proto_tree_add_item(sub_tree, hf_smpp_vendor_op, tvb,
-                                        *offset, length, FALSE);
+                                        *offset, length, ENC_NA);
                 } else {
                     proto_tree_add_item(sub_tree, hf_smpp_reserved_op, tvb,
-                                        *offset, length, FALSE);
+                                        *offset, length, ENC_NA);
                 }
 
                 proto_item_append_text(sub_tree,": %s", tvb_bytes_to_str(tvb,*offset,length));
@@ -1942,7 +1942,7 @@ submit_sm(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
     if (length)
     {
         proto_tree_add_item(tree, hf_smpp_short_message,
-                            tvb, offset, length, FALSE);
+                            tvb, offset, length, ENC_NA);
         if (udhi) /* UDHI indicator present */
         {
             DebugLog(("UDHI present - set addresses\n"));
@@ -2002,7 +2002,7 @@ replace_sm(proto_tree *tree, tvbuff_t *tvb)
     proto_tree_add_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, length);
     if (length)
         proto_tree_add_item(tree, hf_smpp_short_message,
-                            tvb, offset, length, FALSE);
+                            tvb, offset, length, ENC_NA);
     offset += length;
 }
 
@@ -2071,7 +2071,7 @@ submit_multi(proto_tree *tree, tvbuff_t *tvb)
     proto_tree_add_uint(tree, hf_smpp_sm_length, tvb, offset++, 1, length);
     if (length)
         proto_tree_add_item(tree, hf_smpp_short_message,
-                tvb, offset, length, FALSE);
+                tvb, offset, length, ENC_NA);
     offset += length;
     smpp_handle_tlv(tree, tvb, &offset);
 }

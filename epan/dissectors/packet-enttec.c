@@ -274,7 +274,7 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 					tvb,
 					offset,
 					length,
-					FALSE);
+					ENC_NA);
 
 		si = proto_item_add_subtree(hi, ett_enttec);
 			
@@ -309,17 +309,17 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		}
 		
 		item = proto_tree_add_item(si, hf_enttec_dmx_data_data_filter, tvb,
-				offset, length, FALSE );
+				offset, length, ENC_NA );
 		PROTO_ITEM_SET_HIDDEN(item);
 		
 		offset += length;
 	} else if (type == ENTTEC_DATA_TYPE_CHAN_VAL) {
 		proto_tree_add_item(tree, hf_enttec_dmx_data_data_filter, tvb,
-					offset, length, FALSE);
+					offset, length, ENC_NA);
 		offset += length;
 	} else {
 		proto_tree_add_item(tree, hf_enttec_dmx_data_data_filter, tvb,
-					offset, length, FALSE);
+					offset, length, ENC_NA);
 		offset += length;
 	}		
 

@@ -530,10 +530,10 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             subtree = proto_item_add_subtree(item, ett_fip_dt_vend);
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_vend, desc_tvb,
-                    4, 8, FALSE);
+                    4, 8, ENC_NA);
             if (tvb_bytes_exist(desc_tvb, 9, -1)) {
                 proto_tree_add_item(subtree, hf_fip_desc_vend_data,
-                     desc_tvb, 9, -1, FALSE);
+                     desc_tvb, 9, -1, ENC_NA);
             }
             break;
         case FIP_DT_VLAN:
@@ -552,7 +552,7 @@ dissect_fip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             subtree = proto_item_add_subtree(item, ett_fip_dt_unk);
             fip_desc_type_len(subtree, desc_tvb);
             proto_tree_add_item(subtree, hf_fip_desc_unk, desc_tvb,
-                    2, -1, FALSE);
+                    2, -1, ENC_NA);
             break;
         }
     }

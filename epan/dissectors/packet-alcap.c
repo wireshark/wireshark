@@ -410,7 +410,7 @@ static emem_tree_t* legs_by_osaid = NULL;
 static emem_tree_t* legs_by_bearer = NULL;
 
 static const gchar* dissect_fields_unknown(packet_info* pinfo _U_, tvbuff_t *tvb, proto_tree *tree, int offset, int len, alcap_message_info_t* msg_info _U_) {
-    proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,ENC_BIG_ENDIAN);
+    proto_item* pi = proto_tree_add_item(tree,hf_alcap_unknown,tvb,offset,len,ENC_NA);
     proto_item_set_expert_flags(pi, PI_UNDECODED, PI_WARN);
     return NULL;
 }
@@ -458,7 +458,7 @@ static const gchar* dissect_fields_cau(packet_info* pinfo, tvbuff_t *tvb, proto_
     if (len > 2)  {
         int diag_len = tvb_get_guint8(tvb,offset);
 
-        pi = proto_tree_add_item(tree,hf_alcap_cau_diag, tvb, offset,len-2,ENC_BIG_ENDIAN);
+        pi = proto_tree_add_item(tree,hf_alcap_cau_diag, tvb, offset,len-2,ENC_NA);
         tree = proto_item_add_subtree(pi,ett_cau_diag);
 
         proto_tree_add_item(tree, hf_alcap_cau_diag_len, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -591,7 +591,7 @@ static const gchar* dissect_fields_dnsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
 
     msg_info->dest_nsap = tvb_bytes_to_str(tvb,offset,20);
 
-    proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_dnsea, tvb, offset, 20, ENC_NA);
     dissect_nsap(tvb, offset,20, tree);
 
     return NULL;
@@ -612,7 +612,7 @@ static const gchar* dissect_fields_onsea(packet_info* pinfo _U_, tvbuff_t *tvb, 
 
     msg_info->orig_nsap = tvb_bytes_to_str(tvb,offset,20);
 
-    proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_onsea, tvb, offset, 20, ENC_NA);
     dissect_nsap(tvb, offset,20, tree);
 
     return NULL;
@@ -707,7 +707,7 @@ static const gchar* dissect_fields_sugr(packet_info* pinfo _U_, tvbuff_t *tvb, p
 
     msg_info->sugr = tvb_get_ntohl(tvb,offset);
 
-    proto_tree_add_item(tree, hf_alcap_sugr, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_sugr, tvb, offset, 4, ENC_NA);
 
     return NULL;
 }
@@ -756,7 +756,7 @@ static const gchar* dissect_fields_ssia(packet_info* pinfo _U_, tvbuff_t *tvb, p
 
     proto_tree_add_item(tree, hf_alcap_ssia_max_len, tvb, offset+4,2,ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(tree, hf_alcap_ssia_oui, tvb, offset+5,3,ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_ssia_oui, tvb, offset+5,3,ENC_NA);
 
     return NULL;
 }
@@ -874,7 +874,7 @@ static const gchar* dissect_fields_ssiae(packet_info* pinfo _U_, tvbuff_t *tvb, 
 
     proto_tree_add_item(tree, hf_alcap_ssiae_max_len, tvb, offset+4,2,ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(tree, hf_alcap_ssiae_oui, tvb, offset+5,3,ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_ssiae_oui, tvb, offset+5,3,ENC_NA);
 
     return NULL;
 }
@@ -910,7 +910,7 @@ static const gchar* dissect_fields_pssiae(packet_info* pinfo _U_, tvbuff_t *tvb,
 
     proto_tree_add_item(tree, hf_alcap_pssiae_max_len, tvb, offset+4,2,ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(tree, hf_alcap_pssiae_oui, tvb, offset+5,3,ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_pssiae_oui, tvb, offset+5,3,ENC_NA);
 
     return NULL;
 }
@@ -1211,7 +1211,7 @@ static const gchar* dissect_fields_sut(packet_info* pinfo _U_, tvbuff_t *tvb, pr
     sut_len = tvb_get_guint8(tvb,offset);
 
     proto_tree_add_item(tree, hf_alcap_sut_len, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tree, hf_alcap_sut, tvb, offset, sut_len, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_alcap_sut, tvb, offset, sut_len, ENC_NA);
 
     return NULL;
 }
@@ -1391,7 +1391,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     col_set_str(pinfo->cinfo, COL_INFO, msg_type->abbr);
 
-    pi = proto_tree_add_item(alcap_tree,hf_alcap_compat,tvb,5,1,ENC_BIG_ENDIAN);
+    pi = proto_tree_add_item(alcap_tree,hf_alcap_compat,tvb,5,1,ENC_NA);
     compat_tree = proto_item_add_subtree(pi,ett_compat);
     proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_sni,tvb,5,1,ENC_BIG_ENDIAN);
     proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_ii,tvb,5,1,ENC_BIG_ENDIAN);
@@ -1411,7 +1411,7 @@ static void dissect_alcap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pi = proto_tree_add_item(alcap_tree,hf_alcap_param_id,tvb,offset,1,ENC_BIG_ENDIAN);
         param_tree = proto_item_add_subtree(pi,param_info->ett);
 
-        pi = proto_tree_add_item(param_tree,hf_alcap_compat,tvb,offset+1,1,ENC_BIG_ENDIAN);
+        pi = proto_tree_add_item(param_tree,hf_alcap_compat,tvb,offset+1,1,ENC_NA);
         compat_tree = proto_item_add_subtree(pi,ett_compat);
         proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_sni,tvb,offset+1,1,ENC_BIG_ENDIAN);
         proto_tree_add_item(compat_tree,hf_alcap_compat_pass_on_ii,tvb,offset+1,1,ENC_BIG_ENDIAN);

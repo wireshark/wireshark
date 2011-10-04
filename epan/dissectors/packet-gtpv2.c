@@ -945,7 +945,7 @@ dissect_gtpv2_stn_sr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     tvbuff_t   *new_tvb;
     int        offset = 0;
 
-    stn_sr_item = proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, ENC_BIG_ENDIAN);
+    stn_sr_item = proto_tree_add_item(tree, hf_gtpv2_stn_sr, tvb, offset, length, ENC_NA);
     new_tvb = tvb_new_subset(tvb, offset, length, length );
     sub_tree = proto_item_add_subtree(stn_sr_item, ett_gtpv2_stn_sr);
 
@@ -1519,7 +1519,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
          */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
         offset+=16;
         break;
     case 3:
@@ -1534,7 +1534,7 @@ dissect_gtpv2_paa(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto
          */
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_gtpv2_pdn_ipv6, tvb, offset, 16, ENC_NA);
         offset+=16;
         proto_tree_add_item(tree, hf_gtpv2_pdn_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset+=4;
@@ -2932,7 +2932,7 @@ dissect_gtpv2_guti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_it
     proto_tree_add_item(tree, hf_gtpv2_mme_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(tree, hf_gtpv2_m_tmsi, tvb, offset,4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_m_tmsi, tvb, offset,4, ENC_NA);
 }
 
 /*
@@ -3535,7 +3535,7 @@ static void
 dissect_gtpv2_ti(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, proto_item *item _U_, guint16 length, guint8 message_type _U_, guint8 instance _U_)
 {
     /* 5 to (n+4)  Transaction Identifier */
-    proto_tree_add_item(tree, hf_gtpv2_ti, tvb, 0, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_gtpv2_ti, tvb, 0, length, ENC_NA);
 
 }
 

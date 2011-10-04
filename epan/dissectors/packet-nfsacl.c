@@ -149,7 +149,7 @@ dissect_nfsacl_aclent(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (tree)
 	{
 		entry_item = proto_tree_add_item(tree, hf_nfsacl_aclent, tvb,
-						 offset + 0, -1, FALSE);
+						 offset + 0, -1, ENC_NA);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfsacl_aclent);
 	}
 
@@ -450,7 +450,7 @@ dissect_nfsacl3_getacl_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (tree)
 	{
 		entry_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb,
-				offset + 0, -1, FALSE);
+				offset + 0, -1, ENC_NA);
 		if (entry_item)
 			entry_tree = proto_item_add_subtree(entry_item, ett_nfsacl_entry);
 	}
@@ -480,7 +480,7 @@ dissect_nfsacl3_setacl_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	if (tree)
 	{
 		acl_item = proto_tree_add_item(tree, hf_nfsacl_entry, tvb, offset + 0,
-				-1, FALSE);
+				-1, ENC_NA);
 
 		if (acl_item)
 			acl_tree = proto_item_add_subtree(acl_item, ett_nfsacl_entry);

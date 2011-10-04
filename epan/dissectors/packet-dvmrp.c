@@ -249,7 +249,7 @@ dissect_v3_report(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 		int old_offset_a = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_route,
-				tvb, offset, -1, FALSE);
+				tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_route);
 
 		m0 = 0xff;
@@ -356,7 +356,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		proto_item *item;
 
 		item = proto_tree_add_item(parent_tree, hf_capabilities,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_capabilities);
 
 		count = tvb_get_guint8(tvb, offset);
@@ -473,7 +473,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 				proto_item *item;
 
 				item = proto_tree_add_item(parent_tree, hf_flags,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_NA);
 				tree = proto_item_add_subtree(item, ett_flags);
 
 				proto_tree_add_item(tree, hf_flag_tunnel, tvb,
@@ -546,7 +546,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_commands,
-				tvb, offset, -1, FALSE);
+				tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_commands);
 
 		cmd = tvb_get_guint8(tvb, offset);

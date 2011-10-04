@@ -1118,7 +1118,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                 proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_length,tvb, offset + 1, 1, FALSE);
                 if ( gen_fec_id_len > 0)
                 {
-                    proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_value, tvb, offset+2, gen_fec_id_len , FALSE );
+                    proto_tree_add_item(agi_tree, hf_ldp_tlv_fec_gen_agi_value, tvb, offset+2, gen_fec_id_len , ENC_NA );
                 }
                 rem -= 2 + gen_fec_id_len;
                 vc_len -= 2 + gen_fec_id_len;
@@ -1172,7 +1172,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                                                 tvb,
                                                 offset+2,
                                                 gen_fec_id_len ,
-                                                FALSE );
+                                                ENC_NA );
                         }
                     }
                 }
@@ -1223,7 +1223,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                         }
                         else
                         {
-                            proto_tree_add_item(taii_tree, hf_ldp_tlv_fec_gen_taii_value, tvb, offset+2, gen_fec_id_len , FALSE);
+                            proto_tree_add_item(taii_tree, hf_ldp_tlv_fec_gen_taii_value, tvb, offset+2, gen_fec_id_len , ENC_NA);
                         }
                     }
                 }
@@ -1509,7 +1509,7 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree)
     proto_tree *val_tree;
 
 #if 0
-    ti = proto_tree_add_item(tree, hf_ldp_tlv_value, tvb, offset, rem, FALSE);
+    ti = proto_tree_add_item(tree, hf_ldp_tlv_value, tvb, offset, rem, ENC_NA);
     val_tree = proto_item_add_subtree(ti, ett_ldp_tlv_val);
 #else
     val_tree=tree;
@@ -2469,7 +2469,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
             break;
         }
         default:
-            proto_tree_add_item(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, length, FALSE);
+            proto_tree_add_item(tlv_tree, hf_ldp_tlv_value, tvb, offset + 4, length, ENC_NA);
             break;
         }
     }

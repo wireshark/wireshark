@@ -3404,7 +3404,7 @@ dissect_giop_request_1_1 (tvbuff_t * tvb, packet_info * pinfo,
       if(tree)
       {
         proto_tree_add_item (request_tree, hf_giop_objekt_key, tvb,
-                             offset - objkey_len, objkey_len, FALSE);
+                             offset - objkey_len, objkey_len, ENC_NA);
       }
     }
   }
@@ -3763,7 +3763,7 @@ dissect_giop_locate_request( tvbuff_t * tvb, packet_info * pinfo,
       if(locate_request_tree)
       {
 
-        proto_tree_add_item(locate_request_tree, hf_giop_objekt_key, tvb, offset-len, len, FALSE);
+        proto_tree_add_item(locate_request_tree, hf_giop_objekt_key, tvb, offset-len, len, ENC_NA);
       }
 
     }
@@ -4814,7 +4814,7 @@ static void decode_IIOP_IOR_profile(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     }
 
     if(tree) {
-                proto_tree_add_item(tree, hf_giop_objekt_key, tvb, *offset -seqlen, seqlen, FALSE);
+                proto_tree_add_item(tree, hf_giop_objekt_key, tvb, *offset -seqlen, seqlen, ENC_NA);
     }
     g_free(objkey);
   }

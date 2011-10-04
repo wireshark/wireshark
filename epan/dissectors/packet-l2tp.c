@@ -1384,14 +1384,14 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (!(tvb_offset_exists(tvb, idx)))
 			return;
 		if (l2tpv3_cookie != 0)
-			proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, l2tpv3_cookie, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_cookie, tvb, idx, l2tpv3_cookie, ENC_NA);
 	}
 
 	switch(l2tpv3_l2_specific){
 	case L2TPv3_L2_SPECIFIC_DEFAULT:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_def,
-					tvb, idx + l2tpv3_cookie, 4, FALSE);
+					tvb, idx + l2tpv3_cookie, 4, ENC_NA);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
@@ -1404,7 +1404,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case L2TPv3_L2_SPECIFIC_DOCSIS_DMPT:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_docsis_dmpt,
-						tvb, idx + l2tpv3_cookie, 4, FALSE);
+						tvb, idx + l2tpv3_cookie, 4, ENC_NA);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb,
@@ -1424,7 +1424,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	case L2TPv3_L2_SPECIFIC_ATM:
 		if (tree) {
 			ti = proto_tree_add_item(tree, hf_l2tp_l2_spec_atm,
-					tvb, idx + l2tpv3_cookie, 4, FALSE);
+					tvb, idx + l2tpv3_cookie, 4, ENC_NA);
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,

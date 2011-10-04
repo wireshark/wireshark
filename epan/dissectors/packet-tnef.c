@@ -370,7 +370,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 		/* get the property tag */
 
-		prop_item = proto_tree_add_item(tree, hf_tnef_property, tvb, offset, -1, TRUE);
+		prop_item = proto_tree_add_item(tree, hf_tnef_property, tvb, offset, -1, ENC_NA);
 		prop_tree = proto_item_add_subtree(prop_item, ett_tnef_property);
 
 		item = proto_tree_add_item(prop_tree, hf_tnef_property_tag, tvb, offset, 4, TRUE);
@@ -414,7 +414,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				offset += tag_length;
 
 				if((padding = (4 - tag_length % 4)) != 4) {
-					proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, TRUE);
+					proto_tree_add_item(tag_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
 					offset += padding;
 				}
 
@@ -489,7 +489,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		if((padding = (4 - (offset - start_offset) % 4)) != 4) {
 
 			/* we need to pad */
-			proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, TRUE);
+			proto_tree_add_item(prop_tree, hf_tnef_property_padding, tvb, offset, padding, ENC_NA);
 
 			offset += padding;
 		}
@@ -544,7 +544,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     start_offset = offset;
 
-    attr_item = proto_tree_add_item(tree, hf_tnef_attribute, tvb, offset, -1, TRUE);
+    attr_item = proto_tree_add_item(tree, hf_tnef_attribute, tvb, offset, -1, ENC_NA);
     attr_tree = proto_item_add_subtree(attr_item, ett_tnef_attribute);
 
     proto_tree_add_item(attr_tree, hf_tnef_attribute_lvl, tvb, offset, 1, TRUE);
@@ -582,7 +582,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, TRUE);
 	    break;
     case ATT_MAPI_PROPS:
-	    item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, TRUE);
+	    item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, ENC_NA);
 	    props_tree = proto_item_add_subtree(item, ett_tnef_mapi_props);
 
 	    next_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -604,7 +604,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    /* just do it on the type */
 	    switch((tag >> 16) & 0xffff) {
 	    case ATP_DATE:
-		    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, TRUE);
+		    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_date, tvb, offset, length, ENC_NA);
 		    date_tree = proto_item_add_subtree(item, ett_tnef_attribute_date);
 
 		    next_tvb = tvb_new_subset(tvb, offset, length, length);
@@ -617,7 +617,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_item_append_text(attr_item, " %s", tvb_get_ephemeral_string(tvb, offset, length));
 		    break;
 	    default:
-		    proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, TRUE);
+		    proto_tree_add_item(attr_tree, hf_tnef_attribute_value, tvb, offset, length, ENC_NA);
 		    break;
 	    }
     }
@@ -632,7 +632,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* there may be some padding */
   if(tvb_reported_length_remaining(tvb, offset)) /* XXX: Not sure if they is really padding or not */
-    proto_tree_add_item(tree, hf_tnef_padding, tvb, offset, tvb_reported_length_remaining(tvb, offset), TRUE);
+    proto_tree_add_item(tree, hf_tnef_padding, tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_NA);
 }
 
 static void dissect_tnef_file(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)

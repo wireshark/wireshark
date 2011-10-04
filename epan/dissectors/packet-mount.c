@@ -224,7 +224,7 @@ dissect_mountlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_mount_mountlist, tvb,
-					offset, -1, FALSE);
+					offset, -1, ENC_NA);
 		if (lock_item)
 			lock_tree = proto_item_add_subtree(lock_item, ett_mount_mountlist);
 	}
@@ -302,7 +302,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	group_names_len=0;
 	if (tree) {
 		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist, tvb,
-					offset, -1, FALSE);
+					offset, -1, ENC_NA);
 		if (exportlist_item)
 			exportlist_tree = proto_item_add_subtree(exportlist_item, ett_mount_exportlist);
 	}
@@ -313,7 +313,7 @@ dissect_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 
 	if (tree) {
 		groups_item = proto_tree_add_item(exportlist_tree, hf_mount_groups, tvb,
-					offset, -1, FALSE);
+					offset, -1, ENC_NA);
 		if (groups_item)
 			groups_tree = proto_item_add_subtree(groups_item, ett_mount_groups);
 	}
@@ -589,7 +589,7 @@ dissect_sgi_exportlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 	if (tree) {
 		exportlist_item = proto_tree_add_item(tree, hf_mount_exportlist,
-					tvb, offset, -1, FALSE);
+					tvb, offset, -1, ENC_NA);
 		if (exportlist_item)
 			exportlist_tree = proto_item_add_subtree(exportlist_item,
 						ett_mount_exportlist);

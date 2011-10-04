@@ -876,7 +876,7 @@ lan_19(tvbuff_t *tvb, proto_tree *tree)
 		return;
 	}
 
-	proto_tree_add_item(tree, hf_ipmi_trn_lan19_address, tvb, 2, tvb_length(tvb) - 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan19_address, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
 }
 
 static void
@@ -1029,7 +1029,7 @@ rq01(tvbuff_t *tvb, proto_tree *tree)
 		lan_options[pno].intrp(next, tree);
 	} else {
 		proto_tree_add_item(tree, hf_ipmi_trn_01_param_data, tvb, 2,
-				tvb_length(tvb) - 2, TRUE);
+				tvb_length(tvb) - 2, ENC_NA);
 	}
 }
 
@@ -1089,7 +1089,7 @@ rs02(tvbuff_t *tvb, proto_tree *tree)
 	if (!ipmi_getsaveddata(0, &pno) || !ipmi_getsaveddata(1, &req)) {
 		/* No request found - cannot parse further */
 		if (tvb_length(tvb) > 1) {
-			proto_tree_add_item(tree, hf_ipmi_trn_02_param_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
+			proto_tree_add_item(tree, hf_ipmi_trn_02_param_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 		};
 		return;
 	}
@@ -1119,7 +1119,7 @@ rs02(tvbuff_t *tvb, proto_tree *tree)
 			lan_options[pno].intrp(next, tree);
 		} else {
 			proto_tree_add_item(tree, hf_ipmi_trn_02_param_data, tvb, 1,
-					tvb_length(tvb) - 1, TRUE);
+					tvb_length(tvb) - 1, ENC_NA);
 		}
 	}
 }
@@ -1698,14 +1698,14 @@ static void
 serial_52(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_serial52_port_assoc_sel, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial52_conn_name, tvb, 1, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial52_conn_name, tvb, 1, 16, ENC_NA);
 }
 
 static void
 serial_53(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_serial53_port_assoc_sel, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial53_chan_name, tvb, 1, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial53_chan_name, tvb, 1, 16, ENC_NA);
 }
 
 static struct {
@@ -1796,7 +1796,7 @@ rq10(tvbuff_t *tvb, proto_tree *tree)
 		serial_options[pno].intrp(next, tree);
 	} else {
 		proto_tree_add_item(tree, hf_ipmi_trn_10_param_data, tvb, 2,
-				tvb_length(tvb) - 2, TRUE);
+				tvb_length(tvb) - 2, ENC_NA);
 	}
 }
 
@@ -1856,7 +1856,7 @@ rs11(tvbuff_t *tvb, proto_tree *tree)
 	if (!ipmi_getsaveddata(0, &pno) || !ipmi_getsaveddata(1, &req)) {
 		/* No request found - cannot parse further */
 		if (tvb_length(tvb) > 1) {
-			proto_tree_add_item(tree, hf_ipmi_trn_11_param_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
+			proto_tree_add_item(tree, hf_ipmi_trn_11_param_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 		};
 		return;
 	}
@@ -1886,7 +1886,7 @@ rs11(tvbuff_t *tvb, proto_tree *tree)
 			serial_options[pno].intrp(next, tree);
 		} else {
 			proto_tree_add_item(tree, hf_ipmi_trn_11_param_data, tvb, 1,
-					tvb_length(tvb) - 1, TRUE);
+					tvb_length(tvb) - 1, ENC_NA);
 		}
 	}
 }
@@ -1951,7 +1951,7 @@ rq14(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_trn_14_byte1, byte1, TRUE, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_14_block, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_14_data, tvb, 2, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_14_data, tvb, 2, 16, ENC_NA);
 }
 
 /* Get PPP UDP Proxy Transmit Data
@@ -1969,7 +1969,7 @@ rq15(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs15(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_15_data, tvb, 0, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_15_data, tvb, 0, 16, ENC_NA);
 }
 
 /* Send PPP UDP Proxy Packet
@@ -2031,7 +2031,7 @@ rs17(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_item(tree, hf_ipmi_trn_17_size, tvb, 0, 2, TRUE);
 	} else {
 		proto_tree_add_item(tree, hf_ipmi_trn_17_data, tvb, 0,
-				tvb_length(tvb) < 16 ? tvb_length(tvb) : 16, TRUE);
+				tvb_length(tvb) < 16 ? tvb_length(tvb) : 16, ENC_NA);
 	}
 }
 

@@ -2359,7 +2359,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             /* Optional text */
             file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
             if ((file_data_size) > 0) {
-              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
               data_pos += file_data_size;
             }
 
@@ -2382,7 +2382,7 @@ dnp3_al_process_object(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree
             /* File data */
             file_data_size = al_ptaddr - (data_pos - offset - indexbytes);
             if ((file_data_size) > 0) {
-              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_LITTLE_ENDIAN);
+              proto_tree_add_item(point_tree, hf_dnp3_al_file_data, tvb, data_pos, file_data_size, ENC_NA);
               data_pos += file_data_size;
             }
 

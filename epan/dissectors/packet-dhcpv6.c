@@ -1123,7 +1123,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
     /* Right now, none of the options can be filtered at, so provide a hex
        array for minimalistic filtering */
     if (optlen)
-        proto_tree_add_item(subtree, hf_option_value, tvb, off, optlen, FALSE);
+        proto_tree_add_item(subtree, hf_option_value, tvb, off, optlen, ENC_NA);
 
     switch (opttype) {
     case OPTION_CLIENTID:

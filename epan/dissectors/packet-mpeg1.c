@@ -175,7 +175,7 @@ dissect_mpeg1( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	    offset += 1;
 
 	    /* The rest of the packet is the MPEG-1 stream */
-	    proto_tree_add_item( mpg_tree, hf_rtp_mpg_data, tvb, offset, -1, FALSE );
+	    proto_tree_add_item( mpg_tree, hf_rtp_mpg_data, tvb, offset, -1, ENC_NA );
 
 	  }
 }

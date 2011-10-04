@@ -337,7 +337,7 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 
 	if(tree){
 		sub_item = proto_tree_add_item(tree, hf_ypserv_map_parms, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if(sub_item)
 			sub_tree = proto_item_add_subtree(sub_item, ett_ypserv_map_parms);
 	}

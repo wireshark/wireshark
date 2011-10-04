@@ -48,7 +48,7 @@ dissect_statnotify_mon(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 	offset = dissect_rpc_uint32(tvb,tree,hf_statnotify_state,offset);
 
-	proto_tree_add_item(tree,hf_statnotify_priv,tvb,offset,16,FALSE);
+	proto_tree_add_item(tree,hf_statnotify_priv,tvb,offset,16,ENC_NA);
 	offset += 16;
 
 	return offset;

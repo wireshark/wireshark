@@ -403,7 +403,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		    tvb_bytes_to_str(tvb, offset + 24, 16),
                     tvb_ip6_to_str(tvb, offset + 24));
                 hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ext_tunnel_id,
-                    tvb, offset + 24, 16, FALSE);
+                    tvb, offset + 24, 16, ENC_NA);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
                     tvb, offset + 40, 16, FALSE);
@@ -448,7 +448,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 			proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_vendor, tvb,
 				offset + 4, 4, FALSE);
 			proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_value, tvb,
-				offset + 8, length - 4, FALSE);
+				offset + 8, length - 4, ENC_NA);
 		}
 		break;
 	    case TLV_FEC_STACK_BGP_LAB_v4:
@@ -502,7 +502,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
             default:
 		if(length)
                 	proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_value,
-					    tvb, offset + 4, length, FALSE);
+					    tvb, offset + 4, length, ENC_NA);
                 break;
             }
 
@@ -654,11 +654,11 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 			offset, 4, FALSE);
 		if(mplen > 4)
 			proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_mask, tvb,
-				offset + 4, mplen - 4, FALSE);
+				offset + 4, mplen - 4, ENC_NA);
 		break;
 	    default:
 		proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_mp_value, tvb,
-			offset, mplen, FALSE);
+			offset, mplen, ENC_NA);
 		break;
 	    }
 	}
@@ -866,7 +866,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                             offset + 4, 1, FALSE);
 			if (length > 1)
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_padding, tvb,
-					offset + 5, length - 1, FALSE);
+					offset + 5, length - 1, ENC_NA);
                         break;
 		case TLV_VENDOR_CODE:
 			proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
@@ -919,7 +919,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
 					offset + 4, 4, FALSE);
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
-					offset + 8, length - 4, FALSE);
+					offset + 8, length - 4, ENC_NA);
 			}
 			break;
                 case TLV_DOWNSTREAM_MAPPING:
@@ -934,7 +934,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 		case TLV_ERRORED_TLV:
 			if (in_errored)
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
-					offset + 4, length, FALSE);
+					offset + 4, length, ENC_NA);
 			else
 				dissect_mpls_echo_tlv_errored(tvb, offset + 4, mpls_echo_tlv_tree, length);
 			break;
@@ -953,7 +953,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                 case TLV_ERROR_CODE:
                 default:
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
-                            offset + 4, length, FALSE);
+                            offset + 4, length, ENC_NA);
                         break;
                 }
         }

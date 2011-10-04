@@ -210,7 +210,7 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Make the Audio sample tree. */
         ti = proto_tree_add_item(ieee1722_tree, hf_1722_data, tvb, 
-                                 IEEE_1722_DATA_OFFSET, datalen, FALSE);
+                                 IEEE_1722_DATA_OFFSET, datalen, ENC_NA);
 
         audio_tree = proto_item_add_subtree(ti, ett_1722_audio);
 
@@ -231,7 +231,7 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(sample_tree, hf_1722_label, tvb, offset, 1, FALSE);
                     offset += 1;
 
-                    proto_tree_add_item(sample_tree, hf_1722_sample, tvb, offset, 3, FALSE);
+                    proto_tree_add_item(sample_tree, hf_1722_sample, tvb, offset, 3, ENC_NA);
                     offset += 3;
                 }
             }

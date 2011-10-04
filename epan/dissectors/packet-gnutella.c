@@ -228,7 +228,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 			(GNUTELLA_LONG_LENGTH * 2) +
 			name_length + extra_length +
 			GNUTELLA_QUERYHIT_END_OF_STRING_LENGTH,
-			FALSE);
+			ENC_NA);
 
 		hit_tree = proto_item_add_subtree(qhi, ett_gnutella);
 
@@ -259,7 +259,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 				tvb,
 				extra_at_offset,
 				extra_length,
-				FALSE);
+				ENC_NA);
 		}
 	}
 
@@ -274,7 +274,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 			tvb,
 			hit_offset,
 			servent_id_at_offset - hit_offset,
-			FALSE);
+			ENC_NA);
 	}
 	else {
 		servent_id_at_offset = hit_offset;
@@ -285,7 +285,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 		tvb,
 		servent_id_at_offset,
 		GNUTELLA_SERVENT_ID_LENGTH,
-		FALSE);
+		ENC_NA);
 
 }
 
@@ -296,7 +296,7 @@ static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		tvb,
 		offset + GNUTELLA_PUSH_SERVENT_ID_OFFSET,
 		GNUTELLA_SERVENT_ID_LENGTH,
-		FALSE);
+		ENC_NA);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_push_index,
@@ -400,7 +400,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			tvb,
 			0,
 			GNUTELLA_HEADER_LENGTH,
-			FALSE);
+			ENC_NA);
 		gnutella_header_tree = proto_item_add_subtree(hi, ett_gnutella);
 
 		proto_tree_add_item(gnutella_header_tree,
@@ -408,7 +408,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			tvb,
 			GNUTELLA_HEADER_ID_OFFSET,
 			GNUTELLA_SERVENT_ID_LENGTH,
-			FALSE);
+			ENC_NA);
 
 		proto_tree_add_uint_format(gnutella_header_tree,
 			hf_gnutella_header_payload,
@@ -450,7 +450,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					tvb,
 					GNUTELLA_HEADER_LENGTH,
 					size,
-					FALSE);
+					ENC_NA);
 				gnutella_pong_tree = proto_item_add_subtree(
 					pi,
 					ett_gnutella);
@@ -466,7 +466,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					tvb,
 					GNUTELLA_HEADER_LENGTH,
 					size,
-					FALSE);
+					ENC_NA);
 				gnutella_push_tree = proto_item_add_subtree(
 					pi,
 					ett_gnutella);
@@ -482,7 +482,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					tvb,
 					GNUTELLA_HEADER_LENGTH,
 					size,
-					FALSE);
+					ENC_NA);
 				gnutella_query_tree = proto_item_add_subtree(
 					pi,
 					ett_gnutella);
@@ -499,7 +499,7 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 					tvb,
 					GNUTELLA_HEADER_LENGTH,
 					size,
-					FALSE);
+					ENC_NA);
 				gnutella_queryhit_tree = proto_item_add_subtree(
 					pi,
 					ett_gnutella);
@@ -557,7 +557,7 @@ static void dissect_gnutella(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 					tvb,
 					0,
 					-1,
-					FALSE);
+					ENC_NA);
 			}
 			return;
 		}

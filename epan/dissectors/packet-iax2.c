@@ -1846,7 +1846,7 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_ts, tvb, offset + 4, 2, FALSE);
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 6, rlen, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 6, rlen, ENC_NA);
   }
   offset += 6 + rlen;
 
@@ -1878,7 +1878,7 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset + 2, 2, FALSE);
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 4, rlen, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 4, rlen, ENC_NA);
   }
   offset += 4 + rlen;
 

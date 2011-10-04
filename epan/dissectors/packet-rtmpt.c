@@ -1016,7 +1016,7 @@ dissect_rtmpt_body_audio(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         proto_tree_add_uint(at, hf_rtmpt_audio_rate, tvb, offset, 1, iCtl);
         proto_tree_add_uint(at, hf_rtmpt_audio_size, tvb, offset, 1, iCtl);
         proto_tree_add_uint(at, hf_rtmpt_audio_type, tvb, offset, 1, iCtl);
-        proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_data, tvb, offset+1, -1, FALSE);
+        proto_tree_add_item(rtmpt_tree, hf_rtmpt_audio_data, tvb, offset+1, -1, ENC_NA);
 }
 
 static void
@@ -1035,7 +1035,7 @@ dissect_rtmpt_body_video(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
         vt = proto_item_add_subtree(vi, ett_rtmpt_video_control);
         proto_tree_add_uint(vt, hf_rtmpt_video_type, tvb, offset, 1, iCtl);
         proto_tree_add_uint(vt, hf_rtmpt_video_format, tvb, offset, 1, iCtl);
-        proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset+1, -1, FALSE);
+        proto_tree_add_item(rtmpt_tree, hf_rtmpt_video_data, tvb, offset+1, -1, ENC_NA);
 }
 
 static void
@@ -1174,18 +1174,18 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 
                         if (tp->id == RTMPT_TYPE_HANDSHAKE_1)
                         {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_c0, tvb, 0, 1, FALSE);
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_c1, tvb, 1, 1536, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_c0, tvb, 0, 1, ENC_NA);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_c1, tvb, 1, 1536, ENC_NA);
                         }
                         else if (tp->id == RTMPT_TYPE_HANDSHAKE_2)
                         {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_s0, tvb, 0, 1, FALSE);
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_s1, tvb, 1, 1536, FALSE);
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_s2, tvb, 1537, 1536, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_s0, tvb, 0, 1, ENC_NA);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_s1, tvb, 1, 1536, ENC_NA);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_s2, tvb, 1537, 1536, ENC_NA);
                         }
                         else if (tp->id == RTMPT_TYPE_HANDSHAKE_3)
                         {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_c2, tvb, 0, 1536, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_handshake_c2, tvb, 0, 1536, ENC_NA);
                         }
 
                         return;

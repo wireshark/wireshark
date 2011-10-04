@@ -460,7 +460,7 @@ static gint dissect_sockaddr_in(proto_tree *tree, tvbuff_t *tvb, gint offset)
     proto_tree_add_item(sa_tree, hf_dplay_saddr_af, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
     proto_tree_add_item(sa_tree, hf_dplay_saddr_port, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
     proto_tree_add_item(sa_tree, hf_dplay_saddr_ip, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(sa_tree, hf_dplay_saddr_padding, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+    proto_tree_add_item(sa_tree, hf_dplay_saddr_padding, tvb, offset, 8, ENC_NA); offset += 8;
     return offset;
 }
 
@@ -499,14 +499,14 @@ static gint dissect_session_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
     proto_tree_add_item(tree, hf_dplay_game_guid, tvb, offset, 16, ENC_BIG_ENDIAN); offset += 16;
     proto_tree_add_item(tree, hf_dplay_max_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_curr_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_name_ptr, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_passwd_ptr, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_desc_reserved_1, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_desc_reserved_2, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_desc_user_1, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_desc_user_2, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_desc_user_3, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sess_desc_user_4, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_name_ptr, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_passwd_ptr, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_desc_reserved_1, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_desc_reserved_2, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_desc_user_1, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_desc_user_2, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_desc_user_3, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sess_desc_user_4, tvb, offset, 4, ENC_NA); offset += 4;
 
     return offset;
 }
@@ -530,7 +530,7 @@ static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
     proto_tree_add_boolean(flags_tree, hf_dplay_pp_flag_sysplayer, tvb, offset, 4, flags);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_dplay_pp_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_pp_id, tvb, offset, 4, ENC_NA); offset += 4;
 
     sn_len = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_pp_short_name_len, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
@@ -543,10 +543,10 @@ static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
     num_players = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_pp_num_players, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
 
-    proto_tree_add_item(tree, hf_dplay_pp_system_player, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_pp_system_player, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_pp_fixed_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_pp_dialect, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_pp_unknown_1, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_pp_unknown_1, tvb, offset, 4, ENC_NA); offset += 4;
 
     if (sn_len)
         offset = display_unicode_string(tree, hf_dplay_pp_short_name, tvb, offset);
@@ -554,21 +554,21 @@ static gint dissect_packed_player(proto_tree *tree, tvbuff_t *tvb, gint offset)
     if (ln_len)
         offset = display_unicode_string(tree, hf_dplay_pp_long_name, tvb, offset);
 
-    proto_tree_add_item(tree, hf_dplay_pp_sp_data, tvb, offset, sd_len, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dplay_pp_sp_data, tvb, offset, sd_len, ENC_NA);
     offset += sd_len;
 
     if (pd_len) {
-        proto_tree_add_item(tree, hf_dplay_pp_player_data, tvb, offset, pd_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dplay_pp_player_data, tvb, offset, pd_len, ENC_NA);
         offset += pd_len;
     }
 
     for (i=0; i < num_players; ++i) {
-        proto_tree_add_item(tree, hf_dplay_pp_player_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(tree, hf_dplay_pp_player_id, tvb, offset, 4, ENC_NA); offset += 4;
     }
 
     /* Size seems to miss the unknown empty dword */
     if (size + 4 > offset) {
-        proto_tree_add_item(tree, hf_dplay_pp_parent_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(tree, hf_dplay_pp_parent_id, tvb, offset, 4, ENC_NA); offset += 4;
     }
 
     return offset;
@@ -619,7 +619,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     proto_tree_add_boolean(flags_tree, hf_dplay_spp_flags_nameserver, tvb, offset, 4, flags);
     proto_tree_add_boolean(flags_tree, hf_dplay_spp_flags_sysplayer, tvb, offset, 4, flags);
     offset += 4;
-    proto_tree_add_item(tree, hf_dplay_spp_id, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_spp_id, tvb, offset, 4, ENC_NA); offset += 4;
 
     info_mask = tvb_get_letohl(tvb, offset);
 
@@ -646,7 +646,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
     if (is_sysplayer) {
         proto_tree_add_item(tree, hf_dplay_spp_dialect, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     } else {
-        proto_tree_add_item(tree, hf_dplay_spp_sys_player_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dplay_spp_sys_player_id, tvb, offset, 4, ENC_NA);
     }
     offset += 4;
 
@@ -662,7 +662,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
         len = spp_get_value(pd_length_type, tvb, offset, &player_data_length);
         proto_tree_add_item(tree, hf_dplay_spp_player_data_length, tvb, offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
-        proto_tree_add_item(tree, hf_dplay_spp_player_data, tvb, offset, player_data_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dplay_spp_player_data, tvb, offset, player_data_length, ENC_NA);
         offset += player_data_length;
     }
 
@@ -670,7 +670,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
         len = spp_get_value(sp_length_type, tvb, offset, &sp_data_length);
         proto_tree_add_item(tree, hf_dplay_spp_sp_data_length, tvb, offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
-        proto_tree_add_item(tree, hf_dplay_spp_sp_data, tvb, offset, sp_data_length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dplay_spp_sp_data, tvb, offset, sp_data_length, ENC_NA);
         offset += sp_data_length;
     }
 
@@ -681,12 +681,12 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
         proto_tree_add_item(tree, hf_dplay_spp_player_count, tvb, offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
         for (i=0; i < player_count; ++i) {
-            proto_tree_add_item(tree, hf_dplay_spp_player_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+            proto_tree_add_item(tree, hf_dplay_spp_player_id, tvb, offset, 4, ENC_NA); offset += 4;
         }
     }
 
     if (have_parent_id) {
-        proto_tree_add_item(tree, hf_dplay_spp_parent_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+        proto_tree_add_item(tree, hf_dplay_spp_parent_id, tvb, offset, 4, ENC_NA); offset += 4;
     }
 
     if (shortcut_count_type) {
@@ -696,7 +696,7 @@ static gint dissect_dplay_super_packed_player(proto_tree *tree, tvbuff_t *tvb, g
         proto_tree_add_item(tree, hf_dplay_spp_shortcut_count, tvb, offset, len, ENC_LITTLE_ENDIAN);
         offset += len;
         for (i=0; i < shortcut_count; ++i) {
-            proto_tree_add_item(tree, hf_dplay_spp_shortcut_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+            proto_tree_add_item(tree, hf_dplay_spp_shortcut_id, tvb, offset, 4, ENC_NA); offset += 4;
         }
     }
 
@@ -707,8 +707,8 @@ static gint dissect_security_desc(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     proto_tree_add_item(tree, hf_dplay_sd_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_sd_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sd_sspi, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_sd_capi, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sd_sspi, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_sd_capi, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_sd_capi_type, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_sd_enc_alg, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     return offset;
@@ -794,7 +794,7 @@ static gint dissect_type07_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 sspi_offset, capi_offset;
 
-    proto_tree_add_item(tree, hf_dplay_type_07_dpid, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_07_dpid, tvb, offset, 4, ENC_NA); offset += 4;
     offset = dissect_security_desc(tree, tvb, offset);
 
     sspi_offset = tvb_get_letohl(tvb, offset);
@@ -819,9 +819,9 @@ static gint dissect_player_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 pp_ofs;
 
-    proto_tree_add_item(tree, hf_dplay_multi_id_to, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_multi_player_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_multi_group_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_multi_id_to, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_multi_player_id, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_multi_group_id, tvb, offset, 4, ENC_NA); offset += 4;
     pp_ofs = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_multi_create_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_multi_password_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
@@ -836,12 +836,12 @@ static gint dissect_type0f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 data_size;
 
-    proto_tree_add_item(tree, hf_dplay_type_0f_id_to, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_type_0f_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_0f_id_to, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_0f_id, tvb, offset, 4, ENC_NA); offset += 4;
     data_size = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_type_0f_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     proto_tree_add_item(tree, hf_dplay_type_0f_data_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_type_0f_data, tvb, offset, data_size, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dplay_type_0f_data, tvb, offset, data_size, ENC_NA);
     offset += data_size;
 
     return offset;
@@ -851,9 +851,9 @@ static gint dissect_type13_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 pp_ofs, pw_ofs;
 
-    proto_tree_add_item(tree, hf_dplay_type_13_id_to, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_type_13_player_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-    proto_tree_add_item(tree, hf_dplay_type_13_group_id, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_13_id_to, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_13_player_id, tvb, offset, 4, ENC_NA); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_13_group_id, tvb, offset, 4, ENC_NA); offset += 4;
     pp_ofs = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_type_13_create_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     pw_ofs = tvb_get_letohl(tvb, offset);
@@ -919,7 +919,7 @@ static gint dissect_type15_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_ping_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    proto_tree_add_item(tree, hf_dplay_ping_id_from, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_ping_id_from, tvb, offset, 4, ENC_NA); offset += 4;
     proto_tree_add_item(tree, hf_dplay_ping_tick_count, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
 
     return offset;
@@ -929,7 +929,7 @@ static gint dissect_type1a_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
     guint32 sn_ofs, pw_ofs;
 
-    proto_tree_add_item(tree, hf_dplay_type_1a_id_to, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_1a_id_to, tvb, offset, 4, ENC_NA); offset += 4;
     sn_ofs = tvb_get_letohl(tvb, offset);
     proto_tree_add_item(tree, hf_dplay_type_1a_sess_name_ofs, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
     pw_ofs = tvb_get_letohl(tvb, offset);
@@ -1002,7 +1002,7 @@ static gint dissect_type29_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 
 static gint dissect_type2f_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
 {
-    proto_tree_add_item(tree, hf_dplay_type_2f_dpid, tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_2f_dpid, tvb, offset, 4, ENC_NA); offset += 4;
     return offset;
 }
 
@@ -1150,7 +1150,7 @@ static void dissect_dplay_player_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
         offset = dissect_sockaddr_in(data_tree, tvb, offset);
         /* Now there's two dplay IDs iff the session desc does not have the
          * "short player message" flag set */
-        proto_tree_add_item(data_tree, hf_dplay_player_msg, tvb, offset, -1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(data_tree, hf_dplay_player_msg, tvb, offset, -1, ENC_NA);
 
     }
 }

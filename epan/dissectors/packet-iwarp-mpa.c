@@ -486,20 +486,20 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 		if (message_type == MPA_REQUEST_FRAME) {
 			mpa_header_item = proto_tree_add_item(mpa_tree,
-					hf_mpa_req, tvb, offset, -1, FALSE);
+					hf_mpa_req, tvb, offset, -1, ENC_NA);
 			mpa_header_tree = proto_item_add_subtree(
 					mpa_header_item, ett_mpa);
 			proto_tree_add_item(mpa_header_tree, hf_mpa_key_req,
-					tvb, offset, MPA_REQ_REP_KEY_LEN, FALSE);
+					tvb, offset, MPA_REQ_REP_KEY_LEN, ENC_NA);
 		}
 
 		if (message_type == MPA_REPLY_FRAME) {
 			mpa_header_item = proto_tree_add_item(mpa_tree,
-					hf_mpa_rep, tvb, offset, -1, FALSE);
+					hf_mpa_rep, tvb, offset, -1, ENC_NA);
 			mpa_header_tree = proto_item_add_subtree(
 					mpa_header_item, ett_mpa);
 			proto_tree_add_item(mpa_header_tree, hf_mpa_key_rep,
-					tvb, offset, MPA_REQ_REP_KEY_LEN, FALSE);
+					tvb, offset, MPA_REQ_REP_KEY_LEN, ENC_NA);
 		}
 		offset += MPA_REQ_REP_KEY_LEN;
 
@@ -536,7 +536,7 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		if (pd_length) {
 			proto_tree_add_item(mpa_header_tree,
 					hf_mpa_private_data, tvb, offset,
-					pd_length, FALSE);
+					pd_length, ENC_NA);
 		}
 	}
 	return TRUE;
@@ -621,7 +621,7 @@ dissect_fpdu_markers(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 	guint32 offset, i;
 
 	mpa_marker_item = proto_tree_add_item(tree, hf_mpa_marker, tvb,
-			0, -1, FALSE);
+			0, -1, ENC_NA);
 	mpa_marker_tree = proto_item_add_subtree(mpa_marker_item, ett_mpa);
 
 	offset = get_first_marker_offset(state, tcpinfo, endpoint);
@@ -739,7 +739,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		mpa_tree = proto_item_add_subtree(mpa_item, ett_mpa);
 
 		mpa_header_item = proto_tree_add_item(mpa_tree, hf_mpa_fpdu,
-				tvb, offset, -1, FALSE);
+				tvb, offset, -1, ENC_NA);
 		mpa_header_tree = proto_item_add_subtree(mpa_header_item,
 				ett_mpa);
 
@@ -761,7 +761,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						tvb, pad_offset(tcpinfo,
 								total_length,
 								pad_length),
-								pad_length, FALSE);
+								pad_length, ENC_NA);
 			}
 
 			dissect_fpdu_crc(tvb, mpa_header_tree, state,
@@ -776,7 +776,7 @@ dissect_mpa_fpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			if (pad_length > 0) {
 				proto_tree_add_item(mpa_header_tree, hf_mpa_pad, tvb, offset,
-						pad_length, FALSE);
+						pad_length, ENC_NA);
 				offset += pad_length;
 			}
 

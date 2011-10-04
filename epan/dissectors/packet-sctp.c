@@ -931,7 +931,7 @@ dissect_heartbeat_info_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 
   heartbeat_info_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (heartbeat_info_length > 0)
-    proto_tree_add_item(parameter_tree, hf_heartbeat_info, parameter_tvb, HEARTBEAT_INFO_PARAMETER_INFO_OFFSET, heartbeat_info_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_heartbeat_info, parameter_tvb, HEARTBEAT_INFO_PARAMETER_INFO_OFFSET, heartbeat_info_length, ENC_NA);
   proto_item_append_text(parameter_item, " (Information: %u byte%s)", heartbeat_info_length, plurality(heartbeat_info_length, "", "s"));
 }
 
@@ -984,7 +984,7 @@ dissect_state_cookie_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 
   state_cookie_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (state_cookie_length > 0)
-    proto_tree_add_item(parameter_tree, hf_state_cookie, parameter_tvb, STATE_COOKIE_PARAMETER_COOKIE_OFFSET, state_cookie_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_state_cookie, parameter_tvb, STATE_COOKIE_PARAMETER_COOKIE_OFFSET, state_cookie_length, ENC_NA);
   proto_item_append_text(parameter_item, " (Cookie length: %u byte%s)", state_cookie_length, plurality(state_cookie_length, "", "s"));
 }
 
@@ -1172,7 +1172,7 @@ dissect_random_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 
   number_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
   if (number_length > 0)
-    proto_tree_add_item(parameter_tree, hf_random_number, parameter_tvb, RANDOM_NUMBER_OFFSET, number_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_random_number, parameter_tvb, RANDOM_NUMBER_OFFSET, number_length, ENC_NA);
 }
 
 static void
@@ -1329,7 +1329,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
 
   if (parameter_value_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
 
   proto_item_append_text(parameter_item, " (Type %u, value length: %u byte%s)", type, parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
@@ -1514,7 +1514,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *chunk
   }
 
   if (padding_length > 0)
-    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void
@@ -1702,7 +1702,7 @@ dissect_user_initiated_abort_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree)
 
   cause_info_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   if (cause_info_length > 0)
-    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_NA);
 }
 
 static void
@@ -1712,7 +1712,7 @@ dissect_protocol_violation_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree)
 
   cause_info_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   if (cause_info_length > 0)
-    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_NA);
 }
 
 static void
@@ -1784,7 +1784,7 @@ dissect_unknown_cause(tvbuff_t *cause_tvb, proto_tree *cause_tree, proto_item *c
 
   cause_info_length = tvb_get_ntohs(cause_tvb, CAUSE_LENGTH_OFFSET) - CAUSE_HEADER_LENGTH;
   if (cause_info_length > 0)
-    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cause_tree, hf_cause_info, cause_tvb, CAUSE_INFO_OFFSET, cause_info_length, ENC_NA);
   proto_item_append_text(cause_item, " (Code: %u, information length: %u byte%s)", tvb_get_ntohs(cause_tvb, CAUSE_CODE_OFFSET), cause_info_length, plurality(cause_info_length, "", "s"));
 }
 
@@ -1910,7 +1910,7 @@ dissect_error_cause(tvbuff_t *cause_tvb, packet_info *pinfo, proto_tree *chunk_t
   }
 
   if (padding_length > 0)
-    proto_tree_add_item(cause_tree, hf_cause_padding, cause_tvb, CAUSE_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(cause_tree, hf_cause_padding, cause_tvb, CAUSE_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void
@@ -2341,7 +2341,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
       add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
 
       /* display reassembly info */
-      item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, FALSE);
+      item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, ENC_NA);
       ptree = proto_item_add_subtree(item, ett_sctp_fragments);
       proto_item_append_text(item, " (%u bytes, %u fragments): ",
                              message->len, message->end - message->begin + 1);
@@ -2575,7 +2575,7 @@ fragment_reassembly(tvbuff_t *tvb, sctp_fragment* fragment,
   add_new_data_source(pinfo, new_tvb, "Reassembled SCTP Message");
 
   /* display reassembly info */
-  item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, FALSE);
+  item = proto_tree_add_item(tree, hf_sctp_fragments, tvb, 0, -1, ENC_NA);
   ptree = proto_item_add_subtree(item, ett_sctp_fragments);
   proto_item_append_text(item, " (%u bytes, %u fragments): ",
                          message->len, message->end - message->begin + 1);
@@ -3330,7 +3330,7 @@ static void
 dissect_cookie_echo_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_tree, proto_item *chunk_item)
 {
   if (chunk_tree) {
-    proto_tree_add_item(chunk_tree, hf_cookie, chunk_tvb, COOKIE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(chunk_tree, hf_cookie, chunk_tvb, COOKIE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, ENC_NA);
     proto_item_append_text(chunk_item, " (Cookie length: %u byte%s)", chunk_length - CHUNK_HEADER_LENGTH, plurality(chunk_length - CHUNK_HEADER_LENGTH, "", "s"));
   }
 }
@@ -3450,7 +3450,7 @@ dissect_auth_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, proto_tree *chunk_
   proto_tree_add_item(chunk_tree, hf_shared_key_id, chunk_tvb, SHARED_KEY_ID_OFFSET, SHARED_KEY_ID_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_item(chunk_tree, hf_hmac_id,       chunk_tvb, HMAC_ID_OFFSET,       HMAC_ID_LENGTH,       ENC_BIG_ENDIAN);
   if (hmac_length > 0)
-    proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    ENC_BIG_ENDIAN);
+    proto_tree_add_item(chunk_tree, hf_hmac,    chunk_tvb, HMAC_OFFSET,    hmac_length,    ENC_NA);
 }
 
 #define SCTP_SERIAL_NUMBER_LENGTH    4
@@ -3567,7 +3567,7 @@ dissect_pktdrop_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, packet_info *pi
     /* XXX - set pinfo->in_error_pkt? */
     if (chunk_length > 0) {
       if (tvb_get_guint8(chunk_tvb, CHUNK_FLAGS_OFFSET) & SCTP_PKTDROP_CHUNK_T_BIT)
-        proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_data_field,   chunk_tvb, PKTDROP_CHUNK_DATA_FIELD_OFFSET,     chunk_length,                   ENC_BIG_ENDIAN);
+        proto_tree_add_item(chunk_tree, hf_pktdrop_chunk_data_field,   chunk_tvb, PKTDROP_CHUNK_DATA_FIELD_OFFSET,     chunk_length,                   ENC_NA);
       else
         dissect_sctp_packet(data_field_tvb, pinfo, chunk_tree, TRUE);
     }
@@ -3579,7 +3579,7 @@ dissect_unknown_chunk(tvbuff_t *chunk_tvb, guint16 chunk_length, guint8 chunk_ty
 {
   if (chunk_tree) {
     if (chunk_length > CHUNK_HEADER_LENGTH)
-      proto_tree_add_item(chunk_tree, hf_chunk_value, chunk_tvb, CHUNK_VALUE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, ENC_BIG_ENDIAN);
+      proto_tree_add_item(chunk_tree, hf_chunk_value, chunk_tvb, CHUNK_VALUE_OFFSET, chunk_length - CHUNK_HEADER_LENGTH, ENC_NA);
     proto_item_append_text(chunk_item, " (Type: %u, value length: %u byte%s)", chunk_type, chunk_length, plurality(chunk_length - CHUNK_HEADER_LENGTH, "", "s"));
   }
 }
@@ -3744,7 +3744,7 @@ dissect_sctp_chunk(tvbuff_t *chunk_tvb,
   }
 
   if (padding_length > 0)
-    proto_tree_add_item(chunk_tree, hf_chunk_padding, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(chunk_tree, hf_chunk_padding, chunk_tvb, CHUNK_HEADER_OFFSET + length, padding_length, ENC_NA);
 
   if (useinfo && ((type == SCTP_DATA_CHUNK_ID) || show_always_control_chunks))
     col_set_fence(pinfo->cinfo, COL_INFO);

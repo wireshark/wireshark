@@ -3824,7 +3824,7 @@ cigi2_add_collision_detection_segment_definition(tvbuff_t *tvb, proto_tree *tree
     proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_segment_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_collision_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_collision_detection_segment_definition_collision_mask, tvb, offset, 4, ENC_NA);
     offset += 4;
 
     proto_tree_add_float(tree, hf_cigi2_collision_detection_segment_definition_x_start, tvb, offset, 2, tvb_get_fixed_point(tvb, offset, ENC_BIG_ENDIAN));

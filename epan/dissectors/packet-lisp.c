@@ -677,7 +677,7 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
 
     /* Authentication Data */
     /* XXX: need to check is there is still enough data in buffer */
-    proto_tree_add_item(lisp_tree, hf_lisp_mreg_auth, tvb, offset, authlen, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mreg_auth, tvb, offset, authlen, ENC_NA);
     offset += authlen;
 
     for(i=0; i < rec_cnt; i++) {
@@ -760,7 +760,7 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
 
     /* Authentication Data */
     /* XXX: need to check is there is still enough data in buffer */
-    proto_tree_add_item(lisp_tree, hf_lisp_mnot_auth, tvb, offset, authlen, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mnot_auth, tvb, offset, authlen, ENC_NA);
     offset += authlen;
 
     for(i=0; i < rec_cnt; i++) {

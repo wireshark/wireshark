@@ -1569,7 +1569,7 @@ static void dissect_tty_lines(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     int         lines = 0;
 
     /* Create tty tree. */
-    ti = proto_tree_add_item(tree, hf_catapult_dct2000_tty, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_catapult_dct2000_tty, tvb, offset, -1, ENC_NA);
     tty_tree = proto_item_add_subtree(ti, ett_catapult_dct2000_tty);
 
     /* Show the tty lines one at a time. */
@@ -2020,7 +2020,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 /* Look for and flag generic error messages */
                 if (strncmp(string, ">> ERR", 6) == 0) {
                     proto_item *error_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_error_comment, tvb,
-                                                               offset, -1, FALSE);
+                                                               offset, -1, ENC_NA);
                     PROTO_ITEM_SET_GENERATED(error_ti);
                     expert_add_info_format(pinfo, string_ti, PI_SEQUENCE, PI_ERROR,
                                           "%s", string);
@@ -2368,7 +2368,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            - protocol rejected our data
            Show remaining bytes as unparsed data */
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_unparsed_data,
-                            tvb, offset, -1, FALSE);
+                            tvb, offset, -1, ENC_NA);
 
         col_add_fstr(pinfo->cinfo, COL_INFO,
                      "Not dissected  (context=%s.%u   t=%s   %c   prot=%s (v=%s))",

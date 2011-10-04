@@ -69,14 +69,14 @@ dissect_airopeek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_airopeek, tvb, 0, -1, ENC_BIG_ENDIAN);
     airopeek_tree = proto_item_add_subtree(ti, ett_airopeek);
 
-    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown1, tvb, 0, 2,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown1, tvb, 0, 2,  ENC_NA);
     proto_tree_add_item(airopeek_tree, hf_airopeek_unknown2, tvb, 2, 2,  ENC_BIG_ENDIAN);
     proto_tree_add_item(airopeek_tree, hf_airopeek_unknown3, tvb, 4, 2,  ENC_BIG_ENDIAN);
-    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown4, tvb, 6, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown4, tvb, 6, 5, ENC_NA);
     proto_tree_add_item(airopeek_tree, hf_airopeek_timestamp, tvb, 11, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown5, tvb, 15, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown5, tvb, 15, 2, ENC_NA);
     proto_tree_add_item(airopeek_tree, hf_airopeek_channel, tvb, 17, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown6, tvb, 18, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(airopeek_tree, hf_airopeek_unknown6, tvb, 18, 2, ENC_NA);
   }
   next_tvb = tvb_new_subset_remaining(tvb, 20);
   pinfo->pseudo_header->ieee_802_11.fcs_len = 4;

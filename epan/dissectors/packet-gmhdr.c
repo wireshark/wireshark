@@ -141,7 +141,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
         proto_item_append_text(ti, "; Source: %s", val_to_str(tl>>8, gmhdr_ftype_timestamp, "Unknown"));
         break;
       default:
-        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_generic, tvb, offset, fl, FALSE);
+        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_generic, tvb, offset, fl, ENC_NA);
         proto_item_append_text(ti, " [Id: %u, Length: %u]", tl >> 8, fl);
         break;
     }

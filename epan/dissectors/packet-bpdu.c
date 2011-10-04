@@ -663,7 +663,7 @@ dissect_bpdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_revision_level, tvb,
                           BPDU_MST_CONFIG_REVISION_LEVEL, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(mstp_tree, hf_bpdu_mst_config_digest, tvb,
-                          BPDU_MST_CONFIG_DIGEST, 16, ENC_BIG_ENDIAN);
+                          BPDU_MST_CONFIG_DIGEST, 16, ENC_NA);
 
       switch(msti_format) {
 

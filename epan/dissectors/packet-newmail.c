@@ -71,7 +71,7 @@ dissect_newmail(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		newmail_tree = proto_item_add_subtree(ti, ett_newmail);
 
-		proto_tree_add_item(newmail_tree, hf_newmail_payload, tvb, 0, 8, FALSE);
+		proto_tree_add_item(newmail_tree, hf_newmail_payload, tvb, 0, 8, ENC_NA);
 	}
 }
 

@@ -107,7 +107,7 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_item *ti;
 
 		ti = proto_tree_add_item(tree, hf_teredo_auth, tvb, offset-4,
-						13 + idlen + aulen, FALSE);
+						13 + idlen + aulen, ENC_NA);
 		tree = proto_item_add_subtree(ti, ett_teredo_auth);
 	
 		proto_tree_add_item(tree, hf_teredo_auth_idlen, tvb,
@@ -118,23 +118,23 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		/* idlen is usually zero */
 		if (idlen) {
 			proto_tree_add_item(tree, hf_teredo_auth_id, tvb,
-						offset, idlen, FALSE);
+						offset, idlen, ENC_NA);
 			offset += idlen;
 		}
 
 		/* aulen is usually zero */
 		if (aulen) {
 			proto_tree_add_item(tree, hf_teredo_auth_value, tvb,
-						offset, aulen, FALSE);
+						offset, aulen, ENC_NA);
 			offset += aulen;
 		}
 
 		proto_tree_add_item(tree, hf_teredo_auth_nonce, tvb,
-					offset, 8, FALSE);
+					offset, 8, ENC_NA);
 		offset += 8;
 
 		proto_tree_add_item(tree, hf_teredo_auth_conf, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_NA);
 		offset++;
 	}
 	else
@@ -159,7 +159,7 @@ parse_teredo_orig(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, hf_teredo_orig, tvb, offset,
-						8, FALSE);
+						8, ENC_NA);
 		tree = proto_item_add_subtree(ti, ett_teredo_orig);
 	}
 	offset += 2;

@@ -302,7 +302,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 1; /* Unknown field */
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_b, tvb,
-						    offset, 32, TRUE);
+						    offset, 32, ENC_NA);
 				offset += 32;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_g_len,
@@ -311,7 +311,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_g, tvb,
-						    offset, srp_g_len, TRUE);
+						    offset, srp_g_len, ENC_NA);
 				offset += srp_g_len;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_n_len,
@@ -320,11 +320,11 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_n, tvb,
-						    offset, srp_n_len, TRUE);
+						    offset, srp_n_len, ENC_NA);
 				offset += srp_n_len;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_s, tvb,
-						    offset, 32, TRUE);
+						    offset, 32, ENC_NA);
 				offset += 32;
 
 				offset += 16; /* Unknown field */
@@ -336,15 +336,15 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if(WOW_CLIENT_TO_SERVER) {
 				proto_tree_add_item(wow_tree, hf_wow_srp_a, tvb,
-						    offset, 32, TRUE);
+						    offset, 32, ENC_NA);
 				offset += 32;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_m1,
-						    tvb, offset, 20, TRUE);
+						    tvb, offset, 20, ENC_NA);
 				offset += 20;
 
 				proto_tree_add_item(wow_tree, hf_wow_crc_hash,
-						    tvb, offset, 20, TRUE);
+						    tvb, offset, 20, ENC_NA);
 				offset += 20;
 
 				proto_tree_add_item(wow_tree, hf_wow_num_keys,
@@ -359,7 +359,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_m2,
-						    tvb, offset, 20, TRUE);
+						    tvb, offset, 20, ENC_NA);
 				offset += 20;
 
 				offset += 4; /* Unknown field */

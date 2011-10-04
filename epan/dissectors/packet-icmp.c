@@ -418,7 +418,7 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	  offset++;
 	  /* challenge */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_challenge, tvb, offset,
-						  length, FALSE);
+						  length, ENC_NA);
 	  offset+=length;
 
 	  break;

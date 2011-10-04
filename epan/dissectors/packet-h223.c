@@ -662,7 +662,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
                 PROTO_ITEM_SET_HIDDEN(hidden_item);
             }
             next_tvb = tvb;
-            al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
+            al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, ENC_NA);
             break;
 
         case al2WithSequenceNumbers:
@@ -689,7 +689,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
             }
 
             next_tvb = tvb_new_subset( tvb, data_start, len-1-data_start, len-1-data_start );
-            al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, FALSE);
+            al_subitem = proto_tree_add_item(al_tree, hf_h223_al_payload, next_tvb, 0, -1, ENC_NA);
 
             calc_checksum = h223_al2_crc8bit(tvb);
             real_checksum = tvb_get_guint8(tvb, len - 1);
@@ -923,7 +923,7 @@ dissect_mux_payload( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
         proto_tree *vc_tree = NULL;
 
         if(pdu_tree) {
-            proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_deact, tvb, 0, len, FALSE);
+            proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_deact, tvb, 0, len, ENC_NA);
             vc_tree = proto_item_add_subtree(vc_item, ett_h223_mux_deact);
         }
         call_dissector(data_handle,tvb,pinfo,vc_tree);
@@ -1010,16 +1010,16 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
 
     if( h223_tree ) {
         if( mpl == 0 ) {
-            pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_stuffing_pdu, tvb, 0, -1, FALSE);
+            pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_stuffing_pdu, tvb, 0, -1, ENC_NA);
             pdu_tree = proto_item_add_subtree (pdu_item, ett_h223_mux_stuffing_pdu);
         } else {
-            pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_pdu, tvb, 0, -1, FALSE);
+            pdu_item = proto_tree_add_item (h223_tree, hf_h223_mux_pdu, tvb, 0, -1, ENC_NA);
             pdu_tree = proto_item_add_subtree (pdu_item, ett_h223_mux_pdu);
         }
     }
 
     if( pdu_tree ) {
-        proto_item *item = proto_tree_add_item (pdu_tree, hf_h223_mux_header, tvb, 0, offset, FALSE);
+        proto_item *item = proto_tree_add_item (pdu_tree, hf_h223_mux_header, tvb, 0, offset, ENC_NA);
         proto_tree *hdr_tree = proto_item_add_subtree (item, ett_h223_mux_header);
 
         switch(call_info->h223_level) {
@@ -1075,7 +1075,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
         proto_tree *vc_tree = NULL;
 
         if( pdu_tree ) {
-            proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_extra, next_tvb, 0, len, FALSE);
+            proto_item *vc_item = proto_tree_add_item(pdu_tree, hf_h223_mux_extra, next_tvb, 0, len, ENC_NA);
             vc_tree = proto_item_add_subtree(vc_item, ett_h223_mux_deact);
         }
         call_dissector(data_handle,next_tvb,pinfo,vc_tree);

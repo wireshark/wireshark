@@ -2367,7 +2367,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 		/* challenge/response encryption key */
 		if(ekl){
 			CHECK_BYTE_COUNT(ekl);
-			proto_tree_add_item(tree, hf_smb_encryption_key, tvb, offset, ekl, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_smb_encryption_key, tvb, offset, ekl, ENC_NA);
 			COUNT_BYTES(ekl);
 		}
 
@@ -2401,7 +2401,7 @@ dissect_negprot_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
 			if(ekl){
 				CHECK_BYTE_COUNT(ekl);
 				proto_tree_add_item(tree, hf_smb_encryption_key,
-					tvb, offset, ekl, ENC_LITTLE_ENDIAN);
+					tvb, offset, ekl, ENC_NA);
 				COUNT_BYTES(ekl);
 			}
 
@@ -8535,7 +8535,7 @@ dissect_nt_trans_data_request(tvbuff_t *tvb, packet_info *pinfo, int offset, pro
 
 		/* extended attributes */
 		if(ntd->ea_len){
-			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ntd->ea_len, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_smb_extended_attributes, tvb, offset, ntd->ea_len, ENC_NA);
 			offset += ntd->ea_len;
 		}
 

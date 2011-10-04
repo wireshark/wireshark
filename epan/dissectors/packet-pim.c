@@ -659,7 +659,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
     proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, FALSE);
-    proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
     pim_cksum = tvb_get_ntohs(tvb, offset + 2);
     length = tvb_length(tvb);
     if (PIM_VER(pim_typever) == 2) {
@@ -843,7 +843,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             default:
                 if (opt_len)
                     proto_tree_add_item(opt_tree, hf_pim_optionvalue, tvb,
-                                        offset + 4, opt_len, FALSE);
+                                        offset + 4, opt_len, ENC_NA);
                 break;
             }
             offset += 4 + opt_len;
@@ -970,7 +970,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             "Upstream-neighbor: %s", s);
         offset += advance;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_res_bytes, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_res_bytes, tvb, offset, 1, ENC_NA);
         offset += 1;    /* skip reserved field */
 
         ngroup = tvb_get_guint8(tvb, offset);

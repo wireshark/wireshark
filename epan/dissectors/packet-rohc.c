@@ -629,7 +629,7 @@ start_over:
 				offset++;
 				oct = tvb_get_guint8(tvb,offset);
 			}
-			proto_tree_add_item(rohc_tree, hf_rohc_padding, tvb, 0, offset, ENC_BIG_ENDIAN);
+			proto_tree_add_item(rohc_tree, hf_rohc_padding, tvb, 0, offset, ENC_NA);
 		}
 		/* 2) If the first remaining octet starts with 1110, it is an Add-CID octet:
 		 *    remember the Add-CID octet; remove the octet.

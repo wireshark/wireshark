@@ -72,7 +72,7 @@ dissect_hp_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     if (tree) {
         ti = proto_tree_add_item(tree, proto_hp_erm, tvb, 0, -1, FALSE);
         hp_erm_tree = proto_item_add_subtree(ti, ett_hp_erm);
-        proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown, tvb, 0, 12, FALSE);
+        proto_tree_add_item(hp_erm_tree, hf_hp_erm_unknown, tvb, 0, 12, ENC_NA);
     }
 
     eth_tvb = tvb_new_subset_remaining(tvb, 12);

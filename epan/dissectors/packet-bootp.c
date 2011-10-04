@@ -1388,7 +1388,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				vti = proto_tree_add_uint_format_value(bp_tree, hf_bootp_option_type,
 						tvb, voff, 1, 0, "(0) Padding");
 				v_tree = proto_item_add_subtree(vti, ett_bootp_option);
-				proto_tree_add_item(v_tree, hf_bootp_option_padding, tvb, voff, i, ENC_BIG_ENDIAN);
+				proto_tree_add_item(v_tree, hf_bootp_option_padding, tvb, voff, i, ENC_NA);
 			}
 		}
 		consumed = i;
@@ -2306,7 +2306,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 	if ((basictype_consumed == 0) && (option_handled == FALSE) &&
 	    (opt->phf == NULL) && (optlen > 0)) {
-		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_value, tvb, voff+2, optlen, ENC_NA);
 	}
 
 	return consumed;
@@ -2382,7 +2382,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 	}
 
 	if ( (subopt < 1 ) || (subopt >= array_length(o82_opt)) ) {
-		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+		proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
 	} else if (o82_opt[subopt].ftype == special) {
 		switch(subopt)
 		{
@@ -2438,7 +2438,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 					}
 					break;
 				default:
-					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, ENC_BIG_ENDIAN);
+					proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, datalen, ENC_NA);
 					suboptoff += datalen;
 					break;
 				}
@@ -2448,7 +2448,7 @@ bootp_dhcp_decode_agent_info(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 			if (o82_opt[subopt].phf != NULL)
 				proto_tree_add_item(o82_v_tree, *o82_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			else
-				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(o82_v_tree, hf_bootp_option82_value, tvb, suboptoff, subopt_len, ENC_NA);
 			break;
 		}
 	}
@@ -2549,7 +2549,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	if ( subopt == 71 ) {	/* 71 {"PXE boot item", special} */
 		/* case special */
 		/* I may need to decode that properly one day */
-		proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+		proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_pxeclient_boot_item, tvb, suboptoff, subopt_len, ENC_NA);
 	} else if ((subopt < 1) || (subopt >= array_length(o43pxeclient_opt))) {
 		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Unknown suboption %d (%d bytes)", subopt, subopt_len);
 	} else if (o43pxeclient_opt[subopt].ftype == special) {
@@ -2557,7 +2557,7 @@ dissect_vendor_pxeclient_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 		if (o43pxeclient_opt[subopt].phf != NULL)
 			proto_tree_add_item(o43pxeclient_v_tree, *o43pxeclient_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(o43pxeclient_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
 	} else {
 		if (bootp_handle_basic_types(pinfo, o43pxeclient_v_tree, vti, tvb, o43pxeclient_opt[subopt].ftype,
 							suboptoff, subopt_len, o43pxeclient_opt[subopt].phf, &default_hfs) == 0)
@@ -2840,7 +2840,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 	}
 
 	if ( (subopt < 1 ) || (subopt >= array_length(o43cablelabs_opt)) ) {
-		proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+		proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
 	} else if (o43cablelabs_opt[subopt].ftype == special) {
 		switch(subopt)
 		{
@@ -2868,7 +2868,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 			if (o43cablelabs_opt[subopt].phf != NULL)
 				proto_tree_add_item(o43cl_v_tree, *o43cablelabs_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 			else
-				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_value, tvb, suboptoff, subopt_len, ENC_NA);
 		}
 	}
 	else {
@@ -3059,7 +3059,7 @@ dissect_netware_ip_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v
 				break;
 			default:
 				if (o63_opt[subopt].phf == NULL)
-				   proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				   proto_tree_add_item(o63_v_tree, hf_bootp_option63_value, tvb, suboptoff, subopt_len, ENC_NA);
 				break;
 			}
 		}
@@ -3135,9 +3135,9 @@ dissect_vendor_tr111_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree 
 				if (o125_tr111_opt[subopt].phf != NULL)
 				   proto_tree_add_item(v_tree, *o125_tr111_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				else
-				   proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				   proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
 			} else if (o125_tr111_opt[subopt].phf == NULL)
-				proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
 		}
 	}
 
@@ -3216,13 +3216,13 @@ dissect_vendor_cl_suboption(packet_info *pinfo, proto_item *v_ti, proto_tree *v_
 				if (o125_cl_opt[subopt].phf != NULL)
 				   proto_tree_add_item(o125_v_tree, *o125_cl_opt[subopt].phf, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
 				else
-				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
 
 					dissect_docsis_cm_cap(o125_v_tree, tvb, optoff, subopt_len+2, TRUE);
 				break;
 			default:
 				if (o125_cl_opt[subopt].phf == NULL)
-				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				   proto_tree_add_item(o125_v_tree, hf_bootp_option125_value, tvb, suboptoff, subopt_len, ENC_NA);
 				break;
 			}
 		}
@@ -4705,7 +4705,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_bytes_format_value(bp_tree, hf_bootp_hw_addr, tvb, 28, 16,
 					   NULL, "%s", tvb_arphrdaddr_to_str(tvb, 28, hlen, htype));
 		if ((16 - hlen) > 0)
-			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, ENC_BIG_ENDIAN);
+			proto_tree_add_item(bp_tree, hf_bootp_hw_addr_padding, tvb, 28+hlen, 16-hlen, ENC_NA);
 	} else {
 		proto_tree_add_text(bp_tree,  tvb,
 					   28, 16, "Client address not given");

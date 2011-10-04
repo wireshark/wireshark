@@ -64,10 +64,10 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     type = tvb_get_guint8(tvb, offset);
 
-    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
     offset += 4;
 
     proto_tree_add_item(msnlb_tree, hf_msnlb_hpn, tvb, offset, 4, TRUE);
@@ -79,10 +79,10 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(msnlb_tree, hf_msnlb_host_ip, tvb, offset, 4, FALSE);
     offset += 4;
 
-    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+    proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
     offset += 4;
 
     switch (type) {
@@ -91,38 +91,38 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         break;
 
       case 0xbf:
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
         proto_tree_add_item(msnlb_tree, hf_msnlb_count, tvb, offset, 4, TRUE);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
       default:
-        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
         offset += 4;
     }
   }

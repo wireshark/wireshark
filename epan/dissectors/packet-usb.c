@@ -2293,7 +2293,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
                  * fully captured then show this data.
                  */
                 if (!iso_status && iso_len && data_base + iso_off + iso_len <= tvb_length(tvb))
-                    proto_tree_add_item(tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, TRUE);
+                    proto_tree_add_item(tree, hf_usb_iso_data, tvb, data_base + iso_off, iso_len, ENC_NA);
 
                 tvb_memcpy(tvb, (guint8 *)&iso_pad, offset, 4);
                 proto_tree_add_uint(tree, hf_usb_iso_pad, tvb, offset, 4, iso_pad);
@@ -2343,7 +2343,7 @@ dissect_linux_usb_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent,
 
     if (tvb_reported_length_remaining(tvb, offset) != 0) {
         /* There is leftover capture data to add (padding?) */
-        proto_tree_add_item(tree, hf_usb_capdata, tvb, offset, -1, FALSE);
+        proto_tree_add_item(tree, hf_usb_capdata, tvb, offset, -1, ENC_NA);
     }
 }
 

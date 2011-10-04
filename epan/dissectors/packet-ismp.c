@@ -523,7 +523,7 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		code_length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, FALSE);
 		offset += 1;
-		proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, FALSE);
+		proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, ENC_NA);
 		offset += code_length;
 
 		/* if Enterasys Discover Protocol, dissect it */

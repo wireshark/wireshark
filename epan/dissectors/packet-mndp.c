@@ -200,7 +200,7 @@ dissect_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *mndp_tree,
 			tvb, offset, tlv_length, encoding_info);
 	} else {
 		proto_tree_add_item(tlv_tree, hf_mndp_tlv_data,
-			tvb, offset, tlv_length, ENC_BIG_ENDIAN);
+			tvb, offset, tlv_length, ENC_NA);
 	}
 	if ( type_index != -1 && value_array[type_index].specialfunction ) {
 		guint32 newoffset;
@@ -236,7 +236,7 @@ dissect_mndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		mndp_tree = proto_item_add_subtree(ti, ett_mndp);
 
 		proto_tree_add_item(mndp_tree, hf_mndp_header_unknown, tvb, offset, 2,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
 		offset += 2;
 		proto_tree_add_item(mndp_tree, hf_mndp_header_seqno, tvb, offset, 2,
 			ENC_BIG_ENDIAN);

@@ -144,7 +144,7 @@ dissect_laplink_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(laplink_tree, hf_laplink_tcp_length, tvb, offset, 2, FALSE);
 		offset += 2;
 
-		proto_tree_add_item(laplink_tree, hf_laplink_tcp_data, tvb, offset, length, FALSE);
+		proto_tree_add_item(laplink_tree, hf_laplink_tcp_data, tvb, offset, length, ENC_NA);
 
 /* Continue adding tree items to process the packet here */
 

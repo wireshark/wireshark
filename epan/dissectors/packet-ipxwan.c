@@ -219,7 +219,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    wan_link_delay);
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_common_network_number,
-					    tvb, offset+2, 4, FALSE);
+					    tvb, offset+2, 4, ENC_NA);
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_router_name, tvb,
 					    offset+6, 48, FALSE);
@@ -275,7 +275,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_extended_node_id, tvb,
-					    offset, 4, FALSE);
+					    offset, 4, ENC_NA);
 				}
 				break;
 

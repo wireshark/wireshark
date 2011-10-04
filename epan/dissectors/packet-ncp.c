@@ -363,7 +363,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (match_strval(tvb_get_ntohs(tvb, commhdr), ncp_type_vals)==NULL) {
             /* Check to see if we have a valid type after packet signature length */
             if (match_strval(tvb_get_ntohs(tvb, commhdr+8), ncp_type_vals)!=NULL) {
-                proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, commhdr, 8, FALSE);
+                proto_tree_add_item(ncp_tree, hf_ncp_ip_packetsig, tvb, commhdr, 8, ENC_NA);
                 commhdr += 8;
             }
         }
@@ -634,7 +634,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             if (data_len < 8)
                 return;
             proto_tree_add_item(ncp_tree, hf_ncp_burst_reserved,
-                tvb, offset, 8, FALSE);
+                tvb, offset, 8, ENC_NA);
             offset += 8;
             data_len -= 8;
 

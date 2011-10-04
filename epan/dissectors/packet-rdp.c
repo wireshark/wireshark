@@ -930,14 +930,14 @@ dissect_rdp_clientNetworkData(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
     FI_TERMINATOR
   };
 
-  pi = proto_tree_add_item(tree, hf_rdp_clientNetworkData, tvb, offset, length, FALSE);
+  pi = proto_tree_add_item(tree, hf_rdp_clientNetworkData, tvb, offset, length, ENC_NA);
 
   next_tree = proto_item_add_subtree(pi, ett_rdp_clientNetworkData);
 
   offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, net_fields);
 
   if(channelCount > 0) {
-    pi = proto_tree_add_item(next_tree, hf_rdp_channelDefArray, tvb, offset, channelCount * 12, FALSE);
+    pi = proto_tree_add_item(next_tree, hf_rdp_channelDefArray, tvb, offset, channelCount * 12, ENC_NA);
     next_tree = proto_item_add_subtree(pi, ett_rdp_channelDefArray);
 
     if(rdp_info)
@@ -1422,7 +1422,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   length = tvb_length_remaining(tvb, offset);
   tree = dissect_rdp(tvb, pinfo, tree);
 
-  pi = proto_tree_add_item(tree, hf_rdp_SendData, tvb, offset, length, FALSE);
+  pi = proto_tree_add_item(tree, hf_rdp_SendData, tvb, offset, length, ENC_NA);
   tree = proto_item_add_subtree(pi, ett_rdp_SendData);
 
   conversation = find_or_create_conversation(pinfo);
@@ -1437,7 +1437,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     switch(flags & SEC_PKT_MASK) {
     case SEC_EXCHANGE_PKT:
-      pi = proto_tree_add_item(tree, hf_rdp_securityExchangePDU, tvb, offset, length, FALSE); \
+      pi = proto_tree_add_item(tree, hf_rdp_securityExchangePDU, tvb, offset, length, ENC_NA); \
       next_tree = proto_item_add_subtree(pi, ett_rdp_securityExchangePDU);
 
       col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "SecurityExchange");
@@ -1447,7 +1447,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       break;
 
     case SEC_INFO_PKT:
-      pi = proto_tree_add_item(tree, hf_rdp_clientInfoPDU, tvb, offset, length, FALSE);
+      pi = proto_tree_add_item(tree, hf_rdp_clientInfoPDU, tvb, offset, length, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_clientInfoPDU);
       col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientInfo");
 
@@ -1462,7 +1462,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       }
       break;
     case SEC_LICENSE_PKT:
-      pi = proto_tree_add_item(tree, hf_rdp_validClientLicenseData, tvb, offset, length, FALSE);
+      pi = proto_tree_add_item(tree, hf_rdp_validClientLicenseData, tvb, offset, length, ENC_NA);
       next_tree = proto_item_add_subtree(pi, ett_rdp_validClientLicenseData);
 
       offset = dissect_rdp_securityHeader(tvb, offset, pinfo, next_tree, rdp_info, TRUE, NULL);
@@ -1511,7 +1511,7 @@ dissect_rdp_SendData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       offset = dissect_rdp_securityHeader(tvb, offset, pinfo, tree, rdp_info, FALSE, &flags);
 
       if(!(flags & SEC_ENCRYPT)) {
-	pi = proto_tree_add_item(tree, hf_rdp_shareControlHeader, tvb, offset, length, FALSE);
+	pi = proto_tree_add_item(tree, hf_rdp_shareControlHeader, tvb, offset, length, ENC_NA);
 	next_tree = proto_item_add_subtree(pi, ett_rdp_shareControlHeader);
 
 	offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, ctrl_fields);
@@ -1649,7 +1649,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ClientData");
 
-  pi = proto_tree_add_item(tree, hf_rdp_ClientData, tvb, offset, length, FALSE);
+  pi = proto_tree_add_item(tree, hf_rdp_ClientData, tvb, offset, length, ENC_NA);
   tree = proto_item_add_subtree(pi, ett_rdp_ClientData);
 
   while(tvb_length_remaining(tvb, offset) > 0) {
@@ -1668,7 +1668,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if(tvb_length_remaining(tvb, offset) >= length) {
 
-	pi = proto_tree_add_item(tree, hf_rdp_clientCoreData, tvb, offset, length, FALSE); \
+	pi = proto_tree_add_item(tree, hf_rdp_clientCoreData, tvb, offset, length, ENC_NA); \
 	next_tree = proto_item_add_subtree(pi, ett_rdp_clientCoreData);
 
 	offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, core_fields);
@@ -1681,7 +1681,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     case CS_SECURITY:
       if(tvb_length_remaining(tvb, offset) >= length) {
 
-	pi = proto_tree_add_item(tree, hf_rdp_clientSecurityData, tvb, offset, length, FALSE); \
+	pi = proto_tree_add_item(tree, hf_rdp_clientSecurityData, tvb, offset, length, ENC_NA); \
 
 	next_tree = proto_item_add_subtree(pi, ett_rdp_clientSecurityData);
 
@@ -1708,7 +1708,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     case CS_CLUSTER:
       if(tvb_length_remaining(tvb, offset) >= length) {
 
-	pi = proto_tree_add_item(tree, hf_rdp_clientClusterData, tvb, offset, length, FALSE); \
+	pi = proto_tree_add_item(tree, hf_rdp_clientClusterData, tvb, offset, length, ENC_NA); \
 
 	next_tree = proto_item_add_subtree(pi, ett_rdp_clientClusterData);
 
@@ -1722,7 +1722,7 @@ dissect_rdp_ClientData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       default:
 	if(tvb_length_remaining(tvb, offset) >= length) {
 
-	  pi = proto_tree_add_item(tree, hf_rdp_clientUnknownData, tvb, offset, length, FALSE); \
+	  pi = proto_tree_add_item(tree, hf_rdp_clientUnknownData, tvb, offset, length, ENC_NA); \
 
 	  next_tree = proto_item_add_subtree(pi, ett_rdp_clientUnknownData);
 
@@ -1830,7 +1830,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   col_append_sep_str(pinfo->cinfo, COL_INFO, " ", "ServerData");
 
-  pi = proto_tree_add_item(tree, hf_rdp_ServerData, tvb, offset, length, FALSE);
+  pi = proto_tree_add_item(tree, hf_rdp_ServerData, tvb, offset, length, ENC_NA);
   tree = proto_item_add_subtree(pi, ett_rdp_ServerData);
 
   while(tvb_length_remaining(tvb, offset) > 0) {
@@ -1849,7 +1849,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
       if(tvb_length_remaining(tvb, offset) >= length) {
 
-	pi = proto_tree_add_item(tree, hf_rdp_serverCoreData, tvb, offset, length, FALSE); \
+	pi = proto_tree_add_item(tree, hf_rdp_serverCoreData, tvb, offset, length, ENC_NA); \
 	next_tree = proto_item_add_subtree(pi, ett_rdp_serverCoreData);
 
 	offset = dissect_rdp_fields(tvb, offset, pinfo, next_tree, sc_fields);
@@ -1862,7 +1862,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     case SC_SECURITY:
       if(tvb_length_remaining(tvb, offset) >= length) {
 
-	pi = proto_tree_add_item(tree, hf_rdp_serverSecurityData, tvb, offset, length, FALSE); \
+	pi = proto_tree_add_item(tree, hf_rdp_serverSecurityData, tvb, offset, length, ENC_NA); \
 
 	next_tree = proto_item_add_subtree(pi, ett_rdp_serverSecurityData);
 
@@ -1889,7 +1889,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     case SC_NET:
       if(tvb_length_remaining(tvb, offset) >= length) {
 
-	pi = proto_tree_add_item(tree, hf_rdp_serverNetworkData, tvb, offset, length, FALSE); \
+	pi = proto_tree_add_item(tree, hf_rdp_serverNetworkData, tvb, offset, length, ENC_NA); \
 
 	next_tree = proto_item_add_subtree(pi, ett_rdp_serverNetworkData);
 
@@ -1929,7 +1929,7 @@ dissect_rdp_ServerData(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       default:
 	if(tvb_length_remaining(tvb, offset) >= length) {
 
-	  pi = proto_tree_add_item(tree, hf_rdp_serverUnknownData, tvb, offset, length, FALSE); \
+	  pi = proto_tree_add_item(tree, hf_rdp_serverUnknownData, tvb, offset, length, ENC_NA); \
 
 	  next_tree = proto_item_add_subtree(pi, ett_rdp_serverUnknownData);
 

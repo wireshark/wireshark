@@ -332,7 +332,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 		/* Create window info tree */
 		window_info_item =
-			proto_tree_add_item(rlogin_tree, hf_window_info, tvb, offset, 12, FALSE);
+			proto_tree_add_item(rlogin_tree, hf_window_info, tvb, offset, 12, ENC_NA);
 		window_tree = proto_item_add_subtree(window_info_item, ett_rlogin_window);
 
 		/* Cookie */

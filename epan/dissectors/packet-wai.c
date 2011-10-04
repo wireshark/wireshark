@@ -264,48 +264,48 @@ dissect_flag(tvbuff_t *tvb, guint offset, proto_tree *tree)
 inline static void
 dissect_bkid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_bkid, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_wai_bkid, tvb, offset, 16, ENC_NA);
 }
 
 inline static void
 dissect_uskid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_uskid, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_wai_uskid, tvb, offset, 1, ENC_NA);
 }
 
 inline static void dissect_wie(tvbuff_t *tvb, guint offset, guint length, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_wie, tvb, offset, length, FALSE);
+    proto_tree_add_item(tree, hf_wai_wie, tvb, offset, length, ENC_NA);
 }
 
 inline static void
 dissect_message_auth_code(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_message_auth_code, tvb, offset, 20, FALSE);
+    proto_tree_add_item(tree, hf_wai_message_auth_code, tvb, offset, 20, ENC_NA);
 }
 
 inline static void
 dissect_mskid(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_mskid, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_wai_mskid, tvb, offset, 1, ENC_NA);
 }
 
 inline static void
 dissect_key_announcement_identifier(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_key_ann_id, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_wai_key_ann_id, tvb, offset, 16, ENC_NA);
 }
 
 inline static void
 dissect_counter(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_counter, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_wai_counter, tvb, offset, 16, ENC_NA);
 }
 
 inline static void
 dissect_authentication_id(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_wai_auth_id, tvb, offset, 32, FALSE);
+    proto_tree_add_item(tree, hf_wai_auth_id, tvb, offset, 32, ENC_NA);
 }
 
 static void
@@ -331,12 +331,12 @@ dissect_identity(tvbuff_t * tvb, const guint16 offset, proto_tree * tree,
 
     length = tvb_get_ntohs(tvb, offset+2);
 
-    id_item = proto_tree_add_item(tree, hf_wai_identity, tvb, offset, length+4, FALSE);
+    id_item = proto_tree_add_item(tree, hf_wai_identity, tvb, offset, length+4, ENC_NA);
     id_tree = proto_item_add_subtree(id_item, ett_wai_identity);
     proto_item_set_text(id_item, "%sIdentity", ((label==NULL)?"":label));
     proto_tree_add_item(id_tree, hf_wai_identity_id, tvb, offset, 2, FALSE);
     proto_tree_add_item(id_tree, hf_wai_identity_len, tvb, offset+2, 2, FALSE);
-    proto_tree_add_item(id_tree, hf_wai_identity_data, tvb, offset+4, length, FALSE);
+    proto_tree_add_item(id_tree, hf_wai_identity_data, tvb, offset+4, length, ENC_NA);
 
     return length + 4;
 }
@@ -362,14 +362,14 @@ dissect_certificate(tvbuff_t * tvb, const gint offset, proto_tree * tree,
 
     length = tvb_get_ntohs(tvb, offset+2);
 
-    certificate_item = proto_tree_add_item(tree, hf_wai_cert, tvb, offset, length+4, FALSE);
+    certificate_item = proto_tree_add_item(tree, hf_wai_cert, tvb, offset, length+4, ENC_NA);
     proto_item_set_text(certificate_item, "%sCertificate",  ((label==NULL)?"":label));
     certificate_tree = proto_item_add_subtree(certificate_item, ett_wai_certificate);
 
     id_item = proto_tree_add_item(certificate_tree, hf_wai_cert_id, tvb, offset, 2, FALSE);
     proto_item_set_text(id_item, "Certificate Identifier: %s (%#x)", id_name, id);
     proto_tree_add_item(certificate_tree, hf_wai_cert_len, tvb, offset+2, 2, FALSE);
-    proto_tree_add_item(certificate_tree, hf_wai_cert_data, tvb, offset+4, length, FALSE);
+    proto_tree_add_item(certificate_tree, hf_wai_cert_data, tvb, offset+4, length, ENC_NA);
 
     return length + 4;
 }
@@ -394,12 +394,12 @@ dissect_ecdh_parameter(tvbuff_t * tvb, const gint offset, proto_tree * tree)
 
     ecdh_len = tvb_get_ntohs(tvb, offset+1);
 
-    ecdh_item = proto_tree_add_item(tree, hf_wai_ecdh, tvb, offset, ecdh_len+3, FALSE);
+    ecdh_item = proto_tree_add_item(tree, hf_wai_ecdh, tvb, offset, ecdh_len+3, ENC_NA);
     ecdh_tree = proto_item_add_subtree(ecdh_item, ett_wai_ecdh_param);
     ecdh_id_item = proto_tree_add_item(ecdh_tree, hf_wai_ecdh_id, tvb, offset, 1, FALSE);
     proto_item_set_text(ecdh_id_item, "ID: %s (%#x)", id_name, ecdh_id);
     proto_tree_add_item(ecdh_tree, hf_wai_ecdh_len, tvb, offset+1, 2, FALSE);
-    proto_tree_add_item(ecdh_tree, hf_wai_ecdh_content, tvb, offset+3, ecdh_len, FALSE);
+    proto_tree_add_item(ecdh_tree, hf_wai_ecdh_content, tvb, offset+3, ecdh_len, ENC_NA);
 
     return ecdh_len + 3;
 }
@@ -410,7 +410,7 @@ dissect_challenge(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar * c
     proto_item		*challenge_item;
     const guint16	challenge_length = 32;
 
-    challenge_item = proto_tree_add_item(tree, hf_wai_challenge, tvb, offset, 32, FALSE);
+    challenge_item = proto_tree_add_item(tree, hf_wai_challenge, tvb, offset, 32, ENC_NA);
     proto_item_append_text(challenge_item, "(%schallenge)",  ((label==NULL)?"":label));
 
     return challenge_length;
@@ -425,13 +425,13 @@ dissect_key_data(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *con
 
     length = tvb_get_guint8(tvb, offset);
 
-    key_data_item = proto_tree_add_item(tree, hf_wai_key_data, tvb, offset, length+1, FALSE);
+    key_data_item = proto_tree_add_item(tree, hf_wai_key_data, tvb, offset, length+1, ENC_NA);
     proto_item_set_text(key_data_item, "%sKey Data", ((label==NULL)?"":label));
     key_data_tree = proto_item_add_subtree(key_data_item, ett_wai_key_data);
     proto_tree_add_item(key_data_tree, hf_wai_key_data_len, tvb, offset, 1, FALSE);
 
     if (length > 0) {
-        proto_tree_add_item(key_data_tree, hf_wai_key_data_content, tvb, offset+1, length, FALSE);
+        proto_tree_add_item(key_data_tree, hf_wai_key_data_content, tvb, offset+1, length, ENC_NA);
     }
 
     return length + 1;
@@ -447,16 +447,16 @@ dissect_multiple_certificate(tvbuff_t * tvb, guint offset, proto_tree *tree)
     guint	length;
 
     length = tvb_get_ntohs(tvb, offset+1);
-    multicert_item = proto_tree_add_item(tree, hf_wai_cert_ver, tvb, offset, length+3, FALSE);
+    multicert_item = proto_tree_add_item(tree, hf_wai_cert_ver, tvb, offset, length+3, ENC_NA);
     multicert_tree = proto_item_add_subtree(multicert_item, ett_wai_certificate_verification);
     proto_tree_add_item(multicert_tree, hf_wai_type, tvb, offset, 1, FALSE);
     offset++;
     proto_tree_add_item(multicert_tree, hf_wai_length, tvb, offset, 2, FALSE);
     offset += 2;
-    nonce_1_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, FALSE);
+    nonce_1_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, ENC_NA);
     offset += 32;
     proto_item_append_text(nonce_1_item, " 1");
-    nonce_2_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, FALSE);
+    nonce_2_item = proto_tree_add_item(multicert_tree, hf_wai_nonce, tvb, offset, 32, ENC_NA);
     offset += 32;
     proto_item_append_text(nonce_2_item, " 2");
     proto_tree_add_item(multicert_tree, hf_wai_ver_res, tvb, offset, 1, FALSE);
@@ -479,7 +479,7 @@ dissect_identity_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
     guint16	i;
 
     length = tvb_get_ntohs(tvb, offset+1);
-    id_list_item = proto_tree_add_item(tree, hf_wai_identity_list, tvb, offset, length+3, FALSE);
+    id_list_item = proto_tree_add_item(tree, hf_wai_identity_list, tvb, offset, length+3, ENC_NA);
     id_list_tree = proto_item_add_subtree(id_list_item, ett_wai_identity_list);
     proto_tree_add_item(id_list_tree, hf_wai_type, tvb, offset, 1, FALSE);
     offset++;
@@ -517,7 +517,7 @@ dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
     length = tvb_get_ntohs(tvb, offset);
 
-    sa_item = proto_tree_add_item(tree, hf_wai_sign_alg, tvb, offset,  length+2, FALSE);
+    sa_item = proto_tree_add_item(tree, hf_wai_sign_alg, tvb, offset,  length+2, ENC_NA);
     sa_tree = proto_item_add_subtree(sa_item, ett_wai_sign_alg);
 
     proto_tree_add_item(sa_tree, hf_wai_length, tvb, offset, 2, FALSE);
@@ -540,13 +540,13 @@ dissect_signature_algorithm(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
     offset += 1;
     param_len = tvb_get_ntohs(tvb, offset+1);
-    param_item = proto_tree_add_item(sa_tree, hf_wai_param, tvb, offset,  param_len+3, FALSE);
+    param_item = proto_tree_add_item(sa_tree, hf_wai_param, tvb, offset,  param_len+3, ENC_NA);
     param_tree = proto_item_add_subtree(param_item, ett_wai_parameter);
-    proto_tree_add_item(param_tree, hf_wai_param_id, tvb, offset, 1, FALSE);
+    proto_tree_add_item(param_tree, hf_wai_param_id, tvb, offset, 1, ENC_NA);
     offset += 1;
     proto_tree_add_item(param_tree, hf_wai_length, tvb, offset, 2, FALSE);
     offset += 2;
-    proto_tree_add_item(param_tree, hf_wai_param_content, tvb, offset, param_len, FALSE);
+    proto_tree_add_item(param_tree, hf_wai_param_content, tvb, offset, param_len, ENC_NA);
 
     return length + 2;
 }
@@ -560,13 +560,13 @@ dissect_signature_value(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
     length = tvb_get_ntohs(tvb, offset);
 
-    sv_item = proto_tree_add_item(tree, hf_wai_sign_val, tvb, offset,  length+2, FALSE);
+    sv_item = proto_tree_add_item(tree, hf_wai_sign_val, tvb, offset,  length+2, ENC_NA);
     sv_tree = proto_item_add_subtree(sv_item, ett_wai_sign_val);
 
     proto_tree_add_item(sv_tree, hf_wai_length, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item(sv_tree, hf_wai_sign_content, tvb, offset, length, FALSE);
+    proto_tree_add_item(sv_tree, hf_wai_sign_content, tvb, offset, length, ENC_NA);
 
     return length + 2;
 }
@@ -580,7 +580,7 @@ dissect_signature(tvbuff_t *tvb, guint offset, proto_tree *tree, const gchar *co
 
     length = tvb_get_ntohs(tvb, offset+1);
 
-    ss_item = proto_tree_add_item(tree, hf_wai_sign, tvb, offset, length+3, FALSE);
+    ss_item = proto_tree_add_item(tree, hf_wai_sign, tvb, offset, length+3, ENC_NA);
     proto_item_set_text(ss_item, "%s", (label==NULL)?"Signature":label);
     ss_tree = proto_item_add_subtree(ss_item, ett_wai_sign);
 
@@ -605,7 +605,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
     proto_tree	*data_tree;
     const gchar	*type_name;
 
-    data_item = proto_tree_add_item(tree, hf_wai_data, tvb, 0, length, FALSE);
+    data_item = proto_tree_add_item(tree, hf_wai_data, tvb, 0, length, ENC_NA);
     data_tree = proto_item_add_subtree (data_item, ett_wai_data);
 
     type_name = val_to_str_const(subtype, wai_subtype_names, "Unknown type");
@@ -787,7 +787,7 @@ dissect_wai_data(tvbuff_t *tvb, proto_tree *tree, guint8 subtype, guint16 length
             offset += 1;
             dissect_addid(tvb, offset, data_tree);
             offset += 12;
-            proto_tree_add_item(data_tree, hf_wai_data_pack_num, tvb, offset, 16, FALSE);
+            proto_tree_add_item(data_tree, hf_wai_data_pack_num, tvb, offset, 16, ENC_NA);
             offset += 16;
             dissect_key_announcement_identifier(tvb, offset, data_tree);
             offset += 16;

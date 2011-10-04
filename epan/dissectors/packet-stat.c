@@ -125,7 +125,7 @@ dissect_stat_stat_res(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 	if (tree) {
 		sub_item = proto_tree_add_item(tree, hf_stat_stat_res, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if (sub_item)
 			sub_tree = proto_item_add_subtree(sub_item, ett_stat_stat_res);
 	}
@@ -150,7 +150,7 @@ dissect_stat_my_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 
 	if (tree) {
 		sub_item = proto_tree_add_item(tree, hf_stat_my_id, tvb,
-				offset, my_id_len(tvb,offset), FALSE);
+				offset, my_id_len(tvb,offset), ENC_NA);
 		if (sub_item)
 			sub_tree = proto_item_add_subtree(sub_item, ett_stat_my_id);
 	}
@@ -171,7 +171,7 @@ dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	if (tree) {
 		sub_item = proto_tree_add_item(tree, hf_stat_mon, tvb,
-				offset, mon_id_len(tvb,offset), FALSE);
+				offset, mon_id_len(tvb,offset), ENC_NA);
 		if (sub_item)
 			sub_tree = proto_item_add_subtree(sub_item, ett_stat_mon);
 	}
@@ -187,7 +187,7 @@ dissect_stat_mon_id(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 static int
 dissect_stat_priv(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_stat_priv, tvb, offset, 16, FALSE);
+	proto_tree_add_item(tree, hf_stat_priv, tvb, offset, 16, ENC_NA);
 	offset += 16;
 
 	return offset;
@@ -220,7 +220,7 @@ dissect_stat_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 
 	if (tree) {
 		sub_item = proto_tree_add_item(tree, hf_stat_stat_chge, tvb,
-				offset, -1, FALSE);
+				offset, -1, ENC_NA);
 		if (sub_item)
 			sub_tree = proto_item_add_subtree(sub_item, ett_stat_stat_chge);
 	}

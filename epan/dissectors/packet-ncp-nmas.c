@@ -345,7 +345,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             foffset += 4;
             break;
         case 2:             /* Client Put Data */
-            proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, FALSE);
+            proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
             foffset += msg_length;
             break;
         case 4:             /* Client Get Data */
@@ -413,7 +413,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                 msg_length = tvb_get_ntohl(tvb, foffset);
                 proto_tree_add_item(atree, hf_length, tvb, foffset, 4, FALSE);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, FALSE);
+                proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, ENC_NA);
                 foffset += msg_length;
                 break;
             case 3:
@@ -450,7 +450,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
                 }
                 break;
             case 5:
-                proto_tree_add_item(atree, hf_opaque, tvb, foffset, tvb_reported_length_remaining(tvb, foffset), FALSE);
+                proto_tree_add_item(atree, hf_opaque, tvb, foffset, tvb_reported_length_remaining(tvb, foffset), ENC_NA);
                 foffset += msg_length;
                 break;
             case 7:
@@ -539,7 +539,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 foffset += 4;
                 break;
             case 4:             /* Client Get Data */
-                proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, TRUE);
+                proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
                 foffset += msg_length;
                 break;
             case 6:             /* Client Get User NDS Credentials */
@@ -550,7 +550,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 proto_tree_add_item(atree, hf_login_state, tvb, foffset, 4, TRUE);
                 foffset += 4;
                 msg_length -= 12;
-                proto_tree_add_item(atree, hf_enc_cred, tvb, foffset, msg_length, TRUE);
+                proto_tree_add_item(atree, hf_enc_cred, tvb, foffset, msg_length, ENC_NA);
                 foffset += msg_length;
                 break;
             case 8:             /* Login Store Management */
@@ -564,7 +564,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 case 5:
                 case 7:
                 case 9:
-                    proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, TRUE);
+                    proto_tree_add_item(atree, hf_enc_data, tvb, foffset, msg_length, ENC_NA);
                     foffset += msg_length;
                     break;
                 default:
@@ -584,7 +584,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     msg_length = tvb_get_ntohl(tvb, foffset);
                     proto_tree_add_item(atree, hf_length, tvb, foffset, 4, FALSE);
                     foffset += 4;
-                    proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, FALSE);
+                    proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, ENC_NA);
                     foffset += msg_length;
                     break;
                 case 3:
@@ -605,7 +605,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     }
                     else
                     {
-                        proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, FALSE);
+                        proto_tree_add_item(atree, hf_opaque, tvb, foffset, msg_length, ENC_NA);
                     }
                     foffset += msg_length;
                     break;

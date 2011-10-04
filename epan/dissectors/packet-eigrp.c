@@ -750,7 +750,7 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int offset = 0;
 	proto_item *ti_dst;
 
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_nexthop_addr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_nexthop_addr, tvb, offset, 4, ENC_NA);
 	offset += 4;
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_nexthop_id, tvb, offset, 6, FALSE);
 	offset += 6;
@@ -768,7 +768,7 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, FALSE);
 	offset += 2;
-	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_int_dst, tvb, offset, 4, FALSE);
+	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_int_dst, tvb, offset, 4, ENC_NA);
 	proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
 	if (tvb_get_ntohl(tvb, 10) == 0xffffffff) {
 		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");
@@ -780,7 +780,7 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	int offset = 0;
 	proto_item *ti_dst;
 
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_nexthop_addr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_nexthop_addr, tvb, offset, 4, ENC_NA);
 	offset += 4;
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_nexthop_id, tvb, offset, 6, FALSE);
 	offset += 6;
@@ -813,7 +813,7 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, FALSE);
 	offset += 2;
-	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_ext_dst, tvb, offset, 4, FALSE);
+	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_ext_dst, tvb, offset, 4, ENC_NA);
 	proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
 	if (tvb_get_ntohl(tvb, 30) == 0xffffffff) {
 		expert_add_info_format(pinfo, ti_dst, PI_RESPONSE_CODE, PI_NOTE, "Destination unreachable");

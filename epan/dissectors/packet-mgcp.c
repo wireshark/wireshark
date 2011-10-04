@@ -1781,7 +1781,7 @@ static void dissect_mgcp_params(tvbuff_t *tvb, proto_tree *tree)
 	if (tree)
 	{
 		mgcp_param_ti = proto_tree_add_item(tree, hf_mgcp_params, tvb,
-		                                    tvb_linebegin, tvb_len, FALSE);
+		                                    tvb_linebegin, tvb_len, ENC_NA);
 		proto_item_set_text(mgcp_param_ti, "Parameters");
 		mgcp_param_tree = proto_item_add_subtree(mgcp_param_ti, ett_mgcp_param);
 

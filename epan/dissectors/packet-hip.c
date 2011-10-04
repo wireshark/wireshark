@@ -517,10 +517,10 @@ dissect_hip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 offset += 8;
                 proto_tree_add_item(hip_tree, hf_hip_hit_sndr, tvb, offset,
-                                     16, FALSE);
+                                     16, ENC_NA);
                 offset += 16;
                 proto_tree_add_item(hip_tree, hf_hip_hit_rcvr, tvb, offset,
-                                     16, FALSE);
+                                     16, ENC_NA);
                 offset += 16;
 
                 length = (hiph_hdr_len + 1) * 8;
@@ -599,7 +599,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_r1_res, tvb, newoffset, 4, FALSE);
                 /* R1 generation counter */
                 newoffset += 4;
-                proto_tree_add_item(t, hf_hip_tlv_r1count, tvb, newoffset, 8, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_r1count, tvb, newoffset, 8, ENC_NA);
                 break;
         case PARAM_LOCATOR:
                 /* RFC 5206 section 4. and  RFC 5770 section 5.7. for type 2 locators
@@ -722,7 +722,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_puzzle_o, tvb, newoffset, 2, FALSE);
                 /* Puzzle I */
                 newoffset += 2;
-                proto_tree_add_item(t, hf_hip_tlv_puzzle_i, tvb,newoffset, 8, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_puzzle_i, tvb,newoffset, 8, ENC_NA);
                 break;
         case PARAM_SOLUTION:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -736,10 +736,10 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_solution_o, tvb,newoffset, 2, FALSE);
                 /* Solution I */
                 newoffset += 2;
-                proto_tree_add_item(t, hf_hip_tlv_solution_i, tvb, newoffset, 8, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_solution_i, tvb, newoffset, 8, ENC_NA);
                 /* Solution J */
                 newoffset += 8;
-                proto_tree_add_item(t, hf_hip_tlv_solution_j, tvb, newoffset, 8, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_solution_j, tvb, newoffset, 8, ENC_NA);
                 break;
         case PARAM_SEQ:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -770,7 +770,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 
                 /* First Public value */
                 newoffset += 2;
-                proto_tree_add_item(t, hf_hip_tlv_dh_pub, tvb, newoffset, pv_len, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_dh_pub, tvb, newoffset, pv_len, ENC_NA);
                 /* Check for the second group */
                 if ((pv_len + newoffset) < tlv_len) {
                         /* Second Group ID*/
@@ -785,7 +785,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         /* Second Public Value */
                         newoffset += 2;
                         proto_tree_add_item(t, hf_hip_tlv_dh_pub, tvb, newoffset,
-                                             pv_len, FALSE);
+                                             pv_len, ENC_NA);
                 }
                 break;
         case PARAM_ESP_TRANSFORM:
@@ -909,22 +909,22 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         newoffset++;
                         /* Q */
                         proto_tree_add_item(t, hf_hip_tlv_host_id_q, tvb, newoffset,
-                                             20, FALSE);
+                                             20, ENC_NA);
                         newoffset += 20;
                         if (hi_t > 56) /* max 4096 bits */
                                 break;
                         /* P */
                         newlen = 64 + (hi_t * 8);
                         proto_tree_add_item(t, hf_hip_tlv_host_id_p, tvb, newoffset,
-                                             newlen, FALSE);
+                                             newlen, ENC_NA);
                         /* G */
                         newoffset += newlen;
                         proto_tree_add_item(t, hf_hip_tlv_host_id_g, tvb, newoffset,
-                                             newlen, FALSE);
+                                             newlen, ENC_NA);
                         /* Y */
                         newoffset += newlen;
                         proto_tree_add_item(t, hf_hip_tlv_host_id_y, tvb, newoffset,
-                                             newlen, FALSE);
+                                             newlen, ENC_NA);
                         break;
                 case HI_ALG_RSA:
                         /* RSA KEY RR RFC 3110
@@ -951,7 +951,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         }
                         /* e */
                         proto_tree_add_item(t, hf_hip_tlv_host_id_e, tvb, newoffset,
-                                             e_len, FALSE);
+                                             e_len, ENC_NA);
                         newoffset += e_len;
                         hi_len -= e_len;
 
@@ -963,7 +963,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
 
                         /* RSA public modulus n */
                         proto_tree_add_item(t, hf_hip_tlv_host_id_n, tvb, newoffset,
-                                             hi_len, FALSE);
+                                             hi_len, ENC_NA);
                         break;
                 default:
                         proto_tree_add_text(t, tvb, newoffset, 1,
@@ -1000,7 +1000,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 newoffset++;
                 /* Certificate */
                 proto_tree_add_item(t, hf_hip_tlv_certificate, tvb, newoffset,
-                                     tlv_len-4, FALSE);
+                                     tlv_len-4, ENC_NA);
                 break;
         case PARAM_NOTIFICATION:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -1012,7 +1012,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 newoffset += 2;
                 /* Notification Data */
                 proto_tree_add_item(t, hf_hip_tlv_notification_data, tvb, newoffset,
-                                     tlv_len-4, FALSE);
+                                     tlv_len-4, ENC_NA);
                 break;
         case PARAM_ECHO_REQUEST_SIGNED:
         case PARAM_ECHO_RESPONSE_SIGNED:
@@ -1021,7 +1021,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
                 /* Variable length Opaque Data */
                 proto_tree_add_item(t, hf_hip_tlv_opaque_data, tvb, newoffset,
-                                     tlv_len, FALSE);
+                                     tlv_len, ENC_NA);
                 break;
         case PARAM_REG_INFO:
         case PARAM_REG_REQUEST:
@@ -1065,7 +1065,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
                 /* HMAC */
                 proto_tree_add_item(t, hf_hip_tlv_hmac, tvb, offset+4,
-                                     tlv_len, FALSE);
+                                     tlv_len, ENC_NA);
                 break;
         case PARAM_HIP_SIGNATURE:
         case PARAM_HIP_SIGNATURE_2:
@@ -1078,7 +1078,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 newoffset++;
                 /* Signature */
                 proto_tree_add_item(t, hf_hip_tlv_sig, tvb, newoffset, tlv_len-1,
-                                    FALSE);
+                                    ENC_NA);
                 break;
         case PARAM_FROM:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);

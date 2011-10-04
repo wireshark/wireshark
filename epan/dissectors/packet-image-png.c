@@ -240,7 +240,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		tree=proto_item_add_subtree(ti, ett_png);
 	}
 
-	proto_tree_add_item(tree, hf_png_signature, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_png_signature, tvb, offset, 8, ENC_NA);
 	offset+=8;
 
 	while(tvb_reported_length_remaining(tvb, offset)){
@@ -291,7 +291,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 
 		if(!cd){
-			proto_tree_add_item(chunk_tree, hf_png_chunk_data, tvb, offset, len, FALSE);
+			proto_tree_add_item(chunk_tree, hf_png_chunk_data, tvb, offset, len, ENC_NA);
 		} else {
 			if(cd->dissector){
 				tvbuff_t *next_tvb;

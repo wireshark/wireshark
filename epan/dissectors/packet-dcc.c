@@ -80,7 +80,7 @@ static gint ett_dcc_trace = -1;
 /* Utility macros */
 #define D_SIGNATURE() \
 	proto_tree_add_item(dcc_optree, hf_dcc_signature, tvb, \
-		offset, sizeof(DCC_SIGNATURE), FALSE); \
+		offset, sizeof(DCC_SIGNATURE), ENC_NA); \
 	offset += sizeof(DCC_SIGNATURE);
 
 #define D_LABEL(label,len) \
@@ -130,7 +130,7 @@ static gint ett_dcc_trace = -1;
 	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, FALSE); \
 	offset += 1; \
 	proto_tree_add_item(cktree, hf_dcc_ck_sum, tvb, offset, \
-		sizeof(DCC_SUM), FALSE); \
+		sizeof(DCC_SUM), ENC_NA); \
 	offset += sizeof(DCC_SUM); \
 }
 

@@ -57,14 +57,14 @@ static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo _U_
 	int offset = dissect_aim_buddyname(tvb, pinfo, 0, tree);
 	guint8 md5_size;
 
-	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
 	md5_size = tvb_get_guint8(tvb, offset);
 	offset++;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);
 
 	offset+=md5_size;
 	return offset;
@@ -76,14 +76,14 @@ static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U
 	guint8 md5_size;
 	guint16 icon_size;
 
-	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 3, ENC_NA);
 	offset+=3;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
 	md5_size = tvb_get_guint8(tvb, offset);
 	offset++;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);
 
 	offset+=md5_size;
 
@@ -93,7 +93,7 @@ static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U
 
 	if (icon_size)
 	{
-		proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
+		proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, ENC_NA);
 	}
 
 	offset+=icon_size;
@@ -106,14 +106,14 @@ static int dissect_aim_sst_buddy_up_repl (tvbuff_t *tvb, packet_info *pinfo _U_,
 	int offset = 0;
 	guint8 md5_size;
 
-	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
 
 	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
 	md5_size = tvb_get_guint8(tvb, offset);
 	offset++;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash, tvb, offset, md5_size, ENC_NA);
 
 	offset+=md5_size;
 	return offset;
@@ -133,7 +133,7 @@ static int dissect_aim_sst_buddy_up_req (tvbuff_t *tvb, packet_info *pinfo _U_, 
 
 	if (icon_size)
 	{
-		proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, FALSE);
+		proto_tree_add_item(tree, hf_aim_sst_icon, tvb, offset, icon_size, ENC_NA);
 	}
 
 	offset+=icon_size;

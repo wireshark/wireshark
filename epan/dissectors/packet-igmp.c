@@ -563,7 +563,7 @@ dissect_v3_group_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	/* aux data */
 	if(adl){
-		proto_tree_add_item(tree, hf_aux_data, tvb, offset, adl*4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_aux_data, tvb, offset, adl*4, ENC_NA);
 		offset += adl*4;
 	}
 
@@ -751,7 +751,7 @@ dissect_igmp_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int type, i
 	offset += 4;
 
 	/* access key */
-	proto_tree_add_item(tree, hf_access_key, tvb, offset, 8, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_access_key, tvb, offset, 8, ENC_NA);
 	offset += 8;
 
 	return offset;

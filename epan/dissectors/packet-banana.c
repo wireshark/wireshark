@@ -195,10 +195,10 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             offset += 8;
             break;
         case BE_LG_INT:
-            proto_tree_add_item(tree, hf_banana_lg_int, tvb, start_offset, offset - start_offset, FALSE);
+            proto_tree_add_item(tree, hf_banana_lg_int, tvb, start_offset, offset - start_offset, ENC_NA);
             break;
         case BE_LG_NEG_INT:
-            proto_tree_add_item(tree, hf_banana_lg_neg_int, tvb, start_offset, offset - start_offset, FALSE);
+            proto_tree_add_item(tree, hf_banana_lg_neg_int, tvb, start_offset, offset - start_offset, ENC_NA);
             break;
         case BE_PB:
             if (val_len > 1) {

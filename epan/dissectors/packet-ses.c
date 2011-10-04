@@ -399,7 +399,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_called_ss_user_reference,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -410,7 +410,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_calling_ss_user_reference,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -421,7 +421,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_common_reference,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -432,7 +432,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_additional_reference_information,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -788,7 +788,7 @@ PICS.    */
 		{
 			proto_tree_add_item(param_tree,
 			    hf_calling_session_selector,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -799,7 +799,7 @@ PICS.    */
 		{
 			proto_tree_add_item(param_tree,
 			    hf_called_session_selector,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_NA);
 		}
 		break;
 
@@ -1142,7 +1142,7 @@ dissect_spdu(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 		}
 		fragment_len = tvb_reported_length_remaining (tvb, offset);
 		ti = proto_tree_add_item (ses_tree, hf_ses_segment_data, tvb, offset,
-					  fragment_len, FALSE);
+					  fragment_len, ENC_NA);
 		proto_item_append_text (ti, " (%d byte%s)", fragment_len, plurality (fragment_len, "", "s"));
 		frag_msg = fragment_add_seq_next (tvb, offset, pinfo,
 						  ses_id, ses_fragment_table,

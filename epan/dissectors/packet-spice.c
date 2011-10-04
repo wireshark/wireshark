@@ -2451,7 +2451,7 @@ dissect_spice_data_server_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     msg_ti = proto_tree_add_text(tree, tvb, offset, 0, "%s (%d bytes)", get_message_type_string(message_type, spice_info, FALSE), message_size + sizeof_SpiceDataHeader);
     message_tree = proto_item_add_subtree(msg_ti, ett_message);
 
-    ti = proto_tree_add_item(message_tree, hf_data, tvb, 0, sizeof_SpiceDataHeader, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(message_tree, hf_data, tvb, 0, sizeof_SpiceDataHeader, ENC_NA);
     data_header_tree = proto_item_add_subtree(ti, ett_data);
 
     dissect_spice_data_header(tvb, data_header_tree, spice_info, FALSE, message_type, &sublist_size, offset);
@@ -2509,7 +2509,7 @@ dissect_spice_data_client_pdu(tvbuff_t *tvb, proto_tree *tree, packet_info *pinf
     guint16 message_type;
     guint32 /** message_size,**/ sublist_size;
 
-    ti = proto_tree_add_item(tree, hf_data, tvb, 0, sizeof_SpiceDataHeader, ENC_LITTLE_ENDIAN);
+    ti = proto_tree_add_item(tree, hf_data, tvb, 0, sizeof_SpiceDataHeader, ENC_NA);
     data_header_tree = proto_item_add_subtree(ti, ett_data);
 
     message_type = tvb_get_letohs(tvb, offset + 8);
@@ -2615,7 +2615,7 @@ dissect_spice_link_client_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     proto_tree *caps_tree = NULL;
 
      if (tree) {
-        ti = proto_tree_add_item(tree, hf_link_client, tvb, 0, sizeof_SpiceLinkHeader, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_link_client, tvb, 0, sizeof_SpiceLinkHeader, ENC_NA);
         link_header_tree = proto_item_add_subtree(ti, ett_link_client);
 
         dissect_spice_link_common_header(tvb, link_header_tree);
@@ -2664,7 +2664,7 @@ dissect_spice_link_server_pdu(tvbuff_t *tvb, proto_tree *tree, spice_conversatio
     proto_tree *caps_tree = NULL;
 
      if (tree) {
-        ti = proto_tree_add_item(tree, hf_link_server, tvb, 0, sizeof_SpiceLinkHeader, ENC_LITTLE_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_link_server, tvb, 0, sizeof_SpiceLinkHeader, ENC_NA);
         link_tree = proto_item_add_subtree(ti, ett_link_server);
 
          dissect_spice_link_common_header(tvb, link_tree);
@@ -2835,7 +2835,7 @@ dissect_spice(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             if (tree) {
                 ti = proto_tree_add_item(tree, proto_spice, tvb, 0, -1, ENC_NA);
                 spice_tree = proto_item_add_subtree(ti, ett_ticket_client);
-                proto_tree_add_item(spice_tree, hf_ticket_client, tvb, 0, -1, ENC_LITTLE_ENDIAN);
+                proto_tree_add_item(spice_tree, hf_ticket_client, tvb, 0, -1, ENC_NA);
             }
             spice_info->next_state = SPICE_TICKET_SERVER;
             return 128;

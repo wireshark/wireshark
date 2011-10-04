@@ -208,7 +208,7 @@ dissect_epl_v1_soc(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_soc_powerlink_cycle_time, tvb, offset, 4, TRUE);
 	offset += 4;
 
-	proto_tree_add_item(epl_v1_tree, hf_epl_v1_soc_net_command_parameter, tvb, offset, 32, TRUE);
+	proto_tree_add_item(epl_v1_tree, hf_epl_v1_soc_net_command_parameter, tvb, offset, 32, ENC_NA);
 	offset += 32;
 
 	return offset;
@@ -223,7 +223,7 @@ dissect_epl_v1_eoc(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 	proto_tree_add_item(epl_v1_tree, hf_epl_v1_eoc_net_command, tvb, offset, 2, TRUE);
 	offset += 8;
 
-	proto_tree_add_item(epl_v1_tree, hf_epl_v1_eoc_net_command_parameter, tvb, offset, 32, TRUE);
+	proto_tree_add_item(epl_v1_tree, hf_epl_v1_eoc_net_command_parameter, tvb, offset, 32, ENC_NA);
 	offset += 32;
 
 	return offset;
@@ -245,7 +245,7 @@ dissect_epl_v1_preq(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 	offset += 6;
 
 	if(len>0){
-		proto_tree_add_item(epl_v1_tree, hf_epl_v1_preq_out_data, tvb, offset, len, TRUE);
+		proto_tree_add_item(epl_v1_tree, hf_epl_v1_preq_out_data, tvb, offset, len, ENC_NA);
 		offset += len;
 	}
 
@@ -273,7 +273,7 @@ dissect_epl_v1_pres(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 	offset += 6;
 
 	if(len>0){
-		proto_tree_add_item(epl_v1_tree, hf_epl_v1_pres_in_data, tvb, offset, len, TRUE);
+		proto_tree_add_item(epl_v1_tree, hf_epl_v1_pres_in_data, tvb, offset, len, ENC_NA);
 		offset += len;
 	}
 
@@ -329,7 +329,7 @@ dissect_epl_v1_asnd(proto_tree *epl_v1_tree, tvbuff_t *tvb, gint offset)
 		proto_tree_add_item(epl_v1_tree, hf_epl_v1_asnd_poll_out_size, tvb, offset, 4, TRUE);
 		offset += 4;
 	} else {   /* "Generic" and all other channels */
-		proto_tree_add_item(epl_v1_tree, hf_epl_v1_asnd_data, tvb, offset, len, TRUE);
+		proto_tree_add_item(epl_v1_tree, hf_epl_v1_asnd_data, tvb, offset, len, ENC_NA);
 		offset += len;
 	}
 

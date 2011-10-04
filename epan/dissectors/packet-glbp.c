@@ -169,15 +169,15 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   guint8 addrtype;
   guint8 addrlen;
 
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown10, tvb, offset, 1,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown10, tvb, offset, 1,  ENC_NA);
   offset ++;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_vgstate, tvb, offset, 1,  ENC_BIG_ENDIAN);
   offset ++;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown11, tvb, offset, 1,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown11, tvb, offset, 1,  ENC_NA);
   offset ++;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_priority, tvb, offset, 1,  ENC_BIG_ENDIAN);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown12, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown12, tvb, offset, 2, ENC_NA);
   offset += 2;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_helloint, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
@@ -187,7 +187,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
   offset += 2;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_timeout, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown13, tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_hello_unknown13, tvb, offset, 2, ENC_NA);
   offset += 2;
   proto_tree_add_item(tlv_tree, hf_glbp_hello_addrtype, tvb, offset, 1, ENC_BIG_ENDIAN);
   addrtype = tvb_get_guint8(tvb, offset);
@@ -211,7 +211,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, ENC_BIG_ENDIAN);
     break;
   default:
-    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualunk, tvb, offset, addrlen, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualunk, tvb, offset, addrlen, ENC_NA);
     break;
   }
   offset += addrlen;
@@ -231,13 +231,13 @@ dissect_glbp_reqresp(tvbuff_t *tvb, int offset,
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_vfstate, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown21, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown21, tvb, offset, 1, ENC_NA);
   offset += 1;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
-  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown22, tvb, offset, 7, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_reqresp_unknown22, tvb, offset, 7, ENC_NA);
   offset += 7;
   proto_tree_add_item(tlv_tree, hf_glbp_reqresp_virtualmac, tvb, offset, 6, ENC_BIG_ENDIAN);
   offset += 6;
@@ -264,16 +264,16 @@ dissect_glbp_auth(tvbuff_t *tvb, int offset,
     offset += authlength;
     break;
   case 2:
-    proto_tree_add_item(tlv_tree, hf_glbp_auth_md5hash, tvb, offset, authlength, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_glbp_auth_md5hash, tvb, offset, authlength, ENC_NA);
     offset += authlength;
     break;
   case 3:
     proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainindex, tvb, offset, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainhash, tvb, offset+4, authlength-4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_glbp_auth_md5chainhash, tvb, offset+4, authlength-4, ENC_NA);
     offset += authlength;
     break;
   default:
-    proto_tree_add_item(tlv_tree, hf_glbp_auth_authunknown, tvb, offset, authlength, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_glbp_auth_authunknown, tvb, offset, authlength, ENC_NA);
     offset += authlength;
     break;
   }
@@ -285,7 +285,7 @@ static int
 dissect_glbp_unknown(tvbuff_t *tvb, int offset, guint32 length,
 	packet_info *pinfo _U_, proto_tree *tlv_tree)
 {
-  proto_tree_add_item(tlv_tree, hf_glbp_unknown_data, tvb, offset, length, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tlv_tree, hf_glbp_unknown_data, tvb, offset, length, ENC_NA);
   offset += length;
 
   return offset;
@@ -319,7 +319,7 @@ dissect_glbp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
     proto_tree_add_item(glbp_tree, hf_glbp_group, tvb, offset, 2,  ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(glbp_tree, hf_glbp_unknown2, tvb, offset, 2,  ENC_BIG_ENDIAN);
+    proto_tree_add_item(glbp_tree, hf_glbp_unknown2, tvb, offset, 2,  ENC_NA);
     offset += 2;
     proto_tree_add_item(glbp_tree, hf_glbp_ownerid, tvb, offset, 6, ENC_BIG_ENDIAN);
     offset += 6;

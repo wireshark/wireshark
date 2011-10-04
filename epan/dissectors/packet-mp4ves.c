@@ -673,7 +673,7 @@ dissect_mp4ves_config(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_item *item;
 	proto_tree *mp4ves_tree;
 
-	item = proto_tree_add_item(tree, hf_mp4ves_config, tvb, 0, -1, FALSE);
+	item = proto_tree_add_item(tree, hf_mp4ves_config, tvb, 0, -1, ENC_NA);
 	mp4ves_tree = proto_item_add_subtree(item, ett_mp4ves_config);
 
 	dissect_mp4ves_VisualObjectSequence(tvb, pinfo, mp4ves_tree, 0);

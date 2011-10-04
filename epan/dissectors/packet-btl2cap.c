@@ -698,7 +698,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_btl2cap_cmd_data, tvb, offset, -1, TRUE);
+			proto_tree_add_item(tree, hf_btl2cap_cmd_data, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 
 			break;
@@ -880,13 +880,13 @@ dissect_b_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 			/* not a known fixed PSM, try to find a registered service to a dynamic PSM */
 			if(service != NULL && !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
 				/* unknown protocol. declare as data */
-				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 			}
 		}
 		offset+=tvb_length_remaining(tvb, offset);
 	}
 	else {
-		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+		proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 		offset+=tvb_length_remaining(tvb, offset);
 	}
 }
@@ -1025,12 +1025,12 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 				/* not a known fixed PSM, try to find a registered service to a dynamic PSM */
 				if(service != NULL && !dissector_try_uint(l2cap_service_dissector_table, *service, next_tvb, pinfo, tree)) {
 					/* unknown protocol. declare as data */
-					proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
+					proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), ENC_NA);
 				}
 			}
 		}
 		else {
-			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), TRUE);
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, next_tvb, 0, tvb_length(next_tvb), ENC_NA);
 		}
 	}
 	offset+=(tvb_length_remaining(tvb, offset) - 2);
@@ -1235,7 +1235,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_data, tvb, offset, -1, TRUE);
+				proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_data, tvb, offset, -1, ENC_NA);
 				offset+=tvb_length_remaining(tvb, offset);
 				break;
 			}
@@ -1258,7 +1258,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if(!service || !dissector_try_uint(l2cap_service_dissector_table, *service,	next_tvb, pinfo, tree)) {
 				/* unknown protocol. declare as data */
-				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+				proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 			}
 		}
 		offset+=tvb_length_remaining(tvb, offset);
@@ -1297,7 +1297,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(next_tvb && !dissector_try_uint(l2cap_cid_dissector_table, (guint32) cid,
 					next_tvb, pinfo, tree)){
 			/* unknown protocol. declare as data */
-			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, TRUE);
+			proto_tree_add_item(btl2cap_tree, hf_btl2cap_payload, tvb, offset, length, ENC_NA);
 		}
 	}
 	else /* if(cid >= BTL2CAP_FIXED_CID_MAX) */ { /* Connection oriented channel */

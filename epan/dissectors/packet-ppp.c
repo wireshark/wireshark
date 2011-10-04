@@ -4485,7 +4485,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
     offset += 2;
 
 
-    data_ti = proto_tree_add_item(fh_tree, hf_pap_data, tvb, offset, -1, FALSE);
+    data_ti = proto_tree_add_item(fh_tree, hf_pap_data, tvb, offset, -1, ENC_NA);
     data_tree = proto_item_add_subtree(data_ti, ett_pap_data);
 
     switch(code){
@@ -4521,7 +4521,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " (Message='%s')", message);
         break;
       default:
-        proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1, FALSE);
+        proto_tree_add_item(data_tree, hf_pap_stuff, tvb, offset, -1, ENC_NA);
         break;
     }
   }
@@ -4592,7 +4592,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         guint name_offset=0, name_size = 0;
 
         /* Create data subtree */
-        tf = proto_tree_add_item(fh_tree, hf_chap_data, tvb, offset, length, FALSE);
+        tf = proto_tree_add_item(fh_tree, hf_chap_data, tvb, offset, length, ENC_NA);
 
         field_tree = proto_item_add_subtree(tf, ett_chap_data);
         length--;
@@ -4612,7 +4612,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         /* Value */
         if (length > 0) {
           value_offset = offset;
-          proto_tree_add_item(field_tree, hf_chap_value, tvb, offset, value_size, FALSE);
+          proto_tree_add_item(field_tree, hf_chap_value, tvb, offset, value_size, ENC_NA);
 
           /* Move along value_size bytes */
           offset+=value_size;

@@ -974,7 +974,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
       {
         proto_tree_add_item (ntlmssp_tree,
                              hf_ntlmssp_ntlm_client_challenge,
-                             tvb, blob_offset, 8, FALSE);
+                             tvb, blob_offset, 8, ENC_NA);
       }
     }
   }
@@ -986,7 +986,7 @@ dissect_ntlmssp_blob (tvbuff_t *tvb, int offset,
   {
     proto_tree_add_item (ntlmssp_tree,
                          hf_ntlmssp_ntlm_client_challenge,
-                         tvb, blob_offset+32, 8, FALSE);
+                         tvb, blob_offset+32, 8, ENC_NA);
     dissect_ntlmv2_response(tvb, tree, blob_offset, blob_length);
   }
 
@@ -1327,14 +1327,14 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
   if (tree) {
     ntlmv2_item = proto_tree_add_item(
       tree, hf_ntlmssp_ntlmv2_response, tvb,
-      offset, len, TRUE);
+      offset, len, ENC_NA);
     ntlmv2_tree = proto_item_add_subtree(
       ntlmv2_item, ett_ntlmssp_ntlmv2_response);
   }
 
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_hmac, tvb,
-    offset, 16, TRUE);
+    offset, 16, ENC_NA);
 
   offset += 16;
 
@@ -1355,7 +1355,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_chal, tvb,
-    offset, 8, TRUE);
+    offset, 8, ENC_NA);
 
   offset += 8;
 
@@ -1444,7 +1444,7 @@ dissect_ntlmssp_challenge_target_info_blob (tvbuff_t *tvb, int offset,
 
   if (ntlmssp_tree) {
     tf = proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_challenge_target_info, tvb,
-                              challenge_target_info_offset, challenge_target_info_length, FALSE);
+                              challenge_target_info_offset, challenge_target_info_length, ENC_NA);
     challenge_target_info_tree = proto_item_add_subtree(tf, ett_ntlmssp_challenge_target_info);
   }
   proto_tree_add_uint(challenge_target_info_tree, hf_ntlmssp_challenge_target_info_len,
@@ -1507,7 +1507,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
   /* NTLMSSP NT Lan Manager Challenge */
   proto_tree_add_item (ntlmssp_tree,
                        hf_ntlmssp_ntlm_server_challenge,
-                       tvb, offset, 8, FALSE);
+                       tvb, offset, 8, ENC_NA);
 
   /*
    * Store the flags and the RC4 state information with the conversation,
@@ -1575,7 +1575,7 @@ dissect_ntlmssp_challenge (tvbuff_t *tvb, packet_info *pinfo, int offset,
    * It also says that that information may be omitted.
    */
   proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_reserved,
-                       tvb, offset, 8, FALSE);
+                       tvb, offset, 8, ENC_NA);
   offset += 8;
 
   /*
@@ -1957,7 +1957,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   if (tree) {
     tf = proto_tree_add_item (tree,
                               hf_ntlmssp_verf,
-                              tvb, offset, -1, FALSE);
+                              tvb, offset, -1, ENC_NA);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
                                            ett_ntlmssp);
@@ -1984,7 +1984,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
     /* Encrypted body */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
-                         tvb, offset, ntlm_signature_size + ntlm_seq_size, TRUE);
+                         tvb, offset, ntlm_signature_size + ntlm_seq_size, ENC_NA);
     tvb_memcpy(tvb, key, offset, ntlm_signature_size + ntlm_seq_size);
     /* Try to decrypt */
     decrypt_data_payload (tvb, offset+(ntlm_signature_size + ntlm_seq_size), encrypted_block_length-(ntlm_signature_size + ntlm_seq_size), pinfo, ntlmssp_tree,key);
@@ -2361,14 +2361,14 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
   if(( conv_ntlmssp_info->flags & NTLMSSP_NEGOTIATE_EXTENDED_SECURITY )) {
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_hmacmd5,
-                         decr_tvb, decrypted_offset, 8,TRUE);
+                         decr_tvb, decrypted_offset, 8,ENC_NA);
     decrypted_offset += 8;
 
 
 
     /* Incrementing sequence number of DCE conversation */
    proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
-                        decr_tvb, decrypted_offset, 4, TRUE);
+                        decr_tvb, decrypted_offset, 4, ENC_NA);
     decrypted_offset += 4;
   }
   else {
@@ -2385,7 +2385,7 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
     /* Incrementing sequence number of DCE conversation */
    proto_tree_add_item (decr_tree, hf_ntlmssp_verf_sequence,
-                        decr_tvb, decrypted_offset, 4, TRUE);
+                        decr_tvb, decrypted_offset, 4, ENC_NA);
     decrypted_offset += 4;
   }
 }
@@ -2409,7 +2409,7 @@ dissect_ntlmssp_payload_only(tvbuff_t *tvb, packet_info *pinfo, _U_ proto_tree *
   if (tree) {
     tf = proto_tree_add_item (tree,
                               hf_ntlmssp_verf,
-                              tvb, offset, -1, FALSE);
+                              tvb, offset, -1, ENC_NA);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
                                            ett_ntlmssp);
@@ -2475,7 +2475,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (tree) {
     tf = proto_tree_add_item (tree,
                               hf_ntlmssp_verf,
-                              tvb, offset, -1, FALSE);
+                              tvb, offset, -1, ENC_NA);
 
     ntlmssp_tree = proto_item_add_subtree (tf,
                                            ett_ntlmssp);
@@ -2502,7 +2502,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Encrypted body */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_body,
-                         tvb, offset, encrypted_block_length, TRUE);
+                         tvb, offset, encrypted_block_length, ENC_NA);
 
     /* Try to decrypt */
     decrypt_verifier (tvb, offset, encrypted_block_length, pinfo, ntlmssp_tree,NULL);

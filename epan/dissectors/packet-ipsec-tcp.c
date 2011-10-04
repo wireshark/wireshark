@@ -144,19 +144,19 @@ dissect_tcpencap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Dissect the trailer following the encapsulated IPSEC/ISAKMP packet */
 		offset = reported_length - TRAILERLENGTH;
 		unknown_item = proto_tree_add_item(tcpencap_tree, hf_tcpencap_unknown, tvb,
-			offset, TRAILERLENGTH, ENC_BIG_ENDIAN);
+			offset, TRAILERLENGTH, ENC_NA);
 		/* Try to guess the contents of the trailer */
 		tcpencap_unknown_tree = proto_item_add_subtree(unknown_item, ett_tcpencap_unknown);
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_zero, tvb, offset + 0, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_zero, tvb, offset + 0, 4, ENC_NA);
 		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_seq, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 		if (protocol == TCP_ENCAP_P_UDP) {
 			proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_ike_direction, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 		} else {
 			proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_esp_zero, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 		}
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic, tvb, offset + 8, 5, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic, tvb, offset + 8, 5, ENC_NA);
 		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_proto, tvb, offset + 13, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic2, tvb, offset + 14, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tcpencap_unknown_tree, hf_tcpencap_magic2, tvb, offset + 14, 2, ENC_NA);
 	}
 
 	/* Create the tvbuffer for the next dissector */

@@ -500,7 +500,7 @@ static void dissect_channel_list(proto_item *tlv_root, tvbuff_t *tvb,
     s_offset++;
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_channel_list_chan, tvb,
-                        s_offset, num_chan, FALSE);
+                        s_offset, num_chan, ENC_NA);
     s_offset += num_chan;
   }
 }
@@ -553,11 +553,11 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
   s_offset += 2;
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_pri_dev_type, tvb,
-                      s_offset, 8, FALSE);
+                      s_offset, 8, ENC_NA);
   proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_pri_dev_type_category,
                       tvb, s_offset, 2, FALSE);
   proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_pri_dev_type_oui,
-                      tvb, s_offset + 2, 4, FALSE);
+                      tvb, s_offset + 2, 4, ENC_NA);
   proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_pri_dev_type_subcategory,
                       tvb, s_offset + 6, 2, FALSE);
   s_offset += 8;
@@ -569,7 +569,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
 
   while (num_sec > 0) {
     proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_sec_dev_type,
-                        tvb, s_offset, 8, FALSE);
+                        tvb, s_offset, 8, ENC_NA);
     s_offset += 8;
     num_sec--;
   }
@@ -780,11 +780,11 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     s_offset += 2;
 
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type, tvb,
-                        s_offset, 8, FALSE);
+                        s_offset, 8, ENC_NA);
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type_category,
                         tvb, s_offset, 2, FALSE);
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type_oui,
-                        tvb, s_offset + 2, 4, FALSE);
+                        tvb, s_offset + 2, 4, ENC_NA);
     proto_tree_add_item(tlv_root, hf_p2p_attr_gi_pri_dev_type_subcategory,
                         tvb, s_offset + 6, 2, FALSE);
     s_offset += 8;
@@ -801,7 +801,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
     }
     while (num_sec > 0) {
       proto_tree_add_item(tlv_root, hf_p2p_attr_gi_sec_dev_type,
-                          tvb, s_offset, 8, FALSE);
+                          tvb, s_offset, 8, ENC_NA);
       s_offset += 8;
       num_sec--;
     }
@@ -1032,12 +1032,12 @@ void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
                         offset + 1, 1, FALSE);
     if (request) {
       proto_tree_add_item(tlv, hf_p2p_anqp_query_data, tvb,
-                          offset + 2, len - 2, FALSE);
+                          offset + 2, len - 2, ENC_NA);
     } else {
       proto_tree_add_item(tlv, hf_p2p_anqp_status_code, tvb,
                           offset + 2, 1, FALSE);
       proto_tree_add_item(tlv, hf_p2p_anqp_response_data, tvb,
-                          offset + 3, len - 3, FALSE);
+                          offset + 3, len - 3, ENC_NA);
     }
     offset += len;
   }

@@ -817,7 +817,7 @@ do_hello_msg(
         my_offset++;
 
         ti_locala = proto_tree_add_item(tree, hf_dec_rt_elist, tvb,
-            my_offset, image_len, TRUE);
+            my_offset, image_len, ENC_NA);
         list_tree = proto_item_add_subtree(ti_locala, ett_dec_rt_list);
 
         while (image_len > 0) {
@@ -1150,7 +1150,7 @@ handle_connect_contents(
     guint16      grp_code, usr_code;
 
     ti = proto_tree_add_item(tree, hf_dec_conn_contents,
-        tvb, my_offset, -1, TRUE);
+        tvb, my_offset, -1, ENC_NA);
     contents_tree = proto_item_add_subtree(ti, ett_dec_sess_contents);
     /* The destination end user */
     dst_format = tvb_get_guint8(tvb, my_offset);

@@ -352,7 +352,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 
 		if(nbd_trans->type==NBD_CMD_WRITE){
-			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, FALSE);
+			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, ENC_NA);
 		}
 		break;
 	case NBD_RESPONSE_MAGIC:
@@ -371,7 +371,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		}
 
 		if(nbd_trans->type==NBD_CMD_READ){
-			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, FALSE);
+			proto_tree_add_item(tree, hf_nbd_data, tvb, offset, nbd_trans->datalen, ENC_NA);
 		}
 		break;
 	}

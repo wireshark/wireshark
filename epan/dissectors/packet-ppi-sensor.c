@@ -399,7 +399,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             if (length_remaining < 60)
                 break;
             if (tree) {
-                proto_tree_add_item(ppi_sensor_tree, hf_ppi_sensor_appspecific_data, tvb, offset, 60,  FALSE);
+                proto_tree_add_item(ppi_sensor_tree, hf_ppi_sensor_appspecific_data, tvb, offset, 60,  ENC_NA);
             }
             offset+=60;
             length_remaining-=60;

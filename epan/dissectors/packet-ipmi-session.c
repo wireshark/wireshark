@@ -201,9 +201,9 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset++;
 
 			if (payloadtype == IPMI_OEM_EXPLICIT) {
-				proto_tree_add_item(sess_tree, hf_ipmi_session_oem_iana, tvb, offset, 4, TRUE);
+				proto_tree_add_item(sess_tree, hf_ipmi_session_oem_iana, tvb, offset, 4, ENC_NA);
 				offset += 4;
-				proto_tree_add_item(sess_tree, hf_ipmi_session_oem_payload_id, tvb, offset, 2, TRUE);
+				proto_tree_add_item(sess_tree, hf_ipmi_session_oem_payload_id, tvb, offset, 2, ENC_NA);
 				offset += 2;
 			}
 			proto_tree_add_item(sess_tree, hf_ipmi_session_id, tvb, offset, 4, TRUE);
@@ -220,7 +220,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 4;
 			if (authtype != IPMI_AUTH_NONE) {
 				proto_tree_add_item(sess_tree, hf_ipmi_session_authcode,
-						tvb, offset, 16, TRUE);
+						tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
 			proto_tree_add_item(sess_tree, hf_ipmi_session_msg_len_1b, tvb, offset, 1, TRUE);
@@ -258,7 +258,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Show the rest of the session wrapper as binary data */
 		if (offset < tvb_length(tvb)) {
 			proto_tree_add_item(sess_tree, hf_ipmi_session_trailer,
-					tvb, offset, tvb_length(tvb) - offset, TRUE);
+					tvb, offset, tvb_length(tvb) - offset, ENC_NA);
 		}
 	}
 	return tvb_length(tvb);

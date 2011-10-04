@@ -317,7 +317,7 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
 			/* No item data */
 			break;
 		default:
-			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
 			break;
 	}
 	offset += bSize;
@@ -379,7 +379,7 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
 			proto_tree_add_item(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, TRUE);
 			break;
 		default:
-			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
 			break;
 	}
 	offset += bSize;
@@ -436,7 +436,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
 			proto_tree_add_item(tree, hf_usb_hid_localitem_delimiter, tvb, offset, bSize, TRUE);
 			break;
 		default:
-			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
 			break;
 	}
 	offset += bSize;
@@ -505,7 +505,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 			offset++;
 			proto_tree_add_item(subtree, hf_usb_hid_item_bLongItemTag, tvb, offset, 1, TRUE);
 			offset++;
-			proto_tree_add_item(subtree, hf_usb_hid_item_unk_data, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(subtree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
 			offset += bSize;
 		} else {
 			/* Short item */
@@ -520,7 +520,7 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 					offset = dissect_usb_hid_report_localitem_data(pinfo, subtree, tvb, offset, bSize, bTag, &cur_global);
 					break;
 				default: /* Only USBHID_ITEMTYPE_LONG, but keep compiler happy */
-					proto_tree_add_item(subtree, hf_usb_hid_item_unk_data, tvb, offset, bSize, TRUE);
+					proto_tree_add_item(subtree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
 					offset += bSize;
 					break;
 			}

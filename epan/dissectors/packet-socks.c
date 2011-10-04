@@ -631,7 +631,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
 		len = tvb_get_ntohs(tvb, offset+1);
 		if (len > 0)
-			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, FALSE);
+			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, ENC_NA);
 	}
 	else if (compare_packet( hash_info->gssapi_auth_failure_row)) {
 		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
@@ -642,7 +642,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
 		len = tvb_get_ntohs(tvb, offset+1);
 		if (len > 0)
-			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, FALSE);
+			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, ENC_NA);
 	}
 	else if ((compare_packet( hash_info->command_row)) ||
 	         (compare_packet( hash_info->cmd_reply_row)) ||

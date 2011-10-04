@@ -163,23 +163,23 @@ dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if(strncmp(buffer,"Synergy",7)==0)
 			dissect_synergy_handshake(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"CNOP",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_cnop,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_cnop,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"CALV",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_calv,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_calv,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"CBYE",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_cbye,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_cbye,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"CINN",4)==0)
 			dissect_synergy_cinn(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"COUT",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_cout,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_cout,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"CCLP",4)==0)
 			dissect_synergy_cclp(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"CSEC",4)==0)
 			proto_tree_add_item(synergy_tree,hf_synergy_csec,tvb,offset+4,1,FALSE);
 		else if(strncmp(buffer,"CROP",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_crop,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_crop,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"CIAK",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_ciak,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_ciak,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"DKDN",4)==0)
 			dissect_synergy_dkdn(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"DKRP",4)==0)
@@ -203,17 +203,17 @@ dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else if(strncmp(buffer,"DSOP",4)==0)
 			proto_tree_add_item(synergy_tree,hf_synergy_dsop,tvb,offset+4,4,FALSE);
 		else if(strncmp(buffer,"QINF",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_qinf,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_qinf,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"EICV",4)==0)
 			dissect_synergy_eicv(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"EBSY",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_ebsy,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_ebsy,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"EUNK",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_eunk,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_eunk,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"EBAD",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_ebad,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_ebad,tvb,offset+4,-1,ENC_NA);
 		else
-			proto_tree_add_item(synergy_tree,hf_synergy_unknown,tvb,offset+4,-1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_unknown,tvb,offset+4,-1,ENC_NA);
 		}
 }
 
@@ -221,7 +221,7 @@ static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, pr
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_handshake, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_handshake, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_handshake_majorversion, tvb, offset + 7, 2, FALSE);
@@ -229,7 +229,7 @@ static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, pr
 
     if (tvb_length_remaining(tvb, offset + 11) != 0)
 	{
-        proto_tree_add_item(sub_tree, hf_synergy_unknown, tvb, offset + 11, 4, FALSE);
+        proto_tree_add_item(sub_tree, hf_synergy_unknown, tvb, offset + 11, 4, ENC_NA);
         proto_tree_add_item(sub_tree, hf_synergy_handshake_clientname, tvb, offset + 15, -1, FALSE);
 	}
 }
@@ -238,7 +238,7 @@ static void dissect_synergy_cinn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_cinn, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_cinn, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_cinn_x, tvb, offset + 4, 2, FALSE);
@@ -251,7 +251,7 @@ static void dissect_synergy_cclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_cclp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_cclp, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_cclp_clipboardidentifier, tvb, offset + 4, 1, FALSE);
@@ -262,7 +262,7 @@ static void dissect_synergy_dkdn( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dkdn, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dkdn, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dkdn_keyid, tvb, offset + 4, 2, FALSE);
@@ -276,7 +276,7 @@ static void dissect_synergy_dkrp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dkrp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dkrp, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dkrp_keyid, tvb, offset + 4, 2, FALSE);
@@ -291,7 +291,7 @@ static void dissect_synergy_dkup( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dkup, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dkup, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dkup_keyid, tvb, offset + 4, 2, FALSE);
@@ -305,7 +305,7 @@ static void dissect_synergy_dmmv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dmmv, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dmmv, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dmmv_x, tvb, offset + 4, 2, FALSE);
@@ -316,7 +316,7 @@ static void dissect_synergy_dmrm( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dmrm, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dmrm, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dmrm_x, tvb, offset + 4, 2, FALSE);
@@ -327,7 +327,7 @@ static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dclp, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dclp, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboardidentifier, tvb, offset + 4, 1, FALSE);
@@ -339,7 +339,7 @@ static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_dinf, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_dinf, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_dinf_clp, tvb, offset + 4, 2, FALSE);
@@ -355,7 +355,7 @@ static void dissect_synergy_eicv( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 {
     proto_item *ti = NULL;
     proto_tree *sub_tree = NULL;
-    ti = proto_tree_add_item(tree, hf_synergy_eicv, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_synergy_eicv, tvb, offset, -1, ENC_NA);
     sub_tree = proto_item_add_subtree(ti, ett_synergy);
 
     proto_tree_add_item(sub_tree, hf_synergy_eicv_majorversion, tvb, offset + 4, 2, FALSE);

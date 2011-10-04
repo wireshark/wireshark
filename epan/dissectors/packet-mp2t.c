@@ -835,7 +835,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 		 *  value is '11', the value of the adaptation_field_length shall be in the range 0 to 182.
 		 */
 		if (af_length > 0 ) {
-			hi = proto_tree_add_item( mp2t_tree, hf_mp2t_af, tvb, offset, af_length, FALSE);
+			hi = proto_tree_add_item( mp2t_tree, hf_mp2t_af, tvb, offset, af_length, ENC_NA);
 			mp2t_af_tree = proto_item_add_subtree( hi, ett_mp2t_af );
 
 			af_flags = tvb_get_guint8(tvb, offset);
@@ -935,7 +935,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_length, tvb, offset, 1, FALSE);
 				offset += 1;
 
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd, tvb, offset, tpd_len, FALSE);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd, tvb, offset, tpd_len, ENC_NA);
 				offset += tpd_len;
 			}
 
@@ -983,14 +983,14 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 				reserved_len = (e_len + 1) - (offset - e_start_offset);
 				if (reserved_len > 0) {
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved_bytes, tvb, offset, reserved_len, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved_bytes, tvb, offset, reserved_len, ENC_NA);
 					offset += reserved_len;
 				}
 			}
 
 			stuffing_len = (af_length + 1) - (offset - af_start_offset);
 			if (stuffing_len > 0) {
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_stuffing_bytes, tvb, offset, stuffing_len, FALSE);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_stuffing_bytes, tvb, offset, stuffing_len, ENC_NA);
 				offset += stuffing_len;
 			}
 		}
@@ -1000,7 +1000,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	if (payload_len > 0) {
 		if (afc == 2) {	/* AF only */
 			/* Packet is malformed */
-			proto_tree_add_item( mp2t_tree, hf_mp2t_malformed_payload, tvb, offset, payload_len, FALSE);
+			proto_tree_add_item( mp2t_tree, hf_mp2t_malformed_payload, tvb, offset, payload_len, ENC_NA);
 			offset += payload_len;
 		} else {
 			/* Check to make sure if we are not at end of payload, if we have less than 3 bytes, the tvb_get_ntoh24 fails. */
@@ -1033,10 +1033,10 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 					ENDTRY;
 				} else {
-					proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, FALSE);
+					proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, ENC_NA);
 				}
 			} else {
-				proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, FALSE);
+				proto_tree_add_item( mp2t_tree, hf_mp2t_payload, tvb, offset, payload_len, ENC_NA);
 			}
 			offset += payload_len;
 		}

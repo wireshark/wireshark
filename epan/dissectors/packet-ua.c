@@ -329,7 +329,7 @@ static int DissectNOE(tvbuff_t *pTvb, proto_tree *pRootUA)
     nLen = tvb_length(pTvb);
     if(pRootUA)
     {
-        proto_item *pNoeItem = proto_tree_add_item(pRootUA, hf_noe, pTvb, 0, nLen, FALSE);
+        proto_item *pNoeItem = proto_tree_add_item(pRootUA, hf_noe, pTvb, 0, nLen, ENC_NA);
         if(pNoeItem)
         {
             proto_tree* pSubTreeNOE;

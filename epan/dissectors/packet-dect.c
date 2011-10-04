@@ -1323,12 +1323,12 @@ dissect_bfield(gboolean dect_packet_type _U_, guint8 ba,
 
 	if(blen)
 	{
-		bfieldti		= proto_tree_add_item(DectTree, hf_dect_B, tvb, offset, blen, FALSE);
+		bfieldti		= proto_tree_add_item(DectTree, hf_dect_B, tvb, offset, blen, ENC_NA);
 		BField			= proto_item_add_subtree(bfieldti, ett_bfield);
 
 		proto_tree_add_none_format(BField, hf_dect_B_Data, tvb, offset, blen, "%s", bfield_str);
 
-		bfdescrdatati	= proto_tree_add_item(BField, hf_dect_B_DescrambledData, tvb, offset, blen, FALSE);
+		bfdescrdatati	= proto_tree_add_item(BField, hf_dect_B_DescrambledData, tvb, offset, blen, ENC_NA);
 		BFDescrData		= proto_item_add_subtree(bfdescrdatati, ett_bfdescrdata);
 	}
 
@@ -1439,7 +1439,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	ta = (header & DECT_A_TA_MASK) >> DECT_A_TA_SHIFT;
 	*ba = (header & DECT_A_BA_MASK) >> DECT_A_BA_SHIFT;
 
-	afieldti	= proto_tree_add_item(DectTree, hf_dect_A, tvb, offset, DECT_AFIELD_SIZE, FALSE);
+	afieldti	= proto_tree_add_item(DectTree, hf_dect_A, tvb, offset, DECT_AFIELD_SIZE, ENC_NA);
 	AField		= proto_item_add_subtree(afieldti, ett_afield);
 
 	/* Header */
@@ -1490,7 +1490,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 		ep_strbuf_append_printf(afield_str,"RFPI: %s",tvb_bytes_to_str(tvb, offset, 5));
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 
-		proto_tree_add_item(atailti, hf_dect_A_Tail_Nt, tvb, offset, 5, FALSE);
+		proto_tree_add_item(atailti, hf_dect_A_Tail_Nt, tvb, offset, 5, ENC_NA);
 	}
 	else if(ta==DECT_TA_QT)
 	{
@@ -1660,7 +1660,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			ep_strbuf_append_printf(afield_str,"Multi-Frame No.: %s",tvb_bytes_to_str(tvb, offset, 3));
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Mfn, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Mfn, tvb, offset, 3, ENC_NA);
 			offset+=3;
 
 			/* due to addition further down */
@@ -1977,15 +1977,15 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(DectTree, hf_dect_rssi, tvb, offset, 1, FALSE);
 	offset++;
 
-	proto_tree_add_item(DectTree, hf_dect_preamble, tvb, offset, 3, FALSE);
+	proto_tree_add_item(DectTree, hf_dect_preamble, tvb, offset, 3, ENC_NA);
 	offset+=3;
 
-	typeti=proto_tree_add_item(DectTree, hf_dect_type, tvb, offset, 2, FALSE);
+	typeti=proto_tree_add_item(DectTree, hf_dect_type, tvb, offset, 2, ENC_NA);
 
 	type=tvb_get_ntohs(tvb, offset);
 	offset+=2;
 
-	columnstreeti = proto_tree_add_item(DectTree, hf_dect_cc, tvb, 0, 0, FALSE);
+	columnstreeti = proto_tree_add_item(DectTree, hf_dect_cc, tvb, 0, 0, ENC_NA);
 	ColumnsTree   = proto_item_add_subtree(columnstreeti, ett_afield);
 
 	switch(type) {

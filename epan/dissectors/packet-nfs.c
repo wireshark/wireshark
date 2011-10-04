@@ -2212,7 +2212,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 	fhlen = tvb_reported_length(tvb);
 
 	/* Display the entire filehandle */
-	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, FALSE);
+	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
 
     	/* 	On Celerra if fhlen = 32, it's an NFSv3 filehandle */
 	if (fhlen == 32) {
@@ -2220,7 +2220,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		{
 		proto_item* obj_item = NULL;
 		proto_tree* obj_tree = NULL;
-		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+0, 16, TRUE );
+		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+0, 16, ENC_NA );
 		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
 
 		obj_fsid   = tvb_get_letohl(tvb, offset+0);
@@ -2238,7 +2238,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		/* Create "Export" subtree (NFSv3: Bytes 16 thru 31 of the 32-byte file handle  */
 		proto_item* ex_item = NULL;
 		proto_tree* ex_tree = NULL;
-		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex, tvb,  offset+16, 16, TRUE );
+		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex, tvb,  offset+16, 16, ENC_NA );
 		ex_tree = proto_item_add_subtree(ex_item, ett_nfs_fh_ex);
 
 		ex_fsid   = tvb_get_letohl(tvb, offset+16);
@@ -2272,7 +2272,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		{
 		proto_item* ex_item = NULL;
 		proto_tree* ex_tree = NULL;
-		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex,  tvb,  offset+8, 16, TRUE );
+		ex_item = proto_tree_add_item(tree, hf_nfs_fh_ex,  tvb,  offset+8, 16, ENC_NA );
 		ex_tree = proto_item_add_subtree(ex_item, ett_nfs_fh_ex);
 
 		ex_fsid   = tvb_get_letohl(tvb, offset+8);
@@ -2290,7 +2290,7 @@ dissect_fhandle_data_CELERRA(tvbuff_t* tvb, packet_info *pinfo _U_, proto_tree *
 		{
 		proto_item* obj_item = NULL;
 		proto_tree* obj_tree = NULL;
-		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+24, 16, TRUE);
+		obj_item = proto_tree_add_item(tree, hf_nfs_fh_obj, tvb, offset+24, 16, ENC_NA);
 		obj_tree = proto_item_add_subtree(obj_item, ett_nfs_fh_obj);
 
 		obj_fsid   = tvb_get_letohl(tvb, offset+24);
@@ -2312,7 +2312,7 @@ dissect_fhandle_data_unknown(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
 {
 	guint fhlen=tvb_length(tvb);
 
-	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, FALSE);
+	proto_tree_add_item(tree, hf_nfs_fh_fhandle_data, tvb, 0, fhlen, ENC_NA);
 }
 
 
@@ -3420,7 +3420,7 @@ dissect_readdir_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, -1, FALSE);
+			offset+0, -1, ENC_NA);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 
@@ -5650,7 +5650,7 @@ dissect_entry3(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, -1, FALSE);
+			offset+0, -1, ENC_NA);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 
@@ -5749,7 +5749,7 @@ dissect_entryplus3(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (tree) {
 		entry_item = proto_tree_add_item(tree, hf_nfs_readdir_entry, tvb,
-			offset+0, -1, FALSE);
+			offset+0, -1, ENC_NA);
 		entry_tree = proto_item_add_subtree(entry_item, ett_nfs_readdir_entry);
 	}
 
@@ -8290,7 +8290,7 @@ dissect_nfs_stateid4(tvbuff_t *tvb, int offset,
 
 	offset = dissect_rpc_uint32(tvb, newftree, hf_nfs_seqid4, offset);
 
-	proto_tree_add_item(newftree, hf_nfs_stateid4_other, tvb, offset, 12, FALSE);
+	proto_tree_add_item(newftree, hf_nfs_stateid4_other, tvb, offset, 12, ENC_NA);
 	offset+=12;
 
 	if (hash)

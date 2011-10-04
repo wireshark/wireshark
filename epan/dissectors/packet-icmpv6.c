@@ -1239,7 +1239,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
         /* ICMPv6 Option */
         opt_len = tvb_get_guint8(tvb, offset + 1) * 8;
-        ti = proto_tree_add_item(tree, hf_icmpv6_opt, tvb, offset, opt_len, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_icmpv6_opt, tvb, offset, opt_len, ENC_NA);
         icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6_opt);
         opt_offset = offset;
 
@@ -1284,14 +1284,14 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
 
                     /* Padding: 6 bytes */
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
 
                     link_str = tvb_eui64_to_str(tvb, opt_offset, ENC_BIG_ENDIAN);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 }else{
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, ENC_BIG_ENDIAN);
-                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, opt_len-2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_src_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
                 }
                 opt_offset += opt_len;
@@ -1318,14 +1318,14 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
 
                     /* Padding: 6 bytes */
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset + 8, 6, ENC_NA);
 
                     link_str = tvb_eui64_to_str(tvb, opt_offset, ENC_BIG_ENDIAN);
                     col_append_fstr(pinfo->cinfo, COL_INFO, " from %s", link_str);
                     proto_item_append_text(ti, " : %s", link_str);
                 }else{
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, ENC_BIG_ENDIAN);
-                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr, tvb, opt_offset, opt_len-2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
+                    ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_target_linkaddr, tvb, opt_offset, opt_len-2, ENC_NA);
                     PROTO_ITEM_SET_HIDDEN(ti_opt);
                 }
                 opt_offset += opt_len;
@@ -1375,7 +1375,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 }
                 opt_offset += 4;
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
 
                 /* Prefix */
@@ -1387,16 +1387,16 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_REDIRECTED_HEADER: /* Redirected Header (4) */
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_NA);
                 opt_offset += 6;
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, -1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_redirected_packet, tvb, opt_offset, -1, ENC_NA);
 
                 offset = dissect_contained_icmpv6(tvb, opt_offset, pinfo, icmp6opt_tree);
                 break;
             case ND_OPT_MTU: /* MTU (5) */
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mtu, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
@@ -1408,16 +1408,16 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nbma_shortcut_limit, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
                 proto_item_append_text(ti, " : %d", tvb_get_guint8(tvb, opt_offset));
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, ENC_NA);
                 opt_offset += 1;
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
 
                 break;
             case ND_OPT_ADVINTERVAL: /* Advertisement Interval Option (7) */
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_advertisement_interval, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
@@ -1428,7 +1428,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             case ND_OPT_HOMEAGENT_INFO: /* Home Agent Information Option (8) */
             {
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_home_agent_preference, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
@@ -1441,7 +1441,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             case  ND_OPT_SOURCE_ADDRLIST: /* Source Address List (9) */
             case  ND_OPT_TARGET_ADDRLIST: /* Target Address List (10)*/
             {
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_NA);
                 opt_offset += 6;
 
                 while(opt_offset < (offset + opt_len) ) {
@@ -1467,7 +1467,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Reserved 8 bits */
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, ENC_NA);
                 opt_offset += 1;
 
                 /* CGA Parameters A variable-length field containing the CGA Parameters data
@@ -1475,17 +1475,17 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                  * "Cryptographically Generated Addresses (CGA)", RFC3972.
                  */
                 par_len = opt_len -4 -padd_length;
-                cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, ENC_BIG_ENDIAN);
+                cga_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_cga, tvb, opt_offset, par_len, ENC_NA);
                 par_len += opt_offset;
 
                 cga_tree = proto_item_add_subtree(cga_item, ett_icmpv6_cga_param_name);
-                proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_modifier, tvb, opt_offset, 16, ENC_BIG_ENDIAN);
+                proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_modifier, tvb, opt_offset, 16, ENC_NA);
                 opt_offset += 16;
 
-                proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_subnet_prefix, tvb, opt_offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_subnet_prefix, tvb, opt_offset, 8, ENC_NA);
                 opt_offset += 8;
 
-                proto_tree_add_item(cga_tree ,hf_icmpv6_opt_cga_count, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(cga_tree ,hf_icmpv6_opt_cga_count, tvb, opt_offset, 1, ENC_NA);
                 opt_offset += 1;
 
                 asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
@@ -1500,12 +1500,12 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_ext_length, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                     opt_offset += 2;
 
-                    proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_ext_data, tvb, opt_offset, ext_data_len, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cga_tree, hf_icmpv6_opt_cga_ext_data, tvb, opt_offset, ext_data_len, ENC_NA);
                     opt_offset += ext_data_len;
                 }
 
                 /* Padding */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_NA);
                 opt_offset += padd_length;
                 break;
             }
@@ -1514,7 +1514,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 int par_len;
                 /*5.2.  RSA Signature Option */
                 /* Reserved, A 16-bit field reserved for future use. */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset = opt_offset + 2;
 
                 /* Key Hash
@@ -1522,7 +1522,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                  * bits of a SHA-1 [14] hash of the public key used for constructing
                  * the signature.
                  */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rsa_key_hash, tvb, opt_offset, 16, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_rsa_key_hash, tvb, opt_offset, 16, ENC_NA);
                 opt_offset = opt_offset + 16;
 
                 /* Digital Signature */
@@ -1536,7 +1536,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_TIMESTAMP: /* Timestamp Option (13) */
                 /* Reserved A 48-bit field reserved for future use. */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 6, ENC_NA);
                 opt_offset += 6;
 
                 /* Timestamp
@@ -1553,7 +1553,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             case ND_OPT_NONCE: /* Nonce option (14) */
 
                 /* 5.3.2.  Nonce Option */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nonce, tvb, opt_offset, opt_len - 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_nonce, tvb, opt_offset, opt_len - 2, ENC_NA);
                 opt_offset += opt_len -2;
                 break;
             case ND_OPT_TRUST_ANCHOR: /* Trust Anchor Option (15) */
@@ -1580,7 +1580,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 switch (name_type){
                     case 1:
                         /* DER Encoded X.501 Name */
-                        name_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, ENC_BIG_ENDIAN);
+                        name_item = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_name_x501, tvb, opt_offset, par_len, ENC_NA);
                         name_tree = proto_item_add_subtree(name_item, ett_icmpv6_opt_name);
                         asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
                         dissect_x509if_Name(FALSE, tvb, opt_offset, &asn1_ctx, name_tree, hf_icmpv6_x509if_Name);
@@ -1595,7 +1595,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += par_len;
 
                 /* Padding */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_NA);
                 opt_offset += padd_length;
 
                 break;
@@ -1612,7 +1612,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 1, ENC_NA);
                 opt_offset += 1;
 
                 /* Certificate */
@@ -1622,11 +1622,11 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     opt_offset = dissect_x509af_Certificate(FALSE, tvb, opt_offset, &asn1_ctx, icmp6opt_tree, hf_icmpv6_x509af_Certificate);
                     padd_length = opt_len - (opt_offset - offset);
                     /* Padding */
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_NA);
                     opt_offset += padd_length;
                 }else{
                     padd_length = opt_len - 4;
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_certificate_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_certificate_padding, tvb, opt_offset, padd_length, ENC_NA);
                     opt_offset += padd_length;
                 }
                 break;
@@ -1645,7 +1645,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 prefix_len = tvb_get_guint8(tvb, opt_offset);
                 opt_offset += 1;
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
 
                 /* IPv6 Address */
@@ -1669,7 +1669,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 prefix_len = tvb_get_guint8(tvb, opt_offset);
                 opt_offset += 1;
 
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
 
                 /* Prefix */
@@ -1686,7 +1686,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Link Layer Address */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_lla_bytes, tvb, opt_offset, opt_len-3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_lla_bytes, tvb, opt_offset, opt_len-3, ENC_NA);
                 opt_offset += opt_len - 3;
                 break;
             }
@@ -1708,7 +1708,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                     proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_naack_supplied_ncoa, tvb, opt_offset, 16, ENC_BIG_ENDIAN);
                     opt_offset += 16;
                 }else{
-                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, opt_len - 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, opt_len - 4, ENC_NA);
                     opt_offset += opt_len - 4;
                 }
                 break;
@@ -1804,7 +1804,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             case ND_OPT_RECURSIVE_DNS_SERVER: /* Recursive DNS Server Option (25) */
             {
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 /* RDNSS Lifetime */
@@ -1834,7 +1834,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
             }
             case ND_OPT_FLAGS_EXTENSION: /* RA Flags Extension Option (26) */
             {
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_efo, tvb, opt_offset, 6, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_efo, tvb, opt_offset, 6, ENC_NA);
                 flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_flag_efo);
 
                 proto_tree_add_item(flag_tree, hf_icmpv6_opt_efo_m, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
@@ -1845,7 +1845,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 proto_tree_add_item(flag_tree, hf_icmpv6_opt_efo_rsv, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
                 opt_offset += 2;
 
-                proto_tree_add_item(flag_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(flag_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
                 break;
             }
@@ -1868,11 +1868,11 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Handover Key Encryption Public Key */
                 par_len = opt_len-4-padd_length;
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_encryption_public_key, tvb, opt_offset, par_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_encryption_public_key, tvb, opt_offset, par_len, ENC_NA);
                 opt_offset += par_len;
 
                 /* Padding */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_padding, tvb, opt_offset, padd_length, ENC_NA);
                 opt_offset += 1;
                 break;
             }
@@ -1903,7 +1903,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += par_len;
 
                 /* Padding */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_padding, tvb, opt_offset, padd_length, ENC_NA);
                 opt_offset += 1;
                 break;
             }
@@ -1921,12 +1921,12 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* HAI Value */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hai_value, tvb, opt_offset, hai_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hai_value, tvb, opt_offset, hai_len, ENC_NA);
                 opt_offset += hai_len;
 
                 /* Padding... */
                 padd_length = opt_len - opt_offset;
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_NA);
                 opt_offset += padd_length;
 
                 break;
@@ -1945,12 +1945,12 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* MN Value */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mn_value, tvb, opt_offset, mn_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_mn_value, tvb, opt_offset, mn_len, ENC_NA);
                 opt_offset += mn_len;
 
                 /* Padding... */
                 padd_length = opt_len - opt_offset;
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_padding, tvb, opt_offset, padd_length, ENC_NA);
                 opt_offset += padd_length;
 
                 break;
@@ -1961,7 +1961,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 const guchar *dnssl_name;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 /* DNSSL Lifetime */
@@ -1992,7 +1992,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 int par_len;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset +=  2;
 
                 /* Key Hash
@@ -2000,7 +2000,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                  * bits of a SHA-1 [14] hash of the public key used for constructing
                  * the signature.
                  */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_ps_key_hash, tvb, opt_offset, 16, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_ps_key_hash, tvb, opt_offset, 16, ENC_NA);
                 opt_offset += 16;
 
                 /* Digital Signature */
@@ -2022,7 +2022,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 3, ENC_NA);
                 opt_offset += 3;
 
                 /* Lifetime */
@@ -2056,7 +2056,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 1;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 2, ENC_NA);
                 opt_offset += 2;
 
                 /* Lifetime */
@@ -2096,7 +2096,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                 opt_offset += 2;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
 
                 /* 6LBR Address */
@@ -2112,7 +2112,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
                                        "Dissector for ICMPv6 Option (%d)"
                                        " code not implemented, Contact Wireshark developers"
                                        " if you want this supported", opt_type);
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_data, tvb, opt_offset, opt_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_data, tvb, opt_offset, opt_len, ENC_NA);
                 opt_offset += opt_len;
                 break;
 
@@ -2121,7 +2121,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
         offset += opt_len;
 
         if(offset > opt_offset){
-            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_unknown_data, tvb, opt_offset, offset - opt_offset, ENC_BIG_ENDIAN);
+            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_unknown_data, tvb, opt_offset, offset - opt_offset, ENC_NA);
             expert_add_info_format(pinfo, ti_opt, PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)");
         }
         /* Close the ) to option root label */
@@ -2145,7 +2145,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         /* there are more options */
 
         /* ICMPv6 RPL Option */
-        ti = proto_tree_add_item(tree, hf_icmpv6_rpl_opt, tvb, offset, 1, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(tree, hf_icmpv6_rpl_opt, tvb, offset, 1, ENC_NA);
         icmp6opt_tree = proto_item_add_subtree(ti, ett_icmpv6_rpl_opt);
         opt_offset = offset;
 
@@ -2174,7 +2174,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         switch (opt_type) {
             case RPL_OPT_PADN:
                 /* n-byte padding */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_padn, tvb, opt_offset, opt_len, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_padn, tvb, opt_offset, opt_len, ENC_NA);
                 proto_item_append_text(ti_opt, " (Length : %i bytes)", opt_len);
                 opt_offset += opt_len;
                 break;
@@ -2193,7 +2193,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset +=1;
 
                 /* Flags */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_flag, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_route_flag, tvb, opt_offset, 1, ENC_NA);
                 flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_routing);
 
                 proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_route_pref, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
@@ -2237,7 +2237,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
             case RPL_OPT_CONFIG: {
 
                 /* Flags */
-                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_flag, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_config_flag, tvb, opt_offset, 1, ENC_NA);
                 flag_tree = proto_item_add_subtree(ti_opt, ett_icmpv6_rpl_flag_config);
 
                 proto_tree_add_item(flag_tree, hf_icmpv6_rpl_opt_config_reserved, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
@@ -2287,7 +2287,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 struct e_in6_addr   target_prefix;
 
                 /* Flag */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_flag, tvb, opt_offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_flag, tvb, opt_offset, 1, ENC_NA);
                 opt_offset += 1;
 
                 /* Prefix length */
@@ -2418,7 +2418,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                 opt_offset += 4;
 
                 /* 4 reserved bytes. */
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_reserved, tvb, opt_offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_reserved, tvb, opt_offset, 4, ENC_NA);
                 opt_offset += 4;
 
                 /* Prefix */
@@ -2441,7 +2441,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                                        "Dissector for ICMPv6 RPL Option"
                                        " (%d) code not implemented, Contact"
                                        " Wireshark developers if you want this supported", opt_type);
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_data, tvb, opt_offset, opt_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_data, tvb, opt_offset, opt_len, ENC_NA);
                 opt_offset += opt_len;
                 break;
         } /* switch (opt_type) */
@@ -2449,7 +2449,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
         offset += opt_len + 2;
 
         if(offset > opt_offset){
-            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_unknown_data, tvb, opt_offset, offset - opt_offset, ENC_BIG_ENDIAN);
+            ti_opt = proto_tree_add_item(icmp6opt_tree, hf_icmpv6_unknown_data, tvb, opt_offset, offset - opt_offset, ENC_NA);
             expert_add_info_format(pinfo, ti_opt, PI_MALFORMED, PI_ERROR, "Unknown Data (not interpreted)");
         }
 
@@ -2517,7 +2517,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             }
             case 2:
             {
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_source, tvb, rpl_offset, 8, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_source, tvb, rpl_offset, 8, ENC_NA);
                 rpl_offset += 8;
                 proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_index, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
                 rpl_offset += 1;
@@ -2527,7 +2527,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             {
                 if(lvl == 1 || lvl == 3)
                 {
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_source, tvb, rpl_offset, 8, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_source, tvb, rpl_offset, 8, ENC_NA);
                     rpl_offset += 8;
                     proto_tree_add_item(icmp6_tree, hf_icmpv6_rpl_secure_key_index, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
                     rpl_offset += 1;
@@ -2547,7 +2547,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             rpl_offset += 1;
 
             /* Reserved */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, ENC_NA);
             rpl_offset += 1;
 
             /* RPL Options */
@@ -2587,7 +2587,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             rpl_offset += 1;
 
             /* Reserved */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, ENC_NA);
             rpl_offset += 1;
 
             /* DODAGID */
@@ -2617,7 +2617,7 @@ dissect_rpl_control(tvbuff_t *tvb, int rpl_offset, packet_info *pinfo _U_, proto
             rpl_offset += 1;
 
             /* Reserved */
-            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, rpl_offset, 1, ENC_NA);
             rpl_offset += 1;
 
             /* Sequence */
@@ -2843,7 +2843,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
     rr_offset += 2;
 
     /* Reserved */
-    proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, rr_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, rr_offset, 4, ENC_NA);
     rr_offset += 4;
 
     /* Data ? */
@@ -2855,7 +2855,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         /* Match-Prefix Part */
         guint8 opcode, matchlen, minlen, maxlen;
 
-        ti_mp = proto_tree_add_item(tree, hf_icmpv6_rr_pco_mp_part, tvb, rr_offset, 24, ENC_BIG_ENDIAN);
+        ti_mp = proto_tree_add_item(tree, hf_icmpv6_rr_pco_mp_part, tvb, rr_offset, 24, ENC_NA);
         mp_tree = proto_item_add_subtree(ti_mp, ett_icmpv6_rr_mp);
 
         /* OpCode */
@@ -2887,7 +2887,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         rr_offset += 1;
 
         /* Reserved  */
-        proto_tree_add_item(mp_tree, hf_icmpv6_reserved, tvb, rr_offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(mp_tree, hf_icmpv6_reserved, tvb, rr_offset, 2, ENC_NA);
         rr_offset += 2;
 
         /* Match Prefix  */
@@ -2901,7 +2901,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
             /* Use-Prefix Part */
             guint8 uselen, keeplen;
 
-            ti_up = proto_tree_add_item(tree, hf_icmpv6_rr_pco_up_part, tvb, rr_offset, 32, ENC_BIG_ENDIAN);
+            ti_up = proto_tree_add_item(tree, hf_icmpv6_rr_pco_up_part, tvb, rr_offset, 32, ENC_NA);
             up_tree = proto_item_add_subtree(ti_up, ett_icmpv6_rr_up);
 
             /* UseLen */
@@ -2974,7 +2974,7 @@ dissect_rrenum(tvbuff_t *tvb, int rr_offset, packet_info *pinfo _U_, proto_tree 
         guint32 interfaceindex;
         /* Result Message */
 
-        ti_rm = proto_tree_add_item(tree, hf_icmpv6_rr_rm, tvb, rr_offset, 24, ENC_BIG_ENDIAN);
+        ti_rm = proto_tree_add_item(tree, hf_icmpv6_rr_rm, tvb, rr_offset, 24, ENC_NA);
         rm_tree = proto_item_add_subtree(ti_rm, ett_icmpv6_rr_rm);
 
         /* Flags */
@@ -3020,7 +3020,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
     int mldr_offset = offset;
 
     /* Reserved */
-    proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, mldr_offset, 2, FALSE );
+    proto_tree_add_item(tree, hf_icmpv6_reserved, tvb, mldr_offset, 2, ENC_NA );
     mldr_offset += 2;
 
     /* Nr of Mcast Address Records (M) */
@@ -3033,7 +3033,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
         guint16 i, nb_sources;
         struct e_in6_addr multicast_address;
 
-        ti_mar = proto_tree_add_item(tree, hf_icmpv6_mldr_mar, tvb, mldr_offset, -1, ENC_BIG_ENDIAN);
+        ti_mar = proto_tree_add_item(tree, hf_icmpv6_mldr_mar, tvb, mldr_offset, -1, ENC_NA);
         mar_tree = proto_item_add_subtree(ti_mar, ett_icmpv6_mar);
 
         /* Record Type */
@@ -3065,7 +3065,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
         /* Auxiliary Data ? */
         if(aux_data_len)
         {
-            proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_auxiliary_data, tvb, mldr_offset, aux_data_len * 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(mar_tree, hf_icmpv6_mldr_mar_auxiliary_data, tvb, mldr_offset, aux_data_len * 4, ENC_NA);
             mldr_offset += aux_data_len * 4;
         }
 
@@ -3222,7 +3222,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              * as it could really be any length, couldn't it?
              */
             if (tree)
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_nonce, tvb, offset, 4, ENC_NA);
             offset += 4;
         } else {
             if (!pinfo->in_error_pkt) {
@@ -3255,7 +3255,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case ICMP6_DST_UNREACH: /* Destination Unreachable (1) */
             case ICMP6_TIME_EXCEEDED: /* Time Exceeded (3) */
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
 
                 offset = dissect_contained_icmpv6(tvb, offset, pinfo, icmp6_tree);
@@ -3296,7 +3296,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset += 2;
 
                     /* Reserved */
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
                     offset += 2;
 
                     /* Multicast Address */
@@ -3336,7 +3336,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     offset += 2;
 
                     /* Reserved */
-                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
                     offset += 2;
 
                     /* Multicast Address */
@@ -3348,7 +3348,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case ICMP6_ND_ROUTER_SOLICIT: /* Router Solicitation (133) */
             {
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
 
                 /* Show options */
@@ -3393,7 +3393,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case ICMP6_ND_NEIGHBOR_SOLICIT: /* Neighbor Solicitation (135) */
             {
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
 
                 /* Target Address */
@@ -3450,7 +3450,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case ICMP6_ND_REDIRECT: /* Redirect Message (137) */
             {
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
 
                 /* Target Address */
@@ -3480,7 +3480,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             case ICMP6_IND_ADVERT: /* Inverse Neighbor Discovery Advertisement Message (142) */
             {
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 4, ENC_NA);
                 offset += 4;
 
                 /* Show options */
@@ -3499,7 +3499,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
 
                 break;
@@ -3511,7 +3511,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
 
                 /* Show all Home Agent Addresses */
@@ -3529,7 +3529,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
                 break;
             }
@@ -3540,7 +3540,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
 
                 /* Flag */
-                ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_flag, tvb,offset, 6, ENC_BIG_ENDIAN);
+                ti_flag = proto_tree_add_item(icmp6_tree, hf_icmpv6_mip6_flag, tvb,offset, 6, ENC_NA);
                 flag_tree = proto_item_add_subtree(ti_flag, ett_icmpv6_flag_mip6);
                 proto_tree_add_item(flag_tree, hf_icmpv6_mip6_flag_m, tvb, offset, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(flag_tree, hf_icmpv6_mip6_flag_o, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -3582,7 +3582,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 2;
 
                 /* Reserved */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 2, ENC_NA);
                 offset += 2;
 
                 /* Show options */
@@ -3604,14 +3604,14 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     case FMIP6_SUBTYPE_RTSOLPR:
                     {
                         /* Reserved */
-                        proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_NA);
                     }
                     break;
                     case FMIP6_SUBTYPE_PRRTADV:
                     {
                         proto_item_append_text(code_item, " (%s)", val_to_str(icmp6_code, fmip6_prrtadv_code_val, "Unknown %d") );
                         /* Reserved */
-                        proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_NA);
                     }
                     break;
                     case FMIP6_SUBTYPE_HI:
@@ -3630,7 +3630,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         proto_item_append_text(code_item, " (%s)", val_to_str(icmp6_code, fmip6_hack_code_val, "Unknown %d") );
                         /* Reserved */
-                        proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(icmp6_tree, hf_icmpv6_reserved, tvb, offset, 1, ENC_NA);
                     }
                     break;
                 }
@@ -3696,7 +3696,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        "Dissector for ICMPv6 Type (%d)"
                                        " code not implemented, Contact Wireshark"
                                        " developers if you want this supported", icmp6_type);
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_data, tvb, offset, -1, ENC_NA);
                 break;
         } /* switch (icmp6_type) */
     } /* if (tree) */

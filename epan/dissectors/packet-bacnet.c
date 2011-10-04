@@ -269,7 +269,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Other MAC formats should be included here */
 			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_dadr_tmp, tvb, offset,
-				bacnet_dlen, FALSE);
+				bacnet_dlen, ENC_NA);
 			offset += bacnet_dlen;
 		} else {
 			proto_tree_add_uint_format_value(bacnet_tree,
@@ -318,7 +318,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Other MAC formats should be included here */
 			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_sadr_tmp, tvb, offset,
-				bacnet_slen, FALSE);
+				bacnet_slen, ENC_NA);
 			offset += bacnet_slen;
 		} else {
 			proto_tree_add_uint_format_value(bacnet_tree,

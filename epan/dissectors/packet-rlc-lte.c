@@ -532,7 +532,7 @@ static void reassembly_show_source(rlc_channel_reassembly_info *reassembly_info,
                                          tvb,
                                          (n == reassembly_info->number_of_segments-1) ? offset : 0,
                                          (n == reassembly_info->number_of_segments-1) ? segment->length : 0,
-                                         FALSE);
+                                         ENC_NA);
         segment_tree = proto_item_add_subtree(segment_ti, ett_rlc_lte_reassembly_source_segment);
         proto_item_append_text(segment_ti, " (SN=%u frame=%u length=%u)",
                                segment->SN, segment->frameNum, segment->length);
@@ -1664,7 +1664,7 @@ static void dissect_rlc_lte_tm(tvbuff_t *tvb, packet_info *pinfo,
     PROTO_ITEM_SET_HIDDEN(tm_ti);
 
     /* Remaining bytes are all data */
-    raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, FALSE);
+    raw_tm_ti = proto_tree_add_item(tree, hf_rlc_lte_tm_data, tvb, offset, -1, ENC_NA);
     if (!global_rlc_lte_call_rrc) {
         write_pdu_label_and_info(top_ti, NULL, pinfo,
                                  "   [%u-bytes]", tvb_length_remaining(tvb, offset));
@@ -2547,7 +2547,7 @@ static void dissect_rlc_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         case RLC_PREDEF:
             /* Predefined data (i.e. not containing a valid RLC header */
-            proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_predefined_pdu, tvb, offset, -1, FALSE);
+            proto_tree_add_item(rlc_lte_tree, hf_rlc_lte_predefined_pdu, tvb, offset, -1, ENC_NA);
             write_pdu_label_and_info(top_ti, NULL, pinfo, "   [%u-bytes]",
                                      tvb_length_remaining(tvb, offset));
             break;

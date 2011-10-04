@@ -1119,7 +1119,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 	if (dfmt->flags & IPMI_D_NONE) {
 		/* No parsing requested */
 		g_snprintf(dfmt->info, ITEM_LABEL_LENGTH, "Unknown message (not parsed)");
-		proto_tree_add_item(ipmi_tree, hf_ipmi_message, tvb, 0, tvb_length(tvb), TRUE);
+		proto_tree_add_item(ipmi_tree, hf_ipmi_message, tvb, 0, tvb_length(tvb), ENC_NA);
 		return;
 	}
 
@@ -1301,7 +1301,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 
 		/* Defining body signature (if present) */
 		if (siglen) {
-			ti = proto_tree_add_item(hdr_tree, hf_ipmi_header_sig, tvb, offs, siglen, TRUE);
+			ti = proto_tree_add_item(hdr_tree, hf_ipmi_header_sig, tvb, offs, siglen, ENC_NA);
 			proto_item_append_text(ti, " (%s)", ndesc);
 			offs += siglen;
 		}

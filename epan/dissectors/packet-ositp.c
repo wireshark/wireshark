@@ -552,13 +552,13 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
           (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
         proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
                 print_tsap(tvb_get_ptr(tvb, offset, length),length));
-        hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, ENC_BIG_ENDIAN);
+        hidden_item = proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_src_tsap, tvb, offset, length,
                 print_tsap(tvb_get_ptr(tvb, offset, length),length));
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cotp_vp_src_tsap_bytes, tvb, offset, length, ENC_NA);
       }
       offset += length;
       vp_length -= length;
@@ -572,13 +572,13 @@ static gboolean ositp_decode_var_part(tvbuff_t *tvb, int offset,
           (tsap_display==TSAP_DISPLAY_AUTO && is_all_printable(tvb_get_ptr(tvb,offset,length),length))) {
         proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
                 print_tsap(tvb_get_ptr(tvb, offset, length),length));
-        hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, ENC_BIG_ENDIAN);
+        hidden_item = proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
       } else {
         hidden_item = proto_tree_add_string(tree, hf_cotp_vp_dst_tsap, tvb, offset, length,
                 print_tsap(tvb_get_ptr(tvb, offset, length),length));
         PROTO_ITEM_SET_HIDDEN(hidden_item);
-        proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cotp_vp_dst_tsap_bytes, tvb, offset, length, ENC_NA);
       }
       offset += length;
       vp_length -= length;

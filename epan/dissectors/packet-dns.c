@@ -1998,11 +1998,11 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         cur_offset += 2;
         salt_len = tvb_get_guint8(tvb, cur_offset);
         proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset++, 1, FALSE);
-        proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, FALSE);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
         cur_offset += salt_len;
         hash_len = tvb_get_guint8(tvb, cur_offset);
         proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_length, tvb, cur_offset++, 1, FALSE);
-        proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, FALSE);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_hash_value, tvb, cur_offset, hash_len, ENC_NA);
         cur_offset += hash_len;
         rr_len = data_len - (cur_offset - initial_offset);
         cur_offset += dissect_type_bitmap(rr_tree, tvb, cur_offset, rr_len);
@@ -2026,7 +2026,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         salt_len = tvb_get_guint8(tvb, cur_offset);
         proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_length, tvb, cur_offset, 1, FALSE);
         cur_offset ++;
-        proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, FALSE);
+        proto_tree_add_item(rr_tree, hf_dns_nsec3_salt_value, tvb, cur_offset, salt_len, ENC_NA);
 
     }
     break;
@@ -2377,7 +2377,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	  if (rr_len < tsig_siglen)
 	    goto bad_rr;
 
-	  mac_item = proto_tree_add_item(rr_tree, hf_dns_tsig_mac, tvb, cur_offset, tsig_siglen, FALSE);
+	  mac_item = proto_tree_add_item(rr_tree, hf_dns_tsig_mac, tvb, cur_offset, tsig_siglen, ENC_NA);
 	  mac_tree = proto_item_add_subtree(mac_item, ett_dns_mac);
 
 	  sub_tvb=tvb_new_subset(tvb, cur_offset, tsig_siglen, tsig_siglen);
@@ -2415,7 +2415,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	if (tsig_otherlen != 0) {
 	  if (rr_len < tsig_otherlen)
 	    goto bad_rr;
-	  proto_tree_add_item(rr_tree, hf_dns_tsig_other_data, tvb, cur_offset, tsig_otherlen, FALSE);
+	  proto_tree_add_item(rr_tree, hf_dns_tsig_other_data, tvb, cur_offset, tsig_otherlen, ENC_NA);
 	  cur_offset += tsig_otherlen;
 	  rr_len -= tsig_otherlen;
 	}
@@ -2667,7 +2667,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	if (rr_len < 1)
 	  goto bad_rr;
 	if (rr_len != 0)
-	proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint, tvb, cur_offset, rr_len, FALSE);
+	proto_tree_add_item(rr_tree, hf_dns_sshfp_fingerprint, tvb, cur_offset, rr_len, ENC_NA);
 
     }
     break;
@@ -2714,13 +2714,13 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 	if (rr_len < 1)
            goto bad_rr;
-	proto_tree_add_item(rr_tree, hf_dns_hip_hit, tvb, cur_offset, hit_len, FALSE);
+	proto_tree_add_item(rr_tree, hf_dns_hip_hit, tvb, cur_offset, hit_len, ENC_NA);
 	cur_offset += hit_len;
 	rr_len -= hit_len;
 
 	if (rr_len < 1)
            goto bad_rr;
-	proto_tree_add_item(rr_tree, hf_dns_hip_pk, tvb, cur_offset, pk_len, FALSE);
+	proto_tree_add_item(rr_tree, hf_dns_hip_pk, tvb, cur_offset, pk_len, ENC_NA);
 	cur_offset += pk_len;
 	rr_len -= pk_len;
 
@@ -2746,7 +2746,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 
 	if (data_len < 1)
            goto bad_rr;
-	proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, FALSE);
+	proto_tree_add_item(rr_tree, hf_dns_dhcid_rdata, tvb, cur_offset, data_len, ENC_NA);
 
 
     }
@@ -2929,7 +2929,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
            col_append_fstr(cinfo, COL_INFO, " %s", name);
         if (data_len < 1)
            goto bad_rr;
-        proto_tree_add_item(rr_tree, hf_dns_nsap_rdata, tvb, cur_offset, data_len, FALSE);
+        proto_tree_add_item(rr_tree, hf_dns_nsap_rdata, tvb, cur_offset, data_len, ENC_NA);
       }
     break;
 

@@ -152,7 +152,7 @@ dissect_bmc_cbs_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
     proto_tree_add_item(tree, hf_bmc_data_coding_scheme, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
-    proto_tree_add_item(tree, hf_bmc_cb_data, tvb, offset, tvb_length_remaining(tvb,offset), ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bmc_cb_data, tvb, offset, tvb_length_remaining(tvb,offset), ENC_NA);
     offset = tvb_length(tvb);
 
     return offset;
@@ -183,7 +183,7 @@ dissect_bmc_schedule_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     if (length_of_cbs_schedule_period & 0x7)
         new_message_bitmap_len += 1;
 
-    proto_tree_add_item(tree, hf_bmc_new_message_bitmap, tvb, offset, new_message_bitmap_len, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bmc_new_message_bitmap, tvb, offset, new_message_bitmap_len, ENC_NA);
     offset += new_message_bitmap_len;
 
     ti = proto_tree_add_text(tree, tvb, offset, 0, "Message Description" );
@@ -236,10 +236,10 @@ dissect_bmc_cbs41_message(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     gint offset=1;
 
-    proto_tree_add_item(tree, hf_bmc_broadcast_address, tvb, offset, 5, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bmc_broadcast_address, tvb, offset, 5, ENC_NA);
     offset += 5;
 
-    proto_tree_add_item(tree, hf_bmc_cb_data41, tvb, offset, tvb_length_remaining(tvb,offset), ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_bmc_cb_data41, tvb, offset, tvb_length_remaining(tvb,offset), ENC_NA);
     offset = tvb_length(tvb);
 
     return offset;

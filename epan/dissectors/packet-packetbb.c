@@ -162,7 +162,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
     return maxoffset;
   }
 
-  tlvBlock_item = proto_tree_add_item(tree, hf_packetbb_tlvblock, tvb, offset, tlvblockEnd - offset, FALSE);
+  tlvBlock_item = proto_tree_add_item(tree, hf_packetbb_tlvblock, tvb, offset, tlvblockEnd - offset, ENC_NA);
   tlvblock_tree = proto_item_add_subtree(tlvBlock_item, ett_packetbb_tlvblock);
 
   proto_tree_add_item(tlvblock_tree, hf_packetbb_tlvblock_length, tvb, offset, 2, FALSE);
@@ -205,7 +205,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
     tlvLength = offset - tlvStart + length;
     offset = tlvStart;
 
-    tlv_item = proto_tree_add_item(tlvBlock_item, hf_packetbb_tlv, tvb, tlvStart, tlvLength, FALSE);
+    tlv_item = proto_tree_add_item(tlvBlock_item, hf_packetbb_tlv, tvb, tlvStart, tlvLength, ENC_NA);
     tlv_tree = proto_item_add_subtree(tlv_item, ett_packetbb_tlv[tlvType]);
 
     if ((tlvFlags & TLV_HAS_TYPEEXT) == 0) {
@@ -273,7 +273,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
 
     if (length > 0) {
       /* add value */
-      tlvValue_item = proto_tree_add_item(tlv_tree, hf_packetbb_tlv_value, tvb, offset, length, FALSE);
+      tlvValue_item = proto_tree_add_item(tlv_tree, hf_packetbb_tlv_value, tvb, offset, length, ENC_NA);
 
       if ((tlvFlags & TLV_HAS_MULTIVALUE) == 0) {
         offset += length;
@@ -284,7 +284,7 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
         tlvValue_tree = proto_item_add_subtree(tlvValue_item, ett_packetbb_tlv_value);
 
         for (i=indexStart; i<=indexEnd; i++) {
-          proto_tree_add_item(tlvValue_tree, hf_packetbb_tlv_multivalue, tvb, offset, length/c, FALSE);
+          proto_tree_add_item(tlvValue_tree, hf_packetbb_tlv_multivalue, tvb, offset, length/c, ENC_NA);
           offset += (length/c);
         }
       }
@@ -424,7 +424,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
   }
 
   /* add address tree */
-  addr_item = proto_tree_add_item(tree, hf_packetbb_addr, tvb, block_index, block_length, FALSE);
+  addr_item = proto_tree_add_item(tree, hf_packetbb_addr, tvb, block_index, block_length, ENC_NA);
   addr_tree = proto_item_add_subtree(addr_item, ett_packetbb_addr);
   proto_item_append_text(addr_item, " (%d addresses)", numAddr);
 
@@ -443,16 +443,16 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
 
   if ((address_flags & ADDR_HASHEAD) != 0) {
     /* add head */
-    proto_tree_add_item(addr_tree, hf_packetbb_addr_head, tvb, head_index, head_length+1, FALSE);
+    proto_tree_add_item(addr_tree, hf_packetbb_addr_head, tvb, head_index, head_length+1, ENC_NA);
   }
 
   if ((address_flags & ADDR_HASFULLTAIL) != 0) {
     /* add full tail */
-    proto_tree_add_item(addr_tree, hf_packetbb_addr_tail, tvb, tail_index, tail_length+1, FALSE);
+    proto_tree_add_item(addr_tree, hf_packetbb_addr_tail, tvb, tail_index, tail_length+1, ENC_NA);
   }
   else if ((address_flags & ADDR_HASZEROTAIL) != 0) {
     /* add zero tail */
-    proto_tree_add_item(addr_tree, hf_packetbb_addr_head, tvb, tail_index, 1, FALSE);
+    proto_tree_add_item(addr_tree, hf_packetbb_addr_head, tvb, tail_index, 1, ENC_NA);
   }
   for (i=0; i<numAddr; i++) {
     guint32 ipv4 = (addr[0] << 24) + (addr[1] << 16) + (addr[2] << 8) + addr[3];
@@ -481,7 +481,7 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
     addrValue_tree = proto_item_add_subtree(addrValue_item, ett_packetbb_addr_value);
 
     proto_tree_add_item(addrValue_tree, hf_packetbb_addr_value_mid, tvb,
-        mid_index + midSize*i, midSize, FALSE);
+        mid_index + midSize*i, midSize, ENC_NA);
 
     if ((address_flags & ADDR_HASSINGLEPRELEN) != 0) {
       prefix = tvb_get_guint8(tvb, prefix_index);
@@ -563,11 +563,11 @@ static int dissect_pbb_message(tvbuff_t *tvb, proto_tree *tree, guint offset) {
     return tvb_reported_length(tvb);
   }
 
-  message_item = proto_tree_add_item(tree, hf_packetbb_msg, tvb, offset, messageLength, FALSE);
+  message_item = proto_tree_add_item(tree, hf_packetbb_msg, tvb, offset, messageLength, ENC_NA);
   message_tree = proto_item_add_subtree(message_item, ett_packetbb_msg[messageType]);
   proto_item_append_text(message_item, " (type %d)", messageType);
 
-  header_item = proto_tree_add_item(message_tree, hf_packetbb_msgheader, tvb, offset, headerLength, FALSE);
+  header_item = proto_tree_add_item(message_tree, hf_packetbb_msgheader, tvb, offset, headerLength, ENC_NA);
   header_tree = proto_item_add_subtree(header_item, ett_packetbb_msgheader);
 
   /* type */
@@ -660,7 +660,7 @@ static int dissect_pbb_header(tvbuff_t *tvb, proto_tree *tree) {
     return tvb_reported_length(tvb);
   }
 
-  header_item = proto_tree_add_item(tree, hf_packetbb_header, tvb, 0, headerLength, FALSE);
+  header_item = proto_tree_add_item(tree, hf_packetbb_header, tvb, 0, headerLength, ENC_NA);
   header_tree = proto_item_add_subtree(header_item, ett_packetbb_header);
 
   /* version */

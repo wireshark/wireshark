@@ -1484,14 +1484,14 @@ w9:|                                                               |
 			offset = offset + 4;
 			if (handle_v2_as & (V2_AS_1_6)) {
 				/* W5 - W9 Bearer Level Originating Address: */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_level_orig_addr, tipc_tvb, offset, 20, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_level_orig_addr, tipc_tvb, offset, 20, ENC_NA);
 				offset = offset + 20;
 			} else {
 				/* W5 */
 				proto_tree_add_item(tipc_tree, hf_tipcv2_media_id, tipc_tvb, offset, 4, FALSE);
 				offset = offset + 4;
 				/* W6 - W9 Bearer Level Originating Address: */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_level_orig_addr, tipc_tvb, offset, 16, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_level_orig_addr, tipc_tvb, offset, 16, ENC_NA);
 				offset = offset + 16;
 			}
 			if (msg_size-(orig_hdr_size*4) != 0) {

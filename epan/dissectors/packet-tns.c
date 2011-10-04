@@ -416,7 +416,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_value_of_one, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_NA);
 	}
 	offset += 2;
 
@@ -565,7 +565,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( accept_tree )
 	{
 		proto_tree_add_item(accept_tree, hf_tns_value_of_one, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_NA);
 	}
 	offset += 2;
 
@@ -837,7 +837,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( control_tree )
 	{
 		proto_tree_add_item(control_tree, hf_tns_control_data, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 	}
 	return;
 }
@@ -942,7 +942,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( tree )
 	{
 		proto_tree_add_item(tns_tree, hf_tns_reserved_byte, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_NA);
 	}
 	offset += 1;
 

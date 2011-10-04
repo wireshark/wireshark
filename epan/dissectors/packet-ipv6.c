@@ -485,7 +485,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             while(segments > 1) {
                 struct e_in6_addr addr;
 
-                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), FALSE);
+                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
                 /* Display Full Address */
                 memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                 tvb_memcpy(tvb, (guint8 *)&addr + cmprI, offset, (16-cmprI));
@@ -499,7 +499,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
             if (segments == 1) {
                 struct e_in6_addr addr;
 
-                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), FALSE);
+                proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_addr, tvb, offset, (16-cmprI), ENC_NA);
                 /* Display Full Address */
                 memcpy((guint8 *)&addr, (guint8 *)&dstAddr, sizeof(dstAddr));
                 tvb_memcpy(tvb, (guint8 *)&addr + cmprE, offset, (16-cmprE));
@@ -705,7 +705,7 @@ dissect_unknown_option(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     if (tree) {
 	/* !!! specify length */
-	ti = proto_tree_add_item(tree, hf_ipv6_unk_hdr, tvb, offset, len, FALSE);
+	ti = proto_tree_add_item(tree, hf_ipv6_unk_hdr, tvb, offset, len, ENC_NA);
 
 	unkopt_tree = proto_item_add_subtree(ti, ett_ipv6);
 
@@ -756,7 +756,7 @@ dissect_opts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo, c
 	while (p < offset + len) {
 	    switch (tvb_get_guint8(tvb, p)) {
 	    case IP6OPT_PAD1:
-		proto_tree_add_item(dstopt_tree, hf_ipv6_opt_pad1, tvb, p, 1, FALSE);
+		proto_tree_add_item(dstopt_tree, hf_ipv6_opt_pad1, tvb, p, 1, ENC_NA);
 		p++;
 		mip_offset++;
 		break;
@@ -1337,7 +1337,7 @@ dissect_shim6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
 
     if (tree)
     {
-    	ti = proto_tree_add_item(tree, hf_ipv6_shim6, tvb, offset, len, FALSE);
+    	ti = proto_tree_add_item(tree, hf_ipv6_shim6, tvb, offset, len, ENC_NA);
 	shim_tree = proto_item_add_subtree(ti, ett_ipv6_shim6);
 
 	/* Next Header */

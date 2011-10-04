@@ -144,7 +144,7 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	int i;
 	guint32 callnumber;
 
-	item = proto_tree_add_item(parent_tree, hf_rx_encrypted, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_encrypted, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_encrypted);
 
 	/* epoch : 4 bytes */
@@ -212,7 +212,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_response, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_response);
 
 	version = tvb_get_ntohl(tvb, offset);
@@ -238,7 +238,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		offset += 4;
 
 		tvb_ensure_bytes_exist(tvb, offset, tl);
-		proto_tree_add_item(tree, hf_rx_ticket, tvb, offset, tl, FALSE);
+		proto_tree_add_item(tree, hf_rx_ticket, tvb, offset, tl, ENC_NA);
 		offset += tl;
 	}
 
@@ -267,7 +267,7 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_abort, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_abort, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_abort);
 
 	/* kvno */
@@ -301,7 +301,7 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_challenge, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_challenge);
 
 	version = tvb_get_ntohl(tvb, offset);
@@ -343,7 +343,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 		);
 	}
 
-	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, -1, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_rx_ack, tvb, offset, -1, ENC_NA);
 	tree = proto_item_add_subtree(item, ett_rx_ack);
 
 

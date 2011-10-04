@@ -233,7 +233,7 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 1;
   }
 
-  proto_tree_add_item(pflog_tree, hf_pflog_pad, tvb, offset, pad_len, ENC_BIG_ENDIAN);
+  proto_tree_add_item(pflog_tree, hf_pflog_pad, tvb, offset, pad_len, ENC_NA);
   offset += pad_len;
 
   if(length >= LEN_PFLOG_BSD49)
@@ -257,10 +257,10 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     default:
-      proto_tree_add_item(pflog_tree, hf_pflog_saddr, tvb, offset, 16, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pflog_tree, hf_pflog_saddr, tvb, offset, 16, ENC_NA);
       offset += 16;
 
-      proto_tree_add_item(pflog_tree, hf_pflog_daddr, tvb, offset, 16, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pflog_tree, hf_pflog_daddr, tvb, offset, 16, ENC_NA);
       offset += 16;
       break;
     }

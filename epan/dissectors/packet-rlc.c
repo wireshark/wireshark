@@ -474,7 +474,7 @@ static void tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tre
 	proto_tree *frag_tree;
 	guint16 offset;
 	struct rlc_frag *sdufrag;
-	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, -1, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, -1, ENC_NA);
 	frag_tree = proto_item_add_subtree(ti, ett_rlc_fragments);
 	proto_item_append_text(ti, " (%u bytes, %u fragments): ",
 		sdu->len, sdu->fragcnt);
@@ -496,7 +496,7 @@ static void tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb
 	proto_tree *frag_tree;
 	guint16 offset;
 	struct rlc_frag *sdufrag;
-	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, 0, ENC_BIG_ENDIAN);
+	ti = proto_tree_add_item(tree, hf_rlc_frags, tvb, 0, 0, ENC_NA);
 	frag_tree = proto_item_add_subtree(ti, ett_rlc_fragments);
 	proto_item_append_text(ti, " (%u bytes, %u fragments): ",
 		sdu->len, sdu->fragcnt);
@@ -523,7 +523,7 @@ static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_
 
 	if (li_is_on_2_bytes) {
 		li_offs = hdr_offs + li_idx*2;
-		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 2, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 2, ENC_NA);
 		li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
 		ti = proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 15, ENC_BIG_ENDIAN);
 		switch (li->li) {
@@ -570,7 +570,7 @@ static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_
 		proto_tree_add_bits_item(li_tree, hf_rlc_li_ext, tvb, li_offs*8+15, 1, ENC_BIG_ENDIAN);
 	} else {
 		li_offs = hdr_offs + li_idx;
-		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, hf_rlc_li, tvb, li_offs, 1, ENC_NA);
 		li_tree = proto_item_add_subtree(ti, ett_rlc_frag);
 		ti = proto_tree_add_bits_item(li_tree, hf_rlc_li_value, tvb, li_offs*8, 7, ENC_BIG_ENDIAN);
 		switch (li->li) {
@@ -610,7 +610,7 @@ static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_
 	if (li->len > 0) {
 		if (li->li > tvb_length_remaining(tvb, hdr_offs)) return li_tree;
 		if (li->len > li->li) return li_tree; 
-		ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_NA);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	}
 
@@ -901,7 +901,7 @@ static void dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info
 	proto_tree *top_level, proto_tree *tree)
 {
 	if (tree) {
-		proto_tree_add_item(tree, hf_rlc_data, tvb, 0, -1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_rlc_data, tvb, 0, -1, ENC_NA);
 	}
 	rlc_call_subdissector(channel, tvb, pinfo, top_level);
 }
@@ -920,7 +920,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
 			/* padding, must be last LI */
 			if (tree) {
-				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_NA);
 			}
 			offs += tvb_length_remaining(tvb, offs);
 		} else if ((!li_is_on_2_bytes && (li[i].li == 0x7c)) || (li[i].li == 0x7ffc)) {
@@ -932,7 +932,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 			if (length > 1) {
 				length--;
 				if (tree && length) {
-					proto_tree_add_item(tree, hf_rlc_data, tvb, offs, length, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_rlc_data, tvb, offs, length, ENC_NA);
 				}
 				if (global_rlc_perform_reassemby) {
 					add_fragment(RLC_UM, tvb, pinfo, li[i].tree, offs, seq, i, length, TRUE);
@@ -941,12 +941,12 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 				offs += length;
 			}
 			if (tree) {
-				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, 1, ENC_NA);
 			}
 			offs += 1;
 		} else {
 			if (tree && li[i].len) {
-				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_NA);
 			}
 			if (global_rlc_perform_reassemby) {
 				add_fragment(RLC_UM, tvb, pinfo, li[i].tree, offs, seq, i, li[i].len, TRUE);
@@ -964,7 +964,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 	/* is there data left? */
 	if (tvb_length_remaining(tvb, offs) > 0) {
 		if (tree) {
-			proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_NA);
 		}
 		if (global_rlc_perform_reassemby) {
 			/* add remaining data as fragment */
@@ -1206,7 +1206,7 @@ static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	while (tvb_length_remaining(tvb, bit_offset/8) > 0) {
 		sufi_type = tvb_get_bits8(tvb, bit_offset, 4);
-		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, 0, 0, ENC_BIG_ENDIAN);
+		sufi_item = proto_tree_add_item(tree, hf_rlc_sufi, tvb, 0, 0, ENC_NA);
 		sufi_tree = proto_item_add_subtree(sufi_item, ett_rlc_sufi);
 		proto_tree_add_bits_item(sufi_tree, hf_rlc_sufi_type, tvb, bit_offset, 4, ENC_BIG_ENDIAN);
 		bit_offset += 4;
@@ -1249,7 +1249,7 @@ static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 				len++; /* bitmap is len + 1 */
 				proto_tree_add_bits_ret_val(sufi_tree, hf_rlc_sufi_fsn, tvb, bit_offset, 12, &sn, ENC_BIG_ENDIAN);
 				bit_offset += 12;
-				proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, (gint)len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(sufi_tree, hf_rlc_sufi_bitmap, tvb, bit_offset/8, (gint)len, ENC_NA);
 				ti = proto_tree_add_text(sufi_tree, tvb, bit_offset/8, (gint)len, "Decoded bitmap:");
 				bitmap_tree = proto_item_add_subtree(ti, ett_rlc_bitmap);
 				buff = ep_alloc(BUFF_SIZE);
@@ -1408,12 +1408,12 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		} else if ((!li_is_on_2_bytes && (li[i].li == 0x7f)) || (li[i].li == 0x7fff)) {
 			/* padding, must be last LI */
 			if (tree && tvb_length_remaining(tvb, offs) > 0) {
-				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rlc_pad, tvb, offs, -1, ENC_NA);
 			}
 			offs += tvb_length_remaining(tvb, offs);
 		} else {
 			if (tree && li[i].len) {
-				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, li[i].len, ENC_NA);
 			}
 			if (global_rlc_perform_reassemby) {
 				add_fragment(RLC_AM, tvb, pinfo, li[i].tree, offs, seq, i, li[i].len, TRUE);
@@ -1434,7 +1434,7 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		if (tvb_length_remaining(tvb, offs) > 0) {
 			/* we have remaining data, which we need to mark in the tree */
 			if (tree) {
-				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_rlc_data, tvb, offs, -1, ENC_NA);
 			}
 			if (global_rlc_perform_reassemby) {
 				add_fragment(RLC_AM, tvb, pinfo, tree, offs, seq, i,

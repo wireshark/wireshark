@@ -356,7 +356,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 ? " - shutdown (promises from this peer are no longer valid)"
 						 : "");
 		proto_tree_add_item(ldss_tree, hf_ldss_digest,
-				    tvb, 8,	    DIGEST_LEN, FALSE);
+				    tvb, 8,	    DIGEST_LEN, ENC_NA);
 		proto_tree_add_item(ldss_tree, hf_ldss_size,
 				    tvb, 40,    8,	FALSE);
 		proto_tree_add_item(ldss_tree, hf_ldss_offset,
@@ -392,7 +392,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    tvb, 70, 2, FALSE);
 		if (tvb_length(tvb) > 72) {
 			proto_tree_add_item(ldss_tree, hf_ldss_properties,
-					    tvb, 72, tvb_length(tvb) - 72, FALSE);
+					    tvb, 72, tvb_length(tvb) - 72, ENC_NA);
 		}
 	}
 

@@ -1364,7 +1364,7 @@ handle things. To be investigated further */
 			if (_aaa_msg_type == 0x2)  /*EAPOL*/
 			{
 				_ti = proto_tree_add_item(_tree, hf_wlccp_eapol_msg,
-						         _tvb, _offset, 6, ENC_BIG_ENDIAN);
+						         _tvb, _offset, 6, ENC_NA);
 
 				_wlccp_eapol_msg_tree = proto_item_add_subtree(
 						_ti, ett_wlccp_eapol_msg_tree);
@@ -1392,7 +1392,7 @@ handle things. To be investigated further */
 					_offset += 2;
 
 					proto_tree_add_item(_wlccp_eapol_msg_tree, hf_wlccp_eap_msg,
-			        		            _tvb, _offset, _eap_msg_length, ENC_BIG_ENDIAN);
+			        		            _tvb, _offset, _eap_msg_length, ENC_NA);
 					_offset += _eap_msg_length;
 
 				} /* if _eapol_type == 0 */
@@ -1402,7 +1402,7 @@ handle things. To be investigated further */
 			if (_aaa_msg_type == 0x3)  /*Cisco proprietary message*/
 			{
 				proto_tree_add_item(_tree, hf_wlccp_cisco_acctg_msg,
-						    _tvb, _offset, -1, ENC_BIG_ENDIAN);
+						    _tvb, _offset, -1, ENC_NA);
 			} /* if aaa_msg_type == 0x3 */
 
 			break;
@@ -1707,7 +1707,7 @@ static guint dissect_wlccp_nm_msg(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 			_offset += 3; /*kan - skip some apparently unused bytes */
 
 			_ti = proto_tree_add_item(_tree, hf_wlccp_ap_node_id,
-						_tvb, _offset, 8, ENC_BIG_ENDIAN);
+						_tvb, _offset, 8, ENC_NA);
 
 			_wlccp_ap_node_id_tree = proto_item_add_subtree(
 					_ti, ett_wlccp_ap_node_id);
@@ -1846,7 +1846,7 @@ static guint dissect_wlccp_tlvs( proto_tree *_tree, tvbuff_t *_tvb, guint _offse
 	_tlv_end = _offset + _length;
 
 	/* this TLV is _length bytes long */
-	_ti = proto_tree_add_item(_tree, hf_wlccp_tlv, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+	_ti = proto_tree_add_item(_tree, hf_wlccp_tlv, _tvb, _offset, _length, ENC_NA);
 	/* create the TLV sub tree */
 	_tlv_tree = proto_item_add_subtree(_ti, ett_wlccp_tlv_tree);
 
@@ -2052,7 +2052,7 @@ static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		case 0x00:  /* NULL TLV */
 		{
 			proto_item_append_text(_ti, "     NULL TLV");
-			proto_tree_add_item(_tree, hf_wlccp_null_tlv	, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_null_tlv	, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 			break;
@@ -2076,7 +2076,7 @@ static guint dissect_wlccp_ccm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 			break;
@@ -2140,7 +2140,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_key_mgmt_type, _tvb, _offset, 1, ENC_BIG_ENDIAN);
 			_offset += 1;
 
-			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_NA);
 			_offset += 32;
 
 			break;
@@ -2173,7 +2173,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_status, _tvb, _offset, 1, ENC_BIG_ENDIAN);
 			_offset += 1;
 
-			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_NA);
 			_offset += 32;
 
 			break;
@@ -2193,7 +2193,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			_mic_length = tvb_get_ntohs(_tvb,_offset);
 			_offset += 2;
 
-			proto_tree_add_item(_tree, hf_wlccp_mic_value, _tvb, _offset, _mic_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_mic_value, _tvb, _offset, _mic_length, ENC_NA);
 			_offset += _mic_length;
 
 			break;
@@ -2220,7 +2220,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			proto_tree_add_item(_tree, hf_wlccp_supp_node_id, _tvb, _offset, 6, ENC_BIG_ENDIAN);
 			_offset += 6;
 
-			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_nonce, _tvb, _offset, 32, ENC_NA);
 			_offset += 32;
 
 			proto_tree_add_item(_tree, hf_wlccp_session_timeout, _tvb, _offset, 4, ENC_BIG_ENDIAN);
@@ -2235,7 +2235,7 @@ static guint dissect_wlccp_sec_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		{
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 			break;
@@ -2381,7 +2381,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			if (_arraylen > 0)
 			{
 
-				_fr_ti = proto_tree_add_item(_tree, hf_framereport_elements, _tvb, _offset, (_length-10), ENC_BIG_ENDIAN);
+				_fr_ti = proto_tree_add_item(_tree, hf_framereport_elements, _tvb, _offset, (_length-10), ENC_NA);
 				_fr_elems_tree = proto_item_add_subtree(_fr_ti, ett_framereport_elements_tree);
 
 				for(_counter=0; _counter < _arraylen; _counter++)
@@ -2503,7 +2503,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 
 			_rpi_density_length = _length - 6 - 4;
 
-			proto_tree_add_item(_tree, hf_wlccp_rpidensity, _tvb, _offset, _rpi_density_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_rpidensity, _tvb, _offset, _rpi_density_length, ENC_NA);
 			_offset += _rpi_density_length;
 
 			break;
@@ -2624,7 +2624,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 			_tlv80211length = _length - 13 - 4;
 
 			/* This TLV could be decoded per the 802.11 information element spec's */
-			proto_tree_add_item(_tree, hf_wlccp_tlv80211, _tvb, _offset, _tlv80211length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv80211, _tvb, _offset, _tlv80211length, ENC_NA);
 			_offset += _tlv80211length;
 
 			break;
@@ -2775,7 +2775,7 @@ static guint dissect_wlccp_rrm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 		break;
@@ -2798,7 +2798,7 @@ static guint dissect_wlccp_qos_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 			break;
@@ -2999,7 +2999,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 			break;
@@ -3024,7 +3024,7 @@ static guint dissect_wlccp_mip_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _off
 		/* for unknown types, just add them to the tree as a blob */
 			proto_item_append_text(_ti, "     Unknown");
 
-			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_tlv_unknown_value, _tvb, _offset, _length, ENC_NA);
 			_offset += _length;
 
 			break;

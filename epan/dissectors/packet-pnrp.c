@@ -415,7 +415,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          *--Add all Header Fields
          *------------------------------*/
         /* Get a subtree for the Header */
-        pnrp_header_item = proto_tree_add_item(pnrp_tree, hf_pnrp_header, tvb, offset,12,FALSE);
+        pnrp_header_item = proto_tree_add_item(pnrp_tree, hf_pnrp_header, tvb, offset,12,ENC_NA);
         pnrp_header_tree = proto_item_add_subtree(pnrp_header_item, ett_pnrp_header);
 
         /* Add Field ID should be 0c0010 */
@@ -708,7 +708,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
-                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_hashednonce, tvb, offset + 4, data_length-4, FALSE);
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_hashednonce, tvb, offset + 4, data_length-4, ENC_NA);
 
                     }
 
@@ -723,7 +723,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, FALSE);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, FALSE);
-                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_nonce, tvb, offset + 4, data_length-4, FALSE);
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_nonce, tvb, offset + 4, data_length-4, ENC_NA);
                     }
 
                     offset += data_length;
@@ -844,7 +844,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void dissect_pnrp_ids(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
 {
     while (32 <=length) {
-        proto_tree_add_item(tree, hf_pnrp_message_pnrpID, tvb, offset, 32, FALSE);
+        proto_tree_add_item(tree, hf_pnrp_message_pnrpID, tvb, offset, 32, ENC_NA);
         length -= 32;
         offset += 32;
     }
@@ -858,7 +858,7 @@ static void dissect_route_entry(tvbuff_t *tvb, gint offset, gint length, proto_t
     if (0 <= tvb_reported_length_remaining(tvb, offset+length)) {
         tmp_offset = 0;
         /* First, we have a 32 Bit long PNRP ID */
-        proto_tree_add_item(tree, hf_pnrp_message_pnrpID, tvb, offset+tmp_offset, 32, FALSE);
+        proto_tree_add_item(tree, hf_pnrp_message_pnrpID, tvb, offset+tmp_offset, 32, ENC_NA);
         tmp_offset +=32;
         /* Add PNRP Major Version */
         proto_tree_add_item(tree,hf_pnrp_header_versionMajor,tvb,offset+tmp_offset,1,FALSE);
@@ -910,7 +910,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /* Add a new subtree */
         proto_item *pnrp_encodedCPA_tree = NULL;
         proto_item *pnrp_encodedCPA_item = NULL;
-        pnrp_encodedCPA_item = proto_tree_add_item(tree, hf_pnrp_encodedCPA, tvb, offset,length,FALSE);
+        pnrp_encodedCPA_item = proto_tree_add_item(tree, hf_pnrp_encodedCPA, tvb, offset,length,ENC_NA);
         pnrp_encodedCPA_tree = proto_item_add_subtree(pnrp_encodedCPA_item, ett_pnrp_message_encodedCPA);
 
         /* Length information */
@@ -931,7 +931,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /* Not After */
         proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_notAfter, tvb, offset+8, 8, FALSE);
         /* Service Location */
-        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_serviceLocation, tvb, offset+16, 16, FALSE);
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_serviceLocation, tvb, offset+16, 16, ENC_NA);
 
         /* now, the structure is variable, so add bytes to offset */
         offset +=32;
@@ -939,19 +939,19 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /* Check if R Flag is set */
         if ((flagsField & FLAGS_ENCODED_CPA_R)==0x00) {
             /* Nonce follows */
-            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_message_nonce, tvb, offset, 16, FALSE);
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_message_nonce, tvb, offset, 16, ENC_NA);
             offset +=16;
         }
         /* Check if A Flag is set */
         if (flagsField & FLAGS_ENCODED_CPA_A) {
             /* Binary authority */
-            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_binaryAuthority, tvb, offset, 20, FALSE);
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_binaryAuthority, tvb, offset, 20, ENC_NA);
             offset +=20;
         }
         /* Check if C Flag is set */
         if (flagsField & FLAGS_ENCODED_CPA_C) {
             /* Classifiert Hash */
-            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_classifiertHash, tvb, offset, 20, FALSE);
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_classifiertHash, tvb, offset, 20, ENC_NA);
             offset +=20;
         }
         /* Check if F Flag is set */
@@ -1075,7 +1075,7 @@ static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length,
         proto_tree_add_text(pnrp_signature_tree, tvb, offset,4, "Hash Algorithm Identifier : %x",tvb_get_letohl(tvb,offset));
         offset += 4;
         /* Signature Data */
-        proto_tree_add_item(pnrp_signature_tree, hf_pnrp_signature_signatureData, tvb, offset, signatureLength, FALSE);
+        proto_tree_add_item(pnrp_signature_tree, hf_pnrp_signature_signatureData, tvb, offset, signatureLength, ENC_NA);
     }
 }
 /* Register the protocol */

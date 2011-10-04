@@ -135,7 +135,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     offset += TRILL_NICKNAME_LEN  ;
     if( op_len != 0 ) {    
       proto_tree_add_item( trill_tree, hf_trill_options, tvb,
-        offset, op_len, FALSE ) ;
+        offset, op_len, ENC_NA ) ;
     }
   }
 

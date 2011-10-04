@@ -310,14 +310,14 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          break;
       default:
          if (clen > 0) {
-            proto_tree_add_item(fcgi_tree, hf_fcgi_content_data, tvb, offset, clen, TRUE);
+            proto_tree_add_item(fcgi_tree, hf_fcgi_content_data, tvb, offset, clen, ENC_NA);
             offset += clen;
          }
          break;
       }
 
       if (plen > 0) {
-         proto_tree_add_item(fcgi_tree, hf_fcgi_padding_data, tvb, offset, plen, TRUE);
+         proto_tree_add_item(fcgi_tree, hf_fcgi_padding_data, tvb, offset, plen, ENC_NA);
          offset += plen;
       }
    }

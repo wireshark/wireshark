@@ -896,7 +896,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
      * then the headers are most likely absent. */
     if(total_length >= 0x100)
         return;
-    item = proto_tree_add_item(tree, hf_tds_all_headers, tvb, *offset, total_length, TRUE);
+    item = proto_tree_add_item(tree, hf_tds_all_headers, tvb, *offset, total_length, ENC_NA);
     sub_tree = proto_item_add_subtree(item, ett_tds_all_headers);
     total_length_item = proto_tree_add_item(sub_tree, hf_tds_all_headers_total_length, tvb, *offset, 4, TRUE);
 
@@ -1699,7 +1699,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
     guint8 data_type;
 
     *plp = FALSE; /* most types are not Partially Length-Prefixed */
-    item = proto_tree_add_item(tree, hf_tds_type_info, tvb, *offset, 0, TRUE);
+    item = proto_tree_add_item(tree, hf_tds_type_info, tvb, *offset, 0, ENC_NA);
     data_type = tvb_get_guint8(tvb, *offset);
     proto_item_append_text(item, " (%s)", val_to_str(data_type, tds_data_type_names, "Invalid data type: %02X"));
     sub_tree = proto_item_add_subtree(item, ett_tds_type_info);
@@ -1808,7 +1808,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
         case TDS_DATA_TYPE_NTEXT:           /* NText */
         case TDS_DATA_TYPE_NCHAR:           /* NChar */
         case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
-            item1 = proto_tree_add_item(sub_tree, hf_tds_type_info_collation, tvb, *offset, 5, TRUE);
+            item1 = proto_tree_add_item(sub_tree, hf_tds_type_info_collation, tvb, *offset, 5, ENC_NA);
             collation_tree = proto_item_add_subtree(item1, ett_tds_type_info_collation);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_lcid, tvb, *offset, 4, TRUE);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_case, tvb, *offset, 4, TRUE);
@@ -1858,7 +1858,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
                 }
                 switch(data_type) {
                     case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, TRUE);
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
                         break;
                     case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
                         proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_string, tvb, *offset, length, TRUE);
@@ -1929,7 +1929,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             length = tvb_get_guint8(tvb, *offset);
             length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             switch(length) {
-                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 16: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, TRUE); break;
                 default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
             }
@@ -1939,7 +1939,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             length = tvb_get_guint8(tvb, *offset);
             length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             switch(length) {
-                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, TRUE); break;
                 default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
             }
@@ -1949,7 +1949,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             length = tvb_get_guint8(tvb, *offset);
             length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             switch(length) {
-                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int1, tvb, *offset + 1, 1, TRUE); break;
                 case 2: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int2, tvb, *offset + 1, 2, TRUE); break;
                 case 4: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_int4, tvb, *offset + 1, 4, TRUE); break;
@@ -1962,7 +1962,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             length = tvb_get_guint8(tvb, *offset);
             length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             switch(length) {
-                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE); break;
+                case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
                 case 4: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_float, tvb, *offset + 1, 4, TRUE); break;
                 case 8: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_double, tvb, *offset + 1, 8, TRUE); break;
                 default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
@@ -1987,7 +1987,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             *offset += 1;
             if(length > 0) {
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, TRUE);
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
                 *offset += length;
             }
             break;
@@ -2004,13 +2004,13 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             *offset += 2;
             if(length == CHARBIN_NULL) {
                 proto_item_append_text(length_item, " (CHARBIN_NULL)");
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE);
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
             }
             else {
                 switch(data_type) {
                     case TDS_DATA_TYPE_BIGVARBIN: /* VarBinary */
                     case TDS_DATA_TYPE_BIGBINARY: /* Binary */
-                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, TRUE);
+                        proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_bytes, tvb, *offset, length, ENC_NA);
                         break;
                     case TDS_DATA_TYPE_BIGVARCHR: /* VarChar */
                     case TDS_DATA_TYPE_BIGCHAR:   /* Char */
@@ -2040,7 +2040,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             *offset += 4;
             if(length == CHARBIN_NULL32) {
                 proto_item_append_text(length_item, " (CHARBIN_NULL)");
-                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, TRUE);
+                proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA);
             }
             else {
                 switch(data_type) {
@@ -2070,7 +2070,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     char *val;
     guint8 data_type;
 
-    item = proto_tree_add_item(tree, hf_tds_rpc, tvb, 0, -1, TRUE);
+    item = proto_tree_add_item(tree, hf_tds_rpc, tvb, 0, -1, ENC_NA);
     tree = proto_item_add_subtree(item, ett_tds_message);
 
     dissect_tds_all_headers(tvb, &offset, pinfo, tree);
@@ -2123,7 +2123,7 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ++offset;
                 break;
             }
-            param_item = proto_tree_add_item(tree, hf_tds_rpc_parameter, tvb, offset, 0, TRUE);
+            param_item = proto_tree_add_item(tree, hf_tds_rpc_parameter, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(param_item, ett_tds_rpc_parameter);
             proto_tree_add_item(sub_tree, hf_tds_rpc_parameter_name_length, tvb, offset, 1, TRUE);
             ++offset;

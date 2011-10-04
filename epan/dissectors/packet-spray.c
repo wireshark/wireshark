@@ -53,7 +53,7 @@ dissect_get_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 			hf_spray_counter, offset);
 
 	lock_item = proto_tree_add_item(tree, hf_spray_clock, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_spray_clock);
 

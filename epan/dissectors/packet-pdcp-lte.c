@@ -673,7 +673,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         guint8 tos, ttl, id, rnd, nbo;
 
         /* Create dynamic IPv4 subtree */
-        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_ipv4, tvb, offset, -1, FALSE);
+        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_ipv4, tvb, offset, -1, ENC_NA);
         dynamic_ipv4_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_dynamic_ipv4);
 
         /* ToS */
@@ -718,7 +718,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         unsigned short checksum;
 
         /* Create dynamic UDP subtree */
-        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_udp, tvb, offset, 2, FALSE);
+        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_udp, tvb, offset, 2, ENC_NA);
         dynamic_udp_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_dynamic_udp);
 
         /* 16-bit checksum */
@@ -755,7 +755,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         guint64    ts_stride=0;
 
         /* Create dynamic RTP subtree */
-        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_rtp, tvb, offset, -1, FALSE);
+        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_dynamic_rtp, tvb, offset, -1, ENC_NA);
         dynamic_rtp_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_dynamic_rtp);
 
         /* TODO: */
@@ -905,7 +905,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
         guint32 source, dest;
 
         /* Create static IPv4 subtree */
-        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_static_ipv4, tvb, offset, -1, FALSE);
+        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_static_ipv4, tvb, offset, -1, ENC_NA);
         static_ipv4_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_static_ipv4);
 
         /* IP version (must be 4) */
@@ -947,7 +947,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
         unsigned short source_port, dest_port;
 
         /* Create static UDP subtree */
-        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_static_udp, tvb, offset, -1, FALSE);
+        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_static_udp, tvb, offset, -1, ENC_NA);
         static_udp_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_static_udp);
 
         /* Source port */
@@ -974,7 +974,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
         guint32    ssrc;
 
         /* Create static RTP subtree */
-        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_static_rtp, tvb, offset, 4, FALSE);
+        root_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_static_rtp, tvb, offset, 4, ENC_NA);
         static_rtp_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_static_rtp);
 
         /* SSRC */
@@ -1048,7 +1048,7 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
     }
 
     /* Feedback2 hidden filter */
-    ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_feedback2, tvb, offset, -1, FALSE);
+    ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_feedback2, tvb, offset, -1, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Ack-type */
@@ -1158,7 +1158,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
     proto_item_append_text(root_item, " (Feedback)");
 
     /* Create feedback tree root */
-    feedback_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback, tvb, offset, -1, FALSE);
+    feedback_ti = proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback, tvb, offset, -1, ENC_NA);
     feedback_tree = proto_item_add_subtree(feedback_ti, ett_pdcp_packet);
 
     /* Code */
@@ -1253,7 +1253,7 @@ static int dissect_pdcp_r_0_crc_packet(proto_tree *tree,
     col_append_str(pinfo->cinfo, COL_INFO, " R-0-CRC");
     proto_item_append_text(root_item, " (R-0-CRC)");
 
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_r_0_crc, tvb, offset, -1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_r_0_crc, tvb, offset, -1, ENC_NA);
 
     /* 7 bits of sn */
     /* TODO: wrong!  Large-cid may be in-between!!!! */
@@ -1977,13 +1977,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 else {
                      /* Just show data */
                         proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                            tvb_length_remaining(tvb, offset) - 4, FALSE);
+                                            tvb_length_remaining(tvb, offset) - 4, ENC_NA);
                 }
             }
             else {
                 /* Just show as unparsed data */
                 proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                    tvb_length_remaining(tvb, offset) - 4, FALSE);
+                                    tvb_length_remaining(tvb, offset) - 4, ENC_NA);
             }
 
             data_length = tvb_length_remaining(tvb, offset) - 4;
@@ -2149,7 +2149,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     }
                 }
                 else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, FALSE);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_user_plane_data, tvb, offset, -1, ENC_NA);
                 }
             }
             else {
@@ -2167,11 +2167,11 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     else {
                          /* Just show data */
                          proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset,
-                                             tvb_length_remaining(tvb, offset), FALSE);
+                                             tvb_length_remaining(tvb, offset), ENC_NA);
                     }
                 }
                 else {
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, FALSE);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_signalling_data, tvb, offset, -1, ENC_NA);
                 }
             }
 
@@ -2196,7 +2196,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Create pdcp tree. */
     if (pdcp_tree) {
-        rohc_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_rohc, tvb, offset, -1, FALSE);
+        rohc_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_rohc, tvb, offset, -1, ENC_NA);
         rohc_tree = proto_item_add_subtree(rohc_ti, ett_pdcp_rohc);
     }
 
@@ -2208,7 +2208,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     }
     if (offset > rohc_offset) {
         proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_padding, tvb, rohc_offset,
-                            offset-rohc_offset, FALSE);
+                            offset-rohc_offset, ENC_NA);
     }
 
     /* Add-CID octet */
@@ -2353,7 +2353,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* Payload */
     if (tvb_reported_length_remaining(tvb, offset) > 0) {
-        proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_payload, tvb, offset, -1, FALSE);
+        proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_payload, tvb, offset, -1, ENC_NA);
     }
 }
 

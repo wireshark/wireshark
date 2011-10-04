@@ -476,7 +476,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* All these extensions look the same.  4 byte SPI followed by a key */
 	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
 	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset+4, ext_len-4,
-						  FALSE);
+						  ENC_NA);
 	  break;
 	case MN_NAI_EXT:
 	  proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, offset,
@@ -496,7 +496,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
 	  /* Key */
 	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset + 4,
-						  ext_len - 4, FALSE);
+						  ext_len - 4, ENC_NA);
 
 	  break;
         case REV_SUPP_EXT:      /* RFC 3543 */
@@ -587,16 +587,16 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
 
 	  if (ext_subtype == PMIPv4_SKIPEXT_STYPE_INTERFACE_ID) {
-	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_interfaceid, tvb, offset + 1, ext_len-1, FALSE);
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_interfaceid, tvb, offset + 1, ext_len-1, ENC_NA);
 	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_DEVICE_ID) {
 	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_type, tvb, offset + 1, 1, pmipv4skipext_type);
-	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_id, tvb, offset + 2, ext_len - 2, FALSE);
+	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_id, tvb, offset + 2, ext_len - 2, ENC_NA);
 	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID) {
 	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);
 	    proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_type, tvb, offset + 1, 1, pmipv4skipext_type);
 	    if (pmipv4skipext_type == 1) {
-	      proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_id, tvb, offset + 2, ext_len - 2, FALSE);
+	      proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_id, tvb, offset + 2, ext_len - 2, ENC_NA);
 	    }
 	  } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_ACCESS_TECHNOLOGY) {
 	    pmipv4skipext_type = tvb_get_guint8(tvb, offset + 1);
@@ -632,7 +632,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  cvse_local_offset+=2;
 	  /* Vendor-CVSE-Value */
 	  /* Vendor CVSE Type+Vendor/Org ID = 6 bytes*/
-	  proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_cvse_value, tvb, cvse_local_offset, ext_len - 6, ENC_NA);
 	  break;
 
 	case OLD_CVSE_EXT:      /* RFC 3115 */
@@ -641,7 +641,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	case MF_CHALLENGE_EXT:  /* RFC 3012 */
 	  /* The default dissector is good here.  The challenge is all hex anyway. */
 	default:
-	  proto_tree_add_item(ext_tree, hf_mip_ext, tvb, offset, ext_len, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_ext, tvb, offset, ext_len, ENC_NA);
 	  break;
 	} /* ext type */
 

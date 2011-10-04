@@ -550,7 +550,7 @@ dissect_dlm3_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         tvb,
                         offset,
                         -1,
-                        ENC_LITTLE_ENDIAN);
+                        ENC_NA);
   }
 }
 
@@ -641,7 +641,7 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   offset += 2;
   sub_item = proto_tree_add_item(tree,
                                  hf_dlm3_rl_name, tvb, offset,
-                                 DLM3_RESNAME_MAXLEN, ENC_LITTLE_ENDIAN);
+                                 DLM3_RESNAME_MAXLEN, ENC_NA);
 
   sub_tree = proto_item_add_subtree(sub_item,
                                     ett_dlm3_rl_name);
@@ -653,14 +653,14 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   sub_offset += namelen;
   proto_tree_add_item(sub_tree,
                       hf_dlm3_rl_name_padding, tvb, sub_offset,
-                      DLM3_RESNAME_MAXLEN - namelen, ENC_LITTLE_ENDIAN);
+                      DLM3_RESNAME_MAXLEN - namelen, ENC_NA);
 
   offset += DLM3_RESNAME_MAXLEN;
   if (((length - offset) > 0) && (exflags & DLM3_LKF_VALBLK))
     proto_tree_add_item(tree,
                         hf_dlm3_rl_lvb, tvb, offset,
                         -1,
-                        ENC_LITTLE_ENDIAN);
+                        ENC_NA);
 }
 
 
@@ -735,7 +735,7 @@ dissect_dlm3_rcom(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                  tvb,
                                  offset,
                                  -1,
-                                 ENC_LITTLE_ENDIAN);
+                                 ENC_NA);
 
   offset += 0;
   if (rc_type == DLM3_RCOM_LOCK) {

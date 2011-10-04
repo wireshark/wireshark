@@ -395,7 +395,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	}
 
 	/* Add root of tree for this AVP */
-	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,FALSE);
+	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,ENC_NA);
 	avp_tree = proto_item_add_subtree(avp_item,a->ett);
 
 	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,FALSE);

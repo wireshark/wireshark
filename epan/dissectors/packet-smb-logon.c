@@ -755,7 +755,7 @@ dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset += 4;
 
 	/* Domain GUID */
-	proto_tree_add_item(tree, hf_domain_guid, tvb, offset, 16, TRUE);
+	proto_tree_add_item(tree, hf_domain_guid, tvb, offset, 16, ENC_NA);
 	offset += 16;
 
 	/* forest dns name */

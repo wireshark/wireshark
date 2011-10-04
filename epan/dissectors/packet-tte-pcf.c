@@ -132,7 +132,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      /* proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_res1, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
             TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH+TTE_PCF_SD_LENGTH+
-            TTE_PCF_TYPE_LENGTH, TTE_PCF_RES1_LENGTH, FALSE); */
+            TTE_PCF_TYPE_LENGTH, TTE_PCF_RES1_LENGTH, ENC_NA); */
 
         proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_tc, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+

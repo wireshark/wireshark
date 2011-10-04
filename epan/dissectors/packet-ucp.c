@@ -1650,7 +1650,7 @@ add_5xO(proto_tree *tree, tvbuff_t *tvb)
         int      len = tmpoff - offset - 1;
 	proto_tree *subtree;
 
-        ti = proto_tree_add_item(tree, hf_ucp_parm_XSer, tvb, offset, len, FALSE);
+        ti = proto_tree_add_item(tree, hf_ucp_parm_XSer, tvb, offset, len, ENC_NA);
         tmptvb = tvb_new_subset(tvb, offset, len + 1, len + 1);
         subtree = proto_item_add_subtree(ti, ett_XSer);
         ucp_handle_XSer(subtree, tmptvb);
@@ -1864,7 +1864,7 @@ dissect_ucp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         tmp_tvb = tvb_new_subset_remaining(tvb, offset);
         sub_ti = proto_tree_add_item(ucp_tree, hf_ucp_oper_section, tvb,
-                                     offset, endpkt - offset, FALSE);
+                                     offset, endpkt - offset, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_ti, ett_sub);
 
         switch (OT) {

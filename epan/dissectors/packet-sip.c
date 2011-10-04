@@ -2698,7 +2698,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 		next_tvb = tvb_new_subset(tvb, offset, datalen, reported_datalen);
 		if(sip_tree) {
 			ti_a = proto_tree_add_item(sip_tree, hf_sip_msg_body, next_tvb, 0, -1,
-			                         FALSE);
+			                         ENC_NA);
 			message_body_tree = proto_item_add_subtree(ti_a, ett_sip_message_body);
 		}
 

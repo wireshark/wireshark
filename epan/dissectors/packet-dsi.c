@@ -238,7 +238,7 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint 
 				proto_tree_add_item(tree, hf_dsi_replay_cache_size, tvb, offset, 4, FALSE);
 				break;
 			default:
-				proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, FALSE);
+				proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, ENC_NA);
 		}
 
 		dsi_length -= len + 2;
@@ -396,10 +396,10 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_ICONOFF);
 	if (ofs)
-		proto_tree_add_item(tree, hf_dsi_server_icon, tvb, ofs, 256, FALSE);
+		proto_tree_add_item(tree, hf_dsi_server_icon, tvb, ofs, 256, ENC_NA);
 
 	if (sign_ofs) {
-		proto_tree_add_item(tree, hf_dsi_server_signature, tvb, sign_ofs, 16, FALSE);
+		proto_tree_add_item(tree, hf_dsi_server_signature, tvb, sign_ofs, 16, ENC_NA);
 	}
 
 	if (adr_ofs) {
@@ -465,7 +465,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			ofs++;
 			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, FALSE);
 			ofs++;
-			proto_tree_add_item(sub_tree, hf_dsi_server_addr_value,tvb, ofs, len, FALSE);
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_value,tvb, ofs, len, ENC_NA);
 			ofs += len;
 		}
 	}

@@ -588,7 +588,7 @@ ssh_dissect_ssh1(tvbuff_t *tvb, packet_info *pinfo,
 	/* payload */
 	if (ssh1_tree ) {
 		ssh_proto_tree_add_item(ssh1_tree, hf_ssh_payload,
-		    tvb, offset, len, FALSE);
+		    tvb, offset, len, ENC_NA);
 	}
 	offset+=len;
 
@@ -741,13 +741,13 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		/* DH GEX Request (min/nbits/max) */
 		if (msg_code == 34) {
 			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_min,
-			    tvb, offset, 4, FALSE);
+			    tvb, offset, 4, ENC_NA);
 			offset+=4;
 			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_nbits,
-			    tvb, offset, 4, FALSE);
+			    tvb, offset, 4, ENC_NA);
 			offset+=4;
 			ssh_proto_tree_add_item(key_ex_tree, hf_ssh_dh_gex_max,
-			    tvb, offset, 4, FALSE);
+			    tvb, offset, 4, ENC_NA);
 			offset+=4;
 		}
 		/* DH Key Exchange Reply (g/p) */
@@ -770,14 +770,14 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 	len = plen+4-padding_length-(offset-last_offset);
 	if (tree ) {
 		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_payload,
-		    tvb, offset, len, FALSE);
+		    tvb, offset, len, ENC_NA);
 	}
 	offset +=len;
 
 	/* padding */
 	if(tree) {
 		ssh_proto_tree_add_item(key_ex_tree, hf_ssh_padding_string,
-		    		tvb, offset, padding_length, FALSE);
+		    		tvb, offset, padding_length, ENC_NA);
 	}
 	offset+= padding_length;
 
@@ -787,7 +787,7 @@ ssh_dissect_key_exchange(tvbuff_t *tvb, packet_info *pinfo,
 		if(len == 16) {
 			if(tree) {
 				proto_tree_add_item(key_ex_tree, hf_ssh_mac_string,
-		    			tvb, offset, len , FALSE);
+		    			tvb, offset, len , ENC_NA);
 			}
 			offset+=len;
 		}
@@ -814,12 +814,12 @@ ssh_dissect_encrypted_packet(tvbuff_t *tvb, packet_info *pinfo,
 			encrypted_len -= global_data->mac_length;
 
 		ssh_proto_tree_add_item(tree, hf_ssh_encrypted_packet,
-		    		tvb, offset, encrypted_len, FALSE);
+		    		tvb, offset, encrypted_len, ENC_NA);
 
 		if (global_data && global_data->mac_length>0)
 			ssh_proto_tree_add_item(tree, hf_ssh_mac_string,
 				tvb, offset+encrypted_len,
-				global_data->mac_length , FALSE);
+				global_data->mac_length , ENC_NA);
   	}
 	offset+=len;
 	return offset;
@@ -1016,7 +1016,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 		tf=proto_tree_add_text(tree,tvb,offset,-1,"Algorithms");
 		key_init_tree = proto_item_add_subtree(tf, ett_key_init);
 		proto_tree_add_item(key_init_tree, hf_ssh_cookie,
-		    tvb, offset, 16, FALSE);
+		    tvb, offset, 16, ENC_NA);
 	}
 	offset += 16;
 
@@ -1071,7 +1071,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 	offset+=1;
 
 	ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_reserved,
-	    tvb, offset, 4, FALSE);
+	    tvb, offset, 4, ENC_NA);
 	offset+=4;
 
 	if (tf != NULL) {

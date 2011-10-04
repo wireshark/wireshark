@@ -405,7 +405,7 @@ dissect_rpcb(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree
 
 	if (tree) {
 		rpcb_item = proto_tree_add_item(tree, hf_portmap_rpcb, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 		if (rpcb_item)
 			rpcb_tree = proto_item_add_subtree(rpcb_item, ett_portmap_rpcb);
 	}

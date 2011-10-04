@@ -253,7 +253,7 @@ dissect_wol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         wol_tree = proto_item_add_subtree(ti, ett_wol);
 
 /* add an item to the subtree, see section 1.6 for more information */
-        proto_tree_add_item(wol_tree, hf_wol_sync, tvb, 0, 6, FALSE);
+        proto_tree_add_item(wol_tree, hf_wol_sync, tvb, 0, 6, ENC_NA);
 
 /* Continue adding tree items to process the packet here */
         mti = proto_tree_add_text(wol_tree, tvb, 6, 96, "MAC: %s (%s)",

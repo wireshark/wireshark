@@ -326,7 +326,7 @@ dissect_rtnet_tdma_ack_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_ack_conf_padding, tvb,
-                       offset, 3, FALSE );
+                       offset, 3, ENC_NA );
   offset += 3;
 
   return offset;
@@ -345,7 +345,7 @@ dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_padding, tvb,
-                       offset, 3, FALSE );
+                       offset, 3, ENC_NA );
   offset += 3;
 
 
@@ -362,7 +362,7 @@ dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
     offset += 1;
 
     proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_padding, tvb,
-                        offset, 3, FALSE );
+                        offset, 3, ENC_NA );
     offset += 3;
   }
 
@@ -737,7 +737,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          offset += 2;
 
          if( config_length > 0 ) {
-           proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, config_length, FALSE );
+           proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, config_length, ENC_NA );
            offset += config_length;
          }
 
@@ -827,7 +827,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
          if( config_length > 0 ) {
            len = tvb_reported_length_remaining(tvb, offset);
-           proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, FALSE );
+           proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, ENC_NA );
            offset += len;
          }
 
@@ -838,7 +838,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          offset += 4;
 
          len = tvb_reported_length_remaining(tvb, offset);
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_data, tvb, offset, len, ENC_NA );
          offset += len;
          break;
 
@@ -879,7 +879,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              break;
 
            default:
-             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32, FALSE );
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_hw_address, tvb, offset, 32, ENC_NA );
              break;
          }
          offset += 32;

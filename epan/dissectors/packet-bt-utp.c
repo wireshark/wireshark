@@ -274,7 +274,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
     switch(*extension_type){
       case EXT_SELECTION_ACKS: /* 1 */
       {
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
         proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
@@ -286,14 +286,14 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         proto_item_append_text(ti, " Selection Acks, Len=%d", extension_length);
         offset += 1;
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, ENC_NA);
         offset += extension_length;
         proto_item_set_len(ti, 1 + 1 + extension_length);
         break;
       }
       case EXT_EXTENSION_BITS: /* 2 */
       {
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
         proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
@@ -305,13 +305,13 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         proto_item_append_text(ti, " Extension Bits, Len=%d", extension_length);
         offset += 1;
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_bitmask, tvb, offset, extension_length, ENC_NA);
         offset += extension_length;
         proto_item_set_len(ti, 1 + 1 + extension_length);
         break;
       }
       default:
-        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
         proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
@@ -323,7 +323,7 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         proto_item_append_text(ti, " Unknown, Len=%d", extension_length);
         offset += 1;
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_unknown, tvb, offset, extension_length, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_unknown, tvb, offset, extension_length, ENC_NA);
         offset += extension_length;
         proto_item_set_len(ti, 1 + 1 + extension_length);
       break;

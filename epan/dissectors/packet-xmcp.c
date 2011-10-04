@@ -437,7 +437,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     break;
   case XMCP_MESSAGE_INTEGRITY:
     proto_tree_add_item(attr_tree, xmcp_attr_message_integrity, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_NA);
     /* Message-integrity should be the last attribute in the message */
     if ((guint)(offset + get_xmcp_attr_padded_len(attr_length)) < tvb_reported_length(tvb)) {
       expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
@@ -626,7 +626,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
      */
     if (attr_length < 1)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 1, FALSE);
+    proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 1, ENC_NA);
     if (attr_length < 2)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_servtrans_family, tvb,
@@ -678,7 +678,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     /* Three bytes of padding followed by a 1-byte protocol number */
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 3, FALSE);
+    proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 3, ENC_NA);
     proto_tree_add_item(attr_tree, xmcp_attr_service_protocol, tvb,
                         (offset+3), 1, FALSE);
     xmcp_service_protocol = tvb_get_guint8(tvb, (offset+3));
@@ -767,7 +767,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     break;
   case XMCP_SERVICE_DATA:
     proto_tree_add_item(attr_tree, xmcp_attr_service_data, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_NA);
     if (attr_length > 0) {
       tvbuff_t *next_tvb;
       guint8 *test_string, *tok;
@@ -822,14 +822,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     break;
   default:
     proto_tree_add_item(attr_tree, xmcp_attr_value, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_NA);
     expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_NOTE,
                            "Unrecognized attribute type 0x%x", attr_type);
     break;
   }
   if (attr_length % 4 != 0) {
     proto_tree_add_item(attr_tree, xmcp_attr_padding, tvb, (offset+attr_length),
-                        (4 - (attr_length % 4)), FALSE);
+                        (4 - (attr_length % 4)), ENC_NA);
   }
   if (attr_length < get_xmcp_attr_min_len(attr_type)) {
     expert_add_info_format(pinfo, attr_tree, PI_PROTOCOL, PI_WARN,
@@ -980,7 +980,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* ...and a 12-byte transaction id */
-  ti = proto_tree_add_item(xmcp_tree, hf_xmcp_id, tvb, 8, 12, FALSE);
+  ti = proto_tree_add_item(xmcp_tree, hf_xmcp_id, tvb, 8, 12, ENC_NA);
 
   /* Print state tracking in the tree */
   if (xmcp_msg_type_class == XMCP_CLASS_REQUEST) {
@@ -1014,7 +1014,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /* The header is then followed by "msg_length" bytes of TLV attributes */
   if (msg_length > 0) {
     ti = proto_tree_add_item(xmcp_tree, hf_xmcp_attributes, tvb,
-                             XMCP_HDR_LEN, msg_length, FALSE);
+                             XMCP_HDR_LEN, msg_length, ENC_NA);
     attr_all_tree = proto_item_add_subtree(ti, ett_xmcp_attr_all);
 
     offset = XMCP_HDR_LEN;

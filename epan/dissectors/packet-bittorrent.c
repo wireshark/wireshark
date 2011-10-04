@@ -474,7 +474,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
    switch (op) {
    case 'd':
       if (tree) {
-         td = proto_tree_add_item(tree, hf_bittorrent_bdict, tvb, offset, oplen, ENC_BIG_ENDIAN);
+         td = proto_tree_add_item(tree, hf_bittorrent_bdict, tvb, offset, oplen, ENC_NA);
          dtree = proto_item_add_subtree(td, ett_bittorrent_bdict);
       }
 
@@ -507,7 +507,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
          }
 
          if (dtree) {
-            ti = proto_tree_add_item(dtree, hf_bittorrent_bdict_entry, tvb, offset+used, op1len+op2len, ENC_BIG_ENDIAN);
+            ti = proto_tree_add_item(dtree, hf_bittorrent_bdict_entry, tvb, offset+used, op1len+op2len, ENC_NA);
             itree = proto_item_add_subtree(ti, ett_bittorrent_bdict_entry);
 
             dissect_bencoding_str(tvb, pinfo, offset+used, length, itree, ti, 1);
@@ -524,7 +524,7 @@ static int dissect_bencoding_rec(tvbuff_t *tvb, packet_info *pinfo _U_,
 
    case 'l':
       if (tree) {
-         ti = proto_tree_add_item(tree, hf_bittorrent_blist, tvb, offset, oplen, ENC_BIG_ENDIAN);
+         ti = proto_tree_add_item(tree, hf_bittorrent_blist, tvb, offset, oplen, ENC_NA);
          itree = proto_item_add_subtree(ti, ett_bittorrent_blist);
       }
 
@@ -638,9 +638,9 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    }
 
    if (isamp) {
-      ti = proto_tree_add_item(tree, hf_azureus_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, hf_azureus_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, ENC_NA);
    } else {
-      ti = proto_tree_add_item(tree, hf_bittorrent_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, ENC_BIG_ENDIAN);
+      ti = proto_tree_add_item(tree, hf_bittorrent_msg, tvb, offset, length + BITTORRENT_HEADER_LENGTH, ENC_NA);
    }
    mtree = proto_item_add_subtree(ti, ett_bittorrent_msg);
 
@@ -701,7 +701,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 
    case BITTORRENT_MESSAGE_EXTENDED:
       /* extended message content */
-      proto_tree_add_item(mtree, hf_bittorrent_extended, tvb, offset, length, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mtree, hf_bittorrent_extended, tvb, offset, length, ENC_NA);
       break;
 
    case BITTORRENT_MESSAGE_HAVE:
@@ -714,7 +714,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
 	  break;
 
    case BITTORRENT_MESSAGE_BITFIELD:
-      proto_tree_add_item(mtree, hf_bittorrent_bitfield_data, tvb, offset, length, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mtree, hf_bittorrent_bitfield_data, tvb, offset, length, ENC_NA);
       proto_item_append_text(ti, ", Len:0x%x", length);
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Len:0x%x", length);
 
@@ -729,7 +729,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       proto_tree_add_item(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, piece_begin);
       offset += 4;
       length -= 4;
-      proto_tree_add_item(mtree, hf_bittorrent_piece_data, tvb, offset, length, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mtree, hf_bittorrent_piece_data, tvb, offset, length, ENC_NA);
       proto_item_append_text(ti, ", Idx:0x%x,Begin:0x%x,Len:0x%x", piece_index, piece_begin, length);
       col_append_fstr(pinfo->cinfo, COL_INFO, ", Idx:0x%x,Begin:0x%x,Len:0x%x", piece_index, piece_begin, length);
 
@@ -767,12 +767,12 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
 
    proto_tree_add_item(tree, hf_bittorrent_prot_name_len, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
    proto_tree_add_item(tree, hf_bittorrent_prot_name, tvb, offset, 19, ENC_BIG_ENDIAN); offset += 19;
-   proto_tree_add_item(tree, hf_bittorrent_reserved, tvb, offset, 8, ENC_BIG_ENDIAN); offset += 8;
+   proto_tree_add_item(tree, hf_bittorrent_reserved, tvb, offset, 8, ENC_NA); offset += 8;
 
-   proto_tree_add_item(tree, hf_bittorrent_sha1_hash, tvb, offset, 20, ENC_BIG_ENDIAN);
+   proto_tree_add_item(tree, hf_bittorrent_sha1_hash, tvb, offset, 20, ENC_NA);
    offset += 20;
 
-   proto_tree_add_item(tree, hf_bittorrent_peer_id, tvb, offset, 20, ENC_BIG_ENDIAN);
+   proto_tree_add_item(tree, hf_bittorrent_peer_id, tvb, offset, 20, ENC_NA);
    if(decode_client_information) {
       for(i = 0; peer_id[i].name != NULL; ++i)
       {

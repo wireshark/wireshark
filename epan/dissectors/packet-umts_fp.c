@@ -551,7 +551,7 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     if (tree)
     {
         /* Add data subtree */
-        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+        tree_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_NA);
         proto_item_set_text(tree_ti, "TB data for %u chans", p_fp_info->num_chans);
         data_tree = proto_item_add_subtree(tree_ti, ett_fp_data);
     }
@@ -582,7 +582,7 @@ static int dissect_tb_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 ti = proto_tree_add_item(data_tree, hf_fp_tb, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + p_fp_info->chan_tf_size[chan] + 7) / 8,
-                                         ENC_BIG_ENDIAN);
+                                         ENC_NA);
                 proto_item_set_text(ti, "TB (chan %u, tb %u, %u bits)",
                                     chan+1, n+1, p_fp_info->chan_tf_size[chan]);
             }
@@ -641,7 +641,7 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     /* Add data subtree */
     if (tree)
     {
-        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_NA);
         proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bits", number_of_pdus, length);
         data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
     }
@@ -662,7 +662,7 @@ static int dissect_macd_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
                                          offset + (bit_offset/8),
                                          ((bit_offset % 8) + length + 7) / 8,
-                                         ENC_BIG_ENDIAN);
+                                         ENC_NA);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
         }
 		if (preferences_call_mac_dissectors) {
@@ -713,7 +713,7 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
     /* Add data subtree */
     if (tree)
     {
-        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_BIG_ENDIAN);
+        pdus_ti =  proto_tree_add_item(tree, hf_fp_data, tvb, offset, -1, ENC_NA);
         proto_item_set_text(pdus_ti, "%u MAC-d PDUs of %u bytes", number_of_pdus, length);
         data_tree = proto_item_add_subtree(pdus_ti, ett_fp_data);
     }
@@ -727,7 +727,7 @@ static int dissect_macd_pdu_data_type_2(tvbuff_t *tvb, packet_info *pinfo, proto
         if (data_tree)
         {
             pdu_ti = proto_tree_add_item(data_tree, hf_fp_mac_d_pdu, tvb,
-                                         offset, length, ENC_BIG_ENDIAN);
+                                         offset, length, ENC_NA);
             proto_item_set_text(pdu_ti, "MAC-d PDU (PDU %u)", pdu+1);
             if (preferences_call_mac_dissectors) {
                 tvbuff_t *next_tvb = tvb_new_subset(tvb, offset, length, -1);
@@ -766,7 +766,7 @@ static int dissect_crci_bits(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     /* Add CRCIs subtree */
     if (tree)
     {
-        ti =  proto_tree_add_item(tree, hf_fp_crcis, tvb, offset, (num_tbs+7)/8, ENC_BIG_ENDIAN);
+        ti =  proto_tree_add_item(tree, hf_fp_crcis, tvb, offset, (num_tbs+7)/8, ENC_NA);
         proto_item_set_text(ti, "CRCI bits for %u tbs", num_tbs);
         crcis_tree = proto_item_add_subtree(ti, ett_fp_crcis);
     }
@@ -818,7 +818,7 @@ static void dissect_spare_extension_and_crc(tvbuff_t *tvb, packet_info *pinfo,
     if (remain > crc_size)
     {
         ti = proto_tree_add_item(tree, hf_fp_spare_extension, tvb,
-                                 offset, remain-crc_size, ENC_BIG_ENDIAN);
+                                 offset, remain-crc_size, ENC_NA);
         proto_item_append_text(ti, " (%u octets)", remain-crc_size);
         expert_add_info_format(pinfo, ti,
                                PI_UNDECODED, PI_WARN,
@@ -1068,7 +1068,7 @@ static int dissect_hsdpa_capacity_allocation(packet_info *pinfo, proto_tree *tre
     /* Calculated and show effective rate enabled */
     if (credits == 2047)
     {
-        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_BIG_ENDIAN);
+        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_NA);
         PROTO_ITEM_SET_GENERATED(rate_ti);
     }
     else
@@ -1154,7 +1154,7 @@ static int dissect_hsdpa_capacity_allocation_type_2(packet_info *pinfo, proto_tr
     /* Calculated and show effective rate enabled */
     if (credits == 65535)
     {
-        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_BIG_ENDIAN);
+        rate_ti = proto_tree_add_item(tree, hf_fp_hsdsch_unlimited_rate, tvb, 0, 0, ENC_NA);
         PROTO_ITEM_SET_GENERATED(rate_ti);
     }
     else
@@ -1806,7 +1806,7 @@ static void dissect_pch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_tr
             ti = proto_tree_add_item(tree, hf_fp_paging_indication_bitmap, tvb,
                                      offset,
                                      (p_fp_info->paging_indications+7) / 8,
-                                     ENC_BIG_ENDIAN);
+                                     ENC_NA);
             proto_item_append_text(ti, " (%u bits)", p_fp_info->paging_indications);
             offset += ((p_fp_info->paging_indications+7) / 8);
         }
@@ -2562,7 +2562,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                     ti = proto_tree_add_item(subframe_tree, hf_fp_edch_mac_es_pdu, tvb,
                                              offset + (bit_offset/8),
                                              ((bit_offset % 8) + send_size + 7) / 8,
-                                             ENC_BIG_ENDIAN);
+                                             ENC_NA);
                     proto_item_append_text(ti, " (%u * %u = %u bits, PDU %d)",
                                            size, subframes[n].number_of_mac_d_pdus[i],
                                            send_size, n);
@@ -2585,7 +2585,7 @@ static void dissect_e_dch_channel_info(tvbuff_t *tvb, packet_info *pinfo, proto_
                         proto_tree_add_item(maces_tree, hf_fp_mac_d_pdu, tvb,
                                             offset + (bit_offset/8),
                                             ((bit_offset % 8) + size + 7) / 8,
-                                            ENC_BIG_ENDIAN);
+                                            ENC_NA);
                     }
                     bit_offset += size;
                 }
@@ -2826,7 +2826,7 @@ static void dissect_e_dch_t2_or_common_channel_info(tvbuff_t *tvb, packet_info *
                 ti = proto_tree_add_item(macis_pdu_tree, hf_fp_edch_macis_sdu, tvb,
                                          offset,
                                          subframes[n].mac_is_length[pdu_no][sdu_no],
-                                         ENC_BIG_ENDIAN);
+                                         ENC_NA);
                 proto_item_append_text(ti, " (%s Len=%u): %s",
                                        val_to_str_const(subframes[n].mac_is_lchid[pdu_no][sdu_no], lchid_vals, "Unknown"),
                                        subframes[n].mac_is_length[pdu_no][sdu_no],
@@ -3249,7 +3249,7 @@ void dissect_fp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree *release_tree;
         proto_item *temp_ti;
 
-        release_ti = proto_tree_add_item(fp_tree, hf_fp_release, tvb, 0, 0, ENC_BIG_ENDIAN);
+        release_ti = proto_tree_add_item(fp_tree, hf_fp_release, tvb, 0, 0, ENC_NA);
         PROTO_ITEM_SET_GENERATED(release_ti);
         proto_item_append_text(release_ti, " R%u (%d/%d)",
                                p_fp_info->release, p_fp_info->release_year, p_fp_info->release_month);

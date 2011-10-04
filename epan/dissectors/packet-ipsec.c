@@ -912,7 +912,7 @@ dissect_ah_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			(guint32)g_ntohl(ah.ah_seq));
     proto_tree_add_item(ah_tree, hf_ah_iv, tvb,
 			sizeof(ah), (ah.ah_len) ? (ah.ah_len - 1) << 2 : 0,
-			FALSE);
+			ENC_NA);
 
     if (next_tree_p != NULL) {
       /* Decide where to place next protocol decode */
@@ -1827,7 +1827,7 @@ dissect_esp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                if(tvb_bytes_exist(tvb, 8, esp_iv_len))
                {
                   if(esp_iv_len > 0)
-                     proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, FALSE);
+                     proto_tree_add_item(esp_tree, hf_esp_iv, tvb, 8, esp_iv_len, ENC_NA);
                }
    		      else
                   proto_tree_add_text(esp_tree, tvb, 8, -1, "IV (truncated)");

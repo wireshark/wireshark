@@ -525,7 +525,7 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
   if (sua_tree) {
     /* add the components of the common header to the protocol tree */
     proto_tree_add_item(sua_tree, hf_sua_version,        common_header_tvb, VERSION_OFFSET,        VERSION_LENGTH,        ENC_BIG_ENDIAN);
-    proto_tree_add_item(sua_tree, hf_sua_reserved,       common_header_tvb, RESERVED_OFFSET,       RESERVED_LENGTH,       ENC_BIG_ENDIAN);
+    proto_tree_add_item(sua_tree, hf_sua_reserved,       common_header_tvb, RESERVED_OFFSET,       RESERVED_LENGTH,       ENC_NA);
     proto_tree_add_item(sua_tree, hf_sua_message_class,  common_header_tvb, MESSAGE_CLASS_OFFSET,  MESSAGE_CLASS_LENGTH,  ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(sua_tree, hf_sua_message_type, common_header_tvb, MESSAGE_TYPE_OFFSET, MESSAGE_TYPE_LENGTH, message_type, "Message Type: %s (%u)",
 			                   val_to_str(message_class * 256 + message_type, message_class_type_values, "reserved"), message_type);
@@ -571,7 +571,7 @@ dissect_diagnostic_information_parameter(tvbuff_t *parameter_tvb, proto_tree *pa
   guint16 diag_info_length;
 
   diag_info_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_sua_diagnostic_information_info, parameter_tvb, DIAGNOSTIC_INFO_OFFSET, diag_info_length, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_diagnostic_information_info, parameter_tvb, DIAGNOSTIC_INFO_OFFSET, diag_info_length, ENC_NA);
   proto_item_append_text(parameter_item, " (%u byte%s)", diag_info_length, plurality(diag_info_length, "", "s"));
 }
 
@@ -583,7 +583,7 @@ dissect_heartbeat_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   guint16 heartbeat_data_length;
 
   heartbeat_data_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_sua_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_heartbeat_data, parameter_tvb, HEARTBEAT_DATA_OFFSET, heartbeat_data_length, ENC_NA);
   proto_item_append_text(parameter_item, " (%u byte%s)", heartbeat_data_length, plurality(heartbeat_data_length, "", "s"));
 }
 
@@ -836,7 +836,7 @@ dissect_local_routing_key_identifier_parameter(tvbuff_t *parameter_tvb, proto_tr
 static void
 dissect_ss7_hop_counter_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_sua_ss7_hop_counter_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,      ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_ss7_hop_counter_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH,      ENC_NA);
   proto_tree_add_item(parameter_tree, hf_sua_ss7_hop_counter_counter,  parameter_tvb, SS7_HOP_COUNTER_OFFSET, SS7_HOP_COUNTER_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_guint8(parameter_tvb,  SS7_HOP_COUNTER_OFFSET));
 }
@@ -961,7 +961,7 @@ dissect_sccp_cause_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
   proto_item *pi;
   const gchar *cause_string;
 
-  proto_tree_add_item(parameter_tree, hf_sua_cause_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_cause_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH,  ENC_NA);
   proto_tree_add_item(parameter_tree, hf_sua_cause_type,     parameter_tvb, CAUSE_TYPE_OFFSET,      CAUSE_TYPE_LENGTH,  ENC_BIG_ENDIAN);
   cause_type = tvb_get_guint8(parameter_tvb, CAUSE_TYPE_OFFSET);
   pi = proto_tree_add_item(parameter_tree, hf_sua_cause_value, parameter_tvb, CAUSE_VALUE_OFFSET,   CAUSE_VALUE_LENGTH, ENC_BIG_ENDIAN);
@@ -1013,7 +1013,7 @@ dissect_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter
   proto_item *receive_sequence_number_item;
   proto_tree *receive_sequence_number_tree;
 
-  proto_tree_add_item(parameter_tree, hf_sua_sequence_number_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_sequence_number_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_NA);
 
   receive_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb, SEQUENCE_NUMBER_REC_SEQ_OFFSET, SEQUENCE_NUMBER_REC_SEQ_LENGTH, "Receive Sequence Number");
   receive_sequence_number_tree = proto_item_add_subtree(receive_sequence_number_item, ett_sua_sequence_number_rec_number);
@@ -1035,7 +1035,7 @@ dissect_receive_sequence_number_parameter(tvbuff_t *parameter_tvb, proto_tree *p
   proto_item *receive_sequence_number_item;
   proto_tree *receive_sequence_number_tree;
 
-  proto_tree_add_item(parameter_tree, hf_sua_receive_sequence_number_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_receive_sequence_number_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
   receive_sequence_number_item = proto_tree_add_text(parameter_tree, parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, "Receive Sequence Number");
   receive_sequence_number_tree = proto_item_add_subtree(receive_sequence_number_item, ett_sua_receive_sequence_number_number);
   proto_tree_add_item(receive_sequence_number_tree, hf_sua_receive_sequence_number_number,    parameter_tvb, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_OFFSET, RECEIVE_SEQUENCE_NUMBER_REC_SEQ_LENGTH, ENC_BIG_ENDIAN);
@@ -1066,7 +1066,7 @@ dissect_asp_capabilities_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   proto_item *protocol_classes_item;
   proto_tree *protocol_classes_tree;
 
-  proto_tree_add_item(parameter_tree, hf_sua_asp_capabilities_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_asp_capabilities_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_2_LENGTH, ENC_NA);
   protocol_classes_item = proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, "Protocol classes");
   protocol_classes_tree = proto_item_add_subtree(protocol_classes_item, ett_sua_protcol_classes);
   proto_tree_add_item(protocol_classes_tree, hf_sua_asp_capabilities_reserved_bits, parameter_tvb, PROTOCOL_CLASSES_OFFSET, PROTOCOL_CLASSES_LENGTH, ENC_BIG_ENDIAN);
@@ -1097,7 +1097,7 @@ dissect_data_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, prot
   data_length    = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
 
   if(parameter_tree) {
-    proto_tree_add_item(parameter_tree, hf_sua_data, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_sua_data, parameter_tvb, DATA_PARAMETER_DATA_OFFSET, data_length, ENC_NA);
     proto_item_append_text(parameter_item, " (SS7 message of %u byte%s)", data_length, plurality(data_length, "", "s"));
   }
 
@@ -1193,7 +1193,7 @@ dissect_address_range_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_t
 static void
 dissect_smi_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_sua_smi_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_smi_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
   proto_tree_add_item(parameter_tree, hf_sua_smi,          parameter_tvb, SMI_OFFSET,             SMI_LENGTH,        ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_guint8(parameter_tvb,  SMI_OFFSET));
 }
@@ -1204,7 +1204,7 @@ dissect_smi_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto
 static void
 dissect_importance_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_sua_importance_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_importance_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
   proto_tree_add_item(parameter_tree, hf_sua_importance,          parameter_tvb, IMPORTANCE_OFFSET,      IMPORTANCE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_guint8(parameter_tvb,  IMPORTANCE_OFFSET));
 }
@@ -1215,7 +1215,7 @@ dissect_importance_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree
 static void
 dissect_message_priority_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_sua_message_priority_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET,  RESERVED_3_LENGTH,       ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_message_priority_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET,  RESERVED_3_LENGTH,       ENC_NA);
   proto_tree_add_item(parameter_tree, hf_sua_message_priority,          parameter_tvb, MESSAGE_PRIORITY_OFFSET, MESSAGE_PRIORITY_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%u)", tvb_get_guint8(parameter_tvb,  MESSAGE_PRIORITY_OFFSET));
 }
@@ -1238,7 +1238,7 @@ dissect_protocol_class_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
   proto_item *protocol_class_item;
   proto_tree *protocol_class_tree;
 
-  proto_tree_add_item(parameter_tree, hf_sua_protocol_class_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_protocol_class_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
 
   protocol_class_item = proto_tree_add_text(parameter_tree, parameter_tvb, PROTOCOL_CLASS_OFFSET, PROTOCOL_CLASS_LENGTH, "Protocol Class");
   protocol_class_tree = proto_item_add_subtree(protocol_class_item, ett_sua_return_on_error_bit_and_protocol_class);
@@ -1355,7 +1355,7 @@ dissect_global_title_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tr
 
   global_title_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) -
                         (PARAMETER_HEADER_LENGTH + RESERVED_3_LENGTH + GTI_LENGTH + NO_OF_DIGITS_LENGTH + TRANSLATION_TYPE_LENGTH + NUMBERING_PLAN_LENGTH + NATURE_OF_ADDRESS_LENGTH);
-  proto_tree_add_item(parameter_tree, hf_sua_gt_reserved,       parameter_tvb, PARAMETER_VALUE_OFFSET,   RESERVED_3_LENGTH,        ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_gt_reserved,       parameter_tvb, PARAMETER_VALUE_OFFSET,   RESERVED_3_LENGTH,        ENC_NA);
   proto_tree_add_item(parameter_tree, hf_sua_gti,               parameter_tvb, GTI_OFFSET,               GTI_LENGTH,               ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_sua_number_of_digits,  parameter_tvb, NO_OF_DIGITS_OFFSET,      NO_OF_DIGITS_LENGTH,      ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_sua_translation_type,  parameter_tvb, TRANSLATION_TYPE_OFFSET,  TRANSLATION_TYPE_LENGTH,  ENC_BIG_ENDIAN);
@@ -1430,7 +1430,7 @@ dissect_ssn_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto
   *ssn = tvb_get_guint8(parameter_tvb,  SSN_OFFSET);
 
   if(parameter_tree) {
-    proto_tree_add_item(parameter_tree, hf_sua_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_sua_ssn_reserved, parameter_tvb, PARAMETER_VALUE_OFFSET, RESERVED_3_LENGTH, ENC_NA);
     proto_tree_add_item(parameter_tree, hf_sua_ssn_number,   parameter_tvb, SSN_OFFSET,             SSN_LENGTH,        ENC_BIG_ENDIAN);
     proto_item_append_text(parameter_item, " (%u)", *ssn);
   }
@@ -1475,7 +1475,7 @@ dissect_unknown_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, p
   guint16 parameter_value_length;
 
   parameter_value_length = tvb_get_ntohs(parameter_tvb, PARAMETER_LENGTH_OFFSET) - PARAMETER_HEADER_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_sua_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sua_parameter_value, parameter_tvb, PARAMETER_VALUE_OFFSET, parameter_value_length, ENC_NA);
   proto_item_append_text(parameter_item, "(tag %u and %u byte%s value)", tvb_get_ntohs(parameter_tvb, PARAMETER_TAG_OFFSET), parameter_value_length, plurality(parameter_value_length, "", "s"));
 }
 
@@ -1750,7 +1750,7 @@ dissect_v8_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_
     break;
   };
   if (parameter_tree && (padding_length > 0))
-    proto_tree_add_item(parameter_tree, hf_sua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_sua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 #define INFO_STRING_PARAMETER_TAG                  0x0004
@@ -2042,7 +2042,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, proto_tree *tree, tvbuff_t **data_tvb
     break;
   };
   if (parameter_tree && (padding_length > 0))
-    proto_tree_add_item(parameter_tree, hf_sua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_sua_parameter_padding, parameter_tvb, PARAMETER_HEADER_OFFSET + length, padding_length, ENC_NA);
 }
 
 static void

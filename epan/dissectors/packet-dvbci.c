@@ -1360,7 +1360,7 @@ dissect_cc_item(tvbuff_t *tvb, gint offset,
             break;
         default:
             proto_tree_add_item(cc_item_tree, hf_dvbci_cc_data,
-                    tvb, offset, dat_len, ENC_BIG_ENDIAN);
+                    tvb, offset, dat_len, ENC_NA);
             break;
     }
     offset += dat_len;
@@ -2319,7 +2319,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
                 break;
             /* please note that payload != body */
             proto_tree_add_item(tree, hf_dvbci_sac_body, tvb, offset, 
-                    tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+                    tvb_reported_length_remaining(tvb, offset), ENC_NA);
             break;
         default:
             break;
@@ -2380,7 +2380,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             offset++;
             if (req_type==REQ_TYPE_FILE_HASH) {
                 proto_tree_add_item(tree, hf_dvbci_file_hash,
-                        tvb, offset, 16, ENC_BIG_ENDIAN);
+                        tvb, offset, 16, ENC_NA);
                 offset += 16;
             }
             if (tvb_reported_length_remaining(tvb, offset) <= 0)
@@ -2397,7 +2397,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             }
             else if (req_type==REQ_TYPE_DATA) {
                 proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
             }
             break;
         case T_FILE_ACKNOWLEDGE:
@@ -2435,14 +2435,14 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                 offset += 4;
                 if (file_data_len > 0) {
                     proto_tree_add_item(tree, hf_dvbci_file_data,
-                            tvb, offset, file_data_len, ENC_BIG_ENDIAN);
+                            tvb, offset, file_data_len, ENC_NA);
                 }
              }
             else if (req_type==REQ_TYPE_DATA) {
                 if (tvb_reported_length_remaining(tvb, offset) <= 0)
                     break;
                 proto_tree_add_item(tree, hf_dvbci_ami_priv_data, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
             }
             else if (req_type==REQ_TYPE_REQ) {
                 if (tree) {
@@ -2467,13 +2467,13 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
         case T_APP_ABORT_REQUEST:
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 proto_tree_add_item(tree, hf_dvbci_abort_req_code, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
             }
             break;
         case T_APP_ABORT_ACK:
             if (tvb_reported_length_remaining(tvb, offset) > 0) {
                 proto_tree_add_item(tree, hf_dvbci_abort_ack_code, tvb, offset,
-                        tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+                        tvb_reported_length_remaining(tvb, offset), ENC_NA);
             }
             break;
         default:
@@ -2666,7 +2666,7 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
                     tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
             proto_tree_add_item(tree, hf_dvbci_sas_msg,
-                    tvb, offset, msg_len, ENC_BIG_ENDIAN);
+                    tvb, offset, msg_len, ENC_NA);
             break;
         default:
           break;

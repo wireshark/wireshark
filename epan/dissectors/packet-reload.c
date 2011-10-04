@@ -578,7 +578,7 @@ dissect_opaque(tvbuff_t *tvb, packet_info *pinfo,proto_tree *tree, int anchor_in
 
   opaque_tree = proto_item_add_subtree(ti_anchor, ett_reload_opaque);
   proto_tree_add_uint(opaque_tree, length_index, tvb, offset, length_size, (guint)length);
-  proto_tree_add_item(opaque_tree, hf_reload_opaque_data, tvb, offset + length_size, length, FALSE);
+  proto_tree_add_item(opaque_tree, hf_reload_opaque_data, tvb, offset + length_size, length, ENC_NA);
 
   return (length_size + length);
 }
@@ -603,7 +603,7 @@ dissect_destination(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
     proto_item *ti_destination;
 
     destination_length = tvb_get_guint8(tvb,offset+1);
-    ti_destination = proto_tree_add_item(tree, hf_reload_destination, tvb, offset, 2+destination_length, FALSE);
+    ti_destination = proto_tree_add_item(tree, hf_reload_destination, tvb, offset, 2+destination_length, ENC_NA);
     destination_tree = proto_item_add_subtree(ti_destination, ett_reload_destination);
     proto_item_append_text(ti_destination, " (%s)", val_to_str(destination_type, destinationtypes, "Unknown"));
 
@@ -625,7 +625,7 @@ dissect_destination(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16
         else {
           nodeid_length = reload_nodeid_length;
         }
-        ti_nodeid = proto_tree_add_item(destination_tree, hf_reload_nodeid, tvb, offset+ 2, nodeid_length, FALSE);
+        ti_nodeid = proto_tree_add_item(destination_tree, hf_reload_nodeid, tvb, offset+ 2, nodeid_length, ENC_NA);
         if ((nodeid_length < 16) || (nodeid_length > 20)) {
           expert_add_info_format(pinfo, ti_nodeid, PI_PROTOCOL, PI_ERROR, "Node ID length is not in the correct range");
         }
@@ -672,11 +672,11 @@ dissect_probe_information(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
   probe_length = tvb_get_guint8(tvb, offset + 1);
 
   if (probe_length + 2 > length) {
-    ti_probe_information = proto_tree_add_item(tree, hf_reload_probe_information, tvb, offset, length, FALSE);
+    ti_probe_information = proto_tree_add_item(tree, hf_reload_probe_information, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_probe_information, PI_PROTOCOL, PI_ERROR, "Truncated probe information");
     return length;
   }
-  ti_probe_information = proto_tree_add_item(tree, hf_reload_probe_information, tvb, offset, 2 + probe_length, FALSE);
+  ti_probe_information = proto_tree_add_item(tree, hf_reload_probe_information, tvb, offset, 2 + probe_length, ENC_NA);
   probe_information_tree = proto_item_add_subtree(ti_probe_information, ett_reload_probe_information);
 
   proto_tree_add_item(probe_information_tree, hf_reload_probe_information_type, tvb, offset, 1, FALSE);
@@ -722,7 +722,7 @@ dissect_ipaddressport(tvbuff_t *tvb, proto_tree *tree, guint16 offset)
   guint8 ipaddressport_length;
 
   ipaddressport_length = tvb_get_guint8(tvb, offset+1);
-  ti_ipaddressport = proto_tree_add_item(tree, hf_reload_ipaddressport, tvb, offset, ipaddressport_length+2, FALSE);
+  ti_ipaddressport = proto_tree_add_item(tree, hf_reload_ipaddressport, tvb, offset, ipaddressport_length+2, ENC_NA);
   ipaddressport_type = tvb_get_guint8(tvb, offset);
   proto_item_append_text(ti_ipaddressport, " %s ", val_to_str(ipaddressport_type, ipaddressporttypes,"Unknown Type"));
   ipaddressport_tree = proto_item_add_subtree(ti_ipaddressport, ett_reload_ipaddressport);
@@ -760,12 +760,12 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
   icecandidates_length = tvb_get_ntohs(tvb, offset);
   /* Precalculate the length of the icecandidate list */
   if (2+icecandidates_length > length) {
-    ti_icecandidates = proto_tree_add_item(tree, hf_reload_icecandidates, tvb, offset, length, FALSE);
+    ti_icecandidates = proto_tree_add_item(tree, hf_reload_icecandidates, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_icecandidates, PI_PROTOCOL, PI_ERROR, "Truncated ice candidates");
     return length;
   }
 
-  ti_icecandidates = proto_tree_add_item(tree, hf_reload_icecandidates, tvb, offset, 2+icecandidates_length, FALSE);
+  ti_icecandidates = proto_tree_add_item(tree, hf_reload_icecandidates, tvb, offset, 2+icecandidates_length, ENC_NA);
   icecandidates_tree = proto_item_add_subtree(ti_icecandidates, ett_reload_icecandidates);
   proto_tree_add_uint(icecandidates_tree, hf_reload_icecandidates_length, tvb, offset+local_offset, 2, icecandidates_length);
   local_offset += 2;
@@ -810,7 +810,7 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
       expert_add_info_format(pinfo, ti_icecandidates, PI_PROTOCOL, PI_ERROR, "Truncated ice candidate");
       break;
     }
-    ti_icecandidate = proto_tree_add_item(icecandidates_tree, hf_reload_icecandidate, tvb, offset+local_offset+ icecandidates_offset, icecandidate_offset, FALSE);
+    ti_icecandidate = proto_tree_add_item(icecandidates_tree, hf_reload_icecandidate, tvb, offset+local_offset+ icecandidates_offset, icecandidate_offset, ENC_NA);
     icecandidate_tree = proto_item_add_subtree(ti_icecandidate, ett_reload_icecandidate);
     /* parse from start */
     icecandidate_offset = 0;
@@ -887,12 +887,12 @@ dissect_icecandidates(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint
         }
         ti_iceextension =
           proto_tree_add_item(icecandidate_tree, hf_reload_iceextension, tvb,
-                              offset+local_offset + icecandidates_offset + icecandidate_offset + iceextensions_offset, 4 + iceextension_name_length + iceextension_value_length, FALSE);
+                              offset+local_offset + icecandidates_offset + icecandidate_offset + iceextensions_offset, 4 + iceextension_name_length + iceextension_value_length, ENC_NA);
         iceextension_tree = proto_item_add_subtree(ti_iceextension, ett_reload_iceextension);
         proto_tree_add_item(iceextension_tree, hf_reload_iceextension_name, tvb,
-                            offset+local_offset+ icecandidates_offset + icecandidate_offset + iceextensions_offset, 2 + iceextension_name_length, FALSE);
+                            offset+local_offset+ icecandidates_offset + icecandidate_offset + iceextensions_offset, 2 + iceextension_name_length, ENC_NA);
         proto_tree_add_item(iceextension_tree, hf_reload_iceextension_value, tvb,
-                            offset+local_offset + icecandidates_offset + icecandidate_offset + iceextensions_offset +2 + iceextension_name_length, 2 + iceextension_value_length, FALSE);
+                            offset+local_offset + icecandidates_offset + icecandidate_offset + iceextensions_offset +2 + iceextension_name_length, 2 + iceextension_value_length, ENC_NA);
         iceextensions_offset += 4 + iceextension_name_length + iceextension_value_length;
       }
     }
@@ -917,7 +917,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   ufrag_length = tvb_get_guint8(tvb,offset+local_offset);
   local_offset += 1;
   if (local_offset + ufrag_length > length) {
-    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, FALSE);
+    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_attachreqans, PI_PROTOCOL, PI_ERROR, "Truncated attach_reqans");
     return length;
   }
@@ -925,7 +925,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   password_length = tvb_get_guint8(tvb,offset+local_offset);
   local_offset += 1;
   if (local_offset + password_length > length) {
-    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, FALSE);
+    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_attachreqans, PI_PROTOCOL, PI_ERROR, "Truncated attach_reqans");
     return length;
   }
@@ -933,7 +933,7 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   role_length = tvb_get_guint8(tvb,offset+local_offset);
   local_offset += 1;
   if (local_offset + role_length > length) {
-    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, FALSE);
+    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_attachreqans, PI_PROTOCOL, PI_ERROR, "Truncated attach_reqans");
     return length;
   }
@@ -941,13 +941,13 @@ dissect_attachreqans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint1
   icecandidates_length = tvb_get_ntohs(tvb, offset+local_offset);
   local_offset += 2;
   if (local_offset +icecandidates_length > length) {
-    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, FALSE);
+    ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_attachreqans, PI_PROTOCOL, PI_ERROR, "Truncated attach_reqans");
     return length;
   }
   local_offset += icecandidates_length;
 
-  ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, local_offset, FALSE);
+  ti_attachreqans = proto_tree_add_item(tree, hf_reload_attachreqans, tvb, offset, local_offset, ENC_NA);
   attachreqans_tree  = proto_item_add_subtree(ti_attachreqans, ett_reload_attachreqans);
 
   /* restart parsing, field by field */
@@ -975,13 +975,13 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
   local_offset += 4;
 
   if (storeddata_length + 4 > length) {
-    ti_storeddata = proto_tree_add_item(tree, hf_reload_storeddata, tvb, offset, length, FALSE);
+    ti_storeddata = proto_tree_add_item(tree, hf_reload_storeddata, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_storeddata, PI_PROTOCOL, PI_ERROR, "Truncated storeddata");
     return length;
   }
 
   local_offset = 0;
-  ti_storeddata = proto_tree_add_item(tree, hf_reload_storeddata, tvb, offset, 4 + storeddata_length, FALSE);
+  ti_storeddata = proto_tree_add_item(tree, hf_reload_storeddata, tvb, offset, 4 + storeddata_length, ENC_NA);
   storeddata_tree = proto_item_add_subtree(ti_storeddata, ett_reload_storeddata);
 
   proto_tree_add_uint(storeddata_tree, hf_reload_storeddata_length, tvb, offset + local_offset, 4, storeddata_length);
@@ -1004,11 +1004,11 @@ dissect_kinddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   values_length = tvb_get_ntohl(tvb, offset + 4 + 8);
   if (12 + values_length > length) {
-    ti_kinddata = proto_tree_add_item(tree, hf_reload_kinddata, tvb, offset, length, FALSE);
+    ti_kinddata = proto_tree_add_item(tree, hf_reload_kinddata, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_kinddata, PI_PROTOCOL, PI_ERROR, "Truncated kind data");
     return length;
   }
-  ti_kinddata = proto_tree_add_item(tree, hf_reload_kinddata, tvb, offset, 12+values_length, FALSE);
+  ti_kinddata = proto_tree_add_item(tree, hf_reload_kinddata, tvb, offset, 12+values_length, ENC_NA);
   kinddata_tree = proto_item_add_subtree(ti_kinddata, ett_reload_kinddata);
 
   proto_tree_add_item(kinddata_tree, hf_reload_kindid, tvb, offset+local_offset, 4, FALSE);
@@ -1043,14 +1043,14 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   local_offset += get_opaque_length(tvb, offset, 1) + 1; /* resource id length */
   if (local_offset > length) {
-    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, FALSE);
+    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq: resource too long");
     return length;
   }
 
   local_offset += 1; /* replica_num */
   if (local_offset > length) {
-    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, FALSE);
+    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq: no room for replica_number");
     return length;
   }
@@ -1058,13 +1058,13 @@ dissect_storereq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
   kind_data_length = tvb_get_ntohl(tvb, offset + local_offset);
   local_offset += 4;
   if (local_offset + kind_data_length > length) {
-    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, FALSE);
+    ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_storereq, PI_PROTOCOL, PI_ERROR, "Truncated storereq: kind_date too long");
     return length;
   }
   local_offset += kind_data_length;
 
-  ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, local_offset, FALSE);
+  ti_storereq = proto_tree_add_item(tree, hf_reload_storereq, tvb, offset, local_offset, ENC_NA);
   storereq_tree = proto_item_add_subtree(ti_storereq, ett_reload_storereq);
 
   /* Parse from start */
@@ -1100,11 +1100,11 @@ dissect_fetchans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 of
 
   kind_responses_length = tvb_get_ntohl(tvb, offset);
   if (4 + kind_responses_length > length) {
-    ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, length, FALSE);
+    ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_fetchans, PI_PROTOCOL, PI_ERROR, "Truncated storereq");
     return length;
   }
-  ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, 4 + kind_responses_length, FALSE);
+  ti_fetchans = proto_tree_add_item(tree, hf_reload_fetchans, tvb, offset, 4 + kind_responses_length, ENC_NA);
   fetchans_tree = proto_item_add_subtree(ti_fetchans, ett_reload_fetchans);
 
   proto_tree_add_uint(fetchans_tree, hf_reload_kind_responses_length, tvb, offset, 4, FALSE);
@@ -1132,11 +1132,11 @@ dissect_statans(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 off
 
   kind_responses_length = tvb_get_ntohl(tvb, offset);
   if (4 + kind_responses_length > length) {
-    ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, length, FALSE);
+    ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, length, ENC_NA);
     expert_add_info_format(pinfo, ti_statans, PI_PROTOCOL, PI_ERROR, "Truncated statans");
     return length;
   }
-  ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, 4 + kind_responses_length, FALSE);
+  ti_statans = proto_tree_add_item(tree, hf_reload_statans, tvb, offset, 4 + kind_responses_length, ENC_NA);
   statans_tree = proto_item_add_subtree(ti_statans, ett_reload_statans);
 
   proto_tree_add_uint(statans_tree, hf_reload_kind_responses_length, tvb, offset, 4, FALSE);
@@ -1343,7 +1343,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   /*
    * Forwarding Header
    */
-  ti = proto_tree_add_item(reload_tree, hf_reload_forwarding, tvb, 0, forwarding_length, FALSE);
+  ti = proto_tree_add_item(reload_tree, hf_reload_forwarding, tvb, 0, forwarding_length, ENC_NA);
   reload_forwarding_tree = proto_item_add_subtree(ti, ett_reload_forwarding);
 
   proto_tree_add_uint(reload_forwarding_tree, hf_reload_token, tvb, 0, 4, relo_token);
@@ -1401,7 +1401,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (via_list_length > 0) {
     proto_item *ti_vialist;
     proto_tree *vialist_tree;
-    ti_vialist = proto_tree_add_item(reload_forwarding_tree, hf_reload_via_list, tvb, offset, via_list_length, FALSE);
+    ti_vialist = proto_tree_add_item(reload_forwarding_tree, hf_reload_via_list, tvb, offset, via_list_length, ENC_NA);
     vialist_tree = proto_item_add_subtree(ti_vialist, ett_reload_via_list);
 
     dissect_destination_list(tvb, pinfo, vialist_tree, offset, via_list_length);
@@ -1416,7 +1416,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   if (destination_list_length > 0) {
     proto_item *ti_destination_list;
     proto_tree *destination_list_tree;
-    ti_destination_list = proto_tree_add_item(reload_forwarding_tree, hf_reload_destination_list, tvb, offset, destination_list_length, FALSE);
+    ti_destination_list = proto_tree_add_item(reload_forwarding_tree, hf_reload_destination_list, tvb, offset, destination_list_length, ENC_NA);
     destination_list_tree = proto_item_add_subtree(ti_destination_list, ett_reload_destination_list);
 
     dissect_destination_list(tvb, pinfo, destination_list_tree, offset, destination_list_length);
@@ -1437,7 +1437,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       guint16 option_length = tvb_get_ntohs(tvb, offset+local_offset + 2);
       proto_tree *option_tree;
 
-      ti_option = proto_tree_add_item(reload_forwarding_tree, hf_reload_forwarding_option, tvb, offset+local_offset, option_length + 4, FALSE);
+      ti_option = proto_tree_add_item(reload_forwarding_tree, hf_reload_forwarding_option, tvb, offset+local_offset, option_length + 4, ENC_NA);
       proto_item_append_text(ti_option, " type=%s, flags=%02x, length=%d", val_to_str(option_type, forwardingoptiontypes, "Unknown"), option_flags, option_length);
 
       option_tree = proto_item_add_subtree(ti_option, ett_reload_forwarding_option);
@@ -1462,7 +1462,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       switch (option_type) {
       default:
-        proto_tree_add_item(option_tree, hf_reload_forwarding_option_data, tvb, offset+local_offset, option_length, FALSE);
+        proto_tree_add_item(option_tree, hf_reload_forwarding_option_data, tvb, offset+local_offset, option_length, ENC_NA);
         break;
       }
       local_offset += option_length;
@@ -1518,12 +1518,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     message_body_length = tvb_get_ntohl(tvb, offset + 2);
     extensions_length = tvb_get_ntohl(tvb, offset + 2 + 4 + message_body_length);
     if (forwarding_length + 2 + 4 + message_body_length + 4 + extensions_length > msg_length) {
-      ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, (msg_length - forwarding_length), FALSE);
+      ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, (msg_length - forwarding_length), ENC_NA);
       expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated message contents");
       return msg_length;
     }
 
-    ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, 2 + 4 + message_body_length + 4 + extensions_length, FALSE);
+    ti_message_contents = proto_tree_add_item(reload_tree, hf_reload_message_contents, tvb, offset, 2 + 4 + message_body_length + 4 + extensions_length, ENC_NA);
     message_contents_tree = proto_item_add_subtree(ti_message_contents, ett_reload_message_contents);
 
     if (message_code != RELOAD_ERROR) {
@@ -1537,7 +1537,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                        "%s-%s", msg_method_str, msg_class_str);
       offset += 2;
       /* Message body */
-      ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
+      ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, ENC_NA);
       message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
       proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
       offset +=4;
@@ -1550,7 +1550,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
               proto_item * ti_routequeryreq;
               proto_tree * routequeryreq_tree;
               int destination_length;
-              ti_routequeryreq = proto_tree_add_item(message_body_tree, hf_reload_routequeryreq, tvb, offset, message_body_length, FALSE);
+              ti_routequeryreq = proto_tree_add_item(message_body_tree, hf_reload_routequeryreq, tvb, offset, message_body_length, ENC_NA);
               routequeryreq_tree = proto_item_add_subtree(ti_routequeryreq, ett_reload_routequeryreq);
               proto_tree_add_item(routequeryreq_tree, hf_reload_sendupdate, tvb, offset, 1, FALSE);
               destination_length = dissect_destination(tvb, pinfo, routequeryreq_tree, offset + 1, message_body_length - 1 - 2);
@@ -1567,7 +1567,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_item * ti_probereq;
             proto_tree * probereq_tree;
             guint8 info_list_length = 0;
-            ti_probereq = proto_tree_add_item(message_body_tree, hf_reload_probereq, tvb, offset, message_body_length, FALSE);
+            ti_probereq = proto_tree_add_item(message_body_tree, hf_reload_probereq, tvb, offset, message_body_length, ENC_NA);
             probereq_tree = proto_item_add_subtree(ti_probereq, ett_reload_probereq);
             info_list_length = tvb_get_guint8(tvb, offset);
 
@@ -1591,7 +1591,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree * probeans_tree;
             guint16 info_list_length = 0;
 
-            ti_probeans = proto_tree_add_item(message_body_tree, hf_reload_probeans, tvb, offset, message_body_length, FALSE);
+            ti_probeans = proto_tree_add_item(message_body_tree, hf_reload_probeans, tvb, offset, message_body_length, ENC_NA);
             probeans_tree = proto_item_add_subtree(ti_probeans, ett_reload_probeans);
             info_list_length = tvb_get_ntohs(tvb, offset);
 
@@ -1630,7 +1630,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint16 local_offset = 0;
             proto_item *ti_appattach;
             proto_tree *appattach_tree;
-            ti_appattach = proto_tree_add_item(message_body_tree, hf_reload_appattach, tvb, offset+local_offset, message_body_length, FALSE);
+            ti_appattach = proto_tree_add_item(message_body_tree, hf_reload_appattach, tvb, offset+local_offset, message_body_length, ENC_NA);
             appattach_tree  = proto_item_add_subtree(ti_appattach, ett_reload_appattach);
             local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_ufrag,offset+local_offset, 1, message_body_length-local_offset);
             local_offset += dissect_opaque(tvb, pinfo,appattach_tree, hf_reload_password,offset+local_offset, 1, message_body_length-local_offset);
@@ -1667,7 +1667,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree *configupdate_tree;
             guint8 configupdate_type;
             guint32 configupdate_length;
-            ti_configupdate = proto_tree_add_item(message_body_tree, hf_reload_configupdatereq, tvb, offset+local_offset, message_body_length, FALSE);
+            ti_configupdate = proto_tree_add_item(message_body_tree, hf_reload_configupdatereq, tvb, offset+local_offset, message_body_length, ENC_NA);
             configupdate_tree  = proto_item_add_subtree(ti_configupdate, ett_reload_configupdatereq);
             configupdate_type = tvb_get_guint8(tvb, offset + local_offset);
             proto_tree_add_uint(configupdate_tree, hf_reload_configupdatereq_type, tvb, offset+local_offset, 1, configupdate_type);
@@ -1708,7 +1708,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             guint32 local_offset = 0;
             proto_item *ti_storeans_kind_responses;
             proto_tree *storeans_kind_responses_tree;
-            ti_storeans_kind_responses = proto_tree_add_item(message_body_tree, hf_reload_storeans_kind_responses, tvb, offset, message_body_length, FALSE);
+            ti_storeans_kind_responses = proto_tree_add_item(message_body_tree, hf_reload_storeans_kind_responses, tvb, offset, message_body_length, ENC_NA);
             storeans_kind_responses_tree = proto_item_add_subtree(ti_storeans_kind_responses, ett_reload_storeans_kind_responses);
             storeans_kind_responses_length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(storeans_kind_responses_tree, hf_reload_storeans_kind_responses_length, tvb, offset, 2, storeans_kind_responses_length);
@@ -1726,7 +1726,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 break;
               }
               ti_storekindresponse =
-              proto_tree_add_item(storeans_kind_responses_tree, hf_reload_storekindresponse, tvb, offset+2+local_offset, 4+ 8 + 2 + replicas_length, FALSE);
+              proto_tree_add_item(storeans_kind_responses_tree, hf_reload_storekindresponse, tvb, offset+2+local_offset, 4+ 8 + 2 + replicas_length, ENC_NA);
               storekindresponse_tree = proto_item_add_subtree(ti_storekindresponse, ett_reload_storekindresponse);
               proto_tree_add_item(storekindresponse_tree, hf_reload_kindid, tvb, offset+2+local_offset, 4, FALSE);
               local_offset += 4;
@@ -1739,7 +1739,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16 replicas_offset = 0;
                 replicas_length = tvb_get_ntohs(tvb, offset + 2 + local_offset);
                 ti_replicas = proto_tree_add_item(storekindresponse_tree, hf_reload_storekindresponse_replicas, tvb,
-                                                  offset+2+local_offset, 2 + replicas_length, FALSE);
+                                                  offset+2+local_offset, 2 + replicas_length, ENC_NA);
                 replicas_tree = proto_item_add_subtree(storekindresponse_tree, ett_reload_storekindresponse_replicas);
                 proto_tree_add_uint(replicas_tree, hf_reload_opaque_length_uint16, tvb, offset + 2+local_offset, 2, replicas_length);
                 local_offset +=2;
@@ -1749,7 +1749,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     break;
                   }
                   proto_tree_add_item(replicas_tree, hf_reload_nodeid, tvb, offset+2+local_offset+replicas_offset,
-                                      reload_nodeid_length, FALSE);
+                                      reload_nodeid_length, ENC_NA);
                   replicas_offset += reload_nodeid_length;
                 }
                 local_offset += replicas_length;
@@ -1828,11 +1828,11 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 guint16 findkinddata_length;
                 findkinddata_length = 4/*kind id */ + 1 + get_opaque_length(tvb,offset + 2 + results_offset + 4, 1)/* resourceId */;
                 if (results_offset + findkinddata_length > results_length) {
-                  ti_findkinddata = proto_tree_add_item(message_body_tree, hf_reload_findkinddata, tvb, offset + results_offset, results_length - results_offset, FALSE);
+                  ti_findkinddata = proto_tree_add_item(message_body_tree, hf_reload_findkinddata, tvb, offset + results_offset, results_length - results_offset, ENC_NA);
                   expert_add_info_format(pinfo, ti_findkinddata, PI_PROTOCOL, PI_ERROR, "Truncated FindKindData");
                   break;
                 }
-                ti_findkinddata = proto_tree_add_item(message_body_tree, hf_reload_findkinddata, tvb, offset + 2 + results_offset, findkinddata_length, FALSE);
+                ti_findkinddata = proto_tree_add_item(message_body_tree, hf_reload_findkinddata, tvb, offset + 2 + results_offset, findkinddata_length, ENC_NA);
                 findkinddata_tree = proto_item_add_subtree(ti_findkinddata, ett_reload_findkinddata);
 
                 proto_tree_add_item(findkinddata_tree, hf_reload_kindid, tvb, offset + 2 + results_offset, 4, FALSE);
@@ -1849,7 +1849,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case METHOD_JOIN:
         {
           if (IS_REQUEST(message_code)) {
-            proto_tree_add_item(message_body_tree, hf_reload_nodeid, tvb, offset, reload_nodeid_length, FALSE);
+            proto_tree_add_item(message_body_tree, hf_reload_nodeid, tvb, offset, reload_nodeid_length, ENC_NA);
             dissect_opaque(tvb, pinfo, message_body_tree, hf_reload_overlay_specific, offset + reload_nodeid_length, 2,
                            message_body_length - reload_nodeid_length);
           }
@@ -1876,7 +1876,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       offset += 2;
 
       /* Message body */
-      ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, FALSE);
+      ti_message_body = proto_tree_add_item(message_contents_tree, hf_reload_message_body, tvb, offset, 4 + message_body_length, ENC_NA);
       message_body_tree = proto_item_add_subtree(ti_message_body, ett_reload_message_body);
       proto_tree_add_uint(message_body_tree, hf_reload_opaque_length_uint32, tvb, offset, 4, message_body_length);
       offset +=4;
@@ -1887,7 +1887,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return msg_length;
       }
 
-      ti_error = proto_tree_add_item(message_body_tree, hf_reload_error_response, tvb, offset, 2 + 2 + error_length, FALSE);
+      ti_error = proto_tree_add_item(message_body_tree, hf_reload_error_response, tvb, offset, 2 + 2 + error_length, ENC_NA);
       error_tree = proto_item_add_subtree(ti_error, ett_reload_error_response);
       proto_tree_add_item(error_tree, hf_reload_error_response_code, tvb, offset, 2, FALSE);
       dissect_opaque(tvb, pinfo, error_tree, hf_reload_error_response_info, offset+2, 2, -1);
@@ -1907,7 +1907,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           expert_add_info_format(pinfo, ti_message_contents, PI_PROTOCOL, PI_ERROR, "Truncated message extensions");
           break;
         }
-        ti_extension = proto_tree_add_item(message_contents_tree, hf_reload_message_extension, tvb, offset+ extension_offset, 3 + 4 + extension_content_length, FALSE);
+        ti_extension = proto_tree_add_item(message_contents_tree, hf_reload_message_extension, tvb, offset+ extension_offset, 3 + 4 + extension_content_length, ENC_NA);
         extension_tree = proto_item_add_subtree(ti_extension, ett_reload_message_extension);
         proto_tree_add_item(extension_tree, hf_reload_message_extension_type, tvb, offset+ extension_offset, 2, FALSE);
         proto_tree_add_item(extension_tree, hf_reload_message_extension_critical, tvb, offset+ extension_offset + 2, 1, FALSE);
@@ -1939,7 +1939,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     security_block_offset += signaturevalue_length;
 
     ti_security_block = proto_tree_add_item(reload_tree, hf_reload_security_block, tvb, offset,
-                                            security_block_offset, FALSE);
+                                            security_block_offset, ENC_NA);
     security_block_tree = proto_item_add_subtree(ti_security_block, ett_reload_security_block);
     /* start parsing from the beginning */
     security_block_offset = 0;
@@ -1961,7 +1961,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti_certificate = proto_tree_add_item(security_block_tree,
                                              hf_reload_certificates, tvb, offset + security_block_offset + certificate_offset,
                                              1 + 2 + certificate_length,
-                                             FALSE);
+                                             ENC_NA);
         certificate_tree = proto_item_add_subtree(ti_certificate, ett_reload_certificate);
 
         proto_tree_add_item(certificate_tree, hf_reload_certificate_type, tvb,
@@ -1995,7 +1995,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          2 +/* SignatureAndHashAlgorithm */
                                          1 + 2 + signatureidentityvalue_length +/* SignatureIdenty length*/
                                          2 + signaturevalue_length,
-                                         FALSE);
+                                         ENC_NA);
       signature_tree = proto_item_add_subtree(ti_signature, ett_reload_signature);
       proto_tree_add_item(signature_tree, hf_reload_hash_algorithm, tvb,
                                  offset + security_block_offset, 1, FALSE);
@@ -2012,7 +2012,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                    hf_reload_signature_identity,
                                                    tvb, offset+security_block_offset,
                                                    1 + 2 + signatureidentityvalue_length,
-                                                   FALSE);
+                                                   ENC_NA);
         signatureidentity_tree = proto_item_add_subtree(ti_signatureidentity, ett_reload_signature_identity);
         identity_type = tvb_get_guint8(tvb, offset + security_block_offset);
         proto_tree_add_item(signatureidentity_tree, hf_reload_signature_identity_type, tvb,
@@ -2038,7 +2038,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                              hf_reload_signature_identity_value,
                                                              tvb, offset + security_block_offset + signatureidentityvalue_offset,
                                                              1 + 1 + certificate_hash_length,
-                                                             FALSE);
+                                                             ENC_NA);
               signatureidentityvalue_tree = proto_item_add_subtree(ti_signatureidentityvalue, ett_reload_signature_identity_value);
               proto_tree_add_item(signatureidentityvalue_tree, hf_reload_hash_algorithm, tvb,
                                   offset + security_block_offset +signatureidentityvalue_offset, 1, FALSE);

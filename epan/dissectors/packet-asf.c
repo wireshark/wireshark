@@ -251,7 +251,7 @@ dissect_asf_payloads(tvbuff_t *tvb, proto_tree *tree,
 					break;
 				default:
 					proto_tree_add_item(ptree, hf_asf_payload_data, tvb,
-						offset + 4, plen - 4,ENC_BIG_ENDIAN);
+						offset + 4, plen - 4,ENC_NA);
 					break;
 			}
 		}
@@ -274,7 +274,7 @@ dissect_asf_payload_authentication(tvbuff_t *tvb, proto_tree *tree,
 		val_to_str(alg, asf_authentication_type_vals, "Unknown (%u)"));
 	atree = proto_item_add_subtree(ti, ett_asf_alg_payload);
 	proto_tree_add_item(atree, hf_asf_auth_alg, tvb, offset, 1,ENC_BIG_ENDIAN);
-	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_NA);
 }
 
 static void
@@ -291,7 +291,7 @@ dissect_asf_payload_integrity(tvbuff_t *tvb, proto_tree *tree,
 		val_to_str(alg, asf_integrity_type_vals, "Unknown (%u)"));
 	atree = proto_item_add_subtree(ti, ett_asf_alg_payload);
 	proto_tree_add_item(atree, hf_asf_integrity_alg, tvb, offset, 1,ENC_BIG_ENDIAN);
-	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(atree, hf_asf_reserved, tvb, offset + 1, len - 1,ENC_NA);
 }
 
 void

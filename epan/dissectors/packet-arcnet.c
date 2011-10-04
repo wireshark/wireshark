@@ -162,7 +162,7 @@ dissect_arcnet_common (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree,
   offset++;
 
   if (has_offset) {
-    proto_tree_add_item (arcnet_tree, hf_arcnet_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (arcnet_tree, hf_arcnet_offset, tvb, offset, 2, ENC_NA);
     offset += 2;
   }
 

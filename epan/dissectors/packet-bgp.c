@@ -2551,7 +2551,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                     /* snarf each cluster identifier */
                     while (q < end) {
                         proto_tree_add_item(cluster_list_tree, hf_bgp_cluster_list,
-                                            tvb, q - 3 + aoff, 4, FALSE);
+                                            tvb, q - 3 + aoff, 4, ENC_NA);
                         q += 4;
                     }
 
@@ -2778,7 +2778,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                                     q + 8, 4, FALSE);
                                 if (ssa_v3_len)
                                     proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie, tvb,
-                                                        q + 12, ssa_v3_len, FALSE);
+                                                        q + 12, ssa_v3_len, ENC_NA);
                                 q += ssa_len + 4; /* 4 from type and length */
                                 break;
                             case BGP_SSA_mGRE:
@@ -2786,7 +2786,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             case BGP_SSA_MPLS:
                             default:
                                 proto_tree_add_item(subtree3, hf_bgp_ssa_value, tvb,
-                                                    q + 4, ssa_len, FALSE);
+                                                    q + 4, ssa_len, ENC_NA);
                                 q += ssa_len + 4; /* 4 from type and length */
                                 break;
                             case BGP_SSA_L2TPv3_IN_IPSec:

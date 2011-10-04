@@ -988,7 +988,7 @@ dissect_btspp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                tvb_length(tvb) > length ? "...":"");
 	}
 
-	proto_tree_add_item(st, hf_data, tvb, 0, -1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_data, tvb, 0, -1, ENC_NA);
 }
 
 void

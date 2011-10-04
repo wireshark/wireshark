@@ -81,7 +81,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(rbtree, hf_redback_l3offset, tvb, 22, 2, FALSE);
 
 		if (dataoff > 24) {
-			proto_tree_add_item(rbtree, hf_redback_padding, tvb, 24, dataoff-24, FALSE);
+			proto_tree_add_item(rbtree, hf_redback_padding, tvb, 24, dataoff-24, ENC_NA);
 		}
 	}
 
@@ -136,7 +136,7 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff);
 			} else {
 				if (tree)
-					proto_tree_add_item(rbtree, hf_redback_unknown, tvb, dataoff, 4, FALSE);
+					proto_tree_add_item(rbtree, hf_redback_unknown, tvb, dataoff, 4, ENC_NA);
 				next_tvb = tvb_new_subset_remaining(tvb, dataoff+4);
 			}
 

@@ -112,7 +112,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 		int old_offset = offset;
 
 		item = proto_tree_add_item(parent_tree, hf_options,
-			tvb, offset, -1, FALSE);
+			tvb, offset, -1, ENC_NA);
 		tree = proto_item_add_subtree(item, ett_options);
 
 		type = tvb_get_guint8(tvb, offset);
@@ -156,7 +156,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 			}
 
 			proto_tree_add_item(tree, hf_option_bytes,
-				tvb, offset, len, FALSE);
+				tvb, offset, len, ENC_NA);
 			offset += len;
 		}
 		if (item) {

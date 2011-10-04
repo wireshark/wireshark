@@ -428,10 +428,10 @@ dissect_rpcap_ifaddr (tvbuff_t *tvb, packet_info *pinfo,
     proto_tree_add_item (tree, hf_if_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item (tree, hf_if_padding, tvb, offset, 120, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_if_padding, tvb, offset, 120, ENC_NA);
     offset += 120;
   } else {
-    ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, ENC_BIG_ENDIAN);
+    ti = proto_tree_add_item (tree, hf_if_unknown, tvb, offset, 126, ENC_NA);
     if (af != AF_UNSPEC) {
       expert_add_info_format (pinfo, ti, PI_UNDECODED, PI_CHAT,
 			      "Unknown address family: %d", af);

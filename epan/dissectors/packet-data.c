@@ -76,7 +76,7 @@ dissect_data(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 				plurality(bytes, "", "s"));
 			data_tree = proto_item_add_subtree(ti, ett_data);
 
-			proto_tree_add_item(data_tree, hf_data_data, data_tvb, 0, bytes, FALSE);
+			proto_tree_add_item(data_tree, hf_data_data, data_tvb, 0, bytes, ENC_NA);
 
 			if (show_as_text) {
 				proto_tree_add_item(data_tree, hf_data_text, data_tvb, 0, bytes, FALSE);

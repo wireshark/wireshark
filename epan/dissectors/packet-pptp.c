@@ -228,7 +228,7 @@ dissect_cntrl_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
                                tvb_get_guint8(tvb, offset), tvb_get_guint8(tvb, offset + 1));
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_framing_capabilities, tvb, offset, 4, FALSE);
@@ -291,10 +291,10 @@ dissect_stop_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_reason, tvb, offset, 1, FALSE);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 1, ENC_NA);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);;
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);;
 }
 
 static void
@@ -308,7 +308,7 @@ dissect_stop_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_error, tvb, offset, 1, FALSE);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);;
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);;
 
 }
 
@@ -333,7 +333,7 @@ dissect_echo_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_error, tvb, offset, 1, FALSE);
   offset += 1;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
 }
 
 static void
@@ -367,7 +367,7 @@ dissect_out_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_phone_number_length, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_phone_number, tvb, offset, 64, FALSE);
@@ -462,7 +462,7 @@ dissect_in_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_packet_processing_delay, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
 }
 
 static void
@@ -472,7 +472,7 @@ dissect_in_connected(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_peer_call_id, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_connect_speed, tvb, offset, 4, FALSE);
@@ -494,7 +494,7 @@ dissect_clear_req(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_call_id, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
 }
 
 static void
@@ -513,7 +513,7 @@ dissect_disc_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_cause, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_call_statistics, tvb, offset, 64, FALSE);
@@ -526,7 +526,7 @@ dissect_error_notify(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_peer_call_id, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_crc_errors, tvb, offset, 4, FALSE);
@@ -554,7 +554,7 @@ dissect_set_link(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
   proto_tree_add_item(tree, hf_pptp_peer_call_id, tvb, offset, 2, FALSE);
   offset += 2;
 
-  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
   offset += 2;
 
   proto_tree_add_item(tree, hf_pptp_send_accm, tvb, offset, 4, FALSE);
@@ -606,7 +606,7 @@ dissect_pptp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(pptp_tree, hf_pptp_control_message_type, tvb, offset, 2, FALSE);
     offset += 2;
 
-    proto_tree_add_item(pptp_tree, hf_pptp_reserved, tvb, offset, 2, FALSE);
+    proto_tree_add_item(pptp_tree, hf_pptp_reserved, tvb, offset, 2, ENC_NA);
     offset += 2;
 
     switch(control_message_type){

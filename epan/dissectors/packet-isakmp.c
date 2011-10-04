@@ -2512,7 +2512,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
        * What?  There's more stuff in this chunk of data, but the
        * previous payload had a "next payload" type of None?
        */
-      proto_tree_add_item(tree, hf_isakmp_extradata, tvb, offset, length, FALSE);
+      proto_tree_add_item(tree, hf_isakmp_extradata, tvb, offset, length, ENC_NA);
       break;
     }
 
@@ -2600,7 +2600,7 @@ dissect_payloads(tvbuff_t *tvb, proto_tree *tree, proto_tree *parent_tree _U_,
 	   dissect_cisco_fragmentation(tvb, offset + 4, payload_length - 4, ntree, pinfo );
 	   break;
 	   default:
-	   proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, FALSE);
+	   proto_tree_add_item(ntree, hf_isakmp_datapayload, tvb, offset + 4, payload_length-4, ENC_NA);
 	   break;
        }
 
@@ -2663,7 +2663,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
    */
   if ( (tvb_length(tvb)==1) && (tvb_get_guint8(tvb, offset)==0xff) ){
     col_set_str(pinfo->cinfo, COL_INFO, "NAT Keepalive");
-    proto_tree_add_item(isakmp_tree, hf_isakmp_nat_keepalive, tvb, offset, 1, FALSE);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_nat_keepalive, tvb, offset, 1, ENC_NA);
     return;
   }
 
@@ -2730,10 +2730,10 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif /* HAVE_LIBGCRYPT */
 
   if (tree) {
-    proto_tree_add_item(isakmp_tree, hf_isakmp_icookie, tvb, offset, COOKIE_SIZE, FALSE);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_icookie, tvb, offset, COOKIE_SIZE, ENC_NA);
     offset += COOKIE_SIZE;
 
-    proto_tree_add_item(isakmp_tree, hf_isakmp_rcookie, tvb, offset, COOKIE_SIZE, FALSE);
+    proto_tree_add_item(isakmp_tree, hf_isakmp_rcookie, tvb, offset, COOKIE_SIZE, ENC_NA);
     offset += COOKIE_SIZE;
 
     hdr.next_payload = tvb_get_guint8(tvb, offset);
@@ -2811,7 +2811,7 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     if (hdr.flags & E_FLAG) {
       if (len && isakmp_tree) {
-        ti = proto_tree_add_item(isakmp_tree, hf_isakmp_enc_data, tvb, offset, len, FALSE);
+        ti = proto_tree_add_item(isakmp_tree, hf_isakmp_enc_data, tvb, offset, len, ENC_NA);
         proto_item_append_text(ti, " (%d byte%s)", len, plurality(len, "", "s"));
 
 #ifdef HAVE_LIBGCRYPT
@@ -2896,7 +2896,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
                                     tvb_bytes_to_str(tvb, offset, length), length);
         return;
       }
-      sti = proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, 4, FALSE);
+      sti = proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, 4, ENC_NA);
       stree = proto_item_add_subtree(sti, ett_isakmp_sa);
 
       proto_tree_add_item(stree, hf_isakmp_sa_situation_identity_only, tvb, offset, 4, FALSE);
@@ -2910,7 +2910,7 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
 		       length, pinfo);
     } else {
       /* Unknown */
-      proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, length, FALSE);
+      proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, length, ENC_NA);
     }
   } else if (isakmp_version == 2) {
     dissect_payloads(tvb, tree, tree, isakmp_version, PLOAD_IKE_P, offset,
@@ -2960,7 +2960,7 @@ dissect_proposal(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int is
   length -= 1;
 
   if (spi_size) {
-    proto_tree_add_item(tree, hf_isakmp_spi, tvb, offset, spi_size, FALSE);
+    proto_tree_add_item(tree, hf_isakmp_spi, tvb, offset, spi_size, ENC_NA);
 
     offset += spi_size;
     length -= spi_size;
@@ -3005,7 +3005,7 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
    	}
 
 
-	rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, FALSE);
+	rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(rohc_item," (t=%d,l=%d) %s",rohc, optlen, val_to_str(rohc, rohc_attr_type, "Unknown Attribute Type (%02d)") );
 	sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_rohc_attr);
 	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, FALSE);
@@ -3022,7 +3022,7 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
     	   proto_tree_add_text(sub_rohc_tree, tvb, offset, 0,"Attribut value is empty");
 	   return 2+len;
 	}
-	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, FALSE);
+	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_value, tvb, offset, optlen, ENC_NA);
 	switch(rohc) {
 		case ROHC_MAX_CID:
 		proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_max_cid, tvb, offset, optlen, FALSE);
@@ -3150,7 +3150,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
    	}
 
 
-	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_tf_attr, tvb, offset, 2+len+optlen, FALSE);
+	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_tf_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item, " (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type, transform_isakmp_attr_type, "Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_format, tvb, offset, 2, FALSE);
@@ -3167,7 +3167,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
     	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribute value is empty");
 	   return 2+len;
 	}
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_value, tvb, offset, optlen, FALSE);
+	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_value, tvb, offset, optlen, ENC_NA);
 	switch(transform_attr_type) {
 		case ISAKMP_ATTR_LIFE_TYPE:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_life_type, tvb, offset, optlen, FALSE);
@@ -3200,7 +3200,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_dict_size, tvb, offset, optlen, FALSE);
 		break;
 		case ISAKMP_ATTR_CMPR_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_algorithm, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_cmpr_algorithm, tvb, offset, optlen, ENC_NA);
 		break;
 		case ISAKMP_ATTR_ECN_TUNNEL:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_ecn_tunnel, tvb, offset, optlen, FALSE);
@@ -3214,7 +3214,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
 		break;
 		case ISAKMP_ATTR_SIG_ENCO_ALGORITHM:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sig_enco_algorithm, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_sig_enco_algorithm, tvb, offset, optlen, ENC_NA);
 		break;
 	default:
 		/* No Default Action */
@@ -3249,7 +3249,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
    	}
 
 
-	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike_attr, tvb, offset, 2+len+optlen, FALSE);
+	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike_attr_type,"Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike_attr);
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_format, tvb, offset, 2, FALSE);
@@ -3266,7 +3266,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
     	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
 	   return 2+len;
 	}
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_value, tvb, offset, optlen, FALSE);
+	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_value, tvb, offset, optlen, ENC_NA);
 	switch(transform_attr_type) {
 
 		case IKE_ATTR_ENCRYPTION_ALGORITHM:
@@ -3302,19 +3302,19 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
                 proto_item_append_text(transform_attr_type_item," : %s", val_to_str(tvb_get_ntohs(tvb, offset), transform_attr_grp_type, "Unknown %d"));
 		break;
 		case IKE_ATTR_GROUP_PRIME:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_prime, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_prime, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_GROUP_GENERATOR_ONE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_one, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_one, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_GROUP_GENERATOR_TWO:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_two, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_generator_two, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_GROUP_CURVE_A:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_a, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_a, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_GROUP_CURVE_B:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_b, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_curve_b, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_LIFE_TYPE:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_life_type, tvb, offset, optlen, FALSE);
@@ -3324,17 +3324,17 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
 		dissect_life_duration(tvb, sub_transform_attr_type_tree, transform_attr_type_item, hf_isakmp_ike_attr_life_duration, offset, optlen);
 		break;
 		case IKE_ATTR_PRF:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_prf, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_prf, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_KEY_LENGTH:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_key_length, tvb, offset, optlen, FALSE);
                 proto_item_append_text(transform_attr_type_item," : %d", tvb_get_ntohs(tvb, offset));
 		break;
 		case IKE_ATTR_FIELD_SIZE:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_field_size, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_field_size, tvb, offset, optlen, ENC_NA);
 		break;
 		case IKE_ATTR_GROUP_ORDER:
-		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_order, tvb, offset, optlen, FALSE);
+		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_group_order, tvb, offset, optlen, ENC_NA);
 		break;
 	default:
 		/* No Default Action */
@@ -3363,7 +3363,7 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
    	}
 
 
-	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike2_attr, tvb, offset, 2+len+optlen, FALSE);
+	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike2_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike2_attr_type,"Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike2_attr);
 	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_format, tvb, offset, 2, FALSE);
@@ -3380,7 +3380,7 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
     	   proto_tree_add_text(sub_transform_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
 	   return 2+len;
 	}
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_value, tvb, offset, optlen, FALSE);
+	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_value, tvb, offset, optlen, ENC_NA);
 	switch(transform_attr_type) {
 		case IKE2_ATTR_KEY_LENGTH:
 		proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_key_length, tvb, offset, optlen, FALSE);
@@ -3517,7 +3517,7 @@ _U_
     length -= 4;
   }
 
-  proto_tree_add_item(tree, hf_isakmp_key_exch_data, tvb, offset, length, FALSE);
+  proto_tree_add_item(tree, hf_isakmp_key_exch_data, tvb, offset, length, ENC_NA);
 
 #ifdef HAVE_LIBGCRYPT
   if (decr && decr->gi_len == 0 && ADDRESSES_EQUAL(&decr->initiator, &pinfo->src)) {
@@ -3579,7 +3579,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
    * It shows strings of all types though some of types are not
    * supported in IKEv2 specification actually.
    */
-  idit = proto_tree_add_item(tree, hf_isakmp_id_data, tvb, offset, length, FALSE);
+  idit = proto_tree_add_item(tree, hf_isakmp_id_data, tvb, offset, length, ENC_NA);
   idtree = proto_item_add_subtree(idit, ett_isakmp_id);
   switch (id_type) {
     case IKE_ID_IPV4_ADDR:
@@ -3619,7 +3619,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
       break;
     case IKE_ID_KEY_ID:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_key_id, tvb, offset, length, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_key_id, tvb, offset, length, ENC_NA);
       break;
     case IKE_ID_DER_ASN1_DN:
       dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_id_data_cert);
@@ -3676,14 +3676,14 @@ dissect_certreq(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isa
          dissect_x509if_Name(FALSE, tvb, offset, &asn1_ctx, tree, hf_isakmp_certreq_authority_sig);
          break;
       default:
-         proto_tree_add_item(tree, hf_isakmp_certreq_authority_v1, tvb, offset, length, FALSE);
+         proto_tree_add_item(tree, hf_isakmp_certreq_authority_v1, tvb, offset, length, ENC_NA);
       break;
      }
   }else if (isakmp_version == 2)
   {
        /* this is a list of 20 byte SHA-1 hashes */
        while (length > 0) {
-         proto_tree_add_item(tree, hf_isakmp_certreq_authority_v2, tvb, offset, 20, FALSE);
+         proto_tree_add_item(tree, hf_isakmp_certreq_authority_v2, tvb, offset, 20, ENC_NA);
          offset+=20;
          length-=20;
       }
@@ -3702,24 +3702,24 @@ dissect_auth(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   offset += 4;
   length -= 4;
 
-  proto_tree_add_item(tree, hf_isakmp_auth_data, tvb, offset, length, FALSE);
+  proto_tree_add_item(tree, hf_isakmp_auth_data, tvb, offset, length, ENC_NA);
 
 }
 
 static void
 dissect_hash(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
-  proto_tree_add_item(ntree, hf_isakmp_hash, tvb, offset, length, FALSE);
+  proto_tree_add_item(ntree, hf_isakmp_hash, tvb, offset, length, ENC_NA);
 }
 static void
 dissect_sig(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
-  proto_tree_add_item(ntree, hf_isakmp_sig, tvb, offset, length, FALSE);
+  proto_tree_add_item(ntree, hf_isakmp_sig, tvb, offset, length, ENC_NA);
 }
 static void
 dissect_nonce(tvbuff_t *tvb, int offset, int length, proto_tree *ntree)
 {
-  proto_tree_add_item(ntree, hf_isakmp_nonce, tvb, offset, length, FALSE);
+  proto_tree_add_item(ntree, hf_isakmp_nonce, tvb, offset, length, ENC_NA);
 }
 static void
 dissect_cisco_fragmentation(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info *pinfo)
@@ -3818,14 +3818,14 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
   length -= 2;
 
   if (spi_size) {
-    proto_tree_add_item(tree, hf_isakmp_spi, tvb, offset, spi_size, FALSE);
+    proto_tree_add_item(tree, hf_isakmp_spi, tvb, offset, spi_size, ENC_NA);
     offset += spi_size;
     length -= spi_size;
   }
 
   /* Notification Data */
 
-  proto_tree_add_item(tree, hf_isakmp_notify_data, tvb, offset, length, FALSE);
+  proto_tree_add_item(tree, hf_isakmp_notify_data, tvb, offset, length, ENC_NA);
 
   if (isakmp_version == 1)
   {
@@ -3865,14 +3865,14 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
                 break;
                 default :
-                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
+                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_NA);
                 break;
                }
                length -= tvb_get_guint8(tvb, offset+1) - 2;
                offset += tvb_get_guint8(tvb, offset+1) + 2;
                if(length)
                {
-                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_nonce_data, tvb, offset, length, FALSE);
+                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_nonce_data, tvb, offset, length, ENC_NA);
                }
           break;
          case 16408: /* REDIRECT_FROM */
@@ -3886,7 +3886,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6, tvb, offset+2, 16, FALSE);
                 break;
                 default :
-                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
+                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_NA);
                 break;
                }
                length -= tvb_get_guint8(tvb, offset+1) - 2;
@@ -3896,10 +3896,10 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_lifetime, tvb, offset, 4, FALSE);
                offset += 4;
                length -= 4;
-               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, ENC_NA);
           break;
           case 16413: /* TICKET_OPAQUE */
-               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ticket_data, tvb, offset, length, ENC_NA);
           break;
           case 16416: /* ROHC_SUPPORTED */
                while (offset < offset_end) {
@@ -3907,7 +3907,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                }
           break;
           case 16419: /* QUICK_CRASH_DETECTION */
-               proto_tree_add_item(tree, hf_isakmp_notify_data_qcd_token_secret_data, tvb, offset, length, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_qcd_token_secret_data, tvb, offset, length, ENC_NA);
           break;
           case 16422: /* IKEV2_MESSAGE_ID_SYNC */
                proto_tree_add_item(tree, hf_isakmp_notify_data_ha_nonce_data, tvb, offset, 4, FALSE);
@@ -3917,7 +3917,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                proto_tree_add_item(tree, hf_isakmp_notify_data_ha_expected_recv_req_msg_id, tvb, offset, 4, FALSE);
           break;
           case 16423: /* IPSEC_REPLAY_COUNTER_SYNC */
-               proto_tree_add_item(tree, hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value, tvb, offset, length, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_ha_incoming_ipsec_sa_delta_value, tvb, offset, length, ENC_NA);
           break;
           default:
                /* No Default Action */
@@ -3962,7 +3962,7 @@ dissect_delete(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 
   if (spi_size > 0) {
     while (length > 0) {
-         proto_tree_add_item(tree, hf_isakmp_delete_spi, tvb, offset, spi_size, FALSE);
+         proto_tree_add_item(tree, hf_isakmp_delete_spi, tvb, offset, spi_size, ENC_NA);
          offset+=spi_size;
          length-=spi_size;
     }
@@ -3979,7 +3979,7 @@ dissect_vid(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
   pVID = tvb_get_ptr(tvb, offset, length);
 
   vendorstring = byte_to_str(pVID, (gint)length, vendor_id, "Unknown Vendor ID");
-  proto_tree_add_item(tree, hf_isakmp_vid_bytes, tvb, offset, length, FALSE);
+  proto_tree_add_item(tree, hf_isakmp_vid_bytes, tvb, offset, length, ENC_NA);
   proto_tree_add_string(tree, hf_isakmp_vid_string, tvb, offset, length, vendorstring);
   proto_item_append_text(tree," : %s", vendorstring);
 
@@ -4069,7 +4069,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
     	   proto_tree_add_text(sub_cfg_attr_type_tree, tvb, offset, 0,"Attribut value is empty");
 	   return 2+len;
 	}
-	proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, FALSE);
+	proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_value, tvb, offset, optlen, ENC_NA);
 	switch (cfg_attr_type) {
 	case INTERNAL_IP4_ADDRESS: /* 1 */
 		offset_end = offset + optlen;
@@ -4233,7 +4233,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 	case INTERNAL_IP6_LINK: /* 17 */
 		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_interface, tvb, offset, 8, FALSE);
 		offset += 8;
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, FALSE);
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_link_id, tvb, offset, optlen-8, ENC_NA);
 		offset += optlen-8;
 		break;
 	case INTERNAL_IP6_PREFIX: /* 18 */
@@ -4336,7 +4336,7 @@ dissect_config(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isak
 static void
 dissect_nat_discovery(tvbuff_t *tvb, int offset, int length, proto_tree *tree )
 {
-  proto_tree_add_item(tree, hf_isakmp_nat_hash, tvb, offset, length, FALSE);
+  proto_tree_add_item(tree, hf_isakmp_nat_hash, tvb, offset, length, ENC_NA);
 }
 
 static void
@@ -4493,7 +4493,7 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 	length -= 1;
 	break;
     default:
-	proto_tree_add_item(tree, hf_isakmp_ts_data, tvb, offset, length, FALSE);
+	proto_tree_add_item(tree, hf_isakmp_ts_data, tvb, offset, length, ENC_NA);
     	offset += length;
     	length -= length;
       break;
@@ -4549,7 +4549,7 @@ dissect_enc(tvbuff_t *tvb,
      * if the specified encryption algorithm uses IV.
      */
     if (iv_len) {
-      iv_item = proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, iv_len, FALSE);
+      iv_item = proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, iv_len, ENC_NA);
       proto_item_append_text(iv_item, " (%d bytes)", iv_len);
       iv = ep_tvb_memdup(tvb, offset, iv_len);
 
@@ -4559,7 +4559,7 @@ dissect_enc(tvbuff_t *tvb,
     /*
      * Add the encrypted portion to the tree and store it in a packet scope buffer for later decryption.
      */
-    encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, FALSE);
+    encr_data_item = proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset, encr_data_len, ENC_NA);
     proto_item_append_text(encr_data_item, " (%d bytes)",encr_data_len);
     encr_data = ep_tvb_memdup(tvb, offset, encr_data_len);
     offset += encr_data_len;
@@ -4569,7 +4569,7 @@ dissect_enc(tvbuff_t *tvb,
      * the ICD be displayed even if the decryption fails.
      */
     if (icd_len) {
-      icd_item = proto_tree_add_item(tree, hf_isakmp_enc_icd, tvb, offset, icd_len, FALSE);
+      icd_item = proto_tree_add_item(tree, hf_isakmp_enc_icd, tvb, offset, icd_len, ENC_NA);
       proto_item_append_text(icd_item, " (%d bytes)",icd_len);
 
       /*
@@ -4664,7 +4664,7 @@ dissect_enc(tvbuff_t *tvb,
     tvb_set_free_cb(decr_tvb, g_free);
     tvb_set_child_real_data_tvbuff(tvb, decr_tvb);
     add_new_data_source(pinfo, decr_tvb, "Decrypted Data");
-    item = proto_tree_add_item(tree, hf_isakmp_enc_decrypted_data, decr_tvb, 0, decr_data_len, FALSE);
+    item = proto_tree_add_item(tree, hf_isakmp_enc_decrypted_data, decr_tvb, 0, decr_data_len, ENC_NA);
     proto_item_append_text(item, " (%d byte%s)", decr_data_len, plurality(decr_data_len, "", "s"));
 
     /* Move the ICD item to the bottom of the tree. */
@@ -4677,7 +4677,7 @@ dissect_enc(tvbuff_t *tvb,
     payloads_len = decr_data_len - 1 - pad_len;
 
     if (payloads_len > 0) {
-      item = proto_tree_add_item(decr_tree, hf_isakmp_enc_contained_data, decr_tvb, 0, payloads_len, FALSE);
+      item = proto_tree_add_item(decr_tree, hf_isakmp_enc_contained_data, decr_tvb, 0, payloads_len, ENC_NA);
       proto_item_append_text(item, " (%d byte%s)", payloads_len, plurality(payloads_len, "", "s"));
       decr_payloads_tree = proto_item_add_subtree(item, ett_isakmp_decrypted_payloads);
     }
@@ -4688,7 +4688,7 @@ dissect_enc(tvbuff_t *tvb,
         proto_item_append_text(padlen_item, " [too long]");
         expert_add_info_format(pinfo, padlen_item, PI_MALFORMED, PI_WARN, "Pad length is too big");
       } else {
-        item = proto_tree_add_item(decr_tree, hf_isakmp_enc_padding, decr_tvb, payloads_len, pad_len, FALSE);
+        item = proto_tree_add_item(decr_tree, hf_isakmp_enc_padding, decr_tvb, payloads_len, pad_len, ENC_NA);
         proto_item_append_text(item, " (%d byte%s)", pad_len, plurality(pad_len, "", "s"));
         proto_tree_move_item(decr_tree, item, padlen_item);
       }
@@ -4703,8 +4703,8 @@ dissect_enc(tvbuff_t *tvb,
     }
   }else{
 #endif /* HAVE_LIBGCRYPT */
-     proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, 4, FALSE);
-     proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset+4 , length, FALSE);
+     proto_tree_add_item(tree, hf_isakmp_enc_iv, tvb, offset, 4, ENC_NA);
+     proto_tree_add_item(tree, hf_isakmp_enc_data, tvb, offset+4 , length, ENC_NA);
 #ifdef HAVE_LIBGCRYPT
   }
 #endif /* HAVE_LIBGCRYPT */
@@ -4719,7 +4719,7 @@ dissect_eap(tvbuff_t *tvb, int offset, int length, proto_tree *tree, packet_info
   if ((eap_tvb != NULL)&& eap_handle != NULL){
 	  call_dissector(eap_handle, eap_tvb, pinfo, tree);
   }else{
-	  proto_tree_add_item(tree, hf_isakmp_eap_data, tvb, offset, length, FALSE);
+	  proto_tree_add_item(tree, hf_isakmp_eap_data, tvb, offset, length, ENC_NA);
   }
 }
 

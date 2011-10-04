@@ -79,7 +79,7 @@ dissect_hpteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tree) { /* we are being asked for details */
 			hpteam_item = proto_tree_add_item(tree, proto_hpteam, tvb, 0, -1, FALSE);
 			hpteam_tree = proto_item_add_subtree(hpteam_item, ett_hpteam);
-			proto_tree_add_item(hpteam_tree, hf_hpteam, tvb, offset, 58, FALSE);
+			proto_tree_add_item(hpteam_tree, hf_hpteam, tvb, offset, 58, ENC_NA);
 		}
 	}
 	else {

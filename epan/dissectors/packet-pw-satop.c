@@ -266,7 +266,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 				tvbuff_t* tvb;
 				proto_item* item2;
 				tvb = tvb_new_subset(tvb_original, 0, PWC_SIZEOF_CW, PWC_SIZEOF_CW);
-				item2 = proto_tree_add_item(tree2, hf_cw, tvb, 0, -1, FALSE);
+				item2 = proto_tree_add_item(tree2, hf_cw, tvb, 0, -1, ENC_NA);
 				pwc_item_append_cw(item2, tvb_get_ntohl(tvb, 0),FALSE);
 				{
 					proto_tree* tree3;
@@ -343,7 +343,7 @@ void dissect_pw_satop(tvbuff_t * tvb_original
 				proto_item* item2;
 				tvbuff_t* tvb;
 				tvb = tvb_new_subset(tvb_original, PWC_SIZEOF_CW, payload_size, payload_size);
-				item2 = proto_tree_add_item(tree2, hf_payload, tvb, 0, -1, FALSE);
+				item2 = proto_tree_add_item(tree2, hf_payload, tvb, 0, -1, ENC_NA);
 				pwc_item_append_text_n_items(item2,(int)payload_size,"octet");
 				{
 					proto_tree* tree3;

@@ -575,8 +575,8 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(stun_tree, hf_stun_length, tvb, 2, 2, ENC_BIG_ENDIAN);
-	proto_tree_add_item(stun_tree, hf_stun_cookie, tvb, 4, 4, ENC_BIG_ENDIAN);
-	proto_tree_add_item(stun_tree, hf_stun_id, tvb, 8, 12, ENC_BIG_ENDIAN);
+	proto_tree_add_item(stun_tree, hf_stun_cookie, tvb, 4, 4, ENC_NA);
+	proto_tree_add_item(stun_tree, hf_stun_id, tvb, 8, 12, ENC_NA);
 
 	/* Remember this (in host order) so we can show clear xor'd addresses */
 	magic_cookie_first_word = tvb_get_ntohl(tvb, 4);
@@ -584,7 +584,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (msg_length != 0) {
 		guint offset;
 
-		ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, STUN_HDR_LEN, msg_length, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(stun_tree, hf_stun_attributes, tvb, STUN_HDR_LEN, msg_length, ENC_NA);
 		att_all_tree = proto_item_add_subtree(ti, ett_stun_att_all);
 
 		offset = STUN_HDR_LEN;
@@ -692,7 +692,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case MESSAGE_INTEGRITY:
 				if (att_length < 20)
 					break;
-				proto_tree_add_item(att_tree, stun_att_hmac, tvb, offset, att_length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_hmac, tvb, offset, att_length, ENC_NA);
 				break;
 
 			case ERROR_CODE:
@@ -779,7 +779,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(att_tree, stun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 				if (att_length < 4)
 					break;
-				proto_tree_add_item(att_tree, stun_att_xor_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_xor_port, tvb, offset+2, 2, ENC_NA);
 
 				/* Show the port 'in the clear'
 				XOR (host order) transid with (host order) xor-port.
@@ -792,7 +792,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					break;
 				switch (tvb_get_guint8(tvb, offset+1)) {
 					case 1:
-					proto_tree_add_item(att_tree, stun_att_xor_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(att_tree, stun_att_xor_ipv4, tvb, offset+4, 4, ENC_NA);
 
 					/* Show the address 'in the clear'.
 					XOR (host order) transid with (host order) xor-address.
@@ -823,7 +823,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case 2:
 					if (att_length < 20)
 						break;
-					proto_tree_add_item(att_tree, stun_att_xor_ipv6, tvb, offset+4, 16, ENC_BIG_ENDIAN);
+					proto_tree_add_item(att_tree, stun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
 					{
 						guint32 IPv6[4];
 						IPv6[0] = g_htonl(tvb_get_ntohl(tvb, offset+4)  ^ magic_cookie_first_word);
@@ -856,7 +856,7 @@ case EVEN_PORT:
 			case RESERVATION_TOKEN:
 				if (att_length < 8)
 					break;
-				proto_tree_add_item(att_tree, stun_att_token, tvb, offset, 8, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_token, tvb, offset, 8, ENC_NA);
 				break;
 
 			case PRIORITY:
@@ -898,13 +898,13 @@ case EVEN_PORT:
 			case ICE_CONTROLLING:
 				if (att_length < 8)
 					break;
-				proto_tree_add_item(att_tree, stun_att_tie_breaker, tvb, offset, 8, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_tie_breaker, tvb, offset, 8, ENC_NA);
 				break;
 
 			case DATA:
 				if (att_length > 0) {
 					tvbuff_t *next_tvb;
-					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, ENC_BIG_ENDIAN);
+					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, ENC_NA);
 					if (att_length % 4 != 0) {
 						guint pad;
 						pad = 4-(att_length % 4);
@@ -980,7 +980,7 @@ case EVEN_PORT:
 
 			default:
 				if (att_length > 0)
-					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, ENC_BIG_ENDIAN);
+					proto_tree_add_item(att_tree, stun_att_value, tvb, offset, att_length, ENC_NA);
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun_att_padding, tvb,
 							    offset+att_length, 4-(att_length % 4), 4-(att_length % 4));

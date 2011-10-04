@@ -974,12 +974,12 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
 
   if (found_match) {
     proto_item *ti2 = proto_tree_add_item(key_tree, hf_key_mgmt_data,
-                                         keymgmt_tvb, 0, -1, FALSE);
+                                         keymgmt_tvb, 0, -1, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti2);
   }
   else {
     proto_tree_add_item(key_tree, hf_key_mgmt_data,
-                        keymgmt_tvb, 0, -1, FALSE);
+                        keymgmt_tvb, 0, -1, ENC_NA);
   }
 
 }

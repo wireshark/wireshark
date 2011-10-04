@@ -663,7 +663,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "MSMMS");
 
     /* Add hidden filter for "msmms.data" */
-    proto_tree_add_item(tree, hf_msmms_data, tvb, 0, 0, FALSE);
+    proto_tree_add_item(tree, hf_msmms_data, tvb, 0, 0, ENC_NA);
     PROTO_ITEM_SET_HIDDEN(ti);
 
     /* Create MSMMS data protocol tree */
@@ -724,7 +724,7 @@ static gint dissect_msmms_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
 
     /* Everything else is marked as unparsed data */
-    proto_tree_add_item(msmms_tree, hf_msmms_data_unparsed, tvb, offset, packet_length-offset, TRUE);
+    proto_tree_add_item(msmms_tree, hf_msmms_data_unparsed, tvb, offset, packet_length-offset, ENC_NA);
     offset = packet_length;
 
     /* Show summary in info column */

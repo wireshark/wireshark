@@ -1662,7 +1662,7 @@ dissect_ssl3_change_cipher_spec(tvbuff_t *tvb,
                             val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                             val_to_str(content_type, ssl_31_content_type, "unknown"));
         proto_tree_add_item(tree, hf_ssl_change_cipher_spec, tvb,
-                            offset++, 1, ENC_BIG_ENDIAN);
+                            offset++, 1, ENC_NA);
     }
 }
 
@@ -2122,7 +2122,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 
         /* show the random bytes */
         proto_tree_add_item(ssl_rnd_tree, hf_ssl_handshake_random_bytes,
-                            tvb, offset, 28, ENC_BIG_ENDIAN);
+                            tvb, offset, 28, ENC_NA);
         offset += 28;
 
         /* show the session id */
@@ -2790,25 +2790,25 @@ dissect_ssl3_hnd_srv_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_p_len,
         tvb, p_len_offset, 2, p_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_p,
-            tvb, p_len_offset + 2, p_len, ENC_BIG_ENDIAN);
+            tvb, p_len_offset + 2, p_len, ENC_NA);
 
     /* g */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_g_len,
         tvb, g_len_offset, 2, g_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_g,
-            tvb, g_len_offset + 2, g_len, ENC_BIG_ENDIAN);
+            tvb, g_len_offset + 2, g_len, ENC_NA);
 
     /* Ys */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys_len,
         tvb, ys_len_offset, 2, ys_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_ys,
-            tvb, ys_len_offset + 2, ys_len, ENC_BIG_ENDIAN);
+            tvb, ys_len_offset + 2, ys_len, ENC_NA);
 
     /* Sig */
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig_len,
         tvb, sig_len_offset, 2, sig_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_server_keyex_sig,
-            tvb, sig_len_offset + 2, sig_len, ENC_BIG_ENDIAN);
+            tvb, sig_len_offset + 2, sig_len, ENC_NA);
 
 }
 
@@ -2838,7 +2838,7 @@ dissect_ssl3_hnd_cli_keyex_dh(tvbuff_t *tvb, proto_tree *tree,
     proto_tree_add_uint(ssl_dh_tree, hf_ssl_handshake_client_keyex_yc_len,
         tvb, yc_len_offset, 2, yc_len);
     proto_tree_add_item(ssl_dh_tree, hf_ssl_handshake_client_keyex_yc,
-            tvb, yc_len_offset + 2, yc_len, ENC_BIG_ENDIAN);
+            tvb, yc_len_offset + 2, yc_len, ENC_NA);
 }
 
 
@@ -2871,7 +2871,7 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb,
     case SSL_VER_TLSv1DOT1:
     case SSL_VER_TLSv1DOT2:
         proto_tree_add_item(tree, hf_ssl_handshake_finished,
-                            tvb, offset, 12, ENC_BIG_ENDIAN);
+                            tvb, offset, 12, ENC_NA);
         break;
 
     case SSL_VER_SSLv3:
@@ -3446,7 +3446,7 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 
     if(CH_CIPHER_SPECS_LENGTH) {
         tvb_ensure_bytes_exist(tvb, offset, CH_CIPHER_SPECS_LENGTH);
-        CH_CIPHER_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cipher_spec, tvb, offset, CH_CIPHER_SPECS_LENGTH, ENC_BIG_ENDIAN);
+        CH_CIPHER_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cipher_spec, tvb, offset, CH_CIPHER_SPECS_LENGTH, ENC_NA);
         CH_CIPHER_SPECS_tree = proto_item_add_subtree(CH_CIPHER_SPECS_ti, ett_pct_cipher_suites);
 
         for(i=0; i<(CH_CIPHER_SPECS_LENGTH/4); i++) {
@@ -3461,7 +3461,7 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 
     if(CH_HASH_SPECS_LENGTH) {
         tvb_ensure_bytes_exist(tvb, offset, CH_HASH_SPECS_LENGTH);
-        CH_HASH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_hash_spec, tvb, offset, CH_HASH_SPECS_LENGTH, ENC_BIG_ENDIAN);
+        CH_HASH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_hash_spec, tvb, offset, CH_HASH_SPECS_LENGTH, ENC_NA);
         CH_HASH_SPECS_tree = proto_item_add_subtree(CH_HASH_SPECS_ti, ett_pct_hash_suites);
 
         for(i=0; i<(CH_HASH_SPECS_LENGTH/2); i++) {
@@ -3472,7 +3472,7 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 
     if(CH_CERT_SPECS_LENGTH) {
         tvb_ensure_bytes_exist(tvb, offset, CH_CERT_SPECS_LENGTH);
-        CH_CERT_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cert_spec, tvb, offset, CH_CERT_SPECS_LENGTH, ENC_BIG_ENDIAN);
+        CH_CERT_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_cert_spec, tvb, offset, CH_CERT_SPECS_LENGTH, ENC_NA);
         CH_CERT_SPECS_tree = proto_item_add_subtree(CH_CERT_SPECS_ti, ett_pct_cert_suites);
 
         for(i=0; i< (CH_CERT_SPECS_LENGTH/2); i++) {
@@ -3483,7 +3483,7 @@ dissect_pct_msg_client_hello(tvbuff_t *tvb,
 
     if(CH_EXCH_SPECS_LENGTH) {
         tvb_ensure_bytes_exist(tvb, offset, CH_EXCH_SPECS_LENGTH);
-        CH_EXCH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_exch_spec, tvb, offset, CH_EXCH_SPECS_LENGTH, ENC_BIG_ENDIAN);
+        CH_EXCH_SPECS_ti = proto_tree_add_item(tree, hf_pct_handshake_exch_spec, tvb, offset, CH_EXCH_SPECS_LENGTH, ENC_NA);
         CH_EXCH_SPECS_tree = proto_item_add_subtree(CH_EXCH_SPECS_ti, ett_pct_exch_suites);
 
         for(i=0; i<(CH_EXCH_SPECS_LENGTH/2); i++) {
@@ -3785,7 +3785,7 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
     {
         tvb_ensure_bytes_exist(tvb, offset, clear_key_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_clear_key,
-                            tvb, offset, clear_key_length, ENC_BIG_ENDIAN);
+                            tvb, offset, clear_key_length, ENC_NA);
         offset += clear_key_length;
     }
 
@@ -3793,7 +3793,7 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
     {
         tvb_ensure_bytes_exist(tvb, offset, encrypted_key_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_enc_key,
-                            tvb, offset, encrypted_key_length, ENC_BIG_ENDIAN);
+                            tvb, offset, encrypted_key_length, ENC_NA);
         offset += encrypted_key_length;
     }
 
@@ -3918,7 +3918,7 @@ dissect_ssl2_hnd_server_hello(tvbuff_t *tvb,
     {
         tvb_ensure_bytes_exist(tvb, offset, connection_id_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_connection_id,
-                            tvb, offset, connection_id_length, ENC_BIG_ENDIAN);
+                            tvb, offset, connection_id_length, ENC_NA);
     }
 
 }

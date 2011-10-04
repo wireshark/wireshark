@@ -272,7 +272,7 @@ static void
 rs11(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_11_ret_count, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_11_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_11_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
 static const value_string cc11[] = {
@@ -287,7 +287,7 @@ rq12(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_12_fruid, tvb, 0, 1, TRUE);
 	proto_tree_add_item(tree, hf_ipmi_stor_12_offset, tvb, 1, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_12_data, tvb, 1, tvb_length(tvb) - 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_12_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
 static void
@@ -358,7 +358,7 @@ static void
 rs23(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_23_next, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_23_data, tvb, 2, tvb_length(tvb) - 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_23_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
 }
 
 /* Add SDR
@@ -366,7 +366,7 @@ rs23(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq24(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_24_data, tvb, 0, tvb_length(tvb), TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_24_data, tvb, 0, tvb_length(tvb), ENC_NA);
 }
 
 static void
@@ -387,7 +387,7 @@ rq25(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_stor_25_offset, tvb, 4, 1, TRUE);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
 			ett_ipmi_stor_25_byte6, byte6, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_stor_25_data, tvb, 6, tvb_length(tvb) - 6, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
 }
 
 static void
@@ -536,7 +536,7 @@ static void
 rs43(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_43_next, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_43_data, tvb, 2, tvb_length(tvb) - 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_43_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
 }
 
 static const value_string cc43[] = {
@@ -550,7 +550,7 @@ static const value_string cc43[] = {
 static void
 rq44(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_44_data, tvb, 0, tvb_length(tvb), TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_44_data, tvb, 0, tvb_length(tvb), ENC_NA);
 }
 
 static void
@@ -577,7 +577,7 @@ rq45(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_stor_45_offset, tvb, 4, 1, TRUE);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
 			ett_ipmi_stor_45_byte6, byte6, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_stor_45_data, tvb, 6, tvb_length(tvb) - 6, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
 }
 
 static void
@@ -670,7 +670,7 @@ rs5a(tvbuff_t *tvb, proto_tree *tree)
 	guint32 v;
 
 	if (!ipmi_getsaveddata(0, &v) || v > 2) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5a_unknown, tvb, 0, tvb_length(tvb), TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5a_unknown, tvb, 0, tvb_length(tvb), ENC_NA);
 		return;
 	}
 
@@ -679,7 +679,7 @@ rs5a(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_item(tree, hf_ipmi_stor_5a_num_entries, tvb, 4, 4, TRUE);
 	} else if (v == 1 || v == 2) {
 		proto_tree_add_item(tree, hf_ipmi_stor_5a_iana, tvb, 4, 3, TRUE);
-		proto_tree_add_item(tree, hf_ipmi_stor_5a_bytes, tvb, 7, 7, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5a_bytes, tvb, 7, 7, ENC_NA);
 	}
 }
 
@@ -695,7 +695,7 @@ rq5b(tvbuff_t *tvb, proto_tree *tree)
 			ett_ipmi_stor_5b_byte1, byte1, TRUE, 0);
 
 	if (v > 2) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5b_unknown, tvb, 1, tvb_length(tvb) - 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5b_unknown, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 		return;
 	}
 
@@ -704,7 +704,7 @@ rq5b(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_item(tree, hf_ipmi_stor_5b_num_entries, tvb, 5, 4, TRUE);
 	} else if (v == 1 || v == 2) {
 		proto_tree_add_item(tree, hf_ipmi_stor_5b_iana, tvb, 5, 3, TRUE);
-		proto_tree_add_item(tree, hf_ipmi_stor_5b_bytes, tvb, 8, 8, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5b_bytes, tvb, 8, 8, ENC_NA);
 	}
 }
 

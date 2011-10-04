@@ -57,7 +57,7 @@ dissect_yppasswd_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 			offset, NULL);
 
 	lock_item = proto_tree_add_item(tree, hf_yppasswd_newpw, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_NA);
 
 	lock_tree = proto_item_add_subtree(lock_item, ett_yppasswd_newpw);
 

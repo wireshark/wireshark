@@ -818,7 +818,7 @@ dissect_bthci_cmd_bd_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, pro
 	for(i=6; i; i--)
 		bd_addr[6-i] = tvb_get_guint8(tvb, offset+i-1);
 
-	item = proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, ENC_LITTLE_ENDIAN);
+	item = proto_tree_add_item(tree, hf_bthci_cmd_bd_addr, tvb, offset, 6, ENC_NA);
 	proto_item_append_text(item, "%02x%02x:%02x:%02x%02x%02x (%s)",
 							bd_addr[0], bd_addr[1], bd_addr[2], bd_addr[3], bd_addr[4], bd_addr[5],
 							get_ether_name(bd_addr));
@@ -923,7 +923,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 					j=0;
 					while(j<(length-1))
 					{
-						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid128, tvb, offset+i+j+2, 16, ENC_LITTLE_ENDIAN);
+						proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_sc_uuid128, tvb, offset+i+j+2, 16, ENC_NA);
 						j+=16;
 					}
 					break;
@@ -936,7 +936,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_tx_power, tvb, offset+i+2, 1, ENC_LITTLE_ENDIAN);
 
 				default:
-					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_eir_data, tvb, offset+i+2, length-1, ENC_NA);
 					break;
 			}
 			i += length+1;
@@ -1056,7 +1056,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 		case 0x000b: /* Link Key Request Reply */
 			offset = dissect_bthci_cmd_bd_addr(tvb, offset, pinfo, tree);
 
-			proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset, 16, ENC_NA);
 			offset+=16;
 			break;
 
@@ -1224,7 +1224,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 	}
@@ -1364,7 +1364,7 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1530,7 +1530,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			offset++;
 			for (i=0; i<num8; i++) {
 				dissect_bthci_cmd_bd_addr(tvb, offset+(i*22), pinfo, tree);
-				proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset+6+(i*22), 16, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(tree, hf_bthci_cmd_link_key, tvb, offset+6+(i*22), 16, ENC_NA);
 			}
 			break;
 
@@ -1714,7 +1714,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 		case 0x003f: /* Set AFH Host Channel Classification */
-			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_classification, tvb, offset, 10, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_afh_ch_classification, tvb, offset, 10, ENC_NA);
 			offset+=10;
 			break;
 
@@ -1797,7 +1797,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1816,7 +1816,7 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1846,7 +1846,7 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1869,7 +1869,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			break;
 
 		default:
-			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_params, tvb, offset, -1, ENC_NA);
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 
@@ -1942,7 +1942,7 @@ dissect_bthci_cmd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			default:
-				proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_params, tvb, 3, -1, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(bthci_cmd_tree, hf_bthci_cmd_params, tvb, 3, -1, ENC_NA);
 				break;
 		}
 	}

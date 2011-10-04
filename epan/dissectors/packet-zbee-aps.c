@@ -1093,7 +1093,7 @@ dissect_zbee_aps_skke_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Get and display the SKKE data. */
     if (tree) {
-        proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_NA);
     }
     offset += ZBEE_APS_CMD_SKKE_DATA_LENGTH;
 
@@ -1135,7 +1135,7 @@ dissect_zbee_aps_skke_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /* Get and display the SKKE data. */
     if (tree) {
-        proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_SKKE_DATA_LENGTH, ENC_NA);
     }
     offset += ZBEE_APS_CMD_SKKE_DATA_LENGTH;
 
@@ -1181,7 +1181,7 @@ dissect_zbee_aps_transport_key(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
         key[i] = tvb_get_guint8(tvb, offset+i);
     } /* for */
     if (tree) {
-        proto_tree_add_item(tree, hf_zbee_aps_cmd_key, tvb, offset, ZBEE_APS_CMD_KEY_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_key, tvb, offset, ZBEE_APS_CMD_KEY_LENGTH, ENC_NA);
     }
     offset += ZBEE_APS_CMD_KEY_LENGTH;
 
@@ -1480,7 +1480,7 @@ dissect_zbee_aps_auth_challenge(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     /* Get and display the challenge. */
     if (tree) {
-        proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_EA_CHALLENGE_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_challenge, tvb, offset, ZBEE_APS_CMD_EA_CHALLENGE_LENGTH, ENC_NA);
     }
     offset += ZBEE_APS_CMD_EA_CHALLENGE_LENGTH;
 
@@ -1510,7 +1510,7 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /* Display the MAC. */
     if (tree) {
-        proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_EA_MAC_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_mac, tvb, offset, ZBEE_APS_CMD_EA_MAC_LENGTH, ENC_NA);
     }
     offset += ZBEE_APS_CMD_EA_MAC_LENGTH;
 
@@ -1529,7 +1529,7 @@ dissect_zbee_aps_auth_data(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     /* Display the data field. */
     if (tree) {
-        proto_tree_add_item(tree, hf_zbee_aps_cmd_ea_data, tvb, offset, ZBEE_APS_CMD_EA_DATA_LENGTH, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_zbee_aps_cmd_ea_data, tvb, offset, ZBEE_APS_CMD_EA_DATA_LENGTH, ENC_NA);
     }
     offset += ZBEE_APS_CMD_EA_DATA_LENGTH;
 

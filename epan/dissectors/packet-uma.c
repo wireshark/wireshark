@@ -1126,7 +1126,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * using the GA-CSR protocol or the GA-RRC protocol between the MS and the core network.
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
 		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
 		   		call_dissector(data_handle, l3_tvb, pinfo, urr_ie_tree);
@@ -1169,7 +1169,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * HANDOVER TO UTRAN COMMAND message in [TS 25.331].
 		 */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		/* XXX the dissector to call should depend on the RAT type ??? */
 		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
 		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
@@ -1238,7 +1238,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The rest of the IE is coded as in [GEOPRIV], not including IEI and length, if present
 		 * http://www.ietf.org/internet-drafts/draft-ietf-geopriv-dhcp-civil-05.txt
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_location, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_location, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 43:		/* 11.2.43 TU4001 Timer */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4001_timer, tvb, ie_offset, 2, FALSE);
@@ -1250,10 +1250,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cipher_res, tvb, ie_offset, 1, FALSE);
 		break;
 	case 46:		/* Ciphering Command RAND */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rand_val, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rand_val, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 47:		/* Ciphering Command MAC (Message Authentication Code)*/
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_command_mac, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_command_mac, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 48:		/* Ciphering Key Sequence Number */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_key_seq_num, tvb, ie_offset, 1, FALSE);
@@ -1298,7 +1298,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.57 LLC-PDU
 		 * The rest of the IE is coded as in [TS 48.018], not including IEI and length, if present
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LLC_PDU, tvb, ie_offset, ie_len, ENC_NA);
 		llc_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
 		  if (llc_handle) {
 			col_append_str(pinfo->cinfo, COL_PROTOCOL, "/");
@@ -1729,7 +1729,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 		col_set_fence(pinfo->cinfo,COL_INFO);
 		offset++;
-		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
+		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, ENC_NA);
 		offset = offset + 3;
 		while ((msg_len + 1) > offset ){
 			offset++;
@@ -1787,9 +1787,9 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case 6: /* URLC-UFC-REQ */
 	case 7: /* URLC-DFC-REQ only allowed message types*/
 		offset++;
-		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, FALSE);
+		proto_tree_add_item(uma_tree, hf_uma_urlc_TLLI, tvb, offset, 4, ENC_NA);
 		offset = offset + 4;
-		proto_tree_add_item(uma_tree, hf_uma_urlc_seq_nr, tvb, offset, 2, FALSE);
+		proto_tree_add_item(uma_tree, hf_uma_urlc_seq_nr, tvb, offset, 2, ENC_NA);
 		offset++;
 		while (msg_len > offset){
 			offset++;

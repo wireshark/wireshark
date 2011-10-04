@@ -2628,7 +2628,7 @@ dissect_krb5_PAC_LOGON_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset, 
     static dcerpc_call_value call_data;
     void *old_private_data;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_LOGON_INFO, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_LOGON_INFO, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
         tree=proto_item_add_subtree(item, ett_krb_PAC_LOGON_INFO);
     }
@@ -2664,7 +2664,7 @@ dissect_krb5_PAC_CONSTRAINED_DELEGATION(proto_tree *parent_tree, tvbuff_t *tvb, 
     static dcerpc_call_value call_data;
     void *old_private_data;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_CONSTRAINED_DELEGATION, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_CONSTRAINED_DELEGATION, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
         tree=proto_item_add_subtree(item, ett_krb_PAC_CONSTRAINED_DELEGATION);
     }
@@ -2702,7 +2702,7 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
     int dn_len;
     guint16 bc;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_UPN_DNS_INFO, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_UPN_DNS_INFO, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
         tree=proto_item_add_subtree(item, ett_krb_PAC_UPN_DNS_INFO);
     }
@@ -2748,7 +2748,7 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 static int
 dissect_krb5_PAC_CREDENTIAL_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int offset, asn1_ctx_t *actx _U_)
 {
-    proto_tree_add_item(parent_tree, hf_krb_PAC_CREDENTIAL_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    proto_tree_add_item(parent_tree, hf_krb_PAC_CREDENTIAL_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 
 /*qqq*/
     return offset;
@@ -2760,7 +2760,7 @@ dissect_krb5_PAC_SERVER_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int off
     proto_item *item=NULL;
     proto_tree *tree=NULL;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_SERVER_CHECKSUM, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_SERVER_CHECKSUM, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
         tree=proto_item_add_subtree(item, ett_krb_PAC_SERVER_CHECKSUM);
     }
@@ -2770,7 +2770,7 @@ dissect_krb5_PAC_SERVER_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int off
     offset+=4;
 
     /* signature data */
-    proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 
     return offset;
 }
@@ -2781,7 +2781,7 @@ dissect_krb5_PAC_PRIVSVR_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int of
     proto_item *item=NULL;
     proto_tree *tree=NULL;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_PRIVSVR_CHECKSUM, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_PRIVSVR_CHECKSUM, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
         tree=proto_item_add_subtree(item, ett_krb_PAC_PRIVSVR_CHECKSUM);
     }
@@ -2791,7 +2791,7 @@ dissect_krb5_PAC_PRIVSVR_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int of
     offset+=4;
 
     /* signature data */
-    proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    proto_tree_add_item(tree, hf_krb_pac_signature_signature, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
 
     return offset;
 }
@@ -2804,7 +2804,7 @@ dissect_krb5_PAC_CLIENT_INFO_TYPE(proto_tree *parent_tree, tvbuff_t *tvb, int of
     guint16 namelen;
     char *name;
 
-    item=proto_tree_add_item(parent_tree, hf_krb_PAC_CLIENT_INFO_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+    item=proto_tree_add_item(parent_tree, hf_krb_PAC_CLIENT_INFO_TYPE, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
     if(parent_tree){
         tree=proto_item_add_subtree(item, ett_krb_PAC_CLIENT_INFO_TYPE);
     }
@@ -3346,7 +3346,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
     offset += 4;
 
     /* Bnd field */
-    proto_tree_add_item(tree, hf_krb_gssapi_bnd, tvb, offset, len, TRUE);
+    proto_tree_add_item(tree, hf_krb_gssapi_bnd, tvb, offset, len, ENC_NA);
     offset += len;
 
 

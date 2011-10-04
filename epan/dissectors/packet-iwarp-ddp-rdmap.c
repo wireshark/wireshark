@@ -299,7 +299,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 
 		if (rdma_msg_opcode == RDMA_READ_REQUEST) {
 			rdma_header_subitem = proto_tree_add_item(rdma_tree,
-					hf_iwarp_rdma_rr_header, tvb, offset, -1, FALSE);
+					hf_iwarp_rdma_rr_header, tvb, offset, -1, ENC_NA);
 			rdma_header_tree = proto_item_add_subtree(rdma_header_subitem,
 					ett_iwarp_rdma);
 
@@ -321,13 +321,13 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 					offset, RDMA_SRCSTAG_LEN, FALSE);
 			offset += RDMA_SRCSTAG_LEN;
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_srcto, tvb,
-					offset, RDMA_SRCTO_LEN, FALSE);
+					offset, RDMA_SRCTO_LEN, ENC_NA);
 			offset += RDMA_SRCTO_LEN;
 		}
 
 		if (rdma_msg_opcode == RDMA_TERMINATE) {
 			rdma_header_subitem = proto_tree_add_item(rdma_tree,
-					hf_iwarp_rdma_terminate_header, tvb, offset, -1, FALSE);
+					hf_iwarp_rdma_terminate_header, tvb, offset, -1, ENC_NA);
 			rdma_header_tree = proto_item_add_subtree(rdma_header_subitem,
 					ett_iwarp_rdma);
 
@@ -336,7 +336,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			etype = tvb_get_guint8(tvb, offset) & IWARP_ETYPE;
 
 			term_ctrl_field_subitem = proto_tree_add_item(rdma_tree,
-					hf_iwarp_rdma_term_ctrl, tvb, offset, 3, FALSE);
+					hf_iwarp_rdma_term_ctrl, tvb, offset, 3, ENC_NA);
 			term_ctrl_field_tree = proto_item_add_subtree(
 					term_ctrl_field_subitem, ett_iwarp_rdma);
 			proto_tree_add_item(term_ctrl_field_tree, hf_iwarp_rdma_term_layer,
@@ -402,7 +402,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			/* header control bits (hdctr), part of Terminate Control Field */
 			header_ctrl_field_subitem = proto_tree_add_item(
 					term_ctrl_field_tree, hf_iwarp_rdma_term_hdrct, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_NA);
 			header_ctrl_field_tree = proto_item_add_subtree(
 					header_ctrl_field_subitem, ett_iwarp_rdma);
 
@@ -424,19 +424,19 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 				/* DDP Segment Length (if any) */
 				proto_tree_add_item(rdma_header_tree,
 						hf_iwarp_rdma_term_ddp_seg_len, tvb,
-						offset, RDMA_DDP_SEGLEN_LEN, FALSE);
+						offset, RDMA_DDP_SEGLEN_LEN, ENC_NA);
 				offset += RDMA_DDP_SEGLEN_LEN;
 
 				/* Terminated DDP Header (if any), tagged or untagged */
 				if (etype == IWARP_ETYPE_DDP_TAGGED) {
 					proto_tree_add_item(rdma_header_tree,
 							hf_iwarp_rdma_term_ddp_h, tvb,
-							offset, DDP_TAGGED_HEADER_LEN, FALSE);
+							offset, DDP_TAGGED_HEADER_LEN, ENC_NA);
 					offset += DDP_TAGGED_HEADER_LEN;
 				} else {
 					proto_tree_add_item(rdma_header_tree,
 							hf_iwarp_rdma_term_ddp_h, tvb,
-							offset, DDP_UNTAGGED_HEADER_LEN, FALSE);
+							offset, DDP_UNTAGGED_HEADER_LEN, ENC_NA);
 					offset += DDP_UNTAGGED_HEADER_LEN;
 				}
 			}
@@ -444,7 +444,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			/* Terminated RDMA Header (if any) */
 			if (hdrct & IWARP_HDRCT_R) {
 				proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_term_rdma_h,
-						tvb, offset, RDMA_TERMINATED_RDMA_LEN, FALSE);
+						tvb, offset, RDMA_TERMINATED_RDMA_LEN, ENC_NA);
 			}
 		}
 	}
@@ -509,13 +509,13 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* DDP protocol header subtree */
 		ddp_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_ddp, tvb,
-				offset, header_end, FALSE);
+				offset, header_end, ENC_NA);
 		ddp_tree = proto_item_add_subtree(ddp_item, ett_iwarp_ddp);
 
 		/* DDP control field */
 		ddp_ctrl_field_item = proto_tree_add_item(ddp_tree,
 				hf_iwarp_ddp_control_field, tvb, offset,
-				DDP_CONTROL_FIELD_LEN, FALSE);
+				DDP_CONTROL_FIELD_LEN, ENC_NA);
 		ddp_ctrl_field_tree = proto_item_add_subtree(ddp_ctrl_field_item,
 				ett_iwarp_ddp);
 
@@ -533,7 +533,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* DDP header field RsvdULP */
 		if (!is_tagged_buffer_model) {
 			proto_tree_add_item(ddp_tree, hf_iwarp_ddp_rsvdulp, tvb,
-					offset, DDP_UNTAGGED_RSVDULP_LEN, FALSE);
+					offset, DDP_UNTAGGED_RSVDULP_LEN, ENC_NA);
 		}
 
 		/* RDMA protocol header subtree */
@@ -544,13 +544,13 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		rdma_item = proto_tree_add_item(ddp_rdma_tree, hf_iwarp_rdma, tvb,
-					offset, header_end, FALSE);
+					offset, header_end, ENC_NA);
 		rdma_tree = proto_item_add_subtree(rdma_item, ett_iwarp_rdma);
 
 		/* RDMA Control Field */
 		rdma_ctrl_field_item = proto_tree_add_item(rdma_tree,
 				hf_iwarp_rdma_control_field, tvb, offset,
-				RDMA_CONTROL_FIELD_LEN, FALSE);
+				RDMA_CONTROL_FIELD_LEN, ENC_NA);
 		rdma_ctrl_field_tree = proto_item_add_subtree(rdma_ctrl_field_item,
 				ett_iwarp_rdma);
 
@@ -568,7 +568,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				|| rdma_msg_opcode == RDMA_SEND_SE
 				|| rdma_msg_opcode == RDMA_TERMINATE) {
 			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_reserved,
-				 tvb, offset, RDMA_RESERVED_FIELD_LEN, FALSE);
+				 tvb, offset, RDMA_RESERVED_FIELD_LEN, ENC_NA);
 		}
 
 		if (rdma_msg_opcode == RDMA_SEND_INVALIDATE
@@ -587,15 +587,15 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Tagged Buffer Model Case */
 			ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
 					hf_iwarp_ddp_tagged_header, tvb, offset,
-					DDP_BUFFER_MODEL_LEN, FALSE);
+					DDP_BUFFER_MODEL_LEN, ENC_NA);
 			ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
 					ett_iwarp_ddp);
 
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_stag, tvb,
-					offset, DDP_STAG_LEN, FALSE);
+					offset, DDP_STAG_LEN, ENC_NA);
 			offset += DDP_STAG_LEN;
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_to, tvb,
-					offset, DDP_TO_LEN, FALSE);
+					offset, DDP_TO_LEN, ENC_NA);
 			offset += DDP_TO_LEN;
 
 			if( rdma_msg_opcode == RDMA_READ_RESPONSE
@@ -611,7 +611,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* Untagged Buffer Model Case */
 			ddp_buffer_model_item = proto_tree_add_item(ddp_tree,
 					hf_iwarp_ddp_untagged_header, tvb, offset,
-					DDP_BUFFER_MODEL_LEN, FALSE);
+					DDP_BUFFER_MODEL_LEN, ENC_NA);
 			ddp_buffer_model_tree = proto_item_add_subtree(ddp_buffer_model_item,
 					ett_iwarp_ddp);
 

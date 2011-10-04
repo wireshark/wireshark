@@ -210,7 +210,7 @@ static guint16 assign_rb_info(tvbuff_t *tvb, packet_info *pinfo, guint16 offset,
 			proto_tree *subtree;
 			proto_item *pi;
 
-			pi = proto_tree_add_item(tree, hf_fph_rb, tvb, offset, 8, TRUE);
+			pi = proto_tree_add_item(tree, hf_fph_rb, tvb, offset, 8, ENC_NA);
 			subtree = proto_item_add_subtree(pi, ett_fph_rb);
 
 			if (urnti)
@@ -302,7 +302,7 @@ static void assign_fph_dch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, fp
 	fpi->num_chans = cnt;
 	fpi->dch_crc_present = 1;
 	while (i < cnt) {
-		pi = proto_tree_add_item(tree, hf_fph_tf, tvb, offset, 4, TRUE);
+		pi = proto_tree_add_item(tree, hf_fph_tf, tvb, offset, 4, ENC_NA);
 		subtree = proto_item_add_subtree(pi, ett_fph_rb);
 		hdr = tvb_get_ptr(tvb, offset, 4);
 		dch_id = (hdr[0] & 0x1f) + 1;
@@ -404,7 +404,7 @@ static void assign_fph_edch(tvbuff_t *tvb, packet_info *pinfo, guint16 offset, f
 		fpi->edch_ddi[i] = ddi;
 		fpi->edch_macd_pdu_size[i] = maces_size;
 		if (tree) {
-			pi = proto_tree_add_item(tree, hf_fph_ddi_entry, tvb, offset - 4, 4, TRUE);
+			pi = proto_tree_add_item(tree, hf_fph_ddi_entry, tvb, offset - 4, 4, ENC_NA);
 			subtree = proto_item_add_subtree(pi, ett_fph_ddi_entry);
 			proto_tree_add_uint(subtree, hf_fph_ddi_value, tvb, offset - 4, 1, ddi);
 			proto_tree_add_uint(subtree, hf_fph_ddi_logical, tvb, offset - 3, 1, logical);

@@ -881,7 +881,7 @@ dissect_dtls_change_cipher_spec(tvbuff_t *tvb,
                           val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                           val_to_str(content_type, ssl_31_content_type, "unknown"));
       proto_tree_add_item(tree, hf_dtls_change_cipher_spec, tvb,
-                          offset++, 1, FALSE);
+                          offset++, 1, ENC_NA);
     }
 }
 
@@ -1864,7 +1864,7 @@ dissect_dtls_hnd_finished(tvbuff_t *tvb, proto_tree *tree, guint32 offset,
   switch(*conv_version) {
   case SSL_VER_DTLS:
     proto_tree_add_item(tree, hf_dtls_handshake_finished,
-                        tvb, offset, 12, FALSE);
+                        tvb, offset, 12, ENC_NA);
     break;
   }
 }
