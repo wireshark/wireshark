@@ -33,7 +33,10 @@
 #include <epan/packet.h>
 #include <epan/addr_resolv.h>
 #include <epan/strutil.h>
+#include <epan/prefs.h>
+#include <epan/uat.h>
 
+#include <wsutil/str_util.h>
 
 #include "packet-ber.h"
 #include "packet-imf.h"
@@ -221,6 +224,82 @@ static struct imf_field imf_fields[] = {
 };
 
 static GHashTable *imf_field_table=NULL;
+
+#define FORMAT_UNSTRUCTURED  0
+#define FORMAT_MAILBOX       1
+#define FORMAT_ADDRESS       2
+#define FORMAT_MAILBOX_LIST  3
+#define FORMAT_ADDRESS_LIST  4
+
+static value_string header_format[] = {
+  { FORMAT_UNSTRUCTURED, "Unstructured" },
+  { FORMAT_MAILBOX,      "Mailbox"      },
+  { FORMAT_ADDRESS,      "Address"      },
+  { FORMAT_MAILBOX_LIST, "Mailbox List" },
+  { FORMAT_ADDRESS_LIST, "Address List" },
+  { 0, NULL }
+};
+
+static value_string add_to_col_info[] = {
+  { 0, "No"  },
+  { 1, "Yes" },
+  { 0, NULL }
+};
+
+typedef struct _header_field_t {
+  gchar *header_name;
+  gchar *description;
+  guint  header_format;
+  guint  add_to_col_info;
+} header_field_t;
+
+static header_field_t *header_fields = NULL;
+static guint num_header_fields = 0;
+
+static GHashTable *custom_field_table = NULL;
+
+static void header_fields_update_cb(void *r, const char **err)
+{
+  header_field_t *rec = r;
+
+  if (rec->header_name == NULL) {
+    *err = ep_strdup_printf("Header name can't be empty");
+  } else {
+    g_strstrip(rec->header_name);
+    if (rec->header_name[0] == 0) {
+      *err = ep_strdup_printf("Header name can't be empty");
+    } else {
+      *err = NULL;
+    }
+  }
+}
+
+static void *header_fields_copy_cb(void *n, const void *o, size_t siz _U_)
+{
+  header_field_t *new_rec = n;
+  const header_field_t *old_rec = o;
+
+  new_rec->header_name = g_strdup(old_rec->header_name);
+  new_rec->description = g_strdup(old_rec->description);
+  new_rec->header_format = old_rec->header_format;
+  new_rec->add_to_col_info = old_rec->add_to_col_info;
+
+  return new_rec;
+}
+
+static void header_fields_free_cb(void *r)
+{
+  header_field_t *rec = r;
+
+  g_free(rec->header_name);
+  g_free(rec->description);
+}
+
+UAT_CSTRING_CB_DEF(header_fields, header_name, header_field_t)
+UAT_CSTRING_CB_DEF(header_fields, description, header_field_t)
+UAT_VS_DEF(header_fields, header_format, header_field_t, 0, "Unstructured")
+UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, 0, "No")
+
 
 /* Define media_type/Content type table */
 static dissector_table_t media_type_dissector_table;
@@ -509,19 +588,18 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       /* XXX: flag an error */
       break;
     } else {
-      guint8 *p;
-
       key = tvb_get_ephemeral_string(tvb, start_offset, end_offset - start_offset);
 
       /* convert to lower case */
+      ascii_strdown_inplace (key);
 
-      for(p=key; *p; p++) {
-        if(isupper(*p)) {
-          *p = tolower(*p);
-        }
-      }
-      /* look up the key */
+      /* look up the key in built-in fields */
       f_info = (struct imf_field *)g_hash_table_lookup(imf_field_table, key);
+
+      if(f_info == NULL && custom_field_table) {
+        /* look up the key in custom fields */
+        f_info = (struct imf_field *)g_hash_table_lookup(custom_field_table, key);
+      }
 
       if(f_info == NULL) {
         /* set as an unknown extension */
@@ -642,6 +720,79 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
+static void header_fields_initialize (void)
+{
+  hf_register_info *hf = NULL;
+  gint *hf_id = NULL;
+  struct imf_field *imffield;
+  guint i = 0;
+  gchar *header_name;
+
+  if (custom_field_table) {
+    GList *hf_ids = g_hash_table_get_values (custom_field_table);
+    GList *id;
+    for (id = hf_ids; id; id = g_list_next (id)) {
+      /* Unregister all fields */
+      imffield = (struct imf_field *) id->data;
+      proto_unregister_field (proto_imf, *(imffield->hf_id));
+      g_free (imffield->hf_id);
+      g_free ((char *)imffield->name);
+      g_free (imffield);
+    }
+    g_hash_table_destroy (custom_field_table);
+    custom_field_table = NULL;
+  }
+
+  if (num_header_fields) {
+    custom_field_table = g_hash_table_new (g_str_hash, g_str_equal);
+    hf = g_malloc0 (sizeof (hf_register_info) * num_header_fields);
+
+    for (i = 0; i < num_header_fields; i++) {
+      hf_id = g_malloc (sizeof (gint));
+      *hf_id = -1;
+      header_name = g_strdup (header_fields[i].header_name);
+
+      hf[i].p_id = hf_id;
+      hf[i].hfinfo.name = header_name;
+      hf[i].hfinfo.abbrev = g_strdup_printf ("imf.header.%s", header_name);
+      hf[i].hfinfo.type = FT_STRING;
+      hf[i].hfinfo.display = BASE_NONE;
+      hf[i].hfinfo.strings = NULL;
+      hf[i].hfinfo.blurb = g_strdup (header_fields[i].description);
+      hf[i].hfinfo.same_name_prev = NULL;
+      hf[i].hfinfo.same_name_next = NULL;
+
+      imffield = g_malloc (sizeof (struct imf_field));
+      imffield->hf_id = hf_id;
+      imffield->name = ascii_strdown_inplace (g_strdup (header_name));
+      switch (header_fields[i].header_format) {
+      case FORMAT_UNSTRUCTURED:
+        imffield->subdissector = NO_SUBDISSECTION;
+        break;
+      case FORMAT_MAILBOX:
+        imffield->subdissector = dissect_imf_mailbox;
+        break;
+      case FORMAT_ADDRESS:
+        imffield->subdissector = dissect_imf_address;
+        break;
+      case FORMAT_MAILBOX_LIST:
+        imffield->subdissector = dissect_imf_mailbox_list;
+        break;
+      case FORMAT_ADDRESS_LIST:
+        imffield->subdissector = dissect_imf_address_list;
+        break;
+      default:
+        /* unknown */
+        imffield->subdissector = NO_SUBDISSECTION;
+        break;
+      }
+      imffield->add_to_col_info = header_fields[i].add_to_col_info;
+      g_hash_table_insert (custom_field_table, (gpointer)imffield->name, (gpointer)imffield);
+    }
+
+    proto_register_field_array (proto_imf, hf, num_header_fields);
+  }
+}
 
 /* Register all the bits needed by the filtering engine */
 
@@ -886,6 +1037,29 @@ proto_register_imf(void)
     &ett_imf_message_text,
   };
 
+  static uat_field_t attributes_flds[] = {
+    UAT_FLD_CSTRING(header_fields, header_name, "Header name", "IMF header name"),
+    UAT_FLD_CSTRING(header_fields, description, "Description", "Description of the value contained in the header"),
+    UAT_FLD_VS(header_fields, header_format, "Format", header_format, 0),
+    UAT_FLD_VS(header_fields, add_to_col_info, "Add to Info column", add_to_col_info, 0),
+    UAT_END_FIELDS
+  };
+
+  uat_t *headers_uat = uat_new("Custom IMF headers",
+                               sizeof(header_field_t),
+                               "imf_header_fields",
+                               FALSE,
+                               (void*) &header_fields,
+                               &num_header_fields,
+                               UAT_CAT_GENERAL,
+                               NULL,
+                               header_fields_copy_cb,
+                               header_fields_update_cb,
+                               header_fields_free_cb,
+                               header_fields_initialize,
+                               attributes_flds);
+
+  module_t *imf_module;
   struct imf_field *f;
 
   proto_imf = proto_register_protocol(PNAME, PSNAME, PFNAME);
@@ -895,6 +1069,12 @@ proto_register_imf(void)
 
   /* Allow dissector to find be found by name. */
   register_dissector(PFNAME, dissect_imf, proto_imf);
+
+  imf_module = prefs_register_protocol(proto_imf, header_fields_initialize);
+  prefs_register_uat_preference(imf_module, "custom_header_fields", "Custom IMF headers",
+                                "A table to define custom IMF headers for which fields can be "
+                                "setup and used for filtering/data extraction etc.",
+                                headers_uat);
 
   imf_field_table=g_hash_table_new(g_str_hash, g_str_equal); /* oid to syntax */
 
