@@ -1900,67 +1900,50 @@ get_hf_for_header(char* header_name)
  *
  */
 static void
-add_hf_info_for_headers(void)
+header_fields_initialize_cb(void)
 {
-	hf_register_info* hf = NULL;
+	static hf_register_info* hf = NULL;
 	gint* hf_id = NULL;
-	guint i = 0;
+	guint i;
 	gchar* header_name;
-	GPtrArray* array;
-	guint new_entries = 0;
-	header_field_t* tmp_hdr = NULL;
 
-	if (!header_fields_hash) {
-		header_fields_hash = g_hash_table_new(g_str_hash, g_str_equal);
+	if (header_fields_hash) {
+		GList *hf_ids = g_hash_table_get_values (header_fields_hash);
+		GList *id;
+		/* Unregister all fields */
+		for (id = hf_ids; id; id = g_list_next (id)) {
+			hf_id = (int *) id->data;
+			proto_unregister_field (proto_http, *hf_id);
+			g_free (hf_id);
+		}
+		g_hash_table_destroy (header_fields_hash);
+		g_free (hf);
+		header_fields_hash = NULL;
 	}
 
 	if (num_header_fields) {
-		array = g_ptr_array_new();
+		header_fields_hash = g_hash_table_new(g_str_hash, g_str_equal);
+		hf = g_malloc0(sizeof(hf_register_info) * num_header_fields);
 
-		/* Make a list of fields which are not already added. This is useful only if
-		 * preferences are reloaded and a new header field has been added. Perhaps unlikely
-		 * to be used, but no harm in adding it...
-		 */
-
-		/* Not checking if the UAT has more or same number of entries as the hash table
-		 * because it is possible that some entries are removed and some more added.
-		 * WARNING: We will not de-register fields which have been removed from the UAT
-		 *
-		 * XXX: PS, it turns out that in case of change in UAT, the prefs apply callback is not
-		 * called... so, some of this code will not work at the moment. However, I leave it
-		 * in here for now because if the callback is called in future, it will work (at least
-		 * in theory ;-).
-		 */
 		for (i = 0; i < num_header_fields; i++) {
-			if ((g_hash_table_lookup(header_fields_hash, header_fields[i].header_name)) == NULL) {
-				new_entries++;
-				g_ptr_array_add(array, &header_fields[i]);
-			}
+			hf_id = g_malloc(sizeof(gint));
+			*hf_id = -1;
+			header_name = g_strdup(header_fields[i].header_name);
+
+			hf[i].p_id = hf_id;
+			hf[i].hfinfo.name = header_name;
+			hf[i].hfinfo.abbrev = g_strdup_printf("http.header.%s", header_name);
+			hf[i].hfinfo.type = FT_STRING;
+			hf[i].hfinfo.display = BASE_NONE;
+			hf[i].hfinfo.strings = NULL;
+			hf[i].hfinfo.blurb = g_strdup(header_fields[i].header_desc);
+			hf[i].hfinfo.same_name_prev = NULL;
+			hf[i].hfinfo.same_name_next = NULL;
+
+			g_hash_table_insert(header_fields_hash, header_name, hf_id);
 		}
 
-		if (new_entries) {
-			hf = g_malloc0(sizeof(hf_register_info) * new_entries);
-			for (i = 0; i < new_entries; i++) {
-				tmp_hdr = (header_field_t*) g_ptr_array_index(array, i);
-				hf_id = g_malloc(sizeof(gint));
-				*hf_id = -1;
-				header_name = g_strdup(tmp_hdr->header_name);
-
-				hf[i].p_id = hf_id;
-				hf[i].hfinfo.name = header_name;
-				hf[i].hfinfo.abbrev = g_strdup_printf("http.header.%s", header_name);
-				hf[i].hfinfo.type = FT_STRING;
-				hf[i].hfinfo.display = BASE_NONE;
-				hf[i].hfinfo.strings = NULL;
-				hf[i].hfinfo.blurb = g_strdup(tmp_hdr->header_desc);
-				hf[i].hfinfo.same_name_prev = NULL;
-				hf[i].hfinfo.same_name_next = NULL;
-
-				g_hash_table_insert(header_fields_hash, header_name, hf_id);
-			}
-
-			proto_register_field_array(proto_http, hf, num_header_fields);
-		}
+		proto_register_field_array(proto_http, hf, num_header_fields);
 	}
 }
 
@@ -2355,11 +2338,6 @@ static void reinit_http(void) {
 	g_free(http_ssl_range);
 	http_ssl_range = range_copy(global_http_ssl_range);
 	range_foreach(http_ssl_range, range_add_http_ssl_callback);
-
-	/* Attempt to add additional headers that might have been added
-	 * once the preferences are applied.
-	 */
-	add_hf_info_for_headers();
 }
 
 void
@@ -2529,7 +2507,6 @@ proto_register_http(void)
 
 	module_t *http_module;
 	uat_t* headers_uat;
-	char* uat_load_err;
 
 	proto_http = proto_register_protocol("Hypertext Transfer Protocol",
 	    "HTTP", "http");
@@ -2590,7 +2567,7 @@ proto_register_http(void)
 			      header_fields_copy_cb,
 			      header_fields_update_cb,
 			      header_fields_free_cb,
-			      NULL,
+			      header_fields_initialize_cb,
 			      custom_header_uat_fields
 	);
 
@@ -2633,13 +2610,6 @@ proto_register_http(void)
 	 */
 	http_tap = register_tap("http"); /* HTTP statistics tap */
       	http_eo_tap = register_tap("http_eo"); /* HTTP Export Object tap */
-
-	/*
-	 * Add additional HFs for HTTP headers from the UAT (which is loaded manually first).
-	 */
-	if (uat_load(headers_uat, &uat_load_err)) {
-		add_hf_info_for_headers();
-	}
 }
 
 /*
