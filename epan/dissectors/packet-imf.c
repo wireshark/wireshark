@@ -733,22 +733,26 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 static void
 header_fields_initialize_cb (void)
 {
-  static hf_register_info *hf = NULL;
-  gint *hf_id = NULL;
+  static hf_register_info *hf;
+  gint *hf_id;
   struct imf_field *imffield;
-  guint i = 0;
+  guint i;
   gchar *header_name;
 
   if (custom_field_table) {
     GList *hf_ids = g_hash_table_get_values (custom_field_table);
-    GList *id;
+    guint hf_size = g_hash_table_size (custom_field_table);
     /* Unregister all fields */
-    for (id = hf_ids; id; id = g_list_next (id)) {
-      imffield = (struct imf_field *) id->data;
+    for (i = 0; i < hf_size; i++) {
+      imffield = (struct imf_field *) g_list_nth_data (hf_ids, i);
       proto_unregister_field (proto_imf, *(imffield->hf_id));
+
       g_free (imffield->hf_id);
-      g_free ((char *)imffield->name);
+      g_free ((char *) imffield->name);
       g_free (imffield);
+      g_free ((char *) hf[i].hfinfo.name);
+      g_free ((char *) hf[i].hfinfo.abbrev);
+      g_free ((char *) hf[i].hfinfo.blurb);
     }
     g_hash_table_destroy (custom_field_table);
     g_free (hf);
