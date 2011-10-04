@@ -27,9 +27,6 @@
 /* Wireshark ID of the BRP protocol */
 static int proto_brp = -1;
 
-/* These are the handles of our subdissectors */
-static dissector_handle_t data_handle=NULL;
-
 static dissector_handle_t brp_handle;
 void dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree);
 
@@ -78,7 +75,6 @@ static const value_string brp_stat_vals[] = {
 * our data fields; they are filled out when we call
 * proto_register_field_array() in proto_register_brp()
 */
-static gint hf_brp = -1;
 static gint hf_brp_type = -1;
 static gint hf_brp_trans = -1;
 static gint hf_brp_ver = -1;
