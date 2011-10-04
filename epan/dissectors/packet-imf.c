@@ -731,9 +731,9 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
-header_fields_initialize (void)
+header_fields_initialize_cb (void)
 {
-  hf_register_info *hf = NULL;
+  static hf_register_info *hf = NULL;
   gint *hf_id = NULL;
   struct imf_field *imffield;
   guint i = 0;
@@ -742,8 +742,8 @@ header_fields_initialize (void)
   if (custom_field_table) {
     GList *hf_ids = g_hash_table_get_values (custom_field_table);
     GList *id;
+    /* Unregister all fields */
     for (id = hf_ids; id; id = g_list_next (id)) {
-      /* Unregister all fields */
       imffield = (struct imf_field *) id->data;
       proto_unregister_field (proto_imf, *(imffield->hf_id));
       g_free (imffield->hf_id);
@@ -751,6 +751,7 @@ header_fields_initialize (void)
       g_free (imffield);
     }
     g_hash_table_destroy (custom_field_table);
+    g_free (hf);
     custom_field_table = NULL;
   }
 
@@ -1067,7 +1068,7 @@ proto_register_imf(void)
                                header_fields_copy_cb,
                                header_fields_update_cb,
                                header_fields_free_cb,
-                               header_fields_initialize,
+                               header_fields_initialize_cb,
                                attributes_flds);
 
   module_t *imf_module;
@@ -1081,7 +1082,7 @@ proto_register_imf(void)
   /* Allow dissector to find be found by name. */
   register_dissector(PFNAME, dissect_imf, proto_imf);
 
-  imf_module = prefs_register_protocol(proto_imf, header_fields_initialize);
+  imf_module = prefs_register_protocol(proto_imf, NULL);
   prefs_register_uat_preference(imf_module, "custom_header_fields", "Custom IMF headers",
                                 "A table to define custom IMF headers for which fields can be "
                                 "setup and used for filtering/data extraction etc.",
