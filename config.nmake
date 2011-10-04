@@ -160,7 +160,9 @@ NASM=$(WIRESHARK_LIB_DIR)\nasm-2.09.08\nasm.exe
 # Python version    CRT (32-bit)    CRT (64-bit)
 # 2.4.4             7.1             ?
 # 2.6.1             9.0             ?
-# 2.6.2                             9.0
+# 2.6.2             ?               9.0
+# 2.7.1             9.0             9.0
+# 3.2.2             9.0             9.0
 #
 # If you versions of Python and Visual C++ use different CRTs
 # comment this out.
