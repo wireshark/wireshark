@@ -366,6 +366,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-bootparams.c
 	dissectors/packet-bpdu.c
 	dissectors/packet-brdwlk.c
+	dissectors/packet-brp.c
 	dissectors/packet-bssap.c
 	dissectors/packet-bssgp.c
 	dissectors/packet-btamp.c
