@@ -1902,19 +1902,23 @@ get_hf_for_header(char* header_name)
 static void
 header_fields_initialize_cb(void)
 {
-	static hf_register_info* hf = NULL;
-	gint* hf_id = NULL;
+	static hf_register_info* hf;
+	gint* hf_id;
 	guint i;
 	gchar* header_name;
 
 	if (header_fields_hash) {
 		GList *hf_ids = g_hash_table_get_values (header_fields_hash);
-		GList *id;
+		guint hf_size = g_hash_table_size (header_fields_hash);
 		/* Unregister all fields */
-		for (id = hf_ids; id; id = g_list_next (id)) {
-			hf_id = (int *) id->data;
+		for (i = 0; i < hf_size; i++) {
+			hf_id = (int *) g_list_nth_data (hf_ids, i);
 			proto_unregister_field (proto_http, *hf_id);
+
 			g_free (hf_id);
+			g_free ((char *) hf[i].hfinfo.name);
+			g_free ((char *) hf[i].hfinfo.abbrev);
+			g_free ((char *) hf[i].hfinfo.blurb);
 		}
 		g_hash_table_destroy (header_fields_hash);
 		g_free (hf);
