@@ -1580,6 +1580,12 @@ extern void proto_initialize_all_prefixes(void);
 extern void
 proto_register_field_array(const int parent, hf_register_info *hf, const int num_records);
 
+/** Unregister an already registered field.
+ @param parent the protocol handle from proto_register_protocol()
+ @param hf_id the field to unregister */
+extern void
+proto_unregister_field (const int parent, gint hf_id);
+
 /** Register a protocol subtree (ett) array.
  @param indices array of ett indices
  @param num_indices the number of records in indices */

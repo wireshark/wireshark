@@ -4701,6 +4701,34 @@ proto_register_field_array(const int parent, hf_register_info *hf, const int num
 	}
 }
 
+/* unregister already registered fields */
+void
+proto_unregister_field (const int parent, gint hf_id)
+{
+	hf_register_info *hf;
+	protocol_t  *proto;
+	GList *field;
+
+	if (hf_id == -1 || hf_id == 0)
+		return;
+
+	proto = find_protocol_by_id (parent);
+	if (!proto || !proto->fields) {
+		return;
+	}
+
+	for (field = g_list_first (proto->fields); field; field = g_list_next (field)) {
+		hf = field->data;
+		if (*hf->p_id == hf_id) {
+			/* Found the hf_id in this protocol */
+			g_tree_remove (gpa_name_tree, hf->hfinfo.abbrev);
+			proto->fields = g_list_remove_link (proto->fields, field);
+			proto->last_field = g_list_last (proto->fields);
+			break;
+		}
+	}
+}
+
 /* chars allowed in field abbrev */
 static
 const guchar fld_abbrev_chars[256] = {
