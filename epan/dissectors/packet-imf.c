@@ -1060,7 +1060,7 @@ proto_register_imf(void)
   uat_t *headers_uat = uat_new("Custom IMF headers",
                                sizeof(header_field_t),
                                "imf_header_fields",
-                               FALSE,
+                               TRUE,
                                (void*) &header_fields,
                                &num_header_fields,
                                UAT_CAT_GENERAL,
