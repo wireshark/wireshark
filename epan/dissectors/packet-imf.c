@@ -231,7 +231,7 @@ static GHashTable *imf_field_table=NULL;
 #define FORMAT_MAILBOX_LIST  3
 #define FORMAT_ADDRESS_LIST  4
 
-static value_string header_format[] = {
+static const value_string header_format[] = {
   { FORMAT_UNSTRUCTURED, "Unstructured" },
   { FORMAT_MAILBOX,      "Mailbox"      },
   { FORMAT_ADDRESS,      "Address"      },
@@ -240,7 +240,7 @@ static value_string header_format[] = {
   { 0, NULL }
 };
 
-static value_string add_to_col_info[] = {
+static const value_string add_to_col_info[] = {
   { 0, "No"  },
   { 1, "Yes" },
   { 0, NULL }
@@ -258,7 +258,8 @@ static guint num_header_fields = 0;
 
 static GHashTable *custom_field_table = NULL;
 
-static void header_fields_update_cb(void *r, const char **err)
+static void
+header_fields_update_cb(void *r, const char **err)
 {
   header_field_t *rec = r;
 
@@ -274,7 +275,8 @@ static void header_fields_update_cb(void *r, const char **err)
   }
 }
 
-static void *header_fields_copy_cb(void *n, const void *o, size_t siz _U_)
+static void *
+header_fields_copy_cb(void *n, const void *o, size_t siz _U_)
 {
   header_field_t *new_rec = n;
   const header_field_t *old_rec = o;
@@ -287,7 +289,8 @@ static void *header_fields_copy_cb(void *n, const void *o, size_t siz _U_)
   return new_rec;
 }
 
-static void header_fields_free_cb(void *r)
+static void
+header_fields_free_cb(void *r)
 {
   header_field_t *rec = r;
 
@@ -304,7 +307,8 @@ UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, 0, "No")
 /* Define media_type/Content type table */
 static dissector_table_t media_type_dissector_table;
 
-static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item)
+static void
+dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item)
 {
   proto_tree *group_tree;
   proto_item *group_item;
@@ -346,7 +350,8 @@ static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_ite
 
 }
 
-static void dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item)
+static void
+dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item)
 {
   proto_tree *mbox_tree;
   int        addr_pos, end_pos;
@@ -385,7 +390,8 @@ static void dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_ite
   }
 }
 
-static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item)
+static void
+dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item)
 {
   proto_item *addr_item = NULL;
   proto_tree *tree = NULL;
@@ -425,7 +431,8 @@ static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, prot
   return;
 }
 
-static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item)
+static void
+dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item)
 {
   proto_item *mbox_item = NULL;
   proto_tree *tree = NULL;
@@ -466,8 +473,9 @@ static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, prot
 }
 
 
-static void dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item,
-                                     char **type, char **parameters)
+static void
+dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item,
+                         char **type, char **parameters)
 {
   int first_colon;
   int len;
@@ -504,7 +512,8 @@ static void dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, prot
 }
 
 
-int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_field)
+int
+imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_field)
 {
 
   while(offset < max_length) {
@@ -546,7 +555,8 @@ int imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *las
 
 }
 
-static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
   proto_item  *item;
   proto_tree  *unknown_tree, *text_tree;
@@ -720,7 +730,8 @@ static void dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 }
 
-static void header_fields_initialize (void)
+static void
+header_fields_initialize (void)
 {
   hf_register_info *hf = NULL;
   gint *hf_id = NULL;
