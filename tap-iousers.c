@@ -707,6 +707,15 @@ iousers_init(const char *optarg, void* userdata _U_)
 		tap_type="ipx";
 		tap_type_name="IPX";
 		packet_func=iousers_ipx_packet;
+	} else if(!strncmp(optarg,"conv,ipv6",9)){
+		if(optarg[9]==','){
+			filter=optarg+10;
+		} else {
+			filter=NULL;
+		}
+		tap_type="ipv6";
+		tap_type_name="IPv6";
+		packet_func=iousers_ipv6_packet;
 	} else if(!strncmp(optarg,"conv,ip",7)){
 		if(optarg[7]==','){
 			filter=optarg+8;
@@ -716,15 +725,6 @@ iousers_init(const char *optarg, void* userdata _U_)
 		tap_type="ip";
 		tap_type_name="IPv4";
 		packet_func=iousers_ip_packet;
-	} else if(!strncmp(optarg,"conv,ipv6",7)){
-		if(optarg[7]==','){
-			filter=optarg+10;
-		} else {
-			filter=NULL;
-		}
-		tap_type="ipv6";
-		tap_type_name="IPv6";
-		packet_func=iousers_ipv6_packet;
 	} else if(!strncmp(optarg,"conv,sctp",9)) {
 		if(optarg[9]==','){
 				filter=optarg+10;
