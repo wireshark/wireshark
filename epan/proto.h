@@ -386,13 +386,13 @@ typedef struct field_info {
 /** The protocol field value is in big endian */
 #define FI_BIG_ENDIAN           0x00000010
 /** Field value start from nth bit (values from 0x20 - 0x100) */
-#define FI_BITS_OFFSET(n)        ((n & 7) << 5)
+#define FI_BITS_OFFSET(n)       (((n) & 7) << 5)
 /** Field value takes n bits (values from 0x100 - 0x4000) */
 /* if 0, it means that field takes fi->length * 8 */
-#define FI_BITS_SIZE(n)         ((n & 63) << 8)
+#define FI_BITS_SIZE(n)         (((n) & 63) << 8)
 
 /** convenience macro to get field_info.flags */
-#define FI_GET_FLAG(fi, flag) ((fi) ? (fi->flags & flag) : 0)
+#define FI_GET_FLAG(fi, flag)   ((fi) ? ((fi)->flags & (flag)) : 0)
 /** convenience macro to set field_info.flags */
 #define FI_SET_FLAG(fi, flag) \
     do { \
@@ -1825,7 +1825,6 @@ proto_tree_add_bitmask(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param ett subtree index
  @param fields NULL-terminated array of bitfield indexes
  @param little_endian big or little endian byte representation
- @param little_endian big or little endian byte representation
  @param flags
  @return the newly created item */
 extern proto_item *
@@ -1845,7 +1844,7 @@ proto_tree_add_bitmask_text(proto_tree *tree, tvbuff_t *tvb, const guint offset,
  @param tvb the tv buffer of the current data
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bits
- @param little_endian big or little endian byte representation
+ @param encoding data encoding
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, const guint encoding);
@@ -1858,7 +1857,7 @@ proto_tree_add_bits_item(proto_tree *tree, const int hf_index, tvbuff_t *tvb, co
  @param bit_offset start of data in tvb expressed in bits
  @param no_of_bits length of data in tvb expressed in bits
  @param return_value if a pointer is passed here the value is returned.
- @param little_endian big or little endian byte representation
+ @param encoding data encoding
  @return the newly created item */
 extern proto_item *
 proto_tree_add_bits_ret_val(proto_tree *tree, const int hf_index, tvbuff_t *tvb, const gint bit_offset, const gint no_of_bits, guint64 *return_value, const guint encoding);
