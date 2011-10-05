@@ -1908,14 +1908,12 @@ header_fields_initialize_cb(void)
 	gchar* header_name;
 
 	if (header_fields_hash) {
-		GList *hf_ids = g_hash_table_get_values (header_fields_hash);
 		guint hf_size = g_hash_table_size (header_fields_hash);
 		/* Unregister all fields */
 		for (i = 0; i < hf_size; i++) {
-			hf_id = (int *) g_list_nth_data (hf_ids, i);
-			proto_unregister_field (proto_http, *hf_id);
+			proto_unregister_field (proto_http, *(hf[i].p_id));
 
-			g_free (hf_id);
+			g_free (hf[i].p_id);
 			g_free ((char *) hf[i].hfinfo.name);
 			g_free ((char *) hf[i].hfinfo.abbrev);
 			g_free ((char *) hf[i].hfinfo.blurb);
