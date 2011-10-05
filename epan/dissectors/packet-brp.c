@@ -21,6 +21,13 @@
  * 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 
+/*
+ * This is a dissector for the BRP (Bandwidth Reservation Protocol). This protocol
+ * is used by various telecommunications vendors to establish VoD (Video
+ * On-Demand) sessions between a STB (Set Top Box) at the customer's home and the
+ * VoD server at the video head-end.
+ */
+
 #ifdef HAVE_CONFIG_H
 # include "config.h"
 #endif
