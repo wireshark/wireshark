@@ -219,8 +219,11 @@
 /* Define to have SMI */
 @HAVE_SMI@
 
-/* Define to have GeoIP */
+/* Define to use GeoIP library */
 @HAVE_GEOIP@
+
+/* Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later) */
+@HAVE_GEOIP_V6@
 
 /* Define for IPv6 */
 @INET6@
