@@ -284,17 +284,17 @@ wtp_handle_tpi(proto_tree *tree, tvbuff_t *tvb)
 	case 0x01:			/* Info	*/
 	    /* Beware, untested case here	*/
 	    proto_tree_add_item(subTree, hf_wtp_tpi_info,
-				tvb, offset, tLen, bo_little_endian);
+				tvb, offset, tLen, ENC_NA);
 	    break;
 	case 0x02:			/* Option	*/
 	    proto_tree_add_item(subTree, hf_wtp_tpi_opt,
-				tvb, offset++, 1, bo_little_endian);
+				tvb, offset++, 1, ENC_LITTLE_ENDIAN);
 	    proto_tree_add_item(subTree, hf_wtp_tpi_optval,
-				tvb, offset, tLen - 1, bo_little_endian);
+				tvb, offset, tLen - 1, ENC_NA);
 	    break;
 	case 0x03:			/* PSN	*/
 	    proto_tree_add_item(subTree, hf_wtp_tpi_psn,
-				tvb, offset, 1, bo_little_endian);
+				tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	    break;
 	case 0x04:			/* SDU boundary	*/
 	    /* \todo	*/
@@ -350,7 +350,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 	    ti = proto_tree_add_item(tree, proto_wtp,
-				    tvb, offCur, 1, bo_little_endian);
+				    tvb, offCur, 1, ENC_LITTLE_ENDIAN);
 	    wtp_tree = proto_item_add_subtree(ti, ett_wtp_sub_pdu_tree);
 		proto_item_append_text(ti, ", PDU concatenation");
 	}
@@ -467,7 +467,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	fprintf(stderr, "dissect_wtp: cbHeader = %d\n", cbHeader);
 #endif
 	/* NOTE - Length will be set when we process the TPI */
-	ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 0, bo_little_endian);
+	ti = proto_tree_add_item(tree, proto_wtp, tvb, offCur, 0, ENC_LITTLE_ENDIAN);
 #ifdef DEBUG
 	fprintf(stderr, "dissect_wtp: (7) Returned from proto_tree_add_item\n");
 #endif
@@ -487,20 +487,20 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			1,				/* length of highlight*/
 			b0				/* value */
 	     );
-	proto_tree_add_item(wtp_tree, hf_wtp_header_pdu_type, tvb, offCur, 1, bo_little_endian);
+	proto_tree_add_item(wtp_tree, hf_wtp_header_pdu_type, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
 
 	switch(pdut) {
 	    case INVOKE:
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_version , tvb, offCur + 3, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_flag_TIDNew, tvb, offCur + 3, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_flag_UP, tvb, offCur + 3, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_Reserved, tvb, offCur + 3, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_TransactionClass, tvb, offCur + 3, 1, bo_little_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_version , tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_flag_TIDNew, tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_flag_UP, tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_Reserved, tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Inv_TransactionClass, tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti,
 				", PDU: Invoke (%u)"
 				", Transaction Class: %s (%u)",
@@ -510,32 +510,32 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    case RESULT:
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(ti, ", PDU: Result (%u)", RESULT);
 		break;
 
 	    case ACK:
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Ack_flag_TVETOK, tvb, offCur, 1, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Ack_flag_TVETOK, tvb, offCur, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(ti, ", PDU: ACK (%u)", ACK);
 		break;
 
 	    case ABORT:
 		abortType = tvb_get_guint8 (tvb, offCur) & 0x07;
-		proto_tree_add_item(wtp_tree, hf_wtp_header_Abort_type , tvb, offCur , 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_Abort_type , tvb, offCur , 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 
 		if (abortType == PROVIDER)
 		{
 			guint8 reason = tvb_get_guint8(tvb, offCur + 3);
-		    proto_tree_add_item( wtp_tree, hf_wtp_header_Abort_reason_provider , tvb, offCur + 3 , 1, bo_little_endian);
+		    proto_tree_add_item( wtp_tree, hf_wtp_header_Abort_reason_provider , tvb, offCur + 3 , 1, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(ti,
 					", PDU: Abort (%u)"
 					", Type: Provider (%u)"
@@ -548,7 +548,7 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else if (abortType == USER)
 		{
 			guint8 reason = tvb_get_guint8(tvb, offCur + 3);
-		    proto_tree_add_item(wtp_tree, hf_wtp_header_Abort_reason_user , tvb, offCur + 3 , 1, bo_little_endian);
+		    proto_tree_add_item(wtp_tree, hf_wtp_header_Abort_reason_user , tvb, offCur + 3 , 1, ENC_LITTLE_ENDIAN);
 			proto_item_append_text(ti,
 					", PDU: Abort (%u)"
 					", Type: User (%u)"
@@ -561,12 +561,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    case SEGMENTED_INVOKE:
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti,
 				", PDU: Segmented Invoke (%u)"
 				", Packet Sequence Number: %u",
@@ -574,12 +574,12 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    case SEGMENTED_RESULT:
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_Trailer, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, bo_little_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number , tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
 		proto_item_append_text(ti,
 				", PDU: Segmented Result (%u)"
 				", Packet Sequence Number: %u",
@@ -587,15 +587,15 @@ dissect_wtp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		break;
 
 	    case NEGATIVE_ACK:
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, bo_little_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, bo_big_endian);
-		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, bo_big_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_RID, tvb, offCur, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID_response, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_flag_TID, tvb, offCur + 1, 2, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(wtp_tree, hf_wtp_header_missing_packets , tvb, offCur + 3, 1, bo_little_endian);
+		proto_tree_add_item(wtp_tree, hf_wtp_header_missing_packets , tvb, offCur + 3, 1, ENC_LITTLE_ENDIAN);
 		/* Iterate through missing packets */
 		for (i = 0; i < numMissing; i++)
 		{
-		    proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number, tvb, offCur + 4 + i, 1, bo_little_endian);
+		    proto_tree_add_item(wtp_tree, hf_wtp_header_sequence_number, tvb, offCur + 4 + i, 1, ENC_LITTLE_ENDIAN);
 		}
 		proto_item_append_text(ti,
 				", PDU: Negative Ack (%u)"

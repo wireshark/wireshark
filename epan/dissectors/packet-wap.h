@@ -73,12 +73,6 @@
 #define HF_EMPTY	( -1 )
 #define ETT_EMPTY	( -1 )
 
-enum
-{
-	bo_big_endian		= 0,
-	bo_little_endian	= 1
-};
-
 /* Utility function for reading Uintvar encoded values */
 guint tvb_get_guintvar (tvbuff_t *, guint , guint *);
 

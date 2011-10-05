@@ -268,10 +268,14 @@ static int hf_wsp_parameter_mac                         = HF_EMPTY;
 static int hf_wsp_parameter_upart_type                  = HF_EMPTY;
 static int hf_wsp_parameter_level                       = HF_EMPTY;
 static int hf_wsp_parameter_size                        = HF_EMPTY;
+#if 0
 static int hf_wsp_reply_data                            = HF_EMPTY;
+#endif
 static int hf_wsp_post_data                             = HF_EMPTY;
+#if 0
 static int hf_wsp_push_data                             = HF_EMPTY;
 static int hf_wsp_multipart_data                        = HF_EMPTY;
+#endif
 static int hf_wsp_mpart                                 = HF_EMPTY;
 
 /* Header code page shift sequence */
@@ -1749,8 +1753,9 @@ add_headers (proto_tree *tree, tvbuff_t *tvb, int hf, packet_info *pinfo)
     if (offset >= tvb_len)
         return; /* No headers! */
 
+    /* XXX: the field pointed to by hf has a type of FT_NONE */
     ti = proto_tree_add_item(tree, hf,
-                             tvb, offset, tvb_len, bo_little_endian);
+                             tvb, offset, tvb_len, ENC_NA);
     wsp_headers = proto_item_add_subtree(ti, ett_headers);
 
     while (offset < tvb_len) {
@@ -4511,7 +4516,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
      */
     if (tree) {
         ti = proto_tree_add_item(tree, hf_redirect_addresses,
-                tvb, 0, -1, bo_little_endian);
+                tvb, 0, -1, ENC_NA);
         addresses_tree = proto_item_add_subtree(ti, ett_addresses);
     }
 
@@ -4674,7 +4679,7 @@ dissect_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
             if (address_len != 0) {
                 if (tree) {
                     proto_tree_add_item (addr_tree, hf_address_addr,
-                            tvb, offset, address_len, bo_little_endian);
+                            tvb, offset, address_len, ENC_NA);
                 }
             }
             break;
@@ -4713,7 +4718,8 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
     /*
      * Addresses.
      */
-    ti = proto_tree_add_item(tree, hf, tvb, 0, -1, bo_little_endian);
+    /* XXX: the field pointed to by hf has a type of FT_NONE */
+    ti = proto_tree_add_item(tree, hf, tvb, 0, -1, ENC_NA);
     addresses_tree = proto_item_add_subtree(ti, ett_addresses);
 
     while (offset < tvb_len) {
@@ -4826,7 +4832,7 @@ add_addresses(proto_tree *tree, tvbuff_t *tvb, int hf)
         default:
             if (address_len != 0) {
                 proto_tree_add_item (addr_tree, hf_address_addr,
-                        tvb, offset, address_len, bo_little_endian);
+                        tvb, offset, address_len, ENC_NA);
             }
             break;
         }
@@ -4853,6 +4859,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     guint8 version;
     guint32 val_len;
+    guint32 val_len_save;
     guint32 len;
     guint32 offset = 0;
     guint32 i;
@@ -4871,7 +4878,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         return;
 
     ti = proto_tree_add_item(tree, hf_sir_section,
-            tvb, 0, -1, bo_little_endian);
+            tvb, 0, -1, ENC_NA);
     subtree = proto_item_add_subtree(ti, ett_sir);
 
     /* Version */
@@ -4922,7 +4929,9 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += len;
     /* Protocol Options list.
      * Each protocol option is encoded as a guintvar */
-    for (i = 0; i < val_len; i++) {
+
+    val_len_save = val_len;
+    for (i = 0; i < val_len_save; i++) {
         val_len = tvb_get_guintvar(tvb, offset, &len);
         proto_tree_add_uint(subtree, hf_sir_protocol_options,
                 tvb, offset, len, val_len);
@@ -4937,7 +4946,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ProvURL */
     tvb_ensure_bytes_exist(tvb, offset, val_len);
     ti = proto_tree_add_item (tree, hf_sir_prov_url,
-            tvb, offset, val_len, bo_little_endian);
+            tvb, offset, val_len, FALSE);
     offset += val_len;
 
     /* Number of entries in the CPITag list */
@@ -4945,14 +4954,14 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_uint(subtree, hf_sir_cpi_tag_len,
             tvb, offset, len, val_len);
     offset += len;
+
     /* CPITag list.
      * Each CPITag is encoded as 4 octets of opaque data.
      * In OTA-HTTP, it is conveyed in the X-Wap-CPITag header
      * but with a Base64 encoding of the 4 bytes. */
     for (i = 0; i < val_len; i++) {
-        val_len = tvb_get_guintvar(tvb, offset, &len);
         proto_tree_add_item(subtree, hf_sir_cpi_tag,
-                tvb, offset, 4, val_len);
+                            tvb, offset, 4, ENC_NA);
         offset += 4;
     }
 }
@@ -5026,7 +5035,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_set_visible(tree, TRUE);
 
         proto_ti = proto_tree_add_item(tree, proto_wsp,
-                tvb, 0, -1, bo_little_endian);
+                tvb, 0, -1, ENC_NA);
         wsp_tree = proto_item_add_subtree(proto_ti, ett_wsp);
         proto_item_append_text(proto_ti, ", Method: %s (0x%02x)",
                 val_to_str_ext (pdut, &wsp_vals_pdu_type_ext, "Unknown (0x%02x)"),
@@ -5038,10 +5047,10 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (is_connectionless)
         {
             proto_tree_add_item (wsp_tree, hf_wsp_header_tid,
-                    tvb, 0, 1, bo_little_endian);
+                    tvb, 0, 1, ENC_LITTLE_ENDIAN);
         }
         proto_tree_add_item( wsp_tree, hf_wsp_header_pdu_type,
-                tvb, offset, 1, bo_little_endian);
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset++;
 
@@ -5061,9 +5070,9 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 if (pdut == WSP_PDU_CONNECT)
                 {
                     proto_tree_add_item (wsp_tree, hf_wsp_version_major,
-                            tvb, offset, 1, bo_little_endian);
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     proto_tree_add_item (wsp_tree, hf_wsp_version_minor,
-                            tvb, offset, 1, bo_little_endian);
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     {
                         guint8 ver = tvb_get_guint8(tvb, offset);
                         proto_item_append_text(proto_ti, ", Version: %u.%u",
@@ -5252,7 +5261,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 reply_status_str = val_to_str_ext_const (reply_status, &wsp_vals_status_ext, "(Unknown response status)");
                 if (tree) {
                     proto_tree_add_item (wsp_tree, hf_wsp_header_status,
-                            tvb, offset, 1, bo_little_endian);
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
                     proto_item_append_text(proto_ti, ", Status: %s (0x%02x)",
                             reply_status_str, reply_status);
                 }
@@ -5330,7 +5339,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         if (tree) / * Only display if needed * /
                             proto_tree_add_item (wsp_tree,
                                 hf_wsp_reply_data,
-                                tmp_tvb, 0, -1, bo_little_endian);
+                                tmp_tvb, 0, -1, ENC_NA);
 #endif
                     }
                 }
@@ -5414,7 +5423,7 @@ dissect_wsp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                         if (tree) /* Only display if needed */
                             proto_tree_add_item (wsp_tree,
                                     hf_wsp_push_data,
-                                    tmp_tvb, 0, -1, bo_little_endian);
+                                    tmp_tvb, 0, -1, ENC_NA);
 #endif
                     }
                 }
@@ -5487,7 +5496,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     tvb_ensure_bytes_exist(tvb, URIOffset, uriLen);
     if (tree)
         proto_tree_add_item (tree, hf_wsp_header_uri,
-                tvb, URIOffset, uriLen, bo_little_endian);
+                tvb, URIOffset, uriLen, ENC_LITTLE_ENDIAN);
 
     str = tvb_format_text (tvb, URIOffset, uriLen);
     /* XXX - tvb_format_text() returns a pointer to a static text string
@@ -5543,7 +5552,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
     DebugLog(("add_capabilities(): capabilities to process\n"));
 
     ti = proto_tree_add_item(tree, hf_capabilities_section,
-            tvb, 0, tvb_len, bo_little_endian);
+            tvb, 0, tvb_len, ENC_NA);
     wsp_capabilities = proto_item_add_subtree(ti, ett_capabilities);
 
     while (offset < tvb_len) {
@@ -5795,7 +5804,7 @@ add_capabilities (proto_tree *tree, tvbuff_t *tvb, guint8 pdu_type)
             case WSP_CAPA_ALIASES:
                 /* TODO - same format as redirect addresses */
                 proto_tree_add_item(wsp_capabilities, hf_capa_aliases,
-                        tvb, capaStart, capaLen, bo_little_endian);
+                        tvb, capaStart, capaLen, ENC_NA);
                 break;
             case WSP_CAPA_CLIENT_MESSAGE_SIZE:
                 value = tvb_get_guintvar(tvb, offset, &len);
@@ -5836,10 +5845,10 @@ add_post_data (proto_tree *tree, tvbuff_t *tvb, guint contentType,
 
     DebugLog(("add_post_data() - START\n"));
 
-    /* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,bo_little_endian); */
+    /* VERIFY ti = proto_tree_add_item (tree, hf_wsp_post_data,tvb,offset,-1,ENC_NA); */
     if (tree) {
         ti = proto_tree_add_item (tree, hf_wsp_post_data,
-                tvb, offset, -1, bo_little_endian);
+                tvb, offset, -1, ENC_NA);
         sub_tree = proto_item_add_subtree(ti, ett_post);
     }
 
@@ -6022,7 +6031,7 @@ add_multipart_data (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
 #if 0
                 if (tree) /* Only display if needed */
                     proto_tree_add_item (mpart_tree, hf_wsp_multipart_data,
-                            tvb, offset, DataLen, bo_little_endian);
+                            tvb, offset, DataLen, ENC_NA);
 #endif
             }
         }
@@ -6215,6 +6224,7 @@ proto_register_wsp(void)
                 "Size parameter", HFILL
           }
         },
+#if 0
         { &hf_wsp_reply_data,
           {     "Data",
                 "wsp.reply.data",
@@ -6222,6 +6232,7 @@ proto_register_wsp(void)
                 NULL, HFILL
           }
         },
+#endif
         { &hf_wsp_header_shift_code,
           {     "Switching to WSP header code-page",
                 "wsp.code_page",
@@ -6344,6 +6355,7 @@ proto_register_wsp(void)
                 "Post Data", HFILL
           }
         },
+#if 0
         { &hf_wsp_push_data,
           {     "Push Data",
                 "wsp.push.data",
@@ -6358,6 +6370,7 @@ proto_register_wsp(void)
                 "The data of 1 MIME-multipart part.", HFILL
           }
         },
+#endif
         { &hf_wsp_mpart,
           {     "Part",
                 "wsp.multipart",
@@ -7291,7 +7304,8 @@ proto_register_wsp(void)
           }
         },
 
-        /* Not used for now
+#if 0
+        /* Not used for now */
            { &hf_hdr_openwave_x_up_proxy_client_id,
            {    "x-up-proxy-client-id",
            "wsp.header.x_up_1.x_up_proxy_client_id",
@@ -7299,7 +7313,7 @@ proto_register_wsp(void)
            "WSP Openwave header x-up-proxy-client-id", HFILL
            }
            },
-        */
+#endif
 
         /*
          * Header value parameters
