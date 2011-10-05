@@ -1559,6 +1559,8 @@ save_as_file_hook_proc(HWND sf_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
 
             /* init the packet range */
             packet_range_init(&g_range);
+            /* default to displayed packets */
+            g_range.process_filtered   = TRUE;
 
             /* Fill in the file format list */
             /*build_file_format_list(sf_hwnd);*/
@@ -1992,6 +1994,8 @@ export_file_hook_proc(HWND ef_hwnd, UINT msg, WPARAM w_param, LPARAM l_param) {
         case WM_INITDIALOG:
             /* init the printing range */
             packet_range_init(&print_args.range);
+            /* default to displayed packets */
+            print_args.range.process_filtered = TRUE;
             range_handle_wm_initdialog(ef_hwnd, &print_args.range);
             format_handle_wm_initdialog(ef_hwnd, &print_args);
 

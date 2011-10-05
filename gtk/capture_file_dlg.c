@@ -585,7 +585,7 @@ static void file_open_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
     switch(btn) {
     case(ESD_BTN_SAVE):
         /* save file first */
-        file_save_as_cmd(after_save_open_dialog, data);
+        file_save_as_cmd(after_save_open_dialog, data, FALSE);
         break;
     case(ESD_BTN_DONT_SAVE):
         cf_close(&cfile);
@@ -893,7 +893,7 @@ static void file_merge_answered_cb(gpointer dialog _U_, gint btn, gpointer data 
     switch(btn) {
     case(ESD_BTN_OK):
         /* save file first */
-        file_save_as_cmd(after_save_merge_dialog, data);
+        file_save_as_cmd(after_save_merge_dialog, data, FALSE);
         break;
     case(ESD_BTN_CANCEL):
         break;
@@ -1059,7 +1059,7 @@ static void file_close_answered_cb(gpointer dialog _U_, gint btn, gpointer data 
     switch(btn) {
     case(ESD_BTN_SAVE):
         /* save file first */
-        file_save_as_cmd(after_save_close_file, NULL);
+        file_save_as_cmd(after_save_close_file, NULL, FALSE);
         break;
     case(ESD_BTN_DONT_SAVE):
         cf_close(&cfile);
@@ -1091,13 +1091,13 @@ file_close_cmd_cb(GtkWidget *widget _U_, gpointer data _U_) {
 }
 
 void
-file_save_cmd_cb(GtkWidget *w, gpointer data) {
+file_save_cmd_cb(GtkWidget *w _U_, gpointer data _U_) {
   /* If the file's already been saved, do nothing.  */
   if (cfile.user_saved)
     return;
 
   /* Do a "Save As". */
-  file_save_as_cmd_cb(w, data);
+  file_save_as_cmd(after_save_no_action, NULL, FALSE);
 }
 
 static gboolean
@@ -1179,7 +1179,7 @@ gpointer            action_after_save_data_g;
 
 
 void
-file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data)
+file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data, gboolean save_only_displayed)
 {
 #if _WIN32
   win32_save_as_file(GDK_WINDOW_HWND(gtk_widget_get_window(top_level)), action_after_save, action_after_save_data);
@@ -1197,6 +1197,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 
   /* init the packet range */
   packet_range_init(&range);
+  range.process_filtered = save_only_displayed;
 
   /* build the file selection */
   file_save_as_w = file_selection_new ("Wireshark: Save Capture File As",
@@ -1273,7 +1274,7 @@ file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_sa
 void
 file_save_as_cmd_cb(GtkWidget *w _U_, gpointer data _U_)
 {
-  file_save_as_cmd(after_save_no_action, NULL);
+  file_save_as_cmd(after_save_no_action, NULL, TRUE);
 }
 
 

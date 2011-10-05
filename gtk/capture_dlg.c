@@ -3190,7 +3190,7 @@ capture_start_answered_cb(gpointer dialog _U_, gint btn, gpointer data)
   switch(btn) {
   case(ESD_BTN_SAVE):
     /* save file first */
-    file_save_as_cmd(after_save_capture_dialog, data);
+    file_save_as_cmd(after_save_capture_dialog, data, FALSE);
     break;
   case(ESD_BTN_DONT_SAVE):
     /* XXX - unlink old file? */

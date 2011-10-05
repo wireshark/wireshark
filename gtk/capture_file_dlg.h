@@ -46,8 +46,9 @@ typedef enum {
  *
  * @param action_after_save the action to take, when save completed
  * @param action_after_save_data data for action_after_save
+ * @param save_only_displayed Save only the displayed packets
  */
-void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data);
+void file_save_as_cmd(action_after_save_e action_after_save, gpointer action_after_save_data, gboolean save_only_displayed);
 
 /** Destroy the save as dialog.
  */

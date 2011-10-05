@@ -4024,7 +4024,7 @@ static void menu_open_recent_file_answered_cb(gpointer dialog _U_, gint btn, gpo
     switch(btn) {
     case(ESD_BTN_YES):
         /* save file first */
-        file_save_as_cmd(after_save_open_recent_file, data);
+        file_save_as_cmd(after_save_open_recent_file, data, FALSE);
         break;
     case(ESD_BTN_NO):
         cf_close(&cfile);
