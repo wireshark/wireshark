@@ -152,128 +152,128 @@ static const value_string qsig_str_service_name[] = {
 
 #define NO_SRV (-1)
 static const gint32 op2srv_tab[] = {
-  /*   0 */ 13868, 
-  /*   1 */ 13868, 
-  /*   2 */ 13868, 
-  /*   3 */ 13868, 
-  /*   4 */ 13874, 
-  /*   5 */ 13874, 
-  /*   6 */ 13874, 
-  /*   7 */ 13869, 
-  /*   8 */ 13869, 
-  /*   9 */ 13869, 
-  /*  10 */ 13869, 
-  /*  11 */ 13869, 
-  /*  12 */ 13869, 
-  /*  13 */ 13869, 
-  /*  14 */ 13869, 
-  /*  15 */ 13873, 
-  /*  16 */ 13873, 
-  /*  17 */ 13873, 
-  /*  18 */ 13873, 
-  /*  19 */ 13873, 
-  /*  20 */ 13873, 
-  /*  21 */ 13873, 
-  /*  22 */ 13873, 
-  /*  23 */ 13873, 
+  /*   0 */ 13868,
+  /*   1 */ 13868,
+  /*   2 */ 13868,
+  /*   3 */ 13868,
+  /*   4 */ 13874,
+  /*   5 */ 13874,
+  /*   6 */ 13874,
+  /*   7 */ 13869,
+  /*   8 */ 13869,
+  /*   9 */ 13869,
+  /*  10 */ 13869,
+  /*  11 */ 13869,
+  /*  12 */ 13869,
+  /*  13 */ 13869,
+  /*  14 */ 13869,
+  /*  15 */ 13873,
+  /*  16 */ 13873,
+  /*  17 */ 13873,
+  /*  18 */ 13873,
+  /*  19 */ 13873,
+  /*  20 */ 13873,
+  /*  21 */ 13873,
+  /*  22 */ 13873,
+  /*  23 */ 13873,
   /*  24 */ NO_SRV,
   /*  25 */ NO_SRV,
   /*  26 */ NO_SRV,
-  /*  27 */ 13870, 
-  /*  28 */ 13870, 
-  /*  29 */ 13870, 
-  /*  30 */ 13870, 
-  /*  31 */ 13870, 
-  /*  32 */ 13870, 
-  /*  33 */ 13870, 
-  /*  34 */ 14843, 
-  /*  35 */ 14844, 
-  /*  36 */ 14844, 
-  /*  37 */ 14844, 
-  /*  38 */ 14844, 
-  /*  39 */ 14844, 
-  /*  40 */ 13870, 
-  /*  41 */ 90001, 
-  /*  42 */ 90001, 
-  /*  43 */ 14846, 
-  /*  44 */ 14846, 
-  /*  45 */ 14846, 
-  /*  46 */ 14846, 
-  /*  47 */ 14846, 
-  /*  48 */ 14846, 
-  /*  49 */ 90001, 
-  /*  50 */ 15429, 
-  /*  51 */ 15429, 
-  /*  52 */ 15429, 
-  /*  53 */ 15429, 
-  /*  54 */ 15431, 
-  /*  55 */ 15431, 
-  /*  56 */ 15431, 
-  /*  57 */ 15052, 
-  /*  58 */ 15052, 
-  /*  59 */ 15050, 
-  /*  60 */ 15050, 
-  /*  61 */ 15050, 
-  /*  62 */ 15050, 
-  /*  63 */ 15050, 
-  /*  64 */ 15050, 
-  /*  65 */ 15050, 
-  /*  66 */ 15054, 
-  /*  67 */ 15054, 
-  /*  68 */ 15054, 
-  /*  69 */ 15054, 
-  /*  70 */ 15054, 
-  /*  71 */ 15431, 
-  /*  72 */ 15433, 
-  /*  73 */ 15433, 
-  /*  74 */ 15433, 
-  /*  75 */ 15433, 
-  /*  76 */ 15433, 
-  /*  77 */ 15433, 
-  /*  78 */ 15507, 
-  /*  79 */ 15507, 
-  /*  80 */  3471, 
-  /*  81 */  3471, 
-  /*  82 */  3471, 
+  /*  27 */ 13870,
+  /*  28 */ 13870,
+  /*  29 */ 13870,
+  /*  30 */ 13870,
+  /*  31 */ 13870,
+  /*  32 */ 13870,
+  /*  33 */ 13870,
+  /*  34 */ 14843,
+  /*  35 */ 14844,
+  /*  36 */ 14844,
+  /*  37 */ 14844,
+  /*  38 */ 14844,
+  /*  39 */ 14844,
+  /*  40 */ 13870,
+  /*  41 */ 90001,
+  /*  42 */ 90001,
+  /*  43 */ 14846,
+  /*  44 */ 14846,
+  /*  45 */ 14846,
+  /*  46 */ 14846,
+  /*  47 */ 14846,
+  /*  48 */ 14846,
+  /*  49 */ 90001,
+  /*  50 */ 15429,
+  /*  51 */ 15429,
+  /*  52 */ 15429,
+  /*  53 */ 15429,
+  /*  54 */ 15431,
+  /*  55 */ 15431,
+  /*  56 */ 15431,
+  /*  57 */ 15052,
+  /*  58 */ 15052,
+  /*  59 */ 15050,
+  /*  60 */ 15050,
+  /*  61 */ 15050,
+  /*  62 */ 15050,
+  /*  63 */ 15050,
+  /*  64 */ 15050,
+  /*  65 */ 15050,
+  /*  66 */ 15054,
+  /*  67 */ 15054,
+  /*  68 */ 15054,
+  /*  69 */ 15054,
+  /*  70 */ 15054,
+  /*  71 */ 15431,
+  /*  72 */ 15433,
+  /*  73 */ 15433,
+  /*  74 */ 15433,
+  /*  75 */ 15433,
+  /*  76 */ 15433,
+  /*  77 */ 15433,
+  /*  78 */ 15507,
+  /*  79 */ 15507,
+  /*  80 */  3471,
+  /*  81 */  3471,
+  /*  82 */  3471,
   /*  83 */ NO_SRV,
-  /*  84 */ 15772, 
-  /*  85 */ 15772, 
-  /*  86 */ 13874, 
-  /*  87 */ 15992, 
-  /*  88 */ 15992, 
-  /*  89 */ 17876, 
-  /*  90 */ 17876, 
-  /*  91 */ 17876, 
-  /*  92 */ 17876, 
-  /*  93 */ 17878, 
-  /*  94 */ 17878, 
-  /*  95 */ 17878, 
-  /*  96 */ 17878, 
-  /*  97 */ 15429, 
-  /*  98 */ 15429, 
-  /*  99 */ 19460, 
-  /* 100 */ 19460, 
-  /* 101 */ 19460, 
-  /* 102 */ 19460, 
-  /* 103 */ 21407, 
-  /* 104 */ 21407, 
-  /* 105 */ 21889, 
-  /* 106 */ 21889, 
-  /* 107 */   325, 
-  /* 108 */   325, 
-  /* 109 */   325, 
-  /* 110 */   325, 
-  /* 111 */   325, 
-  /* 112 */   344, 
-  /* 113 */   344, 
-  /* 114 */   344, 
-  /* 115 */  3471, 
-  /* 116 */  3471, 
-  /* 117 */  3471, 
-  /* 118 */  3471, 
-  /* 119 */  3472, 
-  /* 120 */  3472, 
-};                                 
+  /*  84 */ 15772,
+  /*  85 */ 15772,
+  /*  86 */ 13874,
+  /*  87 */ 15992,
+  /*  88 */ 15992,
+  /*  89 */ 17876,
+  /*  90 */ 17876,
+  /*  91 */ 17876,
+  /*  92 */ 17876,
+  /*  93 */ 17878,
+  /*  94 */ 17878,
+  /*  95 */ 17878,
+  /*  96 */ 17878,
+  /*  97 */ 15429,
+  /*  98 */ 15429,
+  /*  99 */ 19460,
+  /* 100 */ 19460,
+  /* 101 */ 19460,
+  /* 102 */ 19460,
+  /* 103 */ 21407,
+  /* 104 */ 21407,
+  /* 105 */ 21889,
+  /* 106 */ 21889,
+  /* 107 */   325,
+  /* 108 */   325,
+  /* 109 */   325,
+  /* 110 */   325,
+  /* 111 */   325,
+  /* 112 */   344,
+  /* 113 */   344,
+  /* 114 */   344,
+  /* 115 */  3471,
+  /* 116 */  3471,
+  /* 117 */  3471,
+  /* 118 */  3471,
+  /* 119 */  3472,
+  /* 120 */  3472,
+};
 
 static const value_string qsig_str_operation[] = {
 
@@ -685,7 +685,7 @@ static const value_string qsig_str_error[] = {
 #line 277 "../../asn1/qsig/packet-qsig-template.c"
   {   0, NULL}
 };
-                     
+
 /* Initialize the protocol and registered fields */
 static int proto_qsig = -1;
 static int hf_qsig_operation = -1;
@@ -2043,7 +2043,7 @@ static gint ett_cnq_PSS1InformationElement = -1;
 /* Preferences */
 
 /* Subdissectors */
-static dissector_handle_t q931_ie_handle = NULL; 
+static dissector_handle_t q931_ie_handle = NULL;
 
 /* Global variables */
 static const char *extension_oid = NULL;
@@ -12152,7 +12152,7 @@ static const qsig_op_t qsig_op_tab[] = {
 
 /*--- End of included file: packet-qsig-table11.c ---*/
 #line 335 "../../asn1/qsig/packet-qsig-template.c"
-};                                 
+};
 
 typedef struct _qsig_err_t {
   gint32 errcode;
@@ -12349,7 +12349,7 @@ static const qsig_err_t qsig_err_tab[] = {
 
 /*--- End of included file: packet-qsig-table21.c ---*/
 #line 344 "../../asn1/qsig/packet-qsig-template.c"
-};                                 
+};
 
 static const qsig_op_t *get_op(gint32 opcode) {
   int i;
@@ -12376,9 +12376,9 @@ static const qsig_err_t *get_err(gint32 errcode) {
       return &qsig_err_tab[i];
   return NULL;
 }
-                  
+
 /*--- dissect_qsig_arg ------------------------------------------------------*/
-static int   
+static int
 dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset;
   rose_ctx_t *rctx;
@@ -12392,7 +12392,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rctx = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 1)  /* invoke */
-    return offset; 
+    return offset;
   if (rctx->d.code == 0) {  /* local */
     opcode = rctx->d.code_local;
     op_ptr = get_op(opcode);
@@ -12400,14 +12400,14 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     op_ptr = g_hash_table_lookup(qsig_oid2op_hashtable, rctx->d.code_global);
     if (op_ptr) opcode = op_ptr->opcode;
   } else {
-    return offset; 
+    return offset;
   }
   if (!op_ptr)
-    return offset; 
+    return offset;
   service = get_service(opcode);
 
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
-  qsig_tree = proto_item_add_subtree(ti, ett_qsig); 
+  qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
   p = match_strval(opcode, VALS(qsig_str_operation));
@@ -12424,7 +12424,7 @@ dissect_qsig_arg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (op_ptr->arg_pdu)
     offset = op_ptr->arg_pdu(tvb, pinfo, qsig_tree);
-  else 
+  else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ARGUMENT TYPE (QSIG)");
       offset += tvb_length_remaining(tvb, offset);
@@ -12448,17 +12448,17 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rctx = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 2)  /* returnResult */
-    return offset; 
+    return offset;
   if (rctx->d.code != 0)  /* local */
-    return offset; 
+    return offset;
   opcode = rctx->d.code_local;
   op_ptr = get_op(opcode);
   if (!op_ptr)
-    return offset; 
+    return offset;
   service = get_service(opcode);
 
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
-  qsig_tree = proto_item_add_subtree(ti, ett_qsig); 
+  qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_operation, tvb, 0, 0, opcode);
   p = match_strval(opcode, VALS(qsig_str_operation));
@@ -12475,7 +12475,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (op_ptr->res_pdu)
     offset = op_ptr->res_pdu(tvb, pinfo, qsig_tree);
-  else 
+  else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED RESULT TYPE (QSIG)");
       offset += tvb_length_remaining(tvb, offset);
@@ -12485,7 +12485,7 @@ dissect_qsig_res(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 }
 
 /*--- dissect_qsig_err ------------------------------------------------------*/
-static int   
+static int
 dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   int offset;
   rose_ctx_t *rctx;
@@ -12499,16 +12499,16 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
   rctx = get_rose_ctx(pinfo->private_data);
   DISSECTOR_ASSERT(rctx);
   if (rctx->d.pdu != 3)  /* returnError */
-    return offset; 
+    return offset;
   if (rctx->d.code != 0)  /* local */
-    return offset; 
+    return offset;
   errcode = rctx->d.code_local;
   err_ptr = get_err(errcode);
   if (!err_ptr)
-    return offset; 
+    return offset;
 
   ti = proto_tree_add_item(tree, proto_qsig, tvb, offset, tvb_length(tvb), FALSE);
-  qsig_tree = proto_item_add_subtree(ti, ett_qsig); 
+  qsig_tree = proto_item_add_subtree(ti, ett_qsig);
 
   proto_tree_add_uint(qsig_tree, hf_qsig_error, tvb, 0, 0, errcode);
   p = match_strval(errcode, VALS(qsig_str_error));
@@ -12521,7 +12521,7 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (err_ptr->err_pdu)
     offset = err_ptr->err_pdu(tvb, pinfo, qsig_tree);
-  else 
+  else
     if (tvb_length_remaining(tvb, offset) > 0) {
       proto_tree_add_text(qsig_tree, tvb, offset, -1, "UNSUPPORTED ERROR TYPE (QSIG)");
       offset += tvb_length_remaining(tvb, offset);
@@ -12538,7 +12538,7 @@ dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U
   return offset;
 }
 /*--- dissect_qsig_party_category_ie ----------------------------------------*/
-static int 
+static int
 dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo  _U_, proto_tree *tree, int length  _U_) {
   proto_tree_add_item(tree, hf_qsig_pc, tvb, offset, 1, FALSE);
   offset++;
@@ -12563,7 +12563,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
 
   ti_ie = proto_tree_add_text(tree, tvb, offset, -1, "%s",
             val_to_str(ie_type, VALS(qsig_str_ie_type[codeset]), "unknown (0x%02X)"));
-  ie_tree = proto_item_add_subtree(ti_ie, ett_qsig_ie); 
+  ie_tree = proto_item_add_subtree(ti_ie, ett_qsig_ie);
   proto_tree_add_item(ie_tree, *hf_qsig_ie_type_arr[codeset], tvb, offset, 1, FALSE);
   hidden_item = proto_tree_add_item(ie_tree, hf_qsig_ie_type, tvb, offset, 1, FALSE);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -12580,7 +12580,7 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
       break;
     default:
       if (ie_len > 0) {
-        if (tree) proto_tree_add_item(ie_tree, hf_qsig_ie_data, tvb, offset, ie_len, FALSE);
+        if (tree) proto_tree_add_item(ie_tree, hf_qsig_ie_data, tvb, offset, ie_len, ENC_NA);
       }
   }
 }
@@ -16368,7 +16368,7 @@ void proto_reg_handoff_qsig(void) {
   int i;
   gint key;
   const gchar *oid;
-  dissector_handle_t q931_handle; 
+  dissector_handle_t q931_handle;
   dissector_handle_t qsig_arg_handle;
   dissector_handle_t qsig_res_handle;
   dissector_handle_t qsig_err_handle;

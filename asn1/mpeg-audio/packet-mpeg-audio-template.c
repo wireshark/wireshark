@@ -96,12 +96,12 @@ dissect_mpeg_audio_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		unsigned int padding;
 
 		proto_tree_add_item(tree, hf_mpeg_audio_data, tvb,
-				offset / 8, data_size, FALSE);
+				offset / 8, data_size, ENC_NA);
 		offset += data_size * 8;
 		padding = mpa_padding(&mpa);
 		if (padding > 0) {
 			proto_tree_add_item(tree, hf_mpeg_audio_padbytes, tvb,
-					offset / 8, padding, FALSE);
+					offset / 8, padding, ENC_NA);
 			offset += padding * 8;
 		}
 	}
@@ -128,7 +128,7 @@ dissect_id3v2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "ID3v2");
 	col_clear(pinfo->cinfo, COL_INFO);
 	proto_tree_add_item(tree, hf_id3v2, tvb,
-			0, -1, FALSE);
+			0, -1, ENC_NA);
 }
 
 static gboolean

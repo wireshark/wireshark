@@ -497,7 +497,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 
 		/* Registers */
-		tetra_sub_item = proto_tree_add_item( tetra_tree, hf_tetra_header, tvb, offset, -1, FALSE );
+		tetra_sub_item = proto_tree_add_item( tetra_tree, hf_tetra_header, tvb, offset, -1, ENC_NA );
 		tetra_header_tree = proto_item_add_subtree(tetra_sub_item, ett_tetra);
 
 		/* Timer */

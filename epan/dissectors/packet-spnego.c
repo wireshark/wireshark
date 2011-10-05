@@ -670,7 +670,7 @@ dissect_spnego_krb5(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
 
 	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, offset,
-				   -1, FALSE);
+				   -1, ENC_NA);
 
 	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
 
@@ -1280,14 +1280,14 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	/* Encrypted sequence number */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_snd_seq, tvb, offset, 8,
-			    TRUE);
+			    ENC_NA);
 
 	offset += 8;
 
 	/* Checksum of plaintext padded data */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset, 8,
-			    TRUE);
+			    ENC_NA);
 
 	offset += 8;
 
@@ -1304,7 +1304,7 @@ dissect_spnego_krb5_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	       we may need to make this an option. gal 17/2/06 */
 	    (sgn_alg == KRB_SGN_ALG_DES_MAC_MD5)) {
 	  proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
-			      TRUE);
+			      ENC_NA);
 	  offset += 8;
 	}
 
@@ -1393,14 +1393,14 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	/* Encrypted sequence number */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_snd_seq, tvb, offset, 8,
-			    TRUE);
+			    ENC_NA);
 
 	offset += 8;
 
 	/* Checksum of plaintext padded data */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset, 8,
-			    TRUE);
+			    ENC_NA);
 
 	offset += 8;
 
@@ -1418,7 +1418,7 @@ dissect_spnego_krb5_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 	if (tvb_length_remaining(tvb, offset)) {
 	  if (sgn_alg == KRB_SGN_ALG_HMAC) {
 	    proto_tree_add_item(tree, hf_spnego_krb5_confounder, tvb, offset, 8,
-			      TRUE);
+			      ENC_NA);
 
 	    offset += 8;
 	  }
@@ -1495,7 +1495,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	/* Skip the filler */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_filler, tvb, offset, 1,
-			    FALSE);
+			    ENC_NA);
 	offset += 1;
 
 	/* EC */
@@ -1525,7 +1525,7 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	}
 
 	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
-			    checksum_size, FALSE);
+			    checksum_size, ENC_NA);
 	offset += checksum_size;
 
 	if(pinfo->decrypt_gssapi_tvb){
@@ -1613,7 +1613,7 @@ dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinf
 	/* Skip the filler */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_filler, tvb, offset, 5,
-			    FALSE);
+			    ENC_NA);
 	offset += 5;
 
 	/* sequence number */
@@ -1627,7 +1627,7 @@ dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinf
 	checksum_size = tvb_length_remaining(tvb, offset);
 
 	proto_tree_add_item(tree, hf_spnego_krb5_sgn_cksum, tvb, offset,
-			    checksum_size, FALSE);
+			    checksum_size, ENC_NA);
 	offset += checksum_size;
 
 	/*
@@ -1655,7 +1655,7 @@ dissect_spnego_krb5_wrap(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	int offset = 0;
 	guint16 token_id;
 
-	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, 0, -1, FALSE);
+	item = proto_tree_add_item(tree, hf_spnego_krb5, tvb, 0, -1, ENC_NA);
 
 	subtree = proto_item_add_subtree(item, ett_spnego_krb5);
 

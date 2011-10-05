@@ -198,7 +198,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		proto_tree *root, unsigned flags)
 {
 	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_header_data, tvb,
-			0, -1, FALSE);
+			0, -1, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_mpeg_pes_header_data);
 
 	gint offset = 0;
@@ -252,7 +252,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 
 		trick_item = proto_tree_add_item(item,
 			hf_mpeg_pes_dsm_trick_mode, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_NA);
 
 		trick_tree = proto_item_add_subtree(trick_item,
 			ett_mpeg_pes_trick_mode);
@@ -352,7 +352,7 @@ dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 	unsigned program_mux_rate, stuffing_length;
 
 	proto_item *item = proto_tree_add_item(root, hf_mpeg_pes_pack_header, tvb,
-			offset / 8, 10, FALSE);
+			offset / 8, 10, ENC_NA);
 	proto_tree *tree = proto_item_add_subtree(item, ett_mpeg_pes_pack_header);
 
 	nstime_t nst;
@@ -377,7 +377,7 @@ dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 
 	if (stuffing_length > 0) {
 		proto_tree_add_item(tree, hf_mpeg_pes_stuffing, tvb,
-				offset / 8, stuffing_length, FALSE);
+				offset / 8, stuffing_length, ENC_NA);
 		offset += stuffing_length * 8;
 	}
 
@@ -433,7 +433,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset = dissect_mpeg_pes_Picture(tvb, offset, &asn1_ctx,
 				tree, hf_mpeg_video_picture);
 		proto_tree_add_item(tree, hf_mpeg_video_data, tvb,
-				offset / 8, -1, FALSE);
+				offset / 8, -1, ENC_NA);
 	} else if (stream == STREAM_SEQUENCE) {
 		tvbuff_t *es;
 
@@ -441,7 +441,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tree, hf_mpeg_video_sequence_header);
 
 		proto_tree_add_item(tree, hf_mpeg_video_quantization_matrix, tvb,
-				offset / 8, 64, FALSE);
+				offset / 8, 64, ENC_NA);
 		offset += 64 * 8;
 
 		es = tvb_new_subset_remaining(tvb, offset / 8);
@@ -467,7 +467,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset = dissect_mpeg_pes_pack_header(tvb, offset, pinfo, tree);
 		} else {
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-					offset / 8, 8, FALSE);
+					offset / 8, 8, ENC_NA);
 			offset += 8 * 8;
 		}
 	} else if (stream == STREAM_SYSTEM || stream == STREAM_PRIVATE2) {
@@ -477,7 +477,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2 * 8;
 
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-				offset / 8, data_length, FALSE);
+				offset / 8, data_length, ENC_NA);
 	} else if (stream == STREAM_PADDING) {
 		unsigned padding_length = tvb_get_ntohs(tvb, offset / 8);
 		proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
@@ -485,7 +485,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2 * 8;
 
 		proto_tree_add_item(tree, hf_mpeg_pes_padding, tvb,
-				offset / 8, padding_length, FALSE);
+				offset / 8, padding_length, ENC_NA);
 	} else if (stream == STREAM_PRIVATE1
 			|| stream >= STREAM_AUDIO) {
 		int length = tvb_get_ntohs(tvb, 4);
@@ -521,7 +521,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* length may be zero for Video stream */
 			if(length==0){
-				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb, (offset>>3),-1, FALSE);
+				proto_tree_add_item(tree, hf_mpeg_pes_data, tvb, (offset>>3),-1, ENC_NA);
 				return TRUE;
 			}
 
@@ -532,7 +532,7 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				dissect_mpeg(es, pinfo, tree);
 			else
 				proto_tree_add_item(tree, hf_mpeg_pes_data, es,
-						0, -1, FALSE);
+						0, -1, ENC_NA);
 		} else {
 			unsigned data_length = tvb_get_ntohs(tvb, offset / 8);
 			proto_tree_add_item(tree, hf_mpeg_pes_length, tvb,
@@ -540,11 +540,11 @@ dissect_mpeg_pes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 2 * 8;
 
 			proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-					offset / 8, data_length, FALSE);
+					offset / 8, data_length, ENC_NA);
 		}
 	} else {
 		proto_tree_add_item(tree, hf_mpeg_pes_data, tvb,
-				offset / 8, -1, FALSE);
+				offset / 8, -1, ENC_NA);
 	}
 	return TRUE;
 }
