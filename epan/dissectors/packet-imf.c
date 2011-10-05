@@ -731,6 +731,15 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 }
 
 static void
+free_imf_field (gpointer data)
+{
+  struct imf_field *imffield = (struct imf_field *) data;
+
+  g_free ((char *) imffield->name);
+  g_free (imffield);
+}
+
+static void
 header_fields_initialize_cb (void)
 {
   static hf_register_info *hf;
@@ -740,16 +749,12 @@ header_fields_initialize_cb (void)
   gchar *header_name;
 
   if (custom_field_table) {
-    GList *hf_ids = g_hash_table_get_values (custom_field_table);
     guint hf_size = g_hash_table_size (custom_field_table);
     /* Unregister all fields */
     for (i = 0; i < hf_size; i++) {
-      imffield = (struct imf_field *) g_list_nth_data (hf_ids, i);
-      proto_unregister_field (proto_imf, *(imffield->hf_id));
+      proto_unregister_field (proto_imf, *(hf[i].p_id));
 
-      g_free (imffield->hf_id);
-      g_free ((char *) imffield->name);
-      g_free (imffield);
+      g_free (hf[i].p_id);
       g_free ((char *) hf[i].hfinfo.name);
       g_free ((char *) hf[i].hfinfo.abbrev);
       g_free ((char *) hf[i].hfinfo.blurb);
@@ -760,7 +765,7 @@ header_fields_initialize_cb (void)
   }
 
   if (num_header_fields) {
-    custom_field_table = g_hash_table_new (g_str_hash, g_str_equal);
+    custom_field_table = g_hash_table_new_full (g_str_hash, g_str_equal, NULL, free_imf_field);
     hf = g_malloc0 (sizeof (hf_register_info) * num_header_fields);
 
     for (i = 0; i < num_header_fields; i++) {
