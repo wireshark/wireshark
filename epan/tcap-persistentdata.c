@@ -483,31 +483,31 @@ find_tcaphash_begin(struct tcaphash_begin_info_key_t *p_tcaphash_begin_key,
   if(p_tcaphash_begincall) {
     do {
       if ( p_tcaphash_begincall->context ) {
-	if ( ( isBegin &&
-	       pinfo->fd->num == p_tcaphash_begincall->context->first_frame )
-	     ||
-	     ( !isBegin &&
-	       pinfo->fd->num >= p_tcaphash_begincall->context->first_frame &&
-	       ( p_tcaphash_begincall->context->last_frame?pinfo->fd->num <= p_tcaphash_begincall->context->last_frame:1 )
-	       )
-	     ) {
-	  /* We have a dialogue, with this key, opened before this request */
+        if ( ( isBegin &&
+               pinfo->fd->num == p_tcaphash_begincall->context->first_frame )
+             ||
+             ( !isBegin &&
+               pinfo->fd->num >= p_tcaphash_begincall->context->first_frame &&
+               ( p_tcaphash_begincall->context->last_frame?pinfo->fd->num <= p_tcaphash_begincall->context->last_frame:1 )
+               )
+             ) {
+          /* We have a dialogue, with this key, opened before this request */
 #ifdef DEBUG_TCAPSRT
-	  dbg(10,"B%d ", p_tcaphash_begincall->context->session_id);
+          dbg(10,"B%d ", p_tcaphash_begincall->context->session_id);
 #endif
-	  return p_tcaphash_begincall;
-	  break;
-	}
+          return p_tcaphash_begincall;
+          break;
+        }
 #ifdef DEBUG_TCAPSRT
-	  dbg(60,"[B%d] ", p_tcaphash_begincall->context->session_id);
+      dbg(60,"[B%d] ", p_tcaphash_begincall->context->session_id);
 #endif
       }
       /* Break when list end is reached */
       if(p_tcaphash_begincall->next_begincall == NULL) {
 #ifdef DEBUG_TCAPSRT
-	dbg(23,"End of Blist ");
+        dbg(23,"End of Blist ");
 #endif
-	break;
+        break;
       }
       p_tcaphash_begincall = p_tcaphash_begincall->next_begincall;
     } while (p_tcaphash_begincall != NULL) ;
@@ -893,41 +893,41 @@ tcapsrt_init_routine(void)
   /* free hash-tables and mem_chunks for SRT */
   if (tcaphash_context != NULL) {
 #ifdef DEBUG_TCAPSRT
-    dbg(16,"Destroy hash_context ");
+    dbg(16,"Destroy hash_context \n");
 #endif
     g_hash_table_destroy(tcaphash_context);
   }
 
   if (tcaphash_begin != NULL) {
 #ifdef DEBUG_TCAPSRT
-    dbg(16,"Destroy hash_begin ");
+    dbg(16,"Destroy hash_begin \n");
 #endif
     g_hash_table_destroy(tcaphash_begin);
   }
 
   if (tcaphash_cont != NULL) {
 #ifdef DEBUG_TCAPSRT
-    dbg(16,"Destroy hash_cont ");
+    dbg(16,"Destroy hash_cont \n");
 #endif
     g_hash_table_destroy(tcaphash_cont);
   }
 
   if (tcaphash_end != NULL) {
 #ifdef DEBUG_TCAPSRT
-    dbg(16,"Destroy hash_end ");
+    dbg(16,"Destroy hash_end \n");
 #endif
     g_hash_table_destroy(tcaphash_end);
   }
 
   if (tcaphash_ansi != NULL) {
 #ifdef DEBUG_TCAPSRT
-    dbg(16,"Destroy hash_ansi ");
+    dbg(16,"Destroy hash_ansi \n");
 #endif
     g_hash_table_destroy(tcaphash_ansi);
   }
 
 #ifdef DEBUG_TCAPSRT
-  dbg(16,"Create hash ");
+  dbg(16,"Create hash \n");
 #endif
   /* create new hash-tables and mem_chunks for SRT */
   tcaphash_context = g_hash_table_new(tcaphash_context_calchash, tcaphash_context_equal);
@@ -973,28 +973,28 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
   case TC_BEGIN:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"TC_BEGIN ");
+    dbg(1,"\nTC_BEGIN ");
 #endif
     tcap_context=tcaphash_begin_matching(tvb, pinfo, tree, p_tcapsrt_info);
     break;
 
   case TC_CONT:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"TC_CONT ");
+    dbg(1,"\nTC_CONT ");
 #endif
     tcap_context=tcaphash_cont_matching(tvb, pinfo, tree, p_tcapsrt_info);
     break;
 
   case TC_ABORT:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"TC_ABORT ");
+    dbg(1,"\nTC_ABORT ");
 #endif
     tcap_context=tcaphash_end_matching(tvb, pinfo, tree, p_tcapsrt_info);
     break;
 
   case TC_END:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"TC_END ");
+    dbg(1,"\nTC_END ");
 #endif
     tcap_context=tcaphash_end_matching(tvb, pinfo, tree, p_tcapsrt_info);
     break;
@@ -1002,14 +1002,14 @@ tcapsrt_call_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   case TC_ANSI_ALL:
   case TC_ANSI_ABORT:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"TC_ANSI ");
+    dbg(1,"\nTC_ANSI ");
 #endif
     tcap_context=tcaphash_ansi_matching(tvb, pinfo, tree, p_tcapsrt_info);
     break;
 
   default:
 #ifdef DEBUG_TCAPSRT
-    dbg(1,"Unknown %d ", p_tcapsrt_info->ope);
+    dbg(1,"\nUnknown %d ", p_tcapsrt_info->ope);
 #endif
     break;
   } /* switch tcapop */
@@ -1060,7 +1060,7 @@ tcaphash_begin_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   dbg(10,"\n Hbegin #%u ", pinfo->fd->num);
   dbg(11,"key %lx ",tcaphash_begin_key.hashKey);
   dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
-  dbg(51,"Tid %lx ",tcaphash_begin_key.tid);
+  dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
 #endif
 
   p_tcaphash_begincall = (struct tcaphash_begincall_t *)
@@ -1256,7 +1256,7 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
   dbg(11,"Ckey %lx ", tcaphash_cont_key.hashKey);
   dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
-  dbg(51,"Tid %lx %lx ",tcaphash_cont_key.src_tid, tcaphash_cont_key.dst_tid);
+  dbg(51,"Tid %lx %lx \n",tcaphash_cont_key.src_tid, tcaphash_cont_key.dst_tid);
 #endif
   p_tcaphash_contcall = find_tcaphash_cont(&tcaphash_cont_key, pinfo);
   if(p_tcaphash_contcall) {
@@ -1285,20 +1285,26 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 #ifdef DEBUG_TCAPSRT
     dbg(11,"Bkey %lx ", tcaphash_begin_key.hashKey);
     dbg(51,"PC %s %s ",ep_address_to_str(&pinfo->src), ep_address_to_str(&pinfo->dst));
-    dbg(51,"Tid %lx ",tcaphash_begin_key.tid);
+    dbg(51,"Tid %lx \n",tcaphash_begin_key.tid);
 #endif
-    p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo,FALSE);
+    p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo, FALSE);
+    if(!p_tcaphash_begincall){
+        /* Do we have a continue from the same source? */
+        tcaphash_begin_key.tid = p_tcapsrt_info->src_tid;
+        tcaphash_begin_key.hashKey=tcaphash_begin_calchash(&tcaphash_begin_key);
+        p_tcaphash_begincall = find_tcaphash_begin(&tcaphash_begin_key, pinfo,FALSE);
+    }
     if(p_tcaphash_begincall &&
        !p_tcaphash_begincall->context->contcall ) {
 #ifdef DEBUG_TCAPSRT
-      dbg(12,"BFound ");
+      dbg(12,"BFound \n");
 #endif
       p_tcaphash_context=p_tcaphash_begincall->context;
       p_tcaphash_context->responded=TRUE;
 
 #ifdef DEBUG_TCAPSRT
       dbg(10,"New Ckey %lx ",tcaphash_cont_key.hashKey);
-      dbg(11,"Frame reqlink #%u ", pinfo->fd->num);
+      dbg(11,"Frame reqlink #%u \n", pinfo->fd->num);
 #endif
       create_tcaphash_cont(&tcaphash_cont_key,
                            p_tcaphash_begincall->context);
@@ -1306,13 +1312,13 @@ tcaphash_cont_matching(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
       tcaphash_end_key.tid = p_tcapsrt_info->src_tid;
       if (pinfo->src.type == AT_SS7PC && pinfo->dst.type == AT_SS7PC)
       {
-	/* We have MTP3 PCs (so we can safely do this cast) */
-	tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
-	tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
+        /* We have MTP3 PCs (so we can safely do this cast) */
+        tcaphash_end_key.opc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->src.data);
+        tcaphash_end_key.dpc_hash = mtp3_pc_hash((const mtp3_addr_pc_t *)pinfo->dst.data);
       } else {
-	/* Don't have MTP3 PCs (maybe we're over SUA?) */
-	tcaphash_end_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
-	tcaphash_end_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
+        /* Don't have MTP3 PCs (maybe we're over SUA?) */
+        tcaphash_end_key.opc_hash = g_str_hash(ep_address_to_str(&pinfo->src));
+        tcaphash_end_key.dpc_hash = g_str_hash(ep_address_to_str(&pinfo->dst));
       }
       tcaphash_end_key.hashKey=tcaphash_end_calchash(&tcaphash_end_key);
 
