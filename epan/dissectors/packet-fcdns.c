@@ -478,7 +478,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             }
             if (tvb_offset_exists (tvb, 556)) {
                 proto_tree_add_item (req_tree, hf_fcdns_rply_ipa, tvb,
-                                     offset+532, 8, 0);
+                                     offset+532, 8, ENC_NA);
             }
             if (tvb_offset_exists (tvb, 572)) {
                 proto_tree_add_item (req_tree, hf_fcdns_rply_ipnode, tvb,
@@ -643,7 +643,7 @@ dissect_fcdns_gfdid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                  * to track the display by the length field */
                 desclen = tvb_get_guint8 (tvb, offset);
                 proto_tree_add_item (req_tree, hf_fcdns_rply_fc4desc, tvb,
-                                     offset, desclen, 0);
+                                     offset, desclen, ENC_NA);
                 tot_len -= 255; /* descriptors are aligned to 255 bytes */
                 offset += 256;
             }
@@ -1241,7 +1241,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
                                      offset+1, len, 0);
                 offset += 256;
             }
-            proto_tree_add_item (tree, hf_fcdns_rply_ipa, tvb, offset, 8, 0);
+            proto_tree_add_item (tree, hf_fcdns_rply_ipa, tvb, offset, 8, ENC_NA);
             proto_tree_add_item (tree, hf_fcdns_rply_ipnode, tvb, offset+8, 16,
                                  0);
             dissect_cos_flags(tree, tvb, offset+24, hf_fcdns_reply_cos);
@@ -1264,7 +1264,7 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
                     proto_tree_add_item (tree, hf_fcdns_rply_fc4desclen, tvb,
                                          offset+132, 1, 0);
                     proto_tree_add_item (tree, hf_fcdns_rply_fc4desc, tvb,
-                                         offset+133, len, 0);
+                                         offset+133, len, ENC_NA);
                 }
                 else {
                     proto_tree_add_item (tree, hf_fcdns_num_fc4desc, tvb,

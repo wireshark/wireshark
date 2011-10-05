@@ -3514,7 +3514,7 @@ static void dissect_octet_seq(proto_tree *tree,
                         tvb,
                         offset,
                         length,
-                        0);
+                        ENC_NA);
 }
 
 

@@ -1451,7 +1451,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
         /* add the record layer subtree header */
         tvb_ensure_bytes_exist(tvb, offset, 5 + record_length);
         ti = proto_tree_add_item(tree, hf_ssl_record, tvb,
-                                 offset, 5 + record_length, 0);
+                                 offset, 5 + record_length, ENC_NA);
         ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
 
         /* show the one-byte content type */
@@ -1627,7 +1627,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
             association?association->info:"Application Data");
 
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_appdata, tvb,
-                       offset, record_length, 0);
+                       offset, record_length, ENC_NA);
 
         dissect_ssl_payload(tvb, pinfo, offset, tree, association);
 
@@ -1686,7 +1686,7 @@ dissect_ssl3_alert(tvbuff_t *tvb, packet_info *pinfo,
     if (tree)
     {
         ti = proto_tree_add_item(tree, hf_ssl_alert_message, tvb,
-                                 offset, 2, 0);
+                                 offset, 2, ENC_NA);
         ssl_alert_tree = proto_item_add_subtree(ti, ett_ssl_alert);
     }
 
@@ -1843,7 +1843,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
             /* add a subtree for the handshake protocol */
             ti = proto_tree_add_item(tree, hf_ssl_handshake_protocol, tvb,
-                                     offset, length + 4, 0);
+                                     offset, length + 4, ENC_NA);
             ssl_hand_tree = proto_item_add_subtree(ti, ett_ssl_handshake);
 
             if (ssl_hand_tree)
@@ -3047,7 +3047,7 @@ dissect_ssl2_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     /* add the record layer subtree header */
     ti = proto_tree_add_item(tree, hf_ssl2_record, tvb, initial_offset,
-                             record_length_length + record_length, 0);
+                             record_length_length + record_length, ENC_NA);
     ssl_record_tree = proto_item_add_subtree(ti, ett_ssl_record);
 
     /* pull the msg_type so we can bail if it's unknown */
@@ -3371,7 +3371,7 @@ dissect_ssl2_hnd_client_hello(tvbuff_t *tvb, packet_info *pinfo,
 
             if (tree)
                 proto_tree_add_item(tree, hf_ssl2_handshake_challenge,
-                                tvb, offset, challenge_length, 0);
+                                tvb, offset, challenge_length, ENC_NA);
             if (ssl)
             {
                 /* PAOLO: get client random data; we get at most 32 bytes from

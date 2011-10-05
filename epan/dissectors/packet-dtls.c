@@ -663,7 +663,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       /* add the record layer subtree header */
       tvb_ensure_bytes_exist(tvb, offset, 13 + record_length);
       ti = proto_tree_add_item(tree, hf_dtls_record, tvb,
-                               offset, 13 + record_length, 0);
+                               offset, 13 + record_length, ENC_NA);
       dtls_record_tree = proto_item_add_subtree(ti, ett_dtls_record);
     }
 
@@ -849,7 +849,7 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
       }
 
     proto_tree_add_item(dtls_record_tree, hf_dtls_record_appdata, tvb,
-                        offset, record_length, 0);
+                        offset, record_length, ENC_NA);
     break;
 
   default:
@@ -906,7 +906,7 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
   if (tree)
     {
       ti = proto_tree_add_item(tree, hf_dtls_alert_message, tvb,
-                               offset, 2, 0);
+                               offset, 2, ENC_NA);
       ssl_alert_tree = proto_item_add_subtree(ti, ett_dtls_alert);
     }
 
@@ -1130,7 +1130,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
 
           /* add a subtree for the handshake protocol */
           ti = proto_tree_add_item(tree, hf_dtls_handshake_protocol, tvb,
-                                   offset, fragment_length + 12, 0);
+                                   offset, fragment_length + 12, ENC_NA);
           ssl_hand_tree = proto_item_add_subtree(ti, ett_dtls_handshake);
 
           if (ssl_hand_tree)
@@ -1341,7 +1341,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
 
       /* show the random bytes */
       proto_tree_add_item(tree, hf_dtls_handshake_random_bytes,
-                          tvb, offset, 28, 0);
+                          tvb, offset, 28, ENC_NA);
       offset += 28;
 
       /* show the session id */

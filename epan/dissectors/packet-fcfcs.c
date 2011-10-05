@@ -376,7 +376,7 @@ dissect_fcfcs_gppn (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                    tvb_fcwwn_to_str (tvb, offset));
         }
         else {
-            proto_tree_add_item (tree, hf_fcs_physportnum, tvb, offset, 4, 0);
+            proto_tree_add_item (tree, hf_fcs_physportnum, tvb, offset, 4, ENC_NA);
         }
     }
 }
@@ -440,7 +440,7 @@ dissect_fcfcs_gplnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
         }
         else {
             numelem = tvb_get_ntohl (tvb, offset);
@@ -469,7 +469,7 @@ dissect_fcfcs_gplt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
         }
         else {
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+3,
@@ -490,7 +490,7 @@ dissect_fcfcs_gplml (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
         }
         else {
             numelem = tvb_get_ntohl (tvb, offset);
@@ -527,7 +527,7 @@ dissect_fcfcs_gnpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
         }
     }
 }
@@ -552,7 +552,7 @@ dissect_fcfcs_gpnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                      "Platform Name Length: %d",
                                      len);
                 proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                     len, 0);
+                                     len, ENC_NA);
                 offset += 256;
             }
         }
@@ -589,7 +589,7 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256, 4,
                                  0);
             numelem = tvb_get_ntohl (tvb, offset+260);
@@ -631,7 +631,7 @@ dissect_fcfcs_rpln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
             proto_tree_add_string (tree, hf_fcs_platformnname, tvb, offset+256,
                                    8, tvb_fcwwn_to_str (tvb, offset+256));
         }
@@ -650,7 +650,7 @@ dissect_fcfcs_rplt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256,
                                  4, 0);
         }
@@ -669,7 +669,7 @@ dissect_fcfcs_rplm (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
             len = tvb_get_guint8 (tvb, offset+256);
             proto_tree_add_text (tree, tvb, offset+256, 1,
                                  "Platform Mgmt. Address Length: %d", len);
@@ -691,7 +691,7 @@ dissect_fcfcs_dpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
         }
     }
 }
@@ -721,7 +721,7 @@ dissect_fcfcs_dplml (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1,
                                  "Platform Name Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
-                                 len, 0);
+                                 len, ENC_NA);
         }
     }
 }

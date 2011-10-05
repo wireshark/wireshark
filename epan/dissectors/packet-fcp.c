@@ -413,7 +413,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
      * real single-level LUN, all 8 bytes except byte 1 must be 0.
      */
     if (lun0) {
-      proto_tree_add_item(tree, hf_fcp_multilun, tvb, offset, 8, 0);
+      proto_tree_add_item(tree, hf_fcp_multilun, tvb, offset, 8, ENC_NA);
       lun=tvb_get_guint8(tvb, offset)&0x3f;
       lun<<=8;
       lun|=tvb_get_guint8(tvb, offset+1);

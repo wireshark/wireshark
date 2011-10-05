@@ -2435,10 +2435,10 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         offset_v+=4;
 
         /* vendor specific, 20 bytes */
-        proto_tree_add_item(tree, hf_scsi_inq_vendor_specific, tvb_v, offset_v, 20, 0);
+        proto_tree_add_item(tree, hf_scsi_inq_vendor_specific, tvb_v, offset_v, 20, ENC_NA);
         offset_v+=20;
 
-        proto_tree_add_item(tree, hf_scsi_inq_reserved, tvb_v, offset_v, 2, 0);
+        proto_tree_add_item(tree, hf_scsi_inq_reserved, tvb_v, offset_v, 2, ENC_NA);
         /* clocking, qas, ius */
         offset_v++;
 
@@ -2563,7 +2563,7 @@ dissect_scsi_log_page (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 /* We did not have a dissector for this page/parameter so
                  * just display it as data.
                  */
-                proto_tree_add_item(log_tree, hf_scsi_log_param_data, tvb, offset, paramlen, 0);
+                proto_tree_add_item(log_tree, hf_scsi_log_param_data, tvb, offset, paramlen, ENC_NA);
             }
             offset+=paramlen;
         }
@@ -3931,15 +3931,15 @@ dissect_spc_persistentreservein (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
             for (i = 0; i < numrec; i++) {
                 proto_tree_add_item (tree, hf_scsi_persresv_key, tvb, offset,
-                                     8, 0);
+                                     8, ENC_NA);
                 offset += 8;
             }
         }
         else if ((flags & 0x1F) == SCSI_SPC_RESVIN_SVCA_RDRESV) {
             proto_tree_add_item (tree, hf_scsi_persresv_key, tvb, offset+8,
-                                 8, 0);
+                                 8, ENC_NA);
             proto_tree_add_item (tree, hf_scsi_persresv_scopeaddr, tvb,
-                                 offset+8, 4, 0);
+                                 offset+8, 4, ENC_NA);
             proto_tree_add_item (tree, hf_scsi_persresv_scope, tvb, offset+13,
                                  1, 0);
             proto_tree_add_item (tree, hf_scsi_persresv_type, tvb, offset+13,
@@ -4037,7 +4037,7 @@ dissect_spc_release10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     flags & 0x10, flags & 0x2);
         if ((flags & 0x12) == 0x10) {
             proto_tree_add_item (tree, hf_scsi_release_thirdpartyid, tvb,
-                                 offset+2, 1, 0);
+                                 offset+2, 1, ENC_NA);
         }
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
@@ -4089,7 +4089,7 @@ dissect_spc_reportluns (tvbuff_t *tvb, packet_info *pinfo _U_,
                                      0);
             else
                 proto_tree_add_item (tree, hf_scsi_rluns_multilun, tvb_v, offset_v,
-                                     8, 0);
+                                     8, ENC_NA);
             offset_v+=8;
             listlen-=8;
         }
@@ -4179,7 +4179,7 @@ dissect_spc_reserve10 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                                     flags & 0x10, flags & 0x2);
         if ((flags & 0x12) == 0x10) {
             proto_tree_add_item (tree, hf_scsi_release_thirdpartyid, tvb,
-                                 offset+2, 1, 0);
+                                 offset+2, 1, ENC_NA);
         }
         proto_tree_add_item (tree, hf_scsi_paramlen16, tvb, offset+6, 2, 0);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,

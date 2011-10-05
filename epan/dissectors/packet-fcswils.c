@@ -687,7 +687,7 @@ dissect_swils_ess_capability_obj (tvbuff_t *tvb, proto_tree *tree, int offset)
 
             while ((i > 0) && tvb_bytes_exist (tvb, offset, 8)) {
                 proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_vendorobj,
-                                     tvb, offset, 8, 0);
+                                     tvb, offset, 8, ENC_NA);
                 i -= 8;
                 offset += 8;
                 len += 12;
@@ -726,7 +726,7 @@ dissect_swils_elp (tvbuff_t *tvb, proto_tree *elp_tree, guint8 isreq _U_)
     if (elp_tree) {
         offset += 4;
         proto_tree_add_item (elp_tree, hf_swils_elp_rev, tvb, offset++, 1, 0);
-        proto_tree_add_item (elp_tree, hf_swils_elp_flags, tvb, offset, 2, 0);
+        proto_tree_add_item (elp_tree, hf_swils_elp_flags, tvb, offset, 2, ENC_NA);
         offset += 3;
         proto_tree_add_uint_format (elp_tree, hf_swils_elp_r_a_tov, tvb, offset, 4,
                                     elp.r_a_tov, "R_A_TOV: %d msecs", elp.r_a_tov);
@@ -1005,7 +1005,7 @@ dissect_swils_fspf_hdr (tvbuff_t *tvb, proto_tree *tree, int offset)
         proto_tree_add_item (fspfh_tree, hf_swils_fspfh_dom_id, tvb, offset+11,
                              1, 0);
         proto_tree_add_item (fspfh_tree, hf_swils_fspfh_auth, tvb, offset+12,
-                             8, 0);
+                             8, ENC_NA);
     }
 }
 
@@ -1085,7 +1085,7 @@ dissect_swils_hello (tvbuff_t *tvb, proto_tree *hlo_tree, guint8 isreq _U_)
     if (hlo_tree) {
         dissect_swils_fspf_hdr (tvb, hlo_tree, offset);
 
-        proto_tree_add_item (hlo_tree, hf_swils_hlo_options, tvb, offset+20, 4, 0);
+        proto_tree_add_item (hlo_tree, hf_swils_hlo_options, tvb, offset+20, 4, ENC_NA);
         proto_tree_add_item (hlo_tree, hf_swils_hlo_hloint, tvb, offset+24, 4, 0);
         proto_tree_add_item (hlo_tree, hf_swils_hlo_deadint, tvb, offset+28, 4, 0);
         proto_tree_add_item (hlo_tree, hf_swils_hlo_rcv_domid, tvb, offset+35, 1, 0);
@@ -1255,7 +1255,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                offset+4, 8,
                                tvb_fcwwn_to_str (tvb, offset+4));
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
-                             offset+12, 8, 0);
+                             offset+12, 8, ENC_NA);
         break;
     case FC_SWILS_ZONEMBR_DP_LUN:
         g_snprintf(dpbuf, sizeof(dpbuf), "0x%08x", tvb_get_ntohl (tvb, offset+4));
@@ -1269,7 +1269,7 @@ dissect_swils_zone_mbr (tvbuff_t *tvb, proto_tree *zmbr_tree, int offset)
                                offset+4, 4,
                                tvb_fc_to_str (tvb, offset+5));
         proto_tree_add_item (zmbr_tree, hf_swils_zone_mbrid_lun, tvb,
-                             offset+8, 8, 0);
+                             offset+8, 8, ENC_NA);
         break;
     default:
         proto_tree_add_string (zmbr_tree, hf_swils_zone_mbrid, tvb,
@@ -1700,7 +1700,7 @@ dissect_swils_mrra (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
         proto_tree_add_item (tree, hf_swils_mrra_size, tvb, offset+8, 4, 0);
         proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+12, 8, 0);
         proto_tree_add_item (tree, hf_swils_mrra_vendorinfo, tvb, offset+20,
-                             8, 0);
+                             8, ENC_NA);
     } else {
         proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+4,
                              8, 0);

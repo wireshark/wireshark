@@ -190,7 +190,7 @@ static void
 dissect_osd_user_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* user object id */
-	proto_tree_add_item(tree, hf_scsi_osd_user_object_id, tvb, offset, 8, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_user_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
 }
 
@@ -738,19 +738,19 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	offset++;
 
 	/* capability expiration time */
-	proto_tree_add_item(tree, hf_scsi_osd_capability_expiration_time, tvb, offset, 6, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_capability_expiration_time, tvb, offset, 6, ENC_NA);
 	offset+=6;
 
 	/* audit */
-	proto_tree_add_item(tree, hf_scsi_osd_audit, tvb, offset, 20, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_audit, tvb, offset, 20, ENC_NA);
 	offset+=20;
 
 	/* capability discriminator */
-	proto_tree_add_item(tree, hf_scsi_osd_capability_discriminator, tvb, offset, 12, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_capability_discriminator, tvb, offset, 12, ENC_NA);
 	offset+=12;
 
 	/* object created time */
-	proto_tree_add_item(tree, hf_scsi_osd_object_created_time, tvb, offset, 6, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_object_created_time, tvb, offset, 6, ENC_NA);
 	offset+=6;
 
 	/* object type */
@@ -769,7 +769,7 @@ dissect_osd_capability(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	offset++;
 
 	/* object descriptor */
-	proto_tree_add_item(tree, hf_scsi_osd_object_descriptor, tvb, offset, 24, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_object_descriptor, tvb, offset, 24, ENC_NA);
 	offset+=24;
 }
 
@@ -789,11 +789,11 @@ dissect_osd_security_parameters(tvbuff_t *tvb, int offset, proto_tree *parent_tr
 	}
 
 	/* request integrity check value */
-	proto_tree_add_item(tree, hf_scsi_osd_ricv, tvb, offset, 20, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_ricv, tvb, offset, 20, ENC_NA);
 	offset+=20;
 
 	/* request nonce */
-	proto_tree_add_item(tree, hf_scsi_osd_request_nonce, tvb, offset, 12, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_request_nonce, tvb, offset, 12, ENC_NA);
 	offset+=12;
 
 	/* data in integrity check value offset */
@@ -1018,7 +1018,7 @@ static void
 dissect_osd_initial_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* initial object id */
-	proto_tree_add_item(tree, hf_scsi_osd_initial_object_id, tvb, offset, 8, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_initial_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
 }
 
@@ -1035,7 +1035,7 @@ static void
 dissect_osd_continuation_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* continuation object id */
-	proto_tree_add_item(tree, hf_scsi_osd_continuation_object_id, tvb, offset, 8, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_continuation_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
 }
 
@@ -1163,7 +1163,7 @@ static void
 dissect_osd_requested_user_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* request user object id */
-	proto_tree_add_item(tree, hf_scsi_osd_requested_user_object_id, tvb, offset, 8, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_requested_user_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
 }
 
@@ -1332,13 +1332,13 @@ dissect_osd_set_key_version(tvbuff_t *tvb, int offset, proto_tree *tree)
 static void
 dissect_osd_key_identifier(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_scsi_osd_key_identifier, tvb, offset, 7, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_key_identifier, tvb, offset, 7, ENC_NA);
 }
 
 static void
 dissect_osd_seed(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_scsi_osd_seed, tvb, offset, 20, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_seed, tvb, offset, 20, ENC_NA);
 }
 
 static void
@@ -1492,7 +1492,7 @@ static void
 dissect_osd_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* collection object id */
-	proto_tree_add_item(tree, hf_scsi_osd_collection_object_id, tvb, offset, 8, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_collection_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
 }
 
@@ -1661,7 +1661,7 @@ static void
 dissect_osd_requested_collection_object_id(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
 	/* requested collection object id */
-	proto_tree_add_item(tree, hf_scsi_osd_requested_collection_object_id, tvb, offset, 8, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_requested_collection_object_id, tvb, offset, 8, ENC_NA);
 	offset+=8;
 }
 

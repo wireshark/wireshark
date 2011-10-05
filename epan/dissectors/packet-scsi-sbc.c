@@ -311,7 +311,7 @@ dissect_sbc_synchronizecache16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
     if (tree && isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_synccache_flags,
             ett_scsi_synccache, sync_fields, FALSE);
-        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
         proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
@@ -340,7 +340,7 @@ dissect_sbc_prefetch16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree && isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_prefetch_flags,
             ett_scsi_prefetch, prefetch_fields, FALSE);
-        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
         proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
@@ -624,7 +624,7 @@ dissect_sbc_read16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree && isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
             ett_scsi_rdwr, rdwr16_fields, FALSE);
-        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
         proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
@@ -654,7 +654,7 @@ dissect_sbc_write16 (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
     if (tree && isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_read_flags,
             ett_scsi_rdwr, rdwr16_fields, FALSE);
-        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
         proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
@@ -1047,7 +1047,7 @@ dissect_sbc_writesame16 (tvbuff_t *tvb, packet_info *pinfo _U_,
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_sbc_writesame_flags,
             ett_scsi_writesame, writesame16_fields, FALSE);
-        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, 0);
+        proto_tree_add_item (tree, hf_scsi_sbc_rdwr16_lba, tvb, offset+1, 8, ENC_NA);
         proto_tree_add_item (tree, hf_scsi_sbc_rdwr12_xferlen, tvb, offset+9, 4, 0);
         proto_tree_add_item (tree, hf_scsi_sbc_group, tvb, offset+13, 1, 0);
         proto_tree_add_bitmask(tree, tvb, offset+14, hf_scsi_control,
