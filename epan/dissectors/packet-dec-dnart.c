@@ -779,12 +779,9 @@ do_hello_msg(
     my_offset += 1;
     if (msg == 6) {
         /* The endnode hello message has 'seed' and 'neighbor' fields */
-        guint8  seed;
-
         col_set_str(pinfo->cinfo, COL_INFO, "Routing control, Endnode Hello message");
-        seed = tvb_get_guint8(tvb, my_offset);
         proto_tree_add_item(tree, hf_dec_rt_seed, tvb,
-            my_offset, 8, seed);
+                            my_offset, 8, ENC_NA);
         my_offset += 8;
         ti = proto_tree_add_item(tree, hf_dec_rt_neighbor, tvb,
                 my_offset, 6, TRUE);
@@ -1062,7 +1059,7 @@ handle_nsp_msg(
                     (ack_num & 0x1000) ? "NAK" : "ACK",
                     ack_num & 0xfff);
 
-			if (tvb_length_remaining(tvb, my_offset) > 0) {
+            if (tvb_length_remaining(tvb, my_offset) > 0) {
                 ack_oth = tvb_get_letohs(tvb, my_offset);
                 if (ack_oth & 0x8000) {
                     /* There is an ack_oth field */
