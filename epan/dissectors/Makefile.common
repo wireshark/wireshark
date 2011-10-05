@@ -1192,7 +1192,6 @@ DISSECTOR_INCLUDES =	\
 	packet-inap.h	\
 	packet-infiniband.h	\
 	packet-ip.h	\
-	packet-ipdc.h	\
 	packet-ipfc.h	\
 	packet-ipmi.h	\
 	packet-ipsec.h	\
