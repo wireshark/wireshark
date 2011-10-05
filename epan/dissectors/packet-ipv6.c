@@ -1864,7 +1864,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
   }
 
-#ifdef HAVE_GEOIP
+#ifdef HAVE_GEOIP_V6
   if (tree && ipv6_use_geoip) {
     add_geoip_info(ipv6_tree, tvb, offset, ipv6.ip6_src, ipv6.ip6_dst);
   }

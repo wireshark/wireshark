@@ -432,7 +432,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
 #else /* HAVE_GEOIP_V6 */
 
 const char *
-geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr *addr _U_, char *not_found) {
+geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr addr _U_, char *not_found) {
     return not_found;
 }
 
