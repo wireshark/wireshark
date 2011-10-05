@@ -1095,7 +1095,7 @@ static void file_quit_answered_cb(gpointer dialog _U_, gint btn, gpointer data _
     switch(btn) {
     case(ESD_BTN_SAVE):
         /* save file first */
-        file_save_as_cmd(after_save_exit, NULL);
+        file_save_as_cmd(after_save_exit, NULL, FALSE);
         break;
     case(ESD_BTN_QUIT_DONT_SAVE):
         main_do_quit();
