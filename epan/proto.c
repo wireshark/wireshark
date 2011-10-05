@@ -4721,7 +4721,7 @@ proto_unregister_field (const int parent, gint hf_id)
 		hf = field->data;
 		if (*hf->p_id == hf_id) {
 			/* Found the hf_id in this protocol */
-			g_tree_remove (gpa_name_tree, hf->hfinfo.abbrev);
+			g_tree_steal (gpa_name_tree, hf->hfinfo.abbrev);
 			proto->fields = g_list_remove_link (proto->fields, field);
 			proto->last_field = g_list_last (proto->fields);
 			break;
