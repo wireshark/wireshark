@@ -176,6 +176,9 @@ void proto_reg_handoff_inap(void) {
 		data_handle = find_dissector("data");
 	    oid_add_from_string("Core-INAP-CS1-Codes","0.4.0.1.1.0.3.0");
 		oid_add_from_string("iso(1) identified-organization(3) icd-ecma(12) member-company(2) 1107 oen(3) inap(3) extensions(2)","1.3.12.2.1107.3.3.2");
+		oid_add_from_string("alcatel(1006)","1.3.12.2.1006.64");
+		oid_add_from_string("Siemens (1107)","1.3.12.2.1107");
+		oid_add_from_string("iso(1) member-body(2) gb(826) national(0) ericsson(1249) inDomain(51) inNetwork(1) inNetworkcapabilitySet1plus(1) ","1.2.826.0.1249.51.1.1");
     }
     else {
 	    range_foreach(ssn_range, range_delete_callback);
