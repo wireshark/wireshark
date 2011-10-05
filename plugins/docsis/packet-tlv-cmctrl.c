@@ -96,7 +96,7 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       if (length == 2)
         {
           proto_tree_add_item (event_tree, hf_ds_event_mask,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_NA);
         }
       else
         {
@@ -141,7 +141,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       if (length == 2)
         {
           proto_tree_add_item (event_tree, hf_us_event_mask,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_NA);
         }
       else
         {
@@ -223,14 +223,14 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
         case CM_CTRL_DS_EVENT:
           if (length == 1)
             proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
           else
             dissect_ds_event(tvb, tlv_tree, pos, length);
           break;
         case CM_CTRL_US_EVENT:
           if (length == 1)
             proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_ds_event,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
           else
             dissect_us_event(tvb, tlv_tree, pos, length);
           break;
@@ -238,7 +238,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
           if (length == 2 || length == 1) /* response TLV always with len 1 */
             {
               proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_event,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_NA);
             }
           else
             {

@@ -218,7 +218,7 @@ static void dissect_m2m(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, ", ", "M2M TLV error");
 				/* display the invalid TLV in HEX */
-				proto_tree_add_item(m2m_tree, hf_wimax_invalid_tlv, tvb, offset, (length - offset), FALSE);
+				proto_tree_add_item(m2m_tree, hf_wimax_invalid_tlv, tvb, offset, (length - offset), ENC_NA);
 				break;
 			}
 			/* get the TLV value offset */

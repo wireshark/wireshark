@@ -117,11 +117,11 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       nv_tree = proto_item_add_subtree(ti, ett_nv);
       proto_item_append_text(ti,": %s",szText);
 
-      ti = proto_tree_add_item(nv_tree, hf_nv_header, tvb, offset, NvParserHDR_Len, TRUE);
+      ti = proto_tree_add_item(nv_tree, hf_nv_header, tvb, offset, NvParserHDR_Len, ENC_NA);
 
       nv_header_tree = proto_item_add_subtree(ti, ett_nv_header);
 
-      ti= proto_tree_add_item(nv_header_tree, hf_nv_publisher, tvb, offset, sizeof(guint8)*6, TRUE);
+      ti= proto_tree_add_item(nv_header_tree, hf_nv_publisher, tvb, offset, sizeof(guint8)*6, ENC_NA);
       NvPublisherFormater(tvb, offset, szText, nMax);
       proto_item_set_text(ti, "%s", szText);
       offset+=(sizeof(guint8)*6);
@@ -137,12 +137,12 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       {
          guint16 var_length = tvb_get_letohs(tvb, offset+4);
 
-         ti = proto_tree_add_item(nv_tree, hf_nv_variable, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len+var_length, TRUE);
+         ti = proto_tree_add_item(nv_tree, hf_nv_variable, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len+var_length, ENC_NA);
          NvVarHeaderFormater(tvb, offset, szText, nMax);
          proto_item_set_text(ti, "%s", szText);
 
          nv_var_tree = proto_item_add_subtree(ti, ett_nv_var);
-         ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len, TRUE);
+         ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len, ENC_NA);
 
          nv_varheader_tree = proto_item_add_subtree(ti, ett_nv_varheader);
          proto_tree_add_item(nv_varheader_tree, hf_nv_id, tvb, offset, sizeof(guint16), TRUE);
@@ -157,7 +157,7 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          proto_tree_add_item(nv_varheader_tree, hf_nv_quality, tvb, offset, sizeof(guint16), TRUE);
          offset+=sizeof(guint16);
 
-         proto_tree_add_item(nv_var_tree, hf_nv_data, tvb, offset, var_length, TRUE);
+         proto_tree_add_item(nv_var_tree, hf_nv_data, tvb, offset, var_length, ENC_NA);
          offset+=var_length;            
       }
    }   

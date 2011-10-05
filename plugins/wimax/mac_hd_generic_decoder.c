@@ -746,7 +746,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			/* add subtree */
 			generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
 			/* display the Generic MAC Header in Hex */
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, tvb_len, FALSE);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, tvb_len, ENC_NA);
 			return;
 		}
 		/* get the parent */
@@ -830,7 +830,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Encrypted PDU (%u bytes)", length);
 			/* add payload subtree */
 			generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, length, FALSE);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, length, ENC_NA);
 			goto check_crc;
 		}
 
@@ -1004,7 +1004,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, frag_len, "Data transport PDU (%u bytes)", frag_len);
 				/* add payload subtree */
 				generic_tree = proto_item_add_subtree(generic_item, ett_mac_data_pdu_decoder);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, frag_len, FALSE);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, tvb, offset, frag_len, ENC_NA);
 			}
 			/* defragment first if it is fragmented */
 			if (frag_type == NO_FRAG)
@@ -1156,7 +1156,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 							/* add payload subtree */
 							generic_tree = proto_item_add_subtree(generic_item, ett_mac_header_generic_decoder);
 							/* display the Padding CID payload  in Hex */
-							proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_payload_len, FALSE);
+							proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_payload_len, ENC_NA);
 						}
 						else if ((mac_cid <= (2 * global_cid_max_basic)) || (mac_cid == cid_aas_ranging)
 							|| (mac_cid >= cid_normal_multicast))
@@ -1200,10 +1200,10 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 									if (mac_payload_handle)
 										call_dissector(mac_payload_handle, tvb_new_subset(payload_tvb, payload_offset, new_tvb_len, new_tvb_len), pinfo, generic_tree);
 									else	/* display the Generic MAC Header in Hex */
-										proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, FALSE);
+										proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
 								}
 								else	/* display the Generic MAC Header in Hex */
-									proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, FALSE);
+									proto_tree_add_item(generic_tree, hf_mac_header_generic_value_bytes, payload_tvb, payload_offset, new_tvb_len, ENC_NA);
 								}
 							}
 						}

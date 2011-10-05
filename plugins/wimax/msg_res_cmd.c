@@ -94,7 +94,7 @@ void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RES-CMD TLV error");
-				proto_tree_add_item(res_cmd_tree, hf_res_cmd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(res_cmd_tree, hf_res_cmd_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the TLV value offset */
@@ -120,7 +120,7 @@ void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				default:
 					/* display the unknown tlv in hex */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_res_cmd_decoder, res_cmd_tree, hf_res_cmd_unknown_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_res_cmd_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_res_cmd_unknown_type, tvb, offset, tlv_len, ENC_NA);
 				break;
 			}
 			offset += tlv_len;

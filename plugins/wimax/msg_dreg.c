@@ -177,7 +177,7 @@ static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb
 			proto_tree_add_item(dreg_tree, hf_dreg_paging_cycle_request, tvb, tlv_offset, 2, FALSE);
 			break;
 		default:
-			proto_tree_add_item(dreg_tree, hf_tlv_value, tvb, tlv_offset, tlv_len, FALSE);
+			proto_tree_add_item(dreg_tree, hf_tlv_value, tvb, tlv_offset, tlv_len, ENC_NA);
 			break;
 	}
 }
@@ -431,7 +431,7 @@ void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DREG-REQ TLV error");
-				proto_tree_add_item(dreg_req_tree, hf_dreg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(dreg_req_tree, hf_dreg_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the offset to the TLV data */
@@ -517,7 +517,7 @@ void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DREG-CMD TLV error");
-				proto_tree_add_item(dreg_cmd_tree, hf_dreg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(dreg_cmd_tree, hf_dreg_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the offset to the TLV data */

@@ -88,7 +88,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 20)
 		{
 		  proto_tree_add_item (dcc_tree, hf_docsis_dccack_hmac_digest, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_NA);
 		}
 	      else
 		{

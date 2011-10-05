@@ -329,7 +329,7 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-RSP TLV error");
-				proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the offset to the TLV data */
@@ -485,7 +485,7 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						if(tlv_type == -1 || sub_tlv_len > MAX_TLV_LEN || sub_tlv_len < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "RNG-RSP TLV error");
-							proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, tlv_offset, (tvb_len - offset), FALSE);
+							proto_tree_add_item(rng_rsp_tree, hf_rng_invalid_tlv, tvb, tlv_offset, (tvb_len - offset), ENC_NA);
 							break;
 						}
 						/* get the offset to the sub TLV data */
@@ -493,15 +493,15 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						switch (sub_tlv_type) {
 							case RNG_RSP_SA_CHALLENGE_BS_RANDOM:
 								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_rng_rsp_message_tree, sub_tree, hf_rng_rsp_bs_random, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_rng_rsp_bs_random, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
+								proto_tree_add_item(tlv_tree, hf_rng_rsp_bs_random, tvb, sub_tlv_offset, sub_tlv_len, ENC_NA);
 								break;
 							case RNG_RSP_SA_CHALLENGE_AKID:
 								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_rng_rsp_message_tree, sub_tree, hf_rng_rsp_akid, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_rng_rsp_akid, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
+								proto_tree_add_item(tlv_tree, hf_rng_rsp_akid, tvb, sub_tlv_offset, sub_tlv_len, ENC_NA);
 								break;
 							default:
 								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_rng_rsp_message_tree, sub_tree, hf_tlv_type, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
+								proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, sub_tlv_offset, sub_tlv_len, ENC_NA);
 								break;
 						}
 						this_offset = sub_tlv_len + sub_tlv_offset;
@@ -536,13 +536,13 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					} else {
 						/* Unknown TLV type */
 						sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_tlv_type, tvb, tlv_offset, 1, FALSE);
-						proto_tree_add_item(sub_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(sub_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, ENC_NA);
 					}
 					break;
 			
 				default:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_tlv_type, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(sub_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, ENC_NA);
 					break;
 					
 			}

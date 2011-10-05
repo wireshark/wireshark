@@ -294,7 +294,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
         default:
           if (len > 0)
             proto_tree_add_item (ehdr_tree, hf_docsis_eh_val, tvb, pos + 1,
-                                  len, FALSE);
+                                  len, ENC_NA);
         }
       pos += len + 1;
     }

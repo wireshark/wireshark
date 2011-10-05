@@ -242,7 +242,7 @@ static void
 		  break;
 		case UCD_PREAMBLE:
 		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_preamble_pat, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_NA);
 		  pos = pos + length;
 		  break;
 		case UCD_BURST_DESCR:

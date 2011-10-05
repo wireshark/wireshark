@@ -1300,7 +1300,7 @@ dissect_ICBAAccoServer_Connect_rqst(tvbuff_t *tvb, int offset,
 	/* array of CONNECTINs */
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		sub_item = proto_tree_add_item(tree, hf_cba_connectin, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_connectin, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectin);
 		u32SubStart = offset;
 
@@ -1458,7 +1458,7 @@ dissect_ICBAAccoServer2_Connect2_rqst(tvbuff_t *tvb, int offset,
 	/* array of CONNECTINs */
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		sub_item = proto_tree_add_item(tree, hf_cba_connectin, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_connectin, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectin);
 		u32SubStart = offset;
 
@@ -1595,7 +1595,7 @@ dissect_ICBAAccoServer_Connect_resp(tvbuff_t *tvb, int offset,
 
 		/* array of CONNECTOUTs */
 		while(u32ArraySize--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
 			u32SubStart = offset;
 
@@ -2183,7 +2183,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_rqst(tvbuff_t *tvb, int offset,
 	u32Idx = 1;
 	while (u32ArraySize--) {
 		/* array of CONNECTINCRs */
-		sub_item = proto_tree_add_item(tree, hf_cba_connectincr, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_connectincr, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectincr);
 		u32SubStart = offset;
 
@@ -2276,7 +2276,7 @@ dissect_ICBAAccoServerSRT_ConnectCR_resp(tvbuff_t *tvb, int offset,
 
 		while (u32ArraySize--) {
 		        /* array of CONNECTOUTCRs */
-		        sub_item = proto_tree_add_item(tree, hf_cba_connectoutcr, tvb, offset, 0, FALSE);
+		        sub_item = proto_tree_add_item(tree, hf_cba_connectoutcr, tvb, offset, 0, ENC_NA);
 		        sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectoutcr);
 		        u32SubStart = offset;
 
@@ -2524,7 +2524,7 @@ dissect_ICBAAccoServerSRT_Connect_rqst(tvbuff_t *tvb, int offset,
 	u32Idx = 1;
 	while (u32ArraySize--) {
 		/* array of CONNECTINs */
-		sub_item = proto_tree_add_item(tree, hf_cba_connectin, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_connectin, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectin);
 		u32SubStart = offset;
 
@@ -2656,7 +2656,7 @@ dissect_ICBAAccoServerSRT_Connect_resp(tvbuff_t *tvb, int offset,
 
 		/* array of CONNECTOUTs */
 		while(u32ArraySize--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_connectout, tvb, offset, 8, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_connectout);
 			u32SubStart = offset;
 
@@ -2832,7 +2832,7 @@ dissect_Server_GetProvConnections_resp(tvbuff_t *tvb, int offset,
 		u32TmpCount = u32Count;
 		u32Idx = 1;
 		while (u32TmpCount--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_getprovconnout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_getprovconnout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getprovconnout);
 			u32SubStart = offset;
 
@@ -2933,7 +2933,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	/*** ALL data in this buffer is NOT aligned and always little endian ordered ***/
 
 	if (tree) {
-		conn_data_item = proto_tree_add_item(tree, hf_cba_acco_cb_conn_data, tvb, offset, 0, FALSE);
+		conn_data_item = proto_tree_add_item(tree, hf_cba_acco_cb_conn_data, tvb, offset, 0, ENC_NA);
 		conn_data_tree = proto_item_add_subtree(conn_data_item, ett_ICBAAccoCallback_Buffer);
 	}
 
@@ -3018,7 +3018,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 		}
 
         /* add callback-item subtree */
-		sub_item = proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_item, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_item, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_ICBAAccoCallback_Item);
 
         item_offset = offset;
@@ -3422,7 +3422,7 @@ dissect_ICBAAccoMgt_AddConnections_rqst(tvbuff_t *tvb, int offset,
 
 	u32Idx = 1;
 	while (u32ArraySize--) {
-		sub_item = proto_tree_add_item(tree, hf_cba_addconnectionin, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_addconnectionin, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_addconnectionin);
 		u32SubStart = offset;
 
@@ -3499,7 +3499,7 @@ dissect_ICBAAccoMgt_AddConnections_resp(tvbuff_t *tvb, int offset,
 		u32Count = u32ArraySize;
 		u32Idx = 1;
 		while (u32ArraySize--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_addconnectionout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_addconnectionout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_addconnectionout);
 			u32SubStart = offset;
 
@@ -3667,7 +3667,7 @@ dissect_ICBAAccoMgt_GetIDs_resp(tvbuff_t *tvb, int offset,
 
 		u32Idx = 1;
 		while (u32ArraySize--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_getidout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_getidout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getidout);
 			u32SubStart = offset;
 
@@ -3809,7 +3809,7 @@ dissect_ICBAAccoMgt2_GetConsConnections_resp(tvbuff_t *tvb, int offset,
 		u32TmpCount = u32Count;
 		u32Idx = 1;
 		while (u32TmpCount--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_getconsconnout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_getconsconnout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getconnectionout);
 			u32SubStart = offset;
 
@@ -3911,7 +3911,7 @@ dissect_ICBAAccoMgt2_DiagConsConnections_resp(tvbuff_t *tvb, int offset,
 		u32TmpCount = u32Count;
 		u32Idx = 1;
 		while (u32TmpCount--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_diagconsconnout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_diagconsconnout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getconnectionout);
 			u32SubStart = offset;
 
@@ -4025,7 +4025,7 @@ dissect_ICBAAccoMgt_GetConnections_resp(tvbuff_t *tvb, int offset,
 		u32TmpCount = u32Count;
 		u32Idx = 1;
 		while (u32TmpCount--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_getconnectionout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_getconnectionout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_getconnectionout);
 			u32SubStart = offset;
 
@@ -4234,7 +4234,7 @@ dissect_ICBAAccoMgt_GetDiagnosis_rqst(tvbuff_t *tvb, int offset,
 						&u32ArraySize);
 
     if(u32ArraySize != 0) {
-	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32InLength, FALSE);
+	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32InLength, ENC_NA);
     }
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %s: %u bytes",
@@ -4258,7 +4258,7 @@ dissect_ICBAAccoMgt_GetDiagnosis_resp(tvbuff_t *tvb, int offset,
                         hf_cba_acco_diag_out_length, &u32OutLength);
 
     if(u32OutLength != 0) {
-	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32OutLength, FALSE);
+	    proto_tree_add_item(tree, hf_cba_acco_diag_data, tvb, offset, u32OutLength, ENC_NA);
     }
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, ": %u bytes",
@@ -4341,7 +4341,7 @@ dissect_ICBAAccoSync_ReadItems_resp(tvbuff_t *tvb, int offset,
 		u32Idx = 1;
 		u32Tmp = u32ArraySize;
 		while(u32Tmp--) {
-			sub_item = proto_tree_add_item(tree, hf_cba_readitemout, tvb, offset, 0, FALSE);
+			sub_item = proto_tree_add_item(tree, hf_cba_readitemout, tvb, offset, 0, ENC_NA);
 			sub_tree = proto_item_add_subtree(sub_item, ett_cba_readitemout);
 			u32SubStart = offset;
 
@@ -4408,7 +4408,7 @@ dissect_ICBAAccoSync_WriteItems_rqst(tvbuff_t *tvb, int offset,
 	u32VariableOffset = offset + u32ArraySize * 8;
 	u32Idx = 1;
 	while(u32ArraySize--) {
-		sub_item = proto_tree_add_item(tree, hf_cba_writeitemin, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_writeitemin, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_writeitemin);
 		u32SubStart = offset;
 
@@ -4465,7 +4465,7 @@ dissect_ICBAAccoSync_WriteItemsQCD_rqst(tvbuff_t *tvb, int offset,
 	u32VariableOffset = offset + u32ArraySize * 20;
 	u32Idx = 1;
 	while(u32ArraySize--) {
-		sub_item = proto_tree_add_item(tree, hf_cba_writeitemin, tvb, offset, 0, FALSE);
+		sub_item = proto_tree_add_item(tree, hf_cba_writeitemin, tvb, offset, 0, ENC_NA);
 		sub_tree = proto_item_add_subtree(sub_item, ett_cba_writeitemin);
 		u32SubStart = offset;
 

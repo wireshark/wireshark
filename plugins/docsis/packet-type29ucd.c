@@ -266,7 +266,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      break;
 	    case type29ucd_PREAMBLE:
 	      proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_preamble_pat, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_NA);
 	      pos = pos + length;
 	      break;
 /* DOCSIS 2.0 UCD TLV definitions 
@@ -284,14 +284,14 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
  */
 	    case type29ucd_EXT_PREAMBLE:
 	      proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_ext_preamble, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_NA);
 	      pos = pos + length;
 	      break;
 	    case type29ucd_SCDMA_MODE_ENABLE:
 	      if (length == 1)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_mode_enable,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -303,7 +303,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_spreading_interval,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -315,7 +315,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_codes_per_mini_slot,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -327,7 +327,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_active_codes,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -339,7 +339,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 2)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_code_hopping_seed,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -351,7 +351,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 2)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_us_ratio_num,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -363,7 +363,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 2)
 		{
  		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_us_ratio_denom,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -375,7 +375,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 9)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_scdma_timestamp_snapshot,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -387,7 +387,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_maintain_power_spectral_density,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{
@@ -399,7 +399,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_ranging_required,
-				       tvb, pos, length, FALSE);
+				       tvb, pos, length, ENC_NA);
 		}
 	      else
 		{

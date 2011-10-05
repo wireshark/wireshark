@@ -586,13 +586,13 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-REQ TLV error");
-				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			if (tlv_type == 0)
 			{	/* invalid tlv type */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
-				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
+				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, ENC_NA);
 				offset++;
 				continue;
 			}
@@ -822,7 +822,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* add TLV subtree */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
 						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, ENC_NA);
 					}
 				break;
 				case SBC_AUTH_POLICY_SUPPORT:
@@ -851,7 +851,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* add TLV subtree */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
 						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, ENC_NA);
 					}
 				break;
 				case SBC_MAX_SECURITY_ASSOCIATIONS:
@@ -867,7 +867,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* add TLV subtree */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
 						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, ENC_NA);
 					}
 				break;
 				case SBC_TLV_T_27_EXTENSION_CAPABILITY:
@@ -1081,7 +1081,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_power_save_class_types_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, ENC_NA);
 				break;
 			}
 			offset += tlv_len;
@@ -1141,13 +1141,13 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if (tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SBC-RSP TLV error");
-				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(sbc_tree, hf_sbc_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			if (tlv_type == 0)
 			{	/* invalid tlv type */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid SBC TLV type");
-				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, FALSE);
+				proto_tree_add_item(sbc_tree, hf_sbc_unknown_type, tvb, offset, 1, ENC_NA);
 				offset++;
 				continue;
 			}
@@ -1590,7 +1590,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_unknown_type, tvb, offset, tlv_len, ENC_NA);
 				break;
 			}
 			offset += tlv_len;

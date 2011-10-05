@@ -311,7 +311,7 @@ dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      break;
 	    case DCCREQ_UCD_SUB:
 		  proto_tree_add_item (dcc_tree, hf_docsis_dccreq_ucd_sub, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_NA);
 	      break;
 	    case DCCREQ_SAID_SUB:
 	      if (length == 4)
@@ -355,7 +355,7 @@ dissect_dccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 20)
 		{
 		  proto_tree_add_item (dcc_tree, hf_docsis_dccreq_hmac_digest, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_NA);
 		}
 	      else
 		{

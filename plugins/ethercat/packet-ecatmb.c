@@ -595,7 +595,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
    if( tree )
    {
-      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_coe, tvb, offset, coe_length, TRUE);
+      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_coe, tvb, offset, coe_length, ENC_NA);
       proto_item_set_text(anItem,"CoE");
       aparent = proto_item_get_parent(anItem);
       proto_item_append_text(aparent,":CoE ");
@@ -666,7 +666,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdolength, tvb, offset+4, 4, TRUE);
                      offset+=ETHERCAT_SDO_HEADER_LEN;
                      if ( len > 0 )
-                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, len, TRUE);
+                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, len, ENC_NA);
                   }
                   else
                   {
@@ -697,7 +697,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
                   if ( coe_length-offset > 0 )
                   {
-                     anItem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, coe_length-offset, TRUE);
+                     anItem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, coe_length-offset, ENC_NA);
                      proto_item_append_text(anItem, "(len = %d)", coe_length-offset);
                   }
                   break;
@@ -757,7 +757,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdolength, tvb, offset+4, 4, TRUE);
                      offset+=ETHERCAT_SDO_HEADER_LEN;
                      if ( len > 0 )
-                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, len, TRUE);
+                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, len, ENC_NA);
                   }
                   else if ( sdo.anSdoHeaderUnion.Ius.SizeInd && sdo.anSdoHeaderUnion.Ius.Expedited && sdo.anSdoHeaderUnion.Ius.Size == 3 )
                      proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdodata1, tvb, offset+4, 1, TRUE);
@@ -781,7 +781,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
                   if ( coe_length-offset> 0 )
                   {
-                     anItem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, coe_length-offset, TRUE);
+                     anItem = proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoldata, tvb, offset, coe_length-offset, ENC_NA);
                      proto_item_append_text(anItem, "(len = %d)", coe_length-offset);
                   }
                   break;
@@ -825,7 +825,7 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfolisttype, tvb, offset, 2, TRUE);
                      offset+=2;
 
-                     proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfolist, tvb, offset, coe_length-offset, TRUE);
+                     proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfolist, tvb, offset, coe_length-offset, ENC_NA);
                   }
                   break;
                case ECAT_COE_INFO_OPCODE_OBJ_Q:
@@ -881,19 +881,19 @@ static void dissect_ecat_coe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                      if ( (info.anSdoInfoUnion.Entry.ValueInfo & 0x10) != 0 )
                      {
                         objlen = BIT2BYTE(info.anSdoInfoUnion.Entry.Res.BitLen);
-                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfodefaultvalue, tvb, offset, objlen, TRUE);
+                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfodefaultvalue, tvb, offset, objlen, ENC_NA);
                         offset+=objlen;
                      }
                      if ( (info.anSdoInfoUnion.Entry.ValueInfo & 0x20) != 0 )
                      {
                         objlen = BIT2BYTE(info.anSdoInfoUnion.Entry.Res.BitLen);
-                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfominvalue, tvb, offset, objlen, TRUE);
+                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfominvalue, tvb, offset, objlen, ENC_NA);
                         offset+=objlen;
                      }
                      if ( (info.anSdoInfoUnion.Entry.ValueInfo & 0x40) != 0 )
                      {
                         objlen = BIT2BYTE(info.anSdoInfoUnion.Entry.Res.BitLen);
-                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfomaxvalue, tvb, offset, objlen, TRUE);
+                        proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfomaxvalue, tvb, offset, objlen, ENC_NA);
                         offset+=objlen;
                      }
                      proto_tree_add_item(ecat_coe_tree, hf_ecat_mailbox_coe_sdoinfoname, tvb, offset, coe_length-offset, TRUE);
@@ -928,7 +928,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
    if( tree )
    {
-      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_soe, tvb, offset, soe_length, TRUE);
+      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_soe, tvb, offset, soe_length, ENC_NA);
 
       aparent = proto_item_get_parent(anItem);
       proto_item_append_text(aparent,":SoE ");
@@ -980,7 +980,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                case ECAT_SOE_OPCODE_NFC:
                   proto_tree_add_item(ecat_soe_tree, hf_ecat_mailbox_soe_idn, tvb, offset, 2, TRUE);
                   offset+=2;
-                  proto_tree_add_item(tree, hf_ecat_mailbox_soe_data, tvb, offset, soe_length-offset, TRUE);
+                  proto_tree_add_item(tree, hf_ecat_mailbox_soe_data, tvb, offset, soe_length-offset, ENC_NA);
                   break;
                }
             }
@@ -989,7 +989,7 @@ static void dissect_ecat_soe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                proto_tree_add_item(ecat_soe_tree, hf_ecat_mailbox_soe_frag, tvb, offset, 2, TRUE);
                offset+=2;
 
-               proto_tree_add_item(tree, hf_ecat_mailbox_soe_data, tvb, offset, soe_length-offset, TRUE);
+               proto_tree_add_item(tree, hf_ecat_mailbox_soe_data, tvb, offset, soe_length-offset, ENC_NA);
             }
          }
          else
@@ -1019,7 +1019,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
    if( tree )
    {
-      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_eoe, tvb, offset, eoe_length, TRUE);
+      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_eoe, tvb, offset, eoe_length, ENC_NA);
       proto_item_set_text(anItem, "EoE Fragment");
 
       aparent = proto_item_get_parent(anItem);
@@ -1039,7 +1039,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
       { /* Do the following even 'if (tree == NULL)' since a call_dissector() is done */
          ecat_eoe_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe);
 
-         anItem = proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_fraghead, tvb, offset, 4, TRUE);
+         anItem = proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_fraghead, tvb, offset, 4, ENC_NA);
          proto_item_set_text(anItem, "Header");
          ecat_fraghead_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_fraghead);
 
@@ -1079,7 +1079,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             }
 
             offset+=ETHERCAT_EOE_HEADER_LEN;
-            proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_fragment, tvb, offset, eoe_length-offset, TRUE);
+            proto_tree_add_item(ecat_eoe_tree, hf_ecat_mailbox_eoe_fragment, tvb, offset, eoe_length-offset, ENC_NA);
 
             if ( eoe.anEoeHeaderDataUnion.v.Fragment == 0 )
             {
@@ -1099,7 +1099,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
          case EOE_TYPE_INIT_REQ:
             offset+=ETHERCAT_EOE_HEADER_LEN;
-            anItem = proto_tree_add_item(ecat_fraghead_tree, hf_ecat_mailbox_eoe_init, tvb, offset, MIN(eoe_length-offset,ETHERCAT_EOE_INIT_LEN), TRUE);
+            anItem = proto_tree_add_item(ecat_fraghead_tree, hf_ecat_mailbox_eoe_init, tvb, offset, MIN(eoe_length-offset,ETHERCAT_EOE_INIT_LEN), ENC_NA);
             if( eoe_length-offset >= ETHERCAT_EOE_INIT_LEN )
             {
                ecat_eoe_init_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_init);
@@ -1138,7 +1138,7 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
             {
                EoeMacFilterOptionsUnion options;
                offset+=ETHERCAT_EOE_HEADER_LEN;
-               anItem = proto_tree_add_item(ecat_fraghead_tree, hf_ecat_mailbox_eoe_macfilter, tvb, offset, MIN(eoe_length-offset, ETHERCAT_EOE_MACFILTER_LEN), TRUE);
+               anItem = proto_tree_add_item(ecat_fraghead_tree, hf_ecat_mailbox_eoe_macfilter, tvb, offset, MIN(eoe_length-offset, ETHERCAT_EOE_MACFILTER_LEN), ENC_NA);
                if( eoe_length-offset >= ETHERCAT_EOE_MACFILTER_LEN )
                {
                   proto_tree *ecat_eoe_macfilter_filtermask_tree;
@@ -1150,13 +1150,13 @@ static void dissect_ecat_eoe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                   options.Options = tvb_get_letohs(tvb, offset);
                   offset+=4;
 
-                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filter, tvb, offset, 16*ETHERNET_ADDRESS_LEN, TRUE);
+                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filter, tvb, offset, 16*ETHERNET_ADDRESS_LEN, ENC_NA);
                   ecat_eoe_macfilter_filter_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filter);
                   for( nCnt=0; nCnt<options.v.MacFilterCount; nCnt++)
                      proto_tree_add_item(ecat_eoe_macfilter_filter_tree, hf_ecat_mailbox_eoe_macfilter_filters[nCnt], tvb, offset+nCnt*ETHERNET_ADDRESS_LEN, ETHERNET_ADDRESS_LEN, TRUE);
                   offset+=16*ETHERNET_ADDRESS_LEN;
 
-                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*sizeof(guint32), TRUE);
+                  anItem = proto_tree_add_item(ecat_eoe_macfilter_tree, hf_ecat_mailbox_eoe_macfilter_filtermask, tvb, offset, 4*sizeof(guint32), ENC_NA);
                   ecat_eoe_macfilter_filtermask_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_eoe_macfilter_filtermask);
                   for( nCnt=0; nCnt<options.v.MacFilterMaskCount; nCnt++)
                      proto_tree_add_item(ecat_eoe_macfilter_filtermask_tree, hf_ecat_mailbox_eoe_macfilter_filtermasks[nCnt], tvb, offset+nCnt*sizeof(guint32), sizeof(guint32), TRUE);
@@ -1194,7 +1194,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
 
    if( tree )
    {
-      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_foe, tvb, offset, foe_length, TRUE);
+      anItem = proto_tree_add_item(tree, hf_ecat_mailbox_foe, tvb, offset, foe_length, ENC_NA);
       proto_item_set_text(anItem, ":Foe");
 
       aparent = proto_item_get_parent(anItem);
@@ -1230,11 +1230,11 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_packetno, tvb, offset, 2, TRUE);
                offset+=4; /*+2 for Reserved2*/
 
-               proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_data, tvb, offset, foe_length-offset, TRUE);
+               proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_data, tvb, offset, foe_length-offset, ENC_NA);
 
                if( foe_length-offset >= sizeof(TEFWUPDATE_HEADER) )
                {
-                  anItem = proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_efw, tvb, offset, foe_length-offset, TRUE);
+                  anItem = proto_tree_add_item(ecat_foe_tree, hf_ecat_mailbox_foe_efw, tvb, offset, foe_length-offset, ENC_NA);
                   ecat_foe_efw_tree = proto_item_add_subtree(anItem, ett_ecat_mailbox_foe_efw);
                   proto_tree_add_item(ecat_foe_efw_tree, hf_ecat_mailbox_foe_efw_cmd, tvb, offset, 2, TRUE);
                   offset+=2;
@@ -1248,7 +1248,7 @@ static void dissect_ecat_foe(tvbuff_t *tvb, gint offset, packet_info *pinfo, pro
                   proto_tree_add_item(ecat_foe_efw_tree, hf_ecat_mailbox_foe_efw_addresshw, tvb, offset, 2, TRUE);
                   offset+=2;
 
-                  proto_tree_add_item(ecat_foe_efw_tree, hf_ecat_mailbox_foe_efw_data, tvb, offset, foe_length-offset, TRUE);
+                  proto_tree_add_item(ecat_foe_efw_tree, hf_ecat_mailbox_foe_efw_data, tvb, offset, foe_length-offset, ENC_NA);
                }
             }
             break;
@@ -1359,7 +1359,7 @@ static void dissect_ecat_mailbox(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
             break;
 
          default:
-            proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxdata, tvb, offset, hdr.Length, TRUE);
+            proto_tree_add_item(ecat_mailbox_tree, hf_ecat_mailboxdata, tvb, offset, hdr.Length, ENC_NA);
          }
 
          col_append_str(pinfo->cinfo, COL_INFO, ")");

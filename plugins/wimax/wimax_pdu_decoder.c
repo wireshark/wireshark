@@ -113,7 +113,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			/* add subtree */
 		        pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
 			/* display the padding in Hex */
-			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, FALSE);
+			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, ENC_NA);
 			break;
 		}
 		else if((first_byte & WIMAX_MAP_TYPE_MASK) == WIMAX_HARQ_MAP_MSG_IND)
@@ -153,7 +153,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			/* add subtree */
 			pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
 				/* display the invalid MAC Header in Hex */
-			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, FALSE);
+			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, ENC_NA);
 			break;
 		}
 		/* calculate the MAC header HCS */
@@ -170,7 +170,7 @@ static void dissect_wimax_pdu_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			/* add subtree */
 		        pdu_tree = proto_item_add_subtree(pdu_item, ett_wimax_pdu_decoder);
 			/* display the bad MAC Header in Hex */
-			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, FALSE);
+			proto_tree_add_item(pdu_tree, hf_wimax_value_bytes, tvb, offset, length, ENC_NA);
 			break;
 		}
 		/* get the Header Type (HT) */

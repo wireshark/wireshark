@@ -629,7 +629,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             /* Fieldbus Memory Management Units (FMMU) */
             for ( b=0; b < MIN(16, len/16); b++ )
             {
-               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_fmmu, tvb, suboffset, 16, TRUE);
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_fmmu, tvb, suboffset, 16, ENC_NA);
                proto_item_set_text(aitem, "Fieldbus Memory Management Units (FMMU)");
 
                ecat_fmmu_tree = proto_item_add_subtree(aitem, ett_ecat_fmmu);
@@ -663,7 +663,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                len -= 0x100;
                for (b = 0; b < MIN(32, len / 8); b++)
                {
-                  aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_syncman, tvb, suboffset, 8, TRUE);
+                  aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_syncman, tvb, suboffset, 8, ENC_NA);
                   proto_item_set_text(aitem, "SyncManager");
                   ecat_syncman_tree = proto_item_add_subtree(aitem, ett_ecat_syncman);
 
@@ -698,7 +698,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             /* SyncManager */
             for (b = 0; b < MIN(32, len / 8); b++)
             {
-               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_syncman, tvb, suboffset, 8, TRUE);
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_syncman, tvb, suboffset, 8, ENC_NA);
                proto_item_set_text(aitem, "SyncManager");
                ecat_syncman_tree = proto_item_add_subtree(aitem, ett_ecat_syncman);
 
@@ -736,7 +736,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
             {
                /* No sub dissector did recognize this data, dissect it as data only */
-               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
+               aitem = proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, ENC_NA);
                ecat_dc_tree = proto_item_add_subtree(aitem, ett_ecat_dc);
             }
             else
@@ -819,7 +819,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
                {
                   /* No sub dissector did recognize this data, dissect it as data only */
-                  proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, TRUE);
+                  proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, startOfData, dataLength, ENC_NA);
                }
 
                if( subCount < 10 ){
@@ -837,7 +837,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
             if(!dissector_try_heuristic(heur_subdissector_list, tvb, pinfo, ecat_datagram_tree))
             {
                /* No sub dissector did recognize this data, dissect it as data only */
-               proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, TRUE);
+               proto_tree_add_item(ecat_datagram_tree, hf_ecat_data, tvb, suboffset, ecHdr.len & 0x07ff, ENC_NA);
             }
 
             if( subCount < 10 ){
@@ -866,7 +866,7 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
       which is required by the protocol specification */
    if(datagram_padding_bytes > 0)
    {
-      proto_tree_add_item(tree, hf_ecat_padding, tvb, offset, tvb_length_remaining(tvb, offset), TRUE);
+      proto_tree_add_item(tree, hf_ecat_padding, tvb, offset, tvb_length_remaining(tvb, offset), ENC_NA);
    }
 }
 

@@ -588,7 +588,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 					nibble_offset = 0;
 					if(max_logical_bands == 3)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, nband, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, nband, ENC_NA);
 						length += (nband * 2);
 						/* update offset */
 						dl_map_offset += nband;
@@ -596,7 +596,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 					else
 					{
 						nibble_offset = (nband & 1);
-						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, ((nband >> 1) + nibble_offset), FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, ((nband >> 1) + nibble_offset), ENC_NA);
 						length += nband;
 						/* update offset */
 						dl_map_offset += (nband >> 1);
@@ -610,14 +610,14 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 					nibble_offset = 1;
 					if(max_logical_bands == 3)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, (nband + nibble_offset), FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, (nband + nibble_offset), ENC_NA);
 						length += (nband * 2);
 						/* update offset */
 						dl_map_offset += nband;
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, ((nband >> 1) + nibble_offset), FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_band_index, tvb, dl_map_offset, ((nband >> 1) + nibble_offset), ENC_NA);
 						length += nband;
 						/* update offset */
 						dl_map_offset += ((nband + nibble_offset) >> 1);
@@ -928,7 +928,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* display BITMAP Length */
 				proto_tree_add_item(tree, hf_cdlmap_bit_map_length, tvb, dl_map_offset, 1, FALSE);
 				/* display BITMAP */
-				proto_tree_add_item(tree, hf_cdlmap_bit_map, tvb, dl_map_offset, bit_map_length + 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_bit_map, tvb, dl_map_offset, bit_map_length + 1, ENC_NA);
 				length += (1 + bit_map_length * 2);
 			}
 			else
@@ -945,7 +945,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* move to next byte */
 				dl_map_offset++;
 				/* display BITMAP */
-				proto_tree_add_item(tree, hf_cdlmap_bit_map, tvb, dl_map_offset, bit_map_length, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_bit_map, tvb, dl_map_offset, bit_map_length, ENC_NA);
 				length += (bit_map_length * 2);
 			}
 		break;
@@ -1341,7 +1341,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 		{
 			case TIME_DIVERSITY_MBS:
 			/* display the time-diversity MBS in HEX */
-			proto_tree_add_item(tree, hf_cdlmap_extension_time_diversity_mbs_1, tvb, offset, (length - 2), FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_extension_time_diversity_mbs_1, tvb, offset, (length - 2), ENC_NA);
 			break;
 			case HARQ_MODE_SWITCH:
 			/* display the HARQ mode */
@@ -1353,7 +1353,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 			break;
 			default:
 			/* display the unknown sub-type in HEX */
-			proto_tree_add_item(tree, hf_cdlmap_extension_unknown_sub_type_1, tvb, offset, (length - 2), FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_extension_unknown_sub_type_1, tvb, offset, (length - 2), ENC_NA);
 			break;
 		}
 	}
@@ -1376,7 +1376,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 		{
 			case TIME_DIVERSITY_MBS:
 			/* display the time-diversity MBS in HEX */
-			proto_tree_add_item(tree, hf_cdlmap_extension_time_diversity_mbs, tvb, (offset + 1), (length - 1), FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_extension_time_diversity_mbs, tvb, (offset + 1), (length - 1), ENC_NA);
 			break;
 			case HARQ_MODE_SWITCH:
 			/* display the HARQ mode */
@@ -1386,7 +1386,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 			break;
 			default:
 			/* display the unknown sub-type in HEX */
-			proto_tree_add_item(tree, hf_cdlmap_extension_unknown_sub_type, tvb, (offset + 1), (length - 1), FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_extension_unknown_sub_type, tvb, (offset + 1), (length - 1), ENC_NA);
 			break;
 		}
 	}

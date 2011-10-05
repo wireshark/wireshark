@@ -387,7 +387,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DCD TLV error");
-				proto_tree_add_item(dcd_tree, hf_dcd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(dcd_tree, hf_dcd_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the TLV value offset */
@@ -421,7 +421,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "DL Burst Profile TLV error");
-							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
+							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
 							break;
 						}
 						/* update the offset */
@@ -620,13 +620,13 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_TLV_T_22_DL_AMC_ALLOCATED_PHYSICAL_BANDS_BITMAP:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_22_dl_amc_allocated_physical_bands_bitmap, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_22_dl_amc_allocated_physical_bands_bitmap, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_22_dl_amc_allocated_physical_bands_bitmap, tvb, offset, tlv_len, ENC_NA);
 					break;
 				}
 				case DCD_TLV_T_34_DL_REGION_DEFINITION:
 				{
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "DL region definition (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition, tvb, offset, tlv_len, ENC_NA);
 					dl_num_regions = tvb_get_guint8(tvb, offset);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_region, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_reserved, tvb, offset, 1, FALSE);
@@ -732,7 +732,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Trigger TLV error");
-							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
+							proto_tree_add_item(tlv_tree, hf_dcd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
 							break;
 						}
 						/* update the offset */
@@ -793,7 +793,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				default:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_unknown_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_unknown_type, tvb, offset, tlv_len, ENC_NA);
 					break;
 				}
 			}

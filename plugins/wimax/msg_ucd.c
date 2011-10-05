@@ -282,7 +282,7 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "UCD TLV error");
-				proto_tree_add_item(ucd_tree,hf_ucd_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(ucd_tree,hf_ucd_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the TLV value offset */
@@ -326,25 +326,25 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					case UCD_TLV_T_210_FAST_FEEDBACK_REGION:
 					{
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_tlv_t_210_fast_feedback_region, tvb, offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_210_fast_feedback_region, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_210_fast_feedback_region, tvb, offset, tlv_len, ENC_NA);
 						break;
 					}
 					case UCD_TLV_T_211_HARQ_ACK_REGION:
 					{
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_tlv_t_211_harq_ack_region, tvb, offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_211_harq_ack_region, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_211_harq_ack_region, tvb, offset, tlv_len, ENC_NA);
 						break;
 					}
 					case UCD_TLV_T_212_RANGING_REGION:
 					{
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_tlv_t_212_ranging_region, tvb, offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_212_ranging_region, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_212_ranging_region, tvb, offset, tlv_len, ENC_NA);
 						break;
 					}
 					case UCD_TLV_T_213_SOUNDING_REGION:
 					{
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_tlv_t_213_sounding_region, tvb, offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_213_sounding_region, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_213_sounding_region, tvb, offset, tlv_len, ENC_NA);
 						break;
 					}
 				}
@@ -372,7 +372,7 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						if(tlv_type == -1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "UL Burst Profile error");
-							proto_tree_add_item(tlv_tree, hf_ucd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), FALSE);
+							proto_tree_add_item(tlv_tree, hf_ucd_invalid_tlv, tvb, offset, (tlv_len - offset - tlv_offset), ENC_NA);
 							break;
 						}
 						/* get the TLV length */
@@ -463,7 +463,7 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case UCD_TLV_T_158_OPTIONAL_PERMUTATION_UL_ALLOCATED_SUBCHANNELS_BITMAP:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_158_optional_permutation_ul_allocated_subchannels_bitmap, tvb, offset, tlv_len, ENC_NA);
 
 					break;
 				}
@@ -717,7 +717,7 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case UCD_UL_ALLOCATED_SUBCHANNELS_BITMAP:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_ul_allocated_subchannles_bitmap, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_ucd_ul_allocated_subchannles_bitmap, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_ucd_ul_allocated_subchannles_bitmap, tvb, offset, tlv_len, ENC_NA);
 					break;
 				}
 				case UCD_TLV_T_203_UL_PUSC_SUBCHANNEL_ROTATION:

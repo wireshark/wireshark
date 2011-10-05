@@ -765,7 +765,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
           dissect_phs_err (tvb, phs_tree, pos, length);
         case PHS_FIELD:
           proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         case PHS_INDEX:
           if (length == 1)
@@ -780,7 +780,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
           break;
         case PHS_MASK:
           proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsm, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         case PHS_SUP_SIZE:
           if (length == 1)
@@ -797,7 +797,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
           if (length == 1)
             {
               proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_phsf, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -806,7 +806,7 @@ dissect_phs (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
           break;
         case PHS_VENDOR_SPEC:
           proto_tree_add_item (phs_tree, hf_docsis_tlv_phs_vendorspec, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -1239,7 +1239,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
           break;
         case SFW_VENDOR_SPEC:
           proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_vendor_spec,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_NA);
           break;
         default:
           if (direction == 24)
@@ -1300,7 +1300,7 @@ dissect_dot1q_clsfr (tvbuff_t * tvb, proto_tree * tree, int start,
         case CFR_D1Q_VENDOR_SPEC:
           proto_tree_add_item (dot1qclsfr_tree,
                                hf_docsis_tlv_dot1qclsfr_vendorspec, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -1453,7 +1453,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
             {
               proto_tree_add_item (ipclsfr_tree,
                                    hf_docsis_tlv_ipclsfr_tosmask, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -1691,7 +1691,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
           break;
         case CFR_VENDOR_SPEC:
           proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_vendor_spc,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -1956,15 +1956,15 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           break;
         case CAP_L2VPN:
           proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_l2vpn, tvb,
-                                pos, length, FALSE);
+                                pos, length, ENC_NA);
           break;
         case CAP_L2VPN_ESAFE:
           proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_l2vpn_esafe, tvb,
-                                pos, length, FALSE);
+                                pos, length, ENC_NA);
           break;
         case CAP_DUT_FILTERING:
           proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dut_filtering, tvb,
-                                pos, length, FALSE);
+                                pos, length, ENC_NA);
           break;
         case CAP_US_FREQ_RNG:
           if (length == 1)
@@ -2325,7 +2325,7 @@ dissect_svc_unavail(tvbuff_t * tvb, proto_tree * tree, int pos, guint16 length) 
   proto_tree *svc_unavail_tree;
   svc_unavail_it = proto_tree_add_item (tree,
                                         hf_docsis_tlv_svc_unavail,
-                                        tvb, pos, length, FALSE);
+                                        tvb, pos, length, ENC_NA);
   svc_unavail_tree = proto_item_add_subtree(svc_unavail_it, ett_docsis_tlv_svc_unavail );
   proto_tree_add_item (svc_unavail_tree,
                        hf_docsis_tlv_svc_unavail_classid, tvb,
@@ -2348,7 +2348,7 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
 
   snmpv3_it = proto_tree_add_item (tree,
                                    hf_docsis_tlv_snmpv3_kick,
-                                   tvb, start, len, FALSE);
+                                   tvb, start, len, ENC_NA);
   snmpv3_tree = proto_item_add_subtree(snmpv3_it, ett_docsis_tlv_snmpv3_kick);
 
   while (pos < (start + len))
@@ -2365,7 +2365,7 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
         case SNMPV3_MGR_PUB_NUM:
           proto_tree_add_item (snmpv3_tree,
                                hf_docsis_tlv_snmpv3_kick_publicnum, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_NA);
           break;
         }  /* switch */
       pos += length;
@@ -2518,7 +2518,7 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
           break;
         case DUT_CMIM:
           proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_cmim, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -2587,7 +2587,7 @@ dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case TCC_ERR_SUBTYPE:
           proto_tree_add_item (tccerr_tree,
                                hf_docsis_tcc_err_subtype, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_NA);
           break;
         case TCC_ERR_CODE:
           if (length == 1)
@@ -3121,17 +3121,17 @@ dissect_rcp_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case RCV_MOD_ENC_RSQ_CH_SUBS_CAP:
           proto_tree_add_item (rcvmod_tree,
                    hf_docsis_rcv_mod_enc_rsq_ch_subs_cap, tvb, pos,
-                   length, FALSE);
+                   length, ENC_NA);
           break;
         case RCV_MOD_ENC_CONN:
           proto_tree_add_item (rcvmod_tree,
                    hf_docsis_rcv_mod_enc_conn, tvb, pos,
-                   length, FALSE);
+                   length, ENC_NA);
           break;
         case RCV_MOD_ENC_PHY_LAYR_PARMS:
           proto_tree_add_item (rcvmod_tree,
                    hf_docsis_rcv_mod_enc_phy_layr_parms, tvb, pos,
-                   length, FALSE);
+                   length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -3171,7 +3171,7 @@ dissect_rcp_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case RCV_CH_CONN:
           proto_tree_add_item (rcvch_tree,
                            hf_docsis_rcv_ch_conn, tvb, pos,
-                           length, FALSE);
+                           length, ENC_NA);
           break;
         case RCV_CH_CONN_OFF:
           if (length == 1)
@@ -3229,7 +3229,7 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
             {
               proto_tree_add_item (rcp_tree,
                                    hf_docsis_tlv_rcp_id, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3241,7 +3241,7 @@ dissect_rcp(tvbuff_t * tvb, packet_info * pinfo _U_,
             {
               proto_tree_add_item (rcp_tree,
                                    hf_docsis_tlv_rcp_name, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3320,7 +3320,7 @@ dissect_rcc_rcv_mod(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case RCV_MOD_ENC_CONN:
           proto_tree_add_item (rcvmod_tree,
                    hf_docsis_rcc_rcv_mod_enc_conn, tvb, pos,
-                   length, FALSE);
+                   length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -3360,7 +3360,7 @@ dissect_rcc_rcv_ch(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case RCV_CH_CONN:
           proto_tree_add_item (rcvch_tree,
                            hf_docsis_rcc_rcv_ch_conn, tvb, pos,
-                           length, FALSE);
+                           length, ENC_NA);
           break;
         case RCV_CH_CTR_FREQ_ASGN:
           if (length == 4)
@@ -3460,7 +3460,7 @@ dissect_rcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case RCC_ERR_MSG:
           proto_tree_add_item (err_tree,
                                hf_docsis_tlv_rcc_err_msg, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -3493,7 +3493,7 @@ dissect_rcc(tvbuff_t * tvb, packet_info * pinfo _U_,
             {
               proto_tree_add_item (rcc_tree,
                                    hf_docsis_tlv_rcc_id, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3551,7 +3551,7 @@ dissect_dsid_ds_reseq(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case DS_RESEQ_CH_LST:
           proto_tree_add_item (dsid_tree,
                            hf_docsis_ds_reseq_ch_lst, tvb, pos,
-                           length, FALSE);
+                           length, ENC_NA);
           break;
         case DS_RESEQ_WAIT_TIME:
           if (length == 1)
@@ -3629,7 +3629,7 @@ dissect_dsid_mc_addr(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
             {
               proto_tree_add_item (dsid_tree,
                                    hf_docsis_mc_addr_addr, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3665,12 +3665,12 @@ dissect_dsid_mc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case TLV_DSID_MC_CMIM:
           proto_tree_add_item (dsid_tree,
                                hf_docsis_tlv_dsid_mc_cmim, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         case TLV_DSID_MC_GROUP:
           proto_tree_add_item (dsid_tree,
                                hf_docsis_tlv_dsid_mc_group, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
     case TLV_DSID_MC_PHS:
           dissect_phs(tvb, dsid_tree, pos, length);
@@ -3768,7 +3768,7 @@ dissect_sec_assoc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
             {
               proto_tree_add_item (sec_tree,
                                    hf_docsis_tlv_sec_assoc_desc, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3850,7 +3850,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
             {
               proto_tree_add_item (mc_tree,
                                    hf_docsis_cmts_mc_sess_enc_grp, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3862,7 +3862,7 @@ dissect_cmts_mc_sess_enc(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
             {
               proto_tree_add_item (mc_tree,
                                    hf_docsis_cmts_mc_sess_enc_src, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_NA);
             }
           else
             {
@@ -3945,7 +3945,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 16)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_cm_mic, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_NA);
               }
             else
               {
@@ -3956,7 +3956,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 16)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_cmts_mic, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_NA);
               }
             else
               {
@@ -3967,7 +3967,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 3)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_vendor_id, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_NA);
               }
             else
               {
@@ -3980,11 +3980,11 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             break;
           case TLV_SNMP_WRITE_CTRL:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_access, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_NA);
             break;
           case TLV_SNMP_OBJECT:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_obj, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_NA);
             break;
           case TLV_MODEM_IP:
             if (length == 4)
@@ -4022,7 +4022,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             break;
           case TLV_BPI_CONFIG:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_bpi, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_NA);
             break;
           case TLV_MAX_CPES:
             if (length == 1)
@@ -4086,7 +4086,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
               {
                 proto_tree_add_item (tlv_tree,
                                      hf_docsis_tlv_hmac_digest, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_NA);
               }
             else
               {
@@ -4118,13 +4118,13 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             break;
           case TLV_AUTH_BLOCK:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_auth_block,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_KEY_SEQ_NUM:
             if (length == 1)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_key_seq_num, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_NA);
               }
             else
               {
@@ -4133,24 +4133,24 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             break;
           case TLV_MFGR_CVC:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_mfgr_cvc,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_COSIGN_CVC:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_cosign_cvc,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_SNMPV3_KICKSTART:
             dissect_snmpv3_kickstart(tvb, tlv_tree, pos, length);
             break;
           case TLV_SUBS_MGMT_CTRL:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ctrl,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_SUBS_MGMT_CPE:
             if ((length % 4) == 0)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ip_table,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_NA);
                 for (x = 0; x < length; x+=4)
                   {
                     proto_tree_add_item (tlv_tree,
@@ -4166,12 +4166,12 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
           case TLV_SUBS_MGMT_FLTR:
             proto_tree_add_item (tlv_tree,
                                  hf_docsis_tlv_subs_mgmt_filter_grps,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_SNMPV3_NTFY_RCVR:
             proto_tree_add_item(tlv_tree,
                                 hf_docsis_tlv_snmpv3_ntfy_rcvr,
-                                tvb, pos, length, FALSE);
+                                tvb, pos, length, ENC_NA);
             break;
           case TLV_ENABLE_20_MODE:
             if (length == 1)
@@ -4283,15 +4283,15 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             break;
           case TLV_US_DROP_CLFY:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_SUBS_MGMT_IPV6_LST:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_subs_mgmt_ipv6_lst,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_US_DROP_CLFY_GROUP_ID:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_us_drop_clfy_group_id,
-                                 tvb, pos, length, FALSE);
+                                 tvb, pos, length, ENC_NA);
             break;
           case TLV_SUBS_MGMT_CTRL_MAX_CPE_IPV6:
             if (length == 2)

@@ -330,7 +330,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			} else {
 				/* Unknown TLV Type */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, (tvb_len - tlv_offset), FALSE);
-				proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, (tvb_len - tlv_offset), FALSE);
+				proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, (tvb_len - tlv_offset), ENC_NA);
 			}
 			break;
 		case REG_MCA_FLOW_CONTROL:
@@ -370,7 +370,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 				if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 				{	/* invalid tlv info */
 					col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-REQ TLV error");
-					proto_tree_add_item(reg_req_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+					proto_tree_add_item(reg_req_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 					break;
 				}
 				/* update the offset */
@@ -400,7 +400,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 						break;
 					default:
 						sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, tlv_tree, hf_reg_invalid_tlv, tvb, tlv_offset, (tlv_end - tlv_offset), FALSE);
-						proto_tree_add_item(sub_tree, hf_reg_invalid_tlv, tvb, tlv_offset, (tlv_end - tlv_offset), FALSE);
+						proto_tree_add_item(sub_tree, hf_reg_invalid_tlv, tvb, tlv_offset, (tlv_end - tlv_offset), ENC_NA);
 						break;
 				}
 				tlv_offset += length;
@@ -503,7 +503,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			break;
 		default:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, (tvb_len - tlv_offset), FALSE);
-			proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, (tvb_len - tlv_offset), FALSE);
+			proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, (tvb_len - tlv_offset), ENC_NA);
 			break;
 	}
 #endif
@@ -555,7 +555,7 @@ void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 			{	/* invalid tlv info */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "REG-REQ TLV error");
-				proto_tree_add_item(reg_req_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+				proto_tree_add_item(reg_req_tree, hf_reg_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 				break;
 			}
 			/* get the offset to the TLV data */
@@ -653,7 +653,7 @@ void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				default:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, ENC_NA);
 					break;
 			}
 			/* update the offset */

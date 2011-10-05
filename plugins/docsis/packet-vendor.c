@@ -132,7 +132,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
         default:
           proto_item_append_text (it, " (Unknown)");
           proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendor_unknown, tvb,
-                               0, -1, FALSE);
+                               0, -1, ENC_NA);
           break;
         }
 

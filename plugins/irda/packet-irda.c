@@ -444,7 +444,7 @@ unsigned dissect_param_tuple(tvbuff_t* tvb, proto_tree* tree, unsigned offset)
     if (len > 0)
     {
         if (tree)
-            proto_tree_add_item(tree, hf_param_pv, tvb, offset, len, FALSE);
+            proto_tree_add_item(tree, hf_param_pv, tvb, offset, len, ENC_NA);
         offset += len;
     }
 
@@ -805,7 +805,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 attr_len = 0;
                         }
 
-                        ti = proto_tree_add_item(tree, hf_iap_list_entry, tvb, offset, 2 + 1 + attr_len, FALSE);
+                        ti = proto_tree_add_item(tree, hf_iap_list_entry, tvb, offset, 2 + 1 + attr_len, ENC_NA);
                         proto_item_append_text(ti, "%d", n + 1);
                         entry_tree = proto_item_add_subtree(ti, ett_iap_entry[n]);
 
@@ -830,7 +830,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                     !iap_conv->pattr_dissector->value_dissector(tvb, offset, pinfo, entry_tree,
                                                                                 n, type))
                                     proto_tree_add_item(entry_tree, hf_iap_oct_seq, tvb, offset + 2,
-                                                        attr_len - 2, FALSE);
+                                                        attr_len - 2, ENC_NA);
                                 break;
 
                             case IAS_STRING:
@@ -1266,7 +1266,7 @@ static unsigned dissect_negotiation(tvbuff_t* tvb, proto_tree* tree, unsigned of
 
         if (tree)
         {
-            ti = proto_tree_add_item(tree, hf_negotiation_param, tvb, offset, p_len + 2, FALSE);
+            ti = proto_tree_add_item(tree, hf_negotiation_param, tvb, offset, p_len + 2, ENC_NA);
             p_tree = proto_item_add_subtree(ti, ett_param[n]);
 
             pv = tvb_get_guint8(tvb, offset+2);
@@ -1473,7 +1473,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
     if (lap_tree)
     {
-        ti = proto_tree_add_item(lap_tree, hf_lap_i, tvb, offset, -1, FALSE);
+        ti = proto_tree_add_item(lap_tree, hf_lap_i, tvb, offset, -1, ENC_NA);
         i_tree = proto_item_add_subtree(ti, ett_lap_i);
 
         proto_tree_add_item(i_tree, hf_xid_ident, tvb, offset, 1, FALSE);
@@ -1555,7 +1555,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
         if (root)
         {
-            ti = proto_tree_add_item(lmp_tree, hf_lmp_xid_hints, tvb, offset, hints_len, FALSE);
+            ti = proto_tree_add_item(lmp_tree, hf_lmp_xid_hints, tvb, offset, hints_len, ENC_NA);
             if ((hint1 | hint2) != 0)
             {
                 char    service_hints[256];
@@ -1624,7 +1624,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
                 {
                     if (root)
                         proto_tree_add_item(lmp_tree, hf_lmp_xid_name_no_ascii, tvb, offset,
-                                            -1, FALSE);
+                                            -1, ENC_NA);
                 }
             }
         }
@@ -1769,7 +1769,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
             case XDLC_SNRM:
                 if (root)
                 {
-                    ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, FALSE);
+                    ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, ENC_NA);
                     i_tree = proto_item_add_subtree(ti, ett_lap_i);
                 }
 
@@ -1816,7 +1816,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
                 {
                     if (root)
                     {
-                        ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, FALSE);
+                        ti = proto_tree_add_item(tree, hf_lap_i, tvb, offset, -1, ENC_NA);
                         i_tree = proto_item_add_subtree(ti, ett_lap_i);
                     }
 

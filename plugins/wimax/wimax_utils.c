@@ -1729,7 +1729,7 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "EPS TLV error");
-			proto_tree_add_item(ceps_tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(ceps_tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 #ifdef DEBUG /* for debug only */
@@ -1811,7 +1811,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "CSPER TLV error");
-			proto_tree_add_item(csper_tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(csper_tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 #ifdef DEBUG /* for debug only */
@@ -1843,7 +1843,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "ATM Classifier TLV error");
-							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), FALSE);
+							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), ENC_NA);
 							break;
 						}
 #ifdef DEBUG /* for debug only */
@@ -1917,7 +1917,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Packet Classification Rule TLV error");
-							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), FALSE);
+							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), ENC_NA);
 							break;
 						}
 #ifdef DEBUG /* for debug only */
@@ -2074,7 +2074,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						if(tlv_type == -1 || length > MAX_TLV_LEN || length < 1)
 						{	/* invalid tlv info */
 							col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PHS n Rule TLV error");
-							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), FALSE);
+							proto_tree_add_item(tlv_tree, hf_cst_invalid_tlv, tvb, offset, (tlv_len - tlv_offset), ENC_NA);
 							break;
 						}
 #ifdef DEBUG /* for debug only */
@@ -2169,7 +2169,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Service Flow Encodings TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -2498,7 +2498,7 @@ void wimax_hmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, gui
 	proto_tree_add_item(hmac_tree, hf_xmac_tuple_rsvd, tvb, hmac_offset, 1, FALSE);
 	proto_tree_add_item(hmac_tree, hf_xmac_tuple_key_seq_num, tvb, hmac_offset, 1, FALSE);
 	hmac_offset++;
-	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, (length-1), FALSE);
+	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, (length-1), ENC_NA);
 }
 
 /**************************************************************/
@@ -2533,7 +2533,7 @@ void wimax_cmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, gui
 	}
 	proto_tree_add_item(cmac_tree, hf_packet_number_counter, tvb, cmac_offset, 4, FALSE);
 	cmac_offset += 4;
-	proto_tree_add_item(cmac_tree, hf_cmac_tuple_cmac_value, tvb, cmac_offset, 8, FALSE);
+	proto_tree_add_item(cmac_tree, hf_cmac_tuple_cmac_value, tvb, cmac_offset, 8, ENC_NA);
 }
 
 /******************************************************************/
@@ -2563,7 +2563,7 @@ void wimax_short_hmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offse
 	hmac_offset++;
 	proto_tree_add_item(hmac_tree, hf_packet_number_counter, tvb, hmac_offset, 4, FALSE);
 	hmac_offset += 4;
-	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, length - offset - 3, FALSE);
+	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, length - offset - 3, ENC_NA);
 }
 
 /******************************************************************/
@@ -2605,7 +2605,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Negotiation Params TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -2676,7 +2676,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 		break;
 		default:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_unknown_type, tvb, offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_unknown_type, tvb, offset, tlv_len, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_unknown_type, tvb, offset, tlv_len, ENC_NA);
 		break;
 		}
 		offset += tlv_len;
@@ -2721,7 +2721,7 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Crypto Suite List TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -2743,7 +2743,7 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_cryptographic_suite_list_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -2789,7 +2789,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -2943,7 +2943,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				/* add TLV subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_cmac_digest, tvb, offset, tlv_len, FALSE);
 				proto_tree_add_item(tlv_tree, hf_pkm_attr_cmac_digest_pn, tvb, offset, 4, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_cmac_digest_value, tvb, (offset + 4), 8, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_cmac_digest_value, tvb, (offset + 4), 8, ENC_NA);
 			break;
 			case PKM_ATTR_KEY_PUSH_MODES:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_push_modes, tvb, offset, tlv_len, FALSE);
@@ -2967,7 +2967,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -3013,7 +3013,7 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "TEK Param TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -3048,7 +3048,7 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -3094,7 +3094,7 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "PKM Config Settings TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -3137,7 +3137,7 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_authorize_reject_wait_timeout, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -3183,7 +3183,7 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "SA-Descriptor TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -3217,7 +3217,7 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -3263,7 +3263,7 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Security Capabilities TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -3283,7 +3283,7 @@ void wimax_security_capabilities_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_security_capabilities_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -3330,7 +3330,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Vendor Specific Info TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -3343,7 +3343,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 		{
 			/* decode and display the Vendor ID Encoding */
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_vendor_id_encoding_decoder, tree, hf_common_tlv_vendor_id, tvb, (offset + tlv_value_offset), tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_common_tlv_vendor_id, tvb, (offset + tlv_value_offset), tlv_len, FALSE);
+			proto_tree_add_item(tlv_tree, hf_common_tlv_vendor_id, tvb, (offset + tlv_value_offset), tlv_len, ENC_NA);
 		}
 		else
 		{
@@ -3366,7 +3366,7 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 					continue;
 				}
 			}
-			proto_tree_add_item(tree, hf_common_tlv_vendor_specific_value, tvb, (offset + tlv_value_offset), tlv_len, FALSE);
+			proto_tree_add_item(tree, hf_common_tlv_vendor_specific_value, tvb, (offset + tlv_value_offset), tlv_len, ENC_NA);
 		}
 		/* update the offset */
 		offset += tlv_value_offset + tlv_len;
@@ -3399,7 +3399,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 	if(tvb_len < 2)
 	{	/* invalid tlv info */
 		col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Invalid Common TLV encoding");
-		proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, 0, tvb_len, FALSE);
+		proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, 0, tvb_len, ENC_NA);
 		return 0;
 	}
 	/* process Common TLV Encoding (11.1) */
@@ -3414,7 +3414,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		if(tlv_type == -1 || tlv_len > MAX_TLV_LEN || tlv_len < 1)
 		{	/* invalid tlv info */
 			col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Common TLV encoding TLV error");
-			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_cst_invalid_tlv, tvb, offset, (tvb_len - offset), ENC_NA);
 			break;
 		}
 		/* get the TLV value offset */
@@ -3439,7 +3439,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				/* add subtree */
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_vendor_specific_info_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "Vendor ID Encoding (%u bytes)", tlv_len);
 				/* decode and display the Vendor ID Encoding */
-				proto_tree_add_item(tlv_tree, hf_common_tlv_vendor_id, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_common_tlv_vendor_id, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case DSx_UPLINK_FLOW:
 				/* display Uplink Service Flow Encodings info */

@@ -143,7 +143,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      break;
 	    case RNGRSP_TRANSMIT_EQ_ADJ:
 	      proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_xmit_eq_adj,
-				   tvb, pos, tlvlen, FALSE);
+				   tvb, pos, tlvlen, ENC_NA);
 	      break;
 	    case RNGRSP_RANGING_STATUS:
 	      if (tlvlen == 1)

@@ -182,7 +182,7 @@ dissect_CSF_SDU_heur(tvbuff_t *tvb,
         offset += 2;
 
         while(1) {
-            sub_item = proto_tree_add_item(tree, hf_pn_rt_sf, tvb, offset, 0, ENC_BIG_ENDIAN);
+            sub_item = proto_tree_add_item(tree, hf_pn_rt_sf, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_sf);
             u32SubStart = offset;
 
@@ -265,14 +265,14 @@ dissect_FRAG_PDU_heur(tvbuff_t *tvb,
 
     /* possible FrameID ranges for FRAG_PDU */
     if (u16FrameID >= 0xFF80 && u16FrameID < 0xFF8F) {
-        sub_item = proto_tree_add_item(tree, hf_pn_rt_frag, tvb, offset, 0, ENC_BIG_ENDIAN);
+        sub_item = proto_tree_add_item(tree, hf_pn_rt_frag, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_rt_frag);
 
         u8FragDataLength = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(sub_tree, hf_pn_rt_frag_data_length, tvb, offset, 1, u8FragDataLength);
         offset += 1;
 
-        status_item = proto_tree_add_item(sub_tree, hf_pn_rt_frag_status, tvb, offset, 1, ENC_BIG_ENDIAN);
+        status_item = proto_tree_add_item(sub_tree, hf_pn_rt_frag_status, tvb, offset, 1, ENC_NA);
         status_tree = proto_item_add_subtree(status_item, ett_pn_rt_frag_status);
 
         u8FragStatus = tvb_get_guint8(tvb, offset);

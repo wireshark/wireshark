@@ -168,7 +168,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_MANUFACTURER_ID:
           if (length == 3)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_manf_id, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_NA);
           else
             THROW (ReportedBoundsError);
           break;
@@ -181,7 +181,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         case BPKM_RSA_PUB_KEY:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_rsa_pub_key, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         case BPKM_CM_ID:
           cmid_it =
@@ -199,14 +199,14 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_AUTH_KEY:
           if ((length == 96) || (length == 128))
             proto_tree_add_item (tree, hf_docsis_bpkmattr_auth_key, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_NA);
           else
             THROW (ReportedBoundsError);
           break;
         case BPKM_TEK:
           if (length == 8)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_tek, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_NA);
           else
             THROW (ReportedBoundsError);
           break;
@@ -227,7 +227,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_HMAC_DIGEST:
           if (length == 20)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_hmac_digest, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_NA);
           else
             THROW (ReportedBoundsError);
           break;
@@ -251,7 +251,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_CBC_IV:
           if (length == 8)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_cbc_iv, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_NA);
           else
             THROW (ReportedBoundsError);
           break;
@@ -264,11 +264,11 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         case BPKM_CA_CERT:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_ca_cert, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         case BPKM_CM_CERT:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_cm_cert, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         case BPKM_SEC_CAPABILITIES:
           scap_it =
@@ -288,7 +288,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         case BPKM_CRYPTO_SUITE_LIST:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite_list,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_NA);
           break;
         case BPKM_BPI_VERSION:
           if (length == 1)
@@ -336,7 +336,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         case BPKM_VENDOR_DEFINED:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
         case BPKM_DNLD_PARAMS:
           dnld_it =
             proto_tree_add_text (tree, tvb, pos, length,
@@ -348,7 +348,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         default:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_vendor_def, tvb, pos,
-                               length, FALSE);
+                               length, ENC_NA);
           break;
         }
       pos += length;            /* switch */

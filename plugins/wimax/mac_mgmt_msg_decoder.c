@@ -220,7 +220,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 			/* add MAC payload subtree */
 			message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 			/* display the MAC payload in Hex */
-			proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+			proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			return;
 		}
 		/* get the parent */
@@ -314,7 +314,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MCA_RSP:
@@ -329,7 +329,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_DBPC_REQ:
@@ -344,7 +344,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_DBPC_RSP:
@@ -359,7 +359,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_RES_CMD:
@@ -398,7 +398,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_TFTP_RSP:
@@ -413,7 +413,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_ARQ_FEEDBACK:
@@ -451,7 +451,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MSH_NENT:
@@ -466,7 +466,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MSH_DSCH:
@@ -481,7 +481,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MSH_CSCH:
@@ -496,7 +496,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MSH_CSCF:
@@ -511,7 +511,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_AAS_FBCK_REQ:
@@ -538,7 +538,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_AAS_BEAM_RSP:
@@ -553,7 +553,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_DREG_REQ:
@@ -572,7 +572,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_SLP_RSP:
@@ -587,7 +587,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_TRF_IND:
@@ -602,7 +602,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_NBR_ADV:
@@ -617,7 +617,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_SCN_REQ:
@@ -632,7 +632,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_SCN_RSP:
@@ -647,7 +647,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_BSHO_REQ:
@@ -662,7 +662,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_MSHO_REQ:
@@ -677,7 +677,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_BSHO_RSP:
@@ -692,7 +692,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_HO_IND:
@@ -707,7 +707,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_SCN_REP:
@@ -722,7 +722,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MOB_PAG_ADV:
@@ -737,7 +737,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_MBS_MAP:
@@ -752,7 +752,7 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		case MAC_MGMT_MSG_PMC_REQ:
@@ -779,12 +779,12 @@ void dissect_mac_mgmt_msg_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 				/* add MAC payload subtree */
 				message_tree = proto_item_add_subtree(message_item, ett_mac_mgmt_msg_decoder);
 				/* display the MAC payload in Hex */
-				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(message_tree, hf_mac_mgmt_msg_values, tvb, offset, tvb_len, ENC_NA);
 			}
 		break;
 		default:
 			/* display the unknown message in hex */
-			proto_tree_add_item(tree, hf_mac_mgmt_msg_unknown_type, tvb, offset, (tvb_len - offset), FALSE);
+			proto_tree_add_item(tree, hf_mac_mgmt_msg_unknown_type, tvb, offset, (tvb_len - offset), ENC_NA);
 		break;
 		}
 	}

@@ -228,7 +228,7 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		if(tvb_len < WIMAX_MAC_HEADER_SIZE)
 		{
 			/* display the MAC Type I Header in Hex */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, ENC_NA);
 			return;
 		}
 #ifdef DEBUG
@@ -257,7 +257,7 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			/* display MAC Header Type I Subtype */
 			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_1_decoder, tvb, offset, tvb_len, "Unknown type 1 subtype: %u", sub_type);
 			/* display the MAC Type I Header in Hex */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_value_bytes, tvb, offset, tvb_len, ENC_NA);
 			return;
 		}
 		/* add the MAC header info */

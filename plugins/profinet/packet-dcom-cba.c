@@ -908,7 +908,7 @@ dissect_PBAddressInfo(tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
 
     while(u32ArraySize != 0) {
-	sub_item = proto_tree_add_item(tree, hf_cba_pbaddress, tvb, offset, 2, FALSE);
+	sub_item = proto_tree_add_item(tree, hf_cba_pbaddress, tvb, offset, 2, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_PBAddress);
         
 	offset = dissect_dcom_BYTE(tvb, offset, pinfo, sub_tree, drep, 

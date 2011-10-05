@@ -158,7 +158,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root)
 				proto_tree* tree = proto_item_add_subtree(ti, ett_sir);
 				if (preamble_len > 0)
 					proto_tree_add_item(tree, hf_sir_preamble, tvb,
-							offset, preamble_len, FALSE);
+							offset, preamble_len, ENC_NA);
 				proto_tree_add_item(tree, hf_sir_bof, tvb,
 						bof_offset, 1, FALSE);
 				proto_tree_add_uint(tree, hf_sir_length,

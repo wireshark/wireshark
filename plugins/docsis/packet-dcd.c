@@ -200,7 +200,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      break;
 	    case DCD_CFG_VENDOR_SPEC:
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_vendor_spec, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_NA);
 	      break;
 
 	    }
@@ -417,7 +417,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      break;
 	    case DCD_RULE_UCID_RNG:
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_ucid_list, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_NA);
 	      break;
 	    case DCD_RULE_CLIENT_ID:
 	      dissect_dcd_clid (tvb , dcd_tree , pos , length );
@@ -446,7 +446,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      break;
 	    case DCD_RULE_VENDOR_SPEC:
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_vendor_spec, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_NA);
 	      break;
 
 	    }

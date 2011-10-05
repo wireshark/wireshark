@@ -196,7 +196,7 @@ static void dissect_cooked_ircomm(tvbuff_t* tvb, packet_info* pinfo, proto_tree*
         proto_tree* ctrl_tree;
 
 
-        ti        = proto_tree_add_item(tree, hf_control, tvb, 0, clen + 1, FALSE);
+        ti        = proto_tree_add_item(tree, hf_control, tvb, 0, clen + 1, ENC_NA);
         ctrl_tree = proto_item_add_subtree(ti, ett_ircomm_ctrl);
         proto_tree_add_item(ctrl_tree, hf_control_len, tvb, offset, 1, FALSE);
         offset++;
@@ -267,7 +267,7 @@ static gboolean dissect_ircomm_parameters(tvbuff_t* tvb, unsigned offset, packet
             guint8  p_len = tvb_get_guint8(tvb, offset + 1);
 
 
-            ti = proto_tree_add_item(tree, hf_ircomm_param, tvb, offset, p_len + 2, FALSE);
+            ti = proto_tree_add_item(tree, hf_ircomm_param, tvb, offset, p_len + 2, ENC_NA);
             p_tree = proto_item_add_subtree(ti, ett_param[list_index * MAX_PARAMETERS + n]);
 
             buf[0] = 0;

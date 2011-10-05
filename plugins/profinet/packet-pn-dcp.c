@@ -597,7 +597,7 @@ dissect_PNDCP_Suboption_DHCP(tvbuff_t *tvb, int offset, packet_info *pinfo,
             proto_item_append_text(block_item, ", BlockQualifier: %s", val_to_str(block_qualifier, pn_dcp_block_qualifier, "Unknown"));
         if(have_block_info)
             proto_item_append_text(block_item, ", BlockInfo: %s", val_to_str(block_info, pn_dcp_block_info, "Unknown"));
-        proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_device_id, tvb, offset, block_length, FALSE);
+        proto_tree_add_item(tree, hf_pn_dcp_suboption_dhcp_device_id, tvb, offset, block_length, ENC_NA);
         offset += block_length;
         break;
     default:

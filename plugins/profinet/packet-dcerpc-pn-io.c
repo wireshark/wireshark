@@ -2567,7 +2567,7 @@ dissect_PNIO_status(tvbuff_t *tvb, int offset,
 
 
     /* status */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_status, tvb, offset, 0, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_status, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_status);
     u32SubStart = offset;
 
@@ -2809,7 +2809,7 @@ dissect_Alarm_specifier(tvbuff_t *tvb, int offset,
     proto_tree *sub_tree;
 
     /* alarm specifier */
-    sub_item = proto_tree_add_item(tree, hf_pn_io_alarm_specifier, tvb, offset, 2, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_alarm_specifier, tvb, offset, 2, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_pdu_type);
 
     dissect_dcerpc_uint16(tvb, offset, pinfo, sub_tree, drep,
@@ -3291,7 +3291,7 @@ dissect_IandM0FilterData_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_number_of_modules, &u16NumberOfModules);
 
         while(u16NumberOfModules--) {
-            module_item = proto_tree_add_item(tree, hf_pn_io_subslot, tvb, offset, 6, ENC_BIG_ENDIAN);
+            module_item = proto_tree_add_item(tree, hf_pn_io_subslot, tvb, offset, 6, ENC_NA);
             module_tree = proto_item_add_subtree(module_item, ett_pn_io_module);
 
             u32ModuleStart = offset;
@@ -3310,7 +3310,7 @@ dissect_IandM0FilterData_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u32ModuleIdentNumber, u16NumberOfSubmodules);
 
             while(u16NumberOfSubmodules--) {
-                subslot_item = proto_tree_add_item(module_tree, hf_pn_io_subslot, tvb, offset, 6, ENC_BIG_ENDIAN);
+                subslot_item = proto_tree_add_item(module_tree, hf_pn_io_subslot, tvb, offset, 6, ENC_NA);
                 subslot_tree = proto_item_add_subtree(subslot_item, ett_pn_io_subslot);
 
                 /* SubslotNumber */
@@ -3380,7 +3380,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(item, ", Slots:%u", u16NumberOfSlots);
 
         while(u16NumberOfSlots--) {
-            slot_item = proto_tree_add_item(tree, hf_pn_io_slot, tvb, offset, 0, ENC_BIG_ENDIAN);
+            slot_item = proto_tree_add_item(tree, hf_pn_io_slot, tvb, offset, 0, ENC_NA);
             slot_tree = proto_item_add_subtree(slot_item, ett_pn_io_slot);
             u32SlotStart = offset;
 
@@ -3398,7 +3398,7 @@ dissect_IdentificationData_block(tvbuff_t *tvb, int offset,
                 u16SlotNr, u32ModuleIdentNumber, u16NumberOfSubslots);
 
             while(u16NumberOfSubslots--) {
-                subslot_item = proto_tree_add_item(slot_tree, hf_pn_io_subslot, tvb, offset, 6, ENC_BIG_ENDIAN);
+                subslot_item = proto_tree_add_item(slot_tree, hf_pn_io_subslot, tvb, offset, 6, ENC_NA);
                 subslot_tree = proto_item_add_subtree(subslot_item, ett_pn_io_subslot);
 
                 /* SubslotNumber */
@@ -5495,7 +5495,7 @@ dissect_PDIRFrameData_block(tvbuff_t *tvb, int offset,
       n++;
 
      /* new subtree for each IR frame */
-      ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, ENC_BIG_ENDIAN);
+      ir_frame_data_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_frame_data, tvb, offset, 17, ENC_NA);
       ir_frame_data_tree = proto_item_add_subtree(ir_frame_data_sub_item, ett_pn_io_ir_frame_data);
 
       /* FrameSendOffset */
@@ -5609,7 +5609,7 @@ dissect_PDIRBeginEndData_block(tvbuff_t *tvb, int offset,
     u32Tmp2 = u32NumberOfPorts;
     while(u32Tmp2--) {
         /* new subtree for each Port */
-        ir_begin_end_port_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_begin_end_port, tvb, offset, 0, ENC_BIG_ENDIAN);
+        ir_begin_end_port_sub_item = proto_tree_add_item(tree, hf_pn_io_ir_begin_end_port, tvb, offset, 0, ENC_NA);
         ir_begin_end_port_tree = proto_item_add_subtree(ir_begin_end_port_sub_item, ett_pn_io_ir_begin_end_port);
         u32SubStart = offset;
 
@@ -5846,7 +5846,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
                         hf_pn_io_number_of_iocrs, &u16NumberOfIOCRs);
 
         while(u16NumberOfIOCRs--) {
-            iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+            iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
             iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
             u32IOCRStart = offset;
 
@@ -5989,7 +5989,7 @@ dissect_ARData_block(tvbuff_t *tvb, int offset,
             offset = dissect_pn_padding(tvb, offset, pinfo, tree, 2);
 
             while(u16NumberOfIOCRs--) {
-                iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+                iocr_item = proto_tree_add_item(tree, hf_pn_io_iocr_tree, tvb, offset, 0, ENC_NA);
                 iocr_tree = proto_item_add_subtree(iocr_item, ett_pn_io_iocr);
                 u32IOCRStart = offset;
 
@@ -6489,7 +6489,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
         u16SendClockFactor, u16ReductionRatio, u16Phase, u16NumberOfAPIs);
 
     while(u16NumberOfAPIs--) {
-        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_NA);
         api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
         u32ApiStart = offset;
 
@@ -6502,7 +6502,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         u16Tmp = u16NumberOfIODataObjects;
         while(u16Tmp--) {
-            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, ENC_BIG_ENDIAN);
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_data_object, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_data_object);
             u32SubStart = offset;
 
@@ -6527,7 +6527,7 @@ dissect_IOCRBlockReq_block(tvbuff_t *tvb, int offset,
 
         u16Tmp = u16NumberOfIOCS;
         while(u16Tmp--) {
-            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_cs, tvb, offset, 0, ENC_BIG_ENDIAN);
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_io_cs, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_io_cs);
             u32SubStart = offset;
 
@@ -7087,7 +7087,7 @@ dissect_DataDescription(tvbuff_t *tvb, int offset,
     guint32 u32SubStart;
 
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_data_description_tree, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_data_description);
     u32SubStart = offset;
 
@@ -7149,7 +7149,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": APIs:%u", u16NumberOfAPIs);
 
     while(u16NumberOfAPIs--) {
-        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_NA);
         api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
         u32ApiStart = offset;
 
@@ -7175,7 +7175,7 @@ dissect_ExpectedSubmoduleBlockReq_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(item, ", Submodules:%u", u16NumberOfSubmodules);
 
         while(u16NumberOfSubmodules--) {
-            sub_item = proto_tree_add_item(api_tree, hf_pn_io_submodule_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+            sub_item = proto_tree_add_item(api_tree, hf_pn_io_submodule_tree, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_submodule);
             u32SubStart = offset;
 
@@ -7270,7 +7270,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
     proto_item_append_text(item, ": APIs:%u", u16NumberOfAPIs);
 
     while(u16NumberOfAPIs--) {
-        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+        api_item = proto_tree_add_item(tree, hf_pn_io_api_tree, tvb, offset, 0, ENC_NA);
         api_tree = proto_item_add_subtree(api_item, ett_pn_io_api);
         u32ApiStart = offset;
 
@@ -7287,7 +7287,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
         proto_item_append_text(item, ", Modules:%u", u16NumberOfModules);
 
         while(u16NumberOfModules--) {
-            module_item = proto_tree_add_item(api_tree, hf_pn_io_module_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+            module_item = proto_tree_add_item(api_tree, hf_pn_io_module_tree, tvb, offset, 0, ENC_NA);
             module_tree = proto_item_add_subtree(module_item, ett_pn_io_module);
             u32ModuleStart = offset;
 
@@ -7312,7 +7312,7 @@ dissect_ModuleDiffBlock_block(tvbuff_t *tvb, int offset,
             proto_item_append_text(item, ", Submodules:%u", u16NumberOfSubmodules);
 
             while(u16NumberOfSubmodules--) {
-                sub_item = proto_tree_add_item(module_tree, hf_pn_io_submodule_tree, tvb, offset, 0, ENC_BIG_ENDIAN);
+                sub_item = proto_tree_add_item(module_tree, hf_pn_io_submodule_tree, tvb, offset, 0, ENC_NA);
                 sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_submodule);
                 u32SubStart = offset;
 
@@ -7532,11 +7532,11 @@ dissect_block(tvbuff_t *tvb, int offset,
     /* from here, we only have big endian (network byte ordering)!!! */
     drep[0] &= ~DREP_LITTLE_ENDIAN;
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_block);
     u32SubStart = offset;
 
-    header_item = proto_tree_add_item(sub_tree, hf_pn_io_block_header, tvb, offset, 6, ENC_BIG_ENDIAN);
+    header_item = proto_tree_add_item(sub_tree, hf_pn_io_block_header, tvb, offset, 6, ENC_NA);
     header_tree = proto_item_add_subtree(header_item, ett_pn_io_block_header);
 
     offset = dissect_dcerpc_uint16(tvb, offset, pinfo, header_tree, drep,
@@ -7948,7 +7948,7 @@ dissect_IPNIO_rqst_header(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_args_len, &u32ArgsLen);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io);
     u32SubStart = offset;
 
@@ -7991,7 +7991,7 @@ dissect_IPNIO_resp_header(tvbuff_t *tvb, int offset,
     offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
                         hf_pn_io_args_len, &u32ArgsLen);
 
-    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(tree, hf_pn_io_array, tvb, offset, 0, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io);
     u32SubStart = offset;
 
@@ -8051,7 +8051,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
 
-    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_request);
     proto_item_set_text(profidrive_item, "PROFIDrive Parameter Request: ");
     
@@ -8085,7 +8085,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
         proto_item *sub_item;
         proto_tree *sub_tree;
 
-        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_address);
         proto_item_set_text(sub_item, "Parameter Address %u: ", addr_idx+1);
         
@@ -8118,7 +8118,7 @@ dissect_ProfiDriveParameterRequest(tvbuff_t *tvb, int offset,
             proto_item *sub_item;
             proto_tree *sub_tree;
 
-            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+            sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
             sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
             proto_item_set_text(sub_item, "Parameter Value %u: ", addr_idx+1);
  
@@ -8155,7 +8155,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
     proto_item *profidrive_item;
     proto_tree *profidrive_tree;
 
-    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+    profidrive_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     profidrive_tree = proto_item_add_subtree(profidrive_item, ett_pn_io_profidrive_parameter_response); 
     proto_item_set_text(profidrive_item, "PROFIDrive Parameter Response: ");        
    
@@ -8184,7 +8184,7 @@ dissect_ProfiDriveParameterResponse(tvbuff_t *tvb, int offset,
         proto_item *sub_item;
         proto_tree *sub_tree;
 
-        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+        sub_item = proto_tree_add_item(profidrive_tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
         sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_profidrive_parameter_value);
         proto_item_set_text(sub_item, "Parameter Value %u: ", val_idx++);
          
@@ -8437,7 +8437,7 @@ dissect_ProfiSafeParameterRequest(tvbuff_t *tvb, int offset,
 
     prm_flag1 = prm_flag2 = 0;
     
-    f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_BIG_ENDIAN);
+    f_item = proto_tree_add_item(tree, hf_pn_io_block, tvb, offset, 0, ENC_NA);
     f_tree = proto_item_add_subtree(f_item, ett_pn_io_profisafe_f_parameter); 
     proto_item_set_text(f_item, "F-Parameter: ");        
 
@@ -8745,7 +8745,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
         u16AlarmSrcEndpoint, u16AlarmDstEndpoint);
 
     /* PDU type */
-    sub_item = proto_tree_add_item(rta_tree, hf_pn_io_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(rta_tree, hf_pn_io_pdu_type, tvb, offset, 1, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_pdu_type);
     dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_pdu_type_type, &u8PDUType);
@@ -8758,7 +8758,7 @@ dissect_PNIO_RTA(tvbuff_t *tvb, int offset,
         u8PDUVersion);
 
     /* additional flags */
-    sub_item = proto_tree_add_item(rta_tree, hf_pn_io_add_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
+    sub_item = proto_tree_add_item(rta_tree, hf_pn_io_add_flags, tvb, offset, 1, ENC_NA);
     sub_tree = proto_item_add_subtree(sub_item, ett_pn_io_add_flags);
     dissect_dcerpc_uint8(tvb, offset, pinfo, sub_tree, drep,
                     hf_pn_io_window_size, &u8WindowSize);

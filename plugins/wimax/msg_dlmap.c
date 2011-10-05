@@ -2096,7 +2096,7 @@ void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, p
     }
     proto_tree_add_item(dlmap_tree, hf_dlmap_dcd, tvb, offset, 1, FALSE);
     offset++;
-    proto_tree_add_item(dlmap_tree, hf_dlmap_bsid, tvb, offset, 6, FALSE);
+    proto_tree_add_item(dlmap_tree, hf_dlmap_bsid, tvb, offset, 6, ENC_NA);
     offset += 6;
     proto_tree_add_item(dlmap_tree, hf_dlmap_ofdma_sym, tvb, offset, 1, FALSE);
     offset++;

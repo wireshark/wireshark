@@ -403,7 +403,7 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			/* display the error message */
 			proto_tree_add_protocol_format(ti_tree, proto_mac_header_type_2_decoder, tvb, offset, tvb_len, "Error: the size of Mac Header Type II tvb is too small! (%u bytes)", tvb_len);
 			/* display the MAC Type II Header in Hex */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, ENC_NA);
 			return;
 		}
 #ifdef DEBUG
@@ -442,7 +442,7 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 				/* update the info column */
 				col_append_sep_str(pinfo->cinfo, COL_INFO, NULL, "Unknown type 2 fb type");
 				/* display the MAC Type I Header in Hex */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_value_bytes, tvb, offset, tvb_len, ENC_NA);
 				return;
 			}
 			/* move to the second byte */

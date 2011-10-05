@@ -480,12 +480,12 @@ dissect_PNPTCP_block(tvbuff_t *tvb, int offset,
     *end = FALSE;
 
     /* block subtree */
-    sub_item = proto_tree_add_item(tree, hf_pn_ptcp_block, tvb, offset, 0, FALSE);
+    sub_item = proto_tree_add_item(tree, hf_pn_ptcp_block, tvb, offset, 0, ENC_NA);
 	sub_tree = proto_item_add_subtree(sub_item, ett_pn_ptcp_block);
     u32SubStart = offset;
 
     /* tlvheader subtree */
-    tlvheader_item = proto_tree_add_item(sub_tree, hf_pn_ptcp_block_tlvheader, tvb, offset, 2 /* len */, FALSE);
+    tlvheader_item = proto_tree_add_item(sub_tree, hf_pn_ptcp_block_tlvheader, tvb, offset, 2 /* len */, ENC_NA);
 	tlvheader_tree = proto_item_add_subtree(tlvheader_item, ett_pn_ptcp_block_header);
 
     offset = dissect_PNPTCP_TLVHeader(tvb, offset, pinfo, tlvheader_tree, sub_item, &type, &length);
@@ -561,7 +561,7 @@ dissect_PNPTCP_FollowUpPDU(tvbuff_t *tvb, int offset,
 
 
     /* dissect the header */
-    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, FALSE);
+    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, ENC_NA);
 	header_tree = proto_item_add_subtree(header_item, ett_pn_ptcp_header);
 
     /* Padding 12 bytes */
@@ -604,7 +604,7 @@ dissect_PNPTCP_RTSyncPDU(tvbuff_t *tvb, int offset,
     guint32 delayms;
 
 
-    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, FALSE);
+    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, ENC_NA);
 	header_tree = proto_item_add_subtree(header_item, ett_pn_ptcp_header);
 
     /* Reserved_1 */
@@ -666,7 +666,7 @@ dissect_PNPTCP_AnnouncePDU(tvbuff_t *tvb, int offset,
 
 
     /* dissect the header */
-    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, FALSE);
+    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, ENC_NA);
 	header_tree = proto_item_add_subtree(header_item, ett_pn_ptcp_header);
 
     /* Padding 12 bytes */
@@ -701,7 +701,7 @@ dissect_PNPTCP_DelayPDU(tvbuff_t *tvb, int offset,
 
 
     /* dissect the header */
-    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, FALSE);
+    header_item = proto_tree_add_item(tree, hf_pn_ptcp_header, tvb, offset, 20 /* len */, ENC_NA);
 	header_tree = proto_item_add_subtree(header_item, ett_pn_ptcp_header);
 
     /* Padding 12 bytes */

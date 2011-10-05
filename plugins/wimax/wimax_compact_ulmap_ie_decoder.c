@@ -543,7 +543,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 					nibble_offset = 0;
 					if(max_logical_bands == 3)
 					{
-						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, nband, FALSE);
+						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, nband, ENC_NA);
 						length += (nband * 2);
 						/* update offset */
 						ul_map_offset += nband;
@@ -551,7 +551,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 					else
 					{
 						nibble_offset = (nband & 1);
-						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, ((nband >> 1) + nibble_offset), FALSE);
+						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, ((nband >> 1) + nibble_offset), ENC_NA);
 						length += nband;
 						/* update offset */
 						ul_map_offset += (nband >> 1);
@@ -565,14 +565,14 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 					nibble_offset = 1;
 					if(max_logical_bands == 3)
 					{
-						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, (nband + nibble_offset), FALSE);
+						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, (nband + nibble_offset), ENC_NA);
 						length += (nband * 2);
 						/* update offset */
 						ul_map_offset += nband;
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, ((nband >> 1) + nibble_offset), FALSE);
+						proto_tree_add_item(tree, hf_culmap_band_index, tvb, ul_map_offset, ((nband >> 1) + nibble_offset), ENC_NA);
 						length += nband;
 						/* update offset */
 						ul_map_offset += ((nband + nibble_offset) >> 1);
@@ -1157,7 +1157,7 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 			break;
 			default:
 				/* display the unknown sub-type in HEX */
-				proto_tree_add_item(tree, hf_culmap_extension_unknown_sub_type_1, tvb, offset, (length - 2), FALSE);
+				proto_tree_add_item(tree, hf_culmap_extension_unknown_sub_type_1, tvb, offset, (length - 2), ENC_NA);
 			break;
 		}
 	}
@@ -1186,7 +1186,7 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 			break;
 			default:
 				/* display the unknown sub-type in HEX */
-				proto_tree_add_item(tree, hf_culmap_extension_unknown_sub_type, tvb, (offset + 1), (length - 1), FALSE);
+				proto_tree_add_item(tree, hf_culmap_extension_unknown_sub_type, tvb, (offset + 1), (length - 1), ENC_NA);
 			break;
 		}
 	}
