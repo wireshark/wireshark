@@ -62,9 +62,19 @@ value_string geoip_type_name_vals[] = {
     { GEOIP_ASNUM_EDITION,          "AS Number" },
     { GEOIP_NETSPEED_EDITION,       "Speed" },
     { GEOIP_DOMAIN_EDITION,         "Domain" },
-#ifdef GEOIP_COUNTRY_EDITION_V6
+#ifdef HAVE_GEOIP_V6
     { GEOIP_COUNTRY_EDITION_V6,     "Country" },
-#endif
+/* This is the closest thing to a version that GeoIP.h seems to provide. */
+#if NUM_DB_TYPES > 31 /* 1.4.7 */
+    { GEOIP_CITY_EDITION_REV0_V6,   "City"},
+    { GEOIP_CITY_EDITION_REV1_V6,   "City"},
+    { GEOIP_ASNUM_EDITION_V6,       "AS Number" },
+    { GEOIP_ISP_EDITION_V6,         "ISP" },
+    { GEOIP_ORG_EDITION_V6,         "Organization" },
+    { GEOIP_DOMAIN_EDITION_V6,      "Domain" },
+    { GEOIP_NETSPEED_EDITION_V6,    "Speed" },
+#endif /* NUM_DB_TYPES */
+#endif /* HAVE_GEOIP_V6 */
     { WS_LAT_FAKE_EDITION,          "Latitude" },   /* fake database */
     { WS_LON_FAKE_EDITION,          "Longitude" },  /* fake database */
     { 0, NULL }
@@ -208,7 +218,7 @@ geoip_db_type(guint dbnum) {
 }
 
 static int
-geoip_db_lookup_latlon(guint32 addr, float *lat, float *lon) {
+geoip_db_lookup_latlon4(guint32 addr, float *lat, float *lon) {
     GeoIP *gi;
     GeoIPRecord *gir;
     guint i;
@@ -274,7 +284,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
                 float lat;
                 float lon;
                 char *c;
-                if(geoip_db_lookup_latlon(addr, &lat, &lon) == 0) {
+                if(geoip_db_lookup_latlon4(addr, &lat, &lon) == 0) {
                     g_snprintf(val, VAL_STR_LEN, "%f", lat);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
@@ -288,7 +298,7 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
                 float lat;
                 float lon;
                 char *c;
-                if(geoip_db_lookup_latlon(addr, &lat, &lon) == 0) {
+                if(geoip_db_lookup_latlon4(addr, &lat, &lon) == 0) {
                     g_snprintf(val, VAL_STR_LEN, "%f", lon);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
@@ -306,6 +316,127 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
     }
     return not_found;
 }
+
+#ifdef HAVE_GEOIP_V6
+
+static int
+#if NUM_DB_TYPES > 31 /* 1.4.7 */
+geoip_db_lookup_latlon6(geoipv6_t addr, float *lat, float *lon) {
+    GeoIP *gi;
+    GeoIPRecord *gir;
+    guint i;
+
+    for (i = 0; i < geoip_db_num_dbs(); i++) {
+        gi = g_array_index(geoip_dat_arr, GeoIP *, i);
+        if (gi) {
+            switch (gi->databaseType) {
+                case GEOIP_CITY_EDITION_REV0_V6:
+                case GEOIP_CITY_EDITION_REV1_V6:
+                    gir = GeoIP_record_by_ipnum_v6(gi, addr);
+                    if(gir) {
+                        *lat = gir->latitude;
+                        *lon = gir->longitude;
+                        return 0;
+                    }
+                    return -1;
+                    /*break;*/
+
+                default:
+                    break;
+            }
+        }
+    }
+    return -1;
+}
+#else /* NUM_DB_TYPES */
+geoip_db_lookup_latlon6(geoipv6_t addr _U_, float *lat _U_, float *lon _U_) {
+    return -1;
+}
+#endif /* NUM_DB_TYPES */
+
+const char *
+geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
+    GeoIP *gi;
+    const geoipv6_t *gaddr = (geoipv6_t *) &addr;
+    const char *ret = not_found;
+    static char val[VAL_STR_LEN];
+#if NUM_DB_TYPES > 31
+    GeoIPRecord *gir;
+#endif
+
+    gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
+    if (gi) {
+        switch (gi->databaseType) {
+            case GEOIP_COUNTRY_EDITION_V6:
+                ret = GeoIP_country_name_by_ipnum_v6(gi, *gaddr);
+                break;
+
+#if NUM_DB_TYPES > 31
+            case GEOIP_CITY_EDITION_REV0_V6:
+            case GEOIP_CITY_EDITION_REV1_V6:
+                gir = GeoIP_record_by_ipnum_v6(gi, *gaddr);
+                if (gir && gir->city && gir->region) {
+                    g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
+                    ret = val;
+                } else if (gir && gir->city) {
+                    g_snprintf(val, VAL_STR_LEN, "%s", gir->city);
+                    ret = val;
+                }
+                break;
+
+            case GEOIP_ORG_EDITION_V6:
+            case GEOIP_ISP_EDITION_V6:
+            case GEOIP_ASNUM_EDITION_V6:
+                ret = GeoIP_name_by_ipnum_v6(gi, *gaddr);
+                break;
+#endif /* NUM_DB_TYPES */
+
+            case WS_LAT_FAKE_EDITION:
+            {
+                float lat;
+                float lon;
+                char *c;
+                if(geoip_db_lookup_latlon6(*gaddr, &lat, &lon) == 0) {
+                    g_snprintf(val, VAL_STR_LEN, "%f", lat);
+                    c = strchr(val, ',');
+                    if (c != NULL) *c = '.';
+                    ret = val;
+                }
+            }
+                break;
+
+            case WS_LON_FAKE_EDITION:
+            {
+                float lat;
+                float lon;
+                char *c;
+                if(geoip_db_lookup_latlon6(*gaddr, &lat, &lon) == 0) {
+                    g_snprintf(val, VAL_STR_LEN, "%f", lon);
+                    c = strchr(val, ',');
+                    if (c != NULL) *c = '.';
+                    ret = val;
+                }
+            }
+                break;
+
+            default:
+                break;
+        }
+    }
+    if (ret) {
+        return ret;
+    }
+    return not_found;
+}
+
+#else /* HAVE_GEOIP_V6 */
+
+const char *
+geoip_db_lookup_ipv6(guint dbnum _U_, struct e_in6_addr *addr _U_, char *not_found) {
+    return not_found;
+}
+
+#endif /* HAVE_GEOIP_V6 */
 
 gchar *
 geoip_db_get_paths(void) {

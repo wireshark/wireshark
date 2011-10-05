@@ -103,6 +103,12 @@ Wireshark Info
           </para>
         </listitem>
 
+        <listitem>
+          <para>
+            GeoIP IPv6 databases are now supported.
+          </para>
+        </listitem>
+
       </itemizedlist>
 
     </para>

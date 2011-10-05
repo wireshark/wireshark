@@ -27,11 +27,12 @@
 #ifndef __GEOIP_DB_H__
 #define __GEOIP_DB_H__
 
+#include <epan/ipv6-utils.h>
 
 /* Fake databases to make lat/lon values available */
 /* XXX - find a better way to interface */
-#define WS_LAT_FAKE_EDITION 12
-#define WS_LON_FAKE_EDITION 13
+#define WS_LAT_FAKE_EDITION (NUM_DB_TYPES+1)
+#define WS_LON_FAKE_EDITION (NUM_DB_TYPES+2)
 
 
 /**
@@ -71,6 +72,16 @@ extern int geoip_db_type(guint dbnum);
  * @return The database entry if found, else not_found
  */
 extern const char *geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found);
+
+/**
+ * Look up an IPv6 address in a database
+ *
+ * @param dbnum Database index
+ * @param addr IPv6 address to look up
+ * @param not_found The string to return if the lookup fails. May be NULL.
+ * @return The database entry if found, else not_found
+ */
+extern const char *geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found);
 
 /**
  * Get all configured paths

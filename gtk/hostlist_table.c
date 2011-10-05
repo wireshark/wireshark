@@ -41,6 +41,7 @@
 #include <epan/tap.h>
 #include <epan/strutil.h>
 #ifdef HAVE_GEOIP
+#include "GeoIP.h"
 #include <epan/geoip_db.h>
 #include <epan/pint.h>
 #include <epan/filesystem.h>
@@ -714,7 +715,7 @@ draw_hostlist_table_data(hostlist_table *hl)
             char geoip[NUM_GEOIP_COLS][COL_STR_LEN];
             guint j;
 
-            if (host->address.type == AT_IPv4 && !hl->geoip_visible) {
+            if ((host->address.type == AT_IPv4 || host->address.type == AT_IPv6) && !hl->geoip_visible) {
                 GList             *columns, *list;
                 GtkTreeViewColumn *column;
                 columns = gtk_tree_view_get_columns(GTK_TREE_VIEW(hl->table));
@@ -739,6 +740,12 @@ draw_hostlist_table_data(hostlist_table *hl)
             for (j = 0; j < NUM_GEOIP_COLS; j++) {
                 if (host->address.type == AT_IPv4 && j < geoip_db_num_dbs()) {
                     const guchar *name = geoip_db_lookup_ipv4(j, pntohl(host->address.data), "-");
+                    g_strlcpy(geoip[j], format_text (name, strlen(name)), COL_STR_LEN);
+                } else if (host->address.type == AT_IPv6 && j < geoip_db_num_dbs()) {
+                    const guchar *name;
+                    const struct e_in6_addr *addr = (struct e_in6_addr *) host->address.data;
+
+                    name = geoip_db_lookup_ipv6(j, *addr, "-");
                     g_strlcpy(geoip[j], format_text (name, strlen(name)), COL_STR_LEN);
                 } else {
                   geoip[j][0] = 0;

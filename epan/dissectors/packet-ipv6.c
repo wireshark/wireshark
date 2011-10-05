@@ -51,6 +51,11 @@
 #include "packet-ipsec.h"
 #include "packet-ipv6.h"
 
+#ifdef HAVE_GEOIP_V6
+#include "GeoIP.h"
+#include <epan/geoip_db.h>
+#endif /* HAVE_GEOIP_V6 */
+
 /*
  * NOTE: ipv6.nxt is not very useful as we will have chained header.
  * now testing ipv6.final, but it raises SEGV.
@@ -207,6 +212,30 @@ static int hf_ipv6_traffic_class_dscp = -1;
 static int hf_ipv6_traffic_class_ect  = -1;
 static int hf_ipv6_traffic_class_ce   = -1;
 
+#ifdef HAVE_GEOIP_V6
+static int hf_geoip_country = -1;
+static int hf_geoip_city = -1;
+static int hf_geoip_org = -1;
+static int hf_geoip_isp = -1;
+static int hf_geoip_asnum = -1;
+static int hf_geoip_lat = -1;
+static int hf_geoip_lon = -1;
+static int hf_geoip_src_country = -1;
+static int hf_geoip_src_city = -1;
+static int hf_geoip_src_org = -1;
+static int hf_geoip_src_isp = -1;
+static int hf_geoip_src_asnum = -1;
+static int hf_geoip_src_lat = -1;
+static int hf_geoip_src_lon = -1;
+static int hf_geoip_dst_country = -1;
+static int hf_geoip_dst_city = -1;
+static int hf_geoip_dst_org = -1;
+static int hf_geoip_dst_isp = -1;
+static int hf_geoip_dst_asnum = -1;
+static int hf_geoip_dst_lat = -1;
+static int hf_geoip_dst_lon = -1;
+#endif /* HAVE_GEOIP_V6 */
+
 static gint ett_ipv6			  = -1;
 static gint ett_ipv6_version	= -1;
 static gint ett_ipv6_shim6		  = -1;
@@ -222,6 +251,11 @@ static gint ett_ipv6_shim6_cksum	  = -1;
 static gint ett_ipv6_fragments		  = -1;
 static gint ett_ipv6_fragment		  = -1;
 static gint ett_ipv6_traffic_class        = -1;
+
+#ifdef HAVE_GEOIP_V6
+static gint ett_geoip_info = -1;
+#endif /* HAVE_GEOIP_V6 */
+
 
 static const fragment_items ipv6_frag_items = {
 	&ett_ipv6_fragment,
@@ -248,6 +282,11 @@ static gboolean ipv6_reassemble = TRUE;
 
 /* Place IPv6 summary in proto tree */
 static gboolean ipv6_summary_in_tree = TRUE;
+
+#ifdef HAVE_GEOIP_V6
+/* Look up addresses in GeoIP */
+static gboolean ipv6_use_geoip = FALSE;
+#endif /* HAVE_GEOIP_V6 */
 
 #ifndef offsetof
 #define	offsetof(type, member)	((size_t)(&((type *)0)->member))
@@ -360,6 +399,152 @@ again:
   }
 }
 
+#ifdef HAVE_GEOIP_V6
+static void
+add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, struct e_in6_addr src, struct e_in6_addr dst)
+{
+  guint dbnum, num_dbs;
+  int geoip_hf, geoip_src_hf, geoip_dst_hf;
+  const char *geoip_src_str, *geoip_dst_str;
+  proto_item *geoip_info_item;
+  proto_tree *geoip_info_tree;
+  proto_item *item;
+  guint item_cnt;
+
+  num_dbs = geoip_db_num_dbs();
+
+  geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_SRC, 16, "Source GeoIP: ");
+  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
+  PROTO_ITEM_SET_GENERATED(geoip_info_item);
+  item_cnt = 0;
+
+  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
+    geoip_src_str = geoip_db_lookup_ipv6(dbnum, src, NULL);
+
+    switch (geoip_db_type(dbnum)) {
+      case GEOIP_COUNTRY_EDITION_V6:
+        geoip_hf = hf_geoip_country;
+        geoip_src_hf = hf_geoip_src_country;
+        break;
+#if NUM_DB_TYPES > 31
+      case GEOIP_CITY_EDITION_REV0_V6:
+        geoip_hf = hf_geoip_city;
+        geoip_src_hf = hf_geoip_src_city;
+        break;
+      case GEOIP_CITY_EDITION_REV1_V6:
+        geoip_hf = hf_geoip_city;
+        geoip_src_hf = hf_geoip_src_city;
+        break;
+      case GEOIP_ORG_EDITION_V6:
+        geoip_hf = hf_geoip_org;
+        geoip_src_hf = hf_geoip_src_org;
+        break;
+      case GEOIP_ISP_EDITION_V6:
+        geoip_hf = hf_geoip_isp;
+        geoip_src_hf = hf_geoip_src_isp;
+        break;
+      case GEOIP_ASNUM_EDITION_V6:
+        geoip_hf = hf_geoip_asnum;
+        geoip_src_hf = hf_geoip_src_asnum;
+        break;
+#endif /* DB_NUM_TYPES */
+      case WS_LAT_FAKE_EDITION:
+        geoip_hf = hf_geoip_lat;
+        geoip_src_hf = hf_geoip_src_lat;
+        break;
+      case WS_LON_FAKE_EDITION:
+        geoip_hf = hf_geoip_lon;
+        geoip_src_hf = hf_geoip_src_lon;
+        break;
+      default:
+        continue;
+        break;
+    }
+
+    if (geoip_src_str) {
+      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_src_hf, tvb,
+        offset + IP6H_SRC, 16, geoip_src_str, "%s", geoip_src_str);
+      PROTO_ITEM_SET_GENERATED(item);
+      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
+        offset + IP6H_SRC, 16, geoip_src_str, "%s", geoip_src_str);
+      PROTO_ITEM_SET_GENERATED(item);
+      PROTO_ITEM_SET_HIDDEN(item);
+
+      item_cnt++;
+      proto_item_append_text(geoip_info_item, "%s%s", plurality(item_cnt, "", ", "), geoip_src_str);
+    }
+  }
+
+  if (item_cnt == 0)
+    proto_item_append_text(geoip_info_item, "Unknown");
+
+  geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_DST, 16, "Destination GeoIP: ");
+  geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
+  PROTO_ITEM_SET_GENERATED(geoip_info_item);
+  item_cnt = 0;
+
+  for (dbnum = 0; dbnum < num_dbs; dbnum++) {
+    geoip_dst_str = geoip_db_lookup_ipv6(dbnum, dst, NULL);
+
+    switch (geoip_db_type(dbnum)) {
+      case GEOIP_COUNTRY_EDITION:
+        geoip_hf = hf_geoip_country;
+        geoip_dst_hf = hf_geoip_dst_country;
+        break;
+#if NUM_DB_TYPES > 31
+      case GEOIP_CITY_EDITION_REV0:
+        geoip_hf = hf_geoip_city;
+        geoip_dst_hf = hf_geoip_dst_city;
+        break;
+      case GEOIP_CITY_EDITION_REV1:
+        geoip_hf = hf_geoip_city;
+        geoip_dst_hf = hf_geoip_dst_city;
+        break;
+      case GEOIP_ORG_EDITION:
+        geoip_hf = hf_geoip_org;
+        geoip_dst_hf = hf_geoip_dst_org;
+        break;
+      case GEOIP_ISP_EDITION:
+        geoip_hf = hf_geoip_isp;
+        geoip_dst_hf = hf_geoip_dst_isp;
+        break;
+      case GEOIP_ASNUM_EDITION:
+        geoip_hf = hf_geoip_asnum;
+        geoip_dst_hf = hf_geoip_dst_asnum;
+        break;
+#endif /* DB_NUM_TYPES */
+      case WS_LAT_FAKE_EDITION:
+        geoip_hf = hf_geoip_lat;
+        geoip_dst_hf = hf_geoip_dst_lat;
+        break;
+      case WS_LON_FAKE_EDITION:
+        geoip_hf = hf_geoip_lon;
+        geoip_dst_hf = hf_geoip_dst_lon;
+        break;
+      default:
+        continue;
+        break;
+    }
+
+    if (geoip_dst_str) {
+      item = proto_tree_add_string_format_value(geoip_info_tree, geoip_dst_hf, tvb,
+        offset + IP6H_DST, 16, geoip_dst_str, "%s", geoip_dst_str);
+      PROTO_ITEM_SET_GENERATED(item);
+      item  = proto_tree_add_string_format_value(geoip_info_tree, geoip_hf, tvb,
+        offset + IP6H_DST, 16, geoip_dst_str, "%s", geoip_dst_str);
+      PROTO_ITEM_SET_GENERATED(item);
+      PROTO_ITEM_SET_HIDDEN(item);
+
+      item_cnt++;
+      proto_item_append_text(geoip_info_item, "%s%s", plurality(item_cnt, "", ", "), geoip_dst_str);
+    }
+  }
+
+  if (item_cnt == 0)
+    proto_item_append_text(geoip_info_item, "Unknown");
+}
+#endif /* HAVE_GEOIP_V6 */
+
 static void
 ipv6_reassemble_init(void)
 {
@@ -469,9 +654,9 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         cmprI >>= 4;
         pad >>= 4;
 
-        /* from draft-ietf-6man-rpl-routing-header-03: 
+        /* from draft-ietf-6man-rpl-routing-header-03:
         n = (((Hdr Ext Len * 8) - Pad - (16 - CmprE)) / (16 - CmprI)) + 1 */
-        segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;      
+        segments = (((rt.ip6r_len * 8) - pad - (16 - cmprE)) / (16 - cmprI)) + 1;
         ti = proto_tree_add_int(rthdr_tree, hf_ipv6_routing_hdr_rpl_segments, tvb, offset, 2, segments);
         PROTO_ITEM_SET_GENERATED(ti);
 
@@ -494,7 +679,7 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                 offset += (16-cmprI);
                 segments--;
             }
-     
+
             /* We use cmprE for last address for how many bytes to elide, so actual bytes present = 16-CmprE */
             if (segments == 1) {
                 struct e_in6_addr addr;
@@ -506,10 +691,10 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
                 ti = proto_tree_add_ipv6(rthdr_tree, hf_ipv6_routing_hdr_rpl_fulladdr, tvb, offset, (16-cmprE), (guint8 *)&addr);
                 PROTO_ITEM_SET_GENERATED(ti);
                 offset += (16-cmprE);
-            }  
-          
-        }   
-   
+            }
+
+        }
+
     }
     }
 
@@ -1504,7 +1689,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
 			offset + offsetof(struct ip6_hdr, ip6_hlim), 1, FALSE);
 
-    /* Adds the different items for the source address */
+    /* Add the different items for the source address */
     proto_tree_add_item(ipv6_tree, hf_ipv6_src, tvb,
 			offset + offsetof(struct ip6_hdr, ip6_src), 16, FALSE);
     ti = proto_tree_add_ipv6(ipv6_tree, hf_ipv6_addr, tvb,
@@ -1526,6 +1711,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
 
+    /* Extract embedded (IPv6 and MAC) address information */
     if (tvb_get_ntohs(tvb, offset + IP6H_SRC) == 0x2002) { /* RFC 3056 section 2 */
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_6to4_gateway_ipv4, tvb,
                                 offset + IP6H_SRC + 2, 4, FALSE);
@@ -1590,7 +1776,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       PROTO_ITEM_SET_HIDDEN(ti);
     }
 
-    /* Adds different items for the destination address */
+    /* Add different items for the destination address */
     proto_tree_add_item(ipv6_tree, hf_ipv6_dst, tvb,
 			offset + offsetof(struct ip6_hdr, ip6_dst), 16, FALSE);
     ti = proto_tree_add_ipv6(ipv6_tree, hf_ipv6_addr, tvb,
@@ -1612,6 +1798,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     PROTO_ITEM_SET_GENERATED(ti);
     PROTO_ITEM_SET_HIDDEN(ti);
 
+    /* Extract embedded (IPv6 and MAC) address information */
     if (tvb_get_ntohs(tvb, offset + IP6H_DST) == 0x2002) { /* RFC 3056 section 2 */
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_6to4_gateway_ipv4, tvb,
                                 offset + IP6H_DST + 2, 4, FALSE);
@@ -1676,6 +1863,12 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       PROTO_ITEM_SET_HIDDEN(ti);
     }
   }
+
+#ifdef HAVE_GEOIP
+  if (tree && ipv6_use_geoip) {
+    add_geoip_info(ipv6_tree, tvb, offset, ipv6.ip6_src, ipv6.ip6_dst);
+  }
+#endif
 
   /* start of the new header (could be a extension header) */
   poffset = offset + offsetof(struct ip6_hdr, ip6_nxt);
@@ -2007,6 +2200,73 @@ proto_register_ipv6(void)
       { "Teredo Client IPv4",		"ipv6.tc_ipv4",
 				FT_IPv4, BASE_NONE, NULL, 0x0,
 				"IPv6 Teredo Client Encapsulated IPv4 Address", HFILL }},
+#ifdef HAVE_GEOIP_V6
+    { &hf_geoip_country,
+      { "Source or Destination GeoIP Country", "ipv6.geoip.country", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_city,
+      { "Source or Destination GeoIP City", "ipv6.geoip.city", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_org,
+      { "Source or Destination GeoIP Organization", "ipv6.geoip.org", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_isp,
+      { "Source or Destination GeoIP ISP", "ipv6.geoip.isp", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_asnum,
+      { "Source or Destination GeoIP AS Number", "ipv6.geoip.asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_lat,
+      { "Source or Destination GeoIP Latitude", "ipv6.geoip.lat", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_lon,
+      { "Source or Destination GeoIP Longitude", "ipv6.geoip.lon", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_country,
+      { "Source GeoIP Country", "ipv6.geoip.src_country", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_city,
+      { "Source GeoIP City", "ipv6.geoip.src_city", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_org,
+      { "Source GeoIP Organization", "ipv6.geoip.src_org", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_isp,
+      { "Source GeoIP ISP", "ipv6.geoip.src_isp", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_asnum,
+      { "Source GeoIP AS Number", "ipv6.geoip.src_asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_lat,
+      { "Source GeoIP Latitude", "ipv6.geoip.src_lat", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_src_lon,
+      { "Source GeoIP Longitude", "ipv6.geoip.src_lon", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_country,
+      { "Destination GeoIP Country", "ipv6.geoip.dst_country", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_city,
+      { "Destination GeoIP City", "ipv6.geoip.dst_city", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_org,
+      { "Destination GeoIP Organization", "ipv6.geoip.dst_org", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_isp,
+      { "Destination GeoIP ISP", "ipv6.geoip.dst_isp", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_asnum,
+      { "Destination GeoIP AS Number", "ipv6.geoip.dst_asnum", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_lat,
+      { "Destination GeoIP Latitude", "ipv6.geoip.dst_lat", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+    { &hf_geoip_dst_lon,
+      { "Destination GeoIP Longitude", "ipv6.geoip.dst_lon", FT_STRING, BASE_NONE, NULL, 0x0,
+	    NULL, HFILL }},
+#endif /* HAVE_GEOIP_V6 */
+
+
     { &hf_ipv6_opt_pad1,
       { "Pad1",			"ipv6.opt.pad1",
 				FT_NONE, BASE_NONE, NULL, 0x0,
@@ -2364,7 +2624,10 @@ proto_register_ipv6(void)
     &ett_ipv6_shim6_cksum,
     &ett_ipv6_fragments,
     &ett_ipv6_fragment,
-    &ett_ipv6_traffic_class
+    &ett_ipv6_traffic_class,
+#ifdef HAVE_GEOIP_V6
+    &ett_geoip_info
+#endif /* HAVE_GEOIP_V6 */
   };
   module_t *ipv6_module;
 
@@ -2382,6 +2645,12 @@ proto_register_ipv6(void)
 	"Show IPv6 summary in protocol tree",
 	"Whether the IPv6 summary line should be shown in the protocol tree",
 	&ipv6_summary_in_tree);
+#ifdef HAVE_GEOIP_V6
+	prefs_register_bool_preference(ipv6_module, "use_geoip" ,
+		  "Enable GeoIP lookups",
+		  "Whether to look up IPv6 addresses in each GeoIP database we have loaded",
+		  &ipv6_use_geoip);
+#endif /* HAVE_GEOIP_V6 */
 
   register_dissector("ipv6", dissect_ipv6, proto_ipv6);
   register_init_routine(ipv6_reassemble_init);

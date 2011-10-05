@@ -508,6 +508,7 @@ gbl_resolv_flags                DATA
 gcamel_StatSRT                  DATA
 geoip_db_get_paths
 geoip_db_lookup_ipv4
+geoip_db_lookup_ipv6
 geoip_db_name
 geoip_db_num_dbs
 geoip_db_type

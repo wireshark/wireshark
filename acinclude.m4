@@ -1544,6 +1544,13 @@ AC_DEFUN([AC_WIRESHARK_GEOIP_CHECK],
 		have_good_geoip=yes
 		  ],,
 		)
+		if test "x$have_good_geoip" = "xyes"; then
+			AC_CHECK_LIB(GeoIP, GeoIP_country_name_by_ipnum_v6,
+			  [
+				AC_DEFINE(HAVE_GEOIP_V6, 1, [Define if GeoIP supports IPv6 (GeoIP 1.4.5 and later)])
+			  ],,
+			)
+		fi
 	else
 		AC_MSG_RESULT(not required)
 	fi
