@@ -25,16 +25,16 @@
 
 
 # Logic;
-# 1. If this Makefile is invoked w/o a target: 
+# 1. If this Makefile is invoked w/o a target:
 #    Do default target 'all' which invokes the Makefile.nmake
 #     in each individual ASN1 sub-directory using the value of ASN1_MAKE_TARGET
 #     as the make target.
 #    (If ASN1_MAKE_TARGET is not defined then default to "copy_files"
-#     which generates the individual ASN1 dissector files and then copies 
+#     which generates the individual ASN1 dissector files and then copies
 #     the generated .[hc] files to epan\dissectors).
 #
 # 2. If this Makefile is invoked with one of the following targets, then do the action for the target:
-#    Reinvoke this Makefile with 'all' as target and with ASN1_MAKE_TARGET 
+#    Reinvoke this Makefile with 'all' as target and with ASN1_MAKE_TARGET
 #     defined as appropriate.
 #       clean
 #       generate_dissector   : generate the dissectors but do *not* copy the [.hc] files to epan\dissectors
@@ -54,6 +54,7 @@ BER_LIST= \
 	cmp			\
 	crmf			\
 	cms			\
+	credssp			\
 	dap			\
 	dop			\
 	disp			\
@@ -66,6 +67,7 @@ BER_LIST= \
 	gprscdr			\
 	h248			\
 	HI2Operations		\
+	idmp			\
 	inap			\
 ###	kerberos		\
 	ldap 			\
@@ -128,10 +130,12 @@ PER_LIST= \
 	rua			\
 	s1ap			\
 	sabp			\
+###	t124			\
 	t38			\
 	tetra			\
 	ulp			\
-	x2ap
+	x2ap			\
+###	x721
 
 
 !IFNDEF ASN1_MAKE_TARGET
