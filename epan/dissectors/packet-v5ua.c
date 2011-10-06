@@ -169,7 +169,7 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
   identifier = tvb_get_ntohl(parameter_tvb,INT_IF_ID_LINK_OFFSET)>>5;
   proto_item_append_text(parameter_item, "(");
   for (id_number = 1; id_number <= number_of_ids; id_number++) {
-    proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, offset, INT_IF_ID_LINK_LENGTH, FALSE);
+    proto_tree_add_item(parameter_tree, hf_link_id, parameter_tvb, offset, INT_IF_ID_LINK_LENGTH, ENC_BIG_ENDIAN);
     identifier = tvb_get_ntohl(parameter_tvb,offset)>>5;
     if (id_number < 2) {
 	proto_item_append_text(parameter_item, "L:%d",identifier);
@@ -178,7 +178,7 @@ dissect_int_interface_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *
     }
     linkIdentifier = identifier;
 
-    proto_tree_add_item(parameter_tree, hf_chnl_id, parameter_tvb, offset+3, INT_IF_ID_CHNL_LENGTH, FALSE);
+    proto_tree_add_item(parameter_tree, hf_chnl_id, parameter_tvb, offset+3, INT_IF_ID_CHNL_LENGTH, ENC_BIG_ENDIAN);
     identifier = tvb_get_guint8(parameter_tvb,offset+3)&0x1f;
     proto_item_append_text(parameter_item, " C:%d", identifier);
     offset += INT_INTERFACE_ID_LENGTH;
@@ -242,11 +242,11 @@ guint8 tei = -1;
 
   proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, offset,  DLCI_SAPI_LENGTH,  FALSE);
   proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, offset,  DLCI_SAPI_LENGTH,  FALSE);
-  proto_tree_add_item(parameter_tree, hf_dlci_sapi,      parameter_tvb, offset,  DLCI_SAPI_LENGTH,  FALSE);
+  proto_tree_add_item(parameter_tree, hf_dlci_sapi,      parameter_tvb, offset,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
 
   offset += DLCI_SAPI_LENGTH;
   proto_tree_add_item(parameter_tree, hf_dlci_one_bit,   parameter_tvb, offset,  DLCI_TEI_LENGTH,   FALSE);
-  proto_tree_add_item(parameter_tree, hf_dlci_tei,       parameter_tvb, offset,  DLCI_TEI_LENGTH,   FALSE);
+  proto_tree_add_item(parameter_tree, hf_dlci_tei,       parameter_tvb, offset,  DLCI_TEI_LENGTH,   ENC_BIG_ENDIAN);
 
 sapi = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH-DLCI_SAPI_LENGTH)>>2;
 tei = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH)>>1;
@@ -359,7 +359,7 @@ static void
 dissect_draft_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree)
 {
   guint16 offset = MGMT_ERROR_MSG_HEADER_LENGTH + tvb_get_ntohs(parameter_tvb, MGMT_ERROR_MSG_LENGTH_OFFSET) + 4;
-  proto_tree_add_item(parameter_tree, hf_draft_error_code, parameter_tvb, offset, MGMT_ERROR_CODE_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_draft_error_code, parameter_tvb, offset, MGMT_ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   offset += MGMT_ERROR_CODE_LENGTH ;
   if( tvb_length_remaining(parameter_tvb,offset) > 0 )
 	  proto_tree_add_item(parameter_tree, hf_info_string, parameter_tvb, offset, msg_length - offset,FALSE);
@@ -402,7 +402,7 @@ static const value_string error_code_values[] = {
 static void
 dissect_error_code_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_error_code, parameter_tvb, MGMT_ERROR_CODE_OFFSET, MGMT_ERROR_CODE_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_error_code, parameter_tvb, MGMT_ERROR_CODE_OFFSET, MGMT_ERROR_CODE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
                          val_to_str(tvb_get_ntohl(parameter_tvb, MGMT_ERROR_CODE_OFFSET), error_code_values, "Unknown error code"));
 }
@@ -460,7 +460,7 @@ dissect_status_type_identification_parameter(tvbuff_t *parameter_tvb, proto_tree
   status_type = tvb_get_ntohs(parameter_tvb, NTFY_STATUS_TYPE_OFFSET);
   status_id   = tvb_get_ntohs(parameter_tvb, NTFY_STATUS_IDENT_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, NTFY_STATUS_TYPE_OFFSET, NTFY_STATUS_TYPE_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_status_type, parameter_tvb, NTFY_STATUS_TYPE_OFFSET, NTFY_STATUS_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_tree_add_uint_format(parameter_tree, hf_status_id,  parameter_tvb, NTFY_STATUS_IDENT_OFFSET, NTFY_STATUS_IDENT_LENGTH,
                              status_id, "Status identification: %u (%s)", status_id,
                              val_to_str(status_type * 256 * 256 + status_id, status_type_id_values, "unknown"));
@@ -487,7 +487,7 @@ static const value_string tei_status_values[] = {
 static void
 dissect_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_tei_status, parameter_tvb, TEI_STATUS_OFFSET, TEI_STATUS_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_tei_status, parameter_tvb, TEI_STATUS_OFFSET, TEI_STATUS_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
                       val_to_str(tvb_get_ntohl(parameter_tvb, TEI_STATUS_OFFSET), tei_status_values, "Unknown TEI status"));
 }
@@ -510,7 +510,7 @@ dissect_draft_tei_status_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
   gint offset;
   offset = tvb_get_ntohs(parameter_tvb, TEI_STATUS_LENGTH_OFFSET) + 8;
   if(tvb_length_remaining(parameter_tvb, offset) > 0 ){
-	  proto_tree_add_item(parameter_tree, hf_tei_draft_status, parameter_tvb, offset, TEI_STATUS_LENGTH, FALSE);
+	  proto_tree_add_item(parameter_tree, hf_tei_draft_status, parameter_tvb, offset, TEI_STATUS_LENGTH, ENC_BIG_ENDIAN);
 	  proto_item_append_text(parameter_item, " (%s)",
 		val_to_str(tvb_get_ntohl(parameter_tvb, offset), tei_draft_status_values, "Unknown TEI Status"));
   }
@@ -554,7 +554,7 @@ static const value_string asp_reason_values[] = {
 static void
 dissect_asp_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_asp_reason, parameter_tvb, ASP_REASON_OFFSET, ASP_REASON_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_asp_reason, parameter_tvb, ASP_REASON_OFFSET, ASP_REASON_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)", val_to_str(tvb_get_ntohl(parameter_tvb, ASP_REASON_OFFSET), asp_reason_values, "Unknown ASP down reason"));
 }
 
@@ -594,7 +594,7 @@ static const value_string traffic_mode_type_values[] = {
 static void
 dissect_traffic_mode_type_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_traffic_mode_type, parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET, TRAFFIC_MODE_TYPE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
                          val_to_str(tvb_get_ntohl(parameter_tvb, TRAFFIC_MODE_TYPE_OFFSET), traffic_mode_type_values, "Unknown traffic mode type"));
 }
@@ -618,8 +618,8 @@ dissect_integer_range_interface_identifier_parameter(tvbuff_t *parameter_tvb, pr
   number_of_ranges = (tvb_get_ntohs(parameter_tvb, INT_RANGE_LENGTH_OFFSET) - INT_RANGE_HEADER_LENGTH) / IF_ID_INTERVAL_LENGTH;
   offset = INT_RANGE_START_OFFSET;
   for(range_number = 1; range_number <= number_of_ranges; range_number++) {
-    proto_tree_add_item(parameter_tree, hf_if_range_start, parameter_tvb, offset + IF_ID_START_OFFSET, IF_ID_START_LENGTH, FALSE);
-    proto_tree_add_item(parameter_tree, hf_if_range_end,   parameter_tvb, offset + IF_ID_END_OFFSET,   IF_ID_END_LENGTH,   FALSE);
+    proto_tree_add_item(parameter_tree, hf_if_range_start, parameter_tvb, offset + IF_ID_START_OFFSET, IF_ID_START_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(parameter_tree, hf_if_range_end,   parameter_tvb, offset + IF_ID_END_OFFSET,   IF_ID_END_LENGTH,   ENC_BIG_ENDIAN);
     offset += IF_ID_INTERVAL_LENGTH;
   };
 
@@ -713,7 +713,7 @@ dissect_release_reason_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_
 {
   gint offset = RELEASE_REASON_OFFSET;
   if(iua_version == DRAFT) offset = tvb_get_ntohs(parameter_tvb, RELEASE_REASON_LENGTH_OFFSET)+8;
-  proto_tree_add_item(parameter_tree, hf_release_reason, parameter_tvb, offset, RELEASE_REASON_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_release_reason, parameter_tvb, offset, RELEASE_REASON_LENGTH, ENC_BIG_ENDIAN);
   if(iua_version != DRAFT)
 	  proto_item_append_text(parameter_item, " (%s)",
 		val_to_str(tvb_get_ntohl(parameter_tvb, offset), release_reason_values, "Unknown release reason"));
@@ -743,7 +743,7 @@ static const value_string link_status_values[] = {
 static void
 dissect_link_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-	proto_tree_add_item(parameter_tree, hf_link_status, parameter_tvb, LINK_STATUS_OFFSET, LINK_STATUS_LENGTH, FALSE);
+	proto_tree_add_item(parameter_tree, hf_link_status, parameter_tvb, LINK_STATUS_OFFSET, LINK_STATUS_LENGTH, ENC_BIG_ENDIAN);
 	proto_item_append_text(parameter_item, " (%s)",
 	  val_to_str(tvb_get_ntohl(parameter_tvb, LINK_STATUS_OFFSET),link_status_values, "Unknown Link status"));
 
@@ -772,8 +772,8 @@ static const value_string sa_bit_values[] = {
 static void
 dissect_sa_bit_status_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_sa_bit_id, parameter_tvb, SA_BIT_ID_OFFSET, SA_BIT_ID_LENGTH, FALSE);
-  proto_tree_add_item(parameter_tree, hf_sa_bit_value, parameter_tvb, SA_BIT_VALUE_OFFSET, SA_BIT_VALUE_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_sa_bit_id, parameter_tvb, SA_BIT_ID_OFFSET, SA_BIT_ID_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_sa_bit_value, parameter_tvb, SA_BIT_VALUE_OFFSET, SA_BIT_VALUE_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s %s)",
 	  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_ID_OFFSET), sa_bit_values, "unknown"),
 	  val_to_str(tvb_get_ntohs(parameter_tvb, SA_BIT_VALUE_OFFSET), sa_bit_values, "unknown Bit"));
@@ -796,7 +796,7 @@ static const value_string error_reason_values[] = {
 static void
 dissect_error_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_error_reason, parameter_tvb, ERROR_REASON_OFFSET, ERROR_REASON_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_error_reason, parameter_tvb, ERROR_REASON_OFFSET, ERROR_REASON_LENGTH, ENC_BIG_ENDIAN);
   proto_item_append_text(parameter_item, " (%s)",
 	  val_to_str(tvb_get_ntohl(parameter_tvb, ERROR_REASON_OFFSET), error_reason_values, "unknown"));
 }
@@ -809,7 +809,7 @@ dissect_error_indication_parameter(tvbuff_t *parameter_tvb, proto_tree *paramete
 static void
 dissect_asp_identifier_parameter(tvbuff_t *parameter_tvb, proto_tree *parameter_tree, proto_item *parameter_item)
 {
-  proto_tree_add_item(parameter_tree, hf_asp_identifier, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_asp_identifier, parameter_tvb, ASP_IDENTIFIER_OFFSET, ASP_IDENTIFIER_LENGTH, ENC_BIG_ENDIAN);
     proto_item_append_text(parameter_item, " (%d) ",tvb_get_ntohl(parameter_tvb,ASP_IDENTIFIER_OFFSET));
 }
 /*--------------------------ASP identifier-------------------------------------*/
@@ -932,7 +932,7 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 		val_to_str(tag, parameter_tag_values, "Unknown parameter"));
 	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 	  /* add tag to the v5ua tree */
-	  proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
+	  proto_tree_add_item(parameter_tree, hf_parameter_tag, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
 	  break;
   case DRAFT:
   default:
@@ -941,12 +941,12 @@ dissect_parameter(tvbuff_t *parameter_tvb, packet_info *pinfo, proto_tree *v5ua_
 	  parameter_tree   = proto_item_add_subtree(parameter_item, ett_v5ua_parameter);
 
 	  /* add tag to the v5ua tree */
-	  proto_tree_add_item(parameter_tree, hf_parameter_tag_draft, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, FALSE);
+	  proto_tree_add_item(parameter_tree, hf_parameter_tag_draft, parameter_tvb, PARAMETER_TAG_OFFSET, PARAMETER_TAG_LENGTH, ENC_BIG_ENDIAN);
 	  break;
   };
 
   /* add length to the v5ua tree */
-  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, FALSE);
+  proto_tree_add_item(parameter_tree, hf_parameter_length, parameter_tvb, PARAMETER_LENGTH_OFFSET, PARAMETER_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
   switch(tag) {
   case INT_INTERFACE_IDENTIFIER_PARAMETER_TAG:
@@ -1341,14 +1341,14 @@ dissect_common_header(tvbuff_t *common_header_tvb, packet_info *pinfo, proto_tre
     common_header_tree   = proto_item_add_subtree(common_header_item, ett_v5ua_common_header);
 
 	  /* add the components of the common header to the protocol tree */
-    proto_tree_add_item(common_header_tree, hf_version, common_header_tvb, COMMON_HEADER_VERSION_OFFSET, COMMON_HEADER_VERSION_LENGTH, FALSE);
-    proto_tree_add_item(common_header_tree, hf_reserved, common_header_tvb, COMMON_HEADER_RESERVED_OFFSET, COMMON_HEADER_RESERVED_LENGTH, FALSE);
-    proto_tree_add_item(common_header_tree, hf_msg_class, common_header_tvb, COMMON_HEADER_MSG_CLASS_OFFSET, COMMON_HEADER_MSG_CLASS_LENGTH, FALSE);
+    proto_tree_add_item(common_header_tree, hf_version, common_header_tvb, COMMON_HEADER_VERSION_OFFSET, COMMON_HEADER_VERSION_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(common_header_tree, hf_reserved, common_header_tvb, COMMON_HEADER_RESERVED_OFFSET, COMMON_HEADER_RESERVED_LENGTH, ENC_BIG_ENDIAN);
+    proto_tree_add_item(common_header_tree, hf_msg_class, common_header_tvb, COMMON_HEADER_MSG_CLASS_OFFSET, COMMON_HEADER_MSG_CLASS_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_uint_format(common_header_tree, hf_msg_type,
                               common_header_tvb, COMMON_HEADER_MSG_TYPE_OFFSET, COMMON_HEADER_MSG_TYPE_LENGTH,
                               message_type, "Message type: %s ( %u )",
                               val_to_str(message_class * 256 + message_type, msg_class_type_values, "reserved"), message_type);
-    proto_tree_add_item(common_header_tree, hf_msg_length, common_header_tvb, COMMON_HEADER_MSG_LENGTH_OFFSET, COMMON_HEADER_MSG_LENGTH_LENGTH, FALSE);
+    proto_tree_add_item(common_header_tree, hf_msg_length, common_header_tvb, COMMON_HEADER_MSG_LENGTH_OFFSET, COMMON_HEADER_MSG_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
 	/* Add message type to the Common Msg-Header line */
     proto_item_append_text(common_header_item, " (%s)",val_to_str(message_class * 256 + message_type, msg_class_type_values, "Unknown Msg-Type"));

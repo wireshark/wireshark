@@ -117,16 +117,16 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
 			proto_tree_add_item(nb_rtpmux_tree,
-				hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
+				hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset, 1, FALSE);			
 			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 			cmp_rtp_item = proto_tree_add_text( nb_rtpmux_tree, tvb, offset+5, 3, "Compressed RTP header" );
 			nb_rtpmux_cmp_rtp_tree = proto_item_add_subtree(cmp_rtp_item, ett_nb_rtpmux_cmp_rtp_hdr);
 			/* Sequence Number (SN) */
-			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, FALSE);
+			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_sequence_no, tvb, offset+5, 1, ENC_BIG_ENDIAN);
 			/* Timestamp (TS) */
-			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, FALSE);
+			proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_timestamp, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 			if (length != 0)
 				proto_tree_add_item(nb_rtpmux_cmp_rtp_tree, hf_nb_rtpmux_cmp_rtp_data,tvb, offset+8, length-3, ENC_NA);
 
@@ -135,7 +135,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			dstport = (tvb_get_ntohs(tvb, offset) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
 			proto_tree_add_item(nb_rtpmux_tree,
-				hf_nb_rtpmux_length, tvb, offset+2, 1, FALSE);
+				hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset, 1, FALSE);			
 			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );

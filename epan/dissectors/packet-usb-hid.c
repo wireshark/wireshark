@@ -311,7 +311,7 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
 			}
 			break;
 		case USBHID_MAINITEM_TAG_COLLECTION:
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_colltype, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_colltype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_MAINITEM_TAG_ENDCOLLECTION:
 			/* No item data */
@@ -337,46 +337,46 @@ dissect_usb_hid_report_globalitem_data(packet_info *pinfo _U_, proto_tree *tree,
 				case 4: global->usage_page = tvb_get_letohl(tvb, offset); break;
 				default: global->usage_page = 0; break;
 			}
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_LOG_MIN:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_log_min, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_log_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_LOG_MAX:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_log_max, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_log_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_PHY_MIN:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_phy_min, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_phy_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_PHY_MAX:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_phy_max, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_phy_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_UNIT_EXP:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_exp, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_exp, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_UNIT:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_sys, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_len, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_mass, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_time, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_temp, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_current, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_brightness, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_sys, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_len, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_mass, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_time, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_temp, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_current, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_unit_brightness, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_REPORT_SIZE:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_report_size, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_report_size, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_REPORT_ID:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_report_id, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_report_id, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_REPORT_COUNT:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_report_count, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_report_count, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_PUSH:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_push, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_GLOBALITEM_TAG_POP:
-			proto_tree_add_item(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_globalitem_pop, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		default:
 			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
@@ -396,7 +396,7 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
 		case USBHID_LOCALITEM_TAG_USAGE_PAGE:
 			if (bSize > 2) {
 				/* Full page ID */
-				proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, TRUE);
+				proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			} else {
 				/* Only lower few bits given, need to combine with last global ID */
 				if (bSize == 1)
@@ -409,31 +409,31 @@ dissect_usb_hid_report_localitem_data(packet_info *pinfo _U_, proto_tree *tree, 
 			}
 			break;
 		case USBHID_LOCALITEM_TAG_USAGE_MIN:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_usage_min, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_usage_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_USAGE_MAX:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_usage, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_DESIG_INDEX:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_desig_index, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_desig_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_DESIG_MIN:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_desig_min, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_desig_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_DESIG_MAX:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_desig_max, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_desig_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_STRING_INDEX:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_string_index, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_string_index, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_STRING_MIN:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_string_min, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_string_min, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_STRING_MAX:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_string_max, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_string_max, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		case USBHID_LOCALITEM_TAG_DELIMITER:
-			proto_tree_add_item(tree, hf_usb_hid_localitem_delimiter, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_localitem_delimiter, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			break;
 		default:
 			proto_tree_add_item(tree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
@@ -494,16 +494,16 @@ dissect_usb_hid_report_item(packet_info *pinfo _U_, proto_tree *parent_tree, tvb
 
 		item = proto_tree_add_text(subtree, tvb, offset, 1, "Header");
 		tree = proto_item_add_subtree(item, ett_usb_hid_item_header);
-		proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset, 1, TRUE);
-		proto_tree_add_item(tree, hf_usb_hid_item_bType, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_item_bSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_usb_hid_item_bType, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_usb_hid_curitem_bTag, tvb, offset, 1, TRUE);
 		offset++;
 		if ((bType == 3) && (bTag == 16)) {
 			/* Long item */
 			bSize = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(subtree, hf_usb_hid_item_bDataSize, tvb, offset, 1, TRUE);
+			proto_tree_add_item(subtree, hf_usb_hid_item_bDataSize, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(subtree, hf_usb_hid_item_bLongItemTag, tvb, offset, 1, TRUE);
+			proto_tree_add_item(subtree, hf_usb_hid_item_bLongItemTag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 			proto_tree_add_item(subtree, hf_usb_hid_item_unk_data, tvb, offset, bSize, ENC_NA);
 			offset += bSize;
@@ -570,19 +570,19 @@ dissect_usb_hid_get_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 	proto_tree *subtree = NULL;
 
 	if (is_request) {
-		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
 
 		/* Report Type in the high byte, Report ID in the low byte */
-		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
-		proto_tree_add_item(subtree, hf_usb_hid_report_type, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_report_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 	}
@@ -596,18 +596,18 @@ dissect_usb_hid_set_report(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *t
 	proto_tree *subtree = NULL;
 
 	if (is_request) {
-		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
 
-		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
-		proto_tree_add_item(subtree, hf_usb_hid_report_type, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_report_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 	}
@@ -622,18 +622,18 @@ dissect_usb_hid_get_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 	proto_tree *subtree = NULL;
 
 	if (is_request) {
-		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
 
-		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
-		proto_tree_add_item(subtree, hf_usb_hid_zero, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_zero, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 	}
@@ -647,19 +647,19 @@ dissect_usb_hid_set_idle(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb
 	proto_tree *subtree = NULL;
 
 	if (is_request) {
-		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		item = proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_usb_hid_wValue);
 
 		/* Duration in the high byte, Report ID in the low byte */
-		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_report_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
-		proto_tree_add_item(subtree, hf_usb_hid_duration, tvb, offset, 1, TRUE);
+		proto_tree_add_item(subtree, hf_usb_hid_duration, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
-		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 	}
@@ -670,13 +670,13 @@ static void
 dissect_usb_hid_get_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
 	if (is_request) {
-		proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 	}
@@ -687,13 +687,13 @@ static void
 dissect_usb_hid_set_protocol(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int offset, gboolean is_request, usb_trans_info_t *usb_trans_info _U_, usb_conv_info_t *usb_conv_info _U_)
 {
 	if (is_request) {
-		proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_value, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		
-		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_index, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		
-		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 	}
@@ -793,7 +793,7 @@ dissect_usb_hid_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (is_request) {
-		proto_tree_add_item(tree, hf_usb_hid_request, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_usb_hid_request, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 	}
 

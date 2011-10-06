@@ -151,7 +151,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_eapol, tvb, 0, -1, FALSE);
     eapol_tree = proto_item_add_subtree(ti, ett_eapol);
 
-    proto_tree_add_item(eapol_tree, hf_eapol_version, tvb, offset, 1, FALSE);
+    proto_tree_add_item(eapol_tree, hf_eapol_version, tvb, offset, 1, ENC_BIG_ENDIAN);
   }
   offset++;
 
@@ -182,7 +182,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   case EAPOL_KEY:
     if (tree) {
       keydesc_type = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(eapol_tree, hf_eapol_keydes_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
       if (keydesc_type == EAPOL_WPA_KEY || keydesc_type == EAPOL_RSN_KEY) {
 	keyinfo = tvb_get_ntohs(tvb, offset);
@@ -239,7 +239,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         		    2, tvb_get_ntohs(tvb, offset));
         offset += 2;
         proto_tree_add_item(eapol_tree, hf_eapol_keydes_replay_counter, tvb,
-        		    offset, 8, FALSE);
+        		    offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         proto_tree_add_item(eapol_tree, hf_eapol_wpa_keydes_nonce, tvb, offset,
         		    32, ENC_NA);
@@ -281,7 +281,7 @@ dissect_eapol(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(eapol_tree, hf_eapol_keydes_keylen, tvb, offset, 2, eapol_key_len);
         offset += 2;
         proto_tree_add_item(eapol_tree, hf_eapol_keydes_replay_counter, tvb,
-  			  offset, 8, FALSE);
+  			  offset, 8, ENC_BIG_ENDIAN);
         offset += 8;
         proto_tree_add_item(eapol_tree, hf_eapol_keydes_key_iv, tvb,
   			  offset, 16, ENC_NA);

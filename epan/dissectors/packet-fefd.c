@@ -112,15 +112,15 @@ dissect_fefd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fefd_tree = proto_item_add_subtree(ti, ett_fefd);
 
         /* FEFD header */
-        proto_tree_add_item(fefd_tree, hf_fefd_version, tvb, offset, 1, FALSE);
-        proto_tree_add_item(fefd_tree, hf_fefd_opcode, tvb, offset, 1, FALSE);
+        proto_tree_add_item(fefd_tree, hf_fefd_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(fefd_tree, hf_fefd_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        flags_ti = proto_tree_add_item(fefd_tree, hf_fefd_flags, tvb, offset, 1, FALSE);
+        flags_ti = proto_tree_add_item(fefd_tree, hf_fefd_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         flags_tree = proto_item_add_subtree(flags_ti, ett_fefd_flags);
         proto_tree_add_item(flags_tree, hf_fefd_flags_rt, tvb, offset, 1, FALSE);
         proto_tree_add_item(flags_tree, hf_fefd_flags_rsy, tvb, offset, 1, FALSE);
         offset += 1;
-        proto_tree_add_item(fefd_tree, hf_fefd_checksum, tvb, offset, 2, FALSE);
+        proto_tree_add_item(fefd_tree, hf_fefd_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     } else {
         offset += 4; /* The version/opcode/flags/checksum fields from above */

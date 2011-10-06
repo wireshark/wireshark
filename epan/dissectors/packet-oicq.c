@@ -137,17 +137,17 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_oicq, tvb, 0, -1, FALSE);
 		oicq_tree = proto_item_add_subtree(ti, ett_oicq);
 
-		proto_tree_add_item(oicq_tree, hf_oicq_flag, tvb, offset, 1, FALSE);
+		proto_tree_add_item(oicq_tree, hf_oicq_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		
-		proto_tree_add_item(oicq_tree, hf_oicq_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(oicq_tree, hf_oicq_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(oicq_tree, hf_oicq_command, tvb, offset, 2, FALSE);
+		proto_tree_add_item(oicq_tree, hf_oicq_command, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 
-		proto_tree_add_item(oicq_tree, hf_oicq_seq, tvb, offset, 2, FALSE);
+		proto_tree_add_item(oicq_tree, hf_oicq_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(oicq_tree, hf_oicq_qqid, tvb, offset, 4, FALSE);

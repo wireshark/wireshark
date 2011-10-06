@@ -493,7 +493,7 @@ dissect_mount_pathconf_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 	if (tree) {
 		lock_item = proto_tree_add_item(tree, hf_mount_pathconf_mask, tvb,
-					offset+2, 2, FALSE);
+					offset+2, 2, ENC_BIG_ENDIAN);
 
 		lock_tree = proto_item_add_subtree(lock_item, ett_mount_pathconf_mask);
 		proto_tree_add_boolean(lock_tree, hf_mount_pathconf_error_all, tvb,
@@ -718,7 +718,7 @@ dissect_mount_statvfs_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, p
 
 	if (tree) {
 		flag_item = proto_tree_add_item(tree, hf_mount_statvfs_flag,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 		if (flag_item) {
 			flag_tree = proto_item_add_subtree(flag_item,
 					ett_mount_statvfs_flag);

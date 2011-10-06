@@ -1507,14 +1507,14 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   iph->ip_ttl = tvb_get_guint8(tvb, offset + 8);
   pinfo->ip_ttl = iph->ip_ttl;
   if (tree) {
-    ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, FALSE);
+    ttl_item = proto_tree_add_item(ip_tree, hf_ip_ttl, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
   } else {
     ttl_item = NULL;
   }
 
   iph->ip_p = tvb_get_guint8(tvb, offset + 9);
   if (tree) {
-    proto_tree_add_item(ip_tree, hf_ip_proto, tvb, offset + 9, 1, FALSE);
+    proto_tree_add_item(ip_tree, hf_ip_proto, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
   }
 
   iph->ip_sum = tvb_get_ntohs(tvb, offset + 10);

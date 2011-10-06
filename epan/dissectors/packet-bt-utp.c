@@ -201,26 +201,26 @@ static int
 dissect_utp_header_v0(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, guint8 *extension_type)
 {
     /* "Original" (V0) */
-  proto_tree_add_item(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_connection_id_v0, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_sec, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v0, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   *extension_type = tvb_get_guint8(tvb, offset);
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_flags, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
   col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str(tvb_get_guint8(tvb, offset), bt_utp_type_vals, "Unknown %d"));
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   return offset;
@@ -234,24 +234,24 @@ dissect_utp_header_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int o
      packet_type (4 high bits)
      protocol version (4 low bits)
   */
-  proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, FALSE);
-  proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_bt_utp_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   col_append_fstr(pinfo->cinfo, COL_INFO, " Type: %s", val_to_str((tvb_get_guint8(tvb, offset) >> 4), bt_utp_type_vals, "Unknown %d"));
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   *extension_type = tvb_get_guint8(tvb, offset);
   offset += 1;
-  proto_tree_add_item(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_connection_id_v1, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_timestamp_diff_us, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_wnd_size_v1, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
-  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_seq_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
-  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, FALSE);
+  proto_tree_add_item(tree, hf_bt_utp_ack_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   return offset;
@@ -277,11 +277,11 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         *extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         extension_length = tvb_get_guint8(tvb, offset);
         proto_item_append_text(ti, " Selection Acks, Len=%d", extension_length);
         offset += 1;
@@ -296,11 +296,11 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         *extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         extension_length = tvb_get_guint8(tvb, offset);
         proto_item_append_text(ti, " Extension Bits, Len=%d", extension_length);
         offset += 1;
@@ -314,11 +314,11 @@ dissect_utp_extension(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, in
         ti = proto_tree_add_item(tree, hf_bt_utp_extension, tvb, offset, -1, ENC_NA);
         ext_tree = proto_item_add_subtree(ti, ett_bt_utp_extension);
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_next_extension_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         *extension_type = tvb_get_guint8(tvb, offset);
         offset += 1;
 
-        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ext_tree, hf_bt_utp_extension_len, tvb, offset, 1, ENC_BIG_ENDIAN);
         extension_length = tvb_get_guint8(tvb, offset);
         proto_item_append_text(ti, " Unknown, Len=%d", extension_length);
         offset += 1;

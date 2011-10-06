@@ -92,7 +92,7 @@ static int dissect_aim_buddylist_oncoming(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	/* Warning level */
 	proto_tree_add_item(buddy_tree, hf_aim_userinfo_warninglevel, tvb, offset, 
-						2, FALSE);
+						2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	offset = dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, aim_onlinebuddy_tlvs);
@@ -115,7 +115,7 @@ static int dissect_aim_buddylist_offgoing(tvbuff_t *tvb, packet_info *pinfo, pro
 
 	/* Warning level */
 	proto_tree_add_item(buddy_tree, hf_aim_userinfo_warninglevel, tvb, offset, 
-						2, FALSE);
+						2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	return dissect_aim_tlv_list(tvb, pinfo, offset, buddy_tree, aim_onlinebuddy_tlvs);

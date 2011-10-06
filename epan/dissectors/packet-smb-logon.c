@@ -254,11 +254,11 @@ dissect_smb_logon_request(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	/*$$$$$ here add the Mailslot to the response list (if needed) */
 
 	/* Request count */
-	proto_tree_add_item(tree, hf_request_count, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_request_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* NT version */
-  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 2, TRUE);
+  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* LM token */
@@ -299,7 +299,7 @@ dissect_smb_logon_2(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	offset = display_ms_string(tvb, tree, offset, hf_mailslot_name, NULL);
 
 	/* NT version */
-  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 2, TRUE);
+  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* LM token */
@@ -358,7 +358,7 @@ dissect_smb_pdc_query(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, i
 		offset = display_unicode_string(tvb, tree, offset, hf_unicode_computer_name, NULL);
 
 		/* NT version */
-	  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	  	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* LMNT token */
@@ -407,7 +407,7 @@ dissect_smb_pdc_startup(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	  }
 
 	  /* NT version */
-  	  proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+  	  proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	  offset += 4;
 
 	  /* LMNT token */
@@ -430,7 +430,7 @@ dissect_smb_pdc_failure(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	/*** 0x10 (LM 2.0 Unknown user response) ***/
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LM token */
@@ -451,21 +451,21 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	guint32 domain_sid_size;
 
 	/* low serial number */
-	proto_tree_add_item(tree, hf_low_serial, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_low_serial, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* date/time */
 	/* XXX - what format is this?  Neither SMB_Date/SMB_Time nor
 	   "time_t but in the local time zone" appear to be correct. */
-	proto_tree_add_item(tree, hf_date_time, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_date_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* pulse */
-	proto_tree_add_item(tree, hf_pulse, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_pulse, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* random */
-	proto_tree_add_item(tree, hf_random, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_random, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* pdc name */
@@ -504,7 +504,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 			offset += 4;
 
 			proto_tree_add_item(info_tree, hf_large_serial, tvb, offset, 8,
-			    TRUE);
+			    ENC_LITTLE_ENDIAN);
 			offset += 8;
 
 			offset = dissect_nt_64bit_time(tvb, info_tree, offset,
@@ -529,7 +529,7 @@ dissect_announce_change(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 		}
 
 		/* NT version */
-		proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* LMNT token */
@@ -551,7 +551,7 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	guint32 domain_sid_size;
 
 	/* Request count */
-	proto_tree_add_item(tree, hf_request_count, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_request_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* computer name */
@@ -581,7 +581,7 @@ dissect_smb_sam_logon_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 	}
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LMNT token */
@@ -614,19 +614,19 @@ dissect_smb_relogon_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree
 	/*** 0x0d LanMan Response to relogon request ***/
 
 	/* Major version */
-	proto_tree_add_item(tree, hf_major_version, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_major_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* Minor version */
-	proto_tree_add_item(tree, hf_minor_version, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_minor_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* OS version */
-	proto_tree_add_item(tree, hf_os_version, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_os_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LM token */
@@ -655,7 +655,7 @@ dissect_smb_acc_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	/* date/time */
 	/* XXX - what format is this?  Neither SMB_Date/SMB_Time nor
 	   "time_t but in the local time zone" appear to be correct. */
-	proto_tree_add_item(tree, hf_date_time, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_date_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* computer name */
@@ -665,11 +665,11 @@ dissect_smb_acc_update(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	offset = display_ms_string(tvb, tree, offset, hf_user_name, NULL);
 
 	/* update type */
-	proto_tree_add_item(tree, hf_update_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_update_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LM token */
@@ -686,19 +686,19 @@ dissect_smb_inter_resp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, 
 	/* 0x0e LanMan Response to interrogate request */
 
 	/* Major version */
-	proto_tree_add_item(tree, hf_major_version, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_major_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* Minor version */
-	proto_tree_add_item(tree, hf_minor_version, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_minor_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* OS version */
-	proto_tree_add_item(tree, hf_os_version, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_os_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LMNT token */
@@ -728,7 +728,7 @@ dissect_smb_sam_logon_resp(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset = display_unicode_string(tvb, tree, offset, hf_domain_name, NULL);
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LMNT token */
@@ -751,7 +751,7 @@ dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset = ((offset + 3)/4)*4;
 
 	/* unknown uint32 type */
-	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* Domain GUID */
@@ -783,11 +783,11 @@ dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset=dissect_ms_compressed_string(tvb, tree, offset, hf_client_site_name, NULL);
 
 	/* unknown uint8 type */
-	proto_tree_add_item(tree, hf_unknown8, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_unknown8, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* unknown uint32 type */
-	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* server ip */
@@ -795,15 +795,15 @@ dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset += 4;
 
 	/* unknown uint32 type */
-	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* unknown uint32 type */
-	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_unknown32, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* NT version */
-	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_nt_version, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* LMNT token */

@@ -165,32 +165,32 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			nsrp_tree = proto_item_add_subtree(ti, ett_nsrp);
 
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_version, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			msgtype = tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msg_type, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_clust_id, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_clust_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msg_flag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msg_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_len, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_ha_port, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_ha_port, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_dst_unit, tvb, offset, 4, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_dst_unit, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_src_unit, tvb, offset, 4, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_src_unit, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 
@@ -213,40 +213,40 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if ( msgtype == 0x00 ) {
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_wst_group, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_wst_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_hst_group, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_hst_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_encflag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_encflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_ns, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_ns, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_nr, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_nr, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_no_used, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_no_used, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_checksum, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
@@ -269,34 +269,34 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		if ( msgtype == 0x02 ) {
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_wst_group, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_wst_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_hst_group, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_hst_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_authflag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_authflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_priority, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_dummy, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_dummy, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_authchecksum, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_authchecksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
@@ -320,28 +320,28 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
  */
    if ( msgtype == 0x03 ) {
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msgtype, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_wst_group, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_wst_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_hst_group, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_hst_group, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msgflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_msglen, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_ifnum, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_ifnum, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_not_used, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);

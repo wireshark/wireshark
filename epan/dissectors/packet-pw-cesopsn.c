@@ -278,7 +278,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 						proto_item* item3;
 						if (properties & PWC_CW_BAD_BITS03) /*display only if value is wrong*/
 						{
-							item3 = proto_tree_add_item(tree3, hf_cw_bits03, tvb, 0, 1, FALSE);
+							item3 = proto_tree_add_item(tree3, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
 							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
 								,"Bits 0..3 of Control Word must be 0");
 						}
@@ -290,9 +290,9 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 								,"Reserved combination of L and Modifier bits");
 						}
 
-						proto_tree_add_item(tree3, hf_cw_r, tvb, 0, 1, FALSE);
+						proto_tree_add_item(tree3, hf_cw_r, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-						item3 = proto_tree_add_item(tree3, hf_cw_frg, tvb, 1, 1, FALSE);
+						item3 = proto_tree_add_item(tree3, hf_cw_frg, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_FRAG)
 						{
 							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
@@ -300,7 +300,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 								" for basic CESoPSN mode");
 						}
 
-						item3 = proto_tree_add_item(tree3, hf_cw_len, tvb, 1, 1, FALSE);
+						item3 = proto_tree_add_item(tree3, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_BAD_PAYLEN_LT_0)
 						{
 							expert_add_info_format(pinfo, item3, PI_MALFORMED, PI_ERROR
@@ -320,7 +320,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 								,(int)packet_size);
 						}
 
-						proto_tree_add_item(tree3, hf_cw_seq, tvb, 2, 2, FALSE);
+						proto_tree_add_item(tree3, hf_cw_seq, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 					}
 				}

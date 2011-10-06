@@ -225,7 +225,7 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   proto_tree_add_text(kink_tree, tvb, offset, 1, "version: %u.%u", major_version, minor_version);
   offset++;
 
-  proto_tree_add_item(kink_tree, hf_kink_length, tvb, offset, 2, FALSE);
+  proto_tree_add_item(kink_tree, hf_kink_length, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
 
   doi = tvb_get_ntohl(tvb, offset);
@@ -238,11 +238,11 @@ dissect_kink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree){
   }
   offset += 4;
 
-  proto_tree_add_item(kink_tree, hf_kink_transactionId, tvb, offset, 4,  FALSE);
+  proto_tree_add_item(kink_tree, hf_kink_transactionId, tvb, offset, 4,  ENC_BIG_ENDIAN);
   offset += 4;
 
   chsumlen = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(kink_tree, hf_kink_checkSumLength, tvb, offset, 1, FALSE);
+  proto_tree_add_item(kink_tree, hf_kink_checkSumLength, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset ++;
 
   next_payload = tvb_get_guint8(tvb, offset);

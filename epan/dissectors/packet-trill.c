@@ -111,25 +111,25 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
     /* Parse the bit fields, i.e. V, R, M, Op-Length, Hop Count. */
     proto_tree_add_item( trill_tree, hf_trill_version, tvb, offset,
-      TRILL_BIT_FIELDS_LEN, FALSE ) ;
+      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
     proto_tree_add_item( trill_tree, hf_trill_reserved, tvb, offset,
-      TRILL_BIT_FIELDS_LEN, FALSE ) ;
+      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
     proto_tree_add_item( trill_tree, hf_trill_multi_dst, tvb, offset,
       TRILL_BIT_FIELDS_LEN, FALSE ) ;
     proto_tree_add_item( trill_tree, hf_trill_op_len, tvb, offset,
-      TRILL_BIT_FIELDS_LEN, FALSE ) ;  
+      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;  
     proto_tree_add_item( trill_tree, hf_trill_hop_cnt, tvb, offset,
-      TRILL_BIT_FIELDS_LEN, FALSE ) ;
+      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
 
     /* Parse the egress nickname. */
     offset += TRILL_BIT_FIELDS_LEN ;
     proto_tree_add_item( trill_tree, hf_trill_egress_nick, tvb, offset,
-      TRILL_NICKNAME_LEN, FALSE ) ;
+      TRILL_NICKNAME_LEN, ENC_BIG_ENDIAN ) ;
 
     /* Parse the ingress nickname. */
     offset += TRILL_NICKNAME_LEN  ;
     proto_tree_add_item( trill_tree, hf_trill_ingress_nick, tvb, offset,
-      TRILL_NICKNAME_LEN , FALSE ) ;
+      TRILL_NICKNAME_LEN , ENC_BIG_ENDIAN ) ;
 
     /* Parse the options field. */
     offset += TRILL_NICKNAME_LEN  ;

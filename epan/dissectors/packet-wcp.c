@@ -512,7 +512,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				if ((*src & 0xf0) == 0x10){
 					if ( tree) {
 						ti = proto_tree_add_item( tree, hf_wcp_long_run, src_tvb,
-							 offset-1, 3, 0);
+							 offset-1, 3, ENC_BIG_ENDIAN);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
 							 offset-1, 2, pntohs(src));

@@ -94,27 +94,27 @@ dissect_idp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		idp_tree = proto_item_add_subtree(ti, ett_idp);
 	}
 
-	proto_tree_add_item(idp_tree, hf_idp_checksum, tvb, 0, 2, FALSE);
+	proto_tree_add_item(idp_tree, hf_idp_checksum, tvb, 0, 2, ENC_BIG_ENDIAN);
 	length = tvb_get_ntohs(tvb, 2);
 	proto_tree_add_uint_format(idp_tree, hf_idp_len, tvb, 2, 2, length,
 		"Length: %u bytes", length);
 	/* Adjust the tvbuff length to include only the IDP datagram. */
 	set_actual_length(tvb, length);
-	proto_tree_add_item(idp_tree, hf_idp_hops, tvb, 4, 1, FALSE);
+	proto_tree_add_item(idp_tree, hf_idp_hops, tvb, 4, 1, ENC_BIG_ENDIAN);
 	type = tvb_get_guint8(tvb, 5);
 	proto_tree_add_uint(idp_tree, hf_idp_packet_type, tvb, 5, 1, type);
 
 	pinfo->ptype = PT_IDP;
 
 	/* Destination */
-	proto_tree_add_item(idp_tree, hf_idp_dnet, tvb, 6, 4, FALSE);
+	proto_tree_add_item(idp_tree, hf_idp_dnet, tvb, 6, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(idp_tree, hf_idp_dnode, tvb, 10, 6, FALSE);
 	pinfo->destport = tvb_get_ntohs(tvb, 16);
 	proto_tree_add_uint(idp_tree, hf_idp_dsocket, tvb, 16, 2,
 	    pinfo->destport);
 
 	/* Source */
-	proto_tree_add_item(idp_tree, hf_idp_snet, tvb, 18, 4, FALSE);
+	proto_tree_add_item(idp_tree, hf_idp_snet, tvb, 18, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(idp_tree, hf_idp_snode, tvb, 22, 6, FALSE);
 	pinfo->srcport = tvb_get_ntohs(tvb, 28);
 	proto_tree_add_uint(idp_tree, hf_idp_ssocket, tvb, 28, 2,

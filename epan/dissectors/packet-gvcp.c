@@ -258,10 +258,10 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     ti = proto_tree_add_item(tree, proto_gvcp, tvb, 0, -1, FALSE);
     gvcp_tree = proto_item_add_subtree(ti, ett_gvcp);
-    proto_tree_add_item(gvcp_tree, hf_gvcp_type, tvb, 0, 2, FALSE);
-    proto_tree_add_item(gvcp_tree, hf_gvcp_opcode, tvb, 2, 2, FALSE);
-    proto_tree_add_item(gvcp_tree, hf_gvcp_payloadsize, tvb, 4, 2, FALSE);
-    proto_tree_add_item(gvcp_tree, hf_gvcp_sequenceno, tvb, 6, 2, FALSE);
+    proto_tree_add_item(gvcp_tree, hf_gvcp_type, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(gvcp_tree, hf_gvcp_opcode, tvb, 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(gvcp_tree, hf_gvcp_payloadsize, tvb, 4, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(gvcp_tree, hf_gvcp_sequenceno, tvb, 6, 2, ENC_BIG_ENDIAN);
 
     /* opcode specific fields */
     switch (packet_opcode) {
@@ -274,9 +274,9 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case 0x80: /* Register Read Request */
       if (packet_plsize >= 4) {
-        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, ENC_BIG_ENDIAN);
         if (packet_plsize >= 8) {
-          proto_tree_add_item(gvcp_tree, hf_gvcp_address2, tvb, 12, 4, FALSE);
+          proto_tree_add_item(gvcp_tree, hf_gvcp_address2, tvb, 12, 4, ENC_BIG_ENDIAN);
           if (packet_plsize >= 12)
             proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 16, -1, ENC_NA);
         }
@@ -284,9 +284,9 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case 0x81: /* Register Read Answer */
       if (packet_plsize >= 4) {
-        proto_tree_add_item(gvcp_tree, hf_gvcp_value, tvb, 8, 4, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_value, tvb, 8, 4, ENC_BIG_ENDIAN);
         if (packet_plsize >= 8) {
-          proto_tree_add_item(gvcp_tree, hf_gvcp_value2, tvb, 12, 4, FALSE);
+          proto_tree_add_item(gvcp_tree, hf_gvcp_value2, tvb, 12, 4, ENC_BIG_ENDIAN);
           if (packet_plsize >= 12)
             proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 16, -1, ENC_NA);
         }
@@ -294,11 +294,11 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case 0x82: /* Register Write Request */
       if (packet_plsize >= 8) {
-        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, FALSE);
-        proto_tree_add_item(gvcp_tree, hf_gvcp_value, tvb, 12, 4, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_value, tvb, 12, 4, ENC_BIG_ENDIAN);
         if (packet_plsize >= 16) {
-          proto_tree_add_item(gvcp_tree, hf_gvcp_address2, tvb, 16, 4, FALSE);
-          proto_tree_add_item(gvcp_tree, hf_gvcp_value2, tvb, 20, 4, FALSE);
+          proto_tree_add_item(gvcp_tree, hf_gvcp_address2, tvb, 16, 4, ENC_BIG_ENDIAN);
+          proto_tree_add_item(gvcp_tree, hf_gvcp_value2, tvb, 20, 4, ENC_BIG_ENDIAN);
           if (packet_plsize >= 24)
             proto_tree_add_item(gvcp_tree, hf_gvcp_remainder, tvb, 24, -1, ENC_NA);
         }
@@ -306,25 +306,25 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
     case 0x83: /* Register Write Answer */
       if (packet_plsize >= 4)
-        proto_tree_add_item(gvcp_tree, hf_gvcp_nwritten, tvb, 8, 4, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_nwritten, tvb, 8, 4, ENC_BIG_ENDIAN);
       break;
     case 0x84: /* Block Read Request */
       if (packet_plsize >= 8) {
-        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, FALSE);
-        proto_tree_add_item(gvcp_tree, hf_gvcp_unknown16, tvb, 12, 2, FALSE);
-        proto_tree_add_item(gvcp_tree, hf_gvcp_nbytes, tvb, 14, 2, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_unknown16, tvb, 12, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_nbytes, tvb, 14, 2, ENC_BIG_ENDIAN);
       }
       break;
     case 0x85: /* Block Read Answer */
     case 0x86: /* Block Write Request */
       if (packet_plsize >= 8) {
-        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_address, tvb, 8, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(gvcp_tree, hf_gvcp_data, tvb, 12, -1, ENC_NA);
       }
       break;
     case 0x87: /* Block Write Answer */
       if (packet_plsize >= 4)
-        proto_tree_add_item(gvcp_tree, hf_gvcp_nbytes, tvb, 10, 2, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_nbytes, tvb, 10, 2, ENC_BIG_ENDIAN);
       break;
     default:
       if (packet_plsize > 0)

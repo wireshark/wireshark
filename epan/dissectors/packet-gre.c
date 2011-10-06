@@ -229,8 +229,8 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
 		 val_to_str((attrib_id&0x7f), gre_3ggp2_attrib_id_vals, "%u (Unknown)"));
 	 attr_tree = proto_item_add_subtree(attr_item, ett_3gpp2_attr);
 
- 	 proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, FALSE);
- 	 proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, FALSE);
+ 	 proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+ 	 proto_tree_add_item(attr_tree, hf_gre_3ggp2_attrib_length, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
      offset += 2;
      last_attrib = (attrib_id & 0x80)?TRUE:FALSE;
@@ -257,7 +257,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         case ID_3GPP2_SEG:
              {
 			  value = tvb_get_guint8(tvb,offset) >>6;
-              proto_tree_add_item(attr_tree, hf_gre_3ggp2_seg, tvb, offset, attrib_length, FALSE);
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_seg, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
 			  proto_item_append_text(attr_item," - %s",val_to_str(value, gre_3ggp2_seg_vals, "0x%02X - Unknown"));
              }
              break;
@@ -294,11 +294,11 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
 
   proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket_used, tvb, offset, 1, FALSE);
 
-  proto_tree_add_item(rh_tree, hf_gre_wccp_service_id, tvb, offset +1, 1, FALSE);
+  proto_tree_add_item(rh_tree, hf_gre_wccp_service_id, tvb, offset +1, 1, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket, tvb, offset +2, 1, FALSE);
+  proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket, tvb, offset +2, 1, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(rh_tree, hf_gre_wccp_primary_bucket, tvb, offset +3, 1, FALSE);
+  proto_tree_add_item(rh_tree, hf_gre_wccp_primary_bucket, tvb, offset +3, 1, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -356,7 +356,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     gre_tree = proto_item_add_subtree(ti, ett_gre);
 
 
-    it_flags = proto_tree_add_item(gre_tree, hf_gre_flags_and_version, tvb, offset, 2, FALSE);
+    it_flags = proto_tree_add_item(gre_tree, hf_gre_flags_and_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     fv_tree = proto_item_add_subtree(it_flags, ett_gre_flags);
 
     proto_tree_add_item(fv_tree, hf_gre_flags_checksum, tvb, offset, 2, FALSE);
@@ -369,23 +369,23 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_item(fv_tree, hf_gre_flags_strict_source_route, tvb, offset, 2, FALSE);
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_recursion_control, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_recursion_control, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* RFC2637 Section 4.1 : Enhanced GRE Header */
     if (is_ppp) {
       proto_tree_add_item(fv_tree, hf_gre_flags_ack, tvb, offset, 2, FALSE);
 
-      proto_tree_add_item(fv_tree, hf_gre_flags_reserved_ppp, tvb, offset, 2, FALSE);
+      proto_tree_add_item(fv_tree, hf_gre_flags_reserved_ppp, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
     else {
-      proto_tree_add_item(fv_tree, hf_gre_flags_reserved, tvb, offset, 2, FALSE);
+      proto_tree_add_item(fv_tree, hf_gre_flags_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_version, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     offset += 2;
 
-    proto_tree_add_item(gre_tree, hf_gre_proto, tvb, offset, 2, FALSE);
+    proto_tree_add_item(gre_tree, hf_gre_proto, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (flags_and_ver & GRE_CHECKSUM || flags_and_ver & GRE_ROUTING) {
@@ -394,7 +394,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       vec_t cksum_vec[1];
       guint16 cksum, computed_cksum;
 
-      it_checksum = proto_tree_add_item(gre_tree, hf_gre_checksum, tvb, offset, 2, FALSE);
+      it_checksum = proto_tree_add_item(gre_tree, hf_gre_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 	/* Checksum check !... */
       cksum = tvb_get_ntohs(tvb, offset);
       length = tvb_length(tvb);
@@ -416,7 +416,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       offset += 2;
 
-      proto_tree_add_item(gre_tree, hf_gre_offset, tvb, offset, 2, FALSE);
+      proto_tree_add_item(gre_tree, hf_gre_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
     }
 
@@ -427,22 +427,22 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(gre_tree, hf_gre_key_payload_length, tvb, offset, 2, FALSE);
         offset += 2;
 
-	proto_tree_add_item(gre_tree, hf_gre_key_call_id, tvb, offset, 2, FALSE);
+	proto_tree_add_item(gre_tree, hf_gre_key_call_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
       }
       else {
-	proto_tree_add_item(gre_tree, hf_gre_key, tvb, offset, 4, FALSE);
+	proto_tree_add_item(gre_tree, hf_gre_key, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
       }
     }
     if (flags_and_ver & GRE_SEQUENCE) {
 
-      proto_tree_add_item(gre_tree, hf_gre_sequence_number , tvb, offset, 4, FALSE);
+      proto_tree_add_item(gre_tree, hf_gre_sequence_number , tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
     if (is_ppp && (flags_and_ver & GRE_ACK)) {
 
-      proto_tree_add_item(gre_tree, hf_gre_ack_number , tvb, offset, 4, FALSE);
+      proto_tree_add_item(gre_tree, hf_gre_ack_number , tvb, offset, 4, ENC_BIG_ENDIAN);
       offset += 4;
     }
     if (flags_and_ver & GRE_ROUTING) {
@@ -454,14 +454,14 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         r_tree = proto_item_add_subtree(ti, ett_gre_routing);
 
         sre_af = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(r_tree, hf_gre_routing_address_family , tvb, offset, 2, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_address_family , tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(r_tree, hf_gre_routing_sre_offset , tvb, offset, 1, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_sre_offset , tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         sre_length = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, FALSE);
+        proto_tree_add_item(r_tree, hf_gre_routing_sre_length , tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
 	proto_item_set_len(it_routing, 2 + 1 +1 + sre_length);

@@ -1179,7 +1179,7 @@ static void dissect_juniper_ggsn(tvbuff_t* tvb, packet_info* pinfo, proto_tree* 
   proto = tvb_get_letohs(tvb, offset); /* fetch protocol */
 
   proto_tree_add_uint(juniper_subtree, hf_juniper_proto, tvb, offset, 2, proto);
-  proto_tree_add_item(juniper_subtree, hf_juniper_vlan, tvb, offset+2, 2, TRUE);
+  proto_tree_add_item(juniper_subtree, hf_juniper_vlan, tvb, offset+2, 2, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   dissect_juniper_payload_proto(tvb, pinfo, tree, ti, proto, offset);

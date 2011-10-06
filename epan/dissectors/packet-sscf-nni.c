@@ -100,9 +100,9 @@ dissect_sscf_nni(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     proto_tree_add_item(sscf_tree, hf_status, tvb, SSCF_STATUS_OFFSET,
-			SSCF_STATUS_LENGTH, FALSE);
+			SSCF_STATUS_LENGTH, ENC_BIG_ENDIAN);
     proto_tree_add_item(sscf_tree, hf_spare, tvb, SSCF_SPARE_OFFSET,
-			SSCF_SPARE_LENGTH, FALSE);
+			SSCF_SPARE_LENGTH, ENC_BIG_ENDIAN);
   }
 
 }

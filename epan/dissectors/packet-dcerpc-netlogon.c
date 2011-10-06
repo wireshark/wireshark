@@ -8018,9 +8018,9 @@ dissect_secchan_verf(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
         subtree = proto_item_add_subtree(vf, ett_secchan_verf);
 
         proto_tree_add_item(subtree, hf_netlogon_secchan_verf_signalg, tvb,
-                            offset, 2, TRUE);
+                            offset, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(subtree, hf_netlogon_secchan_verf_sealalg, tvb,
-                            offset+2, 2, TRUE);
+                            offset+2, 2, ENC_LITTLE_ENDIAN);
         /* 2 pad bytes */
         proto_tree_add_item(subtree, hf_netlogon_secchan_verf_flag, tvb,
                             offset+6, 2, ENC_NA);

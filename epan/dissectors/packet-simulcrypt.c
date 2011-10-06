@@ -765,11 +765,11 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 	switch (ptype) {
 	case SIMULCRYPT_ECMG_SUPER_CAS_ID:
 		/* add super_cas_id item */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_super_cas_id, tvb, offset, plen, FALSE); /* value item */
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_super_cas_id, tvb, offset, plen, ENC_BIG_ENDIAN); /* value item */
 		simulcrypt_super_cas_id_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_super_cas_id);
 
 		/* Simulcrypt_super_cas_id_tree */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, FALSE );
+		simulcrypt_item = proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN );
 
 		/* Test for known CA_System_ID */
 		ca_system_id = tvb_get_ntohs(tvb,offset);
@@ -782,86 +782,86 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 				break;
 			}
 		}
-		proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_subsystem_id, tvb, offset+2, 2, FALSE );
+		proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_subsystem_id, tvb, offset+2, 2, ENC_BIG_ENDIAN );
 		break;
 	case SIMULCRYPT_ECMG_SECTION_TSPKT_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_section_tspkt_flag, tvb, offset, plen, FALSE); /* value item */
+		proto_tree_add_item(tree, hf_simulcrypt_section_tspkt_flag, tvb, offset, plen, ENC_BIG_ENDIAN); /* value item */
 		break;
 	case SIMULCRYPT_ECMG_ECM_CHANNEL_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_ecm_channel_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ecm_channel_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_DELAY_START:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_delay_start, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_delay_start, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_DELAY_STOP:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_delay_stop, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_delay_stop, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_TRANSITION_DELAY_START:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_transition_delay_start, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_transition_delay_start, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_TRANSITION_DELAY_STOP:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_transition_delay_stop, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_transition_delay_stop, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_AC_DELAY_START:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ac_delay_start, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ac_delay_start, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_AC_DELAY_STOP:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ac_delay_stop, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ac_delay_stop, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_ECM_REP_PERIOD:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ecm_rep_period, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_ecm_rep_period, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_MAX_STREAMS:
-		proto_tree_add_item(tree, hf_simulcrypt_max_streams, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_max_streams, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_MIN_CP_DURATION:
 		/* convert value to ms (in units 100 ms) */
 		pvaluedec = tvb_get_ntohs(tvb, offset); /* read 2 byte min CP duration value */
 		pvaluedec = pvaluedec*100; /* in ms now */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_min_cp_duration, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_min_cp_duration, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " (%d ms)",pvaluedec);
 		break;
 	case SIMULCRYPT_ECMG_LEAD_CW:
-		proto_tree_add_item(tree, hf_simulcrypt_lead_cw, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_lead_cw, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_CW_PER_MESSAGE:
-		proto_tree_add_item(tree, hf_simulcrypt_cw_per_msg, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_cw_per_msg, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_MAX_COMP_TIME:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_max_comp_time, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_max_comp_time, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_ECMG_ACCESS_CRITERIA:
 		proto_tree_add_item(tree, hf_simulcrypt_access_criteria, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_ECMG_ECM_STREAM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_ecm_stream_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ecm_stream_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_NOMINAL_CP_DURATION:
 		/* convert value to ms (in units 100 ms) */
 		pvaluedec = tvb_get_ntohs(tvb, offset); /* read 2 byte nominal CP duration value */
 		pvaluedec = pvaluedec*100; /* in ms now */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_nominal_cp_duration, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_nominal_cp_duration, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " (%d ms)", pvaluedec);
 		break;
 	case SIMULCRYPT_ECMG_ACCESS_CRITERIA_TRANSFER_MODE:
 		proto_tree_add_item(tree, hf_simulcrypt_access_criteria_transfer_mode, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_ECMG_CP_NUMBER:
-		proto_tree_add_item(tree, hf_simulcrypt_cp_number, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_cp_number, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_CP_DURATION:
 		/* convert value to ms (in units 100 ms) */
 		pvaluedec = tvb_get_ntohs(tvb, offset); /* read 2 byte CP duration value */
 		pvaluedec = pvaluedec*100; /* in ms now */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_cp_duration, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_cp_duration, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " (%d ms)", pvaluedec);
 		break;
 	case SIMULCRYPT_ECMG_CP_CW_COMBINATION:
@@ -888,10 +888,10 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_cw_encryption, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_ECMG_ECM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_ERROR_STATUS:
-		proto_tree_add_item(tree, hf_simulcrypt_ecmg_error_status, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ecmg_error_status, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_ERROR_INFORMATION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
@@ -910,32 +910,32 @@ dissect_emmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 
 	switch (ptype) {
 	case SIMULCRYPT_EMMG_CLIENT_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_client_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_client_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_SECTION_TSPKT_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_section_tspkt_flag, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_section_tspkt_flag, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_DATA_CHANNEL_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_data_channel_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_data_channel_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_DATA_STREAM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_data_stream_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_data_stream_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_DATAGRAM:
 		proto_tree_add_item(tree, hf_simulcrypt_datagram, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_EMMG_BANDWIDTH:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_bandwidth, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_bandwidth, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " kbit/s");
 		break;
 	case SIMULCRYPT_EMMG_DATA_TYPE:
-		proto_tree_add_item(tree, hf_simulcrypt_data_type, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_data_type, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_DATA_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_data_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_data_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_ERROR_STATUS:
-		proto_tree_add_item(tree, hf_simulcrypt_emmg_error_status, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_emmg_error_status, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EMMG_ERROR_INFORMATION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
@@ -961,7 +961,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 
 	switch (ptype) {
 	case SIMULCRYPT_EIS_CHANNEL_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_eis_channel_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_eis_channel_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SERVICE_FLAG:
 		proto_tree_add_item(tree, hf_simulcrypt_service_flag, tvb, offset, plen, FALSE);
@@ -970,7 +970,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_component_flag, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EIS_MAX_SCG:
-		proto_tree_add_item(tree, hf_simulcrypt_max_scg, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_max_scg, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_ECM_GROUP:
 		/* add ECM_Group item */
@@ -983,18 +983,18 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		dissect_simulcrypt_data(simulcrypt_ecm_group_tree, simulcrypt_item, pinfo, tvb, tree, offset, plen, SIMULCRYPT_EIS_SCS, TRUE);
 		break;
 	case SIMULCRYPT_EIS_SCG_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_scg_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_scg_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SCG_REFERENCE_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_scg_reference_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_scg_reference_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SUPER_CAS_ID:
 		/* add super_cas_id item */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_super_cas_id, tvb, offset, plen, FALSE); /* value item */
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_super_cas_id, tvb, offset, plen, ENC_BIG_ENDIAN); /* value item */
 		simulcrypt_super_cas_id_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_super_cas_id);
 
 		/* Simulcrypt_super_cas_id_tree */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, FALSE );
+		simulcrypt_item = proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_system_id, tvb, offset, 2, ENC_BIG_ENDIAN );
 
 		/* Test for known CA_System_ID */
 		ca_system_id = tvb_get_ntohs(tvb,offset);
@@ -1007,10 +1007,10 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 				break;
 			}
 		}
-		proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_subsystem_id, tvb, offset+2, 2, FALSE );
+		proto_tree_add_item(simulcrypt_super_cas_id_tree, hf_simulcrypt_ca_subsystem_id, tvb, offset+2, 2, ENC_BIG_ENDIAN );
 		break;
 	case SIMULCRYPT_EIS_ECM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ecm_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_ACCESS_CRITERIA:
 		proto_tree_add_item(tree, hf_simulcrypt_access_criteria, tvb, offset, plen, ENC_NA);
@@ -1022,58 +1022,58 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		simulcrypt_activation_time_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_activation_time);
 
 		/* dissect subtree */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_year, tvb, offset, 2, FALSE); /* first 2 bytes */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_month, tvb, offset+2, 1, FALSE); /* third byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_day, tvb, offset+3, 1, FALSE); /*fourth byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hour, tvb, offset+4, 1, FALSE); /*fifth byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_minute, tvb, offset+5, 1, FALSE); /* sixth byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_second, tvb, offset+6, 1, FALSE); /* seventh byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hundredth_second, tvb, offset+7, 1, FALSE); /* eighth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_year, tvb, offset, 2, ENC_BIG_ENDIAN); /* first 2 bytes */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_month, tvb, offset+2, 1, ENC_BIG_ENDIAN); /* third byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_day, tvb, offset+3, 1, ENC_BIG_ENDIAN); /*fourth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hour, tvb, offset+4, 1, ENC_BIG_ENDIAN); /*fifth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_minute, tvb, offset+5, 1, ENC_BIG_ENDIAN); /* sixth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_second, tvb, offset+6, 1, ENC_BIG_ENDIAN); /* seventh byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hundredth_second, tvb, offset+7, 1, ENC_BIG_ENDIAN); /* eighth byte */
 		break;
 	case SIMULCRYPT_EIS_ACTIVATION_PENDING_FLAG:
 		proto_tree_add_item(tree, hf_simulcrypt_activation_pending_flag, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EIS_COMPONENT_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_component_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_component_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SERVICE_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_service_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_service_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_TRANSPORT_STREAM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_transport_stream_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_transport_stream_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_AC_CHANGED_FLAG:
 		proto_tree_add_item(tree, hf_simulcrypt_ac_changed_flag, tvb, offset, plen, FALSE);
 		break;
 	case SIMULCRYPT_EIS_SCG_CURRENT_REFERENCE_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_scg_current_reference_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_scg_current_reference_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SCG_PENDING_REFERENCE_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_scg_pending_reference_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_scg_pending_reference_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_CP_DURATION_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_cp_duration_flag, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_cp_duration_flag, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_RECOMMENDED_CP_DURATION:
 		/* convert value to ms (in units 100 ms) */
 		pvaluedec = tvb_get_ntohs(tvb, offset); /* read 2 byte CP duration value */
 		pvaluedec = pvaluedec*100; /* in ms now */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_recommended_cp_duration, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_recommended_cp_duration, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " (%d ms)", pvaluedec);
 		break;
 	case SIMULCRYPT_EIS_SCG_NOMINAL_CP_DURATION:
 		/* convert value to ms (in units 100 ms) */
 		pvaluedec = tvb_get_ntohs(tvb, offset); /* read 2 byte CP duration value */
 		pvaluedec = pvaluedec*100; /* in ms now */
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_scg_nominal_cp_duration, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_scg_nominal_cp_duration, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " (%d ms)", pvaluedec);
 		break;
 	case SIMULCRYPT_EIS_ORIGINAL_NETWORK_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_original_network_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_original_network_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 
 	case SIMULCRYPT_EIS_ERROR_STATUS:
-		proto_tree_add_item(tree, hf_simulcrypt_eis_error_status, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_eis_error_status, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_ERROR_INFORMATION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
@@ -1100,7 +1100,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 	switch (ptype) {
 	case SIMULCRYPT_PSIG_PSIG_TYPE:
 		pvaluedec = tvb_get_guint8(tvb, offset);
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_psig_type, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_psig_type, tvb, offset, plen, ENC_BIG_ENDIAN);
 		switch(pvaluedec){
 		case 1:
 			proto_item_append_text(simulcrypt_item, " (PSIG)");
@@ -1116,25 +1116,25 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		}
 		break;
 	case SIMULCRYPT_PSIG_CHANNEL_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_channel_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_channel_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_STREAM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_stream_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_stream_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_TRANSPORT_STREAM_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_transport_stream_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_transport_stream_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_ORIGINAL_NETWORK_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_original_network_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_original_network_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_PACKET_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_packet_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_packet_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_INTERFACE_MODE_CONFIGURATION:
-		proto_tree_add_item(tree, hf_simulcrypt_interface_mode_configuration, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_interface_mode_configuration, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_MAX_STREAM:
-		proto_tree_add_item(tree, hf_simulcrypt_max_stream, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_max_stream, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_TABLE_PERIOD_PAIR:
 		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_table_period_pair, tvb, offset, plen, ENC_NA); /* value item */
@@ -1149,7 +1149,7 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_tree_add_item(tree, hf_simulcrypt_mpeg_section, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_PSIG_REPETITION_RATE:
-		proto_tree_add_item(tree, hf_simulcrypt_repetition_rate, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_repetition_rate, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_ACTIVATION_TIME:
 		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_activation_time, tvb, offset, plen, ENC_NA); /* value item */
@@ -1158,34 +1158,34 @@ dissect_psig_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		simulcrypt_activation_time_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_activation_time);
 
 		/* dissect subtree */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_year, tvb, offset, 2, FALSE); /* first 2 bytes */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_month, tvb, offset+2, 1, FALSE); /* third byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_day, tvb, offset+3, 1, FALSE); /*fourth byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hour, tvb, offset+4, 1, FALSE); /*fifth byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_minute, tvb, offset+5, 1, FALSE); /* sixth byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_second, tvb, offset+6, 1, FALSE); /* seventh byte */
-		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hundredth_second, tvb, offset+7, 1, FALSE); /* eighth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_year, tvb, offset, 2, ENC_BIG_ENDIAN); /* first 2 bytes */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_month, tvb, offset+2, 1, ENC_BIG_ENDIAN); /* third byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_day, tvb, offset+3, 1, ENC_BIG_ENDIAN); /*fourth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hour, tvb, offset+4, 1, ENC_BIG_ENDIAN); /*fifth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_minute, tvb, offset+5, 1, ENC_BIG_ENDIAN); /* sixth byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_second, tvb, offset+6, 1, ENC_BIG_ENDIAN); /* seventh byte */
+		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hundredth_second, tvb, offset+7, 1, ENC_BIG_ENDIAN); /* eighth byte */
 		break;
 	case SIMULCRYPT_PSIG_DATAGRAM:
 		proto_tree_add_item(tree, hf_simulcrypt_datagram, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_PSIG_BANDWIDTH:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_bandwidth, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_bandwidth, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " kbit/s");
 		break;
 	case SIMULCRYPT_PSIG_INITIAL_BANDWIDTH:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_initial_bandwidth, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_initial_bandwidth, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " kbit/s");
 		break;
 	case SIMULCRYPT_PSIG_MAX_COMP_TIME:
-		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_max_comp_time, tvb, offset, plen, FALSE);
+		simulcrypt_item = proto_tree_add_item(tree, hf_simulcrypt_max_comp_time, tvb, offset, plen, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " ms");
 		break;
 	case SIMULCRYPT_PSIG_ASI_INPUT_PACKET_ID:
-		proto_tree_add_item(tree, hf_simulcrypt_asi_input_packet_id, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_asi_input_packet_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_ERROR_STATUS:
-		proto_tree_add_item(tree, hf_simulcrypt_psig_error_status, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_psig_error_status, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_PSIG_ERROR_INFORMATION:
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);

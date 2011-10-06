@@ -100,7 +100,7 @@ dissect_hci_h4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	PROTO_ITEM_SET_GENERATED(ti);
 
 	proto_tree_add_item(hci_h4_tree, hf_hci_h4_type,
-		tvb, 0, 1, TRUE);
+		tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s",
 			val_to_str(type, hci_h4_type_vals, "Unknown HCI packet type 0x%02x"));
 

@@ -452,11 +452,11 @@ dissect_election_criterion(tvbuff_t *tvb, proto_tree *parent_tree, int offset)
 	offset += 1;
 
 	/* browser protocol major version */
-	proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* browser protocol minor version */
-	proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset += 1;
 
 	/* election os */
@@ -617,7 +617,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	case BROWSE_LOCAL_MASTER_ANNOUNCEMENT:
 	case BROWSE_HOST_ANNOUNCE: {
 		/* update count */
-		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* periodicity (in milliseconds) */
@@ -658,11 +658,11 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
 
 		/* OS major version */
-		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* OS minor version */
-		proto_tree_add_item(tree, hf_os_minor, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_os_minor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* server type flags */
@@ -684,15 +684,15 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			offset += 4;
 		} else {
 			/* browser protocol major version */
-			proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_proto_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 
 			/* browser protocol minor version */
-			proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, TRUE);
+			proto_tree_add_item(tree, hf_proto_minor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset += 1;
 
 			/* signature constant */
-			proto_tree_add_item(tree, hf_sig_const, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_sig_const, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 		}
 
@@ -710,7 +710,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 		/* unused/unknown flags */
 		proto_tree_add_item(tree, hf_unused_flags,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* name of computer to which to send reply */
@@ -726,7 +726,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	case BROWSE_ELECTION_REQUEST:
 		/* election version */
-		proto_tree_add_item(tree, hf_election_version, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_election_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* criterion */
@@ -753,11 +753,11 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 
 	case BROWSE_BACKUP_LIST_REQUEST:
 		/* backup list requested count */
-		proto_tree_add_item(tree, hf_backup_count, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_backup_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* backup requested token */
-		proto_tree_add_item(tree, hf_backup_token, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_backup_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		break;
 
@@ -769,7 +769,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		offset += 1;
 
 		/* backup requested token */
-		proto_tree_add_item(tree, hf_backup_token, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_backup_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* backup server names */
@@ -876,7 +876,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 	case BROWSE_HOST_ANNOUNCE:
 
 		/* update count */
-		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_update_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* server type flags */
@@ -893,11 +893,11 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		  proto_tree_add_text(tree, tvb, offset, 2, "Windows version: %s", windows_version);
 
 		/* OS major version */
-		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_os_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* OS minor version */
-		proto_tree_add_item(tree, hf_os_minor, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_os_minor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		/* periodicity (in seconds; convert to milliseconds) */

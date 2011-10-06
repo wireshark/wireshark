@@ -250,9 +250,9 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
 
       proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, FALSE);
       offset += 4;
-      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, FALSE);
+      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
-      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, FALSE);
+      proto_tree_add_item(ziop_tree, hf_ziop_giop_version_minor, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
       flags = tvb_get_guint8(tvb, offset);
@@ -265,7 +265,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
                                             flags, "0x%02x (%s)", flags, flags_strbuf->str);
       offset++;
 
-      proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(ziop_tree, hf_ziop_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
       proto_tree_add_item(ziop_tree, hf_ziop_message_size, tvb, offset, 4, little_endian);

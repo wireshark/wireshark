@@ -251,7 +251,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   if (tree) {
     proto_tree_add_item(xdmcp_tree, hf_xdmcp_length, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     switch (opcode) {
@@ -318,7 +318,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	gint ctypes_start_offset, caddrs_offset;
 
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
-			    offset, 2, FALSE);
+			    offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	ctypes_len = tvb_get_guint8(tvb, offset);
@@ -400,7 +400,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case XDMCP_ACCEPT:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_authentication_name,
 				   tvb, offset);
@@ -423,11 +423,11 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case XDMCP_MANAGE:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
-			    offset, 2, FALSE);
+			    offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	offset += xdmcp_add_text(xdmcp_tree, "Display class",
@@ -436,13 +436,13 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case XDMCP_REFUSE:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	break;
 
       case XDMCP_FAILED:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset += xdmcp_add_string(xdmcp_tree, hf_xdmcp_status,
@@ -451,11 +451,11 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
       case XDMCP_KEEPALIVE:
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_display_number, tvb,
-			    offset, 2, FALSE);
+			    offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	break;
 
@@ -466,7 +466,7 @@ static void dissect_xdmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset++;
 
 	proto_tree_add_item(xdmcp_tree, hf_xdmcp_session_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	break;
     }

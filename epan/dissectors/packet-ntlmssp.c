@@ -1340,13 +1340,13 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_header, tvb,
-    offset, 4, TRUE);
+    offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
 
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_reserved, tvb,
-    offset, 4, TRUE);
+    offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
 
@@ -1361,7 +1361,7 @@ dissect_ntlmv2_response(tvbuff_t *tvb, proto_tree *tree, int offset, int len)
 
   proto_tree_add_item(
     ntlmv2_tree, hf_ntlmssp_ntlmv2_response_unknown, tvb,
-    offset, 4, TRUE);
+    offset, 4, ENC_LITTLE_ENDIAN);
 
   offset += 4;
 
@@ -1979,7 +1979,7 @@ dissect_ntlmssp_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
-                         tvb, offset, 4, TRUE);
+                         tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     /* Encrypted body */
@@ -2160,7 +2160,7 @@ dissect_ntlmssp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* NTLMSSP Message Type */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_message_type,
-                         tvb, offset, 4, TRUE);
+                         tvb, offset, 4, ENC_LITTLE_ENDIAN);
     ntlmssph->type = tvb_get_letohl (tvb, offset);
     offset += 4;
 
@@ -2375,12 +2375,12 @@ decrypt_verifier(tvbuff_t *tvb, int offset, guint32 encrypted_block_length,
 
     /* RANDOM PAD usually it's 0 */
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_randompad,
-                         decr_tvb, decrypted_offset, 4, TRUE);
+                         decr_tvb, decrypted_offset, 4, ENC_LITTLE_ENDIAN);
     decrypted_offset += 4;
 
     /* CRC32 of the DCE fragment data */
     proto_tree_add_item (decr_tree, hf_ntlmssp_verf_crc32,
-                         decr_tvb, decrypted_offset, 4, TRUE);
+                         decr_tvb, decrypted_offset, 4, ENC_LITTLE_ENDIAN);
     decrypted_offset += 4;
 
     /* Incrementing sequence number of DCE conversation */
@@ -2497,7 +2497,7 @@ dissect_ntlmssp_verf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   TRY {
     /* Version number */
     proto_tree_add_item (ntlmssp_tree, hf_ntlmssp_verf_vers,
-                         tvb, offset, 4, TRUE);
+                         tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     /* Encrypted body */

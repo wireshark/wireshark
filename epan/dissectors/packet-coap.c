@@ -298,7 +298,7 @@ dissect_coap_opt_block(tvbuff_t *tvb, packet_info *pinfo, proto_tree *subtree, g
 	proto_tree_add_item(subtree, hfindex, tvb, offset + opt_length - 1, 1, FALSE);
 
 	block_size = 1 << (encoded_block_size + 4);
-	item = proto_tree_add_item(subtree, hf_coap_opt_block_size, tvb, offset + opt_length - 1, 1, FALSE);
+	item = proto_tree_add_item(subtree, hf_coap_opt_block_size, tvb, offset + opt_length - 1, 1, ENC_BIG_ENDIAN);
 	proto_item_append_text(item, ", Result: %d", block_size);
 }
 
@@ -372,7 +372,7 @@ dissect_coap_options(tvbuff_t *tvb, packet_info *pinfo, proto_tree *coap_tree, g
 				   opt_count, val_to_str(*opt_code, vals_opt_type, *opt_code % 14 == 0 ? "No-Op" : "Unknown Option"), *opt_code);
 
 	subtree = proto_item_add_subtree(item, ett_coap_option);
-	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_coap_opt_delta, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	tvb_lenbuf = tvb_new_subset(tvb, offset, opt_hlen, opt_hlen);
 	proto_tree_add_uint_bits_format_value(subtree, hf_coap_opt_length, tvb_lenbuf, 4, opt_hlen == 1 ? 4 : 12, opt_length, "%d", opt_length);
@@ -471,22 +471,22 @@ dissect_coap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	coap_root = proto_tree_add_item(parent_tree, proto_coap, tvb, offset, -1, FALSE);
 	coap_tree = proto_item_add_subtree(coap_root, ett_coap);
 
-	proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(coap_tree, hf_coap_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, FALSE);
+	proto_tree_add_item(coap_tree, hf_coap_ttype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	ttype = (tvb_get_guint8(tvb, offset) & 0x30) >> 4;
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s", val_to_str(ttype, vals_ttype, "Unknown %d"));
 
-	proto_tree_add_item(coap_tree, hf_coap_opt_count, tvb, offset, 1, FALSE);
+	proto_tree_add_item(coap_tree, hf_coap_opt_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	opt_count = tvb_get_guint8(tvb, offset) & 0x0f;
 	offset += 1;
 
-	proto_tree_add_item(coap_tree, hf_coap_code, tvb, offset, 1, FALSE);
+	proto_tree_add_item(coap_tree, hf_coap_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	code = tvb_get_guint8(tvb, offset);
 	col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(code, vals_code, "Unknown %d"));
 	offset += 1;
 
-	proto_tree_add_item(coap_tree, hf_coap_tid, tvb, offset, 2, FALSE);
+	proto_tree_add_item(coap_tree, hf_coap_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
 	tid = tvb_get_ntohs(tvb, offset);
 	offset += 2;
 

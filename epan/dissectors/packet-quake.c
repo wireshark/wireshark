@@ -166,7 +166,7 @@ dissect_quake_CCREQ_CONNECT
 		offset += proto_item_get_len(ti);
 
 		proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_version,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -185,7 +185,7 @@ dissect_quake_CCREQ_SERVER_INFO
 			tvb, offset, -1, TRUE);
 		offset += proto_item_get_len(ti);
 		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -196,7 +196,7 @@ dissect_quake_CCREQ_PLAYER_INFO
 {
 	if (tree) {
 		 proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
-			tvb, 0, 1, TRUE);
+			tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -266,13 +266,13 @@ dissect_quake_CCREP_SERVER_INFO
 		offset += proto_item_get_len(ti);
 
 		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_num_player,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_max_player,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -293,7 +293,7 @@ dissect_quake_CCREP_PLAYER_INFO
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_quake_CCREQ_PLAYER_INFO_player,
-			tvb, offset, 1, TRUE);
+			tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		ti = proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_name,
@@ -317,10 +317,10 @@ dissect_quake_CCREP_PLAYER_INFO
 			tvb, offset, 1, color_pants);
 		offset += 4;
 		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_frags,
-			tvb, offset, 4, TRUE);
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_connect_time,
-			tvb, offset, 4, TRUE);
+			tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_address,

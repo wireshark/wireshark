@@ -109,12 +109,12 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
           expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
           break;
         }
-        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_srcport,      tvb, offset, fl, FALSE);
+        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_srcport,      tvb, offset, fl, ENC_BIG_ENDIAN);
         srcport_tree = proto_item_add_subtree(ti, ett_srcport);
-        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_plfm, tvb, offset, fl, FALSE);
-        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_gid,  tvb, offset, fl, FALSE);
-        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_bid,  tvb, offset, fl, FALSE);
-        ti = proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_pid,  tvb, offset, fl, FALSE);
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_plfm, tvb, offset, fl, ENC_BIG_ENDIAN);
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_gid,  tvb, offset, fl, ENC_BIG_ENDIAN);
+        proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_bid,  tvb, offset, fl, ENC_BIG_ENDIAN);
+        ti = proto_tree_add_item(srcport_tree, hf_gmhdr_srcport_pid,  tvb, offset, fl, ENC_BIG_ENDIAN);
         /* If not GV-2404, we need different formula here */
         pid = ((tv & GMHDR_SRCPORT_PID_MASK) >> GMHDR_SRCPORT_PID_SHFT) - 24;
         if (pid >= 1 && pid <= 4) {
@@ -127,7 +127,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
           expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
           break;
         }
-        proto_tree_add_item(gmhdr_tree, hf_gmhdr_pktsize, tvb, offset, fl, FALSE);
+        proto_tree_add_item(gmhdr_tree, hf_gmhdr_pktsize, tvb, offset, fl, ENC_BIG_ENDIAN);
         break;
       case GMHDR_FTYPE_TIMESTAMP_LOCAL:
       case GMHDR_FTYPE_TIMESTAMP_NTP:

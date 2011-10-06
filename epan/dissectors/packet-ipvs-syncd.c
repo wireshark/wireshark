@@ -109,13 +109,13 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	cnt = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_conn_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_syncid, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_syncid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_size, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	for (conn = 0; conn < cnt; conn++)
@@ -127,19 +127,19 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		ti = proto_tree_add_text(tree, tvb, offset, 24, "Connection #%d", conn+1);
 		ctree = proto_item_add_subtree(ti, ett_conn);
 
-		proto_tree_add_item(ctree, hf_resv8, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ctree, hf_resv8, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ctree, hf_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
-		proto_tree_add_item(ctree, hf_cport, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ctree, hf_cport, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(ctree, hf_vport, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ctree, hf_vport, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, FALSE);
@@ -152,7 +152,7 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset += 4;
 
 		flags = tvb_get_ntohs(tvb, offset);
-		fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, FALSE);
+		fi = proto_tree_add_item(ctree, hf_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
 		ftree = proto_item_add_subtree(fi, ett_flags);
 
 		if ( (flags & 0x0F) == IP_VS_CONN_F_MASQ )
@@ -209,28 +209,28 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 		offset += 2;
 
-		proto_tree_add_item(ctree, hf_state, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ctree, hf_state, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* we have full connection info */
 		if ( flags & IP_VS_CONN_F_SEQ_MASK )
 		{
-			proto_tree_add_item(ctree, hf_in_seq_init, tvb, offset, 4, FALSE);
+			proto_tree_add_item(ctree, hf_in_seq_init, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_in_seq_delta, tvb, offset, 4, FALSE);
+			proto_tree_add_item(ctree, hf_in_seq_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_in_seq_pdelta, tvb, offset, 4, FALSE);
+			proto_tree_add_item(ctree, hf_in_seq_pdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_out_seq_init, tvb, offset, 4, FALSE);
+			proto_tree_add_item(ctree, hf_out_seq_init, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_out_seq_delta, tvb, offset, 4, FALSE);
+			proto_tree_add_item(ctree, hf_out_seq_delta, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(ctree, hf_out_seq_pdelta, tvb, offset, 4, FALSE);
+			proto_tree_add_item(ctree, hf_out_seq_pdelta, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 

@@ -485,7 +485,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 	proto_tree_add_item(field_tree, hf_nbns_flags_response,
 	    tvb, offset, 2, FALSE);
 	proto_tree_add_item(field_tree, hf_nbns_flags_opcode,
-	    tvb, offset, 2, FALSE);
+	    tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (flags & F_RESPONSE) {
 		proto_tree_add_item(field_tree, hf_nbns_flags_authoritative,
 			  tvb, offset, 2, FALSE);
@@ -502,7 +502,7 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 	    tvb, offset, 2, FALSE);
 	if (flags & F_RESPONSE && !is_wack) {
 		proto_tree_add_item(field_tree, hf_nbns_flags_rcode,
-		    tvb, offset, 2, FALSE);
+		    tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -1499,7 +1499,7 @@ dissect_nbss_packet(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if (is_cifs) {
 		if (tree) {
-		  proto_tree_add_item(nbss_tree, hf_nbss_cifs_length, tvb, offset, 3, FALSE);
+		  proto_tree_add_item(nbss_tree, hf_nbss_cifs_length, tvb, offset, 3, ENC_BIG_ENDIAN);
 		}
 		offset += 3;
 	} else {

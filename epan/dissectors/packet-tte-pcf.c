@@ -105,28 +105,28 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tte_pcf_tree = proto_item_add_subtree(tte_pcf_root_item, ett_tte_pcf);
 
         proto_tree_add_item(tte_pcf_tree,
-            hf_tte_pcf_ic, tvb, 0, TTE_PCF_IC_LENGTH, FALSE);
+            hf_tte_pcf_ic, tvb, 0, TTE_PCF_IC_LENGTH, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(tte_pcf_tree,
-            hf_tte_pcf_mn, tvb, TTE_PCF_IC_LENGTH, TTE_PCF_MN_LENGTH, FALSE);
+            hf_tte_pcf_mn, tvb, TTE_PCF_IC_LENGTH, TTE_PCF_MN_LENGTH, ENC_BIG_ENDIAN);
 
      /* RESERVED FIELD --- will not be displayed */
      /* proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_res0, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH,
-            TTE_PCF_RES0_LENGTH, FALSE); */
+            TTE_PCF_RES0_LENGTH, ENC_BIG_ENDIAN); */
 
         proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_sp, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
-            TTE_PCF_RES0_LENGTH, TTE_PCF_SP_LENGTH, FALSE);
+            TTE_PCF_RES0_LENGTH, TTE_PCF_SP_LENGTH, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_sd, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
-            TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH, TTE_PCF_SD_LENGTH, FALSE);
+            TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH, TTE_PCF_SD_LENGTH, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_type, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
             TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH+TTE_PCF_SD_LENGTH,
-            TTE_PCF_TYPE_LENGTH, FALSE);
+            TTE_PCF_TYPE_LENGTH, ENC_BIG_ENDIAN);
 
      /* RESERVED FIELD --- will not be displayed */
      /* proto_tree_add_item(tte_pcf_tree,
@@ -137,7 +137,7 @@ dissect_tte_pcf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(tte_pcf_tree,
             hf_tte_pcf_tc, tvb, TTE_PCF_IC_LENGTH+TTE_PCF_MN_LENGTH+
             TTE_PCF_RES0_LENGTH+TTE_PCF_SP_LENGTH+TTE_PCF_SD_LENGTH+
-            TTE_PCF_TYPE_LENGTH+TTE_PCF_RES1_LENGTH, TTE_PCF_TC_LENGTH, FALSE);
+            TTE_PCF_TYPE_LENGTH+TTE_PCF_RES1_LENGTH, TTE_PCF_TC_LENGTH, ENC_BIG_ENDIAN);
     }
 
 }

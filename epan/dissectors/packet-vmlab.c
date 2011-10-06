@@ -95,9 +95,9 @@ dissect_vmlab(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* Flags*/
     attributes = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part1,    tvb, offset, 1, FALSE);
-    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_fragment, tvb, offset, 1, FALSE);
-    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part2,    tvb, offset, 1, FALSE);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part1,    tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_fragment, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vmlab_tree, hf_vmlab_flags_part2,    tvb, offset, 1, ENC_BIG_ENDIAN);
     if (attributes & 0x04) {
         proto_item_append_text(ti, ", Fragment");
     }

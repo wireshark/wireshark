@@ -54,8 +54,8 @@ dissect_ncs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "NCS");
     col_set_str(pinfo->cinfo, COL_INFO, "Novell Cluster Services Heartbeat");
 
-    proto_tree_add_item(ncs_tree, hf_panning_id, tvb, 4, 4, FALSE);
-    proto_tree_add_item(ncs_tree, hf_incarnation, tvb, 8, 4, FALSE);
+    proto_tree_add_item(ncs_tree, hf_panning_id, tvb, 4, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(ncs_tree, hf_incarnation, tvb, 8, 4, ENC_BIG_ENDIAN);
 }
 
 void

@@ -106,7 +106,7 @@ de_sgsap_eps_loc_upd_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 	curr_offset = offset;
 
 	/* Octet 3	EPS location update type value */
-	proto_tree_add_item(tree, hf_sgsap_eps_location_update_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_eps_location_update_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(add_string){
 		oct = tvb_get_guint8(tvb,curr_offset);
 		g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_eps_location_update_type_values, "Reserved"));
@@ -129,7 +129,7 @@ de_sgsap_err_msg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
 	 * Octet 3 - Octet n
 	 * Erroneous message including the message type.
 	 */
-	proto_tree_add_item(tree, hf_sgsap_msg_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	return(len);
 }
@@ -149,7 +149,7 @@ de_sgsap_ecgi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
     dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
     curr_offset+=3;
 
-    proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sgsap_eci, tvb, curr_offset, 4, ENC_BIG_ENDIAN);
     curr_offset+=4;
 
     return(curr_offset-offset);
@@ -174,7 +174,7 @@ de_sgsap_g_cn_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint3
     dissect_e212_mcc_mnc(tvb, gpinfo, tree, offset, TRUE);
     curr_offset+=3;
 
-    proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_sgsap_cn_id, tvb, curr_offset, 2, ENC_BIG_ENDIAN);
     curr_offset+=2;
 
     return(curr_offset-offset);
@@ -230,7 +230,7 @@ de_sgsap_imsi_det_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_sgsap_imsi_det_eps, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_imsi_det_eps, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+=1;
 
 	return(curr_offset-offset);
@@ -254,7 +254,7 @@ de_sgsap_imsi_det_non_eps(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_sgsap_imsi_det_eps, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_imsi_det_eps, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+=1;
 
 	return(curr_offset-offset);
@@ -281,7 +281,7 @@ de_sgsap_lcs_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_sgsap_lcs_indic, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_lcs_indic, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+=1;
 
 	return(curr_offset-offset);
@@ -413,7 +413,7 @@ de_sgsap_serv_indic(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gui
 	curr_offset = offset;
 
 	/* Octet 3	Service indicator value */
-	proto_tree_add_item(tree, hf_sgsap_service_indicator_value, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_service_indicator_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(add_string){
 		oct = tvb_get_guint8(tvb,curr_offset);
 		g_snprintf(add_string, string_len, " - %s", val_to_str_const(oct, sgsap_service_indicator_values, "Reserved"));
@@ -455,7 +455,7 @@ de_sgsap_sgs_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_sgsap_sgs_cause, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_sgs_cause, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(add_string){
 		oct = tvb_get_guint8(tvb,curr_offset);
 		g_snprintf(add_string, string_len, " - %s", val_to_str_ext_const(oct, &sgsap_sgs_cause_values_ext, "Reserved"));
@@ -510,7 +510,7 @@ de_sgsap_ue_emm_mode(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
 
 	curr_offset = offset;
 
-	proto_tree_add_item(tree, hf_sgsap_ue_emm_mode, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_sgsap_ue_emm_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	curr_offset+=1;
 
 	return(curr_offset - offset);

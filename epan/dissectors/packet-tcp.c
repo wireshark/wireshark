@@ -2272,8 +2272,8 @@ dissect_tcpopt_exp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     item = proto_tree_add_item(opt_tree, hf_tcp_option_exp, tvb,
         offset, optlen, ENC_NA);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_exp);
-    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
-    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(exp_tree, hf_tcp_option_exp_data, tvb,
         offset + 2, optlen - 2, ENC_NA);
     tcp_info_append_uint(pinfo, "Expxx", TRUE);
@@ -2290,8 +2290,8 @@ dissect_tcpopt_sack_perm(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     item = proto_tree_add_boolean(opt_tree, hf_tcp_option_sack_perm, tvb, offset,
                            optlen, TRUE);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_sack_perm);
-    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
-    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     tcp_info_append_uint(pinfo, "SACK_PERM", TRUE);
 }
 
@@ -2307,9 +2307,9 @@ dissect_tcpopt_mss(const ip_tcp_opt *optp, tvbuff_t *tvb,
     item = proto_tree_add_none_format(opt_tree, hf_tcp_option_mss, tvb, offset,
         optlen, "%s: %u bytes", optp->name, mss);
     exp_tree = proto_item_add_subtree(item, ett_tcp_option_mss);
-    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, FALSE);
-    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, FALSE);
-    proto_tree_add_item(exp_tree, hf_tcp_option_mss_val, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(exp_tree, hf_tcp_option_kind, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(exp_tree, hf_tcp_option_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(exp_tree, hf_tcp_option_mss_val, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     tcp_info_append_uint(pinfo, "MSS", mss);
 }
 
@@ -2373,10 +2373,10 @@ dissect_tcpopt_sack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     }
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tf = proto_tree_add_text(opt_tree, tvb, offset,      optlen, "%s:", optp->name);
@@ -2429,10 +2429,10 @@ dissect_tcpopt_echo(const ip_tcp_opt *optp, tvbuff_t *tvb,
     guint32 echo;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     echo = tvb_get_ntohl(tvb, offset + 2);
@@ -2489,10 +2489,10 @@ dissect_tcpopt_cc(const ip_tcp_opt *optp, tvbuff_t *tvb,
     guint32 cc;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     cc = tvb_get_ntohl(tvb, offset + 2);
@@ -2535,10 +2535,10 @@ dissect_tcpopt_qs(const ip_tcp_opt *optp, tvbuff_t *tvb,
     guint8 rate = tvb_get_guint8(tvb, offset + 2) & 0x0f;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_qs, tvb, offset,
@@ -2569,10 +2569,10 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
     guint8      connid;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
@@ -2644,7 +2644,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
         proto_tree_add_boolean(field_tree, hf_tcp_scpsoption_flags_resv1, tvb,
                                offset + 2, 1, capvector);
         proto_tree_add_item(field_tree, hf_tcp_scpsoption_connection_id, tvb,
-                            offset + 3, 1, 0);
+                            offset + 3, 1, ENC_BIG_ENDIAN);
 
         tcp_info_append_str(pinfo, "SCPS", flags);
 
@@ -2697,7 +2697,7 @@ dissect_tcpopt_scps(const ip_tcp_opt *optp, tvbuff_t *tvb,
                 /* Convert the extended capabilities length into bytes for display */
                 extended_cap_length = (extended_cap_length << 1);
 
-                proto_tree_add_item(field_tree, hf_tcp_option_scps_binding, tvb, offset + local_offset, 1, 0);
+                proto_tree_add_item(field_tree, hf_tcp_option_scps_binding, tvb, offset + local_offset, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_uint(field_tree, hf_tcp_option_scps_binding_len, tvb, offset + local_offset + 1, 1, extended_cap_length);
 
                 /* Step past the binding space and length octets */
@@ -2732,10 +2732,10 @@ dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
     guint16 to;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     g = tvb_get_ntohs(tvb, offset + 2) & 0x8000;
@@ -2748,7 +2748,7 @@ dissect_tcpopt_user_to(const ip_tcp_opt *optp, tvbuff_t *tvb,
                                optlen, to, "%s: %u %s", optp->name, to, g ? "minutes" : "seconds");
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
     proto_tree_add_item(field_tree, hf_tcp_option_user_to_granularity, tvb, offset + 2, 2, FALSE);
-    proto_tree_add_item(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(field_tree, hf_tcp_option_user_to_val, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     tcp_info_append_uint(pinfo, "USER_TO", to);
 }
@@ -2774,10 +2774,10 @@ dissect_tcpopt_snack(const ip_tcp_opt *optp, tvbuff_t *tvb,
     proto_item *hidden_item;
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     tcpd = get_tcp_conversation_data(NULL,pinfo);
@@ -2871,10 +2871,10 @@ dissect_tcpopt_mood(const ip_tcp_opt _U_*optp, tvbuff_t *tvb,
     mood = tvb_get_ephemeral_string(tvb, offset + 2, optlen-2);
 
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(opt_tree, hf_tcp_option_len, tvb,
-                        offset + 1, 1, FALSE);
+                        offset + 1, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
     hidden_item = proto_tree_add_boolean(opt_tree, hf_tcp_option_mood, tvb, offset+2, optlen-2, TRUE);
@@ -2999,22 +2999,22 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
     /* optlen, type, ver are common for all probes */
     field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_probe);
     pitem = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
-                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+                        offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(pitem);
     pitem = proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(pitem);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
-                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+                        offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
     if (ver == PROBE_VERSION_1) {
         guint32 ip;
         guint16 port;
 
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_type1, tvb,
-                            offset + PROBE_VERSION_TYPE_OFFSET, 1, FALSE);
+                            offset + PROBE_VERSION_TYPE_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_version1, tvb,
-                            offset + PROBE_VERSION_TYPE_OFFSET, 1, FALSE);
+                            offset + PROBE_VERSION_TYPE_OFFSET, 1, ENC_BIG_ENDIAN);
 
         if (type == PROBE_INTERNAL)
             return;
@@ -3033,7 +3033,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         case PROBE_TRACE:
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_appli_ver, tvb,
                                 offset + PROBE_V1_APPLI_VERSION_OFFSET, 2,
-                                FALSE);
+                                ENC_BIG_ENDIAN);
 
             proto_item_append_text(pitem, ", CSH IP: %s", ip_to_str((guint8 *)&ip));
 
@@ -3062,7 +3062,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
             port = tvb_get_ntohs(tvb, offset + PROBE_V1_PROXY_PORT_OFFSET);
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy_port, tvb,
-                                offset + PROBE_V1_PROXY_PORT_OFFSET, 2, FALSE);
+                                offset + PROBE_V1_PROXY_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
             rvbd_probe_resp_add_info(pitem, pinfo, ip, port);
             break;
@@ -3079,7 +3079,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
 
             port = tvb_get_ntohs(tvb, offset + PROBE_V1_SH_PROXY_PORT_OFFSET);
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_proxy_port, tvb,
-                                offset + PROBE_V1_SH_PROXY_PORT_OFFSET, 2, FALSE);
+                                offset + PROBE_V1_SH_PROXY_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
             rvbd_probe_resp_add_info(pitem, pinfo, ip, port);
             break;
@@ -3092,7 +3092,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         guint8 flags;
 
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_type2, tvb,
-                            offset + PROBE_VERSION_TYPE_OFFSET, 1, FALSE);
+                            offset + PROBE_VERSION_TYPE_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_uint_format_value(
             field_tree, hf_tcp_option_rvbd_probe_version2, tvb,
@@ -3130,7 +3130,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
                 proto_tree_add_item(flag_tree,
                                     hf_tcp_option_rvbd_probe_storeid, tvb,
                                     offset + PROBE_V2_INFO_STOREID_OFFSET,
-                                    4, FALSE);
+                                    4, ENC_BIG_ENDIAN);
 
             if (type != PROBE_QUERY_INFO_SID &&
                 check_col(pinfo->cinfo, COL_INFO) &&
@@ -3144,7 +3144,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         case PROBE_RESPONSE_INFO:
             flag_pi = proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_flags,
                                           tvb, offset + PROBE_V2_INFO_OFFSET,
-                                          1, FALSE);
+                                          1, ENC_BIG_ENDIAN);
 
             flag_tree = proto_item_add_subtree(flag_pi, ett_tcp_opt_rvbd_probe_flags);
             proto_tree_add_item(flag_tree,
@@ -3161,7 +3161,7 @@ dissect_tcpopt_rvbd_probe(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
         case PROBE_RST:
             proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_flags,
                                   tvb, offset + PROBE_V2_INFO_OFFSET,
-                                  1, FALSE);
+                                  1, ENC_BIG_ENDIAN);
             break;
         }
     }
@@ -3213,18 +3213,18 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     field_tree = proto_item_add_subtree(pitem, ett_tcp_opt_rvbd_trpy);
     pitem = proto_tree_add_item(field_tree, hf_tcp_option_len, tvb,
-                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+                        offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(pitem);
     pitem = proto_tree_add_item(field_tree, hf_tcp_option_kind, tvb,
-                        offset, 1, FALSE);
+                        offset, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(pitem);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_probe_optlen, tvb,
-                        offset + PROBE_OPTLEN_OFFSET, 1, FALSE);
+                        offset + PROBE_OPTLEN_OFFSET, 1, ENC_BIG_ENDIAN);
 
     flags = tvb_get_ntohs(tvb, offset + TRPY_OPTIONS_OFFSET);
     flag_pi = proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_flags,
                                   tvb, offset + TRPY_OPTIONS_OFFSET,
-                                  2, FALSE);
+                                  2, ENC_BIG_ENDIAN);
 
     flag_tree = proto_item_add_subtree(flag_pi, ett_tcp_opt_rvbd_trpy_flags);
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst_probe,
@@ -3250,11 +3250,11 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
 
     sport = tvb_get_ntohs(tvb, offset + TRPY_SRC_PORT_OFFSET);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_src_port,
-                        tvb, offset + TRPY_SRC_PORT_OFFSET, 2, FALSE);
+                        tvb, offset + TRPY_SRC_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
     dport = tvb_get_ntohs(tvb, offset + TRPY_DST_PORT_OFFSET);
     proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_dst_port,
-                        tvb, offset + TRPY_DST_PORT_OFFSET, 2, FALSE);
+                        tvb, offset + TRPY_DST_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
     proto_item_append_text(pitem, "%s:%u -> %s:%u",
                            ip_to_str((guint8 *)&src), sport,
@@ -3263,7 +3263,7 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     /* Client port only set on SYN: optlen == 18 */
     if ((flags & RVBD_FLAGS_TRPY_OOB) && (optlen > TCPOLEN_RVBD_TRPY_MIN))
         proto_tree_add_item(field_tree, hf_tcp_option_rvbd_trpy_client_port,
-                            tvb, offset + TRPY_CLIENT_PORT_OFFSET, 2, FALSE);
+                            tvb, offset + TRPY_CLIENT_PORT_OFFSET, 2, ENC_BIG_ENDIAN);
 
     /* We need to map this TCP session on our own dissector instead of what
        Wireshark thinks runs on these ports */
@@ -3788,7 +3788,7 @@ dissect_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              *  g_str_has_suffix in glib2.2
              */
             if (strstr(pinfo->layer_names->str, "icmp:ip") != NULL)
-                proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, FALSE);
+                proto_tree_add_item(tcp_tree, hf_tcp_seq, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         }
     }
 

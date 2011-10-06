@@ -457,7 +457,7 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 shutdown_flags = conv_hdr;
                 shutdown_flag_item = proto_tree_add_item(conv_tree,
                                                 hf_tcp_convergence_shutdown_flags, tvb,
-                                                frame_offset, 1, FALSE);
+                                                frame_offset, 1, ENC_BIG_ENDIAN);
                 shutdown_flag_tree = proto_item_add_subtree(shutdown_flag_item,
                                                                         ett_shutdown_flags);
                 proto_tree_add_boolean(shutdown_flag_tree,
@@ -472,14 +472,14 @@ dissect_tcp_bundle(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(conv_hdr & TCP_CONVERGENCE_SHUTDOWN_REASON) {
                     proto_tree_add_item(conv_tree,
                                                 hf_tcp_convergence_shutdown_reason, tvb,
-                                                frame_offset, 1, FALSE);
+                                                frame_offset, 1, ENC_BIG_ENDIAN);
                     frame_offset += 1;
                     field_length += 1;
                 }
                 if(conv_hdr & TCP_CONVERGENCE_SHUTDOWN_DELAY) {
                     proto_tree_add_item(conv_tree,
                                                 hf_tcp_convergence_shutdown_delay, tvb,
-                                                frame_offset, 2, FALSE);
+                                                frame_offset, 2, ENC_BIG_ENDIAN);
                     frame_offset += 2;
                     field_length += 2;
                 }
@@ -581,7 +581,7 @@ dissect_tcp_convergence_data_header(tvbuff_t *tvb, proto_tree *tree)
     /* Add tree for Start/End bits */
     tcp_convergence_hdr_procflags = tvb_get_guint8(tvb, 0);
     conv_flag_item = proto_tree_add_item(conv_tree, hf_tcp_convergence_data_procflags, tvb,
-                                                0, 1, FALSE);
+                                                0, 1, ENC_BIG_ENDIAN);
     conv_flag_tree = proto_item_add_subtree(conv_flag_item, ett_conv_flags);
     proto_tree_add_boolean(conv_flag_tree, hf_tcp_convergence_data_procflags_start,
                                                 tvb, 0, 1, tcp_convergence_hdr_procflags);
@@ -667,7 +667,7 @@ dissect_primary_header(packet_info *pinfo, proto_tree *primary_tree, tvbuff_t *t
         return 0;
     }
 
-    proto_tree_add_item(primary_tree, hf_bundle_pdu_version, tvb, offset, 1, FALSE);
+    proto_tree_add_item(primary_tree, hf_bundle_pdu_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (version == 4) {
         return dissect_version_4_primary_header(pinfo, primary_tree, tvb);
     }
@@ -715,7 +715,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     /* Primary Header Processing Flags */
     pri_hdr_procflags = tvb_get_guint8(tvb, offset);
     proc_flag_item = proto_tree_add_item(primary_tree, hf_bundle_procflags, tvb,
-                                                offset, 1, FALSE);
+                                                offset, 1, ENC_BIG_ENDIAN);
     proc_flag_tree = proto_item_add_subtree(proc_flag_item, ett_proc_flags);
     proto_tree_add_boolean(proc_flag_tree, hf_bundle_procflags_fragment,
                                                 tvb, offset, 1, pri_hdr_procflags);
@@ -732,7 +732,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     ++offset;
     cosflags = tvb_get_guint8(tvb, offset);
     cos_flag_item = proto_tree_add_item(primary_tree, hf_bundle_cosflags, tvb,
-                                                offset, 1, FALSE);
+                                                offset, 1, ENC_BIG_ENDIAN);
     cos_flag_tree = proto_item_add_subtree(cos_flag_item, ett_cos_flags);
     proto_tree_add_uint(cos_flag_tree, hf_bundle_cosflags_priority,
                                                 tvb, offset, 1, cosflags);
@@ -740,7 +740,7 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     ++offset;
     srrflags = tvb_get_guint8(tvb, offset);
     srr_flag_item = proto_tree_add_item(primary_tree, hf_bundle_srrflags, tvb,
-                                                offset, 1, FALSE);
+                                                offset, 1, ENC_BIG_ENDIAN);
     srr_flag_tree = proto_item_add_subtree(srr_flag_item, ett_srr_flags);
 
     proto_tree_add_boolean(srr_flag_tree, hf_bundle_srrflags_report_receipt,
@@ -776,59 +776,59 @@ dissect_version_4_primary_header(packet_info *pinfo, proto_tree *primary_tree, t
     dst_scheme_pos = offset;
     dst_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_dest_scheme_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     dest_ssp_offset = tvb_get_ntohs(tvb, offset);
     dst_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_dest_ssp_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     source_scheme_offset = tvb_get_ntohs(tvb, offset);
     src_scheme_pos = offset;
     src_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_source_scheme_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     source_ssp_offset = tvb_get_ntohs(tvb, offset);
     src_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_source_ssp_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     report_scheme_offset = tvb_get_ntohs(tvb, offset);
     rpt_scheme_pos = offset;
     rpt_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_report_scheme_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     report_ssp_offset = tvb_get_ntohs(tvb, offset);
     rpt_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_report_ssp_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     cust_scheme_offset = tvb_get_ntohs(tvb, offset);
     cust_scheme_pos = offset;
     cust_scheme_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_cust_scheme_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     cust_ssp_offset = tvb_get_ntohs(tvb, offset);
     cust_ssp_len = 2;
     proto_tree_add_item(primary_tree, hf_bundle_cust_ssp_offset,
-                                                        tvb, offset, 2, FALSE);
+                                                        tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(primary_tree, hf_bundle_creation_timestamp,
-                                                        tvb, offset, 8, FALSE);
+                                                        tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(primary_tree, hf_bundle_lifetime, tvb, offset, 4, FALSE);
+    proto_tree_add_item(primary_tree, hf_bundle_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     bundle_header_dict_length = evaluate_sdnv(tvb, offset, &sdnv_length);
@@ -1072,7 +1072,7 @@ dissect_version_5_and_6_primary_header(packet_info *pinfo,
         return 0;
     }
     proc_flag_item = proto_tree_add_item(primary_tree, hf_bundle_control_flags, tvb,
-                                                offset, sdnv_length, FALSE);
+                                                offset, sdnv_length, ENC_BIG_ENDIAN);
     proc_flag_tree = proto_item_add_subtree(proc_flag_item, ett_proc_flags);
 
     gen_flag_item = proto_tree_add_text(proc_flag_tree, tvb, offset,
@@ -1532,7 +1532,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
             *lastheader = FALSE;
         }
         proc_flag_item = proto_tree_add_item(payload_tree, hf_bundle_payload_flags, tvb,
-                                                offset, 1, FALSE);
+                                                offset, 1, ENC_BIG_ENDIAN);
         proc_flag_tree = proto_item_add_subtree(proc_flag_item, ett_payload_flags);
         proto_tree_add_boolean(proc_flag_tree, hf_bundle_payload_flags_replicate_hdr,
                                                 tvb, offset, 1, procflags);
@@ -1557,7 +1557,7 @@ dissect_payload_header(proto_tree *tree, tvbuff_t *tvb, int offset, gboolean *la
             *lastheader = FALSE;
         }
         block_flag_item = proto_tree_add_item(payload_tree, hf_block_control_flags, tvb,
-                                                offset, sdnv_length, FALSE);
+                                                offset, sdnv_length, ENC_BIG_ENDIAN);
         block_flag_tree = proto_item_add_subtree(block_flag_item, ett_block_flags);
 
         proto_tree_add_boolean(block_flag_tree, hf_block_control_replicate,
@@ -1653,7 +1653,7 @@ dissect_admin_record(proto_tree *primary_tree, tvbuff_t *tvb, int offset)
         /* Decode Bundle Status Report Flags */
         status = tvb_get_guint8(tvb, offset);
         status_flag_item = proto_tree_add_item(admin_record_tree,
-                                hf_bundle_admin_statflags, tvb, offset, 1, FALSE);
+                                hf_bundle_admin_statflags, tvb, offset, 1, ENC_BIG_ENDIAN);
         status_flag_tree = proto_item_add_subtree(status_flag_item,
                                                         ett_admin_rec_status);
         proto_tree_add_boolean(status_flag_tree, hf_bundle_admin_rcvd,
@@ -1906,12 +1906,12 @@ dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
      */
 
     proto_tree_add_text(conv_tree, tvb, 0, 4, "Pkt Type: Contact Header");
-    proto_tree_add_item(conv_tree, hf_contact_hdr_version, tvb, 4, 1, FALSE);
+    proto_tree_add_item(conv_tree, hf_contact_hdr_version, tvb, 4, 1, ENC_BIG_ENDIAN);
 
     /* Subtree to expand the bits in the Contact Header Flags */
     contact_hdr_flags = tvb_get_guint8(tvb, 5);
     contact_hdr_flag_item =
-                proto_tree_add_item(conv_tree, hf_contact_hdr_flags, tvb, 5, 1, FALSE);
+                proto_tree_add_item(conv_tree, hf_contact_hdr_flags, tvb, 5, 1, ENC_BIG_ENDIAN);
     contact_hdr_flag_tree =
                 proto_item_add_subtree(contact_hdr_flag_item, ett_contact_hdr_flags);
     proto_tree_add_boolean(contact_hdr_flag_tree, hf_contact_hdr_flags_ack_req,
@@ -1920,7 +1920,7 @@ dissect_contact_header(tvbuff_t *tvb, packet_info *pinfo,
                                 tvb, 5, 1, contact_hdr_flags);
     proto_tree_add_boolean(contact_hdr_flag_tree, hf_contact_hdr_flags_nak,
                                 tvb, 5, 1, contact_hdr_flags);
-    proto_tree_add_item(conv_tree, hf_contact_hdr_keep_alive, tvb, 6, 2, FALSE);
+    proto_tree_add_item(conv_tree, hf_contact_hdr_keep_alive, tvb, 6, 2, ENC_BIG_ENDIAN);
 
     /*
      * New format Contact header has length field followed by Bundle Header.

@@ -1117,8 +1117,8 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                              "%s", val_to_str(opttype, opttype_vals, "DHCP option %u"));
 
     subtree = proto_item_add_subtree(ti, ett_dhcpv6_option);
-    proto_tree_add_item(subtree, hf_option_type, tvb, off, 2, FALSE);
-    proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, FALSE);
+    proto_tree_add_item(subtree, hf_option_type, tvb, off, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_option_length, tvb, off + 2, 2, ENC_BIG_ENDIAN);
     off += 4;
     /* Right now, none of the options can be filtered at, so provide a hex
        array for minimalistic filtering */
@@ -1169,7 +1169,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                     optlen, "DUID: malformed option");
                 break;
             }
-            proto_tree_add_item(subtree, hf_duiden_enterprise, tvb, off + 2, 4, FALSE);
+            proto_tree_add_item(subtree, hf_duiden_enterprise, tvb, off + 2, 4, ENC_BIG_ENDIAN);
             if (optlen > 6) {
                 buf = tvb_bytes_to_str(tvb, off + 6, optlen - 6);
                 proto_tree_add_text(subtree, tvb, off + 6,
@@ -1399,7 +1399,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                 optlen, "VENDOR_CLASS: malformed option");
             break;
         }
-        proto_tree_add_item(subtree, hf_vendorclass_enterprise, tvb, off, 4, FALSE);
+        proto_tree_add_item(subtree, hf_vendorclass_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
         if (optlen > 4) {
             proto_tree_add_text(subtree, tvb, off+6, optlen-6,
                 "vendor-class-data: \"%s\"", tvb_format_stringzpad(tvb, off + 6, optlen - 6));
@@ -1413,7 +1413,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
         }
 
         enterprise_no = tvb_get_ntohl(tvb, off);
-        proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, FALSE);
+        proto_tree_add_item(subtree, hf_vendoropts_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
 
         if (optlen >= 4) {
             if (enterprise_no == 4491) {
@@ -1604,7 +1604,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
                                 optlen, "REMOTE_ID: malformed option");
             break;
         }
-        proto_tree_add_item(subtree, hf_remoteid_enterprise, tvb, off, 4, FALSE);
+        proto_tree_add_item(subtree, hf_remoteid_enterprise, tvb, off, 4, ENC_BIG_ENDIAN);
         off += 4;
         buf = tvb_bytes_to_str(tvb, off, optlen - 4);
         proto_tree_add_text(subtree, tvb, off, optlen - 4, "Remote-ID: %s", buf);
@@ -1628,7 +1628,7 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
              * | MBZ |N|O|S|
              * +-----+-+-+-+
              */
-            proto_tree_add_item(subtree, hf_clientfqdn_reserved, tvb, off, 1, FALSE);
+            proto_tree_add_item(subtree, hf_clientfqdn_reserved, tvb, off, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(subtree, hf_clientfqdn_n, tvb, off, 1, FALSE);
             proto_tree_add_item(subtree, hf_clientfqdn_o, tvb, off, 1, FALSE);
             proto_tree_add_item(subtree, hf_clientfqdn_s, tvb, off, 1, FALSE);
@@ -1878,8 +1878,8 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     if (msgtype == RELAY_FORW || msgtype == RELAY_REPLY) {
         if (tree) {
-            proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, FALSE);
-            proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1, 1, FALSE);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2, 16, FALSE);
             tvb_get_ipv6(tvb, off + 2, &in6);
             col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
@@ -1888,8 +1888,8 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         off += 34;
     } else {
         if (tree) {
-            proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, FALSE);
-            proto_tree_add_item(bp_tree, hf_dhcpv6_xid, tvb, off + 1, 3, FALSE);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_xid, tvb, off + 1, 3, ENC_BIG_ENDIAN);
         }
         col_append_fstr(pinfo->cinfo, COL_INFO, "XID: 0x%x ", tvb_get_ntoh24(tvb, off + 1));
         off += 4;

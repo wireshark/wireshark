@@ -300,7 +300,7 @@ static void
 getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
 
     sizeMuxPPPHeader = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(field_tree, hf_mux27010_extended_header_size, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree, hf_mux27010_extended_header_size, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (sizeMuxPPPHeader > 0){
         int tmpOffset = 1;
         guint16 tmpStartByte = 0;
@@ -308,23 +308,23 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
         for (i=0; i < sizeMuxPPPHeader/7; i++){
             switch(i){
                 case(0) :
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_I, tvb, offset+tmpOffset, 2, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_I, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_I, tvb, offset+tmpOffset, 2, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_I, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
                     tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_I, tvb, offset+tmpOffset, 1, FALSE);
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_I, tvb, tmpStartByte, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_I, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_I, tvb, tmpStartByte, 1, ENC_BIG_ENDIAN);
                     tmpOffset+=1;
 
                     tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_I, tvb, offset+tmpOffset, 1, FALSE);
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_I, tvb, tmpLastByte, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_I, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_I, tvb, tmpLastByte, 1, ENC_BIG_ENDIAN);
 
                     tmpOffset+=1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_flag_ended_I, tvb, offset+tmpOffset, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_flag_ended_I, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     if ((tvb_get_guint8(tvb, tmpOffset) & MUX27010_EXTENDED_HEADER_NOT_ENDED) == MUX27010_EXTENDED_HEADER_NOT_ENDED)
                         proto_tree_add_uint_format(field_tree, hf_mux27010_extended_header_flag_ended_I, tvb, offset+tmpOffset, 1, 1, "Not Last Packet in Frequence");
                     else
@@ -333,23 +333,23 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
 
                 case(1) :
                     tmpOffset+=1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_II, tvb, offset+tmpOffset, 2, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_II, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_II, tvb, offset+tmpOffset, 2, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_II, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
                     tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_II, tvb, offset+tmpOffset, 1, FALSE);
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_II, tvb, tmpStartByte, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_II, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_II, tvb, tmpStartByte, 1, ENC_BIG_ENDIAN);
                     tmpOffset+=1;
 
                     tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_II, tvb, offset+tmpOffset, 1, FALSE);
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_II, tvb, tmpLastByte, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_II, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_II, tvb, tmpLastByte, 1, ENC_BIG_ENDIAN);
 
                     tmpOffset+=1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_flag_ended_II, tvb, offset+tmpOffset, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_flag_ended_II, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     if ((tvb_get_guint8(tvb, tmpOffset) & MUX27010_EXTENDED_HEADER_NOT_ENDED) == MUX27010_EXTENDED_HEADER_NOT_ENDED)
                         proto_tree_add_uint_format(field_tree, hf_mux27010_extended_header_flag_ended_II, tvb, offset+tmpOffset, 1, 1, "Not Last Packet in Frequence");
                     else
@@ -358,23 +358,23 @@ getExtendedHeader(tvbuff_t *tvb, proto_tree *field_tree){
 
                 case(2) :
                     tmpOffset+=1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_III, tvb, offset+tmpOffset, 2, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_msg_number_III, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_III, tvb, offset+tmpOffset, 2, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_freq_number_III, tvb, offset+tmpOffset, 2, ENC_BIG_ENDIAN);
                     tmpOffset+=2;
 
                     tmpStartByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_III, tvb, offset+tmpOffset, 1, FALSE);
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_III, tvb, tmpStartByte, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_pos_III, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_start_byte_III, tvb, tmpStartByte, 1, ENC_BIG_ENDIAN);
                     tmpOffset+=1;
 
                     tmpLastByte = tvb_get_guint8(tvb, tmpOffset) + sizeMuxPPPHeader + 1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_III, tvb, offset+tmpOffset, 1, FALSE);
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_III, tvb, tmpLastByte, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_pos_III, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_end_byte_III, tvb, tmpLastByte, 1, ENC_BIG_ENDIAN);
 
                     tmpOffset+=1;
-                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_flag_ended_III, tvb, offset+tmpOffset, 1, FALSE);
+                    proto_tree_add_item(field_tree, hf_mux27010_extended_header_flag_ended_III, tvb, offset+tmpOffset, 1, ENC_BIG_ENDIAN);
                     if ((tvb_get_guint8(tvb, tmpOffset) & MUX27010_EXTENDED_HEADER_NOT_ENDED) == MUX27010_EXTENDED_HEADER_NOT_ENDED)
                         proto_tree_add_uint_format(field_tree, hf_mux27010_extended_header_flag_ended_III, tvb, offset+tmpOffset, 1, 1, "Not Last Packet in Frequence");
                     else
@@ -444,7 +444,7 @@ getFrameAddress(tvbuff_t *tvb, proto_tree *field_tree_addr){
     /*Add items to subtree to display the details*/
     proto_tree_add_item(field_tree_addr, hf_mux27010_eaaddressflag, tvb, offset, 1, FALSE);
     proto_tree_add_item(field_tree_addr, hf_mux27010_craddressflag, tvb, offset, 1, FALSE);
-    proto_tree_add_item(field_tree_addr, hf_mux27010_dlciaddressflag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree_addr, hf_mux27010_dlciaddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Get info if frame is command or response*/
     command_or_response = tvb_get_guint8(tvb, offset);
@@ -502,8 +502,8 @@ getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
                 /*Add frame type to column*/
                 proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_UIH_E, "Frame Type= UIH_E");
                 /*Add info about sequence numbers to column*/
-                proto_tree_add_item(field_tree, hf_mux27010_controlframetypens, tvb, offset, 1, FALSE);
-                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, FALSE);
+                proto_tree_add_item(field_tree, hf_mux27010_controlframetypens, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 /*Copy frame name to string for info column*/
                 g_snprintf(frameTypeText,sizeof(frameTypeText),"UIH_E");
@@ -515,7 +515,7 @@ getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
                 /*Add frame type to column*/
                 proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_RR, "Frame Type= Receive Ready");
                 /*Add info about sequence number to column*/
-                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, FALSE);
+                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 /*Copy frame name to string for info column*/
                 g_snprintf(frameTypeText,sizeof(frameTypeText),"RR");
@@ -526,7 +526,7 @@ getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
                 /*Add frame type to column*/
                 proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_RNR, "Frame Type= Receive Not Ready");
                 /*Add info about sequence number to column*/
-                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, FALSE);
+                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 /*Copy frame name to string for info column*/
                 g_snprintf(frameTypeText,sizeof(frameTypeText),"RNR");
@@ -537,7 +537,7 @@ getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
                 /*Add frame type to column*/
                 proto_tree_add_uint_format(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, MUX27010_FRAMETYPE_CONTROL_FLAG_REJ, "Frame Type= Reject");
                 /*Add info about sequence number to column*/
-                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, FALSE);
+                proto_tree_add_item(field_tree, hf_mux27010_controlframetypenr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 /*Copy frame name to string for info column*/
                 g_snprintf(frameTypeText,sizeof(frameTypeText),"REJ");
@@ -559,8 +559,8 @@ getFrameControlData(tvbuff_t *tvb, proto_tree *field_tree){
     g_snprintf(colInfoText,sizeof(colInfoText),"%s%s", colInfoText, frameTypeText);
     g_snprintf(colInfoText,sizeof(colInfoText),"%s)", colInfoText);
     /*Add Frame type value and PF bit to column*/
-    proto_tree_add_item(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, FALSE);
-    proto_tree_add_item(field_tree, hf_mux27010_pfcontrolflag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree, hf_mux27010_controlframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree, hf_mux27010_pfcontrolflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Increment offset*/
     offset += 1;
@@ -645,7 +645,7 @@ getControlChannelFrameType(tvbuff_t *tvb, proto_tree *field_tree_ctr){
     /*Add info to subtree*/
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneleaframetype, tvb, offset, 1, FALSE);
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelcrframetype, tvb, offset, 1, FALSE);
-    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Check the control channel frame types and add the name to the subtree and strcat the name to the info column*/
     /*Command pattern for Multiplexer Close Down (C/R is set to 1)*/
@@ -719,7 +719,7 @@ getControlChannelLength(tvbuff_t *tvb, proto_tree *field_tree_ctr) {
 
     /*Add data to subtree*/
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelealength, tvb, offset, 1, FALSE);
-    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannellengthfield, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannellengthfield, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Increment the offset by the number of info octets*/
     offset +=number_of_length_frames;
@@ -733,7 +733,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
 
     /*Command pattern for Test Command (C/R is set to 1)*/
     if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_TEST_COMMAND){
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluetestcommandversion, tvb, offset, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluetestcommandversion, tvb, offset, 1, ENC_BIG_ENDIAN);
         controlchannel_iei = tvb_get_guint8(tvb, offset);
         if (controlchannel_iei == MUX27010_VALUE_CONTROLCHANNEL_TEST_IEI_TE) {
             proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchannelvalue, tvb, offset, 1, controlchannel_value, "IEI coding: TEMUX_VERSION");
@@ -746,7 +746,7 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
 
     /*Command pattern for Power saving control (C/R is set to 1)*/
     if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_POWER_SAVING_CONTROL){
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
         controlchannel_psc = tvb_get_guint8(tvb, offset);
         if (controlchannel_type_cr == 0 && controlchannel_psc == 0) /*Response Failure*/
             proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, controlchannel_length_value, controlchannel_value, "Response: Failure");
@@ -756,12 +756,12 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
 
     /*Command pattern for non-supported command response (C/R is set to 1)*/
     if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_NON_SUPPORTED_COMMAND_REPSONSE){
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_uint_format(field_tree_ctr, hf_mux27010_controlchanneldetailedvalue, tvb, offset, controlchannel_length_value, controlchannel_value, "Non-supported Command");
     }
     /*Command pattern for Modem Status Command (C/R is set to 1)*/
     if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_MODEM_STATUS_COMMAND){
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscdlci, tvb, offset, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscdlci, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /*Add bits of Flow Control*/
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24fc, tvb, offset+1, 1, FALSE);
@@ -772,21 +772,21 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
         /**/
 
         if (controlchannel_length_value == 3) {
-            proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscbreak, tvb, offset+2, 1, FALSE);
+            proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscbreak, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         }
     }
     /*Command pattern for Parameter Negotiation (EA + C/R is set to 1)*/
     if ((controlchannel_type_command | MUX27010_EA_CONTROLCHANNEL_FRAMETYPE_FLAG | MUX27010_CR_CONTROLCHANNEL_FRAMETYPE_FLAG) == MUX27010_COMMAND_PARAMETER_NEGOTIATION){
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepndlci, tvb, offset, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnframetype, tvb, offset+1, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepncl, tvb, offset+1, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepndlci, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnframetype, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepncl, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         controlchannel_cl = tvb_get_guint8(tvb, offset+1);
         controlchannel_cl = controlchannel_cl & MUX27010_VALUE_CONTROLCHANNEL_PN_CL;
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnprio, tvb, offset+2, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepntimer, tvb, offset+3, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnframesize, tvb, offset+4, 2, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnna, tvb, offset+6, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnwinsize, tvb, offset+7, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnprio, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepntimer, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnframesize, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnna, tvb, offset+6, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluepnwinsize, tvb, offset+7, 1, ENC_BIG_ENDIAN);
 
     }
 
@@ -881,7 +881,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     sizeOfOneMuxPPPHeader = 7;
 
     /*Add a subtree (=item) to the child node => in this subtree the details of extended header will be displayed*/
-    tf_extended_header = proto_tree_add_item(mux27010_tree, hf_mux27010_extended_header, tvb, offset, 1, FALSE);
+    tf_extended_header = proto_tree_add_item(mux27010_tree, hf_mux27010_extended_header, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*Create the subtree*/
     field_tree_extended_header = proto_item_add_subtree(tf_extended_header, ett_mux27010_extended_header);
 
@@ -900,7 +900,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*~~~~~~~~Flag~~~~~~~~*/
     /*(Insert data into the child node)*/
     /*Create item to show/highlight flag sequence*/
-    proto_tree_add_item(mux27010_tree, hf_mux27010, tvb, offset, 1, FALSE);
+    proto_tree_add_item(mux27010_tree, hf_mux27010, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /*~~~~~~~~/Flag~~~~~~~~*/
 
@@ -908,7 +908,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*~~~~~~~~Address~~~~~~~~*/
     /*Add a subtree (=item) to the child node => in this subtree the details of address data will be displayed*/
-    tf_addr = proto_tree_add_item(mux27010_tree, hf_mux27010_address, tvb, offset, 1, FALSE);
+    tf_addr = proto_tree_add_item(mux27010_tree, hf_mux27010_address, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*Create the subtree*/
     field_tree_addr = proto_item_add_subtree(tf_addr, ett_mux27010_address);
 
@@ -920,7 +920,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /*~~~~~~~~Control Data~~~~~~~~*/
     /*Add a subtree (=item) to the child node => in this subtree the details of control data will be displayed*/
-    tf = proto_tree_add_item(mux27010_tree, hf_mux27010_control, tvb, offset, 1, FALSE);
+    tf = proto_tree_add_item(mux27010_tree, hf_mux27010_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*Create the subtree*/
     field_tree = proto_item_add_subtree(tf, ett_mux27010_control);
 
@@ -938,7 +938,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*Check the frame type because in RR, RNR and REJ are no info and no lenght fields*/
     if (strcmp(frameTypeText,"RR")!= 0 && strcmp(frameTypeText,"RNR")!= 0 && strcmp(frameTypeText,"REJ")!= 0){
         /*Add a subtree (=item) to the child node => in this subtree will be the details of length field*/
-        tf = proto_tree_add_item(mux27010_tree, hf_mux27010_length, tvb, offset, 1, FALSE);
+        tf = proto_tree_add_item(mux27010_tree, hf_mux27010_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         /*Create the subtree*/
         field_tree = proto_item_add_subtree(tf, ett_mux27010_length);
 
@@ -960,12 +960,12 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             /*Get and display data of frame type*/
 
             /*Add a subtree (=item) to the child node => in this subtree the details of control channel will be displayed*/
-            tf = proto_tree_add_item(mux27010_tree, hf_mux27010_controlchannel, tvb, offset, 1, FALSE);
+            tf = proto_tree_add_item(mux27010_tree, hf_mux27010_controlchannel, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*Create the subtree*/
             field_tree = proto_item_add_subtree(tf, ett_mux27010_controlchannel);
 
             /*Add another subtree to the control channel subtree => in this subtree the details of control channel frame type will be displayed*/
-            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannelframetype, tvb, offset, number_of_type_frames, FALSE);
+            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannelframetype, tvb, offset, number_of_type_frames, ENC_BIG_ENDIAN);
             /*Create the subtree*/
             field_tree_ctr = proto_item_add_subtree(tf_ctr, ett_mux27010_controlchannelframetype);
 
@@ -976,7 +976,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             /*--------Length Field--------*/
             /*Add another subtree to the control channel subtree => in this subtree the details of control channel length field will be displayed*/
-            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannellength, tvb, offset, number_of_length_frames, FALSE);
+            tf_ctr = proto_tree_add_item(field_tree, hf_mux27010_controlchannellength, tvb, offset, number_of_length_frames, ENC_BIG_ENDIAN);
             /*Create the subtree*/
             field_tree_ctr = proto_item_add_subtree(tf_ctr, ett_mux27010_controlchannellength);
 
@@ -1008,7 +1008,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*Display "normal" data/values (not control channel) if exists ==> length_info > 0*/
     if (dlci_number != 0 && length_info > 0) {
         /*Add a subtree (=item) to the child node => in this subtree will be the data*/
-        tf = proto_tree_add_item(mux27010_tree, hf_mux27010_information, tvb, offset, 1, FALSE);
+        tf = proto_tree_add_item(mux27010_tree, hf_mux27010_information, tvb, offset, 1, ENC_BIG_ENDIAN);
         /*Create the subtree*/
         field_tree = proto_item_add_subtree(tf, ett_mux27010_information);
 
@@ -1095,7 +1095,7 @@ dissect_mux27010(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /*~~~~~~~~Checksum~~~~~~~~*/
     /*Validate checksum of frame*/
     /*Add a subtree (=item) to the child node => in this subtree will be the checksum*/
-    tf = proto_tree_add_item(mux27010_tree, hf_mux27010_checksum, tvb, offset, 1, FALSE);
+    tf = proto_tree_add_item(mux27010_tree, hf_mux27010_checksum, tvb, offset, 1, ENC_BIG_ENDIAN);
     /*Create the subtree*/
     field_tree = proto_item_add_subtree(tf, ett_mux27010_checksum);
 

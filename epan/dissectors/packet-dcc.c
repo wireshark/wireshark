@@ -103,7 +103,7 @@ static gint ett_dcc_trace = -1;
 
 #define D_TARGET() \
 	hidden_item = proto_tree_add_item(dcc_tree, hf_dcc_target, tvb, \
-		offset, sizeof(DCC_TGTS), FALSE); \
+		offset, sizeof(DCC_TGTS), ENC_BIG_ENDIAN); \
 	PROTO_ITEM_SET_HIDDEN(hidden_item); \
 	proto_tree_add_text(dcc_optree, tvb, offset, sizeof(DCC_TGTS), "%s", \
 		val_to_str(tvb_get_ntohl(tvb,offset), dcc_target_vals, "Targets (%u)")); \
@@ -125,9 +125,9 @@ static gint ett_dcc_trace = -1;
 		dcc_cktype_vals, \
 		"Unknown Type: %u")); \
 	cktree = proto_item_add_subtree(ckti, ett_dcc_ck); \
-	proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, FALSE); \
+	proto_tree_add_item(cktree, hf_dcc_ck_type, tvb, offset, 1, ENC_BIG_ENDIAN); \
 	offset += 1; \
-	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, FALSE); \
+	proto_tree_add_item(cktree, hf_dcc_ck_len, tvb, offset, 1, ENC_BIG_ENDIAN); \
 	offset += 1; \
 	proto_tree_add_item(cktree, hf_dcc_ck_sum, tvb, offset, \
 		sizeof(DCC_SUM), ENC_NA); \
@@ -243,7 +243,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		dcc_tree = proto_item_add_subtree(ti, ett_dcc);
 
 		proto_tree_add_item(dcc_tree, hf_dcc_len, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 
 		if ( tvb_length(tvb) < tvb_get_ntohs(tvb, offset)) {
 			/* Doesn't have number of bytes that header claims. */
@@ -252,16 +252,16 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 
 		proto_tree_add_item(dcc_tree, hf_dcc_pkt_vers, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		op = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(dcc_tree, hf_dcc_op, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(dcc_tree, hf_dcc_clientid, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		ti = proto_tree_add_text(dcc_tree, tvb, offset, -1, "Operation Numbers (Opaque to Server)");
@@ -348,7 +348,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					aop = tvb_get_guint8(tvb, offset+4);
 					proto_tree_add_item(dcc_optree, hf_dcc_adminop, tvb, offset+4,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 					col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 						val_to_str(tvb_get_guint8(tvb,offset+4),
 						dcc_adminop_vals, "Unknown (%u)"));
@@ -356,7 +356,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					if (aop == DCC_AOP_TRACE_ON || aop == DCC_AOP_TRACE_OFF )
 					{
 						ti = proto_tree_add_item(dcc_optree, hf_dcc_trace, tvb, offset,
-							4, FALSE);
+							4, ENC_BIG_ENDIAN);
 						dcc_tracetree = proto_item_add_subtree(ti, ett_dcc_trace);
 						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_admin, tvb, offset, 4, FALSE);
 						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_anon, tvb, offset, 4, FALSE);
@@ -369,7 +369,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					else if ( aop == DCC_AOP_FLOD )
 					{
 						proto_tree_add_item(dcc_optree, hf_dcc_floodop,
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 						col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
 							val_to_str(tvb_get_ntohl(tvb,offset),
 							dcc_floodop_vals, "Unknown (%u)"));
@@ -377,7 +377,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					else
 					{
 						proto_tree_add_item(dcc_optree, hf_dcc_adminval,
-							tvb, offset, 4, FALSE);
+							tvb, offset, 4, ENC_BIG_ENDIAN);
 					}
 					offset += 4;
 
@@ -389,13 +389,13 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			case DCC_OP_OK:
 				proto_tree_add_item(dcc_optree, hf_dcc_max_pkt_vers, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 
 				D_LABEL("Unused", 1);
 
 				proto_tree_add_item(dcc_optree, hf_dcc_qdelay_ms, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
 				proto_tree_add_item(dcc_optree, hf_dcc_brand, tvb,

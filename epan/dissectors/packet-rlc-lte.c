@@ -661,7 +661,7 @@ static int dissect_rlc_lte_extension_header(tvbuff_t *tvb, packet_info *pinfo _U
     isOdd = (s_number_of_extensions % 2);
     if (isOdd) {
         proto_tree_add_item(tree, hf_rlc_lte_extension_padding,
-                            tvb, offset++, 1, FALSE);
+                            tvb, offset++, 1, ENC_BIG_ENDIAN);
     }
 
     return offset;
@@ -1777,7 +1777,7 @@ static void dissect_rlc_lte_um(tvbuff_t *tvb, packet_info *pinfo,
 
         /* Check 3 Reserved bits */
         reserved = (tvb_get_guint8(tvb, offset) & 0xe0) >> 5;
-        ti = proto_tree_add_item(um_header_tree, hf_rlc_lte_um_fixed_reserved, tvb, offset, 1, FALSE);
+        ti = proto_tree_add_item(um_header_tree, hf_rlc_lte_um_fixed_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         if (reserved != 0) {
             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                       "RLC UM Fixed header Reserved bits not zero (found 0x%x)", reserved);
@@ -1926,7 +1926,7 @@ static void dissect_rlc_lte_am_status_pdu(tvbuff_t *tvb,
 
     /* Control PDU Type (CPT) */
     cpt = (tvb_get_guint8(tvb, offset) & 0xf0) >> 4;
-    ti = proto_tree_add_item(tree, hf_rlc_lte_am_cpt, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(tree, hf_rlc_lte_am_cpt, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (cpt != 0) {
         /* Protest and stop - only know about STATUS PDUs */
         expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
@@ -2107,7 +2107,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* First bit is Data/Control flag           */
     is_data = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, FALSE);
+    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_data_control, tvb, offset, 1, ENC_BIG_ENDIAN);
     tap_info->isControlPDU = !is_data;
 
     if (!is_data) {
@@ -2127,7 +2127,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Re-segmentation Flag (RF) field */
     is_resegmented = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, FALSE);
+    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_rf, tvb, offset, 1, ENC_BIG_ENDIAN);
     tap_info->isResegmented = is_resegmented;
 
     write_pdu_label_and_info(top_ti, NULL, pinfo,
@@ -2135,7 +2135,7 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Polling bit */
     polling = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, FALSE);
+    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_p, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     write_pdu_label_and_info(top_ti, NULL, pinfo, (polling) ? " (P) " : "     ");
     if (polling) {
@@ -2144,15 +2144,15 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
 
     /* Framing Info */
     framing_info = (tvb_get_guint8(tvb, offset) & 0x18) >> 3;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fi, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Extension bit */
     fixed_extension = (tvb_get_guint8(tvb, offset) & 0x04) >> 2;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_e, tvb, offset, 1, FALSE);
+    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_e, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Sequence Number */
     sn = tvb_get_ntohs(tvb, offset) & 0x03ff;
-    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, FALSE);
+    proto_tree_add_item(am_header_tree, hf_rlc_lte_am_fixed_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     tap_info->sequenceNumber = sn;
 
@@ -2164,11 +2164,11 @@ static void dissect_rlc_lte_am(tvbuff_t *tvb, packet_info *pinfo,
         guint16 segmentOffset;
 
         /* Last Segment Field (LSF) */
-        proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_lsf, tvb, offset, 1, FALSE);
+        proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_lsf, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* SO */
         segmentOffset = tvb_get_ntohs(tvb, offset) & 0x7fff;
-        proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, FALSE);
+        proto_tree_add_item(am_header_tree, hf_rlc_lte_am_segment_so, tvb, offset, 2, ENC_BIG_ENDIAN);
         write_pdu_label_and_info(top_ti, am_header_ti, pinfo, " SO=%u ", segmentOffset);
         offset += 2;
     }

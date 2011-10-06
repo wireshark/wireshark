@@ -81,11 +81,11 @@ dissect_llt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		llt_tree = proto_item_add_subtree(ti, ett_llt);
 	}
 
-	proto_tree_add_item(llt_tree, hf_llt_cluster_num, tvb, 2, 1, FALSE);
-	proto_tree_add_item(llt_tree, hf_llt_message_type, tvb, 3, 1, FALSE);
-	proto_tree_add_item(llt_tree, hf_llt_node_id, tvb, 7, 1, FALSE);
-	proto_tree_add_item(llt_tree, hf_llt_sequence_num, tvb, 24, 4, FALSE);
-	proto_tree_add_item(llt_tree, hf_llt_message_time, tvb, 40, 4, FALSE);
+	proto_tree_add_item(llt_tree, hf_llt_cluster_num, tvb, 2, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(llt_tree, hf_llt_message_type, tvb, 3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(llt_tree, hf_llt_node_id, tvb, 7, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(llt_tree, hf_llt_sequence_num, tvb, 24, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(llt_tree, hf_llt_message_time, tvb, 40, 4, ENC_BIG_ENDIAN);
 
 }
 

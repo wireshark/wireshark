@@ -159,14 +159,14 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	}
 
 	/* cid : 4 bytes */
-	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/*FIXME dont know how to handle this checksum, skipping it */
 	offset += 4;
 
 	/* sequrityindex : 1 byte */
-	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	for (i=0; i<RX_MAXCALLS; i++) {
@@ -178,11 +178,11 @@ dissect_rx_response_encrypted(tvbuff_t *tvb, proto_tree *parent_tree, int offset
 	}
 
 	/* inc nonce : 4 bytes */
-	proto_tree_add_item(tree, hf_rx_inc_nonce, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_inc_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* level : 4 bytes */
-	proto_tree_add_item(tree, hf_rx_level, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_level, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	proto_item_set_len(item, offset-old_offset);
@@ -228,7 +228,7 @@ dissect_rx_response(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, 
 		offset = dissect_rx_response_encrypted(tvb, tree, offset);
 
 		/* kvno */
-		proto_tree_add_item(tree, hf_rx_kvno, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_rx_kvno, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* ticket_len */
@@ -271,7 +271,7 @@ dissect_rx_abort(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	tree = proto_item_add_subtree(item, ett_rx_abort);
 
 	/* kvno */
-	proto_tree_add_item(tree, hf_rx_abortcode, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_abortcode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	proto_item_set_len(item, offset-old_offset);
@@ -310,10 +310,10 @@ dissect_rx_challenge(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 	offset += 4;
 
 	if (version==2) {
-		proto_tree_add_item(tree, hf_rx_nonce, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_rx_nonce, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(tree, hf_rx_min_level, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_rx_min_level, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
@@ -348,27 +348,27 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 
 
 	/* bufferspace: 2 bytes*/
-	proto_tree_add_item(tree, hf_rx_bufferspace, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_rx_bufferspace, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* maxskew: 2 bytes*/
-	proto_tree_add_item(tree, hf_rx_maxskew, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_rx_maxskew, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* first packet: 4 bytes*/
-	proto_tree_add_item(tree, hf_rx_first_packet, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_first_packet, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* prev packet: 4 bytes*/
-	proto_tree_add_item(tree, hf_rx_prev_packet, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_prev_packet, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* serial : 4 bytes */
-	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* reason : 1 byte */
-	proto_tree_add_item(tree, hf_rx_reason, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_rx_reason, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* nACKs */
@@ -378,7 +378,7 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 
 	while(num--){
 		proto_tree_add_item(tree, hf_rx_ack_type, tvb, offset, 1,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 1;
 	}
 
@@ -395,22 +395,22 @@ dissect_rx_acks(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int 
 
 		if (tvb_reported_length_remaining(tvb, offset) >= 4){
 			proto_tree_add_item(tree, hf_rx_ifmtu, tvb, offset, 4,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 		if (tvb_reported_length_remaining(tvb, offset) >= 4){
 			proto_tree_add_item(tree, hf_rx_maxmtu, tvb, offset, 4,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 		if (tvb_reported_length_remaining(tvb, offset) >= 4){
 			proto_tree_add_item(tree, hf_rx_rwind, tvb, offset, 4,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 		if (tvb_reported_length_remaining(tvb, offset) >= 4){
 			proto_tree_add_item(tree, hf_rx_maxpackets, tvb, offset, 4,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += 4;
 		}
 	}
@@ -486,7 +486,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* cid : 4 bytes */
 	rxinfo.cid = tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_cid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* callnumber : 4 bytes */
@@ -504,7 +504,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	rxinfo.seq = seq;
 
 	/* serial : 4 bytes */
-	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_rx_serial, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* type : 1 byte */
@@ -518,11 +518,11 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	offset = dissect_rx_flags(tvb, &rxinfo, tree, offset);
 
 	/* userstatus : 1 byte */
-	proto_tree_add_item(tree, hf_rx_userstatus, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_rx_userstatus, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* sequrityindex : 1 byte */
-	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_rx_securityindex, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/*
@@ -532,7 +532,7 @@ dissect_rx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	 */
 
 	/* spare */
-	proto_tree_add_item(tree, hf_rx_spare, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_rx_spare, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* service id : 2 bytes */

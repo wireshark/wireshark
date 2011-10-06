@@ -181,7 +181,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tacacs_tree, hf_tacacs_type, tvb, 1, 1,
 		    type);
 		proto_tree_add_item(tacacs_tree, hf_tacacs_nonce, tvb, 2, 2,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 
 	if (version==0)
 	    {
@@ -201,9 +201,9 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    else
 	    	{
 	    	proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 4, 1,
-	    	    FALSE);
+	    	    ENC_BIG_ENDIAN);
 	    	proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 5, 1,
-	    	    FALSE);
+	    	    ENC_BIG_ENDIAN);
 		}
 	    }
 	else
@@ -215,21 +215,21 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_uint(tacacs_tree, hf_tacacs_passlen, tvb, 5, 1,
 		passlen);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_response, tvb, 6, 1,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_reason, tvb, 7, 1,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_result1, tvb, 8, 4,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_destaddr, tvb, 12, 4,
 		FALSE);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_destport, tvb, 16, 2,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_line, tvb, 18, 2,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_result2, tvb, 20, 4,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_result3, tvb, 24, 2,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    if (type!=TACACS_RESPONSE)
 	    	{
 	    	tvb_get_nstringz0(tvb,26,userlen+1,txt_buff);
@@ -975,9 +975,9 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tacplus_tree, hf_tacplus_minvers, tvb, 0, 1,
 		    version&0xf);
 		proto_tree_add_item(tacplus_tree, hf_tacplus_type, tvb, 1, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		proto_tree_add_item(tacplus_tree, hf_tacplus_seqno, tvb, 2, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		flags = tvb_get_guint8(tvb,3);
 		tf = proto_tree_add_uint_format(tacplus_tree, hf_tacplus_flags,
 		    tvb, 3, 1, flags,
@@ -993,7 +993,7 @@ dissect_tacplus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(flags_tree, hf_tacplus_flags_connection_type,
 		    tvb, 3, 1, flags);
 		proto_tree_add_item(tacplus_tree, hf_tacplus_session_id, tvb, 4, 4,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 
 		if ((gint) len < 1) {
 			proto_tree_add_text(tacplus_tree, tvb, 8, 4,

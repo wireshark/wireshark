@@ -135,9 +135,9 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(tsp_tree, hf_tsp_type,
 			tvb, 0, 1, tsp_type);
 		proto_tree_add_item(tsp_tree, hf_tsp_vers,
-			tvb, 1, 1, FALSE);
+			tvb, 1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tsp_tree, hf_tsp_seq,
-			tvb, 2, 2, FALSE);
+			tvb, 2, 2, ENC_BIG_ENDIAN);
 	}
 
 	switch (tsp_type) {
@@ -145,7 +145,7 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case TSP_LOOP:
 		if (tsp_tree)
 			proto_tree_add_item(tsp_tree, hf_tsp_hopcnt,
-				tvb, 4, 1, FALSE);
+				tvb, 4, 1, ENC_BIG_ENDIAN);
 		break;
 
 	case TSP_SETTIME:
@@ -154,9 +154,9 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case TSP_SETDATEREQ:
 		if (tsp_tree) {
 			proto_tree_add_item(tsp_tree, hf_tsp_time_sec,
-				tvb, 4, 4, FALSE);
+				tvb, 4, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tsp_tree, hf_tsp_time_usec,
-				tvb, 8, 4, FALSE);
+				tvb, 8, 4, ENC_BIG_ENDIAN);
 		}
 		break;
 	}

@@ -94,15 +94,15 @@ static void dissect_nwmtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			nwmtp_tree = proto_item_add_subtree(ti, ett_mwmtp);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_transp_type,
-					    tvb, offset, 1, FALSE);
+					    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_data_type,
-					    tvb, offset + 1, 1, FALSE);
+					    tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_data_index,
-					    tvb, offset + 2, 2, FALSE);
+					    tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_user_context,
-					    tvb, offset + 4, 4, FALSE);
+					    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(nwmtp_tree, hf_nwmtp_data_length,
-					    tvb, offset + 8, 4, FALSE);
+					    tvb, offset + 8, 4, ENC_BIG_ENDIAN);
 		}
 
 		next_tvb = tvb_new_subset(tvb, offset + 12, len, len);

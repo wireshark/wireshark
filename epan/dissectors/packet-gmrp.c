@@ -300,7 +300,7 @@ dissect_gmrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					{
 						/* Service Requirement */
 						proto_tree_add_item(gmrp_tree, hf_gmrp_attribute_value_service_requirement,
-							tvb, offset, sizeof(guint8), FALSE);
+							tvb, offset, sizeof(guint8), ENC_BIG_ENDIAN);
 
 						offset += sizeof(guint8);
 						length -= sizeof(guint8);

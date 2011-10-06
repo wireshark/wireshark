@@ -98,15 +98,15 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 	switch(avptype) {
 		case(RB_AVP_SEQNO):
 			proto_tree_add_item(st, hf_redbackli_seqno, tvb,
-					    offset+2, avplen, FALSE);
+					    offset+2, avplen, ENC_BIG_ENDIAN);
 			break;
 		case(RB_AVP_LIID):
 			proto_tree_add_item(st, hf_redbackli_liid, tvb,
-					    offset+2, avplen, FALSE);
+					    offset+2, avplen, ENC_BIG_ENDIAN);
 			break;
 		case(RB_AVP_SESSID):
 			proto_tree_add_item(st, hf_redbackli_sessid, tvb,
-					    offset+2, avplen, FALSE);
+					    offset+2, avplen, ENC_BIG_ENDIAN);
 			break;
 		case(RB_AVP_LABEL):
 			proto_tree_add_item(st, hf_redbackli_label, tvb,

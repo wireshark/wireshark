@@ -186,7 +186,7 @@ dissect_sll(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_protocol_format(tree, proto_sll, tvb, 0,
 		    SLL_HEADER_SIZE, "Linux cooked capture");
 		fh_tree = proto_item_add_subtree(ti, ett_sll);
-		proto_tree_add_item(fh_tree, hf_sll_pkttype, tvb, 0, 2, FALSE);
+		proto_tree_add_item(fh_tree, hf_sll_pkttype, tvb, 0, 2, ENC_BIG_ENDIAN);
 	}
 
 	/*

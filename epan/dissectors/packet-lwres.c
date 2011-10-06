@@ -265,20 +265,20 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
                         tvb,
                         LWRES_LWPACKET_LENGTH,
                         4,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
     proto_tree_add_item(nba_resp_tree,
                         hf_adn_naliases,
                         tvb,
                         LWRES_LWPACKET_LENGTH + 4,
                         2,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(nba_resp_tree,
                         hf_adn_namelen,
                         tvb,
                         LWRES_LWPACKET_LENGTH + 6,
                         2,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(nba_resp_tree,
                         hf_adn_realname,
@@ -304,7 +304,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
                                 tvb,
                                 offset,
                                 2,
-                                FALSE);
+                                ENC_BIG_ENDIAN);
 
             proto_tree_add_item(alias_tree,
                                 hf_adn_aliasname,
@@ -343,21 +343,21 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
                 tvb,
                 LWRES_LWPACKET_LENGTH+0,
                 sizeof(guint32),
-                FALSE);
+                ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_request_tree,
                 hf_adn_addrtype,
                 tvb,
                 LWRES_LWPACKET_LENGTH+4,
                 sizeof(guint32),
-                FALSE);
+                ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_request_tree,
                 hf_adn_namelen,
                 tvb,
                 LWRES_LWPACKET_LENGTH+8,
                 sizeof(guint16),
-                FALSE);
+                ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_request_tree,
                 hf_adn_name,
@@ -399,16 +399,16 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
 
 
     proto_tree_add_item(adn_resp_tree, hf_adn_flags, tvb,
-                LWRES_LWPACKET_LENGTH, 4, FALSE);
+                LWRES_LWPACKET_LENGTH, 4, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_resp_tree, hf_adn_naliases, tvb,
-                LWRES_LWPACKET_LENGTH + 4, 2, FALSE);
+                LWRES_LWPACKET_LENGTH + 4, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_resp_tree, hf_adn_naddrs, tvb,
-                LWRES_LWPACKET_LENGTH + 6, 2, FALSE);
+                LWRES_LWPACKET_LENGTH + 6, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_resp_tree, hf_adn_namelen, tvb,
-                LWRES_LWPACKET_LENGTH + 8, 2, FALSE);
+                LWRES_LWPACKET_LENGTH + 8, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_resp_tree, hf_adn_realname, tvb,
                 LWRES_LWPACKET_LENGTH + 10, realnamelen, FALSE);
@@ -709,28 +709,28 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
             tvb,
             LWRES_LWPACKET_LENGTH+0,
             sizeof(guint32),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_rdclass,
             tvb,
             LWRES_LWPACKET_LENGTH+4,
             sizeof(guint16),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_rdtype,
             tvb,
             LWRES_LWPACKET_LENGTH+6,
             sizeof(guint16),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_namelen,
             tvb,
             LWRES_LWPACKET_LENGTH+8,
             sizeof(guint16),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_request_tree,
             hf_req_name,
@@ -768,49 +768,49 @@ static void dissect_rdata_response(tvbuff_t* tvb, proto_tree* lwres_tree)
                         tvb,
                         LWRES_LWPACKET_LENGTH+0,
                         sizeof(guint32),
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
                         hf_rdclass,
                         tvb,
                         LWRES_LWPACKET_LENGTH+4,
                         sizeof(guint16),
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
                         hf_rdtype,
                         tvb,
                         LWRES_LWPACKET_LENGTH+6,
                         sizeof(guint16),
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_ttl,
             tvb,
             LWRES_LWPACKET_LENGTH+8,
             sizeof(guint32),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_nrdatas,
             tvb,
             LWRES_LWPACKET_LENGTH+12,
             sizeof(guint16),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_nsigs,
             tvb,
             LWRES_LWPACKET_LENGTH+14,
             sizeof(guint16),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
             hf_realnamelen,
             tvb,
             LWRES_LWPACKET_LENGTH+16,
             sizeof(guint16),
-            FALSE);
+            ENC_BIG_ENDIAN);
 
     proto_tree_add_item(rdata_resp_tree,
                         hf_realname,

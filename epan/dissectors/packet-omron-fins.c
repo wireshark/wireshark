@@ -1151,43 +1151,43 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Byte 2 RSV */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_rsv, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 3 GCT */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_gct, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_gct, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 4 DNA */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_dna, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_dna, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 5 DA1 */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_da1, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_da1, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 6 DA2 */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_da2, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_da2, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 7 SNA */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_sna, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_sna, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 8 SA1 */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_sa1, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_sa1, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 9 SA2 */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_sa2, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_sa2, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 10 SID */
         offset = offset + 1;
-        proto_tree_add_item(omron_header_tree, hf_omron_sid, tvb, offset, 1, FALSE);
+        proto_tree_add_item(omron_header_tree, hf_omron_sid, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* Byte 11 and 12 Command Code */
         offset = offset + 1;
-        ti = proto_tree_add_item(omron_header_tree, hf_omron_command, tvb, offset, 2, FALSE);
+        ti = proto_tree_add_item(omron_header_tree, hf_omron_command, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         offset = offset + 2;
 
@@ -1277,11 +1277,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 6)
                 {
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code,
-                                        tvb, offset, 1, FALSE);
+                                        tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
                     offset = offset + 6;
                 }
             }
@@ -1291,7 +1291,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining >= 2)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset,
-                                        2, FALSE);
+                                        2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining > 2)
                     {
@@ -1311,11 +1311,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining >= 6)
                 {
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code,
-                        tvb, offset, 1, FALSE);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
 
                     proto_tree_add_item(command_tree, hf_omron_command_data, tvb, (offset+6), -1, ENC_NA);
                     offset = offset + reported_length_remaining;
@@ -1327,7 +1327,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 2)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset,
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1341,11 +1341,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 8)
                 {
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code,
-                        tvb, offset, 1, FALSE);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
 
                     proto_tree_add_item(command_tree, hf_omron_command_data, tvb, (offset+6), 2, ENC_NA);
                     offset = offset + 8;
@@ -1357,7 +1357,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 2)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset,
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1370,8 +1370,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 while(reported_length_remaining >= 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+1), 3, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+1), 3, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                     reported_length_remaining = reported_length_remaining - 4;
                 }
@@ -1381,7 +1381,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 3)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                     reported_length_remaining = reported_length_remaining - 2;
 
@@ -1390,7 +1390,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         guint8 memory_area_code;
                         guint8 memory_code_len;
 
-                        ti = proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, FALSE);
+                        ti = proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, ENC_BIG_ENDIAN);
                         memory_area_code  = tvb_get_guint8(tvb, offset);
                         switch(memory_area_code) {
                             case 0x00:
@@ -1503,16 +1503,16 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 10)
                 {
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code,
-                        tvb, offset, 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, FALSE);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
 
                     proto_tree_add_item(command_tree, hf_omron_command_memory_area_code,
-                        tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+5), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+7), 1, FALSE);
+                        tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+5), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address_bits, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
 
-                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+8), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+8), 2, ENC_BIG_ENDIAN);
                     offset = offset + 10;
                 }
             }
@@ -1522,7 +1522,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 2)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset,
-                                        2, FALSE);
+                                        2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1536,9 +1536,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
                     offset = offset + 6;
                 }
             }
@@ -1548,10 +1548,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining >= 8)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset,
-                        2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, FALSE);
+                        2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining > 8)
                     {
@@ -1572,9 +1572,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_beginning_word, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining > 6)
                     {
@@ -1590,7 +1590,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 if(reported_length_remaining == 2)
                 {
                     proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset,
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1603,10 +1603,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 8)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_fixed, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_intelligent_id_no, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_first_word, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_read_len, tvb, (offset+6), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_fixed, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_intelligent_id_no, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_first_word, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_read_len, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
                     offset = offset + 8;
                 }
             }
@@ -1615,8 +1615,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 3)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_of_link_nodes, tvb, (offset+2), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_of_link_nodes, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
 
                     offset = offset + 3;
                     reported_length_remaining = reported_length_remaining - 3;
@@ -1627,11 +1627,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti = proto_tree_add_text(command_tree, tvb, offset, 8, "Block Record");
                         omron_block_record_tree = proto_item_add_subtree(ti, ett_omron_block_record);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_status, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_num_nodes, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_cio_area, tvb, (offset+1), 2, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_kind_of_dm, tvb, (offset+3), 1, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_dm_area_first_word, tvb, (offset+4), 2, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_no_of_total_words, tvb, (offset+6), 2, FALSE);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_num_nodes, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_cio_area, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_kind_of_dm, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_dm_area_first_word, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_no_of_total_words, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
                         offset = offset + 8;
                         reported_length_remaining = reported_length_remaining - 8;
                     }
@@ -1646,11 +1646,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 9)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_fixed, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_intelligent_id_no, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_first_word, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_read_len, tvb, (offset+6), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_of_link_nodes, tvb, (offset+8), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_fixed, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_intelligent_id_no, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_first_word, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_read_len, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_of_link_nodes, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
 
                     offset = offset + 9;
                     reported_length_remaining = reported_length_remaining - 9;
@@ -1660,11 +1660,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti = proto_tree_add_text(command_tree, tvb, offset, 8, "Block Record");
                         omron_block_record_tree = proto_item_add_subtree(ti, ett_omron_block_record);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_status, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_num_nodes, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_cio_area, tvb, (offset+1), 2, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_kind_of_dm, tvb, (offset+3), 1, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_dm_area_first_word, tvb, (offset+4), 2, FALSE);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_no_of_total_words, tvb, (offset+6), 2, FALSE);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_num_nodes, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_cio_area, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_kind_of_dm, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_dm_area_first_word, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_no_of_total_words, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
                         offset = offset + 8;
                         reported_length_remaining = reported_length_remaining - 8;
                     }
@@ -1675,7 +1675,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1689,10 +1689,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 15)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_protect_code, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+3),4,FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_last_word, tvb, (offset+7),4,FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_protect_code, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+3),4,ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_last_word, tvb, (offset+7),4,ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_password, tvb, (offset+11),4,FALSE);
                     offset = offset + 15;
                 }
@@ -1702,7 +1702,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1715,9 +1715,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 8)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+2), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+2), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
                     offset = offset + 8;
                 }
             }
@@ -1726,10 +1726,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 10)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+4), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+8), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+4), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+8), 2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining > 10)
                     {
@@ -1747,9 +1747,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 8)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+2), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+2), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining > 8)
                     {
@@ -1762,10 +1762,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 10)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+4), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+8), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+4), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+8), 2, ENC_BIG_ENDIAN);
                     offset = offset + 10;
                 }
             }
@@ -1778,8 +1778,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 3)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_clear_code, tvb, (offset+2), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_clear_code, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
                     offset = offset + 3;
                 }
             }
@@ -1787,7 +1787,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1800,13 +1800,13 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 3)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_mode_code, tvb, (offset+2), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_mode_code, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
                     offset = offset + 3;
                 }
                 else if (reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_monitor_label, tvb, offset, 0, ENC_NA);
                     offset = offset + 2;
                 }
@@ -1815,7 +1815,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1830,7 +1830,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -1853,51 +1853,51 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 94)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_controller_model, tvb, (offset+2), 20, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_controller_version, tvb, (offset+22), 20, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_for_system_use, tvb, (offset+42), 40, FALSE);
                     /* add area data sub tree */
                     ti = proto_tree_add_text(command_tree, tvb, (offset+82), 12, "Area Data");
                     area_data_tree = proto_item_add_subtree(ti, ett_area_data);
-                    proto_tree_add_item(area_data_tree, hf_omron_program_area_size, tvb, (offset+82), 2, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_iom_size, tvb, (offset+84), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_num_dm_words, tvb, (offset+85), 2, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_timer_counter_size, tvb, (offset+87), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_expansion_dm_size, tvb, (offset+88), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_num_step_transitions, tvb, (offset+89), 2, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_kind_memory_card, tvb, (offset+91), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_memory_card_size, tvb, (offset+92), 2, FALSE);
+                    proto_tree_add_item(area_data_tree, hf_omron_program_area_size, tvb, (offset+82), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_iom_size, tvb, (offset+84), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_num_dm_words, tvb, (offset+85), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_timer_counter_size, tvb, (offset+87), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_expansion_dm_size, tvb, (offset+88), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_num_step_transitions, tvb, (offset+89), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_kind_memory_card, tvb, (offset+91), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_memory_card_size, tvb, (offset+92), 2, ENC_BIG_ENDIAN);
                     offset = offset + 94;
                 }
 
                 else if(reported_length_remaining == 69)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     ti = proto_tree_add_text(command_tree, tvb, (offset+2), 64, "CPU Bus Unit Conf");
                     cpu_bus_tree = proto_item_add_subtree(ti, ett_cpu_bus);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_0, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_1, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_2, tvb, (offset+6), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_3, tvb, (offset+8), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_4, tvb, (offset+10), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_5, tvb, (offset+12), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_6, tvb, (offset+14), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_7, tvb, (offset+16), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_8, tvb, (offset+18), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_9, tvb, (offset+20), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_10, tvb, (offset+22), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_11, tvb, (offset+24), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_12, tvb, (offset+26), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_13, tvb, (offset+28), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_14, tvb, (offset+30), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_15, tvb, (offset+32), 2, FALSE);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_0, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_1, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_2, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_3, tvb, (offset+8), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_4, tvb, (offset+10), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_5, tvb, (offset+12), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_6, tvb, (offset+14), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_7, tvb, (offset+16), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_8, tvb, (offset+18), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_9, tvb, (offset+20), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_10, tvb, (offset+22), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_11, tvb, (offset+24), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_12, tvb, (offset+26), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_13, tvb, (offset+28), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_14, tvb, (offset+30), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_15, tvb, (offset+32), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_reserved, tvb, (offset+34), 32, FALSE);
                     /* Remote IO Data tree */
                     ti = proto_tree_add_text(command_tree, tvb, (offset+66), 2, "Remote I/O data");
                     io_data_tree = proto_item_add_subtree(ti, ett_io_data);
-                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_1, tvb, (offset+66), 1, FALSE);
-                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+67), 1, FALSE);
+                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_1, tvb, (offset+66), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+67), 1, ENC_BIG_ENDIAN);
                     /* PC status */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+68), hf_omron_pc_status,
                         ett_pc_status_fields, pc_status_fields, FALSE);
@@ -1906,46 +1906,46 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 else if(reported_length_remaining == 161)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_controller_model, tvb, (offset+2), 20, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_controller_version, tvb, (offset+22), 20, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_for_system_use, tvb, (offset+42), 40, FALSE);
                     /* add area data sub tree */
                     ti = proto_tree_add_text(command_tree, tvb, (offset+82), 12, "Area Data");
                     area_data_tree = proto_item_add_subtree(ti, ett_area_data);
-                    proto_tree_add_item(area_data_tree, hf_omron_program_area_size, tvb, (offset+82), 2, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_iom_size, tvb, (offset+84), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_num_dm_words, tvb, (offset+85), 2, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_timer_counter_size, tvb, (offset+87), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_expansion_dm_size, tvb, (offset+88), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_num_step_transitions, tvb, (offset+89), 2, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_kind_memory_card, tvb, (offset+91), 1, FALSE);
-                    proto_tree_add_item(area_data_tree, hf_omron_memory_card_size, tvb, (offset+92), 2, FALSE);
+                    proto_tree_add_item(area_data_tree, hf_omron_program_area_size, tvb, (offset+82), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_iom_size, tvb, (offset+84), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_num_dm_words, tvb, (offset+85), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_timer_counter_size, tvb, (offset+87), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_expansion_dm_size, tvb, (offset+88), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_num_step_transitions, tvb, (offset+89), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_kind_memory_card, tvb, (offset+91), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(area_data_tree, hf_omron_memory_card_size, tvb, (offset+92), 2, ENC_BIG_ENDIAN);
                     /* cpu bus unit configuration */
                     ti = proto_tree_add_text(command_tree, tvb, (offset+94), 64, "CPU Bus Unit Conf");
                     cpu_bus_tree = proto_item_add_subtree(ti, ett_cpu_bus);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_0, tvb, (offset+94), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_1, tvb, (offset+96), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_2, tvb, (offset+98), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_3, tvb, (offset+100), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_4, tvb, (offset+102), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_5, tvb, (offset+104), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_6, tvb, (offset+106), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_7, tvb, (offset+108), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_8, tvb, (offset+110), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_9, tvb, (offset+112), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_10, tvb, (offset+114), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_11, tvb, (offset+116), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_12, tvb, (offset+118), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_13, tvb, (offset+120), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_14, tvb, (offset+122), 2, FALSE);
-                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_15, tvb, (offset+124), 2, FALSE);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_0, tvb, (offset+94), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_1, tvb, (offset+96), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_2, tvb, (offset+98), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_3, tvb, (offset+100), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_4, tvb, (offset+102), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_5, tvb, (offset+104), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_6, tvb, (offset+106), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_7, tvb, (offset+108), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_8, tvb, (offset+110), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_9, tvb, (offset+112), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_10, tvb, (offset+114), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_11, tvb, (offset+116), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_12, tvb, (offset+118), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_13, tvb, (offset+120), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_14, tvb, (offset+122), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_unit_15, tvb, (offset+124), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(cpu_bus_tree, hf_omron_cpu_bus_reserved, tvb, (offset+126), 32, FALSE);
                     /* Remote IO Data tree */
                     ti = proto_tree_add_text(command_tree, tvb, (offset+158), 2, "Remote I/O data");
                     io_data_tree = proto_item_add_subtree(ti, ett_io_data);
-                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_1, tvb, (offset+158), 1, FALSE);
-                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+159), 1, FALSE);
+                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_1, tvb, (offset+158), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(io_data_tree, hf_omron_io_data_num_sysmac_2, tvb, (offset+159), 1, ENC_BIG_ENDIAN);
                     /* PC status */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+160), hf_omron_pc_status,
                         ett_pc_status_fields, pc_status_fields, FALSE);
@@ -1961,10 +1961,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 1)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (reported_length_remaining == 2)
                     {
-                        proto_tree_add_item(command_tree, hf_omron_num_units, tvb, (offset+1), 1, FALSE);
+                        proto_tree_add_item(command_tree, hf_omron_num_units, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
                         offset = offset + 1;
                     }
                     offset = offset + 1;
@@ -1975,14 +1975,14 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 24)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_units, tvb, offset+2, 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_units, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                     offset = offset + 3;
                     reported_length_remaining = reported_length_remaining - 3;
 
                     while(reported_length_remaining >= 21)
                     {
-                        proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(command_tree, hf_omron_model_number, tvb, offset+1, 20, FALSE);
                         offset = offset + 21;
                         reported_length_remaining = reported_length_remaining - 21;
@@ -2000,9 +2000,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 28)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_status, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_mode_code, tvb, (offset+3), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_status, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_mode_code, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
                     /* Add bitmask for Fatal error data */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+4), hf_omron_fatal_error_data,
                         ett_fatal_fields, fatal_error_fields, FALSE);
@@ -2013,7 +2013,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_bitmask(command_tree, tvb, (offset+8), hf_omron_message,
                         ett_message_fields, message_fields, FALSE);
                     /* Add rest of fields */
-                    proto_tree_add_item(command_tree, hf_omron_fals, tvb, (offset+10), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_fals, tvb, (offset+10), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_error_message, tvb, (offset+12), 16, FALSE);
                     offset = offset + 28;
                 }
@@ -2038,7 +2038,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     guint8 i;
                     guint8 node_num;
 
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
 
                     /* parsing 31 bytes of foo */
@@ -2066,10 +2066,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         offset = offset + 1;
                     }
 
-                    proto_tree_add_item(command_tree, hf_omron_com_cycle_time, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_polling_unit_node_num, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_cyclic_operation, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_cyclic_trans_status, tvb, (offset+4), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_com_cycle_time, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_polling_unit_node_num, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_cyclic_operation, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_cyclic_trans_status, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
                     offset =offset + 5;
 
                     netw_nodes_non_fatal_err_sts =
@@ -2123,16 +2123,16 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_item *status_flags;
                     proto_tree *status_flags_tree;
 
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                     /* add status flag tree */
-                    ti = proto_tree_add_item(command_tree, hf_omron_status_flags, tvb, (offset+2), 1, FALSE);
+                    ti = proto_tree_add_item(command_tree, hf_omron_status_flags, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_flags_slave_master, tvb, (offset+2), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_flags_data_link, tvb, (offset+2), 1, FALSE);
 
                     /* command_tree for master node */
-                    proto_tree_add_item(command_tree, hf_omron_master_node_number, tvb, (offset+3), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_master_node_number, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
                     offset = offset + 4;
 
                     /* Status flag blocks */
@@ -2140,7 +2140,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     status_flags_tree = proto_item_add_subtree(status_flags, ett_omron_data_link_status_tree);
 
                     /* Status block 1 */
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+0), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+0), 1, FALSE);
@@ -2151,7 +2151,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+0), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+0), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+1), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+1), 1, FALSE);
@@ -2162,7 +2162,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+1), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+1), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+2), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+2), 1, FALSE);
@@ -2174,7 +2174,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+2), 1, FALSE);
 
                     /* status block 2 */
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+3), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+3), 1, FALSE);
@@ -2185,7 +2185,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+3), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+3), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+4), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+4), 1, FALSE);
@@ -2196,7 +2196,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+4), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+4), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+5), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+5), 1, FALSE);
@@ -2208,7 +2208,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+5), 1, FALSE);
 
                     /* status block 3 */
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+6), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+6), 1, FALSE);
@@ -2219,7 +2219,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+6), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+6), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+7), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+7), 1, FALSE);
@@ -2230,7 +2230,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+7), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+7), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+8), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+8), 1, FALSE);
@@ -2242,7 +2242,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+8), 1, FALSE);
 
                     /* status block 4 */
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+9), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+9), 1, FALSE);
@@ -2253,7 +2253,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+9), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+9), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+10), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+10), 1, FALSE);
@@ -2264,7 +2264,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+10), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+10), 1, FALSE);
 
-                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, FALSE);
+                    ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+11), 1, FALSE);
                     proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+11), 1, FALSE);
@@ -2287,7 +2287,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 1)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_parameter, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset = offset + 1;
                 }
             }
@@ -2296,16 +2296,16 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
 
                 else if(reported_length_remaining == 14)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_avg_cycle_time, tvb, (offset+2), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_max_cycle_time, tvb, (offset+6), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_min_cycle_time, tvb, (offset+10), 4, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_avg_cycle_time, tvb, (offset+2), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_max_cycle_time, tvb, (offset+6), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_min_cycle_time, tvb, (offset+10), 4, ENC_BIG_ENDIAN);
                     offset = offset + 14;
                 }
             }
@@ -2320,14 +2320,14 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 9)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_year, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_month, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_date, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_hour, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_minute, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_second, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_day, tvb, (offset+8), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_year, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_month, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_date, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_hour, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_minute, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_second, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_day, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
                     offset = offset + 9;
                 }
             }
@@ -2340,16 +2340,16 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 5)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_year, tvb, (offset), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_month, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_date, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_hour, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_minute, tvb, (offset+4), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_year, tvb, (offset), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_month, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_date, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_hour, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_minute, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining == 7)
                     {
-                        proto_tree_add_item(command_tree, hf_omron_second, tvb, (offset+5), 1, FALSE);
-                        proto_tree_add_item(command_tree, hf_omron_day, tvb, (offset+6), 1, FALSE);
+                        proto_tree_add_item(command_tree, hf_omron_second, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(command_tree, hf_omron_day, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
                         offset = offset + 2;
                     }
                     offset = offset + 5;
@@ -2360,7 +2360,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2383,7 +2383,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining > 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_data, tvb, (offset+2), -1, ENC_NA);
                     offset = offset + reported_length_remaining;
                 }
@@ -2397,8 +2397,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_receptions, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_receptions, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                }
             }
@@ -2428,7 +2428,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     if((tvb_get_ntohs(tvb, offset) & 0xC000) == 0x8000)
                     {
                         /* "FAL/FALS READ" */
-                        proto_tree_add_item(command_tree, hf_omron_fals, tvb, offset, 2, FALSE);
+                        proto_tree_add_item(command_tree, hf_omron_fals, tvb, offset, 2, ENC_BIG_ENDIAN);
                     }
                     else
                     {
@@ -2445,19 +2445,19 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
                 else if(reported_length_remaining == 20)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_fals, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_fals, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_error_message, tvb, (offset+4), 16, FALSE);
                     offset = offset + 20;
                 }
                 else if(reported_length_remaining >= 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     /* add bitmask for message yes/no data */
                     proto_tree_add_bitmask(command_tree, tvb, (offset+2), hf_omron_message,
                                            ett_message_fields, message_yes_no_fields, FALSE);
@@ -2482,7 +2482,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2491,15 +2491,15 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
                 else if(reported_length_remaining == 5)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_node_number, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_network_address, tvb, (offset+4), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_unit_address, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_node_number, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_network_address, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
                     offset = offset + 5;
                 }
 
@@ -2513,7 +2513,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2522,7 +2522,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2536,7 +2536,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2545,7 +2545,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2559,7 +2559,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_error_reset_fals_no, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_error_reset_fals_no, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2568,7 +2568,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2582,8 +2582,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_beginning_record_no, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_of_records, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_beginning_record_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_of_records, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                 }
             }
@@ -2592,10 +2592,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 8)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_max_no_of_stored_records, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_of_stored_records, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_of_records, tvb, (offset+6), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_max_no_of_stored_records, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_of_stored_records, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_of_records, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
                     offset = offset + 8;
                     reported_length_remaining = reported_length_remaining - 8;
 
@@ -2604,14 +2604,14 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti = proto_tree_add_text(command_tree, tvb, offset, 10, "Error log data");
                         error_log_tree = proto_item_add_subtree(ti, ett_omron_error_log_data);
 
-                        proto_tree_add_item(error_log_tree, hf_omron_error_reset_fals_no, tvb, offset, 2, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_error_reset_fals_no, tvb, (offset+2), 2, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_minute, tvb, (offset+4), 1, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_second, tvb, (offset+5), 1, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_day, tvb, (offset+6), 1, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_hour, tvb, (offset+7), 1, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_year, tvb, (offset+8), 1, FALSE);
-                        proto_tree_add_item(error_log_tree, hf_omron_month, tvb, (offset+9), 1, FALSE);
+                        proto_tree_add_item(error_log_tree, hf_omron_error_reset_fals_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_error_reset_fals_no, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_minute, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_second, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_day, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_hour, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_year, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(error_log_tree, hf_omron_month, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
 
                         offset = offset + 10;
                         reported_length_remaining = reported_length_remaining - 10;
@@ -2629,7 +2629,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2642,9 +2642,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_beginning_file_position, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_of_files, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_beginning_file_position, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_of_files, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
                     offset = offset + 6;
                 }
             }
@@ -2653,7 +2653,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 50)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_text(command_tree, tvb, (offset+2), 26, "Disk data");
                     omron_disk_data_tree = proto_item_add_subtree(ti, ett_omron_disk_data);
@@ -2663,19 +2663,19 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     proto_tree_add_uint_format(omron_disk_data_tree, hf_omron_date_year, tvb, (offset+14), 1, omron_byte,
                         "Year: %d", ((omron_byte>>1)+1980));
 
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_month, tvb, (offset+14), 4, FALSE);
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_day, tvb, (offset+14), 4, FALSE);
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_hour, tvb, (offset+14), 4, FALSE);
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_minute, tvb, (offset+14), 4, FALSE);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_month, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_day, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_hour, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_date_minute, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
 
                     omron_byte = tvb_get_guint8(tvb, (offset+17));
                     proto_tree_add_uint_format(omron_disk_data_tree, hf_omron_date_second, tvb, (offset+17), 1, omron_byte,
                         "Second: %d", ((omron_byte&0x1F)*2));
 
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_total_capacity, tvb, (offset+18), 4, FALSE);
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_unused_capacity, tvb, (offset+22), 4, FALSE);
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_total_no_files, tvb, (offset+26), 2, FALSE);
-                    proto_tree_add_item(omron_disk_data_tree, hf_omron_no_files, tvb, (offset+28), 2, FALSE);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_total_capacity, tvb, (offset+18), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_unused_capacity, tvb, (offset+22), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_total_no_files, tvb, (offset+26), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_disk_data_tree, hf_omron_no_files, tvb, (offset+28), 2, ENC_BIG_ENDIAN);
 
                     offset = offset + 30;
                     reported_length_remaining = reported_length_remaining - 30;
@@ -2691,16 +2691,16 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_uint_format(omron_file_data_tree, hf_omron_date_year, tvb, (offset+12), 1, omron_byte,
                                                    "Year: %d", ((omron_byte>>1)+1980));
 
-                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_month, tvb, (offset+12), 4, FALSE);
-                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_day, tvb, (offset+12), 4, FALSE);
-                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_hour, tvb, (offset+12), 4, FALSE);
-                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_minute, tvb, (offset+12), 4, FALSE);
+                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_month, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_day, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_hour, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(omron_file_data_tree, hf_omron_date_minute, tvb, (offset+12), 4, ENC_BIG_ENDIAN);
 
                         omron_byte = tvb_get_guint8(tvb, (offset+15));
                         proto_tree_add_uint_format(omron_file_data_tree, hf_omron_date_second, tvb, (offset+15), 1, omron_byte,
                                                    "Second: %d", ((omron_byte&0x1F)*2));
 
-                        proto_tree_add_item(omron_file_data_tree, hf_omron_file_capacity, tvb, (offset+16), 4, FALSE);
+                        proto_tree_add_item(omron_file_data_tree, hf_omron_file_capacity, tvb, (offset+16), 4, ENC_BIG_ENDIAN);
 
                         offset = offset + 20;
                         reported_length_remaining = reported_length_remaining - 20;
@@ -2716,10 +2716,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 20)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+2), 12, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+14), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+18), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+14), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+18), 2, ENC_BIG_ENDIAN);
                     offset = offset + 20;
                 }
             }
@@ -2728,10 +2728,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 12)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_file_capacity, tvb, (offset+2), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+6), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+10), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_file_capacity, tvb, (offset+2), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+6), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+10), 2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining > 12)
                     {
@@ -2749,11 +2749,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 22)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_file_parameter_code, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_file_parameter_code, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+4), 12, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+16), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+20), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_file_position, tvb, (offset+16), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_data_length, tvb, (offset+20), 2, ENC_BIG_ENDIAN);
                     if(reported_length_remaining > 22)
                     {
                         proto_tree_add_item(command_tree, hf_omron_file_data, tvb, (offset+22), -1, ENC_NA);
@@ -2766,7 +2766,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2779,7 +2779,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2787,7 +2787,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2800,8 +2800,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 16)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_files, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_files, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                     reported_length_remaining = reported_length_remaining - 4;
 
@@ -2818,8 +2818,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_no_files, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_no_files, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                 }
             }
@@ -2832,8 +2832,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_volume_parameter_code, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_volume_parameter_code, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 
                     if(reported_length_remaining == 16)
                     {
@@ -2848,7 +2848,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2861,9 +2861,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 28)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+2), 12, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+14), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+14), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+16), 12, FALSE);
                     offset = offset + 28;
                 }
@@ -2873,7 +2873,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2886,7 +2886,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 26)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+2), 12, FALSE);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+14), 12, FALSE);
                     offset = offset + 26;
@@ -2897,7 +2897,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2910,7 +2910,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 14)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+2), 12, FALSE);
                     offset = offset + 14;
                 }
@@ -2920,7 +2920,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -2933,11 +2933,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 22)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_transfer_parameter_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+3), 3, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+6), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+8), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_parameter_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+8), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+10), 12, FALSE);
                     offset = offset + 22;
                 }
@@ -2947,8 +2947,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_items, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                 }
             }
@@ -2961,11 +2961,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 22)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_transfer_parameter_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+8), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_parameter_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_parameter_area_code, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_address, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+8), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+10), 12, FALSE);
                     offset = offset + 22;
                 }
@@ -2975,8 +2975,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_words, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     offset = offset + 4;
                 }
             }
@@ -2989,11 +2989,11 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 26)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_transfer_parameter_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+4), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_number_of_bytes, tvb, (offset+8), 4, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+12), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_parameter_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_program_number, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_begin_word, tvb, (offset+4), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_number_of_bytes, tvb, (offset+8), 4, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_disk_no, tvb, (offset+12), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_filename, tvb, (offset+14), 12, FALSE);
                     offset = offset + 26;
                 }
@@ -3003,8 +3003,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_number_of_bytes, tvb, (offset+2), 4, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_number_of_bytes, tvb, (offset+2), 4, ENC_BIG_ENDIAN);
                     offset = offset + 6;
                 }
             }
@@ -3017,8 +3017,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 3)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_beginning_block_num, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_blocks, tvb, (offset+2), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_beginning_block_num, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_blocks, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
                     offset = offset + 3;
                 }
             }
@@ -3027,10 +3027,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 9)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_blocks_remaining, tvb, (offset+2), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_total_num_blocks, tvb, (offset+4), 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_type, tvb, (offset+6), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_blocks_remaining, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_total_num_blocks, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_type, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
                     offset = offset + 7;
                     reported_length_remaining = reported_length_remaining - 7;
 
@@ -3038,7 +3038,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         proto_tree_add_bitmask(command_tree, tvb, offset, hf_omron_data_type,
                             ett_omron_data_type, data_type_fields, FALSE);
-                        proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+1), 1, FALSE);
+                        proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
                         offset = offset + 2;
                         reported_length_remaining = reported_length_remaining - 2;
                     }
@@ -3053,7 +3053,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_block_num, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_block_num, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -3062,10 +3062,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 4)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_bitmask(command_tree, tvb, (offset+2), hf_omron_data_type,
                         ett_omron_data_type, data_type_fields, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+3), 1, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_data, tvb, (offset+4), -1, ENC_NA);
                     offset = offset + reported_length_remaining;
                 }
@@ -3081,8 +3081,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 {
                     proto_tree_add_bitmask(command_tree, tvb, offset, hf_omron_data_type,
                         ett_omron_data_type, data_type_fields, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_block_num, tvb, (offset+2), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_control_data, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_block_num, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_data, tvb, (offset+4), -1, ENC_NA);
                     offset = offset + reported_length_remaining;
                 }
@@ -3092,7 +3092,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -3106,15 +3106,15 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 8)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_number_of_bits_flags, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_number_of_bits_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                     reported_length_remaining = reported_length_remaining - 2;
 
                     while (reported_length_remaining >= 6)
                     {
-                        proto_tree_add_item(command_tree, hf_omron_set_reset_specification, tvb, offset, 2, FALSE);
-                        proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, FALSE);
-                        proto_tree_add_item(command_tree, hf_omron_bit_flag, tvb, (offset+3), 3, FALSE);
+                        proto_tree_add_item(command_tree, hf_omron_set_reset_specification, tvb, offset, 2, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(command_tree, hf_omron_bit_flag, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
 
                         offset = offset + 6;
                         reported_length_remaining = reported_length_remaining - 6;
@@ -3126,7 +3126,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -3141,7 +3141,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -3155,9 +3155,9 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 6)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+1), 3, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_unit_uint16, tvb, (offset+4), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+1), 3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_unit_uint16, tvb, (offset+4), 2, ENC_BIG_ENDIAN);
                     offset = offset + 6;
                 }
             }
@@ -3166,10 +3166,10 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining >= 8)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+3), 3, FALSE);
-                    proto_tree_add_item(command_tree, hf_omron_num_unit_uint16, tvb, (offset+6), 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_command_memory_area_code, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_transfer_beginning_address, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(command_tree, hf_omron_num_unit_uint16, tvb, (offset+6), 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_data, tvb, (offset+8), -1, ENC_NA);
                     offset = offset + reported_length_remaining;
                 }
@@ -3192,7 +3192,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -3207,7 +3207,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if(reported_length_remaining == 2)
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset = offset + 2;
                 }
             }
@@ -3222,7 +3222,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             {
                 if((reported_length_remaining > 2) && (reported_length_remaining <= (2+8)))
                 {
-                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(command_tree, hf_omron_response_code, tvb, offset, 2, ENC_BIG_ENDIAN);
                     proto_tree_add_item(command_tree, hf_omron_name_data, tvb, offset, -1, FALSE);
                     offset = offset + reported_length_remaining;
                }

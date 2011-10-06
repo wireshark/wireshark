@@ -92,23 +92,23 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		case 0x00:
 		    ti = proto_tree_add_item(debug_tree, hf_papi_debug_text, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), FALSE);
 		    debug_sub_tree = proto_item_add_subtree(ti, ett_papi);
-		    proto_tree_add_item(debug_sub_tree, hf_papi_debug_text_length, tvb, offset+1, 2, FALSE);
+		    proto_tree_add_item(debug_sub_tree, hf_papi_debug_text_length, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		    offset += tvb_get_ntohs(tvb, offset+1) + 3;
 		break;
 		case 0x01:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_48bits, tvb, offset+1, 6, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_48bits, tvb, offset+1, 6, ENC_BIG_ENDIAN);
 		    offset += 7;
 		break;
 		case 0x02:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_8bits, tvb, offset+1, 1, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_8bits, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		    offset += 2;
 		break;
 		case 0x03:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_16bits, tvb, offset+1, 2, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_16bits, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		    offset += 3;
 		break;
 		case 0x04:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_32bits, tvb, offset+1, 4, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_32bits, tvb, offset+1, 4, ENC_BIG_ENDIAN);
 		    offset += 5;
 		break;
 		case 0x05:
@@ -116,17 +116,17 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		    offset += 5;
 		break;
 		case 0x07:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_16bits, tvb, offset+1, 2, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_16bits, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		    offset += 3;
 		break;
 		case 0x08:
 		    ti = proto_tree_add_item(debug_tree, hf_papi_debug_bytes, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), ENC_NA);
 		    debug_sub_tree = proto_item_add_subtree(ti, ett_papi);
-		    proto_tree_add_item(debug_sub_tree, hf_papi_debug_bytes_length, tvb, offset+1, 2, FALSE);
+		    proto_tree_add_item(debug_sub_tree, hf_papi_debug_bytes_length, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		    offset += tvb_get_ntohs(tvb,offset+1) + 3;
 		break;
 		case 0x09:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_64bits, tvb, offset+1, 8, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_64bits, tvb, offset+1, 8, ENC_BIG_ENDIAN);
 		    offset += 9;
 		break;
 		default:
@@ -160,10 +160,10 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		papi_tree = proto_item_add_subtree(ti, ett_papi);
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(papi_tree, hf_papi_hdr_ip_destination, tvb, offset, 4, FALSE);
@@ -172,28 +172,28 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(papi_tree, hf_papi_hdr_ip_source, tvb, offset, 4, FALSE);
 		offset += 4;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_port_source, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_port_source, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_port_destination, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_port_destination, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_sequence, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_sequence, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(papi_tree, hf_papi_hdr_checksum, tvb, offset, 16, ENC_NA);

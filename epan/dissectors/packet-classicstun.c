@@ -404,10 +404,10 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case REMOTE_ADDRESS:
 						if (att_length < 2)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_port, tvb, offset+2, 2, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 						switch( tvb_get_guint8(tvb, offset+1) ){
 							case 1:
 								if (att_length < 8)
@@ -443,10 +443,10 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case ERROR_CODE:
 						if (att_length < 3)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_error_class, tvb, offset+2, 1, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_error_class, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_error_number, tvb, offset+3, 1, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 						if (att_length < 5)
 							break;
 						proto_tree_add_item(att_tree, classicstun_att_error_reason, tvb, offset+4, (att_length-4), FALSE);
@@ -455,19 +455,19 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case LIFETIME:
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_lifetime, tvb, offset, 4, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 
 					case MAGIC_COOKIE:
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_magic_cookie, tvb, offset, 4, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_magic_cookie, tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 
 					case BANDWIDTH:
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_bandwidth, tvb, offset, 4, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 
 					case DATA:
@@ -476,8 +476,8 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 					case UNKNOWN_ATTRIBUTES:
 						for (i = 0; i < att_length; i += 4) {
-							proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i, 2, FALSE);
-							proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i+2, 2, FALSE);
+							proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i, 2, ENC_BIG_ENDIAN);
+							proto_tree_add_item(att_tree, classicstun_att_unknown, tvb, offset+i+2, 2, ENC_BIG_ENDIAN);
 						}
 						break;
 
@@ -488,10 +488,10 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case XOR_MAPPED_ADDRESS:
 						if (att_length < 2)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_xor_port, tvb, offset+2, 2, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_xor_port, tvb, offset+2, 2, ENC_BIG_ENDIAN);
 
 						/* Show the port 'in the clear'
 						   XOR (host order) transid with (host order) xor-port.
@@ -529,7 +529,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case REQUESTED_ADDRESS_TYPE:
 						if (att_length < 2)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_family, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 						break;
 
 					case CONNECTION_REQUEST_BINDING:

@@ -539,15 +539,15 @@ static void dissect_ice_params(proto_tree *tree, tvbuff_t *tvb,
 
 	if ( tree ) {
 
-		proto_tree_add_item(tree, hf_icep_params_size, tvb, offset, 4, TRUE);
+		proto_tree_add_item(tree, hf_icep_params_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 		(*consumed) += 4;
 
-		proto_tree_add_item(tree, hf_icep_params_major, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_icep_params_major, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		(*consumed)++;
 
-		proto_tree_add_item(tree, hf_icep_params_minor, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_icep_params_minor, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset += 1;
 		(*consumed)++;
 
@@ -710,7 +710,7 @@ static void dissect_icep_request_common(tvbuff_t *tvb, guint32 offset,
 	}
 
 	if (icep_sub_tree)
-		proto_tree_add_item(icep_sub_tree, hf_icep_mode, tvb, offset, 1, TRUE);
+		proto_tree_add_item(icep_sub_tree, hf_icep_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
 	offset++; DBG0("consumed --> 1\n");
 	(*total_consumed)++;
@@ -796,7 +796,7 @@ static void dissect_icep_request(tvbuff_t *tvb, guint32 offset, proto_tree *icep
 		icep_sub_tree = proto_item_add_subtree(ti, ett_icep_msg);
 
 		proto_tree_add_item(icep_sub_tree, hf_icep_request_id, tvb, offset, 4,
-				    TRUE);
+				    ENC_LITTLE_ENDIAN);
 
 	}
 
@@ -983,7 +983,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 		icep_sub_tree = proto_item_add_subtree(ti, ett_icep_msg);
 
 		proto_tree_add_item(icep_sub_tree, hf_icep_request_id, tvb, offset, 4,
-				    TRUE);
+				    ENC_LITTLE_ENDIAN);
 	}
 
 	if ( check_col(mypinfo->cinfo, COL_INFO) ) {
@@ -995,7 +995,7 @@ static void dissect_icep_reply(tvbuff_t *tvb, guint32 offset, proto_tree *icep_t
 
 	if (icep_tree)
 		proto_tree_add_item(icep_sub_tree, hf_icep_reply_status, tvb, offset, 1,
-				    TRUE);
+				    ENC_LITTLE_ENDIAN);
 
 	if ( check_col(mypinfo->cinfo, COL_INFO) ) {
 		col_append_fstr(mypinfo->cinfo, COL_INFO, " %s",
@@ -1109,27 +1109,27 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset += 4;
 
 		proto_tree_add_item(icep_tree, hf_icep_protocol_major,
-				    tvb, offset, 1, TRUE);
+				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_protocol_minor,
-				    tvb, offset, 1, TRUE);
+				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_encoding_major,
-				    tvb, offset, 1, TRUE);
+				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_encoding_minor,
-				    tvb, offset, 1, TRUE);
+				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_message_type,
-				    tvb, offset, 1, TRUE);
+				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_compression_status,
-				    tvb, offset, 1, TRUE);
+				    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_message_size,

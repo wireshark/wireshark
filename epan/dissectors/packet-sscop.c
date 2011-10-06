@@ -172,7 +172,7 @@ static void dissect_stat_list(proto_tree *tree, tvbuff_t *tvb,guint h) {
 		tree = proto_item_add_subtree(pi,ett_stat);
 
 		for (i = 0; i < n; i++) {
-			proto_tree_add_item(tree, hf_sscop_stat_s, tvb, i*4 + 1,3,FALSE);
+			proto_tree_add_item(tree, hf_sscop_stat_s, tvb, i*4 + 1,3,ENC_BIG_ENDIAN);
 		}
 	}
 }
@@ -238,15 +238,15 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
     					pdu_len, "SSCOP");
     sscop_tree = proto_item_add_subtree(ti, ett_sscop);
 
-    proto_tree_add_item(sscop_tree, hf_sscop_type, tvb, SSCOP_PDU_TYPE, 1,FALSE);
+    proto_tree_add_item(sscop_tree, hf_sscop_type, tvb, SSCOP_PDU_TYPE, 1,ENC_BIG_ENDIAN);
 
     switch (sscop_info.type) {
 
     case SSCOP_BGN:
     case SSCOP_RS:
     case SSCOP_ER:
-      proto_tree_add_item(sscop_tree, hf_sscop_sq, tvb, SSCOP_N_SQ, 1,FALSE);
-      proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+      proto_tree_add_item(sscop_tree, hf_sscop_sq, tvb, SSCOP_N_SQ, 1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, ENC_BIG_ENDIAN);
       break;
 
     case SSCOP_END:
@@ -256,35 +256,35 @@ dissect_sscop_and_payload(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, d
 
     case SSCOP_BGAK:
     case SSCOP_RSAK:
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, ENC_BIG_ENDIAN);
       break;
 
     case SSCOP_ERAK:
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_N_MR + 1, 3, ENC_BIG_ENDIAN);
       break;
 
     case SSCOP_SD:
-		proto_tree_add_item(sscop_tree, hf_sscop_s, tvb, SSCOP_N_S + 1, 3, FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_s, tvb, SSCOP_N_S + 1, 3, ENC_BIG_ENDIAN);
       break;
 
 #if 0
     case SSCOP_SDP:
 #endif
     case SSCOP_POLL:
-      proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,FALSE);
-	  proto_tree_add_item(sscop_tree, hf_sscop_s, tvb, SSCOP_N_S + 1, 3,FALSE);
+      proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_N_PS + 1, 3,ENC_BIG_ENDIAN);
+	  proto_tree_add_item(sscop_tree, hf_sscop_s, tvb, SSCOP_N_S + 1, 3,ENC_BIG_ENDIAN);
       break;
 
     case SSCOP_STAT:
-		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_SS_N_PS + 1, 3,FALSE);
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_SS_N_MR + 1, 3, FALSE);
-		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_ps, tvb, SSCOP_SS_N_PS + 1, 3,ENC_BIG_ENDIAN);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_SS_N_MR + 1, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,ENC_BIG_ENDIAN);
 		dissect_stat_list(sscop_tree,tvb,3);
       break;
 
     case SSCOP_USTAT:
-		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_SS_N_MR + 1, 3, FALSE);
-		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,FALSE);
+		proto_tree_add_item(sscop_tree, hf_sscop_mr, tvb, SSCOP_SS_N_MR + 1, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sscop_tree, hf_sscop_r, tvb, SSCOP_SS_N_R + 1, 3,ENC_BIG_ENDIAN);
 		dissect_stat_list(sscop_tree,tvb,2);
       break;
     }

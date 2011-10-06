@@ -212,7 +212,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                     length);
                                 break;
                         case MSDP_SA_REQ:
-                                proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, FALSE);
+                                proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset + 1, 4, FALSE);
                                 offset += 5;
                                 break;
@@ -276,10 +276,10 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                                          tvb_ip_to_str(tvb, *offset + 4));
                 entry_tree = proto_item_add_subtree(ei, ett_msdp_sa_entry);
 
-                proto_tree_add_item(entry_tree, hf_msdp_sa_reserved, tvb, *offset, 3, FALSE);
+                proto_tree_add_item(entry_tree, hf_msdp_sa_reserved, tvb, *offset, 3, ENC_BIG_ENDIAN);
                 *offset += 3;
                 length -= 3;
-                proto_tree_add_item(entry_tree, hf_msdp_sa_sprefix_len, tvb, *offset, 1, FALSE);
+                proto_tree_add_item(entry_tree, hf_msdp_sa_sprefix_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 *offset += 1;
                 length -= 1;
                 proto_tree_add_item(entry_tree, hf_msdp_sa_group_addr, tvb, *offset, 4, FALSE);
@@ -334,7 +334,7 @@ static void add_notification_data_ipv4addr(tvbuff_t *tvb, proto_tree *tree, int 
 {
         guint32 ipaddr;
 
-        proto_tree_add_item(tree, hf_msdp_not_res, tvb, *offset, 3, FALSE);
+        proto_tree_add_item(tree, hf_msdp_not_res, tvb, *offset, 3, ENC_BIG_ENDIAN);
         *offset += 3;
         ipaddr = tvb_get_ipv4(tvb, *offset);
         proto_tree_add_ipv4_format(tree, hf_msdp_not_ipv4, tvb, *offset, 4, ipaddr,
@@ -350,7 +350,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
         const value_string *vals;
 
         proto_tree_add_item(tree, hf_msdp_not_o, tvb, *offset, 1, FALSE);
-        proto_tree_add_item(tree, hf_msdp_not_error, tvb, *offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_msdp_not_error, tvb, *offset, 1, ENC_BIG_ENDIAN);
         error = tvb_get_guint8(tvb, *offset);
         error &= 0x7F;             /* Error is 7-bit field. O-bit is bit 8 */
         *offset += 1;
@@ -400,7 +400,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                 if (error_sub == 0) {
                         break;
                 } else if (error_sub == 1) {
-                        proto_tree_add_item(tree, hf_msdp_not_entry_count, tvb, *offset, 1, FALSE);
+                        proto_tree_add_item(tree, hf_msdp_not_entry_count, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset += 1;
                         break;
                 } else if (error_sub == 2) {
@@ -413,7 +413,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
                         add_notification_data_ipv4addr(tvb, tree, offset, "Source address");
                         break;
                 } else if (error_sub == 5) {
-                        proto_tree_add_item(tree, hf_msdp_not_sprefix_len, tvb, *offset, 1, FALSE);
+                        proto_tree_add_item(tree, hf_msdp_not_sprefix_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
                         *offset += 1;
                         break;
                 } else if (error_sub == 6) {

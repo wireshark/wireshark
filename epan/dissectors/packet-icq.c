@@ -1378,7 +1378,7 @@ icqv5_srv_recv_message(proto_tree* tree, /* Tree to put the data in */
 	ti = proto_tree_add_text(tree, tvb, offset, 4, "Body");
 	subtree = proto_item_add_subtree(ti, ett_icq_body);
 	proto_tree_add_item(subtree, hf_icq_uin, tvb, offset + SRV_RECV_MSG_UIN,
-			    sizeof(guint32), TRUE);
+			    sizeof(guint32), ENC_LITTLE_ENDIAN);
 	year = tvb_get_letohs(tvb, offset + SRV_RECV_MSG_YEAR);
 	month = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_MONTH);
 	day = tvb_get_guint8(tvb, offset + SRV_RECV_MSG_DAY);
@@ -1510,9 +1510,9 @@ dissect_icqv5Client(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_text(icq_header_tree, tvb, ICQ_VERSION, 2, "Version: %u",
 			    tvb_get_letohs(tvb, ICQ_VERSION));
 	proto_tree_add_item(icq_header_tree, hf_icq_uin, tvb, ICQ5_CL_UIN, 4,
-			    TRUE);
+			    ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(icq_header_tree, hf_icq_sessionid, decr_tvb,
-			    ICQ5_CL_SESSIONID, 4, TRUE);
+			    ICQ5_CL_SESSIONID, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format(icq_header_tree, hf_icq_client_cmd,
 				   decr_tvb, ICQ5_CL_CMD, 2, cmd,
 				   "Command: %s (%u)",
@@ -1613,7 +1613,7 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	proto_tree_add_text(icq_header_tree, tvb, offset + ICQ_VERSION, 2,
 			    "Version: %u", tvb_get_letohs(tvb, ICQ_VERSION));
 	proto_tree_add_item(icq_header_tree, hf_icq_sessionid, tvb,
-			    offset + ICQ5_SRV_SESSIONID, 4, TRUE);
+			    offset + ICQ5_SRV_SESSIONID, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format(icq_header_tree, hf_icq_server_cmd, tvb,
 			    offset + ICQ5_SRV_CMD, 2, cmd, "Command: %s (%u)",
 			    val_to_str(cmd, serverCmdCode, "Unknown"), cmd);
@@ -1624,9 +1624,9 @@ dissect_icqv5Server(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			    "Seq Number 2: 0x%04x",
 			    tvb_get_letohs(tvb, offset + ICQ5_SRV_SEQNUM2));
 	proto_tree_add_item(icq_header_tree, hf_icq_uin, tvb,
-			    offset + ICQ5_SRV_UIN, 4, TRUE);
+			    offset + ICQ5_SRV_UIN, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(icq_header_tree, hf_icq_checkcode, tvb,
-			    offset + ICQ5_SRV_CHECKCODE, 4, TRUE);
+			    offset + ICQ5_SRV_CHECKCODE, 4, ENC_LITTLE_ENDIAN);
 	switch (cmd) {
 	case SRV_RAND_USER:
 	    icqv5_srv_rand_user(icq_tree, tvb, offset + ICQ5_SRV_HDRSIZE);

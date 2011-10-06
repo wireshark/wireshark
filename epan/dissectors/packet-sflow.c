@@ -720,7 +720,7 @@ dissect_sflow_245_sampled_header(tvbuff_t *tvb, packet_info *pinfo,
 
     version = tvb_get_ntohl(tvb, 0);
     header_proto = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_sflow_245_header_protocol, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_header_protocol, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     frame_length = tvb_get_ntohl(tvb, offset);
     proto_tree_add_text(tree, tvb, offset, 4, "Frame Length: %u bytes", frame_length);
@@ -912,13 +912,13 @@ dissect_sflow_245_address_type(tvbuff_t *tvb, proto_tree *tree, gint offset,
 /* extended switch data, after the packet data */
 static gint
 dissect_sflow_245_extended_switch(tvbuff_t *tvb, proto_tree *tree, gint offset) {
-    proto_tree_add_item(tree, hf_sflow_245_vlan_in, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_vlan_in, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_245_pri_in, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_pri_in, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_245_vlan_out, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_vlan_out, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_245_pri_out, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_pri_out, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -930,9 +930,9 @@ dissect_sflow_245_extended_router(tvbuff_t *tvb, proto_tree *tree, gint offset) 
     struct sflow_address_type addr_type = {hf_sflow_245_nexthop_v4, hf_sflow_245_nexthop_v6};
 
     offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
-    proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_nexthop_src_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_nexthop_dst_mask, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     return offset;
 }
@@ -1016,13 +1016,13 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
         offset = dissect_sflow_245_address_type(tvb, tree, offset, &addr_type, NULL);
     }
 
-    proto_tree_add_item(tree, hf_sflow_245_as, tvb, offset + len, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_as, tvb, offset + len, 4, ENC_BIG_ENDIAN);
     len += 4;
 
-    proto_tree_add_item(tree, hf_sflow_245_src_as, tvb, offset + len, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_src_as, tvb, offset + len, 4, ENC_BIG_ENDIAN);
     len += 4;
 
-    proto_tree_add_item(tree, hf_sflow_245_src_peer_as, tvb, offset + len, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_src_peer_as, tvb, offset + len, 4, ENC_BIG_ENDIAN);
     len += 4;
 
     dst_len = tvb_get_ntohl(tvb, offset + len);
@@ -1064,7 +1064,7 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
         }
 
         for (j = 0; j < dst_seg_len; j++) {
-            proto_tree_add_item(sflow_245_dst_as_seg_tree, hf_sflow_245_dst_as, tvb, offset + len, 4, FALSE);
+            proto_tree_add_item(sflow_245_dst_as_seg_tree, hf_sflow_245_dst_as, tvb, offset + len, 4, ENC_BIG_ENDIAN);
             len += 4;
         }
     }
@@ -1079,11 +1079,11 @@ dissect_sflow_245_extended_gateway(tvbuff_t *tvb, proto_tree *tree, gint offset)
         for (i = 0; i < comm_len; i++) {
             proto_tree_add_item(sflow_245_comm_tree,
                     hf_sflow_245_dst_as, tvb, offset + len,
-                    4, FALSE);
+                    4, ENC_BIG_ENDIAN);
             len += 4;
         }
 
-        proto_tree_add_item(tree, hf_sflow_245_localpref, tvb, offset + len, 4, FALSE);
+        proto_tree_add_item(tree, hf_sflow_245_localpref, tvb, offset + len, 4, ENC_BIG_ENDIAN);
         len += 4;
 
     }
@@ -1817,10 +1817,10 @@ dissect_sflow_5_flow_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         flow_data_tree = proto_item_add_subtree(ti, ett_sflow_5_flow_record);
 
         proto_tree_add_text(flow_data_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
-        proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_record_format, tvb, offset, 4, FALSE);
+        proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_record_format, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
-        proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, FALSE);
+        proto_tree_add_item(flow_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         switch (format) {
@@ -1903,11 +1903,11 @@ static gint
 dissect_sflow_5_generic_interface(proto_tree *counter_data_tree, tvbuff_t *tvb, gint offset) {
     struct if_counters ifc;
     tvb_memcpy(tvb, (guint8 *) & ifc, offset, sizeof (ifc));
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifindex, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifindex, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_iftype, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_iftype, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifspeed, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifspeed, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
     switch (tvb_get_ntohl(tvb, offset)) {
         case 1:
@@ -1938,33 +1938,33 @@ dissect_sflow_5_generic_interface(proto_tree *counter_data_tree, tvbuff_t *tvb, 
         proto_tree_add_text(counter_data_tree, tvb, offset, 4, "IfOperStatus: Down");
     }
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinoct, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinoct, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinpkt, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinmcast, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinmcast, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinbcast, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinbcast, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifindisc, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifindisc, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinerr, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinerr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinunk, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifinunk, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutoct, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutoct, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutpkt, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutmcast, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutmcast, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutbcast, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutbcast, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutdisc, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifoutdisc, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifouterr, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifouterr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifpromisc, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ifpromisc, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -1976,31 +1976,31 @@ dissect_sflow_5_ethernet_interface(proto_tree *counter_data_tree, tvbuff_t *tvb,
     struct ethernet_counters ethc;
 
     tvb_memcpy(tvb, (guint8 *) & ethc, offset, sizeof (ethc));
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsAlignmentErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsAlignmentErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsFCSErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsFCSErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsSingleCollisionFrames, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsSingleCollisionFrames, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsMultipleCollisionFrames, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsMultipleCollisionFrames, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsSQETestErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsSQETestErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsDeferredTransmissions, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsDeferredTransmissions, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsLateCollisions, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsLateCollisions, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsExcessiveCollisions, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsExcessiveCollisions, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsInternalMacTransmitErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsInternalMacTransmitErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsCarrierSenseErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsCarrierSenseErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsFrameTooLongs, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsFrameTooLongs, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsInternalMacReceiveErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsInternalMacReceiveErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsSymbolErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot3StatsSymbolErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -2012,41 +2012,41 @@ dissect_sflow_5_token_ring(proto_tree *counter_data_tree, tvbuff_t *tvb, gint of
     struct token_ring_counters tokc;
 
     tvb_memcpy(tvb, (guint8 *) & tokc, offset, sizeof (tokc));
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsLineErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsLineErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsBurstErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsBurstErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsACErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsACErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsAbortTransErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsAbortTransErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsInternalErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsInternalErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsLostFrameErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsLostFrameErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsReceiveCongestions, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsReceiveCongestions, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsFrameCopiedErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsFrameCopiedErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsTokenErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsTokenErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsSoftErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsSoftErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsHardErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsHardErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsSignalLoss, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsSignalLoss, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsTransmitBeacons, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsTransmitBeacons, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsRecoveries, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsRecoveries, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsLobeWires, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsLobeWires, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsRemoves, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsRemoves, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsSingles, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsSingles, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsFreqErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot5StatsFreqErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -2058,33 +2058,33 @@ dissect_sflow_5_vg_interface(proto_tree *counter_data_tree, tvbuff_t *tvb, gint 
     struct vg_counters vgc;
 
     tvb_memcpy(tvb, (guint8 *) & vgc, offset, sizeof (vgc));
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InHighPriorityFrames, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InHighPriorityFrames, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InHighPriorityOctets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InHighPriorityOctets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InNormPriorityFrames, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InNormPriorityFrames, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InNormPriorityOctets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InNormPriorityOctets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InIPMErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InIPMErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InOversizeFrameErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InOversizeFrameErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InDataErrors, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InDataErrors, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InNullAddressedFrames, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12InNullAddressedFrames, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12OutHighPriorityFrames, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12OutHighPriorityFrames, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12OutHighPriorityOctets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12OutHighPriorityOctets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12TransitionIntoTrainings, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12TransitionIntoTrainings, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12HCInHighPriorityOctets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12HCInHighPriorityOctets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12HCInNormPriorityOctets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12HCInNormPriorityOctets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12HCOutHighPriorityOctets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_dot12HCOutHighPriorityOctets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -2096,17 +2096,17 @@ dissect_sflow_5_vlan(proto_tree *counter_data_tree, tvbuff_t *tvb, gint offset) 
     struct vlan_counters vlanc;
 
     tvb_memcpy(tvb, (guint8 *) & vlanc, offset, sizeof (vlanc));
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_vlan_id, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_vlan_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_octets, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_octets, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_ucastPkts, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_ucastPkts, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_multicastPkts, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_multicastPkts, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_broadcastPkts, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_broadcastPkts, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_245_discards, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_245_discards, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -2118,45 +2118,45 @@ dissect_sflow_5_80211_counters(proto_tree *counter_data_tree, tvbuff_t *tvb, gin
     struct ieee80211_if_counters ieee80211;
 
     tvb_memcpy(tvb, (guint8 *) & ieee80211, offset, sizeof (ieee80211));
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11TransmittedFragmentCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11TransmittedFragmentCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11MulticastTransmittedFrameCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11MulticastTransmittedFrameCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11FailedCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11FailedCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11RetryCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11RetryCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11MultipleRetryCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11MultipleRetryCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11FrameDuplicateCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11FrameDuplicateCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11RTSSuccessCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11RTSSuccessCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11RTSFailureCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11RTSFailureCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11ACKFailureCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11ACKFailureCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11ReceivedFragmentCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11ReceivedFragmentCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11MulticastReceivedFrameCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11MulticastReceivedFrameCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11FCSErrorCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11FCSErrorCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11TransmittedFrameCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11TransmittedFrameCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11WEPUndecryptableCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11WEPUndecryptableCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSDiscardedFragmentCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSDiscardedFragmentCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11AssociatedStationCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11AssociatedStationCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsReceivedCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsReceivedCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsUnusedCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsUnusedCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsUnusableCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsUnusableCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsLostCount, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_dot11QoSCFPollsLostCount, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -2174,9 +2174,9 @@ dissect_sflow_5_processor_information(proto_tree *counter_data_tree, tvbuff_t *t
     offset += 4;
     proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_5m, tvb, offset, 4, FALSE);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_total_memory, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_total_memory, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_free_memory, tvb, offset, 8, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_free_memory, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     return offset;
@@ -2188,11 +2188,11 @@ dissect_sflow_5_radio_utilization(proto_tree *counter_data_tree, tvbuff_t *tvb, 
     struct radio_utilization radio;
 
     tvb_memcpy(tvb, (guint8 *) & radio, offset, sizeof (radio));
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_elapsed_time, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_elapsed_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_on_channel_time, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_on_channel_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_on_channel_busy_time, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_on_channel_busy_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;
@@ -2217,11 +2217,11 @@ dissect_sflow_5_counters_record(tvbuff_t *tvb, proto_tree *tree, gint offset) {
 
         proto_tree_add_text(counter_data_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
 
-        proto_tree_add_item(counter_data_tree, hf_sflow_5_counters_record_format, tvb, offset, 4, FALSE);
+        proto_tree_add_item(counter_data_tree, hf_sflow_5_counters_record_format, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
 
-        proto_tree_add_item(counter_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, FALSE);
+        proto_tree_add_item(counter_data_tree, hf_sflow_5_flow_data_length, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         switch (format) {
@@ -2429,11 +2429,11 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
         case SFLOW_245_COUNTERS_WAN:
             tvb_memcpy(tvb, (guint8 *) & ifc, offset, sizeof (ifc));
             proto_item_append_text(parent, ", ifIndex %u", g_ntohl(ifc.ifIndex));
-            proto_tree_add_item(tree, hf_sflow_245_ifindex, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifindex, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_iftype, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_iftype, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifspeed, tvb, offset, 8, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifspeed, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
             /* IfDirection, IfAdminStatus, IfOperStatus fixed by Yi Yu */
             switch (tvb_get_ntohl(tvb, offset)) {
@@ -2465,33 +2465,33 @@ dissect_sflow_24_counters_sample(tvbuff_t *tvb, proto_tree *tree, gint offset, p
                 proto_tree_add_text(tree, tvb, offset, 4, "IfOperStatus: Down");
             }
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifinoct, tvb, offset, 8, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifinoct, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
-            proto_tree_add_item(tree, hf_sflow_245_ifinpkt, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifinpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifinmcast, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifinmcast, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifinbcast, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifinbcast, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifindisc, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifindisc, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifinerr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifinerr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifinunk, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifinunk, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifoutoct, tvb, offset, 8, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifoutoct, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
-            proto_tree_add_item(tree, hf_sflow_245_ifoutpkt, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifoutpkt, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifoutmcast, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifoutmcast, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifoutbcast, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifoutbcast, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifoutdisc, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifoutdisc, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifouterr, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifouterr, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(tree, hf_sflow_245_ifpromisc, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_sflow_245_ifpromisc, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             break;
     }
@@ -2595,11 +2595,11 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
             sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
             proto_tree_add_text(sflow_245_sample_tree, tvb, offset, 4, "Enterprise: standard sFlow (%u)", enterprise);
-            proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, FALSE);
+            proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             length = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(sflow_245_sample_tree, hf_sflow_5_sample_length, tvb, offset, 4, FALSE);
+            proto_tree_add_item(sflow_245_sample_tree, hf_sflow_5_sample_length, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             switch (format) {
@@ -2633,7 +2633,7 @@ dissect_sflow_245_samples(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
                 val_to_str(sample_type, sflow_245_sampletype, "Unknown sample type"));
         sflow_245_sample_tree = proto_item_add_subtree(ti, ett_sflow_245_sample);
 
-        proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, FALSE);
+        proto_tree_add_item(sflow_245_sample_tree, hf_sflow_245_sampletype, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         switch (sample_type) {
@@ -2678,7 +2678,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
     version = tvb_get_ntohl(tvb, offset);
     col_add_fstr(pinfo->cinfo, COL_INFO, "V%u", version);
-    proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, FALSE);
+    proto_tree_add_item(sflow_245_tree, hf_sflow_version, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     offset = dissect_sflow_245_address_type(tvb, sflow_245_tree, offset,
@@ -2706,7 +2706,7 @@ dissect_sflow_245(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     col_append_fstr(pinfo->cinfo, COL_INFO, ", seq %u", seqnum);
     proto_tree_add_uint(sflow_245_tree, hf_sflow_245_seqnum, tvb, offset, 4, seqnum);
     offset += 4;
-    proto_tree_add_item(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, FALSE);
+    proto_tree_add_item(sflow_245_tree, hf_sflow_245_sysuptime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     numsamples = tvb_get_ntohl(tvb, offset);
     col_append_fstr(pinfo->cinfo, COL_INFO, ", %u samples", numsamples);

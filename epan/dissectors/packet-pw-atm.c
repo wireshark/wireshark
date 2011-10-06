@@ -1215,7 +1215,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 			{
 				proto_item* item;
 				/* bits 0..3 */
-				item = proto_tree_add_item(tree2, hf_cw_bits03, tvb, 0, 1, FALSE);
+				item = proto_tree_add_item(tree2, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
 				if (pd->props & PWC_CW_BAD_BITS03)
 				{
 					/* add item to tree (and show it) only if its value is wrong*/
@@ -1230,7 +1230,7 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				/* flags */
 				if (MODE_N1(pd->mode))
 				{
-					item = proto_tree_add_item(tree2, hf_pref_cw_flags, tvb, 0, 1, FALSE);
+					item = proto_tree_add_item(tree2, hf_pref_cw_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
 					if (pd->props & PWC_CW_BAD_FLAGS)
 					{
 						expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR
@@ -1268,12 +1268,12 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 					if (MODE_11_OR_AAL5_PDU(pd->mode))
 					{
 						item = proto_tree_add_item(tree2
-							,hf_generic_cw_rsv, tvb, 0, 1, FALSE);
+							,hf_generic_cw_rsv, tvb, 0, 1, ENC_BIG_ENDIAN);
 					}
 					else
 					{ /*preferred cw*/
 						item = proto_tree_add_item(tree2
-							,hf_pref_cw_rsv, tvb, 1, 1, FALSE);
+							,hf_pref_cw_rsv, tvb, 1, 1, ENC_BIG_ENDIAN);
 					}
 
 					if (pd->props & PWC_CW_BAD_RSV)
@@ -1332,12 +1332,12 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 
 				/* sequence number */
 				proto_tree_add_item(tree2, hf_cw_seq, tvb
-					,MODE_11_OR_AAL5_PDU(pd->mode) ? 1 : 2, 2, FALSE);
+					,MODE_11_OR_AAL5_PDU(pd->mode) ? 1 : 2, 2, ENC_BIG_ENDIAN);
 
 				/* atm-specific byte */
 				if (MODE_11(pd->mode))
 				{
-					proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, FALSE);
+					proto_tree_add_item(tree2, hf_gen_cw_atmbyte, tvb, 3, 1, ENC_BIG_ENDIAN);
 					/*
 					 * no need to highlight item in the tree, therefore
 					 * expert_add_info_format() is not used here.

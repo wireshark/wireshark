@@ -83,7 +83,7 @@ dissect_ax4000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(ax4000_tree,
 		    hf_ax4000_chassis, tvb, 1, 1, ax_chassis);
 		proto_tree_add_item(ax4000_tree,
-		    hf_ax4000_fill, tvb, 2, 1, FALSE);
+		    hf_ax4000_fill, tvb, 2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_uint(ax4000_tree,
 		    hf_ax4000_index, tvb, 2, 2, ax_index);
 		proto_tree_add_uint(ax4000_tree,

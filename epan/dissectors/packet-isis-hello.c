@@ -866,7 +866,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 
 	if (tree) {
 		proto_tree_add_item(hello_tree, hf_isis_hello_holding_timer, tvb,
-			            offset, 2, FALSE);
+			            offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -880,7 +880,7 @@ isis_dissect_isis_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int
 	if (hello_type == ISIS_TYPE_PTP_HELLO) {
 		if (tree) {
 			proto_tree_add_item(hello_tree, hf_isis_hello_local_circuit_id, tvb,
-				         offset, 1, FALSE );
+				         offset, 1, ENC_BIG_ENDIAN );
 		}
 		offset += 1;
 	} else {

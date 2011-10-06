@@ -934,9 +934,9 @@ dissect_cops_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_uint(ver_flags_tree, hf_cops_flags, tvb, offset, 1, ver_flags);
         offset++;
 
-        proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, FALSE);
+        proto_tree_add_item(cops_tree, hf_cops_op_code, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
-        proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, FALSE);
+        proto_tree_add_item(cops_tree, hf_cops_client_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         msg_len = tvb_get_ntohl(tvb, offset);
@@ -1263,7 +1263,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         if (c_type != 1)
             break;
 
-        proto_tree_add_item(tree, hf_cops_katimer, tvb, offset + 2, 2, FALSE);
+        proto_tree_add_item(tree, hf_cops_katimer, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         if (tvb_get_ntohs(tvb, offset + 2) == 0)
             proto_tree_add_text(tree, tvb, offset, 0, "Value of zero implies infinity.");
 
@@ -1288,7 +1288,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         if (c_type != 1)
             break;
 
-        proto_tree_add_item(tree, hf_cops_report_type, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_cops_report_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
         break;
     case COPS_OBJ_PDPREDIRADDR:
@@ -1324,7 +1324,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         if (c_type != 1)
             break;
 
-        proto_tree_add_item(tree, hf_cops_accttimer, tvb, offset + 2, 2, FALSE);
+        proto_tree_add_item(tree, hf_cops_accttimer, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
         if (tvb_get_ntohs(tvb, offset + 2) == 0)
             proto_tree_add_text(tree, tvb, offset, 0, "Value of zero means "
                                 "there SHOULD be no unsolicited accounting updates.");
@@ -1334,8 +1334,8 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         if (c_type != 1)
             break;      /* Not HMAC digest */
 
-        proto_tree_add_item(tree, hf_cops_key_id, tvb, offset, 4, FALSE);
-        proto_tree_add_item(tree, hf_cops_seq_num, tvb, offset + 4, 4, FALSE);
+        proto_tree_add_item(tree, hf_cops_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_cops_seq_num, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_text(tree, tvb, offset + 8 , len - 8, "Contents: Keyed Message Digest");
 
         break;
@@ -3203,9 +3203,9 @@ cops_mm_gate_spec(tvbuff_t *tvb, proto_tree *st, guint n, guint32 offset) {
      /* Session Class */
      ti = info_to_display(tvb,stt,offset,1,"Session Class",table_cops_session_class,FMT_DEC,&hf_cops_pcmm_gate_spec_session_class_id);
      object_tree = proto_item_add_subtree(ti, ett_cops_subtree);
-     proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_session_class_id_priority, tvb, offset, 1, FALSE);
-     proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_session_class_id_preemption, tvb, offset, 1, FALSE);
-     proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_session_class_id_configurable, tvb, offset, 1, FALSE);
+     proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_session_class_id_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
+     proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_session_class_id_preemption, tvb, offset, 1, ENC_BIG_ENDIAN);
+     proto_tree_add_item(object_tree, hf_cops_pcmm_gate_spec_session_class_id_configurable, tvb, offset, 1, ENC_BIG_ENDIAN);
      offset += 1;
 
      /* Timer T1 Value */
@@ -5417,7 +5417,7 @@ cops_volume_based_usage_limit(tvbuff_t *tvb, proto_tree *st, guint object_len, g
 
     /* Usage Limit */
     proto_tree_add_item(stt, hf_cops_pcmm_volume_based_usage_limit, tvb, offset, 8,
-                        FALSE);
+                        ENC_BIG_ENDIAN);
 }
 
 /* Cops - Section : Time-Based Usage Limit */

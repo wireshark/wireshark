@@ -163,7 +163,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0x4003:
 			proto_tree_add_item(tree, hf_rpl_corrval,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 
@@ -175,25 +175,25 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0x4007:
 			proto_tree_add_item(tree, hf_rpl_sap,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset ++;
 			break;
 
 		case 0x4009:
 			proto_tree_add_item(tree, hf_rpl_maxframe,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			break;
 
 		case 0x400a:
 			proto_tree_add_item(tree, hf_rpl_connclass,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			break;
 
 		case 0x400b:
 			proto_tree_add_item(tree, hf_rpl_respval,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset ++;
 			break;
 
@@ -205,7 +205,7 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0x4011:
 			proto_tree_add_item(tree, hf_rpl_sequence,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 
@@ -220,19 +220,19 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 8, ENC_NA);
 			offset += 8;
 			proto_tree_add_item(tree, hf_rpl_equipment,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(tree, hf_rpl_memsize,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(tree, hf_rpl_bsmversion,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(tree, hf_rpl_ec,
 				tvb, offset, 6, ENC_NA);
 			offset += 6;
 			proto_tree_add_item(tree, hf_rpl_adapterid,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(tree, hf_rpl_shortname,
 				tvb, offset, 10, ENC_NA);
@@ -241,13 +241,13 @@ dissect_rpl_container(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case 0xc014:
 			proto_tree_add_item(tree, hf_rpl_laddress,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(tree, hf_rpl_xaddress,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(tree, hf_rpl_flags,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset ++;
 			break;
 

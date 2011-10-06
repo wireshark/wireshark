@@ -69,16 +69,16 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 
 	/* length 1 */
 	length1 = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_gpef_efskey_length1, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_gpef_efskey_length1, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* length 2 */
-	proto_tree_add_item(tree, hf_gpef_efskey_length2, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_gpef_efskey_length2, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* sid offset */
 	sid_offset = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_gpef_efskey_sid_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_gpef_efskey_sid_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* reserved */
@@ -86,12 +86,12 @@ dissect_gpef_efskey(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *p
 
 	/* cert length */
 	cert_length = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_gpef_efskey_cert_length, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_gpef_efskey_cert_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* cert offset */
 	cert_offset = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_gpef_efskey_cert_offset, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_gpef_efskey_cert_offset, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* reserved, must be 0x20 0x00 0x00 0x00 */
@@ -129,7 +129,7 @@ dissect_gpef_efsblob(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *parent_t
 
 	/* key count */
 	count = tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(tree, hf_gpef_keycount, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_gpef_keycount, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	while (count--) {

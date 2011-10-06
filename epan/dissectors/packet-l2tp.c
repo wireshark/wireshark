@@ -666,7 +666,7 @@ static void process_control_avps(tvbuff_t *tvb,
 			if (avp_type == EXTENDED_VENDOR_ID) {
 				idx += 2;
 				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
-									tvb, idx, 4, FALSE);
+									tvb, idx, 4, ENC_BIG_ENDIAN);
 
 
 				idx += 4;
@@ -674,7 +674,7 @@ static void process_control_avps(tvbuff_t *tvb,
 			}
 			else {
 				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_avp_vendor_id,
-						    tvb, idx, 2, FALSE);
+						    tvb, idx, 2, ENC_BIG_ENDIAN);
 				idx += 2;
 				avp_len -= 2;
 			}
@@ -749,7 +749,7 @@ static void process_control_avps(tvbuff_t *tvb,
 					break;
 				case CISCO_SESSION_TIE_BREAKER:
 					proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker,
-							    tvb, idx, 8, FALSE);
+							    tvb, idx, 8, ENC_BIG_ENDIAN);
 					break;
 				case CISCO_DRAFT_AVP_VERSION:
 					proto_tree_add_text(l2tp_avp_tree, tvb, idx, 2,
@@ -879,7 +879,7 @@ static void process_control_avps(tvbuff_t *tvb,
 				break;
 
 			case TIE_BREAKER:
-				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker, tvb, idx, 8, FALSE);
+				proto_tree_add_item(l2tp_avp_tree, hf_l2tp_tie_breaker, tvb, idx, 8, ENC_BIG_ENDIAN);
 				break;
 
 			case FIRMWARE_REVISION:
@@ -1379,7 +1379,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, idx-4, 4, ENC_BIG_ENDIAN);
 		proto_item_set_len(l2tp_item, idx);
 		if (!(tvb_offset_exists(tvb, idx)))
 			return;
@@ -1397,7 +1397,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-						idx + l2tpv3_cookie + 1, 3, FALSE);
+						idx + l2tpv3_cookie + 1, 3, ENC_BIG_ENDIAN);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
 		break;
@@ -1414,10 +1414,10 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 						idx + l2tpv3_cookie,1, FALSE);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb,
-						idx + l2tpv3_cookie,1, FALSE);
+						idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-						idx + l2tpv3_cookie + 2,2, FALSE);
+						idx + l2tpv3_cookie + 2,2, ENC_BIG_ENDIAN);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
 		break;
@@ -1443,7 +1443,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx + l2tpv3_cookie,
 						1, FALSE);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
-						idx + l2tpv3_cookie + 1, 3, FALSE);
+						idx + l2tpv3_cookie + 1, 3, ENC_BIG_ENDIAN);
 		}
 		next_tvb = tvb_new_subset_remaining(tvb, idx + l2tpv3_cookie + 4);
 		break;
@@ -1535,7 +1535,7 @@ process_l2tpv3_data_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(ctrl_tree, hf_l2tp_seq_bit, tvb, 0, 2, control);
 		proto_tree_add_uint(ctrl_tree, hf_l2tp_version, tvb, 0, 2, control);
 		/* Data in v3 over UDP has this reserved */
-		proto_tree_add_item(l2tp_tree, hf_l2tp_res, tvb, 2, 2, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_res, tvb, 2, 2, ENC_BIG_ENDIAN);
 	}
 
 	/* Call process_l2tpv3_data from Session ID (offset in idx of 4) */
@@ -1658,7 +1658,7 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 		proto_item_append_text(l2tp_item, " version 3");
 
 		if (baseIdx) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, 0, 4, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_sid, tvb, 0, 4, ENC_BIG_ENDIAN);
 		}
 		ti = proto_tree_add_text(l2tp_tree, tvb, baseIdx, 2,
 								 "Packet Type: %s Control Connection Id=%d",
@@ -1673,23 +1673,23 @@ process_l2tpv3_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
 	idx = baseIdx + 2;
 	if (LENGTH_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
 		}
 		idx += 2;
 	}
 
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_ccid, tvb, idx, 4, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_ccid, tvb, idx, 4, ENC_BIG_ENDIAN);
 	}
 	idx += 4;
 
 	if (SEQUENCE_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, ENC_BIG_ENDIAN);
 		}
 		idx += 2;
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, ENC_BIG_ENDIAN);
 		}
 		idx += 2;
 	}
@@ -1858,7 +1858,7 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	idx = 2;
 	if (LENGTH_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_length, tvb, idx, 2, ENC_BIG_ENDIAN);
 		}
 		idx += 2;
 	}
@@ -1874,11 +1874,11 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (SEQUENCE_BIT(control)) {
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Ns, tvb, idx, 2, ENC_BIG_ENDIAN);
 		}
 		idx += 2;
 		if (tree) {
-			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, FALSE);
+			proto_tree_add_item(l2tp_tree, hf_l2tp_Nr, tvb, idx, 2, ENC_BIG_ENDIAN);
 		}
 		idx += 2;
 	}

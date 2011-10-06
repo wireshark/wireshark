@@ -295,7 +295,7 @@ dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree,
   ti = proto_tree_add_none_format(tree, hf_vuze_dht_address, tvb, offset, ip_length+3, "%s: ", addr_name );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_address);
 
-  proto_tree_add_item(sub_tree, hf_vuze_dht_address_len, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(sub_tree, hf_vuze_dht_address_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   offset += TL_BYTE;
 
   switch(ip_length)
@@ -314,7 +314,7 @@ dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree,
   }
   offset += ip_length;
 
-  proto_tree_add_item(sub_tree, hf_vuze_dht_address_port, tvb, offset, TL_SHORT, FALSE);
+  proto_tree_add_item(sub_tree, hf_vuze_dht_address_port, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
   proto_item_append_text( ti, "%s:%d", ep_address_to_str( &addr ), tvb_get_ntohs(tvb,offset) );
   offset += TL_SHORT;
 
@@ -341,9 +341,9 @@ dissect_vuze_dht_contact(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, in
       tvb_get_guint8(tvb, offset+1) );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_contact);
 
-  proto_tree_add_item(sub_tree, hf_vuze_dht_contact_type, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(sub_tree, hf_vuze_dht_contact_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   offset += TL_BYTE;
-  proto_tree_add_item(sub_tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(sub_tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   offset += TL_BYTE;
   offset = dissect_vuze_dht_address( tvb, pinfo, sub_tree, offset, "Contact Address" );
 
@@ -382,7 +382,7 @@ dissect_vuze_dht_key(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, int
   ti = proto_tree_add_item( tree, hf_vuze_dht_key, tvb, offset, key_len+1, ENC_NA );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_key);
 
-  proto_tree_add_item( sub_tree, hf_vuze_dht_key_len, tvb, offset, TL_BYTE, FALSE );
+  proto_tree_add_item( sub_tree, hf_vuze_dht_key_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );
   offset += TL_BYTE;
 
   proto_tree_add_item( sub_tree, hf_vuze_dht_key_data, tvb, offset, key_len, ENC_NA );
@@ -439,7 +439,7 @@ dissect_vuze_dht_value(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, i
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_value);
   if( ver >= PV_REMOVE_DIST_ADD_VER )
   {
-    proto_tree_add_item(sub_tree, hf_vuze_dht_value_ver, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_value_ver, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     value_ver = tvb_get_ntohl( tvb, offset );
     offset += TL_INT;
   }
@@ -450,13 +450,13 @@ dissect_vuze_dht_value(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, i
                             " (reply to STATS): %d values for the key, out of %d in total...",
                             tvb_get_ntohl(tvb, offset), tvb_get_ntohl(tvb, offset+TL_INT) );
 
-    proto_tree_add_item(tree, hf_vuze_dht_values_num, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_values_num, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
-    proto_tree_add_item(tree, hf_vuze_dht_values_total, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_values_total, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
-    proto_tree_add_item(tree, hf_vuze_dht_reads_per_min, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_reads_per_min, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
-    proto_tree_add_item(tree, hf_vuze_dht_diversification_type, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_diversification_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
   }
   /* regular value */
@@ -464,10 +464,10 @@ dissect_vuze_dht_value(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, i
   {
     int value_bytes_count;
 
-    proto_tree_add_item(sub_tree, hf_vuze_dht_value_created, tvb, offset, TL_LONG, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_value_created, tvb, offset, TL_LONG, ENC_BIG_ENDIAN);
     offset += TL_LONG;
 
-    proto_tree_add_item(sub_tree, hf_vuze_dht_value_bytes_count, tvb, offset, TL_SHORT, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_value_bytes_count, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
     value_bytes_count = tvb_get_ntohs(tvb, offset);
     offset += TL_SHORT;
 
@@ -477,11 +477,11 @@ dissect_vuze_dht_value(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree, i
 
     offset = dissect_vuze_dht_contact( tvb, pinfo, sub_tree, offset );
 
-    proto_tree_add_item(sub_tree, hf_vuze_dht_value_flags, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_value_flags, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
-    proto_tree_add_item(sub_tree, hf_vuze_dht_value_life_hours, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_value_life_hours, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
-    proto_tree_add_item(sub_tree, hf_vuze_dht_value_replication_factor, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_value_replication_factor, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
   }
 
@@ -505,7 +505,7 @@ dissect_vuze_dht_value_group(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   ti = proto_tree_add_none_format( tree, hf_vuze_dht_value_group, tvb, offset, 0, "%d values", values_count );
   sub_tree = proto_item_add_subtree(ti, ett_vuze_dht_value_group);
 
-  proto_tree_add_item( sub_tree, hf_vuze_dht_values_count, tvb, offset, TL_SHORT, FALSE );
+  proto_tree_add_item( sub_tree, hf_vuze_dht_values_count, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN );
   offset += TL_SHORT;
 
   for( i=1; i<=values_count; i++ )
@@ -553,9 +553,9 @@ dissect_vuze_dht_network_coordinate(tvbuff_t *tvb, packet_info _U_*pinfo, proto_
   proto_item_append_text( ti, ": type %d, length %d ( %s )",
     tvb_get_guint8(tvb,offset), tvb_get_guint8(tvb,offset+TL_BYTE), tvb_bytes_to_str(tvb, offset+TL_BYTE+TL_BYTE, coordinate_size ) );
 
-  proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_type, tvb, offset, TL_BYTE, FALSE );
+  proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );
   offset += TL_BYTE;
-  proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_size, tvb, offset, TL_BYTE, FALSE );
+  proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_size, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN );
   offset += TL_BYTE;
   proto_tree_add_item( sub_tree, hf_vuze_dht_network_coordinate_data, tvb, offset, coordinate_size, ENC_NA );
   offset += coordinate_size;
@@ -578,7 +578,7 @@ dissect_vuze_dht_network_coordinates(tvbuff_t *tvb, packet_info *pinfo, proto_tr
 
   if( ver >= PV_GENERIC_NETPOS )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_network_coordinates_count, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_network_coordinates_count, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     network_coordinates_count = tvb_get_guint8( tvb, offset );
     offset += TL_BYTE;
 
@@ -610,42 +610,42 @@ TIME                    long    always             time of the local node; store
 static int
 dissect_vuze_dht_request_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int *action, int *ver )
 {
-  proto_tree_add_item(tree, hf_vuze_dht_connection_id, tvb, offset, TL_LONG, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_connection_id, tvb, offset, TL_LONG, ENC_BIG_ENDIAN);
   offset += TL_LONG;
 
-  proto_tree_add_item(tree, hf_vuze_dht_action, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_action, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   *action = tvb_get_ntohl(tvb, offset);
   col_append_fstr(pinfo->cinfo, COL_INFO, " Action: %s", val_to_str( *action, vuze_dht_action_type_vals, "Unknown") );
   offset += TL_INT;
 
-  proto_tree_add_item(tree, hf_vuze_dht_transaction_id, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_transaction_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
 
-  proto_tree_add_item(tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   *ver = tvb_get_guint8( tvb, offset );
   offset += TL_BYTE;
 
   if( *ver >= PV_VENDOR_ID )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_vendor_id, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_vendor_id, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
   }
 
   if( *ver > PV_NETWORKS )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_network_id, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_network_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
   if( *ver > PV_FIX_ORIGINATOR )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_local_proto_ver, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_local_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
   }
 
   offset = dissect_vuze_dht_address(tvb, pinfo, tree, offset, "Local Address");
-  proto_tree_add_item(tree, hf_vuze_dht_instance_id, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_instance_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
-  proto_tree_add_item(tree, hf_vuze_dht_time, tvb, offset, TL_LONG, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_time, tvb, offset, TL_LONG, ENC_BIG_ENDIAN);
   offset += TL_LONG;
 
   return offset;
@@ -666,34 +666,34 @@ INSTANCE_ID      int    always             instance id of the node that replies 
 static int
 dissect_vuze_dht_reply_header(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int *action, int *ver )
 {
-  proto_tree_add_item(tree, hf_vuze_dht_action, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_action, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   *action = tvb_get_ntohl(tvb, offset);
   col_append_fstr(pinfo->cinfo, COL_INFO, " Action: %s", val_to_str( *action, vuze_dht_action_type_vals, "Unknown") );
   offset += TL_INT;
 
-  proto_tree_add_item(tree, hf_vuze_dht_transaction_id, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_transaction_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
 
-  proto_tree_add_item(tree, hf_vuze_dht_connection_id, tvb, offset, TL_LONG, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_connection_id, tvb, offset, TL_LONG, ENC_BIG_ENDIAN);
   offset += TL_LONG;
 
-  proto_tree_add_item(tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_proto_ver, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   *ver = tvb_get_guint8( tvb, offset );
   offset += TL_BYTE;
 
   if( *ver >= PV_VENDOR_ID )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_vendor_id, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_vendor_id, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     offset += TL_BYTE;
   }
 
   if( *ver > PV_NETWORKS )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_network_id, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_network_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
 
-  proto_tree_add_item(tree, hf_vuze_dht_instance_id, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_instance_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
 
   return offset;
@@ -731,16 +731,16 @@ dissect_vuze_dht_request_store(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   guint8 keys_count, value_groups_count;
   if( ver >= PV_ANTI_SPOOF )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
-  proto_tree_add_item(tree, hf_vuze_dht_keys_count, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_keys_count, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   keys_count = tvb_get_guint8( tvb, offset );
   offset += TL_BYTE;
 
   offset = dissect_vuze_dht_keys( tvb, pinfo, tree, offset, keys_count );
 
-  proto_tree_add_item(tree, hf_vuze_dht_value_groups_count, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_value_groups_count, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   value_groups_count = tvb_get_guint8( tvb, offset );
   offset += TL_BYTE;
 
@@ -762,7 +762,7 @@ dissect_vuze_dht_reply_store(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *t
   if( ver >= PV_DIV_AND_CONT )
   {
     guint diversifications_len;
-    proto_tree_add_item(tree, hf_vuze_dht_diversifications_len, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_diversifications_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     diversifications_len = tvb_get_guint8( tvb, offset );
     offset += TL_BYTE;
 
@@ -787,7 +787,7 @@ dissect_vuze_dht_request_find_node(tvbuff_t *tvb, packet_info _U_*pinfo, proto_t
 {
   guint id_len;
 
-  proto_tree_add_item(tree, hf_vuze_dht_id_len, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_id_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   id_len = tvb_get_guint8( tvb, offset );
   offset += TL_BYTE;
 
@@ -796,9 +796,9 @@ dissect_vuze_dht_request_find_node(tvbuff_t *tvb, packet_info _U_*pinfo, proto_t
 
   if( ver >= PV_MORE_NODE_STATUS )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_node_status, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_node_status, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
-    proto_tree_add_item(tree, hf_vuze_dht_size, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_size, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
 
@@ -827,17 +827,17 @@ dissect_vuze_dht_reply_find_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
   if( ver >= PV_ANTI_SPOOF )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
   if( ver >= PV_XFER_STATUS )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_node_type, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_node_type, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
   if( ver >= PV_SIZE_ESTIMATE )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_size, tvb, offset, TL_INT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_size, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
     offset += TL_INT;
   }
   if( ver >= PV_VIVALDI )
@@ -845,7 +845,7 @@ dissect_vuze_dht_reply_find_node(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
     offset = dissect_vuze_dht_network_coordinates( tvb, pinfo, tree, offset, ver );
   }
 
-  proto_tree_add_item(tree, hf_vuze_dht_contacts_count, tvb, offset, TL_SHORT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_contacts_count, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
   contacts_count = tvb_get_ntohs( tvb, offset );
   offset += TL_SHORT;
 
@@ -870,9 +870,9 @@ static int
 dissect_vuze_dht_request_find_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset, int ver _U_ )
 {
   offset = dissect_vuze_dht_key( tvb, pinfo, tree, offset );
-  proto_tree_add_item(tree, hf_vuze_dht_flags, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_flags, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   offset += TL_BYTE;
-  proto_tree_add_item(tree, hf_vuze_dht_max_values, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_max_values, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   offset += TL_BYTE;
 
   return offset;
@@ -899,16 +899,16 @@ dissect_vuze_dht_reply_find_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
   guint contacts_count;
   if( ver >= PV_DIV_AND_CONT )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_has_continuation, tvb, offset, TL_BOOL, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_has_continuation, tvb, offset, TL_BOOL, ENC_BIG_ENDIAN);
     offset += TL_BOOL;
   }
-  proto_tree_add_item(tree, hf_vuze_dht_has_values, tvb, offset, TL_BOOL, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_has_values, tvb, offset, TL_BOOL, ENC_BIG_ENDIAN);
   has_values = tvb_get_guint8( tvb, offset );
   offset += TL_BOOL;
 
   if( has_values )
   {
-    proto_tree_add_item(tree, hf_vuze_dht_contacts_count, tvb, offset, TL_SHORT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_contacts_count, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
     contacts_count = tvb_get_ntohs( tvb, offset );
     offset += TL_SHORT;
     offset = dissect_vuze_dht_contacts( tvb, pinfo, tree, offset, contacts_count  );
@@ -919,7 +919,7 @@ dissect_vuze_dht_reply_find_value(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     }
     if( ver >= PV_DIV_AND_CONT )
     {
-      proto_tree_add_item(tree, hf_vuze_dht_diversification_type, tvb, offset, TL_BYTE, FALSE);
+      proto_tree_add_item(tree, hf_vuze_dht_diversification_type, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
       offset += TL_BYTE;
     }
     offset = dissect_vuze_dht_value_group( tvb, pinfo, tree, offset, ver );
@@ -948,7 +948,7 @@ dissect_vuze_dht_reply_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
   guint8 key_block_request_len;
   guint signature_len;
 
-  proto_tree_add_item(tree, hf_vuze_dht_error_type, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_error_type, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   error_type = tvb_get_ntohl( tvb, offset );
   col_append_fstr(pinfo->cinfo, COL_INFO, " Error: %s", val_to_str( error_type, vuze_dht_error_type_vals, "Unknown") );
   offset += TL_INT;
@@ -959,14 +959,14 @@ dissect_vuze_dht_reply_error(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     offset = dissect_vuze_dht_address( tvb, pinfo, tree, offset, "Sender Address" );
     break;
   case ET_KEY_BLOCKED:
-    proto_tree_add_item(tree, hf_vuze_dht_key_block_request_len, tvb, offset, TL_BYTE, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_key_block_request_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
     key_block_request_len = tvb_get_guint8( tvb, offset );
     offset += TL_BYTE;
 
     proto_tree_add_item(tree, hf_vuze_dht_key_block_request, tvb, offset, key_block_request_len, ENC_NA);
     offset += key_block_request_len;
 
-    proto_tree_add_item(tree, hf_vuze_dht_signature_len, tvb, offset, TL_SHORT, FALSE);
+    proto_tree_add_item(tree, hf_vuze_dht_signature_len, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
     signature_len = tvb_get_ntohs( tvb, offset );
     offset += TL_SHORT;
 
@@ -996,17 +996,17 @@ dissect_vuze_dht_request_key_block(tvbuff_t *tvb, packet_info _U_*pinfo, proto_t
   guint8 key_block_request_len;
   guint signature_len;
 
-  proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_spoof_id, tvb, offset, TL_INT, ENC_BIG_ENDIAN);
   offset += TL_INT;
 
-  proto_tree_add_item(tree, hf_vuze_dht_key_block_request_len, tvb, offset, TL_BYTE, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_key_block_request_len, tvb, offset, TL_BYTE, ENC_BIG_ENDIAN);
   key_block_request_len = tvb_get_guint8( tvb, offset );
   offset += TL_BYTE;
 
   proto_tree_add_item(tree, hf_vuze_dht_key_block_request, tvb, offset, key_block_request_len, ENC_NA);
   offset += key_block_request_len;
 
-  proto_tree_add_item(tree, hf_vuze_dht_signature_len, tvb, offset, TL_SHORT, FALSE);
+  proto_tree_add_item(tree, hf_vuze_dht_signature_len, tvb, offset, TL_SHORT, ENC_BIG_ENDIAN);
   signature_len = tvb_get_ntohs( tvb, offset );
   offset += TL_SHORT;
 

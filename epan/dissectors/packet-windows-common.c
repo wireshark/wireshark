@@ -1692,8 +1692,8 @@ dissect_nt_sid(tvbuff_t *tvb, int offset, proto_tree *parent_tree,
 	subtree = proto_item_add_subtree(item, ett_nt_sid);
 
 	/* Add revision, num_auth, and authority */
-	proto_tree_add_item(subtree, hf_nt_sid_revision, tvb, offset_sid_start, 1, TRUE);
-	proto_tree_add_item(subtree, hf_nt_sid_num_auth, tvb, offset_sid_start+1, 1, TRUE);
+	proto_tree_add_item(subtree, hf_nt_sid_revision, tvb, offset_sid_start, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(subtree, hf_nt_sid_num_auth, tvb, offset_sid_start+1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint64_format_value(subtree,
 		(sid_display_hex ? hf_nt_sid_auth_hex : hf_nt_sid_auth_dec),
 		tvb, offset_sid_start+2, 6, authority, "%" G_GINT64_MODIFIER "u", authority);
@@ -2393,7 +2393,7 @@ dissect_nt_acl(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	case ACL_REVISION_ADS:
 	case 3:  /* weirdo type */
 	  /* size */
-	  proto_tree_add_item(tree, hf_nt_acl_size, tvb, offset, 2, TRUE);
+	  proto_tree_add_item(tree, hf_nt_acl_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	  offset += 2;
 
 	  /* number of ace structures */

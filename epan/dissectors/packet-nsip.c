@@ -560,7 +560,7 @@ decode_iei_ip_address(nsip_ie_t *ie, build_info_t *bi, int ie_start_offset) {
 
   addr_type = tvb_get_guint8(bi->tvb, bi->offset);
   proto_tree_add_item(bi->nsip_tree, hf_nsip_ip_address_type,
-                          bi->tvb, bi->offset, 1, FALSE);
+                          bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   switch (addr_type) {
   case NSIP_IP_ADDRESS_TYPE_IPV4:
     ie->total_length = 2 + ipv4_element.address_length;

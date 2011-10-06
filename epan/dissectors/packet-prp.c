@@ -146,13 +146,13 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     prp_tree = proto_item_add_subtree(ti, ett_prp_supervision_frame);
 
     proto_tree_add_item(prp_tree, hf_prp_supervision_frame_version,
-                        tvb, PRP_VERSION_OFFSET, PRP_VERSION_LENGTH, FALSE);
+                        tvb, PRP_VERSION_OFFSET, PRP_VERSION_LENGTH, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(prp_tree, hf_prp_supervision_frame_type,
-                        tvb, PRP_TYPE_OFFSET, PRP_TYPE_LENGTH, FALSE);
+                        tvb, PRP_TYPE_OFFSET, PRP_TYPE_LENGTH, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(prp_tree, hf_prp_supervision_frame_length,
-                        tvb, PRP_LENGTH_OFFSET, PRP_LENGTH_LENGTH, FALSE);
+                        tvb, PRP_LENGTH_OFFSET, PRP_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(prp_tree, hf_prp_supervision_frame_source_mac_address_A,
                         tvb, PRP_SOURCEMACADDRESSA_OFFSET, PRP_SOURCE_LENGTH,
@@ -168,10 +168,10 @@ dissect_prp_supervision_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if((tlv2 == 0x1e06) || (tlv2 == 0x1f06))
     {
         proto_tree_add_item(prp_tree, hf_prp_supervision_frame_type2,
-                            tvb, PRP_TYPE2_OFFSET, PRP_TYPE_LENGTH, FALSE);
+                            tvb, PRP_TYPE2_OFFSET, PRP_TYPE_LENGTH, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(prp_tree, hf_prp_supervision_frame_length2,
-                            tvb, PRP_LENGTH2_OFFSET, PRP_LENGTH_LENGTH, FALSE);
+                            tvb, PRP_LENGTH2_OFFSET, PRP_LENGTH_LENGTH, ENC_BIG_ENDIAN);
 
         if(tlv2 == 0x1e06)
         {
@@ -251,13 +251,13 @@ dissect_prp_redundancy_control_trailer(tvbuff_t *tvb, packet_info *pinfo _U_, pr
         prp_tree = proto_item_add_subtree(ti, ett_prp_redundancy_control_trailer);
 
         proto_tree_add_item(prp_tree, hf_prp_redundancy_control_trailer_sequence_nr,
-                            tvb, (trailer_offset-4), 2, FALSE);
+                            tvb, (trailer_offset-4), 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(prp_tree, hf_prp_redundancy_control_trailer_lan,
-                            tvb, (trailer_offset-2), 2, FALSE);
+                            tvb, (trailer_offset-2), 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(prp_tree, hf_prp_redundancy_control_trailer_size,
-                            tvb, (trailer_offset-2), 2, FALSE);
+                            tvb, (trailer_offset-2), 2, ENC_BIG_ENDIAN);
     }
 }
 

@@ -532,9 +532,9 @@ static const struct true_false_string tfs_36_fail_unknown = {
 static void
 rs00(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_00_version, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_00_max_fruid, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_00_ipmc_fruid, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_00_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_00_max_fruid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_00_ipmc_fruid, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Address Info Command.
@@ -543,28 +543,28 @@ static void
 rq01(tvbuff_t *tvb, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_fruid, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 	if (tvb_length(tvb) > 1) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_addr_key_type, tvb, 1, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_addr_key_type, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
 	if (tvb_length(tvb) > 2) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_addr_key, tvb, 2, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_addr_key, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
 	if (tvb_length(tvb) > 3) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_site_type, tvb, 3, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_01_rq_site_type, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
 static void
 rs01(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_hwaddr, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_ipmbaddr, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_rsrv, tvb, 2, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_fruid, tvb, 3, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_num, tvb, 4, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_type, tvb, 5, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_hwaddr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_ipmbaddr, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_rsrv, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_fruid, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_num, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_01_rs_site_type, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	/* TBD Next byte is carrier number in MTCA */
 }
 
@@ -589,8 +589,8 @@ rq03(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq04(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_04_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_04_cmd, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_04_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_04_cmd, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get FRU LED Properties
@@ -598,7 +598,7 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq05(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_05_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_05_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -609,7 +609,7 @@ rs05(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "General Status LEDs: ", "None",
 			ett_ipmi_picmg_05_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_picmg_05_app_leds, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_05_app_leds, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get LED Color Capabilities
@@ -617,8 +617,8 @@ rs05(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq06(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_06_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_06_ledid, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_06_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_06_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -673,8 +673,8 @@ parse_led_state(proto_tree *tree, tvbuff_t *tvb, guint offs, const char *desc)
 static void
 rq07(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_07_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_07_ledid, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_07_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_07_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	parse_led_state(tree, tvb, 2, "");
 }
 
@@ -683,8 +683,8 @@ rq07(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq08(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_08_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_08_ledid, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_08_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_08_ledid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -700,7 +700,7 @@ rs08(tvbuff_t *tvb, proto_tree *tree)
 		parse_led_state(tree, tvb, 4, "Override ");
 	}
 	if (tvb_length(tvb) > 7) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_08_lamptest_duration, tvb, 7, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_08_lamptest_duration, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -754,7 +754,7 @@ rq0a(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_picmg_0a_msk_d_locked, &hf_ipmi_picmg_0a_msk_locked, NULL };
 	static const int *byte3[] = { &hf_ipmi_picmg_0a_d_locked, &hf_ipmi_picmg_0a_locked, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_0a_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_0a_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Will affect bits: ", "None",
 			ett_ipmi_picmg_0a_byte2, byte2, TRUE, BMT_NO_TFS);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, "Activation Policy Set Bits: ", NULL,
@@ -766,7 +766,7 @@ rq0a(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq0b(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_0b_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_0b_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -784,8 +784,8 @@ rs0b(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq0c(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_0c_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_0c_cmd, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_0c_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_0c_cmd, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Device Locator Record ID
@@ -793,16 +793,16 @@ rq0c(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq0d(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_0d_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_0d_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 1) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_0d_start, tvb, 1, 2, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_0d_start, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	}
 }
 
 static void
 rs0d(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_0d_recordid, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_0d_recordid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -873,14 +873,14 @@ rs0f(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq10(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_10_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_10_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs10(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_10_nslots, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_10_ipmc_loc, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_10_nslots, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_10_ipmc_loc, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Set Power Level
@@ -895,10 +895,10 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 	};
 	guint8 v = tvb_get_guint8(tvb, 1);
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_11_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_11_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_11_power_level, tvb, 1, 1,
 			v, "%s", val_to_str(v, plvl_vals, "Power Level %d"));
-	proto_tree_add_item(tree, hf_ipmi_picmg_11_set_to_desired, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_11_set_to_desired, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Power Level
@@ -906,8 +906,8 @@ rq11(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq12(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_12_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_12_pwr_type, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_12_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_12_pwr_type, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -918,7 +918,7 @@ rs12(tvbuff_t *tvb, proto_tree *tree)
 	guint32 tmp;
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_picmg_12_byte1, byte1, TRUE, BMT_NO_FALSE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_12_delay, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_12_delay, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	v = tvb_get_guint8(tvb, 2);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_12_pwr_mult, tvb, 2, 1,
 			v, "%d.%dW", v / 10, v % 10);
@@ -944,7 +944,7 @@ static void
 rq13(tvbuff_t *tvb, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_13_fruid, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_13_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -953,7 +953,7 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq14(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_14_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_14_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -961,9 +961,9 @@ rs14(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *prop[] = { &hf_ipmi_picmg_14_local_control, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_min, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_max, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_norm, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_min, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_max, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_14_speed_norm, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Fan Tray Properties: ", "None",
 			ett_ipmi_picmg_14_prop, prop, TRUE, 0);
 }
@@ -975,11 +975,11 @@ rq15(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint8 v = tvb_get_guint8(tvb, 1);
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_15_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_15_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_15_fan_level, tvb, 1, 1,
 			v, "%s", val_to_str(v, fan_level_vals, "%d"));
 	if (tvb_length(tvb) > 2) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_15_local_enable, tvb, 2, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_15_local_enable, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -988,7 +988,7 @@ rq15(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq16(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_16_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_16_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1000,10 +1000,10 @@ rs16(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_16_override_level, tvb, 0, 1,
 			v, "%s", val_to_str(v, fan_level_vals, "%d"));
 	if (tvb_length(tvb) > 1) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_level, tvb, 1, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_level, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
 	if (tvb_length(tvb) > 2) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_enable, tvb, 2, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_16_local_enable, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1037,7 +1037,7 @@ rq17(tvbuff_t *tvb, proto_tree *tree)
 			cmd, "%s (0x%02x)", val_to_str(cmd,
 				to_shmm ? vals_17_cmd_toshmm : vals_17_cmd_fromshmm,
 				"Reserved"), cmd);
-	proto_tree_add_item(tree, hf_ipmi_picmg_17_resid, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_17_resid, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1070,7 +1070,7 @@ rs17(tvbuff_t *tvb, proto_tree *tree)
 
 	if (!ipmi_getsaveddata(0, &val)) {
 		/* Without knowing the command, we cannot decipher the response */
-		proto_tree_add_item(tree, hf_ipmi_picmg_17_status, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_17_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		return;
 	}
 
@@ -1085,15 +1085,15 @@ rs17(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq18(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_18_li_key_type, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_18_li_key, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_18_li_key_type, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_18_li_key, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs18(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_18_link_num, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_18_sensor_num, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_18_link_num, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_18_sensor_num, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Shelf Manager IPMB Address
@@ -1101,8 +1101,8 @@ rs18(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs1b(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_active, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_backup, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_active, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1b_addr_backup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Set Fan Policy
@@ -1110,12 +1110,12 @@ rs1b(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq1c(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_site_number, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_enable_state, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_policy_timeout, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_site_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_enable_state, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1c_fan_policy_timeout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 3) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_1c_site_number, tvb, 3, 1, TRUE);
-		proto_tree_add_item(tree, hf_ipmi_picmg_1c_site_type, tvb, 4, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_1c_site_number, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_1c_site_type, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1124,19 +1124,19 @@ rq1c(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq1d(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1d_fan_site_number, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1d_fan_site_number, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 1) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_1d_site_number, tvb, 1, 1, TRUE);
-		proto_tree_add_item(tree, hf_ipmi_picmg_1d_site_type, tvb, 2, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_1d_site_number, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_1d_site_type, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
 static void
 rs1d(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1d_policy, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1d_policy, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 1) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_1d_coverage, tvb, 1, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_1d_coverage, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1145,7 +1145,7 @@ rs1d(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq1e(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1e_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1e_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1163,15 +1163,15 @@ rs1e(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq1f(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_op, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_lockid, tvb, 2, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_op, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rq_lockid, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs1f(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rs_lockid, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_1f_rs_lockid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_picmg_1f_rs_tstamp, tvb, 2);
 }
 
@@ -1186,9 +1186,9 @@ static const value_string cc1f[] = {
 static void
 rq20(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_20_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_20_lockid, tvb, 1, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_20_offset, tvb, 3, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_20_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_20_lockid, tvb, 1, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_20_offset, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_20_data, tvb, 5, tvb_length(tvb) - 5, ENC_NA);
 }
 
@@ -1208,7 +1208,7 @@ static const value_string cc20[] = {
 static void
 rq21(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_num, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_num, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1218,17 +1218,17 @@ rs21(tvbuff_t *tvb, proto_tree *tree)
 	guint8 addrtype;
 
 	ipmi_add_timestamp(tree, hf_ipmi_picmg_21_tstamp, tvb, 0);
-	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_count, tvb, 4, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_type, tvb, 5, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_num, tvb, 6, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_21_max_unavail, tvb, 7, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_21_addr_count, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_type, tvb, 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_21_site_num, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_21_max_unavail, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 8, 1, NULL, NULL, ett_ipmi_picmg_21_byte9, byte9, TRUE, 0);
 
 	addrtype = tvb_get_guint8(tvb, 8) & 0x7f;
 	if (addrtype == 0x01) {
 		/* IP address and RMCP port are in network byte order! */
 		proto_tree_add_item(tree, hf_ipmi_picmg_21_ipaddr, tvb, 9, 4, FALSE);
-		proto_tree_add_item(tree, hf_ipmi_picmg_21_rmcpport, tvb, 13, 2, FALSE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_21_rmcpport, tvb, 13, 2, ENC_BIG_ENDIAN);
 	};
 }
 
@@ -1241,7 +1241,7 @@ rq22(tvbuff_t *tvb, proto_tree *tree)
 		ipmi_setsaveddata(0, tvb_get_guint8(tvb, 0));
 		return;
 	}
-	proto_tree_add_item(tree, hf_ipmi_picmg_22_feed_idx, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_22_feed_idx, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1251,7 +1251,7 @@ rs22(tvbuff_t *tvb, proto_tree *tree)
 	guint16 v;
 	guint i, max;
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_22_update_cnt, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_22_update_cnt, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 
 	max = tvb_length(tvb) / 2 - 1;
 	if (!max) {
@@ -1285,13 +1285,13 @@ rs2e(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_picmg_2e_ipmc_degraded, &hf_ipmi_picmg_2e_deferred_activate, &hf_ipmi_picmg_2e_services_affected,
 		&hf_ipmi_picmg_2e_manual_rollback, &hf_ipmi_picmg_2e_auto_rollback, &hf_ipmi_picmg_2e_self_test, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_2e_version, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2e_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Capabilities: ", "None",
 			ett_ipmi_picmg_2e_byte2, byte2, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_picmg_2e_upgrade_tout, tvb, 2, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_2e_selftest_tout, tvb, 3, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_2e_rollback_tout, tvb, 4, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_2e_inaccessibility_tout, tvb, 5, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2e_upgrade_tout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2e_selftest_tout, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2e_rollback_tout, tvb, 4, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2e_inaccessibility_tout, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	add_component_bits(tree, tvb, 6, "Components present: ");
 }
 
@@ -1319,7 +1319,7 @@ parse_version(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_picmg_prop01_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_minor, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_minor, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_prop01_fw_aux, tvb, 2, 4, ENC_NA);
 }
 
@@ -1364,7 +1364,7 @@ rq2f(tvbuff_t *tvb, proto_tree *tree)
 		desc = "Reserved";
 	}
 
-	proto_tree_add_item(tree, hf_ipmi_picmg_2f_comp_id, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_2f_comp_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_picmg_2f_comp_prop, tvb, 1, 1, pno,
 			"%s (0x%02x)", desc, pno);
 }
@@ -1420,7 +1420,7 @@ static void
 rq31(tvbuff_t *tvb, proto_tree *tree)
 {
 	add_component_bits(tree, tvb, 0, "Components: ");
-	proto_tree_add_item(tree, hf_ipmi_picmg_31_action, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_31_action, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc31[] = {
@@ -1434,7 +1434,7 @@ static const value_string cc31[] = {
 static void
 rq32(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_32_block, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_32_block, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_picmg_32_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
@@ -1442,8 +1442,8 @@ static void
 rs32(tvbuff_t *tvb, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_offs, tvb, 0, 4, TRUE);
-		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_len, tvb, 4, 4, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_offs, tvb, 0, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(tree, hf_ipmi_picmg_32_sec_len, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1459,8 +1459,8 @@ static const value_string cc32[] = {
 static void
 rq33(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_picmg_33_comp_id, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_picmg_33_img_len, tvb, 1, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_33_comp_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_picmg_33_img_len, tvb, 1, 4, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc33[] = {
@@ -1505,7 +1505,7 @@ static void
 rq35(tvbuff_t *tvb, proto_tree *tree)
 {
 	if (tvb_length(tvb) > 0) {
-		proto_tree_add_item(tree, hf_ipmi_picmg_35_rollback_override, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_35_rollback_override, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 

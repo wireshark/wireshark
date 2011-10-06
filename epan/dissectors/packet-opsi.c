@@ -589,12 +589,12 @@ dissect_opsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			return;
 		}
 
-		proto_tree_add_item(opsi_tree, hf_opsi_major_version, tvb, MAJOR_VERSION_OFFSET, 1, FALSE);
-		proto_tree_add_item(opsi_tree, hf_opsi_minor_version, tvb, MINOR_VERSION_OFFSET, 1, FALSE);
-		proto_tree_add_item(opsi_tree, hf_opsi_opcode, tvb, CODE_OFFSET, 1, FALSE);
-		proto_tree_add_item(opsi_tree, hf_opsi_hook_id, tvb, HOOK_ID_OFFSET, 1, FALSE);
-		proto_tree_add_item(opsi_tree, hf_opsi_length, tvb, PACKET_LENGTH_OFFSET, 2, FALSE);
-		proto_tree_add_item(opsi_tree, hf_opsi_session_id, tvb, SESSION_OFFSET, 2, FALSE);
+		proto_tree_add_item(opsi_tree, hf_opsi_major_version, tvb, MAJOR_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(opsi_tree, hf_opsi_minor_version, tvb, MINOR_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(opsi_tree, hf_opsi_opcode, tvb, CODE_OFFSET, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(opsi_tree, hf_opsi_hook_id, tvb, HOOK_ID_OFFSET, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(opsi_tree, hf_opsi_length, tvb, PACKET_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(opsi_tree, hf_opsi_session_id, tvb, SESSION_OFFSET, 2, ENC_BIG_ENDIAN);
 
 		dissect_attributes(tvb, opsi_tree, HEADER_LENGTH, MIN(((int)tvb_length(tvb)-HEADER_LENGTH), (tvb_get_ntohs(tvb, PACKET_LENGTH_OFFSET)-HEADER_LENGTH)));
 	}

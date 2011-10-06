@@ -277,7 +277,7 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	{
 		proto_tree *df_tree = NULL;
 
-		ti = proto_tree_add_item(data_tree, hf_tns_data_flag, tvb, offset, 2, FALSE);
+		ti = proto_tree_add_item(data_tree, hf_tns_data_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		df_tree = proto_item_add_subtree(ti, ett_tns_data_flag);
 		proto_tree_add_item(df_tree, hf_tns_data_flag_send, tvb, offset, 2, FALSE);
@@ -338,14 +338,14 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_version, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_compat_version, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -354,7 +354,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *sopt_tree = NULL;
 
 		ti = proto_tree_add_item(connect_tree, hf_tns_service_options, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 
 		sopt_tree = proto_item_add_subtree(ti, ett_tns_sopt_flag);
 
@@ -367,14 +367,14 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_sdu_size, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_max_tdu_size, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -383,7 +383,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *ntp_tree = NULL;
 
 		ti = proto_tree_add_item(connect_tree, hf_tns_nt_proto_characteristics, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 
 		ntp_tree = proto_item_add_subtree(ti, ett_tns_ntp_flag);
 
@@ -409,7 +409,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_line_turnaround, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -439,7 +439,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree )
 	{
 		proto_tree_add_item(connect_tree, hf_tns_connect_data_max, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 
@@ -448,7 +448,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *cflag_tree = NULL;
 
 		ti = proto_tree_add_item(connect_tree, hf_tns_connect_flags0, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 
 		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
 
@@ -461,7 +461,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *cflag_tree = NULL;
 
 		ti = proto_tree_add_item(connect_tree, hf_tns_connect_flags1, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 
 		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
 
@@ -478,21 +478,21 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		if ( connect_tree )
 		{
 			proto_tree_add_item(connect_tree, hf_tns_trace_cf1, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 		}
 		offset += 4;
 
 		if ( connect_tree )
 		{
 			proto_tree_add_item(connect_tree, hf_tns_trace_cf2, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 		}
 		offset += 4;
 
 		if ( connect_tree )
 		{
 			proto_tree_add_item(connect_tree, hf_tns_trace_cid, tvb,
-				offset, 8, FALSE);
+				offset, 8, ENC_BIG_ENDIAN);
 		}
 		offset += 8;
 	}
@@ -530,7 +530,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( accept_tree )
 	{
 		proto_tree_add_item(accept_tree, hf_tns_version, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -539,7 +539,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *sopt_tree = NULL;
 
 		ti = proto_tree_add_item(accept_tree, hf_tns_service_options,
-			tvb, offset, 2, FALSE);
+			tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		sopt_tree = proto_item_add_subtree(ti, ett_tns_sopt_flag);
 
@@ -551,14 +551,14 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( accept_tree )
 	{
 		proto_tree_add_item(accept_tree, hf_tns_sdu_size, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
 	if ( accept_tree )
 	{
 		proto_tree_add_item(accept_tree, hf_tns_max_tdu_size, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -590,7 +590,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *cflag_tree = NULL;
 
 		ti = proto_tree_add_item(accept_tree, hf_tns_connect_flags0, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 
 		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
 
@@ -604,7 +604,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *cflag_tree = NULL;
 
 		ti = proto_tree_add_item(accept_tree, hf_tns_connect_flags1, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 
 		cflag_tree = proto_item_add_subtree(ti, ett_tns_conn_flag);
 
@@ -644,21 +644,21 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( refuse_tree )
 	{
 		proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_user, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
 	if ( refuse_tree )
 	{
 		proto_tree_add_item(refuse_tree, hf_tns_refuse_reason_system, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
 	if ( refuse_tree )
 	{
 		proto_tree_add_item(refuse_tree, hf_tns_refuse_data_length, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -693,14 +693,14 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( abort_tree )
 	{
 		proto_tree_add_item(abort_tree, hf_tns_abort_reason_user, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
 	if ( abort_tree )
 	{
 		proto_tree_add_item(abort_tree, hf_tns_abort_reason_system, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
@@ -753,21 +753,21 @@ static void dissect_tns_marker(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( marker_tree )
 	{
 		proto_tree_add_item(marker_tree, hf_tns_marker_type, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
 	if ( marker_tree )
 	{
 		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
 	if ( marker_tree )
 	{
 		proto_tree_add_item(marker_tree, hf_tns_marker_data_byte, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
@@ -796,7 +796,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( redirect_tree )
 	{
 		proto_tree_add_item(redirect_tree, hf_tns_redirect_data_length, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -830,7 +830,7 @@ static void dissect_tns_control(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( control_tree )
 	{
 		proto_tree_add_item(control_tree, hf_tns_control_cmd, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -921,7 +921,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( tree )
 	{
 		proto_tree_add_item(tns_tree, hf_tns_packet_checksum, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -949,7 +949,7 @@ dissect_tns_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if ( tree )
 	{
 		proto_tree_add_item(tns_tree, hf_tns_header_checksum, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 

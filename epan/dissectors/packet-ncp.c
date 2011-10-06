@@ -484,9 +484,9 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     case NCP_BROADCAST_SLOT:    /* Server Broadcast */
         proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
         proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_oplock_flag, tvb, commhdr + 9, 1, tvb_get_guint8(tvb, commhdr+9));
-        proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_oplock_handle, tvb, commhdr + 10, 4, ENC_BIG_ENDIAN);
         if ((tvb_get_guint8(tvb, commhdr+9)==0x24) && ncp_echo_file)
         {
             expert_add_info_format(pinfo, NULL, PI_RESPONSE_CODE, PI_CHAT, "Server requesting station to clear oplock on handle - %08x", tvb_get_ntohl(tvb, commhdr+10));
@@ -579,23 +579,23 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 
         proto_tree_add_item(ncp_tree, hf_ncp_stream_type,
-            tvb, commhdr + 3, 1, FALSE);
+            tvb, commhdr + 3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_src_connection,
-            tvb, commhdr + 4, 4, FALSE);
+            tvb, commhdr + 4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_dst_connection,
-            tvb, commhdr + 8, 4, FALSE);
+            tvb, commhdr + 8, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_packet_seqno,
-            tvb, commhdr + 12, 4, FALSE);
+            tvb, commhdr + 12, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
             tvb, commhdr + 16, 4, FALSE);
         ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
         proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
-            tvb, commhdr + 20, 2, FALSE);
+            tvb, commhdr + 20, 2, ENC_BIG_ENDIAN);
         ncp_ack_seqno = tvb_get_ntohs(tvb, commhdr+22);
         proto_tree_add_item(ncp_tree, hf_ncp_ack_seqno,
-            tvb, commhdr + 22, 2, FALSE);
+            tvb, commhdr + 22, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_burst_len,
-            tvb, commhdr + 24, 4, FALSE);
+            tvb, commhdr + 24, 4, ENC_BIG_ENDIAN);
         data_offset = tvb_get_ntohl(tvb, commhdr + 28);
         proto_tree_add_uint(ncp_tree, hf_ncp_data_offset,
             tvb, commhdr + 28, 4, data_offset);
@@ -604,7 +604,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             tvb, commhdr + 32, 2, data_len);
         missing_fraglist_count = tvb_get_ntohs(tvb, commhdr + 34);
         proto_tree_add_item(ncp_tree, hf_ncp_missing_fraglist_count,
-            tvb, commhdr + 34, 2, FALSE);
+            tvb, commhdr + 34, 2, ENC_BIG_ENDIAN);
         offset = commhdr + 36;
         if (!(flags & SYS) && ncp_burst_seqno == ncp_ack_seqno &&
             data_offset == 0) {
@@ -619,7 +619,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return;
             ncp_burst_command = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(ncp_tree, hf_ncp_burst_command,
-                tvb, offset, 4, FALSE);
+                tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             data_len -= 4;
 
@@ -627,7 +627,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                 return;
             burst_file = tvb_get_ntohl(tvb, offset);
             proto_tree_add_item(ncp_tree, hf_ncp_burst_file_handle,
-                tvb, offset, 4, FALSE);
+                tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
             data_len -= 4;
 
@@ -688,7 +688,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     default:
         proto_tree_add_uint(ncp_tree, hf_ncp_seq, tvb, commhdr + 2, 1, header.sequence);
         proto_tree_add_uint(ncp_tree, hf_ncp_connection,tvb, commhdr + 3, 3, nw_connection);
-        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, FALSE);
+        proto_tree_add_item(ncp_tree, hf_ncp_task, tvb, commhdr + 4, 1, ENC_BIG_ENDIAN);
         break;
     }
 
@@ -773,13 +773,13 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
          * packet should be handled by "dissect_ncp_reply()".
          */
         proto_tree_add_item(ncp_tree, hf_ncp_completion_code,
-            tvb, commhdr + 6, 1, TRUE);
+            tvb, commhdr + 6, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_connection_status,
-            tvb, commhdr + 7, 1, TRUE);
+            tvb, commhdr + 7, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_slot,
-            tvb, commhdr + 8, 1, TRUE);
+            tvb, commhdr + 8, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_control_code,
-            tvb, commhdr + 9, 1, TRUE);
+            tvb, commhdr + 9, 1, ENC_LITTLE_ENDIAN);
         /*
          * Display the rest of the packet as data.
          */
@@ -798,10 +798,10 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
              */
             while (missing_fraglist_count != 0) {
                 proto_tree_add_item(ncp_tree, hf_ncp_missing_data_offset,
-                    tvb, offset, 4, FALSE);
+                    tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
                 proto_tree_add_item(ncp_tree, hf_ncp_missing_data_count,
-                    tvb, offset, 2, FALSE);
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
                 offset += 2;
                 missing_fraglist_count--;
             }

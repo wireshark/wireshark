@@ -327,7 +327,7 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 	guint16 reason;
 
 	reason = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_rej_reason, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	switch(reason){
@@ -335,15 +335,15 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 		break;
 
 	case 0x0001: /* Signaling MTU exceeded */
-		proto_tree_add_item(tree, hf_btl2cap_sig_mtu, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_btl2cap_sig_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
 		break;
 
 	case 0x0002: /* Invalid CID in requets */
-		proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
 
-		proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
 
 		break;
@@ -364,14 +364,14 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 
 	psm=tvb_get_letohs(tvb, offset);
 	if( psm < BTL2CAP_DYNAMIC_PSM_START ) {
-		proto_tree_add_item(tree, hf_btl2cap_psm, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		psm_str = val_to_str(psm, psm_vals, "Unknown PSM");
 	}
 	else {
 		guint32 *service, token;
 		proto_item *item;
 
-		item = proto_tree_add_item(tree, hf_btl2cap_psm_dynamic, tvb, offset, 2, TRUE);
+		item = proto_tree_add_item(tree, hf_btl2cap_psm_dynamic, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		token = psm | ((pinfo->p2p_dir == P2P_DIR_RECV)?0x80000000:0x00000000);
 		service = se_tree_lookup32(psm_to_service_table, token);
 
@@ -383,7 +383,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 	offset+=2;
 
 	scid=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	if( psm_str )
@@ -392,7 +392,7 @@ dissect_connrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *t
 		col_append_fstr(pinfo->cinfo, COL_INFO, " (SCID: 0x%04x)", scid);
 
 	if( is_ch_request ) {
-		proto_tree_add_item(tree, hf_btl2cap_controller, tvb, offset, 1, TRUE);
+		proto_tree_add_item(tree, hf_btl2cap_controller, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset+=1;
 	}
 
@@ -419,11 +419,11 @@ dissect_movechanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 	guint8 ctrl_id;
 
 	icid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	ctrl_id = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_dcontroller, tvb, offset, 1, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_dcontroller, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 	offset+=1;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, move to %s)", icid, val_to_str(ctrl_id, ctrl_id_code_vals, "Unknown controller"));
@@ -447,46 +447,46 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 				offset, option_length + 2,
 				"Option: ");
 		ti_option_subtree = proto_item_add_subtree(ti_option, ett_btl2cap_option);
-		proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_type, tvb, offset, 1, TRUE);
-		proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_length, tvb, offset+1, 1, TRUE);
+		proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_length, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
 		offset+=2;
 
 		if(option_length>0){
 			switch(option_type){
 			case 0x01: /* MTU */
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mtu, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+=2;
 
 				proto_item_append_text(ti_option, "MTU");
 				break;
 
 			case 0x02: /* Flush timeout */
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flushTO, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flushTO, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+=2;
 
 				proto_item_append_text(ti_option, "Flush Timeout");
 				break;
 
 			case 0x03: /* QOS */
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flags, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_service_type, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_service_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_tokenrate, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_tokenrate, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_tokenbucketsize, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_tokenbucketsize, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_peakbandwidth, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_peakbandwidth, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_latency, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_delayvariation, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_delayvariation, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
 				proto_item_append_text(ti_option, "QOS");
@@ -498,58 +498,58 @@ dissect_options(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *t
 					config_data->mode = tvb_get_guint8(tvb, offset);
 					config_data->txwindow = tvb_get_guint8(tvb, offset+1);
 				}
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmissionmode, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmissionmode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_txwindow, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_txwindow, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_maxtransmit, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_maxtransmit, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmittimeout, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_retransmittimeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+= 2;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_monitortimeout, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_monitortimeout, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+= 2;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mps, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_mps, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+= 2;
 
 				proto_item_append_text(ti_option, "Retransmission and Flow Control");
 				break;
 
 			case 0x05: /* FCS */
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_fcs, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_fcs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset+=1;
 
 				proto_item_append_text(ti_option, "FCS");
 				break;
 
 			case 0x06: /* Extended Flow Specification */
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_identifier, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_identifier, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_service_type, tvb, offset, 1, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_service_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_sdu_size, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_sdu_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+=2;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_sdu_arrival_time, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_sdu_arrival_time, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_access_latency, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_access_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flush_to_us, tvb, offset, 4, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_flush_to_us, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset+=4;
 
 				proto_item_append_text(ti_option, "Extended Flow Specification");
 				break;
 
 			case 0x07: /* Extended Window Size */
-				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_window, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_option_subtree, hf_btl2cap_option_window, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset+=2;
 
 				proto_item_append_text(ti_option, "Extended Window Size");
@@ -577,7 +577,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 	dcid = tvb_get_letohs(tvb, offset);
 	psm_data=se_tree_lookup32(cid_to_psm_table, dcid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000));
-	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (DCID: 0x%04x)", dcid);
@@ -606,7 +606,7 @@ dissect_inforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 	guint16 info_type;
 
 	info_type=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s)", val_to_str(info_type, info_type_vals, "Unknown type"));
@@ -622,11 +622,11 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	guint32 features;
 
 	info_type=tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_info_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	result = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_info_result, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_info_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (%s, %s)",
@@ -636,7 +636,7 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 	if(tvb_length_remaining(tvb, offset)) {
 		switch(info_type){
 		case 0x0001: /* Connectionless MTU */
-			proto_tree_add_item(tree, hf_btl2cap_info_mtu, tvb, offset, 2, TRUE);
+			proto_tree_add_item(tree, hf_btl2cap_info_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset+=2;
 
 			break;
@@ -667,16 +667,16 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 				proto_item_append_text(ti_features, "WindowSize ");
 			if(features & 0x200)
 				proto_item_append_text(ti_features, "Unicast ");
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flowcontrol, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_retransmission, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_bidirqos, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_enh_retransmission, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_streaming, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fcs, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flow_spec, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchan, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_window, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_unicast, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flowcontrol, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_retransmission, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_bidirqos, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_enh_retransmission, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_streaming, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fcs, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_flow_spec, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchan, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_window, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_unicast, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
 
 			break;
@@ -687,12 +687,12 @@ dissect_inforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tr
 					offset, 8,
 					"Fixed Channels Supported:");
 			ti_features_subtree = proto_item_add_subtree(ti_features, ett_btl2cap_fixedchans);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_null, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_signal, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_connless, tvb, offset, 4, TRUE);
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_man, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_null, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_signal, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_connless, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_man, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
-			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_test, tvb, offset, 4, TRUE);
+			proto_tree_add_item(ti_features_subtree, hf_btl2cap_info_fixedchans_amp_test, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset+=4;
 
 			break;
@@ -717,14 +717,14 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 
 	scid = tvb_get_letohs(tvb, offset);
 	psm_data=se_tree_lookup32(cid_to_psm_table, scid|((pinfo->p2p_dir==P2P_DIR_RECV)?0x0000:0x8000));
-	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, TRUE);
 	offset+=2;
 
 	result = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_configuration_result, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_configuration_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " - %s (SCID: 0x%04x)", val_to_str(result, configuration_result_vals, "Unknown"), scid);
@@ -750,18 +750,18 @@ dissect_connresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *
 	psm_data_t *psm_data;
 
 	dcid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	scid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	result = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_result, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
-	proto_tree_add_item(tree, hf_btl2cap_status, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_status, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	if(!result) {
@@ -792,11 +792,11 @@ dissect_movechanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 	guint16 icid, result;
 
 	icid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	result = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_move_result, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_move_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, %s)", icid, val_to_str(result, move_result_vals, "Unknown result"));
@@ -810,11 +810,11 @@ dissect_movechanconfirmation(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 	guint16 icid, result;
 
 	icid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	result = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_move_confirmation_result, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_move_confirmation_result, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x, %s)", icid, val_to_str(result, move_result_confirmation_vals, "Unknown result"));
@@ -828,7 +828,7 @@ dissect_movechanconfirmationresponse(tvbuff_t *tvb, int offset, packet_info *pin
 	guint16 icid;
 
 	icid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_icid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (ICID: 0x%04x)", icid);
@@ -841,11 +841,11 @@ dissect_disconnrequestresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	guint16 scid, dcid;
 
 	dcid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_dcid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	scid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (SCID: 0x%04x, DCID: 0x%04x)", scid, dcid);
@@ -936,18 +936,18 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 		(control & 0x0080) >> 7,
 		(control & 0x007E) >> 1);
 	ti_control_subtree = proto_item_add_subtree(ti_control, ett_btl2cap_control);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_sar, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_txseq, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_sar, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_txseq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	/*Segmented frames with SAR = start have an extra SDU length header field*/
 	if(segment == 0x01) {
 		proto_item *pi;
 		sdulen = tvb_get_letohs(tvb, offset);
-		pi = proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, TRUE);
+		pi = proto_tree_add_item(btl2cap_tree, hf_btl2cap_sdulength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 		length -= 6; /*Control, SDUlength, FCS*/
 
@@ -1034,7 +1034,7 @@ dissect_i_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree 
 		}
 	}
 	offset+=(tvb_length_remaining(tvb, offset) - 2);
-	proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, TRUE);
+	proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 }
 
@@ -1064,12 +1064,12 @@ dissect_s_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree _U_, proto_t
 		(control & 0x3F00) >> 8,
 		(control & 0x0080) >> 7);
 	ti_control_subtree = proto_item_add_subtree(ti_control, ett_btl2cap_control);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_supervisory, tvb, offset, 2, TRUE);
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_supervisory, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(ti_control_subtree, hf_btl2cap_fcs, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ti_control_subtree, hf_btl2cap_fcs, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 }
 
@@ -1121,11 +1121,11 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	length = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, TRUE);
+	proto_tree_add_item(btl2cap_tree, hf_btl2cap_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	cid = tvb_get_letohs(tvb, offset);
-	proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, TRUE);
+	proto_tree_add_item(btl2cap_tree, hf_btl2cap_cid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	acl_data=(bthci_acl_data_t *)pinfo->private_data;
@@ -1150,14 +1150,14 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			btl2cap_cmd_tree=proto_item_add_subtree(ti_command, ett_btl2cap_cmd);
 
 			cmd_code=tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_code, tvb, offset, 1, TRUE);
+			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident, tvb, offset, 1, TRUE);
+			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_ident, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
 			cmd_length=tvb_get_letohs(tvb, offset);
-			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_length, tvb, offset, 2, TRUE);
+			proto_tree_add_item(btl2cap_cmd_tree, hf_btl2cap_cmd_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			proto_item_set_len(ti_command, cmd_length+4);
 			offset+=2;
 
@@ -1245,7 +1245,7 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_append_str(pinfo->cinfo, COL_INFO, "Connectionless reception channel");
 
 		psm = tvb_get_letohs(tvb, offset);
-		proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, TRUE);
+		proto_tree_add_item(btl2cap_tree, hf_btl2cap_psm, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
 
 		next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset), length);
@@ -1279,13 +1279,13 @@ dissect_btl2cap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					(control & 0x0080) >> 7,
 					(control & 0x007E) >> 1);
 				ti_control_subtree = proto_item_add_subtree(ti_control, ett_btl2cap_control);
-				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_sar, tvb, offset, 2, TRUE);
-				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, TRUE);
-				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, TRUE);
-				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_txseq, tvb, offset, 2, TRUE);
-				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, TRUE);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_sar, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_reqseq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_retransmissiondisable, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_txseq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+				proto_tree_add_item(ti_control_subtree, hf_btl2cap_control_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
-				proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, tvb_length(tvb)-2, 2, TRUE);
+				proto_tree_add_item(btl2cap_tree, hf_btl2cap_fcs, tvb, tvb_length(tvb)-2, 2, ENC_LITTLE_ENDIAN);
 
 				next_tvb = tvb_new_subset(tvb, offset, tvb_length_remaining(tvb, offset)-2, length);
 			}

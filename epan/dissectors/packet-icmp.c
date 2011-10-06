@@ -338,7 +338,7 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* Add our fields */
 	  /* type */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  break;
 	case ICMP_MIP_MOB_AGENT_ADV:
@@ -346,19 +346,19 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* Add our fields */
 	  /* type */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* length */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* sequence number */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_seq, tvb, offset,
-						  2, FALSE);
+						  2, ENC_BIG_ENDIAN);
 	  offset+=2;
 	  /* Registration Lifetime */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_life, tvb, offset,
-						  2, FALSE);
+						  2, ENC_BIG_ENDIAN);
 	  offset+=2;
 	  /* flags */
 	  flags = tvb_get_ntohs(tvb, offset);
@@ -392,17 +392,17 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* Add our fields */
 	  /* type */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* length */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 
 	  /* prefix lengths */
 	  for(i=0; i<length; i++) {
 		proto_tree_add_item(mip_tree, hf_icmp_mip_prefix_length, tvb, offset,
-							1, FALSE);
+							1, ENC_BIG_ENDIAN);
 		offset++;
 	  }
 	  break;
@@ -410,11 +410,11 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* Challenge Extension  (RFC 3012)*/
 	  /* type */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* length */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* challenge */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_challenge, tvb, offset,
@@ -425,11 +425,11 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	default:
 	  /* type */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_type, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* length */
 	  proto_tree_add_item(mip_tree, hf_icmp_mip_length, tvb, offset,
-						  1, FALSE);
+						  1, ENC_BIG_ENDIAN);
 	  offset++;
 	  /* data, if any */
 	  if (length != 0) {
@@ -632,7 +632,7 @@ dissect_mpls_extensions(tvbuff_t *tvb, gint offset, proto_tree *tree)
                                                 tvb,
                                                 offset + 3,
                                                 1,
-                                                FALSE);
+                                                ENC_BIG_ENDIAN);
 
                             proto_item_append_text(tf_entry, ", TTL: %u", ttl);
 
@@ -933,10 +933,10 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item(tree, proto_icmp, tvb, 0, length, FALSE);
   icmp_tree = proto_item_add_subtree(ti, ett_icmp);
 
-  ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1, FALSE);
+  ti = proto_tree_add_item(icmp_tree, hf_icmp_type, tvb, 0, 1, ENC_BIG_ENDIAN);
   proto_item_append_text (ti, " (%s)", type_str);
 
-  ti = proto_tree_add_item(icmp_tree, hf_icmp_code, tvb, 1, 1, FALSE);
+  ti = proto_tree_add_item(icmp_tree, hf_icmp_code, tvb, 1, 1, ENC_BIG_ENDIAN);
   if (code_str)
     proto_item_append_text (ti, " (%s)", code_str);
 
@@ -990,7 +990,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case ICMP_UNREACH:
         switch (icmp_code) {
           case ICMP_FRAG_NEEDED:
-            proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, FALSE);
+            proto_tree_add_item(icmp_tree, hf_icmp_mtu, tvb, 6, 2, ENC_BIG_ENDIAN);
             break;
 	}
         break;

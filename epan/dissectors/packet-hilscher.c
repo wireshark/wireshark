@@ -97,18 +97,18 @@ dissect_hilscher_netanalyzer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "netANALYZER");
 
     if (tree)
-        proto_tree_add_item(tree, hf_information_type, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_information_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* GPIO NUMBER */
     offset++;
     if (tree)
-        proto_tree_add_item (tree, hf_gpio_number, tvb, offset, 1, FALSE);
+        proto_tree_add_item (tree, hf_gpio_number, tvb, offset, 1, ENC_BIG_ENDIAN);
     gpio_num = (tvb_get_guint8(tvb, offset) & 0x03);
 
     /* GPIO EDGE */
     offset++;
     if (tree)
-        proto_tree_add_item (tree, hf_gpio_edge, tvb, offset, 1, FALSE);
+        proto_tree_add_item (tree, hf_gpio_edge, tvb, offset, 1, ENC_BIG_ENDIAN);
     gpio_edgex = (tvb_get_guint8(tvb, offset) & 0x01);
 
     if (gpio_edgex == 0x00)

@@ -198,7 +198,7 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 	magic=tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_nbd_magic, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_nbd_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 
@@ -324,17 +324,17 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	switch(magic){
 	case NBD_REQUEST_MAGIC:
-		proto_tree_add_item(tree, hf_nbd_type, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_nbd_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
-		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, FALSE);
+		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
 
 		from=tvb_get_ntoh64(tvb, offset);
-		proto_tree_add_item(tree, hf_nbd_from, tvb, offset, 8, FALSE);
+		proto_tree_add_item(tree, hf_nbd_from, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
 
-		proto_tree_add_item(tree, hf_nbd_len, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_nbd_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
 		if(check_col(pinfo->cinfo, COL_INFO)){
@@ -360,10 +360,10 @@ dissect_nbd_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		PROTO_ITEM_SET_GENERATED(item);
 
 		error=tvb_get_ntohl(tvb, offset);
-		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_nbd_error, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
-		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, FALSE);
+		proto_tree_add_item(tree, hf_nbd_handle, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset+=8;
 
 		if(check_col(pinfo->cinfo, COL_INFO)){

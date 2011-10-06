@@ -734,23 +734,23 @@ dissect_rtmpt_body_scm(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, guint
 {
         switch (scm) {
         case RTMPT_TYPE_CHUNK_SIZE:
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_chunksize, tvb, offset, 4, FALSE);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_chunksize, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
         case RTMPT_TYPE_ABORT_MESSAGE:
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_csid, tvb, offset, 4, FALSE);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_csid, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
         case RTMPT_TYPE_ACKNOWLEDGEMENT:
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_seq, tvb, offset, 4, FALSE);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_seq, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
         case RTMPT_TYPE_UCM:
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_ucm_eventtype, tvb, offset, 2, FALSE);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_ucm_eventtype, tvb, offset, 2, ENC_BIG_ENDIAN);
                 break;
         case RTMPT_TYPE_WINDOW:
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_was, tvb, offset, 4, FALSE);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_was, tvb, offset, 4, ENC_BIG_ENDIAN);
                 break;
         case RTMPT_TYPE_PEER_BANDWIDTH:
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_was, tvb, offset, 4, FALSE);
-                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_limittype, tvb, offset+4, 1, FALSE);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_was, tvb, offset, 4, ENC_BIG_ENDIAN);
+                proto_tree_add_item(rtmpt_tree, hf_rtmpt_scm_limittype, tvb, offset+4, 1, ENC_BIG_ENDIAN);
                 break;
         }
 }
@@ -924,7 +924,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                                                  "Name: %s", sProperty);
                         name_tree = proto_item_add_subtree(ti, ett_rtmpt_string);
 
-                        proto_tree_add_item(name_tree, hf_rtmpt_amf_stringlength, tvb, iPropertyOffset, 2, FALSE);
+                        proto_tree_add_item(name_tree, hf_rtmpt_amf_stringlength, tvb, iPropertyOffset, 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(name_tree, hf_rtmpt_amf_string, tvb, iPropertyOffset+2, iPropertyLength-2, FALSE);
                 }
 
@@ -937,11 +937,11 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                                                  val_to_str(iObjType, rtmpt_type_vals, "Unknown"), sValue);
                         val_tree = proto_item_add_subtree(ti, ett_rtmpt_value);
 
-                        proto_tree_add_item(val_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, FALSE);
+                        proto_tree_add_item(val_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, ENC_BIG_ENDIAN);
                         if (iObjType==RTMPT_AMF_STRING) {
-                                proto_tree_add_item(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset-iValueExtra+1, 2, FALSE);
+                                proto_tree_add_item(val_tree, hf_rtmpt_amf_stringlength, tvb, iValueOffset-iValueExtra+1, 2, ENC_BIG_ENDIAN);
                         } else if (iObjType==RTMPT_AMF_LONG_STRING || iObjType==RTMPT_AMF_XML) {
-                                proto_tree_add_item(val_tree, hf_rtmpt_amf_longstringlength, tvb, iValueOffset-iValueExtra+1, 4, FALSE);
+                                proto_tree_add_item(val_tree, hf_rtmpt_amf_longstringlength, tvb, iValueOffset-iValueExtra+1, 4, ENC_BIG_ENDIAN);
                         }
                         if (iValueLength>0 && hfvalue!=-1) {
                                 proto_tree_add_item(val_tree, hfvalue, tvb, iValueOffset, iValueLength, FALSE);
@@ -961,9 +961,9 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         ep_stack_push(amftrs, rtmpt_tree);
                         rtmpt_tree = proto_item_add_subtree(ti_object, ett_rtmpt_array);
 
-                        proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, FALSE);
+                        proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_type, tvb, iValueOffset-iValueExtra, 1, ENC_BIG_ENDIAN);
                         if (iValueExtra>1 || iValueLength>0) {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_arraylength, tvb, iValueOffset-iValueExtra+1, 4, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_amf_arraylength, tvb, iValueOffset-iValueExtra+1, 4, ENC_BIG_ENDIAN);
                         }
                 }
 
@@ -1056,11 +1056,11 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
 
                 tag_item = proto_tree_add_text(rtmpt_tree, tvb, offset, 11+iDataSize+4, "%s", val_to_str(iTagType, rtmpt_tag_vals, "Unknown Tag"));
                 tag_tree = proto_item_add_subtree(tag_item, ett_rtmpt_tag);
-                proto_tree_add_item(tag_tree, hf_rtmpt_tag_type, tvb, offset+0, 1, FALSE);
-                proto_tree_add_item(tag_tree, hf_rtmpt_tag_datasize, tvb, offset+1, 3, FALSE);
-                proto_tree_add_item(tag_tree, hf_rtmpt_tag_timestamp, tvb, offset+4, 3, FALSE);
-                proto_tree_add_item(tag_tree, hf_rtmpt_tag_ets, tvb, offset+7, 1, FALSE);
-                proto_tree_add_item(tag_tree, hf_rtmpt_tag_streamid, tvb, offset+8, 3, FALSE);
+                proto_tree_add_item(tag_tree, hf_rtmpt_tag_type, tvb, offset+0, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_rtmpt_tag_datasize, tvb, offset+1, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_rtmpt_tag_timestamp, tvb, offset+4, 3, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_rtmpt_tag_ets, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(tag_tree, hf_rtmpt_tag_streamid, tvb, offset+8, 3, ENC_BIG_ENDIAN);
 
                 data_item = proto_tree_add_text(tag_tree, tvb, offset+11, iDataSize, "Data");
                 data_tree = proto_item_add_subtree(data_item, ett_rtmpt_tag_data);
@@ -1079,7 +1079,7 @@ dissect_rtmpt_body_aggregate(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree)
                         break;
                 }
 
-                proto_tree_add_item(tag_tree, hf_rtmpt_tag_tagsize, tvb, offset+11+iDataSize, 4, FALSE);
+                proto_tree_add_item(tag_tree, hf_rtmpt_tag_tagsize, tvb, offset+11+iDataSize, 4, ENC_BIG_ENDIAN);
                 offset += 11 + iDataSize + 4;
         }
 }
@@ -1213,24 +1213,24 @@ dissect_rtmpt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, rtmpt_conv_t 
 /*                proto_item_append_text(ti, " (%s)", val_to_str(tp->cmd, rtmpt_opcode_vals, "Unknown (0x%01x)")); */
                 rtmpt_tree = proto_item_add_subtree(ti, ett_rtmpt_header);
 
-                if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_format, tvb, offset + 0, 1, FALSE);
-                if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_csid, tvb, offset + 0, tp->bhlen, FALSE);
+                if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_format, tvb, offset + 0, 1, ENC_BIG_ENDIAN);
+                if (tp->fmt <= 3) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_csid, tvb, offset + 0, tp->bhlen, ENC_BIG_ENDIAN);
                 if (tp->fmt <= 2) {
                         if (tp->fmt>0) {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_timestamp_delta, tvb, offset + tp->bhlen, 3, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_timestamp_delta, tvb, offset + tp->bhlen, 3, ENC_BIG_ENDIAN);
                         } else {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_timestamp, tvb, offset + tp->bhlen, 3, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_timestamp, tvb, offset + tp->bhlen, 3, ENC_BIG_ENDIAN);
                         }
                         if (haveETS) {
-                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_ets, tvb, offset + tp->bhlen + tp->mhlen - 4, 4, FALSE);
+                                proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_ets, tvb, offset + tp->bhlen + tp->mhlen - 4, 4, ENC_BIG_ENDIAN);
                         }
                 }
                 if ((tp->fmt>0 && !haveETS) || tp->fmt==3) {
                         proto_tree_add_text(rtmpt_tree, tvb, offset + tp->bhlen, 0, "Timestamp: %d (calculated)", tp->ts);
                 }
-                if (tp->fmt <= 1) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_body_size, tvb, offset + tp->bhlen + 3, 3, FALSE);
-                if (tp->fmt <= 1) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_typeid, tvb, offset + tp->bhlen + 6, 1, FALSE);
-                if (tp->fmt <= 0) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_streamid, tvb, offset + tp->bhlen + 7, 4, TRUE);
+                if (tp->fmt <= 1) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_body_size, tvb, offset + tp->bhlen + 3, 3, ENC_BIG_ENDIAN);
+                if (tp->fmt <= 1) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_typeid, tvb, offset + tp->bhlen + 6, 1, ENC_BIG_ENDIAN);
+                if (tp->fmt <= 0) proto_tree_add_item(rtmpt_tree, hf_rtmpt_header_streamid, tvb, offset + tp->bhlen + 7, 4, ENC_LITTLE_ENDIAN);
 
                 /* Dissect body */
                 if (tp->len==0) return;

@@ -934,7 +934,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		val_to_str_ext(ie_value, &uma_urr_IE_type_vals_ext, "Unknown IE (%u)"));
 	urr_ie_tree = proto_item_add_subtree(urr_ie_item, ett_urr_ie);
 
-	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, FALSE);
+	proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 	/* Some IE:s might have a length field of 2 octets */
 	ie_len = tvb_get_guint8(tvb,offset);
@@ -947,7 +947,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		ie_offset = offset +1;
 	}else{
 		proto_item_set_len(urr_ie_item, ie_len + 2);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IE_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		ie_offset = offset +1;
 	}
 
@@ -963,10 +963,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 
 	case 2:
 		/* UMA Release Indicator */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uri, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uri, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 3:			/* Radio Identity */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		octet = tvb_get_guint8(tvb,ie_offset);
 		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
 			ie_offset++;
@@ -979,7 +979,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* Cell Identity
 		 * The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cell_id, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cell_id, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 5:
 		/* Location Area Identification
@@ -1002,7 +1002,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 			ie_offset++;
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_gmsi, tvb, ie_offset, 1, FALSE);
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_psho, tvb, ie_offset, 1, FALSE);
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		}
 		break;
 	case 8:
@@ -1018,7 +1018,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * IP Address type
 		 */
 		octet = tvb_get_guint8(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		ie_offset++;
 		if ( octet == 0x57 ){ /* IPv6 */
 
@@ -1037,10 +1037,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		}
 		break;
 	case 11:		/* Redirection Counter */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_redirection_counter, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_redirection_counter, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 12:		/* 11.2.12 Discovery Reject Cause */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_dis_rej_cau, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_dis_rej_cau, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 13:
 		/* 11.2.13 GAN Cell Description
@@ -1060,13 +1060,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_MSCR, tvb, ie_offset, 1, FALSE);
 		/* T3212 timeout value */
 		ie_offset++;
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_T3212_timer, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_T3212_timer, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* RAC, Routing Area Code (octet 5) */
 		ie_offset++;
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		ie_offset++;
 		/* SGSNR, SGSN Release (octet 6) B1*/
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SGSNR, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SGSNR, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMP, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RE, tvb, ie_offset, 1, FALSE);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PFCFM, tvb, ie_offset, 1, FALSE);
@@ -1084,40 +1084,40 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		be_cell_id_list(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 16:		/* TU3907 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3907_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 17:		/* 11.2.17 GSM RR/UTRAN RRC State */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GSM_RR_state, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GSM_RR_state, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 18:		/* 11.2.18 Routing Area Identification */
 		/* The rest of the IE is coded as in [TS 24.008] not including IEI and length, if present.*/
 		de_gmm_rai(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 19:		/* 11.2.19 GAN Band */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gan_band, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gan_band, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 20:		/* 11.2.20 GAN State */
 		/* URS, GA-RC/GA-CSR State (octet 3) Bits 2-1 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_URR_state, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_URR_state, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* UPS, GA-PSR State (octet 3) Bit 3 */
 		/* GA-RRC-CS, GA-RRC (CS) State (octet 3) Bit 4 */
 		/* GA-RRC-PS, GA-RRC (PS) State (octet 3) Bit 5 */
 		break;
 	case 21:		/* 11.2.21 Register Reject Cause */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_register_reject_cause, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_register_reject_cause, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 22:		/* 11.2.22 TU3906 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3906_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3906_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 23:		/* 11.2.23 TU3910 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3910_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3910_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 24:		/* 11.2.24 TU3902 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3902_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3902_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 25:
 		/* 11.2.25 Communication Port Identity */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_communication_port, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_communication_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 
 	case 26:
@@ -1125,7 +1125,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * The L3 Message information element contains the upper layer message to be transported
 		 * using the GA-CSR protocol or the GA-RRC protocol between the MS and the core network.
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
 		if  (!dissector_try_uint(bssap_pdu_type_table,BSSAP_PDU_TYPE_DTAP, l3_tvb, pinfo, urr_ie_tree))
@@ -1160,7 +1160,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.31 GPRS Resumption
 		 * The rest of the IE is coded as in [TS 44.018], not including IEI and length, if present
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_resumption, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_resumption, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 32:
 		/* 11.2.32 Handover From GAN Command
@@ -1168,7 +1168,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * If the target RAT is UTRAN, the rest of the IE is coded as
 		 * HANDOVER TO UTRAN COMMAND message in [TS 25.331].
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_protocol_discriminator, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_L3_Message, tvb, ie_offset, ie_len, ENC_NA);
 		/* XXX the dissector to call should depend on the RAT type ??? */
 		l3_tvb = tvb_new_subset(tvb, ie_offset,ie_len, ie_len );
@@ -1200,7 +1200,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		de_rr_sus_cau(tvb, urr_ie_tree, pinfo, ie_offset, ie_len, NULL, 0);
 		break;
 	case 37:		/* 11.2.37 TU3920 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU3920_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 		/* 11.2.38 QoS */
 	case 38:
@@ -1210,15 +1210,15 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * the Channel Request Description information
 		 * element specified in [TS 44.060]
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_peak_tpt_cls, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_peak_tpt_cls, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* RADIO_PRIORITY (octet 3, bits 5-6) */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_pri, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_pri, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* RLC_MODE (octet 3, bit 7) */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rlc_mode, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rlc_mode, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* PEAK_THROUGHPUT_CLASS (octet 3, bits 1-4)*/
 		break;
 	case 39:		/* 11.2.39 GA-PSR Cause */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ga_psr_cause, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ga_psr_cause, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 40:		/* 11.2.40 User Data Rate */
 		/* The R field is the binary encoding of the rate information expressed in 100 bits/sec
@@ -1231,7 +1231,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.41 Routing Area Code
 		 * The rest of the IE is coded as in [TS 23.003] not including IEI and length, if present.
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RAC, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 42:
 		/* 11.2.42 AP Location
@@ -1241,13 +1241,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_location, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 43:		/* 11.2.43 TU4001 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4001_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4001_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 44:		/* 11.2.44 Location Status */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LS, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LS, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 45:		/* Cipher Response */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cipher_res, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cipher_res, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 46:		/* Ciphering Command RAND */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_rand_val, tvb, ie_offset, ie_len, ENC_NA);
@@ -1256,16 +1256,16 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_command_mac, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 48:		/* Ciphering Key Sequence Number */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_key_seq_num, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ciphering_key_seq_num, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 49:		/* SAPI ID */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_sapi_id, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_sapi_id, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 50:		/* 11.2.50 Establishment Cause */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_establishment_cause, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_establishment_cause, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 51:		/* Channel Needed */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_channel, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_channel, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 52:		/* PDU in Error */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PDU_in_error, tvb, ie_offset, ie_len, FALSE);
@@ -1273,13 +1273,13 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 53:
 		/* Sample Size
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_sample_size, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_sample_size, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 54:
 		/* 11.2.54 Payload Type
 		 * Payload Type (octet 3) Allowed values are between 96 and 127.
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_payload_type, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_payload_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	/* 11.2.55 Multirate Configuration */
 	case 55:
@@ -1313,14 +1313,14 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LBLI, tvb, ie_offset, 1, FALSE);
 		break;
 	case 59:		/* 11.2.59 Reset Indicator */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RI, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RI, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 60:		/* TU4003 Timer */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4003_timer, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_TU4003_timer, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 61:
 		/* AP Service Name */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_service_name_type, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_service_name_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		ie_offset++;
 		/* AP Service Name value (octet 4 to octet n)
 		 * The AP Service Name is coded as a string according to UTF-8 format defined in RFC
@@ -1333,10 +1333,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.62 GAN Service Zone Information
 		 * UMA Service Zone Icon Indicator, octet 3
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_icon_ind, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_icon_ind, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		ie_offset++;
 		/* Length of UMA Service Zone string */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str_len, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str_len, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		str_len = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		/* UMA Service Zone string, 1st character */
@@ -1351,11 +1351,11 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 */
 		/* XXX TODO: loop ower the octets */
 		/* Window Size (octet 3 to octet n) Bits 2 1 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_window_size, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_window_size, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* GAN A/Gb Mode Codec Mode (octet 3 to octet n) Bits 8 7
 		 * The GAN A/Gb Mode Codec Mode is coded as in [47] sub-clause 3.4.1
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_codec_mode, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_codec_mode, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* GAN Iu Mode Codec Mode (octet 3 to octet n) Bits 6 5 4 3 */
 		break;
 	case 64:
@@ -1376,12 +1376,12 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/* 11.2.66 UTRAN Cell Identifier List
 		 * UTRAN Cell Identification Discriminator
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UTRAN_cell_id_disc, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_UTRAN_cell_id_disc, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		octet = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		if ( octet == 0 ){
 			ie_offset = dissect_e212_mcc_mnc(tvb, pinfo, urr_ie_tree, ie_offset, TRUE);
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 			ie_offset = ie_offset + 2;
 			/* The octets 9-12 are coded as shown in 3GPP TS 25.331, Table 'Cell identity'.
 			 * 10.3.2.2 Cell identity
@@ -1405,24 +1405,24 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		octet = tvb_get_guint8(tvb,ie_offset);
 		proto_tree_add_uint(urr_ie_tree, hf_uma_urr_num_of_plms , tvb, ie_offset, 1, octet);
 		/* TODO insert while loop here */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_lac, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		break;
 	case 70:
 		/* 11.2.70 GERAN Received Signal Level List */
 		while(ie_offset<=(offset + ie_len)){
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 			ie_offset++;
 		}
 		break;
 	case 71:
 		/* 11.2.71 Required GAN Services */
 		/* CBS Cell Broadcast Service (octet 3) */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cbs, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_cbs, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 72:
 		/* 11.2.72 Broadcast Container */
 		octet = tvb_get_guint8(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_num_of_cbs_frms , tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_num_of_cbs_frms , tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* The coding of the page of the CBS message is defined in sub-clause 9.4.1 in TS 23.041. */
 		proto_tree_add_text(urr_ie_tree, tvb, ie_offset + 1, ie_len-1,"CBS Frames - Not decoded");
 		break;
@@ -1469,7 +1469,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"DATA");
 		break;
 	case 96:		/* MS Radio Identity */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_radio_type_of_id, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		octet = tvb_get_guint8(tvb,ie_offset);
 		if (( octet & 0xf) == 0){ /* IEEE MAC-address format */
 			ie_offset++;
@@ -1484,7 +1484,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * IP Address type
 		 */
 		octet = tvb_get_guint8(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		if (ie_len > 4 )
 		ie_offset++;
 		if ( octet == 0x57 ){ /* IPv6 */
@@ -1508,7 +1508,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * IP Address type
 		 */
 		octet = tvb_get_guint8(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_IP_Address_type, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		ie_offset++;
 		if ( octet == 0x57 ){ /* IPv6 */
 
@@ -1520,7 +1520,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 100:		/* UDP Port for GPRS user data transport */
 		GPRS_user_data_transport_UDP_port = tvb_get_ntohs(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_port, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/*
 		 * If this isn't the first time this packet has been processed,
 		 * we've already done this work, so we don't need to do it
@@ -1586,7 +1586,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 104:		/* RTP UDP port */
 		RTP_UDP_port = tvb_get_ntohs(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTP_port, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTP_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/* TODO find out exactly which element contains IP addr */
 		/* Debug
 		proto_tree_add_text(urr_ie_tree,tvb,ie_offset,ie_len,"IP %u, Port %u Handle %u",
@@ -1611,7 +1611,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 105:		/* RTCP UDP port */
 		RTCP_UDP_port = tvb_get_ntohs(tvb,ie_offset);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTCP_port, tvb, ie_offset, 2, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RTCP_port, tvb, ie_offset, 2, ENC_BIG_ENDIAN);
 		/* TODO find out exactly which element contains IP addr */
 		if((!pinfo->fd->flags.visited) && rtcp_ipv4_address!=0 && RTCP_UDP_port!=0 && rtcp_handle){
 			src_addr.type=AT_IPv4;
@@ -1624,14 +1624,14 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 	case 106:
 		/* 11.2.70 GERAN Received Signal Level List */
 		while(ie_offset<=(offset + ie_len)){
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 			ie_offset++;
 		}
 		break;
 	case 107:
 		/* 11.2.70 UTRAN Received Signal Level List */
 		while(ie_offset<=(offset + ie_len)){
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_RXLEV_NCELL, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 			ie_offset++;
 		}
 		break;
@@ -1699,23 +1699,23 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 /* add an item to the subtree, see section 1.6 for more information */
 	msg_len = tvb_get_ntohs(tvb,offset);
-	proto_tree_add_item(uma_tree, hf_uma_length_indicator, tvb, offset, 2, FALSE);
+	proto_tree_add_item(uma_tree, hf_uma_length_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset = offset + 2;
 	octet = tvb_get_guint8(tvb,offset);
 	pd = octet & 0x0f;
-	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, FALSE);
+	proto_tree_add_item(uma_tree, hf_uma_skip_ind, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if ((octet & 0xf0) != 0 ){
 		proto_tree_add_text(uma_tree, tvb,offset,-1,"Skip this message");
 		return;
 	}
 
-	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, FALSE);
+	proto_tree_add_item(uma_tree, hf_uma_pd, tvb, offset, 1, ENC_BIG_ENDIAN);
 	switch  ( pd ){
 	case 0: /* URR_C */
 	case 1: /* URR */
 		offset++;
 		octet = tvb_get_guint8(tvb,offset);
-		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(uma_tree, hf_uma_urr_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urr_msg_type_vals_ext, "Unknown URR (%u)"));
 		while ((msg_len + 1) > offset ){
 			offset++;
@@ -1725,7 +1725,7 @@ dissect_uma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	case 2:	/* URLC */
 		offset++;
 		octet = tvb_get_guint8(tvb,offset);
-		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		col_add_str(pinfo->cinfo, COL_INFO, val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 		col_set_fence(pinfo->cinfo,COL_INFO);
 		offset++;
@@ -1776,7 +1776,7 @@ dissect_uma_urlc_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	uma_tree = proto_item_add_subtree(ti, ett_uma);
 
 	octet = tvb_get_guint8(tvb,offset);
-	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(uma_tree, hf_uma_urlc_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s ",val_to_str_ext(octet, &uma_urlc_msg_type_vals_ext, "Unknown URLC (%u)"));
 	col_set_fence(pinfo->cinfo,COL_INFO);
 	msg_len = tvb_length_remaining(tvb,offset) - 1;

@@ -1101,8 +1101,8 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 
 		/* Timestamp offset and block length don't apply to last header */
 		if (hdr_follow) {
-			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_tm_off, tvb, offset, 2, FALSE );
-			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_bl_len, tvb, offset + 1, 2, FALSE );
+			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_tm_off, tvb, offset, 2, ENC_BIG_ENDIAN );
+			proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_bl_len, tvb, offset + 1, 2, ENC_BIG_ENDIAN );
 			hdr_new->len = tvb_get_ntohs(tvb, offset + 1) & 0x03FF;
 			proto_item_append_text(ti, ", len=%u", hdr_new->len);
 			offset += 3;
@@ -1498,7 +1498,7 @@ dissect_rtp( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		 * count.
 		 */
 		if ( tree ) proto_tree_add_item( rtp_tree, hf_rtp_padding_count,
-		    tvb, offset, 1, FALSE );
+		    tvb, offset, 1, ENC_BIG_ENDIAN );
 	}
 	else {
 		/*
@@ -1624,7 +1624,7 @@ dissect_pkt_ccc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_pkt_ccc, tvb, 0, 12, FALSE);
 		pkt_ccc_tree = proto_item_add_subtree(ti, ett_pkt_ccc);
 
-		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, FALSE);
+		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_id, tvb, 0, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(pkt_ccc_tree, hf_pkt_ccc_ts, tvb, 4, 8,
 				    ENC_TIME_NTP|ENC_BIG_ENDIAN);
 	}

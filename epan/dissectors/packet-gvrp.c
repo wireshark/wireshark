@@ -267,7 +267,7 @@ dissect_gvrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			/* Show attribute value */
 			proto_tree_add_item(gvrp_tree, hf_gvrp_attribute_value,
-			    tvb, offset, sizeof(guint16), FALSE);
+			    tvb, offset, sizeof(guint16), ENC_BIG_ENDIAN);
 
 			offset += sizeof(guint16);
 			length -= sizeof(guint16);

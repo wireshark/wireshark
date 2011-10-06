@@ -1081,7 +1081,7 @@ dissect_slow_protocols(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Subtype */
                 proto_tree_add_item(pdu_tree, hf_slow_subtype, tvb,
-                        0, 1, FALSE);
+                        0, 1, ENC_BIG_ENDIAN);
             }
 
             break;
@@ -1135,7 +1135,7 @@ dissect_lacp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Subtype */
         proto_tree_add_item(lacpdu_tree, hf_slow_subtype, tvb,
-                0, 1, FALSE);
+                0, 1, ENC_BIG_ENDIAN);
 
         /* Version Number */
         raw_octet = tvb_get_guint8(tvb, LACPDU_VERSION_NUMBER);
@@ -1462,7 +1462,7 @@ dissect_marker_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Subtype */
         proto_tree_add_item(marker_tree, hf_slow_subtype, tvb,
-                0, 1, FALSE);
+                0, 1, ENC_BIG_ENDIAN);
 
         offset = 1;
 
@@ -1553,7 +1553,7 @@ dissect_ossp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ossp_tree = proto_item_add_subtree(ossp_item, ett_ossppdu);
 
     /* Slow Protocol Subtype */
-    proto_tree_add_item(ossp_tree, hf_slow_subtype, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ossp_tree, hf_slow_subtype, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     oui_item = proto_tree_add_item(ossp_tree, hf_ossp_oui,
@@ -1613,7 +1613,7 @@ dissect_itu_ossp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* ITU-T OSSP Subtype */
     subtype = tvb_get_ntohs(tvb, 0);
-    ti = proto_tree_add_item(tree, hf_itu_subtype, tvb, 0, 2, FALSE);
+    ti = proto_tree_add_item(tree, hf_itu_subtype, tvb, 0, 2, ENC_BIG_ENDIAN);
 
     itu_ossp_tree = proto_item_add_subtree(ti, ett_itu_ossp);
 
@@ -1659,7 +1659,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
         { /* version */
             proto_item *item_b;
-            item_b = proto_tree_add_item(tree_a, hf_esmc_version, tvb, offset, 1, FALSE);
+            item_b = proto_tree_add_item(tree_a, hf_esmc_version, tvb, offset, 1, ENC_BIG_ENDIAN);
             if ((tvb_get_guint8(tvb, offset) >> 4) != ESMC_VERSION_1)
             {
                 malformed = TRUE;
@@ -1677,7 +1677,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         if (pref_decode_esmc_timestamp)
         { /* timestamp valid flag */
             timestamp_valid_flag = ((tvb_get_guint8(tvb, offset) & 0x04) != 0);
-            proto_tree_add_item(tree_a, hf_esmc_timestamp_valid_flag, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree_a, hf_esmc_timestamp_valid_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*stay at the same octet in tvb*/
         }
         { /* reserved bits */
@@ -1715,7 +1715,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
                     /* type */
                     type = tvb_get_guint8(tvb, offset);
-                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, FALSE);
+                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (type != ESMC_QL_TLV_TYPE)
                     {
                         malformed = TRUE;
@@ -1729,7 +1729,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
                     /* length */
                     length = tvb_get_ntohs(tvb, offset);
-                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, FALSE);
+                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                     if (length != ESMC_QL_TLV_LENGTH)
                     {
                         malformed = TRUE;
@@ -1744,7 +1744,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     unused = tvb_get_guint8(tvb, offset); /*as temp var*/
                     ql = unused & 0x0f;
                     unused &= 0xf0;
-                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ql_unused, tvb, offset, 1, FALSE);
+                    item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ql_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
                     if (unused != 0x00)
                     {
                         malformed = TRUE;
@@ -1753,11 +1753,11 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                     }
                     if (NULL != match_strval(ql, esmc_quality_level_opt_1_vals))
                     {
-                        proto_tree_add_item(tree_b, hf_esmc_quality_level_opt_1, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(tree_b, hf_esmc_quality_level_opt_1, tvb, offset, 1, ENC_BIG_ENDIAN);
                     }
                     else
                     {
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_quality_level_invalid, tvb, offset, 1, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_quality_level_invalid, tvb, offset, 1, ENC_BIG_ENDIAN);
                         expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_WARN
                                 ,"Invalid SSM message, unknown QL code");
                     }
@@ -1793,7 +1793,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
                         guint8 reserved;
 
                         /* type */
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_type, tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (type != ESMC_TIMESTAMP_TLV_TYPE)
                         {
                             malformed = TRUE;
@@ -1807,7 +1807,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
                         /* length */
                         length = tvb_get_ntohs(tvb, offset);
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                         if (length != ESMC_TIMESTAMP_TLV_LENGTH)
                         {
                             malformed = TRUE;
@@ -1827,7 +1827,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
                         /* reserved */
                         reserved = tvb_get_guint8(tvb, offset);
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ts_reserved, tvb, offset, 1, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_tlv_ts_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0x0)
                         {
                             expert_add_info_format(pinfo, item_c, PI_UNDECODED, PI_WARN
@@ -1969,7 +1969,7 @@ dissect_oampdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* Subtype */
         proto_tree_add_item(oampdu_tree, hf_slow_subtype, tvb,
-                0, 1, FALSE);
+                0, 1, ENC_BIG_ENDIAN);
 
         /* Flags field */
         flags = tvb_get_ntohs(tvb, OAMPDU_FLAGS);

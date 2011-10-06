@@ -113,19 +113,19 @@ dissect_rudp(tvbuff_t *tvb, packet_info *pinfo _U_ , proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_rudp, tvb, 0, hlen, FALSE);
 		rudp_tree = proto_item_add_subtree(ti, ett_rudp);
 
-		ti = proto_tree_add_item(rudp_tree, hf_rudp_flags, tvb, 0, 1, FALSE);
+		ti = proto_tree_add_item(rudp_tree, hf_rudp_flags, tvb, 0, 1, ENC_BIG_ENDIAN);
 		flags_tree = proto_item_add_subtree(ti, ett_rudp_flags);
 
 		for (i = 0; i < 8; i++)
 			proto_tree_add_item(flags_tree, flags[i], tvb, 0, 1, FALSE);
 
-		proto_tree_add_item(rudp_tree, hf_rudp_hlen, tvb, 1, 1, FALSE);
-		proto_tree_add_item(rudp_tree, hf_rudp_seq, tvb, 2, 1, FALSE);
-		proto_tree_add_item(rudp_tree, hf_rudp_ack, tvb, 3, 1, FALSE);
+		proto_tree_add_item(rudp_tree, hf_rudp_hlen, tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rudp_tree, hf_rudp_seq, tvb, 2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rudp_tree, hf_rudp_ack, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 		/* If the header is more than 4 bytes the next 2 bytes are the checksum */
 		if (hlen > 4) {
-			proto_tree_add_item(rudp_tree, hf_rudp_cksum, tvb, 4, 2, FALSE);
+			proto_tree_add_item(rudp_tree, hf_rudp_cksum, tvb, 4, 2, ENC_BIG_ENDIAN);
 		}
 
 		/* If we have even more bytes their meaning is unknown - we have seen this

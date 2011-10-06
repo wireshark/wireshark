@@ -86,7 +86,7 @@ dissect_dtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
         /* We assume version */
-	proto_tree_add_item(dtp_tree, hf_dtp_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(dtp_tree, hf_dtp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	while (tvb_reported_length_remaining(tvb, offset) > 0) {

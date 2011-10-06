@@ -232,7 +232,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset ++;
 	if (bacnet_control & BAC_CONTROL_DEST) { /* DNET, DLEN, DADR */
 		proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-			tvb, offset, 2, FALSE);
+			tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		bacnet_dlen = tvb_get_guint8(tvb, offset);
 		/* DLEN = 0 is broadcast on dest.network */
@@ -260,7 +260,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* MS/TP or ARCNET MAC */
 			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_dadr_mstp, tvb, offset,
-				bacnet_dlen, FALSE);
+				bacnet_dlen, ENC_BIG_ENDIAN);
 			offset += bacnet_dlen;
 		} else if (bacnet_dlen<7) {
 			proto_tree_add_uint(bacnet_tree, hf_bacnet_dlen,
@@ -308,7 +308,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* MS/TP or ARCNET MAC */
 			proto_tree_add_item(bacnet_tree,
 				hf_bacnet_sadr_mstp, tvb, offset,
-				bacnet_slen, FALSE);
+				bacnet_slen, ENC_BIG_ENDIAN);
 			offset += bacnet_slen;
 		} else if (bacnet_slen<6) { /* LON MAC */
 			/* SLEN */
@@ -330,7 +330,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 	if (bacnet_control & BAC_CONTROL_DEST) { /* Hopcount */
 		proto_tree_add_item(bacnet_tree, hf_bacnet_hopc,
-			tvb, offset, 1, FALSE);
+			tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset ++;
 	}
 	/* Network Layer Message Type */
@@ -353,7 +353,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		*/
 		if (bacnet_mesgtyp > 0x7f) {
 			proto_tree_add_item(bacnet_tree, hf_bacnet_vendor,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			call_dissector(data_handle,
 				tvb_new_subset_remaining(tvb, offset), pinfo, tree);
@@ -361,10 +361,10 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Performance Index (in I-Could-Be-Router-To-Network) */
 		if (bacnet_mesgtyp == BAC_NET_ICB_R) {
 			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(bacnet_tree, hf_bacnet_perf,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset ++;
 		}
 		/* Reason, DNET (in Reject-Message-To-Network) */
@@ -378,7 +378,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				bacnet_rejectreason_name(bacnet_rejectreason));
 			offset ++;
 			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 		/* N*DNET (in Router-Busy-To-Network,Router-Available-To-Network) */
@@ -388,7 +388,7 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			(bacnet_mesgtyp == BAC_NET_IAM_R) ) {
 			while(tvb_reported_length_remaining(tvb, offset) > 1 ) {
 				proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-					tvb, offset, 2, FALSE);
+					tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 			}
 		}
@@ -403,11 +403,11 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			for(i=0; i<bacnet_rportnum; i++) {
 					/* Connected DNET */
 					proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-					tvb, offset, 2, FALSE);
+					tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 					/* Port ID */
 					proto_tree_add_item(bacnet_tree, hf_bacnet_portid,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset ++;
 					/* Port Info Length */
 					bacnet_pinfolen = tvb_get_guint8(tvb, offset);
@@ -423,16 +423,16 @@ dissect_bacnet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		/* Establish-Connection-To-Network */
 		if (bacnet_mesgtyp == BAC_NET_EST_CON) {
 			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(bacnet_tree, hf_bacnet_term_time_value,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset ++;
 		}
 		/* Disconnect-Connection-To-Network */
 		if (bacnet_mesgtyp == BAC_NET_DISC_CON) {
 			proto_tree_add_item(bacnet_tree, hf_bacnet_dnet,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 	}

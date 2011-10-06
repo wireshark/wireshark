@@ -1033,13 +1033,13 @@ static void rtps_util_add_protocol_version(proto_tree *tree,
                           tvb,
                           offset,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
     proto_tree_add_item(version_tree,
                           hf_rtps_protocol_version_minor,
                           tvb,
                           offset+1,
                           1,
-                          FALSE);
+                          ENC_BIG_ENDIAN);
   }
 }
 

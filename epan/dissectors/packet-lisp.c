@@ -296,10 +296,10 @@ dissect_lisp_mapping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree, g
     lisp_mapping_tree = proto_item_add_subtree(tir, ett_lisp_mapping);
 
     /* Reserved (4 bits) */
-    proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_res, tvb, mapver_offset, 2, FALSE);
+    proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_res, tvb, mapver_offset, 2, ENC_BIG_ENDIAN);
 
     /* Map-Version Number (12 bits) */
-    proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_ver, tvb, mapver_offset, 2, FALSE);
+    proto_tree_add_item(lisp_mapping_tree, hf_lisp_mapping_ver, tvb, mapver_offset, 2, ENC_BIG_ENDIAN);
 
     /* Locators */
     for(i=0; i < loc_cnt; i++) {
@@ -368,25 +368,25 @@ dissect_lisp_map_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tre
     proto_tree_add_item(lisp_tree, hf_lisp_mreq_flags_smri, tvb, offset, 3, FALSE);
 
     /* Reserved bits (9 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_mreq_res, tvb, offset, 3, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mreq_res, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     /* ITR record count (5 bits) */
     itr_rec_cnt = tvb_get_guint8(tvb, offset + 2) & 0x1F;
-    proto_tree_add_item(lisp_tree, hf_lisp_irc, tvb, offset, 3, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_irc, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     /* Record count (8 bits) */
     rec_cnt = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Nonce (64 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Source EID AFI (16 bits) */
     src_eid_afi = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_mreq_srceid_afi, tvb, offset, 2, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mreq_srceid_afi, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Source EID */
@@ -578,16 +578,16 @@ dissect_lisp_map_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree)
     proto_tree_add_item(lisp_tree, hf_lisp_mrep_flags_enlr, tvb, offset, 3, FALSE);
 
     /* Reserved bits (18 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_mrep_res, tvb, offset, 3, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mrep_res, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     /* Record count (8 bits) */
     rec_cnt = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Nonce (64 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Reply records */
@@ -651,7 +651,7 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
     proto_tree_add_item(lisp_tree, hf_lisp_mreg_flags_pmr, tvb, offset, 3, FALSE);
 
     /* Reserved bits (18 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_mreg_res, tvb, offset, 3, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mreg_res, tvb, offset, 3, ENC_BIG_ENDIAN);
 
     /* Flags (1 bit) */
     proto_tree_add_item(lisp_tree, hf_lisp_mreg_flags_wmn, tvb, offset, 3, FALSE);
@@ -659,20 +659,20 @@ dissect_lisp_map_register(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tr
 
     /* Record count (8 bits) */
     rec_cnt = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Nonce (64 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Key ID (16 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_mreg_keyid, tvb, offset, 2, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mreg_keyid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Authentication Data Length (16 bits) */
     authlen = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_mreg_authlen, tvb, offset, 2, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mreg_authlen, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Authentication Data */
@@ -737,25 +737,25 @@ dissect_lisp_map_notify(tvbuff_t *tvb, packet_info *pinfo, proto_tree *lisp_tree
     guint16 authlen = 0;
 
     /* Reserved bits (20 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_mnot_res, tvb, offset, 3, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mnot_res, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset += 3;
 
     /* Record count (8 bits) */
     rec_cnt = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_records, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     /* Nonce (64 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_nonce, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Key ID (16 bits) */
-    proto_tree_add_item(lisp_tree, hf_lisp_mnot_keyid, tvb, offset, 2, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mnot_keyid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Authentication Data Length (16 bits) */
     authlen = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(lisp_tree, hf_lisp_mnot_authlen, tvb, offset, 2, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_mnot_authlen, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Authentication Data */
@@ -795,7 +795,7 @@ dissect_lisp_ecm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_tree
     tvbuff_t *next_tvb;
     guint8 ip_ver;
 
-    proto_tree_add_item(lisp_tree, hf_lisp_ecm_res, tvb, 0, 4, FALSE);
+    proto_tree_add_item(lisp_tree, hf_lisp_ecm_res, tvb, 0, 4, ENC_BIG_ENDIAN);
 
     /* Determine if encapsulated packet is IPv4 or IPv6, and call dissector */
     next_tvb = tvb_new_subset(tvb, LISP_ECM_HEADER_LEN, -1, -1);
@@ -853,7 +853,7 @@ dissect_lisp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         lisp_tree = proto_item_add_subtree(ti, ett_lisp);
 
         proto_tree_add_item(lisp_tree,
-            hf_lisp_type, tvb, 0, 3, FALSE);
+            hf_lisp_type, tvb, 0, 3, ENC_BIG_ENDIAN);
     }
 
     /* Sub-dissectors are indirectly called by the following and thus

@@ -109,7 +109,7 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         lisp_data_tree = proto_item_add_subtree(ti, ett_lisp_data);
 
         tif = proto_tree_add_item(lisp_data_tree,
-                hf_lisp_data_flags, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         lisp_data_flags_tree = proto_item_add_subtree(tif, ett_lisp_data_flags);
 
@@ -124,7 +124,7 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(lisp_data_flags_tree,
                 hf_lisp_data_flags_iid, tvb, offset, 1, FALSE);
         proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_res, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         flags = tvb_get_guint8(tvb, offset);
         offset += 1;
@@ -140,38 +140,38 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         "Invalid flag combination: N and V can't be set both");
             }
             proto_tree_add_item(lisp_data_tree,
-                    hf_lisp_data_nonce, tvb, offset, 3, FALSE);
+                    hf_lisp_data_nonce, tvb, offset, 3, ENC_BIG_ENDIAN);
         } else {
             if (flags&LISP_DATA_FLAG_V) {
                 proto_item *tiv;
                 proto_tree *lisp_data_mapver_tree;
 
                 tiv = proto_tree_add_item(lisp_data_tree,
-                        hf_lisp_data_mapver, tvb, offset, 3, FALSE);
+                        hf_lisp_data_mapver, tvb, offset, 3, ENC_BIG_ENDIAN);
 
                 lisp_data_mapver_tree = proto_item_add_subtree(tiv, ett_lisp_data_mapver);
 
                 proto_tree_add_item(lisp_data_mapver_tree,
-                        hf_lisp_data_srcmapver, tvb, offset, 3, FALSE);
+                        hf_lisp_data_srcmapver, tvb, offset, 3, ENC_BIG_ENDIAN);
                 proto_tree_add_item(lisp_data_mapver_tree,
-                        hf_lisp_data_dstmapver, tvb, offset, 3, FALSE);
+                        hf_lisp_data_dstmapver, tvb, offset, 3, ENC_BIG_ENDIAN);
             }
         }
         offset += 3;
 
         if (flags&LISP_DATA_FLAG_I) {
             proto_tree_add_item(lisp_data_tree,
-                    hf_lisp_data_iid, tvb, offset, 3, FALSE);
+                    hf_lisp_data_iid, tvb, offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
             if (flags&LISP_DATA_FLAG_L) {
                 proto_tree_add_item(lisp_data_tree,
-                        hf_lisp_data_lsb8, tvb, offset, 1, FALSE);
+                        hf_lisp_data_lsb8, tvb, offset, 1, ENC_BIG_ENDIAN);
             }
             offset +=1;
         } else {
             if (flags&LISP_DATA_FLAG_L) {
                 proto_tree_add_item(lisp_data_tree,
-                        hf_lisp_data_lsb, tvb, offset, 4, FALSE);
+                        hf_lisp_data_lsb, tvb, offset, 4, ENC_BIG_ENDIAN);
                 offset += 4;
             }
         }

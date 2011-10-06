@@ -4857,7 +4857,7 @@ dissect_smb2_MxAc_buffer_response(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		sub_tree = proto_item_add_subtree(sub_item, ett_smb2_MxAc_buffer);
 	}
 
-	proto_tree_add_item(sub_tree, hf_smb2_mxac_status, tvb, offset, 4, FALSE);
+	proto_tree_add_item(sub_tree, hf_smb2_mxac_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	dissect_smb_access_mask(tvb, sub_tree, offset);
@@ -6324,7 +6324,7 @@ dissect_smb2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, gboolea
 
 	/* Next Command */
 	chain_offset=tvb_get_letohl(tvb, offset);
-	proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, FALSE);
+	proto_tree_add_item(header_tree, hf_smb2_chain_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* command sequence number*/

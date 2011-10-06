@@ -104,9 +104,9 @@ dissect_paltalk_desegmented(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	{
 		ti = proto_tree_add_item(tree, proto_paltalk, tvb, 0, -1, FALSE);
 		pt_tree = proto_item_add_subtree(ti, ett_paltalk);
-		proto_tree_add_item(pt_tree, hf_paltalk_pdu_type, tvb, 0, 2, FALSE);
-		proto_tree_add_item(pt_tree, hf_paltalk_version, tvb, 2, 2, FALSE);
-		proto_tree_add_item(pt_tree, hf_paltalk_length, tvb, 4, 2, FALSE);
+		proto_tree_add_item(pt_tree, hf_paltalk_pdu_type, tvb, 0, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pt_tree, hf_paltalk_version, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pt_tree, hf_paltalk_length, tvb, 4, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(pt_tree, hf_paltalk_content, tvb, 6, tvb_get_ntohs(tvb, 4), ENC_NA);
 	}
 }

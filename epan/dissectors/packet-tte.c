@@ -112,11 +112,11 @@ dissect_tte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ett_tte_macdest);
 
         proto_tree_add_item(tte_macdest_tree,
-            hf_tte_dst_cf, tvb, 0, TTE_MACDEST_CF_LENGTH, FALSE);
+            hf_tte_dst_cf, tvb, 0, TTE_MACDEST_CF_LENGTH, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(tte_macdest_tree,
             hf_tte_ctid, tvb, TTE_MACDEST_CF_LENGTH,
-            TTE_MACDEST_CTID_LENGTH, FALSE);
+            TTE_MACDEST_CTID_LENGTH, ENC_BIG_ENDIAN);
     }
 
     /* prevent clearing the Columns...appending cannot be prevented */

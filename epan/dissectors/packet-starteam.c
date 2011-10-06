@@ -537,11 +537,11 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
           ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 20, STARTEAM_TEXT_MDH);
           starteam_tree = proto_item_add_subtree(ti, ett_starteam_mdh);
 
-          proto_tree_add_item(starteam_tree, hf_starteam_mdh_session_tag, tvb, offset + 0, 4, TRUE);
-          proto_tree_add_item(starteam_tree, hf_starteam_mdh_ctimestamp, tvb, offset + 4, 4, TRUE);
-          proto_tree_add_item(starteam_tree, hf_starteam_mdh_flags, tvb, offset + 8, 4, TRUE);
-          proto_tree_add_item(starteam_tree, hf_starteam_mdh_keyid, tvb, offset + 12, 4, TRUE);
-          proto_tree_add_item(starteam_tree, hf_starteam_mdh_reserved, tvb, offset + 16, 4, TRUE);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_session_tag, tvb, offset + 0, 4, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_ctimestamp, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_flags, tvb, offset + 8, 4, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_keyid, tvb, offset + 12, 4, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(starteam_tree, hf_starteam_mdh_reserved, tvb, offset + 16, 4, ENC_LITTLE_ENDIAN);
           offset += 20;
         }
       }
@@ -551,9 +551,9 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         starteam_tree = proto_item_add_subtree(ti, ett_starteam_ph);
 
         proto_tree_add_item(starteam_tree, hf_starteam_ph_signature, tvb, offset + 0, 4, FALSE);
-        proto_tree_add_item(starteam_tree, hf_starteam_ph_packet_size, tvb, offset + 4, 4, TRUE);
-        proto_tree_add_item(starteam_tree, hf_starteam_ph_data_size, tvb, offset + 8, 4, TRUE);
-        proto_tree_add_item(starteam_tree, hf_starteam_ph_data_flags, tvb, offset + 12, 4, TRUE);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_packet_size, tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_data_size, tvb, offset + 8, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(starteam_tree, hf_starteam_ph_data_flags, tvb, offset + 12, 4, ENC_LITTLE_ENDIAN);
         offset += 16;
 
         if(bRequest){
@@ -561,13 +561,13 @@ dissect_starteam(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             ti = proto_tree_add_text(starteamroot_tree, tvb, offset, 38, STARTEAM_TEXT_ID);
             starteam_tree = proto_item_add_subtree(ti, ett_starteam_id);
 
-            proto_tree_add_item(starteam_tree, hf_starteam_id_revision_level, tvb, offset + 0, 2, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_revision_level, tvb, offset + 0, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(starteam_tree, hf_starteam_id_client, tvb, offset + 2, 16, TRUE);
-            proto_tree_add_item(starteam_tree, hf_starteam_id_connect, tvb, offset + 18, 4, TRUE);
-            proto_tree_add_item(starteam_tree, hf_starteam_id_component, tvb, offset + 22, 4, TRUE);
-            proto_tree_add_item(starteam_tree, hf_starteam_id_command, tvb, offset + 26, 4, TRUE);
-            proto_tree_add_item(starteam_tree, hf_starteam_id_command_time, tvb, offset + 30, 4, TRUE);
-            proto_tree_add_item(starteam_tree, hf_starteam_id_command_userid, tvb, offset + 34, 4, TRUE);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_connect, tvb, offset + 18, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_component, tvb, offset + 22, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_command, tvb, offset + 26, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_command_time, tvb, offset + 30, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(starteam_tree, hf_starteam_id_command_userid, tvb, offset + 34, 4, ENC_LITTLE_ENDIAN);
             offset += 38;
           }
         }

@@ -1919,9 +1919,9 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		if (id_type == 0x01) {
 			proto_tree_add_item(v_tree, hf_bootp_option_client_network_id_major_ver,
-								tvb, optoff + 1, 1, TRUE);
+								tvb, optoff + 1, 1, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(v_tree, hf_bootp_option_client_network_id_minor_ver,
-								tvb, optoff + 2, 1, TRUE);
+								tvb, optoff + 2, 1, ENC_LITTLE_ENDIAN);
 		}
 
 		break;

@@ -1233,7 +1233,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 
 		if (dfmt->flags & IPMI_D_SESSION_HANDLE) {
 			proto_tree_add_item(hdr_tree, hf_ipmi_session_handle,
-					tvb, offs++, 1, TRUE);
+					tvb, offs++, 1, ENC_LITTLE_ENDIAN);
 		}
 
 		/* Broadcast byte (optional) */
@@ -1244,7 +1244,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 
 		/* Target SA, if present */
 		if (dfmt->flags & IPMI_D_TRG_SA) {
-			proto_tree_add_item(hdr_tree, hf_ipmi_header_trg, tvb, offs++, 1, TRUE);
+			proto_tree_add_item(hdr_tree, hf_ipmi_header_trg, tvb, offs++, 1, ENC_LITTLE_ENDIAN);
 		}
 
 		/* Network function + target LUN */
@@ -1253,7 +1253,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 				ndesc, is_resp ? "Response" : "Request", hdr.netfn);
 		s_tree = proto_item_add_subtree(ti, ett_header_byte_1);
 
-		proto_tree_add_item(s_tree, hf_ipmi_header_trg_lun, tvb, offs, 1, TRUE);
+		proto_tree_add_item(s_tree, hf_ipmi_header_trg_lun, tvb, offs, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_uint_format(s_tree, hf_ipmi_header_netfn, tvb, offs, 1,
 				hdr.netfn << 2, "%sNetFn: %s %s (0x%02x)",
 				ipmi_dcd8(hdr.netfn << 2, 0xfc),
@@ -1277,7 +1277,7 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 		data_chk_offs = offs;
 
 		/* Source SA */
-		proto_tree_add_item(hdr_tree, hf_ipmi_header_src, tvb, offs++, 1, TRUE);
+		proto_tree_add_item(hdr_tree, hf_ipmi_header_src, tvb, offs++, 1, ENC_LITTLE_ENDIAN);
 
 		/* Sequence number + source LUN */
 		ti = proto_tree_add_text(hdr_tree, tvb, offs, 1,
@@ -1285,8 +1285,8 @@ ipmi_do_dissect(tvbuff_t *tvb, proto_tree *ipmi_tree, ipmi_dissect_format_t *dfm
 				hdr.src_lun, hdr.seq);
 		s_tree = proto_item_add_subtree(ti, ett_header_byte_4);
 
-		proto_tree_add_item(s_tree, hf_ipmi_header_src_lun, tvb, offs, 1, TRUE);
-		proto_tree_add_item(s_tree, hf_ipmi_header_sequence, tvb, offs, 1, TRUE);
+		proto_tree_add_item(s_tree, hf_ipmi_header_src_lun, tvb, offs, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(s_tree, hf_ipmi_header_sequence, tvb, offs, 1, ENC_LITTLE_ENDIAN);
 		offs++;
 
 		/* Command */

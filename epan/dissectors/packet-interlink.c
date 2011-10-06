@@ -101,11 +101,11 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (ilh_tree) {
 		proto_tree_add_item(ilh_tree, hf_interlink_id, tvb, offset, 4, FALSE);
 		offset += 4;
-		proto_tree_add_item(ilh_tree, hf_interlink_version, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ilh_tree, hf_interlink_version, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(ilh_tree, hf_interlink_cmd, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ilh_tree, hf_interlink_cmd, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(ilh_tree, hf_interlink_seq, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ilh_tree, hf_interlink_seq, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 		offset += 10;
@@ -116,7 +116,7 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree	*flags_tree = NULL;
 
 		flags_item = proto_tree_add_item(ilh_tree, hf_interlink_flags,
-			tvb, offset, 2, TRUE);
+			tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		if (flags_item) {
 			flags_tree = proto_item_add_subtree(flags_item, ett_interlink_flags);
 		}
@@ -143,11 +143,11 @@ dissect_interlink(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ilb_type, ilb_version);
 
 	if (ilb_tree) {
-		proto_tree_add_item(ilb_tree, hf_interlink_block_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ilb_tree, hf_interlink_block_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(ilb_tree, hf_interlink_block_version, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ilb_tree, hf_interlink_block_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(ilb_tree, hf_interlink_block_length, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ilb_tree, hf_interlink_block_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 	} else {
 		offset += 4;

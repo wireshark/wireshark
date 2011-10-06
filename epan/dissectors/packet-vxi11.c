@@ -231,7 +231,7 @@ dissect_flags(tvbuff_t *tvb, int offset, proto_tree *tree)
         guint32 flags =
             tvb_get_ntohl(tvb, offset);
         proto_item *flags_item =
-            proto_tree_add_item(tree, hf_vxi11_core_flags, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_vxi11_core_flags, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         if (flags_item)
         {
@@ -276,7 +276,7 @@ dissect_reason(tvbuff_t *tvb, int offset, proto_tree *tree)
         guint32 reason =
             tvb_get_ntohl(tvb, offset);
         proto_item *reason_item =
-            proto_tree_add_item(tree, hf_vxi11_core_reason, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_vxi11_core_reason, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         if (reason_item)
         {

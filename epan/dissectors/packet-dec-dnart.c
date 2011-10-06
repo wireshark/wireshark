@@ -517,11 +517,11 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset++;
         dst_node = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(rt_tree, hf_dec_rt_dst_node, tvb,
-            offset, 2, TRUE);
+            offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         src_node = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(rt_tree, hf_dec_rt_src_node, tvb,
-            offset, 2, TRUE);
+            offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         forward = tvb_get_guint8(tvb, offset);
         proto_tree_add_uint(rt_tree, hf_dec_rt_visited_nodes, tvb,
@@ -548,7 +548,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset++;
         dst_node_local = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(
-            nsp_msg_tree, hf_dec_rt_dst_node, tvb, offset, 2, TRUE);
+            nsp_msg_tree, hf_dec_rt_dst_node, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
         if (nsp_msg_type == CONN_ACK_MSG) {
             col_set_str(pinfo->cinfo, COL_INFO, "NSP connect acknowledgement");
@@ -558,7 +558,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         /* All other messages have a source node */
         src_node_local = tvb_get_letohs(tvb, offset);
         proto_tree_add_item(
-            nsp_msg_tree, hf_dec_rt_src_node, tvb, offset, 2, TRUE);
+            nsp_msg_tree, hf_dec_rt_src_node, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         offset =
@@ -583,13 +583,13 @@ do_initialization_msg(
 
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, initialization message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     proto_tree_add_item(tree, hf_dec_rt_tiinfo, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
     proto_tree_add_item(tree, hf_dec_rt_blk_size, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
     version = tvb_get_guint8(tvb, my_offset);
     eco_nr = tvb_get_guint8(tvb, my_offset + 1);
@@ -599,7 +599,7 @@ do_initialization_msg(
             version, eco_nr, user_eco);
     my_offset +=3;
     proto_tree_add_item(tree, hf_dec_rt_timer, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
@@ -622,7 +622,7 @@ do_verification_msg(
 
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, verification message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
     remainder_count = tvb_get_guint8(tvb, my_offset);
     if (remainder_count != 0) {
@@ -645,7 +645,7 @@ do_hello_test_msg(
 
     col_set_str(pinfo->cinfo, COL_INFO, "Routing control, hello/test message");
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
     remainder_count = tvb_length_remaining(tvb, my_offset);
     if (remainder_count != 0) {
@@ -671,7 +671,7 @@ do_routing_msg(
     guint   remainder_count;
 
     proto_tree_add_item(tree, hf_dec_rt_src_node, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     /* Skip the 1-byte reserved field */
     my_offset += 3;
     remainder_count = tvb_length_remaining(tvb, my_offset);
@@ -764,7 +764,7 @@ do_hello_msg(
         tvb, my_offset, 1, iinfo);
     my_offset++;
     proto_tree_add_item(tree, hf_dec_rt_blk_size, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 2;
     if (msg == 5) {
         /* Ethernet router hello message
@@ -795,7 +795,7 @@ do_hello_msg(
       'mpd' field is reserved */
     timer = tvb_get_letohs(tvb, my_offset);
     proto_tree_add_item(tree, hf_dec_rt_timer, tvb,
-        my_offset, 2, TRUE);
+        my_offset, 2, ENC_LITTLE_ENDIAN);
     my_offset += 3;
     if (msg == 5) {
         /* The Ethernet router hello message contains
@@ -925,7 +925,7 @@ handle_nsp_msg(
             }
             /* This is the last field, the rest are data */
             proto_tree_add_item(tree, hf_dec_rt_segnum,
-                tvb, my_offset, 2, TRUE);
+                tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_boolean(tree, hf_dec_rt_delay,
                 tvb, my_offset, 2, seg_num);
             my_offset += 2;
@@ -953,7 +953,7 @@ handle_nsp_msg(
             } else {
                 /* There are no ack/nak fields */
                 proto_tree_add_item(tree, hf_dec_rt_segnum,
-                    tvb, my_offset, 2, TRUE);
+                    tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
                 proto_tree_add_boolean(tree, hf_dec_rt_delay,
                     tvb, my_offset, 2, ack_num);
                 my_offset += 2;
@@ -973,7 +973,7 @@ handle_nsp_msg(
             seg_num = tvb_get_letohs(tvb, my_offset);
             /* This is the last field, the rest are data */
             proto_tree_add_item(tree, hf_dec_rt_segnum,
-                tvb, my_offset, 2, TRUE);
+                tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_boolean(tree, hf_dec_rt_delay,
                 tvb, my_offset, 2, seg_num);
             my_offset += 2;
@@ -993,7 +993,7 @@ handle_nsp_msg(
             } else {
                 /* There are no ack/nak fields */
                 proto_tree_add_item(tree, hf_dec_rt_segnum,
-                    tvb, my_offset, 2, TRUE);
+                    tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
                 proto_tree_add_boolean(tree, hf_dec_rt_delay,
                     tvb, my_offset, 2, ack_num);
                 my_offset += 2;
@@ -1012,7 +1012,7 @@ handle_nsp_msg(
             }
             seg_num = tvb_get_letohs(tvb, my_offset);
             proto_tree_add_item(tree, hf_dec_rt_segnum,
-                tvb, my_offset, 2, TRUE);
+                tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
             proto_tree_add_boolean(tree, hf_dec_rt_delay,
                 tvb, my_offset, 2, seg_num);
             my_offset += 2;
@@ -1110,7 +1110,7 @@ handle_nsp_msg(
             my_offset++;
             seg_size = tvb_get_letohs(tvb, my_offset);
             proto_tree_add_item(tree, hf_dec_rt_seg_size, tvb,
-                         my_offset, 2, TRUE);
+                         my_offset, 2, ENC_LITTLE_ENDIAN);
             my_offset += 2;
             my_offset =
                 handle_connect_contents(
@@ -1121,7 +1121,7 @@ handle_nsp_msg(
             col_set_str(pinfo->cinfo, COL_INFO, "NSP disconnect initiate/confirm message");
             reason = tvb_get_letohs(tvb, my_offset);
             proto_tree_add_item(tree, hf_dec_disc_reason, tvb,
-                 my_offset, 2, TRUE);
+                 my_offset, 2, ENC_LITTLE_ENDIAN);
             my_offset += 2;
             if (nsp_msg_type == DISCONN_INITIATE_MSG) {
                 my_offset =
@@ -1159,11 +1159,11 @@ handle_connect_contents(
     if (dst_format == 2) {
         grp_code = tvb_get_letohs(tvb, my_offset);
         proto_tree_add_item(contents_tree, hf_dec_sess_grp_code,
-            tvb, my_offset, 2, TRUE);
+            tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
         my_offset += 2;
         usr_code = tvb_get_letohs(tvb, my_offset);
         proto_tree_add_item(contents_tree, hf_dec_sess_usr_code,
-            tvb, my_offset, 2, TRUE);
+            tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
         my_offset += 2;
     }
     if (dst_format != 0) {
@@ -1184,11 +1184,11 @@ handle_connect_contents(
     if (src_format == 2) {
         grp_code = tvb_get_letohs(tvb, my_offset);
         proto_tree_add_item(contents_tree, hf_dec_sess_grp_code,
-            tvb, my_offset, 2, TRUE);
+            tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
         my_offset += 2;
         usr_code = tvb_get_letohs(tvb, my_offset);
         proto_tree_add_item(contents_tree, hf_dec_sess_usr_code,
-            tvb, my_offset, 2, TRUE);
+            tvb, my_offset, 2, ENC_LITTLE_ENDIAN);
         my_offset += 2;
     }
     if (dst_format != 0) {

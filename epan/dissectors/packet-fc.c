@@ -364,16 +364,16 @@ dissect_fc_ba_acc (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
         acc_tree = proto_item_add_subtree (ti, ett_fcbls);
 
-        proto_tree_add_item (acc_tree, hf_fc_bls_seqid_vld, tvb, offset++, 1, FALSE);
-        proto_tree_add_item (acc_tree, hf_fc_bls_lastvld_seqid, tvb, offset++, 1, FALSE);
+        proto_tree_add_item (acc_tree, hf_fc_bls_seqid_vld, tvb, offset++, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (acc_tree, hf_fc_bls_lastvld_seqid, tvb, offset++, 1, ENC_BIG_ENDIAN);
         offset += 2; /* Skip reserved field */
-        proto_tree_add_item (acc_tree, hf_fc_bls_oxid, tvb, offset, 2, FALSE);
+        proto_tree_add_item (acc_tree, hf_fc_bls_oxid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item (acc_tree, hf_fc_bls_rxid, tvb, offset, 2, FALSE);
+        proto_tree_add_item (acc_tree, hf_fc_bls_rxid, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item (acc_tree, hf_fc_bls_lowseqcnt, tvb, offset, 2, FALSE);
+        proto_tree_add_item (acc_tree, hf_fc_bls_lowseqcnt, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item (acc_tree, hf_fc_bls_hiseqcnt, tvb, offset, 2, FALSE);
+        proto_tree_add_item (acc_tree, hf_fc_bls_hiseqcnt, tvb, offset, 2, ENC_BIG_ENDIAN);
     }
 }
 
@@ -394,9 +394,9 @@ dissect_fc_ba_rjt (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_text (tree, tvb, 0, tvb_length (tvb), "Basic Link Svc");
         rjt_tree = proto_item_add_subtree (ti, ett_fcbls);
 
-        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtcode, tvb, offset+1, 1, FALSE);
-        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtdetail, tvb, offset+2, 1, FALSE);
-        proto_tree_add_item (rjt_tree, hf_fc_bls_vendor, tvb, offset+3, 1, FALSE);
+        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtcode, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (rjt_tree, hf_fc_bls_rjtdetail, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (rjt_tree, hf_fc_bls_vendor, tvb, offset+3, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -999,10 +999,10 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                         fclctl_get_typestr ((guint8) (fchdr.r_ctl & 0x0F),
                                                             fchdr.type));
         } else {
-            proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
+            proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         }
     } else {
-        proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, FALSE);
+        proto_tree_add_item (fc_tree, hf_fc_type, tvb, offset+8, 1, ENC_BIG_ENDIAN);
     }
 
 
@@ -1010,7 +1010,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
     f_ctl = tvb_get_ntoh24(tvb, offset+9);
 
 
-    proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, FALSE);
+    proto_tree_add_item (fc_tree, hf_fc_seqid, tvb, offset+12, 1, ENC_BIG_ENDIAN);
 
     df_ctl = tvb_get_guint8(tvb, offset+13);
 
@@ -1032,7 +1032,7 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                         fclctl_get_paramstr ((fchdr.r_ctl & 0x0F),
                                                              param));
         } else {
-            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
+            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, ENC_BIG_ENDIAN);
         }
     } else if (ftype == FC_FTYPE_BLS) {
         if ((fchdr.r_ctl & 0x0F) == FC_BLS_ABTS) {
@@ -1043,17 +1043,17 @@ dissect_fc_helper (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolean
                                          "Abort Exchange"));
         } else {
             proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20,
-                                 4, FALSE);
+                                 4, ENC_BIG_ENDIAN);
         }
     } else if (ftype == FC_FTYPE_SCSI ) {
         if (f_ctl&FC_FCTL_REL_OFFSET){
-            proto_tree_add_item (fc_tree, hf_fc_relative_offset, tvb, offset+20, 4, FALSE);
+            proto_tree_add_item (fc_tree, hf_fc_relative_offset, tvb, offset+20, 4, ENC_BIG_ENDIAN);
             fchdr.relative_offset=tvb_get_ntohl(tvb, offset+20);
         } else {
-            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
+            proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, ENC_BIG_ENDIAN);
         }
     } else {
-        proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, FALSE);
+        proto_tree_add_item (fc_tree, hf_fc_param, tvb, offset+20, 4, ENC_BIG_ENDIAN);
     }
 
     /* Skip the Frame_Header */

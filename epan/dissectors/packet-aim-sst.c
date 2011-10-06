@@ -60,7 +60,7 @@ static int dissect_aim_sst_buddy_down_req (tvbuff_t *tvb, packet_info *pinfo _U_
 	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	md5_size = tvb_get_guint8(tvb, offset);
 	offset++;
 
@@ -79,7 +79,7 @@ static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U
 	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 3, ENC_NA);
 	offset+=3;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	md5_size = tvb_get_guint8(tvb, offset);
 	offset++;
 
@@ -87,7 +87,7 @@ static int dissect_aim_sst_buddy_down_repl (tvbuff_t *tvb, packet_info *pinfo _U
 
 	offset+=md5_size;
 
-	proto_tree_add_item(tree, hf_aim_sst_icon_size, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_icon_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 	icon_size = tvb_get_ntohs(tvb, offset);
 	offset+=2;
 
@@ -109,7 +109,7 @@ static int dissect_aim_sst_buddy_up_repl (tvbuff_t *tvb, packet_info *pinfo _U_,
 	proto_tree_add_item(tree, hf_aim_sst_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
 
-	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_md5_hash_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 	md5_size = tvb_get_guint8(tvb, offset);
 	offset++;
 
@@ -124,10 +124,10 @@ static int dissect_aim_sst_buddy_up_req (tvbuff_t *tvb, packet_info *pinfo _U_, 
 	int offset = 0;
 	guint16 icon_size;
 
-	proto_tree_add_item(tree, hf_aim_sst_ref_num, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_ref_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
-	proto_tree_add_item(tree, hf_aim_sst_icon_size, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_aim_sst_icon_size, tvb, offset, 2, ENC_BIG_ENDIAN);
 	icon_size = tvb_get_ntohs(tvb, offset);
 	offset+=2;
 

@@ -376,7 +376,7 @@ static int dissect_aim_generic_setprivflags(tvbuff_t *tvb, packet_info *pinfo _U
 static int dissect_aim_generic_selfinfo_repl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
 	int offset = dissect_aim_buddyname(tvb, pinfo, 0, gen_tree);
-	proto_tree_add_item(gen_tree, hf_generic_selfinfo_warninglevel, tvb, offset, 2, FALSE);
+	proto_tree_add_item(gen_tree, hf_generic_selfinfo_warninglevel, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	return dissect_aim_tlv_list(tvb, pinfo, offset, gen_tree, aim_onlinebuddy_tlvs);
 }
@@ -384,7 +384,7 @@ static int dissect_aim_generic_selfinfo_repl(tvbuff_t *tvb, packet_info *pinfo, 
 static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, FALSE);
+	proto_tree_add_item(gen_tree, hf_generic_evil_new_warn_level, tvb, offset, 2, ENC_BIG_ENDIAN);
 	while(tvb_length_remaining(tvb, offset)) {
 		offset = dissect_aim_userinfo(tvb, pinfo, offset, gen_tree);
 	}
@@ -393,7 +393,7 @@ static int dissect_aim_generic_evil(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 
 static int dissect_aim_generic_setidle(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
-	proto_tree_add_item(gen_tree, hf_generic_idle_time, tvb, 0, 2, FALSE);
+	proto_tree_add_item(gen_tree, hf_generic_idle_time, tvb, 0, 2, ENC_BIG_ENDIAN);
 	return 2;
 }
 
@@ -405,9 +405,9 @@ static int dissect_aim_generic_ext_status_req(tvbuff_t *tvb, packet_info *pinfo,
 static int dissect_aim_generic_clientver_req(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gen_tree)
 {
 	int offset = 0;
-	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_offset, tvb, offset, 4, FALSE);
+	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_offset, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
-	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_length, tvb, offset, 4, FALSE);
+	proto_tree_add_item(gen_tree, hf_generic_client_ver_req_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 	return offset+4;
 }
 
@@ -421,9 +421,9 @@ static int dissect_aim_generic_ext_status_repl(tvbuff_t *tvb, packet_info *pinfo
 {
 	guint8 length;
 	int offset = 0;
-	proto_tree_add_item(gen_tree, hf_generic_ext_status_type, tvb, offset, 2, FALSE); offset += 2;
-	proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, FALSE); offset += 1;
-	proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, FALSE); length = tvb_get_guint8(tvb, offset); offset += 1;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_type, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_flags, tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
+	proto_tree_add_item(gen_tree, hf_generic_ext_status_length, tvb, offset, 1, ENC_BIG_ENDIAN); length = tvb_get_guint8(tvb, offset); offset += 1;
 	proto_tree_add_item(gen_tree, hf_generic_ext_status_data, tvb, offset, length, ENC_NA); offset += 1;
 	return offset;
 }

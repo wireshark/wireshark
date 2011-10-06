@@ -276,11 +276,11 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 			tvb_get_guint8(tvb, 1));
 	l1h_tree = proto_item_add_subtree(ti, ett_gsmtap);
 	/* Power Level */
-	proto_tree_add_item(l1h_tree, hf_sacch_l1h_power_lev, tvb, 0, 1, FALSE);
+	proto_tree_add_item(l1h_tree, hf_sacch_l1h_power_lev, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Fast Power Control */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, FALSE);
 	/* Acutal Timing Advance */
-	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, FALSE);
+	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -374,40 +374,40 @@ dissect_gsmtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			tvb_get_guint8(tvb, offset+14));
 		gsmtap_tree = proto_item_add_subtree(ti, ett_gsmtap);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_version,
-				    tvb, offset, 1, FALSE);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_uint_format(gsmtap_tree, hf_gsmtap_hdrlen,
 				    tvb, offset+1, 1, hdr_len,
 				    "Header length: %u bytes", hdr_len);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_type,
-				    tvb, offset+2, 1, FALSE);
+				    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_timeslot,
-				    tvb, offset+3, 1, FALSE);
+				    tvb, offset+3, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_arfcn,
-				    tvb, offset+4, 2, FALSE);
+				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_uplink,
-				    tvb, offset+4, 2, FALSE);
+				    tvb, offset+4, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_noise_dbm,
-				    tvb, offset+6, 1, FALSE);
+				    tvb, offset+6, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_signal_dbm,
-				    tvb, offset+7, 1, FALSE);
+				    tvb, offset+7, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_frame_nr,
-				    tvb, offset+8, 4, FALSE);
+				    tvb, offset+8, 4, ENC_BIG_ENDIAN);
 		if (type == GSMTAP_TYPE_UM_BURST)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
-					    tvb, offset+12, 1, FALSE);
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		else if (type == GSMTAP_TYPE_UM)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_channel_type,
-					    tvb, offset+12, 1, FALSE);
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		else if (type == GSMTAP_TYPE_TETRA_I1)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_tetra_channel_type,
-					    tvb, offset+12, 1, FALSE);
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		else if (type == GSMTAP_TYPE_WMX_BURST)
 			proto_tree_add_item(gsmtap_tree, hf_gsmtap_burst_type,
-					    tvb, offset+12, 1, FALSE);
+					    tvb, offset+12, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_antenna,
-				    tvb, offset+13, 1, FALSE);
+				    tvb, offset+13, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(gsmtap_tree, hf_gsmtap_subslot,
-				    tvb, offset+14, 1, FALSE);
+				    tvb, offset+14, 1, ENC_BIG_ENDIAN);
 	}
 
 	switch (type) {

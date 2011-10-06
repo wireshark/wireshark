@@ -216,7 +216,7 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(fh_tree, hf_fw1_interface, tvb, 2, iface_len, FALSE);
 
     if (fw1_with_uuid)
-      proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, FALSE);
+      proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, ENC_BIG_ENDIAN);
   }
 
   etype = tvb_get_ntohs(tvb, 12);

@@ -2297,7 +2297,7 @@ dissect_krb5_PW_SALT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
      * else ever uses it   or we learn how to tell whether this
      * is such an MS blob or not.
      */
-    proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     nt_status=tvb_get_letohl(tvb, offset);
     if(nt_status && check_col(actx->pinfo->cinfo, COL_INFO)) {
         col_append_fstr(actx->pinfo->cinfo, COL_INFO,
@@ -2307,10 +2307,10 @@ dissect_krb5_PW_SALT(proto_tree *tree, tvbuff_t *tvb, int offset, asn1_ctx_t *ac
     }
     offset += 4;
 
-    proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     return offset;
@@ -2599,20 +2599,20 @@ dissect_krb5_PAC_NDRHEADERBLOB(proto_tree *parent_tree, tvbuff_t *tvb, int offse
     /* modified DREP field that is used for stuff that is transporetd ontop
        of non dcerpc
     */
-    proto_tree_add_item(tree, hf_krb_midl_version, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_krb_midl_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     offset = dissect_krb5_PAC_DREP(tree, tvb, offset, drep);
 
 
-    proto_tree_add_item(tree, hf_krb_midl_hdr_len, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_midl_hdr_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-    proto_tree_add_item(tree, hf_krb_midl_fill_bytes, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_midl_fill_bytes, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     /* length of blob that follows */
-    proto_tree_add_item(tree, hf_krb_midl_blob_len, tvb, offset, 8, TRUE);
+    proto_tree_add_item(tree, hf_krb_midl_blob_len, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
     return offset;
@@ -2709,22 +2709,22 @@ dissect_krb5_PAC_UPN_DNS_INFO(proto_tree *parent_tree, tvbuff_t *tvb, int offset
 
     /* upn */
     upn_len = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_krb_pac_upn_upn_len, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_upn_upn_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
     upn_offset = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_krb_pac_upn_upn_offset, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_upn_upn_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     /* dns */
     dns_len = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_krb_pac_upn_dns_len, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_upn_dns_len, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
     dns_offset = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_upn_dns_offset, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     /* flags */
-    proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_upn_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
     /* upn */
     offset = upn_offset;
@@ -2766,7 +2766,7 @@ dissect_krb5_PAC_SERVER_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int off
     }
 
     /* signature type */
-    proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
 
     /* signature data */
@@ -2787,7 +2787,7 @@ dissect_krb5_PAC_PRIVSVR_CHECKSUM(proto_tree *parent_tree, tvbuff_t *tvb, int of
     }
 
     /* signature type */
-    proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_pac_signature_type, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
 
     /* signature data */
@@ -3342,7 +3342,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 
     /* Length of Bnd field */
     len=tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(tree, hf_krb_gssapi_len, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_gssapi_len, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     /* Bnd field */
@@ -3366,7 +3366,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
         return offset;
     }
     /* dlgopt identifier */
-    proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_gssapi_dlgopt, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     if(tvb_length_remaining(tvb, offset)<2){
@@ -3374,7 +3374,7 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
     }
     /* dlglen identifier */
     dlglen=tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_krb_gssapi_dlglen, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     if(dlglen!=tvb_length_remaining(tvb, offset)){

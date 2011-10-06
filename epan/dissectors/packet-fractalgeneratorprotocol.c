@@ -121,15 +121,15 @@ static const value_string message_type_values[] = {
 static void
 dissect_fractalgeneratorprotocol_parameter_message(tvbuff_t *message_tvb, proto_tree *message_tree)
 {
-  proto_tree_add_item(message_tree, hf_parameter_width,         message_tvb, PARAMETER_WIDTH_OFFSET,         PARAMETER_WIDTH_LENGTH,         FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_height,        message_tvb, PARAMETER_HEIGHT_OFFSET,        PARAMETER_HEIGHT_LENGTH,        FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_maxiterations, message_tvb, PARAMETER_MAXITERATIONS_OFFSET, PARAMETER_MAXITERATIONS_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_algorithmid,   message_tvb, PARAMETER_ALGORITHMID_OFFSET,   PARAMETER_ALGORITHMID_LENGTH,   FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_c1real,        message_tvb, PARAMETER_C1REAL_OFFSET,        PARAMETER_C1REAL_LENGTH,        FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_c1imag,        message_tvb, PARAMETER_C1IMAG_OFFSET,        PARAMETER_C1IMAG_LENGTH,        FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_c2real,        message_tvb, PARAMETER_C2REAL_OFFSET,        PARAMETER_C2REAL_LENGTH,        FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_c2imag,        message_tvb, PARAMETER_C2IMAG_OFFSET,        PARAMETER_C2IMAG_LENGTH,        FALSE);
-  proto_tree_add_item(message_tree, hf_parameter_n,             message_tvb, PARAMETER_N_OFFSET,             PARAMETER_N_LENGTH,             FALSE);
+  proto_tree_add_item(message_tree, hf_parameter_width,         message_tvb, PARAMETER_WIDTH_OFFSET,         PARAMETER_WIDTH_LENGTH,         ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_height,        message_tvb, PARAMETER_HEIGHT_OFFSET,        PARAMETER_HEIGHT_LENGTH,        ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_maxiterations, message_tvb, PARAMETER_MAXITERATIONS_OFFSET, PARAMETER_MAXITERATIONS_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_algorithmid,   message_tvb, PARAMETER_ALGORITHMID_OFFSET,   PARAMETER_ALGORITHMID_LENGTH,   ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_c1real,        message_tvb, PARAMETER_C1REAL_OFFSET,        PARAMETER_C1REAL_LENGTH,        ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_c1imag,        message_tvb, PARAMETER_C1IMAG_OFFSET,        PARAMETER_C1IMAG_LENGTH,        ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_c2real,        message_tvb, PARAMETER_C2REAL_OFFSET,        PARAMETER_C2REAL_LENGTH,        ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_c2imag,        message_tvb, PARAMETER_C2IMAG_OFFSET,        PARAMETER_C2IMAG_LENGTH,        ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_parameter_n,             message_tvb, PARAMETER_N_OFFSET,             PARAMETER_N_LENGTH,             ENC_BIG_ENDIAN);
 }
 
 
@@ -138,9 +138,9 @@ dissect_fractalgeneratorprotocol_data_message(tvbuff_t *message_tvb, proto_tree 
 {
   guint16 buffer_length;
 
-  proto_tree_add_item(message_tree, hf_data_start_x, message_tvb, DATA_STARTX_OFFSET, DATA_STARTX_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_data_start_y, message_tvb, DATA_STARTY_OFFSET, DATA_STARTY_LENGTH, FALSE);
-  proto_tree_add_item(message_tree, hf_data_points,  message_tvb, DATA_POINTS_OFFSET, DATA_POINTS_LENGTH, FALSE);
+  proto_tree_add_item(message_tree, hf_data_start_x, message_tvb, DATA_STARTX_OFFSET, DATA_STARTX_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_data_start_y, message_tvb, DATA_STARTY_OFFSET, DATA_STARTY_LENGTH, ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_data_points,  message_tvb, DATA_POINTS_OFFSET, DATA_POINTS_LENGTH, ENC_BIG_ENDIAN);
 
   buffer_length = tvb_get_ntohl(message_tvb, DATA_POINTS_OFFSET)*4;
   if (buffer_length > 0) {
@@ -158,9 +158,9 @@ dissect_fractalgeneratorprotocol_message(tvbuff_t *message_tvb, packet_info *pin
   if (pinfo && (check_col(pinfo->cinfo, COL_INFO))) {
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s ", val_to_str(type, message_type_values, "Unknown FractalGeneratorProtocol type"));
   }
-  proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   FALSE);
-  proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  FALSE);
-  proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, FALSE);
+  proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_type,   message_tvb, MESSAGE_TYPE_OFFSET,   MESSAGE_TYPE_LENGTH,   ENC_BIG_ENDIAN);
+  proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_flags,  message_tvb, MESSAGE_FLAGS_OFFSET,  MESSAGE_FLAGS_LENGTH,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(fractalgeneratorprotocol_tree, hf_message_length, message_tvb, MESSAGE_LENGTH_OFFSET, MESSAGE_LENGTH_LENGTH, ENC_BIG_ENDIAN);
   switch (type) {
     case FRACTALGENERATOR_PARAMETER_MESSAGE_TYPE:
       dissect_fractalgeneratorprotocol_parameter_message(message_tvb, fractalgeneratorprotocol_tree);

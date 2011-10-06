@@ -269,7 +269,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   /*
    * Message dissection
    */
-  proto_tree_add_item(reload_framing_tree, hf_reload_framing_type, tvb, offset , 1, FALSE);
+  proto_tree_add_item(reload_framing_tree, hf_reload_framing_type, tvb, offset , 1, ENC_BIG_ENDIAN);
   offset += 1;
   switch (type) {
 
@@ -277,9 +277,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     {
       tvbuff_t *next_tvb;
 
-      proto_tree_add_item(reload_framing_tree, hf_reload_framing_sequence, tvb, offset , 4, FALSE);
+      proto_tree_add_item(reload_framing_tree, hf_reload_framing_sequence, tvb, offset , 4, ENC_BIG_ENDIAN);
       offset += 4;
-      proto_tree_add_item(reload_framing_tree, hf_reload_framing_message_length, tvb, offset, 3, FALSE);
+      proto_tree_add_item(reload_framing_tree, hf_reload_framing_message_length, tvb, offset, 3, ENC_BIG_ENDIAN);
       offset += 3;
       next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
       if (reload_handle == NULL) {
@@ -291,9 +291,9 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     break;
 
   case ACK:
-    proto_tree_add_item(reload_framing_tree, hf_reload_framing_ack_sequence, tvb, offset , 4, FALSE);
+    proto_tree_add_item(reload_framing_tree, hf_reload_framing_ack_sequence, tvb, offset , 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(reload_framing_tree, hf_reload_framing_received, tvb, offset , 4, FALSE);
+    proto_tree_add_item(reload_framing_tree, hf_reload_framing_received, tvb, offset , 4, ENC_BIG_ENDIAN);
     break;
 
   default:

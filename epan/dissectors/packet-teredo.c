@@ -111,9 +111,9 @@ parse_teredo_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		tree = proto_item_add_subtree(ti, ett_teredo_auth);
 	
 		proto_tree_add_item(tree, hf_teredo_auth_idlen, tvb,
-					offset - 2, 1, FALSE);
+					offset - 2, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_teredo_auth_aulen, tvb,
-					offset - 1, 1, FALSE);
+					offset - 1, 1, ENC_BIG_ENDIAN);
 
 		/* idlen is usually zero */
 		if (idlen) {

@@ -172,16 +172,16 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			sebek_ver = tvb_get_ntohs(tvb, 4);
 
 		switch (sebek_ver) {
-			case 2: proto_tree_add_item(sebek_tree, hf_sebek_magic, tvb, offset, 4, FALSE);
+			case 2: proto_tree_add_item(sebek_tree, hf_sebek_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_version, tvb, offset, 2, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_type, tvb, offset, 2, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				ts.secs = tvb_get_ntohl(tvb, offset);
@@ -189,36 +189,36 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_time(sebek_tree, hf_sebek_time, tvb, offset, 8, &ts);
 				offset += 8;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_pid, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_uid, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_fd, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, FALSE);
 				offset += 12;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_data, tvb, offset, -1, FALSE);
 
 				break;
 
-			case 3:	proto_tree_add_item(sebek_tree, hf_sebek_magic, tvb, offset, 4, FALSE);
+			case 3:	proto_tree_add_item(sebek_tree, hf_sebek_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_version, tvb, offset, 2, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
 				sebek_type=tvb_get_ntohs(tvb, offset);
-				proto_tree_add_item(sebek_tree, hf_sebek_type, tvb, offset, 2, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_counter, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				ts.secs = tvb_get_ntohl(tvb, offset);
@@ -226,40 +226,40 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_time(sebek_tree, hf_sebek_time, tvb, offset, 8, &ts);
 				offset += 8;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_ppid, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_ppid, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_pid, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_uid, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_uid, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_fd, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_inode, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_inode, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, FALSE);
 				offset += 12;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
 				if (sebek_type == 2) {
 					/*data is socket data, process accordingly*/
 					proto_tree_add_item(sebek_tree, hf_sebek_socket_dst_ip, tvb, offset, 4, FALSE);
 					offset += 4;
-					proto_tree_add_item(sebek_tree, hf_sebek_socket_dst_port, tvb, offset, 2, FALSE);
+					proto_tree_add_item(sebek_tree, hf_sebek_socket_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 					proto_tree_add_item(sebek_tree, hf_sebek_socket_src_ip, tvb, offset, 4, FALSE);
 					offset += 4;
-					proto_tree_add_item(sebek_tree, hf_sebek_socket_src_port, tvb, offset, 2, FALSE);
+					proto_tree_add_item(sebek_tree, hf_sebek_socket_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
-					proto_tree_add_item(sebek_tree, hf_sebek_socket_call, tvb, offset, 2, FALSE);
+					proto_tree_add_item(sebek_tree, hf_sebek_socket_call, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
-					proto_tree_add_item(sebek_tree, hf_sebek_socket_proto, tvb, offset, 1, FALSE);
+					proto_tree_add_item(sebek_tree, hf_sebek_socket_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 				} else {
                 			proto_tree_add_item(sebek_tree, hf_sebek_data, tvb, offset, -1, FALSE);

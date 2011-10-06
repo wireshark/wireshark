@@ -457,7 +457,7 @@ tele_param_msg_status(tvbuff_t *tvb, proto_tree *tree, guint len, guint32 offset
 
 
     /* error class filter */
-    proto_tree_add_item(tree, hf_ansi_637_tele_msg_status,tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_ansi_637_tele_msg_status,tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*error class filter end */
 

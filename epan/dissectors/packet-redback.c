@@ -72,13 +72,13 @@ dissect_redback(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_redback, tvb, 0, -1, FALSE);
 		rbtree = proto_item_add_subtree(ti, ett_redback);
 
-		proto_tree_add_item(rbtree, hf_redback_context, tvb, 0, 4, FALSE);
-		proto_tree_add_item(rbtree, hf_redback_flags, tvb, 4, 4, FALSE);
-		proto_tree_add_item(rbtree, hf_redback_circuit, tvb, 8, 8, FALSE);
-		proto_tree_add_item(rbtree, hf_redback_length, tvb, 16, 2, FALSE);
-		proto_tree_add_item(rbtree, hf_redback_protocol, tvb, 18, 2, FALSE);
-		proto_tree_add_item(rbtree, hf_redback_dataoffset, tvb, 20, 2, FALSE);
-		proto_tree_add_item(rbtree, hf_redback_l3offset, tvb, 22, 2, FALSE);
+		proto_tree_add_item(rbtree, hf_redback_context, tvb, 0, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, hf_redback_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, hf_redback_circuit, tvb, 8, 8, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, hf_redback_length, tvb, 16, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, hf_redback_protocol, tvb, 18, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, hf_redback_dataoffset, tvb, 20, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rbtree, hf_redback_l3offset, tvb, 22, 2, ENC_BIG_ENDIAN);
 
 		if (dataoff > 24) {
 			proto_tree_add_item(rbtree, hf_redback_padding, tvb, 24, dataoff-24, ENC_NA);

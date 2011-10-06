@@ -322,29 +322,29 @@ dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
 
     if (tree) {
         proto_tree_add_uint (tree, hf_fcip_protocol, tvb, offset, 1, protocol);
-        proto_tree_add_item (tree, hf_fcip_version, tvb, offset+1, 1, 0);
-        proto_tree_add_item (tree, hf_fcip_protocol_c, tvb, offset+2, 1, 0);
-        proto_tree_add_item (tree, hf_fcip_version_c, tvb, offset+3, 1, 0);
+        proto_tree_add_item (tree, hf_fcip_version, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_protocol_c, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_version_c, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 
         if (protocol == FCENCAP_PROTO_FCIP) {
             proto_tree_add_item (tree, hf_fcip_encap_word1, tvb, offset+4,
-                                 4, 0);
+                                 4, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_fcip_pflags_changed, tvb, offset+8,
                                  1, 0);
             proto_tree_add_item (tree, hf_fcip_pflags_special, tvb, offset+8,
                                  1, 0);
-            proto_tree_add_item (tree, hf_fcip_pflags_c, tvb, offset+10, 1, 0);
+            proto_tree_add_item (tree, hf_fcip_pflags_c, tvb, offset+10, 1, ENC_BIG_ENDIAN);
         }
 
         /* XXX - break out CRCV flag. */
-        proto_tree_add_item (tree, hf_fcip_flags, tvb, offset+12, 1, 0);
-        proto_tree_add_item (tree, hf_fcip_framelen, tvb, offset+12, 2, 0);
-        proto_tree_add_item (tree, hf_fcip_flags_c, tvb, offset+14, 1, 0);
-        proto_tree_add_item (tree, hf_fcip_framelen_c, tvb, offset+14, 2, 0);
-        proto_tree_add_item (tree, hf_fcip_tsec, tvb, offset+16, 4, 0);
-        proto_tree_add_item (tree, hf_fcip_tusec, tvb, offset+20, 4, 0);
+        proto_tree_add_item (tree, hf_fcip_flags, tvb, offset+12, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_framelen, tvb, offset+12, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_flags_c, tvb, offset+14, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_framelen_c, tvb, offset+14, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_tsec, tvb, offset+16, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_tusec, tvb, offset+20, 4, ENC_BIG_ENDIAN);
         /* XXX - check CRC if CRCV is set? */
-        proto_tree_add_item (tree, hf_fcip_encap_crc, tvb, offset+24, 4, 0);
+        proto_tree_add_item (tree, hf_fcip_encap_crc, tvb, offset+24, 4, ENC_BIG_ENDIAN);
     }
 }
 
@@ -359,11 +359,11 @@ dissect_fcip_sf (tvbuff_t *tvb, proto_tree *tree, gint offset)
         proto_tree_add_item (tree, hf_fcip_conn_nonce, tvb, offset+16, 8,
                               ENC_NA);
         /* XXX - break out these flags */
-        proto_tree_add_item (tree, hf_fcip_conn_flags, tvb, offset+24, 1, 0);
-        proto_tree_add_item (tree, hf_fcip_conn_code, tvb, offset+26, 2, 0);
+        proto_tree_add_item (tree, hf_fcip_conn_flags, tvb, offset+24, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcip_conn_code, tvb, offset+26, 2, ENC_BIG_ENDIAN);
         proto_tree_add_string (tree, hf_fcip_dst_wwn, tvb, offset+30, 8,
                                tvb_fcwwn_to_str (tvb, offset+30));
-        proto_tree_add_item (tree, hf_fcip_katov, tvb, offset+38, 4, 0);
+        proto_tree_add_item (tree, hf_fcip_katov, tvb, offset+38, 4, ENC_BIG_ENDIAN);
     }
 }
 
@@ -458,14 +458,14 @@ dissect_fcip (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
             if (!FCIP_IS_SF (pflags)) {
                 /* print SOF */
-                proto_tree_add_item (fcip_tree, hf_fcip_sof, tvb, offset, 1, 0);
-                proto_tree_add_item (fcip_tree, hf_fcip_sof_c, tvb, offset+2, 1, 0);
+                proto_tree_add_item (fcip_tree, hf_fcip_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (fcip_tree, hf_fcip_sof_c, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 /* print EOF */
 
                 offset += (frame_len-FCIP_ENCAP_HEADER_LEN-4);
                 if (tvb_bytes_exist (tvb, offset, 4)) {
-                    proto_tree_add_item (fcip_tree, hf_fcip_eof, tvb, offset, 1, 0);
-                    proto_tree_add_item (fcip_tree, hf_fcip_eof_c, tvb, offset+2, 1, 0);
+                    proto_tree_add_item (fcip_tree, hf_fcip_eof, tvb, offset, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (fcip_tree, hf_fcip_eof_c, tvb, offset+2, 1, ENC_BIG_ENDIAN);
                 }
             }
         }

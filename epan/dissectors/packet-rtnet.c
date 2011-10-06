@@ -248,11 +248,11 @@ static guint
 dissect_rtnet_tdma_request_test(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_test_counter, tvb,
-                       offset, 4, TRUE );
+                       offset, 4, ENC_LITTLE_ENDIAN );
   offset += 4;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_test_tx, tvb,
-                       offset, 8, TRUE );
+                       offset, 8, ENC_LITTLE_ENDIAN );
   offset += 8;
 
   return offset;
@@ -262,11 +262,11 @@ static guint
 dissect_rtnet_tdma_ack_test(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_test_counter, tvb,
-                       offset, 4, TRUE );
+                       offset, 4, ENC_LITTLE_ENDIAN );
   offset += 4;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_test_tx, tvb,
-                       offset, 8, TRUE );
+                       offset, 8, ENC_LITTLE_ENDIAN );
   offset += 8;
 
   return offset;
@@ -276,19 +276,19 @@ static guint
 dissect_rtnet_tdma_request_conf(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_station, tvb,
-                       offset, 1, FALSE );
+                       offset, 1, ENC_BIG_ENDIAN );
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_padding, tvb,
-                       offset, 1, FALSE );
+                       offset, 1, ENC_BIG_ENDIAN );
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_mtu, tvb,
-                       offset, 2, FALSE );
+                       offset, 2, ENC_BIG_ENDIAN );
   offset += 2;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_conf_cycle, tvb,
-                       offset, 4, FALSE );
+                       offset, 4, ENC_BIG_ENDIAN );
   offset += 4;
 
   return offset;
@@ -299,19 +299,19 @@ static guint
 dissect_rtnet_tdma_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_station, tvb,
-                       offset, 1, FALSE );
+                       offset, 1, ENC_BIG_ENDIAN );
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_padding, tvb,
-                       offset, 1, FALSE );
+                       offset, 1, ENC_BIG_ENDIAN );
   offset += 1;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_mtu, tvb,
-                       offset, 2, FALSE );
+                       offset, 2, ENC_BIG_ENDIAN );
   offset += 2;
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_conf_cycle, tvb,
-                       offset, 4, FALSE );
+                       offset, 4, ENC_BIG_ENDIAN );
   offset += 4;
 
   return offset;
@@ -321,7 +321,7 @@ static guint
 dissect_rtnet_tdma_ack_ack_conf(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
   proto_tree_add_item(tree, hf_tdma_v1_msg_ack_ack_conf_station, tvb,
-                       offset, 1, FALSE );
+                       offset, 1, ENC_BIG_ENDIAN );
 
   offset += 1;
 
@@ -357,7 +357,7 @@ dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
     offset += 4;
 
     proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_nr, tvb,
-                        offset, 1, FALSE );
+                        offset, 1, ENC_BIG_ENDIAN );
 
     offset += 1;
 
@@ -373,7 +373,7 @@ static guint
 dissect_rtnet_tdma_request_change_offset(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_tdma_v1_msg_request_change_offset_offset, tvb,
-                       offset, 4, FALSE );
+                       offset, 4, ENC_BIG_ENDIAN );
 
   offset += 4;
 
@@ -384,7 +384,7 @@ static guint
 dissect_rtnet_tdma_start_of_frame(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
   proto_tree_add_item(tree, hf_tdma_v1_msg_start_of_frame_timestamp, tvb,
-                       offset, 8, FALSE );
+                       offset, 8, ENC_BIG_ENDIAN );
   offset += 8;
 
   return offset;
@@ -416,7 +416,7 @@ dissect_rtnet_tdma_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
       val_to_str(msg, tdma_v1_msg_vals, "Unknown (0x%04x)"));
 
     proto_tree_add_item(tree, hf_tdma_v1_msg, tvb,
-                        offset, 4, FALSE);
+                        offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     switch( msg ) {
@@ -467,27 +467,27 @@ dissect_tdma_sync(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   gint64 timestamp;
   proto_item *ti;
 
-  proto_tree_add_item(tree, hf_tdma_sync_cycle, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_tdma_sync_cycle, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
-  ti = proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, FALSE);
+  ti = proto_tree_add_item(tree, hf_tdma_sync_xmit_stamp, tvb, offset, 8, ENC_BIG_ENDIAN);
   timestamp = tvb_get_ntoh64(tvb, offset) - tvb_get_ntoh64(tvb, offset+8);
   proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (timestamp > 0) ? "+" : "", timestamp);
   offset += 8;
 
-  proto_tree_add_item(tree, hf_tdma_sync_sched_xmit, tvb, offset, 8, FALSE);
+  proto_tree_add_item(tree, hf_tdma_sync_sched_xmit, tvb, offset, 8, ENC_BIG_ENDIAN);
 }
 
 static void
 dissect_tdma_request_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
 
-  proto_tree_add_item(tree, hf_tdma_req_cal_xmit_stamp, tvb, offset, 8, FALSE);
+  proto_tree_add_item(tree, hf_tdma_req_cal_xmit_stamp, tvb, offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
 
-  proto_tree_add_item(tree, hf_tdma_req_cal_rpl_cycle, tvb, offset, 4, FALSE);
+  proto_tree_add_item(tree, hf_tdma_req_cal_rpl_cycle, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4;
 
-  proto_tree_add_item(tree, hf_tdma_req_cal_rpl_slot, tvb, offset, 8, FALSE);
+  proto_tree_add_item(tree, hf_tdma_req_cal_rpl_slot, tvb, offset, 8, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -495,15 +495,15 @@ dissect_tdma_reply_cal(tvbuff_t *tvb, guint offset, proto_tree *tree) {
   gint64 timestamp;
   proto_item *ti;
 
-  proto_tree_add_item(tree, hf_tdma_rpl_cal_req_stamp, tvb, offset, 8, FALSE);
+  proto_tree_add_item(tree, hf_tdma_rpl_cal_req_stamp, tvb, offset, 8, ENC_BIG_ENDIAN);
   offset += 8;
 
-  proto_tree_add_item(tree, hf_tdma_rpl_cal_rcv_stamp, tvb, offset, 8, FALSE);
+  proto_tree_add_item(tree, hf_tdma_rpl_cal_rcv_stamp, tvb, offset, 8, ENC_BIG_ENDIAN);
 
   timestamp = tvb_get_ntoh64(tvb, offset+8) - tvb_get_ntoh64(tvb, offset);
   offset += 8;
 
-  ti = proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, FALSE);
+  ti = proto_tree_add_item(tree, hf_tdma_rpl_cal_xmit_stamp, tvb, offset, 8, ENC_BIG_ENDIAN);
   proto_item_append_text(ti, " (%s%" G_GINT64_MODIFIER "d)", (timestamp > 0) ? "+" : "", timestamp);
 }
 
@@ -531,10 +531,10 @@ dissect_rtnet_tdma(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root) {
 
     proto_item_append_text(ti, ", %s", val_to_str(msg, tdma_msg_vals, "Unknown (0x%04x)"));
 
-    proto_tree_add_item(tree, hf_tdma_ver, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_tdma_ver, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_tdma_id, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_tdma_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     switch (msg) {
@@ -622,15 +622,15 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                  type_str, "Type: %s (0x%04x)", type_str, type);
     offset += 2;
 
-    proto_tree_add_item(rtmac_tree, hf_rtmac_header_ver, tvb, offset, 1, FALSE);
+    proto_tree_add_item(rtmac_tree, hf_rtmac_header_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (ver == 1)
-      proto_tree_add_item(rtmac_tree, hf_rtmac_header_res_v1, tvb, offset, 1, FALSE);
+      proto_tree_add_item(rtmac_tree, hf_rtmac_header_res_v1, tvb, offset, 1, ENC_BIG_ENDIAN);
     else {
-      item = proto_tree_add_item(rtmac_tree, hf_rtmac_header_flags, tvb, offset, 1, FALSE);
+      item = proto_tree_add_item(rtmac_tree, hf_rtmac_header_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
       ti = proto_item_add_subtree(item, ett_rtmac_flags);
-      proto_tree_add_item(ti, hf_rtmac_header_flags_res, tvb, offset, 1, FALSE);
+      proto_tree_add_item(ti, hf_rtmac_header_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(ti, hf_rtmac_header_flags_tunnel, tvb, offset, 1, FALSE);
     }
     offset += 1;
@@ -698,8 +698,8 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                        offset, 1, vers_id);
 
     vers_id_tree=proto_item_add_subtree(vers_id_item, ett_rtcfg);
-    proto_tree_add_item(vers_id_tree, hf_rtcfg_vers, tvb, offset, 1, FALSE);
-    proto_tree_add_item(vers_id_tree, hf_rtcfg_id, tvb, offset, 1, FALSE);
+    proto_tree_add_item(vers_id_tree, hf_rtcfg_vers, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vers_id_tree, hf_rtcfg_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_item_append_text(ti, ", Version %d, %s",
@@ -710,7 +710,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     {
        case RTCFG_MSG_S1_CONFIG:
          addr_type = tvb_get_guint8(tvb, offset);
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          switch( addr_type )
@@ -729,11 +729,11 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              break;
          }
 
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          config_length = tvb_get_ntohs( tvb, offset );
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_s1_config_length, tvb, offset, 2, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_s1_config_length, tvb, offset, 2, ENC_BIG_ENDIAN );
          offset += 2;
 
          if( config_length > 0 ) {
@@ -745,7 +745,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
        case RTCFG_MSG_ANN_NEW:
          addr_type = tvb_get_guint8(tvb, offset);
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          switch( addr_type )
@@ -761,22 +761,22 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          }
 
          flags_item = proto_tree_add_item(rtcfg_tree, hf_rtcfg_client_flags, tvb,
-                                          offset, 1, FALSE);
+                                          offset, 1, ENC_BIG_ENDIAN);
 
          flags_tree=proto_item_add_subtree(flags_item, ett_rtcfg);
-         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_available, tvb, offset, 1, FALSE);
-         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, FALSE);
-         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_available, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
          offset += 1;
 
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_burst_rate, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          break;
 
        case RTCFG_MSG_ANN_REPLY:
          addr_type = tvb_get_guint8(tvb, offset);
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          switch( addr_type )
@@ -792,37 +792,37 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          }
 
          flags_item = proto_tree_add_item(rtcfg_tree, hf_rtcfg_client_flags, tvb,
-                                          offset, 1, FALSE);
+                                          offset, 1, ENC_BIG_ENDIAN);
 
          flags_tree=proto_item_add_subtree(flags_item, ett_rtcfg);
-         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_available, tvb, offset, 1, FALSE);
-         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, FALSE);
-         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_available, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_ready, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(flags_tree, hf_rtcfg_client_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
          offset += 1;
 
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_padding, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_padding, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          break;
 
        case RTCFG_MSG_S2_CONFIG:
          flags_item = proto_tree_add_item(rtcfg_tree, hf_rtcfg_server_flags, tvb,
-                                          offset, 1, FALSE);
+                                          offset, 1, ENC_BIG_ENDIAN);
 
          flags_tree=proto_item_add_subtree(flags_item, ett_rtcfg);
-         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_res0, tvb, offset, 1, FALSE);
-         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_ready, tvb, offset, 1, FALSE);
-         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_res2, tvb, offset, 1, FALSE);
+         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_res0, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_ready, tvb, offset, 1, ENC_BIG_ENDIAN);
+         proto_tree_add_item(flags_tree, hf_rtcfg_server_flags_res2, tvb, offset, 1, ENC_BIG_ENDIAN);
          offset += 1;
 
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_active_stations, tvb, offset, 4, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_active_stations, tvb, offset, 4, ENC_BIG_ENDIAN );
          offset += 4;
 
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_heartbeat_period, tvb, offset, 2, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_heartbeat_period, tvb, offset, 2, ENC_BIG_ENDIAN );
          offset += 2;
 
          config_length = tvb_get_ntohl( tvb, offset );
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_s2_config_length, tvb, offset, 4, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_s2_config_length, tvb, offset, 4, ENC_BIG_ENDIAN );
          offset += 4;
 
          if( config_length > 0 ) {
@@ -834,7 +834,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          break;
 
        case RTCFG_MSG_S2_FRAG:
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_offset, tvb, offset, 4, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_config_offset, tvb, offset, 4, ENC_BIG_ENDIAN );
          offset += 4;
 
          len = tvb_reported_length_remaining(tvb, offset);
@@ -843,7 +843,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
          break;
 
        case RTCFG_MSG_ACK:
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_ack_length, tvb, offset, 4, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_ack_length, tvb, offset, 4, ENC_BIG_ENDIAN );
          offset += 4;
 
          break;
@@ -856,7 +856,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
        case RTCFG_MSG_DEAD_STN:
          addr_type = tvb_get_guint8(tvb, offset);
-         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, FALSE );
+         proto_tree_add_item( rtcfg_tree, hf_rtcfg_address_type, tvb, offset, 1, ENC_BIG_ENDIAN );
          offset += 1;
 
          switch( addr_type )

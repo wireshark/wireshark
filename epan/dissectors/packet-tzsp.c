@@ -323,7 +323,7 @@ dissect_tzsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		tzsp_tree = proto_item_add_subtree(ti, ett_tzsp);
 
 		proto_tree_add_item (tzsp_tree, hf_tzsp_version, tvb, 0, 1,
-					FALSE);
+					ENC_BIG_ENDIAN);
 		proto_tree_add_uint (tzsp_tree, hf_tzsp_type, tvb, 1, 1,
 					type);
 		proto_tree_add_uint_format (tzsp_tree, hf_tzsp_encap, tvb, 2, 2,

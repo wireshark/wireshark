@@ -251,7 +251,7 @@ dissect_ifcpflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	guint8 flags;
 
 	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_ifcp_flags, tvb, offset, 1, 0);
+		item=proto_tree_add_item(parent_tree, hf_ifcp_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 		tree=proto_item_add_subtree (item, ett_ifcp_flags);
 	}
 
@@ -299,7 +299,7 @@ dissect_commonflags(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 	guint8 flags;
 
 	if(parent_tree){
-		item=proto_tree_add_item(parent_tree, hf_ifcp_common_flags, tvb, offset, 1, 0);
+		item=proto_tree_add_item(parent_tree, hf_ifcp_common_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 		tree=proto_item_add_subtree (item, ett_ifcp_common_flags);
 	}
 
@@ -368,25 +368,25 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* The Common FC Encap header */
 	/* protocol */
 	protocol = tvb_get_guint8 (tvb, offset);
-	ti=proto_tree_add_item(tree, hf_ifcp_protocol, tvb, offset, 1, 0);
+	ti=proto_tree_add_item(tree, hf_ifcp_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(ti){
 		protocol_tree=proto_item_add_subtree(ti, ett_ifcp_protocol);
 	}
 	offset++;
 
 	/* version */
-	ti=proto_tree_add_item(tree, hf_ifcp_version, tvb, offset, 1, 0);
+	ti=proto_tree_add_item(tree, hf_ifcp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(ti){
 		version_tree=proto_item_add_subtree(ti, ett_ifcp_version);
 	}
 	offset++;
 
 	/* protocol complement */
-	proto_tree_add_item(protocol_tree, hf_ifcp_protocol_c, tvb, offset, 1, 0);
+	proto_tree_add_item(protocol_tree, hf_ifcp_protocol_c, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* version complement */
-	proto_tree_add_item(version_tree, hf_ifcp_version_c, tvb, offset, 1, 0);
+	proto_tree_add_item(version_tree, hf_ifcp_version_c, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* 4 reserved bytes */
@@ -395,21 +395,21 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	/* iFCP specific fields */
 	if(protocol==FCENCAP_PROTO_iFCP){
 		/* LS_COMMAND_ACC */
-		proto_tree_add_item(tree, hf_ifcp_ls_command_acc, tvb, offset, 1, 0);
+		proto_tree_add_item(tree, hf_ifcp_ls_command_acc, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		/* iFCP Flags */
 		offset=dissect_ifcpflags(tvb, offset, tree);
 
 		/* SOF */
-		ti=proto_tree_add_item(tree, hf_ifcp_sof, tvb, offset, 1, 0);
+		ti=proto_tree_add_item(tree, hf_ifcp_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if(ti){
 			sof_tree=proto_item_add_subtree(ti, ett_ifcp_sof);
 		}
 		offset++;
 
 		/* EOF */
-		ti=proto_tree_add_item(tree, hf_ifcp_eof, tvb, offset, 1, 0);
+		ti=proto_tree_add_item(tree, hf_ifcp_eof, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if(ti){
 			eof_tree=proto_item_add_subtree(ti, ett_ifcp_eof);
 		}
@@ -424,46 +424,46 @@ dissect_ifcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	dissect_commonflags(tvb, offset, tree);
 
 	/* frame len */
-	ti=proto_tree_add_item(tree, hf_ifcp_framelen, tvb, offset, 2, 0);
+	ti=proto_tree_add_item(tree, hf_ifcp_framelen, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(ti){
 		frame_len_tree=proto_item_add_subtree(ti, ett_ifcp_frame_len);
 	}
 	offset+=2;
 
 	/* complement of flags and frame len */
-	proto_tree_add_item(frame_len_tree, hf_ifcp_encap_flags_c, tvb, offset, 1, 0);
-	proto_tree_add_item(frame_len_tree, hf_ifcp_framelen_c, tvb, offset, 2, 0);
+	proto_tree_add_item(frame_len_tree, hf_ifcp_encap_flags_c, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(frame_len_tree, hf_ifcp_framelen_c, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* timestamp seconds */
-	proto_tree_add_item(tree, hf_ifcp_tsec, tvb, offset, 4, 0);
+	proto_tree_add_item(tree, hf_ifcp_tsec, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 	/* timestamp fractions */
-	proto_tree_add_item(tree, hf_ifcp_tusec, tvb, offset, 4, 0);
+	proto_tree_add_item(tree, hf_ifcp_tusec, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 	/* crc */
-	proto_tree_add_item(tree, hf_ifcp_encap_crc, tvb, offset, 4, 0);
+	proto_tree_add_item(tree, hf_ifcp_encap_crc, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 
 	/* FC SOF/-SOF */
-	proto_tree_add_item(sof_tree, hf_ifcp_sof, tvb, offset, 1, 0);
+	proto_tree_add_item(sof_tree, hf_ifcp_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(sof_tree, hf_ifcp_sof, tvb, offset, 1, 0);
+	proto_tree_add_item(sof_tree, hf_ifcp_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(sof_tree, hf_ifcp_sof_c, tvb, offset, 1, 0);
+	proto_tree_add_item(sof_tree, hf_ifcp_sof_c, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
-	proto_tree_add_item(sof_tree, hf_ifcp_sof_c, tvb, offset, 1, 0);
+	proto_tree_add_item(sof_tree, hf_ifcp_sof_c, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* FC EOF/-EOF */
 	if(tvb_bytes_exist(tvb, frame_len-4, 4)) {
-		proto_tree_add_item(eof_tree, hf_ifcp_eof, tvb, frame_len-4, 1, 0);
-		proto_tree_add_item(eof_tree, hf_ifcp_eof, tvb, frame_len-3, 1, 0);
-		proto_tree_add_item(eof_tree, hf_ifcp_eof_c, tvb, frame_len-2, 1, 0);
-		proto_tree_add_item(eof_tree, hf_ifcp_eof_c, tvb, frame_len-1, 1, 0);
+		proto_tree_add_item(eof_tree, hf_ifcp_eof, tvb, frame_len-4, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eof_tree, hf_ifcp_eof, tvb, frame_len-3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eof_tree, hf_ifcp_eof_c, tvb, frame_len-2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eof_tree, hf_ifcp_eof_c, tvb, frame_len-1, 1, ENC_BIG_ENDIAN);
         }
 
 

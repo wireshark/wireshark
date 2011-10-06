@@ -97,19 +97,19 @@ static gboolean dissect_pktgen(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	/* add items to the subtree */
 
-	proto_tree_add_item(pktgen_tree, hf_pktgen_magic, tvb, offset, 4, FALSE);
+	proto_tree_add_item(pktgen_tree, hf_pktgen_magic, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
-	proto_tree_add_item(pktgen_tree, hf_pktgen_seqnum, tvb, offset, 4, FALSE);
+	proto_tree_add_item(pktgen_tree, hf_pktgen_seqnum, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 	tstamp.secs = tvb_get_ntohl(tvb, offset);
-	tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvsec, tvb, offset, 4, FALSE);
+	tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvsec, tvb, offset, 4, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_GENERATED(tmp);
 	offset+=4;
 
 	tstamp.nsecs = tvb_get_ntohl(tvb, offset) /* microsecond on the wire so... */ * 1000;
-	tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvusec, tvb, offset, 4, FALSE);
+	tmp = proto_tree_add_item(pktgen_tree, hf_pktgen_tvusec, tvb, offset, 4, ENC_BIG_ENDIAN);
 	PROTO_ITEM_SET_GENERATED(tmp);
 	offset+=4;
 

@@ -197,9 +197,9 @@ static void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
 
         while (total_len > 0) {
             proto_tree_add_item (tree, hf_auth_dhchap_param_tag, tvb, offset,
-                                 2, 0);
+                                 2, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_auth_dhchap_param_len, tvb, offset+2,
-                                 2, 0);
+                                 2, ENC_BIG_ENDIAN);
 
             auth_param_tag = tvb_get_ntohs (tvb, offset);
             param_len = tvb_get_ntohs (tvb, offset+2)*4;
@@ -210,7 +210,7 @@ static void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
                 total_len -= 4;
                 for (i = 0; i < param_len; i += 4) {
                     proto_tree_add_item (tree, hf_auth_dhchap_hash_type, tvb,
-                                         offset, 4, 0);
+                                         offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 }
                 break;
@@ -219,7 +219,7 @@ static void dissect_fcsp_dhchap_auth_param (tvbuff_t *tvb, proto_tree *tree,
                 total_len -= 4;
                 for (i = 0; i < param_len; i += 4) {
                     proto_tree_add_item (tree, hf_auth_dhchap_group_type, tvb,
-                                         offset, 4, 0);
+                                         offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                 }
                 break;
@@ -240,11 +240,11 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
 
     if (tree) {
         proto_tree_add_item (tree, hf_auth_responder_name_type, tvb, offset,
-                             2, 0);
+                             2, ENC_BIG_ENDIAN);
         name_type = tvb_get_ntohs (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_responder_name_len, tvb, offset+2,
-                             2, 0);
+                             2, ENC_BIG_ENDIAN);
 
         name_len = tvb_get_ntohs (tvb, offset+2);
 
@@ -259,18 +259,18 @@ static void dissect_fcsp_dhchap_challenge (tvbuff_t *tvb, proto_tree *tree)
         offset += (4+name_len);
 
         proto_tree_add_item (tree, hf_auth_dhchap_hash_type, tvb, offset,
-                             4, 0);
+                             4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_auth_dhchap_group_type, tvb, offset+4,
-                             4, 0);
+                             4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_auth_dhchap_chal_len, tvb, offset+8,
-                             4, 0);
+                             4, ENC_BIG_ENDIAN);
         param_len = tvb_get_ntohl (tvb, offset+8);
 
         proto_tree_add_item (tree, hf_auth_dhchap_chal_value, tvb, offset+12,
                              param_len, ENC_NA);
         offset += (param_len + 12);
 
-        proto_tree_add_item (tree, hf_auth_dhchap_val_len, tvb, offset, 4, 0);
+        proto_tree_add_item (tree, hf_auth_dhchap_val_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         param_len = tvb_get_ntohl (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_dhchap_dhvalue, tvb, offset+4,
@@ -285,21 +285,21 @@ static void dissect_fcsp_dhchap_reply (tvbuff_t *tvb, proto_tree *tree)
     guint32 param_len;
 
     if (tree) {
-        proto_tree_add_item (tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, 0);
+        proto_tree_add_item (tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         param_len = tvb_get_ntohl (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_dhchap_rsp_value, tvb, offset+4,
                              param_len, ENC_NA);
         offset += (param_len + 4);
 
-        proto_tree_add_item (tree, hf_auth_dhchap_val_len, tvb, offset, 4, 0);
+        proto_tree_add_item (tree, hf_auth_dhchap_val_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         param_len = tvb_get_ntohl (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_dhchap_dhvalue, tvb, offset+4,
                              param_len, ENC_NA);
         offset += (param_len + 4);
 
-        proto_tree_add_item (tree, hf_auth_dhchap_chal_len, tvb, offset, 4, 0);
+        proto_tree_add_item (tree, hf_auth_dhchap_chal_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         param_len = tvb_get_ntohl (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_dhchap_chal_value, tvb, offset+4,
@@ -313,7 +313,7 @@ static void dissect_fcsp_dhchap_success (tvbuff_t *tvb, proto_tree *tree)
     guint32 param_len;
 
     if (tree) {
-        proto_tree_add_item (tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, 0);
+        proto_tree_add_item (tree, hf_auth_dhchap_rsp_len, tvb, offset, 4, ENC_BIG_ENDIAN);
         param_len = tvb_get_ntohl (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_dhchap_rsp_value, tvb, offset+4,
@@ -330,11 +330,11 @@ static void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
 
     if (tree) {
         proto_tree_add_item (tree, hf_auth_initiator_name_type, tvb, offset,
-                             2, 0);
+                             2, ENC_BIG_ENDIAN);
         name_type = tvb_get_ntohs (tvb, offset);
 
         proto_tree_add_item (tree, hf_auth_initiator_name_len, tvb, offset+2,
-                             2, 0);
+                             2, ENC_BIG_ENDIAN);
         name_len = tvb_get_ntohs (tvb, offset+2);
 
         if (name_type == FC_AUTH_NAME_TYPE_WWN) {
@@ -348,19 +348,19 @@ static void dissect_fcsp_auth_negotiate (tvbuff_t *tvb, proto_tree *tree)
 
         offset += (4+name_len);
 
-        proto_tree_add_item (tree, hf_auth_usable_proto, tvb, offset, 4, 0);
+        proto_tree_add_item (tree, hf_auth_usable_proto, tvb, offset, 4, ENC_BIG_ENDIAN);
         num_protos = tvb_get_ntohl (tvb, offset);
         offset += 4;
 
         for (i = 0; i < num_protos; i++) {
-            proto_tree_add_item (tree, hf_auth_proto_param_len, tvb, offset, 4, 0);
+            proto_tree_add_item (tree, hf_auth_proto_param_len, tvb, offset, 4, ENC_BIG_ENDIAN);
             param_len = tvb_get_ntohl (tvb, offset);
             offset += 4;
 
             if (tvb_bytes_exist (tvb, offset, param_len)) {
                 proto_type = tvb_get_ntohl (tvb, offset);
 
-                proto_tree_add_item (tree, hf_auth_proto_type, tvb, offset, 4, 0);
+                proto_tree_add_item (tree, hf_auth_proto_type, tvb, offset, 4, ENC_BIG_ENDIAN);
                 switch (proto_type) {
                 case FC_AUTH_PROTO_TYPE_DHCHAP:
                     dissect_fcsp_dhchap_auth_param (tvb, tree, offset+4, param_len);
@@ -385,8 +385,8 @@ static void dissect_fcsp_auth_rjt (tvbuff_t *tvb, proto_tree *tree)
     int offset = 12;
 
     if (tree) {
-        proto_tree_add_item (tree, hf_auth_rjt_code, tvb, offset, 1, 0);
-        proto_tree_add_item (tree, hf_auth_rjt_codedet, tvb, offset+1, 1, 0);
+        proto_tree_add_item (tree, hf_auth_rjt_code, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_auth_rjt_codedet, tvb, offset+1, 1, ENC_BIG_ENDIAN);
     }
 }
 
@@ -410,12 +410,12 @@ static void dissect_fcsp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                              tvb_length (tvb), "FC-SP");
         fcsp_tree = proto_item_add_subtree (ti, ett_fcsp);
 
-        proto_tree_add_item (fcsp_tree, hf_auth_flags, tvb, offset+1, 1, 0);
-        proto_tree_add_item (fcsp_tree, hf_auth_msg_code, tvb, offset+2, 1, 0);
+        proto_tree_add_item (fcsp_tree, hf_auth_flags, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (fcsp_tree, hf_auth_msg_code, tvb, offset+2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (fcsp_tree, hf_auth_proto_ver, tvb, offset+3, 1,
-                             0);
-        proto_tree_add_item (fcsp_tree, hf_auth_len, tvb, offset+4, 4, 0);
-        proto_tree_add_item (fcsp_tree, hf_auth_tid, tvb, offset+8, 4, 0);
+                             ENC_BIG_ENDIAN);
+        proto_tree_add_item (fcsp_tree, hf_auth_len, tvb, offset+4, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item (fcsp_tree, hf_auth_tid, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 
         switch (opcode) {
         case FC_AUTH_MSG_AUTH_REJECT:

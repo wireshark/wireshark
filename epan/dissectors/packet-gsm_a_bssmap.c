@@ -3895,7 +3895,7 @@ be_call_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offs
      * Call Identifier  octet 4
      * Call Identifier (most significant bits)  octet 5
      */
-    proto_tree_add_item(tree, hf_gsm_a_bssmap_call_id, tvb, curr_offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_gsm_a_bssmap_call_id, tvb, curr_offset, 4, ENC_LITTLE_ENDIAN);
     curr_offset+=4;
 
     return(curr_offset - offset);
@@ -3913,7 +3913,7 @@ be_call_id_lst(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 
         proto_tree_add_text(tree, tvb, curr_offset, len, "all resources and references associated to all Call Identifiers in use between the BSC and the MSC need to be released");
     }
     while (curr_offset-offset < len){
-        proto_tree_add_item(tree, hf_gsm_a_bssmap_call_id, tvb, curr_offset, 4, TRUE);
+        proto_tree_add_item(tree, hf_gsm_a_bssmap_call_id, tvb, curr_offset, 4, ENC_LITTLE_ENDIAN);
         curr_offset+=4;
     }
 

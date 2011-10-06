@@ -597,10 +597,10 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 	    "Length: %u (%d bytes)", rt.ip6r_len, len);
 
 	proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_type, tvb,
-		  offset + offsetof(struct ip6_rthdr, ip6r_type), 1, FALSE);
+		  offset + offsetof(struct ip6_rthdr, ip6r_type), 1, ENC_BIG_ENDIAN);
 
 	proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_left, tvb,
-		  offset + offsetof(struct ip6_rthdr, ip6r_segleft), 1, FALSE);
+		  offset + offsetof(struct ip6_rthdr, ip6r_segleft), 1, ENC_BIG_ENDIAN);
 
 	seg_left = tvb_get_guint8(tvb, offset + offsetof(struct ip6_rthdr, ip6r_segleft));
 
@@ -641,10 +641,10 @@ dissect_routing6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
         offset += 4;
         memcpy((guint8 *)&dstAddr, (guint8 *)pinfo->dst.data, pinfo->dst.len);
 
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, FALSE);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprE, tvb, offset, 4, FALSE);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_pad, tvb, offset, 4, FALSE);
-        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, FALSE);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprI, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_cmprE, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_pad, tvb, offset, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(rthdr_tree, hf_ipv6_routing_hdr_rpl_reserved, tvb, offset, 4, ENC_BIG_ENDIAN);
 
         cmprI = tvb_get_guint8(tvb, offset) & 0xF0;
         cmprE = tvb_get_guint8(tvb, offset) & 0x0F;
@@ -739,13 +739,13 @@ dissect_frag6(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree,
 #endif
 
 	   proto_tree_add_item(rthdr_tree, hf_ipv6_frag_offset, tvb,
-		    offset + offsetof(struct ip6_frag, ip6f_offlg), 2, FALSE);
+		    offset + offsetof(struct ip6_frag, ip6f_offlg), 2, ENC_BIG_ENDIAN);
 
 	   proto_tree_add_item(rthdr_tree, hf_ipv6_frag_more, tvb,
 		    offset + offsetof(struct ip6_frag, ip6f_offlg), 2, FALSE);
 
 	   proto_tree_add_item(rthdr_tree, hf_ipv6_frag_id, tvb,
-		    offset + offsetof(struct ip6_frag, ip6f_ident), 4, FALSE);
+		    offset + offsetof(struct ip6_frag, ip6f_ident), 4, ENC_BIG_ENDIAN);
     }
     return len;
 }
@@ -1121,11 +1121,11 @@ dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
   guint optlen;
   int p = *offset;
 
-  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_loclist, tvb, p, 4, FALSE);
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_loclist, tvb, p, 4, ENC_BIG_ENDIAN);
   p += 4;
 
   optlen = tvb_get_guint8(tvb, p);
-  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_locnum, tvb, p, 1, FALSE);
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_locnum, tvb, p, 1, ENC_BIG_ENDIAN);
   p++;
 
   /* Verification Methods */
@@ -1135,7 +1135,7 @@ dissect_shim6_opt_loclist(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset)
 
   for (count=0; count < optlen; count++)
     proto_tree_add_item(subtree, hf_ipv6_shim6_opt_loc_verif_methods, tvb,
-			    p+count, 1, FALSE);
+			    p+count, 1, ENC_BIG_ENDIAN);
   p += optlen;
 
   /* Padding, included in length field */
@@ -1167,11 +1167,11 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
 
   p = *offset;
 
-  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_loclist, tvb, p, 4, FALSE);
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_loclist, tvb, p, 4, ENC_BIG_ENDIAN);
   p += 4;
 
   optlen = tvb_get_guint8(tvb, p);
-  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_elemlen, tvb, p, 1, FALSE);
+  proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_elemlen, tvb, p, 1, ENC_BIG_ENDIAN);
 
   if (optlen < 1 || optlen > 3) {
     it = proto_tree_add_text(opt_tree, tvb, p, 1,
@@ -1191,13 +1191,13 @@ dissect_shim6_opt_loc_pref(proto_tree * opt_tree, tvbuff_t * tvb, gint *offset, 
 
     /* Flags */
     if (optlen >= 1)
-      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_flag, tvb, p, 1, FALSE);
+      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_flag, tvb, p, 1, ENC_BIG_ENDIAN);
     /* Priority */
     if (optlen >= 2)
-      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_prio, tvb, p+1, 1, FALSE);
+      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_prio, tvb, p+1, 1, ENC_BIG_ENDIAN);
     /* Weight */
     if (optlen >= 3)
-      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_weight, tvb, p+2, 1, FALSE);
+      proto_tree_add_item(subtree, hf_ipv6_shim6_loc_weight, tvb, p+2, 1, ENC_BIG_ENDIAN);
     /*
      * Shim6 Draft 08 doesn't specify the format when the Element length is
      * more than three, except that any such formats MUST be defined so that
@@ -1238,13 +1238,13 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 	ti = proto_tree_add_text(tree, tvb, offset, total_len, "%s", ctype);
 	opt_tree = proto_item_add_subtree(ti, ett_ipv6_shim6_option);
 
-	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_type, tvb, offset, 2, FALSE);
+	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Critical */
 	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_critical, tvb, offset+1, 1, FALSE);
 
 	/* Content Length */
-	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_len, tvb, offset + 2, 2, FALSE);
+	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 	ti = proto_tree_add_uint_format(opt_tree, hf_ipv6_shim6_opt_total_len, tvb, offset+2, 2,
 	    total_len, "Total Length: %u", total_len);
 	PROTO_ITEM_SET_GENERATED(ti);
@@ -1284,7 +1284,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 		p += 16;
 		break;
 	    case SHIM6_OPT_FII:
-		proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_fii, tvb, p, 4, FALSE);
+		proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_fii, tvb, p, 4, ENC_BIG_ENDIAN);
 		p += 4;
 		break;
 	    default:
@@ -1345,10 +1345,10 @@ dissect_shim6_probes(proto_tree * shim_tree, tvbuff_t * tvb, gint offset,
     proto_tree_add_item(probe_tree, hf_ipv6_shim6_pdst, tvb, offset, 16, FALSE);
     offset += 16;
 
-    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pnonce, tvb, offset, 4, FALSE);
+    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pnonce, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pdata, tvb, offset, 4, FALSE);
+    proto_tree_add_item(probe_tree, hf_ipv6_shim6_pdata, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
   }
 }
@@ -1370,23 +1370,23 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
 	case SHIM6_TYPE_I1:
 	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
 	    p += 6;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    break;
 	case SHIM6_TYPE_R1:
 	    proto_tree_add_text(shim_tree, tvb, p, 2, "Reserved2");
 	    p += 2;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    break;
 	case SHIM6_TYPE_I2:
 	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
 	    p += 6;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    proto_tree_add_text(shim_tree, tvb, p, 4, "Reserved2");
 	    p += 4;
@@ -1394,21 +1394,21 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
 	case SHIM6_TYPE_R2:
 	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Responder Context Tag");
 	    p += 6;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    break;
 	case SHIM6_TYPE_R1BIS:
 	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Packet Context Tag");
 	    p += 6;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    break;
 	case SHIM6_TYPE_I2BIS:
 	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Initiator Context Tag");
 	    p += 6;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_inonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    proto_tree_add_text(shim_tree, tvb, p, 6, "Reserved2");
 	    p += 6;
@@ -1419,7 +1419,7 @@ dissect_shimctrl(tvbuff_t *tvb, gint offset, guint type, proto_tree *shim_tree)
 	case SHIM6_TYPE_UPD_ACK:
 	    dissect_shim6_ct(shim_tree, hf_ipv6_shim6_ct, tvb, p, "Receiver Context Tag");
 	    p += 6;
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_rnonce, tvb, p, 4, ENC_BIG_ENDIAN);
 	    p += 4;
 	    break;
 	case SHIM6_TYPE_KEEPALIVE:
@@ -1565,11 +1565,11 @@ dissect_shim6(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info * pinfo)
 	    /* Message Type */
 	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_type, tvb,
 				offset + offsetof(struct ip6_shim, ip6s_p), 1,
-				FALSE
+				ENC_BIG_ENDIAN
 				);
 
 	    /* Protocol bit (Must be zero for SHIM6) */
-	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_proto, tvb, p, 1, FALSE);
+	    proto_tree_add_item(shim_tree, hf_ipv6_shim6_proto, tvb, p, 1, ENC_BIG_ENDIAN);
 	    p++;
 
 	    /* Checksum */
@@ -1654,19 +1654,19 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     /* !!! warning: (4-bit) version, (6-bit) DSCP, (1-bit) ECN-ECT, (1-bit) ECN-CE and (20-bit) Flow */
     pi = proto_tree_add_item(ipv6_tree, hf_ipv6_version, tvb,
- 			offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
+ 			offset + offsetof(struct ip6_hdr, ip6_vfc), 1, ENC_BIG_ENDIAN);
 	pt = proto_item_add_subtree(pi,ett_ipv6_version);
     pi = proto_tree_add_item(pt, hf_ip_version, tvb,
 						offset + offsetof(struct ip6_hdr, ip6_vfc), 1, FALSE);
 	PROTO_ITEM_SET_GENERATED(pi);
 
     ipv6_tc = proto_tree_add_item(ipv6_tree, hf_ipv6_class, tvb,
-			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
+			offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
 
     ipv6_tc_tree = proto_item_add_subtree(ipv6_tc, ett_ipv6_traffic_class);
 
     proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_dscp, tvb,
-			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
+			offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(ipv6_tc_tree, hf_ipv6_traffic_class_ect, tvb,
 			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
@@ -1675,10 +1675,10 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_flow, tvb,
-			offset + offsetof(struct ip6_hdr, ip6_flow), 4, FALSE);
+			offset + offsetof(struct ip6_hdr, ip6_flow), 4, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_plen, tvb,
-			offset + offsetof(struct ip6_hdr, ip6_plen), 2, FALSE);
+			offset + offsetof(struct ip6_hdr, ip6_plen), 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_uint_format(ipv6_tree, hf_ipv6_nxt, tvb,
 		offset + offsetof(struct ip6_hdr, ip6_nxt), 1,
@@ -1687,7 +1687,7 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ipprotostr(ipv6.ip6_nxt), ipv6.ip6_nxt);
 
     proto_tree_add_item(ipv6_tree, hf_ipv6_hlim, tvb,
-			offset + offsetof(struct ip6_hdr, ip6_hlim), 1, FALSE);
+			offset + offsetof(struct ip6_hdr, ip6_hlim), 1, ENC_BIG_ENDIAN);
 
     /* Add the different items for the source address */
     proto_tree_add_item(ipv6_tree, hf_ipv6_src, tvb,
@@ -1717,14 +1717,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 offset + IP6H_SRC + 2, 4, FALSE);
       PROTO_ITEM_SET_GENERATED(ti);
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_src_6to4_sla_id, tvb,
-                                offset + IP6H_SRC + 6, 2, FALSE);
+                                offset + IP6H_SRC + 6, 2, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_GENERATED(ti);
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_gateway_ipv4, tvb,
                                 offset + IP6H_SRC + 2, 4, FALSE);
       PROTO_ITEM_SET_GENERATED(ti);
       PROTO_ITEM_SET_HIDDEN(ti);
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_sla_id, tvb,
-                                offset + IP6H_SRC + 6, 2, FALSE);
+                                offset + IP6H_SRC + 6, 2, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_GENERATED(ti);
       PROTO_ITEM_SET_HIDDEN(ti);
     } else if (tvb_get_ntohl(tvb, offset + IP6H_SRC) == 0x20010000) { /* RFC 4380 section 4 */
@@ -1804,14 +1804,14 @@ dissect_ipv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 offset + IP6H_DST + 2, 4, FALSE);
       PROTO_ITEM_SET_GENERATED(ti);
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_dst_6to4_sla_id, tvb,
-                                offset + IP6H_DST + 6, 2, FALSE);
+                                offset + IP6H_DST + 6, 2, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_GENERATED(ti);
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_gateway_ipv4, tvb,
                                 offset + IP6H_DST + 2, 4, FALSE);
       PROTO_ITEM_SET_GENERATED(ti);
       PROTO_ITEM_SET_HIDDEN(ti);
       ti = proto_tree_add_item(ipv6_tree, hf_ipv6_6to4_sla_id, tvb,
-                                offset + IP6H_DST + 6, 2, FALSE);
+                                offset + IP6H_DST + 6, 2, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_GENERATED(ti);
       PROTO_ITEM_SET_HIDDEN(ti);
     } else if (tvb_get_ntohl(tvb, offset + IP6H_DST) == 0x20010000) { /* RFC 4380 section 4 */

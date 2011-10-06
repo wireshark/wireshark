@@ -123,10 +123,10 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 		ti = proto_tree_add_item( tree, proto_applemidi, tvb, 0, -1, FALSE );
 		applemidi_tree = proto_item_add_subtree( ti, ett_applemidi );
 
-		proto_tree_add_item( applemidi_tree, hf_applemidi_signature, tvb, offset, 2, FALSE );
+		proto_tree_add_item( applemidi_tree, hf_applemidi_signature, tvb, offset, 2, ENC_BIG_ENDIAN );
 		offset += 2;
 
-		proto_tree_add_item( applemidi_tree, hf_applemidi_command, tvb, offset, 2, FALSE );
+		proto_tree_add_item( applemidi_tree, hf_applemidi_command, tvb, offset, 2, ENC_BIG_ENDIAN );
 		offset += 2;
 
 		/* the format of packets for "IN", "NO", "OK" and "BY" is identical and contains
@@ -136,13 +136,13 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 		if ( ( APPLEMIDI_COMMAND_INVITATION == command ) || ( APPLEMIDI_COMMAND_INVITATION_REJECTED == command ) || ( APLLEMIDI_COMMAND_INVITATION_ACCEPTED == command ) || ( APPLEMIDI_COMMAND_ENDSESSION == command ) ) {
 			int len;
 
-			proto_tree_add_item( applemidi_tree, hf_applemidi_protocol_version, tvb, offset, 4, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_protocol_version, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 
-			proto_tree_add_item( applemidi_tree, hf_applemidi_token, tvb, offset, 4, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_token, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 
-			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 
 			len = tvb_reported_length(tvb) - offset;
@@ -157,33 +157,33 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 		/* the synchronization packet contains three 64bit timestamps,  and a value to define how
 		 * many of the timestamps transmitted are valid */
 		} else if ( APPLEMIDI_COMMAND_SYNCHRONIZATION == command ) {
-			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 
 			count = tvb_get_guint8( tvb, offset );
-			proto_tree_add_item( applemidi_tree, hf_applemidi_count, tvb, offset, 1, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_count, tvb, offset, 1, ENC_BIG_ENDIAN );
 			col_append_fstr( pinfo->cinfo, COL_INFO, ": count = %u", count );
 			offset += 1;
 
-			proto_tree_add_item( applemidi_tree, hf_applemidi_padding, tvb, offset, 3, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_padding, tvb, offset, 3, ENC_BIG_ENDIAN );
 			offset += 3;
 
-			proto_tree_add_item(applemidi_tree, hf_applemidi_timestamp1, tvb, offset, 8, FALSE );
+			proto_tree_add_item(applemidi_tree, hf_applemidi_timestamp1, tvb, offset, 8, ENC_BIG_ENDIAN );
 			offset += 8;
 
-			proto_tree_add_item( applemidi_tree, hf_applemidi_timestamp2, tvb, offset, 8, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_timestamp2, tvb, offset, 8, ENC_BIG_ENDIAN );
 			offset += 8;
 
-			proto_tree_add_item( applemidi_tree, hf_applemidi_timestamp3, tvb, offset, 8, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_timestamp3, tvb, offset, 8, ENC_BIG_ENDIAN );
 			offset += 8;
 		/* With the receiver feedback packet, the recipient can tell the sender up to what sequence
 		 * number in the RTP-stream the packets have been received; this can be used to shorten the
 		 * recovery-journal-section in the RTP-session */
 		} else if ( APPLEMIDI_COMMAND_RECEIVER_FEEDBACK == command ) {
-			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, FALSE );
+			proto_tree_add_item( applemidi_tree, hf_applemidi_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN );
 			offset += 4;
 
-			ti = proto_tree_add_item( applemidi_tree, hf_applemidi_sequence_num, tvb, offset, 4, FALSE );
+			ti = proto_tree_add_item( applemidi_tree, hf_applemidi_sequence_num, tvb, offset, 4, ENC_BIG_ENDIAN );
 			/* Apple includes a 32bit sequence-number, but the RTP-packet only specifies 16bit.
 			 * this subtree and subitem are added to be able to associate the sequence-number
 			 * here easier with the one specified in the corresponding RTP-packet */

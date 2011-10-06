@@ -192,18 +192,18 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 
 		if (packet_quality & PQ_CW_BAD_BITS03) /*display only if value is wrong*/
 		{
-			item = proto_tree_add_item(subtree, hf_cw_bits03, tvb, 0, 1, FALSE);
+			item = proto_tree_add_item(subtree, hf_cw_bits03, tvb, 0, 1, ENC_BIG_ENDIAN);
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 				"Bits 0..3 of Control Word must be 0");
 		}
 
-		(void)proto_tree_add_item( subtree, hf_cw_fecn, tvb, 0, 1, FALSE );
-		(void)proto_tree_add_item( subtree, hf_cw_becn, tvb, 0, 1, FALSE );
-		(void)proto_tree_add_item( subtree, hf_cw_de, tvb, 0, 1, FALSE );
-		(void)proto_tree_add_item( subtree, hf_cw_cr, tvb, 0, 1, FALSE );
-		(void)proto_tree_add_item( subtree, hf_cw_frg, tvb, 1, 1, FALSE );
+		(void)proto_tree_add_item( subtree, hf_cw_fecn, tvb, 0, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_becn, tvb, 0, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_de, tvb, 0, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_cr, tvb, 0, 1, ENC_BIG_ENDIAN );
+		(void)proto_tree_add_item( subtree, hf_cw_frg, tvb, 1, 1, ENC_BIG_ENDIAN );
 
-		item = proto_tree_add_item( subtree, hf_cw_len, tvb, 1, 1, FALSE );
+		item = proto_tree_add_item( subtree, hf_cw_len, tvb, 1, 1, ENC_BIG_ENDIAN );
 		if (packet_quality & PQ_CW_BAD_LEN_GT_PACKET)
 		{
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
@@ -223,7 +223,7 @@ dissect_pw_fr( tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree )
 				(int)(payload_size+encaps_size));
 		}
 
-		proto_tree_add_item( subtree, hf_cw_seq, tvb, 2, 2, FALSE );
+		proto_tree_add_item( subtree, hf_cw_seq, tvb, 2, 2, ENC_BIG_ENDIAN );
 
 		if (payload_padding > 0)
 		{

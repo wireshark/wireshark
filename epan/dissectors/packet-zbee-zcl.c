@@ -1600,7 +1600,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             proto_item_append_text(tree, ", %s: %g",
                 val_to_str_ext_const(data_type, &zbee_zcl_short_data_type_names_ext, "Reserved"), attr_float);
 
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_float, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_float, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
 
             *offset += 4;
             break;
@@ -1609,7 +1609,7 @@ static void dissect_zcl_attr_data(tvbuff_t *tvb, proto_tree *tree, guint *offset
             attr_double = tvb_get_letohieee_double(tvb, *offset);
 
             proto_item_append_text(tree, ", Double: %lg", attr_double);
-            proto_tree_add_item(tree, hf_zbee_zcl_attr_double, tvb, *offset, 8, TRUE);
+            proto_tree_add_item(tree, hf_zbee_zcl_attr_double, tvb, *offset, 8, ENC_LITTLE_ENDIAN);
 
             *offset += 8;
             break;

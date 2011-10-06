@@ -4826,18 +4826,18 @@ display_access_items(tvbuff_t* tvb, int offset, packet_info* pinfo, proto_tree* 
 	switch (mtype) {
 		case 'C':
 			access_item = proto_tree_add_item(tree, hf_nfs_access_check, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 			access_subtree = proto_item_add_subtree(access_item,
 				(nfsv3 ? ett_nfs_access3 : ett_nfs_access4));
 			break;
 		case 'S':
 			access_item = proto_tree_add_item(tree, hf_nfs_access_supported, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 			access_subtree = proto_item_add_subtree(access_item, ett_nfs_access_supp4);
 			break;
 		case 'R':
 			access_item = proto_tree_add_item(tree, hf_nfs_access_rights, tvb,
-				offset, 4, FALSE);
+				offset, 4, ENC_BIG_ENDIAN);
 			access_subtree = proto_item_add_subtree(access_item,
 				(nfsv3 ? ett_nfs_access3 : ett_nfs_access4));
 			break;

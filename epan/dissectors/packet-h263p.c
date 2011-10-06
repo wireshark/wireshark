@@ -92,11 +92,11 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	  h263P_tree = proto_item_add_subtree( ti, ett_h263P );
           
 	  data16 = tvb_get_ntohs(tvb,offset);
-	  proto_tree_add_item( h263P_tree, hf_h263P_rr, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_rr, tvb, offset, 2, ENC_BIG_ENDIAN );
 	  proto_tree_add_item( h263P_tree, hf_h263P_pbit, tvb, offset, 2, FALSE );
 	  proto_tree_add_item( h263P_tree, hf_h263P_vbit, tvb, offset, 2, FALSE );
 	  proto_tree_add_item( h263P_tree, hf_h263P_plen, tvb, offset, 2, FALSE );
-	  proto_tree_add_item( h263P_tree, hf_h263P_pebit, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_pebit, tvb, offset, 2, ENC_BIG_ENDIAN );
 	  offset = offset +2;
 	  /*
 	   *   V: 1 bit
@@ -139,9 +139,9 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		   *   A bit that indicates that the packet content is for a sync frame.  
 		   *   :
 		   */
-		  proto_tree_add_item( h263P_tree, hf_h263P_tid, tvb, offset, 1, FALSE );
-		  proto_tree_add_item( h263P_tree, hf_h263P_trun, tvb, offset, 1, FALSE );
-		  proto_tree_add_item( h263P_tree, hf_h263P_s, tvb, offset, 1, FALSE );
+		  proto_tree_add_item( h263P_tree, hf_h263P_tid, tvb, offset, 1, ENC_BIG_ENDIAN );
+		  proto_tree_add_item( h263P_tree, hf_h263P_trun, tvb, offset, 1, ENC_BIG_ENDIAN );
+		  proto_tree_add_item( h263P_tree, hf_h263P_s, tvb, offset, 1, ENC_BIG_ENDIAN );
 		  offset++;
 	  }
 

@@ -191,7 +191,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             proto_tree_add_int(tree, hf_banana_neg_int, tvb, start_offset, offset - start_offset, (gint32) val * -1);
             break;
         case BE_FLOAT:
-            proto_tree_add_item(tree, hf_banana_float, tvb, offset, 8, FALSE);
+            proto_tree_add_item(tree, hf_banana_float, tvb, offset, 8, ENC_BIG_ENDIAN);
             offset += 8;
             break;
         case BE_LG_INT:
@@ -208,7 +208,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
              * The spec says the pb dictionary value comes after the tag.
              * In real-world captures it comes before.
              */
-            proto_tree_add_item(tree, hf_banana_pb, tvb, offset - 2, 1, FALSE);
+            proto_tree_add_item(tree, hf_banana_pb, tvb, offset - 2, 1, ENC_BIG_ENDIAN);
             break;
         default:
             return 0;

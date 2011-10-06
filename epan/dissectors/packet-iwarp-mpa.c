@@ -510,11 +510,11 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(mpa_header_tree, hf_mpa_flag_r, tvb,
 				offset, MPA_REQ_REP_FLAG_LEN, FALSE);
 		proto_tree_add_item(mpa_header_tree, hf_mpa_flag_res, tvb,
-				offset, MPA_REQ_REP_FLAG_LEN, FALSE);
+				offset, MPA_REQ_REP_FLAG_LEN, ENC_BIG_ENDIAN);
 		offset += MPA_REQ_REP_FLAG_LEN;
 
 		proto_tree_add_item(mpa_header_tree, hf_mpa_rev, tvb,
-				offset, MPA_REQ_REP_REV_LEN, FALSE);
+				offset, MPA_REQ_REP_REV_LEN, ENC_BIG_ENDIAN);
 		offset += MPA_REQ_REP_REV_LEN;
 
 		/* check whether the Private Data Length conforms to RFC 5044 */
@@ -606,7 +606,7 @@ dissect_fpdu_crc(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 		}
 	} else {
 		proto_tree_add_item(tree, hf_mpa_crc, tvb, offset, MPA_CRC_LEN,
-				FALSE);
+				ENC_BIG_ENDIAN);
 	}
 }
 
@@ -628,7 +628,7 @@ dissect_fpdu_markers(tvbuff_t *tvb, proto_tree *tree, mpa_state_t *state,
 
 	for (i=0; i<number_of_markers(state, tcpinfo, endpoint); i++) {
 		proto_tree_add_item(mpa_marker_tree, hf_mpa_marker_res, tvb,
-				offset, MPA_MARKER_RSVD_LEN, FALSE);
+				offset, MPA_MARKER_RSVD_LEN, ENC_BIG_ENDIAN);
 		fpduptr = (guint16) tvb_get_ntohs(tvb, offset+MPA_MARKER_RSVD_LEN);
 		proto_tree_add_uint_format_value(mpa_marker_tree,
 				hf_mpa_marker_fpduptr, tvb,

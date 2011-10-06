@@ -3132,7 +3132,7 @@ dissect_pvfs_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
 		pvfs_htree = proto_item_add_subtree(hitem, ett_pvfs_hdr);
 
 	/* Magic number */
-	proto_tree_add_item(pvfs_htree, hf_pvfs_magic_nr, tvb, offset, 4, TRUE);
+	proto_tree_add_item(pvfs_htree, hf_pvfs_magic_nr, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	/* TCP message mode (32-bit) */

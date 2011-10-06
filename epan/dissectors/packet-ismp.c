@@ -263,20 +263,20 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			tvb_ether_to_str(tvb, offset+6),
 			tvb_get_ntohl(tvb, offset+12));
 
-		proto_tree_add_item(edp_tree, hf_ismp_edp_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, FALSE);
 		offset += 4;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_module_mac, tvb, offset, 6, FALSE);
 		offset += 6;
-		proto_tree_add_item(edp_tree, hf_ismp_edp_module_port, tvb, offset, 4, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_module_port, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_mac, tvb, offset, 6, FALSE);
 		offset += 6;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, FALSE);
 		offset += 4;
 		device_type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		proto_tree_add_uint_format(edp_tree, hf_ismp_edp_module_rev, tvb, offset, 4, tvb_get_ntohl(tvb, offset),
 			"Module Firmware Revision: %02x.%02x.%02x.%02x", tvb_get_guint8(tvb, offset),
@@ -353,7 +353,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 
 		/* determine the number of neighbors and create EDP neighbors subtree */
 		num_neighbors = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_num_neighbors, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		if (num_neighbors > 0)
 		{
@@ -387,7 +387,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			tvb_reported_length_remaining(tvb, offset) >= 2)
 		{
 			num_tuples = tvb_get_ntohs(tvb, offset);
-			proto_tree_add_item(edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, FALSE);
+			proto_tree_add_item(edp_tree, hf_ismp_edp_num_tuples, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 		else if (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -513,15 +513,15 @@ dissect_ismp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ismp_tree = proto_item_add_subtree(ti, ett_ismp);
 
 		/* add an items to the subtree */
-		proto_tree_add_item(ismp_tree, hf_ismp_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ismp_tree, hf_ismp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		message_type = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ismp_tree, hf_ismp_message_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ismp_tree, hf_ismp_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(ismp_tree, hf_ismp_seq_num, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ismp_tree, hf_ismp_seq_num, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		code_length = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ismp_tree, hf_ismp_code_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		proto_tree_add_item(ismp_tree, hf_ismp_auth_data, tvb, offset, code_length, ENC_NA);
 		offset += code_length;

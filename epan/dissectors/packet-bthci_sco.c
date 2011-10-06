@@ -57,10 +57,10 @@ dissect_btsco(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   btsco_tree = proto_item_add_subtree(ti, ett_btsco);
   
 
-  proto_tree_add_item(btsco_tree, hf_btsco_chandle, tvb, offset, 2, TRUE);
+  proto_tree_add_item(btsco_tree, hf_btsco_chandle, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset+=2;
 
-  proto_tree_add_item(btsco_tree, hf_btsco_length, tvb, offset, 1, TRUE);
+  proto_tree_add_item(btsco_tree, hf_btsco_length, tvb, offset, 1, ENC_LITTLE_ENDIAN);
   offset++;
 
   proto_tree_add_item(btsco_tree, hf_btsco_data, tvb, offset, -1, ENC_NA);

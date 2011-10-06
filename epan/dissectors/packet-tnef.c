@@ -250,7 +250,7 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 	 guint32 length, count, i;
 
 	 count = tvb_get_letohl(tvb, offset);
-	 proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, TRUE);
+	 proto_tree_add_item(tree, hf_tnef_values_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 
 	 if(count > 1) {
 		 if(single) {
@@ -267,7 +267,7 @@ static gint dissect_counted_values(tvbuff_t *tvb, gint offset, int hf_id,  packe
 	 for(i = 0; i < count; i++) {
 
 		 length = tvb_get_letohl(tvb, offset);
-		 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, TRUE);
+		 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		 offset += 4;
 
 		 if (unicode) {
@@ -290,14 +290,14 @@ static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pin
 	 guint16 length;
 
 	 length = tvb_get_letohs(tvb, offset);
-	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, TRUE);
+	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	 offset += 2;
 
 	 proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, FALSE);
 	 offset += length;
 
 	 length = tvb_get_letohs(tvb, offset);
-	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, TRUE);
+	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	 offset += 2;
 
 	 proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, FALSE);
@@ -313,25 +313,25 @@ static void dissect_DTR(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 
 	offset = 0;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_year, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_year, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_month, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_month, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_day, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_day, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_hour, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_minute, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_second, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_second, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 
-	proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_tnef_attribute_date_day_of_week, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset +=2;
 }
 
@@ -359,7 +359,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	pinfo->private_data = &di;
 
 	/* first the count */
-	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, TRUE);
+	proto_tree_add_item(tree, hf_tnef_mapi_props_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	/*count = tvb_get_letohl(tvb, offset);*/
 
 	offset += 4;
@@ -373,17 +373,17 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		prop_item = proto_tree_add_item(tree, hf_tnef_property, tvb, offset, -1, ENC_NA);
 		prop_tree = proto_item_add_subtree(prop_item, ett_tnef_property);
 
-		item = proto_tree_add_item(prop_tree, hf_tnef_property_tag, tvb, offset, 4, TRUE);
+		item = proto_tree_add_item(prop_tree, hf_tnef_property_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tag_tree = proto_item_add_subtree(item, ett_tnef_property_tag);
 
 		/* add a nice name to the property */
 		tag = tvb_get_letohl(tvb, offset);
 		proto_item_append_text(prop_item, " %s", val_to_str(tag, nspi_MAPITAGS_vals, "Unknown tag (0x%08lx)"));
 
-		proto_tree_add_item(tag_tree, hf_tnef_property_tag_type, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tag_tree, hf_tnef_property_tag_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(tag_tree, hf_tnef_property_tag_id, tvb, offset, 2, TRUE);
+		proto_tree_add_item(tag_tree, hf_tnef_property_tag_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		if(tag & 0x80000000) {
@@ -393,11 +393,11 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 			offset += 16;
 
 			tag_kind = tvb_get_letohl(tvb, offset);
-			proto_tree_add_item(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, TRUE);
+			proto_tree_add_item(tag_tree, hf_tnef_property_tag_kind, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 
 			if(tag_kind == 0) {
-				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, TRUE);
+				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
 				proto_item_append_text(prop_item, " [Named Property]");
@@ -405,7 +405,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 				char *name_string = NULL;
 
 				tag_length = tvb_get_letohl(tvb, offset);
-				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, TRUE);
+				proto_tree_add_item(tag_tree, hf_tnef_property_tag_name_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
 				name_string = tvb_get_ephemeral_faked_unicode (tvb, offset, tag_length / 2, TRUE);
@@ -519,7 +519,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   /* first the signature */
   signature = tvb_get_letohl(tvb, offset);
-  item = proto_tree_add_item(tree, hf_tnef_signature, tvb, offset, 4, TRUE);
+  item = proto_tree_add_item(tree, hf_tnef_signature, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   offset += 4;
 
   /* check the signature */
@@ -537,7 +537,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   }
 
-  proto_tree_add_item(tree, hf_tnef_key, tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_tnef_key, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   while(tvb_reported_length_remaining(tvb, offset) > 9 ) { /* there must be at least a level (1), tag (4) and length (4) to be valid */
@@ -547,33 +547,33 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     attr_item = proto_tree_add_item(tree, hf_tnef_attribute, tvb, offset, -1, ENC_NA);
     attr_tree = proto_item_add_subtree(attr_item, ett_tnef_attribute);
 
-    proto_tree_add_item(attr_tree, hf_tnef_attribute_lvl, tvb, offset, 1, TRUE);
+    proto_tree_add_item(attr_tree, hf_tnef_attribute_lvl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
-    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_tag, tvb, offset, 4, TRUE);
+    item = proto_tree_add_item(attr_tree, hf_tnef_attribute_tag, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     tag_tree = proto_item_add_subtree(item, ett_tnef_attribute_tag);
 
     /* add a nice name to the property */
     tag = tvb_get_letohl(tvb, offset);
     proto_item_append_text(attr_item, " %s", val_to_str(tag, tnef_Attribute_vals, "Unknown tag (0x%08lx)"));
 
-    proto_tree_add_item(tag_tree, hf_tnef_attribute_tag_id, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tag_tree, hf_tnef_attribute_tag_id, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tag_tree, hf_tnef_attribute_tag_type, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tag_tree, hf_tnef_attribute_tag_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     /* remember the type for the value dissection */
     offset += 2;
 
     length = tvb_get_letohl(tvb, offset);
-    proto_tree_add_item(attr_tree, hf_tnef_attribute_length, tvb, offset, 4, TRUE);
+    proto_tree_add_item(attr_tree, hf_tnef_attribute_length, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     switch(tag) {
     case ATT_OEM_CODEPAGE:
-	    proto_tree_add_item(attr_tree, hf_tnef_oem_codepage, tvb, offset, length, TRUE);
+	    proto_tree_add_item(attr_tree, hf_tnef_oem_codepage, tvb, offset, length, ENC_LITTLE_ENDIAN);
 	    break;
     case ATT_TNEF_VERSION:
-	    proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, TRUE);
+	    proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, ENC_LITTLE_ENDIAN);
 	    break;
     case ATT_MESSAGE_CLASS:
 	    proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, TRUE);
@@ -598,7 +598,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	    break;
     case ATT_PRIORITY:
-	    proto_tree_add_item(attr_tree, hf_tnef_priority, tvb, offset, length, TRUE);
+	    proto_tree_add_item(attr_tree, hf_tnef_priority, tvb, offset, length, ENC_LITTLE_ENDIAN);
 	    break;
     default:
 	    /* just do it on the type */
@@ -624,7 +624,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     offset += length;
 
-    proto_tree_add_item(attr_tree, hf_tnef_attribute_checksum, tvb, offset, 2, TRUE);
+    proto_tree_add_item(attr_tree, hf_tnef_attribute_checksum, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     proto_item_set_len(attr_item, offset - start_offset);

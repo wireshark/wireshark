@@ -173,13 +173,13 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	/* Add the items to the tree */
 	proto_tree_add_item(subtree, hf_mstp_frame_type, tvb,
-			offset, 1, TRUE);
+			offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(subtree, hf_mstp_frame_destination, tvb,
-			offset+1, 1, TRUE);
+			offset+1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(subtree, hf_mstp_frame_source, tvb,
-			offset+2, 1, TRUE);
+			offset+2, 1, ENC_LITTLE_ENDIAN);
 	item = proto_tree_add_item(subtree, hf_mstp_frame_pdu_len, tvb,
-			offset+3, 2, FALSE);
+			offset+3, 2, ENC_BIG_ENDIAN);
 	mstp_tvb_pdu_len = tvb_length_remaining(tvb, offset+6);
 	/* check the length - which does not include the crc16 checksum */
 	if (mstp_tvb_pdu_len > 2) {
@@ -228,7 +228,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 #else
 	proto_tree_add_item(subtree, hf_mstp_frame_crc8,
-		tvb, offset+5, 1, TRUE);
+		tvb, offset+5, 1, ENC_LITTLE_ENDIAN);
 #endif
 
 	/* dissect BACnet PDU if there is one */
@@ -246,7 +246,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* Write Vendor ID as tree */
 			proto_tree_add_item(subtree, hf_mstp_frame_vendor_id, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 
 			/* NPDU - call the Vendor specific dissector */
 			next_tvb = tvb_new_subset(tvb, offset+2,
@@ -304,7 +304,7 @@ dissect_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		}
 #else
 		proto_tree_add_item(subtree, hf_mstp_frame_crc16,
-			tvb, offset+mstp_frame_pdu_len, 2, TRUE);
+			tvb, offset+mstp_frame_pdu_len, 2, ENC_LITTLE_ENDIAN);
 #endif
 	}
 }
@@ -341,9 +341,9 @@ dissect_mstp_wtap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 	subtree = proto_item_add_subtree(ti, ett_bacnet_mstp);
 	proto_tree_add_item(subtree, hf_mstp_preamble_55, tvb,
-			offset, 1, TRUE);
+			offset, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(subtree, hf_mstp_preamble_FF, tvb,
-			offset+1, 1, TRUE);
+			offset+1, 1, ENC_LITTLE_ENDIAN);
 	dissect_mstp(tvb, pinfo, tree, subtree, offset+2);
 }
 

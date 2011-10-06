@@ -72,7 +72,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     ti = proto_tree_add_item(tree, proto_loop, tvb, offset, -1, FALSE);
     loop_tree = proto_item_add_subtree(ti, ett_loop);
 
-    proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, TRUE);
+    proto_tree_add_item(loop_tree, hf_loop_skipcount, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   }
   skip_offset = 2 + tvb_get_letohs(tvb, offset);
   offset += 2;
@@ -96,7 +96,7 @@ dissect_loop(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case FUNC_REPLY:
       if (tree)
         proto_tree_add_item(loop_tree, hf_loop_receipt_number, tvb, offset, 2,
-                            TRUE);
+                            ENC_LITTLE_ENDIAN);
       offset += 2;
       more_function = FALSE;
       break;

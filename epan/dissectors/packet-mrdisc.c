@@ -88,7 +88,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 	guint16 num;
 
 	/* Advertising Interval */
-	proto_tree_add_item(parent_tree, hf_advint, tvb, offset, 1, FALSE);
+	proto_tree_add_item(parent_tree, hf_advint, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* checksum */
@@ -134,7 +134,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 			if (len != 2)
 				THROW(ReportedBoundsError);
 			proto_tree_add_item(tree, hf_qi, tvb, offset, len,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += len;
 			break;
 		case MRDISC_RV:
@@ -147,7 +147,7 @@ dissect_mrdisc_mra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, i
 			if (len != 2)
 				THROW(ReportedBoundsError);
 			proto_tree_add_item(tree, hf_rv, tvb, offset, len,
-				FALSE);
+				ENC_BIG_ENDIAN);
 			offset += len;
 			break;
 		default:

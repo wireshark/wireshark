@@ -707,16 +707,16 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_release_token_setting,
-			    tvb, offset, 1, FALSE);
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(param_tree,
 			    hf_major_activity_token_setting,
-			    tvb, offset, 1, FALSE);
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(param_tree,
 			    hf_synchronize_minor_token_setting,
-			    tvb, offset, 1, FALSE);
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(param_tree,
 			    hf_data_token_setting,
-			    tvb, offset, 1, FALSE);
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		break;
 

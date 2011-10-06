@@ -108,17 +108,17 @@ dissect_netdump(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		netdump_tree = proto_item_add_subtree(ti, ett_netdump);
 		if (tvb_reported_length(tvb) == 24) {
 			/* Its a request format packet */
-			proto_tree_add_item(netdump_tree, hf_netdump_magic_number, tvb, 0, 8, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_seq_nr, tvb, 8, 4, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_command, tvb, 12, 4, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_from, tvb, 16, 4, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_to, tvb, 20, 4, FALSE);
+			proto_tree_add_item(netdump_tree, hf_netdump_magic_number, tvb, 0, 8, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_seq_nr, tvb, 8, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_command, tvb, 12, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_from, tvb, 16, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_to, tvb, 20, 4, ENC_BIG_ENDIAN);
 		} else {
 			/* Its a reply packet */
-			proto_tree_add_item(netdump_tree, hf_netdump_version, tvb, 0, 1, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_seq_nr, tvb, 1, 4, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_code, tvb, 5, 4, FALSE);
-			proto_tree_add_item(netdump_tree, hf_netdump_info, tvb, 9, 4, TRUE);
+			proto_tree_add_item(netdump_tree, hf_netdump_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_seq_nr, tvb, 1, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_code, tvb, 5, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(netdump_tree, hf_netdump_info, tvb, 9, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(netdump_tree, hf_netdump_payload, tvb, 13, -1, ENC_NA);
 		}
 	}

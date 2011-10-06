@@ -70,7 +70,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
     offset += 4;
 
-    proto_tree_add_item(msnlb_tree, hf_msnlb_hpn, tvb, offset, 4, TRUE);
+    proto_tree_add_item(msnlb_tree, hf_msnlb_hpn, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(msnlb_tree, hf_msnlb_cls_virt_ip, tvb, offset, 4, FALSE);
@@ -94,7 +94,7 @@ dissect_msnlb(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);
         offset += 4;
 
-        proto_tree_add_item(msnlb_tree, hf_msnlb_count, tvb, offset, 4, TRUE);
+        proto_tree_add_item(msnlb_tree, hf_msnlb_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
         offset += 4;
 
         proto_tree_add_item(msnlb_tree, hf_msnlb_unknown, tvb, offset, 4, ENC_NA);

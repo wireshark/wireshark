@@ -876,7 +876,7 @@ decode_prefix_MP(proto_tree *tree, int hf_addr4, int hf_addr6,
                 proto_tree_add_text(prefix_tree, tvb, start_offset, 1, "%s Prefix length: %u",
                                     tag, plen + 16);
                 proto_tree_add_item(prefix_tree, hf_bgp_mp_nlri_tnl_id, tvb,
-                                    start_offset + 1, 2, FALSE);
+                                    start_offset + 1, 2, ENC_BIG_ENDIAN);
                 if (hf_addr4 != -1) {
                     proto_tree_add_ipv4(prefix_tree, hf_addr4, tvb, offset,
                                         length, ip4addr.addr);
@@ -2181,7 +2181,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                             plurality(tlen, "", "s"));
                     } else {
                         proto_tree_add_item(subtree2, hf_bgp_origin, tvb,
-                                            o + i + aoff, 1, FALSE);
+                                            o + i + aoff, 1, ENC_BIG_ENDIAN);
                     }
                     break;
                 case BGPTYPE_AS_PATH:
@@ -2287,7 +2287,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                             tlen, plurality(tlen, "", "s"));
                     } else {
                         proto_tree_add_item(subtree2, hf_bgp_multi_exit_disc, tvb,
-                                            o + i + aoff, tlen, FALSE);
+                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
                     }
                     break;
                 case BGPTYPE_LOCAL_PREF:
@@ -2297,7 +2297,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                             plurality(tlen, "", "s"));
                     } else {
                         proto_tree_add_item(subtree2, hf_bgp_local_pref, tvb,
-                                            o + i + aoff, tlen, FALSE);
+                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
                     }
                     break;
                 case BGPTYPE_ATOMIC_AGGREGATE:
@@ -2367,9 +2367,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             community_tree = proto_item_add_subtree(ti,
                                                                     ett_bgp_communities);
                             proto_tree_add_item(community_tree, hf_bgp_community_as,
-                                                tvb, q - 3 + aoff, 2, FALSE);
+                                                tvb, q - 3 + aoff, 2, ENC_BIG_ENDIAN);
                             proto_tree_add_item(community_tree, hf_bgp_community_value,
-                                                tvb, q - 1 + aoff, 2, FALSE);
+                                                tvb, q - 1 + aoff, 2, ENC_BIG_ENDIAN);
                         }
 
                         q += 4;
@@ -2740,7 +2740,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
                                             q, 1, FALSE);
                         hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
-                                                          q, 2, FALSE);
+                                                          q, 2, ENC_BIG_ENDIAN);
                         PROTO_ITEM_SET_HIDDEN(hidden_item);
                         proto_tree_add_text(subtree3, tvb, q, 2,
                                             "Type: %s", val_to_str(ssa_type, bgp_ssa_type, "Unknown"));
@@ -2750,12 +2750,12 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                             break;
                         }
                         proto_tree_add_item(subtree3, hf_bgp_ssa_len, tvb,
-                                            q + 2, 2, FALSE);
+                                            q + 2, 2, ENC_BIG_ENDIAN);
 
                         switch (ssa_type) {
                             case BGP_SSA_L2TPv3:
                                 proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_pref, tvb,
-                                                    q + 4, 2, FALSE);
+                                                    q + 4, 2, ENC_BIG_ENDIAN);
 
                                 ti = proto_tree_add_text(subtree3, tvb, q + 6, 1, "Flags");
                                 subtree4 = proto_item_add_subtree(ti, ett_bgp_ssa_subtree) ;
@@ -2767,7 +2767,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 ssa_v3_len = tvb_get_guint8(tvb, q + 7);
                                 if (ssa_v3_len + 8 == ssa_len){
                                     proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie_len, tvb,
-                                                        q + 7, 1, FALSE);
+                                                        q + 7, 1, ENC_BIG_ENDIAN);
                                 } else {
                                     proto_tree_add_text(subtree3, tvb, q + 7, 1,
                                                         "Invalid Cookie Length of %u", ssa_v3_len);
@@ -2775,7 +2775,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                     break;
                                 }
                                 proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_session_id, tvb,
-                                                    q + 8, 4, FALSE);
+                                                    q + 8, 4, ENC_BIG_ENDIAN);
                                 if (ssa_v3_len)
                                     proto_tree_add_item(subtree3, hf_bgp_ssa_l2tpv3_cookie, tvb,
                                                         q + 12, ssa_v3_len, ENC_NA);

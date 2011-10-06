@@ -678,25 +678,25 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
 
         /* ToS */
         tos = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_tos, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_tos, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* TTL */
         ttl = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_ttl, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* IP-ID */
         id = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_id, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_id, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* IP flags */
         rnd = (tvb_get_guint8(tvb, offset) & 0x40) >> 6;
         nbo = (tvb_get_guint8(tvb, offset) & 0x20) >> 5;
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_df, tvb, offset, 1, FALSE);
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_rnd, tvb, offset, 1, FALSE);
-        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_nbo, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_df, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_rnd, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(dynamic_ipv4_tree, hf_pdcp_lte_rohc_dynamic_ipv4_nbo, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* TODO: general extension header list... */
         offset += 3;
@@ -723,14 +723,14 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
 
         /* 16-bit checksum */
         checksum = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(dynamic_udp_tree, hf_pdcp_lte_rohc_dynamic_udp_checksum, tvb, offset, 2, FALSE);
+        proto_tree_add_item(dynamic_udp_tree, hf_pdcp_lte_rohc_dynamic_udp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset +=2;
 
         if (p_pdcp_info->profile == 2) {
             guint16 seqnum;
 
             seqnum = tvb_get_ntohs(tvb, offset);
-            proto_tree_add_item(dynamic_udp_tree, hf_pdcp_lte_rohc_dynamic_udp_seqnum, tvb, offset, 2, FALSE);
+            proto_tree_add_item(dynamic_udp_tree, hf_pdcp_lte_rohc_dynamic_udp_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset +=2;
 
             /* Add summary to root item */
@@ -761,9 +761,9 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         /* TODO: */
         /* V | P | RX | CC */
         rx = tvb_get_guint8(tvb, offset) & 0x10;
-        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_rx, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_rx, tvb, offset, 1, ENC_BIG_ENDIAN);
         /*contributing_csrcs = tvb_get_guint8(tvb, offset) & 0x0f;*/
-        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_cc, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         /* TODO: */
@@ -772,12 +772,12 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
 
         /* Sequence number */
         sequence_number = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_seqnum, tvb, offset, 2, FALSE);
+        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Timestamp (4 octets) */
         timestamp = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_timestamp, tvb, offset, 4, FALSE);
+        proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* TODO: CSRC list */
@@ -788,7 +788,7 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
         if (rx) {
             guint8 this_byte = tvb_get_guint8(tvb, offset);
             proto_item *reserved_ti = proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_reserved3,
-                                                          tvb, offset, 1, FALSE);
+                                                          tvb, offset, 1, ENC_BIG_ENDIAN);
 
             /* Check reserved bits are 0 */
             if ((this_byte & 0xe0) != 0) {
@@ -796,12 +796,12 @@ static int dissect_pdcp_dynamic_chain(proto_tree *tree,
                                        "Reserved bits have value 0x%x - should be 0x0",
                                        (this_byte & 0xe0));
             }
-            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_x, tvb, offset, 1, FALSE);
-            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_mode, tvb, offset, 1, FALSE);
+            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_x, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
             tss = (this_byte & 0x02);
-            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_tss, tvb, offset, 1, FALSE);
+            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_tss, tvb, offset, 1, ENC_BIG_ENDIAN);
             tis = (this_byte & 0x01);
-            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_tis, tvb, offset, 1, FALSE);
+            proto_tree_add_item(dynamic_rtp_tree, hf_pdcp_lte_rohc_dynamic_rtp_tis, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
 
@@ -848,11 +848,11 @@ static int dissect_pdcp_irdyn_packet(proto_tree *tree,
     }
 
     /* Profile */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_profile, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* 8-bit CRC */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_ir_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_ir_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Dissect dynamic chain */
@@ -880,7 +880,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
     /* Is dynamic chain present? */
     dynamic_chain_present = tvb_get_guint8(tvb, offset) & 0x1;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_d, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_d, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Large CID */
@@ -889,11 +889,11 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
     }
 
     /* Profile */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_profile, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_profile, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* 8-bit CRC */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_ir_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_ir_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* IPv4 static part */
@@ -909,12 +909,12 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
         static_ipv4_tree = proto_item_add_subtree(root_ti, ett_pdcp_rohc_static_ipv4);
 
         /* IP version (must be 4) */
-        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_version, tvb, offset, 1, FALSE);
+        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Protocol */
         protocol = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_protocol, tvb, offset, 1, FALSE);
+        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_protocol, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* Source address */
@@ -952,12 +952,12 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
         /* Source port */
         source_port = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(static_udp_tree, hf_pdcp_lte_rohc_static_udp_src_port, tvb, offset, 2, FALSE);
+        proto_tree_add_item(static_udp_tree, hf_pdcp_lte_rohc_static_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Dest port */
         dest_port = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(static_udp_tree, hf_pdcp_lte_rohc_static_udp_src_port, tvb, offset, 2, FALSE);
+        proto_tree_add_item(static_udp_tree, hf_pdcp_lte_rohc_static_udp_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Set proper length for subtree */
@@ -979,7 +979,7 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
         /* SSRC */
         ssrc = tvb_get_ntohl(tvb, offset);
-        proto_tree_add_item(static_rtp_tree, hf_pdcp_lte_rohc_static_rtp_ssrc, tvb, offset, 4, FALSE);
+        proto_tree_add_item(static_rtp_tree, hf_pdcp_lte_rohc_static_rtp_ssrc, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* Add summary to root item */
@@ -1015,7 +1015,7 @@ static int dissect_pdcp_feedback_feedback1(proto_tree *tree,
 
     /* TODO: profile-specific */
     sn = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_feedback1, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_feedback1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, " (sn=%u)", sn);
@@ -1054,13 +1054,13 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
     /* Ack-type */
     first_octet = tvb_get_guint8(tvb, offset);
     ack_type = (first_octet & 0xc0) >> 6;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_ack_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_ack_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* TODO: expert info on NACK? */
 
     /* Mode */
     mode = (first_octet & 0x30) >> 4;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_mode, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Show ACK-TYPE(Mode) in info column */
     full_mode_name = val_to_str_const(mode, rohc_mode_vals, "Error");
@@ -1070,7 +1070,7 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
                     full_mode_name[0]);
 
     /* 11 bits of SN */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_sn, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_sn, tvb, offset, 2, ENC_BIG_ENDIAN);
     sn = tvb_get_ntohs(tvb, offset) & 0x7ff;
     offset += 2;
 
@@ -1086,8 +1086,8 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
 
         /* Preference setting controls showing option and lengths */
         if (global_pdcp_show_feedback_option_tag_length) {
-            proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option, tvb, offset, 1, FALSE);
-            proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_length, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_length, tvb, offset, 1, ENC_BIG_ENDIAN);
         }
         offset++;
         size_remaining--;
@@ -1097,7 +1097,7 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
             case 1:
                 /* CRC */
                 one_byte_value = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_crc, tvb, offset, 1, FALSE);
+                proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " CRC=%u ", one_byte_value);
                 break;
             case 2:
@@ -1109,13 +1109,13 @@ static int dissect_pdcp_feedback_feedback2(proto_tree *tree,
             case 4:
                 /* SN */
                 one_byte_value = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option_sn, tvb, offset, 1, FALSE);
+                proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " SN=%u ", one_byte_value);
                 break;
             case 5:
                 /* Clock */
                 one_byte_value = tvb_get_guint8(tvb, offset);
-                proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option_clock, tvb, offset, 1, FALSE);
+                proto_tree_add_item(tree, hf_pdcp_lte_rohc_feedback_option_clock, tvb, offset, 1, ENC_BIG_ENDIAN);
                 col_append_fstr(pinfo->cinfo, COL_INFO, " Clock=%u ", one_byte_value);
                 break;
             case 6:
@@ -1172,7 +1172,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
         size = code;
     }
     else {
-        proto_tree_add_item(feedback_tree, hf_pdcp_lte_rohc_feedback_size, tvb, offset, 1, FALSE);
+        proto_tree_add_item(feedback_tree, hf_pdcp_lte_rohc_feedback_size, tvb, offset, 1, ENC_BIG_ENDIAN);
         size = tvb_get_guint8(tvb, offset);
         offset++;
     }
@@ -1187,7 +1187,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
         }
         else if ((size > 1) && ((tvb_get_guint8(tvb, offset) & 0xc0) == 0xc0)) {
             /* Add-CID here! */
-            proto_tree_add_item(feedback_tree, hf_pdcp_lte_rohc_add_cid, tvb, offset, 1, FALSE);
+            proto_tree_add_item(feedback_tree, hf_pdcp_lte_rohc_add_cid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
 
             if (size == 2) {
@@ -1225,7 +1225,7 @@ static int dissect_pdcp_r_0_packet(proto_tree *tree,
 
     /* 6 bits of sn */
     sn = tvb_get_guint8(tvb, offset) & 0x3f;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_r0_sn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_r0_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Large CID */
@@ -1270,7 +1270,7 @@ static int dissect_pdcp_r_0_crc_packet(proto_tree *tree,
     proto_tree_add_uint(tree, hf_pdcp_lte_rohc_r0_crc_sn, tvb, offset, 1, sn);
 
     /* 7 bit CRC */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_r0_crc_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_r0_crc_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Show SN in info column */
@@ -1296,10 +1296,10 @@ static int dissect_pdcp_uo_0_packet(proto_tree *tree,
 
     /* SN */
     sn = (tvb_get_guint8(tvb, offset) & 0x78) >> 3;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_uo0_sn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_uo0_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* CRC (3 bits) */
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_uo0_crc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_uo0_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -1367,7 +1367,7 @@ static int  dissect_pdcp_r_1_ts_or_id_packet(proto_tree *tree,
 
     /* T determines frame type */
     T = tvb_get_guint8(tvb, ++offset) >> 7;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_type1_t, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_type1_t, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (T) {
         col_append_str(pinfo->cinfo, COL_INFO, " R-1-TS");
         proto_item_append_text(root_item, " (R-1-TS)");
@@ -1440,7 +1440,7 @@ static int  dissect_pdcp_uo_1_ts_or_id_packet(proto_tree *tree,
 
     /* T determines frame type */
     T = tvb_get_guint8(tvb, ++offset) >> 5;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_type0_t, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_type0_t, tvb, offset, 1, ENC_BIG_ENDIAN);
     if (T) {
         col_append_str(pinfo->cinfo, COL_INFO, " UO-1-TS");
         proto_item_append_text(root_item, " (UO-1-TS)");
@@ -1493,14 +1493,14 @@ static int  dissect_pdcp_uor_2_packet(proto_tree *tree,
 
     if (p_pdcp_info->profile == 1) {
         /* M */
-        proto_tree_add_item(tree, hf_pdcp_lte_rohc_m, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_pdcp_lte_rohc_m, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* SN (6 bits) */
-        proto_tree_add_item(tree, hf_pdcp_lte_rohc_uor2_sn, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_pdcp_lte_rohc_uor2_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* X (one bit) */
-        proto_tree_add_item(tree, hf_pdcp_lte_rohc_uor2_x, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_pdcp_lte_rohc_uor2_x, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* TODO: CRC */
         offset++;
@@ -1532,7 +1532,7 @@ static int  dissect_pdcp_uor_2_ts_or_id_packet(proto_tree *tree,
 
     /* T determines frame type */
     T = tvb_get_guint8(tvb, offset) >> 7;
-    proto_tree_add_item(tree, hf_pdcp_lte_rohc_type2_t, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pdcp_lte_rohc_type2_t, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     if (T) {
         col_append_str(pinfo->cinfo, COL_INFO, " U0R-2-TS");
@@ -1957,7 +1957,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             /* 5-bit sequence number */
             seqnum = tvb_get_guint8(tvb, offset) & 0x1f;
             seqnum_set = TRUE;
-            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, FALSE);
+            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_5, tvb, offset, 1, ENC_BIG_ENDIAN);
             write_pdu_label_and_info(root_ti, pinfo, " sn=%-2u ", seqnum);
             offset++;
 
@@ -1991,7 +1991,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             /* Last 4 bytes are MAC */
             mac = tvb_get_ntohl(tvb, offset);
-            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, tvb, offset, 4, FALSE);
+            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_mac, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
 
             col_append_fstr(pinfo->cinfo, COL_INFO, " MAC=0x%08x (%u bytes data)",
@@ -2005,7 +2005,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             gboolean pdu_type = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
 
             /* Data/Control flag */
-            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_data_control, tvb, offset, 1, FALSE);
+            proto_tree_add_item(pdcp_tree, hf_pdcp_lte_data_control, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             if (pdu_type == 1) {
                 /*****************************/
@@ -2015,7 +2015,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_7_BITS) {
                     seqnum = tvb_get_guint8(tvb, offset) & 0x7f;
                     seqnum_set = TRUE;
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_7, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_7, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset++;
                 }
                 else if (p_pdcp_info->seqnum_length == PDCP_SN_LENGTH_12_BITS) {
@@ -2023,7 +2023,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     guint8 reserved_value;
 
                     /* 3 reserved bits */
-                    ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_reserved3, tvb, offset, 1, FALSE);
+                    ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_reserved3, tvb, offset, 1, ENC_BIG_ENDIAN);
                     reserved_value = (tvb_get_guint8(tvb, offset) & 0x70) >> 4;
 
                     /* Complain if not 0 */
@@ -2036,7 +2036,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     /* 12-bit sequence number */
                     seqnum = tvb_get_ntohs(tvb, offset) & 0x0fff;
                     seqnum_set = TRUE;
-                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_12, tvb, offset, 2, FALSE);
+                    proto_tree_add_item(pdcp_tree, hf_pdcp_lte_seq_num_12, tvb, offset, 2, ENC_BIG_ENDIAN);
                     offset += 2;
                 }
                 else {
@@ -2050,7 +2050,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 /*******************************/
                 /* User-plane Control messages */
                 guint8 control_pdu_type = (tvb_get_guint8(tvb, offset) & 0x70) >> 4;
-                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_pdu_type, tvb, offset, 1, FALSE);
+                proto_tree_add_item(pdcp_tree, hf_pdcp_lte_control_pdu_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
                 switch (control_pdu_type) {
                     case 0:    /* PDCP status report */
@@ -2065,7 +2065,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             fms = tvb_get_ntohs(tvb, offset) & 0x0fff;
                             sn = (fms + 1) % 4096;
                             proto_tree_add_item(pdcp_tree, hf_pdcp_lte_fms, tvb,
-                                                offset, 2, FALSE);
+                                                offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
 
                             /* Bitmap tree */
@@ -2216,7 +2216,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
         !p_pdcp_info->large_cid_present)
     {
         if (((tvb_get_guint8(tvb, offset) >> 4) & 0x0f) == 0x0e) {
-            proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_add_cid, tvb, offset, 1, FALSE);
+            proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_add_cid, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
         else {
@@ -2341,13 +2341,13 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
     /* IP-ID */
     if (p_pdcp_info->rnd && ip_id_needed) {
-        proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_ip_id, tvb, offset, 2, FALSE);
+        proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_ip_id, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
     /* UDP Checksum */
     if (p_pdcp_info->udp_checkum_present && udp_checksum_needed) {
-        proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_udp_checksum, tvb, offset, 2, FALSE);
+        proto_tree_add_item(rohc_tree, hf_pdcp_lte_rohc_udp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 

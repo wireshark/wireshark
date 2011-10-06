@@ -166,14 +166,14 @@ dissect_spp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Datastream Type: 0x%02X",
 						   datastream_type);
 		}
-		proto_tree_add_item(spp_tree, hf_spp_src_id, tvb,  2, 2, FALSE);
-		proto_tree_add_item(spp_tree, hf_spp_dst_id, tvb,  4, 2, FALSE);
+		proto_tree_add_item(spp_tree, hf_spp_src_id, tvb,  2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(spp_tree, hf_spp_dst_id, tvb,  4, 2, ENC_BIG_ENDIAN);
 	}
 	spp_seq = tvb_get_ntohs(tvb, 6);
 	if (tree) {
 		proto_tree_add_uint(spp_tree, hf_spp_seq_nr, tvb,  6, 2, spp_seq);
-		proto_tree_add_item(spp_tree, hf_spp_ack_nr, tvb,  8, 2, FALSE);
-		proto_tree_add_item(spp_tree, hf_spp_all_nr, tvb, 10, 2, FALSE);
+		proto_tree_add_item(spp_tree, hf_spp_ack_nr, tvb,  8, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(spp_tree, hf_spp_all_nr, tvb, 10, 2, ENC_BIG_ENDIAN);
 	}
 
 	if (tvb_reported_length_remaining(tvb, SPP_HEADER_LEN) > 0) {

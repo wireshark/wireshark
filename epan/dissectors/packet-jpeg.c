@@ -94,15 +94,15 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_main_hdr, tvb, offset, 8, ENC_NA);
 		main_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
 
-		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_ts, tvb, offset, 1, FALSE);
+		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_ts, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
-		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_offs, tvb, offset, 3, FALSE);
+		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_offs, tvb, offset, 3, ENC_BIG_ENDIAN);
 		fragment_offset = tvb_get_ntoh24(tvb, offset);
 		offset += 3;
-		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		type = tvb_get_guint8(tvb, offset);
 		offset += 1;
-		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_q, tvb, offset, 1, FALSE);
+		proto_tree_add_item(main_hdr_tree, hf_rtp_jpeg_main_hdr_q, tvb, offset, 1, ENC_BIG_ENDIAN);
 		q = tvb_get_guint8(tvb, offset);
 		offset += 1;
 		w = tvb_get_guint8(tvb, offset) * 8;
@@ -115,22 +115,22 @@ dissect_jpeg( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		if (type >= 64 && type <= 127) {
 			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_restart_hdr, tvb, offset, 4, ENC_NA);
 			restart_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
-			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_interval, tvb, offset, 2, FALSE);
+			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
-			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_f, tvb, offset, 2, FALSE);
-			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_l, tvb, offset, 2, FALSE);
-			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_count, tvb, offset, 2, FALSE);
+			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_f, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_l, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(restart_hdr_tree, hf_rtp_jpeg_restart_hdr_count, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 
 		if (q >= 128 && fragment_offset == 0) {
 			ti = proto_tree_add_item(jpeg_tree, hf_rtp_jpeg_qtable_hdr, tvb, offset, -1, ENC_NA);
 			qtable_hdr_tree = proto_item_add_subtree(ti, ett_jpeg);
-			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_mbz, tvb, offset, 1, FALSE);
+			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_mbz, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
-			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_prec, tvb, offset, 1, FALSE);
+			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_prec, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
-			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_length, tvb, offset, 2, FALSE);
+			proto_tree_add_item(qtable_hdr_tree, hf_rtp_jpeg_qtable_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 			len = tvb_get_ntohs(tvb, offset);
 			offset += 2;
 			if (len > 0) {

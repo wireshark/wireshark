@@ -149,24 +149,24 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
         turbocell_tree = proto_item_add_subtree(ti, ett_turbocell);
 
-        proto_tree_add_item(turbocell_tree, hf_turbocell_type, tvb, 0, 1, FALSE);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_satmode, tvb, 1, 1, FALSE);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_nwid, tvb, 1, 1, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_satmode, tvb, 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_nwid, tvb, 1, 1, ENC_BIG_ENDIAN);
 
         /* it seem when we have this magic number,that means an alternate header version */
 
         if (tvb_get_bits64(tvb, 64,48,FALSE) != G_GINT64_CONSTANT(0x000001fe23dc45ba)){ 
-        proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x02, 2, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x02, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x04, 6, FALSE);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x0A, 3, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x0A, 3, ENC_BIG_ENDIAN);
 
         } else {
-        proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x02, 3, FALSE);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x05, 3, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_timestamp, tvb, 0x02, 3, ENC_BIG_ENDIAN);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_counter, tvb, 0x05, 3, ENC_BIG_ENDIAN);
         proto_tree_add_item(turbocell_tree, hf_turbocell_dst, tvb, 0x08, 6, FALSE);
         }
 
-        proto_tree_add_item(turbocell_tree, hf_turbocell_unknown, tvb, 0x0E, 2, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_unknown, tvb, 0x0E, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(turbocell_tree, hf_turbocell_ip, tvb, 0x10, 4, FALSE);
 
     }
@@ -212,8 +212,8 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                 parent_item = proto_tree_add_protocol_format(tree, proto_aggregate, next_tvb, 0,
                               tvb_reported_length_remaining(next_tvb, 0), "Turbocell Aggregate Frames");
                 mpdu_tree = proto_item_add_subtree(parent_item, ett_msdu_aggregation_parent_tree);
-                proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_len, next_tvb, 0x00, 2, FALSE);
-                proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_unknown1, next_tvb, 0x02, 2, FALSE);
+                proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_len, next_tvb, 0x00, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(mpdu_tree, hf_turbocell_aggregate_unknown1, next_tvb, 0x02, 2, ENC_BIG_ENDIAN);
 
                 remaining_length=tvb_length_remaining(next_tvb, msdu_offset);
 

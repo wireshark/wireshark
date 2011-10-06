@@ -646,7 +646,7 @@ dissect_connect_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	guint32 version;
 
 	/* version number */
-	proto_tree_add_item(tree, hf_ndmp_version, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_version, tvb, offset, 4, ENC_BIG_ENDIAN);
 	version=tvb_get_ntohl(tvb, offset);
 	ndmp_conv_data->version=version;
 	offset += 4;
@@ -662,7 +662,7 @@ dissect_error(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* error */
 	err=tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_error, tvb, offset, 4, ENC_BIG_ENDIAN);
 	if(err && check_col(pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(pinfo->cinfo, COL_INFO,
 			" NDMP Error:%s ",
@@ -717,7 +717,7 @@ static int
 dissect_ndmp_addr_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -758,7 +758,7 @@ static int
 dissect_auth_type(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ndmp_auth_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_auth_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -781,7 +781,7 @@ dissect_auth_attr_msg(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	type=tvb_get_ntohl(tvb,offset);
 
 	/* auth type */
-	proto_tree_add_item(tree, hf_ndmp_auth_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_auth_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	switch(type){
@@ -1212,7 +1212,7 @@ dissect_ext_version(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree) {
 
 	/* extension version */
-	proto_tree_add_item(tree, hf_ndmp_ext_version, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_ext_version, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1224,7 +1224,7 @@ dissect_class_list(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		proto_tree *tree) {
 
 	/* class id */
-	proto_tree_add_item(tree, hf_ndmp_ex_class_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_ex_class_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ext version */
@@ -1254,11 +1254,11 @@ dissect_class_version(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree) {
 
 	/* class id */
-	proto_tree_add_item(tree, hf_ndmp_ex_class_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_ex_class_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ext version */
-	proto_tree_add_item(tree, hf_ndmp_ex_class_version, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_ex_class_version, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1311,15 +1311,15 @@ dissect_scsi_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* controller */
-	proto_tree_add_item(tree, hf_ndmp_scsi_controller, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_scsi_controller, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* id */
-	proto_tree_add_item(tree, hf_ndmp_scsi_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_scsi_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* lun */
-	proto_tree_add_item(tree, hf_ndmp_scsi_lun, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_scsi_lun, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1334,15 +1334,15 @@ dissect_scsi_set_state_request(tvbuff_t *tvb, int offset,
 			hf_ndmp_scsi_device, offset, NULL);
 
 	/* controller */
-	proto_tree_add_item(tree, hf_ndmp_scsi_controller, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_scsi_controller, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* id */
-	proto_tree_add_item(tree, hf_ndmp_scsi_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_scsi_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* lun */
-	proto_tree_add_item(tree, hf_ndmp_scsi_lun, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_scsi_lun, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1508,7 +1508,7 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset += 4;
 
 	/* datain_len */
-	proto_tree_add_item(tree, hf_ndmp_execute_cdb_datain_len, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_datain_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* CDB */
@@ -1578,7 +1578,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* status */
-	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 	status=tvb_get_ntohl(tvb, offset);
 	if(ndmp_conv_data->task && ndmp_conv_data->task->itlq){
 		dissect_scsi_rsp(tvb, pinfo, top_tree, ndmp_conv_data->task->itlq, get_itl_nexus(pinfo, FALSE), (guint8)status);
@@ -1587,7 +1587,7 @@ dissect_execute_cdb_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 
 	/* dataout_len */
-	proto_tree_add_item(tree, hf_ndmp_execute_cdb_dataout_len, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_dataout_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* datain */
@@ -1617,7 +1617,7 @@ dissect_tape_open_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			hf_ndmp_tape_device, offset, NULL);
 
 	/* open mode */
-	proto_tree_add_item(tree, hf_ndmp_tape_open_mode, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_open_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	if(!pinfo->fd->flags.visited){
@@ -1750,19 +1750,19 @@ dissect_tape_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_tape_flags(tvb, offset, pinfo, tree);
 
 	/* file_num */
-	proto_tree_add_item(tree, hf_ndmp_tape_file_num, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_file_num, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* soft_errors */
-	proto_tree_add_item(tree, hf_ndmp_tape_soft_errors, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_soft_errors, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* block_size */
-	proto_tree_add_item(tree, hf_ndmp_tape_block_size, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_block_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* block_no */
-	proto_tree_add_item(tree, hf_ndmp_tape_block_no, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_block_no, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* total_space */
@@ -1778,7 +1778,7 @@ dissect_tape_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		return offset;
 
 	/* partition */
-	proto_tree_add_item(tree, hf_ndmp_tape_partition, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_partition, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1807,11 +1807,11 @@ dissect_tape_mtio_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* op */
-	proto_tree_add_item(tree, hf_ndmp_tape_mtio_op, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_tape_mtio_op, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* count */
-	proto_tree_add_item(tree, hf_ndmp_count, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_count, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1825,7 +1825,7 @@ dissect_tape_mtio_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* resid count */
-	proto_tree_add_item(tree, hf_ndmp_resid_count, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_resid_count, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -1898,7 +1898,7 @@ dissect_ndmp_v4_tcp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
 	offset+=4;
 
 	/* TCP port */
-	proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 	/* addr_env */
@@ -1924,7 +1924,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	}
 
 	/*address type*/
-	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 
@@ -1939,7 +1939,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			offset+=4;
 
 			/* TCP port */
-			proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_ndmp_addr_tcp, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
 		} else {
 			offset = dissect_rpc_array(tvb, pinfo, tree, offset,
@@ -1950,7 +1950,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		break;
 	case NDMP_ADDR_FC:
 		/* FCAL loop id */
-		proto_tree_add_item(tree, hf_ndmp_addr_fcal_loop_id, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_ndmp_addr_fcal_loop_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
 		break;
@@ -1982,48 +1982,48 @@ dissect_mover_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	/* mode is only present in version 4 and beyond */
 	if(get_ndmp_protocol_version()>=NDMP_PROTOCOL_V4){
-		proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 
 	/* mover state */
-	proto_tree_add_item(tree, hf_ndmp_mover_state, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_mover_state, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* mover pause */
-	proto_tree_add_item(tree, hf_ndmp_mover_pause, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_mover_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* halt */
-	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* record size */
-	proto_tree_add_item(tree, hf_ndmp_record_size, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_record_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* record num */
-	proto_tree_add_item(tree, hf_ndmp_record_num, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_record_num, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* data written */
-	proto_tree_add_item(tree, hf_ndmp_data_written, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_data_written, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* seek position */
-	proto_tree_add_item(tree, hf_ndmp_seek_position, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_seek_position, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* bytes left to read */
-	proto_tree_add_item(tree, hf_ndmp_bytes_left_to_read, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_bytes_left_to_read, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* window offset */
-	proto_tree_add_item(tree, hf_ndmp_window_offset, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_window_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* window length */
-	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* this is where v2 ends */
@@ -2053,11 +2053,11 @@ dissect_mover_listen_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* mode */
-	proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/*address type*/
-	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_addr_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -2081,11 +2081,11 @@ dissect_mover_set_window_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
 {
 	/* window offset */
-	proto_tree_add_item(tree, hf_ndmp_window_offset, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_window_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* window length */
-	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	return offset;
@@ -2096,7 +2096,7 @@ dissect_mover_set_record_size_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
 {
 	/* record size */
-	proto_tree_add_item(tree, hf_ndmp_record_size, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_record_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -2107,7 +2107,7 @@ dissect_mover_connect_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* mode */
-	proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_mover_mode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ndmp addr */
@@ -2147,11 +2147,11 @@ dissect_log_message_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* type */
-	proto_tree_add_item(tree, hf_ndmp_log_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_log_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* message id */
-	proto_tree_add_item(tree, hf_ndmp_log_message_id, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_log_message_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* message */
@@ -2166,7 +2166,7 @@ dissect_notify_data_halted_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
 {
 	/* halt */
-	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	switch(get_ndmp_protocol_version()){
@@ -2186,7 +2186,7 @@ dissect_notify_mover_halted_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
 {
 	/* halt */
-	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_halt, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	switch(get_ndmp_protocol_version()){
@@ -2216,11 +2216,11 @@ dissect_notify_connected_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
 {
 	/* connected */
-	proto_tree_add_item(tree, hf_ndmp_connected, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_connected, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* version number */
-	proto_tree_add_item(tree, hf_ndmp_version, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_version, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* reason */
@@ -2236,11 +2236,11 @@ dissect_notify_mover_paused_request(tvbuff_t *tvb, int offset,
     packet_info *pinfo _U_, proto_tree *tree, guint32 seq _U_)
 {
 	/* mover pause */
-	proto_tree_add_item(tree, hf_ndmp_mover_pause, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_mover_pause, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* seek position */
-	proto_tree_add_item(tree, hf_ndmp_seek_position, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_seek_position, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	return offset;
@@ -2255,7 +2255,7 @@ dissect_auth_data(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	type=tvb_get_ntohl(tvb,offset);
 
 	/* auth type */
-	proto_tree_add_item(tree, hf_ndmp_auth_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_auth_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	switch(type){
@@ -2324,7 +2324,7 @@ dissect_tape_write_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* count */
-	proto_tree_add_item(tree, hf_ndmp_count, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_count, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -2335,7 +2335,7 @@ dissect_tape_read_request(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
     proto_tree *tree, guint32 seq _U_)
 {
 	/* count */
-	proto_tree_add_item(tree, hf_ndmp_count, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_count, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -2381,7 +2381,7 @@ dissect_file_name(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *par
 
 	/* file type */
 	type=tvb_get_ntohl(tvb, offset);
-	proto_tree_add_item(tree, hf_ndmp_file_fs_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_fs_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	switch(type){
@@ -2502,11 +2502,11 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	offset = dissect_file_invalids(tvb, offset, pinfo, tree);
 
 	/* file fs type */
-	proto_tree_add_item(tree, hf_ndmp_file_fs_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_fs_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* file type */
-	proto_tree_add_item(tree, hf_ndmp_file_type, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* mtime */
@@ -2546,7 +2546,7 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 			offset);
 
 	/* links */
-	proto_tree_add_item(tree, hf_ndmp_file_links, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_links, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	proto_item_set_len(item, offset-old_offset);
@@ -2576,11 +2576,11 @@ dissect_file(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *parent_t
 			dissect_file_stats, hf_ndmp_file_stats);
 
 	/* node */
-	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* fh_info */
-	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	proto_item_set_len(item, offset-old_offset);
@@ -2606,11 +2606,11 @@ dissect_dir(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			dissect_file_name, hf_ndmp_file_names);
 
 	/* node */
-	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* parent */
-	proto_tree_add_item(tree, hf_ndmp_file_parent, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_parent, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	return offset;
@@ -2635,11 +2635,11 @@ dissect_node(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 			dissect_file_stats, hf_ndmp_file_stats);
 
 	/* node */
-	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* fh_info */
-	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	return offset;
@@ -2697,12 +2697,12 @@ dissect_nlist(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			hf_ndmp_bu_other_name, offset, NULL);
 
 		/* node */
-		proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, FALSE);
+		proto_tree_add_item(tree, hf_ndmp_file_node, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 	}
 
 	/* fh_info */
-	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_fh_info, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	return offset;
@@ -2831,15 +2831,15 @@ dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_error(tvb, offset, pinfo, tree, seq);
 
 	/* operation */
-	proto_tree_add_item(tree, hf_ndmp_bu_operation, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_bu_operation, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* state */
-	proto_tree_add_item(tree, hf_ndmp_data_state, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_data_state, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* halted reason */
-	proto_tree_add_item(tree, hf_ndmp_data_halted, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_data_halted, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/*bytes processed*/
@@ -2860,11 +2860,11 @@ dissect_data_get_state_reply(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset=dissect_ndmp_addr(tvb, offset, pinfo, tree);
 
 	/* window offset */
-	proto_tree_add_item(tree, hf_ndmp_window_offset, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_window_offset, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* window length */
-	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_window_length, tvb, offset, 8, ENC_BIG_ENDIAN);
 	offset += 8;
 
 	return offset;

@@ -96,8 +96,8 @@ static void dissect_igrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_text(igrp_tree,  tvb, 0,1,"IGRP Version  : %d %s",version,(version==1?" ":" -  Unknown Version, The dissection may be inaccurate"));
     proto_tree_add_text(igrp_tree,  tvb, 0,1,"Command       : %d %s",opcode,(opcode==1?"(Response)":"(Request)"));
-    proto_tree_add_item(igrp_tree, hf_igrp_update, tvb, 1,1, FALSE);
-    proto_tree_add_item(igrp_tree, hf_igrp_as, tvb, 2,2, FALSE);
+    proto_tree_add_item(igrp_tree, hf_igrp_update, tvb, 1,1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(igrp_tree, hf_igrp_as, tvb, 2,2, ENC_BIG_ENDIAN);
 
     ninterior = tvb_get_ntohs(tvb,4);
     nsystem = tvb_get_ntohs(tvb,6);

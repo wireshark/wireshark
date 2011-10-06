@@ -547,26 +547,26 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
     case 1:
         aitem = proto_tree_add_text(ncp_tree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Packet Type: %s", val_to_str(subfunc, sss_func_enum, "Unknown (%d)"));
         atree = proto_item_add_subtree(aitem, ett_sss);
-        proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
-        proto_tree_add_item(atree, hf_flags, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         break;
     case 2:
-        proto_tree_add_item(ncp_tree, hf_frag_handle, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(ncp_tree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         if (tvb_get_letohl(tvb, foffset)==0xffffffff) /* Fragment handle of -1 means no fragment. So process packet */
         {
             foffset += 4;
-            proto_tree_add_item(ncp_tree, hf_buffer_size, tvb, foffset, 4, TRUE);
+            proto_tree_add_item(ncp_tree, hf_buffer_size, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
-            proto_tree_add_item(ncp_tree, hf_length, tvb, foffset, 4, TRUE);
+            proto_tree_add_item(ncp_tree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
             foffset += 12; /* Blank Context */
             subverb = tvb_get_letohl(tvb, foffset);
             if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", val_to_str(subverb, sss_verb_enum, "Unknown (%d)"));
             }
-            aitem = proto_tree_add_item(ncp_tree, hf_verb, tvb, foffset, 4, TRUE);
+            aitem = proto_tree_add_item(ncp_tree, hf_verb, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             atree = proto_item_add_subtree(aitem, ett_sss);
             if (request_value) {
                 request_value->req_nds_flags=subverb;
@@ -574,7 +574,7 @@ dissect_sss_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, ncp
             foffset += 4;
             process_flags(atree, tvb, foffset);
             foffset += 4;
-            proto_tree_add_item(atree, hf_context, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_context, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
             switch (subverb) {
             case 0:
@@ -691,9 +691,9 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
     atree = proto_item_add_subtree(aitem, ett_sss);
     switch (subfunc) {
     case 1:
-        proto_tree_add_item(atree, hf_flags, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
-        proto_tree_add_item(atree, hf_sss_version, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_sss_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         break;
     case 2:
@@ -704,11 +704,11 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
                 proto_tree_add_text(atree, tvb, foffset, tvb_length_remaining(tvb, foffset), "Verb: %s", str);
             }
         }
-        proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
         return_code = tvb_get_ntohl(tvb, foffset+msg_length);
         foffset += 4;
-        proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         msg_length -= 4;
         if ((tvb_get_letohl(tvb, foffset-4)==0xffffffff) && (msg_length > 4))
@@ -718,7 +718,7 @@ dissect_sss_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guint
             str = match_strval(return_code, sss_errors_enum);
             if (str)
             {
-                expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, TRUE);
+                expert_item = proto_tree_add_item(atree, hf_return_code, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "SSS Error: %s", str);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                    col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", val_to_str(return_code, sss_errors_enum, "Unknown (%d)"));

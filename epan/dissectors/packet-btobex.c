@@ -343,7 +343,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 		hdr = proto_tree_add_text(hdrs_tree, tvb, offset, item_length, "%s", val_to_str(hdr_id, header_id_vals, "Unknown"));
 		hdr_tree=proto_item_add_subtree(hdr, ett_btobex_hdr);
 
-		proto_tree_add_item(hdr_tree, hf_hdr_id, tvb, offset, 1, FALSE);
+		proto_tree_add_item(hdr_tree, hf_hdr_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset++;
 
@@ -351,7 +351,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 		{
 			case 0x00: /* null terminated unicode */
 				{
-					proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, FALSE);
+					proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 
 					if( (item_length - 3) > 0 ) {
@@ -369,7 +369,7 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 				}
 				break;
 			case 0x40:  /* byte sequence */
-				proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, FALSE);
+				proto_tree_add_item(hdr_tree, hf_hdr_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 
 				handle_item = proto_tree_add_item(hdr_tree, hf_hdr_val_byte_seq, tvb, offset, item_length - 3, ENC_NA);
@@ -400,12 +400,12 @@ dissect_headers(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo)
 				break;
 			case 0x80:  /* 1 byte */
 				proto_item_append_text(hdr_tree, " (%i)", tvb_get_ntohl(tvb, offset));
-				proto_tree_add_item(hdr_tree, hf_hdr_val_byte, tvb, offset, 1, FALSE);
+				proto_tree_add_item(hdr_tree, hf_hdr_val_byte, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				break;
 			case 0xc0:  /* 4 bytes */
 				proto_item_append_text(hdr_tree, " (%i)", tvb_get_ntohl(tvb, offset));
-				proto_tree_add_item(hdr_tree, hf_hdr_val_long, tvb, offset, 4, FALSE);
+				proto_tree_add_item(hdr_tree, hf_hdr_val_long, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				break;
 			default:
@@ -511,31 +511,31 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                val_to_str(code, code_vals, "Unknown"));
 
 		if( (code < BTOBEX_CODE_VALS_CONTINUE) || (code == BTOBEX_CODE_VALS_ABORT)) {
-			proto_tree_add_item(st, hf_opcode, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_opcode, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			if (pinfo->p2p_dir == P2P_DIR_SENT || pinfo->p2p_dir == P2P_DIR_RECV) {
 				last_opcode[pinfo->p2p_dir] = code;
 			}
         	}
 		else	{
-			proto_tree_add_item(st, hf_response_code, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_response_code, next_tvb, offset, 1, ENC_BIG_ENDIAN);
         	}
 		proto_tree_add_item(st, hf_final_flag, next_tvb, offset, 1, FALSE);
 		offset++;
 
 		/* length */
-		proto_tree_add_item(st, hf_length, next_tvb, offset, 2, FALSE);
+		proto_tree_add_item(st, hf_length, next_tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		switch(code)
 		{
 		case BTOBEX_CODE_VALS_CONNECT:
-			proto_tree_add_item(st, hf_version, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_version, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(st, hf_max_pkt_len, next_tvb, offset, 2, FALSE);
+			proto_tree_add_item(st, hf_max_pkt_len, next_tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			break;
 
@@ -545,12 +545,12 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			break;
 
 		case BTOBEX_CODE_VALS_SET_PATH:
-			proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(st, hf_set_path_flags_0, next_tvb, offset, 1, FALSE);
 			proto_tree_add_item(st, hf_set_path_flags_1, next_tvb, offset, 1, FALSE);
 			offset++;
 
-			proto_tree_add_item(st, hf_constants, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_constants, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			break;
 
@@ -563,13 +563,13 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				guint8 response_opcode = last_opcode[(pinfo->p2p_dir + 1) & 0x01];
 
 				if(response_opcode == BTOBEX_CODE_VALS_CONNECT) {
-					proto_tree_add_item(st, hf_version, next_tvb, offset, 1, FALSE);
+					proto_tree_add_item(st, hf_version, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
-					proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, FALSE);
+					proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset++;
 
-					proto_tree_add_item(st, hf_max_pkt_len, next_tvb, offset, 2, FALSE);
+					proto_tree_add_item(st, hf_max_pkt_len, next_tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 				}
 			}

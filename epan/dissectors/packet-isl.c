@@ -165,18 +165,18 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
     hidden_item = proto_tree_add_item(fh_tree, hf_isl_addr, tvb, 0, 6, FALSE);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     dst_tree = proto_item_add_subtree(ti, ett_isl_dst);
-    proto_tree_add_item(dst_tree, hf_isl_type, tvb, 5, 1, FALSE);
+    proto_tree_add_item(dst_tree, hf_isl_type, tvb, 5, 1, ENC_BIG_ENDIAN);
 
     switch (type) {
 
     case TYPE_ETHER:
-      proto_tree_add_item(dst_tree, hf_isl_user_eth, tvb, 5, 1, FALSE);
+      proto_tree_add_item(dst_tree, hf_isl_user_eth, tvb, 5, 1, ENC_BIG_ENDIAN);
       break;
 
     default:
       /* XXX - the spec appears to indicate that the "User" field is
          used for TYPE_TR to distinguish between types of packets. */
-      proto_tree_add_item(dst_tree, hf_isl_user, tvb, 5, 1, FALSE);
+      proto_tree_add_item(dst_tree, hf_isl_user, tvb, 5, 1, ENC_BIG_ENDIAN);
       break;
     }
     proto_tree_add_item(fh_tree, hf_isl_src, tvb, 6, 6, FALSE);
@@ -235,14 +235,14 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
     /* ...but this is the manufacturer's ID portion of the source address
        field (which is, admittedly, an OUI). */
-    proto_tree_add_item(fh_tree, hf_isl_hsa, payload_tvb, 3, 3, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_hsa, payload_tvb, 3, 3, ENC_BIG_ENDIAN);
   }
   col_add_fstr(pinfo->cinfo, COL_INFO, "VLAN ID: %u",
 	       tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
-    proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, FALSE);
-    proto_tree_add_item(fh_tree, hf_isl_index, payload_tvb, 8, 2, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_index, payload_tvb, 8, 2, ENC_BIG_ENDIAN);
   }
 
   switch (type) {
@@ -310,13 +310,13 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 
   case TYPE_TR:
     if (tree) {
-      proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, payload_tvb, 10, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, payload_tvb, 10, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(fh_tree, hf_isl_explorer, payload_tvb, 10, 2, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, payload_tvb, 12, 2, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, payload_tvb, 14, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, payload_tvb, 12, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, payload_tvb, 14, 2, ENC_BIG_ENDIAN);
       /* This doesn't appear to be present in at least one capture I've seen. */
       proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, payload_tvb, 16, 1, FALSE);
-      proto_tree_add_item(fh_tree, hf_isl_esize, payload_tvb, 16, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_esize, payload_tvb, 16, 1, ENC_BIG_ENDIAN);
     }
     next_tvb = tvb_new_subset_remaining(payload_tvb, 17);
     call_dissector(tr_handle, next_tvb, pinfo, tree);

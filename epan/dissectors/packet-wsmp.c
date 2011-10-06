@@ -77,32 +77,32 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 offset = 0;
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_version, tvb, offset, 1, FALSE);
+                                hf_wsmp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_security, tvb, offset, 1, FALSE);
+                                hf_wsmp_security, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_channel, tvb, offset, 1, FALSE);
+                                hf_wsmp_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_rate, tvb, offset, 1, FALSE);
+                                hf_wsmp_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_txpower, tvb, offset, 1, FALSE);
+                                hf_wsmp_txpower, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_appclass, tvb, offset, 1, FALSE);
+                                hf_wsmp_appclass, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 
                 acmlength = tvb_get_guint8(tvb,offset);
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_acmlength, tvb, offset, 1, FALSE);
+                                hf_wsmp_acmlength, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 				
                 proto_tree_add_item(wsmp_tree, hf_wsmp_acm, tvb, offset, acmlength, FALSE);
@@ -110,7 +110,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 wsmlength = tvb_get_letohs( tvb, offset);
                 proto_tree_add_item(wsmp_tree,
-                                hf_wsmp_wsmlength, tvb, offset, 2, TRUE);
+                                hf_wsmp_wsmlength, tvb, offset, 2, ENC_LITTLE_ENDIAN);
                 offset += 2; 
                 
                 wsmdata_item = proto_tree_add_text (wsmp_tree, tvb, offset, wsmlength,

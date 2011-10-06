@@ -251,7 +251,7 @@ dissect_fcoe(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Interpret the EOF.
          */
         if (tvb_bytes_exist(tvb, eof_offset, 1)) {
-            proto_tree_add_item(fcoe_tree, hf_fcoe_eof, tvb, eof_offset, 1, 0);
+            proto_tree_add_item(fcoe_tree, hf_fcoe_eof, tvb, eof_offset, 1, ENC_BIG_ENDIAN);
         }
     }
 

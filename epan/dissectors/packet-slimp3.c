@@ -306,7 +306,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	* [12..17]   reserved
 	*/
 	if (tree) {
-	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_ir, tvb, offset+8, 4, FALSE);
+	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_ir, tvb, offset+8, 4, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	    i1 = tvb_get_ntohl(tvb, offset+2);

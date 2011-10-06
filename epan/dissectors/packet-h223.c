@@ -684,7 +684,7 @@ dissect_mux_al_pdu( tvbuff_t *tvb, packet_info *pinfo, proto_tree *vc_tree,
 
             data_start = 0;
             if( al2_sequenced ) {
-                proto_tree_add_item(al_tree, hf_h223_al2_seqno, tvb, 0, 1, TRUE);
+                proto_tree_add_item(al_tree, hf_h223_al2_seqno, tvb, 0, 1, ENC_LITTLE_ENDIAN);
                 data_start++;
             }
 
@@ -1085,7 +1085,7 @@ dissect_mux_pdu( tvbuff_t *tvb, packet_info *pinfo, guint32 pkt_offset,
 
     /* add the closing HDLC flag */
     if( pdu_tree )
-        proto_tree_add_item(pdu_tree,hf_h223_mux_hdlc2,tvb,offset,2,FALSE);
+        proto_tree_add_item(pdu_tree,hf_h223_mux_hdlc2,tvb,offset,2,ENC_BIG_ENDIAN);
 }
 
 

@@ -1084,11 +1084,11 @@ dissect_mq_gmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gint int_rep
 
 					if (iVersionGMO >= 2)
 					{
-						proto_tree_add_item(mq_tree, hf_mq_gmo_matchoptions, tvb, offset + 72, 4, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_gmo_groupstatus, tvb, offset + 76, 1, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_gmo_segmentstatus, tvb, offset + 77, 1, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_gmo_segmentation, tvb, offset + 78, 1, FALSE);
-						proto_tree_add_item(mq_tree, hf_mq_gmo_reserved, tvb, offset + 79, 1, FALSE);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_matchoptions, tvb, offset + 72, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_groupstatus, tvb, offset + 76, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_segmentstatus, tvb, offset + 77, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_segmentation, tvb, offset + 78, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(mq_tree, hf_mq_gmo_reserved, tvb, offset + 79, 1, ENC_BIG_ENDIAN);
 					}
 
 					if (iVersionGMO >= 3)
@@ -1289,17 +1289,17 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				mq_tree = proto_item_add_subtree(ti, ett_mq_tsh);
 
 				proto_tree_add_item(mq_tree, hf_mq_tsh_structid, tvb, offset + 0, 4, string_rep);
-				proto_tree_add_item(mq_tree, hf_mq_tsh_packetlength, tvb, offset + 4, 4, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_packetlength, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(mq_tree, hf_mq_tsh_byteorder, tvb, offset + 8, 1, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_byteorder, tvb, offset + 8, 1, ENC_BIG_ENDIAN);
 
-				proto_tree_add_item(mq_tree, hf_mq_tsh_opcode, tvb, offset + 9, 1, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_opcode, tvb, offset + 9, 1, ENC_BIG_ENDIAN);
 
 				/* Control flags */
 				{
 					proto_tree	*mq_tree_sub = NULL;
 
-					ti = proto_tree_add_item(mq_tree, hf_mq_tsh_controlflags, tvb, offset + 10, 1, FALSE);
+					ti = proto_tree_add_item(mq_tree, hf_mq_tsh_controlflags, tvb, offset + 10, 1, ENC_BIG_ENDIAN);
 					mq_tree_sub = proto_item_add_subtree(ti, ett_mq_tsh_tcf);
 
 					proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_dlq, tvb, offset + 10, 1, iControlFlags);
@@ -1312,11 +1312,11 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_boolean(mq_tree_sub, hf_mq_tsh_tcf_confirmreq, tvb, offset + 10, 1, iControlFlags);
 				}
 
-				proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + 11, 1, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_reserved, tvb, offset + 11, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(mq_tree, hf_mq_tsh_luwid, tvb, offset + 12, 8, ENC_NA);
 				proto_tree_add_item(mq_tree, hf_mq_tsh_encoding, tvb, offset + 20, 4, int_rep);
 				proto_tree_add_item(mq_tree, hf_mq_tsh_ccsid, tvb, offset + 24, 2, int_rep);
-				proto_tree_add_item(mq_tree, hf_mq_tsh_padding, tvb, offset + 26, 2, FALSE);
+				proto_tree_add_item(mq_tree, hf_mq_tsh_padding, tvb, offset + 26, 2, ENC_BIG_ENDIAN);
 			}
 			offset += iSizeTSH;
 
@@ -1343,7 +1343,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							ti = proto_tree_add_text(mqroot_tree, tvb, offset, iSizeAPI, MQ_TEXT_API);
 							mq_tree = proto_item_add_subtree(ti, ett_mq_api);
 
-							proto_tree_add_item(mq_tree, hf_mq_api_replylength, tvb, offset, 4, FALSE);
+							proto_tree_add_item(mq_tree, hf_mq_api_replylength, tvb, offset, 4, ENC_BIG_ENDIAN);
 							proto_tree_add_item(mq_tree, hf_mq_api_completioncode, tvb, offset + 4, 4, int_rep);
 							proto_tree_add_item(mq_tree, hf_mq_api_reasoncode, tvb, offset + 8, 4, int_rep);
 							proto_tree_add_item(mq_tree, hf_mq_api_objecthandle, tvb, offset + 12, 4, int_rep);
@@ -1699,7 +1699,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							ti = proto_tree_add_text(mqroot_tree, tvb, offset, 16, "%s (%s)", MQ_TEXT_XA, val_to_str(opcode, mq_opcode_vals, "Unknown (0x%02x)"));
 							mq_tree = proto_item_add_subtree(ti, ett_mq_xa);
 
-							proto_tree_add_item(mq_tree, hf_mq_xa_length, tvb, offset, 4, FALSE);
+							proto_tree_add_item(mq_tree, hf_mq_xa_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 							proto_tree_add_item(mq_tree, hf_mq_xa_returnvalue, tvb, offset + 4, 4, int_rep);
 
 							/* Transaction Manager flags */
@@ -1744,7 +1744,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									ti = proto_tree_add_text(mqroot_tree, tvb, offset, iXAInfoLength + 1, MQ_TEXT_XINF);
 									mq_tree = proto_item_add_subtree(ti, ett_mq_xa_info);
 
-									proto_tree_add_item(mq_tree, hf_mq_xa_xainfo_length, tvb, offset, 1, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_xa_xainfo_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 									proto_tree_add_item(mq_tree, hf_mq_xa_xainfo_value, tvb, offset + 1, iXAInfoLength, string_rep);
 								}
 							}
@@ -1800,14 +1800,14 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								mq_tree = proto_item_add_subtree(ti, ett_mq_id);
 
 								proto_tree_add_item(mq_tree, hf_mq_id_structid, tvb, offset, 4, string_rep);
-								proto_tree_add_item(mq_tree, hf_mq_id_level, tvb, offset + 4, 1, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_id_level, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
 								/* ID flags */
 								{
 									proto_tree	*mq_tree_sub = NULL;
 									guint8 iIDFlags;
 
-									ti = proto_tree_add_item(mq_tree, hf_mq_id_flags, tvb, offset + 5, 1, FALSE);
+									ti = proto_tree_add_item(mq_tree, hf_mq_id_flags, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
 									mq_tree_sub = proto_item_add_subtree(ti, ett_mq_id_icf);
 									iIDFlags = tvb_get_guint8(tvb, offset + 5);
 
@@ -1819,14 +1819,14 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_icf_msgseq, tvb, offset + 5, 1, iIDFlags);
 								}
 
-								proto_tree_add_item(mq_tree, hf_mq_id_unknown2, tvb, offset + 6, 1, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_id_unknown2, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 
 								/* Error flags */
 								{
 									proto_tree	*mq_tree_sub = NULL;
 									guint8 iErrorFlags;
 
-									ti = proto_tree_add_item(mq_tree, hf_mq_id_ieflags, tvb, offset + 7, 1, FALSE);
+									ti = proto_tree_add_item(mq_tree, hf_mq_id_ieflags, tvb, offset + 7, 1, ENC_BIG_ENDIAN);
 									mq_tree_sub = proto_item_add_subtree(ti, ett_mq_id_ief);
 									iErrorFlags = tvb_get_guint8(tvb, offset + 7);
 
@@ -1840,7 +1840,7 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 									proto_tree_add_boolean(mq_tree_sub, hf_mq_id_ief_ccsid, tvb, offset + 7, 1, iErrorFlags);
 								}
 
-								proto_tree_add_item(mq_tree, hf_mq_id_unknown4, tvb, offset + 8, 2, FALSE);
+								proto_tree_add_item(mq_tree, hf_mq_id_unknown4, tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 								proto_tree_add_item(mq_tree, hf_mq_id_maxmsgperbatch, tvb, offset + 10, 2, int_rep);
 								proto_tree_add_item(mq_tree, hf_mq_id_maxtransmissionsize, tvb, offset + 12, 4, int_rep);
 								proto_tree_add_item(mq_tree, hf_mq_id_maxmsgsize, tvb, offset + 16, 4, int_rep);
@@ -1862,8 +1862,8 @@ dissect_mq_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 								if (tree)
 								{
-									proto_tree_add_item(mq_tree, hf_mq_id_capflags, tvb, offset + 44, 1, FALSE);
-									proto_tree_add_item(mq_tree, hf_mq_id_unknown5, tvb, offset + 45, 1, FALSE);
+									proto_tree_add_item(mq_tree, hf_mq_id_capflags, tvb, offset + 44, 1, ENC_BIG_ENDIAN);
+									proto_tree_add_item(mq_tree, hf_mq_id_unknown5, tvb, offset + 45, 1, ENC_BIG_ENDIAN);
 									proto_tree_add_item(mq_tree, hf_mq_id_ccsid, tvb, offset + 46, 2, int_rep);
 									proto_tree_add_item(mq_tree, hf_mq_id_queuemanager, tvb, offset + 48, 48, string_rep);
 									proto_tree_add_item(mq_tree, hf_mq_id_heartbeatinterval, tvb, offset + 96, 4, int_rep);

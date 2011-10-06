@@ -1456,7 +1456,7 @@ dissect_ssl3_record(tvbuff_t *tvb, packet_info *pinfo,
 
         /* show the one-byte content type */
         proto_tree_add_item(ssl_record_tree, hf_ssl_record_content_type,
-                            tvb, offset, 1, 0);
+                            tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         /* add the version */
@@ -2128,7 +2128,7 @@ dissect_ssl3_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
         /* show the session id */
         session_id_length = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(tree, hf_ssl_handshake_session_id_len,
-                            tvb, offset++, 1, 0);
+                            tvb, offset++, 1, ENC_BIG_ENDIAN);
         if (session_id_length > 0)
         {
             tvb_ensure_bytes_exist(tvb, offset, session_id_length);

@@ -84,12 +84,12 @@ dissect_lge_monitor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	lge_monitor_tree = proto_item_add_subtree(ti, ett_lge_monitor);
 
 	proto_tree_add_text(lge_monitor_tree, tvb, offset, LGEMON_PROTO_HEADER_LENGTH, "LGE Monitor PDU");
-	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_dir, tvb, offset, 4, FALSE);
+	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_dir, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset = offset +4;
 	lge_monitor_proto_id = tvb_get_ntohl(tvb,offset);
-	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_prot, tvb, offset, 4, FALSE);
+	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_prot, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset = offset +4;
-	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_length, tvb, offset, 4, FALSE);
+	proto_tree_add_item(lge_monitor_tree, hf_lge_monitor_length, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset = offset +4;
 
 	next_tvb = tvb_new_subset_remaining(tvb, offset);

@@ -5690,15 +5690,15 @@ dissect_vendor_ie_marvell(proto_item * item _U_, proto_tree * ietree,
   switch (type) {
   case MARVELL_IE_MESH:
     proto_tree_add_item (ietree, hf_ieee80211_marvell_ie_mesh_subtype, tvb,
-                         offset++, 1, TRUE );
+                         offset++, 1, ENC_LITTLE_ENDIAN );
     proto_tree_add_item (ietree, hf_ieee80211_marvell_ie_mesh_version, tvb,
-                         offset++, 1, TRUE );
+                         offset++, 1, ENC_LITTLE_ENDIAN );
     proto_tree_add_item (ietree, hf_ieee80211_marvell_ie_mesh_active_proto_id, tvb,
-                         offset++, 1, TRUE );
+                         offset++, 1, ENC_LITTLE_ENDIAN );
     proto_tree_add_item (ietree, hf_ieee80211_marvell_ie_mesh_active_metric_id, tvb,
-                         offset++, 1, TRUE );
+                         offset++, 1, ENC_LITTLE_ENDIAN );
     proto_tree_add_item (ietree, hf_ieee80211_marvell_ie_mesh_cap, tvb,
-                         offset++, 1, TRUE );
+                         offset++, 1, ENC_LITTLE_ENDIAN );
     break;
 
   default:

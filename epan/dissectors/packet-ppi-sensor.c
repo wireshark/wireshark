@@ -216,7 +216,7 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_version,
                             tvb, offset, 1, version);
         proto_tree_add_item(ppi_sensor_tree, hf_ppi_sensor_pad,
-                            tvb, offset + 1, 1, FALSE);
+                            tvb, offset + 1, 1, ENC_BIG_ENDIAN);
         ti = proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_length,
                                  tvb, offset + 2, 2, length);
         /*fixed ppi-geotagging-header fields finished, move onto the fields marked present*/

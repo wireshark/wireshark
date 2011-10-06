@@ -243,9 +243,9 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
 
     evrc_tree = proto_item_add_subtree(item, ett_evrc);
 
-    proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, FALSE);
-    proto_tree_add_item(evrc_tree, hf_evrc_interleave_length, tvb, offset, 1, FALSE);
-    proto_tree_add_item(evrc_tree, hf_evrc_interleave_index, tvb, offset, 1, FALSE);
+    proto_tree_add_item(evrc_tree, hf_evrc_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(evrc_tree, hf_evrc_interleave_length, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(evrc_tree, hf_evrc_interleave_index, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
 
@@ -264,8 +264,8 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
             toc_tree = proto_item_add_subtree(item, ett_toc);
 
             proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_fe_ind, tvb, offset, 1, FALSE);
-            proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_reduc_rate, tvb, offset, 1, FALSE);
-            proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_frame_type, tvb, offset, 1, FALSE);
+            proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_reduc_rate, tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(toc_tree, hf_evrc_legacy_toc_frame_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
             oct = tvb_get_guint8(tvb, offset);
             further_entries = (oct & 0x80) ? TRUE : FALSE;
@@ -355,7 +355,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         if (frame_count & 0x01)
         {
             /* odd number of frames */
-            proto_tree_add_item(toc_tree, hf_evrc_padding, tvb, offset-1, 1, FALSE);
+            proto_tree_add_item(toc_tree, hf_evrc_padding, tvb, offset-1, 1, ENC_BIG_ENDIAN);
         }
 
         proto_item_set_len(item, offset - saved_offset);

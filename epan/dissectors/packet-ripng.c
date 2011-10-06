@@ -78,11 +78,11 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 	ripng_tree = proto_item_add_subtree(ti, ett_ripng);
 
 	/* Command */
-	proto_tree_add_item(ripng_tree, hf_ripng_cmd, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ripng_tree, hf_ripng_cmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* Version */
-	proto_tree_add_item(ripng_tree, hf_ripng_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(ripng_tree, hf_ripng_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* Reserved */
@@ -105,7 +105,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset += 2;
 
 		/* Prefix Length */
-		proto_tree_add_item(rte_tree, hf_ripng_rte_prefix_length, tvb, offset, 1, FALSE);
+		proto_tree_add_item(rte_tree, hf_ripng_rte_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_item_append_text(rte_ti, "/%u", tvb_get_guint8(tvb, offset));
 		offset += 1;
 

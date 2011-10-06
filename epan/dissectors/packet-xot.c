@@ -235,29 +235,29 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            proto_item_set_len(ti, XOT_HEADER_LENGTH + plen);
 
            /* These fields are in overlay with packet-x25.c */
-           proto_tree_add_item(xot_tree, hf_x25_gfi, tvb, hdr_offset, 2, FALSE);
-           proto_tree_add_item(xot_tree, hf_x25_lcn, tvb, hdr_offset, 2, FALSE);
+           proto_tree_add_item(xot_tree, hf_x25_gfi, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
+           proto_tree_add_item(xot_tree, hf_x25_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
            hdr_offset += 2;
-           proto_tree_add_item(xot_tree, hf_x25_type, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_x25_type, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            hdr_offset += 1;
 
-           proto_tree_add_item(xot_tree, hf_xot_pvc_version, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_version, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_status, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_status, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            init_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
            hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_init_lcn, tvb, hdr_offset, 2, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_init_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
            hdr_offset += 2;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name_len, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            resp_itf_name_len = tvb_get_guint8(tvb, hdr_offset);
            hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_lcn, tvb, hdr_offset, 2, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_lcn, tvb, hdr_offset, 2, ENC_BIG_ENDIAN);
            hdr_offset += 2;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_send_inc_window, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_send_inc_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_send_out_window, tvb, hdr_offset, 1, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_send_out_window, tvb, hdr_offset, 1, ENC_BIG_ENDIAN);
            hdr_offset += 1;
            pkt_size = 1 << tvb_get_guint8(tvb, hdr_offset);
            proto_tree_add_uint(xot_tree, hf_xot_pvc_send_inc_pkt_size, tvb, hdr_offset, 1, pkt_size);

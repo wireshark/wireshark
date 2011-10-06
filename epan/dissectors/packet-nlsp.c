@@ -440,13 +440,13 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree) {
 		if (hello_type == NLSP_TYPE_WAN_HELLO) {
 			proto_tree_add_item(tree, hf_nlsp_hello_state, tvb,
-			    offset, 1, FALSE);
+			    offset, 1, ENC_BIG_ENDIAN);
 		} else {
 			proto_tree_add_item(tree, hf_nlsp_hello_multicast, tvb,
 			    offset, 1, FALSE);
 		}
 		proto_tree_add_item(tree, hf_nlsp_hello_circuit_type, tvb,
-		    offset, 1, FALSE);
+		    offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
@@ -478,7 +478,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_nlsp_hello_priority, tvb,
-		    offset, 1, FALSE);
+		    offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
@@ -1062,7 +1062,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	if (tree) {
 		/* XXX -> we could validate the cksum here! */
 		proto_tree_add_item(tree, hf_nlsp_lsp_checksum, tvb,
-			offset, 2, FALSE );
+			offset, 2, ENC_BIG_ENDIAN );
 	}
 	offset += 2;
 
@@ -1070,11 +1070,11 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(tree, hf_nlsp_lsp_p, tvb,
 		    offset, 1, FALSE);
 		proto_tree_add_item(tree, hf_nlsp_lsp_attached_flag, tvb,
-		    offset, 1, FALSE);
+		    offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_nlsp_lsp_lspdbol, tvb,
 		    offset, 1, FALSE);
 		proto_tree_add_item(tree, hf_nlsp_lsp_router_type, tvb,
-		    offset, 1, FALSE);
+		    offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 
@@ -1455,7 +1455,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		proto_tree_add_item(nlsp_tree, hf_nlsp_irpd, tvb, offset, 1,
-			FALSE );
+			ENC_BIG_ENDIAN );
 	}
 	offset += 1;
 
@@ -1468,7 +1468,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		proto_tree_add_item(nlsp_tree, hf_nlsp_minor_version, tvb,
-			offset, 1, FALSE );
+			offset, 1, ENC_BIG_ENDIAN );
 	}
 	offset += 1;
 
@@ -1492,7 +1492,7 @@ dissect_nlsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		proto_tree_add_item(nlsp_tree, hf_nlsp_major_version, tvb,
-			offset, 1, FALSE );
+			offset, 1, ENC_BIG_ENDIAN );
 	}
 	offset += 1;
 

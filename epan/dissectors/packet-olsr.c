@@ -176,7 +176,7 @@ static int dissect_olsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *olsr_t
     return message_end;
   }
 
-  proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, FALSE);
+  proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 4;
 
   while (offset < message_end) {
@@ -205,7 +205,7 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
         NULL, "Not enough bytes for Olsr.org LQ-TC");
     return message_end;
   }
-  proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, FALSE);
+  proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 4;
 
   while (offset < message_end) {
@@ -249,8 +249,8 @@ static int dissect_olsrorg_lq_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
       break; /* unknown address type should be handled in dissect_olsr, just be sure */
     }
 
-    proto_tree_add_item(address_tree, hf_olsrorg_lq, tvb, offset++, 1, FALSE);
-    proto_tree_add_item(address_tree, hf_olsrorg_nlq, tvb, offset++, 1, FALSE);
+    proto_tree_add_item(address_tree, hf_olsrorg_lq, tvb, offset++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(address_tree, hf_olsrorg_nlq, tvb, offset++, 1, ENC_BIG_ENDIAN);
     offset += 2;
   }
   return message_end;
@@ -264,7 +264,7 @@ static int dissect_nrlolsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
     return message_end;
   }
 
-  proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, FALSE);
+  proto_tree_add_item(olsr_tree, hf_olsr_ansn, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 4;
 
   field1Ptr = offset + (message_end - offset) / (pinfo->src.len + 2) * (pinfo->src.len);
@@ -282,8 +282,8 @@ static int dissect_nrlolsr_tc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
       break; /* unknown address type should be handled in dissect_olsr, just be sure */
     }
 
-    proto_tree_add_item(olsr_tree, hf_nrlolsr_f1, tvb, field1Ptr++, 1, FALSE);
-    proto_tree_add_item(olsr_tree, hf_nrlolsr_f2, tvb, field2Ptr++, 1, FALSE);
+    proto_tree_add_item(olsr_tree, hf_nrlolsr_f1, tvb, field1Ptr++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(olsr_tree, hf_nrlolsr_f2, tvb, field2Ptr++, 1, ENC_BIG_ENDIAN);
   }
   return message_end;
 }
@@ -312,7 +312,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
   offset++;
 
   /*-------------------------Dissect Willingness---------------------------*/
-  proto_tree_add_item(olsr_tree, hf_olsr_willingness, tvb, offset++, 1, FALSE);
+  proto_tree_add_item(olsr_tree, hf_olsr_willingness, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
   while (offset < message_end) {
     if (message_end - offset < 4) {
@@ -322,7 +322,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
     }
 
     /*------------------------------Dissect Link Type---------------------------------- */
-    ti = proto_tree_add_item(olsr_tree, hf_olsr_link_type, tvb, offset++, 1, FALSE);
+    ti = proto_tree_add_item(olsr_tree, hf_olsr_link_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
     link_type_tree = proto_item_add_subtree(ti, ett_olsr_message_linktype);
 
     /* reserved byte */
@@ -330,7 +330,7 @@ static int dissect_olsr_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ols
 
     /*----------------------Dissect Link Message Size--------------------------*/
     message_size = tvb_get_ntohs(tvb, offset);
-    ti = proto_tree_add_item(link_type_tree, hf_olsr_link_message_size, tvb, offset, 2, FALSE);
+    ti = proto_tree_add_item(link_type_tree, hf_olsr_link_message_size, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (message_size < 4) {
@@ -405,8 +405,8 @@ static int handle_olsr_hello_olsrorg(tvbuff_t *tvb, packet_info *pinfo, proto_tr
       break; /* unknown address type should be handled in dissect_olsr, just be sure */
     }
 
-    proto_tree_add_item(address_tree, hf_olsrorg_lq, tvb, offset++, 1, FALSE);
-    proto_tree_add_item(address_tree, hf_olsrorg_nlq, tvb, offset++, 1, FALSE);
+    proto_tree_add_item(address_tree, hf_olsrorg_lq, tvb, offset++, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(address_tree, hf_olsrorg_nlq, tvb, offset++, 1, ENC_BIG_ENDIAN);
     offset += 2;
   } /* end while */
   return link_message_end;
@@ -474,10 +474,10 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
   }
 
   version = tvb_get_ntohs(tvb, offset);
-  proto_tree_add_item(olsr_tree, hf_olsrorg_ns_version, tvb, offset, 2, FALSE);
+  proto_tree_add_item(olsr_tree, hf_olsrorg_ns_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
   count = tvb_get_ntohs(tvb, offset + 2);
-  proto_tree_add_item(olsr_tree, hf_olsrorg_ns_count, tvb, offset + 2, 2, FALSE);
+  proto_tree_add_item(olsr_tree, hf_olsrorg_ns_count, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
   offset += 4;
 
@@ -507,7 +507,7 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
 
     olsr_ns_tree = proto_item_add_subtree(olsr_ns_item, ett_olsr_message_ns);
 
-    proto_tree_add_item(olsr_ns_tree, hf_olsrorg_ns_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(olsr_ns_tree, hf_olsrorg_ns_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_uint(olsr_ns_tree, hf_olsrorg_ns_length, tvb, offset + 2, 2, length);
 
     if (pinfo->src.type == AT_IPv4) {
@@ -576,8 +576,8 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     ti = proto_tree_add_item(tree, proto_olsr, tvb, 0, -1, FALSE);
     olsr_tree = proto_item_add_subtree(ti, ett_olsr);
 
-    proto_tree_add_item(olsr_tree, hf_olsr_packet_len, tvb, 0, 2, FALSE);
-    proto_tree_add_item(olsr_tree, hf_olsr_packet_seq_num, tvb, 2, 2, FALSE);
+    proto_tree_add_item(olsr_tree, hf_olsr_packet_len, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(olsr_tree, hf_olsr_packet_seq_num, tvb, 2, 2, ENC_BIG_ENDIAN);
 
     offset = 4;
 
@@ -609,7 +609,7 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       offset++;
 
       /*-------------Dissect Message Size---------------------------*/
-      ti = proto_tree_add_item(message_tree, hf_olsr_message_size, tvb, offset, 2, FALSE);
+      ti = proto_tree_add_item(message_tree, hf_olsr_message_size, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       if (message_len < 8 + pinfo->src.len) {
@@ -634,9 +634,9 @@ static int dissect_olsr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         break; /* unknown address type should be handled before this loop, just be sure */
       }
 
-      proto_tree_add_item(message_tree, hf_olsr_ttl, tvb, offset, 1, FALSE);
-      proto_tree_add_item(message_tree, hf_olsr_hop_count, tvb, offset + 1, 1, FALSE);
-      proto_tree_add_item(message_tree, hf_olsr_message_seq_num, tvb, offset + 2, 2, FALSE);
+      proto_tree_add_item(message_tree, hf_olsr_ttl, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(message_tree, hf_olsr_hop_count, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(message_tree, hf_olsr_message_seq_num, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
       offset += 4;
 
       if (offset < message_end) {

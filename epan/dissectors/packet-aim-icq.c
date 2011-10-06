@@ -151,17 +151,17 @@ static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tv
 	guint16 req_type, req_subtype;
 	proto_tree *t = proto_item_add_subtree(ti, ett_aim_icq_tlv);
 
-	proto_tree_add_item(t, hf_icq_tlv_data_chunk_size, tvb, offset, 2, TRUE);
+	proto_tree_add_item(t, hf_icq_tlv_data_chunk_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 	
-	proto_tree_add_item(t, hf_icq_tlv_request_owner_uid, tvb, offset, 4, TRUE);
+	proto_tree_add_item(t, hf_icq_tlv_request_owner_uid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset += 4;
 
-	proto_tree_add_item(t, hf_icq_tlv_request_type, tvb, offset, 2, TRUE);
+	proto_tree_add_item(t, hf_icq_tlv_request_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	req_type = tvb_get_letohs(tvb, offset);
 	offset += 2;
 
-	proto_tree_add_item(t, hf_icq_tlv_request_seq_num, tvb, offset, 2, TRUE);
+	proto_tree_add_item(t, hf_icq_tlv_request_seq_num, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset += 2;
 
 	switch(req_type) {
@@ -171,12 +171,12 @@ static int dissect_aim_tlv_value_icq(proto_item *ti _U_, guint16 subtype _U_, tv
 		/* FIXME */
 		break;
 	case ICQ_SRV_END_OF_OFFLINE_MSGS: 
-		proto_tree_add_item(t, hf_icq_dropped_msg_flag, tvb, offset, 1, TRUE);
+		proto_tree_add_item(t, hf_icq_dropped_msg_flag, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		return offset+1;
 	case ICQ_CLI_META_INFO_REQ:
 	case ICQ_SRV_META_INFO_REPL:
 		req_subtype = tvb_get_letohs(tvb, offset);
-		subtype_item = proto_tree_add_item(t, hf_icq_meta_subtype, tvb, offset, 2, TRUE); offset+=2;
+		subtype_item = proto_tree_add_item(t, hf_icq_meta_subtype, tvb, offset, 2, ENC_LITTLE_ENDIAN); offset+=2;
 		
 		for(i = 0; icq_calls[i].name; i++) {
 			if(icq_calls[i].subtype == req_subtype) break;

@@ -448,14 +448,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_error_reserved, tvb, offset,
-                        3, FALSE);
+                        3, ENC_BIG_ENDIAN);
     proto_tree_add_item(attr_tree, xmcp_attr_error_class, tvb, offset,
-                        3, FALSE);
+                        3, ENC_BIG_ENDIAN);
     {
       guint8 error_class, error_number;
       guint16 error_code;
       it = proto_tree_add_item(attr_tree, xmcp_attr_error_number, tvb,
-                               (offset+3), 1, FALSE);
+                               (offset+3), 1, ENC_BIG_ENDIAN);
 
       error_class = tvb_get_guint8(tvb, offset+2) & 0x07;
       error_number = tvb_get_guint8(tvb, offset+3);
@@ -542,7 +542,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_client_handle, tvb, offset,
-                        4, FALSE);
+                        4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", handle %u",
@@ -561,18 +561,18 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 2)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_version_major, tvb, offset,
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_version_minor, tvb, (offset+2),
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u.%u", tvb_get_ntohs(tvb, offset),
                            tvb_get_ntohs(tvb, (offset+2)));
     break;
   case XMCP_PAGE_SIZE:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_page_size, tvb, offset, 4, FALSE);
+    proto_tree_add_item(attr_tree, xmcp_attr_page_size, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   case XMCP_CLIENT_LABEL:
@@ -588,18 +588,18 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_KEEPALIVE:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_keepalive, tvb, offset, 4, FALSE);
+    proto_tree_add_item(attr_tree, xmcp_attr_keepalive, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   case XMCP_SERVICE_IDENTITY:
     if (attr_length < 2)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_serv_service, tvb, offset,
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_serv_subservice, tvb, (offset+2),
-                        2, FALSE);
+                        2, ENC_BIG_ENDIAN);
     if (attr_length < 20)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_serv_instance, tvb, (offset+4),
@@ -630,13 +630,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 2)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_servtrans_family, tvb,
-                        (offset+1), 1, FALSE);
+                        (offset+1), 1, ENC_BIG_ENDIAN);
     if (attr_length < 4)
       break;
     xmcp_service_port = tvb_get_ntohs(tvb, (offset+2));
     xmcp_it_service_port = proto_tree_add_item(attr_tree,
                                                xmcp_attr_servtrans_port,
-                                               tvb, (offset+2), 2, FALSE);
+                                               tvb, (offset+2), 2, ENC_BIG_ENDIAN);
     /* If we now know both port and protocol number, fill in the port name */
     if (xmcp_service_protocol != -1) {
       add_xmcp_port_name();
@@ -680,7 +680,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_reserved, tvb, offset, 3, ENC_NA);
     proto_tree_add_item(attr_tree, xmcp_attr_service_protocol, tvb,
-                        (offset+3), 1, FALSE);
+                        (offset+3), 1, ENC_BIG_ENDIAN);
     xmcp_service_protocol = tvb_get_guint8(tvb, (offset+3));
     proto_item_append_text(attr_tree, ": %u (%s)", xmcp_service_protocol,
                            val_to_str_ext(xmcp_service_protocol,
@@ -710,13 +710,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                                                          "Unknown"));
         flag_tree = proto_item_add_subtree(ti, ett_xmcp_attr_flag);
         proto_tree_add_item(flag_tree, xmcp_attr_flag_type, tvb,
-                            current_offset, 2, FALSE);
+                            current_offset, 2, ENC_BIG_ENDIAN);
 
         current_offset += 2;
         switch (flag_type) {
         case XMCP_FLAG_REMOVAL_REASON:
           proto_tree_add_item(flag_tree, xmcp_attr_flag_removal_reason_reserved,
-                              tvb, current_offset, 2, FALSE);
+                              tvb, current_offset, 2, ENC_BIG_ENDIAN);
           proto_tree_add_item(flag_tree,
                               xmcp_attr_flag_removal_reason_network_withdraw,
                               tvb, current_offset, 2, FALSE);
@@ -729,14 +729,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
           break;
         case XMCP_FLAG_TRUST:
           proto_tree_add_item(flag_tree, xmcp_attr_flag_trust, tvb,
-                              current_offset, 2, FALSE);
+                              current_offset, 2, ENC_BIG_ENDIAN);
           proto_item_append_text(flag_tree, " %s",
                                  val_to_str_const(flag_value, flag_trust_values,
                                                   "Unknown"));
           break;
         case XMCP_FLAG_SERVICE_VISIBILITY:
           proto_tree_add_item(flag_tree, xmcp_attr_flag_visibility_reserved,
-                              tvb, current_offset, 2, FALSE);
+                              tvb, current_offset, 2, ENC_BIG_ENDIAN);
           proto_tree_add_item(flag_tree,
                               xmcp_attr_flag_visibility_unauthenticated,
                               tvb, current_offset, 2, FALSE);
@@ -750,7 +750,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
           break;
         default:
           proto_tree_add_item(flag_tree, xmcp_attr_flag_value, tvb,
-                              current_offset, 2, FALSE);
+                              current_offset, 2, ENC_BIG_ENDIAN);
           proto_item_append_text(flag_tree, " 0x%04x", flag_value);
           break;
         }
@@ -762,7 +762,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_service_version, tvb, offset,
-                        4, FALSE);
+                        4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   case XMCP_SERVICE_DATA:
@@ -797,7 +797,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_subscription_id, tvb, offset,
-                        4, FALSE);
+                        4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     if (check_col(pinfo->cinfo, COL_INFO)) {
       col_append_fstr(pinfo->cinfo, COL_INFO, ", subscription %u",
@@ -808,7 +808,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 4)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_service_removed_reason, tvb,
-                        offset, 4, FALSE);
+                        offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %s",
                            val_to_str_const(tvb_get_ntohl(tvb, offset),
                                             service_removed_reasons,
@@ -817,7 +817,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   case XMCP_DOMAIN:
     if (attr_length < 4)
       break;
-    proto_tree_add_item(attr_tree, xmcp_attr_domain, tvb, offset, 4, FALSE);
+    proto_tree_add_item(attr_tree, xmcp_attr_domain, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_item_append_text(attr_tree, ": %u", tvb_get_ntohl(tvb, offset));
     break;
   default:
@@ -962,7 +962,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                            (xmcp_msg_type_method == XMCP_METHOD_KEEPALIVE));
 
   /* After the class/method, we have a 2 byte length...*/
-  ti = proto_tree_add_item(xmcp_tree, hf_xmcp_length, tvb, 2, 2, FALSE);
+  ti = proto_tree_add_item(xmcp_tree, hf_xmcp_length, tvb, 2, 2, ENC_BIG_ENDIAN);
   msg_length = tvb_get_ntohs(tvb, 2);
   if ((guint)(msg_length + XMCP_HDR_LEN) > tvb_reported_length(tvb)) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_ERROR,
@@ -973,7 +973,7 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   /* ...a 4 byte magic cookie... */
-  ti = proto_tree_add_item(xmcp_tree, hf_xmcp_cookie, tvb, 4, 4, FALSE);
+  ti = proto_tree_add_item(xmcp_tree, hf_xmcp_cookie, tvb, 4, 4, ENC_BIG_ENDIAN);
   if (tvb_get_ntohl(tvb, 4) != XMCP_MAGIC_COOKIE) {
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
                            "Magic cookie not correct for XMCP");
@@ -1035,10 +1035,10 @@ dissect_xmcp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       attr_tree = proto_item_add_subtree(ti, ett_xmcp_attr);
 
       proto_tree_add_item(attr_tree, xmcp_attr_type, tvb,
-                          offset, 2, FALSE);
+                          offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       ti = proto_tree_add_item(attr_tree, xmcp_attr_length, tvb,
-                               offset, 2, FALSE);
+                               offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       if ((offset + attr_length) > (XMCP_HDR_LEN + msg_length)) {

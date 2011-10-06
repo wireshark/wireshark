@@ -188,15 +188,15 @@ dissect_winsrepl_start(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 	}
 
 	/* ASSOC_CTX */
-	proto_tree_add_item(start_tree, hf_winsrepl_assoc_ctx, winsrepl_tvb, winsrepl_offset, 4, FALSE);
+	proto_tree_add_item(start_tree, hf_winsrepl_assoc_ctx, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	/* MINOR VERSION */
-	proto_tree_add_item(start_tree, hf_winsrepl_start_minor_version, winsrepl_tvb, winsrepl_offset, 2, FALSE);
+	proto_tree_add_item(start_tree, hf_winsrepl_start_minor_version, winsrepl_tvb, winsrepl_offset, 2, ENC_BIG_ENDIAN);
 	winsrepl_offset += 2;
 
 	/* MAJOR VERSION */
-	proto_tree_add_item(start_tree, hf_winsrepl_start_major_version, winsrepl_tvb, winsrepl_offset, 2, FALSE);
+	proto_tree_add_item(start_tree, hf_winsrepl_start_major_version, winsrepl_tvb, winsrepl_offset, 2, ENC_BIG_ENDIAN);
 	winsrepl_offset += 2;
 
 	return winsrepl_offset;
@@ -254,15 +254,15 @@ dissect_winsrepl_wins_owner(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 	winsrepl_offset += 4;
 
 	/* MAX_VERSION */
-	proto_tree_add_item(owner_tree, hf_winsrepl_owner_max_version, winsrepl_tvb, winsrepl_offset, 8, FALSE);
+	proto_tree_add_item(owner_tree, hf_winsrepl_owner_max_version, winsrepl_tvb, winsrepl_offset, 8, ENC_BIG_ENDIAN);
 	winsrepl_offset += 8;
 
 	/* MIN_VERSION */
-	proto_tree_add_item(owner_tree, hf_winsrepl_owner_min_version, winsrepl_tvb, winsrepl_offset, 8, FALSE);
+	proto_tree_add_item(owner_tree, hf_winsrepl_owner_min_version, winsrepl_tvb, winsrepl_offset, 8, ENC_BIG_ENDIAN);
 	winsrepl_offset += 8;
 
 	/* TYPE */
-	proto_tree_add_item(owner_tree, hf_winsrepl_owner_type, winsrepl_tvb, winsrepl_offset, 4, FALSE);
+	proto_tree_add_item(owner_tree, hf_winsrepl_owner_type, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	return winsrepl_offset;
@@ -454,11 +454,11 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 
 	/* GROUP_FLAG */
 	/* XXX - is this just a Boolean? */
-	proto_tree_add_item(name_tree, hf_winsrepl_name_group_flag, winsrepl_tvb, winsrepl_offset, 4, TRUE);
+	proto_tree_add_item(name_tree, hf_winsrepl_name_group_flag, winsrepl_tvb, winsrepl_offset, 4, ENC_LITTLE_ENDIAN);
 	winsrepl_offset += 4;
 
 	/* Version ID */
-	proto_tree_add_item(name_tree, hf_winsrepl_name_version_id, winsrepl_tvb, winsrepl_offset, 8, FALSE);
+	proto_tree_add_item(name_tree, hf_winsrepl_name_version_id, winsrepl_tvb, winsrepl_offset, 8, ENC_BIG_ENDIAN);
 	winsrepl_offset += 8;
 
 	switch (flags & WREPL_NAME_TYPE_MASK) {
@@ -651,15 +651,15 @@ dissect_winsrepl_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	}
 
 	/* SIZE */
-	proto_tree_add_item(winsrepl_tree, hf_winsrepl_size, tvb, offset, 4, FALSE);
+	proto_tree_add_item(winsrepl_tree, hf_winsrepl_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* OPCODE */
-	proto_tree_add_item(winsrepl_tree, hf_winsrepl_opcode, tvb, offset, 4, FALSE);
+	proto_tree_add_item(winsrepl_tree, hf_winsrepl_opcode, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* ASSOC_CTX */
-	proto_tree_add_item(winsrepl_tree, hf_winsrepl_assoc_ctx, tvb, offset, 4, FALSE);
+	proto_tree_add_item(winsrepl_tree, hf_winsrepl_assoc_ctx, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* MESSAGE_TYPE */

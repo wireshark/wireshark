@@ -174,7 +174,7 @@ de_ta(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, g
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_ta, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_ta, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -218,7 +218,7 @@ de_bsslap_cause(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_cause, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_cause, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -236,7 +236,7 @@ de_rrlp_flg(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_rrlp_flg, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_rrlp_flg, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -299,7 +299,7 @@ de_cell_id_list(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 off
 
 		if (add_string)
 			add_string[0] = '\0';
-		proto_tree_add_item(subtree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_gsm_bsslap_cell_id_disc, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 		curr_offset++;
 		len--;
 		switch(cell_id_disc){
@@ -357,7 +357,7 @@ de_lac(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_lac, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_lac, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -371,7 +371,7 @@ de_ms_pow(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offse
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_ms_pow, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_ms_pow, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -386,7 +386,7 @@ de_delta_time(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 o
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_timer_value, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_timer_value, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -430,7 +430,7 @@ de_poll_rep(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 off
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_poll_rep, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_poll_rep, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -466,7 +466,7 @@ de_tfi(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, 
 	guint32	curr_offset;
 
 	curr_offset = offset;
-	proto_tree_add_item(tree, hf_gsm_bsslap_tfi, tvb, curr_offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_bsslap_tfi, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
 	curr_offset++;
 
 	return(curr_offset - offset);
@@ -811,7 +811,7 @@ dissect_gsm_bsslap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		sub_tree = proto_item_add_subtree(item, ett_gsm_bsslap);
 
 		/* Message Type IE / 5.1 M V 1 */
-		proto_tree_add_item(sub_tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(sub_tree, hf_gsm_bsslap_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		switch (octet){

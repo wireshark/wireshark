@@ -176,7 +176,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             offset, 2, pim_cksum);
 
         offset += 2;
-        proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);
         return offset+tvb_length_remaining(tvb, offset);
     }
 
@@ -227,7 +227,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     }
     offset += 2;
 
-    proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     offset += 3;        /* skip reserved stuff */
@@ -244,7 +244,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     {
         guint16 holdtime;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_mode, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 2;
 
         holdtime = tvb_get_ntohs(tvb, offset);
@@ -376,7 +376,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         offset += 1;
 
         ngroup = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         for (i = 0; i < ngroup; i++) {
@@ -398,7 +398,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             njoin = tvb_get_ntohs(tvb, offset);
             nprune = tvb_get_ntohs(tvb, offset + 2);
             tisub = proto_tree_add_item(grouptree, hf_pim_numjoins, tvb,
-                                        offset, 2, FALSE);
+                                        offset, 2, ENC_BIG_ENDIAN);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             off = offset + 4;
             for (j = 0; j < njoin; j++) {
@@ -409,7 +409,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
             }
 
             tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb,
-                                        offset + 2, 2, FALSE);
+                                        offset + 2, 2, ENC_BIG_ENDIAN);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
                 s = dissect_pimv1_addr(tvb, off);
@@ -473,7 +473,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                                    "Metric Preference: %u", pref);
         offset += 4;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     }
@@ -657,8 +657,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
     ti = proto_tree_add_item(tree, proto_pim, tvb, offset, -1, FALSE);
     pim_tree = proto_item_add_subtree(ti, ett_pim);
 
-    proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, FALSE);
-    proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(pim_tree, hf_pim_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(pim_tree, hf_pim_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(pim_tree, hf_pim_res_bytes, tvb, offset + 1, 1, ENC_NA);
     pim_cksum = tvb_get_ntohs(tvb, offset + 2);
     length = tvb_length(tvb);
@@ -769,8 +769,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                            "Option %u: %s", hello_opt,
                                            val_to_str(hello_opt, pim_opt_vals, "Unknown: %u"));
             opt_tree = proto_item_add_subtree(opt_item, ett_pim_opt);
-            proto_tree_add_item(opt_tree, hf_pim_optiontype, tvb, offset, 2, FALSE);
-            proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, FALSE);
+            proto_tree_add_item(opt_tree, hf_pim_optiontype, tvb, offset, 2, ENC_BIG_ENDIAN);
+            proto_tree_add_item(opt_tree, hf_pim_optionlength, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
             switch(hello_opt) {
             case 1: /* Hello Hold Time Option */
@@ -786,8 +786,8 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
             case 2: /* LAN Prune Delay Option */
                 proto_tree_add_item(opt_tree, hf_pim_t, tvb, offset + 4, 1, FALSE);
-                proto_tree_add_item(opt_tree, hf_pim_propagation_delay, tvb, offset + 4, 2, FALSE);
-                proto_tree_add_item(opt_tree, hf_pim_override_interval, tvb, offset + 6, 2, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_propagation_delay, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
+                proto_tree_add_item(opt_tree, hf_pim_override_interval, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item,
                                        ": T = %u, Propagation Delay = %ums, Override Interval = %ums",
                                        tvb_get_guint8(tvb, offset + 4) & 0x80 ? 1 : 0,
@@ -796,19 +796,19 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 break;
 
             case 19: /* DR priority */
-                proto_tree_add_item(opt_tree, hf_pim_dr_priority, tvb, offset + 4, 4, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_dr_priority, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item, ": %u", tvb_get_ntohl(tvb, offset + 4));
                 break;
 
             case 20: /* Generation ID */
-                proto_tree_add_item(opt_tree, hf_pim_generation_id, tvb, offset + 4, 4, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_generation_id, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item, ": %u", tvb_get_ntohl(tvb, offset + 4));
                 break;
 
             case 21: /* State Refresh Capable Option */
-                proto_tree_add_item(opt_tree, hf_pim_state_refresh_version, tvb, offset + 4, 1, FALSE);
-                proto_tree_add_item(opt_tree, hf_pim_state_refresh_interval, tvb, offset + 5, 1, FALSE);
-                proto_tree_add_item(opt_tree, hf_pim_state_refresh_reserved, tvb, offset + 6, 2, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_state_refresh_version, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(opt_tree, hf_pim_state_refresh_interval, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_item(opt_tree, hf_pim_state_refresh_reserved, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item, ": Version = %u, Interval = %us",
                                        tvb_get_guint8(tvb, offset + 4),
                                        tvb_get_guint8(tvb, offset + 5));
@@ -974,7 +974,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         offset += 1;    /* skip reserved field */
 
         ngroup = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_numgroups, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
 
         holdtime = tvb_get_ntohs(tvb, offset);
@@ -996,7 +996,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             njoin = tvb_get_ntohs(tvb, offset);
             nprune = tvb_get_ntohs(tvb, offset + 2);
             tisub = proto_tree_add_item(grouptree, hf_pim_numjoins, tvb,
-                                        offset, 2, FALSE);
+                                        offset, 2, ENC_BIG_ENDIAN);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             off = offset + 4;
             for (j = 0; j < njoin; j++) {
@@ -1009,7 +1009,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
             }
 
             tisub = proto_tree_add_item(grouptree, hf_pim_numprunes, tvb,
-                                        offset + 2, 2, FALSE);
+                                        offset + 2, 2, ENC_BIG_ENDIAN);
             subtree = proto_item_add_subtree(tisub, ett_pim);
             for (j = 0; j < nprune; j++) {
                 s = dissect_pim_addr(tvb, off, pimv2_source, &advance);
@@ -1118,7 +1118,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                    "Metric Preference: %u", pref);
         offset += 4;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         break;
     }
@@ -1197,7 +1197,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                                    "Metric Preference: %u", pref);
         offset += 4;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         proto_tree_add_text(pimopt_tree, tvb, offset, 1,

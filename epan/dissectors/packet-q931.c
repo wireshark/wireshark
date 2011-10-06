@@ -517,7 +517,7 @@ dissect_q931_segmented_message_ie(tvbuff_t *tvb, int offset, int len,
 		    "Not first segment: %u segments remaining",
 		    tvb_get_guint8(tvb, offset) & 0x7F);
 	}
-	proto_tree_add_item(tree, hf_q931_segment_type, tvb, offset + 1, 1, FALSE);
+	proto_tree_add_item(tree, hf_q931_segment_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 }
 
 /*
@@ -1554,9 +1554,9 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 	proto_tree_add_item(tree, hf_q931_channel_dchan, tvb, offset, 1, FALSE);
 
 	if (octet & Q931_NOT_BASIC_CHANNEL) {
-		proto_tree_add_item(tree, hf_q931_channel_selection_pri, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_q931_channel_selection_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
 	} else {
-		proto_tree_add_item(tree, hf_q931_channel_selection_bri, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_q931_channel_selection_bri, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 	len -= 1;
@@ -1602,7 +1602,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 			return;
 		}
 		proto_tree_add_item(tree, hf_q931_channel_map, tvb, offset, 1, FALSE);
-		proto_tree_add_item(tree, hf_q931_channel_element_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_q931_channel_element_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		offset += 1;
 		len -= 1;
@@ -1624,7 +1624,7 @@ dissect_q931_channel_identification_ie(tvbuff_t *tvb, int offset, int len,
 				octet2 = tvb_get_guint8(tvb, offset);
 
 				proto_tree_add_item(tree, hf_q931_extension_ind, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tree,hf_q931_channel_number,tvb,offset,1,FALSE);
+				proto_tree_add_item(tree,hf_q931_channel_number,tvb,offset,1,ENC_BIG_ENDIAN);
 
 				offset += 1;
 				len -= 1;
@@ -2635,9 +2635,9 @@ dissect_q931_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	}
 	if (q931_tree != NULL){
 		if (prot_discr == NLPID_DMS)
-			proto_tree_add_item(q931_tree, hf_q931_maintenance_message_type, tvb, offset, 1, FALSE);
+			proto_tree_add_item(q931_tree, hf_q931_maintenance_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(q931_tree, hf_q931_message_type, tvb, offset, 1, FALSE);
+			proto_tree_add_item(q931_tree, hf_q931_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	offset += 1;
 

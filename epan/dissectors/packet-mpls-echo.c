@@ -334,7 +334,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		val_to_str(type, mpls_echo_tlv_fec_names, "Unknown sub-TLV type"), saved_type);
 
             proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_len, tvb, offset + 2,
-                2, FALSE);
+                2, ENC_BIG_ENDIAN);
 
 	    if (length + 4 > rem){
 		proto_tree_add_text(tlv_fec_tree, tvb, offset, rem,
@@ -349,7 +349,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4,
                     tvb, offset + 4, 4, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4_mask,
-                    tvb, offset + 8, 1, FALSE);
+                    tvb, offset + 8, 1, ENC_BIG_ENDIAN);
                 if (length == 8)
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 9, 3, "Padding");
                 break;
@@ -357,7 +357,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6,
                     tvb, offset + 4, 16, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6_mask,
-                    tvb, offset + 20, 1, FALSE);
+                    tvb, offset + 20, 1, ENC_BIG_ENDIAN);
                 if (length == 20)
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 21, 3, "Padding");
                 break;
@@ -370,21 +370,21 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_endpoint,
 		    tvb, offset + 4, 4, FALSE);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
-		    tvb, offset + 8, 2, FALSE);
+		    tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
-		    tvb, offset + 10, 2, FALSE);
+		    tvb, offset + 10, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_text(tlv_fec_tree, tvb, offset + 12, 4,
 		    "Extended Tunnel ID: 0x%08X (%s)", tvb_get_ntohl(tvb, offset + 12),
 		    tvb_ip_to_str(tvb, offset + 12));
 		hidden_item = proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ext_tunnel_id,
-		    tvb, offset + 12, 4, FALSE);
+		    tvb, offset + 12, 4, ENC_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender,
 		    tvb, offset + 16, 4, FALSE);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
-		    tvb, offset + 20, 2, FALSE);
+		    tvb, offset + 20, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
-		    tvb, offset + 22, 2, FALSE);
+		    tvb, offset + 22, 2, ENC_BIG_ENDIAN);
 		break;
             case TLV_FEC_STACK_RSVP_IPv6:
                 if (length != 56){
@@ -395,9 +395,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_endpoint,
                     tvb, offset + 4, 16, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
-                    tvb, offset + 20, 2, FALSE);
+                    tvb, offset + 20, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
-                    tvb, offset + 22, 2, FALSE);
+                    tvb, offset + 22, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_text(tlv_fec_tree, tvb, offset + 24, 16,
                     "Extended Tunnel ID: 0x%s (%s)",
 		    tvb_bytes_to_str(tvb, offset + 24, 16),
@@ -408,19 +408,19 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
                     tvb, offset + 40, 16, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
-                    tvb, offset + 56, 2, FALSE);
+                    tvb, offset + 56, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
-                    tvb, offset + 58, 2, FALSE);
+                    tvb, offset + 58, 2, ENC_BIG_ENDIAN);
                 break;
             case TLV_FEC_STACK_L2_CID_OLD:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_remote,
                     tvb, offset + 4, 4, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_vcid,
-                    tvb, offset + 8, 4, FALSE);
+                    tvb, offset + 8, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_encap,
-                    tvb, offset + 12, 2, FALSE);
+                    tvb, offset + 12, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_mbz,
-                    tvb, offset + 14, 2, FALSE);
+                    tvb, offset + 14, 2, ENC_BIG_ENDIAN);
                 break;
 	    case TLV_FEC_STACK_L2_CID_NEW:
                 if (length < 14){
@@ -433,11 +433,11 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_remote,
                     tvb, offset + 8, 4, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_vcid,
-                    tvb, offset + 12, 4, FALSE);
+                    tvb, offset + 12, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_encap,
-                    tvb, offset + 16, 2, FALSE);
+                    tvb, offset + 16, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_mbz,
-                    tvb, offset + 18, 2, FALSE);
+                    tvb, offset + 18, 2, ENC_BIG_ENDIAN);
                 break;
 	    case TLV_FEC_VENDOR_PRIVATE_START:
 		if (length < 4) { /* SMI Enterprise code */
@@ -446,7 +446,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 				length);
 		} else {
 			proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_vendor, tvb,
-				offset + 4, 4, FALSE);
+				offset + 4, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_value, tvb,
 				offset + 8, length - 4, ENC_NA);
 		}
@@ -457,7 +457,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_ipv4,
                     tvb, offset + 8, 4, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_len,
-                    tvb, offset + 12, 1, FALSE);
+                    tvb, offset + 12, 1, ENC_BIG_ENDIAN);
                 if (length == 12)
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 13, 3, "Padding");
 		break;
@@ -465,7 +465,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv4,
                     tvb, offset + 4, 4, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv4_mask,
-                    tvb, offset + 8, 1, FALSE);
+                    tvb, offset + 8, 1, ENC_BIG_ENDIAN);
                 if (length == 8)
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 9, 3, "Padding");
 		break;
@@ -473,7 +473,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv6,
                     tvb, offset + 4, 16, FALSE);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv6_mask,
-                    tvb, offset + 20, 1, FALSE);
+                    tvb, offset + 20, 1, ENC_BIG_ENDIAN);
                 if (length == 20)
                     proto_tree_add_text(tlv_fec_tree, tvb, offset + 21, 3, "Padding");
 		break;
@@ -543,15 +543,15 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 	guint8	hash_type, addr_type;
 
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_mtu, tvb,
-                            offset, 2, FALSE);
+                            offset, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_addr_type, tvb,
-                            offset + 2, 1, FALSE);
+                            offset + 2, 1, ENC_BIG_ENDIAN);
         ti = proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_res, tvb,
-                            offset + 3, 1, FALSE);
+                            offset + 3, 1, ENC_BIG_ENDIAN);
         tlv_ds_map_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ds_map);
 
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_flag_res, tvb,
-                            offset + 3, 1, FALSE);
+                            offset + 3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_flag_i, tvb,
                             offset + 3, 1, FALSE);
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_flag_n, tvb,
@@ -570,7 +570,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ip, tvb,
                                 offset + 4, 4, FALSE);
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_if_index, tvb,
-                                offset + 8, 4, FALSE);
+                                offset + 8, 4, ENC_BIG_ENDIAN);
 		break;
 	case TLV_ADDR_IPv6:
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ipv6, tvb,
@@ -587,11 +587,11 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 		break;
 	}
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_hash_type, tvb,
-                            offset + 12, 1, FALSE);
+                            offset + 12, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_depth, tvb,
-                            offset + 13, 1, FALSE);
+                            offset + 13, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_muti_len, tvb,
-                            offset + 14, 2, FALSE);
+                            offset + 14, 2, ENC_BIG_ENDIAN);
 
 	/* Get the Multipath Length and Hash Type */
 	mplen = tvb_get_ntohs(tvb, offset + 14);
@@ -687,7 +687,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 		proto_tree_add_uint_format(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_bos,
 			tvb, offset + 2, 1, bos, "Downstream BOS: %u", bos);
 		proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_proto,
-			tvb, offset + 3, 1, FALSE);
+			tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 		proto_item_append_text(ti, ", Protocol: %u (%s)", proto, val_to_str(proto,
 			mpls_echo_tlv_ds_map_mp_proto, "Unknown"));
 		rem -= 4;
@@ -708,12 +708,12 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 	guint32 label;
 	guint8  exp, bos, ttl;
 
-	proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_addr_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_addr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	type = tvb_get_guint8(tvb, offset);
 	offset += 1;
 	rem -= 1;
 
-	proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_mbz, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_mbz, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
 	rem -= 3;
 
@@ -728,7 +728,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 				offset + 4, 4, FALSE);
 		} else {
 			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_int_index, tvb,
-				offset + 4, 4, FALSE);
+				offset + 4, 4, ENC_BIG_ENDIAN);
 		}
 		offset += 8;
 		rem -= 8;
@@ -746,7 +746,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 			rem -= 32;
 		} else {
 			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_int_index, tvb,
-				offset + 16, 4, FALSE);
+				offset + 16, 4, ENC_BIG_ENDIAN);
 			offset += 20;
 			rem -= 20;
 		}
@@ -779,7 +779,7 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 		proto_tree_add_uint_format(tlv_ilso, hf_mpls_echo_tlv_ilso_bos,
 			tvb, offset + 2, 1, bos, "BOS: %u", bos);
 		proto_tree_add_item(tlv_ilso, hf_mpls_echo_tlv_ilso_ttl,
-			tvb, offset + 3, 1, FALSE);
+			tvb, offset + 3, 1, ENC_BIG_ENDIAN);
                 rem -= 4;
                 offset += 4;
                 idx++;
@@ -851,7 +851,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 			    offset, 2, saved_type, "Type: %s (%u)",
 			    val_to_str(type, mpls_echo_tlv_type_names, "Unknown TLV type"), saved_type);
 		}
-                proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, FALSE);
+                proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
                 /* MPLS Echo TLV Value */
                 if (length == 0)
@@ -863,14 +863,14 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                         break;
                 case TLV_PAD:
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_padaction, tvb,
-                            offset + 4, 1, FALSE);
+                            offset + 4, 1, ENC_BIG_ENDIAN);
 			if (length > 1)
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_padding, tvb,
 					offset + 5, length - 1, ENC_NA);
                         break;
 		case TLV_VENDOR_CODE:
 			proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
-			offset + 4, 4, FALSE);
+			offset + 4, 4, ENC_BIG_ENDIAN);
 			break;
 		case TLV_ILSO_IPv4:
                         if(length < 12) {
@@ -917,7 +917,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 					length);
 			} else {
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_vendor, tvb,
-					offset + 4, 4, FALSE);
+					offset + 4, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_value, tvb,
 					offset + 8, length - 4, ENC_NA);
 			}
@@ -946,9 +946,9 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
 				break;
 			}
 			proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_reply_tos, tvb,
-				offset + 4, 1, FALSE);
+				offset + 4, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_reply_tos_mbz, tvb,
-				offset + 5, 3, FALSE);
+				offset + 5, 3, ENC_BIG_ENDIAN);
 			break;
                 case TLV_ERROR_CODE:
                 default:
@@ -1015,33 +1015,33 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 mpls_echo_tree = proto_item_add_subtree(ti, ett_mpls_echo);
 
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_version, tvb, offset, 2, FALSE);
+                    hf_mpls_echo_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		if(MSGTYPE_MPLS_ECHO(msgtype)){
 		    ti = proto_tree_add_item(mpls_echo_tree,
-				hf_mpls_echo_gflags, tvb, offset + 2, 2, FALSE);
+				hf_mpls_echo_gflags, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 		    mpls_echo_gflags = proto_item_add_subtree(ti, ett_mpls_echo_gflags);
 		    proto_tree_add_item(mpls_echo_gflags,
-			hf_mpls_echo_flag_sbz, tvb, offset + 2, 2, FALSE);
+			hf_mpls_echo_flag_sbz, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 		    proto_tree_add_item(mpls_echo_gflags,
 			hf_mpls_echo_flag_v, tvb, offset + 2, 2, FALSE);
 		} else {
 		    proto_tree_add_item(mpls_echo_tree,
-			hf_mpls_echo_mbz, tvb, offset + 2, 2, FALSE);
+			hf_mpls_echo_mbz, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 		}
 
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_msgtype, tvb, offset + 4, 1, FALSE);
+                    hf_mpls_echo_msgtype, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_replymode, tvb, offset + 5, 1, FALSE);
+                    hf_mpls_echo_replymode, tvb, offset + 5, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_returncode, tvb, offset + 6, 1, FALSE);
+                    hf_mpls_echo_returncode, tvb, offset + 6, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_returnsubcode, tvb, offset + 7, 1, FALSE);
+                    hf_mpls_echo_returnsubcode, tvb, offset + 7, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_handle, tvb, offset + 8, 4, FALSE);
+                    hf_mpls_echo_handle, tvb, offset + 8, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(mpls_echo_tree,
-                    hf_mpls_echo_sequence, tvb, offset + 12, 4, FALSE);
+                    hf_mpls_echo_sequence, tvb, offset + 12, 4, ENC_BIG_ENDIAN);
 
 		if(MSGTYPE_MPLS_ECHO(msgtype)){
                 	proto_tree_add_item(mpls_echo_tree, hf_mpls_echo_ts_sent, tvb,

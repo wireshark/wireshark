@@ -252,8 +252,8 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         brdwlk_tree = proto_item_add_subtree (ti, ett_brdwlk);
 
-        proto_tree_add_item (brdwlk_tree, hf_brdwlk_sof, tvb, offset, 1, 0);
-        proto_tree_add_item (brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, 0);
+        proto_tree_add_item (brdwlk_tree, hf_brdwlk_sof, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (brdwlk_tree, hf_brdwlk_vsan, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     }
 
@@ -350,7 +350,7 @@ dissect_brdwlk (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         
         if (tree) {
             proto_tree_add_item (brdwlk_tree, hf_brdwlk_eof, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
         }
 
         if ((error & BRDWLK_HAS_PLEN) && tree) {

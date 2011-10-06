@@ -370,18 +370,18 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 	offset += 1;
 
 	/* minor version */
-	proto_tree_add_item(parent_tree, hf_min_ver, tvb, offset, 1, FALSE);
+	proto_tree_add_item(parent_tree, hf_min_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* major version */
-	proto_tree_add_item(parent_tree, hf_maj_ver, tvb, offset, 1, FALSE);
+	proto_tree_add_item(parent_tree, hf_maj_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	switch (code) {
 	case DVMRP_V3_PROBE:
 		/* generation id */
 		proto_tree_add_item(parent_tree, hf_genid, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		while (tvb_reported_length_remaining(tvb, offset)>=4) {
 			proto_tree_add_item(parent_tree, hf_neighbor,
@@ -403,7 +403,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 		offset += 4;
 		/* prune lifetime */
 		proto_tree_add_item(parent_tree, hf_life,
-			tvb, offset, 4, FALSE);
+			tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		/* source netmask */
 		if (tvb_reported_length_remaining(tvb, offset)>=4) {
@@ -461,11 +461,11 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			offset += 4;
 			/* Metric */
 			proto_tree_add_item(parent_tree, hf_metric,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			/* Threshold */
 			proto_tree_add_item(parent_tree, hf_threshold,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			/* Flags */
 			{
@@ -493,7 +493,7 @@ dissect_dvmrp_v3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			/* Neighbor count */
 			neighbor_count = tvb_get_guint8(tvb, offset);
 			proto_tree_add_item(parent_tree, hf_ncount,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			while ((tvb_reported_length_remaining(tvb, offset)>=4) 
@@ -599,7 +599,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			break;
 		case V1_COMMAND_METRIC:
 			proto_tree_add_item(tree, hf_metric, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 			if (item) {
 				proto_item_set_text(item, "%s: %d",
 					val_to_str(cmd, command, "Unknown Command:0x%02x"),
@@ -619,7 +619,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 			break;
 		case V1_COMMAND_INFINITY:
 			proto_tree_add_item(tree, hf_infinity, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 			if (item) {
 				proto_item_set_text(item, "%s: %d",
 					val_to_str(cmd, command, "Unknown Command:0x%02x"), tvb_get_guint8(tvb, offset));
@@ -652,7 +652,7 @@ dissect_dvmrp_v1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int
 					tvb, offset, 4, FALSE);
 				offset += 4;
 				proto_tree_add_item(tree, hf_hold, tvb,
-					offset, 4, FALSE);
+					offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			if (item) {

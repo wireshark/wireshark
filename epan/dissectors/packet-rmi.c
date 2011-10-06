@@ -184,9 +184,9 @@ dissect_rmi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_uint(rmi_tree, hf_rmi_magic,
 				tvb, offset,     4, tvb_get_ntohl(tvb,0));
 	    proto_tree_add_item(rmi_tree, hf_rmi_version,
-				tvb, offset + 4, 2, FALSE);
+				tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(rmi_tree, hf_rmi_protocol,
-				  tvb, offset + 6, 1, FALSE);
+				  tvb, offset + 6, 1, ENC_BIG_ENDIAN);
 	    break;
 	case RMI_INPUTSTREAM:
 	    message = tvb_get_guint8(tvb, 0);
@@ -258,9 +258,9 @@ dissect_ser(tvbuff_t *tvb, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_ser, tvb, 0, -1, FALSE);
 	ser_tree = proto_item_add_subtree(ti, ett_ser);
 	proto_tree_add_item(ser_tree, hf_ser_magic,
-			    tvb, offset,     2, FALSE);
+			    tvb, offset,     2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(ser_tree, hf_ser_version,
-			    tvb, offset + 2, 2, FALSE);
+			    tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
     }
 }

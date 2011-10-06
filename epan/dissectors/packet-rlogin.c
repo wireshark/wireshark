@@ -225,7 +225,7 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 
 		/* Show control byte */
 		proto_tree_add_item(rlogin_tree, hf_control_message, tvb,
-		                    urgent_offset, 1, FALSE);
+		                    urgent_offset, 1, ENC_BIG_ENDIAN);
 		control_byte = tvb_get_guint8(tvb, urgent_offset);
 		if (check_col(pinfo->cinfo, COL_INFO))
 		{
@@ -242,12 +242,12 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		if (pinfo->srcport == RLOGIN_PORT)   /* from server */
 		{
 			proto_tree_add_item(rlogin_tree, hf_startup_info_received_flag,
-			                    tvb, offset, 1, FALSE);
+			                    tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		else
 		{
 			proto_tree_add_item(rlogin_tree, hf_client_startup_flag,
-			                    tvb, offset, 1, FALSE);
+			                    tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		++offset;
 	}
@@ -346,23 +346,23 @@ static void rlogin_display(rlogin_hash_entry_t *hash_info,
 		/* Character rows */
 		rows = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(window_tree, hf_window_info_rows, tvb,
-		                    offset, 2, FALSE);
+		                    offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Characters per row */
 		columns = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(window_tree, hf_window_info_cols, tvb,
-		                    offset, 2, FALSE);
+		                    offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* x pixels */
 		proto_tree_add_item(window_tree, hf_window_info_x_pixels, tvb,
-		                    offset, 2, FALSE);
+		                    offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* y pixels */
 		proto_tree_add_item(window_tree, hf_window_info_y_pixels, tvb,
-		                    offset, 2, FALSE);
+		                    offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Show setting highlights in info column */

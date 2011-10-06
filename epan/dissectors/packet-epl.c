@@ -767,17 +767,17 @@ dissect_epl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         epl_tree = proto_item_add_subtree(ti, ett_epl);
 
         proto_tree_add_item(epl_tree,
-            hf_epl_mtyp, tvb, offset, 1, TRUE);
+            hf_epl_mtyp, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 1;
 
     if (tree && !udpencap)
     {
-        epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_dest, tvb, offset, 1, TRUE);
+        epl_dest_item = proto_tree_add_item(epl_tree, hf_epl_dest, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_item_append_text (epl_dest_item, "%s", dest_str);
         offset += 1;
 
-        epl_src_item = proto_tree_add_item(epl_tree, hf_epl_src, tvb, offset, 1, TRUE);
+        epl_src_item = proto_tree_add_item(epl_tree, hf_epl_src, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_item_append_text (epl_src_item, "%s", src_str);
         offset += 1;
     }
@@ -870,7 +870,7 @@ dissect_epl_soc(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, gint of
         nettime.nsecs = tvb_get_letohl(tvb, offset+4);
         proto_tree_add_time(epl_tree, hf_epl_soc_nettime, tvb, offset, 8, &nettime);
 
-        proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset+8, 8, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_soc_relativetime, tvb, offset+8, 8, ENC_LITTLE_ENDIAN);
     }
     offset += 16;
 
@@ -942,11 +942,11 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
     {
         if (epl_src != EPL_MN_NODEID)   /* check if the sender is CN or MN */
         {
-            proto_tree_add_item(epl_tree, hf_epl_pres_stat_cs, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_pres_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
         else /* MN */
         {
-            proto_tree_add_item(epl_tree, hf_epl_pres_stat_ms, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_pres_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
     }
     offset += 1;
@@ -962,8 +962,8 @@ dissect_epl_pres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8
 
     if (epl_tree)
     {
-        proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, TRUE);
-        proto_tree_add_item(epl_tree, hf_epl_pres_rs, tvb, offset, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_pres_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(epl_tree, hf_epl_pres_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 1;
 
@@ -1010,11 +1010,11 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
     {
         if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
         {
-            proto_tree_add_item(epl_tree, hf_epl_soa_stat_cs, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_soa_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
         else /* MN */
         {
-            proto_tree_add_item(epl_tree, hf_epl_soa_stat_ms, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_soa_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         }
     }
     offset += 1;
@@ -1118,7 +1118,7 @@ dissect_epl_asnd_nmtreq(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
     {
         proto_tree_add_uint(epl_tree, hf_epl_asnd_nmtrequest_rcid, tvb, offset, 1, rcid);
 
-        proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rct, tvb, offset+1, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rct, tvb, offset+1, 1, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(epl_tree, hf_epl_asnd_nmtrequest_rcd, tvb, offset+2, -1, ENC_NA);
     }
@@ -1153,7 +1153,7 @@ dissect_epl_asnd_nmtcmd(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             break;
 
         case EPL_ASND_NMTCOMMAND_NMTFLUSHARPENTRY:
-            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtflusharpentry_nid, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_nmtcommand_nmtflusharpentry_nid, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
             break;
 
@@ -1191,17 +1191,17 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ec, tvb, offset, 1, TRUE);
     offset += 1;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pr, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rs, tvb, offset, 1, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     if (epl_src != EPL_MN_NODEID)   /* check if CN or MN */
     {
-        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_stat_cs, tvb, offset, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_stat_cs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     else /* MN */
     {
-        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_stat_ms, tvb, offset, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_stat_ms, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 2;
 
@@ -1230,16 +1230,16 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_tree_add_boolean(epl_feat_tree, hf_epl_asnd_identresponse_feat_bitD, tvb, offset, 4, epl_asnd_ires_feat);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_mtu, tvb, offset, 2, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pis, tvb, offset, 2, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pis, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pos, tvb, offset, 2, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pos, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rst, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rst, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 6;
 
     profile    = tvb_get_letohs(tvb, offset);
@@ -1248,34 +1248,34 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
                                  4, "", "Device Type: Profil %d (%s), Additional Information: 0x%4.4X",
                                  profile, val_to_str(profile, epl_device_profiles, "Unknown Profile"), additional);
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_profile, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vid, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_productcode, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_productcode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rno, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_rno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_sno, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_sno, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex1, tvb, offset, 8, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vex1, tvb, offset, 8, ENC_LITTLE_ENDIAN);
     offset += 8;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vcd, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vcd, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vct, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_vct, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ad, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ad, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_at, tvb, offset, 4, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_at, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     epl_asnd_identresponse_ipa = tvb_get_ntohl(tvb, offset);
@@ -1320,8 +1320,8 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
         proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, TRUE);
         offset += 1;
 
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, TRUE);
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_rs, tvb, offset, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_rs, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
     }
     else
@@ -1350,13 +1350,13 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     epl_seb_tree = proto_item_add_subtree(ti_seb, ett_epl_seb);
 
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit2, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit3, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit4, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7, tvb, offset, 1, TRUE);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit0, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit1, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit3, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit4, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit5, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_err_errorregister_u8_bit7, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 2;
 
     proto_tree_add_item(epl_seb_tree, hf_epl_asnd_statusresponse_seb_devicespecific_err, tvb,offset, 6, ENC_NA);
@@ -1379,31 +1379,31 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
         /*Entry Type*/
         ti_el_entry_type = proto_tree_add_item(ti_el_entry,
-                                               hf_epl_asnd_statusresponse_el_entry_type, tvb, offset, 2, TRUE);
+                                               hf_epl_asnd_statusresponse_el_entry_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         epl_el_entry_type_tree = proto_item_add_subtree(ti_el_entry_type,
                                                         ett_epl_el_entry_type);
 
         proto_tree_add_item(epl_el_entry_type_tree,
-                            hf_epl_asnd_statusresponse_el_entry_type_profile, tvb, offset, 2, TRUE);
+                            hf_epl_asnd_statusresponse_el_entry_type_profile, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(epl_el_entry_type_tree,
-                            hf_epl_asnd_statusresponse_el_entry_type_mode, tvb, offset, 2, TRUE);
+                            hf_epl_asnd_statusresponse_el_entry_type_mode, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(epl_el_entry_type_tree,
-                            hf_epl_asnd_statusresponse_el_entry_type_bit14, tvb, offset, 2, TRUE);
+                            hf_epl_asnd_statusresponse_el_entry_type_bit14, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
         proto_tree_add_item(epl_el_entry_type_tree,
-                            hf_epl_asnd_statusresponse_el_entry_type_bit15, tvb, offset, 2, TRUE);
+                            hf_epl_asnd_statusresponse_el_entry_type_bit15, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_code, tvb, offset, 2, TRUE);
+        proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_code, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
-        proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_time, tvb, offset, 8, TRUE);
+        proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_time, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
 
-        proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_add, tvb, offset, 8, TRUE);
+        proto_tree_add_item(epl_el_entry_tree, hf_epl_asnd_statusresponse_el_entry_add, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
     }
 
@@ -1495,19 +1495,19 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
 
         if (epl_tree)
         {
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_transaction_id, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_transaction_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_response, tvb, offset, 1, TRUE);
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_abort,    tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_response, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_abort,    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_segmentation, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_segmentation, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_command_id, tvb, offset, 1, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_command_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset += 1;
 
-            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_segment_size, tvb, offset, 2, TRUE);
+            proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_segment_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset += 4;
         }
         else
@@ -1523,7 +1523,7 @@ dissect_epl_sdo_command(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo,
             /* if Segmentation = Initiate then print DataSize */
             if (epl_tree)
             {
-                proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, offset, 4, TRUE);
+                proto_tree_add_item(epl_tree, hf_epl_asnd_sdo_cmd_data_size, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             }
             segmented = TRUE;
             offset += 4;

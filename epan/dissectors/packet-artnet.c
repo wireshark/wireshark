@@ -522,7 +522,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 4;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_port_nr, tvb,
-                      offset, 2, TRUE);
+                      offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_versinfo, tvb,
@@ -546,7 +546,7 @@ dissect_artnet_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_esta_man, tvb,
-                      offset, 2, TRUE);
+                      offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   proto_tree_add_item(tree, hf_artnet_poll_reply_short_name,
@@ -776,7 +776,7 @@ dissect_artnet_output(tvbuff_t *tvb, guint offset, proto_tree *tree)
   offset += 1;
 
   proto_tree_add_item(tree, hf_artnet_output_universe, tvb,
-                      offset, 2, TRUE);
+                      offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   length = tvb_get_ntohs(tvb, offset);

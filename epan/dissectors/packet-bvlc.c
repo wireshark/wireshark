@@ -214,7 +214,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, offset, 4, FALSE);
 				offset += 4;
 				proto_tree_add_item(bdt_tree, hf_bvlc_bdt_port,
-					tvb, offset, 2, FALSE);
+					tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(bdt_tree,
 					hf_bvlc_bdt_mask, tvb, offset, 4,
@@ -229,7 +229,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x05: /* Register-Foreign-Device */
 			/* Time-to-Live	2-octets T, Time-to-Live T, in seconds */
 			proto_tree_add_item(bvlc_tree, hf_bvlc_reg_ttl,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			break;
 		case 0x06: /* Read-Foreign-Device-Table */
@@ -254,15 +254,15 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					tvb, offset, 4, FALSE);
 				offset += 4;
 				proto_tree_add_item(fdt_tree, hf_bvlc_fdt_port,
-					tvb, offset, 2, FALSE);
+					tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(fdt_tree,
 					hf_bvlc_fdt_ttl, tvb, offset, 2,
-					FALSE);
+					ENC_BIG_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(fdt_tree,
 					hf_bvlc_fdt_timeout, tvb, offset, 2,
-					FALSE);
+					ENC_BIG_ENDIAN);
 				offset += 2;
 			}
 			/* We check this if we get a FDT-packet somewhere */
@@ -273,7 +273,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 4, FALSE);
 			offset += 4;
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fdt_port,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 			break;
 			/* We check this if we get a FDT-packet somewhere */
@@ -287,7 +287,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				tvb, offset, 4, FALSE);
 			offset += 4;
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fwd_port,
-				tvb, offset, 2, FALSE);
+				tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		default:/* Distribute-Broadcast-To-Network
 			 * Original-Unicast-NPDU

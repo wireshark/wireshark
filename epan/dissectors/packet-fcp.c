@@ -188,7 +188,7 @@ dissect_task_mgmt_flags (packet_info *pinfo, proto_tree *parent_tree, tvbuff_t *
 	guint8 flags;
 
 	if(parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_fcp_taskmgmt, tvb, offset, 1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_fcp_taskmgmt, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_fcp_taskmgmt);
 	}
 
@@ -293,7 +293,7 @@ dissect_rsp_flags(proto_tree *parent_tree, tvbuff_t *tvb, int offset)
 	guint8 flags;
 
 	if(parent_tree) {
-		item = proto_tree_add_item(parent_tree, hf_fcp_rspflags, tvb, offset, 1, TRUE);
+		item = proto_tree_add_item(parent_tree, hf_fcp_rspflags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		tree = proto_item_add_subtree(item, ett_fcp_rsp_flags);
 	}
 
@@ -419,7 +419,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
       lun|=tvb_get_guint8(tvb, offset+1);
     } else {
       proto_tree_add_item(tree, hf_fcp_singlelun, tvb, offset+1,
-			   1, 0);
+			   1, ENC_BIG_ENDIAN);
       lun=tvb_get_guint8(tvb, offset+1);
     }
 
@@ -434,10 +434,10 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
         se_tree_insert32(fcp_conv_data->luns, lun, itl);
     }
 
-    proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, 0);
-    proto_tree_add_item(tree, hf_fcp_taskattr, tvb, offset+9, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_crn, tvb, offset+8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_fcp_taskattr, tvb, offset+9, 1, ENC_BIG_ENDIAN);
     dissect_task_mgmt_flags(pinfo, tree, tvb, offset+10);
-    proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_addlcdblen, tvb, offset+11, 1, ENC_BIG_ENDIAN);
     rwflags=tvb_get_guint8(tvb, offset+11);
     if(fchdr->itlq){
 	if(rwflags&0x02){
@@ -460,7 +460,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     dissect_scsi_cdb(cdb_tvb, pinfo, parent_tree, SCSI_DEV_UNKNOWN, fchdr->itlq, itl);
 
     proto_tree_add_item(tree, hf_fcp_dl, tvb, offset+12+16+add_len,
-			 4, 0);
+			 4, ENC_BIG_ENDIAN);
     if(fchdr->itlq){
 	fchdr->itlq->data_length=tvb_get_ntohl(tvb, offset+12+16+add_len);
     }
@@ -468,7 +468,7 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
     if( ((rwflags&0x03)==0x03)
     &&  tvb_length_remaining(tvb, offset+12+16+add_len+4)>=4){
 	proto_tree_add_item(tree, hf_fcp_bidir_dl, tvb, offset+12+16+add_len+4,
-			 4, 0);
+			 4, ENC_BIG_ENDIAN);
 	if(fchdr->itlq){
 	    fchdr->itlq->bidir_data_length=tvb_get_ntohl(tvb, offset+12+16+add_len+4);
 	}
@@ -491,7 +491,7 @@ dissect_fcp_rspinfo(tvbuff_t *tvb, proto_tree *tree, int offset)
     offset+=3;
 
     /* rsp code */
-    proto_tree_add_item(tree, hf_fcp_rspcode, tvb, offset, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_rspcode, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* 4 reserved bytes */
@@ -522,7 +522,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     offset+=8;
 
     /* retry delay timer */
-    proto_tree_add_item(tree, hf_fcp_retry_delay_timer, tvb, offset, 2, 0);
+    proto_tree_add_item(tree, hf_fcp_retry_delay_timer, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset+=2;
 
     /* flags */
@@ -531,13 +531,13 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     offset++;
 
     /* scsi status code */
-    proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_scsistatus, tvb, offset, 1, ENC_BIG_ENDIAN);
     dissect_scsi_rsp(tvb, pinfo, parent_tree, fchdr->itlq, itl, tvb_get_guint8(tvb, offset));
     offset++;
 
     /* residual count */
     if(flags & 0x0e){
-        proto_tree_add_item(tree, hf_fcp_resid, tvb, offset, 4, 0);
+        proto_tree_add_item(tree, hf_fcp_resid, tvb, offset, 4, ENC_BIG_ENDIAN);
     }
     offset+=4;
 
@@ -582,7 +582,7 @@ dissect_fcp_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, prot
     /* bidir read resid (only present for bidirectional responses) */
     if(flags&0x80){
         if(flags&0x60){
-            proto_tree_add_item(tree, hf_fcp_bidir_resid, tvb, offset, 4, 0);
+            proto_tree_add_item(tree, hf_fcp_bidir_resid, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
         offset+=4;
     }
@@ -597,8 +597,8 @@ dissect_fcp_xfer_rdy(tvbuff_t *tvb, proto_tree *tree)
     hidden_item = proto_tree_add_uint(tree, hf_fcp_type, tvb, offset, 0, 0);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-    proto_tree_add_item(tree, hf_fcp_data_ro, tvb, offset, 4, 0);
-    proto_tree_add_item(tree, hf_fcp_burstlen, tvb, offset+4, 4, 0);
+    proto_tree_add_item(tree, hf_fcp_data_ro, tvb, offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_fcp_burstlen, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -608,9 +608,9 @@ dissect_fcp_srr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     r_ctl = pinfo->r_ctl & 0xf;
     if (r_ctl == FCP_IU_UNSOL_CTL) {            /* request */
-        proto_tree_add_item(tree, hf_fcp_srr_ox_id, tvb, 4, 2, FALSE);
-        proto_tree_add_item(tree, hf_fcp_srr_rx_id, tvb, 6, 2, FALSE);
-        proto_tree_add_item(tree, hf_fcp_data_ro, tvb, 8, 4, FALSE);
+        proto_tree_add_item(tree, hf_fcp_srr_ox_id, tvb, 4, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_fcp_srr_rx_id, tvb, 6, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_fcp_data_ro, tvb, 8, 4, ENC_BIG_ENDIAN);
         r_ctl = tvb_get_guint8(tvb, 12);
         proto_tree_add_text(tree, tvb, 12, 1, "R_CTL: %s",
                             val_to_str(r_ctl, fcp_iu_val, "0x%02x"));

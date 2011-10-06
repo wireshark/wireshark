@@ -1067,7 +1067,7 @@ ssh_dissect_key_init(tvbuff_t *tvb, int offset, proto_tree *tree,
 	}
 
 	ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_first_packet_follows,
-	    tvb, offset, 1, FALSE);
+	    tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	ssh_proto_tree_add_item(key_init_tree, hf_ssh_kex_reserved,

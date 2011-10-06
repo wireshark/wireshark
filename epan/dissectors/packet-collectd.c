@@ -432,10 +432,10 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			value_tree = proto_item_add_subtree (pi,
 					ett_collectd_valinfo);
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
-					     tvb, value_type_offset, 1, FALSE);
+					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item (value_tree,
 					     hf_collectd_val_counter, tvb,
-					     value_offset, 8, FALSE);
+					     value_offset, 8, ENC_BIG_ENDIAN);
 			break;
 		}
 
@@ -451,11 +451,11 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			value_tree = proto_item_add_subtree (pi,
 					ett_collectd_valinfo);
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
-					     tvb, value_type_offset, 1, FALSE);
+					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
 			/* Set the `little endian' flag to TRUE here, because
 			 * collectd stores doubles in x86 representation. */
 			proto_tree_add_item (value_tree, hf_collectd_val_gauge,
-					     tvb, value_offset, 8, TRUE);
+					     tvb, value_offset, 8, ENC_LITTLE_ENDIAN);
 			break;
 		}
 
@@ -471,10 +471,10 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			value_tree = proto_item_add_subtree (pi,
 					ett_collectd_valinfo);
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
-					     tvb, value_type_offset, 1, FALSE);
+					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item (value_tree,
 					     hf_collectd_val_derive, tvb,
-					     value_offset, 8, FALSE);
+					     value_offset, 8, ENC_BIG_ENDIAN);
 			break;
 		}
 
@@ -490,10 +490,10 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			value_tree = proto_item_add_subtree (pi,
 					ett_collectd_valinfo);
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
-					     tvb, value_type_offset, 1, FALSE);
+					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item (value_tree,
 					     hf_collectd_val_absolute, tvb,
-					     value_offset, 8, FALSE);
+					     value_offset, 8, ENC_BIG_ENDIAN);
 			break;
 		}
 
@@ -510,9 +510,9 @@ dissect_collectd_values(tvbuff_t *tvb, gint msg_off, gint val_cnt,
 			value_tree = proto_item_add_subtree (pi,
 					ett_collectd_valinfo);
 			proto_tree_add_item (value_tree, hf_collectd_val_type,
-					     tvb, value_type_offset, 1, FALSE);
+					     tvb, value_type_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item (value_tree, hf_collectd_val_unknown,
-					     tvb, value_offset, 8, FALSE);
+					     tvb, value_offset, 8, ENC_BIG_ENDIAN);
 			break;
 		}
 		} /* switch (value_type) */
@@ -602,7 +602,7 @@ dissect_collectd_part_values (tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	proto_tree_add_uint (pt, hf_collectd_length, tvb, offset + 2, 2, length);
 
 	pi = proto_tree_add_item (pt, hf_collectd_data_valcnt, tvb,
-				  offset + 4, 2, FALSE);
+				  offset + 4, 2, ENC_BIG_ENDIAN);
 	if (values_count != corrected_values_count)
 		expert_add_info_format (pinfo, pi, PI_MALFORMED, PI_WARN,
 					"Number of values and length of part do not match. "

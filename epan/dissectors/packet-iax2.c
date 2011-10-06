@@ -1075,7 +1075,7 @@ dissect_iax2 (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
     full_mini_subtree = proto_item_add_subtree(full_mini_base, ett_iax2_full_mini_subtree);
 
     if( scallno != 0 )
-      proto_tree_add_item (full_mini_subtree, hf_iax2_scallno, tvb, offset-2, 2, FALSE);
+      proto_tree_add_item (full_mini_subtree, hf_iax2_scallno, tvb, offset-2, 2, ENC_BIG_ENDIAN);
   }
 
   iax2_info->ptype = type;
@@ -1543,7 +1543,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
   if( iax2_tree ) {
       proto_item *packet_type_base;
 
-      proto_tree_add_item (iax2_tree, hf_iax2_dcallno, tvb, offset, 2, FALSE );
+      proto_tree_add_item (iax2_tree, hf_iax2_dcallno, tvb, offset, 2, ENC_BIG_ENDIAN );
 
       proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, FALSE );
 
@@ -1561,7 +1561,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
                            FALSE);
 
       proto_tree_add_item (iax2_tree, hf_iax2_iseqno, tvb, offset+7, 1,
-                           FALSE);
+                           ENC_BIG_ENDIAN);
       packet_type_base = proto_tree_add_uint (iax2_tree, hf_iax2_type, tvb,
                                               offset+8, 1, type);
 
@@ -1615,7 +1615,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
     if( packet_type_tree ) {
       proto_item *item;
-      proto_tree_add_item (packet_type_tree, hf_iax2_voice_csub, tvb, offset+9, 1, FALSE);
+      proto_tree_add_item (packet_type_tree, hf_iax2_voice_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       item = proto_tree_add_uint (packet_type_tree, hf_iax2_voice_codec, tvb, offset+9, 1, codec);
       PROTO_ITEM_SET_GENERATED(item);
     }
@@ -1640,7 +1640,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
     if( packet_type_tree ) {
       proto_item *item;
-      proto_tree_add_item (packet_type_tree, hf_iax2_video_csub, tvb, offset+9, 1, FALSE);
+      proto_tree_add_item (packet_type_tree, hf_iax2_video_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (packet_type_tree, hf_iax2_marker, tvb, offset+9, 1, FALSE);
       item = proto_tree_add_uint (packet_type_tree, hf_iax2_video_codec, tvb, offset+9, 1, codec);
       PROTO_ITEM_SET_GENERATED(item);
@@ -1664,7 +1664,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     break;
 
   case AST_FRAME_MODEM:
-    proto_tree_add_item (packet_type_tree, hf_iax2_modem_csub, tvb, offset+9, 1, FALSE);
+    proto_tree_add_item (packet_type_tree, hf_iax2_modem_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
     offset += 10;
 
     if (check_col (pinfo->cinfo, COL_INFO))
@@ -1749,7 +1749,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
 
     proto_tree_add_item (iax2_tree, hf_iax2_minividts, tvb, offset, 2, FALSE);
     iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
-    proto_tree_add_item (iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, FALSE);
+    proto_tree_add_item (iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else {
     iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
   }
@@ -1843,8 +1843,8 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
     call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u, ts: %u", scallno, ts);
     call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
 
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, FALSE);
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_ts, tvb, offset + 4, 2, FALSE);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 6, rlen, ENC_NA);
   }
@@ -1876,8 +1876,8 @@ static guint32 dissect_trunkcall_nots (tvbuff_t * tvb, guint32 offset, proto_tre
     call_item = proto_tree_add_text(iax2_tree, tvb, offset, rlen + 6, "Trunk call from %u", scallno);
     call_tree = proto_item_add_subtree(call_item, ett_iax2_trunk_call);
 
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, FALSE);
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 4, rlen, ENC_NA);
   }
   offset += 4 + rlen;
@@ -1908,7 +1908,7 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
 
   if( iax2_tree ) {
     /* Meta Command */
-    proto_tree_add_item(iax2_tree, hf_iax2_trunk_metacmd, tvb, offset, 1, FALSE);
+    proto_tree_add_item(iax2_tree, hf_iax2_trunk_metacmd, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /* Command data */
     cd = proto_tree_add_uint(iax2_tree, hf_iax2_trunk_cmddata, tvb, offset + 1, 1, cmddata);

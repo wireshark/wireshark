@@ -308,25 +308,25 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
     atree = proto_item_add_subtree(aitem, ett_nmas);
     switch (subfunc) {
     case 1:
-        proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
-        proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         break;
     case 2:
-        proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         /* Check for Fragment packet */
         if (tvb_get_letohl(tvb, foffset)!=0xffffffff) {
             break;
         }
         foffset += 4;
         foffset += 4; /* Dont know what this is */
-        proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset += 4;
         foffset += 12;
         msg_length -= 16;
-        proto_tree_add_item(atree, hf_subverb, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_subverb, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         subverb = tvb_get_letohl(tvb, foffset);
         if (request_value) {
             request_value->req_nds_flags=subverb; /* Store the NMAS fragment verb */
@@ -339,9 +339,9 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
         }
         switch (subverb) {
         case 0:             /* Fragmented Ping */
-            proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, TRUE);
+            proto_tree_add_item(atree, hf_ping_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
-            proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, TRUE);
+            proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
             foffset += 4;
             break;
         case 2:             /* Client Put Data */
@@ -353,13 +353,13 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             /* No Op */
             break;
         case 8:             /* Login Store Management */
-            proto_tree_add_item(atree, hf_reply_buffer_size, tvb, foffset, 1, TRUE);
+            proto_tree_add_item(atree, hf_reply_buffer_size, tvb, foffset, 1, ENC_LITTLE_ENDIAN);
             foffset += 4;
             msgverb = tvb_get_guint8(tvb, foffset);
             if (request_value) {
                 request_value->nds_request_verb=msgverb; /* Use nds_request_verb for passed subverb */
             }
-            proto_tree_add_item(atree, hf_lsm_verb, tvb, foffset, 1, TRUE);
+            proto_tree_add_item(atree, hf_lsm_verb, tvb, foffset, 1, ENC_LITTLE_ENDIAN);
             foffset += 4;
             if (check_col(pinfo->cinfo, COL_INFO)) {
                 col_append_fstr(pinfo->cinfo, COL_INFO, ", %s",
@@ -391,16 +391,16 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             break;
         case 1242:          /* Message Handler */
             foffset += 4;
-            proto_tree_add_item(atree, hf_msg_version, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_msg_version, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
-            proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
             foffset += 3;
             msgverb = tvb_get_guint8(tvb, foffset);
             if (request_value) {
                 request_value->nds_request_verb=msgverb; /* Use nds_request_verb for passed verb */
             }
-            proto_tree_add_item(atree, hf_msg_verb, tvb, foffset, 1, FALSE);
+            proto_tree_add_item(atree, hf_msg_verb, tvb, foffset, 1, ENC_BIG_ENDIAN);
             foffset += 1;
             msg_length -= 12;
             if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -411,7 +411,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             {
             case 1:
                 msg_length = tvb_get_ntohl(tvb, foffset);
-                proto_tree_add_item(atree, hf_length, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
                 proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, ENC_NA);
                 foffset += msg_length;
@@ -419,7 +419,7 @@ dissect_nmas_request(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, nc
             case 3:
                 msg_length = tvb_get_ntohl(tvb, foffset);
                 msg_length -= 4;
-                proto_tree_add_item(atree, hf_length, tvb, foffset, 4, FALSE);
+                proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_BIG_ENDIAN);
                 foffset += 4;
                 while (msg_length > 0)
                 {
@@ -502,18 +502,18 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
     atree = proto_item_add_subtree(aitem, ett_nmas);
     switch (subfunc) {
     case 1:
-        proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
-        proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         foffset += 4;
         break;
     case 2:
         proto_tree_add_text(atree, tvb, foffset, -1, "Verb: %s",
                             val_to_str(subverb, nmas_subverb_enum, "Unknown (%u)"));
-        proto_tree_add_item(atree, hf_length, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         msg_length = tvb_get_letohl(tvb, foffset);
         foffset +=4;
-        proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, TRUE);
+        proto_tree_add_item(atree, hf_frag_handle, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
         /* Check for a fragment packet */
         if (tvb_get_letohl(tvb, foffset)!=0xffffffff) {
             break;
@@ -527,15 +527,15 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         {
             switch (subverb) {
             case 0:             /* Fragmented Ping */
-                proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_ping_flags, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
                 break;
             case 2:             /* Client Put Data */
-                proto_tree_add_item(atree, hf_squeue_bytes, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_squeue_bytes, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_cqueue_bytes, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_cqueue_bytes, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
                 break;
             case 4:             /* Client Get Data */
@@ -543,11 +543,11 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 foffset += msg_length;
                 break;
             case 6:             /* Client Get User NDS Credentials */
-                proto_tree_add_item(atree, hf_num_creds, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_num_creds, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_cred_type, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_cred_type, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
-                proto_tree_add_item(atree, hf_login_state, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_login_state, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
                 msg_length -= 12;
                 proto_tree_add_item(atree, hf_enc_cred, tvb, foffset, msg_length, ENC_NA);
@@ -572,7 +572,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 }
                 break;
             case 10:            /* Writable Object Check */
-                proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, TRUE);
+                proto_tree_add_item(atree, hf_nmas_version, tvb, foffset, 4, ENC_LITTLE_ENDIAN);
                 foffset += 4;
                 break;
             case 1242:          /* Message Handler */
@@ -582,13 +582,13 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                 {
                 case 1:
                     msg_length = tvb_get_ntohl(tvb, foffset);
-                    proto_tree_add_item(atree, hf_length, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(atree, hf_length, tvb, foffset, 4, ENC_BIG_ENDIAN);
                     foffset += 4;
                     proto_tree_add_item(atree, hf_data, tvb, foffset, msg_length, ENC_NA);
                     foffset += msg_length;
                     break;
                 case 3:
-                    proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(atree, hf_session_ident, tvb, foffset, 4, ENC_BIG_ENDIAN);
                     foffset += 4;
                     break;
                 case 5:
@@ -600,7 +600,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
                     if (str)
                     {
                         col_add_fstr(pinfo->cinfo, COL_INFO, "R Payload Error - %s", str);
-                        expert_item = proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, FALSE);
+                        expert_item = proto_tree_add_item(atree, hf_encrypt_error, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Payload Error: %s", str);
                     }
                     else
@@ -623,7 +623,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         str = match_strval(return_code, nmas_errors_enum);
         if (str)
         {
-            expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
+            expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
             expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x %s", return_code, str);
             col_add_fstr(pinfo->cinfo, COL_INFO, "R Error - %s", str);
         }
@@ -631,7 +631,7 @@ dissect_nmas_reply(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ncp_tree, guin
         {
             if (return_code!=0)
             {
-                expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, TRUE);
+                expert_item = proto_tree_add_item(atree, hf_return_code, tvb, roffset, 4, ENC_LITTLE_ENDIAN);
                 expert_add_info_format(pinfo, expert_item, PI_RESPONSE_CODE, PI_ERROR, "NMAS Error: 0x%08x is unknown", return_code);
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                    col_add_fstr(pinfo->cinfo, COL_INFO, "R Unknown NMAS Error - 0x%08x", return_code);

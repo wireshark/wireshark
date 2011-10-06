@@ -131,15 +131,15 @@ dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset += 6;
 
 	proto_tree_add_item(tree, hf_enttec_poll_reply_node_type, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	proto_tree_add_item(tree, hf_enttec_poll_reply_version, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_enttec_poll_reply_switch, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	
 	proto_tree_add_item(tree, hf_enttec_poll_reply_name, tvb,
@@ -147,15 +147,15 @@ dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset += 10;
 
 	proto_tree_add_item(tree, hf_enttec_poll_reply_option, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	
 	proto_tree_add_item(tree, hf_enttec_poll_reply_tos, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	
 	proto_tree_add_item(tree, hf_enttec_poll_reply_ttl, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* data */
@@ -167,7 +167,7 @@ static gint
 dissect_enttec_poll(tvbuff_t *tvb, guint offset, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_enttec_poll_type, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	return offset;
@@ -204,21 +204,21 @@ dissect_enttec_dmx_data(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	guint16 ci,ui,i,start_offset,end_offset;
 
 	proto_tree_add_item(tree, hf_enttec_dmx_data_universe, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_enttec_dmx_data_start_code, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	type = tvb_get_guint8(tvb, offset);	
 	proto_tree_add_item(tree, hf_enttec_dmx_data_type, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	length = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_enttec_dmx_data_size, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/*
@@ -367,7 +367,7 @@ dissect_enttec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (enttec_tree) {
 		proto_tree_add_item(enttec_tree, hf_enttec_head, tvb,
-					offset, 4, FALSE );
+					offset, 4, ENC_BIG_ENDIAN );
 		offset += 4;
 
 		switch (head) {

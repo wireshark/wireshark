@@ -262,10 +262,10 @@ dissect_exteap(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
 	       gint size, packet_info* pinfo)
 {
 
-  proto_tree_add_item(eap_tree, hf_eapext_vendorid,   tvb, offset, 3, FALSE);
+  proto_tree_add_item(eap_tree, hf_eapext_vendorid,   tvb, offset, 3, ENC_BIG_ENDIAN);
   offset += 3; size -= 3;
 
-  proto_tree_add_item(eap_tree, hf_eapext_vendortype, tvb, offset, 4, FALSE);
+  proto_tree_add_item(eap_tree, hf_eapext_vendortype, tvb, offset, 4, ENC_BIG_ENDIAN);
   offset += 4; size -= 4;
 
   /* Generic method to support multiple vendor-defined extended types goes here :-) */
@@ -716,7 +716,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   if (tree)
-    proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, FALSE);
+    proto_tree_add_item(eap_tree, hf_eap_identifier, tvb, 1, 1, ENC_BIG_ENDIAN);
 
   if (tree)
     proto_tree_add_uint(eap_tree, hf_eap_len, tvb, 2, 2, eap_len);
@@ -771,7 +771,7 @@ dissect_eap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       case EAP_TYPE_NAK:
 	if (tree) {
 	  proto_tree_add_item(eap_tree, hf_eap_type_nak, tvb,
-			      offset, 1, FALSE);
+			      offset, 1, ENC_BIG_ENDIAN);
 	}
 	break;
       /*********************************************************************

@@ -340,14 +340,14 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ldss_tree = proto_item_add_subtree(ti, ett_ldss_broadcast);
 
 		proto_tree_add_item(ldss_tree, hf_ldss_message_id,
-				    tvb, 0, 2, FALSE);
+				    tvb, 0, 2, ENC_BIG_ENDIAN);
 		ti = proto_tree_add_uint(ldss_tree, hf_ldss_message_detail,
 					 tvb, 0, 0, messageDetail);
 		PROTO_ITEM_SET_GENERATED(ti);
 		proto_tree_add_item(ldss_tree, hf_ldss_digest_type,
-				    tvb, 2,	    1,	FALSE);
+				    tvb, 2,	    1,	ENC_BIG_ENDIAN);
 		proto_tree_add_item(ldss_tree, hf_ldss_compression,
-				    tvb, 3,	    1,	FALSE);
+				    tvb, 3,	    1,	ENC_BIG_ENDIAN);
 		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_cookie,
 						 tvb, 4,	    4,	FALSE,
 						 "0x%x%s",
@@ -358,9 +358,9 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ldss_tree, hf_ldss_digest,
 				    tvb, 8,	    DIGEST_LEN, ENC_NA);
 		proto_tree_add_item(ldss_tree, hf_ldss_size,
-				    tvb, 40,    8,	FALSE);
+				    tvb, 40,    8,	ENC_BIG_ENDIAN);
 		proto_tree_add_item(ldss_tree, hf_ldss_offset,
-				    tvb, 48,    8,	FALSE);
+				    tvb, 48,    8,	ENC_BIG_ENDIAN);
 		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_target_time,
 						 tvb, 56,    4,	FALSE,
 						 "%d:%02d:%02d",
@@ -368,7 +368,7 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 (int)((targetTime / 60) % 60),
 						 (int)(targetTime % 60));
 		proto_tree_add_item(ldss_tree, hf_ldss_reserved_1,
-				    tvb, 60,    4,	FALSE);
+				    tvb, 60,    4,	ENC_BIG_ENDIAN);
 		proto_tree_add_uint_format_value(ldss_tree, hf_ldss_port,
 						 tvb, 64,    2,	FALSE,
 						 "%d%s",
@@ -387,9 +387,9 @@ dissect_ldss_broadcast(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						 ? (long)floor(exp(rate * G_LN2 / 2048))
 						 : 0);
 		proto_tree_add_item(ldss_tree, hf_ldss_priority,
-				    tvb, 68, 2, FALSE);
+				    tvb, 68, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ldss_tree, hf_ldss_property_count,
-				    tvb, 70, 2, FALSE);
+				    tvb, 70, 2, ENC_BIG_ENDIAN);
 		if (tvb_length(tvb) > 72) {
 			proto_tree_add_item(ldss_tree, hf_ldss_properties,
 					    tvb, 72, tvb_length(tvb) - 72, ENC_NA);

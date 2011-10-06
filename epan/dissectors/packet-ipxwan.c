@@ -158,10 +158,10 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset, 1, packet_type);
 		offset += 1;
 		proto_tree_add_item(ipxwan_tree, hf_ipxwan_node_id, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(ipxwan_tree, hf_ipxwan_sequence_number, tvb,
-			offset, 1, FALSE);
+			offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		num_options = tvb_get_guint8(tvb, offset);
 		proto_tree_add_uint(ipxwan_tree, hf_ipxwan_num_options, tvb,
@@ -181,7 +181,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			    tvb, offset, 1, option_number);
 			offset += 1;
 			proto_tree_add_item(option_tree, hf_ipxwan_accept_option,
-			    tvb, offset, 1, FALSE);
+			    tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			option_data_len = tvb_get_ntohs(tvb, offset);
 			proto_tree_add_uint(option_tree, hf_ipxwan_option_data_len,
@@ -199,7 +199,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_routing_type, tvb,
-					    offset, 1, FALSE);
+					    offset, 1, ENC_BIG_ENDIAN);
 				}
 				break;
 
@@ -256,7 +256,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				} else {
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_request_size, tvb,
-					    offset, 4, FALSE);
+					    offset, 4, ENC_BIG_ENDIAN);
 					delta_time = tvb_get_ntohl(tvb, offset);
 					proto_tree_add_uint_format(option_tree,
 					    hf_ipxwan_delta_time, tvb,

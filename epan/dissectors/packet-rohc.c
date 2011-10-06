@@ -397,7 +397,7 @@ dissect_rohc_ir_rtp_profile_dynamic(tvbuff_t *tvb, proto_tree *tree, int offset,
 	proto_tree_add_item(sub_tree, hf_rohc_rtp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 	if (p_rohc_info->profile == 2) {
-		proto_tree_add_item(sub_tree, hf_rohc_dynamic_udp_seqnum, tvb, offset, 2, FALSE);
+		proto_tree_add_item(sub_tree, hf_rohc_dynamic_udp_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset +=2;
 		proto_item_set_len(item, offset - start_offset);
 		proto_tree_add_text(tree, tvb, offset, -1, "RTP data");

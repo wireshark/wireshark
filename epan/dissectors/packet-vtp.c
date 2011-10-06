@@ -148,7 +148,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		vtp_tree = proto_item_add_subtree(ti, ett_vtp);
 
 		proto_tree_add_item(vtp_tree, hf_vtp_version, tvb, offset, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		offset += 1;
 
 		code = tvb_get_guint8(tvb, offset);
@@ -160,7 +160,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case SUMMARY_ADVERT:
 			proto_tree_add_item(vtp_tree, hf_vtp_followers, tvb, offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			md_len = tvb_get_guint8(tvb, offset);
@@ -173,7 +173,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb,
@@ -194,7 +194,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case SUBSET_ADVERT:
 			proto_tree_add_item(vtp_tree, hf_vtp_seq_num, tvb, offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			md_len = tvb_get_guint8(tvb, offset);
@@ -207,7 +207,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			while (tvb_reported_length_remaining(tvb, offset) > 0) {
@@ -232,7 +232,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_start_value, tvb,
-			    offset, 2, FALSE);
+			    offset, 2, ENC_BIG_ENDIAN);
 			break;
 
 		case JOIN_MSG:
@@ -248,12 +248,12 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_pruning_first_vid, tvb, offset,
-			    2, FALSE);
+			    2, ENC_BIG_ENDIAN);
 			pruning_vlan_id = tvb_get_ntohs(tvb, offset);
 			offset += 2;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_pruning_last_vid, tvb, offset,
-			    2, FALSE);
+			    2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			ti = proto_tree_add_text (vtp_tree, tvb, offset, -1,
@@ -360,7 +360,7 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (vlan_info_left < 1)
 		return -1;
 	proto_tree_add_item(vlan_info_tree, hf_vtp_vlan_type, tvb, offset, 1,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	offset += 1;
 	vlan_info_left -= 1;
 
@@ -375,21 +375,21 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (vlan_info_left < 2)
 		return -1;
 	proto_tree_add_item(vlan_info_tree, hf_vtp_isl_vlan_id, tvb, offset, 2,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	offset += 2;
 	vlan_info_left -= 2;
 
 	if (vlan_info_left < 2)
 		return -1;
 	proto_tree_add_item(vlan_info_tree, hf_vtp_mtu_size, tvb, offset, 2,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	offset += 2;
 	vlan_info_left -= 2;
 
 	if (vlan_info_left < 4)
 		return -1;
 	proto_tree_add_item(vlan_info_tree, hf_vtp_802_10_index, tvb, offset, 4,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	offset += 4;
 	vlan_info_left -= 4;
 

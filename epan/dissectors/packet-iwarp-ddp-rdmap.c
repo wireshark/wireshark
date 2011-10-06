@@ -304,10 +304,10 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 					ett_iwarp_rdma);
 
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_sinkstag, tvb,
-					offset, RDMA_SINKSTAG_LEN, FALSE);
+					offset, RDMA_SINKSTAG_LEN, ENC_BIG_ENDIAN);
 			offset += RDMA_SINKSTAG_LEN;
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_sinkto, tvb,
-					offset, RDMA_SINKTO_LEN, FALSE);
+					offset, RDMA_SINKTO_LEN, ENC_BIG_ENDIAN);
 			offset += RDMA_SINKTO_LEN;
 
 			rdmardsz = (guint32) tvb_get_ntohl(tvb, offset);
@@ -318,7 +318,7 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 
 			offset += RDMA_RDMARDSZ_LEN;
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_srcstag, tvb,
-					offset, RDMA_SRCSTAG_LEN, FALSE);
+					offset, RDMA_SRCSTAG_LEN, ENC_BIG_ENDIAN);
 			offset += RDMA_SRCSTAG_LEN;
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_srcto, tvb,
 					offset, RDMA_SRCTO_LEN, ENC_NA);
@@ -340,41 +340,41 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			term_ctrl_field_tree = proto_item_add_subtree(
 					term_ctrl_field_subitem, ett_iwarp_rdma);
 			proto_tree_add_item(term_ctrl_field_tree, hf_iwarp_rdma_term_layer,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			switch (layer) {
 				case IWARP_LAYER_RDMA:
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_etype_rdma, tvb, offset, 1,
-							FALSE);
+							ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_errcode_rdma, tvb, offset, 1,
-							FALSE);
+							ENC_BIG_ENDIAN);
 					offset += 1;
 					break;
 				case IWARP_LAYER_DDP:
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_etype_ddp, tvb, offset, 1,
-							FALSE);
+							ENC_BIG_ENDIAN);
 					offset += 1;
 					switch (etype) {
 						case IWARP_ETYPE_DDP_TAGGED:
 							proto_tree_add_item(term_ctrl_field_tree,
 									hf_iwarp_rdma_term_errcode_ddp_tagged, tvb,
-									offset, 1, FALSE);
+									offset, 1, ENC_BIG_ENDIAN);
 							offset += 1;
 							break;
 						case IWARP_ETYPE_DDP_UNTAGGED:
 							proto_tree_add_item(term_ctrl_field_tree,
 									hf_iwarp_rdma_term_errcode_ddp_untagged, tvb,
-									offset, 1, FALSE);
+									offset, 1, ENC_BIG_ENDIAN);
 							offset += 1;
 							break;
 						default:
 							proto_tree_add_item(term_ctrl_field_tree,
 									hf_iwarp_rdma_term_errcode, tvb, offset, 1,
-									FALSE);
+									ENC_BIG_ENDIAN);
 							offset += 1;
 							break;
 					}
@@ -382,19 +382,19 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 				case IWARP_LAYER_LLP:
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_etype_llp, tvb, offset, 1,
-							FALSE);
+							ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item(term_ctrl_field_tree,
 							hf_iwarp_rdma_term_errcode_llp, tvb, offset, 1,
-							FALSE);
+							ENC_BIG_ENDIAN);
 					offset += 1;
 					break;
 				default:
 					proto_tree_add_item(term_ctrl_field_tree,
-							hf_iwarp_rdma_term_etype, tvb, offset, 1, FALSE);
+							hf_iwarp_rdma_term_etype, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item(term_ctrl_field_tree,
-							hf_iwarp_rdma_term_errcode, tvb, offset, 1, FALSE);
+							hf_iwarp_rdma_term_errcode, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					break;
 			}
@@ -409,14 +409,14 @@ dissect_iwarp_rdmap(tvbuff_t *tvb, proto_tree *rdma_tree, guint32 offset,
 			hdrct = tvb_get_guint8(tvb, offset) & IWARP_HDRCT;
 
 			proto_tree_add_item(header_ctrl_field_tree,
-					hf_iwarp_rdma_term_hdrct_m, tvb, offset, 1, FALSE);
+					hf_iwarp_rdma_term_hdrct_m, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(header_ctrl_field_tree,
-					hf_iwarp_rdma_term_hdrct_d, tvb, offset, 1, FALSE);
+					hf_iwarp_rdma_term_hdrct_d, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(header_ctrl_field_tree,
-					hf_iwarp_rdma_term_hdrct_r, tvb, offset, 1, FALSE);
+					hf_iwarp_rdma_term_hdrct_r, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			proto_tree_add_item(rdma_header_tree, hf_iwarp_rdma_term_rsvd, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 
@@ -524,9 +524,9 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_l_flag, tvb,
 				offset, DDP_CONTROL_FIELD_LEN, FALSE);
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_rsvd, tvb,
-				offset, DDP_CONTROL_FIELD_LEN, FALSE);
+				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_dv, tvb, offset,
-				DDP_CONTROL_FIELD_LEN, FALSE);
+				DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		offset += DDP_CONTROL_FIELD_LEN;
 
 
@@ -555,11 +555,11 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ett_iwarp_rdma);
 
 		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_version, tvb,
-				offset, RDMA_CONTROL_FIELD_LEN, FALSE);
+				offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_rsvd, tvb,
-				offset, RDMA_CONTROL_FIELD_LEN, FALSE);
+				offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rdma_ctrl_field_tree, hf_iwarp_rdma_opcode, tvb,
-				offset, RDMA_CONTROL_FIELD_LEN, FALSE);
+				offset, RDMA_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		offset += RDMA_CONTROL_FIELD_LEN;
 
 		/* dissection of DDP rsvdULP[8:39] with respect to RDMAP */
@@ -574,7 +574,7 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (rdma_msg_opcode == RDMA_SEND_INVALIDATE
 				|| rdma_msg_opcode == RDMA_SEND_SE_INVALIDATE) {
 			proto_tree_add_item(rdma_tree, hf_iwarp_rdma_inval_stag,
-				tvb, offset, RDMA_INVAL_STAG_LEN, FALSE);
+				tvb, offset, RDMA_INVAL_STAG_LEN, ENC_BIG_ENDIAN);
 		}
 
 		if (!is_tagged_buffer_model) {
@@ -616,13 +616,13 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					ett_iwarp_ddp);
 
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_qn, tvb,
-					offset, DDP_QN_LEN, FALSE);
+					offset, DDP_QN_LEN, ENC_BIG_ENDIAN);
 			offset += DDP_QN_LEN;
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_msn, tvb,
-					offset, DDP_MSN_LEN, FALSE);
+					offset, DDP_MSN_LEN, ENC_BIG_ENDIAN);
 			offset += DDP_MSN_LEN;
 			proto_tree_add_item(ddp_buffer_model_tree, hf_iwarp_ddp_mo, tvb,
-					offset, DDP_MO_LEN, FALSE);
+					offset, DDP_MO_LEN, ENC_BIG_ENDIAN);
 			offset += DDP_MO_LEN;
 
 			if (rdma_msg_opcode == RDMA_SEND

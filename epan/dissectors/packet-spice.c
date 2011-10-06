@@ -1221,16 +1221,16 @@ dissect_ImageLZ_RGB(tvbuff_t *tvb, proto_tree *tree, guint32 offset)
     }
 */
         offset += 2; /* TODO: not sure we need this! Understand what this is */
-        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_type, tvb, offset, 2, FALSE);
+        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         /*FIXME: sometimes width is incorrect (bitmask?) */
-        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_width, tvb, offset, 4, FALSE);
+        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_width, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_height, tvb, offset, 4, FALSE);
+        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_height, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_stride, tvb, offset, 4, FALSE);
+        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_stride, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
-        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_dict_id, tvb, offset, 8, TRUE);
+        proto_tree_add_item(LZ_RGB_tree, hf_GLZ_RGB_dict_id, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         offset += 8;
 
         /*TODO: show win_head_image_dist - not sure what it stands for though

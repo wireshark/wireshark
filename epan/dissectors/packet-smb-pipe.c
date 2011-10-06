@@ -1805,7 +1805,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * 16-bit receive buffer length.
 			 */
 			proto_tree_add_item(tree, hf_recv_buf_len, tvb,
-			    offset, 2, TRUE);
+			    offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			break;
 
@@ -1822,7 +1822,7 @@ dissect_request_parameters(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			 * 16-bit send buffer length.
 			 */
 			proto_tree_add_item(tree, hf_send_buf_len, tvb,
-			    offset, 2, TRUE);
+			    offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			break;
 
@@ -3594,7 +3594,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			 * It's a priority.
 			 */
 			proto_tree_add_item(pipe_tree, hf_pipe_priority, s_tvb,
-			    offset, 2, TRUE);
+			    offset, 2, ENC_LITTLE_ENDIAN);
 			break;
 
 		case PEEK_NAMED_PIPE:
@@ -3729,13 +3729,13 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 				return FALSE;
 			offset = 0;
 			proto_tree_add_item(pipe_tree, hf_pipe_peek_available,
-			    p_tvb, offset, 2, TRUE);
+			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(pipe_tree, hf_pipe_peek_remaining,
-			    p_tvb, offset, 2, TRUE);
+			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 			proto_tree_add_item(pipe_tree, hf_pipe_peek_status,
-			    p_tvb, offset, 2, TRUE);
+			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 		}
 		break;
@@ -3788,19 +3788,19 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 			case 1:
 				proto_tree_add_item(pipe_tree,
 				    hf_pipe_getinfo_output_buffer_size,
-				    d_tvb, offset, 2, TRUE);
+				    d_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(pipe_tree,
 				    hf_pipe_getinfo_input_buffer_size,
-				    d_tvb, offset, 2, TRUE);
+				    d_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 				proto_tree_add_item(pipe_tree,
 				    hf_pipe_getinfo_maximum_instances,
-				    d_tvb, offset, 1, TRUE);
+				    d_tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				proto_tree_add_item(pipe_tree,
 				    hf_pipe_getinfo_current_instances,
-				    d_tvb, offset, 1, TRUE);
+				    d_tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 				pipe_namelen = tvb_get_guint8(d_tvb, offset);
 				proto_tree_add_uint(pipe_tree,
@@ -3844,7 +3844,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 				return FALSE;
 			proto_tree_add_item(pipe_tree,
 			    hf_pipe_write_raw_bytes_written,
-			    p_tvb, offset, 2, TRUE);
+			    p_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 		}
 		break;

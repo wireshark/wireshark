@@ -785,17 +785,17 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 	cc  = (header & MP2T_CC_MASK)  >> MP2T_CC_SHIFT;
 	proto_item_append_text(ti, " PID=0x%x CC=%d", pid, cc);
 
-	hi = proto_tree_add_item( mp2t_tree, hf_mp2t_header, tvb, offset, 4, FALSE);
+	hi = proto_tree_add_item( mp2t_tree, hf_mp2t_header, tvb, offset, 4, ENC_BIG_ENDIAN);
 	mp2t_header_tree = proto_item_add_subtree( hi, ett_mp2t_header );
 
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_sync_byte, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tei, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_pusi, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tp, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_pid, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tsc, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, FALSE);
-	proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, FALSE);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_sync_byte, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tei, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_pusi, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tp, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_tsc, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_afc, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item( mp2t_header_tree, hf_mp2t_cc, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 	/* If this is a DOCSIS packet - reassemble MPEG frames and call DOCSIS dissector */
 	if (((header & MP2T_PID_MASK) >> MP2T_PID_SHIFT) == 0x1FFE) {
@@ -827,7 +827,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 		af_length = tvb_get_guint8(tvb, offset);
 
-		proto_tree_add_item( mp2t_tree, hf_mp2t_af_length, tvb, offset, 1, FALSE);
+		proto_tree_add_item( mp2t_tree, hf_mp2t_af_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 		/* fix issues where afc==3 but af_length==0
 		 *  Adaptaion field...spec section 2.4.3.5: The value 0 is for inserting a single
@@ -840,14 +840,14 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 
 			af_flags = tvb_get_guint8(tvb, offset);
 
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_di, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_rai, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_espi, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_pcr_flag, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_opcr_flag, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sp_flag, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_flag, tvb, offset, 1, FALSE);
-			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_afe_flag, tvb, offset, 1, FALSE);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_di, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_rai, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_espi, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_pcr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_opcr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sp_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_afe_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			offset += 1;
 
@@ -924,7 +924,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 			}
 
 			if (af_flags &  MP2T_AF_SP_MASK) {
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sc, tvb, offset, 1, FALSE);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_sc, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 			}
 
@@ -932,7 +932,7 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				guint8 tpd_len;
 
 				tpd_len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_length, tvb, offset, 1, FALSE);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 
 				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_tpd, tvb, offset, tpd_len, ENC_NA);
@@ -946,38 +946,38 @@ dissect_tsp(tvbuff_t *tvb, volatile gint offset, packet_info *pinfo,
 				gint reserved_len = 0;
 
 				e_len = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_length, tvb, offset, 1, FALSE);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 
 				e_flags = tvb_get_guint8(tvb, offset);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltw_flag, tvb, offset, 1, FALSE);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_flag, tvb, offset, 1, FALSE);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ss_flag, tvb, offset, 1, FALSE);
-				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved, tvb, offset, 1, FALSE);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltw_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ss_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 
 				if (e_flags & MP2T_AF_E_LTW_FLAG_MASK) {
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwv_flag, tvb, offset, 2, FALSE);
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwo, tvb, offset, 2, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwv_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_ltwo, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 				}
 
 				if (e_flags & MP2T_AF_E_PR_FLAG_MASK) {
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_reserved, tvb, offset, 3, FALSE);
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr, tvb, offset, 3, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_pr, tvb, offset, 3, ENC_BIG_ENDIAN);
 					offset += 3;
 				}
 
 				if (e_flags & MP2T_AF_E_SS_FLAG_MASK) {
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_st, tvb, offset, 1, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_st, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_32_30, tvb, offset, 1, FALSE);
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_1, tvb, offset, 1, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_29_15, tvb, offset, 2, FALSE);
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_2, tvb, offset, 2, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_dnau_14_0, tvb, offset, 2, FALSE);
-					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_3, tvb, offset, 2, FALSE);
+					proto_tree_add_item( mp2t_af_tree, hf_mp2t_af_e_m_3, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
 				}
 

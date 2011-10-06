@@ -344,8 +344,8 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 			/* Tag value and data length */
 			if (global_pppoe_show_tags_and_lengths)
 			{
-				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_tag, tvb, tagstart, 1, FALSE);
-				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, FALSE);
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vspec_tag, tvb, tagstart, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, ENC_BIG_ENDIAN);
 			}
 
 			/* Show tag data */
@@ -393,11 +393,11 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 					}
 					encaps_tree = proto_item_add_subtree(ti, ett_pppoed_tag_vspec_dslf_access_loop_encaps);
 					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_data_link,
-							tvb, tagstart+2, 1, FALSE);
+							tvb, tagstart+2, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_encap_1,
-							tvb, tagstart+3, 1, FALSE);
+							tvb, tagstart+3, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(encaps_tree, hf_pppoed_tag_vspec_access_loop_encap_encap_2,
-							tvb, tagstart+4, 1, FALSE);
+							tvb, tagstart+4, 1, ENC_BIG_ENDIAN);
 
 					break;
 				default:
@@ -407,8 +407,8 @@ dissect_pppoe_subtags_dslf(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, pr
 						   show tag value if we didn't do it above */
 						if (!global_pppoe_show_tags_and_lengths)
 						{
-							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 1, FALSE);
-							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, FALSE);
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length_8, tvb, tagstart+1, 1, ENC_BIG_ENDIAN);
 						}
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
 								tagstart+1, poe_tag_length, ENC_NA);
@@ -454,9 +454,9 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 			/* Tag value and data length */
 			if (global_pppoe_show_tags_and_lengths)
 			{
-				proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
+				proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, ENC_BIG_ENDIAN);
 				pppoe_tree_tag_length_item =
-					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
+					proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, ENC_BIG_ENDIAN);
 			}
 
 			/* Show tag data */
@@ -491,7 +491,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					if (poe_tag_length >= 4)
 					{
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_vendor_id, tvb,
-											tagstart+4, 4, FALSE);
+											tagstart+4, 4, ENC_BIG_ENDIAN);
 					}
 					if (poe_tag_length > 4)
 					{
@@ -512,9 +512,9 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 					if (poe_tag_length == 4)
 					{
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits_fcn, tvb,
-						                    tagstart+4, 2, FALSE);
+						                    tagstart+4, 2, ENC_BIG_ENDIAN);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits_bcn, tvb,
-						                    tagstart+6, 2, FALSE);
+						                    tagstart+6, 2, ENC_BIG_ENDIAN);
 					} else {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits, tvb,
 						                    tagstart+4, poe_tag_length, ENC_NA);
@@ -526,21 +526,21 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
                                                 poe_rsv = tvb_get_ntohs(tvb, tagstart+4);
 
                                                 proto_tree_add_item(pppoe_tree, hf_pppoed_tag_mdr_units, tvb,
-                                                                    tagstart+4, 2, FALSE);
+                                                                    tagstart+4, 2, ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cdr_units, tvb,
-                                                                    tagstart+4, 2, FALSE);
+                                                                    tagstart+4, 2, ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
 						                    tagstart+4, 2, FALSE);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_rlq, tvb,
-						                    tagstart+6, 1, FALSE);
+						                    tagstart+6, 1, ENC_BIG_ENDIAN);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_resource, tvb,
-						                    tagstart+7, 1, FALSE);
+						                    tagstart+7, 1, ENC_BIG_ENDIAN);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_latency, tvb,
-						                    tagstart+8, 2, FALSE);
+						                    tagstart+8, 2, ENC_BIG_ENDIAN);
 
                                                 /* CDR */
 						ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_curr_drate, tvb,
-                                                                         tagstart+10, 2, FALSE);
+                                                                         tagstart+10, 2, ENC_BIG_ENDIAN);
 
                                                 switch ((poe_rsv & PPPOE_CDR_MASK) >> 1)
                                                 {
@@ -560,7 +560,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 
                                                 /* MDR */
 						ti = proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_max_drate, tvb,
-						                    tagstart+12, 2, FALSE);
+						                    tagstart+12, 2, ENC_BIG_ENDIAN);
 
                                                 switch ((poe_rsv & PPPOE_MDR_MASK) >> 3)
                                                 {
@@ -586,7 +586,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 				case PPPOE_TAG_SEQ_NUM:
 					if (poe_tag_length == 2) {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_seq_num, tvb,
-								    tagstart+4, poe_tag_length, FALSE);
+								    tagstart+4, poe_tag_length, ENC_BIG_ENDIAN);
 					} else {
 						if (global_pppoe_show_tags_and_lengths) {
 							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
@@ -605,7 +605,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
                                 case PPPOE_TAG_CRED_SCALE:
 					if (poe_tag_length == 2) {
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cred_scale, tvb,
-								    tagstart+4, poe_tag_length, FALSE);
+								    tagstart+4, poe_tag_length, ENC_BIG_ENDIAN);
 					} else {
 						if (global_pppoe_show_tags_and_lengths) {
 							proto_item_append_text(pppoe_tree_tag_length_item, " [Wrong: should be 2]");
@@ -669,8 +669,8 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
 						   do it above */
 						if (!global_pppoe_show_tags_and_lengths)
 						{
-							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, FALSE);
-							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, FALSE);
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag, tvb, tagstart, 2, ENC_BIG_ENDIAN);
+							proto_tree_add_item(pppoe_tree, hf_pppoed_tag_length, tvb, tagstart+2, 2, ENC_BIG_ENDIAN);
 						}
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_unknown_data, tvb,
 								tagstart+2, poe_tag_length, ENC_NA);
@@ -712,11 +712,11 @@ static void dissect_pppoed(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoed);
 
 		/* Dissect fixed fields */
-		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, ENC_BIG_ENDIAN);
 	}
 
 	/* Now dissect any tags */
@@ -1075,11 +1075,11 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_pppoes, tvb, 0, 6, FALSE);
 		pppoe_tree = proto_item_add_subtree(ti, ett_pppoe);
 
-		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, FALSE);
-		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, FALSE);
-		ti = proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, FALSE);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_type, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_code, tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(pppoe_tree, hf_pppoe_session_id, tvb, 2, 2, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(pppoe_tree, hf_pppoe_payload_length, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 
 		if (PPPOE_TAG_CREDITS == tvb_get_ntohs(tvb, 6))
@@ -1095,9 +1095,9 @@ static void dissect_pppoes(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (poe_tag_length == 4)
 			{
 				proto_tree_add_item(pppoe_tree, hf_pppoes_tag_credits_fcn, tvb,
-					tagstart+4, 2, FALSE);
+					tagstart+4, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(pppoe_tree, hf_pppoes_tag_credits_bcn, tvb,
-					tagstart+6, 2, FALSE);
+					tagstart+6, 2, ENC_BIG_ENDIAN);
 			} else {
 				proto_tree_add_item(pppoe_tree, hf_pppoed_tag_credits, tvb,
 					tagstart+4, poe_tag_length, ENC_NA);

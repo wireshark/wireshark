@@ -78,10 +78,10 @@ dissect_cimetrics_mstp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 #endif
 	subtree = proto_item_add_subtree(ti, ett_cimetrics_mstp);
 	proto_tree_add_item(subtree, hf_cimetrics_mstp_timer, tvb,
-			offset++, 2, TRUE);
+			offset++, 2, ENC_LITTLE_ENDIAN);
 	offset++;
 	proto_tree_add_item(subtree, hf_cimetrics_mstp_value, tvb,
-			offset++, 1, TRUE);
+			offset++, 1, ENC_LITTLE_ENDIAN);
 	dissect_mstp(tvb, pinfo, tree, subtree, offset);
 }
 

@@ -246,7 +246,7 @@ static const value_string log_type_vals[] = {
 static void
 rq10(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_10_fruid, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_10_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -254,7 +254,7 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *flags[] = { &hf_ipmi_stor_10_access, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_stor_10_size, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_10_size, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_stor_10_flags, flags, TRUE, 0);
 }
 
@@ -263,15 +263,15 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq11(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_11_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_11_offset, tvb, 1, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_11_count, tvb, 3, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_11_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_11_offset, tvb, 1, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_11_count, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs11(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_11_ret_count, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_11_ret_count, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_11_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
@@ -285,15 +285,15 @@ static const value_string cc11[] = {
 static void
 rq12(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_12_fruid, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_12_offset, tvb, 1, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_12_fruid, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_12_offset, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_12_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
 static void
 rs12(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_12_ret_count, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_12_ret_count, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc12[] = {
@@ -311,9 +311,9 @@ rs20(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_stor_20_op_delete, &hf_ipmi_stor_20_op_partial_add, &hf_ipmi_stor_20_op_reserve,
 		&hf_ipmi_stor_20_op_allocinfo, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_stor_20_sdr_version, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_20_rec_count, tvb, 1, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_20_free_space, tvb, 3, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_20_sdr_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_20_rec_count, tvb, 1, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_20_free_space, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_stor_20_ts_add, tvb, 5);
 	ipmi_add_timestamp(tree, hf_ipmi_stor_20_ts_erase, tvb, 9);
 	proto_tree_add_bitmask_text(tree, tvb, 13, 1, "Operation Support: ", NULL,
@@ -325,11 +325,11 @@ rs20(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs21(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_21_units, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_21_size, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_21_free, tvb, 4, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_21_largest, tvb, 6, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_21_maxrec, tvb, 8, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_21_units, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_21_size, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_21_free, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_21_largest, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_21_maxrec, tvb, 8, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Reserve SDR Repository
@@ -337,7 +337,7 @@ rs21(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs22(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_22_rsrv_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_22_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 /* Get SDR
@@ -347,9 +347,9 @@ rq23(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint8 v = tvb_get_guint8(tvb, 5);
 
-	proto_tree_add_item(tree, hf_ipmi_stor_23_rsrv_id, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_23_rec_id, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_23_offset, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_23_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_23_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_23_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_stor_23_count, tvb, 5, 1,
 			v, "%d%s", v, v == 0xff ? " (entire record)" : "");
 }
@@ -357,7 +357,7 @@ rq23(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs23(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_23_next, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_23_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_23_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
 }
 
@@ -372,7 +372,7 @@ rq24(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs24(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_24_added_rec_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_24_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 /* Partial Add SDR
@@ -382,9 +382,9 @@ rq25(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte6[] = { &hf_ipmi_stor_25_inprogress, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_stor_25_rsrv_id, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_25_offset, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
 			ett_ipmi_stor_25_byte6, byte6, TRUE, 0);
 	proto_tree_add_item(tree, hf_ipmi_stor_25_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
@@ -393,7 +393,7 @@ rq25(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs25(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_25_added_rec_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc25[] = {
@@ -406,14 +406,14 @@ static const value_string cc25[] = {
 static void
 rq26(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_25_rsrv_id, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_25_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs26(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_26_del_rec_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_26_del_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 /* Clear SDR Repository
@@ -421,9 +421,9 @@ rs26(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq27(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_27_rsrv_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_27_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_27_clr, tvb, 2, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_27_action, tvb, 5, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_27_action, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -479,9 +479,9 @@ rs40(tvbuff_t *tvb, proto_tree *tree)
 	static const int *ops[] = { &hf_ipmi_stor_40_op_overflow, &hf_ipmi_stor_40_op_delete,
 		&hf_ipmi_stor_40_op_partial_add, &hf_ipmi_stor_40_op_reserve, &hf_ipmi_stor_40_op_allocinfo, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_stor_40_sel_version, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_40_entries, tvb, 1, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_40_free_space, tvb, 3, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_40_sel_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_40_entries, tvb, 1, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_40_free_space, tvb, 3, 2, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_stor_40_ts_add, tvb, 5);
 	ipmi_add_timestamp(tree, hf_ipmi_stor_40_ts_erase, tvb, 9);
 	proto_tree_add_bitmask_text(tree, tvb, 13, 1, "Operation Support: ", NULL,
@@ -498,11 +498,11 @@ static const value_string cc40[] = {
 static void
 rs41(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_41_units, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_41_size, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_41_free, tvb, 4, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_41_largest, tvb, 6, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_41_maxrec, tvb, 8, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_41_units, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_41_size, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_41_free, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_41_largest, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_41_maxrec, tvb, 8, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Reserve SEL
@@ -510,7 +510,7 @@ rs41(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs42(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_42_rsrv_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_42_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc42[] = {
@@ -525,9 +525,9 @@ rq43(tvbuff_t *tvb, proto_tree *tree)
 {
 	guint8 v = tvb_get_guint8(tvb, 5);
 
-	proto_tree_add_item(tree, hf_ipmi_stor_43_rsrv_id, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_43_rec_id, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_43_offset, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_43_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_43_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_43_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_stor_43_count, tvb, 5, 1,
 			v, "%d%s", v, v == 0xff ? " (entire record)" : "");
 }
@@ -535,7 +535,7 @@ rq43(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs43(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_43_next, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_43_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_43_data, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
 }
 
@@ -556,7 +556,7 @@ rq44(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs44(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_44_added_rec_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_44_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc44[] = {
@@ -572,9 +572,9 @@ rq45(tvbuff_t *tvb, proto_tree *tree)
 {
 	static const int *byte6[] = { &hf_ipmi_stor_45_inprogress, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_stor_45_rsrv_id, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_45_offset, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, NULL, NULL,
 			ett_ipmi_stor_45_byte6, byte6, TRUE, 0);
 	proto_tree_add_item(tree, hf_ipmi_stor_45_data, tvb, 6, tvb_length(tvb) - 6, ENC_NA);
@@ -583,7 +583,7 @@ rq45(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs45(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_45_added_rec_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_added_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc45[] = {
@@ -597,14 +597,14 @@ static const value_string cc45[] = {
 static void
 rq46(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_45_rsrv_id, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_stor_45_rec_id, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs46(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_46_del_rec_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_46_del_rec_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc46[] = {
@@ -618,9 +618,9 @@ static const value_string cc46[] = {
 static void
 rq47(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_stor_47_rsrv_id, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_47_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_stor_47_clr, tvb, 2, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_stor_47_action, tvb, 5, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_47_action, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -676,9 +676,9 @@ rs5a(tvbuff_t *tvb, proto_tree *tree)
 
 	ipmi_add_timestamp(tree, hf_ipmi_stor_5a_ts_add, tvb, 0);
 	if (v  == 0) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5a_num_entries, tvb, 4, 4, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5a_num_entries, tvb, 4, 4, ENC_LITTLE_ENDIAN);
 	} else if (v == 1 || v == 2) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5a_iana, tvb, 4, 3, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5a_iana, tvb, 4, 3, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_stor_5a_bytes, tvb, 7, 7, ENC_NA);
 	}
 }
@@ -701,9 +701,9 @@ rq5b(tvbuff_t *tvb, proto_tree *tree)
 
 	ipmi_add_timestamp(tree, hf_ipmi_stor_5b_ts_add, tvb, 1);
 	if (v  == 0) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5b_num_entries, tvb, 5, 4, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5b_num_entries, tvb, 5, 4, ENC_LITTLE_ENDIAN);
 	} else if (v == 1 || v == 2) {
-		proto_tree_add_item(tree, hf_ipmi_stor_5b_iana, tvb, 5, 3, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_stor_5b_iana, tvb, 5, 3, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_stor_5b_bytes, tvb, 8, 8, ENC_NA);
 	}
 }

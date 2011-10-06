@@ -3024,7 +3024,7 @@ dissect_mldrv2( tvbuff_t *tvb, guint32 offset, packet_info *pinfo _U_, proto_tre
     mldr_offset += 2;
 
     /* Nr of Mcast Address Records (M) */
-    proto_tree_add_item(tree, hf_icmpv6_mldr_nb_mcast_records, tvb, mldr_offset, 2, FALSE );
+    proto_tree_add_item(tree, hf_icmpv6_mldr_nb_mcast_records, tvb, mldr_offset, 2, ENC_BIG_ENDIAN );
     mldr_offset += 2;
 
     /* Multicast Address Record */

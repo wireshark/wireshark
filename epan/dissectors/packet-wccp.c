@@ -232,24 +232,24 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case WCCP_HERE_I_AM:
 			proto_tree_add_item(wccp_tree, hf_wccp_version, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			dissect_hash_data(tvb, offset, wccp_tree);
 			offset += HASH_INFO_SIZE;
 			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
-			    4, FALSE);
+			    4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 
 		case WCCP_I_SEE_YOU:
 			proto_tree_add_item(wccp_tree, hf_wccp_version, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(wccp_tree, hf_change_num, tvb, offset,
-			    4, FALSE);
+			    4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
-			    4, FALSE);
+			    4, ENC_BIG_ENDIAN);
 			offset += 4;
 			cache_count = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_text(wccp_tree, tvb, offset, 4,
@@ -272,7 +272,7 @@ dissect_wccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 * rather than a Version field.
 			 */
 			proto_tree_add_item(wccp_tree, hf_recvd_id, tvb, offset,
-			    4, FALSE);
+			    4, ENC_BIG_ENDIAN);
 			offset += 4;
 			cache_count = tvb_get_ntohl(tvb, offset);
 			proto_tree_add_text(wccp_tree, tvb, offset, 4,
@@ -327,7 +327,7 @@ dissect_hash_data(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 	guint32 flags;
 
 	proto_tree_add_item(wccp_tree, hf_hash_revision, tvb, offset, 4,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	offset += 4;
 
 	bucket_item = proto_tree_add_text(wccp_tree, tvb, offset, 32,
@@ -405,7 +405,7 @@ dissect_wccp2_header(tvbuff_t *tvb, int offset, proto_tree *wccp_tree)
 	guint16 length;
 
 	proto_tree_add_item(wccp_tree, hf_wccp_version, tvb, offset, 2,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	offset += 2;
 	length = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_text(wccp_tree, tvb, offset, 2, "Length: %u",

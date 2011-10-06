@@ -220,7 +220,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		wow_tree = proto_item_add_subtree(ti, ett_wow);
 
 		proto_tree_add_item(wow_tree, hf_wow_command, tvb, offset, 1,
-				    TRUE);
+				    ENC_LITTLE_ENDIAN);
 		offset += 1;
 
 		switch(cmd) {
@@ -229,11 +229,11 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			if(WOW_CLIENT_TO_SERVER) {
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
-						    offset, 1, TRUE);
+						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_pkt_size,
-						    tvb, offset, 2, TRUE);
+						    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
 				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
@@ -242,19 +242,19 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 4;
 
 				proto_tree_add_item(wow_tree, hf_wow_version1,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_version2,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_version3,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_build, tvb,
-						    offset, 2, TRUE);
+						    offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
 				string = g_strreverse(tvb_get_ephemeral_string(tvb, offset, 4));
@@ -274,7 +274,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				proto_tree_add_item(wow_tree,
 						    hf_wow_timezone_bias,
-						    tvb, offset, 4, TRUE);
+						    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 				offset += 4;
 
 				proto_tree_add_item(wow_tree, hf_wow_ip, tvb,
@@ -283,7 +283,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				proto_tree_add_item(wow_tree,
 						    hf_wow_srp_i_len,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				srp_i_len = tvb_get_guint8(tvb, offset);
 				offset += 1;
 
@@ -296,7 +296,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			} else if(WOW_SERVER_TO_CLIENT) {
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
-						    offset, 1, TRUE);
+						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				offset += 1; /* Unknown field */
@@ -306,7 +306,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 32;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_g_len,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				srp_g_len = tvb_get_guint8(tvb, offset);
 				offset += 1;
 
@@ -315,7 +315,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += srp_g_len;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_n_len,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				srp_n_len = tvb_get_guint8(tvb, offset);
 				offset += 1;
 
@@ -348,14 +348,14 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 20;
 
 				proto_tree_add_item(wow_tree, hf_wow_num_keys,
-						    tvb, offset, 1, TRUE);
+						    tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				offset += 1; /* Unknown field */
 
 			} else if(WOW_SERVER_TO_CLIENT) {
 				proto_tree_add_item(wow_tree, hf_wow_error, tvb,
-						    offset, 1, TRUE);
+						    offset, 1, ENC_LITTLE_ENDIAN);
 				offset += 1;
 
 				proto_tree_add_item(wow_tree, hf_wow_srp_m2,
@@ -377,13 +377,13 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			} else if(WOW_SERVER_TO_CLIENT) {
 
 				proto_tree_add_item(wow_tree, hf_wow_pkt_size,
-						    tvb, offset, 2, TRUE);
+						    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				offset += 2;
 
 				offset += 4; /* Unknown field; always 0 */
 
 				proto_tree_add_item(wow_tree, hf_wow_num_realms,
-						    tvb, offset, 2, TRUE);
+						    tvb, offset, 2, ENC_LITTLE_ENDIAN);
 				num_realms = tvb_get_letohs(tvb, offset);
 				offset += 2;
 
@@ -398,13 +398,13 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 								 realm_name);
 
 					wow_realms_tree = proto_item_add_subtree(ti, ett_wow_realms);
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 1, TRUE);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_status, tvb, offset, 1, TRUE);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_color, tvb, offset, 1, TRUE);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_color, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_name, tvb, offset, len, realm_name);
@@ -415,13 +415,13 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_string(wow_realms_tree, hf_wow_realm_socket, tvb, offset, len, string);
 					offset += len;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_population_level, tvb, offset, 4, TRUE);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_population_level, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 					offset += 4;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_num_characters, tvb, offset, 1, TRUE);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_num_characters, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
-					proto_tree_add_item(wow_realms_tree, hf_wow_realm_timezone, tvb, offset, 1, TRUE);
+					proto_tree_add_item(wow_realms_tree, hf_wow_realm_timezone, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 					offset += 1;
 
 					offset += 1; /* Unknown field */

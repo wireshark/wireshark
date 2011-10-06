@@ -305,7 +305,7 @@ dissect_ipx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	hidden_item = proto_tree_add_string(ipx_tree, hf_ipx_addr, tvb, 0, 0, str);
 	PROTO_ITEM_SET_HIDDEN(hidden_item);
 
-	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, FALSE);
+	proto_tree_add_item(ipx_tree, hf_ipx_checksum, tvb, 0, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_uint_format(ipx_tree, hf_ipx_len, tvb, 2, 2, ipxh->ipx_length,
 		"Length: %d bytes", ipxh->ipx_length);
 	ipx_hops = tvb_get_guint8(tvb, 4);
@@ -632,14 +632,14 @@ dissect_spx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						   "Datastream Type: 0x%02X",
 						   datastream_type);
 		}
-		proto_tree_add_item(spx_tree, hf_spx_src_id, tvb,  2, 2, FALSE);
-		proto_tree_add_item(spx_tree, hf_spx_dst_id, tvb,  4, 2, FALSE);
+		proto_tree_add_item(spx_tree, hf_spx_src_id, tvb,  2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(spx_tree, hf_spx_dst_id, tvb,  4, 2, ENC_BIG_ENDIAN);
 	}
 	spx_seq = tvb_get_ntohs(tvb, 6);
 	if (tree) {
 		proto_tree_add_uint(spx_tree, hf_spx_seq_nr, tvb,  6, 2, spx_seq);
-		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, FALSE);
-		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, FALSE);
+		proto_tree_add_item(spx_tree, hf_spx_ack_nr, tvb,  8, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(spx_tree, hf_spx_all_nr, tvb, 10, 2, ENC_BIG_ENDIAN);
 	}
 
 	/*

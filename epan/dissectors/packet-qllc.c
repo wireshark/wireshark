@@ -103,7 +103,7 @@ dissect_qllc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
      * COMMAND or a RESPONSE */
     addr = tvb_get_guint8(tvb, 0);
     if (tree) {
-	proto_tree_add_item(qllc_tree, hf_qllc_address, tvb, 0, 1, FALSE);
+	proto_tree_add_item(qllc_tree, hf_qllc_address, tvb, 0, 1, ENC_BIG_ENDIAN);
     }
 
     /* The address field equals X'FF' in commands (except QRR)

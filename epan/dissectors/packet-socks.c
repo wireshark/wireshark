@@ -487,7 +487,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 						/* Do remote port	*/
 		proto_tree_add_item( tree, hf_socks_dstport, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 		offset += 2;
 
 						/* Do destination address */
@@ -521,18 +521,18 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	else if ( compare_packet( hash_info->cmd_reply_row)){
 
 		proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1,
-				FALSE);
+				ENC_BIG_ENDIAN);
 		++offset;
 						/* Do results code	*/
-		proto_tree_add_item( tree, hf_socks_results_4, tvb, offset, 1, FALSE);
-		hidden_item = proto_tree_add_item(tree, hf_socks_results, tvb, offset, 1, FALSE);
+		proto_tree_add_item( tree, hf_socks_results_4, tvb, offset, 1, ENC_BIG_ENDIAN);
+		hidden_item = proto_tree_add_item(tree, hf_socks_results, tvb, offset, 1, ENC_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 		++offset;
 
 						/* Do remote port	*/
 		proto_tree_add_item( tree, hf_socks_dstport, tvb, offset, 2,
-				FALSE);
+				ENC_BIG_ENDIAN);
 		offset += 2;
 						/* Do remote address	*/
 		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset, 4,
@@ -567,7 +567,7 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	const char *AuthMethodStr;
 	guint8 auth_status;
 
-	proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, FALSE);
+	proto_tree_add_item( tree, hf_socks_ver, tvb, offset, 1, ENC_BIG_ENDIAN);
 	++offset;
 
 	if (compare_packet( hash_info->connect_row)){
@@ -627,19 +627,19 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	}
 	else if (compare_packet( hash_info->gssapi_auth_row)) {
 		guint16 len;
-		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
-		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		len = tvb_get_ntohs(tvb, offset+1);
 		if (len > 0)
 			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, ENC_NA);
 	}
 	else if (compare_packet( hash_info->gssapi_auth_failure_row)) {
-		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	else if (compare_packet( hash_info->gssapi_auth_reply_row)) {
 		guint16 len;
-		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, FALSE);
-		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, FALSE);
+		proto_tree_add_item( tree, hf_gssapi_command, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item( tree, hf_gssapi_length, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		len = tvb_get_ntohs(tvb, offset+1);
 		if (len > 0)
 			proto_tree_add_item( tree, hf_gssapi_payload, tvb, offset+3, len, ENC_NA);
@@ -656,8 +656,8 @@ display_socks_v5(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		else {
 			proto_item *hidden_item;
-			proto_tree_add_item( tree, hf_socks_results_5, tvb, offset, 1, FALSE);
-			hidden_item = proto_tree_add_item(tree, hf_socks_results, tvb, offset, 1, FALSE);
+			proto_tree_add_item( tree, hf_socks_results_5, tvb, offset, 1, ENC_BIG_ENDIAN);
+			hidden_item = proto_tree_add_item(tree, hf_socks_results, tvb, offset, 1, ENC_BIG_ENDIAN);
 			PROTO_ITEM_SET_HIDDEN(hidden_item);
 		}
 

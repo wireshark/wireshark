@@ -4723,7 +4723,7 @@ dissect_dcerpc_dg_auth (tvbuff_t *tvb, int offset, proto_tree *dcerpc_tree,
                 *auth_level_p = protection_level;
             proto_tree_add_uint (auth_tree, hf_dcerpc_krb5_av_prot_level, tvb, offset, 1, protection_level);
             offset++;
-            proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_vers_num, tvb, offset, 1, FALSE);
+            proto_tree_add_item (auth_tree, hf_dcerpc_krb5_av_key_vers_num, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (protection_level == DCE_C_AUTHN_LEVEL_PKT_PRIVACY)
                 offset += 6;    /* 6 bytes of padding */

@@ -406,15 +406,15 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
 
         case PROTO_ID_UUID:
             /* XXX - is this big or little endian? */
-            proto_tree_add_item(tr, hf_epm_ver_min, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tr, hf_epm_ver_min, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
         case PROTO_ID_TCP: /* this one is always big endian */
-            proto_tree_add_item(tr, hf_epm_proto_tcp_port, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tr, hf_epm_proto_tcp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(tr, "TCP Port:%d", tvb_get_ntohs(tvb, offset));
             break;
 
         case PROTO_ID_UDP: /* this one is always big endian */
-            proto_tree_add_item(tr, hf_epm_proto_udp_port, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tr, hf_epm_proto_udp_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(tr, "UDP Port:%d", tvb_get_ntohs(tvb, offset));
             break;
 
@@ -430,7 +430,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         case PROTO_ID_RPC_CL:
             proto_item_append_text(tr, "RPC connectionless protocol");
             /* XXX - is this big or little endian? */
-            proto_tree_add_item(tr, hf_epm_ver_min, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tr, hf_epm_ver_min, tvb, offset, 2, ENC_BIG_ENDIAN);
             break;
 
         case PROTO_ID_NAMED_PIPES: /* \\PIPE\xxx   named pipe */
@@ -448,7 +448,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             proto_item_append_text(tr, "NetBIOS:%s", tvb_get_ephemeral_string(tvb, offset, len));
             break;
         case PROTO_ID_HTTP: /* RPC over HTTP */
-            proto_tree_add_item(tr, hf_epm_proto_http_port, tvb, offset, 2, FALSE);
+            proto_tree_add_item(tr, hf_epm_proto_http_port, tvb, offset, 2, ENC_BIG_ENDIAN);
             proto_item_append_text(tr, "RPC over HTTP Port:%d", tvb_get_ntohs(tvb, offset));
             break;
 

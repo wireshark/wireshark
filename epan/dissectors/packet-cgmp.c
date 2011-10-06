@@ -69,9 +69,9 @@ dissect_cgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		cgmp_tree = proto_item_add_subtree(ti, ett_cgmp);
 
 		proto_tree_add_item(cgmp_tree, hf_cgmp_version, tvb, offset, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		proto_tree_add_item(cgmp_tree, hf_cgmp_type, tvb, offset, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		offset += 1;
 
 		offset += 2;	/* skip reserved field */

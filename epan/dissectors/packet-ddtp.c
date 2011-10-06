@@ -111,13 +111,13 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti = proto_tree_add_item(tree, proto_ddtp, tvb, 0, -1, FALSE);
 	ddtp_tree = proto_item_add_subtree(ti, ett_ddtp);
 
-	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, FALSE);
-	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, FALSE);
-	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, FALSE);
+	proto_tree_add_item(ddtp_tree, hf_ddtp_version, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ddtp_tree, hf_ddtp_encrypt, tvb, 4, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(ddtp_tree, hf_ddtp_hostid, tvb, 8, 4, ENC_BIG_ENDIAN);
     }
     if (tvb_get_ntohl(tvb, 4) == DDTP_ENCRYPT_PLAINTEXT) {
 	if (tree)
-	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, FALSE);
+	    proto_tree_add_item(ddtp_tree, hf_ddtp_msgtype, tvb, 12, 4, ENC_BIG_ENDIAN);
 	switch (tvb_get_ntohl(tvb, 12)) {
 	case DDTP_MESSAGE_ERROR :
 	    col_set_str(pinfo->cinfo, COL_INFO, "Message Error");
@@ -126,7 +126,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_set_str(pinfo->cinfo, COL_INFO, "Update Query");
 	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_opcode, tvb, 16, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		proto_tree_add_item(ddtp_tree, hf_ddtp_ipaddr, tvb, 20, 4,
 			FALSE);
 	    }
@@ -135,7 +135,7 @@ dissect_ddtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    col_set_str(pinfo->cinfo, COL_INFO, "Update Reply");
 	    if (tree) {
 		proto_tree_add_item(ddtp_tree, hf_ddtp_status, tvb, 16, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 	    }
 	    break;
 	case DDTP_ALIVE_QUERY :

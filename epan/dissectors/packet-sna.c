@@ -824,7 +824,7 @@ dissect_optional_0d(tvbuff_t *tvb, proto_tree *tree)
 	if (!tree)
 		return;
 
-	proto_tree_add_item(tree, hf_sna_nlp_opti_0d_version, tvb, 2, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_nlp_opti_0d_version, tvb, 2, 2, ENC_BIG_ENDIAN);
 	bits = tvb_get_guint8(tvb, 4);
 
 	sub_ti = proto_tree_add_uint(tree, hf_sna_nlp_opti_0d_4,
@@ -873,7 +873,7 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		sub_ti = proto_tree_add_item(tree, hf_sna_nlp_opti_0e_stat,
-		    tvb, 2, 1, FALSE);
+		    tvb, 2, 1, ENC_BIG_ENDIAN);
 		sub_tree = proto_item_add_subtree(sub_ti,
 		    ett_sna_nlp_opti_0e_stat);
 
@@ -882,13 +882,13 @@ dissect_optional_0e(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_boolean(sub_tree, hf_sna_nlp_opti_0e_idle,
 		    tvb, 2, 1, bits);
 		proto_tree_add_item(tree, hf_sna_nlp_opti_0e_nabsp,
-		    tvb, 3, 1, FALSE);
+		    tvb, 3, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_sna_nlp_opti_0e_sync,
-		    tvb, 4, 2, FALSE);
+		    tvb, 4, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_sna_nlp_opti_0e_echo,
-		    tvb, 6, 2, FALSE);
+		    tvb, 6, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_sna_nlp_opti_0e_rseq,
-		    tvb, 8, 4, FALSE);
+		    tvb, 8, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_text(tree, tvb, 12, 8, "Reserved");
 
 		if (tvb_offset_exists(tvb, offset))
@@ -908,7 +908,7 @@ dissect_optional_0f(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (!tree)
 		return;
 
-	proto_tree_add_item(tree, hf_sna_nlp_opti_0f_bits, tvb, 2, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_nlp_opti_0f_bits, tvb, 2, 2, ENC_BIG_ENDIAN);
 	if (tvb_offset_exists(tvb, 4))
 		call_dissector(data_handle,
 		    tvb_new_subset_remaining(tvb, 4), pinfo, tree);
@@ -989,11 +989,11 @@ dissect_optional_14(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	proto_tree_add_text(sub_tree, tvb, offset+3, 1, "Reserved");
 	proto_tree_add_item(sub_tree, hf_sna_nlp_opti_14_si_maxpsize,
-	    tvb, offset+4, 4, FALSE);
+	    tvb, offset+4, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sub_tree, hf_sna_nlp_opti_14_si_switch,
-	    tvb, offset+8, 4, FALSE);
+	    tvb, offset+8, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sub_tree, hf_sna_nlp_opti_14_si_alive,
-	    tvb, offset+12, 4, FALSE);
+	    tvb, offset+12, 4, ENC_BIG_ENDIAN);
 
 	dissect_control(tvb, offset+16, len-16, sub_tree, 1, LT);
 
@@ -1090,15 +1090,15 @@ dissect_optional_22(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    tvb, 3, 1, bits);
 
 	proto_tree_add_item(tree, hf_sna_nlp_opti_22_field1,
-	    tvb, 4, 4, FALSE);
+	    tvb, 4, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_sna_nlp_opti_22_field2,
-	    tvb, 8, 4, FALSE);
+	    tvb, 8, 4, ENC_BIG_ENDIAN);
 
 	if (type == 0) {
 		proto_tree_add_item(tree, hf_sna_nlp_opti_22_field3,
-		    tvb, 12, 4, FALSE);
+		    tvb, 12, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_sna_nlp_opti_22_field4,
-		    tvb, 16, 4, FALSE);
+		    tvb, 16, 4, ENC_BIG_ENDIAN);
 
 		if (tvb_offset_exists(tvb, 20))
 			call_dissector(data_handle,
@@ -1340,7 +1340,7 @@ dissect_nlp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(nlp_tree, hf_sna_nlp_dlf, tvb, index+12,
 		    4, thdr_dlf);
 		proto_tree_add_item(nlp_tree, hf_sna_nlp_bsn, tvb, index+16,
-		    4, FALSE);
+		    4, ENC_BIG_ENDIAN);
 	}
 	subindex = 20;
 
@@ -1487,7 +1487,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 	val = tvb_get_guint8(tvb, 6);
 
 	sub_ti = proto_tree_add_item(tree, hf_sna_xid_3_12, tvb,
-	    6, 1, FALSE);
+	    6, 1, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_12);
 
 	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_negcsup, tvb, 6, 1, val);
@@ -1498,7 +1498,7 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 	val = tvb_get_guint8(tvb, 9);
 
 	sub_ti = proto_tree_add_item(tree, hf_sna_xid_3_15, tvb,
-	    9, 1, FALSE);
+	    9, 1, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_3_15);
 
 	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_partg, tvb, 9, 1, val);
@@ -1509,8 +1509,8 @@ dissect_xid3(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_uint(sub_tree, hf_sna_xid_3_branch, tvb, 9, 1, val);
 	proto_tree_add_boolean(sub_tree, hf_sna_xid_3_brnn, tvb, 9, 1, val);
 
-	proto_tree_add_item(tree, hf_sna_xid_3_tg, tvb, 10, 1, FALSE);
-	proto_tree_add_item(tree, hf_sna_xid_3_dlc, tvb, 11, 1, FALSE);
+	proto_tree_add_item(tree, hf_sna_xid_3_tg, tvb, 10, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sna_xid_3_dlc, tvb, 11, 1, ENC_BIG_ENDIAN);
 
 	dlen = tvb_get_guint8(tvb, 12);
 
@@ -1550,7 +1550,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		sub_ti = proto_tree_add_item(tree, hf_sna_xid_0, tvb,
-		    0, 1, FALSE);
+		    0, 1, ENC_BIG_ENDIAN);
 		sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_0);
 
 		proto_tree_add_uint(sub_tree, hf_sna_xid_format, tvb, 0, 1,
@@ -1561,7 +1561,7 @@ dissect_xid(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_uint(tree, hf_sna_xid_len, tvb, 1, 1, len);
 
 		sub_ti = proto_tree_add_item(tree, hf_sna_xid_id, tvb,
-		    2, 4, FALSE);
+		    2, 4, ENC_BIG_ENDIAN);
 		sub_tree = proto_item_add_subtree(sub_ti, ett_sna_xid_id);
 
 		proto_tree_add_uint(sub_tree, hf_sna_xid_idblock, tvb, 2, 4,
@@ -1745,7 +1745,7 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_text(tree, tvb, 1, 1, "Reserved");
 
 		/* Bytes 2-3 */
-		proto_tree_add_item(tree, hf_sna_th_daf, tvb, 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_sna_th_daf, tvb, 2, 2, ENC_BIG_ENDIAN);
 	}
 
 	/* Set DST addr */
@@ -1754,7 +1754,7 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->dst, AT_SNA, SNA_FID01_ADDR_LEN, ptr);
 
 	if (tree)
-		proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, FALSE);
+		proto_tree_add_item(tree, hf_sna_th_oaf, tvb, 4, 2, ENC_BIG_ENDIAN);
 
 	/* Set SRC addr */
 	ptr = tvb_get_ptr(tvb, 4, SNA_FID01_ADDR_LEN);
@@ -1765,8 +1765,8 @@ dissect_fid0_1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree)
 		return bytes_in_header;
 
-	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 6, 2, FALSE);
-	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 8, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 6, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 8, 2, ENC_BIG_ENDIAN);
 
 	return bytes_in_header;
 }
@@ -1872,7 +1872,7 @@ dissect_fid3(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_uint(bf_tree, hf_sna_th_mpf, tvb, 0, 1, th_0);
 	proto_tree_add_uint(bf_tree, hf_sna_th_efi, tvb, 0, 1, th_0);
 
-	proto_tree_add_item(tree, hf_sna_th_lsid, tvb, 1, 1, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_lsid, tvb, 1, 1, ENC_BIG_ENDIAN);
 
 	return bytes_in_header;
 }
@@ -2064,8 +2064,8 @@ dissect_fid4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	SET_ADDRESS(&pinfo->src, AT_SNA, SNA_FID_TYPE_4_ADDR_LEN,
 	    (guint8 *)&src);
 
-	proto_tree_add_item(tree, hf_sna_th_snf, tvb, offset+4, 2, FALSE);
-	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, offset+6, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_snf, tvb, offset+4, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, offset+6, 2, ENC_BIG_ENDIAN);
 
 	return bytes_in_header;
 }
@@ -2095,7 +2095,7 @@ dissect_fid5(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_uint(bf_tree, hf_sna_th_efi, tvb, 0, 1, th_0);
 
 	proto_tree_add_text(tree, tvb, 1, 1, "Reserved");
-	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 2, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_snf, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 	proto_tree_add_item(tree, hf_sna_th_sa, tvb, 4, 8, ENC_NA);
 
@@ -2126,14 +2126,14 @@ dissect_fidf(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_uint(bf_tree, hf_sna_th_fid, tvb, 0, 1, th_0);
 	proto_tree_add_text(tree, tvb, 1, 1, "Reserved");
 
-	proto_tree_add_item(tree, hf_sna_th_cmd_fmt, tvb,  2, 1, FALSE);
-	proto_tree_add_item(tree, hf_sna_th_cmd_type, tvb, 3, 1, FALSE);
-	proto_tree_add_item(tree, hf_sna_th_cmd_sn, tvb,   4, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_cmd_fmt, tvb,  2, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sna_th_cmd_type, tvb, 3, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_sna_th_cmd_sn, tvb,   4, 2, ENC_BIG_ENDIAN);
 
 	/* Yup, bytes 6-23 are reserved! */
 	proto_tree_add_text(tree, tvb, 6, 18, "Reserved");
 
-	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 24, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_th_dcf, tvb, 24, 2, ENC_BIG_ENDIAN);
 
 	return bytes_in_header;
 }
@@ -2389,7 +2389,7 @@ dissect_control_05(tvbuff_t *tvb, proto_tree *tree)
 	if(!tree)
 		return;
 
-	proto_tree_add_item(tree, hf_sna_control_05_delay, tvb, 2, 2, FALSE);
+	proto_tree_add_item(tree, hf_sna_control_05_delay, tvb, 2, 2, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -2401,7 +2401,7 @@ dissect_control_0e(tvbuff_t *tvb, proto_tree *tree)
 	if (!tree)
 		return;
 
-	proto_tree_add_item(tree, hf_sna_control_0e_type, tvb, 2, 1, FALSE);
+	proto_tree_add_item(tree, hf_sna_control_0e_type, tvb, 2, 1, ENC_BIG_ENDIAN);
 
 	len = tvb_reported_length_remaining(tvb, 3);
 	if (len <= 0)

@@ -84,8 +84,8 @@ dissect_g723(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		g723_tree = proto_item_add_subtree(ti, ett_g723);
 
 		octet = tvb_get_guint8(tvb,offset);
-		proto_tree_add_item(g723_tree, hf_g723_frame_size_and_codec, tvb, offset, 1, FALSE);
-		proto_tree_add_item(g723_tree, hf_g723_lpc_B5_B0, tvb, offset, 1, FALSE);
+		proto_tree_add_item(g723_tree, hf_g723_frame_size_and_codec, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(g723_tree, hf_g723_lpc_B5_B0, tvb, offset, 1, ENC_BIG_ENDIAN);
 	
 		if ((octet & 0x1) == 1 ) /* Low rate */
 			return; 

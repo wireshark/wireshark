@@ -216,27 +216,27 @@ dissect_yhoo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 8;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_len, tvb,
-			offset, 4, TRUE);
+			offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_service, tvb,
-			offset, 4, TRUE);
+			offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_connection_id, tvb,
-			offset, 4, TRUE);
+			offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_magic_id, tvb,
-			offset, 4, TRUE);
+			offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_unknown1, tvb,
-			offset, 4, TRUE);
+			offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_msgtype, tvb,
-			offset, 4, TRUE);
+			offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(yhoo_tree, hf_yhoo_nick1, tvb,

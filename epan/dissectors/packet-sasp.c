@@ -397,27 +397,27 @@ dissect_sasp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset+=2;
 
 	/*length*/
-	proto_tree_add_item(sasp_tree,hf_sasp_length,tvb,offset,2,FALSE);
+	proto_tree_add_item(sasp_tree,hf_sasp_length,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/*Header Version */
-	proto_tree_add_item(sasp_tree,hf_sasp_vrsn,tvb,offset,1,FALSE);
+	proto_tree_add_item(sasp_tree,hf_sasp_vrsn,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset++;
 
 	/*Message*/
 	msg_tree = proto_item_add_subtree(ti,ett_sasp_msg);
 
 	/*Message Len*/
-	proto_tree_add_item(msg_tree,hf_msg_len,tvb,offset,4,FALSE);
+	proto_tree_add_item(msg_tree,hf_msg_len,tvb,offset,4,ENC_BIG_ENDIAN);
 	offset+=4;
 
 	/*Message Id*/
-	proto_tree_add_item(msg_tree,hf_msg_id,tvb,offset,4,FALSE);
+	proto_tree_add_item(msg_tree,hf_msg_id,tvb,offset,4,ENC_BIG_ENDIAN);
 	offset+=4;
 
 	/*Message Type*/
 	msg_type = tvb_get_ntohs(tvb, offset);
-	mti = proto_tree_add_item(msg_tree,hf_msg_type,tvb,offset,2,FALSE);
+	mti = proto_tree_add_item(msg_tree,hf_msg_type,tvb,offset,2,ENC_BIG_ENDIAN);
 	pay_load = proto_item_add_subtree(ti,ett_sasp_payload);
 	offset+=2;
 
@@ -526,7 +526,7 @@ static void dissect_reg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	 reg_req_data = proto_item_add_subtree(reg_tree, ett_sasp_reg_req_sz);
 
 	 /* Reg Req Size */
-	 proto_tree_add_item(reg_req_data, hf_sasp_reg_req_sz, tvb, offset, 2, FALSE);
+	 proto_tree_add_item(reg_req_data, hf_sasp_reg_req_sz, tvb, offset, 2, ENC_BIG_ENDIAN);
 	 offset+=2;
 
 	 /* Reg Req LB Flag */
@@ -536,7 +536,7 @@ static void dissect_reg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	 gmd_cnt=tvb_get_ntohs(tvb, offset);
 
 	 /* Group MEM Data Count */
-	 proto_tree_add_item(reg_req_data,hf_sasp_gmd_cnt,tvb,offset,2,FALSE);
+	 proto_tree_add_item(reg_req_data,hf_sasp_gmd_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	 offset+=2;
 
 	 for( i=0; i<gmd_cnt; i++)
@@ -558,11 +558,11 @@ static void dissect_reg_rep(tvbuff_t *tvb, proto_tree *pay_load,guint32 offset)
 	reg_rep_tree = proto_item_add_subtree(reg_rep,ett_sasp_reg_rep);
 
 	/* Size */
-	proto_tree_add_item(reg_rep_tree, hf_sasp_reg_rep_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(reg_rep_tree, hf_sasp_reg_rep_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Response Code */
-	proto_tree_add_item(reg_rep_tree, hf_sasp_reg_rep_rcode,tvb,offset,1,FALSE);
+	proto_tree_add_item(reg_rep_tree, hf_sasp_reg_rep_rcode,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 }
@@ -592,7 +592,7 @@ static void dissect_dereg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	dereg_req_data = proto_item_add_subtree(dereg_tree,ett_sasp_dereg_req_sz);
 
 	/* Size */
-	proto_tree_add_item(dereg_req_data, hf_sasp_dereg_req_sz, tvb, offset, 2, FALSE);
+	proto_tree_add_item(dereg_req_data, hf_sasp_dereg_req_sz, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* LB Flag */
@@ -628,7 +628,7 @@ static void dissect_dereg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	gmd_cnt = tvb_get_ntohs(tvb, offset);
 
 	/* Group Mem Data Count */
-	proto_tree_add_item(dereg_req_data,hf_sasp_gmd_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(dereg_req_data,hf_sasp_gmd_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/*Group Mem Data */
@@ -651,11 +651,11 @@ static void dissect_dereg_rep(tvbuff_t *tvb, proto_tree *pay_load,guint32 offset
 	dereg_rep_tree = proto_item_add_subtree(dereg_rep,ett_sasp_dereg_rep);
 
 	/* Size */
-	proto_tree_add_item(dereg_rep_tree, hf_sasp_dereg_rep_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(dereg_rep_tree, hf_sasp_dereg_rep_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Return Code */
-	proto_tree_add_item(dereg_rep_tree, hf_sasp_dereg_rep_rcode,tvb,offset,1,FALSE);
+	proto_tree_add_item(dereg_rep_tree, hf_sasp_dereg_rep_rcode,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 }
@@ -673,13 +673,13 @@ static void dissect_sendwt(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	sendwt_tree = proto_item_add_subtree(sendwt,ett_sasp_sendwt);
 
 	/* Size */
-	proto_tree_add_item(sendwt_tree, hf_sasp_sendwt_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(sendwt_tree, hf_sasp_sendwt_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	gwed_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Group Wt Entry Data Count */
-	proto_tree_add_item(sendwt_tree, hf_sasp_sendwt_gwedcnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(sendwt_tree, hf_sasp_sendwt_gwedcnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	for( i=0; i<gwed_cnt; i++)
@@ -703,7 +703,7 @@ static void dissect_setmemstate_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 o
 	setmemstate_req_data = proto_item_add_subtree(setmemstate,ett_sasp_setmemstate_req);
 
 	/* Size */
-	proto_tree_add_item(setmemstate_req_data, hf_sasp_setmemstate_req_sz, tvb, offset, 2, FALSE);
+	proto_tree_add_item(setmemstate_req_data, hf_sasp_setmemstate_req_sz, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/*LB Flag*/
@@ -712,7 +712,7 @@ static void dissect_setmemstate_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 o
 
 	/*Group Data Count*/
 	gmsd_cnt=tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(setmemstate_req_data,hf_sasp_setmemstate_req_gmsd_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(setmemstate_req_data,hf_sasp_setmemstate_req_gmsd_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	for( i=0; i<gmsd_cnt; i++)
@@ -734,11 +734,11 @@ static void dissect_setmemstate_rep(tvbuff_t *tvb,proto_tree *pay_load,guint32 o
 	setmemstate_rep_tree = proto_item_add_subtree(setmemstate_rep,ett_sasp_setmemstate_rep);
 
 	/* Size */
-	proto_tree_add_item(setmemstate_rep_tree, hf_sasp_setmemstate_rep_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(setmemstate_rep_tree, hf_sasp_setmemstate_rep_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Response Code */
-	proto_tree_add_item(setmemstate_rep_tree, hf_sasp_setmemstate_rep_rcode,tvb,offset,1,FALSE);
+	proto_tree_add_item(setmemstate_rep_tree, hf_sasp_setmemstate_rep_rcode,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 }
 
@@ -764,19 +764,19 @@ static guint32 dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load,guint32 o
 
 
 	/* Message Type */
-	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_type, tvb, offset,2, FALSE);
+	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_type, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Size */
-	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Protocol */
-	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_protocol,tvb,offset,1,FALSE);
+	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_protocol,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/* Port */
-	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_port, tvb, offset,2, FALSE);
+	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_port, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/*Ip*/
@@ -785,7 +785,7 @@ static guint32 dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load,guint32 o
 
 
 	/*Label Len*/
-	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_lab_len,tvb,offset,1,FALSE);
+	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_lab_len,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/*Label*/
@@ -812,17 +812,17 @@ static guint32 dissect_grpdatacomp(tvbuff_t *tvb, proto_tree *pay_load,guint32 o
 	grpdatacomp_tree = proto_item_add_subtree(grpdatacomp,ett_sasp_grpdatacomp);
 
 	/*Type*/
-	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp, tvb, offset,2, FALSE);
+	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/*Size*/
-	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	LB_uid_len = tvb_get_guint8(tvb, offset);
 
 	/* LB UID Len*/
-	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_LB_uid_len, tvb, offset,1, FALSE);
+	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_LB_uid_len, tvb, offset,1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_LB_uid, tvb,offset,LB_uid_len,FALSE);
@@ -833,7 +833,7 @@ static guint32 dissect_grpdatacomp(tvbuff_t *tvb, proto_tree *pay_load,guint32 o
 
 
 	/*Group Name Len */
-	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_grp_name_len,tvb,offset,1,FALSE);
+	proto_tree_add_item(grpdatacomp_tree, hf_sasp_grpdatacomp_grp_name_len,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/*Group Name*/
@@ -857,17 +857,17 @@ static guint32 dissect_grp_memdatacomp(tvbuff_t *tvb,proto_tree *pay_load,guint3
 	grp_memdatacomp_tree = proto_item_add_subtree(grp_memdatacomp,ett_sasp_grp_memdatacomp);
 
 	/* Group MEM Data */
-	proto_tree_add_item(grp_memdatacomp_tree, hf_sasp_grp_memdatacomp, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_memdatacomp_tree, hf_sasp_grp_memdatacomp, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Group MEM Data Size*/
-	proto_tree_add_item(grp_memdatacomp_tree, hf_sasp_grp_memdatacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_memdatacomp_tree, hf_sasp_grp_memdatacomp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	mem_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Group MEM Data Count*/
-	proto_tree_add_item(grp_memdatacomp_tree, hf_sasp_grp_memdatacomp_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(grp_memdatacomp_tree, hf_sasp_grp_memdatacomp_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	offset = dissect_grpdatacomp(tvb,grp_memdatacomp_tree, offset);
@@ -897,13 +897,13 @@ static void dissect_wt_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	get_wt_tree = proto_item_add_subtree(get_wt_data,ett_sasp_getwt);
 
 	/* Size */
-	proto_tree_add_item(get_wt_tree, hf_sasp_wt_req_sz, tvb, offset, 2, FALSE);
+	proto_tree_add_item(get_wt_tree, hf_sasp_wt_req_sz, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	gd_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Group Data Count */
-	proto_tree_add_item(get_wt_tree,hf_sasp_wt_req_gd_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(get_wt_tree,hf_sasp_wt_req_gd_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	for( i=0; i<gd_cnt; i++)
@@ -926,22 +926,22 @@ static void dissect_wt_rep(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	wt_rep_tree = proto_item_add_subtree(wt_rep,ett_sasp_wt_rep);
 
 	/* Size */
-	proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Response Code */
-	proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_rcode,tvb,offset,1,FALSE);
+	proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_rcode,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/* Interval */
-	proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_interval,tvb,offset,2,FALSE);
+	proto_tree_add_item(wt_rep_tree, hf_sasp_wt_rep_interval,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 
 	gwed_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Count of Group of Wt Entry Data */
-	proto_tree_add_item(wt_rep_tree,hf_sasp_wt_rep_gwed_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(wt_rep_tree,hf_sasp_wt_rep_gwed_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 
@@ -974,14 +974,14 @@ static void dissect_setlbstate_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 of
 	setlbstate_req_tree = proto_item_add_subtree(setlbstate_req,ett_sasp_setlbstate_req);
 
 	/* Size*/
-	proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	LB_uid_len = tvb_get_guint8(tvb, offset);
 
 
 	/* LB UID Len */
-	proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_LB_uid_len, tvb, offset,1, FALSE);
+	proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_LB_uid_len, tvb, offset,1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/*LB UID*/
@@ -989,7 +989,7 @@ static void dissect_setlbstate_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 of
 	offset+=(guint8)LB_uid_len;
 
 	/*LB Health*/
-	proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_LB_health, tvb, offset,1, FALSE);
+	proto_tree_add_item(setlbstate_req_tree, hf_sasp_setlbstate_req_LB_health, tvb, offset,1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 
@@ -1015,11 +1015,11 @@ static void dissect_setlbstate_rep(tvbuff_t *tvb,proto_tree *pay_load,guint32 of
 
 
 	/* Size */
-	proto_tree_add_item(setlbstate_rep_tree, hf_sasp_setlbstate_rep_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(setlbstate_rep_tree, hf_sasp_setlbstate_rep_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Response Code */
-	proto_tree_add_item(setlbstate_rep_tree, hf_sasp_setlbstate_rep_rcode,tvb,offset,1,FALSE);
+	proto_tree_add_item(setlbstate_rep_tree, hf_sasp_setlbstate_rep_rcode,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 }
@@ -1040,17 +1040,17 @@ static guint32 dissect_grp_memstatedatacomp(tvbuff_t *tvb,proto_tree *pay_load,g
 	grp_memstatedatacomp_tree = proto_item_add_subtree(grp_memstatedatacomp,ett_sasp_grp_memstatedatacomp);
 
 	/* Type */
-	proto_tree_add_item(grp_memstatedatacomp_tree, hf_sasp_grp_memstatedatacomp, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_memstatedatacomp_tree, hf_sasp_grp_memstatedatacomp, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Size */
-	proto_tree_add_item(grp_memstatedatacomp_tree, hf_sasp_grp_memstatedatacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_memstatedatacomp_tree, hf_sasp_grp_memstatedatacomp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	mem_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Count */
-	proto_tree_add_item(grp_memstatedatacomp_tree, hf_sasp_grp_memstatedatacomp_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(grp_memstatedatacomp_tree, hf_sasp_grp_memstatedatacomp_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Group Data TLV */
@@ -1080,15 +1080,15 @@ static guint32 dissect_memstatedatacomp(tvbuff_t *tvb,proto_tree *pay_load,guint
 	memstatedatacomp_tree = proto_item_add_subtree(memstatedatacomp, ett_sasp_memstatedatacomp);
 
 	/* Type */
-	proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_instance, tvb, offset,2, FALSE);
+	proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_instance, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Size */
-	proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* State */
-	proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_state, tvb, offset,1, FALSE);
+	proto_tree_add_item(memstatedatacomp_tree, hf_sasp_memstatedatacomp_state, tvb, offset,1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/* Quiesce flag*/
@@ -1122,15 +1122,15 @@ static guint32 dissect_weight_entry_data_comp(tvbuff_t *tvb,proto_tree *pay_load
 	weight_entry_data_comp_tree = proto_item_add_subtree(weight_entry_data_comp,ett_sasp_weight_entry_data_comp);
 
 	/* Type */
-	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_type, tvb, offset,2, FALSE);
+	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_type, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Size */
-	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 
-	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_state, tvb, offset,1, FALSE);
+	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_state, tvb, offset,1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 
@@ -1141,7 +1141,7 @@ static guint32 dissect_weight_entry_data_comp(tvbuff_t *tvb,proto_tree *pay_load
 
 
 	/* Weight */
-	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_weight, tvb, offset,2, FALSE);
+	proto_tree_add_item(weight_entry_data_comp_tree, hf_sasp_weight_entry_data_comp_weight, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	return offset;
@@ -1161,17 +1161,17 @@ static guint32 dissect_grp_wt_entry_datacomp(tvbuff_t *tvb,proto_tree *pay_load,
 	grp_wt_entry_datacomp_tree = proto_item_add_subtree(grp_wt_entry_datacomp, ett_sasp_grp_wt_entry_datacomp);
 
 	/* Type */
-	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_type, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_type, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Size */
-	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_sz, tvb, offset,2, FALSE);
+	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_sz, tvb, offset,2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	wt_entry_cnt=tvb_get_ntohs(tvb, offset);
 
 	/* Wt Entry Count*/
-	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_cnt,tvb,offset,2,FALSE);
+	proto_tree_add_item(grp_wt_entry_datacomp_tree, hf_sasp_grp_wt_entry_datacomp_cnt,tvb,offset,2,ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* Group Data */

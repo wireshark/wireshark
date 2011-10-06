@@ -182,7 +182,7 @@ dissect_krb4_kdc_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int 
 	offset+=4;
 
 	/* kvno */
-	proto_tree_add_item(tree, hf_krb4_kvno, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_kvno, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* length2 */
@@ -206,7 +206,7 @@ dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 	guint8 lifetime;
 
 	/* kvno */
-	proto_tree_add_item(tree, hf_krb4_kvno, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_kvno, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Realm */
@@ -214,12 +214,12 @@ dissect_krb4_appl_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, i
 
 	/* ticket length */
 	tlen=tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_krb4_ticket_length, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_ticket_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* request length */
 	rlen=tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_krb4_request_length, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_request_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* ticket */
@@ -260,11 +260,11 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	guint8 auth_msg_type;
 
 	auth_msg_type=tvb_get_guint8(tvb, offset);
-	item = proto_tree_add_item(parent_tree, hf_krb4_auth_msg_type, tvb, offset, 1, FALSE);
+	item = proto_tree_add_item(parent_tree, hf_krb4_auth_msg_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(item, ett_krb4_auth_msg_type);
 
 	/* m_type */
-	proto_tree_add_item(tree, hf_krb4_m_type, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_m_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if (check_col(pinfo->cinfo, COL_INFO))
 	  col_append_fstr(pinfo->cinfo, COL_INFO, "%s%s",
 	   (version==TRANSARC_SPECIAL_VERSION)?"TRANSARC-":"",
@@ -274,7 +274,7 @@ dissect_krb4_auth_msg_type(packet_info *pinfo, proto_tree *parent_tree, tvbuff_t
 	   val_to_str(auth_msg_type>>1, m_type_vals, "Unknown (0x%04x)"));
 
 	/* byte order */
-	proto_tree_add_item(tree, hf_krb4_byte_order, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_byte_order, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_item_append_text(item, " (%s)", val_to_str(auth_msg_type&0x01, byte_order_vals, "Unknown (0x%04x)"));
 
 	offset++;
@@ -321,7 +321,7 @@ dissect_krb4(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 	col_clear(pinfo->cinfo, COL_INFO);
 
 	/* version */
-	proto_tree_add_item(tree, hf_krb4_version, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_krb4_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* auth_msg_type */

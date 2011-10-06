@@ -79,10 +79,10 @@ dissect_smc_exchangemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_fda, tvb, offset+5, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_sda, tvb, offset+7, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_fda, tvb, offset+5, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_sda, tvb, offset+7, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_medium_flags,
             ett_scsi_exchange_medium, exchg_fields, FALSE);
         proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,
@@ -104,8 +104,8 @@ dissect_smc_position_to_element (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+3, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+3, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+7, hf_scsi_smc_medium_flags,
             ett_scsi_exchange_medium, pte_fields, FALSE);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
@@ -144,8 +144,8 @@ dissect_smc_initialize_element_status_with_range (tvbuff_t *tvb, packet_info *pi
     if (isreq && iscdb) {
         proto_tree_add_bitmask(tree, tvb, offset, hf_scsi_smc_range_flags,
             ett_scsi_range, range_fields, FALSE);
-        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+1, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_num_elements,  tvb, offset+5, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_num_elements,  tvb, offset+5, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, FALSE);
     }
@@ -160,8 +160,8 @@ dissect_smc_openclose_importexport_element (tvbuff_t *tvb, packet_info *pinfo _U
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_smc_ea,  tvb, offset+1, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_action_code,  tvb, offset+3, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_ea,  tvb, offset+1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_action_code,  tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+4, hf_scsi_control,
             ett_scsi_control, cdb_control_fields, FALSE);
     }
@@ -180,9 +180,9 @@ dissect_smc_movemedium (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         return;
 
     if (isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, 0);
-        proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+5, 2, 0);
+        proto_tree_add_item (tree, hf_scsi_smc_mta, tvb, offset+1, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_sa,  tvb, offset+3, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_smc_da,  tvb, offset+5, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+9, hf_scsi_smc_range_flags,
             ett_scsi_move, move_fields, FALSE);
         proto_tree_add_bitmask(tree, tvb, offset+10, hf_scsi_control,

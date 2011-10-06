@@ -150,10 +150,10 @@ dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
    br = proto_tree_add_text(fcgi_tree, tvb, offset, len, "Begin Request:");
    br_tree = proto_item_add_subtree(br, ett_fcgi_begin_request);
 
-   proto_tree_add_item(br_tree, hf_fcgi_begin_request_role, tvb, offset, 2, FALSE);
+   proto_tree_add_item(br_tree, hf_fcgi_begin_request_role, tvb, offset, 2, ENC_BIG_ENDIAN);
    offset += 2;
 
-   proto_tree_add_item(br_tree, hf_fcgi_begin_request_flags, tvb, offset, 1, FALSE);
+   proto_tree_add_item(br_tree, hf_fcgi_begin_request_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
    proto_tree_add_item(br_tree, hf_fcgi_begin_request_keep_conn, tvb, offset, 1, FALSE);
    offset += 1;
 
@@ -179,10 +179,10 @@ dissect_end_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16 l
    er = proto_tree_add_text(fcgi_tree, tvb, offset, len, "End Request:");
    er_tree = proto_item_add_subtree(er, ett_fcgi_end_request);
 
-   proto_tree_add_item(er_tree, hf_fcgi_end_request_app_status, tvb, offset, 4, FALSE);
+   proto_tree_add_item(er_tree, hf_fcgi_end_request_app_status, tvb, offset, 4, ENC_BIG_ENDIAN);
    offset += 4;
 
-   proto_tree_add_item(er_tree, hf_fcgi_end_request_protocol_status, tvb, offset, 1, FALSE);
+   proto_tree_add_item(er_tree, hf_fcgi_end_request_protocol_status, tvb, offset, 1, ENC_BIG_ENDIAN);
    offset += 1;
 
    offset += 3;
@@ -263,21 +263,21 @@ dissect_fcgi_record(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                              val_to_str(type, record_types, "Unknown (%u)"));
       fcgi_tree = proto_item_add_subtree(ti, ett_fcgi);
 
-      proto_tree_add_item(fcgi_tree, hf_fcgi_version, tvb, offset, 1, FALSE);
+      proto_tree_add_item(fcgi_tree, hf_fcgi_version, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
 
-      proto_tree_add_item(fcgi_tree, hf_fcgi_type, tvb, offset, 1, FALSE);
+      proto_tree_add_item(fcgi_tree, hf_fcgi_type, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
 
-      proto_tree_add_item(fcgi_tree, hf_fcgi_id, tvb, offset, 2, FALSE);
+      proto_tree_add_item(fcgi_tree, hf_fcgi_id, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       clen = tvb_get_ntohs(tvb, offset);
-      proto_tree_add_item(fcgi_tree, hf_fcgi_content_length, tvb, offset, 2, FALSE);
+      proto_tree_add_item(fcgi_tree, hf_fcgi_content_length, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       plen = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(fcgi_tree, hf_fcgi_padding_length, tvb, offset, 1, FALSE);
+      proto_tree_add_item(fcgi_tree, hf_fcgi_padding_length, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset += 1;
 
       offset += 1;

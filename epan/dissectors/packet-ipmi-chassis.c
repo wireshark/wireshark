@@ -339,7 +339,7 @@ bootopt_00(tvbuff_t *tvb, proto_tree *tree)
 static void
 bootopt_01(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_chs_bo01_spsel, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_bo01_spsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -368,7 +368,7 @@ bootopt_04(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_chs_bo04_bootinit_ack_os, &hf_ipmi_chs_bo04_bootinit_ack_osloader,
 		&hf_ipmi_chs_bo04_bootinit_ack_bios, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_chs_bo04_write_mask, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_bo04_write_mask, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Boot Initiator Acknowledge data: ",
 			"None", ett_ipmi_chs_bo04_byte2, byte2, TRUE, BMT_NO_TFS);
 }
@@ -394,7 +394,7 @@ bootopt_05(tvbuff_t *tvb, proto_tree *tree)
 			byte3, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, NULL, NULL, ett_ipmi_chs_bo05_byte4,
 			byte4, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_chs_bo05_byte5, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_bo05_byte5, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -404,14 +404,14 @@ bootopt_06(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_bo06_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_chs_bo06_session_id, tvb, 1, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_bo06_session_id, tvb, 1, 4, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_chs_bo06_bootinfo_timestamp, tvb, 5);
 }
 
 static void
 bootopt_07(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_selector, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_selector, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_chs_bo07_block_data, tvb, 1, tvb_length(tvb) - 1, ENC_NA);
 }
 
@@ -441,13 +441,13 @@ rs00(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Capabilities: ", "None",
 			ett_ipmi_chs_00_capflags, byte1, TRUE, BMT_NO_TFS);
-	proto_tree_add_item(tree, hf_ipmi_chs_00_fru_dev_addr, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_00_sdr_dev_addr, tvb, 2, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_00_sel_dev_addr, tvb, 3, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_00_sm_dev_addr, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_00_fru_dev_addr, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_00_sdr_dev_addr, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_00_sel_dev_addr, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_00_sm_dev_addr, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 
 	if (tvb_length(tvb) >= 5) {
-		proto_tree_add_item(tree, hf_ipmi_chs_00_bridge_dev_addr, tvb, 5, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_chs_00_bridge_dev_addr, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -503,7 +503,7 @@ rq04(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_chs_04_perm_on, NULL };
 
 	if (tvb_length(tvb) > 0) {
-		proto_tree_add_item(tree, hf_ipmi_chs_04_ival, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_chs_04_ival, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 
 	if (tvb_length(tvb) > 1) {
@@ -521,13 +521,13 @@ rq05(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, "Capabilities: ", "None",
 			ett_ipmi_chs_05_flags, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_chs_05_fru_dev_addr, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_05_sdr_dev_addr, tvb, 2, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_05_sel_dev_addr, tvb, 3, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_05_sm_dev_addr, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_05_fru_dev_addr, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_05_sdr_dev_addr, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_05_sel_dev_addr, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_05_sm_dev_addr, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 5) {
 		/* Bridge device address is optional */
-		proto_tree_add_item(tree, hf_ipmi_chs_05_bridge_dev_addr, tvb, 5, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_chs_05_bridge_dev_addr, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -563,7 +563,7 @@ rs07(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_chs_07_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_chs_07_chan, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_07_chan, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Set System Boot Options
@@ -642,8 +642,8 @@ rq09(tvbuff_t *tvb, proto_tree *tree)
 			pno, "%sBoot option parameter selector: %s (0x%02x)",
 			ipmi_dcd8(pno, 0x7f), desc, pno);
 
-	proto_tree_add_item(tree, hf_ipmi_chs_09_rq_set_select, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_09_rq_block_select, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_09_rq_set_select, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_09_rq_block_select, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -696,8 +696,8 @@ static const value_string cc09[] = {
 static void
 rs0f(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_chs_0f_minpercnt, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_chs_0f_counter, tvb, 1, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_chs_0f_minpercnt, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_chs_0f_counter, tvb, 1, 4, ENC_LITTLE_ENDIAN);
 }
 
 static ipmi_cmd_t cmd_chassis[] = {

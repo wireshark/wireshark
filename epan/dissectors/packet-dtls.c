@@ -672,12 +672,12 @@ dissect_dtls_record(tvbuff_t *tvb, packet_info *pinfo,
 
       /* show the one-byte content type */
       proto_tree_add_item(dtls_record_tree, hf_dtls_record_content_type,
-                          tvb, offset, 1, FALSE);
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
       /* add the version */
       proto_tree_add_item(dtls_record_tree, hf_dtls_record_version, tvb,
-                          offset, 2, FALSE);
+                          offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* show epoch */
@@ -943,10 +943,10 @@ dissect_dtls_alert(tvbuff_t *tvb, packet_info *pinfo,
                               val_to_str_const(*conv_version, ssl_version_short_names, "SSL"),
                               level, desc);
           proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_level,
-                              tvb, offset++, 1, FALSE);
+                              tvb, offset++, 1, ENC_BIG_ENDIAN);
 
           proto_tree_add_item(ssl_alert_tree, hf_dtls_alert_message_description,
-                              tvb, offset++, 1, FALSE);
+                              tvb, offset++, 1, ENC_BIG_ENDIAN);
         }
       else
         {
@@ -1347,7 +1347,7 @@ dissect_dtls_hnd_hello_common(tvbuff_t *tvb, proto_tree *tree,
       /* show the session id */
       session_id_length = tvb_get_guint8(tvb, offset);
       proto_tree_add_item(tree, hf_dtls_handshake_session_id_len,
-                          tvb, offset++, 1, 0);
+                          tvb, offset++, 1, ENC_BIG_ENDIAN);
       if (session_id_length > 0)
         {
           proto_tree_add_bytes_format(tree, hf_dtls_handshake_session_id,
@@ -1448,7 +1448,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
       /* show the client version */
       if (tree)
         proto_tree_add_item(tree, hf_dtls_handshake_client_version, tvb,
-                            offset, 2, FALSE);
+                            offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* show the fields in common with server hello */
@@ -1500,7 +1500,7 @@ dissect_dtls_hnd_cli_hello(tvbuff_t *tvb,
           while (cipher_suite_length > 0)
             {
               proto_tree_add_item(cs_tree, hf_dtls_handshake_cipher_suite,
-                                  tvb, offset, 2, FALSE);
+                                  tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
               cipher_suite_length -= 2;
             }
@@ -1578,7 +1578,7 @@ dissect_dtls_hnd_hello_verify_request(tvbuff_t *tvb, proto_tree *tree,
       /* show the client version */
       if (tree)
         proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
-                            offset, 2, FALSE);
+                            offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
 
@@ -1625,7 +1625,7 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
       /* show the server version */
       if (tree)
         proto_tree_add_item(tree, hf_dtls_handshake_server_version, tvb,
-                            offset, 2, FALSE);
+                            offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* first display the elements conveniently in
@@ -1669,12 +1669,12 @@ dissect_dtls_hnd_srv_hello(tvbuff_t *tvb,
 
       /* now the server-selected cipher suite */
       proto_tree_add_item(tree, hf_dtls_handshake_cipher_suite,
-                          tvb, offset, 2, FALSE);
+                          tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
 
       /* and the server-selected compression method */
       proto_tree_add_item(tree, hf_dtls_handshake_comp_method,
-                          tvb, offset, 1, FALSE);
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;
 
       if (length > offset - start_offset)
@@ -1736,7 +1736,7 @@ dissect_dtls_hnd_cert(tvbuff_t *tvb,
               certificate_list_length -= 3 + cert_length;
 
               proto_tree_add_item(subtree, hf_dtls_handshake_certificate_len,
-                                  tvb, offset, 3, FALSE);
+                                  tvb, offset, 3, ENC_BIG_ENDIAN);
               offset += 3;
 
               dissect_x509af_Certificate(FALSE, tvb, offset, &asn1_ctx, subtree, hf_dtls_handshake_certificate);
@@ -1796,7 +1796,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
           while (cert_types_count > 0)
             {
               proto_tree_add_item(subtree, hf_dtls_handshake_cert_type,
-                                  tvb, offset, 1, FALSE);
+                                  tvb, offset, 1, ENC_BIG_ENDIAN);
               offset++;
               cert_types_count--;
             }
@@ -1829,7 +1829,7 @@ dissect_dtls_hnd_cert_req(tvbuff_t *tvb,
               dnames_length -= 2 + name_length;
 
               proto_tree_add_item(subtree, hf_dtls_handshake_dname_len,
-                                  tvb, offset, 2, FALSE);
+                                  tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
 
               proto_tree_add_bytes_format(subtree,

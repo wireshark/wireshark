@@ -2503,14 +2503,14 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
   switch (coding_standard) {
     case 0:
       /*CCITT*/
-      proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, FALSE);
-      proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
       offset ++;
       length--;
       if (length == 0)
         return;
-      proto_tree_add_item(parameter_tree, hf_isup_cause_indicator, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_isup_cause_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
       offset ++;
       length--;
@@ -2524,14 +2524,14 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       return;
     case 2:
       /*ANSI*/
-      proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, FALSE);
-      proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
       offset ++;
       length--;
       if (length == 0)
         return;
-      proto_tree_add_item(parameter_tree, hf_ansi_isup_cause_indicator, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_ansi_isup_cause_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       cause_value=tvb_get_guint8(parameter_tvb, offset)&0x7f;
       proto_item_set_text(parameter_item, "Cause indicators: %s (%u)",
                           val_to_str_ext_const(cause_value, &ansi_isup_cause_code_vals_ext, "spare"),
@@ -2546,7 +2546,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
                           tvb_bytes_to_str(parameter_tvb, offset, length));
       return;
     default:
-      proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
       break;
   }
@@ -3232,32 +3232,32 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
         offset = offset + 1;
         tempdata = tvb_get_guint8(tvb, offset);
 
-        acs_item = proto_tree_add_item(tree, hf_active_code_set, tvb, offset, 1, TRUE);
+        acs_item = proto_tree_add_item(tree, hf_active_code_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         acs_tree = proto_item_add_subtree(acs_item,ett_acs);
-        proto_tree_add_item(acs_tree, hf_active_code_set_12_2, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_10_2, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_7_95, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_7_40, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_6_70, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_5_90, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_5_15, tvb, offset, 1, TRUE);
-        proto_tree_add_item(acs_tree, hf_active_code_set_4_75, tvb, offset, 1, TRUE);
+        proto_tree_add_item(acs_tree, hf_active_code_set_12_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_10_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_7_95, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_7_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_6_70, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_5_90, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_5_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(acs_tree, hf_active_code_set_4_75, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 
       }
       if ( len > 3 ) {
         offset = offset + 1;
         tempdata = tvb_get_guint8(tvb, offset);
 
-        scs_item = proto_tree_add_item(tree, hf_supported_code_set, tvb, offset, 1, TRUE);
+        scs_item = proto_tree_add_item(tree, hf_supported_code_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         scs_tree = proto_item_add_subtree(scs_item,ett_scs);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_12_2, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_10_2, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_7_95, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_7_40, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_6_70, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_5_90, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_5_15, tvb, offset, 1, TRUE);
-        proto_tree_add_item(scs_tree, hf_supported_code_set_4_75, tvb, offset, 1, TRUE);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_12_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_10_2, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_7_95, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_7_40, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_6_70, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_5_90, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_5_15, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(scs_tree, hf_supported_code_set_4_75, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       }
       if ( len > 4 ) {
         offset = offset + 1;
@@ -3375,9 +3375,9 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
       offset = offset + 1;
       proto_tree_add_item( bat_ase_element_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
       proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, FALSE );
-      proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_general_action, parameter_tvb, offset, 1, FALSE );
-      proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_general_action, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_general_action, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       offset = offset + 1;
     }
     content_len = length_indicator - 1 ; /* exclude the treated Compatibility information */
@@ -3656,21 +3656,21 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
   si_and_apm_seg_ind  = tvb_get_guint8(parameter_tvb, offset);
   proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
   proto_tree_add_item( parameter_tree, hf_isup_apm_si_ind, parameter_tvb, offset, 1, FALSE );
-  proto_tree_add_item( parameter_tree, hf_isup_apm_segmentation_ind, parameter_tvb, offset, 1, FALSE );
+  proto_tree_add_item( parameter_tree, hf_isup_apm_segmentation_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
   offset = offset + 1;
 
   /* Octet 3a */
   if ( (si_and_apm_seg_ind & H_8BIT_MASK) == 0x00) {
     apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
     proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
-    proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, FALSE );
+    proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     offset = offset + 1;
   }
   /* For APM'98'-user applications. ( aci 0 - 3 ), APM-user information field starts at octet 4 */
   if (aci16 > 3) {
     /* Octet 4 Originating Address length */
     octet = tvb_get_guint8(parameter_tvb,offset);
-    proto_tree_add_item( parameter_tree, hf_isup_orig_addr_len, parameter_tvb, offset, 1, FALSE );
+    proto_tree_add_item( parameter_tree, hf_isup_orig_addr_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     offset++;
     if ( octet != 0){
       /* 4b */
@@ -3678,7 +3678,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
       /* nature of address indicator */
       offset++;
       proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, FALSE );
-      proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       offset++;
       /* Address digits */
       proto_tree_add_text(parameter_tree, parameter_tvb, offset, octet - 2, "Address digits");
@@ -3686,7 +3686,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
     }
     /* Octet 5 Destination Address length */
     octet = tvb_get_guint8(parameter_tvb,offset);
-    proto_tree_add_item( parameter_tree, hf_isup_dest_addr_len, parameter_tvb, offset, 1, FALSE );
+    proto_tree_add_item( parameter_tree, hf_isup_dest_addr_len, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     offset++;
     if ( octet != 0){
       /* 4b */
@@ -3694,7 +3694,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
       /* nature of address indicator */
       offset++;
       proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, FALSE );
-      proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       offset++;
       /* Address digits */
       proto_tree_add_text(parameter_tree, parameter_tvb, offset, octet - 2, "Address digits");

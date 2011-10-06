@@ -634,7 +634,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                PROTO_ITEM_SET_GENERATED(it);
             }
             else
-               proto_tree_add_item( port_tree, hf_cip_port, tvb, offset + pathpos, 1, TRUE );
+               proto_tree_add_item( port_tree, hf_cip_port, tvb, offset + pathpos, 1, ENC_LITTLE_ENDIAN );
             proto_item_append_text( epath_item, "Port: %d", ( segment_type & 0x0F ) );
             proto_item_append_text( port_item, ": Port: %d", ( segment_type & 0x0F ) );
 
@@ -700,7 +700,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
-                  proto_tree_add_item( port_tree, hf_cip_link_address_byte, tvb, offset+pathpos+1, 1, FALSE );
+                  proto_tree_add_item( port_tree, hf_cip_link_address_byte, tvb, offset+pathpos+1, 1, ENC_BIG_ENDIAN );
                proto_item_append_text( epath_item, ", Address: %d",tvb_get_guint8( tvb, offset + pathpos + 1 ) );
                proto_item_append_text( port_item,  ", Address: %d",tvb_get_guint8( tvb, offset + pathpos + 1 ) );
 
@@ -741,7 +741,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_class8, tvb, offset + pathpos + 1, 1, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_class8, tvb, offset + pathpos + 1, 1, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%02X" ) );
 
                      /* 2 bytes of path used */
@@ -768,7 +768,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_class16, tvb, offset + pathpos + 2, 2, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_class16, tvb, offset + pathpos + 2, 2, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%04X" ) );
 
                      /* 4 bytes of path used */
@@ -795,7 +795,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_class32, tvb, offset + pathpos + 2, 4, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_class32, tvb, offset + pathpos + 2, 4, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "%s", val_to_str( temp_data, cip_class_names_vals , "Class: 0x%08X" ) );
 
                      /* 6 bytes of path used */
@@ -835,7 +835,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_instance8, tvb, offset + pathpos + 1, 1, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_instance8, tvb, offset + pathpos + 1, 1, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Instance: 0x%02X", temp_data );
 
                      /* 2 bytes of path used */
@@ -862,7 +862,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_instance16, tvb, offset + pathpos + 2, 2, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_instance16, tvb, offset + pathpos + 2, 2, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Instance: 0x%04X", temp_data );
 
                      /* 4 bytes of path used */
@@ -889,7 +889,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_instance32, tvb, offset + pathpos + 2, 4, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_instance32, tvb, offset + pathpos + 2, 4, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Instance: 0x%08X", temp_data );
 
 
@@ -930,7 +930,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_member8, tvb, offset + pathpos + 1, 1, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_member8, tvb, offset + pathpos + 1, 1, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Member: 0x%02X", temp_data );
 
                      /* 2 bytes of path used */
@@ -957,7 +957,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_member16, tvb, offset + pathpos + 2, 2, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_member16, tvb, offset + pathpos + 2, 2, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Member: 0x%04X", temp_data );
 
                      /* 4 bytes of path used */
@@ -984,7 +984,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_member32, tvb, offset + pathpos + 2, 4, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_member32, tvb, offset + pathpos + 2, 4, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Member: 0x%08X", temp_data );
 
                      /* 6 bytes of path used */
@@ -1023,7 +1023,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_attribute8, tvb, offset + pathpos + 1, 1, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_attribute8, tvb, offset + pathpos + 1, 1, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Attribute: 0x%02X", temp_data );
 
                      /* 2 bytes of path used */
@@ -1050,7 +1050,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_attribute16, tvb, offset + pathpos + 2, 2, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_attribute16, tvb, offset + pathpos + 2, 2, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Attribute: 0x%04X", temp_data );
 
                      /* 4 bytes of path used */
@@ -1077,7 +1077,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                         PROTO_ITEM_SET_GENERATED(it);
                      }
                      else
-                        proto_tree_add_item( cia_tree, hf_cip_attribute32, tvb, offset + pathpos + 2, 4, TRUE );
+                        proto_tree_add_item( cia_tree, hf_cip_attribute32, tvb, offset + pathpos + 2, 4, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Attribute: 0x%08X", temp_data );
 
                      /* 6 bytes of path used */
@@ -1105,7 +1105,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                      cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
                      /* Display the 8-bit connection point number */
-                     proto_tree_add_item( cia_tree, hf_cip_conpoint8, tvb, offset + pathpos + 1, 1, TRUE );
+                     proto_tree_add_item( cia_tree, hf_cip_conpoint8, tvb, offset + pathpos + 1, 1, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Connection Point: 0x%02X", temp_data );
 
                      /* 2 bytes of path used */
@@ -1120,7 +1120,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                      cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
                      /* Display the 16-bit connection point number */
-                     proto_tree_add_item( cia_tree, hf_cip_conpoint16, tvb, offset + pathpos + 2, 2, TRUE );
+                     proto_tree_add_item( cia_tree, hf_cip_conpoint16, tvb, offset + pathpos + 2, 2, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Connection Point: 0x%04X", temp_data );
 
                      /* 4 bytes of path used */
@@ -1135,7 +1135,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                      cia_tree = proto_item_add_subtree( cia_item, ett_cia_path );
 
                      /* Display the 32-bit connection point number */
-                     proto_tree_add_item( cia_tree, hf_cip_conpoint32, tvb, offset + pathpos + 2, 4, TRUE );
+                     proto_tree_add_item( cia_tree, hf_cip_conpoint32, tvb, offset + pathpos + 2, 4, ENC_LITTLE_ENDIAN );
                      proto_item_append_text( epath_item, "Connection Point: 0x%08X", temp_data );
 
                      /* 6 bytes of path used */
@@ -1192,7 +1192,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
 
                         /* Add Compatibility bit info */
                         proto_tree_add_item(mc_tree, hf_cip_fwo_comp,
-                                            tvb, offset + pathpos + 8, 1, TRUE );
+                                            tvb, offset + pathpos + 8, 1, ENC_LITTLE_ENDIAN );
 
                         proto_item_append_text( mcpi, "%s, Major Revision: %d",
                                                 val_to_str( ( temp_data & 0x80 )>>7, cip_com_bit_vals , "" ),
@@ -1200,7 +1200,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
 
                         /* Major revision */
                         proto_tree_add_item(mc_tree, hf_cip_fwo_mrev,
-                                            tvb, offset + pathpos + 8, 1, TRUE );
+                                            tvb, offset + pathpos + 8, 1, ENC_LITTLE_ENDIAN );
 
                         /* Minor revision */
                         temp_data2 = tvb_get_guint8( tvb, offset + pathpos + 9 );
@@ -1873,7 +1873,7 @@ typedef struct mr_mult_req_info {
    rrsc_tree = proto_item_add_subtree( rrsc_item, ett_mr_rrsc );
 
    /* Add Request/Response */
-   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, TRUE );
+   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    /* watch for service collisions */
    service = tvb_get_guint8( tvb, offset );
@@ -1885,7 +1885,7 @@ typedef struct mr_mult_req_info {
                   cip_sc_rr, "") );
 
    /* Add Service code */
-   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, TRUE );
+   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    if( tvb_get_guint8( tvb, offset ) & 0x80 )
    {
@@ -2220,11 +2220,11 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
       ncp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
       /* Add the data to the tree */
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_own, tvb, offset+26, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_typ, tvb, offset+26, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_prio, tvb, offset+26, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+26, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+26, 4, TRUE );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_own, tvb, offset+26, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_typ, tvb, offset+26, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_prio, tvb, offset+26, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+26, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+26, 4, ENC_LITTLE_ENDIAN );
 
       net_param_offset = 4;
    }
@@ -2235,11 +2235,11 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
       ncp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
       /* Add the data to the tree */
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_own, tvb, offset+26, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_typ, tvb, offset+26, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_prio, tvb, offset+26, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+26, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_con_size, tvb, offset+26, 2, TRUE );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_own, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_typ, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_prio, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_con_size, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
       net_param_offset = 2;
    }
 
@@ -2255,11 +2255,11 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
       ncp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
       /* Add the data to the tree */
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_own, tvb, offset+26+net_param_offset+4, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_typ, tvb, offset+26+net_param_offset+4, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_prio, tvb, offset+26+net_param_offset+4, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+26+net_param_offset+4, 4, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+26+net_param_offset+4, 4, TRUE );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_own, tvb, offset+26+net_param_offset+4, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_typ, tvb, offset+26+net_param_offset+4, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_prio, tvb, offset+26+net_param_offset+4, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+26+net_param_offset+4, 4, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+26+net_param_offset+4, 4, ENC_LITTLE_ENDIAN );
 
       net_param_offset += 4;
    }
@@ -2270,11 +2270,11 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
       ncp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
       /* Add the data to the tree */
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_own, tvb, offset+26+net_param_offset+4, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_typ, tvb, offset+26+net_param_offset+4, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_prio, tvb, offset+26+net_param_offset+4, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+26+net_param_offset+4, 2, TRUE );
-      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_con_size, tvb, offset+26+net_param_offset+4, 2, TRUE );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_own, tvb, offset+26+net_param_offset+4, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_typ, tvb, offset+26+net_param_offset+4, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_prio, tvb, offset+26+net_param_offset+4, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+26+net_param_offset+4, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_con_size, tvb, offset+26+net_param_offset+4, 2, ENC_LITTLE_ENDIAN );
       net_param_offset += 2;
    }
 
@@ -2285,9 +2285,9 @@ dissect_cip_cm_fwd_open_req(proto_tree *cmd_tree, tvbuff_t *tvb, int offset, gbo
    ncp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
    /* Add the data to the tree */
-   proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_dir, tvb, offset+26+net_param_offset+4, 1, TRUE );
-   proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_trigg, tvb, offset+26+net_param_offset+4, 1, TRUE );
-   proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_class, tvb, offset+26+net_param_offset+4, 1, TRUE );
+   proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_dir, tvb, offset+26+net_param_offset+4, 1, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_trigg, tvb, offset+26+net_param_offset+4, 1, ENC_LITTLE_ENDIAN );
+   proto_tree_add_item(ncp_tree, hf_cip_cm_fwo_class, tvb, offset+26+net_param_offset+4, 1, ENC_LITTLE_ENDIAN );
 
    /* Add path size */
    conn_path_size = tvb_get_guint8( tvb, offset+26+net_param_offset+5 )*2;
@@ -2367,7 +2367,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
    rrsc_tree = proto_item_add_subtree( rrsc_item, ett_cm_rrsc );
 
    /* Add Request/Response */
-   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, TRUE );
+   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    /* watch for service collisions */
    proto_item_append_text( rrsc_item, "%s (%s)",
@@ -2377,7 +2377,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                   cip_sc_rr, "") );
 
    /* Add Service code */
-   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, TRUE );
+   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    if( service & 0x80 )
    {
@@ -2439,7 +2439,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+24, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
 
                /* Display the Reserved byte */
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+25, 1, TRUE );
+               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+25, 1, ENC_LITTLE_ENDIAN );
 
                if( app_rep_size != 0 )
                {
@@ -2482,7 +2482,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 1, "Application Reply Size: %d (words)", app_rep_size / 2 );
 
                /* Display the Reserved byte */
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, TRUE );
+               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, ENC_LITTLE_ENDIAN );
 
                if( app_rep_size != 0 )
                {
@@ -2580,7 +2580,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
                proto_tree_add_text( cmd_data_tree, tvb, offset+4+add_stat_size+8, 1, "Remaining Path Size: %d", temp_data );
 
                /* Display the Reserved byte */
-               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, TRUE );
+               proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+4+add_stat_size+9, 1, ENC_LITTLE_ENDIAN );
                break;
             case SC_CM_UNCON_SEND:
                /* Unconnected send response (Unsuccess) */
@@ -2647,7 +2647,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+10, 1, "Connection Path Size: %d (words)", conn_path_size / 2 );
 
             /* Display the Reserved byte */
-            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size+11, 1, TRUE );
+            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size+11, 1, ENC_LITTLE_ENDIAN );
 
             /* Add the EPATH */
             pi = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+12, conn_path_size, "Connection Path: ");
@@ -2710,7 +2710,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             proto_tree_add_text( cmd_data_tree, tvb, offset+2+req_path_size+4+msg_req_siz, 1, "Route Path Size: %d (words)", route_path_size/2 );
 
             /* Display the Reserved byte */
-            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size+5+msg_req_siz, 1, TRUE );
+            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size+5+msg_req_siz, 1, ENC_LITTLE_ENDIAN );
 
             /* Route Path */
             temp_item = proto_tree_add_text(cmd_data_tree, tvb, offset+2+req_path_size+6+msg_req_siz, route_path_size, "Route Path: ");
@@ -2721,7 +2721,7 @@ dissect_cip_cm_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item_
             /* Get Connection Owner Request */
 
             /* Display the Reserved byte */
-            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size, 1, TRUE );
+            proto_tree_add_item(cmd_data_tree, hf_cip_reserved8, tvb, offset+2+req_path_size, 1, ENC_LITTLE_ENDIAN );
 
             /* Add path size */
             conn_path_size = tvb_get_guint8( tvb, offset+2+req_path_size+1 )*2;
@@ -2807,7 +2807,7 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
    confg_tree = proto_item_add_subtree(confgi, ett_cco_con_flag);
 
       /* Add the data to the tree */
-      proto_tree_add_item(confg_tree, hf_cip_cco_con_type, tvb, offset, 2, TRUE );
+      proto_tree_add_item(confg_tree, hf_cip_cco_con_type, tvb, offset, 2, ENC_LITTLE_ENDIAN );
       proto_tree_add_item(confg_tree, hf_cip_cco_ot_rtf, tvb, offset, 2, TRUE );
       proto_tree_add_item(confg_tree, hf_cip_cco_to_rtf, tvb, offset, 2, TRUE );
 
@@ -2849,9 +2849,9 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       ncpp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
          /* Add the data to the tree */
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_dir, tvb, offset+15, 1, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_trigg, tvb, offset+15, 1, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_class, tvb, offset+15, 1, TRUE );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_dir, tvb, offset+15, 1, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_trigg, tvb, offset+15, 1, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_class, tvb, offset+15, 1, ENC_LITTLE_ENDIAN );
 
       temp_data = tvb_get_letohl( tvb, offset+16);
       proto_tree_add_text(ncp_tree, tvb, offset+16, 4, "O->T RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
@@ -2862,11 +2862,11 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       ncpp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
          /* Add the data to the tree */
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_own, tvb, offset+20, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_typ, tvb, offset+20, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_prio, tvb, offset+20, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+20, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_con_size, tvb, offset+20, 2, TRUE );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_own, tvb, offset+20, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_typ, tvb, offset+20, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_prio, tvb, offset+20, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+20, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_con_size, tvb, offset+20, 2, ENC_LITTLE_ENDIAN );
 
       temp_data = tvb_get_letohl( tvb, offset+22);
       proto_tree_add_text(ncp_tree, tvb, offset+22, 4, "T->O RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
@@ -2877,18 +2877,18 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       ncpp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
          /* Add the data to the tree */
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_own, tvb, offset+26, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_typ, tvb, offset+26, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_prio, tvb, offset+26, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+26, 2, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_con_size, tvb, offset+26, 2, TRUE );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_own, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_typ, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_prio, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_fixed_var, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_con_size, tvb, offset+26, 2, ENC_LITTLE_ENDIAN );
 
    /* Connection Path */
    conn_path_size = tvb_get_guint8( tvb, offset+28 )*2;
    proto_tree_add_text( cmd_tree, tvb, offset+28, 1, "Connection Path Size: %d (words)", conn_path_size / 2 );
 
    /* Display the Reserved byte */
-   proto_tree_add_item(cmd_tree, hf_cip_reserved8, tvb, offset+29, 1, TRUE );
+   proto_tree_add_item(cmd_tree, hf_cip_reserved8, tvb, offset+29, 1, ENC_LITTLE_ENDIAN );
 
    /* Add the epath */
    pi = proto_tree_add_text(cmd_tree, tvb, offset+30, conn_path_size, "Connection Path: ");
@@ -3006,9 +3006,9 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       ncpp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
          /* Add the data to the tree */
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_dir, tvb, offset+variable_data_size+1, 1, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_trigg, tvb, offset+variable_data_size+1, 1, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_class, tvb, offset+variable_data_size+1, 1, TRUE );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_dir, tvb, offset+variable_data_size+1, 1, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_trigg, tvb, offset+variable_data_size+1, 1, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_fwo_class, tvb, offset+variable_data_size+1, 1, ENC_LITTLE_ENDIAN );
 
       temp_data = tvb_get_letohl( tvb, offset+variable_data_size+2);
       proto_tree_add_text(ncp_tree, tvb, offset+variable_data_size+2, 4, "O->T RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
@@ -3019,11 +3019,11 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       ncpp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
          /* Add the data to the tree */
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_own, tvb, offset+variable_data_size+6, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_typ, tvb, offset+variable_data_size+6, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_prio, tvb, offset+variable_data_size+6, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+variable_data_size+6, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+variable_data_size+6, 4, TRUE );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_own, tvb, offset+variable_data_size+6, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_typ, tvb, offset+variable_data_size+6, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_prio, tvb, offset+variable_data_size+6, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+variable_data_size+6, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+variable_data_size+6, 4, ENC_LITTLE_ENDIAN );
 
       temp_data = tvb_get_letohl( tvb, offset+variable_data_size+10);
       proto_tree_add_text(ncp_tree, tvb, offset+variable_data_size+10, 4, "T->O RPI: %dms (0x%08X)", temp_data / 1000, temp_data );
@@ -3034,11 +3034,11 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
       ncpp_tree = proto_item_add_subtree(ncppi, ett_cm_ncp);
 
          /* Add the data to the tree */
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_own, tvb, offset+variable_data_size+14, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_typ, tvb, offset+variable_data_size+14, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_prio, tvb, offset+variable_data_size+14, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+variable_data_size+14, 4, TRUE );
-         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+variable_data_size+14, 4, TRUE );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_own, tvb, offset+variable_data_size+14, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_typ, tvb, offset+variable_data_size+14, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_prio, tvb, offset+variable_data_size+14, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_fixed_var, tvb, offset+variable_data_size+14, 4, ENC_LITTLE_ENDIAN );
+         proto_tree_add_item(ncpp_tree, hf_cip_cm_lfwo_con_size, tvb, offset+variable_data_size+14, 4, ENC_LITTLE_ENDIAN );
 
       variable_data_size += 18;
    }
@@ -3066,7 +3066,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
    rrsc_tree = proto_item_add_subtree( rrsc_item, ett_cco_rrsc );
 
    /* Add Request/Response */
-   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, TRUE );
+   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    proto_item_append_text( rrsc_item, "%s (%s)",
                val_to_str( ( service & 0x7F ),
@@ -3075,7 +3075,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                   cip_sc_rr, "") );
 
    /* Add Service code */
-   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, TRUE );
+   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    /* Get path information for further dissection */
    req_data.iClass = (guint32)-1;
@@ -3124,13 +3124,13 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                   /* Get Attribute All (class) request */
 
                   /* Revision */
-                  proto_tree_add_item(cmd_data_tree, hf_cip_class_rev, tvb, offset+4+add_stat_size, 2, TRUE );
+                  proto_tree_add_item(cmd_data_tree, hf_cip_class_rev, tvb, offset+4+add_stat_size, 2, ENC_LITTLE_ENDIAN );
 
                   /* Max Instance */
-                  proto_tree_add_item(cmd_data_tree, hf_cip_class_max_inst32, tvb, offset+4+add_stat_size+2, 4, TRUE );
+                  proto_tree_add_item(cmd_data_tree, hf_cip_class_max_inst32, tvb, offset+4+add_stat_size+2, 4, ENC_LITTLE_ENDIAN );
 
                   /* Num Instance */
-                  proto_tree_add_item(cmd_data_tree, hf_cip_class_num_inst32, tvb, offset+4+add_stat_size+6, 4, TRUE );
+                  proto_tree_add_item(cmd_data_tree, hf_cip_class_num_inst32, tvb, offset+4+add_stat_size+6, 4, ENC_LITTLE_ENDIAN );
 
                   /* Format Number */
                   temp_data = tvb_get_letohl( tvb, offset+4+add_stat_size+8);
@@ -3149,7 +3149,7 @@ dissect_cip_cco_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, int item
                   con_st_tree = proto_item_add_subtree(con_sti, ett_cco_con_status);
 
                      /* General Status */
-                     proto_tree_add_item(con_st_tree, hf_cip_genstat, tvb, offset+4+add_stat_size, 1, TRUE );
+                     proto_tree_add_item(con_st_tree, hf_cip_genstat, tvb, offset+4+add_stat_size, 1, ENC_LITTLE_ENDIAN );
 
                      /* Pad */
                      temp_data = tvb_get_guint8( tvb, offset+4+add_stat_size+1);
@@ -3314,7 +3314,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
    rrsc_tree = proto_item_add_subtree( rrsc_item, ett_rrsc );
 
    /* Add Request/Response */
-   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, TRUE );
+   proto_tree_add_item( rrsc_tree, hf_cip_rr, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    /* watch for service collisions */
    service = tvb_get_guint8( tvb, offset );
@@ -3325,7 +3325,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
                   cip_sc_rr, "") );
 
    /* Add Service code */
-   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, TRUE );
+   proto_tree_add_item(rrsc_tree, hf_cip_sc, tvb, offset, 1, ENC_LITTLE_ENDIAN );
 
    if( service & 0x80 )
    {
@@ -3335,7 +3335,7 @@ dissect_cip_data( proto_tree *item_tree, tvbuff_t *tvb, int offset, packet_info 
 
       /* Add general status */
       gen_status = tvb_get_guint8( tvb, offset+2 );
-      proto_tree_add_item(status_tree, hf_cip_genstat, tvb, offset+2, 1, TRUE );
+      proto_tree_add_item(status_tree, hf_cip_genstat, tvb, offset+2, 1, ENC_LITTLE_ENDIAN );
       proto_item_append_text( status_item, "%s", val_to_str( gen_status,
                      cip_gs_vals , "Unknown Response (%x)")   );
 

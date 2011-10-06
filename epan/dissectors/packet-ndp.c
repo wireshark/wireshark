@@ -312,21 +312,21 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
 		proto_tree_add_item(ndp_tree, hf_ndp_segment_identifier, tvb,
-			NDP_SEGMENT_IDENTIFIER, 3, FALSE);
+			NDP_SEGMENT_IDENTIFIER, 3, ENC_BIG_ENDIAN);
 
 
 		proto_tree_add_item(ndp_tree, hf_ndp_chassis_type, tvb,
-			NDP_CHASSIS_TYPE, 1, FALSE);
+			NDP_CHASSIS_TYPE, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(ndp_tree, hf_ndp_backplane_type, tvb,
-			NDP_BACKPLANE_TYPE, 1, FALSE);
+			NDP_BACKPLANE_TYPE, 1, ENC_BIG_ENDIAN);
 
 
 		proto_tree_add_item(ndp_tree, hf_ndp_state, tvb,
-			NDP_STATE, 1, FALSE);
+			NDP_STATE, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(ndp_tree, hf_ndp_number_of_links, tvb,
-			NDP_NUMBER_OF_LINKS, 1, FALSE);
+			NDP_NUMBER_OF_LINKS, 1, ENC_BIG_ENDIAN);
 	}
 
 

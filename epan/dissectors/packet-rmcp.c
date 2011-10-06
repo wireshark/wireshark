@@ -123,8 +123,8 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 class_str);
 		rmcp_tree = proto_item_add_subtree(ti, ett_rmcp);
 
-		proto_tree_add_item(rmcp_tree, hf_rmcp_version, tvb, 0, 1, TRUE);
-		proto_tree_add_item(rmcp_tree, hf_rmcp_sequence, tvb, 2, 1, TRUE);
+		proto_tree_add_item(rmcp_tree, hf_rmcp_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(rmcp_tree, hf_rmcp_sequence, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 
 		tf = proto_tree_add_text(rmcp_tree, tvb, 3, 1, "Type: %s, Class: %s",
 			 val_to_str(type, rmcp_type_vals, "Unknown (0x%02x)"),
@@ -132,8 +132,8 @@ dissect_rmcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		field_tree = proto_item_add_subtree(tf, ett_rmcp_typeclass);
 
-		proto_tree_add_item(field_tree, hf_rmcp_class, tvb, 3, 1, TRUE);
-		proto_tree_add_item(field_tree, hf_rmcp_type, tvb, 3, 1, TRUE);
+		proto_tree_add_item(field_tree, hf_rmcp_class, tvb, 3, 1, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(field_tree, hf_rmcp_type, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	}
 
 	if (!type){ /* do not expect a data block for an ACK */
@@ -166,9 +166,9 @@ dissect_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 "RMCP Security-extension Protocol");
 		rsp_tree = proto_item_add_subtree(ti, ett_rsp);
 
-		proto_tree_add_item(rsp_tree, hf_rsp_session_id, tvb, offset, 4, FALSE);
+		proto_tree_add_item(rsp_tree, hf_rsp_session_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(rsp_tree, hf_rsp_sequence, tvb, offset, 4, FALSE);
+		proto_tree_add_item(rsp_tree, hf_rsp_sequence, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	

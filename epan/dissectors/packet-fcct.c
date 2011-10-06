@@ -202,19 +202,19 @@ dissect_fcct (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         fcct_tree = proto_item_add_subtree (ti, ett_fcct);
 
         proto_tree_add_item (fcct_tree, hf_fcct_revision, tvb, offset++,
-                             sizeof (guint8), 0);
+                             sizeof (guint8), ENC_BIG_ENDIAN);
         proto_tree_add_string (fcct_tree, hf_fcct_inid, tvb, offset, 3,
                                fc_to_str ((guint8 *)&in_id));
         offset += 3; /* sizeof FC address */
 
         proto_tree_add_item (fcct_tree, hf_fcct_gstype, tvb, offset++,
-                             sizeof (guint8), 0);
+                             sizeof (guint8), ENC_BIG_ENDIAN);
         proto_tree_add_item (fcct_tree, hf_fcct_gssubtype, tvb, offset,
-                             sizeof (guint8), 0);
+                             sizeof (guint8), ENC_BIG_ENDIAN);
         proto_tree_add_uint (fcct_tree, hf_fcct_server, tvb, offset++, 1,
                              server);
         proto_tree_add_item (fcct_tree, hf_fcct_options, tvb, offset++,
-                             sizeof (guint8), 0);
+                             sizeof (guint8), ENC_BIG_ENDIAN);
 
     }
     /* We do not change the starting offset for the next protocol in the

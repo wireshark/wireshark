@@ -203,11 +203,11 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             offset+=len;
 
             /* boots */
-            proto_tree_add_item(tree, hf_pktc_snmpEngineBoots, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_pktc_snmpEngineBoots, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
 
             /* time */
-            proto_tree_add_item(tree, hf_pktc_snmpEngineTime, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_pktc_snmpEngineTime, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
 
             /* usmUserName Length */
@@ -234,7 +234,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
         case KMMID_AP_REPLY:
         case KMMID_REKEY:
             /* Security Parameter Index (SPI) */
-            proto_tree_add_item(tree, hf_pktc_ipsec_spi, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_pktc_ipsec_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset+=4;
 
 	    break;
@@ -279,12 +279,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
     case DOI_SNMPv3:
         for(i=0;i<len;i++){
             /* SNMPv3 authentication algorithm */
-            proto_tree_add_item(tree, hf_pktc_snmpAuthenticationAlgorithm, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_pktc_snmpAuthenticationAlgorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(tree, " %s", val_to_str(tvb_get_guint8(tvb, offset), snmp_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* SNMPv3 encryption transform id */
-            proto_tree_add_item(tree, hf_pktc_snmpEncryptionTransformID, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_pktc_snmpEncryptionTransformID, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), snmp_transform_id_vals, "%0x"));
             offset+=1;
 	}
@@ -292,12 +292,12 @@ dissect_pktc_list_of_ciphersuites(packet_info *pinfo _U_, proto_tree *parent_tre
     case DOI_IPSEC:
         for(i=0;i<len;i++){
             /* IPsec authentication algorithm */
-            proto_tree_add_item(tree, hf_pktc_ipsecAuthenticationAlgorithm, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_pktc_ipsecAuthenticationAlgorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(tree, " %s", val_to_str(tvb_get_guint8(tvb, offset), ipsec_authentication_algorithm_vals, "%0x"));
             offset+=1;
 
             /* IPsec encryption transform id */
-            proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_pktc_ipsecEncryptionTransformID, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_item_append_text(tree, "/%s", val_to_str(tvb_get_guint8(tvb, offset), ipsec_transform_id_vals, "%0x"));
             offset+=1;
 	}
@@ -385,7 +385,7 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     offset+=4;
 
     /* grace period */
-    proto_tree_add_item(tree, hf_pktc_grace_period, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_pktc_grace_period, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* re-establish flag */
@@ -446,11 +446,11 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     offset=dissect_pktc_list_of_ciphersuites(pinfo, tree, tvb, offset, doi);
 
     /* sec param lifetime */
-    proto_tree_add_item(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_pktc_sec_param_lifetime, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* grace period */
-    proto_tree_add_item(tree, hf_pktc_grace_period, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_pktc_grace_period, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset+=4;
 
     /* re-establish flag */

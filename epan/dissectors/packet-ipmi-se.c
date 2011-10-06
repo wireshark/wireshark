@@ -1799,11 +1799,11 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	evtype = tvb_get_guint8(tvb, 3) & 0x7f;
 	eti = get_evtype_info(evtype);
 
-	proto_tree_add_item(tree, hf_ipmi_se_evt_rev, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_evt_rev, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_se_evt_sensor_type, tvb, 1, 1, stype,
 			"%s (0x%02x)", si->desc, stype);
 	proto_tree_add_item(tree, hf_ipmi_se_evt_sensor_num, tvb, 2, 1, TRUE);
-	ti = proto_tree_add_item(tree, hf_ipmi_se_evt_byte3, tvb, 3, 1, TRUE);
+	ti = proto_tree_add_item(tree, hf_ipmi_se_evt_byte3, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_byte3);
 	proto_tree_add_item(s_tree, hf_ipmi_se_evt_dir, tvb, 3, 1, TRUE);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_evt_type, tvb, 3, 1, evtype,
@@ -1815,7 +1815,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	b3 = (offs >> 4) & 0x3;
 	off_vals = eti->offsets ? eti->offsets : si->offsets ? si->offsets : et_empty;
 
-	ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data1, tvb, 4, 1, TRUE);
+	ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data1, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_evd_byte1);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_evt_data1_b2, tvb, 4, 1, b2 << 6,
 			"%sByte 2: %s (0x%02x)",
@@ -1854,11 +1854,11 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	if ((eti->intrp2 && eti->intrp2(tree, next_tvb, si, b2, offs, d))
 			|| (si->intrp2 && si->intrp2(tree, next_tvb, si, b2, offs, d))) {
 		/* One of them succeeded. */
-		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data2, next_tvb, 0, 1, TRUE);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data2, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	} else {
 		/* Just add as hex */
-		proto_tree_add_item(tree, hf_ipmi_se_evt_data2, next_tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_evt_data2, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 
 	/* Now the same for byte 3 */
@@ -1871,11 +1871,11 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	if ((eti->intrp3 && eti->intrp3(tree, next_tvb, si, b3, offs, d))
 			|| (si->intrp3 && si->intrp3(tree, next_tvb, si, b3, offs, d))) {
 		/* One of them succeeded. */
-		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data3, next_tvb, 0, 1, TRUE);
+		ti = proto_tree_add_item(tree, hf_ipmi_se_evt_data3, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	} else {
 		/* Just add as hex */
-		proto_tree_add_item(tree, hf_ipmi_se_evt_data3, next_tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_evt_data3, next_tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -1916,7 +1916,7 @@ static const value_string cp15_op_vals[] = {
 static void
 cfgparam_00(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp00_sip, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp00_sip, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1943,19 +1943,19 @@ cfgparam_02(tvbuff_t *tvb, proto_tree *tree)
 static void
 cfgparam_03(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp03_startup, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp03_startup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 cfgparam_04(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp04_alert_startup, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp04_alert_startup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 cfgparam_05(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp05_num_evfilters, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp05_num_evfilters, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -1979,7 +1979,7 @@ cfgparam_07(tvbuff_t *tvb, proto_tree *tree)
 static void
 cfgparam_08(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp08_policies, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp08_policies, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2003,7 +2003,7 @@ cfgparam_10(tvbuff_t *tvb, proto_tree *tree)
 static void
 cfgparam_11(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp11_num_alertstr, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp11_num_alertstr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2015,11 +2015,11 @@ cfgparam_12(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *s_tree;
 	guint8 tmp;
 
-	ti = proto_tree_add_item(tree, hf_ipmi_se_cp12_byte1, tvb, 0, 1, TRUE);
+	ti = proto_tree_add_item(tree, hf_ipmi_se_cp12_byte1, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_cp12_byte1);
 	tmp = tvb_get_guint8(tvb, 0) & 0x7f;
 	if (tmp) {
-		proto_tree_add_item(s_tree, hf_ipmi_se_cp12_alert_stringsel, tvb, 0, 1, TRUE);
+		proto_tree_add_item(s_tree, hf_ipmi_se_cp12_alert_stringsel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	} else {
 		proto_tree_add_uint_format(s_tree, hf_ipmi_se_cp12_alert_stringsel, tvb, 0, 1,
 				tmp, "%sSelects volatile string parameters", ipmi_dcd8(tmp, 0x7f));
@@ -2035,14 +2035,14 @@ cfgparam_13(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte1[] = { &hf_ipmi_se_cp13_stringsel, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_se_cp13_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_se_cp13_blocksel, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp13_blocksel, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_cp13_string, tvb, 2, tvb_length(tvb) - 2, TRUE);
 }
 
 static void
 cfgparam_14(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp14_num_gct, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp14_num_gct, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2178,7 +2178,7 @@ rq00(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_uint_format(tree, hf_ipmi_se_00_addr, tvb, 0, 1,
 				addr, "Disable Message Generation (0xFF)");
 	} else {
-		proto_tree_add_item(tree, hf_ipmi_se_00_addr, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_00_addr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_00_byte2, byte2, TRUE, 0);
@@ -2197,7 +2197,7 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 		proto_tree_add_uint_format(tree, hf_ipmi_se_01_addr, tvb, 0, 1,
 				addr, "Message Generation Disabled (0xFF)");
 	} else {
-		proto_tree_add_item(tree, hf_ipmi_se_01_addr, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_01_addr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_01_byte2, byte2, TRUE, 0);
@@ -2220,10 +2220,10 @@ rs10(tvbuff_t *tvb, proto_tree *tree)
 		&hf_ipmi_se_10_action_oem_action, &hf_ipmi_se_10_action_pwr_cycle, &hf_ipmi_se_10_action_reset,
 		&hf_ipmi_se_10_action_pwr_down, &hf_ipmi_se_10_action_alert, NULL };
 
-	proto_tree_add_item(tree, hf_ipmi_se_10_pef_version, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_10_pef_version, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, "Action support: ", "None", ett_ipmi_se_10_action,
 			byte2, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_se_10_entries, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_10_entries, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Arm PEF Postpone Timer.
@@ -2326,8 +2326,8 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 			pno, "%sParameter selector: %s (0x%02x)",
 			ipmi_dcd8(pno, 0x7f), desc, pno);
 
-	proto_tree_add_item(tree, hf_ipmi_se_13_set, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_13_block, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_13_set, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_13_block, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2393,7 +2393,7 @@ rq14(tvbuff_t *tvb, proto_tree *tree)
 	static const gint *byte1[] = { &hf_ipmi_se_14_processed_by, NULL };
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL, ett_ipmi_se_14_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_se_14_rid, tvb, 1, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_14_rid, tvb, 1, 2, ENC_LITTLE_ENDIAN);
 }
 
 static const value_string cc14[] = {
@@ -2411,15 +2411,15 @@ rs15(tvbuff_t *tvb, proto_tree *tree)
 	ipmi_add_timestamp(tree, hf_ipmi_se_15_tstamp, tvb, 0);
 	tmp = tvb_get_letohs(tvb, 4);
 	if (tmp != 0xffff) {
-		proto_tree_add_item(tree, hf_ipmi_se_15_lastrec, tvb, 4, 2, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_15_lastrec, tvb, 4, 2, ENC_LITTLE_ENDIAN);
 	} else {
 		proto_tree_add_uint_format_value(tree, hf_ipmi_se_15_lastrec, tvb, 4, 2,
 				tmp, "SEL is empty (0x%04x)", tmp);
 	}
-	proto_tree_add_item(tree, hf_ipmi_se_15_proc_sw, tvb, 6, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_15_proc_sw, tvb, 6, 2, ENC_LITTLE_ENDIAN);
 	tmp = tvb_get_letohs(tvb, 8);
 	if (tmp != 0x0000) {
-		proto_tree_add_item(tree, hf_ipmi_se_15_proc_bmc, tvb, 8, 2, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_15_proc_bmc, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 	} else {
 		proto_tree_add_uint_format_value(tree, hf_ipmi_se_15_proc_bmc, tvb, 8, 2,
 				tmp, "Event processed but cannot be logged (0x%04x)", tmp);
@@ -2451,7 +2451,7 @@ rq16(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_16_byte2, byte2, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_se_16_byte3, byte3, TRUE, 0);
 	if (tvb_length(tvb) > 3) {
-		proto_tree_add_item(tree, hf_ipmi_se_16_gen, tvb, 3, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_16_gen, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 		sub = tvb_new_subset(tvb, 4, tvb_length(tvb) - 4, tvb_length(tvb) - 4);
 		parse_platform_event(sub, tree);
 	}
@@ -2464,7 +2464,7 @@ rs16(tvbuff_t *tvb, proto_tree *tree)
 
 	if (ipmi_getsaveddata(0, &val) && val == 0x01) {
 		/* Operation == Get Alert Immediate Status */
-		proto_tree_add_item(tree, hf_ipmi_se_16_status, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_16_status, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -2480,14 +2480,14 @@ static const value_string cc16[] = {
 static void
 rq17(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_17_seq, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_17_seq, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	ipmi_add_timestamp(tree, hf_ipmi_se_17_tstamp, tvb, 2);
-	proto_tree_add_item(tree, hf_ipmi_se_17_evsrc, tvb, 6, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_17_sensor_dev, tvb, 7, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_17_sensor_num, tvb, 8, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_17_evdata1, tvb, 9, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_17_evdata2, tvb, 10, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_17_evdata3, tvb, 11, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_17_evsrc, tvb, 6, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_17_sensor_dev, tvb, 7, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_17_sensor_num, tvb, 8, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_17_evdata1, tvb, 9, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_17_evdata2, tvb, 10, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_17_evdata3, tvb, 11, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Device SDR Info.
@@ -2512,15 +2512,15 @@ rs20(tvbuff_t *tvb, proto_tree *tree)
 	guint32 val;
 
 	if (ipmi_getsaveddata(0, &val) && val) {
-		proto_tree_add_item(tree, hf_ipmi_se_20_rs_sdr, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_20_rs_sdr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	} else {
-		proto_tree_add_item(tree, hf_ipmi_se_20_rs_num, tvb, 0, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_20_rs_num, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	}
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_20_rs_byte2,
 			byte2, TRUE, 0);
 	if (tvb_get_guint8(tvb, 1) & 0x80) {
 		/* Dynamic sensor population */
-		proto_tree_add_item(tree, hf_ipmi_se_20_rs_change, tvb, 2, 4, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_se_20_rs_change, tvb, 2, 4, ENC_LITTLE_ENDIAN);
 	}
 }
 
@@ -2534,9 +2534,9 @@ rq21(tvbuff_t *tvb, proto_tree *tree)
 
 	len = tvb_get_guint8(tvb, 5);
 
-	proto_tree_add_item(tree, hf_ipmi_se_21_rid, tvb, 0, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_21_record, tvb, 2, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_21_offset, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_21_rid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_21_record, tvb, 2, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_21_offset, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_se_21_len, tvb, 5, 1, len,
 			"%u%s", len, len == 0xff ? "(entire record)" : "");
 }
@@ -2544,7 +2544,7 @@ rq21(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs21(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_21_next, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_21_next, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_se_21_recdata, tvb, 2, tvb_length(tvb) - 2, ENC_NA);
 }
 
@@ -2558,7 +2558,7 @@ static const value_string cc21[] = {
 static void
 rs22(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_22_resid, tvb, 0, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_22_resid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Sensor Reading Factors.
@@ -2566,8 +2566,8 @@ rs22(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq23(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_23_rq_sensor, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_23_rq_reading, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_23_rq_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_23_rq_reading, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static inline gint16
@@ -2588,7 +2588,7 @@ rs23(tvbuff_t *tvb, proto_tree *tree)
 	guint16 tol, acc, accexp, tmp;
 	gint16 m, b, bexp, rexp;
 
-	proto_tree_add_item(tree, hf_ipmi_se_23_rs_next_reading, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_23_rs_next_reading, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 
 	m = tvb_get_guint8(tvb, 1);
 	tmp = tvb_get_guint8(tvb, 2);
@@ -2654,10 +2654,10 @@ rs23(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq24(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_24_sensor, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_24_mask, tvb, 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_24_hyst_pos, tvb, 2, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_24_hyst_neg, tvb, 3, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_24_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_24_mask, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_24_hyst_pos, tvb, 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_24_hyst_neg, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Sensor Hysteresis.
@@ -2665,15 +2665,15 @@ rq24(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq25(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_25_sensor, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_25_mask, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_25_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_25_mask, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 rs25(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_25_hyst_pos, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_25_hyst_neg, tvb, 1, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_25_hyst_pos, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_25_hyst_neg, tvb, 1, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Common for Get/Set Thresholds */
@@ -2685,12 +2685,12 @@ add_thresholds(tvbuff_t *tvb, int offs, proto_tree *tree, const char *desc)
 
 	proto_tree_add_bitmask_text(tree, tvb, offs, 1, desc, "None",
 			ett_ipmi_se_XX_mask, threshold_mask, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_lnc, tvb, offs + 1, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_lc, tvb, offs + 2, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_lnr, tvb, offs + 3, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_unc, tvb, offs + 4, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_uc, tvb, offs + 5, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_unr, tvb, offs + 6, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_lnc, tvb, offs + 1, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_lc, tvb, offs + 2, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_lnr, tvb, offs + 3, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_unc, tvb, offs + 4, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_uc, tvb, offs + 5, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_XX_thr_unr, tvb, offs + 6, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Set Sensor Thresholds.
@@ -2698,7 +2698,7 @@ add_thresholds(tvbuff_t *tvb, int offs, proto_tree *tree, const char *desc)
 static void
 rq26(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_26_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_26_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	add_thresholds(tvb, 1, tree, "Set thresholds: ");
 }
 
@@ -2707,7 +2707,7 @@ rq26(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq27(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_27_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_27_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2762,7 +2762,7 @@ rq28(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_se_28_fl_evm, &hf_ipmi_se_28_fl_scan, &hf_ipmi_se_28_fl_action, NULL };
 	static const struct true_false_string tfs_lect = { "Select", "Do not select" };
 
-	proto_tree_add_item(tree, hf_ipmi_se_28_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_28_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_28_byte2, byte2, TRUE, 0);
 	add_events(tvb, 2, tree, &tfs_lect, "Selected events");
 }
@@ -2772,7 +2772,7 @@ rq28(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq29(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_29_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_29_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2792,7 +2792,7 @@ rq2a(tvbuff_t *tvb, proto_tree *tree)
 	static const int *byte2[] = { &hf_ipmi_se_2a_fl_sel, NULL };
 	static const struct true_false_string rearm_tfs = { "Re-arm", "Do not re-arm" };
 
-	proto_tree_add_item(tree, hf_ipmi_se_2a_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_2a_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_2a_byte2, byte2, TRUE, 0);
 	add_events(tvb, 2, tree, &rearm_tfs, "Re-arm Events");
 }
@@ -2802,7 +2802,7 @@ rq2a(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq2b(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_2b_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_2b_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2820,7 +2820,7 @@ rs2b(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq2d(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_2d_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_2d_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -2839,7 +2839,7 @@ rs2d(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree *s_tree;
 	int i, j, len;
 
-	proto_tree_add_item(tree, hf_ipmi_se_2d_reading, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_2d_reading, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_se_2d_byte2, byte2, TRUE, 0);
 	len = tvb_length(tvb);
 	for (i = 0; i < 2 && i < len - 2; i++) {
@@ -2869,7 +2869,7 @@ rq2e(tvbuff_t *tvb, proto_tree *tree)
 	evtype = tvb_get_guint8(tvb, 2) & 0x7f;
 	eti = get_evtype_info(evtype);
 
-	proto_tree_add_item(tree, hf_ipmi_se_2e_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_2e_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_se_2e_stype, tvb, 1, 1,
 			stype, "%s (0x%02x)", si->desc, stype);
 
@@ -2884,7 +2884,7 @@ rq2e(tvbuff_t *tvb, proto_tree *tree)
 static void
 rq2f(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_2f_sensor, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_2f_sensor, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void

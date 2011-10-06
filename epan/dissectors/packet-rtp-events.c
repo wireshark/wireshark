@@ -130,7 +130,7 @@ dissect_rtp_events( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 	 * being reported, in timestamp units.
 	 */
 	rtp_event_info.info_duration = tvb_get_ntohs(tvb, offset); 
-	proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, FALSE);
+	proto_tree_add_item ( rtp_events_tree, hf_rtp_events_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* set the end info for the tap */
 	if (octet & 0x80)

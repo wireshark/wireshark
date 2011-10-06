@@ -120,9 +120,9 @@ dissect_vlan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     vlan_tree = proto_item_add_subtree(ti, ett_vlan);
 
-    proto_tree_add_item(vlan_tree, hf_vlan_priority, tvb, 0, 2, FALSE);
-    proto_tree_add_item(vlan_tree, hf_vlan_cfi, tvb, 0, 2, FALSE);
-    proto_tree_add_item(vlan_tree, hf_vlan_id, tvb, 0, 2, FALSE);
+    proto_tree_add_item(vlan_tree, hf_vlan_priority, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vlan_tree, hf_vlan_cfi, tvb, 0, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(vlan_tree, hf_vlan_id, tvb, 0, 2, ENC_BIG_ENDIAN);
   }
 
   encap_proto = tvb_get_ntohs(tvb, 2);

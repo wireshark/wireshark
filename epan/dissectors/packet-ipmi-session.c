@@ -183,7 +183,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				authtype == IPMI_AUTH_RMCPP ? "2.0+" : "1.5",
 				session_id);
 		sess_tree = proto_item_add_subtree(ti, ett_ipmi_session);
-		proto_tree_add_item(sess_tree, hf_ipmi_session_authtype, tvb, offset, 1, TRUE);
+		proto_tree_add_item(sess_tree, hf_ipmi_session_authtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		offset++;
 
 		if (authtype == IPMI_AUTH_RMCPP) {
@@ -197,7 +197,7 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			s_tree = proto_item_add_subtree(ti, ett_ipmi_session_payloadtype);
 			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype_enc, tvb, offset, 1, TRUE);
 			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype_auth, tvb, offset, 1, TRUE);
-			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype, tvb, offset, 1, TRUE);
+			proto_tree_add_item(s_tree, hf_ipmi_session_payloadtype, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
 			if (payloadtype == IPMI_OEM_EXPLICIT) {
@@ -206,24 +206,24 @@ dissect_ipmi_session(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(sess_tree, hf_ipmi_session_oem_payload_id, tvb, offset, 2, ENC_NA);
 				offset += 2;
 			}
-			proto_tree_add_item(sess_tree, hf_ipmi_session_id, tvb, offset, 4, TRUE);
+			proto_tree_add_item(sess_tree, hf_ipmi_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(sess_tree, hf_ipmi_session_sequence, tvb, offset, 4, TRUE);
+			proto_tree_add_item(sess_tree, hf_ipmi_session_sequence, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(sess_tree, hf_ipmi_session_msg_len_2b, tvb, offset, 2, TRUE);
+			proto_tree_add_item(sess_tree, hf_ipmi_session_msg_len_2b, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 			offset += 2;
 		} else {
 			/* IPMI v1.5 */
-			proto_tree_add_item(sess_tree, hf_ipmi_session_sequence, tvb, offset, 4, TRUE);
+			proto_tree_add_item(sess_tree, hf_ipmi_session_sequence, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
-			proto_tree_add_item(sess_tree, hf_ipmi_session_id, tvb, offset, 4, TRUE);
+			proto_tree_add_item(sess_tree, hf_ipmi_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			offset += 4;
 			if (authtype != IPMI_AUTH_NONE) {
 				proto_tree_add_item(sess_tree, hf_ipmi_session_authcode,
 						tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
-			proto_tree_add_item(sess_tree, hf_ipmi_session_msg_len_1b, tvb, offset, 1, TRUE);
+			proto_tree_add_item(sess_tree, hf_ipmi_session_msg_len_1b, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 		}
 	}

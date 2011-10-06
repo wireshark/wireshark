@@ -1395,7 +1395,7 @@ static int dissect_jxta_message(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
 
         /* parse element count */
         elem_count = tvb_get_ntohs(tvb, tree_offset);
-        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_element_count, tvb, tree_offset, sizeof(guint16), FALSE);
+        proto_tree_add_item(jxta_msg_tree, hf_jxta_message_element_count, tvb, tree_offset, sizeof(guint16), ENC_BIG_ENDIAN);
         tree_offset += sizeof(guint16);
 
         /* FIXME bondolo Element count 0 (Process elements until FIN) should be supported. */
@@ -1653,7 +1653,7 @@ static int dissect_jxta_message_element_1(tvbuff_t * tvb, packet_info * pinfo, p
 
         /* content */
         content_len = tvb_get_ntohl(tvb, tree_offset);
-        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), FALSE);
+        proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), ENC_BIG_ENDIAN);
         tree_offset += sizeof(guint32);
 
         element_content_tvb = tvb_new_subset(tvb, tree_offset, content_len, content_len);
@@ -1945,11 +1945,11 @@ static int dissect_jxta_message_element_2(tvbuff_t * tvb, packet_info * pinfo, p
 
         if ((flags & JXTAMSG2_ELMFLAG_UINT64_LENS) != 0) {
             content_len = tvb_get_ntoh64(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, sizeof(guint64), FALSE);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len64, tvb, tree_offset, sizeof(guint64), ENC_BIG_ENDIAN);
             tree_offset += sizeof(guint64);
         } else {
             content_len = tvb_get_ntohl(tvb, tree_offset);
-            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), FALSE);
+            proto_tree_add_item(jxta_elem_tree, hf_jxta_element_content_len, tvb, tree_offset, sizeof(guint32), ENC_BIG_ENDIAN);
             tree_offset += sizeof(guint32);
         }
 

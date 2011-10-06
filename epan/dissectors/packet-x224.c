@@ -106,12 +106,12 @@ dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	offset+=2;
 
 	/*SRC-REF*/
-	proto_tree_add_item(tree, hf_x224_src_ref, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_x224_src_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* class options */
 	/*class = tvb_get_guint8(tvb, offset);*/
-	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	if(tvb_length_remaining(tvb, offset) > 0) {
@@ -130,16 +130,16 @@ dissect_x224_cc(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	guint8 class;
 
 	/*DST-REF */
-	proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/*SRC-REF*/
-	proto_tree_add_item(tree, hf_x224_src_ref, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_x224_src_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* class options */
 	class = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_x224_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 	x224_info->class = class;
 	offset+=1;
 
@@ -157,7 +157,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	case 3:
 	case 4:
 		/*DST-REF */
-		proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_x224_dst_ref, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset+=2;
 		break;
 	}
@@ -168,7 +168,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 
 	/* EOT / NR */
 	proto_tree_add_item(tree, hf_x224_eot, tvb, offset, 1, FALSE);
-	proto_tree_add_item(tree, hf_x224_nr, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_x224_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 
@@ -199,12 +199,12 @@ dissect_x224(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 	/* length indicator */
-	proto_tree_add_item(tree, hf_x224_length, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_x224_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/* code */
 	code = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_x224_code, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_x224_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 
 	if (check_col(pinfo->cinfo, COL_INFO)) {

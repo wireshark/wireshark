@@ -477,7 +477,7 @@ static void nb_xmit_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 {/* display the transmit correlator */
 
 	proto_tree_add_item( tree, hf_netb_xmit_corrl, tvb, offset + NB_XMIT_CORL,
-		2, TRUE);
+		2, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -486,7 +486,7 @@ static void nb_resp_corrl( tvbuff_t *tvb, int offset, proto_tree *tree)
 {/* display the response correlator */
 
 	proto_tree_add_item( tree, hf_netb_resp_corrl, tvb, offset + NB_RESP_CORL,
-		2, TRUE);
+		2, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -495,7 +495,7 @@ static void nb_call_name_type( tvbuff_t *tvb, int offset, proto_tree *tree)
 {/* display the call name type */
 
 	proto_tree_add_item( tree, hf_netb_call_name_type, tvb, offset + NB_CALL_NAME_TYPE,
-		1, TRUE);
+		1, ENC_LITTLE_ENDIAN);
 
 }
 

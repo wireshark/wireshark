@@ -137,7 +137,7 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
     guint16 reason;
 
     reason = tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(tree, hf_btamp_rej_reason, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_btamp_rej_reason, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     switch(reason){
@@ -154,10 +154,10 @@ dissect_comrej(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tr
 static int
 dissect_discoverrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_mtu, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_btamp_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-    proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     return offset;
@@ -175,13 +175,13 @@ dissect_controller_entry(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
             "Entry: %u", idx);
     btamp_controller_entry_tree=proto_item_add_subtree(ti_controller_entry, ett_btamp_controller_entry);
 
-    proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_type, tvb, offset, 1, TRUE);
+    proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_status, tvb, offset, 1, TRUE);
+    proto_tree_add_item(btamp_controller_entry_tree, hf_btamp_controller_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     return offset;
@@ -195,10 +195,10 @@ dissect_discoverresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tr
     proto_tree *btamp_controller_list_tree=NULL;
     proto_item *ti_controller_list=NULL;
 
-    proto_tree_add_item(tree, hf_btamp_mtu, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_btamp_mtu, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
-    proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_btamp_extfeatures, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     length = tvb_length_remaining(tvb, offset);
@@ -248,7 +248,7 @@ dissect_changeresponse(tvbuff_t *tvb _U_, int offset, packet_info *pinfo _U_, pr
 static int
 dissect_getinforequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     return offset;
@@ -260,19 +260,19 @@ dissect_getinforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
     proto_tree *btamp_controller_tree=NULL;
     proto_item *ti_controller=NULL;
 
-    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_total_bw, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_btamp_total_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item(tree, hf_btamp_max_guaran_bw, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_btamp_max_guaran_bw, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
 
-    proto_tree_add_item(tree, hf_btamp_min_latency, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_btamp_min_latency, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset+=4;
 
     ti_controller=proto_tree_add_none_format(tree,
@@ -283,7 +283,7 @@ dissect_getinforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
     proto_tree_add_item(btamp_controller_tree, hf_btamp_pal_caps_guaranteed, tvb, offset, 2, TRUE);
     offset+=2;
 
-    proto_tree_add_item(tree, hf_btamp_amp_assoc_size, tvb, offset, 2, TRUE);
+    proto_tree_add_item(tree, hf_btamp_amp_assoc_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     return offset;
@@ -292,7 +292,7 @@ dissect_getinforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 static int
 dissect_getampassocrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     return offset;
@@ -310,10 +310,10 @@ dissect_ampassoc(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 static int
 dissect_getampassocresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_controller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     offset=dissect_ampassoc(tvb, offset, pinfo, tree);
@@ -324,10 +324,10 @@ dissect_getampassocresponse(tvbuff_t *tvb, int offset, packet_info *pinfo, proto
 static int
 dissect_createphysicalrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     offset=dissect_ampassoc(tvb, offset, pinfo, tree);
@@ -338,13 +338,13 @@ dissect_createphysicalrequest(tvbuff_t *tvb, int offset, packet_info *pinfo, pro
 static int
 dissect_createphysicalresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     return offset;
@@ -353,10 +353,10 @@ dissect_createphysicalresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 static int
 dissect_discphysicalchanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     return offset;
@@ -365,13 +365,13 @@ dissect_discphysicalchanrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U
 static int
 dissect_discphysicalchanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_lcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_rcontroller_id, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
-    proto_tree_add_item(tree, hf_btamp_controller_status, tvb, offset, 1, TRUE);
+    proto_tree_add_item(tree, hf_btamp_controller_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset+=1;
 
     return offset;
@@ -422,14 +422,14 @@ static void dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     btamp_cmd_tree=proto_item_add_subtree(ti_command, ett_btamp_cmd);
 
     cmd_code=tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_code, tvb, offset, 1, TRUE);
+    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_code, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
-    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_ident, tvb, offset, 1, TRUE);
+    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_ident, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     cmd_length=tvb_get_letohs(tvb, offset);
-    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_length, tvb, offset, 2, TRUE);
+    proto_tree_add_item(btamp_cmd_tree, hf_btamp_cmd_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     proto_item_set_len(ti_command, cmd_length+4);
     offset+=2;
 

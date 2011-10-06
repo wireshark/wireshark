@@ -275,9 +275,9 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	p_tree = proto_item_add_subtree(pti, ett_rsip_param);
 
 	proto_tree_add_item(p_tree, hf_rsip_parameter_type, tvb,
-	    off, 1, FALSE);
+	    off, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(p_tree, hf_rsip_parameter_length, tvb,
-	    off + 1, 2, FALSE);
+	    off + 1, 2, ENC_BIG_ENDIAN);
 	consumed = 3;
 
 	if (paramlen == 0)
@@ -290,7 +290,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	switch (paramtype) {
 	case 1:		/* Address */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_address_type,
-		    tvb, off + 3, 1, FALSE);
+		    tvb, off + 3, 1, ENC_BIG_ENDIAN);
 
 		addrtype = tvb_get_guint8(tvb, off + 3);
 
@@ -350,7 +350,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 		break;
 	case 2:		/* Ports */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_ports_number,
-		    tvb, off + 3, 1, FALSE);
+		    tvb, off + 3, 1, ENC_BIG_ENDIAN);
 		number = tvb_get_guint8(tvb, off + 3);
 		if (paramlen == 1) {
 			switch (number) {
@@ -370,7 +370,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 			if (number == 1) {
 				proto_tree_add_item(v_tree,
 				    hf_rsip_parameter_ports_port_number,
-				    tvb, off + 4, 2, FALSE);
+				    tvb, off + 4, 2, ENC_BIG_ENDIAN);
 			} else {
 				paramleft = paramlen - 1;
 				if (paramleft == 2) {
@@ -387,7 +387,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 					    i += 2, paramleft -= 2)
 						proto_tree_add_item(v_tree,
 						    hf_rsip_parameter_ports_port_number,
-						    tvb, i, 2, FALSE);
+						    tvb, i, 2, ENC_BIG_ENDIAN);
 					proto_item_append_text(pti,
 					    ": List of %d Ports", number);
 				}
@@ -397,28 +397,28 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	case 3:		/* Lease Time */
 		/* XXX if paramlen != 4 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_lease_time,
-		    tvb, off + 3, paramlen, FALSE);
+		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		leasetm = tvb_get_ntohl(tvb, off + 3);
 		proto_item_append_text(pti, ": %d seconds", leasetm);
 		break;
 	case 4:		/* Client ID */
 		/* XXX if paramlen != 4 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_client_id,
-		    tvb, off + 3, paramlen, FALSE);
+		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		cid = tvb_get_ntohl(tvb, off + 3);
 		proto_item_append_text(pti, ": %d", cid);
 		break;
 	case 5:		/* Bind ID */
 		/* XXX if paramlen != 4 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_bind_id,
-		    tvb, off + 3, paramlen, FALSE);
+		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		bid = tvb_get_ntohl(tvb, off + 3);
 		proto_item_append_text(pti, ": %d", bid);
 		break;
 	case 6:		/* Tunnel Type */
 		/* XXX if paramlen != 1 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_tunnel_type,
-		    tvb, off + 3, paramlen, FALSE);
+		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		tuntype = tvb_get_guint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(tuntype, tunnel_type_vals,
@@ -427,7 +427,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	case 7:		/* RSIP Method */
 		/* XXX if paramlen != 1 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_method,
-		    tvb, off + 3, paramlen, FALSE);
+		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		method = tvb_get_guint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(method, method_vals,
@@ -436,7 +436,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	case 8:		/* Error */
 		/* XXX if paramlen != 2 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_error,
-		    tvb, off + 3, paramlen, FALSE);
+		    tvb, off + 3, paramlen, ENC_BIG_ENDIAN);
 		error = tvb_get_ntohs(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(error, error_number_vals, "Undefined Error (%d)"));
@@ -444,14 +444,14 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	case 9:		/* Flow Policy */
 		/* XXX if paramlen != 2 we've got a protocol violation */
 		proto_tree_add_item(v_tree,
-		    hf_rsip_parameter_flow_policy_local, tvb, off + 3, 1, FALSE);
+		    hf_rsip_parameter_flow_policy_local, tvb, off + 3, 1, ENC_BIG_ENDIAN);
 		flowpolicy = tvb_get_guint8(tvb, off + 3);
 		proto_item_append_text(pti, ": %s",
 		    val_to_str(flowpolicy, lcl_flow_policy_vals,
 		    "Undefined Local Flow Policy (%d)"));
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_flow_policy_remote, tvb, off + 4, 1,
-		    FALSE);
+		    ENC_BIG_ENDIAN);
 		flowpolicy = tvb_get_guint8(tvb, off + 4);
 		proto_item_append_text(pti, "/%s",
 		    val_to_str(flowpolicy, rmt_flow_policy_vals,
@@ -460,34 +460,34 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 	case 10:	/* Indicator */
 		/* XXX if paramlen != 2 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_indicator, tvb,
-		    off + 3, 2, FALSE);
+		    off + 3, 2, ENC_BIG_ENDIAN);
 		ind = tvb_get_ntohs(tvb, off + 3);
 		proto_item_append_text(pti, ": %d", ind);
 		break;
 	case 11:	/* Message Counter */
 		/* XXX if paramlen != 4 we've got a protocol violation */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_message_counter,
-		    tvb, off + 3, 4, FALSE);
+		    tvb, off + 3, 4, ENC_BIG_ENDIAN);
 		msgc = tvb_get_ntohl(tvb, off + 3);
 		proto_item_append_text(pti, ": %d", msgc);
 		break;
 	case 12:	/* Vendor Specific */
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_vendor_specific_vendor_id, tvb, off + 3,
-		    2, FALSE);
+		    2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_vendor_specific_subtype, tvb, off + 5,
-		    2, FALSE);
+		    2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(v_tree,
 		    hf_rsip_parameter_vendor_specific_value, tvb, off + 9,
 		    paramlen - 4, ENC_NA);
 		break;
 	case 22:	/* SPI */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_spi_number, tvb,
-		    off + 3, 2, FALSE);
+		    off + 3, 2, ENC_BIG_ENDIAN);
 		/* XXX need loop? */
 		proto_tree_add_item(v_tree, hf_rsip_parameter_spi, tvb,
-		    off + 5, 4, FALSE);
+		    off + 5, 4, ENC_BIG_ENDIAN);
 		break;
 	default:
 		break;
@@ -1002,11 +1002,11 @@ dissect_rsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		rsip_tree = proto_item_add_subtree(ti, ett_rsip);
 
 		proto_tree_add_item(rsip_tree,
-		    hf_rsip_version, tvb, 0, 1, FALSE);
+		    hf_rsip_version, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rsip_tree,
-		    hf_rsip_message_type, tvb, 1, 1, FALSE);
+		    hf_rsip_message_type, tvb, 1, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(rsip_tree,
-		    hf_rsip_message_length, tvb, 2, 2, FALSE);
+		    hf_rsip_message_length, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 		eoff = tvb_reported_length(tvb);
 

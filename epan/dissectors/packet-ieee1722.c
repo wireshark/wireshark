@@ -141,67 +141,67 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * Subtype field is 7 bits
          */
         proto_tree_add_item(ieee1722_tree, hf_1722_cdfield, tvb, IEEE_1722_CD_OFFSET, 1, FALSE);
-        proto_tree_add_item(ieee1722_tree, hf_1722_subtype, tvb, IEEE_1722_CD_OFFSET, 1, FALSE);
+        proto_tree_add_item(ieee1722_tree, hf_1722_subtype, tvb, IEEE_1722_CD_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_svfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
-        proto_tree_add_item(ieee1722_tree, hf_1722_verfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
-        proto_tree_add_item(ieee1722_tree, hf_1722_mrfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
+        proto_tree_add_item(ieee1722_tree, hf_1722_verfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ieee1722_tree, hf_1722_mrfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_gvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
         proto_tree_add_item(ieee1722_tree, hf_1722_tvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
 
         /* Add the rest of the packet fields */
         proto_tree_add_item(ieee1722_tree, hf_1722_seqnum, tvb,
-                            IEEE_1722_SEQ_NUM_OFFSET, 1, FALSE);
+                            IEEE_1722_SEQ_NUM_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_tufield, tvb,
                             IEEE_1722_TU_FIELD_OFFSET, 1, FALSE);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_stream_id, tvb, 
-                            IEEE_1722_STREAM_ID_OFFSET, 8, FALSE);
+                            IEEE_1722_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_avbtp_timestamp, tvb,
-                            IEEE_1722_TIMESTAMP_OFFSET, 4, FALSE);
+                            IEEE_1722_TIMESTAMP_OFFSET, 4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_gateway_info, tvb,
-                            IEEE_1722_GW_INFO_OFFSET, 4, FALSE);
+                            IEEE_1722_GW_INFO_OFFSET, 4, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_packet_data_length, tvb,
-                            IEEE_1722_PKT_DATA_LENGTH_OFFSET, 2, FALSE);
+                            IEEE_1722_PKT_DATA_LENGTH_OFFSET, 2, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_tag, tvb,
-                            IEEE_1722_TAG_OFFSET, 1, FALSE);
+                            IEEE_1722_TAG_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_channel, tvb, 
-                            IEEE_1722_TAG_OFFSET, 1, FALSE);
+                            IEEE_1722_TAG_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_tcode, tvb, 
-                            IEEE_1722_TCODE_OFFSET, 1, FALSE);
+                            IEEE_1722_TCODE_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_sy, tvb,
-                            IEEE_1722_TCODE_OFFSET, 1, FALSE);
+                            IEEE_1722_TCODE_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_sid, tvb,
-                            IEEE_1722_SID_OFFSET, 1, FALSE);
+                            IEEE_1722_SID_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_dbs, tvb,
-                            IEEE_1722_DBS_OFFSET, 1, FALSE);
+                            IEEE_1722_DBS_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_fn, tvb,
-                            IEEE_1722_FN_OFFSET, 1, FALSE);
+                            IEEE_1722_FN_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_qpc, tvb,
-                            IEEE_1722_FN_OFFSET, 1, FALSE);
+                            IEEE_1722_FN_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_sph, tvb,
                             IEEE_1722_FN_OFFSET, 1, FALSE);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_dbc, tvb,
-                            IEEE_1722_DBC_OFFSET, 1, FALSE);
+                            IEEE_1722_DBC_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_fmt, tvb,
-                            IEEE_1722_FMT_OFFSET, 1, FALSE);
+                            IEEE_1722_FMT_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_fdf, tvb,
-                            IEEE_1722_FDF_OFFSET, 1, FALSE);
+                            IEEE_1722_FDF_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_syt, tvb,
-                            IEEE_1722_SYT_OFFSET, 2, FALSE);
+                            IEEE_1722_SYT_OFFSET, 2, ENC_BIG_ENDIAN);
 
         /* Calculate the remaining size by subtracting the CIP header size 
            from the value in the packet data length field */
@@ -228,7 +228,7 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 ti = proto_tree_add_text(audio_tree, tvb, offset, 1, "Sample %d", j+1);
                 sample_tree = proto_item_add_subtree(ti, ett_1722_sample);
                 for (i = 0; i < dbs; i++) {
-                    proto_tree_add_item(sample_tree, hf_1722_label, tvb, offset, 1, FALSE);
+                    proto_tree_add_item(sample_tree, hf_1722_label, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
 
                     proto_tree_add_item(sample_tree, hf_1722_sample, tvb, offset, 3, ENC_NA);

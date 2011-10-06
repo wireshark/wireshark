@@ -133,13 +133,13 @@ dissect_jmirror(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	jmirror_tree = proto_item_add_subtree(ti, ett_jmirror);
 
 	/* Insert the Jmirror Identifier into the protocol tree and assign value to filter variable */
-	proto_tree_add_item(jmirror_tree, hf_jmirror_mid, tvb, offset, MIRROR_ID_SZ, FALSE);
+	proto_tree_add_item(jmirror_tree, hf_jmirror_mid, tvb, offset, MIRROR_ID_SZ, ENC_BIG_ENDIAN);
 
 	/* Push the tvbuff_t offset pointer along to the Session Identifier */
 	offset += MIRROR_ID_SZ;
 
 	/* Insert the Session Identifier into the protocol tree and assign value to filter variable */
-	proto_tree_add_item(jmirror_tree, hf_jmirror_sid, tvb, offset, SESSION_ID_SZ, FALSE);
+	proto_tree_add_item(jmirror_tree, hf_jmirror_sid, tvb, offset, SESSION_ID_SZ, ENC_BIG_ENDIAN);
 
 	/* Push the tvbuff_t offset pointer along to the start of the mirrored packet */
 	offset += SESSION_ID_SZ;

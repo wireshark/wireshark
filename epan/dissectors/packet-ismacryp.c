@@ -351,7 +351,7 @@ static void dissect_ismacryp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 		/* we are being asked for details */
 		/* get total length of AU headers (first 2 bytes) */
 		ismacryp_item = proto_tree_add_item(ismacryp_tree, hf_ismacryp_au_headers_length,
-						    tvb, poffset->offset_bytes, AU_HEADERS_LENGTH_SIZE, FALSE );
+						    tvb, poffset->offset_bytes, AU_HEADERS_LENGTH_SIZE, ENC_BIG_ENDIAN );
 		proto_item_append_text(ismacryp_item, " (bits)"); /* add text to AU Header tree indicating length */
 		au_headers_length=tvb_get_ntohs(tvb,poffset->offset_bytes); /* 2 byte au headers length */
 		poffset->offset_bytes+=AU_HEADERS_LENGTH_SIZE;

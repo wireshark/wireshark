@@ -1443,17 +1443,17 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 	AField		= proto_item_add_subtree(afieldti, ett_afield);
 
 	/* Header */
-	aheadti		= proto_tree_add_item(AField, hf_dect_A_Head, tvb, offset, 1, FALSE);
+	aheadti		= proto_tree_add_item(AField, hf_dect_A_Head, tvb, offset, 1, ENC_BIG_ENDIAN);
 	AHead		= proto_item_add_subtree(aheadti, ett_ahead);
 
 	if(dect_packet_type==DECT_PACKET_FP)
-		proto_tree_add_item(AHead, hf_dect_A_Head_TA_FP, tvb, offset, 1, FALSE);
+		proto_tree_add_item(AHead, hf_dect_A_Head_TA_FP, tvb, offset, 1, ENC_BIG_ENDIAN);
 	else
-		proto_tree_add_item(AHead, hf_dect_A_Head_TA_PP, tvb, offset, 1, FALSE);
+		proto_tree_add_item(AHead, hf_dect_A_Head_TA_PP, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(AHead, hf_dect_A_Head_Q1, tvb, offset, 1, FALSE);
-	proto_tree_add_item(AHead, hf_dect_A_Head_BA, tvb, offset, 1, FALSE);
-	proto_tree_add_item(AHead, hf_dect_A_Head_Q2, tvb, offset, 1, FALSE);
+	proto_tree_add_item(AHead, hf_dect_A_Head_Q1, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(AHead, hf_dect_A_Head_BA, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(AHead, hf_dect_A_Head_Q2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Tail */
@@ -1497,7 +1497,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 		/* ETSI EN 300 175-3 V2.3.0  7.2.3 */
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Qt]");
 
-		proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_Qh, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		switch(tail_0>>4)
 		{
@@ -1506,14 +1506,14 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			/* ETSI EN 300 175-3 V2.3.0  7.2.3.2 */
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Static System Info");
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Nr, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sp, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Esc, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Txs, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Mc, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Sp, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Esc, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Txs, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Mc, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			proto_tree_add_none_format(ATail, hf_dect_A_Tail_Qt_0_CA, tvb, offset, 2, " Carrier%s%s%s%s%s%s%s%s%s%s available",
 				(tail_1&0x02)?" 0":"", (tail_1&0x01)?" 1":"", (tail_2&0x80)?" 2":"",
@@ -1522,12 +1522,12 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 				(tail_2&0x01)?" 9":"");
 			offset+=2;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr1, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Cn, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr1, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Cn, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr2, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_PSCN, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_Spr2, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_0_PSCN, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 			/* due to addition further down */
 			offset-=5;
@@ -1541,52 +1541,52 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			/* ETSI EN 300 175-3 V2.3.0  7.2.3.4 */
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Fixed Part Capabilities");
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A14, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A15, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A12, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A13, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A14, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A15, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A16, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A17, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A18, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A19, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A20, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A21, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A22, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A23, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A16, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A17, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A18, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A19, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A20, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A21, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A22, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A23, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A24, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A25, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A26, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A27, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A28, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A29, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A30, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A31, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A24, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A25, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A26, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A27, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A28, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A29, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A30, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A31, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 
 			/* higher layer capabilities */
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A32, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A33, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A34, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A35, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A36, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A37, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A38, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A39, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A32, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A33, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A34, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A35, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A36, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A37, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A38, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A39, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A40, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A41, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A42, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A43, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A44, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A45, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A46, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A47, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A40, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A41, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A42, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A43, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A44, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A45, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A46, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_3_A47, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			/* due to addition further down */
@@ -1597,51 +1597,51 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Extended Fixed Part Capabilities");
 
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPHops, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPEnc, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REFHops, tvb, offset, 2, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPHops, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_CRFPEnc, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REFHops, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REPCap, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_Sync, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A20, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_MACSusp, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_MACIpq, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A23, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_REPCap, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_Sync, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A20, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_MACSusp, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_MACIpq, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A23, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A24, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A24, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			/* higher layer capabilities */
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A25, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A26, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A27, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A28, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A29, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A30, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A31, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A25, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A26, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A27, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A28, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A29, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A30, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A31, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A32, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A33, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A34, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A35, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A36, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A37, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A38, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A39, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A32, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A33, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A34, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A35, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A36, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A37, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A38, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A39, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A40, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A41, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A42, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A43, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A44, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A45, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A46, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A47, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A40, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A41, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A42, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A43, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A44, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A45, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A46, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_4_A47, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			/* due to addition further down */
@@ -1654,7 +1654,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			break;
 		case 6:		/* Multi-Frame No */
 			/* ETSI EN 300 175-3 V2.3.0  7.2.3.7  */
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Qt_6_Spare, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset+=2;
 
 			ep_strbuf_append_printf(afield_str,"Multi-Frame No.: %s",tvb_bytes_to_str(tvb, offset, 3));
@@ -1715,7 +1715,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 		case 0:		/* Basic Connection Control */
 			/* ETSI EN 300 175-3 V2.3.0  7.2.5.2 */
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, "Basic Connection Control");
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_BasicConCtrl, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			if(((tail_0 & 0x0f)==6)||((tail_0 & 0x0f)==7))
@@ -1726,10 +1726,10 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			}
 			else
 			{
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_fmid, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_fmid, tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_pmid, tvb, offset, 3, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
 				offset+=3;
 			}
 
@@ -1760,14 +1760,14 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 
 			proto_tree_add_string(ColumnsTree, hf_dect_cc_AField, tvb, offset, 1, afield_str->str);
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, FALSE);
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd1, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Encr_Cmd2, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_fmid, tvb, offset, 2, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_fmid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_pmid, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ATail, hf_dect_A_Tail_Mt_Mh_pmid, tvb, offset, 3, ENC_BIG_ENDIAN);
 			offset+=3;
 
 			/* due to addition further down */
@@ -1804,8 +1804,8 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 		/* ETSI EN 300 175-3 V2.3.0  7.2.4 */
 		proto_tree_add_string(ColumnsTree, hf_dect_cc_TA, tvb, offset, 1, "[Pt]");
 
-		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, FALSE);
-		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_ExtFlag, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_SDU, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		if(((tail_0&0x70)>>4)&0xfe)
 			ep_strbuf_append_printf(afield_str,"%s, ",val_to_str((tail_0&0x70)>>4, PTSDU_vals, "Error, please report: %d"));
@@ -1820,7 +1820,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 				proto_tree_add_none_format(atailti, hf_dect_A_Tail_Pt_RFPI, tvb, offset, 3, "RFPI: xxxxx%.1x%.2x%.2x", (tail_0&0x0f), tail_1, tail_2);
 				offset+=3;
 
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 			else
 			{
@@ -1828,7 +1828,7 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 				proto_tree_add_none_format(atailti, hf_dect_A_Tail_Pt_BsData, tvb, offset, 3, "Bs Data: %.1x%.2x%.2x", (tail_0&0x0f), tail_1, tail_2);
 				offset+=3;
 
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_InfoType, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 
 			ep_strbuf_append_printf(afield_str,"%s",val_to_str(tail_3>>4, PTInfoType_vals, "Error, please report: %d"));
@@ -1859,11 +1859,11 @@ dissect_afield(gboolean dect_packet_type, guint8 *ba,
 			case 4: /* Good RFP Bearer */
 			case 5: /* Dummy or connectionless Bearer Position */
 			case 12: /* Connectionless Bearer Position */
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Sn, tvb, offset, 1, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Sp, tvb, offset, 1, FALSE);
-				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Cn, tvb, offset, 1, FALSE);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Sp, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ATail, hf_dect_A_Tail_Pt_Bearer_Cn, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset++;
 				break;
 			case 6: /* Extended Modulation Types */
@@ -1962,19 +1962,19 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	ti=proto_tree_add_item(tree, proto_dect, tvb, 0, -1, FALSE);
 	DectTree=proto_item_add_subtree(ti, ett_dect);
 
-	proto_tree_add_item(DectTree, hf_dect_transceivermode, tvb, offset, 1, FALSE);
+	proto_tree_add_item(DectTree, hf_dect_transceivermode, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(DectTree, hf_dect_channel, tvb, offset, 1, FALSE);
+	proto_tree_add_item(DectTree, hf_dect_channel, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
-	proto_tree_add_item(DectTree, hf_dect_slot, tvb, offset, 2, FALSE);
+	proto_tree_add_item(DectTree, hf_dect_slot, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	proto_tree_add_item(DectTree, hf_dect_framenumber, tvb, offset, 1, FALSE);
 	offset++;
 
-	proto_tree_add_item(DectTree, hf_dect_rssi, tvb, offset, 1, FALSE);
+	proto_tree_add_item(DectTree, hf_dect_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_tree_add_item(DectTree, hf_dect_preamble, tvb, offset, 3, ENC_NA);

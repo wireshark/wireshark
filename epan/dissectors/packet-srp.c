@@ -104,7 +104,7 @@ static void dissect_srp_command(tvbuff_t * tvb, packet_info * pinfo, proto_tree 
     guint payload_len;
 
     if( srp_tree )
-	proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,FALSE);
+	proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,ENC_BIG_ENDIAN);
 
     payload_len = tvb_reported_length_remaining(tvb,4);
     next_tvb = tvb_new_subset(tvb, 2, payload_len, payload_len );
@@ -140,7 +140,7 @@ static void dissect_srp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 	case SRP_NSRP_RESPONSE:
 	    if( srp_tree )
-		proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,FALSE);
+		proto_tree_add_item(srp_tree,hf_srp_seqno,tvb,1,1,ENC_BIG_ENDIAN);
 	    break;
 
 	default:

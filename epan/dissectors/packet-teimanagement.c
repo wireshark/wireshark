@@ -81,8 +81,8 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	tei_ti = proto_tree_add_item(tree, proto_tei, tvb, 0, 5, FALSE);
 	tei_tree = proto_item_add_subtree(tei_ti, lm_subtree);
 	
-	proto_tree_add_item(tei_tree, lm_entity_id, tvb, 0, 1, FALSE);
-	proto_tree_add_item(tei_tree, lm_reference,  tvb, 1, 2, FALSE);
+	proto_tree_add_item(tei_tree, lm_entity_id, tvb, 0, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tei_tree, lm_reference,  tvb, 1, 2, ENC_BIG_ENDIAN);
     }
 
     message = tvb_get_guint8(tvb, 3);
@@ -91,8 +91,8 @@ dissect_teimanagement(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    val_to_str(message, tei_msg_vals, "Unknown message type (0x%04x)"));
     if (tree) {
 	proto_tree_add_uint(tei_tree, lm_message, tvb, 3, 1, message);
-	proto_tree_add_item(tei_tree, lm_action, tvb, 4, 1, FALSE);
-	proto_tree_add_item(tei_tree, lm_extend, tvb, 4, 1, FALSE);
+	proto_tree_add_item(tei_tree, lm_action, tvb, 4, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tei_tree, lm_extend, tvb, 4, 1, ENC_BIG_ENDIAN);
     }
 }
 

@@ -182,16 +182,16 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* add items to the Ether-S-I/O header subtree*/
               esio_tlg_type = tvb_get_ntohs(tvb,offset);
               proto_tree_add_item(esio_header_tree,
-                                  hf_esio_type, tvb, offset, 2, FALSE);
+                                  hf_esio_type, tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
               proto_tree_add_item(esio_header_tree,
-                                  hf_esio_version, tvb, offset, 2, FALSE);
+                                  hf_esio_version, tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
               proto_tree_add_item(esio_header_tree,
-                                  hf_esio_length, tvb, offset, 2, FALSE);
+                                  hf_esio_length, tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
               proto_tree_add_item(esio_header_tree,
-                                  hf_esio_transaction_id, tvb, offset, 2, FALSE);
+                                  hf_esio_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;
               switch (esio_tlg_type) {
                      case ESIO_TRANSFER:
@@ -199,17 +199,17 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             et = proto_tree_add_text(esio_tree, tvb, offset, 12, "Transfer header");
                             esio_transfer_header_tree = proto_item_add_subtree(et, ett_esio_transfer_header);
                             proto_tree_add_item(esio_transfer_header_tree,
-                                                hf_esio_tlg_id, tvb, offset, 4, FALSE);
+                                                hf_esio_tlg_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                             offset += 4;
                             proto_tree_add_item(esio_transfer_header_tree,
-                                                hf_esio_src_stn_id, tvb, offset, 4, FALSE);
+                                                hf_esio_src_stn_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                             offset += 4;
                             esio_nbr_data_transfers = tvb_get_guint8(tvb,offset);
                             proto_tree_add_item(esio_transfer_header_tree,
-                                                hf_esio_data_nbr, tvb, offset, 1, FALSE);
+                                                hf_esio_data_nbr, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
                             proto_tree_add_item(esio_transfer_header_tree,
-                                                hf_esio_data_flags, tvb, offset, 1, FALSE);
+                                                hf_esio_data_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
                             for (i=((esio_nbr_data_transfers)); i>0; i--) {
                                    /*Add subtree(s) for Ether-S-I/O data transfers*/
@@ -220,13 +220,13 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                             esio_transfer_dest_id);
                                    esio_data_tansfer_tree = proto_item_add_subtree(et, ett_esio_transfer_data);
                                    proto_tree_add_item(esio_data_tansfer_tree,
-                                                       hf_esio_data_transfer_id, tvb, offset, 4, FALSE);
+                                                       hf_esio_data_transfer_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                                    offset += 4;
                                    proto_tree_add_item(esio_data_tansfer_tree,
-                                                       hf_esio_data_dest_id, tvb, offset, 4, FALSE);
+                                                       hf_esio_data_dest_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                                    offset += 4;
                                    proto_tree_add_item(esio_data_tansfer_tree,
-                                                       hf_esio_data_length, tvb, offset, 2, FALSE);
+                                                       hf_esio_data_length, tvb, offset, 2, ENC_BIG_ENDIAN);
                                    offset += 2;
                                    /*here comes the data*/
                                    et = proto_tree_add_text(esio_data_tansfer_tree, tvb, offset,
@@ -235,37 +235,37 @@ dissect_esio(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    for (i=((esio_transfer_length)); i>0; i--) {
                                           proto_tree_add_item(esio_data_tree,
                                                               hf_esio_data, tvb, offset,
-                                                              1, FALSE);
+                                                              1, ENC_BIG_ENDIAN);
                                           offset += 1;
                                    }
                             }
                             break;
                      case ESIO_STATUS:
                             proto_tree_add_item(esio_tree,
-                                                hf_esio_sts_type, tvb, offset, 2, FALSE);
+                                                hf_esio_sts_type, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                             proto_tree_add_item(esio_tree,
-                                                hf_esio_sts_size, tvb, offset, 2, FALSE);
+                                                hf_esio_sts_size, tvb, offset, 2, ENC_BIG_ENDIAN);
                             offset += 2;
                             proto_tree_add_item(esio_tree,
-                                                hf_esio_src_stn_id, tvb, offset, 4, FALSE);
+                                                hf_esio_src_stn_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                             offset += 4;
                             proto_tree_add_item(esio_tree,
                                                 hf_esio_rio_sts, tvb, offset,
-                                                1, FALSE);
+                                                1, ENC_BIG_ENDIAN);
                             offset += 1;
                             hi = proto_tree_add_item(esio_tree,
                                                      hf_esio_rio_tlgs_lost, tvb, offset,
-                                                     1, FALSE);
+                                                     1, ENC_BIG_ENDIAN);
                             expert_add_info_format(pinfo, hi, PI_SEQUENCE, PI_NOTE,
                                                    "Telegram(s) lost");
                             offset += 1;
                             proto_tree_add_item(esio_tree,
                                                 hf_esio_rio_diag, tvb, offset,
-                                                1, FALSE);
+                                                1, ENC_BIG_ENDIAN);
                             offset += 1;
                             proto_tree_add_item(esio_tree,
-                                                hf_esio_rio_flags, tvb, offset, 1, FALSE);
+                                                hf_esio_rio_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
                             offset += 1;
                             break;
                      default:

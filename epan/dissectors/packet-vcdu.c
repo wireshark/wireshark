@@ -277,7 +277,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		smex_header=proto_tree_add_text(tree, tvb, offset, SMEX_HEADER_LENGTH, "SMEX Header");
 		smex_tree=proto_item_add_subtree(smex_header, ett_smex);
 
-		proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, FALSE);
+		proto_tree_add_item(smex_tree, hf_smex_gsc, tvb, offset, 8, ENC_BIG_ENDIAN);
 		offset += 8;
 		/* proto_tree_add_uint(smex_tree, hf_smex_unused, tvb, offset, 2, FALSE); */
 		offset += 2;
@@ -293,12 +293,12 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(smex_tree, hf_smex_crc_error, tvb, offset, 1, FALSE);
 		proto_tree_add_item(smex_tree, hf_smex_mcs_enable, tvb, offset, 1, FALSE);
 		proto_tree_add_item(smex_tree, hf_smex_mcs_num_error, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_data_inv, tvb, offset, 1, FALSE);
+		proto_tree_add_item(smex_tree, hf_smex_data_inv, tvb, offset, 1, ENC_BIG_ENDIAN);
 		++offset;
 
-		proto_tree_add_item(smex_tree, hf_smex_frame_sync, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_data_dir, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_data_class, tvb, offset, 1, FALSE);
+		proto_tree_add_item(smex_tree, hf_smex_frame_sync, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_data_dir, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_data_class, tvb, offset, 1, ENC_BIG_ENDIAN);
 		++offset;
 
                 /* extract smex ground receipt time tag */
@@ -309,14 +309,14 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 first_word = tvb_get_ntohs ( tvb, offset+4 );
                 pb5_milliseconds = ( first_word & PB5_MILLISECONDS_MASK ) >> 6;
 
-		proto_tree_add_item(smex_tree, hf_smex_pb5, tvb, offset, 2, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_jday, tvb, offset, 2, FALSE);
+		proto_tree_add_item(smex_tree, hf_smex_pb5, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_jday, tvb, offset, 2, ENC_BIG_ENDIAN);
 		++offset;
-		proto_tree_add_item(smex_tree, hf_smex_seconds, tvb, offset, 3, FALSE);
+		proto_tree_add_item(smex_tree, hf_smex_seconds, tvb, offset, 3, ENC_BIG_ENDIAN);
 		offset += 3;
 
-		proto_tree_add_item(smex_tree, hf_smex_msec, tvb, offset, 2, FALSE);
-		/* proto_tree_add_item(smex_tree, hf_smex_spare, tvb, offset, 2, FALSE); */
+		proto_tree_add_item(smex_tree, hf_smex_msec, tvb, offset, 2, ENC_BIG_ENDIAN);
+		/* proto_tree_add_item(smex_tree, hf_smex_spare, tvb, offset, 2, ENC_BIG_ENDIAN); */
 		offset += 2;
 
                 /* format ground receipt time into human readable time format for display */
@@ -334,11 +334,11 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		first_word=tvb_get_ntohs(tvb, offset);
                 vcid = first_word & 0x3f;
 
-		proto_tree_add_item(vcdu_tree, hf_vcdu_version, tvb, offset, 2, FALSE);
-		proto_tree_add_item(vcdu_tree, hf_vcdu_sp_id, tvb, offset, 2, FALSE);
-		proto_tree_add_item(vcdu_tree, hf_vcdu_vc_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(vcdu_tree, hf_vcdu_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vcdu_tree, hf_vcdu_sp_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(vcdu_tree, hf_vcdu_vc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(vcdu_tree, hf_vcdu_seq, tvb, offset, 3, FALSE);
+		proto_tree_add_item(vcdu_tree, hf_vcdu_seq, tvb, offset, 3, ENC_BIG_ENDIAN);
 		offset += 3;
 		proto_tree_add_item(vcdu_tree, hf_vcdu_replay, tvb, offset, 1, FALSE);
 		++offset;
@@ -353,7 +353,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  new_ptr=first_word & LBP_MASK;
 
                   /* add last bit pointer to display tree */
-		  proto_tree_add_item(vcdu_tree, hf_vcdu_lbp, tvb, offset, 2, FALSE);
+		  proto_tree_add_item(vcdu_tree, hf_vcdu_lbp, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                   switch ( new_ptr )
                   {
@@ -381,7 +381,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		  new_ptr=first_word & FHP_MASK;
 
                   /* add first header pointer to display tree */
-		  proto_tree_add_item(vcdu_tree, hf_vcdu_fhp, tvb, offset, 2, FALSE);
+		  proto_tree_add_item(vcdu_tree, hf_vcdu_fhp, tvb, offset, 2, ENC_BIG_ENDIAN);
 
                   /* process special cases of first header pointer */
                   if ( FHP_ALL_FILL == new_ptr )

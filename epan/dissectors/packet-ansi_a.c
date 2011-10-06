@@ -8034,7 +8034,7 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
         }
 
         proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_udp_port,
-            tvb, curr_offset, 2, FALSE);
+            tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
         rtp_port = tvb_get_ntohs(tvb, curr_offset);
 
@@ -8270,7 +8270,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
             }
 
             proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_udp_port,
-                tvb, curr_offset, 2, FALSE);
+                tvb, curr_offset, 2, ENC_BIG_ENDIAN);
 
             if (format_assigned)
             {

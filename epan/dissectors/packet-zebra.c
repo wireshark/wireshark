@@ -183,23 +183,23 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			offset += INTERFACE_NAMSIZ;
 
 			proto_tree_add_item(tree, hf_zebra_index, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_intflags, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_metric, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_mtu, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_bandwidth, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			break;
@@ -209,17 +209,17 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			offset += INTERFACE_NAMSIZ;
 
 			proto_tree_add_item(tree, hf_zebra_index, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 		case ZEBRA_INTERFACE_ADDRESS_ADD:
 		case ZEBRA_INTERFACE_ADDRESS_DELETE:
 			proto_tree_add_item(tree, hf_zebra_index, tvb,
-				 offset, 4, FALSE);
+				 offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_family, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			/* XXX - switch on the address family here, instead? */
@@ -236,7 +236,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			else break;
 
 			proto_tree_add_item(tree, hf_zebra_prefixlen, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			if (len == 17) { /* IPv4 */
@@ -254,11 +254,11 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 		case ZEBRA_IPV4_ROUTE_ADD:
 		case ZEBRA_IPV4_ROUTE_DELETE:
 			proto_tree_add_item(tree, hf_zebra_type, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			proto_tree_add_item(tree, hf_zebra_rtflags, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			message = tvb_get_guint8(tvb, offset);
@@ -313,29 +313,29 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 				while (i--) {
 					proto_tree_add_item(tree,
 						hf_zebra_index, tvb,
-						offset, 4, FALSE);
+						offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 				}
 			}
 			if (message & ZEBRA_ZAPI_MESSAGE_DISTANCE) {
 				proto_tree_add_item(tree, hf_zebra_distance,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 			}
 			if (message & ZEBRA_ZAPI_MESSAGE_METRIC) {
 				proto_tree_add_item(tree, hf_zebra_metric,
-					tvb, offset, 4, FALSE);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 		case ZEBRA_IPV6_ROUTE_ADD:
 		case ZEBRA_IPV6_ROUTE_DELETE:
 			proto_tree_add_item(tree, hf_zebra_type, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			proto_tree_add_item(tree, hf_zebra_rtflags, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			message = tvb_get_guint8(tvb, offset);
@@ -390,25 +390,25 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 				while (i--) {
 					proto_tree_add_item(tree,
 						hf_zebra_index, tvb,
-						offset, 4, FALSE);
+						offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 				}
 			}
 			if (message & ZEBRA_ZAPI_MESSAGE_DISTANCE) {
 				proto_tree_add_item(tree, hf_zebra_distance,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
 			}
 			if (message & ZEBRA_ZAPI_MESSAGE_METRIC) {
 				proto_tree_add_item(tree, hf_zebra_metric,
-					tvb, offset, 4, FALSE);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
 		case ZEBRA_REDISTRIBUTE_ADD:
 		case ZEBRA_REDISTRIBUTE_DELETE:
 			proto_tree_add_item(tree, hf_zebra_type, tvb,
-				 offset, 1, FALSE);
+				 offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			break;
 		case ZEBRA_REDISTRIBUTE_DEFAULT_ADD:
@@ -420,7 +420,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_metric,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 		case ZEBRA_IPV6_NEXTHOP_LOOKUP:

@@ -545,7 +545,7 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     /* starting dissection */
 
     functype = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_function_type, tvb, offset, 1, TRUE);
+    proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_function_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset++;
 
     switch(functype) {
@@ -601,7 +601,7 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             }
             offset++;
 
-            proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_defect_type, tvb, offset, 2, TRUE);
+            proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_defect_type, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
             /* ttsi (ipv4 flavor as in RFC 2373) is optional if not used must be set to all 0x00 */
@@ -630,7 +630,7 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             }
 
             /* defect location */
-            proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_defect_location, tvb, offset, 4, TRUE);
+            proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_defect_location, tvb, offset, 4, ENC_LITTLE_ENDIAN);
             offset+=4;
 
             /* 14 octets of padding (all 0x00) */
@@ -673,7 +673,7 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
             proto_tree_add_text(mpls_oam_tree, tvb, offset, 4, "LSP ID: %d", tvb_get_ntohl(tvb, offset));
             offset+=4;
 
-            proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_frequency, tvb, offset, 1, TRUE);
+            proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_frequency, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             offset++;
 
             /* 17 octets of padding (all 0x00) */
@@ -691,7 +691,7 @@ dissect_mpls_oam_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, proto_
     }
 
     /* BIP16 */
-    proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_bip16, tvb, offset, 2, TRUE);
+    proto_tree_add_item(mpls_oam_tree, hf_mpls_oam_bip16, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 }
 

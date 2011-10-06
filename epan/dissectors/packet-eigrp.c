@@ -386,12 +386,12 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 		eigrp_tree = proto_item_add_subtree(ti, ett_eigrp);
 
-		proto_tree_add_item(eigrp_tree, hf_eigrp_version, tvb, 0, 1, FALSE);
-		proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1, FALSE);
-		proto_tree_add_item(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2, FALSE);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_version, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_opcode, tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_checksum, tvb, 2, 2, ENC_BIG_ENDIAN);
 /* Decode the EIGRP Flags Field */
 
-		ti = proto_tree_add_item(eigrp_tree, hf_eigrp_flags, tvb, 4, 4, FALSE);
+		ti = proto_tree_add_item(eigrp_tree, hf_eigrp_flags, tvb, 4, 4, ENC_BIG_ENDIAN);
 		eigrp_flags_tree = proto_item_add_subtree(ti, ett_eigrp_flags);
 
 		proto_tree_add_item(eigrp_flags_tree, hf_eigrp_flags_init, tvb, 4, 4, FALSE);
@@ -401,9 +401,9 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
 /* End Decode the EIGRP Flags Field */
 
-		proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4, FALSE);
-		proto_tree_add_item(eigrp_tree, hf_eigrp_acknowledge, tvb, 12, 4, FALSE);
-		proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 16, 4, FALSE);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_sequence, tvb, 8, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_acknowledge, tvb, 12, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(eigrp_tree, hf_eigrp_as, tvb, 16, 4, ENC_BIG_ENDIAN);
 	}
 
 	if (opcode == EIGRP_SAP) {
@@ -427,8 +427,8 @@ static void dissect_eigrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 				"%s", val_to_str(tlv, eigrp_tlv_vals, "Unknown (0x%04x)"));
 
 			tlv_tree = proto_item_add_subtree(ti, ett_tlv);
-			proto_tree_add_item(tlv_tree, hf_eigrp_tlv, tvb, offset, 2, FALSE);
-			proto_tree_add_item(tlv_tree, hf_eigrp_tlv_size, tvb, offset + 2, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_eigrp_tlv, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_eigrp_tlv_size, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
 
 			switch (tlv) {
@@ -498,23 +498,23 @@ static void dissect_eigrp_par(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 	guint8 k1, k2, k3, k4, k5;
 
 	k1 = tvb_get_guint8(tvb, 1);
-	proto_tree_add_item(tree, hf_eigrp_par_k1, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_k1, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	k2 = tvb_get_guint8(tvb, 1);
-	proto_tree_add_item(tree, hf_eigrp_par_k2, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_k2, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	k3 = tvb_get_guint8(tvb, 1);
-	proto_tree_add_item(tree, hf_eigrp_par_k3, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_k3, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	k4 = tvb_get_guint8(tvb, 1);
-	proto_tree_add_item(tree, hf_eigrp_par_k4, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_k4, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 	k5 = tvb_get_guint8(tvb, 1);
-	proto_tree_add_item(tree, hf_eigrp_par_k5, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_k5, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_par_reserved, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_par_holdtime, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_par_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	if (k1 == 255 && k2 == 255 && k3 == 255 && k4 == 255 && k5 == 255) {
 		proto_item_append_text(ti, ": Goodbye Message");
@@ -530,11 +530,11 @@ static void dissect_eigrp_auth(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
 	keysize = tvb_get_ntohs(tvb, 2);
 
-	proto_tree_add_item(tree, hf_eigrp_auth_type, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_auth_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	ti_keysize = proto_tree_add_item(tree, hf_eigrp_auth_keysize, tvb, offset, 2, FALSE);
+	ti_keysize = proto_tree_add_item(tree, hf_eigrp_auth_keysize, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_eigrp_auth_keyid, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_auth_keyid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	proto_tree_add_item(tree, hf_eigrp_auth_nullpad, tvb, offset, 12, FALSE);
 	offset += 12;
@@ -558,7 +558,7 @@ static void dissect_eigrp_seq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
 	addr_len = tvb_get_guint8(tvb, 0);
 
-	ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, FALSE);
+	ti_addrlen = proto_tree_add_item(tree, hf_eigrp_seq_addrlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	switch (addr_len) {
@@ -604,7 +604,7 @@ static void dissect_eigrp_sv(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
 static void dissect_eigrp_nms(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
-	proto_tree_add_item(tree, hf_eigrp_nms, tvb, 0, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_nms, tvb, 0, 4, ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, ": %u", tvb_get_ntohl(tvb, 0));
 }
 
@@ -613,7 +613,7 @@ static void dissect_eigrp_stub(tvbuff_t *tvb, proto_tree *tree) {
 	proto_tree *eigrp_stub_flags_tree;
 	proto_item *ti;
 
-	ti = proto_tree_add_item(tree, hf_eigrp_stub_flags, tvb, 0, 2, FALSE);
+	ti = proto_tree_add_item(tree, hf_eigrp_stub_flags, tvb, 0, 2, ENC_BIG_ENDIAN);
 	eigrp_stub_flags_tree = proto_item_add_subtree(ti, ett_eigrp_stub_flags);
 
 	proto_tree_add_item(eigrp_stub_flags_tree, hf_eigrp_stub_flags_connected, tvb, 0, 2, FALSE);
@@ -634,19 +634,19 @@ static void dissect_eigrp_ip_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	proto_tree_add_item(tree, hf_eigrp_ip_int_nexthop, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip_int_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_int_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	for (offset = 20; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
@@ -654,12 +654,12 @@ static void dissect_eigrp_ip_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
 
 		if (addr_len < 0) {
-			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
 					"Invalid prefix length %u, must be <= 32", length);
 			addr_len = 4; /* assure we can exit the loop */
 		} else {
-			proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_eigrp_ip_int_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len, "Destination: %s", ip_to_str(ip_addr));
 			proto_item_append_text (ti,"  %c   %s/%u%s", offset == 21 ? '=':',',
@@ -686,19 +686,19 @@ static void dissect_eigrp_ip_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	tvb_memcpy(tvb,ip_addr, 4, 4);
 	proto_tree_add_item(tree, hf_eigrp_ip_ext_origrouter, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_as, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_as, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_tag, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_metric, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_proto, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 /* Decode the IP external route Flags Field */
-	ti = proto_tree_add_item(tree, hf_eigrp_ip_ext_flags, tvb, offset, 1, FALSE);
+	ti = proto_tree_add_item(tree, hf_eigrp_ip_ext_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	eigrp_ip_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_ip_ext_flags);
 
 	proto_tree_add_item(eigrp_ip_ext_flags_tree, hf_eigrp_ip_ext_flags_ext, tvb, offset, 1, FALSE);
@@ -706,19 +706,19 @@ static void dissect_eigrp_ip_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	offset += 1;
 /* End Decode the IP external route Flags Field */
 
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip_ext_reserved2, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip_ext_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	for (offset = 40; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
@@ -726,12 +726,12 @@ static void dissect_eigrp_ip_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		addr_len = ipv4_addr_and_mask(tvb, offset + 1, ip_addr, length);
 
 		if (addr_len < 0) {
-			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
 					"Invalid prefix length %u, must be <= 32", length);
 			addr_len = 4; /* assure we can exit the loop */
 		} else {
-			proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_eigrp_ip_ext_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 			ti_dst = proto_tree_add_text(tree, tvb, offset, addr_len, "Destination = %s", ip_to_str(ip_addr));
 			proto_item_append_text(eigrp_ip_ext_ti, "  %c   %s/%u%s", offset == 41 ? '=':',',
@@ -754,19 +754,19 @@ static void dissect_eigrp_ipx_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 4;
 	proto_tree_add_item(tree, hf_eigrp_ipx_int_nexthop_id, tvb, offset, 6, FALSE);
 	offset += 6;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_int_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_int_dst, tvb, offset, 4, ENC_NA);
 	proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 26), ((tvb_get_ntohl(tvb, 10) == 0xffffffff) ? " - Destination unreachable":""));
@@ -786,32 +786,32 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 6;
 	proto_tree_add_item(tree, hf_eigrp_ipx_ext_origrouter, tvb, offset, 6, FALSE);
 	offset += 6;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_as, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_as, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_tag, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_proto, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_metric, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_metric, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_extdelay, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_extdelay, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ipx_ext_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_ext_dst, tvb, offset, 4, ENC_NA);
 	proto_item_append_text(ti, "  =   %08x%s", tvb_get_ntohl(tvb, 46), ((tvb_get_ntohl(tvb, 30) == 0xffffffff) ? " - Destination unreachable":""));
@@ -825,7 +825,7 @@ static void dissect_eigrp_ipx_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 static void dissect_eigrp_at_cbl(tvbuff_t *tvb, proto_tree *tree, proto_item *ti) {
 
 	proto_tree_add_text(tree, tvb, 0, 4, "AppleTalk Cable Range = %u-%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
-	proto_tree_add_item(tree, hf_eigrp_at_cbl_routerid, tvb, 4, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_cbl_routerid, tvb, 4, 4, ENC_BIG_ENDIAN);
 	proto_item_append_text(ti, ": Cable range= %u-%u, Router ID= %u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2), tvb_get_ntohl(tvb, 4));
 
 }
@@ -837,19 +837,19 @@ static void dissect_eigrp_at_int(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %u.%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
 	offset += 4;
 
-	proto_tree_add_item(tree, hf_eigrp_at_int_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_int_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_int_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_at_int_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_at_int_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_at_int_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_at_int_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_int_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_tree_add_text(tree,tvb,offset,4,"Cable range = %u-%u",tvb_get_ntohs(tvb,20),tvb_get_ntohs(tvb,22));
 
@@ -863,17 +863,17 @@ static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 
 	proto_tree_add_text(tree, tvb, offset, 4, "Next Hop Address = %u.%u", tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_origrouter, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_origrouter, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_as, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_as, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_tag, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_proto, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 /* Decode the AppleTalk external route Flags Field */
-	ti = proto_tree_add_item(tree, hf_eigrp_at_ext_flags, tvb, offset, 1, FALSE);
+	ti = proto_tree_add_item(tree, hf_eigrp_at_ext_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	eigrp_at_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_at_ext_flags);
 
 	proto_tree_add_item(eigrp_at_ext_flags_tree, hf_eigrp_at_ext_flags_ext, tvb, offset, 1, FALSE);
@@ -881,22 +881,22 @@ static void dissect_eigrp_at_ext(tvbuff_t *tvb, proto_tree *tree, proto_item *ti
 	offset += 1;
 /* End Decode the AppleTalk external route Flags Field */
 
-	proto_tree_add_item(tree, hf_eigrp_at_ext_metric, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_metric, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(tree, hf_eigrp_at_ext_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_at_ext_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_at_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	proto_tree_add_text(tree, tvb, offset, 4, "Cable range = %u-%u", tvb_get_ntohs(tvb, 36), tvb_get_ntohs(tvb, 38));
 
@@ -912,19 +912,19 @@ static void dissect_eigrp_ip6_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
 	proto_tree_add_item(tree, hf_eigrp_ip6_int_nexthop, tvb, offset, 16, FALSE);
 	offset += 16;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip6_int_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_int_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	for (offset = 32; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len)) {
@@ -932,12 +932,12 @@ static void dissect_eigrp_ip6_int(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
 
 		if (addr_len < 0) {
-			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
 					"Invalid prefix length %u, must be <= 128", length);
 			addr_len = 16; /* assure we can exit the loop */
 		} else {
-			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_eigrp_ip6_int_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			if ((length < 128) && (length % 8 == 0)) {
@@ -968,19 +968,19 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 16;
 	proto_tree_add_item(tree, hf_eigrp_ip6_ext_origrouter, tvb, offset, 4, FALSE);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_as, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_as, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_tag, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_tag, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_metric, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_metric, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reserved, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_proto, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 /* Decode the IPv6 external route Flags Field */
-	ti = proto_tree_add_item(tree, hf_eigrp_ip6_ext_flags, tvb, offset, 1, FALSE);
+	ti = proto_tree_add_item(tree, hf_eigrp_ip6_ext_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
 	eigrp_ip6_ext_flags_tree = proto_item_add_subtree(ti, ett_eigrp_ip6_ext_flags);
 
 	proto_tree_add_item(eigrp_ip6_ext_flags_tree, hf_eigrp_ip6_ext_flags_ext, tvb, offset, 1, FALSE);
@@ -988,19 +988,19 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 	offset += 1;
 /* End Decode the IPv6 external route Flags Field */
 
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_delay, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_delay, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_bandwidth, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_mtu, tvb, offset, 3, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_mtu, tvb, offset, 3, ENC_BIG_ENDIAN);
 	offset += 3;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_hopcount, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_hopcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reliability, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reliability, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_load, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_load, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
-	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reserved2, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_eigrp_ip6_ext_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	for (offset = 52; tvb_length_remaining(tvb, offset) > 0; offset += (1 + addr_len))
@@ -1009,12 +1009,12 @@ static void dissect_eigrp_ip6_ext(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		addr_len = ipv6_addr_and_mask(tvb, offset + 1, &addr, length);
 
 		if (addr_len < 0) {
-			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
+			ti_prefixlen = proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			expert_add_info_format(pinfo, ti_prefixlen, PI_UNDECODED, PI_WARN,
 					"Invalid prefix length %u, must be <= 128", length);
 			addr_len = 16; /* assure we can exit the loop */
 		} else {
-			proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_eigrp_ip6_ext_prefixlen, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset += 1;
 
 			if ((length < 128) && (length % 8 == 0)) {

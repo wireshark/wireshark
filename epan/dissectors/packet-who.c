@@ -111,11 +111,11 @@ dissect_who(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree)
-		proto_tree_add_item(who_tree, hf_who_vers, tvb, offset, 1, FALSE);
+		proto_tree_add_item(who_tree, hf_who_vers, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	if (tree)
-		proto_tree_add_item(who_tree, hf_who_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(who_tree, hf_who_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
 	/* 2 filler bytes */

@@ -96,16 +96,16 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree *rdm_tree = proto_item_add_subtree(ti, ett_rdm);
 
 		proto_tree_add_item(rdm_tree, hf_rdm_start_code, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_sub_start_code, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		message_length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(rdm_tree, hf_rdm_message_length, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_dest_uid, tvb,
@@ -117,32 +117,32 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 6;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_transaction_number, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_response_type, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_message_count, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_sub_device, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_command_class, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		proto_tree_add_item(rdm_tree, hf_rdm_parameter_id, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		parameter_data_length = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(rdm_tree, hf_rdm_parameter_data_length, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		if (parameter_data_length > 0) {
@@ -160,7 +160,7 @@ dissect_rdm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		checksum_shouldbe = rdm_checksum(tvb, offset);
 		checksum = tvb_get_ntohs(tvb, offset);
 		item = proto_tree_add_item(rdm_tree, hf_rdm_checksum, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 		if (checksum == checksum_shouldbe) {
 				proto_item_append_text(item, " [correct]");
 		} else {

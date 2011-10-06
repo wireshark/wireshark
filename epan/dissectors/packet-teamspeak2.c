@@ -387,7 +387,7 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 
 	guint16 type = tvb_get_letohs(tvb, 2);
 	/*guint16 klass = tvb_get_letohs(tvb, 0);*/
-	proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 
 	/* XXX: Following fragmentation stuff should be separate from the GUI stuff ??    */
 	/* Get our stored fragmentation data or create one! */
@@ -421,8 +421,8 @@ static void ts2_standard_dissect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 	/* Get our stored fragmentation data */
 	frag = p_get_proto_data(pinfo->fd, proto_ts2);
 
-	proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 16, 2, TRUE);
-	proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 16, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(ts2_tree, hf_ts2_fragmentnumber, tvb, 18, 2, ENC_LITTLE_ENDIAN);
 	ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 20, tvb_get_letohl(tvb, 20));
 
 	/* Reassemble the packet if its fragmented */
@@ -503,9 +503,9 @@ static void ts2_parse_newplayerjoined(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 6, ENC_NA);
 	offset+=6;
@@ -526,9 +526,9 @@ static void ts2_parse_knownplayerupdate(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	ts2_add_statusflags(tvb, ts2_tree, offset);
 }
 
@@ -537,7 +537,7 @@ static void ts2_parse_switchchannel(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_password, tvb, offset, 1, TRUE);
 	offset+=30;
@@ -548,11 +548,11 @@ static void ts2_parse_channelchange(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
-	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 2, ENC_NA);
 
@@ -563,7 +563,7 @@ static void ts2_parse_changestatus(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	ts2_add_statusflags(tvb, ts2_tree, offset);
 
 }
@@ -573,7 +573,7 @@ static void ts2_parse_playerleft(tvbuff_t *tvb, proto_tree *ts2_tree)
 {
 	gint32 offset;
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 	proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
 	offset+=4;
@@ -607,15 +607,15 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 	proto_item	*item;
 
 	offset=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_number_of_channels, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_number_of_channels, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	offset+=4;
 	while(offset<tvb_length_remaining(tvb, 0))
 	{
-		proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset+=4;
 
 		/* Channel flags */
-		item = proto_tree_add_item(ts2_tree, hf_ts2_channel_flags, tvb, offset, 1, TRUE);
+		item = proto_tree_add_item(ts2_tree, hf_ts2_channel_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		subtree = proto_item_add_subtree(item, ett_ts2_channel_flags);
 		proto_tree_add_item(subtree, hf_ts2_channel_unregistered, tvb, offset, 1, FALSE);
 		proto_tree_add_item(subtree, hf_ts2_channel_moderated, tvb, offset, 1, FALSE);
@@ -626,13 +626,13 @@ static void ts2_parse_channellist(tvbuff_t *tvb, proto_tree *ts2_tree)
 
 		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 1, ENC_NA);
 		offset+=1;
-		proto_tree_add_item(ts2_tree, hf_ts2_codec, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_codec, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
-		proto_tree_add_item(ts2_tree, hf_ts2_parent_channel_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_parent_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset+=4;
-		proto_tree_add_item(ts2_tree, hf_ts2_channel_order, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_channel_order, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
-		proto_tree_add_item(ts2_tree, hf_ts2_max_users, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_max_users, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset+=2;
 		tvb_get_ephemeral_stringz(tvb, offset, &string_len);
 		proto_tree_add_item(ts2_tree, hf_ts2_channel_name, tvb, offset,string_len , TRUE);
@@ -664,18 +664,18 @@ static void ts2_parse_playerlist(tvbuff_t *tvb, proto_tree *ts2_tree)
 	gint32 x;
 	offset=0;
 	x=0;
-	proto_tree_add_item(ts2_tree, hf_ts2_number_of_players, tvb, offset, 4, TRUE);
+	proto_tree_add_item(ts2_tree, hf_ts2_number_of_players, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 	number_of_players = tvb_get_letohl(tvb, 0);
 	offset+=4;
 	while(offset<tvb_length_remaining(tvb, 0) && x<number_of_players)
 	{
-		proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_player_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset+=4;
-		proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_channel_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset+=4;
 		proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, offset, 4, ENC_NA);
 		offset+=4;
-		proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_player_status_flags, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		ts2_add_statusflags(tvb, ts2_tree, offset);
 		offset+=2;
 		proto_tree_add_item(ts2_tree, hf_ts2_nick, tvb, offset, 1, TRUE);
@@ -760,18 +760,18 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_ts2, tvb, 0, -1, TRUE);
 		ts2_tree = proto_item_add_subtree(ti, ett_ts2);
 
-		proto_tree_add_item(ts2_tree, hf_ts2_class, tvb, 0, 2, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_class, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 		if(klass==TS2C_ACK)
-			proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 2, 2, TRUE);
+			proto_tree_add_item(ts2_tree, hf_ts2_resend_count, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 		else
-			proto_tree_add_item(ts2_tree, hf_ts2_type, tvb, 2, 2, TRUE);
+			proto_tree_add_item(ts2_tree, hf_ts2_type, tvb, 2, 2, ENC_LITTLE_ENDIAN);
 
-		proto_tree_add_item(ts2_tree, hf_ts2_sessionkey, tvb, 4, 4, TRUE);
-		proto_tree_add_item(ts2_tree, hf_ts2_clientid, tvb, 8, 4, TRUE);
+		proto_tree_add_item(ts2_tree, hf_ts2_sessionkey, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(ts2_tree, hf_ts2_clientid, tvb, 8, 4, ENC_LITTLE_ENDIAN);
 		switch(klass)
 		{
 			case TS2C_CONNECTION:
-				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
+				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 				ts2_add_checked_crc32(ts2_tree, hf_ts2_crc32, tvb, 16, tvb_get_letohl(tvb, 16));
 
 				switch(type)
@@ -779,7 +779,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case TS2T_PING:
 						break;
 					case TS2T_PINGREPLY:
-						proto_tree_add_item(ts2_tree, hf_ts2_ackto, tvb, 20, 4, TRUE);
+						proto_tree_add_item(ts2_tree, hf_ts2_ackto, tvb, 20, 4, ENC_LITTLE_ENDIAN);
 						break;
 					case TS2T_LOGINREQUEST:
 						proto_tree_add_item(ts2_tree, hf_ts2_protocol_string, tvb, 20, 1, TRUE);
@@ -800,7 +800,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 80, 9, ENC_NA);
 						proto_tree_add_item(ts2_tree, hf_ts2_badlogin, tvb, 89, 3, TRUE);
 						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 92, 80, ENC_NA);
-						proto_tree_add_item(ts2_tree, hf_ts2_sessionkey, tvb, 172, 4, TRUE);
+						proto_tree_add_item(ts2_tree, hf_ts2_sessionkey, tvb, 172, 4, ENC_LITTLE_ENDIAN);
 						proto_tree_add_item(ts2_tree, hf_ts2_unknown, tvb, 178, 3, ENC_NA);
 						proto_tree_add_item(ts2_tree, hf_ts2_server_welcome_message, tvb, 180, 1, TRUE);
                                                 break;
@@ -809,7 +809,7 @@ static void dissect_ts2(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			case TS2C_ACK:
 				/* Ignore the type for ACK, its always zero and clashes with CELP_5_1 */
 
-				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, TRUE);
+				proto_tree_add_item(ts2_tree, hf_ts2_seqnum, tvb, 12, 4, ENC_LITTLE_ENDIAN);
 				break;
 			case TS2C_STANDARD:
 				ts2_standard_dissect(tvb, pinfo, ts2_tree, conversation_data);

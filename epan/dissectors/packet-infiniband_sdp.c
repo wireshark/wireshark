@@ -243,38 +243,38 @@ manual_override:
     SDP_BSDH_header_tree = proto_item_add_subtree(SDP_BSDH_header_item, ett_ib_sdp_bsdh);
 
     mid =  tvb_get_guint8(tvb, local_offset);
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mid, tvb, local_offset, 1, FALSE); local_offset += 1;
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mid, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
 
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags, tvb, local_offset, 1, FALSE);
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_oobpres, tvb, local_offset, 2, FALSE);
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_oob_pend, tvb, local_offset, 4, FALSE);
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_reqpipe, tvb, local_offset, 4, FALSE); local_offset += 1;
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_oobpres, tvb, local_offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_oob_pend, tvb, local_offset, 4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_flags_reqpipe, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 1;
 
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_bufs, tvb, local_offset, 2, FALSE); local_offset += 2;
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_len, tvb, local_offset, 4, FALSE); local_offset += 4;
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mseq, tvb, local_offset, 4, FALSE); local_offset += 4;
-    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mseqack, tvb, local_offset, 4, FALSE); local_offset += 4;
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_bufs, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_len, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mseq, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(SDP_BSDH_header_tree, hf_ib_sdp_mseqack, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
 
     switch (mid) {
         case Hello:
             SDP_EH_header_item = proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hh, tvb, local_offset, 48, ENC_NA);
             SDP_EH_header_tree = proto_item_add_subtree(SDP_EH_header_item, ett_ib_sdp_hh);
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_majv, tvb, local_offset, 1, FALSE);
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_minv, tvb, local_offset, 1, FALSE); local_offset += 1;
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_ipv, tvb, local_offset, 1, FALSE);
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_cap, tvb, local_offset, 1, FALSE);
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_cap_invalidate, tvb, local_offset, 1, FALSE);
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_cap_extmaxadverts, tvb, local_offset, 1, FALSE); local_offset += 1;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_majv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_minv, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_ipv, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_cap, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_cap_invalidate, tvb, local_offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_cap_extmaxadverts, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
             local_offset += 1;  /* skip reserved */
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_maxadverts, tvb, local_offset, 1, FALSE); local_offset += 1;
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_desremrcvsz, tvb, local_offset, 4, FALSE); local_offset += 4;
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_localrcvsz, tvb, local_offset, 4, FALSE); local_offset += 4;
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_localport, tvb, local_offset, 2, FALSE); local_offset += 2;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_maxadverts, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_desremrcvsz, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_localrcvsz, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_localport, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
             local_offset += 2;  /* skip reserved */
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_src_ip, tvb, local_offset, 16, FALSE); local_offset += 16;
             proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_dst_ip, tvb, local_offset, 16, FALSE); local_offset += 16;
             local_offset += 2;  /* skip reserved */
-            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_extmaxadverts, tvb, local_offset, 2, FALSE); local_offset += 2;
+            proto_tree_add_item(SDP_EH_header_tree, hf_ib_sdp_extmaxadverts, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
             break;
         case HelloAck:
             proto_tree_add_item(SDP_header_tree, hf_ib_sdp_hah, tvb, local_offset, 48, ENC_NA);

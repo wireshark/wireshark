@@ -352,11 +352,11 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(primary_header_tree, hf_ccsds_apid, tvb, offset, 2, first_word);
 		offset += 2;
 
-		proto_tree_add_item(primary_header_tree, hf_ccsds_seqflag, tvb, offset, 2, FALSE);
-		proto_tree_add_item(primary_header_tree, hf_ccsds_seqnum, tvb, offset, 2, FALSE);
+		proto_tree_add_item(primary_header_tree, hf_ccsds_seqflag, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(primary_header_tree, hf_ccsds_seqnum, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		item = proto_tree_add_item(primary_header_tree, hf_ccsds_length, tvb, offset, 2, FALSE);
+		item = proto_tree_add_item(primary_header_tree, hf_ccsds_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		if (ccsds_length > reported_length) {
 			expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
 					"Length field value is greater than the packet seen on the wire");
@@ -372,17 +372,17 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                         /* command ccsds secondary header flags */
 		        coarse_time=tvb_get_ntohl(tvb, offset);
-			proto_tree_add_item(secondary_header_tree, hf_ccsds_coarse_time, tvb, offset, 4, FALSE);
+			proto_tree_add_item(secondary_header_tree, hf_ccsds_coarse_time, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 		        fine_time=tvb_get_guint8(tvb, offset);
-			proto_tree_add_item(secondary_header_tree, hf_ccsds_fine_time, tvb, offset, 1, FALSE);
+			proto_tree_add_item(secondary_header_tree, hf_ccsds_fine_time, tvb, offset, 1, ENC_BIG_ENDIAN);
 			++offset;
 
                         time_string = embedded_time_to_string ( coarse_time, fine_time );
                         proto_tree_add_text(secondary_header_tree, tvb, offset-5, 5, "%s = Embedded Time", time_string);
 
-			proto_tree_add_item(secondary_header_tree, hf_ccsds_timeid, tvb, offset, 1, FALSE);
+			proto_tree_add_item(secondary_header_tree, hf_ccsds_timeid, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(secondary_header_tree, hf_ccsds_checkword_flag, tvb, offset, 1, FALSE);
 
 			/* Global Preference: how to handle checkword flag */
@@ -404,35 +404,35 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         /* payload specific ccsds secondary header flags */
                         if ( first_word & HDR_TYPE )
                         {
-		        	proto_tree_add_item(secondary_header_tree, hf_ccsds_zoe, tvb, offset, 1, FALSE);
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_packet_type_unused, tvb, offset, 1, FALSE);
+		        	proto_tree_add_item(secondary_header_tree, hf_ccsds_zoe, tvb, offset, 1, ENC_BIG_ENDIAN);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_packet_type_unused, tvb, offset, 1, ENC_BIG_ENDIAN);
 			        ++offset;
 
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_vid, tvb, offset, 2, FALSE);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_vid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			        offset += 2;
 
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_dcc, tvb, offset, 2, FALSE);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_dcc, tvb, offset, 2, ENC_BIG_ENDIAN);
 			        offset += 2;
                         }
 
                         /* core specific ccsds secondary header flags */
                         else
                         {
-		        	/* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare1, tvb, offset, 1, FALSE); */
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_packet_type, tvb, offset, 1, FALSE);
+		        	/* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare1, tvb, offset, 1, ENC_BIG_ENDIAN); */
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_packet_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 			        ++offset;
 
-			        /* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare2, tvb, offset, 2, FALSE); */
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_element_id, tvb, offset, 2, FALSE);
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_cmd_data_packet, tvb, offset, 2, FALSE);
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_format_version_id, tvb, offset, 2, FALSE);
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_extended_format_id, tvb, offset, 2, FALSE);
+			        /* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare2, tvb, offset, 2, ENC_BIG_ENDIAN); */
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_element_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_cmd_data_packet, tvb, offset, 2, ENC_BIG_ENDIAN);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_format_version_id, tvb, offset, 2, ENC_BIG_ENDIAN);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_extended_format_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			        offset += 2;
 
-			        /* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare3, tvb, offset, 1, FALSE); */
+			        /* proto_tree_add_item(secondary_header_tree, hf_ccsds_spare3, tvb, offset, 1, ENC_BIG_ENDIAN); */
                                 ++offset;
 
-			        proto_tree_add_item(secondary_header_tree, hf_ccsds_frame_id, tvb, offset, 1, FALSE);
+			        proto_tree_add_item(secondary_header_tree, hf_ccsds_frame_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 			        ++offset;
                         }
 

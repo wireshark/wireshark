@@ -319,7 +319,7 @@ dissect_diameter_vedor_id(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree 
 
 	int offset = 0;
 
-	proto_tree_add_item(tree, hf_diameter_vendor_id, tvb, 0, 4, FALSE);
+	proto_tree_add_item(tree, hf_diameter_vendor_id, tvb, 0, 4, ENC_BIG_ENDIAN);
 
 	offset++;
 	return offset;
@@ -398,7 +398,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	avp_item = proto_tree_add_item(c->tree,hf_diameter_avp,tvb,offset,len,ENC_NA);
 	avp_tree = proto_item_add_subtree(avp_item,a->ett);
 
-	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,FALSE);
+	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_code,tvb,offset,4,ENC_BIG_ENDIAN);
 	code_str = val_to_str_ext_const(code, vendor->vs_avps_ext, "Unknown");
 	proto_item_append_text(pi," %s", code_str);
 
@@ -418,7 +418,7 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	proto_item_set_text(avp_item,"AVP: %s(%u) l=%u f=%s", code_str, code, len, avpflags_str[flags_bits_idx]);
 
 	/* Flags */
-	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_flags,tvb,offset,1,FALSE);
+	pi = proto_tree_add_item(avp_tree,hf_diameter_avp_flags,tvb,offset,1,ENC_BIG_ENDIAN);
 	{
 		proto_tree* flags_tree = proto_item_add_subtree(pi,ett_diameter_avp_flags);
 		proto_tree_add_item(flags_tree,hf_diameter_avp_flags_vendor_specific,tvb,offset,1,FALSE);
@@ -438,13 +438,13 @@ dissect_diameter_avp(diam_ctx_t* c, tvbuff_t* tvb, int offset)
 	offset += 1;
 
 	/* Length */
-	proto_tree_add_item(avp_tree,hf_diameter_avp_len,tvb,offset,3,FALSE);
+	proto_tree_add_item(avp_tree,hf_diameter_avp_len,tvb,offset,3,ENC_BIG_ENDIAN);
 	offset += 3;
 
 	/* Vendor flag */
 	if (vendor_flag) {
 		proto_item_append_text(avp_item," vnd=%s", val_to_str(vendorid, vnd_short_vs, "%d"));
-		pi = proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,FALSE);
+		pi = proto_tree_add_item(avp_tree,hf_diameter_avp_vendor_id,tvb,offset,4,ENC_BIG_ENDIAN);
 		if (vendor == &unknown_vendor) {
 			proto_tree* tu = proto_item_add_subtree(pi,ett_unknown);
 			proto_item* iu = proto_tree_add_text(tu,tvb,offset,4,"Unknown Vendor, "
@@ -826,10 +826,10 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 	c->tree = diam_tree;
 	c->pinfo = pinfo;
 
-	version_item = proto_tree_add_item(diam_tree,hf_diameter_version,tvb,0,1,FALSE);
-	proto_tree_add_item(diam_tree,hf_diameter_length,tvb,1,3,FALSE);
+	version_item = proto_tree_add_item(diam_tree,hf_diameter_version,tvb,0,1,ENC_BIG_ENDIAN);
+	proto_tree_add_item(diam_tree,hf_diameter_length,tvb,1,3,ENC_BIG_ENDIAN);
 
-	pi = proto_tree_add_item(diam_tree,hf_diameter_flags,tvb,4,1,FALSE);
+	pi = proto_tree_add_item(diam_tree,hf_diameter_flags,tvb,4,1,ENC_BIG_ENDIAN);
 	{
 		proto_tree* pt = proto_item_add_subtree(pi,ett_diameter_flags);
 		proto_tree_add_item(pt,hf_diameter_flags_request,tvb,4,1,FALSE);
@@ -846,7 +846,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 		if(flags_bits & 0x01) proto_item_set_expert_flags(pi, PI_MALFORMED, PI_WARN);
 	}
 
-	cmd_item = proto_tree_add_item(diam_tree,hf_diameter_code,tvb,5,3,FALSE);
+	cmd_item = proto_tree_add_item(diam_tree,hf_diameter_code,tvb,5,3,ENC_BIG_ENDIAN);
 
 	switch (version) {
 		case DIAMETER_V16: {
@@ -858,7 +858,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			}
 
 			cmd_vs = VND_CMD_VS(vendor);
-			proto_tree_add_item(diam_tree, hf_diameter_vendor_id,tvb,8,4,FALSE);
+			proto_tree_add_item(diam_tree, hf_diameter_vendor_id,tvb,8,4,ENC_BIG_ENDIAN);
 
 			c->version_rfc = FALSE;
 			break;
@@ -922,8 +922,8 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 
 
 	hop_by_hop_id = tvb_get_ntohl(tvb, 12);
-	proto_tree_add_item(diam_tree,hf_diameter_hopbyhopid,tvb,12,4,FALSE);
-	proto_tree_add_item(diam_tree,hf_diameter_endtoendid,tvb,16,4,FALSE);
+	proto_tree_add_item(diam_tree,hf_diameter_hopbyhopid,tvb,12,4,ENC_BIG_ENDIAN);
+	proto_tree_add_item(diam_tree,hf_diameter_endtoendid,tvb,16,4,ENC_BIG_ENDIAN);
 
 	/* Conversation tracking stuff */
 	/*

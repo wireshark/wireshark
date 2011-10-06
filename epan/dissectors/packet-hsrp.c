@@ -378,7 +378,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         ti = proto_tree_add_item(tree, proto_hsrp, tvb, offset, -1, FALSE);
                         hsrp_tree = proto_item_add_subtree(ti, ett_hsrp);
 
-                        proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(hsrp_tree, hf_hsrp_version, tvb, offset, 1, ENC_BIG_ENDIAN);
                         offset++;
                         proto_tree_add_uint(hsrp_tree, hf_hsrp_opcode, tvb, offset, 1, opcode);
                         offset++;
@@ -397,11 +397,11 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                    (holdtime == HSRP_DEFAULT_HOLDTIME) ? "" : "Non-",
                                                    holdtime);
         			offset++;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_priority, tvb, offset, 1, ENC_BIG_ENDIAN);
         			offset++;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_group, tvb, offset, 1, ENC_BIG_ENDIAN);
         			offset++;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
         			offset++;
         			tvb_memcpy(tvb, auth_buf, offset, 8);
         			auth_buf[sizeof auth_buf - 1] = '\0';
@@ -413,19 +413,19 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
         			offset += 4;
         		} else if (opcode == 3) {
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         			offset += 2;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         			offset += 2;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_state, tvb, offset, 1, ENC_BIG_ENDIAN);
         			offset += 1;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
         			offset += 1;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_activegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
         			offset += 2;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_passivegrp, tvb, offset, 2, ENC_BIG_ENDIAN);
         			offset += 2;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_reserved2, tvb, offset, 4, ENC_BIG_ENDIAN);
         			offset += 4;
         		} else {
         			next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -479,7 +479,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 if (tree) {
                                         /* Making Group State TLV subtree. */
                                         group_state_tlv = proto_item_add_subtree(ti, ett_hsrp2_group_state_tlv);
-                                        proto_tree_add_item(group_state_tlv, hf_hsrp2_version, tvb, offset, 1, FALSE);
+                                        proto_tree_add_item(group_state_tlv, hf_hsrp2_version, tvb, offset, 1, ENC_BIG_ENDIAN);
                                         offset++;
                                         proto_tree_add_uint(group_state_tlv, hf_hsrp2_opcode, tvb, offset, 1, opcode);
                                         offset++;
@@ -488,11 +488,11 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 			ipver = tvb_get_guint8(tvb, offset);
                                         proto_tree_add_uint(group_state_tlv, hf_hsrp2_ipversion, tvb, offset, 1, ipver);
                 			offset++;
-                			proto_tree_add_item(group_state_tlv, hf_hsrp2_group, tvb, offset, 2, FALSE);
+                			proto_tree_add_item(group_state_tlv, hf_hsrp2_group, tvb, offset, 2, ENC_BIG_ENDIAN);
                 			offset+=2;
                 			proto_tree_add_item(group_state_tlv, hf_hsrp2_identifier, tvb, offset, 6, FALSE);
                 			offset+=6;
-                			proto_tree_add_item(group_state_tlv, hf_hsrp2_priority, tvb, offset, 4, FALSE);
+                			proto_tree_add_item(group_state_tlv, hf_hsrp2_priority, tvb, offset, 4, ENC_BIG_ENDIAN);
                 			offset+=4;
 
                 			hellotime = tvb_get_ntohl(tvb, offset);
@@ -539,9 +539,9 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                         /* Making Interface State TLV subtree */
                                         interface_state_tlv = proto_item_add_subtree(ti, ett_hsrp2_interface_state_tlv);
-                			proto_tree_add_item(interface_state_tlv, hf_hsrp2_active_group, tvb, offset, 2, FALSE);
+                			proto_tree_add_item(interface_state_tlv, hf_hsrp2_active_group, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset+=2;
-                			proto_tree_add_item(interface_state_tlv, hf_hsrp2_passive_group, tvb, offset, 2, FALSE);
+                			proto_tree_add_item(interface_state_tlv, hf_hsrp2_passive_group, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset+=2;
                                 }
                         } else if (type == 3 && len == 8) {
@@ -576,17 +576,17 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                                         /* Making MD5 Authentication TLV subtree */
                                         md5_auth_tlv = proto_item_add_subtree(ti, ett_hsrp2_md5_auth_tlv);
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_algorithm, tvb, offset, 1, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_algorithm, tvb, offset, 1, ENC_BIG_ENDIAN);
                                         offset++;
                                         /* Skip padding field */
                                         offset++;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset+=2;
                                         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, FALSE);
                                         offset+=4;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         offset+=4;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_auth_data, tvb, offset, 16, ENC_BIG_ENDIAN);
                                         offset += 16;
                                 }
                         } else {

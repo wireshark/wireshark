@@ -232,7 +232,7 @@ static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tre
 	guint len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_anonymous_role, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	offset += dissect_uleb128( tvb, offset, &len );
@@ -254,7 +254,7 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	guint len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_role, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 
@@ -327,7 +327,7 @@ static gint dissect_netsync_cmd_done(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += bytes;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_done_type, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	return offset;
@@ -337,7 +337,7 @@ static gint dissect_netsync_cmd_done(tvbuff_t *tvb,  gint offset, proto_tree *tr
 static gint dissect_netsync_cmd_send_data(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
 	proto_tree_add_item(tree, hf_netsync_cmd_send_data_type, tvb,
-					offset, 1, FALSE );
+					offset, 1, ENC_BIG_ENDIAN );
         offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_data_id, tvb,
@@ -351,7 +351,7 @@ static gint dissect_netsync_cmd_send_data(tvbuff_t *tvb,  gint offset, proto_tre
 static gint dissect_netsync_cmd_send_delta(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
 	proto_tree_add_item(tree, hf_netsync_cmd_send_delta_type, tvb,
-					offset, 1, FALSE );
+					offset, 1, ENC_BIG_ENDIAN );
         offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_send_delta_base_id, tvb,
@@ -372,7 +372,7 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	guint len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_type, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_id, tvb,
@@ -380,7 +380,7 @@ static gint dissect_netsync_cmd_data(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_data_compressed, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	offset += dissect_uleb128( tvb, offset, &len );
@@ -398,7 +398,7 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 	guint len = 0;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_type, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_base_id, tvb,
@@ -410,7 +410,7 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += NETSNYC_MERKLE_HASH_LENGTH;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_delta_compressed, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	offset += dissect_uleb128( tvb, offset, &len );
@@ -426,7 +426,7 @@ static gint dissect_netsync_cmd_delta(tvbuff_t *tvb,  gint offset, proto_tree *t
 static gint dissect_netsync_cmd_nonexistent(tvbuff_t *tvb,  gint offset, proto_tree *tree, guint size _U_)
 {
 	proto_tree_add_item(tree, hf_netsync_cmd_nonexistent_type, tvb,
-				offset, 1, FALSE );
+				offset, 1, ENC_BIG_ENDIAN );
 	offset += 1;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonexistent_id, tvb,
@@ -476,12 +476,12 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		version = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(netsync_tree, hf_netsync_version, tvb,
-					offset, 1, FALSE );
+					offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
 		cmd = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(netsync_tree, hf_netsync_command, tvb,
-					offset, 1, FALSE );
+					offset, 1, ENC_BIG_ENDIAN );
 		offset += 1;
 
 
@@ -564,7 +564,7 @@ dissect_netsync_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += size;
 
 		proto_tree_add_item(netsync_tree, hf_netsync_checksum, tvb,
-					offset, 4, FALSE );
+					offset, 4, ENC_BIG_ENDIAN );
 		offset += 4;
 
 

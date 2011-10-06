@@ -253,7 +253,7 @@ dissect_attribute_id_list(proto_tree *t, tvbuff_t *tvb, int offset, packet_info 
 static int
 dissect_sdp_error_response(proto_tree *t, tvbuff_t *tvb, int offset) {
 
-	proto_tree_add_item(t, hf_error_code, tvb, offset, 2, FALSE);
+	proto_tree_add_item(t, hf_error_code, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	return offset;
@@ -663,7 +663,7 @@ dissect_sdp_service_attribute_list_array(proto_tree *tree, tvbuff_t *tvb, int of
 static int
 dissect_sdp_service_search_attribute_response(proto_tree *tree, tvbuff_t *tvb, int offset, packet_info *pinfo, guint32 token)
 {
-	proto_tree_add_item(tree, hf_ssares_al_bytecount, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_ssares_al_bytecount, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	offset += dissect_sdp_service_attribute_list_array(tree, tvb, offset, pinfo, token);
@@ -828,11 +828,11 @@ dissect_sdp_service_search_response(proto_tree *t, tvbuff_t *tvb, int offset)
 	proto_item *ti;
 	gint curr_count;
 
-	proto_tree_add_item(t, hf_ssr_total_count, tvb, offset, 2, FALSE);
+	proto_tree_add_item(t, hf_ssr_total_count, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	curr_count = tvb_get_ntohs(tvb, offset);
-	proto_tree_add_item(t, hf_ssr_current_count, tvb, offset, 2, FALSE);
+	proto_tree_add_item(t, hf_ssr_current_count, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	ti = proto_tree_add_text(t, tvb, offset,
@@ -870,7 +870,7 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* pdu id */
 	pdu = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(st, hf_pduid, tvb, offset, 1, FALSE);
+	proto_tree_add_item(st, hf_pduid, tvb, offset, 1, ENC_BIG_ENDIAN);
 	pdu_name = val_to_str(pdu, vs_pduid, "Unknown");
 	switch (pinfo->p2p_dir) {
 
@@ -896,11 +896,11 @@ dissect_btsdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	offset++;
 
 	/* tid */
-	proto_tree_add_item(st, hf_tid, tvb, offset, 2, FALSE);
+	proto_tree_add_item(st, hf_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	/* plen */
-	proto_tree_add_item(st, hf_plen, tvb, offset, 2, FALSE);
+	proto_tree_add_item(st, hf_plen, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
 	acl_handle = ((btl2cap_data_t *) pinfo->private_data)->chandle;

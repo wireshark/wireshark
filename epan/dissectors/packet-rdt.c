@@ -440,24 +440,24 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
                                            is_reliable_flag);
         flags_tree1 = proto_item_add_subtree(ti, ett_rdt_data_flags1);
 
-        proto_tree_add_item(flags_tree1, hf_rdt_len_included, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree1, hf_rdt_data_need_reliable, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree1, hf_rdt_data_stream_id, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree1, hf_rdt_data_is_reliable, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree1, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree1, hf_rdt_data_need_reliable, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree1, hf_rdt_data_stream_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree1, hf_rdt_data_is_reliable, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
     offset++;
 
     /* Sequence number */
     sequence_number = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_rdt_sequence_number, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -488,29 +488,29 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         /* Create subtree for flags and add fields */
         flags_tree2 = proto_item_add_subtree(ti, ett_rdt_data_flags2);
 
-        proto_tree_add_item(flags_tree2, hf_rdt_data_backtoback, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree2, hf_rdt_data_slowdata, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree2, hf_rdt_data_asmrule, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree2, hf_rdt_data_backtoback, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree2, hf_rdt_data_slowdata, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree2, hf_rdt_data_asmrule, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Timestamp */
     timestamp = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Stream ID expansion */
     if (stream_id == 31)
     {
         stream_id = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_stream_id_ex, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_stream_id_ex, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
     /* Total reliable */
     if (need_reliable_flag)
     {
-        proto_tree_add_item(tree, hf_rdt_total_reliable, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_total_reliable, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -518,7 +518,7 @@ guint dissect_rdt_data_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
     if (asm_rule_number == 63)
     {
         asm_rule_number = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_asmrule_ex, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_asmrule_ex, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -568,24 +568,24 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                            stream_id);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_aact_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_aact_stream_id, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_aact_stream_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     rel_seqno = tvb_get_ntohs(tvb, offset);
-    proto_tree_add_item(tree, hf_rdt_aact_reliable_seqno, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_aact_reliable_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -600,7 +600,7 @@ guint dissect_rdt_asm_action_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     if (stream_id == 31)
     {
         stream_id = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_stream_id_ex, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_stream_id_ex, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
@@ -644,19 +644,19 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
                                            length_included_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_bandwidth_report_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -667,11 +667,11 @@ guint dissect_rdt_bandwidth_report_packet(tvbuff_t *tvb, packet_info *pinfo, pro
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
-    proto_tree_add_item(tree, hf_rdt_brpt_interval, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_brpt_interval, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_rdt_brpt_bandwidth, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_brpt_bandwidth, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_rdt_brpt_sequence, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_brpt_sequence, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     col_append_str(pinfo->cinfo, COL_INFO, "BANDWIDTH-REPORT:  ");
@@ -712,20 +712,20 @@ guint dissect_rdt_ack_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                                            lost_high_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_ack_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_ack_lost_high, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_ack_lost_high, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -758,7 +758,7 @@ guint dissect_rdt_rtt_request_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tr
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     col_append_str(pinfo->cinfo, COL_INFO, "RTT-REQUEST:  ");
@@ -773,12 +773,12 @@ guint dissect_rdt_rtt_response_packet(tvbuff_t *tvb, packet_info *pinfo, proto_t
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_rdt_rtrp_ts_sec, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_rtrp_ts_sec, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_rdt_rtrp_ts_usec, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_rtrp_ts_usec, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     col_append_str(pinfo->cinfo, COL_INFO, "RTT-RESPONSE:  ");
@@ -793,12 +793,12 @@ guint dissect_rdt_congestion_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_rdt_cong_xmit_mult, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_cong_xmit_mult, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_rdt_cong_recv_mult, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_cong_recv_mult, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     col_append_str(pinfo->cinfo, COL_INFO, "CONGESTION:  ");
@@ -836,44 +836,44 @@ guint dissect_rdt_stream_end_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                            ext_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_stre_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_stre_need_reliable, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_stre_stream_id, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_stre_packet_sent, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_stre_ext_flag, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_stre_need_reliable, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_stre_stream_id, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_stre_packet_sent, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_stre_ext_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_rdt_stre_seqno, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_stre_seqno, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
-    proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Stream ID expansion */
     if (stream_id == 31)
     {
         stream_id = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_stream_id_ex, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_stream_id_ex, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
     /* Total reliable */
     if (need_reliable)
     {
-        proto_tree_add_item(tree, hf_rdt_total_reliable, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_total_reliable, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
     }
 
     if (ext_flag)
     {
-        proto_tree_add_item(tree, hf_rdt_stre_dummy_flags1, tvb, offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_rdt_stre_dummy_flags1, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset += 1;
-        proto_tree_add_item(tree, hf_rdt_stre_dummy_type, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_stre_dummy_type, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
-        proto_tree_add_item(tree, hf_rdt_stre_reason_code, tvb, offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_rdt_stre_reason_code, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
         /* XXX: Remainder is reason_text */
         offset += tvb_length_remaining(tvb, offset);
@@ -907,19 +907,19 @@ guint dissect_rdt_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
                                            length_included_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_report_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -969,19 +969,19 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
                                            length_included_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_latency_report_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -993,7 +993,7 @@ guint dissect_rdt_latency_report_packet(tvbuff_t *tvb, packet_info *pinfo, proto
     }
 
     server_out_time = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(tree, hf_rdt_lrpt_server_out_time, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_rdt_lrpt_server_out_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     col_append_fstr(pinfo->cinfo, COL_INFO, "LATENCY-REPORT: t=%u  ", server_out_time);
@@ -1032,18 +1032,18 @@ guint dissect_rdt_transport_info_request_packet(tvbuff_t *tvb, packet_info *pinf
                                            request_buffer_info_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_tirq_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_tirq_request_rtt_info, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_tirq_request_buffer_info, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_tirq_request_rtt_info, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_tirq_request_buffer_info, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     if (request_rtt_info_flag)
     {
-        proto_tree_add_item(tree, hf_rdt_tirq_request_time_msec, tvb, offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_rdt_tirq_request_time_msec, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
     }
 
@@ -1079,25 +1079,25 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
                                            has_buffer_info);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_tirp_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_tirp_has_rtt_info, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_tirp_is_delayed, tvb, offset, 1, FALSE);
-        proto_tree_add_item(flags_tree, hf_rdt_tirp_has_buffer_info, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_tirp_has_rtt_info, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_tirp_is_delayed, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(flags_tree, hf_rdt_tirp_has_buffer_info, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* RTT info */
     if (has_rtt_info)
     {
-        proto_tree_add_item(tree, hf_rdt_tirp_request_time_msec, tvb, offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_rdt_tirp_request_time_msec, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         if (is_delayed)
         {
-            proto_tree_add_item(tree, hf_rdt_tirp_response_time_msec, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tree, hf_rdt_tirp_response_time_msec, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
     }
@@ -1109,7 +1109,7 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
 
         /* Read number of buffers */
         guint16 buffer_info_count = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_tirp_buffer_info_count, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_tirp_buffer_info_count, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         for (n=0; n < buffer_info_count; n++)
@@ -1125,13 +1125,13 @@ guint dissect_rdt_transport_info_response_packet(tvbuff_t *tvb, packet_info *pin
             buffer_info_tree = proto_item_add_subtree(ti2, ett_rdt_tirp_buffer_info);
 
             /* Read individual buffer info */
-            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_stream_id, tvb, offset, 2, FALSE);
+            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_stream_id, tvb, offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
-            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_lowest_timestamp, tvb, offset, 4, FALSE);
+            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_lowest_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_highest_timestamp, tvb, offset, 4, FALSE);
+            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_highest_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
-            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_bytes_buffered, tvb, offset, 4, FALSE);
+            proto_tree_add_item(buffer_info_tree, hf_rdt_tirp_buffer_info_bytes_buffered, tvb, offset, 4, ENC_BIG_ENDIAN);
             offset += 4;
         }
     }
@@ -1167,19 +1167,19 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
                                            length_included_flag);
         flags_tree = proto_item_add_subtree(ti, ett_rdt_bw_probing_flags);
 
-        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_rdt_len_included, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* Length field is optional */
     if (length_included_flag)
     {
         packet_length = tvb_get_ntohs(tvb, offset);
-        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, FALSE);
+        proto_tree_add_item(tree, hf_rdt_packet_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         /* Check that there are as many bytes as reported */
@@ -1190,9 +1190,9 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
         packet_length = tvb_length_remaining(tvb, start_offset);
     }
 
-    proto_tree_add_item(tree, hf_rdt_bwpp_seqno, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_bwpp_seqno, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
-    proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_timestamp, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 4;
 
     col_append_str(pinfo->cinfo, COL_INFO, "BW-PROBING:  ");
@@ -1211,11 +1211,11 @@ guint dissect_rdt_bw_probing_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tre
 guint dissect_rdt_unknown_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offset)
 {
     /* Flags in first byte */
-    proto_tree_add_item(tree, hf_rdt_unk_flags1, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_rdt_unk_flags1, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Packet type */
-    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, FALSE);
+    proto_tree_add_item(tree, hf_rdt_packet_type, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     /* The remaining data is unparsed. */

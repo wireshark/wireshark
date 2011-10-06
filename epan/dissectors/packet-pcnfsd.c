@@ -284,7 +284,7 @@ dissect_pcnfsd2_auth_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		gtree = proto_item_add_subtree(gitem, ett_pcnfsd_gids);
 	}
 	if (gtree) {
-		proto_tree_add_item(gtree, hf_pcnfsd_gids_count, tvb, offset, 4, FALSE);
+		proto_tree_add_item(gtree, hf_pcnfsd_gids_count, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 	offset += 4;
 	for (gids_i = 0 ; gids_i < gids_count ; gids_i++) {

@@ -127,8 +127,8 @@ dissect_tuxedo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ti = proto_tree_add_item(tree, proto_tuxedo, tvb, 0, -1, FALSE);
 				tuxedoroot_tree = proto_item_add_subtree(ti, ett_tuxedo);
 
-				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_magic, tvb, 0, 4, FALSE);
-				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_opcode, tvb, 4, 4, FALSE);
+				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_magic, tvb, 0, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tuxedoroot_tree, hf_tuxedo_opcode, tvb, 4, 4, ENC_BIG_ENDIAN);
 			}
 		}
 		else

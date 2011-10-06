@@ -75,10 +75,10 @@ static void dissect_bctp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree) {
 	tvbuff_t* sub_tvb = tvb_new_subset_remaining(tvb, 2);
 	guint8 tpi = tvb_get_guint8(tvb,1) & 0x3f;
 	
-	proto_tree_add_item(pt, hf_bctp_bvei, tvb,0,2, FALSE);
-	proto_tree_add_item(pt, hf_bctp_bvi, tvb,0,2, FALSE);
-	proto_tree_add_item(pt, hf_bctp_tpei, tvb,0,2, FALSE);
-	proto_tree_add_item(pt, hf_bctp_tpi, tvb,0,2, FALSE);
+	proto_tree_add_item(pt, hf_bctp_bvei, tvb,0,2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(pt, hf_bctp_bvi, tvb,0,2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(pt, hf_bctp_tpei, tvb,0,2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(pt, hf_bctp_tpi, tvb,0,2, ENC_BIG_ENDIAN);
 	
 	if ( dissector_try_uint(bctp_dissector_table, tpi, sub_tvb, pinfo, tree) ) {
 		return;

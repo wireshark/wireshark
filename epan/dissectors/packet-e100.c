@@ -92,15 +92,15 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 e100_tree = proto_item_add_subtree(ti, ett_e100);
 
                 proto_tree_add_item(e100_tree, hf_e100_header, tvb,
-                        e100_header_ver.offset, e100_header_ver.len, FALSE);
+                        e100_header_ver.offset, e100_header_ver.len, ENC_BIG_ENDIAN);
                 proto_tree_add_item(e100_tree, hf_e100_port, tvb,
-                        e100_port_recv.offset, e100_port_recv.len, FALSE);
+                        e100_port_recv.offset, e100_port_recv.len, ENC_BIG_ENDIAN);
                 proto_tree_add_item(e100_tree, hf_e100_seq, tvb,
-                        e100_seq.offset, e100_seq.len, FALSE);
+                        e100_seq.offset, e100_seq.len, ENC_BIG_ENDIAN);
                 proto_tree_add_item(e100_tree, hf_e100_ip, tvb,
                         e100_ip.offset, e100_ip.len, FALSE);
                 proto_tree_add_item(e100_tree, hf_e100_mon_pkt_id, tvb,
-                        e100_mon_pkt_id.offset, e100_mon_pkt_id.len, FALSE);
+                        e100_mon_pkt_id.offset, e100_mon_pkt_id.len, ENC_BIG_ENDIAN);
                 {
                   nstime_t ts;
                   ts.secs = tvb_get_ntohl(tvb, e100_ts.offset);
@@ -109,9 +109,9 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                           e100_ts.offset, e100_ts.len, &ts);
                 }
                 proto_tree_add_item(e100_tree, hf_e100_bytes_cap, tvb,
-                        e100_bytes_cap.offset, e100_bytes_cap.len, FALSE);
+                        e100_bytes_cap.offset, e100_bytes_cap.len, ENC_BIG_ENDIAN);
                 proto_tree_add_item(e100_tree, hf_e100_bytes_orig, tvb,
-                        e100_bytes_orig.offset, e100_bytes_orig.len, FALSE);
+                        e100_bytes_orig.offset, e100_bytes_orig.len, ENC_BIG_ENDIAN);
 
             } /* if(tree) */
             bytes_captured = tvb_get_ntohl(tvb, e100_bytes_cap.offset);

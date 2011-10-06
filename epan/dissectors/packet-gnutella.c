@@ -92,7 +92,7 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		tvb,
 		offset + GNUTELLA_PONG_PORT_OFFSET,
 		GNUTELLA_PORT_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_ip,
@@ -106,14 +106,14 @@ static void dissect_gnutella_pong(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		tvb,
 		offset + GNUTELLA_PONG_FILES_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_pong_kbytes,
 		tvb,
 		offset + GNUTELLA_PONG_KBYTES_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 }
 
@@ -124,7 +124,7 @@ static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree
 		tvb,
 		offset + GNUTELLA_QUERY_SPEED_OFFSET,
 		GNUTELLA_SHORT_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	if (size > GNUTELLA_SHORT_LENGTH) {
 		proto_tree_add_item(tree,
@@ -168,7 +168,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 		tvb,
 		offset + GNUTELLA_QUERYHIT_PORT_OFFSET,
 		GNUTELLA_PORT_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_queryhit_ip,
@@ -182,7 +182,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 		tvb,
 		offset + GNUTELLA_QUERYHIT_SPEED_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	hit_offset = offset + GNUTELLA_QUERYHIT_FIRST_HIT_OFFSET;
 
@@ -237,14 +237,14 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 			tvb,
 			idx_at_offset,
 			GNUTELLA_LONG_LENGTH,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 
 		proto_tree_add_item(hit_tree,
 			hf_gnutella_queryhit_hit_size,
 			tvb,
 			size_at_offset,
 			GNUTELLA_LONG_LENGTH,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 
 		proto_tree_add_item(hit_tree,
 			hf_gnutella_queryhit_hit_name,
@@ -303,7 +303,7 @@ static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		tvb,
 		offset + GNUTELLA_PUSH_INDEX_OFFSET,
 		GNUTELLA_LONG_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_item(tree,
 		hf_gnutella_push_ip,
@@ -317,7 +317,7 @@ static void dissect_gnutella_push(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		tvb,
 		offset + GNUTELLA_PUSH_PORT_OFFSET,
 		GNUTELLA_PORT_LENGTH,
-		TRUE);
+		ENC_LITTLE_ENDIAN);
 
 }
 
@@ -425,14 +425,14 @@ static void dissect_gnutella_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			tvb,
 			GNUTELLA_HEADER_TTL_OFFSET,
 			GNUTELLA_BYTE_LENGTH,
-			FALSE);
+			ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(gnutella_header_tree,
 			hf_gnutella_header_hops,
 			tvb,
 			GNUTELLA_HEADER_HOPS_OFFSET,
 			GNUTELLA_BYTE_LENGTH,
-			FALSE);
+			ENC_BIG_ENDIAN);
 
 		proto_tree_add_uint(gnutella_header_tree,
 			hf_gnutella_header_size,

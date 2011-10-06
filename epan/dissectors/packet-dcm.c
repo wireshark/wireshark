@@ -6382,7 +6382,7 @@ dissect_dcm_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 	    return endpos;
 	}
 
-	proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, FALSE);
+	proto_tree_add_item(pdv_ptree, hf_dcm_pdv_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_dcm_pdv_fragmented(tvb, pinfo, pdv_ptree, assoc, offset, pdv_len, &pdv_description);
@@ -6604,7 +6604,7 @@ dissect_dcm_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint32 off
     offset += 2;
 
     pdu_len = tvb_get_ntohl(tvb, offset);
-    proto_tree_add_item(dcm_ptree, hf_dcm_pdu_len, tvb, offset, 4, FALSE);
+    proto_tree_add_item(dcm_ptree, hf_dcm_pdu_len, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     /* Find previously detected association, else create a new one object*/

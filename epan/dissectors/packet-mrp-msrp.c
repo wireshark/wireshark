@@ -288,11 +288,11 @@ static void
 dissect_msrp_common1(proto_tree *msg_tree, tvbuff_t *tvb, int msg_offset)
 {
     proto_tree_add_item(msg_tree, hf_msrp_attribute_type, tvb,
-                        MSRP_ATTRIBUTE_TYPE_OFFSET + msg_offset, 1, FALSE);
+                        MSRP_ATTRIBUTE_TYPE_OFFSET + msg_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msg_tree, hf_msrp_attribute_length, tvb,
-                        MSRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset, 1, FALSE);
+                        MSRP_ATTRIBUTE_LENGTH_OFFSET + msg_offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(msg_tree, hf_msrp_attribute_list_length, tvb,
-                        MSRP_ATTRIBUTE_LIST_LENGTH_OFFSET + msg_offset, 2, FALSE);
+                        MSRP_ATTRIBUTE_LIST_LENGTH_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
 }
 
 
@@ -328,15 +328,15 @@ dissect_msrp_talker_common(proto_tree *first_value_tree, tvbuff_t *tvb, int msg_
     proto_tree_add_item(first_value_tree, hf_msrp_stream_da, tvb,
                         MSRP_STREAM_DA_OFFSET + msg_offset, 6, FALSE);
     proto_tree_add_item(first_value_tree, hf_msrp_vlan_id, tvb,
-                        MSRP_VLAN_ID_OFFSET + msg_offset, 2, FALSE);
+                        MSRP_VLAN_ID_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(first_value_tree, hf_msrp_tspec_max_frame_size, tvb,
-                        MSRP_TSPEC_MAX_FRAME_SIZE_OFFSET + msg_offset, 2, FALSE);
+                        MSRP_TSPEC_MAX_FRAME_SIZE_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(first_value_tree, hf_msrp_tspec_max_interval_frames, tvb,
-                        MSRP_TSPEC_MAX_INTERVAL_FRAMES_OFFSET + msg_offset, 2, FALSE);
+                        MSRP_TSPEC_MAX_INTERVAL_FRAMES_OFFSET + msg_offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_bitmask(first_value_tree, tvb, MSRP_PRIORITY_AND_RANK_OFFSET + msg_offset,
                            hf_msrp_priority_and_rank, ett_priority_and_rank, priority_and_rank_fields, FALSE);
     proto_tree_add_item(first_value_tree, hf_msrp_accumulated_latency, tvb,
-                        MSRP_ACCUMULATED_LATENCY_OFFSET + msg_offset, 4, FALSE);
+                        MSRP_ACCUMULATED_LATENCY_OFFSET + msg_offset, 4, ENC_BIG_ENDIAN);
 }
 
 
@@ -351,9 +351,9 @@ dissect_msrp_talker_failed(proto_tree *first_value_tree, tvbuff_t *tvb, int msg_
 {
 
     proto_tree_add_item(first_value_tree, hf_msrp_failure_bridge_id, tvb,
-                        MSRP_FAILURE_BRIDGE_ID_OFFSET + msg_offset, 8, FALSE);
+                        MSRP_FAILURE_BRIDGE_ID_OFFSET + msg_offset, 8, ENC_BIG_ENDIAN);
     proto_tree_add_item(first_value_tree, hf_msrp_failure_code, tvb,
-                        MSRP_FAILURE_CODE_OFFSET + msg_offset, 1, FALSE);
+                        MSRP_FAILURE_CODE_OFFSET + msg_offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -471,7 +471,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ti = proto_tree_add_item(tree, proto_msrp, tvb, 0, -1, FALSE);
         msrp_tree = proto_item_add_subtree(ti, ett_msrp);
 
-        proto_tree_add_item(msrp_tree, hf_msrp_proto_id, tvb, MSRP_PROTOCOL_VERSION_OFFSET, 1, FALSE);
+        proto_tree_add_item(msrp_tree, hf_msrp_proto_id, tvb, MSRP_PROTOCOL_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
 
         /* MSRP supports multiple MRP Messages per frame.  Handle those Messages in
          * the following while() loop. You will know you are at the end of the list
@@ -560,11 +560,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Add Domain components to First Value tree */
                     proto_tree_add_item(first_value_tree, hf_msrp_sr_class_id, tvb,
-                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset, 1, FALSE);
+                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(first_value_tree, hf_msrp_sr_class_priority, tvb,
-                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + 1, 1, FALSE);
+                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + 1, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item(first_value_tree, hf_msrp_sr_class_vid, tvb,
-                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + 2, 2, FALSE);
+                                        MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + 2, 2, ENC_BIG_ENDIAN);
 
                     /* Decode three packed events. */
                     offset = dissect_msrp_three_packed_event(vect_attr_tree, tvb,
@@ -590,7 +590,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                     /* Decode StreamID */
                     proto_tree_add_item(first_value_tree, hf_msrp_stream_id, tvb,
-                                        MSRP_STREAM_ID_OFFSET + msg_offset + vect_offset, 8, FALSE);
+                                        MSRP_STREAM_ID_OFFSET + msg_offset + vect_offset, 8, ENC_BIG_ENDIAN);
 
                     switch ( attribute_type ) {
                     case MSRP_ATTRIBUTE_TYPE_LISTENER:
@@ -620,11 +620,11 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 vect_offset += vect_attr_len; /* Move to next Vector Attribute, if there is one */
             } /* Multiple VectorAttribute while() */
 
-            proto_tree_add_item(attr_list_tree, hf_msrp_end_mark, tvb, offset, 2, FALSE); /* VectorAttribute EndMark */
+            proto_tree_add_item(attr_list_tree, hf_msrp_end_mark, tvb, offset, 2, ENC_BIG_ENDIAN); /* VectorAttribute EndMark */
 
             msg_offset += msg_length; /* Move to next Message, if there is one */
         } /* Multiple Message while() */
-        proto_tree_add_item(msrp_tree, hf_msrp_end_mark, tvb, offset+2, 2, FALSE); /* Message EndMark */
+        proto_tree_add_item(msrp_tree, hf_msrp_end_mark, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* Message EndMark */
     }
 }
 

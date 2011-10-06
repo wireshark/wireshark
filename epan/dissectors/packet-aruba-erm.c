@@ -81,8 +81,8 @@ dissect_aruba_erm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         ts.secs = tvb_get_ntohl(tvb, 0);
         ts.nsecs = tvb_get_ntohl(tvb,4)*1000;
         proto_tree_add_time(aruba_erm_tree, hf_aruba_erm_time, tvb, 0, 8,&ts);
-        proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_incl_len, tvb, 8, 4, FALSE);
-        proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_orig_len, tvb, 12, 4, FALSE);
+        proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_incl_len, tvb, 8, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(aruba_erm_tree, hf_aruba_erm_orig_len, tvb, 12, 4, ENC_BIG_ENDIAN);
     }
 
     eth_tvb = tvb_new_subset_remaining(tvb, 16);

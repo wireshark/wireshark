@@ -222,20 +222,20 @@ dissect_dsi_open_session(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset, gint 
 	while( dsi_length >2 ) {
 
 		type = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_dsi_open_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		len = tvb_get_guint8(tvb, offset);
-		proto_tree_add_item(tree, hf_dsi_open_len, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_dsi_open_len, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		switch (type) {
 			case 0:
-				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			case 1:
-				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tree, hf_dsi_open_quantum, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			case 2:
-				proto_tree_add_item(tree, hf_dsi_replay_cache_size, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tree, hf_dsi_replay_cache_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			default:
 				proto_tree_add_item(tree, hf_dsi_open_option, tvb, offset, len, ENC_NA);
@@ -262,7 +262,7 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 	ti = proto_tree_add_text(dsi_tree, tvb, offset, -1, "Attention");
 	tree = proto_item_add_subtree(ti, ett_dsi_attn);
 
-	ti = proto_tree_add_item(tree, hf_dsi_attn_flag, tvb, offset, 2, FALSE);
+	ti = proto_tree_add_item(tree, hf_dsi_attn_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(ti, ett_dsi_attn_flag);
 	proto_tree_add_item(tree, hf_dsi_attn_flag_shutdown, tvb, offset, 2, FALSE);
 	proto_tree_add_item(tree, hf_dsi_attn_flag_crash, tvb, offset, 2, FALSE);
@@ -270,9 +270,9 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 	proto_tree_add_item(tree, hf_dsi_attn_flag_reconnect, tvb, offset, 2, FALSE);
 	/* FIXME */
 	if ((flag & 0xf000) != 0x3000)
-		proto_tree_add_item(tree, hf_dsi_attn_flag_time, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_dsi_attn_flag_time, tvb, offset, 2, ENC_BIG_ENDIAN);
 	else
-		proto_tree_add_item(tree, hf_dsi_attn_flag_bitmap, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_dsi_attn_flag_bitmap, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	return offset;
 }
@@ -315,7 +315,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	proto_tree_add_text(tree, tvb, offset +AFPSTATUS_ICONOFF, 2, "Icon offset: %d", ofs);
 
 	ofs = offset +AFPSTATUS_FLAGOFF;
-	ti = proto_tree_add_item(tree, hf_dsi_server_flag, tvb, ofs, 2, FALSE);
+	ti = proto_tree_add_item(tree, hf_dsi_server_flag, tvb, ofs, 2, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(ti, ett_dsi_status_server_flag);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_copyfile      , tvb, ofs, 2, FALSE);
 	proto_tree_add_item(sub_tree, hf_dsi_server_flag_passwd        , tvb, ofs, 2, FALSE);
@@ -461,9 +461,9 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 			}
 			len -= 2;
 			sub_tree = proto_item_add_subtree(ti,ett_dsi_addr_line);
-			proto_tree_add_item(sub_tree, hf_dsi_server_addr_len, tvb, ofs, 1, FALSE);
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_len, tvb, ofs, 1, ENC_BIG_ENDIAN);
 			ofs++;
-			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, FALSE);
+			proto_tree_add_item(sub_tree, hf_dsi_server_addr_type, tvb, ofs, 1, ENC_BIG_ENDIAN);
 			ofs++;
 			proto_tree_add_item(sub_tree, hf_dsi_server_addr_value,tvb, ofs, len, ENC_NA);
 			ofs += len;

@@ -431,17 +431,17 @@ rs01(tvbuff_t *tvb, proto_tree *tree)
 
 	len = tvb_length(tvb);
 
-	proto_tree_add_item(tree, hf_ipmi_app_01_dev_id, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_01_dev_id, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_app_01_byte2, byte2, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_app_01_byte3, byte3, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_01_fw_rev_min, tvb, 3, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_01_fw_rev_min, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 
-	proto_tree_add_item(tree, hf_ipmi_app_01_ipmi_version, tvb, 4, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_01_ipmi_version, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 
 	proto_tree_add_bitmask_text(tree, tvb, 5, 1, "Additional device support: ", "None",
 			ett_ipmi_app_01_byte6, byte6, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_01_manufacturer, tvb, 6, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_app_01_product, tvb, 9, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_01_manufacturer, tvb, 6, 3, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_app_01_product, tvb, 9, 2, ENC_LITTLE_ENDIAN);
 	if (len > 11) {
 		/* IPMI states that Aux Revision should be displayed in MSB order */
 		proto_tree_add_item(tree, hf_ipmi_app_01_fw_aux, tvb, 11, 4, ENC_NA);
@@ -551,10 +551,10 @@ rq24(tvbuff_t *tvb, proto_tree *tree)
 			byte1, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_app_24_timer_action,
 			byte2, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_24_pretimeout, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_24_pretimeout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Timer Use Expiration flags clear: ", "None",
 			ett_ipmi_app_24_expiration_flags, byte4, TRUE, BMT_NO_TFS);
-	proto_tree_add_item(tree, hf_ipmi_app_24_initial_countdown, tvb, 4, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_24_initial_countdown, tvb, 4, 2, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Watchdog Timer.
@@ -574,11 +574,11 @@ rs25(tvbuff_t *tvb, proto_tree *tree)
 			byte1, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL, ett_ipmi_app_25_timer_action,
 			byte2, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_25_pretimeout, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_25_pretimeout, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Timer Use Expiration flags: ", "None",
 			ett_ipmi_app_25_expiration_flags, byte4, TRUE, BMT_NO_TFS);
-	proto_tree_add_item(tree, hf_ipmi_app_25_initial_countdown, tvb, 4, 2, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_app_25_present_countdown, tvb, 6, 2, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_25_initial_countdown, tvb, 4, 2, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_app_25_present_countdown, tvb, 6, 2, ENC_LITTLE_ENDIAN);
 }
 
 /* Set BMC Global Enables.
@@ -756,8 +756,8 @@ rs38(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 2, 1, NULL, NULL, ett_ipmi_app_38_rs_byte3, byte3, TRUE, BMT_NO_FALSE);
 	proto_tree_add_bitmask_text(tree, tvb, 3, 1, "Supported connections: ", "None",
 			ett_ipmi_app_38_rs_byte4, byte4, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_38_rs_oem_iana, tvb, 4, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_app_38_rs_oem_aux, tvb, 7, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_38_rs_oem_iana, tvb, 4, 3, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_app_38_rs_oem_aux, tvb, 7, 1, ENC_LITTLE_ENDIAN);
 }
 
 /* Get Session Challenge
@@ -775,7 +775,7 @@ rq39(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs39(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_app_39_temp_session, tvb, 0, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_39_temp_session, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_app_39_challenge, tvb, 4, 16, ENC_NA);
 }
 
@@ -798,7 +798,7 @@ rq3a(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
 			ett_ipmi_app_3a_rq_byte2, byte2, TRUE, 0);
 	proto_tree_add_item(tree, hf_ipmi_app_3a_authcode, tvb, 2, 16, ENC_NA);
-	proto_tree_add_item(tree, hf_ipmi_app_3a_outbound_seq, tvb, 18, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_3a_outbound_seq, tvb, 18, 4, ENC_LITTLE_ENDIAN);
 }
 
 static void
@@ -809,8 +809,8 @@ rs3a(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_3a_rs_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_3a_session_id, tvb, 1, 4, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_app_3a_inbound_seq, tvb, 5, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_3a_session_id, tvb, 1, 4, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_app_3a_inbound_seq, tvb, 5, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 9, 1, NULL, NULL,
 			ett_ipmi_app_3a_rs_byte10, byte10, TRUE, 0);
 }
@@ -857,9 +857,9 @@ static const value_string cc3b[] = {
 static void
 rq3c(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_app_3c_session_id, tvb, 0, 4, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_3c_session_id, tvb, 0, 4, ENC_LITTLE_ENDIAN);
 	if (tvb_length(tvb) > 4) {
-		proto_tree_add_item(tree, hf_ipmi_app_3c_session_handle, tvb, 4, 1, TRUE);
+		proto_tree_add_item(tree, hf_ipmi_app_3c_session_handle, tvb, 4, 1, ENC_LITTLE_ENDIAN);
 	}
 }
 

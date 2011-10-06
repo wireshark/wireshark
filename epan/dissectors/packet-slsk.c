@@ -662,7 +662,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 proto_tree_add_uint(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, uncompr_tvb_offset, 4, len);
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_username, uncompr_tvb, uncompr_tvb_offset+4, len, TRUE);
                 uncompr_tvb_offset += 4+len;
-                proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, TRUE);
+                proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
                 i=0; j = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
                 proto_tree_add_uint_format(slsk_compr_packet_tree, hf_slsk_integer, uncompr_tvb, uncompr_tvb_offset, 4, j,
@@ -963,7 +963,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint_format(slsk_tree, hf_slsk_message_code, tvb, offset, 4, msg_code,
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
-          proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, TRUE);
+          proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
           len = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
@@ -998,9 +998,9 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           offset += 4+len;
           proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, FALSE);
           offset += 4;
-          proto_tree_add_item(slsk_tree, hf_slsk_port, tvb, offset, 4, TRUE);
+          proto_tree_add_item(slsk_tree, hf_slsk_port, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
-          proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, TRUE);
+          proto_tree_add_item(slsk_tree, hf_slsk_token, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
         }
       break;

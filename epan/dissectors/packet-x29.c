@@ -142,7 +142,7 @@ dissect_x29(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset++;
 			if (error_type != 0) {
 				proto_tree_add_item(x29_tree, hf_inv_msg_code,
-				    tvb, offset, 1, FALSE);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 			break;
 

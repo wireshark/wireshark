@@ -4795,25 +4795,25 @@ fTagHeaderTree (tvbuff_t *tvb, proto_tree *tree, guint offset,
 					"Extended Tag Number");
 			proto_tree_add_item(subtree,
 				hf_BACnetExtendedTagNumber,
-				tvb, offset + 1, 1, FALSE);
+				tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 		} else {
 			if (tag_is_context_specific(tag))
 				proto_tree_add_item(subtree,
 					hf_BACnetContextTagNumber,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 			else
 				proto_tree_add_item(subtree,
 					hf_BACnetApplicationTagNumber,
-					tvb, offset, 1, FALSE);
+					tvb, offset, 1, ENC_BIG_ENDIAN);
 		}
 		if (tag_is_closing(tag) || tag_is_opening(tag))
 			proto_tree_add_item(subtree,
 				hf_BACnetNamedTag,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 		else if (tag_is_extended_value(tag)) {
 			proto_tree_add_item(subtree,
 				hf_BACnetNamedTag,
-				tvb, offset, 1, FALSE);
+				tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_uint(subtree, hf_bacapp_tag_lvt,
 				tvb, lvt_offset, lvt_len, *lvt);
 		} else
@@ -5424,8 +5424,8 @@ fObjectIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	offset += tag_length;
-	proto_tree_add_item(subtree, hf_bacapp_objectType, tvb, offset, 4, FALSE);
-	proto_tree_add_item(subtree, hf_bacapp_instanceNumber, tvb, offset, 4, FALSE);
+	proto_tree_add_item(subtree, hf_bacapp_objectType, tvb, offset, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_bacapp_instanceNumber, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;
@@ -5684,7 +5684,7 @@ fPropertyIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint 
 	subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 	fTagHeaderTree (tvb, subtree, offset, &tag_no, &tag_info, &lvt);
 	proto_tree_add_item(subtree, hf_BACnetPropertyIdentifier, tvb,
-		offset+tag_len, lvt, FALSE);
+		offset+tag_len, lvt, ENC_BIG_ENDIAN);
 
 	return offset+tag_len+lvt;
 }
@@ -5795,7 +5795,7 @@ fCharacterString (tvbuff_t *tvb, proto_tree *tree, guint offset, const gchar *la
 		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 
 		fTagHeaderTree (tvb, subtree, start, &tag_no, &tag_info, &lvt);
-		proto_tree_add_item(subtree, hf_BACnetCharacterSet, tvb, start+offs, 1, FALSE);
+		proto_tree_add_item(subtree, hf_BACnetCharacterSet, tvb, start+offs, 1, ENC_BIG_ENDIAN);
 
 		if (character_set == 1) {
 		    proto_tree_add_text(subtree, tvb, start+offs+1, 2, "Code Page: %d", tvb_get_ntohs(tvb, start+offs+1));
@@ -6448,7 +6448,7 @@ fVendorIdentifier (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint of
 	}
 
 	proto_tree_add_item(subtree, hf_BACnetVendorIdentifier, tvb,
-		offset+tag_len, lvt, FALSE);
+		offset+tag_len, lvt, ENC_BIG_ENDIAN);
 
 	return offset+tag_len+lvt;
 }
@@ -6484,7 +6484,7 @@ fRestartReason (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint offse
 	}
 
 	proto_tree_add_item(subtree, hf_BACnetRestartReason, tvb,
-		offset+tag_len, lvt, FALSE);
+		offset+tag_len, lvt, ENC_BIG_ENDIAN);
 
 	return offset+tag_len+lvt;
 }

@@ -836,7 +836,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			if (tree) {
 				proto_tree_add_item(tree,
 						    hf_vnc_num_security_types,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 
 				for(offset = 1; offset <= num_security_types; offset++){
 					proto_tree_add_item(tree,
@@ -849,7 +849,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			/* Version < 3.007: The server decides the
 			 * authentication type for us to use */
 			proto_tree_add_item(tree, hf_vnc_server_security_type,
-					    tvb, offset, 4, FALSE);
+					    tvb, offset, 4, ENC_BIG_ENDIAN);
 			/* The cast below is possible since in older versions of the protocol the only possible values are 0,1,2 */
 			per_conversation_info->security_type_selected = (guint8)tvb_get_ntohl(tvb, offset);
 			switch(per_conversation_info->security_type_selected) {
@@ -878,7 +878,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 	case VNC_SESSION_STATE_SECURITY_TYPES :
 		col_set_str(pinfo->cinfo, COL_INFO, "Authentication type selected by client");
-		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_vnc_client_security_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		per_conversation_info->security_type_selected =
 			tvb_get_guint8(tvb, offset);
 
@@ -918,7 +918,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC tunneling capabilities supported");
 
-		proto_tree_add_item(tree, hf_vnc_tight_num_tunnel_types, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_vnc_tight_num_tunnel_types, tvb, offset, 4, ENC_BIG_ENDIAN);
 		num_tunnel_types = tvb_get_ntohl(tvb, offset);
 
 		offset += 4;
@@ -928,7 +928,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			 * is 16 bytes, so skip them.
 			 */
 
-			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type, tvb, offset, 16, FALSE);
+			proto_tree_add_item(tree, hf_vnc_tight_tunnel_type, tvb, offset, 16, ENC_BIG_ENDIAN);
 			offset += 16;
 		}
 
@@ -948,7 +948,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	case VNC_SESSION_STATE_TIGHT_AUTH_CAPABILITIES:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication capabilities supported");
 
-		proto_tree_add_item(tree, hf_vnc_tight_num_auth_types, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_vnc_tight_num_auth_types, tvb, offset, 4, ENC_BIG_ENDIAN);
 		num_auth_types = tvb_get_ntohl(tvb, offset);
 		offset += 4;
 
@@ -957,7 +957,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			guint8 *vendor, *signature;
 			for (i = 0; i < 1; i++) {
 				auth_code = tvb_get_ntohl(tvb, offset);
-				proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				vendor = tvb_get_ephemeral_string(tvb, offset, 4);
 				process_vendor(tree, hf_vnc_tight_server_vendor, tvb, offset);
@@ -1019,7 +1019,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 	case VNC_SESSION_STATE_TIGHT_AUTH_TYPE_REPLY:
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC authentication type selected by client");
 		auth_code = tvb_get_ntohl(tvb, offset);
-		proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_vnc_tight_auth_code, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 		switch(auth_code) {
 			case VNC_SECURITY_TYPE_NONE:
@@ -1130,21 +1130,21 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		col_set_str(pinfo->cinfo, COL_INFO, "Server framebuffer parameters");
 
 		proto_tree_add_item(tree, hf_vnc_width, tvb, offset, 2,
-				    FALSE);
+				    ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_height, tvb, offset, 2,
-				    FALSE);
+				    ENC_BIG_ENDIAN);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_server_bits_per_pixel,
-				    tvb, offset, 1, FALSE);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 		vnc_bytes_per_pixel = tvb_get_guint8(tvb, offset)/8;
 		vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_server_depth, tvb, offset,
-				    1, FALSE);
+				    1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_server_big_endian_flag,
@@ -1168,15 +1168,15 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_server_red_shift,
-				    tvb, offset, 1, FALSE);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_server_green_shift,
-				    tvb, offset, 1, FALSE);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_server_blue_shift,
-				    tvb, offset, 1, FALSE);
+				    tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		proto_tree_add_item(tree, hf_vnc_padding,
@@ -1186,7 +1186,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		if(tvb_length_remaining(tvb, offset) > 4) {
 			/* Sometimes the desktop name & length is skipped */
 			proto_tree_add_item(tree, hf_vnc_desktop_name_len,
-					    tvb, offset, 4, FALSE);
+					    tvb, offset, 4, ENC_BIG_ENDIAN);
 			desktop_name_len = tvb_get_ntohl(tvb, offset);
 			offset += 4;
 
@@ -1206,17 +1206,17 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 		col_set_str(pinfo->cinfo, COL_INFO, "TightVNC Interaction Capabilities");
 
 		proto_tree_add_item(tree, hf_vnc_num_server_message_types,
-				    tvb, offset, 2, FALSE);
+				    tvb, offset, 2, ENC_BIG_ENDIAN);
 		per_conversation_info->num_server_message_types = tvb_get_ntohs(tvb, offset);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_num_client_message_types,
-				    tvb, offset, 2, FALSE);
+				    tvb, offset, 2, ENC_BIG_ENDIAN);
 		per_conversation_info->num_client_message_types = tvb_get_ntohs(tvb, offset);
 		offset += 2;
 
 		proto_tree_add_item(tree, hf_vnc_num_encoding_types,
-				    tvb, offset, 2, FALSE);
+				    tvb, offset, 2, ENC_BIG_ENDIAN);
 		per_conversation_info->num_encoding_types = tvb_get_ntohs(tvb, offset);
 		offset += 2;
 
@@ -1263,7 +1263,7 @@ vnc_client_to_server(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	message_type = tvb_get_guint8(tvb, *offset);
 
 	ti = proto_tree_add_item(tree, hf_vnc_client_message_type, tvb,
-				 *offset, 1, FALSE);
+				 *offset, 1, ENC_BIG_ENDIAN);
 
 	vnc_client_message_type_tree =
 		proto_item_add_subtree(ti, ett_vnc_client_message_type);
@@ -1326,7 +1326,7 @@ vnc_server_to_client(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	message_type = tvb_get_guint8(tvb, *offset);
 
 	ti = proto_tree_add_item(tree, hf_vnc_server_message_type, tvb,
-				 *offset, 1, FALSE);
+				 *offset, 1, ENC_BIG_ENDIAN);
 	vnc_server_message_type_tree =
 		proto_item_add_subtree(ti, ett_vnc_server_message_type);
 
@@ -1382,13 +1382,13 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 3; /* Skip over 3 bytes of padding */
 
 	proto_tree_add_item(tree, hf_vnc_client_bits_per_pixel, tvb, *offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 	vnc_bytes_per_pixel = tvb_get_guint8(tvb, *offset)/8;
 	vnc_set_bytes_per_pixel(pinfo, vnc_bytes_per_pixel);
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_client_depth, tvb, *offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 	vnc_depth = tvb_get_guint8(tvb, *offset);
 	vnc_set_depth(pinfo, vnc_depth);
 	*offset += 1;
@@ -1414,15 +1414,15 @@ vnc_client_set_pixel_format(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 2;
 
 	proto_tree_add_item(tree, hf_vnc_client_red_shift, tvb, *offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_client_green_shift, tvb, *offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_client_blue_shift, tvb, *offset,
-			    1, FALSE);
+			    1, ENC_BIG_ENDIAN);
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_padding, tvb, *offset, 3, ENC_NA);
@@ -1459,7 +1459,7 @@ vnc_client_set_encodings(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	for(counter = 1; counter <= number_of_encodings; counter++) {
 		proto_tree_add_item(tree,
 				    hf_vnc_client_set_encodings_encoding_type,
-				    tvb, *offset, 4, FALSE);
+				    tvb, *offset, 4, ENC_BIG_ENDIAN);
 
 		/* Remember the first real encoding as the preferred encoding,
 		 * per xserver/hw/vnc/rfbserver.c:rfbProcessClientNormalMessage().
@@ -1501,19 +1501,19 @@ vnc_client_framebuffer_update_request(tvbuff_t *tvb, packet_info *pinfo,
 	*offset += 1;
 
 	proto_tree_add_item(tree, hf_vnc_update_req_x_pos,
-			    tvb, *offset, 2, FALSE);
+			    tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	proto_tree_add_item(tree, hf_vnc_update_req_y_pos,
-			    tvb, *offset, 2, FALSE);
+			    tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	proto_tree_add_item(tree, hf_vnc_update_req_width, tvb,
-			    *offset, 2, FALSE);
+			    *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	proto_tree_add_item(tree, hf_vnc_update_req_height, tvb,
-			    *offset, 2, FALSE);
+			    *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 }
 
@@ -1551,10 +1551,10 @@ vnc_client_pointer_event(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	proto_tree_add_item(tree, hf_vnc_button_8_pos, tvb, *offset, 1, FALSE);
 	*offset += 1;
 
-	proto_tree_add_item(tree, hf_vnc_pointer_x_pos, tvb, *offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_vnc_pointer_x_pos, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
-	proto_tree_add_item(tree, hf_vnc_pointer_y_pos, tvb, *offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_vnc_pointer_y_pos, tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 }
 
@@ -1572,7 +1572,7 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	text_len = tvb_get_ntohl(tvb, *offset);
 	proto_tree_add_item(tree, hf_vnc_client_cut_text_len, tvb, *offset, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	*offset += 4;
 
 	proto_tree_add_item(tree, hf_vnc_client_cut_text, tvb, *offset,
@@ -1624,26 +1624,26 @@ vnc_server_framebuffer_update(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			proto_item_add_subtree(ti, ett_vnc_rect);
 
 		ti_x = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_x_pos,
-					   tvb, *offset, 2, FALSE);
+					   tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		ti_y = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_y_pos,
-					   tvb, *offset, 2, FALSE);
+					   tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		ti_width = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_width,
-					       tvb, *offset, 2, FALSE);
+					       tvb, *offset, 2, ENC_BIG_ENDIAN);
 		width = tvb_get_ntohs(tvb, *offset);
 		*offset += 2;
 
 		ti_height = proto_tree_add_item(vnc_rect_tree, hf_vnc_fb_update_height,
-						tvb, *offset, 2, FALSE);
+						tvb, *offset, 2, ENC_BIG_ENDIAN);
 		height = tvb_get_ntohs(tvb, *offset);
 		*offset += 2;
 
 		ti = proto_tree_add_item(vnc_rect_tree,
 					 hf_vnc_fb_update_encoding_type,
-					 tvb, *offset, 4, FALSE);
+					 tvb, *offset, 4, ENC_BIG_ENDIAN);
 
 		encoding_type = tvb_get_ntohl(tvb, *offset);
 		*offset += 4;
@@ -1759,17 +1759,17 @@ vnc_extended_desktop_size(tvbuff_t *tvb, gint *offset, proto_tree *tree)
 		ti = proto_tree_add_text(tree, tvb, *offset, 16, "Screen #%u", i);
 		screen_tree = proto_item_add_subtree(ti, ett_vnc_desktop_screen);
 
-		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_id, tvb, *offset, 4, FALSE);
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_id, tvb, *offset, 4, ENC_BIG_ENDIAN);
 		*offset += 4;
-		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_x, tvb, *offset, 2, FALSE);
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_x, tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
-		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_y, tvb, *offset, 2, FALSE);
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_y, tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
-		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_width, tvb, *offset, 2, FALSE);
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_width, tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
-		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_height, tvb, *offset, 2, FALSE);
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_height, tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
-		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_flags, tvb, *offset, 4, FALSE);
+		proto_tree_add_item(screen_tree, hf_vnc_desktop_screen_flags, tvb, *offset, 4, ENC_BIG_ENDIAN);
 		*offset += 4;
 	}
 
@@ -1799,11 +1799,11 @@ vnc_copyrect_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 		      proto_tree *tree, const guint16 width _U_, const guint16 height _U_)
 {
 	proto_tree_add_item(tree, hf_vnc_copyrect_src_x_pos, tvb, *offset,
-			    2, FALSE);
+			    2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	proto_tree_add_item(tree, hf_vnc_copyrect_src_y_pos, tvb, *offset,
-			    2, FALSE);
+			    2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	return 0; /* bytes_needed */
@@ -1822,7 +1822,7 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	VNC_BYTES_NEEDED(4);
 	ti = proto_tree_add_item(tree, hf_vnc_rre_num_subrects, tvb, *offset,
-				 4, FALSE);
+				 4, ENC_BIG_ENDIAN);
 	num_subrects = tvb_get_ntohl(tvb, *offset);
 	*offset += 4;
 
@@ -1855,19 +1855,19 @@ vnc_rre_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 		*offset += bytes_per_pixel;
 
 		proto_tree_add_item(subrect_tree, hf_vnc_rre_subrect_x_pos,
-				    tvb, *offset, 2, FALSE);
+				    tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		proto_tree_add_item(subrect_tree, hf_vnc_rre_subrect_y_pos,
-				    tvb, *offset, 2, FALSE);
+				    tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		proto_tree_add_item(subrect_tree, hf_vnc_rre_subrect_width,
-				    tvb, *offset, 2, FALSE);
+				    tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		proto_tree_add_item(subrect_tree, hf_vnc_rre_subrect_height,
-				    tvb, *offset, 2, FALSE);
+				    tvb, *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 	}
 
@@ -1908,7 +1908,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 			tile_tree = proto_item_add_subtree(tile_item, ett_vnc_hextile_tile);
 
 			ti = proto_tree_add_item(tile_tree, hf_vnc_hextile_subencoding_mask, tvb,
-						 *offset, 1, FALSE);
+						 *offset, 1, ENC_BIG_ENDIAN);
 
 			subencoding_mask_tree =
 				proto_item_add_subtree(ti, ett_vnc_hextile_subencoding_mask);
@@ -1959,7 +1959,7 @@ vnc_hextile_encoding(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 					ti = proto_tree_add_item(tile_tree,
 								 hf_vnc_hextile_num_subrects,
 								 tvb, *offset, 1,
-								 FALSE);
+								 ENC_BIG_ENDIAN);
 					num_subrects = tvb_get_guint8(tvb, *offset);
 					*offset += 1;
 
@@ -2030,7 +2030,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 
 	VNC_BYTES_NEEDED(4);
 	proto_tree_add_item(tree, hf_vnc_zrle_len, tvb, *offset,
-			    4, FALSE);
+			    4, ENC_BIG_ENDIAN);
 	data_len = tvb_get_ntohl(tvb, *offset);
 
 	*offset += 4;
@@ -2048,7 +2048,7 @@ vnc_zrle_encoding(tvbuff_t *tvb, packet_info *pinfo _U_, gint *offset,
 				    "Uncompressed ZRLE data");
 
 		ti = proto_tree_add_item(tree, hf_vnc_zrle_subencoding,
-					 uncomp_tvb, uncomp_offset, 1, FALSE);
+					 uncomp_tvb, uncomp_offset, 1, ENC_BIG_ENDIAN);
 		zrle_subencoding_tree =
 			proto_item_add_subtree(ti, ett_vnc_zrle_subencoding);
 
@@ -2398,14 +2398,14 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 1; /* Skip over 1 byte of padding */
 
 	proto_tree_add_item(tree, hf_vnc_colormap_first_color,
-			    tvb, *offset, 2, FALSE);
+			    tvb, *offset, 2, ENC_BIG_ENDIAN);
 	*offset += 2;
 
 	/*  XXX - this is 3 bytes into the tvb, but number_of_colors is set off
 	 *  of 4 bytes in... Bug???
 	 */
 	ti = proto_tree_add_item(tree, hf_vnc_colormap_num_colors, tvb,
-				 *offset, 2, FALSE);
+				 *offset, 2, ENC_BIG_ENDIAN);
 
 	if (number_of_colors > 10000) {
 		expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
@@ -2435,17 +2435,17 @@ vnc_server_set_colormap_entries(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 		proto_tree_add_item(vnc_colormap_color_group,
 				    hf_vnc_colormap_red, tvb,
-				    *offset, 2, FALSE);
+				    *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		proto_tree_add_item(vnc_colormap_color_group,
 				    hf_vnc_colormap_green, tvb,
-				    *offset, 2, FALSE);
+				    *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 
 		proto_tree_add_item(vnc_colormap_color_group,
 				    hf_vnc_colormap_blue, tvb,
-				    *offset, 2, FALSE);
+				    *offset, 2, ENC_BIG_ENDIAN);
 		*offset += 2;
 	}
 	return 0;
@@ -2472,7 +2472,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 
 	text_len = tvb_get_ntohl(tvb, *offset);
 	pi = proto_tree_add_item(tree, hf_vnc_server_cut_text_len, tvb, *offset, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	*offset += 4;
 
 	if (text_len > 100000) {

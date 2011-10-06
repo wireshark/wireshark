@@ -153,7 +153,7 @@ dissect_fcfcs_giel (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         for (i = 0; i < numelem; i++) {
             proto_tree_add_string (tree, hf_fcs_iename, tvb, offset, 8,
                                    tvb_fcwwn_to_str (tvb, offset));
-            proto_tree_add_item (tree, hf_fcs_ietype, tvb, offset+11, 1, 0);
+            proto_tree_add_item (tree, hf_fcs_ietype, tvb, offset+11, 1, ENC_BIG_ENDIAN);
             offset += 12;
         }
     }
@@ -170,7 +170,7 @@ dissect_fcfcs_giet (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                    tvb_fcwwn_to_str (tvb, offset));
         }
         else {
-            proto_tree_add_item (tree, hf_fcs_ietype, tvb, offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_fcs_ietype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -186,7 +186,7 @@ dissect_fcfcs_gdid (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                    tvb_fcwwn_to_str (tvb, offset));
         }
         else {
-            proto_tree_add_item (tree, hf_fcs_iedomainid, tvb, offset+1, 1, 0);
+            proto_tree_add_item (tree, hf_fcs_iedomainid, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -338,11 +338,11 @@ dissect_fcfcs_gpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
                                        tvb_fcwwn_to_str (tvb, offset));
                 proto_tree_add_item (tree, hf_fcs_portmodtype, tvb, offset+9,
-                                     1, 0);
+                                     1, ENC_BIG_ENDIAN);
                 proto_tree_add_item (tree, hf_fcs_porttxtype, tvb, offset+10,
-                                     1, 0);
+                                     1, ENC_BIG_ENDIAN);
                 proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+11,
-                                     1, 0);
+                                     1, ENC_BIG_ENDIAN);
                 offset += 12;
             }
         }
@@ -360,7 +360,7 @@ dissect_fcfcs_gpt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                    tvb_fcwwn_to_str (tvb, offset));
         }
         else {
-            proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+3, 1, 0);
+            proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -404,7 +404,7 @@ dissect_fcfcs_gapnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 proto_tree_add_item (tree, hf_fcs_portflags, tvb, offset+10,
                                      1, 0);
                 proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+11,
-                                     1, 0);
+                                     1, ENC_BIG_ENDIAN);
                 offset += 12;
             }
         }
@@ -422,8 +422,8 @@ dissect_fcfcs_gps (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                    tvb_fcwwn_to_str (tvb, offset));
         }
         else {
-            proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+3, 1, 0);
-            proto_tree_add_item (tree, hf_fcs_portstate, tvb, offset+7, 1, 0);
+            proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+3, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (tree, hf_fcs_portstate, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -473,7 +473,7 @@ dissect_fcfcs_gplt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
         }
         else {
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -591,7 +591,7 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256, 4,
-                                 0);
+                                 ENC_BIG_ENDIAN);
             numelem = tvb_get_ntohl (tvb, offset+260);
             proto_tree_add_text (tree, tvb, offset+260, 4,
                                  "Number of Mgmt. Addr Entries: %d", numelem);
@@ -652,7 +652,7 @@ dissect_fcfcs_rplt (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_item (tree, hf_fcs_platformname, tvb, offset+1,
                                  len, ENC_NA);
             proto_tree_add_item (tree, hf_fcs_platformtype, tvb, offset+256,
-                                 4, 0);
+                                 4, ENC_BIG_ENDIAN);
         }
     }
 }
@@ -736,7 +736,7 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
     if (tree) {
         if (!isreq) {
             numrec = tvb_get_ntohl (tvb, offset);
-            proto_tree_add_item (tree, hf_fcs_numcap, tvb, offset, 4, 0);
+            proto_tree_add_item (tree, hf_fcs_numcap, tvb, offset, 4, ENC_BIG_ENDIAN);
 
             offset += 4;
             for (i = 0; i < numrec; i++) {
@@ -745,14 +745,14 @@ dissect_fcfcs_gcap (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                      1, subtype);
 
                 proto_tree_add_item (tree, hf_fcs_vnd_capmask, tvb, offset+1,
-                                     3, 0);
+                                     3, ENC_BIG_ENDIAN);
                 if (subtype == FCCT_GSSUBTYPE_FCS) {
                     proto_tree_add_item (tree, hf_fcs_fcsmask, tvb, offset+4,
-                                         4, 0);
+                                         4, ENC_BIG_ENDIAN);
                 }
                 else if (subtype == FCCT_GSSUBTYPE_UNS) {
                     proto_tree_add_item (tree, hf_fcs_unsmask, tvb, offset+4,
-                                         4, 0);
+                                         4, ENC_BIG_ENDIAN);
                 }
                 offset += 8;
             }
@@ -766,10 +766,10 @@ dissect_fcfcs_rjt (tvbuff_t *tvb, proto_tree *tree)
     int offset = 0;
 
     if (tree) {
-        proto_tree_add_item (tree, hf_fcs_reason, tvb, offset+13, 1, 0);
+        proto_tree_add_item (tree, hf_fcs_reason, tvb, offset+13, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_fcs_rjtdetail, tvb, offset+14, 1,
-                             0);
-        proto_tree_add_item (tree, hf_fcs_vendor, tvb, offset+15, 1, 0);
+                             ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_fcs_vendor, tvb, offset+15, 1, ENC_BIG_ENDIAN);
     }
 
 }
@@ -901,9 +901,9 @@ dissect_fcfcs (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 
     if (tree) {
-        proto_tree_add_item (fcfcs_tree, hf_fcs_opcode, tvb, offset+8, 2, 0);
+        proto_tree_add_item (fcfcs_tree, hf_fcs_opcode, tvb, offset+8, 2, ENC_BIG_ENDIAN);
         proto_tree_add_item (fcfcs_tree, hf_fcs_maxres_size, tvb, offset+10,
-                             2, 0);
+                             2, ENC_BIG_ENDIAN);
     }
 
     switch (opcode) {

@@ -169,11 +169,11 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 
 		/* priority */
 		proto_tree_add_item(tree, hf_priority, setup_tvb, offset, 2,
-		    TRUE);
+		    ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* class */
-		proto_tree_add_item(tree, hf_class, setup_tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_class, setup_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* These are in the rest of the data; use "mshdr_tvb", which
@@ -181,7 +181,7 @@ dissect_mailslot_smb(tvbuff_t *mshdr_tvb, tvbuff_t *setup_tvb,
 
 		/* size */
 		/* this is actually bytecount in the SMB Transaction command */
-		proto_tree_add_item(tree, hf_size, mshdr_tvb, offset, 2, TRUE);
+		proto_tree_add_item(tree, hf_size, mshdr_tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
 
 		/* mailslot name */

@@ -474,7 +474,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	case MF_AUTH_EXT:
 	case FH_AUTH_EXT:
 	  /* All these extensions look the same.  4 byte SPI followed by a key */
-	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset+4, ext_len-4,
 						  ENC_NA);
 	  break;
@@ -493,7 +493,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
 	  offset+=2;
 	  /* SPI */
-	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  /* Key */
 	  proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset + 4,
 						  ext_len - 4, ENC_NA);
@@ -509,27 +509,27 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* reserved */
 	  proto_tree_add_uint(ext_flags_tree, hf_mip_rext_reserved, tvb, offset, 2, flags);
 	  /* registration revocation timestamp */
-	  proto_tree_add_item(ext_tree, hf_mip_rext_tstamp, tvb, offset + 2, 4, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_rext_tstamp, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
 	  break;
 	case DYN_HA_EXT:      /* RFC 4433 */
 	  /* subtype */
-	  proto_tree_add_item(ext_tree, hf_mip_dhaext_stype, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_dhaext_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  /* Home Agent */
 	  proto_tree_add_item(ext_tree, hf_mip_dhaext_addr, tvb, offset + 1, 4, FALSE);
 	  break;
 	case MSG_STR_EXT:
 	  /* sub-type */
-	  proto_tree_add_item(ext_tree, hf_mip_mstrext_stype, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_mstrext_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	  /* text */
 	  proto_tree_add_item(ext_tree, hf_mip_mstrext_text, tvb, offset + 1, ext_len-1, FALSE);
 	  break;
 	case UDP_TUN_REQ_EXT:   /* RFC 3519 */
 	  /* sub-type */
-	  proto_tree_add_item(ext_tree, hf_mip_utrqext_stype, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrqext_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	  /* reserved 1 */
-	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved1, tvb, offset + 1, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved1, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
 	  /* flags */
 	  flags = tvb_get_guint8(tvb, offset + 2);
@@ -541,17 +541,17 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* reserved 2 */
 	  proto_tree_add_uint(ext_flags_tree, hf_mip_utrqext_reserved2, tvb, offset + 2, 1, flags);
 	  /* encapsulation */
-	  proto_tree_add_item(ext_tree, hf_mip_utrqext_encap_type, tvb, offset + 3, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrqext_encap_type, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 
 	  /* reserved 3 */
-	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved3, tvb, offset + 4, 2, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrqext_reserved3, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 	  break;
 	case UDP_TUN_REP_EXT:   /* RFC 3519 */
 	  /* sub-type */
-	  proto_tree_add_item(ext_tree, hf_mip_utrpext_stype, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrpext_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 	  /* code */
-	  proto_tree_add_item(ext_tree, hf_mip_utrpext_code, tvb, offset + 1, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrpext_code, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 
 	  /* flags */
 	  flags = tvb_get_ntohs(tvb, offset+2);
@@ -563,7 +563,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  proto_tree_add_uint(ext_flags_tree, hf_mip_utrpext_reserved, tvb, offset + 2, 2, flags);
 
 	  /* keepalive interval */
-	  proto_tree_add_item(ext_tree, hf_mip_utrpext_keepalive, tvb, offset + 4, 2, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_utrpext_keepalive, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 	  break;
 	case PMIPv4_NON_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
 	  /* sub-type */
@@ -574,7 +574,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  offset+=2;
 	  if(ext_subtype == 1){
 	    /* Sub-type == 1 : PMIPv4 Per-Node Authentication Method */
-	    proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_pernodeauthmethod, tvb, offset, 1, FALSE);
+	    proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_pernodeauthmethod, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  }
  	  break;
 	case PMIPv4_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
@@ -609,20 +609,20 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	   * Very nasty . . breaks normal extensions, since the length is
 	   * in the wrong place :(
 	   */
-	  proto_tree_add_item(ext_tree, hf_mip_cvse_reserved, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_cvse_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  offset++;
 	  proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
 	  offset+=2;
 	  /* Vendor/Org ID */
 	  /*Vendor ID & cvse type & cvse value are included in ext_len, so do not increment offset for them here.*/
 	  cvse_local_offset = offset;
-      proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_org_id, tvb, cvse_local_offset, 4, FALSE);
+      proto_tree_add_item(ext_tree, hf_mip_cvse_vendor_org_id, tvb, cvse_local_offset, 4, ENC_BIG_ENDIAN);
 	  cvse_vendor_id = tvb_get_ntohl(tvb, cvse_local_offset);
 	  cvse_local_offset+=4;
 	  /*Vendor CVSE Type*/
 	  if( cvse_vendor_id == VENDOR_VERIZON ){
  	    /*Verizon CVSE type*/
-           proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, FALSE);
+           proto_tree_add_item(ext_tree, hf_mip_cvse_verizon_cvse_type, tvb, cvse_local_offset, 2, ENC_BIG_ENDIAN);
 	  }
 	  else{
 	    /*CVSE Type of Other vendor, just show raw numbers currently*/
@@ -701,7 +701,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset++;
 
 	  /* lifetime */
-	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, ENC_BIG_ENDIAN);
 	  offset += 2;
 
 	  /* home address */
@@ -739,11 +739,11 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset++;
 
 	  /* Reply Code */
-	  proto_tree_add_item(mip_tree, hf_mip_code, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  offset++;
 
 	  /* Registration Lifetime */
-	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_life, tvb, offset, 2, ENC_BIG_ENDIAN);
 	  offset += 2;
 
 	  /* Home address */
@@ -773,11 +773,11 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset++;
 
 	  /* Next Header */
-	  proto_tree_add_item(mip_tree, hf_mip_nattt_nexthdr, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_nattt_nexthdr, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  offset++;
 
 	  /* reserved */
-	  proto_tree_add_item(mip_tree, hf_mip_nattt_reserved, tvb, offset, 2, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_nattt_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	  offset += 2;
 	} /* if tree */
 	else {
@@ -804,7 +804,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset++;
 
 	  /* reserved */
-	  proto_tree_add_item(mip_tree, hf_mip_rev_reserved, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_rev_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  offset++;
 
 	  /* flags */
@@ -831,7 +831,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 4;
 
 	  /* revocation identifier */
-	  proto_tree_add_item(mip_tree, hf_mip_revid, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_revid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 	} /* if tree */
 	break;
@@ -848,7 +848,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset++;
 
 	  /* reserved */
-	  proto_tree_add_item(mip_tree, hf_mip_ack_reserved, tvb, offset, 1, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_ack_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  offset++;
 
 	  /* flags */
@@ -866,7 +866,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 4;
 
 	  /* revocation identifier */
-	  proto_tree_add_item(mip_tree, hf_mip_revid, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_revid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 	} /* if tree */
 	break;

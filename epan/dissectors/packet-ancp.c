@@ -299,22 +299,22 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
     gint    val;
 
     proto_tree_add_item(ancp_tree, hf_ancp_port, tvb, offset, 4,
-            FALSE);
+            ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(ancp_tree, hf_ancp_port_sess_num, tvb, offset, 4,
-            FALSE);
+            ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(ancp_tree, hf_ancp_evt_seq_num, tvb, offset, 4,
-            FALSE);
+            ENC_BIG_ENDIAN);
     offset += 4;
 
     proto_tree_add_item(ancp_tree, hf_ancp_label, tvb, offset, 8, FALSE);
     offset += 8;
 
     /* Start of the Extension Block */
-    proto_tree_add_item(ancp_tree, hf_ancp_reserved, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
     /*
      * We have already displayed the message type in the common header dissect
@@ -322,21 +322,21 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
      */
     offset += 1; /* Message type in Ext Blk */
 
-    proto_tree_add_item(ancp_tree, hf_ancp_tech_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_tech_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     tech_type = tvb_get_guint8(tvb, offset);
     offset += 1;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_blk_len, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_blk_len, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     if (tech_type == TECH_TYPE_DSL) {
         proto_tree_add_item(ancp_tree, hf_ancp_num_ext_tlvs, tvb,
-                offset, 2, FALSE);
+                offset, 2, ENC_BIG_ENDIAN);
         num_tlvs = tvb_get_ntohs(tvb, offset);
         offset += 2;
 
         sti = proto_tree_add_item(ancp_tree, hf_ancp_len, tvb,
-                offset, 2, FALSE);
+                offset, 2, ENC_BIG_ENDIAN);
         proto_item_append_text(sti, " (Extension Block)");
         offset += 2;
 
@@ -345,12 +345,12 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
 
         for( ;num_tlvs; num_tlvs--) {
             proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_type, tvb,
-                    offset, 2, FALSE);
+                    offset, 2, ENC_BIG_ENDIAN);
             ttype = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
             sti = proto_tree_add_item(tlv_tree, hf_ancp_len, tvb,
-                    offset, 2, FALSE);
+                    offset, 2, ENC_BIG_ENDIAN);
             tlen = tvb_get_ntohs(tvb, offset);
             offset += 2;
 
@@ -368,7 +368,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                     for ( ;num_stlvs; num_stlvs--) {
                         proto_tree_add_item(dsl_tree,
                                 hf_ancp_dsl_line_stlv_type, tvb, offset,
-                                2, FALSE);
+                                2, ENC_BIG_ENDIAN);
                         stlvtype = tvb_get_ntohs(tvb, offset);
                         offset += 2;
                         /* Skip sub-tlv-len display for now */
@@ -377,7 +377,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
 
                         sti = proto_tree_add_item(dsl_tree,
                                 hf_ancp_dsl_line_stlv_value, tvb, offset,
-                                stlvlen, FALSE);
+                                stlvlen, ENC_BIG_ENDIAN);
                         val = tvb_get_ntohl(tvb, offset);
                         offset += stlvlen; /* Except loop-encap, rest are 4B */
 
@@ -416,10 +416,10 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                 case TLV_PING_PARAMS:
                     /* Count (1B) Timeout (1B), 2B empty */
                     proto_tree_add_item(tlv_tree,
-                            hf_ancp_oam_loopb_cnt, tvb, offset, 1, FALSE);
+                            hf_ancp_oam_loopb_cnt, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                     proto_tree_add_item(tlv_tree,
-                            hf_ancp_oam_timeout, tvb, offset, 1, FALSE);
+                            hf_ancp_oam_timeout, tvb, offset, 1, ENC_BIG_ENDIAN);
                     offset += 1;
                     /* Lets not bother about 2B until IETF WG figures out */
                     offset += 2;
@@ -447,7 +447,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     guint16 tlv_len;
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_timer, tvb, offset, 1,
-            FALSE);
+            ENC_BIG_ENDIAN);
     offset += 1;
     proto_item_append_text(sti, " msec");
 
@@ -469,36 +469,36 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     proto_tree_add_item(ancp_tree, hf_ancp_receiver_name, tvb,offset, 6, FALSE);
     offset += 6;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_sender_port, tvb, offset, 4, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_sender_port, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_receiver_port, tvb,offset, 4, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_receiver_port, tvb,offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_p_info, tvb,
-            offset, 1, FALSE);
+            offset, 1, ENC_BIG_ENDIAN);
     byte = tvb_get_guint8(tvb, offset);
     offset += 1;
     proto_item_append_text(sti, " (Type = %d, Flag = %d)",
             byte >> 4, byte & 0x0F);
 
     proto_tree_add_item(ancp_tree, hf_ancp_sender_instance, tvb, offset, 3,
-            FALSE);
+            ENC_BIG_ENDIAN);
     offset += 3;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_p_id, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_p_id, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(ancp_tree, hf_ancp_receiver_instance, tvb, offset, 3,
-            FALSE);
+            ENC_BIG_ENDIAN);
     offset += 3;
 
     proto_tree_add_item(ancp_tree, hf_ancp_tech_type, tvb,
-            offset, 1, FALSE);
+            offset, 1, ENC_BIG_ENDIAN);
     offset += 1;
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_num_tlvs, tvb, offset, 1,
-            FALSE);
+            ENC_BIG_ENDIAN);
     numcaps = tvb_get_guint8(tvb, offset);
     offset += 1;
 
@@ -511,7 +511,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
 
     for ( ;numcaps; numcaps--) {
         sti = proto_tree_add_item(ancp_cap_tree, hf_ancp_cap, tvb,
-                offset, 2, FALSE);
+                offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
         tlv_len = tvb_get_ntohs(tvb, offset);
@@ -580,17 +580,17 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset = 2; /* skip ether type */
 
         proto_tree_add_item(ancp_tree, hf_ancp_len, tvb, offset, 2,
-                FALSE);
+                ENC_BIG_ENDIAN);
         offset += 2;
 
         sti = proto_tree_add_item(ancp_tree, hf_ancp_ver, tvb, offset, 1,
-                FALSE);
+                ENC_BIG_ENDIAN);
         byte = tvb_get_guint8(tvb, offset);
         offset += 1;
         proto_item_append_text(sti, " (%d.%d)", byte >> 4, byte & 0x0F);
 
         sti = proto_tree_add_item(ancp_tree, hf_ancp_mtype, tvb, offset, 1,
-                FALSE);
+                ENC_BIG_ENDIAN);
         mtype = tvb_get_guint8(tvb, offset); /* ANCP message type */
         ancp_info->ancp_mtype = mtype; /* stats */
         offset += 1;
@@ -601,25 +601,25 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (mtype != ANCP_MTYPE_ADJ) {
             /* Dissect common header */
             proto_tree_add_item(ancp_tree, hf_ancp_result, tvb, offset, 1,
-                    FALSE); /* treat as 1B, but dont change offset */
+                    ENC_BIG_ENDIAN); /* treat as 1B, but dont change offset */
 
             proto_tree_add_item(ancp_tree, hf_ancp_code, tvb, offset, 2,
-                    FALSE);
+                    ENC_BIG_ENDIAN);
             offset += 2;
 
             proto_tree_add_item(ancp_tree, hf_ancp_p_id, tvb, offset,
-                    1, FALSE);
+                    1, ENC_BIG_ENDIAN);
             offset += 1;
 
             proto_tree_add_item(ancp_tree, hf_ancp_trans_id, tvb,
-                    offset, 3, FALSE);
+                    offset, 3, ENC_BIG_ENDIAN);
             offset += 3;
 
             proto_tree_add_item(ancp_tree, hf_ancp_i_flag, tvb, offset, 1,
                     FALSE); /* treat as 1B, but dont change offset */
 
             sti = proto_tree_add_item(ancp_tree, hf_ancp_submsg_num, tvb,
-                    offset, 2, FALSE);
+                    offset, 2, ENC_BIG_ENDIAN);
             offset += 2;
 
             /*

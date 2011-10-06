@@ -166,11 +166,11 @@ dissect_rlm(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			16, "Cisco Session Management"); */
 		ti = proto_tree_add_item(tree, proto_rlm, tvb, 0, 8, FALSE);
 		rlm_tree = proto_item_add_subtree(ti, ett_rlm);
-		proto_tree_add_item(rlm_tree, hf_rlm_version, tvb, 0, 1, FALSE);
+		proto_tree_add_item(rlm_tree, hf_rlm_version, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_uint_format(rlm_tree, hf_rlm_type, tvb, 1, 1, rlm_type, "Type: %u (%s)", rlm_type, type_str);
-		proto_tree_add_item(rlm_tree, hf_rlm_unknown, tvb, 2, 2, FALSE);
-		proto_tree_add_item(rlm_tree, hf_rlm_tid, tvb, 4, 2, FALSE);
-		proto_tree_add_item(rlm_tree, hf_rlm_unknown2, tvb, 6, 2, FALSE);
+		proto_tree_add_item(rlm_tree, hf_rlm_unknown, tvb, 2, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rlm_tree, hf_rlm_tid, tvb, 4, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rlm_tree, hf_rlm_unknown2, tvb, 6, 2, ENC_BIG_ENDIAN);
 	}
 
 	return TRUE;

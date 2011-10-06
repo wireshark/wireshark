@@ -404,16 +404,16 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 4; /* skip the YMSG string */
 
 		/* Version */
-		proto_tree_add_item(ymsg_tree, hf_ymsg_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Vendor ID */
-		proto_tree_add_item(ymsg_tree, hf_ymsg_vendor, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_vendor, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Length */
 		content_len = tvb_get_ntohs(tvb, offset);
-		proto_tree_add_item(ymsg_tree, hf_ymsg_len, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Service */
@@ -422,15 +422,15 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		                                  ymsg_service_vals,
 		                                  "Unknown"));
 
-		proto_tree_add_item(ymsg_tree, hf_ymsg_service, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_service, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Status */
-		proto_tree_add_item(ymsg_tree, hf_ymsg_status, tvb, offset, 4, FALSE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_status, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* Session id */
-		proto_tree_add_item(ymsg_tree, hf_ymsg_session_id, tvb, offset, 4, TRUE);
+		proto_tree_add_item(ymsg_tree, hf_ymsg_session_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 
 		/* Contents */

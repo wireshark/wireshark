@@ -470,7 +470,7 @@ dissect_flip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                          "%d", basic_hdr_reserved);
         /* Flow ID: 28 bits. */
         proto_tree_add_item(basic_hdr_tree, hf_flip_basic_flowid,
-                            flip_tvb, offset + 0, 4, FALSE);
+                            flip_tvb, offset + 0, 4, ENC_BIG_ENDIAN);
 
         /* Sequence number: 16 bits. */
         proto_tree_add_uint_format_value(basic_hdr_tree, hf_flip_basic_seqnum,
