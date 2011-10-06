@@ -487,28 +487,28 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, struct e_in6_addr s
     geoip_dst_str = geoip_db_lookup_ipv6(dbnum, dst, NULL);
 
     switch (geoip_db_type(dbnum)) {
-      case GEOIP_COUNTRY_EDITION:
+      case GEOIP_COUNTRY_EDITION_V6:
         geoip_hf = hf_geoip_country;
         geoip_dst_hf = hf_geoip_dst_country;
         break;
 #if NUM_DB_TYPES > 31
-      case GEOIP_CITY_EDITION_REV0:
+      case GEOIP_CITY_EDITION_REV0_V6:
         geoip_hf = hf_geoip_city;
         geoip_dst_hf = hf_geoip_dst_city;
         break;
-      case GEOIP_CITY_EDITION_REV1:
+      case GEOIP_CITY_EDITION_REV1_V6:
         geoip_hf = hf_geoip_city;
         geoip_dst_hf = hf_geoip_dst_city;
         break;
-      case GEOIP_ORG_EDITION:
+      case GEOIP_ORG_EDITION_V6:
         geoip_hf = hf_geoip_org;
         geoip_dst_hf = hf_geoip_dst_org;
         break;
-      case GEOIP_ISP_EDITION:
+      case GEOIP_ISP_EDITION_V6:
         geoip_hf = hf_geoip_isp;
         geoip_dst_hf = hf_geoip_dst_isp;
         break;
-      case GEOIP_ASNUM_EDITION:
+      case GEOIP_ASNUM_EDITION_V6:
         geoip_hf = hf_geoip_asnum;
         geoip_dst_hf = hf_geoip_dst_asnum;
         break;
