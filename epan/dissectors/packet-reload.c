@@ -3108,7 +3108,7 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
       dissect_kindid(hf_reload_kinddata_kind, tvb, instances_per_kindid_tree, offset+local_offset+instances_offset, &kind);
       proto_tree_add_item(instances_per_kindid_tree, hf_reload_diagnosticinfo_instancesstored_instances, tvb, offset+local_offset+instances_offset+4, 8, ENC_BIG_ENDIAN);
       instances = tvb_get_ntoh64(tvb, offset+local_offset+instances_offset+4);
-      proto_item_append_text(ti_instances_per_kindid, ": %s/%ld", kind->name,instances);
+      proto_item_append_text(ti_instances_per_kindid, ": %s/%" G_GINT64_MODIFIER "d", kind->name,instances);
       instances_offset +=12;
       nElements++;
     }
