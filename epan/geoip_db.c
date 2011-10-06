@@ -272,16 +272,19 @@ const char *
 geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
     GeoIP *gi;
     GeoIPRecord *gir;
-    const char *ret = not_found;
+    const char *raw_val, *ret = not_found;
     static char val[VAL_STR_LEN];
 
     gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
     if (gi) {
         switch (gi->databaseType) {
             case GEOIP_COUNTRY_EDITION:
-                g_snprintf(val, VAL_STR_LEN, "%s", GeoIP_country_name_by_ipnum(gi, addr));
-                iso_8859_1_to_utf_8(val);
-                ret = val;
+                raw_val = GeoIP_country_name_by_ipnum(gi, addr);
+                if (raw_val) {
+                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
+                    iso_8859_1_to_utf_8(val);
+                    ret = val;
+                }
                 break;
 
             case GEOIP_CITY_EDITION_REV0:
@@ -301,9 +304,12 @@ geoip_db_lookup_ipv4(guint dbnum, guint32 addr, char *not_found) {
             case GEOIP_ORG_EDITION:
             case GEOIP_ISP_EDITION:
             case GEOIP_ASNUM_EDITION:
-                g_snprintf(val, VAL_STR_LEN, "%s", GeoIP_name_by_ipnum(gi, addr));
-                iso_8859_1_to_utf_8(val);
-                ret = val;
+                raw_val = GeoIP_name_by_ipnum(gi, addr);
+                if (raw_val) {
+                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
+                    iso_8859_1_to_utf_8(val);
+                    ret = val;
+                }
                 break;
 
             case WS_LAT_FAKE_EDITION:
@@ -385,7 +391,7 @@ const char *
 geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
     GeoIP *gi;
     geoipv6_t gaddr;
-    const char *ret = not_found;
+    const char *raw_val, *ret = not_found;
     static char val[VAL_STR_LEN];
 #if NUM_DB_TYPES > 31
     GeoIPRecord *gir;
@@ -397,9 +403,12 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
     if (gi) {
         switch (gi->databaseType) {
             case GEOIP_COUNTRY_EDITION_V6:
-                g_snprintf(val, VAL_STR_LEN, "%s", GeoIP_country_name_by_ipnum_v6(gi, gaddr));
-                iso_8859_1_to_utf_8(val);
-                ret = val;
+                raw_val = GeoIP_country_name_by_ipnum_v6(gi, gaddr);
+                if (raw_val) {
+                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
+                    iso_8859_1_to_utf_8(val);
+                    ret = val;
+                }
                 break;
 
 #if NUM_DB_TYPES > 31
@@ -420,9 +429,12 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
             case GEOIP_ORG_EDITION_V6:
             case GEOIP_ISP_EDITION_V6:
             case GEOIP_ASNUM_EDITION_V6:
-                g_snprintf(val, VAL_STR_LEN, "%s", GeoIP_name_by_ipnum_v6(gi, gaddr));
-                iso_8859_1_to_utf_8(val);
-                ret = val;
+                raw_val = GeoIP_name_by_ipnum_v6(gi, gaddr);
+                if (raw_val) {
+                    g_snprintf(val, VAL_STR_LEN, "%s", raw_val);
+                    iso_8859_1_to_utf_8(val);
+                    ret = val;
+                }
                 break;
 #endif /* NUM_DB_TYPES */
 
