@@ -45,7 +45,7 @@ static int hf_opcua_NodeIdType = -1;
 
 void parseNodeIdType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_NodeIdType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_NodeIdType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** DialogConditionChoice enum table */
 static const value_string g_DialogConditionChoiceTable[] = {
@@ -61,7 +61,7 @@ static int hf_opcua_DialogConditionChoice = -1;
 
 void parseDialogConditionChoice(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_DialogConditionChoice, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_DialogConditionChoice, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** IdType enum table */
 static const value_string g_IdTypeTable[] = {
@@ -75,7 +75,7 @@ static int hf_opcua_IdType = -1;
 
 void parseIdType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_IdType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_IdType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** NodeClass enum table */
 static const value_string g_NodeClassTable[] = {
@@ -94,7 +94,7 @@ static int hf_opcua_NodeClass = -1;
 
 void parseNodeClass(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_NodeClass, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_NodeClass, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** MessageSecurityMode enum table */
 static const value_string g_MessageSecurityModeTable[] = {
@@ -108,7 +108,7 @@ static int hf_opcua_MessageSecurityMode = -1;
 
 void parseMessageSecurityMode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_MessageSecurityMode, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_MessageSecurityMode, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** UserTokenType enum table */
 static const value_string g_UserTokenTypeTable[] = {
@@ -122,7 +122,7 @@ static int hf_opcua_UserTokenType = -1;
 
 void parseUserTokenType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_UserTokenType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_UserTokenType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** ApplicationType enum table */
 static const value_string g_ApplicationTypeTable[] = {
@@ -136,7 +136,7 @@ static int hf_opcua_ApplicationType = -1;
 
 void parseApplicationType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_ApplicationType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_ApplicationType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** SecurityTokenRequestType enum table */
 static const value_string g_SecurityTokenRequestTypeTable[] = {
@@ -148,7 +148,7 @@ static int hf_opcua_SecurityTokenRequestType = -1;
 
 void parseSecurityTokenRequestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_SecurityTokenRequestType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_SecurityTokenRequestType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** ComplianceLevel enum table */
 static const value_string g_ComplianceLevelTable[] = {
@@ -162,7 +162,7 @@ static int hf_opcua_ComplianceLevel = -1;
 
 void parseComplianceLevel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_ComplianceLevel, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_ComplianceLevel, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** AttributeWriteMask enum table */
 static const value_string g_AttributeWriteMaskTable[] = {
@@ -195,7 +195,7 @@ static int hf_opcua_AttributeWriteMask = -1;
 
 void parseAttributeWriteMask(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_AttributeWriteMask, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_AttributeWriteMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** NodeAttributesMask enum table */
 static const value_string g_NodeAttributesMaskTable[] = {
@@ -234,7 +234,7 @@ static int hf_opcua_NodeAttributesMask = -1;
 
 void parseNodeAttributesMask(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_NodeAttributesMask, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_NodeAttributesMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** EnumeratedTestType enum table */
 static const value_string g_EnumeratedTestTypeTable[] = {
@@ -247,7 +247,7 @@ static int hf_opcua_EnumeratedTestType = -1;
 
 void parseEnumeratedTestType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_EnumeratedTestType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_EnumeratedTestType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** BrowseDirection enum table */
 static const value_string g_BrowseDirectionTable[] = {
@@ -260,7 +260,7 @@ static int hf_opcua_BrowseDirection = -1;
 
 void parseBrowseDirection(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_BrowseDirection, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_BrowseDirection, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** BrowseResultMask enum table */
 static const value_string g_BrowseResultMaskTable[] = {
@@ -280,7 +280,7 @@ static int hf_opcua_BrowseResultMask = -1;
 
 void parseBrowseResultMask(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_BrowseResultMask, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_BrowseResultMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** FilterOperator enum table */
 static const value_string g_FilterOperatorTable[] = {
@@ -308,7 +308,7 @@ static int hf_opcua_FilterOperator = -1;
 
 void parseFilterOperator(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_FilterOperator, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_FilterOperator, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** TimestampsToReturn enum table */
 static const value_string g_TimestampsToReturnTable[] = {
@@ -322,7 +322,7 @@ static int hf_opcua_TimestampsToReturn = -1;
 
 void parseTimestampsToReturn(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_TimestampsToReturn, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_TimestampsToReturn, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** HistoryUpdateMode enum table */
 static const value_string g_HistoryUpdateModeTable[] = {
@@ -335,7 +335,7 @@ static int hf_opcua_HistoryUpdateMode = -1;
 
 void parseHistoryUpdateMode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_HistoryUpdateMode, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_HistoryUpdateMode, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** MonitoringMode enum table */
 static const value_string g_MonitoringModeTable[] = {
@@ -348,7 +348,7 @@ static int hf_opcua_MonitoringMode = -1;
 
 void parseMonitoringMode(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_MonitoringMode, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_MonitoringMode, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** DataChangeTrigger enum table */
 static const value_string g_DataChangeTriggerTable[] = {
@@ -361,7 +361,7 @@ static int hf_opcua_DataChangeTrigger = -1;
 
 void parseDataChangeTrigger(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_DataChangeTrigger, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_DataChangeTrigger, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** DeadbandType enum table */
 static const value_string g_DeadbandTypeTable[] = {
@@ -374,7 +374,7 @@ static int hf_opcua_DeadbandType = -1;
 
 void parseDeadbandType(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_DeadbandType, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_DeadbandType, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** RedundancySupport enum table */
 static const value_string g_RedundancySupportTable[] = {
@@ -389,7 +389,7 @@ static int hf_opcua_RedundancySupport = -1;
 
 void parseRedundancySupport(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_RedundancySupport, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_RedundancySupport, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** ServerState enum table */
 static const value_string g_ServerStateTable[] = {
@@ -407,7 +407,7 @@ static int hf_opcua_ServerState = -1;
 
 void parseServerState(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_ServerState, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_ServerState, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** ModelChangeStructureVerbMask enum table */
 static const value_string g_ModelChangeStructureVerbMaskTable[] = {
@@ -422,7 +422,7 @@ static int hf_opcua_ModelChangeStructureVerbMask = -1;
 
 void parseModelChangeStructureVerbMask(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_ModelChangeStructureVerbMask, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_ModelChangeStructureVerbMask, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 /** ExceptionDeviationFormat enum table */
 static const value_string g_ExceptionDeviationFormatTable[] = {
@@ -437,7 +437,7 @@ static int hf_opcua_ExceptionDeviationFormat = -1;
 
 void parseExceptionDeviationFormat(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_ExceptionDeviationFormat, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_ExceptionDeviationFormat, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 
 /** Register enum types. */

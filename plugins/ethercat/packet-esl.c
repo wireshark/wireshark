@@ -201,7 +201,7 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
             proto_tree_add_item(esl_header_tree, hf_esl_alignerror, tvb, offset, 2, TRUE);
             offset+=2;
 
-            proto_tree_add_item(esl_header_tree, hf_esl_timestamp, tvb, offset, 8, TRUE);
+            proto_tree_add_item(esl_header_tree, hf_esl_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);
         }
     }
 }

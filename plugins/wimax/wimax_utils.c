@@ -2007,8 +2007,8 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 							case CST_PKT_CLASS_RULE_USER_PRIORITY:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_user_priority, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_pri_low, tvb, tlv_offset, 1, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_pri_high, tvb, tlv_offset + 1, 1, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_pri_low, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_pri_high, tvb, tlv_offset + 1, 1, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_VLAN_ID:
 								/* add TLV subtree */
@@ -2037,7 +2037,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_classifier_action_rule, tvb, tlv_offset, length, FALSE);
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_classifier_action_rule_bit0, tvb, tlv_offset, 1, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_classifier_action_rule_bit1, tvb, tlv_offset, 1, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_classifier_action_rule_bit1, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_LARGE_CONTEXT_ID:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_large_context_id, tvb, tlv_offset, length, FALSE);
@@ -2396,7 +2396,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 /* 36 reserved */
 			case SFE_RESERVED_36:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_reserved_36, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_reserved_36, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_reserved_36, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 
 			case SFE_SN_FEEDBACK_ENABLED:
@@ -2495,8 +2495,8 @@ void wimax_hmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, gui
 	/* init the local offset */
 	hmac_offset = offset;
 	/* decode and display HMAC Tuple */
-	proto_tree_add_item(hmac_tree, hf_xmac_tuple_rsvd, tvb, hmac_offset, 1, FALSE);
-	proto_tree_add_item(hmac_tree, hf_xmac_tuple_key_seq_num, tvb, hmac_offset, 1, FALSE);
+	proto_tree_add_item(hmac_tree, hf_xmac_tuple_rsvd, tvb, hmac_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hmac_tree, hf_xmac_tuple_key_seq_num, tvb, hmac_offset, 1, ENC_BIG_ENDIAN);
 	hmac_offset++;
 	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, (length-1), ENC_NA);
 }
@@ -2523,15 +2523,15 @@ void wimax_cmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offset, gui
 	/* init the local offset */
 	cmac_offset = offset;
 	/* decode and display CMAC Tuple */
-	proto_tree_add_item(cmac_tree, hf_xmac_tuple_rsvd, tvb, cmac_offset, 1, FALSE);
-	proto_tree_add_item(cmac_tree, hf_xmac_tuple_key_seq_num, tvb, cmac_offset, 1, FALSE);
+	proto_tree_add_item(cmac_tree, hf_xmac_tuple_rsvd, tvb, cmac_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cmac_tree, hf_xmac_tuple_key_seq_num, tvb, cmac_offset, 1, ENC_BIG_ENDIAN);
 	cmac_offset++;
 	if(length > 13)
 	{
 		proto_tree_add_item(cmac_tree, hf_cmac_tuple_bsid, tvb, cmac_offset, 6, FALSE);
 		cmac_offset += 6;
 	}
-	proto_tree_add_item(cmac_tree, hf_packet_number_counter, tvb, cmac_offset, 4, FALSE);
+	proto_tree_add_item(cmac_tree, hf_packet_number_counter, tvb, cmac_offset, 4, ENC_BIG_ENDIAN);
 	cmac_offset += 4;
 	proto_tree_add_item(cmac_tree, hf_cmac_tuple_cmac_value, tvb, cmac_offset, 8, ENC_NA);
 }
@@ -2558,10 +2558,10 @@ void wimax_short_hmac_tuple_decoder(proto_tree *tree, tvbuff_t *tvb, guint offse
 	/* init the local offset */
 	hmac_offset = offset;
 	/* decode and display Short-HMAC Tuple */
-	proto_tree_add_item(hmac_tree, hf_xmac_tuple_rsvd, tvb, hmac_offset, 1, FALSE);
-	proto_tree_add_item(hmac_tree, hf_xmac_tuple_key_seq_num, tvb, hmac_offset, 1, FALSE);
+	proto_tree_add_item(hmac_tree, hf_xmac_tuple_rsvd, tvb, hmac_offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(hmac_tree, hf_xmac_tuple_key_seq_num, tvb, hmac_offset, 1, ENC_BIG_ENDIAN);
 	hmac_offset++;
-	proto_tree_add_item(hmac_tree, hf_packet_number_counter, tvb, hmac_offset, 4, FALSE);
+	proto_tree_add_item(hmac_tree, hf_packet_number_counter, tvb, hmac_offset, 4, ENC_BIG_ENDIAN);
 	hmac_offset += 4;
 	proto_tree_add_item(hmac_tree, hf_hmac_tuple_hmac_digest, tvb, hmac_offset, length - offset - 3, ENC_NA);
 }
@@ -2623,7 +2623,7 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_pkm_version_support, tvb, offset, tlv_len, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_pkm_version_support_bit0, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_pkm_version_support_bit1, tvb, offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_pkm_version_support_reserved, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_pkm_version_support_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_AUTHORIZATION_POLICY_SUPPORT:
 			/* add TLV subtree */
@@ -2631,11 +2631,11 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit0, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit1, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit2, tvb, offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit3, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit3, tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit4, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit5, tvb, offset, 1, FALSE);
 			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit6, tvb, offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit7, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_auth_policy_support_bit7, tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_MESSAGE_AUTHENTICATION_CODE:
 			/* add TLV subtree */
@@ -2655,11 +2655,11 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 			if (include_cor2_changes)
 			{
 				proto_tree_add_item(tlv_tree, hf_snp_mac_mode_bit5, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_snp_mac_mode_reserved1, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_snp_mac_mode_reserved1, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 			else
 			{
-				proto_tree_add_item(tlv_tree, hf_snp_mac_mode_reserved, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_snp_mac_mode_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_PN_WINDOW_SIZE:
@@ -2737,9 +2737,9 @@ void wimax_cryptographic_suite_list_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 			case PKM_ATTR_CRYPTO_SUITE:
 				/* add subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_cryptographic_suite_list_decoder, tree, hf_pkm_msg_crypto_suite, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_cryptographic_suite_list_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
@@ -2859,9 +2859,9 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			case PKM_ATTR_CRYPTO_SUITE:
 				/* add subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_crypto_suite, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_CRYPTO_LIST:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "Cryptographic-Suite List (%u bytes)", tlv_len);
@@ -3211,9 +3211,9 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 			case PKM_ATTR_CRYPTO_SUITE:
 				/* add subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_msg_crypto_suite, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_msb, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_middle, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_crypto_suite_lsb, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
@@ -3348,15 +3348,15 @@ void wimax_vendor_specific_information_decoder(tvbuff_t *tvb, packet_info *pinfo
 		else
 		{
 			/* decode and display the Vendor Specific Info */
-			proto_tree_add_item(tree, hf_common_tlv_vendor_specific_type, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_common_tlv_vendor_specific_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 			if(get_tlv_length_type(&tlv_info) == 0)
 			{	/* single byte TLV length */
-				proto_tree_add_item(tree, hf_common_tlv_vendor_specific_length, tvb, (offset + 1), 1, FALSE);
+				proto_tree_add_item(tree, hf_common_tlv_vendor_specific_length, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 			}
 			else
 			{	/* multiple bytes TLV length */
 				/* display the length of the TLV length with MSB */
-				proto_tree_add_item(tree, hf_common_tlv_vendor_specific_length_size, tvb, (offset + 1), 1, FALSE);
+				proto_tree_add_item(tree, hf_common_tlv_vendor_specific_length_size, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 				if(get_tlv_size_of_length(&tlv_info))
 				{	/* display the multiple byte TLV length */
 					proto_tree_add_text(tree, tvb, (offset + 2), get_tlv_size_of_length(&tlv_info), "Vendor Specific Length: %u", get_tlv_size_of_length(&tlv_info));
@@ -3466,7 +3466,7 @@ guint wimax_common_tlv_encoding_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				/* add subtree */
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_vendor_specific_info_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "MAC Version Encoding (%u byte)", tlv_len);
 				/* decode and display the MAC Version Encoding */
-				proto_tree_add_item(tlv_tree, hf_common_tlv_mac_version, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_common_tlv_mac_version, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case HMAC_TUPLE:	/* Table 348d */
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_vendor_specific_info_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "HMAC Tuple (%u byte(s))", tlv_len);

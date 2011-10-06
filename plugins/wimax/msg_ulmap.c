@@ -1917,16 +1917,16 @@ void dissect_mac_mgmt_msg_ulmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, p
     ulmap_tree = proto_item_add_subtree(ti, ett_ulmap);
 
     /* Decode and display the UL-MAP */
-    proto_tree_add_item(ulmap_tree, hf_ulmap_message_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ulmap_tree, hf_ulmap_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
-    proto_tree_add_item(ulmap_tree, hf_ulmap_reserved, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ulmap_tree, hf_ulmap_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(ulmap_tree, hf_ulmap_ucd_count, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ulmap_tree, hf_ulmap_ucd_count, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(ulmap_tree, hf_ulmap_alloc_start_time, tvb, offset, 4, FALSE);
+    proto_tree_add_item(ulmap_tree, hf_ulmap_alloc_start_time, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(ulmap_tree, hf_ulmap_ofdma_sym, tvb, offset, 1, FALSE);
+    proto_tree_add_item(ulmap_tree, hf_ulmap_ofdma_sym, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* UL-MAP IEs */

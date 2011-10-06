@@ -68,23 +68,23 @@ dissect_dpvreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DPV Request");
       dpvreq_tree = proto_item_add_subtree (it, ett_docsis_dpvreq);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_tranid, tvb, 
-			  0, 2, FALSE);
+			  0, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_dschan, tvb, 
-			  2, 1, FALSE);
+			  2, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_flags, tvb, 
-			  3, 1, FALSE);
+			  3, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_us_sf, tvb, 
-			  4, 4, FALSE);
+			  4, 4, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_n, tvb, 
-			  8, 2, FALSE);
+			  8, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_start, tvb, 
-			  10, 1, FALSE);
+			  10, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_end, tvb, 
-			  11, 1, FALSE);
+			  11, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_ts_start, tvb, 
-			  12, 4, FALSE);
+			  12, 4, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvreq_tree, hf_docsis_dpvreq_ts_end, tvb, 
-			  16, 4, FALSE);
+			  16, 4, ENC_BIG_ENDIAN);
     }
 }
 

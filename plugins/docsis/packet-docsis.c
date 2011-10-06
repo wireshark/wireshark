@@ -199,13 +199,13 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
       len = (tvb_get_guint8 (tvb, pos) & 0x0F);
       if ((((type >> 4) & 0x0F)== 6) && (len == 2))
         {
-          item = proto_tree_add_item(ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
+          item = proto_tree_add_item(ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, ENC_BIG_ENDIAN);
           PROTO_ITEM_SET_HIDDEN(item);
           proto_tree_add_text(ehdr_tree, tvb, pos, 1, "0110 ....  = Unsolicited Grant Sync EHDR Sub-Element" );
         }
       else
-        proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, FALSE);
-      proto_tree_add_item (ehdr_tree, hf_docsis_eh_len, tvb, pos, 1, FALSE);
+        proto_tree_add_item (ehdr_tree, hf_docsis_eh_type, tvb, pos, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (ehdr_tree, hf_docsis_eh_len, tvb, pos, 1, ENC_BIG_ENDIAN);
       switch ((type >> 4) & 0x0F)
         {
         case EH_REQUEST:
@@ -236,21 +236,21 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
             }
         case EH_BP_UP:
           proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ver, tvb, pos + 1, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_bpi_en, tvb, pos + 2, 1,
                                FALSE);
           proto_tree_add_item (ehdr_tree, hf_docsis_toggle_bit, tvb, pos + 2,
                                1, FALSE);
           proto_tree_add_item (ehdr_tree, hf_docsis_sid, tvb, pos + 2, 2,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_mini_slots, tvb, pos + 4,
-                               1, FALSE);
+                               1, ENC_BIG_ENDIAN);
           if (isfrag)
             {
               proto_tree_add_item (ehdr_tree, hf_docsis_frag_rsvd, tvb, pos+5,
-                                  1, FALSE);
+                                  1, ENC_BIG_ENDIAN);
               proto_tree_add_item (ehdr_tree, hf_docsis_frag_first, tvb, pos+5,
                                   1, FALSE);
               proto_tree_add_item (ehdr_tree, hf_docsis_frag_last, tvb, pos+5,
@@ -261,34 +261,34 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
           break;
         case EH_BP_DOWN:
           proto_tree_add_item (ehdr_tree, hf_docsis_key_seq, tvb, pos + 1, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_ver, tvb, pos + 1, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_bpi_en, tvb, pos + 2, 1,
                                FALSE);
           proto_tree_add_item (ehdr_tree, hf_docsis_toggle_bit, tvb, pos + 2,
                                1, FALSE);
           proto_tree_add_item (ehdr_tree, hf_docsis_said, tvb, pos + 2, 2,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (ehdr_tree, hf_docsis_reserved, tvb, pos + 4, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           break;
         case EH_SFLOW_HDR_DOWN:
         case EH_SFLOW_HDR_UP:
           val = tvb_get_guint8 (tvb, pos+1);
           if (val == 0)
           {
-            item = proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
+            item = proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, ENC_BIG_ENDIAN);
                 PROTO_ITEM_SET_HIDDEN(item);
             proto_tree_add_text (ehdr_tree, tvb, pos+1, 1, "0000 0000 = No PHS on current packet" );
           }
           else
-            proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, FALSE);
+            proto_tree_add_item(ehdr_tree, hf_docsis_ehdr_phsi, tvb, pos+1, 1, ENC_BIG_ENDIAN);
 
           if (len == 2)
           {
             proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_qind, tvb, pos+2, 1, FALSE);
-            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_grants, tvb, pos+2, 1, FALSE);
+            proto_tree_add_item (ehdr_tree, hf_docsis_ehdr_grants, tvb, pos+2, 1, ENC_BIG_ENDIAN);
           }
           break;
         default:
@@ -402,39 +402,39 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       docsis_tree = proto_item_add_subtree (ti, ett_docsis);
 
 /* add an item to the subtree, see section 1.6 for more information */
-      proto_tree_add_item (docsis_tree, hf_docsis_fctype, tvb, 0, 1, FALSE);
+      proto_tree_add_item (docsis_tree, hf_docsis_fctype, tvb, 0, 1, ENC_BIG_ENDIAN);
       switch (fctype)
         {
         case FCTYPE_PACKET:
         case FCTYPE_ATMPDU:
         case FCTYPE_RESRVD:
           proto_tree_add_item (docsis_tree, hf_docsis_fcparm, tvb, 0, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (docsis_tree, hf_docsis_ehdron, tvb, 0, 1,
                                FALSE);
           if (ehdron == 0x01)
             {
               proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               dissect_ehdr (tvb, docsis_tree, isfrag);
               proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
-                                   4 + mac_parm, 2, FALSE);
+                                   4 + mac_parm, 2, ENC_BIG_ENDIAN);
             }
           else
             {
               proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
             }
           break;
         case FCTYPE_MACSPC:
           proto_tree_add_item (docsis_tree, hf_docsis_machdr_fcparm, tvb, 0,
-                               1, FALSE);
+                               1, ENC_BIG_ENDIAN);
           proto_tree_add_item (docsis_tree, hf_docsis_ehdron, tvb, 0, 1,
                                FALSE);
           /* Decode for a Request Frame.  No extended header */
@@ -445,7 +445,7 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
               proto_tree_add_uint (docsis_tree, hf_docsis_sid, tvb, 2, 2,
                                    len_sid);
               proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               break;
             }
           /* Check if this is a fragmentation header */
@@ -458,31 +458,31 @@ dissect_docsis (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
             {
               proto_item_append_text (ti, " (Concatenated Header)");
               proto_tree_add_item (docsis_tree, hf_docsis_concat_cnt, tvb, 1,
-                                   1, FALSE);
+                                   1, ENC_BIG_ENDIAN);
               proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               break;
             }
           /* If Extended header is present then decode it */
           if (ehdron == 0x01)
             {
               proto_tree_add_item (docsis_tree, hf_docsis_ehdrlen, tvb, 1, 1,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-                                   FALSE);
+                                   ENC_BIG_ENDIAN);
               dissect_ehdr (tvb, docsis_tree, isfrag);
               proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb,
-                                   4 + mac_parm, 2, FALSE);
+                                   4 + mac_parm, 2, ENC_BIG_ENDIAN);
               break;
             }
           /* default case for all other Mac Frame Types */
           proto_tree_add_item (docsis_tree, hf_docsis_macparm, tvb, 1, 1,
-                               FALSE);
+                               ENC_BIG_ENDIAN);
           proto_tree_add_item (docsis_tree, hf_docsis_lensid, tvb, 2, 2,
-                               FALSE);
-          proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2, FALSE);
+                               ENC_BIG_ENDIAN);
+          proto_tree_add_item (docsis_tree, hf_docsis_hcs, tvb, 4, 2, ENC_BIG_ENDIAN);
           break;
         }
     }

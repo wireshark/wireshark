@@ -364,7 +364,7 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 		/* add MAC ARQ Feedback subtree */
 		arq_feedback_tree = proto_item_add_subtree(arq_feedback_item, ett_mac_mgmt_msg_arq_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(arq_feedback_tree, hf_arq_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(arq_feedback_tree, hf_arq_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset += 1;
 
 		while(offset < tvb_len && !arq_last)
@@ -384,12 +384,12 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 			}
 			/* add ARQ Feedback IE subtree */
 			arq_fb_tree = proto_item_add_subtree(arq_fb_item, ett_mac_mgmt_msg_arq_decoder);
-			proto_tree_add_item(arq_fb_tree, hf_arq_cid, tvb, offset, 2, FALSE);
+			proto_tree_add_item(arq_fb_tree, hf_arq_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(arq_fb_tree, hf_arq_last, tvb, offset + 2, 1, FALSE);
-			proto_tree_add_item(arq_fb_tree, hf_arq_ack_type, tvb, offset + 2, 1, FALSE);
-			proto_tree_add_item(arq_fb_tree, hf_arq_bsn, tvb, offset + 2, 2, FALSE);
+			proto_tree_add_item(arq_fb_tree, hf_arq_ack_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(arq_fb_tree, hf_arq_bsn, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 			if (arq_ack_type != ARQ_CUMULATIVE_ACK_ENTRY) {
-				ti = proto_tree_add_item(arq_fb_tree, hf_arq_num_ack_maps, tvb, offset + 3, 1, FALSE);
+				ti = proto_tree_add_item(arq_fb_tree, hf_arq_num_ack_maps, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 				proto_item_append_text(ti, " (%d map(s))", arq_num_ack_maps);
 				offset += 2;
 
@@ -397,26 +397,26 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 					/* Each ACK Map is 16 bits. */
 					offset += 2;
 					if (arq_ack_type != 3) {
-						proto_tree_add_item(arq_fb_tree, hf_arq_selective_map, tvb, offset, 2, FALSE);
+						proto_tree_add_item(arq_fb_tree, hf_arq_selective_map, tvb, offset, 2, ENC_BIG_ENDIAN);
 					} else {
-						proto_tree_add_item(arq_fb_tree, hf_arq_seq_format, tvb, offset, 1, FALSE);
+						proto_tree_add_item(arq_fb_tree, hf_arq_seq_format, tvb, offset, 1, ENC_BIG_ENDIAN);
 						seq_format = (tvb_get_guint8(tvb, offset) & 0x80) >> 7;
 						if (seq_format == 0) {
-							proto_tree_add_item(arq_fb_tree, hf_arq_0seq_ack_map, tvb, offset, 1, FALSE);
-							proto_tree_add_item(arq_fb_tree, hf_arq_0seq1_len, tvb, offset, 2, FALSE);
-							proto_tree_add_item(arq_fb_tree, hf_arq_0seq2_len, tvb, offset, 2, FALSE);
-							proto_tree_add_item(arq_fb_tree, hf_arq_reserved, tvb, offset + 1, 1, FALSE);
+							proto_tree_add_item(arq_fb_tree, hf_arq_0seq_ack_map, tvb, offset, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(arq_fb_tree, hf_arq_0seq1_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+							proto_tree_add_item(arq_fb_tree, hf_arq_0seq2_len, tvb, offset, 2, ENC_BIG_ENDIAN);
+							proto_tree_add_item(arq_fb_tree, hf_arq_reserved, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 						} else {
-							proto_tree_add_item(arq_fb_tree, hf_arq_1seq_ack_map, tvb, offset, 1, FALSE);
-							proto_tree_add_item(arq_fb_tree, hf_arq_1seq1_len, tvb, offset, 1, FALSE);
-							proto_tree_add_item(arq_fb_tree, hf_arq_1seq2_len, tvb, offset + 1, 1, FALSE);
-							proto_tree_add_item(arq_fb_tree, hf_arq_1seq3_len, tvb, offset + 1, 1, FALSE);
+							proto_tree_add_item(arq_fb_tree, hf_arq_1seq_ack_map, tvb, offset, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(arq_fb_tree, hf_arq_1seq1_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(arq_fb_tree, hf_arq_1seq2_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+							proto_tree_add_item(arq_fb_tree, hf_arq_1seq3_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 						}
 					}
 				}
 			} else {
 				/* Number of ACK Maps bits are reserved when ACK TYPE == 1 */
-				proto_tree_add_item(arq_fb_tree, hf_ack_type_reserved, tvb, offset + 3, 1, FALSE);
+				proto_tree_add_item(arq_fb_tree, hf_ack_type_reserved, tvb, offset + 3, 1, ENC_BIG_ENDIAN);
 				/* update the offset */
 				offset += 2;
 			}
@@ -451,11 +451,11 @@ void dissect_mac_mgmt_msg_arq_discard_decoder(tvbuff_t *tvb, packet_info *pinfo 
 		/* add MAC ARQ Discard subtree */
 		arq_discard_tree = proto_item_add_subtree(arq_discard_item, ett_mac_mgmt_msg_arq_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(arq_discard_tree, hf_arq_message_type, tvb, 0, 1, FALSE);
+		proto_tree_add_item(arq_discard_tree, hf_arq_message_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(arq_discard_tree, hf_arq_discard_cid, tvb, 1, 2, FALSE);
-		proto_tree_add_item(arq_discard_tree, hf_arq_discard_reserved, tvb, 3, 1, FALSE);
-		proto_tree_add_item(arq_discard_tree, hf_arq_discard_bsn, tvb, 3, 2, FALSE);
+		proto_tree_add_item(arq_discard_tree, hf_arq_discard_cid, tvb, 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(arq_discard_tree, hf_arq_discard_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(arq_discard_tree, hf_arq_discard_bsn, tvb, 3, 2, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -483,12 +483,12 @@ void dissect_mac_mgmt_msg_arq_reset_decoder(tvbuff_t *tvb, packet_info *pinfo _U
 		/* add MAC ARQ Reset subtree */
 		arq_reset_tree = proto_item_add_subtree(arq_reset_item, ett_mac_mgmt_msg_arq_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(arq_reset_tree, hf_arq_message_type, tvb, 0, 1, FALSE);
+		proto_tree_add_item(arq_reset_tree, hf_arq_message_type, tvb, 0, 1, ENC_BIG_ENDIAN);
 
-		proto_tree_add_item(arq_reset_tree, hf_arq_reset_cid, tvb, 1, 2, FALSE);
-		proto_tree_add_item(arq_reset_tree, hf_arq_reset_type, tvb, 3, 1, FALSE);
-		proto_tree_add_item(arq_reset_tree, hf_arq_reset_direction, tvb, 3, 1, FALSE);
-		proto_tree_add_item(arq_reset_tree, hf_arq_reset_reserved, tvb, 3, 1, FALSE);
+		proto_tree_add_item(arq_reset_tree, hf_arq_reset_cid, tvb, 1, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(arq_reset_tree, hf_arq_reset_type, tvb, 3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(arq_reset_tree, hf_arq_reset_direction, tvb, 3, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(arq_reset_tree, hf_arq_reset_reserved, tvb, 3, 1, ENC_BIG_ENDIAN);
 	}
 }
 

@@ -67,9 +67,9 @@ dissect_dscrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DSC Response");
       dscrsp_tree = proto_item_add_subtree (it, ett_docsis_dscrsp);
       proto_tree_add_item (dscrsp_tree, hf_docsis_dscrsp_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (dscrsp_tree, hf_docsis_dscrsp_response, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* Call Dissector for Appendix C TLV's */

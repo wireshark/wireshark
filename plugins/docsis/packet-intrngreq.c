@@ -61,11 +61,11 @@ dissect_intrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"Initial Ranging Request");
       intrngreq_tree = proto_item_add_subtree (intrngreq_item, ett_docsis_intrngreq);
       proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_sid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_down_chid, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (intrngreq_tree, hf_docsis_intrngreq_up_chid, tvb, 3,
-			   1, FALSE);
+			   1, ENC_BIG_ENDIAN);
     }
 
 

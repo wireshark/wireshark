@@ -2081,24 +2081,24 @@ void dissect_mac_mgmt_msg_dlmap_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, p
     dlmap_tree = proto_item_add_subtree(ti, ett_dlmap);
 
     /* Decode and display the DL-MAP */
-    proto_tree_add_item(dlmap_tree, hf_dlmap_message_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(dlmap_tree, hf_dlmap_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* PHY Synchronization Field 8.4.5.1 */
     {
         ti = proto_tree_add_text(dlmap_tree, tvb, offset, 4, "Phy Synchronization Field");
         phy_tree = proto_item_add_subtree(ti, ett_275_phy);
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset, 1, FALSE);
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset, 1, FALSE);
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur, tvb, offset, 1, FALSE);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset, 3, FALSE);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset, 3, ENC_BIG_ENDIAN);
         offset += 3;
     }
-    proto_tree_add_item(dlmap_tree, hf_dlmap_dcd, tvb, offset, 1, FALSE);
+    proto_tree_add_item(dlmap_tree, hf_dlmap_dcd, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(dlmap_tree, hf_dlmap_bsid, tvb, offset, 6, ENC_NA);
     offset += 6;
-    proto_tree_add_item(dlmap_tree, hf_dlmap_ofdma_sym, tvb, offset, 1, FALSE);
+    proto_tree_add_item(dlmap_tree, hf_dlmap_ofdma_sym, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* DL-MAP IEs */
@@ -2157,23 +2157,23 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
     tree = proto_item_add_subtree(ti, ett_305);
 
     /* decode dlmap fields */
-    proto_tree_add_item(tree, hf_dlmapc_compr,    tvb, offset,   2, FALSE);
-    proto_tree_add_item(tree, hf_dlmapc_ulmap,    tvb, offset,   2, FALSE);
-    proto_tree_add_item(tree, hf_dlmapc_rsv,      tvb, offset,   2, FALSE);
-    proto_tree_add_item(tree, hf_dlmapc_len,      tvb, offset,   2, FALSE);
+    proto_tree_add_item(tree, hf_dlmapc_compr,    tvb, offset,   2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dlmapc_ulmap,    tvb, offset,   2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dlmapc_rsv,      tvb, offset,   2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dlmapc_len,      tvb, offset,   2, ENC_BIG_ENDIAN);
     /* PHY Synchronization Field 8.4.5.1 */
     {
         ti_phy = proto_tree_add_text(tree, tvb, offset+2, 4, "Phy Synchronization Field");
         phy_tree = proto_item_add_subtree(ti_phy, ett_275_phy);
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset+2, 1, FALSE);
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset+2, 1, FALSE);
-        proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset+3, 3, FALSE);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_ms, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fdur_per_sec, tvb, offset+2, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(phy_tree, hf_dlmap_phy_fnum, tvb, offset+3, 3, ENC_BIG_ENDIAN);
     }
-    proto_tree_add_item(tree, hf_dlmap_dcd,       tvb, offset+6, 1, FALSE);
-    proto_tree_add_item(tree, hf_dlmapc_opid,     tvb, offset+7, 1, FALSE);
-    proto_tree_add_item(tree, hf_dlmapc_secid,    tvb, offset+8, 1, FALSE);
-    proto_tree_add_item(tree, hf_dlmap_ofdma_sym, tvb, offset+9, 1, FALSE); /* 2005 */
-    proto_tree_add_item(tree, hf_dlmapc_count,    tvb, offset+10,1, FALSE);
+    proto_tree_add_item(tree, hf_dlmap_dcd,       tvb, offset+6, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dlmapc_opid,     tvb, offset+7, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dlmapc_secid,    tvb, offset+8, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_dlmap_ofdma_sym, tvb, offset+9, 1, ENC_BIG_ENDIAN); /* 2005 */
+    proto_tree_add_item(tree, hf_dlmapc_count,    tvb, offset+10,1, ENC_BIG_ENDIAN);
     dl_ie_count = tvb_get_guint8(tvb, offset + 10);
     offset += 11;
     nib = BYTE_TO_NIB(offset);
@@ -2220,7 +2220,7 @@ gint wimax_decode_dlmapc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *base_tre
         /* calculate the CRC */
         calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
         /* display the CRC */
-        generic_item = proto_tree_add_item(base_tree, hf_mac_header_compress_dlmap_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), FALSE);
+        generic_item = proto_tree_add_item(base_tree, hf_mac_header_compress_dlmap_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), ENC_BIG_ENDIAN);
         if (mac_crc != calculated_crc)
         {
             proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);

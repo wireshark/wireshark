@@ -66,9 +66,9 @@ void registerSecurityLayerTypes(int proto)
  */
 void parseSecurityLayer(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
-    proto_tree_add_item(tree, hf_opcua_security_tokenid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_security_seq, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_security_rqid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_security_tokenid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_security_seq, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_security_rqid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 }
 
 

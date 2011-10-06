@@ -116,8 +116,8 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* add MAC REG-RSP subtree */
 		reg_rsp_tree = proto_item_add_subtree(reg_rsp_item, ett_mac_mgmt_msg_reg_rsp_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_message_type, tvb, offset, 1, FALSE);
-		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_status, tvb, offset + 1, 1, FALSE);
+		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(reg_rsp_tree, hf_reg_rsp_status, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		while (offset < tvb_len)
@@ -171,12 +171,12 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case REG_RSP_SECONDARY_MGMT_CID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_rsp_secondary_mgmt_cid, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 
 				case REG_RSP_TLV_T_36_TOTAL_PROVISIONED_SERVICE_FLOW_DSAs:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_reg_rsp_message_tree, reg_rsp_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_reg_total_provisioned_sf, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 
 				case REG_RSP_TLV_T_24_CID_UPDATE_ENCODINGS:
@@ -203,11 +203,11 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						switch (sub_tlv_type) {
 							case REG_RSP_TLV_T_24_1_CID_UPDATE_ENCODINGS_NEW_CID:
 								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, hf_reg_rsp_new_cid_after_ho, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_reg_rsp_new_cid_after_ho, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
+								proto_tree_add_item(tlv_tree, hf_reg_rsp_new_cid_after_ho, tvb, sub_tlv_offset, sub_tlv_len, ENC_BIG_ENDIAN);
 								break;
 							case REG_RSP_TLV_T_24_2_CID_UPDATE_ENCODINGS_SFID:
 								tlv_tree = add_tlv_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, hf_reg_rsp_service_flow_id, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
-								proto_tree_add_item(tlv_tree, hf_reg_rsp_service_flow_id, tvb, sub_tlv_offset, sub_tlv_len, FALSE);
+								proto_tree_add_item(tlv_tree, hf_reg_rsp_service_flow_id, tvb, sub_tlv_offset, sub_tlv_len, ENC_BIG_ENDIAN);
 								break;
 							case REG_RSP_TLV_T_24_3_CID_UPDATE_ENCODINGS_CONNECTION_INFO:
 								tlv_tree = add_protocol_subtree(&sub_tlv_info, ett_reg_rsp_message_tree, sub_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, sub_tlv_offset, sub_tlv_len, "CID Update Encodings Connection Info (%u byte(s))", tlv_len);
@@ -224,7 +224,7 @@ void dissect_mac_mgmt_msg_reg_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case REG_RSP_TLV_T_28_HO_SYSTEM_RESOURCE_RETAIN_TIME:
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_rsp_decoder, reg_rsp_tree, proto_mac_mgmt_msg_reg_rsp_decoder, tvb, tlv_offset, tlv_len, "System Resource Retain Time (%u byte(s))", tlv_len);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_reg_rsp_system_resource_retain_time, tvb, tlv_offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_reg_rsp_system_resource_retain_time, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 					if (include_cor2_changes) {
 						proto_item_append_text(tlv_item, " (in units of 100 milliseconds)");
 					} else {

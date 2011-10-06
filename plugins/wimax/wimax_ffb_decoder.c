@@ -68,15 +68,15 @@ static void dissect_wimax_ffb_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* get the number of FFBs */
 		num_of_ffbs =  tvb_get_guint8(tvb, offset);
 		/* display the number of FFBs */
-		proto_tree_add_item(ffb_tree, hf_ffb_num_of_ffbs, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(ffb_tree, hf_ffb_num_of_ffbs, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the FFB type */
-		proto_tree_add_item(ffb_tree, hf_ffb_type, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(ffb_tree, hf_ffb_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the FFBs */
 		for(i = 0; i < num_of_ffbs; i++)
 		{
-			proto_tree_add_item(ffb_tree, hf_ffb_subchannel, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(ffb_tree, hf_ffb_symboloffset, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(ffb_tree, hf_ffb_value, tvb, offset++, 1, FALSE);
+			proto_tree_add_item(ffb_tree, hf_ffb_subchannel, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ffb_tree, hf_ffb_symboloffset, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(ffb_tree, hf_ffb_value, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		}
 	}
 }

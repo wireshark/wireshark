@@ -314,8 +314,8 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* add MAC RNG-RSP subtree */
 		rng_rsp_tree = proto_item_add_subtree(rng_rsp_item, ett_mac_mgmt_msg_rng_rsp_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(rng_rsp_tree, hf_rng_rsp_message_type, tvb, offset, 1, FALSE);
-		proto_tree_add_item(rng_rsp_tree, hf_rng_req_reserved, tvb, 1, 1, FALSE);
+		proto_tree_add_item(rng_rsp_tree, hf_rng_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rng_rsp_tree, hf_rng_req_reserved, tvb, 1, 1, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		while(offset < tvb_len)
@@ -361,22 +361,22 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				}
 				case RNG_RSP_RANGING_STATUS:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ranging_status, tvb, tlv_offset, 1, FALSE);
-					ranging_status_item = proto_tree_add_item(sub_tree, hf_rng_rsp_ranging_status, tvb, tlv_offset, 1, FALSE);
+					ranging_status_item = proto_tree_add_item(sub_tree, hf_rng_rsp_ranging_status, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_DL_FREQ_OVERRIDE: {
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_dl_freq_override, tvb, tlv_offset, 4, FALSE);
-					dl_freq_override_item = proto_tree_add_item(sub_tree, hf_rng_rsp_dl_freq_override, tvb, tlv_offset, 4, FALSE);
+					dl_freq_override_item = proto_tree_add_item(sub_tree, hf_rng_rsp_dl_freq_override, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
 					proto_item_append_text(dl_freq_override_item, " kHz");
 					break;
 				}
 				case RNG_RSP_UL_CHANNEL_ID_OVERRIDE:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ul_chan_id_override, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ul_chan_id_override, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ul_chan_id_override, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_DL_OPERATIONAL_BURST_PROFILE:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_dl_operational_burst_profile, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_dl_operational_burst_profile_diuc, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_dl_operational_burst_profile_ccc, tvb, tlv_offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_dl_operational_burst_profile_diuc, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_dl_operational_burst_profile_ccc, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_SS_MAC_ADDRESS:
 					if (tlv_len == 6)
@@ -390,11 +390,11 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_RSP_BASIC_CID:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_basic_cid, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_basic_cid, tvb, tlv_offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_basic_cid, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_PRIMARY_MGMT_CID:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_primary_mgmt_cid, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_primary_mgmt_cid, tvb, tlv_offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_primary_mgmt_cid, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_AAS_BROADCAST_PERMISSION:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_broadcast, tvb, tlv_offset, 1, FALSE);
@@ -402,17 +402,17 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_RSP_FRAME_NUMBER:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_frame_number, tvb, tlv_offset, 3, FALSE);
-					frame_number_item = proto_tree_add_item(sub_tree, hf_rng_rsp_frame_number, tvb, tlv_offset, 3, FALSE);
+					frame_number_item = proto_tree_add_item(sub_tree, hf_rng_rsp_frame_number, tvb, tlv_offset, 3, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_OPPORTUNITY_NUMBER:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_opportunity_number, tvb, tlv_offset, 1, FALSE);
-					opportunity_number_item = proto_tree_add_item(sub_tree, hf_rng_rsp_opportunity_number, tvb, tlv_offset, 1, FALSE);
+					opportunity_number_item = proto_tree_add_item(sub_tree, hf_rng_rsp_opportunity_number, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					if (tvb_get_ntohl(tvb, tlv_offset) == 0)
 						proto_item_append_text(opportunity_number_item, " (may not be 0!)");
 					break;
 				case RNG_RSP_SERVICE_LEVEL_PREDICTION:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_service_level_prediction, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_service_level_prediction, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_service_level_prediction, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_RESOURCE_RETAIN_FLAG:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_resource_retain_flag, tvb, tlv_offset, 1, FALSE);
@@ -447,23 +447,23 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				/* Implemented message encoding 33 (Table 367 in IEEE 802.16e-2007) */
 				case RNG_RSP_DL_OP_BURST_PROFILE_OFDMA:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_dl_op_burst_profile_ofdma, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_least_robust_diuc, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_repetition_coding_indication, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_config_change_count_of_dcd, tvb, tlv_offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_least_robust_diuc, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_repetition_coding_indication, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_config_change_count_of_dcd, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_HO_ID:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ho_id, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_id, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_id, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_LOCATION_UPDATE_RESPONSE:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_location_update_response, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_location_update_response, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_location_update_response, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_PAGING_INFORMATION:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_paging_information, tvb, tlv_offset, 5, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_paging_cycle, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_paging_offset, tvb, tlv_offset+2, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_paging_group_id, tvb, tlv_offset+3, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_paging_cycle, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_paging_offset, tvb, tlv_offset+2, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_paging_group_id, tvb, tlv_offset+3, 2, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_POWER_SAVING_CLASS_PARAMETERS:
 					sub_tree = add_protocol_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, tlv_offset, tlv_len, "Power Saving Class Parameters (%u byte(s))", tlv_len);
@@ -524,10 +524,10 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case RNG_RSP_RANGING_CODE_ATTRIBUTES:
 				/* case SHORT_HMAC_TUPLE: */
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ranging_subchan, tvb, tlv_offset, 4, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_time_symbol_reference, tvb, tlv_offset, 4, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_subchannel_reference, tvb, tlv_offset, 4, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ranging_code_index, tvb, tlv_offset, 4, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_frame_number2, tvb, tlv_offset, 4, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_time_symbol_reference, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_subchannel_reference, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ranging_code_index, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_frame_number2, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
 					break;
 				case SHORT_HMAC_TUPLE_COR2:
 					if (include_cor2_changes) {

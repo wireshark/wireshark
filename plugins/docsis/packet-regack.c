@@ -65,9 +65,9 @@ dissect_regack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"Registration Acknowledge");
       regack_tree = proto_item_add_subtree (it, ett_docsis_regack);
       proto_tree_add_item (regack_tree, hf_docsis_regack_sid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (regack_tree, hf_docsis_regack_response, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* Call Dissector for Appendix C TLV's */

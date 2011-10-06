@@ -83,9 +83,9 @@ static void dissect_ethercat_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree
       ti = proto_tree_add_item(tree, proto_ethercat_frame, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
       ethercat_frame_tree = proto_item_add_subtree(ti, ett_ethercat_frame);
 
-      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_length, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
-      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_reserved, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
-      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_type, tvb, offset, EtherCATFrameParserHDR_Len, TRUE);
+      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_length, tvb, offset, EtherCATFrameParserHDR_Len, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_reserved, tvb, offset, EtherCATFrameParserHDR_Len, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(ethercat_frame_tree, hf_ethercat_frame_type, tvb, offset, EtherCATFrameParserHDR_Len, ENC_LITTLE_ENDIAN);
    }
    hdr.hdr = tvb_get_letohs(tvb, offset);
    offset = EtherCATFrameParserHDR_Len;

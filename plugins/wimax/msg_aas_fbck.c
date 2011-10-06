@@ -118,31 +118,31 @@ void dissect_mac_mgmt_msg_aas_fbck_req_decoder(tvbuff_t *tvb, packet_info *pinfo
 		/* add subtree */
 		aas_fbck_tree = proto_item_add_subtree(aas_fbck_item, ett_mac_mgmt_msg_aas_fbck_req_decoder);
 		/* Display the AAS-FBCK-REQ message type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* Decode and display the AAS-FBCK-REQ message body */
 		/* display the Frame Number */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_frame_number, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* get the data type */
 		data_type = tvb_get_guint8(tvb, offset);
 		/* display the number of Frames */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_number_of_frames, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_number_of_frames, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Data Type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_data_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Feedback Request Counter */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_counter, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Frequency Measurement Resolution */
 		if(data_type & OFDMA_AAS_FBCK_REQ_DATA_TYPE_MASK)
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_1, tvb, offset, 1, FALSE);
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_0, tvb, offset, 1, FALSE);
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_resolution_0, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the reserved fields */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_req_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -167,42 +167,42 @@ void dissect_mac_mgmt_msg_aas_fbck_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo
 		/* add subtree */
 		aas_fbck_tree = proto_item_add_subtree(aas_fbck_item, ett_mac_mgmt_msg_aas_fbck_req_decoder);
 		/* Display the AAS-FBCK-RSP message type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* get the data type */
 		data_type = tvb_get_guint8(tvb, offset);
 		/* Decode and display the AAS-FBCK-RSP message body */
 		/* display the reserved fields */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Data Type */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_data_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_data_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Feedback Request Counter */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_counter, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_counter, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Frequency Measurement Resolution */
 		if(data_type & OFDMA_AAS_FBCK_RSP_DATA_TYPE_MASK)
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_1, tvb, offset, 1, FALSE);
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_0, tvb, offset, 1, FALSE);
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rsp_resolution_0, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		for(; offset < (tvb_len - 2); )
 		{
 			/* display the Frequency Value (real part) */
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_re, tvb, offset, 1, FALSE);
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_re, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* move to next field */
 			offset++;
 			/* display the Frequency Value (imaginary part) */
-			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_im, tvb, offset, 1, FALSE);
+			proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_freq_value_im, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* move to next field */
 			offset++;
 		}
 		/* display the RSSI Mean Value */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rssi_value, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_rssi_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the CINR Mean Value */
-		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_cinr_value, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_fbck_tree, hf_aas_fbck_cinr_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 

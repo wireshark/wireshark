@@ -213,14 +213,14 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_KEY_LIFETIME:
           if (length == 4)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_key_life, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
         case BPKM_KEY_SEQ_NUM:
           if (length == 1)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_key_seq, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
@@ -234,7 +234,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_SAID:
           if (length == 2)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_said, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
@@ -258,7 +258,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_ERROR_CODE:
           if (length == 1)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_error_code, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
@@ -282,7 +282,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_CRYPTO_SUITE:
           if (length == 2)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_crypto_suite, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
@@ -293,7 +293,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_BPI_VERSION:
           if (length == 1)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_bpi_version, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
@@ -308,7 +308,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_SA_TYPE:
           if (length == 1)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_type, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;
@@ -323,7 +323,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_SA_QUERY_TYPE:
           if (length == 1)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_sa_query_type, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;

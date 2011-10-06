@@ -78,7 +78,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint
 	      if (length == 4)
 		{
 		  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_length, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -89,7 +89,7 @@ dissect_dccrsp_cm_jump_time (tvbuff_t * tvb, proto_tree * tree, int start, guint
 	      if (length == 8)
 		{
 	          proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_cm_jump_time_start, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -120,8 +120,8 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					tvb_length_remaining (tvb, 0),
 					"DCC-RSP Message");
       dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccrsp);
-      proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, FALSE);
-      proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, FALSE);
+      proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
+      proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_conf_code, tvb, 2, 1, ENC_BIG_ENDIAN);
 
       pos = 3;
       while (pos < len)
@@ -137,7 +137,7 @@ dissect_dccrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (dcc_tree, hf_docsis_dccrsp_key_seq_num, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{

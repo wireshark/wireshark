@@ -85,7 +85,7 @@ dissect_ds_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       if (length == 1)
         {
           proto_tree_add_item (event_tree, hf_ds_event_ch_id,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_BIG_ENDIAN);
         }
       else
         {
@@ -130,7 +130,7 @@ dissect_us_event(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
       if (length == 1)
         {
           proto_tree_add_item (event_tree, hf_us_event_ch_id,
-                               tvb, pos, length, FALSE);
+                               tvb, pos, length, ENC_BIG_ENDIAN);
         }
       else
         {
@@ -180,7 +180,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
           if (length == 1)
             {
               proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_mute,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -191,7 +191,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
           if (length == 4 || length == 1) /* response TLV always with len 1 */
             {
               proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_mute_timeout,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -202,7 +202,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
           if (length == 1)
             {
               proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_reinit,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -213,7 +213,7 @@ dissect_cmctrl_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
           if (length == 1)
             {
               proto_tree_add_item (tlv_tree, hf_cmctrl_tlv_disable_fwd,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {

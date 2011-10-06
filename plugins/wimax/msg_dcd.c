@@ -364,15 +364,15 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		dcd_tree = proto_item_add_subtree(dcd_item, ett_mac_mgmt_msg_dcd_decoder);
 		/* Decode and display the Downlink Channel Descriptor (DCD) */
 		/* display the Message Type */
-		proto_tree_add_item(dcd_tree, hf_dcd_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dcd_tree, hf_dcd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the Downlink Channel ID */
 		offset++;
 		/* display the Downlink Channel ID */
-		proto_tree_add_item(dcd_tree, hf_dcd_downlink_channel_id, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dcd_tree, hf_dcd_downlink_channel_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the Configuration Change Count */
 		offset++;
 		/* display the Configuration Change Count */
-		proto_tree_add_item(dcd_tree, hf_dcd_config_change_count, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dcd_tree, hf_dcd_config_change_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the TLV Encoded info */
 		offset++;
 		/* process the DCD TLV Encoded information (table 358) */
@@ -408,8 +408,8 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					/* add TLV subtree */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "Downlink_Burst_Profile (DIUC=%u) (%u bytes)", (dl_burst_diuc+1), tlv_len);
 					/* detail display */
-					proto_tree_add_item(tlv_tree, hf_dcd_dl_burst_profile_rsv, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_dl_burst_profile_diuc, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_dl_burst_profile_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_dl_burst_profile_diuc, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/* process subTLVs */
 					for (tlv_offset = 1; tlv_offset < tlv_len;  )
 					{	/* get the TLV information */
@@ -433,32 +433,32 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 								proto_item *tlv_item = NULL;
 
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), 1, FALSE);
-								tlv_item = proto_tree_add_item(sub_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), 1, FALSE);
+								tlv_item = proto_tree_add_item(sub_tree, hf_dcd_burst_freq, tvb, (offset+tlv_offset), 1, ENC_BIG_ENDIAN);
 								proto_item_append_text(tlv_item, " kHz");
 								break;
 							}
 							case DCD_BURST_FEC_CODE_TYPE:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_fec, tvb, (offset+tlv_offset), 1, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_burst_fec, tvb, (offset+tlv_offset), 1, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_burst_fec, tvb, (offset+tlv_offset), 1, ENC_BIG_ENDIAN);
 								break;
 							}
 							case DCD_BURST_DIUC_EXIT_THRESHOLD:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_diuc_exit_threshold, tvb, (offset+tlv_offset), length, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_exit_threshold, tvb, (offset+tlv_offset), length, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_exit_threshold, tvb, (offset+tlv_offset), length, ENC_BIG_ENDIAN);
 								break;
 							}
 							case DCD_BURST_DIUC_ENTRY_THRESHOLD:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_diuc_entry_threshold, tvb, (offset+tlv_offset), length, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_entry_threshold, tvb, (offset+tlv_offset), length, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_burst_diuc_entry_threshold, tvb, (offset+tlv_offset), length, ENC_BIG_ENDIAN);
 								break;
 							}
 							case DCD_BURST_TCS_ENABLE:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_burst_tcs, tvb, (offset+tlv_offset), length, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_burst_tcs, tvb, (offset+tlv_offset), 1, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_burst_tcs, tvb, (offset+tlv_offset), 1, ENC_BIG_ENDIAN);
 								break;
 							}
 							default:
@@ -474,32 +474,32 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_bs_eirp, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_bs_eirp, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_bs_eirp, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " dBm");
 					break;
 				}
 				case DCD_FRAME_DURATION:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_frame_duration, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_frame_duration, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_frame_duration, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_PHY_TYPE:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_phy_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_phy_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_phy_type, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_POWER_ADJUSTMENT:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_power_adjustment, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_power_adjustment, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_power_adjustment, tvb, offset, 1, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_CHANNEL_NR:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_channel_nr, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_channel_nr, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_channel_nr, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TTG:
@@ -507,7 +507,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_ttg, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_ttg, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_ttg, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " PS");
 					break;
 				}
@@ -516,7 +516,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_rtg, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_rtg, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_rtg, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " PS");
 					break;
 				}
@@ -544,7 +544,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_CHANNEL_SWITCH_FRAME_NR:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_channel_switch_frame_nr, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_channel_switch_frame_nr, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_channel_switch_frame_nr, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_FREQUENCY:
@@ -552,7 +552,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_frequency, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_frequency, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_frequency, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " kHz");
 					break;
 				}
@@ -565,13 +565,13 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_FRAME_DURATION_CODE:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_frame_duration_code, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_frame_duration_code, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_frame_duration_code, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_FRAME_NR:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_frame_nr, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_frame_nr, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_frame_nr, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 #ifdef WIMAX_16D_2004
@@ -587,34 +587,34 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_h_arq_ack_delay, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_h_arq_ack_delay, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_h_arq_ack_delay, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " frame offset");
 					break;
 				}
 				case DCD_MAC_VERSION:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_mac_version, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_mac_version, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_mac_version, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_19_PERMUTATION_TYPE_FOR_BROADCAST_REGION_IN_HARQ_ZONE:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_19_permutation_type_for_broadcast_regions_in_harq_zone, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_19_permutation_type_for_broadcast_regions_in_harq_zone, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_19_permutation_type_for_broadcast_regions_in_harq_zone, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_20_MAXIMUM_RETRANSMISSION:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_20_maximum_retransmission, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_20_maximum_retransmission, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_20_maximum_retransmission, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_21_DEFAULT_RSSI_AND_CINR_AVERAGING_PARAMETER:
 				{
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, 1, "Default RSSI and CINR averaging parameter (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_physical_cinr_measurements, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_rssi_measurements, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_physical_cinr_measurements, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_21_default_rssi_and_cinr_averaging_parameter_rssi_measurements, tvb, offset, 1, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_22_DL_AMC_ALLOCATED_PHYSICAL_BANDS_BITMAP:
@@ -628,15 +628,15 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "DL region definition (%u byte(s))", tlv_len);
 					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition, tvb, offset, tlv_len, ENC_NA);
 					dl_num_regions = tvb_get_guint8(tvb, offset);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_region, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_region, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					tlv_offset = offset;
 					for(length = 0; length < dl_num_regions; length++)
 					{
-						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_symbol_offset, tvb, tlv_offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_subchannel_offset, tvb, (tlv_offset+1), 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_symbols, tvb, (tlv_offset+2), 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_subchannels, tvb, (tlv_offset+3), 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_symbol_offset, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_subchannel_offset, tvb, (tlv_offset+1), 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_symbols, tvb, (tlv_offset+2), 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_34_dl_region_definition_num_subchannels, tvb, (tlv_offset+3), 1, ENC_BIG_ENDIAN);
 						tlv_offset += 4;
 					}
 					break;
@@ -644,11 +644,11 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_TLV_T_50_HO_TYPE_SUPPORT:
 				{
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "HO type support (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_ho, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_mdho, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_fbss_ho, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_ho, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_mdho, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_fbss_ho, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_50_ho_type_support_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_31_H_ADD_THRESHOLD:
@@ -656,7 +656,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset, 1, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_31_h_add_threshold, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " dB");
 					break;
 				}
@@ -665,7 +665,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_32_h_delete_threshold, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " dB");
 					break;
 				}
@@ -674,29 +674,29 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, offset, tlv_len, "ASR Slot Length (M) and Switching Period (L) (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr, tvb, offset, 1, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr, tvb, offset, 1, ENC_BIG_ENDIAN);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_m, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " frames");
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_l, tvb, offset, 1, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_33_asr_l, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " frames");
 					break;
 				}
 				case DCD_TLV_T_35_PAGING_GROUP_ID:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_35_paging_group_id, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_35_paging_group_id, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_35_paging_group_id, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_36_TUSC1_PERMUTATION_ACTIVE_SUBCHANNELS_BITMAP:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_36_tusc1_permutation_active_subchannels_bitmap, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_36_tusc1_permutation_active_subchannels_bitmap, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_36_tusc1_permutation_active_subchannels_bitmap, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_37_TUSC2_PERMUTATION_ACTIVE_SUBCHANNELS_BITMAP:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_37_tusc2_permutation_active_subchannels_bitmap, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_37_tusc2_permutation_active_subchannels_bitmap, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_37_tusc2_permutation_active_subchannels_bitmap, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_51_HYSTERSIS_MARGIN:
@@ -704,7 +704,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_51_hysteresis_margin, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " dB");
 					break;
 				}
@@ -713,7 +713,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_52_time_to_trigger_duration, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " ms");
 					break;
 				}
@@ -743,18 +743,18 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 							case DCD_TLV_T_541_TYPE_FUNCTION_ACTION:
 							{	/* table 358b */
 								sub_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, proto_mac_mgmt_msg_dcd_decoder, tvb, (offset + tlv_offset), length, "Trigger; Type/function/action description (%u byte(s))", tlv_len);
-								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_541_type, tvb, (offset + tlv_offset), 1, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_541_function, tvb, (offset + tlv_offset), 1, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_541_action, tvb, (offset + tlv_offset), 1, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_541_type, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_541_function, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_541_action, tvb, (offset + tlv_offset), 1, ENC_BIG_ENDIAN);
 							}
 							break;
 							case DCD_TLV_T542_TRIGGER_VALUE:
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_tlv_t_542_trigger_value, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_542_trigger_value, tvb, (offset + tlv_offset), length, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_542_trigger_value, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case DCD_TLV_T_543_TRIGGER_AVERAGING_DURATION:
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, tlv_tree, hf_dcd_tlv_t_543_trigger_averaging_duration, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_543_trigger_averaging_duration, tvb, (offset + tlv_offset), length, FALSE);
+								proto_tree_add_item(sub_tree, hf_dcd_tlv_t_543_trigger_averaging_duration, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 						}
 						tlv_offset += length;
@@ -764,19 +764,19 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_TLV_T_60_NOISE_AND_INTERFERENCE:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_60_noise_interference, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_60_noise_interference, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_60_noise_interference, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_153_DOWNLINK_BURST_PROFILE_FOR_MULTIPLE_FEC_TYPES:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_153_downlink_burst_profile_for_mutiple_fec_types, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_RESTART_COUNT:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_restart_count, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_restart_count, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_restart_count, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 				case DCD_TLV_T_45_PAGING_INTERVAL_LENGTH:
@@ -786,7 +786,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 						proto_tree_add_text(tlv_tree, tvb, offset, tlv_len,  "Reserved");
 					} else {
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_tlv_t_45_paging_interval_length, tvb, offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_45_paging_interval_length, tvb, offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_dcd_tlv_t_45_paging_interval_length, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					}
 					break;
 				}

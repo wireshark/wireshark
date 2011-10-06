@@ -571,7 +571,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
 		/* Decode and display the SS Basic Capability Request (SBC-REQ) */
 		/* display the Message Type */
-		proto_tree_add_item(sbc_tree, hf_sbc_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(sbc_tree, hf_sbc_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the TLV Encoded info */
 		offset++;
 		/* process the SBC TLVs */
@@ -610,17 +610,17 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_bw_alloc_support, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_duplex, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TRANSITION_GAPS:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_transition_gaps, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, FALSE);
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, FALSE);
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
 				break;
 				case SBC_MAC_PDU:
@@ -629,7 +629,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_piggybacked, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_fsn, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_REQ_MAX_TRANSMIT_POWER: /* TODO: This TLV comes up as INVALID in wireshark... why? */
 					/* add TLV subtree */
@@ -658,7 +658,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the detail meanings of the TLV value */
 					if (include_cor2_changes)
 					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, ENC_BIG_ENDIAN);
 					} else {
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_256, tvb, offset, 1, FALSE);
 					}
@@ -666,7 +666,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_128, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_512, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_1024, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_DEMODULATOR:
 					/* add TLV subtree */
@@ -681,7 +681,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 					else
 					{
@@ -692,7 +692,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver_2, tvb, offset, 2, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase_2, tvb, offset, 2, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 #if 0
 						if (tlv_len == 1)
 						{
@@ -704,7 +704,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_cc_ir_2, tvb, offset , 2, FALSE);
 							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ldpc_2, tvb, offset, 2, FALSE);
 							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_dedicated_pilots_2, tvb, offset, 2, FALSE);
-							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, FALSE);
+							proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 						}
 					}
 				break;
@@ -760,16 +760,16 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_vertical, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_MIMO_UPLINK_SUPPORT:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ss_mimo_uplink_support, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_OFDMA_AAS_PRIVATE_MAP_SUPPORT:
 					/* add TLV subtree */
@@ -781,7 +781,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_chain_enable, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_dl_frame_offset, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_ul_frame_offset, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_OFDMA_AAS_CAPABILITIES:
 					/* add TLV subtree */
@@ -792,7 +792,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_fbck_rsp_support, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_downlink_aas_preamble, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_uplink_aas_preamble, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_CINR_MEASUREMENT_CAPABILITY:
 					/* add TLV subtree */
@@ -832,19 +832,19 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_sbc_req_tlv_subtree);
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 					if (!include_cor2_changes)
 					{
 						/* add TLV subtree */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
 						/* display the detail meanings of the TLV value */
 						proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 					else
 					{
@@ -875,7 +875,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_27_extension_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_28_HO_TRIGGER_METRIC_SUPPORT:
 					/* add TLV subtree */
@@ -885,7 +885,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit1, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit2, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_167_ASSOCIATION_SUPPORT:
 					/* add TLV subtree */
@@ -896,15 +896,15 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit2, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit3, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit4, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_170_UPLINK_POWER_CONTROL_SUPPORT:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_ofdma_ss_uplink_power_control_support, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_171_MINIMUM_NUM_OF_FRAMES:
 					/* add TLV subtree */
@@ -921,7 +921,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_first_zone, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_other_zones, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_dl_region_definition_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_173_UL_CONTROL_CHANNEL_SUPPORT:
 					/* add TLV subtree */
@@ -930,7 +930,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_3_bit_mimo_fast_feedback, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_enhanced_fast_feedback, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_ul_ack, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_uep_fast_feedback, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_measurement_report, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_primary_secondary_fast_feedback, tvb, offset, 1, FALSE);
@@ -943,10 +943,10 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_a, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_b, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_power_assignment_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_type_a_support, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_175_MAX_NUM_BST_PER_FRM_CAPABILITY_HARQ:
 					/* add TLV subtree */
@@ -981,7 +981,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit17, tvb, offset, 3, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit18, tvb, offset, 3, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit19, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_177_OFDMA_SS_MODULATOR_FOR_MIMO_SUPPORT:
 					/* add TLV subtree */
@@ -1003,18 +1003,18 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					if (include_cor2_changes)
 					{
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_one_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, ENC_BIG_ENDIAN);
 					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 				break;
 				case SBC_TLV_T_178_SDMA_PILOT_CAPABILITY:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_178_sdma_pilot_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_179_OFDMA_MULTIPLE_DL_BURST_PROFILE_CAPABILITY:
 					/* add TLV subtree */
@@ -1022,7 +1022,7 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_dl_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_ul_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_204_OFDMA_PARAMETERS_SETS:
 					if (include_cor2_changes)
@@ -1030,35 +1030,35 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* add TLV subtree */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets, tvb, offset, tlv_len, FALSE);
 						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 					break;
 				case SBC_TLV_T_162_HARQ_INCREMENTAL_REDUNDANCY_BUFFER_CAPABILITY:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_163_HARQ_CHASE_COMBINING_AND_CC_IR_BUFFER_CAPABILITY:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_req_tlv_subtree, sbc_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
 					/* display Security Negotiation Parameters Title */
@@ -1074,8 +1074,8 @@ void dissect_mac_mgmt_msg_sbc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit0, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit1, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				default:
 					/* add TLV subtree */
@@ -1126,7 +1126,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		sbc_tree = proto_item_add_subtree(sbc_item, ett_mac_mgmt_msg_sbc_decoder);
 		/* Decode and display the SS Basic Capability Response (SBC-RSP) */
 		/* display the Message Type */
-		proto_tree_add_item(sbc_tree, hf_sbc_rsp_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(sbc_tree, hf_sbc_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the TLV Encoded info */
 		offset++;
 		/* process the SBC TLVs */
@@ -1165,17 +1165,17 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_bw_alloc_support, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd0, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_duplex, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_bw_alloc_support_rsvd1, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TRANSITION_GAPS:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_transition_gaps, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, FALSE);
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssttg, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
-					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, FALSE);
+					ti = proto_tree_add_item(tlv_tree, hf_sbc_ssrtg, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 					proto_item_append_text(ti, " us (ranges: TDD 0-50; H-FDD 0-100)");
 				break;
 				case SBC_MAC_PDU:
@@ -1184,7 +1184,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_piggybacked, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_fsn, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_mac_pdu_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_REQ_MAX_TRANSMIT_POWER:
 					/* add TLV subtree */
@@ -1213,7 +1213,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the detail meanings of the TLV value */
 					if (include_cor2_changes)
 					{
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd1, tvb, offset, 1, ENC_BIG_ENDIAN);
 					} else {
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_256, tvb, offset, 1, FALSE);
 					}
@@ -1221,7 +1221,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_128, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_512, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_1024, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_fft_rsvd2, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_DEMODULATOR:
 					/* add TLV subtree */
@@ -1236,7 +1236,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase, tvb, offset, 1, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 					else
 					{
@@ -1247,11 +1247,11 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_cc_with_optional_interleaver_2, tvb, offset, 2, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_chase_2, tvb, offset, 2, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_ctc_ir_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_harq_cc_ir_2, tvb, offset , 2, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_ldpc_2, tvb, offset, 2, FALSE);
 						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_dedicated_pilots_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_reserved1_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 					}
 				break;
 				case SBC_SS_MODULATOR:
@@ -1306,16 +1306,16 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_b_horizontal, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_vertical, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_4_ann_stc_matrix_c_horizontal, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_demodulator_mimo_rsvd, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_MIMO_UPLINK_SUPPORT:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ss_mimo_uplink_support, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sttd, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_2_ann_sm_vertical, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_1_ann_coop_sm, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_mimo_uplink_support_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_OFDMA_AAS_PRIVATE_MAP_SUPPORT:
 					/* add TLV subtree */
@@ -1327,7 +1327,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_chain_enable, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_dl_frame_offset, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_ul_frame_offset, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_aas_private_map_concurrency, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_OFDMA_AAS_CAPABILITIES:
 					/* add TLV subtree */
@@ -1338,7 +1338,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_fbck_rsp_support, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_downlink_aas_preamble, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_uplink_aas_preamble, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ss_ofdma_aas_capabilities_rsvd, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_SS_CINR_MEASUREMENT_CAPABILITY:
 					/* add TLV subtree */
@@ -1368,7 +1368,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_auth_policy, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_privacy_802_16, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_privacy_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_MAX_SECURITY_ASSOCIATIONS:
 					/* add TLV subtree */
@@ -1381,7 +1381,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_27_extension_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_bit0, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_27_extension_capability_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_28_HO_TRIGGER_METRIC_SUPPORT:
 					/* add TLV subtree */
@@ -1391,7 +1391,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit1, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit2, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_bit3, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_28_ho_trigger_metric_support_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_167_ASSOCIATION_SUPPORT:
 					/* add TLV subtree */
@@ -1402,15 +1402,15 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit2, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit3, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_bit4, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_167_association_type_support_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_170_UPLINK_POWER_CONTROL_SUPPORT:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_ofdma_ss_uplink_power_control_support, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_open_loop, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_aas_preamble, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_ofdma_ss_uplink_power_control_support_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_171_MINIMUM_NUM_OF_FRAMES:
 					/* add TLV subtree */
@@ -1427,7 +1427,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_first_zone, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_sub_map_capability_other_zones, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_dl_region_definition_support, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_172_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_173_UL_CONTROL_CHANNEL_SUPPORT:
 					/* add TLV subtree */
@@ -1436,7 +1436,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_3_bit_mimo_fast_feedback, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_enhanced_fast_feedback, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_ul_ack, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_uep_fast_feedback, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_measurement_report, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_173_primary_secondary_fast_feedback, tvb, offset, 1, FALSE);
@@ -1449,10 +1449,10 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_a, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_csit_compatibility_type_b, tvb, offset, 2, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_power_assignment_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_sounding_rsp_time_capability, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_max_num_simultanous_sounding_instructions, tvb, offset, 2, ENC_BIG_ENDIAN);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_type_a_support, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_174_ss_csit_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_175_MAX_NUM_BST_PER_FRM_CAPABILITY_HARQ:
 					/* add TLV subtree */
@@ -1489,7 +1489,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit17, tvb, offset, 3, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit18, tvb, offset, 3, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_bit19, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_176_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_177_OFDMA_SS_MODULATOR_FOR_MIMO_SUPPORT:
 					/* add TLV subtree */
@@ -1511,18 +1511,18 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					if (include_cor2_changes)
 					{
 						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_one_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_collaborative_sm_with_two_antennas, tvb, offset, 1, ENC_BIG_ENDIAN);
 					} else {
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_capable_of_two_antenna, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_177_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 				break;
 				case SBC_TLV_T_178_SDMA_PILOT_CAPABILITY:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_178_sdma_pilot_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_sdma_pilot_pattern_support_for_amc_zone, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_178_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_179_OFDMA_MULTIPLE_DL_BURST_PROFILE_CAPABILITY:
 					/* add TLV subtree */
@@ -1530,7 +1530,7 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the detail meanings of the TLV value */
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_dl_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_ul_bst_profile_for_multiple_fec, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_179_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_204_OFDMA_PARAMETERS_SETS:
 					if (include_cor2_changes)
@@ -1538,35 +1538,35 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* add TLV subtree */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets, tvb, offset, tlv_len, FALSE);
 						/* display the detail meanings of the TLV value */
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, FALSE);
-						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_a, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_phy_set_b, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_harq_parameters_set, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_a, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_mac_set_b, tvb, offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_204_ofdma_parameters_sets_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 					break;
 				case SBC_TLV_T_162_HARQ_INCREMENTAL_REDUNDANCY_BUFFER_CAPABILITY:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved1, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_ul_harq_incremental_redundancy_buffer_capability_NEP, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_aggregation_flag_for_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_162_harq_incremental_redundancy_buffer_capability_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case SBC_TLV_T_163_HARQ_CHASE_COMBINING_AND_CC_IR_BUFFER_CAPABILITY:
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_sbc_rsp_tlv_subtree, sbc_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability, tvb, offset, tlv_len, FALSE);
 					/* display the detail meanings of the TLV value */
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_dl_harq_buffering_capability_for_chase_combining, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_dl, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved1, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_ul_harq_buffering_capability_for_chase_combining, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_aggregation_flag_ul, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_tlv_t_163_harq_chase_combining_and_cc_ir_buffer_capability_reserved2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				break;
 				case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
 					/* display Security Negotiation Parameters Title */
@@ -1583,8 +1583,8 @@ void dissect_mac_mgmt_msg_sbc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit0, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit1, tvb, offset, 1, FALSE);
 					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bit2, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits34, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_sbc_power_save_class_types_capability_bits567, tvb, offset, 1, ENC_BIG_ENDIAN);
 				break;
 				default:
 					/* add TLV subtree */

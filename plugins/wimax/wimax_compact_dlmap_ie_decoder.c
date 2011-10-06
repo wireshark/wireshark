@@ -410,18 +410,18 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_DL_MAP_TYPE_NORMAL_SUBCHANNEL:/* 6.3.2.3.43.6.1 */
 			if(nibble_offset & 1)
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the UL-MAP append */
-				proto_tree_add_item(tree, hf_cdlmap_ul_map_append_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_ul_map_append_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 				nibble_offset = 0;
 			}
 			else
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the UL-MAP append */
-				proto_tree_add_item(tree, hf_cdlmap_ul_map_append, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_ul_map_append, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length = 1;
@@ -435,15 +435,15 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Nep and Nsch Code */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
-					proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 				}
@@ -453,13 +453,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Shortened DIUC and Companded SC */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				/* move to next byte */
 				dl_map_offset++;
@@ -481,13 +481,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{	/* display the Shortened UIUC and Companded SC */
 					if(nibble_offset & 1)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_shortened_uiuc_1, tvb, dl_map_offset, 2, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_shortened_uiuc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_cdlmap_shortened_uiuc, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_shortened_uiuc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					}
 					/* move to next byte */
 					dl_map_offset++;
@@ -497,15 +497,15 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{	/* display the Nep and Nsch Code */
 					if(nibble_offset & 1)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 						/* move to next byte */
 						dl_map_offset++;
-						proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 						/* move to next byte */
 						dl_map_offset++;
 					}
@@ -519,18 +519,18 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_DL_MAP_TYPE_BAND_AMC:/* 6.3.2.3.43.6.2 */
 			if(nibble_offset & 1)
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_cdlmap_reserved_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_reserved_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 				nibble_offset = 0;
 			}
 			else
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_cdlmap_reserved, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_reserved, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length = 1;
@@ -544,15 +544,15 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Nep and Nsch Code */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
-					proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 				}
@@ -562,13 +562,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Shortened DIUC and Companded SC */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				/* move to next byte */
 				dl_map_offset++;
@@ -582,7 +582,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{
 					nband = (nband & LSB_NIBBLE_MASK);
 					/* display the Nband */
-					proto_tree_add_item(tree, hf_cdlmap_num_bands_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_num_bands_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 					nibble_offset = 0;
@@ -606,7 +606,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{
 					nband = ((nband & MSB_NIBBLE_MASK) >> 4);
 					/* display the Nband */
-					proto_tree_add_item(tree, hf_cdlmap_num_bands, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_num_bands, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					nibble_offset = 1;
 					if(max_logical_bands == 3)
 					{
@@ -635,14 +635,14 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* display the Nb-BITMAP */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nb_bitmap_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nb_bitmap_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 					nibble_offset = 0;
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nb_bitmap, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nb_bitmap, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					nibble_offset = 1;
 				}
 				length++;
@@ -652,16 +652,16 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			if(nibble_offset & 1)
 			{
 				allocation_mode = ((byte & 0x0C) >> 2);
-				proto_tree_add_item(tree, hf_cdlmap_allocation_mode_1, tvb, dl_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_allocation_mode_rsvd_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_allocation_mode_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_allocation_mode_rsvd_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 0;
 				dl_map_offset++;
 			}
 			else
 			{
 				allocation_mode = ((byte & 0xC0) >> 6);
-				proto_tree_add_item(tree, hf_cdlmap_allocation_mode, tvb, dl_map_offset, 1, FALSE);
-				proto_tree_add_item(tree, hf_cdlmap_allocation_mode_rsvd, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_allocation_mode, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_cdlmap_allocation_mode_rsvd, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			/* Decode Allocation Mode - need to be done */
@@ -669,11 +669,11 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_num_subchannels_1, tvb, dl_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_num_subchannels_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_num_subchannels, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_num_subchannels, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				dl_map_offset++;
 			}
@@ -683,11 +683,11 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{
 					if(nibble_offset & 1)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_num_subchannels_1, tvb, dl_map_offset, 2, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_num_subchannels_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_cdlmap_num_subchannels, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_num_subchannels, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					}
 					dl_map_offset++;
 				}
@@ -704,18 +704,18 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_DL_MAP_TYPE_SAFETY:/* 6.3.2.3.43.6.3 */
 			if(nibble_offset & 1)
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the UL-MAP append */
-				proto_tree_add_item(tree, hf_cdlmap_ul_map_append_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_ul_map_append_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 				nibble_offset = 0;
 			}
 			else
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the UL-MAP append */
-				proto_tree_add_item(tree, hf_cdlmap_ul_map_append, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_ul_map_append, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length = 1;
@@ -729,15 +729,15 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Nep and Nsch Code */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
-					proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 				}
@@ -747,13 +747,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Shortened DIUC and Companded SC */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				/* move to next byte */
 				dl_map_offset++;
@@ -762,13 +762,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			/* display BIN offset */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_cdlmap_bin_offset_1, tvb, dl_map_offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_bin_offset_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_cdlmap_bin_offset, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_bin_offset, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 			}
@@ -789,13 +789,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{	/* display the Shortened DIUC and Companded SC */
 					if(nibble_offset & 1)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_shortened_diuc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_shortened_diuc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_companded_sc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					}
 					/* move to next byte */
 					dl_map_offset++;
@@ -805,15 +805,15 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{	/* display the Nep and Nsch Code */
 					if(nibble_offset & 1)
 					{
-						proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_nep_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 						/* move to next byte */
 						dl_map_offset++;
-						proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_nsch_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, FALSE);
-						proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_cdlmap_nep_code, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_cdlmap_nsch_code_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 						/* move to next byte */
 						dl_map_offset++;
 					}
@@ -822,13 +822,13 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* display BIN offset */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_bin_offset_1, tvb, dl_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_bin_offset_1, tvb, dl_map_offset, 2, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_bin_offset, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_bin_offset, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					dl_map_offset++;
 				}
@@ -841,9 +841,9 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_DL_MAP_TYPE_UIUC:/* 6.3.2.3.43.6.4 */
 			if(nibble_offset & 1)
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_cdlmap_reserved_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_reserved_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 				/* get the new byte */
@@ -851,18 +851,18 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* get the DIUC */
 				diuc = ((byte & MSB_NIBBLE_MASK) >> 4);
 				/* display the DIUC */
-				proto_tree_add_item(tree, hf_cdlmap_diuc, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_diuc, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 			}
 			else
 			{
 				/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_cdlmap_reserved, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_reserved, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* get the DIUC */
 				diuc = (tvb_get_guint8(tvb, dl_map_offset) & LSB_NIBBLE_MASK);
 				/* display the DIUC */
-				proto_tree_add_item(tree, hf_cdlmap_diuc_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_diuc_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				dl_map_offset++;
 			}
@@ -882,20 +882,20 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				nibble_offset = (nibble_length & 1);
 				/* display Number of subchannels */
 				if(nibble_offset & 1)
-					proto_tree_add_item(tree, hf_cdlmap_diuc_num_of_subchannels_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_diuc_num_of_subchannels_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				else
-					proto_tree_add_item(tree, hf_cdlmap_diuc_num_of_subchannels, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_diuc_num_of_subchannels, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				length += 2;
 				/* display the repetition coding indication and reserved bits */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_cdlmap_diuc_repetition_coding_indication_1, tvb, dl_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_diuc_reserved_1, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_diuc_repetition_coding_indication_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_diuc_reserved_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_cdlmap_diuc_repetition_coding_indication, tvb, dl_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_cdlmap_diuc_reserved, tvb, dl_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_cdlmap_diuc_repetition_coding_indication, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_cdlmap_diuc_reserved, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				length += 1;
 			}
@@ -916,9 +916,9 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_DL_MAP_TYPE_HARQ_ACK_BITMAP_IE:/* 6.3.2.3.43.6.5 */
 			if(nibble_offset & 1)
 			{	/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_cdlmap_reserved_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_reserved_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				length = 1;
 				/* move to next byte */
 				dl_map_offset++;
@@ -926,7 +926,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				byte = tvb_get_guint8(tvb, dl_map_offset);
 				bit_map_length = ((byte & MSB_NIBBLE_MASK) >> 4);
 				/* display BITMAP Length */
-				proto_tree_add_item(tree, hf_cdlmap_bit_map_length, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_bit_map_length, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display BITMAP */
 				proto_tree_add_item(tree, hf_cdlmap_bit_map, tvb, dl_map_offset, bit_map_length + 1, ENC_NA);
 				length += (1 + bit_map_length * 2);
@@ -934,11 +934,11 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			else
 			{
 				/* display the DL-MAP type */
-				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_cdlmap_reserved, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_reserved, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display BITMAP Length */
-				proto_tree_add_item(tree, hf_cdlmap_bit_map_length_1, tvb, dl_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_cdlmap_bit_map_length_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 				length = 2;
 				/* get the bit map length */
 				bit_map_length =  (byte & LSB_NIBBLE_MASK);
@@ -956,7 +956,7 @@ guint wimax_compact_dlmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		break;
 		default:/* Reserved Type */
 			/* display the reserved type */
-			proto_tree_add_item(tree, hf_cdlmap_reserved_type_1, tvb, dl_map_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_reserved_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
 		break;
 	}
@@ -1004,7 +1004,7 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 			return 0;
 		new_format_ind = (tvb_value & 0x01);
 		/* display the DL-MAP type */
-		proto_tree_add_item(tree, hf_format_config_ie_dl_map_type_1, tvb, dl_map_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_format_config_ie_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 		/* display the New format Indication */
 		proto_tree_add_item(tree, hf_format_config_ie_new_format_indication_1, tvb, dl_map_offset, 1, FALSE);
 		/* update the length in nibble */
@@ -1013,19 +1013,19 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 		dl_map_offset++;
 		if(new_format_ind)
 		{	/* display the CID Type */
-			proto_tree_add_item(tree, hf_format_config_ie_cid_type, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_cid_type, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the Safety Pattern */
-			proto_tree_add_item(tree, hf_format_config_ie_safety_pattern, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_safety_pattern, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the Subchannel pattern */
-			proto_tree_add_item(tree, hf_format_config_ie_subchannel_type, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_subchannel_type, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the max logical bands */
-			proto_tree_add_item(tree, hf_format_config_ie_max_logical_bands, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_max_logical_bands, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the number of broadcast symbols */
-			proto_tree_add_item(tree, hf_format_config_ie_num_of_broadcast_symbol, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_num_of_broadcast_symbol, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the number of dl band AMC symbols */
-			proto_tree_add_item(tree, hf_format_config_ie_num_of_dl_band_amc_symbol, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_num_of_dl_band_amc_symbol, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the number of ul band AMC symbols */
-			proto_tree_add_item(tree, hf_format_config_ie_num_of_ul_band_amc_symbol, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_num_of_ul_band_amc_symbol, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* update the length in nibble */
 			length += 7;
 			/* Get the next 32-bit word */
@@ -1053,23 +1053,23 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 		new_format_ind = (tvb_value & 0x10);
 		if(new_format_ind)
 		{	/* display the DL-MAP type */
-			proto_tree_add_item(tree, hf_format_config_ie_dl_map_type_32, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_dl_map_type_32, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the New format Indication */
 			proto_tree_add_item(tree, hf_format_config_ie_new_format_indication_32, tvb, dl_map_offset, 4, FALSE);
 			/* display the CID Type */
-			proto_tree_add_item(tree, hf_format_config_ie_cid_type_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_cid_type_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the Safety Pattern */
-			proto_tree_add_item(tree, hf_format_config_ie_safety_pattern_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_safety_pattern_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the Subchannel pattern */
-			proto_tree_add_item(tree, hf_format_config_ie_subchannel_type_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_subchannel_type_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the max logical bands */
-			proto_tree_add_item(tree, hf_format_config_ie_max_logical_bands_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_max_logical_bands_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the number of broadcast symbols */
-			proto_tree_add_item(tree, hf_format_config_ie_num_of_broadcast_symbol_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_num_of_broadcast_symbol_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the number of dl band AMC symbols */
-			proto_tree_add_item(tree, hf_format_config_ie_num_of_dl_band_amc_symbol_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_num_of_dl_band_amc_symbol_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the number of ul band AMC symbols */
-			proto_tree_add_item(tree, hf_format_config_ie_num_of_ul_band_amc_symbol_1, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_num_of_ul_band_amc_symbol_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* update the length in nibble */
 			length = 8;
 			/* Get the next 32-bit word */
@@ -1089,7 +1089,7 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 		}
 		else
 		{	/* display the DL-MAP type */
-			proto_tree_add_item(tree, hf_format_config_ie_dl_map_type, tvb, dl_map_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 			/* display the New format Indication */
 			proto_tree_add_item(tree, hf_format_config_ie_new_format_indication, tvb, dl_map_offset, 1, FALSE);
 			/* update the length in nibble */
@@ -1114,14 +1114,14 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 	{
 		if(cid_type == CID_TYPE_NORMAL)
 		{	/* display the normal CID */
-			proto_tree_add_item(tree, hf_harq_rcid_ie_normal_cid_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_harq_rcid_ie_normal_cid_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			length = 4;
 		}
 		else
 		{	/* Get the prefix bit */
 			prefix = (tvb_get_guint8(tvb, offset) & 0x08);
 			/* display the prefix */
-			proto_tree_add_item(tree, hf_harq_rcid_ie_prefix_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_rcid_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix)
 			{	/* display the CID11 */
 				proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_3, tvb, offset, 2, FALSE);
@@ -1131,17 +1131,17 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			{
 				 if(cid_type == CID_TYPE_RCID11)
 				{	/* display the CID11 */
-					proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 3;
 				}
 				else if(cid_type == CID_TYPE_RCID7)
 				{	/* display the normal CID7 */
-					proto_tree_add_item(tree, hf_harq_rcid_ie_cid7_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_harq_rcid_ie_cid7_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 2;
 				}
 				else if(cid_type == CID_TYPE_RCID3)
 				{	/* display the CID3 */
-					proto_tree_add_item(tree, hf_harq_rcid_ie_cid3_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_harq_rcid_ie_cid3_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 1;
 				}
 			}
@@ -1151,14 +1151,14 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 	{
 		if(cid_type == CID_TYPE_NORMAL)
 		{	/* display the normal CID */
-			proto_tree_add_item(tree, hf_harq_rcid_ie_normal_cid, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_rcid_ie_normal_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 4;
 		}
 		else
 		{	/* Get the prefix bit */
 			prefix = (tvb_get_guint8(tvb, offset) & 0x08);
 			/* display the prefix */
-			proto_tree_add_item(tree, hf_harq_rcid_ie_prefix, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix || (cid_type == CID_TYPE_RCID11))
 			{	/* display the CID11 */
 				proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_2, tvb, offset, 2, FALSE);
@@ -1168,17 +1168,17 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			{
 				if(cid_type == CID_TYPE_RCID11)
 				{	/* display the CID11 */
-					proto_tree_add_item(tree, hf_harq_rcid_ie_cid11, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_harq_rcid_ie_cid11, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 3;
 				}
 				else if(cid_type == CID_TYPE_RCID7)
 				{	/* display the CID7 */
-					proto_tree_add_item(tree, hf_harq_rcid_ie_cid7, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_harq_rcid_ie_cid7, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 2;
 				}
 				else if(cid_type == CID_TYPE_RCID3)
 				{	/* display the CID3 */
-					proto_tree_add_item(tree, hf_harq_rcid_ie_cid3, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_harq_rcid_ie_cid3, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 1;
 				}
 			}
@@ -1206,16 +1206,16 @@ static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packe
 		proto_tree_add_item(tree, hf_harq_control_ie_prefix_1, tvb, offset, 2, FALSE);
 		if(prefix)
 		{	/* display the ai_sn */
-			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the spid */
-			proto_tree_add_item(tree, hf_harq_control_ie_spid_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_spid_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the acid */
-			proto_tree_add_item(tree, hf_harq_control_ie_acid_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_acid_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 2;
 		}
 		else
 		{	/* display the reserved bits */
-			proto_tree_add_item(tree, hf_harq_control_ie_reserved_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_reserved_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 1;
 		}
 	}
@@ -1226,16 +1226,16 @@ static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packe
 		proto_tree_add_item(tree, hf_harq_control_ie_prefix, tvb, offset, 1, FALSE);
 		if(prefix)
 		{	/* display the ai_sn */
-			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* display the spid */
-			proto_tree_add_item(tree, hf_harq_control_ie_spid, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_spid, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* display the acid */
-			proto_tree_add_item(tree, hf_harq_control_ie_acid, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_acid, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 2;
 		}
 		else
 		{	/* display the reserved bits */
-			proto_tree_add_item(tree, hf_harq_control_ie_reserved, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
 		}
 	}
@@ -1261,20 +1261,20 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 		{	/* display the CQICH indicator */
 			proto_tree_add_item(tree, hf_cqich_control_ie_indicator_1, tvb, offset, 3, FALSE);
 			/* display the allocation index */
-			proto_tree_add_item(tree, hf_cqich_control_ie_alloc_id_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_alloc_id_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* display the period */
-			proto_tree_add_item(tree, hf_cqich_control_ie_period_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_period_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* display the frame offset */
-			proto_tree_add_item(tree, hf_cqich_control_ie_frame_offset_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_frame_offset_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* display the duration */
-			proto_tree_add_item(tree, hf_cqich_control_ie_duration_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_duration_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			length = 4;
 		}
 		else
 		{	/* display the CQICH indicator */
 			proto_tree_add_item(tree, hf_cqich_control_ie_indicator_1, tvb, offset, 1, FALSE);
 			/* display the CQI reporting threshold */
-			proto_tree_add_item(tree, hf_cqich_control_ie_cqi_rep_threshold_1, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_cqi_rep_threshold_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
 		}
 	}
@@ -1285,20 +1285,20 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 		{	/* display the CQICH indicator */
 			proto_tree_add_item(tree, hf_cqich_control_ie_indicator, tvb, offset, 2, FALSE);
 			/* display the allocation index */
-			proto_tree_add_item(tree, hf_cqich_control_ie_alloc_id, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_alloc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the period */
-			proto_tree_add_item(tree, hf_cqich_control_ie_period, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_period, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the frame offset */
-			proto_tree_add_item(tree, hf_cqich_control_ie_frame_offset, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_frame_offset, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the duration */
-			proto_tree_add_item(tree, hf_cqich_control_ie_duration, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 4;
 		}
 		else
 		{	/* display the CQICH indicator */
 			proto_tree_add_item(tree, hf_cqich_control_ie_indicator, tvb, offset, 1, FALSE);
 			/* display the CQI reporting threshold */
-			proto_tree_add_item(tree, hf_cqich_control_ie_cqi_rep_threshold, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_cqi_rep_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
 		}
 	}
@@ -1331,11 +1331,11 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 		/* Get the IE length */
 		length = (tvb_value & 0x000F);
 		/* display the DL-MAP type */
-		proto_tree_add_item(tree, hf_cdlmap_extension_type_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdlmap_extension_type_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the DL-MAP extension subtype */
-		proto_tree_add_item(tree, hf_cdlmap_extension_subtype_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdlmap_extension_subtype_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the IE length */
-		proto_tree_add_item(tree, hf_cdlmap_extension_length_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdlmap_extension_length_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		switch (sub_type)
 		{
@@ -1345,7 +1345,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 			break;
 			case HARQ_MODE_SWITCH:
 			/* display the HARQ mode */
-			proto_tree_add_item(tree, hf_cdlmap_extension_harq_mode, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_extension_harq_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* Get the next byte */
 			tvb_value = tvb_get_guint8(tvb, offset);
 			/* get the HARQ mode */
@@ -1367,11 +1367,11 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 		/* Get the IE length */
 		length = ((tvb_value & 0x00F0) >> 4);
 		/* display the DL-MAP type */
-		proto_tree_add_item(tree, hf_cdlmap_extension_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdlmap_extension_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the DL-MAP extension subtype */
-		proto_tree_add_item(tree, hf_cdlmap_extension_subtype, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdlmap_extension_subtype, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the IE length */
-		proto_tree_add_item(tree, hf_cdlmap_extension_length, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdlmap_extension_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		switch (sub_type)
 		{
 			case TIME_DIVERSITY_MBS:
@@ -1380,7 +1380,7 @@ static guint wimax_cdlmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 			break;
 			case HARQ_MODE_SWITCH:
 			/* display the HARQ mode */
-			proto_tree_add_item(tree, hf_cdlmap_extension_harq_mode_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_cdlmap_extension_harq_mode_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* get the HARQ mode */
 			harq_mode = (tvb_value & 0x000F);
 			break;
@@ -1419,7 +1419,7 @@ guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 	{	/* get the extended DIUC */
 		ext_diuc = (byte & LSB_NIBBLE_MASK);
 		/* display extended DIUC */
-		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_diuc_1, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_diuc_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next byte */
 		offset++;
 		/* get the 2nd byte */
@@ -1427,7 +1427,7 @@ guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 		/* get the length */
 		length = ((byte & MSB_NIBBLE_MASK) >> 4);
 		/* display extended DIUC length */
-		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_length, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* 8.4.5.3.2.1 (table 277a) */
 		switch (ext_diuc)
 		{
@@ -1486,9 +1486,9 @@ guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 		/* get the length */
 		length = (byte & LSB_NIBBLE_MASK);
 		/* display extended DIUC */
-		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_diuc, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_diuc, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display extended DIUC length */
-		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_length_1, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_length_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next byte */
 		offset++;
 		/* 8.4.5.3.2.1 (table 277a) */

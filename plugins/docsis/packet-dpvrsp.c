@@ -68,23 +68,23 @@ dissect_dpvrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DPV Response");
       dpvrsp_tree = proto_item_add_subtree (it, ett_docsis_dpvrsp);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_tranid, tvb, 
-			  0, 2, FALSE);
+			  0, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_dschan, tvb, 
-			  2, 1, FALSE);
+			  2, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_flags, tvb, 
-			  3, 1, FALSE);
+			  3, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_us_sf, tvb, 
-			  4, 4, FALSE);
+			  4, 4, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_n, tvb, 
-			  8, 2, FALSE);
+			  8, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_start, tvb, 
-			  10, 1, FALSE);
+			  10, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_end, tvb, 
-			  11, 1, FALSE);
+			  11, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_ts_start, tvb, 
-			  12, 4, FALSE);
+			  12, 4, ENC_BIG_ENDIAN);
       proto_tree_add_item (dpvrsp_tree, hf_docsis_dpvrsp_ts_end, tvb, 
-			  16, 4, FALSE);
+			  16, 4, ENC_BIG_ENDIAN);
     }
 }
 

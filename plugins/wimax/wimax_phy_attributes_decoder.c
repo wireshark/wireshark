@@ -100,19 +100,19 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 		/* add PDU Burst Physical Attributes subtree */
 		phy_tree = proto_item_add_subtree(phy_item, ett_wimax_phy_attributes_decoder);
 		/* display the subchannelization type */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_subchannelization_type, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_subchannelization_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the permbase */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_permbase, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_permbase, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the modulation rate */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_modulation_rate, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_modulation_rate, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the encoding type */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_encoding_type, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_encoding_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the numRepeat */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_num_repeat, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_num_repeat, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the symbol offset */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_symbol_offset, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_symbol_offset, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the number of slots */
-		proto_tree_add_item(phy_tree, hf_phy_attributes_num_of_slots, tvb, offset, 2, FALSE);
+		proto_tree_add_item(phy_tree, hf_phy_attributes_num_of_slots, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* get the number of slots */
 /*		num_of_slots =  tvb_get_guint16(tvb, offset);*/
 		/* move to next field */
@@ -120,7 +120,7 @@ static void dissect_wimax_phy_attributes_decoder(tvbuff_t *tvb, packet_info *pin
 		/* display the physical subchannel list */
 		while(offset < tvb_len)
 		{
-			proto_tree_add_item(phy_tree, hf_phy_attributes_subchannel, tvb, offset++, 1, FALSE);
+			proto_tree_add_item(phy_tree, hf_phy_attributes_subchannel, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		}
 	}
 }

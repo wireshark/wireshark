@@ -188,13 +188,13 @@ static void
 					"UCD Message");
 	ucd_tree = proto_item_add_subtree (ucd_item, ett_docsis_ucd);
 	proto_tree_add_item (ucd_tree, hf_docsis_ucd_upstream_chid, tvb, 0, 1,
-			     FALSE);
+			     ENC_BIG_ENDIAN);
 	proto_tree_add_item (ucd_tree, hf_docsis_ucd_config_ch_cnt, tvb, 1, 1,
-			     FALSE);
+			     ENC_BIG_ENDIAN);
 	proto_tree_add_item (ucd_tree, hf_docsis_ucd_mini_slot_size, tvb, 2, 1,
-			     FALSE);
+			     ENC_BIG_ENDIAN);
 	proto_tree_add_item (ucd_tree, hf_docsis_ucd_down_chid, tvb, 3, 1,
-			     FALSE);
+			     ENC_BIG_ENDIAN);
 	
 	pos = 4;
 	while (pos < len)
@@ -232,7 +232,7 @@ static void
 		  if (length == 4)
 		    {
 		       proto_tree_add_item (tlv_tree, hf_docsis_ucd_frequency, tvb,
-					    pos, length, FALSE);
+					    pos, length, ENC_BIG_ENDIAN);
 		       pos = pos + length;
 		    }
 		  else
@@ -247,7 +247,7 @@ static void
 		  break;
 		case UCD_BURST_DESCR:
 		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_iuc, tvb,
-				       pos++, 1, FALSE);
+				       pos++, 1, ENC_BIG_ENDIAN);
 		  endtlvpos = pos + length - 1;
 		  while (pos < endtlvpos)
 		    {
@@ -260,7 +260,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_mod_type, tvb,
-						      pos, tlvlen, FALSE);
+						      pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -272,7 +272,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_diff_encoding,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -284,7 +284,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_preamble_len,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -296,7 +296,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_preamble_val_off,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -320,7 +320,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_fec_codeword,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -332,7 +332,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_scrambler_seed,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -344,7 +344,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_max_burst, tvb,
-						      pos, tlvlen, FALSE);
+						      pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -356,7 +356,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_guard_time,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -368,7 +368,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_last_cw_len,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -380,7 +380,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_scrambler_onoff,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -394,7 +394,7 @@ static void
 		case UCD_BURST_DESCR5:
 		  /* DOCSIS 2.0 Upstream Channel Descriptor */
 		  proto_tree_add_item (tlv_tree, hf_docsis_ucd_iuc, tvb,
-				       pos++, 1, FALSE);
+				       pos++, 1, ENC_BIG_ENDIAN);
 		  endtlvpos = pos + length - 1;
 		  while (pos < endtlvpos)
 		    {
@@ -407,7 +407,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_mod_type, tvb,
-						      pos, tlvlen, FALSE);
+						      pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -419,7 +419,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_diff_encoding,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -431,7 +431,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_preamble_len,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -443,7 +443,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_preamble_val_off,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -467,7 +467,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_fec_codeword,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -479,7 +479,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_scrambler_seed,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -491,7 +491,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_max_burst, tvb,
-						      pos, tlvlen, FALSE);
+						      pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -503,7 +503,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_guard_time,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -515,7 +515,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_last_cw_len,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -527,7 +527,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_scrambler_onoff,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -548,7 +548,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_rs_int_depth,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -560,7 +560,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_rs_int_block,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -572,7 +572,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_preamble_type,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -584,7 +584,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_scdma_scrambler_onoff,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -596,7 +596,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_scdma_codes_per_subframe,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -608,7 +608,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_scdma_framer_int_step_size,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -620,7 +620,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_tcm_enabled,
-						      tvb, pos, tlvlen, FALSE);
+						      tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {

@@ -66,9 +66,9 @@ dissect_dscack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DSC Acknowledge");
       dscack_tree = proto_item_add_subtree (it, ett_docsis_dscack);
       proto_tree_add_item (dscack_tree, hf_docsis_dscack_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (dscack_tree, hf_docsis_dscack_response, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
     }
     /* Call Dissector for Appendix C TLV's */
     next_tvb = tvb_new_subset_remaining (tvb, 3);

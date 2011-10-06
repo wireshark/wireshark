@@ -64,11 +64,11 @@ dissect_dsdrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DSD Response");
       dsdrsp_tree = proto_item_add_subtree (it, ett_docsis_dsdrsp);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_confcode, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (dsdrsp_tree, hf_docsis_dsdrsp_rsvd, tvb, 3, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
     }
 
 }

@@ -147,7 +147,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 4)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_chan, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -158,7 +158,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg1, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -169,7 +169,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg2, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -180,7 +180,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg3, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -191,7 +191,7 @@ dissect_dcd_dsg_cfg (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfg_tdsg4, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -274,7 +274,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_tcpudp_srcport_start, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -285,7 +285,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_tcpudp_srcport_end, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -296,7 +296,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_tcpudp_dstport_start, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -307,7 +307,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_tcpudp_dstport_end, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -352,7 +352,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_clid_ca_sys_id, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -363,7 +363,7 @@ dissect_dcd_clid (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_clid_app_id, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -397,7 +397,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_id, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -408,7 +408,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 1)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_pri, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -437,7 +437,7 @@ dissect_dcd_dsg_rule (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
 	      if (length == 2)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_rule_cfr_id, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -476,7 +476,7 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint
 	      if (length == 2)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_id, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -487,7 +487,7 @@ dissect_dcd_down_classifier (tvbuff_t * tvb, proto_tree * tree, int start, guint
 	      if (length == 1)
 		{
 	          proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_rule_pri, tvb,
-				   pos, length, FALSE);
+				   pos, length, ENC_BIG_ENDIAN);
 		}
               else 
 		{
@@ -522,9 +522,9 @@ dissect_dcd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					tvb_length_remaining (tvb, 0),
 					"DCD Message");
       dcd_tree = proto_item_add_subtree (dcd_item, ett_docsis_dcd);
-      proto_tree_add_item (dcd_tree, hf_docsis_dcd_config_ch_cnt, tvb, 0, 1, FALSE);
-      proto_tree_add_item (dcd_tree, hf_docsis_dcd_num_of_frag, tvb, 1, 1, FALSE);
-      proto_tree_add_item (dcd_tree, hf_docsis_dcd_frag_sequence_num, tvb, 2, 1, FALSE);
+      proto_tree_add_item (dcd_tree, hf_docsis_dcd_config_ch_cnt, tvb, 0, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (dcd_tree, hf_docsis_dcd_num_of_frag, tvb, 1, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item (dcd_tree, hf_docsis_dcd_frag_sequence_num, tvb, 2, 1, ENC_BIG_ENDIAN);
 
       pos = 3;
       while (pos < len)

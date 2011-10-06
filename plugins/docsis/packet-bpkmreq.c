@@ -83,11 +83,11 @@ dissect_bpkmreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"BPKM Request Message");
       bpkmreq_tree = proto_item_add_subtree (it, ett_docsis_bpkmreq);
       proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_code, tvb, 0, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_ident, tvb, 1, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (bpkmreq_tree, hf_docsis_bpkmreq_length, tvb, 2, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
     }
 
   /* Code to Call subdissector */

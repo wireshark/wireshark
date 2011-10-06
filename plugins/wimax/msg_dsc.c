@@ -87,11 +87,11 @@ void dissect_mac_mgmt_msg_dsc_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		dsc_tree = proto_item_add_subtree(dsc_item, ett_mac_mgmt_msg_dsc_req_decoder);
 		/* Decode and display the Uplink Channel Descriptor (UCD) */
 		/* display the Message Type */
-		proto_tree_add_item(dsc_tree, hf_dsc_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Transaction ID */
-		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 2;
 		/* process DSC REQ message TLV Encode Information */
@@ -122,15 +122,15 @@ void dissect_mac_mgmt_msg_dsc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		dsc_tree = proto_item_add_subtree(dsc_item, ett_mac_mgmt_msg_dsc_rsp_decoder);
 		/* Decode and display the Uplink Channel Descriptor (UCD) */
 		/* display the Message Type */
-		proto_tree_add_item(dsc_tree, hf_dsc_rsp_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Transaction ID */
-		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 2;
 		/* display the Confirmation Code */
-		proto_tree_add_item(dsc_tree, hf_dsc_confirmation_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_confirmation_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* process DSC RSP message TLV Encode Information */
@@ -161,15 +161,15 @@ void dissect_mac_mgmt_msg_dsc_ack_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		dsc_tree = proto_item_add_subtree(dsc_item, ett_mac_mgmt_msg_dsc_ack_decoder);
 		/* Decode and display the Uplink Channel Descriptor (UCD) */
 		/* display the Message Type */
-		proto_tree_add_item(dsc_tree, hf_dsc_ack_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_ack_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Transaction ID */
-		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 2;
 		/* display the Confirmation Code */
-		proto_tree_add_item(dsc_tree, hf_dsc_confirmation_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsc_tree, hf_dsc_confirmation_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* process DSC ACK message TLV Encode Information */

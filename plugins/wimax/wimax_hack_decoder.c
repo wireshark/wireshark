@@ -82,14 +82,14 @@ static void dissect_wimax_hack_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		/* get the number of HARQ ACKs */
 		num_of_hacks =  tvb_get_guint8(tvb, offset);
 		/* display the number of HARQ ACKs */
-		proto_tree_add_item(hack_tree, hf_hack_num_of_hacks, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(hack_tree, hf_hack_num_of_hacks, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		/* display the HARQ ACKs */
 		for(i = 0; i < num_of_hacks; i++)
 		{
-			proto_tree_add_item(hack_tree, hf_hack_subchannel, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(hack_tree, hf_hack_symboloffset, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(hack_tree, hf_hack_half_slot_flag, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(hack_tree, hf_hack_value, tvb, offset++, 1, FALSE);
+			proto_tree_add_item(hack_tree, hf_hack_subchannel, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(hack_tree, hf_hack_symboloffset, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(hack_tree, hf_hack_half_slot_flag, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(hack_tree, hf_hack_value, tvb, offset++, 1, ENC_BIG_ENDIAN);
 		}
 	}
 }

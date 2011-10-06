@@ -62,7 +62,7 @@ dissect_uccreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"UCC Request");
       uccreq_tree = proto_item_add_subtree (it, ett_docsis_uccreq);
       proto_tree_add_item (uccreq_tree, hf_docsis_uccreq_upchid, tvb, 0, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* call dissector for Appendix C TLV's */

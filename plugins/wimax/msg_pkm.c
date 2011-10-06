@@ -110,15 +110,15 @@ void dissect_mac_mgmt_msg_pkm_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_req_decoder);
 		/* Decode and display the Privacy Key Management Request Message (PKM-REQ) (table 24) */
 		/* display the Message Type */
-		proto_tree_add_item(pkm_tree, hf_pkm_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pkm_tree, hf_pkm_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the PKM Code */
 		offset++;
 		/* display the PKM Code */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the PKM ID */
 		offset++;
 		/* display the PKM ID */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the TLV Encoded info */
 		offset++;
 		/* process the PKM TLV Encoded Attributes */
@@ -151,15 +151,15 @@ void dissect_mac_mgmt_msg_pkm_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		pkm_tree = proto_item_add_subtree(pkm_item, ett_mac_mgmt_msg_pkm_rsp_decoder);
 		/* Decode and display the Privacy Key Management Response (PKM-RSP) (table 25) */
 		/* display the Message Type */
-		proto_tree_add_item(pkm_tree, hf_pkm_rsp_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pkm_tree, hf_pkm_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the PKM Code */
 		offset++;
 		/* display the PKM Code */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pkm_tree, hf_pkm_msg_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the PKM ID */
 		offset++;
 		/* display the PKM ID */
-		proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pkm_tree, hf_pkm_msg_pkm_id, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the TLV Encoded info */
 		offset++;
 		/* process the PKM TLV Encoded Attributes */

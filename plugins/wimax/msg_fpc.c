@@ -82,16 +82,16 @@ void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 		/* add MAC FPC subtree */
 		fpc_tree = proto_item_add_subtree(fpc_item, ett_mac_mgmt_msg_fpc_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(fpc_tree, hf_fpc_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(fpc_tree, hf_fpc_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset ++;
 		/* display the Number of stations */
-		proto_tree_add_item(fpc_tree, hf_fpc_number_of_stations, tvb, offset, 1, FALSE);
+		proto_tree_add_item(fpc_tree, hf_fpc_number_of_stations, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		number_stations = tvb_get_guint8(tvb, offset);
 		offset++;
 		for (i = 0; i < number_stations; i++ ) {
 			/* display the Basic CID*/
-			proto_tree_add_item(fpc_tree, hf_fpc_basic_cid, tvb, offset, 2, FALSE);
+			proto_tree_add_item(fpc_tree, hf_fpc_basic_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
 			/* display the Power adjust value */
@@ -103,7 +103,7 @@ void dissect_mac_mgmt_msg_fpc_decoder(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 			offset++;
 
 			/* display the Power measurement frame */
-			proto_tree_add_item(fpc_tree, hf_fpc_power_measurement_frame, tvb, offset, 1, FALSE);
+			proto_tree_add_item(fpc_tree, hf_fpc_power_measurement_frame, tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			if ( offset >= tvb_len ) {

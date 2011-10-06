@@ -64,7 +64,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					tvb_length_remaining (tvb, 0),
 					"DCC-ACK Message");
       dcc_tree = proto_item_add_subtree (dcc_item, ett_docsis_dccack);
-      proto_tree_add_item (dcc_tree, hf_docsis_dccack_tran_id, tvb, 0, 2, FALSE);
+      proto_tree_add_item (dcc_tree, hf_docsis_dccack_tran_id, tvb, 0, 2, ENC_BIG_ENDIAN);
 
       pos = 2;
       while (pos < len)
@@ -77,7 +77,7 @@ dissect_dccack (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 1)
 		{
 		  proto_tree_add_item (dcc_tree, hf_docsis_dccack_key_seq_num, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{

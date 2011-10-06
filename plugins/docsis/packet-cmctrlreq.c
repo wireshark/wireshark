@@ -59,7 +59,7 @@ dissect_cmctrlreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"CM Control Request");
       cmctrlreq_tree = proto_item_add_subtree (it, ett_docsis_cmctrlreq);
       proto_tree_add_item (cmctrlreq_tree, hf_docsis_cmctrlreq_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* Call Dissector for Appendix C TLV's */

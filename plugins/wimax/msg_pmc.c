@@ -213,16 +213,16 @@ void dissect_mac_mgmt_msg_pmc_req_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* add MAC PMC REQ subtree */
 		pmc_req_tree = proto_item_add_subtree(pmc_req_item, ett_mac_mgmt_msg_pmc_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(pmc_req_tree, hf_pmc_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pmc_req_tree, hf_pmc_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		/* display the Power Control Mode Change */
-		proto_tree_add_item(pmc_req_tree, hf_pmc_req_pwr_control_mode_change, tvb, offset, 2, FALSE);
+		proto_tree_add_item(pmc_req_tree, hf_pmc_req_pwr_control_mode_change, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* show the Transmit Power Level */
 		proto_tree_add_item(pmc_req_tree, hf_pmc_req_tx_power_level, tvb, offset, 2, FALSE);
 		/* display the Confirmation/request */
-		proto_tree_add_item(pmc_req_tree, hf_pmc_req_confirmation, tvb, offset, 2, FALSE);
+		proto_tree_add_item(pmc_req_tree, hf_pmc_req_confirmation, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* show the Reserved bits */
-		proto_tree_add_item(pmc_req_tree, hf_pmc_req_reserved, tvb, offset, 2, FALSE);
+		proto_tree_add_item(pmc_req_tree, hf_pmc_req_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -254,16 +254,16 @@ void dissect_mac_mgmt_msg_pmc_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* add MAC PMC RSP subtree */
 		pmc_rsp_tree = proto_item_add_subtree(pmc_rsp_item, ett_mac_mgmt_msg_pmc_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(pmc_rsp_tree, hf_pmc_rsp_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(pmc_rsp_tree, hf_pmc_rsp_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset ++;
 
 		/* display the Power Control Mode Change */
 		if (include_cor2_changes)
-			proto_tree_add_item(pmc_rsp_tree, hf_pmc_req_pwr_control_mode_change_cor2, tvb, offset, 2, FALSE);
+			proto_tree_add_item(pmc_rsp_tree, hf_pmc_req_pwr_control_mode_change_cor2, tvb, offset, 2, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(pmc_rsp_tree, hf_pmc_req_pwr_control_mode_change, tvb, offset, 2, FALSE);
+			proto_tree_add_item(pmc_rsp_tree, hf_pmc_req_pwr_control_mode_change, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the Power Adjust start frame */
-		proto_tree_add_item(pmc_rsp_tree, hf_pmc_rsp_start_frame, tvb, offset, 2, FALSE);
+		proto_tree_add_item(pmc_rsp_tree, hf_pmc_rsp_start_frame, tvb, offset, 2, ENC_BIG_ENDIAN);
 		pwr_control_mode = 0xC0 & tvb_get_guint8(tvb, offset);
 		offset++;
 

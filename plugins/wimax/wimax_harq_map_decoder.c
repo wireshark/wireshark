@@ -106,15 +106,15 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		harq_map_item = proto_tree_add_protocol_format(tree, proto_wimax_harq_map_decoder, tvb, offset, tvb_len, "HARQ-MAP Message (%u bytes)", tvb_len);
 		harq_map_tree = proto_item_add_subtree(harq_map_item, ett_wimax_harq_map_decoder);
 		/* display the HARQ MAP Indicator */
-		proto_tree_add_item(harq_map_tree, hf_harq_map_indicator, tvb, offset, 3, FALSE);
+		proto_tree_add_item(harq_map_tree, hf_harq_map_indicator, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the HARQ MAp UL-MAP Appended */
-		proto_tree_add_item(harq_map_tree, hf_harq_ul_map_appended, tvb, offset, 3, FALSE);
+		proto_tree_add_item(harq_map_tree, hf_harq_ul_map_appended, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the reserved bit */
-		proto_tree_add_item(harq_map_tree, hf_harq_map_reserved, tvb, offset, 3, FALSE);
+		proto_tree_add_item(harq_map_tree, hf_harq_map_reserved, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the HARQ MAP message length */
-		proto_tree_add_item(harq_map_tree, hf_harq_map_msg_length, tvb, offset, 3, FALSE);
+		proto_tree_add_item(harq_map_tree, hf_harq_map_msg_length, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the DL IE count */
-		proto_tree_add_item(harq_map_tree, hf_harq_dl_ie_count, tvb, offset, 3, FALSE);
+		proto_tree_add_item(harq_map_tree, hf_harq_dl_ie_count, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* get the message length */
 		length = ((first_24bits & WIMAX_HARQ_MAP_MSG_LENGTH_MASK) >> WIMAX_HARQ_MAP_MSG_LENGTH_SHIFT);
 		/* get the DL IE count */
@@ -166,7 +166,7 @@ void dissector_wimax_harq_map_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* calculate the HARQ MAM Message CRC */
 		calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, length - sizeof(harq_map_msg_crc)), length - sizeof(harq_map_msg_crc));
 		/* display the CRC */
-		it = proto_tree_add_item(harq_map_tree, hf_harq_map_msg_crc, tvb, length - sizeof(harq_map_msg_crc), sizeof(harq_map_msg_crc), FALSE);
+		it = proto_tree_add_item(harq_map_tree, hf_harq_map_msg_crc, tvb, length - sizeof(harq_map_msg_crc), sizeof(harq_map_msg_crc), ENC_BIG_ENDIAN);
 		/* verify the CRC */
 		if (harq_map_msg_crc != calculated_crc)
 		{

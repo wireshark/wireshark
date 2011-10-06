@@ -61,7 +61,7 @@ dissect_dsareq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DSA Request");
       dsareq_tree = proto_item_add_subtree (it, ett_docsis_dsareq);
       proto_tree_add_item (dsareq_tree, hf_docsis_dsareq_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* Call Dissector for Appendix C TLV's */

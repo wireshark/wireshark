@@ -95,15 +95,15 @@ void dissect_mac_mgmt_msg_dsd_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		dsd_tree = proto_item_add_subtree(dsd_item, ett_mac_mgmt_msg_dsd_req_decoder);
 		/* Decode and display the DSD message */
 		/* display the Message Type */
-		proto_tree_add_item(dsd_tree, hf_dsd_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsd_tree, hf_dsd_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Transaction ID */
-		proto_tree_add_item(dsd_tree, hf_dsd_transaction_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(dsd_tree, hf_dsd_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 2;
 		/* display the Service Flow ID */
-		proto_tree_add_item(dsd_tree, hf_dsd_service_flow_id, tvb, offset, 4, FALSE);
+		proto_tree_add_item(dsd_tree, hf_dsd_service_flow_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 4;
 		/* process DSD REQ message TLV Encode Information */
@@ -181,15 +181,15 @@ void dissect_mac_mgmt_msg_dsd_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* move to next field */
 		offset++;
 		/* display the Transaction ID */
-		proto_tree_add_item(dsd_tree, hf_dsd_transaction_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(dsd_tree, hf_dsd_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 2;
 		/* display the Confirmation Code */
-		proto_tree_add_item(dsd_tree, hf_dsd_confirmation_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsd_tree, hf_dsd_confirmation_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Service Flow ID */
-		proto_tree_add_item(dsd_tree, hf_dsd_service_flow_id, tvb, offset, 4, FALSE);
+		proto_tree_add_item(dsd_tree, hf_dsd_service_flow_id, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 4;
 		/* process DSD RSP message TLV Encode Information */

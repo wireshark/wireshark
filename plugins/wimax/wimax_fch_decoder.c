@@ -118,20 +118,20 @@ static void dissect_wimax_fch_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 		/* add FCH subtree */
 		fch_tree = proto_item_add_subtree(fch_item, ett_wimax_fch_decoder);
 		/* Decode and display the used sub-channel groups */
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group0, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group1, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group2, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group3, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group4, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group5, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_reserved_1, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group0, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group1, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group2, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group3, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group4, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_used_subchannel_group5, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_reserved_1, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
 		/* Decode and display the repetition coding indication */
-		proto_tree_add_item(fch_tree, hf_fch_repetition_coding_indication, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_repetition_coding_indication, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
 		/* Decode and display the coding indication */
-		proto_tree_add_item(fch_tree, hf_fch_coding_indication, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_coding_indication, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
 		/* Decode and display the DL MAP length */
-		proto_tree_add_item(fch_tree, hf_fch_dlmap_length, tvb, offset, FCH_BURST_LENGTH, FALSE);
-		proto_tree_add_item(fch_tree, hf_fch_reserved_2, tvb, offset, FCH_BURST_LENGTH, FALSE);
+		proto_tree_add_item(fch_tree, hf_fch_dlmap_length, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
+		proto_tree_add_item(fch_tree, hf_fch_reserved_2, tvb, offset, FCH_BURST_LENGTH, ENC_BIG_ENDIAN);
 	}
 }
 

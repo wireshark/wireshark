@@ -52,7 +52,7 @@ dissect_sync (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	sync_tree = proto_item_add_subtree (it, ett_docsis_sync);
 
 	proto_tree_add_item (sync_tree, hf_docsis_sync_cmts_timestamp, tvb, 0, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 	}				/* if(tree) */
 }
 

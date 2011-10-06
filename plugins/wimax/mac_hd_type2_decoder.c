@@ -414,15 +414,15 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		parent_item = proto_tree_get_parent(tree);
 		/* Decode and display the first byte of the header */
 		/* header type */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_2_ht, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_2_ht, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* encryption control */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_2_ec, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_2_ec, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* sub-type */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_2_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_2_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* CID inclusion indication */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_2_cii, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_2_cii, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* feedback type */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_2_fb_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_2_fb_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* Get the first byte */
 		first_byte = tvb_get_guint8(tvb, offset);
 		/* get the CII field */
@@ -455,333 +455,333 @@ void dissect_mac_header_type_2_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			case CQI_MIMO_FB:
 				/* Decode and display the CQI and MIMO feedback */
 				/* CQI feedback type */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cqi_fb_type, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cqi_fb_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* CQI payload */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cqi_payload, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cqi_payload, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cqi_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cqi_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case DL_AVG_CINR:
 				/* Decode and display the DL average CINR feedback */
 				/* DL average CINR payload */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_ave_cinr, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_ave_cinr, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_ave_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_ave_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case MIMO_COEF_FB:
 				/* Decode and display the MIMO coefficients feedback */
 				/* number of index */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef_ni, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef_ni, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* occurrences of antenna index */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef_ai, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef_ai, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* MIMO coefficients */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_coef_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* Decode and display the CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case PREF_DL_CHAN_DIUC_FB:
 				/* Decode and display the Preffed DL Channel DIUC feedback */
 				/* Preferred DIUC */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_chan_diuc, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_chan_diuc, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* DCD Change Count */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_chan_dcd, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_chan_dcd, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_chan_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_dl_chan_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case UL_TX_PWR:
 				/* Decode and display the UL TX Power feedback */
 				/* UL TX Power */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_ul_tx_pwr, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_ul_tx_pwr, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_ul_tx_pwr_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_ul_tx_pwr_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case PHY_CHAN_FB:
 				/* Decode and display the PHY Channel feedback */
 				/* Preffed DIUC */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_diuc, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_diuc, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* UL TX Power */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_ul_tx_pwr, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_ul_tx_pwr, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* UL Headroom */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_ul_hdrm, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_ul_hdrm, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_phy_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case AMC_BAND_BITMAP:
 				/* Decode and display the AMC Band CQIs feedback */
 				/* AMC Band Indication Bitmap */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_bitmap, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_bitmap, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* AMC CQI 1 */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_1, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* AMC CQI 2 */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_2, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* AMC CQI 3 */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_3, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_3, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* AMC CQI 4 */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_4, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_amc_cqi_4, tvb, offset, 2, ENC_BIG_ENDIAN);
 #if 0
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 #endif
 			break;
 			case SHORT_PRECODE_FB:
 				/* Decode and display the Life Span of Short-term precoding feedback */
 				/* Life Span */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_life_span, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_life_span, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_life_span_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_life_span_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case MULTI_TYPES_FB:
 				/* Decode and display the Multi types of feedback */
 				/* Number of feedback types */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mt_num_fb_types, tvb, offset, 4, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mt_num_fb_types, tvb, offset, 4, ENC_BIG_ENDIAN);
 				/* Occurrences of feedback type */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mt_occu_fb_type, tvb, offset, 4, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mt_occu_fb_type, tvb, offset, 4, ENC_BIG_ENDIAN);
 				/* feedback contents */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mt_fb_contents, tvb, offset, 4, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mt_fb_contents, tvb, offset, 4, ENC_BIG_ENDIAN);
 #if 0
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 #endif
 			break;
 			case LONG_PRECODE_FB:
 				/* Decode and display the Long-term precoding feedback */
 				/* Feedback of index */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_id_fb, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_id_fb, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* rank of prrecoding codebook */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_rank, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_rank, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* EFC and QAM feedback */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_fec_qam, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_fec_qam, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_lt_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case COMB_DL_AVG_CINR:
 				/* Decode and display the Combined DL Average CINR feedback */
 				/* Combined DL average CINR of Active BSs */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_comb_dl_ave, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_comb_dl_ave, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* reserved */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_comb_dl_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_comb_dl_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case MIMO_CHAN_FB:
 				/* Decode and display the second byte of the header */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_diuc, tvb, (offset+1), 1, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_pbwi, tvb, (offset+1), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_diuc, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_pbwi, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
 				/* Decode and display the 3rd to 5th bytes of the header */
 				/* Decode and display the SLPB */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_slpb, tvb, offset, 3, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_slpb, tvb, offset, 3, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* Decode and display the BPRI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_bpri_cid, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_bpri_cid, tvb, offset, 3, ENC_BIG_ENDIAN);
 					/* Decode and display the CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_cid, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_cid, tvb, offset, 3, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* Decode and display the BPRI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_bpri, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_bpri, tvb, offset, 3, ENC_BIG_ENDIAN);
 					/* Decode and display the CTI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_cti, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_cti, tvb, offset, 3, ENC_BIG_ENDIAN);
 					/* Decode and display the AI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_0, tvb, offset, 3, FALSE);
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_1, tvb, offset, 3, FALSE);
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_2, tvb, offset, 3, FALSE);
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_3, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_0, tvb, offset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_1, tvb, offset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_2, tvb, offset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ai_3, tvb, offset, 3, ENC_BIG_ENDIAN);
 					/* Decode and display the MI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_mi, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_mi, tvb, offset, 3, ENC_BIG_ENDIAN);
 					/* Decode and display the CT */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ct, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_ct, tvb, offset, 3, ENC_BIG_ENDIAN);
 					/* Decode and display the CQI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_cqi, tvb, offset, 3, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_mimo_cqi, tvb, offset, 3, ENC_BIG_ENDIAN);
 				}
 			break;
 			case CINR_FB:
 				/* Decode and display the CINRC feedback */
 				/* CINR Mean */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cinr_mean, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cinr_mean, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* CINR Standard Deviation */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cinr_devi, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cinr_devi, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* Decode and display the CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			case CL_MIMO_FB:
 				/* Get the MIMO type */
 				mimo_type = ((tvb_get_guint8(tvb, offset) & 0xC0) >> 6);
 				/* Decode and display the MIMO type */
-				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_type, tvb, offset, 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 				if(mimo_type == 1)
 				{
 					/* Decode and display the umber of streams */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_streams, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_streams, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* Decode and display the antenna selection option index */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_ant_sel, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_ant_sel, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* Decode and display the average CQI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_cqi_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_cqi_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_rsv_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_rsv_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 				}
 				else if(mimo_type == 2)
 				{
 					/* Decode and display the umber of streams */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_streams, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_streams, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* Decode and display the antenna selection option index */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_codebook_id, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_codebook_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* Decode and display the average CQI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_cqi_2, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_cqi_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_rsv_2, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_rsv_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
 					/* Decode and display the antenna grouping index */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_ant_id, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_ant_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* Decode and display the average CQI */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_cqi, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_cqi, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_rsv, tvb, offset, 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cl_mimo_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 				}
 				/* check the CII field */
 				if(cii_bit)
 				{	/* with CID */
 					/* Decode and display the CID */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* without CID */
 					/* reserved */
-					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, FALSE);
+					proto_tree_add_item(ti_tree, hf_mac_header_type_2_no_cid, tvb, (offset+2), 2, ENC_BIG_ENDIAN);
 				}
 			break;
 			default:
 			break;
 			}
 			/* Decode and display the HCS */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_2_hcs, tvb, (offset+4), 1, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_2_hcs, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
 		}
 		else
 		{

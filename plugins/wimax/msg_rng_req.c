@@ -162,50 +162,50 @@ void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_
 				/* display Power Saving Class Flags */
 				/* add subtree */
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Power Saving Class (%u byte)", tlv_len);
-				proto_tree_add_item(tlv_tree, hf_rng_definition_of_power_saving_class_present, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_definition_of_power_saving_class_present, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tlv_tree, hf_rng_activation_of_power_saving_class, tvb, tlv_offset, 1, FALSE);
 				proto_tree_add_item(tlv_tree, hf_rng_trf_ind_required, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_reserved, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_reserved, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_POWER_SAVING_CLASS_ID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_class_id, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_id, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_id, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_POWER_SAVING_CLASS_TYPE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_class_type, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_type, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_type, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_START_FRAME_NUMBER:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_first_sleep_window_frame, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_first_sleep_window_frame, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_first_sleep_window_frame, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_INITIAL_SLEEP_WINDOW:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_initial_sleep_window, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_initial_sleep_window, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_initial_sleep_window, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_LISTENING_WINDOW:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_listening_window, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_listening_window, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_listening_window, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_FINAL_SLEEP_WINDOW_BASE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_final_sleep_window_base, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_final_sleep_window_base, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_final_sleep_window_base, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_FINAL_SLEEP_WINDOW_EXPONENT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_final_sleep_window_exp, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_final_sleep_window_exp, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_final_sleep_window_exp, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_SLPID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_slpid, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_slpid, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_slpid, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_CID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_included_cid, tvb, tlv_offset, 2, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_included_cid, tvb, tlv_offset, 2, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_included_cid, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 				break;
 			case RNG_DIRECTION:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_rng_power_saving_mgmt_connection_direction, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_power_saving_mgmt_connection_direction, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_power_saving_mgmt_connection_direction, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);
@@ -248,8 +248,8 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		/* add MAC RNG-REQ subtree */
 		rng_req_tree = proto_item_add_subtree(rng_req_item, ett_mac_mgmt_msg_rng_req_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(rng_req_tree, hf_rng_req_message_type, tvb, offset, 1, FALSE);
-		proto_tree_add_item(rng_req_tree, hf_rng_req_reserved, tvb, 1, 1, FALSE);
+		proto_tree_add_item(rng_req_tree, hf_rng_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(rng_req_tree, hf_rng_req_reserved, tvb, 1, 1, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		while(offset < tvb_len)
@@ -273,8 +273,8 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case RNG_REQ_DL_BURST_PROFILE:
 					/* add TLV subtree */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Requested Downlink Burst Profile 0x%02x", tvb_get_guint8(tvb, tlv_offset));
-					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_diuc, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_lsb_ccc, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_diuc, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_rng_req_dl_burst_profile_lsb_ccc, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_SS_MAC_ADDRESS:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ss_mac_address, tvb, tlv_offset, 6, FALSE);
@@ -299,28 +299,28 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					/* display the Ranging Purpose Flags */
 					/* add subtree */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Ranging Purpose Flags (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_ho_indication, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_location_update_request, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_reserved, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_ho_indication, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_location_update_request, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_purpose_reserved, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_HO_ID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ho_id, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_POWER_DOWN_INDICATOR:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_power_down_indicator, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_REQUESTED_DNLK_REP_CODING_LEVEL:
 					/* add subtree */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Requested downlink repetition coding level (%u byte(s))", tlv_len);
-					proto_tree_add_item(tlv_tree, hf_rng_req_repetition_coding_level, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_requested_downlink_repetition_coding_level_reserved, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_repetition_coding_level, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_rng_req_requested_downlink_repetition_coding_level_reserved, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_CMAC_KEY_COUNT:
 					if (include_cor2_changes) {
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, 2, FALSE);
+						proto_tree_add_item(tlv_tree, hf_rng_req_cmac_key_count, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 					} else {
 						/* Unknown TLV type */
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_tlv_type, tvb, tlv_offset, tlv_len, FALSE);

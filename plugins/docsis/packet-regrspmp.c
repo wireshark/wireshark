@@ -66,10 +66,10 @@ dissect_regrspmp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			it = proto_tree_add_protocol_format (tree, proto_docsis_regrspmp, tvb, 0, -1,"REG-RSP-MP Message");
 			regrspmp_tree = proto_item_add_subtree (it, ett_docsis_regrspmp);
 			
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, FALSE);
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, FALSE);
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, FALSE);
-			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, FALSE);
+			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_sid, tvb, 0, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_response, tvb, 2, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_number_of_fragments, tvb, 3, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item (regrspmp_tree, hf_docsis_regrspmp_fragment_sequence_number, tvb, 4, 1, ENC_BIG_ENDIAN);
 	
 		}
 		/* Call Dissector for Appendix C TLV's */

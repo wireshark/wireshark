@@ -84,15 +84,15 @@ void dissect_mac_mgmt_msg_prc_lt_ctrl_decoder(tvbuff_t *tvb, packet_info *pinfo 
 		prc_lt_ctrl_tree = proto_item_add_subtree(prc_lt_ctrl_item, ett_mac_mgmt_msg_prc_lt_ctrl_decoder);
 
 		/* display the Message Type */
-		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset ++;
 
 		/* display whether to Setup or Tear-down the
 		 * long-term MIMO precoding delay */
-		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_precoding, tvb, offset, 1, FALSE);
+		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_precoding, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 		/* display the Precoding Delay */
-		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_precoding_delay, tvb, offset, 1, FALSE);
+		proto_tree_add_item(prc_lt_ctrl_tree, hf_prc_lt_ctrl_precoding_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 

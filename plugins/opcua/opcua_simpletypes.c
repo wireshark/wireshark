@@ -583,7 +583,7 @@ void parseVariant(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldN
     gint32  ArrayLength = 0;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(subtree, hf_opcua_variant_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & VARIANT_ARRAYMASK)
@@ -694,7 +694,7 @@ void parseArraySimple(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, int hfInde
 
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
-    proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
+    proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
 
     if (iLen > MAX_ARRAY_LEN)
     {
@@ -725,7 +725,7 @@ void parseArrayEnum(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, fctEnumParse
 
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
-    proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
+    proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
 
     if (iLen > MAX_ARRAY_LEN)
     {
@@ -755,7 +755,7 @@ void parseArrayComplex(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szF
 
     /* read array length */
     iLen = tvb_get_letohl(tvb, *pOffset);
-    proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, TRUE);
+    proto_tree_add_item(subtree, hf_opcua_ArraySize, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN);
 
     if (iLen > MAX_ARRAY_LEN)
     {
@@ -782,39 +782,39 @@ void parseNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFieldNa
     guint8  EncodingMask;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     switch(EncodingMask)
     {
     case 0x00: /* two byte node id */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 1, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
         iOffset+=1;
         break;
     case 0x01: /* four byte node id */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 1, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
         iOffset+=1;
-        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 4, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
         iOffset+=4;
         break;
     case 0x03: /* string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         parseString(subtree, tvb, &iOffset, hf_opcua_String);
         break;
     case 0x04: /* guid */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
         break;
     case 0x05: /* byte string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
         iOffset+=4;
         parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
         break;
@@ -864,39 +864,39 @@ void parseExpandedNodeId(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
     guint8  EncodingMask;
 
     EncodingMask = tvb_get_guint8(tvb, iOffset);
-    proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(subtree, hf_opcua_nodeid_encodingmask, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     switch(EncodingMask)
     {
     case 0x00: /* two byte node id */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 1, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
         iOffset+=1;
         break;
     case 0x01: /* four byte node id */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 1, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
         iOffset+=1;
-        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         break;
     case 0x02: /* numeric, that does not fit into four bytes */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
-        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 4, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_numeric, tvb, iOffset, 4, ENC_LITTLE_ENDIAN);
         iOffset+=4;
         break;
     case 0x03: /* string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         parseString(subtree, tvb, &iOffset, hf_opcua_String);
         break;
     case 0x04: /* guid */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         parseGuid(subtree, tvb, &iOffset, hf_opcua_Guid);
         break;
     case 0x05: /* byte string */
-        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, TRUE);
+        proto_tree_add_item(subtree, hf_opcua_nodeid_nsid, tvb, iOffset, 2, ENC_LITTLE_ENDIAN);
         iOffset+=2;
         parseByteString(subtree, tvb, &iOffset, hf_opcua_ByteString);
         break;

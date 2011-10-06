@@ -330,10 +330,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		it = proto_tree_add_protocol_format (tree, proto_docsis_mdd, tvb, 0, -1,"MDD Message");
 		mdd_tree = proto_item_add_subtree (it, ett_docsis_mdd);
 
-		proto_tree_add_item (mdd_tree, hf_docsis_mdd_ccc, tvb, 0, 1, FALSE);
-		proto_tree_add_item (mdd_tree, hf_docsis_mdd_number_of_fragments, tvb, 1, 1, FALSE);
-		proto_tree_add_item (mdd_tree, hf_docsis_mdd_fragment_sequence_number, tvb, 2, 1, FALSE);
-		proto_tree_add_item (mdd_tree, hf_docsis_mdd_current_channel_dcid, tvb, 3, 1, FALSE);
+		proto_tree_add_item (mdd_tree, hf_docsis_mdd_ccc, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item (mdd_tree, hf_docsis_mdd_number_of_fragments, tvb, 1, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item (mdd_tree, hf_docsis_mdd_fragment_sequence_number, tvb, 2, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item (mdd_tree, hf_docsis_mdd_current_channel_dcid, tvb, 3, 1, ENC_BIG_ENDIAN);
 
 		/*TLVs...*/
 		pos = 4;
@@ -353,27 +353,27 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_CHANNEL_ID:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_channel_id, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_channel_id, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_FREQUENCY:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_frequency, tvb, subpos + 2 , 4, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_frequency, tvb, subpos + 2 , 4, ENC_BIG_ENDIAN);
 								break;
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_MODULATION_ORDER_ANNEX:
 								tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos + 2, 1, "Modulation Order/Annex");
 								tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_downstream_active_channel_list_modulation_order, tvb, subpos + 2 , 1, FALSE);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_downstream_active_channel_list_annex, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_downstream_active_channel_list_modulation_order, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_downstream_active_channel_list_annex, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_PRIMARY_CAPABLE:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_primary_capable, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_active_channel_list_primary_capable, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case DOWNSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK:
 								tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos + 2, 2, "CM-STATUS Event Enable Bitmask");
 								tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout, tvb, subpos + 2 , 2,FALSE);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure, tvb, subpos + 2 , 2, FALSE);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery, tvb, subpos + 2 , 2,FALSE);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_recovery, tvb, subpos + 2 , 2, FALSE);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_timeout, tvb, subpos + 2 , 2,ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_failure, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_mdd_recovery, tvb, subpos + 2 , 2,ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_qam_fec_lock_recovery, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
 								break;
 						}
 						subpos += sublength + 2;
@@ -386,11 +386,11 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_MD_DS_SG_IDENTIFIER:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_mac_domain_downstream_service_group_md_ds_sg_identifier, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_mac_domain_downstream_service_group_md_ds_sg_identifier, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case MAC_DOMAIN_DOWNSTREAM_SERVICE_GROUP_CHANNEL_IDS:
 								for (i = 0; i < sublength; i++) {
-									proto_tree_add_item (tlv_tree, hf_docsis_mdd_mac_domain_downstream_service_group_channel_id, tvb, subpos + 2 + i , 1, FALSE);
+									proto_tree_add_item (tlv_tree, hf_docsis_mdd_mac_domain_downstream_service_group_channel_id, tvb, subpos + 2 + i , 1, ENC_BIG_ENDIAN);
 								}
 								break;
 						}
@@ -400,7 +400,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				case DOWNSTREAM_AMBIGUITY_RESOLUTION_FREQUENCY_LIST:
 					subpos = pos + 2;
 					for (i = 0; i < length; i+=4) {
-						proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_ambiguity_resolution_frequency, tvb, subpos + i , 4, FALSE);
+						proto_tree_add_item (tlv_tree, hf_docsis_mdd_downstream_ambiguity_resolution_frequency, tvb, subpos + i , 4, ENC_BIG_ENDIAN);
 					}
 					break;
 				case RECEIVE_CHANNEL_PROFILE_REPORTING_CONTROL:
@@ -410,10 +410,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case RCP_CENTER_FREQUENCY_SPACING:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_rpc_center_frequency_spacing, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_rpc_center_frequency_spacing, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case VERBOSE_RCP_REPORTING:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_verbose_rcp_reporting, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_verbose_rcp_reporting, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 						}
 						subpos += sublength + 2;
@@ -426,10 +426,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case IP_PROVISIONING_MODE:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_ip_provisioning_mode, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_ip_provisioning_mode, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case PRE_REGISTRATION_DSID:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_pre_registration_dsid, tvb, subpos + 2 , 3, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_pre_registration_dsid, tvb, subpos + 2 , 3, ENC_BIG_ENDIAN);
 								break;
 						}
 						subpos += sublength + 2;
@@ -437,7 +437,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					break;
 				case EARLY_AUTHENTICATION_AND_ENCRYPTION:
 					subpos = pos + 2;
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_early_authentication_and_encryption, tvb, subpos, 1, FALSE);
+					proto_tree_add_item (tlv_tree, hf_docsis_mdd_early_authentication_and_encryption, tvb, subpos, 1, ENC_BIG_ENDIAN);
 					break;
 				case UPSTREAM_ACTIVE_CHANNEL_LIST:
 					subpos = pos + 2;
@@ -446,14 +446,14 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case UPSTREAM_ACTIVE_CHANNEL_LIST_UPSTREAM_CHANNEL_ID:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_active_channel_list_upstream_channel_id, tvb, subpos + 2 , 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_active_channel_list_upstream_channel_id, tvb, subpos + 2 , 1, ENC_BIG_ENDIAN);
 								break;
 							case UPSTREAM_ACTIVE_CHANNEL_LIST_CM_STATUS_EVENT_ENABLE_BITMASK:
 								tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos + 2, 2, "CM-STATUS Event Enable Bitmask");
 								tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout, tvb, subpos + 2 , 2, FALSE);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_t3_retries_exceeded, tvb, subpos + 2 , 2, FALSE);
-								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_successful_ranging_after_t3_retries_exceeded, tvb, subpos + 2 , 2, FALSE);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_t4_timeout, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_t3_retries_exceeded, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
+								proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_bitmask_successful_ranging_after_t3_retries_exceeded, tvb, subpos + 2 , 2, ENC_BIG_ENDIAN);
 								break;
 						}
 						subpos += sublength + 2;
@@ -462,16 +462,16 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				case UPSTREAM_AMBIGUITY_RESOLUTION_CHANNEL_LIST:
 					sublength = tvb_get_guint8 (tvb, subpos + 1);
 					for (i = 0; i < sublength; i++) {
-						proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_ambiguity_resolution_channel_list_channel_id, tvb, pos + 2 + i , 1, FALSE);
+						proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_ambiguity_resolution_channel_list_channel_id, tvb, pos + 2 + i , 1, ENC_BIG_ENDIAN);
 					}
 					break;
 				case UPSTREAM_FREQUENCY_RANGE:
 					subpos = pos + 2;
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_frequency_range, tvb, subpos, 1, FALSE);
+					proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_frequency_range, tvb, subpos, 1, ENC_BIG_ENDIAN);
 					break;
 				case SYMBOL_CLOCK_LOCKING_INDICATOR:
 					subpos = pos + 2;
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_symbol_clock_locking_indicator, tvb, subpos, 1, FALSE);
+					proto_tree_add_item (tlv_tree, hf_docsis_mdd_symbol_clock_locking_indicator, tvb, subpos, 1, ENC_BIG_ENDIAN);
 					break;
 				case CM_STATUS_EVENT_CONTROL:
 					subpos = pos + 2;
@@ -480,14 +480,14 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case EVENT_TYPE_CODE:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_event_type, tvb, subpos+2, 1, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_event_type, tvb, subpos+2, 1, ENC_BIG_ENDIAN);
 								break;
 							case MAXIMUM_EVENT_HOLDOFF_TIMER:
-								text_item = proto_tree_add_item (tlv_tree, hf_docsis_mdd_maximum_event_holdoff_timer, tvb, subpos, 2, FALSE);
+								text_item = proto_tree_add_item (tlv_tree, hf_docsis_mdd_maximum_event_holdoff_timer, tvb, subpos, 2, ENC_BIG_ENDIAN);
 								proto_item_append_text(text_item, " (%d ms)", (256*tvb_get_guint8 (tvb, subpos) + tvb_get_guint8 (tvb, subpos + 1)) * 20);
 								break;
 							case MAXIMUM_NUMBER_OF_REPORTS_PER_EVENT:
-								text_item = proto_tree_add_item (tlv_tree, hf_docsis_mdd_maximum_number_of_reports_per_event, tvb, subpos, 1, FALSE);
+								text_item = proto_tree_add_item (tlv_tree, hf_docsis_mdd_maximum_number_of_reports_per_event, tvb, subpos, 1, ENC_BIG_ENDIAN);
 								if ( tvb_get_guint8 (tvb, subpos) == 0) {
 									proto_item_append_text(text_item, " (Unlimited)");
 								}
@@ -498,7 +498,7 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					break;
 				case UPSTREAM_TRANSMIT_POWER_REPORTING:
 					subpos = pos + 2;
-					proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_transmit_power_reporting, tvb, subpos, 1, FALSE);
+					proto_tree_add_item (tlv_tree, hf_docsis_mdd_upstream_transmit_power_reporting, tvb, subpos, 1, ENC_BIG_ENDIAN);
 					break;
 				case DSG_DA_TO_DSID_ASSOCIATION_ENTRY:
 					subpos = pos + 2;
@@ -507,10 +507,10 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 						sublength = tvb_get_guint8 (tvb, subpos + 1);
 						switch(subtype) {
 							case DSG_DA_TO_DSID_ASSOCIATION_DA:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_da, tvb, subpos, 6, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_da, tvb, subpos, 6, ENC_BIG_ENDIAN);
 								break;
 							case DSG_DA_TO_DSID_ASSOCIATION_DSID:
-								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_dsid, tvb, subpos, 3, FALSE);
+								proto_tree_add_item (tlv_tree, hf_docsis_mdd_dsg_da_to_dsid_association_dsid, tvb, subpos, 3, ENC_BIG_ENDIAN);
 								break;
 						}
 						subpos += sublength + 2;
@@ -520,9 +520,9 @@ dissect_mdd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					subpos = pos + 2;
 					tlv_sub_item = proto_tree_add_text (tlv_tree, tvb, subpos, 2, "CM-STATUS Event Enable Bitmask for Non-Channel-Specific Events");
 					tlv_sub_tree = proto_item_add_subtree (tlv_sub_item, ett_sub_tlv);
-					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range, tvb, subpos, 2,FALSE);
-					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup, tvb, subpos , 2,FALSE);
-					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power, tvb, subpos , 2,FALSE);
+					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_sequence_out_of_range, tvb, subpos, 2,ENC_BIG_ENDIAN);
+					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_operating_on_battery_backup, tvb, subpos , 2,ENC_BIG_ENDIAN);
+					proto_tree_add_item (tlv_sub_tree, hf_docsis_mdd_cm_status_event_enable_non_channel_specific_events_cm_returned_to_ac_power, tvb, subpos , 2,ENC_BIG_ENDIAN);
 					break;
 			}
 			pos += length + 2;

@@ -160,12 +160,12 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *root)
 					proto_tree_add_item(tree, hf_sir_preamble, tvb,
 							offset, preamble_len, ENC_NA);
 				proto_tree_add_item(tree, hf_sir_bof, tvb,
-						bof_offset, 1, FALSE);
+						bof_offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_uint(tree, hf_sir_length,
 						next_tvb, 0, data_len, data_len);
 				next_tvb = checksum_data(next_tvb, tree);
 				proto_tree_add_item(tree, hf_sir_eof, tvb,
-						eof_offset, 1, FALSE);
+						eof_offset, 1, ENC_BIG_ENDIAN);
 			} else {
 				next_tvb = checksum_data(next_tvb, NULL);
 			}

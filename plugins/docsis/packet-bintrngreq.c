@@ -64,20 +64,20 @@ dissect_bintrngreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 										   "Bonded Initial Ranging Request");
     bintrngreq_tree = proto_item_add_subtree (bintrngreq_item, ett_docsis_bintrngreq);
     proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_capflags,
-						   tvb, offset, 1, FALSE);
+						   tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item( bintrngreq_tree, hf_docsis_bintrngreq_capflags_frag,
 						   tvb, offset, 1, FALSE );
     proto_tree_add_item( bintrngreq_tree, hf_docsis_bintrngreq_capflags_encrypt,
 						   tvb, offset, 1, FALSE );
     offset++;
     proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_mddsgid,
-						   tvb, offset, 1, FALSE);
+						   tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_down_chid,
-						   tvb, offset, 1, FALSE);
+						   tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item (bintrngreq_tree, hf_docsis_bintrngreq_up_chid,
-						   tvb, offset, 1, FALSE);
+						   tvb, offset, 1, ENC_BIG_ENDIAN);
   }
 }
 

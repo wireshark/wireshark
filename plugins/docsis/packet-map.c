@@ -104,23 +104,23 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       map_tree = proto_item_add_subtree (it, ett_docsis_map);
 
       proto_tree_add_item (map_tree, hf_docsis_map_upstream_chid, tvb, 0, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_ucd_count, tvb, 1, 1,
-			   FALSE);
-      proto_tree_add_item (map_tree, hf_docsis_map_numie, tvb, 2, 1, FALSE);
+			   ENC_BIG_ENDIAN);
+      proto_tree_add_item (map_tree, hf_docsis_map_numie, tvb, 2, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, FALSE);
       proto_tree_add_item (map_tree, hf_docsis_map_alloc_start, tvb, 4, 4,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_ack_time, tvb, 8, 4,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_rng_start, tvb, 12, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_rng_end, tvb, 13, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_data_start, tvb, 14, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_data_end, tvb, 15, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
       pos = 16;
       for (i = 0; i < numie; i++)
@@ -136,11 +136,11 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	  iuc = (guint8) (temp & 0x0F);
 	  mask = 0x3FFF;
 	  offset = (guint16) (ie & mask);
-	  item = proto_tree_add_item(map_tree, hf_docsis_map_sid, tvb, pos, 4, FALSE);
+	  item = proto_tree_add_item(map_tree, hf_docsis_map_sid, tvb, pos, 4, ENC_BIG_ENDIAN);
 	  PROTO_ITEM_SET_HIDDEN(item);
-	  item = proto_tree_add_item(map_tree, hf_docsis_map_iuc, tvb, pos, 4, FALSE);
+	  item = proto_tree_add_item(map_tree, hf_docsis_map_iuc, tvb, pos, 4, ENC_BIG_ENDIAN);
 	  PROTO_ITEM_SET_HIDDEN(item);
-	  item = proto_tree_add_item(map_tree, hf_docsis_map_offset, tvb, pos, 4, FALSE);
+	  item = proto_tree_add_item(map_tree, hf_docsis_map_offset, tvb, pos, 4, ENC_BIG_ENDIAN);
 	  PROTO_ITEM_SET_HIDDEN(item);
 	  if (sid == 0x3FFF)
 	    proto_tree_add_uint_format (map_tree, hf_docsis_map_ie, tvb, pos, 4,

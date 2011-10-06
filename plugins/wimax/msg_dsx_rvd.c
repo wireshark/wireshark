@@ -67,15 +67,15 @@ void dissect_mac_mgmt_msg_dsx_rvd_decoder(tvbuff_t *tvb, packet_info *pinfo _U_,
 		/* add MAC DSx subtree */
 		dsx_rvd_tree = proto_item_add_subtree(dsx_rvd_item, ett_mac_mgmt_msg_dsx_rvd_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Transaction ID */
-		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_transaction_id, tvb, offset, 2, FALSE);
+		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_transaction_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset += 2;
 		/* display the Confirmation Code */
-		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_confirmation_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dsx_rvd_tree, hf_dsx_rvd_confirmation_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 

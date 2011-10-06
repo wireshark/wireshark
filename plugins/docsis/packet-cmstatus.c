@@ -90,7 +90,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
     case EVENT_DS_CH_ID:
       if (length == 3)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_ds_ch_id, tvb, pos + 1, 1, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_ds_ch_id, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -101,7 +101,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
     case EVENT_US_CH_ID:
       if (length == 3)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_us_ch_id, tvb, pos + 1, 1, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_us_ch_id, tvb, pos + 1, 1, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -112,7 +112,7 @@ dissect_cmstatus_tlv (tvbuff_t * tvb, proto_tree * tree, guint8 start, guint16 l
     case EVENT_DSID:
       if (length == 5)
       {
-        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_dsid, tvb, pos + 1, 3, FALSE);
+        proto_tree_add_item (tlv_tree, hf_docsis_cmstatus_dsid, tvb, pos + 1, 3, ENC_BIG_ENDIAN);
       }
       else
       {
@@ -153,48 +153,48 @@ dissect_cmstatus (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   {
     it = proto_tree_add_protocol_format (tree, proto_docsis_cmstatus, tvb, 0, -1, "CM-STATUS Report");
     cmstatus_tree = proto_item_add_subtree (it, ett_docsis_cmstatus);
-    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_tranid, tvb, 0, 2, FALSE);
+    proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_tranid, tvb, 0, 2, ENC_BIG_ENDIAN);
 
     switch (event_type)
     {
     case SEC_CH_MDD_TIMEOUT:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_t, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_t, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case QAM_FEC_LOCK_FAILURE:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_f, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_f, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case SEQ_OUT_OF_RANGE:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_s_o, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_s_o, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case SEC_CH_MDD_RECOVERY:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_r, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_mdd_r, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case QAM_FEC_LOCK_RECOVERY:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_r, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_qfl_r, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case T4_TIMEOUT:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t4_t, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t4_t, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case T3_RETRIES_EXCEEDED:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t3_e, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_t3_e, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case SUCCESS_RANGING_AFTER_T3_RETRIES_EXCEEDED:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_rng_s, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_rng_s, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case CM_ON_BATTERY:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_b, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_b, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
 
     case CM_ON_AC_POWER:
-      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_a, tvb, 2, 1, FALSE);
+      proto_tree_add_item (cmstatus_tree, hf_docsis_cmstatus_e_t_cm_a, tvb, 2, 1, ENC_BIG_ENDIAN);
       break;
     } /* switch */
 

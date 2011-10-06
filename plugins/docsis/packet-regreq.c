@@ -62,7 +62,7 @@ dissect_regreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"Registration Request");
       regreq_tree = proto_item_add_subtree (it, ett_docsis_regreq);
       proto_tree_add_item (regreq_tree, hf_docsis_regreq_sid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
     }
     /* Call Dissector for Appendix C TlV's */
     next_tvb = tvb_new_subset_remaining (tvb, 2);

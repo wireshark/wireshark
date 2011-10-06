@@ -2940,19 +2940,19 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 	/* add buffer header */
     u8Version = tvb_get_guint8 (tvb, offset);
     if (conn_data_tree) {
-        proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_version, tvb, offset, 1, TRUE);
+        proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_version, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
 	offset += 1;
 
     u8Flags = tvb_get_guint8 (tvb, offset);
     if (conn_data_tree) {
-        proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_flags, tvb, offset, 1, TRUE);
+        proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_flags, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
 	offset += 1;
 
     u16Count = tvb_get_letohs (tvb, offset);
     if (conn_data_tree) {
-        proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_count, tvb, offset, 2, TRUE);
+        proto_tree_add_item(conn_data_tree, hf_cba_acco_cb_count, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     }
 	offset += 2;
 	u16CountFix = u16Count;
@@ -3025,7 +3025,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 		/* add item header fields */
 		if (sub_tree) {
-			proto_tree_add_item(sub_tree, hf_cba_acco_cb_item_length, tvb, offset, 2, TRUE);
+			proto_tree_add_item(sub_tree, hf_cba_acco_cb_item_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		}
 		offset += 2;
 		u16HdrLen = 2;
@@ -3035,7 +3035,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 		{
 			u32ID = tvb_get_letohl (tvb, offset);
 			if (sub_tree) {
-				proto_tree_add_item(sub_tree, hf_cba_acco_conn_cons_id, tvb, offset, 4, TRUE);
+				proto_tree_add_item(sub_tree, hf_cba_acco_conn_cons_id, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 			}
 			offset += 4;
 			u16HdrLen += 4;
@@ -3045,7 +3045,7 @@ dissect_CBA_Connection_Data(tvbuff_t *tvb,
 
 		u8QC = tvb_get_guint8 (tvb, offset);
 		if (sub_tree) {
-			item = proto_tree_add_item(sub_tree, hf_cba_acco_qc, tvb, offset, 1, TRUE);
+			item = proto_tree_add_item(sub_tree, hf_cba_acco_qc, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 		}
 		offset += 1;
 		u16HdrLen += 1;

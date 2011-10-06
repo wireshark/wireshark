@@ -63,11 +63,11 @@ dissect_dsdreq (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"DSD Request");
       dsdreq_tree = proto_item_add_subtree (it, ett_docsis_dsdreq);
       proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_rsvd, tvb, 2, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (dsdreq_tree, hf_docsis_dsdreq_sfid, tvb, 4, 4,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* Call Dissector for Appendix C TLV's */

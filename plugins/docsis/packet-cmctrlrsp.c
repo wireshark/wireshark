@@ -67,7 +67,7 @@ dissect_cmctrlrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"CM Control Response");
       cmctrlrsp_tree = proto_item_add_subtree (it, ett_docsis_cmctrlrsp);
       proto_tree_add_item (cmctrlrsp_tree, hf_docsis_cmctrlrsp_tranid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
     }
     /* Call Dissector for Appendix C TLV's */

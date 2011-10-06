@@ -67,9 +67,9 @@ dissect_regrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"Registration Response");
       regrsp_tree = proto_item_add_subtree (it, ett_docsis_regrsp);
       proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_sid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (regrsp_tree, hf_docsis_regrsp_response, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
     }
     /* Call Dissector for Appendix C TLV's */
     next_tvb = tvb_new_subset_remaining (tvb, 3);

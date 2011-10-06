@@ -79,7 +79,7 @@ void dissect_mac_mgmt_msg_res_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		res_cmd_tree = proto_item_add_subtree(res_cmd_item, ett_mac_mgmt_msg_res_cmd_decoder);
 		/* Decode and display the Reset Command (RES-CMD) */
 		/* display the Message Type */
-		proto_tree_add_item(res_cmd_tree, hf_res_cmd_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(res_cmd_tree, hf_res_cmd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* set the offset for the TLV Encoded info */
 		offset++;
 		/* process the RES-CMD TLVs */

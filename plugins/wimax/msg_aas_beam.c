@@ -111,14 +111,14 @@ void dissect_mac_mgmt_msg_aas_beam_select_decoder(tvbuff_t *tvb, packet_info *pi
 		/* add subtree */
 		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_select_decoder);
 		/* Display the AAS-BEAM-SELECT message type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* Decode and display the AAS-BEAM-SELECT message body */
 		/* display the AAS Beam Index */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_index, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_index, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the reserved fields */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -144,26 +144,26 @@ static void dissect_mac_mgmt_msg_aas_beam_req_decoder(tvbuff_t *tvb, packet_info
 		/* add subtree */
 		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_req_decoder);
 		/* Display the AAS-BEAM-REQ message type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* Decode and display the AAS-BEAM-REQ message body */
 		/* display the Frame Number */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_frame_number, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Feedback Request Number */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_feedback_request_number, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_feedback_request_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Measurement Report Type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_measurement_report_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_measurement_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Resolution Parameter */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_resolution_parameter, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_resolution_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Beam Bit mask */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_beam_bit_mask, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_beam_bit_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the reserved fields */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 
@@ -189,28 +189,28 @@ static void dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info
 		/* add subtree */
 		aas_beam_tree = proto_item_add_subtree(aas_beam_item, ett_mac_mgmt_msg_aas_beam_req_decoder);
 		/* Display the AAS-BEAM-RSP message type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* Decode and display the AAS-BEAM-RSP message body */
 		/* display the Frame Number */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_frame_number, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_frame_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* get the Measurement Report Type */
 		report_type = tvb_get_guint8(tvb, offset);
 		/* display the Feedback Request Number */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_feedback_request_number, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_feedback_request_number, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Measurement Report Type */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_measurement_report_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_measurement_report_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Resolution Parameter */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_resolution_parameter, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_resolution_parameter, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the Beam Bit mask */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_beam_bit_mask, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_beam_bit_mask, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the reserved fields */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_select_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* check the Measurement Report Type */
@@ -221,21 +221,21 @@ static void dissect_mac_mgmt_msg_aas_beam_rsp_decoder(tvbuff_t *tvb, packet_info
 			/* display the frequency */
 			for(index = 0; index < number_of_frequencies; index++)
 			{	/* display the Frequency Value (real part) */
-				proto_tree_add_item(aas_beam_tree, hf_aas_beam_freq_value_re, tvb, offset, 1, FALSE);
+				proto_tree_add_item(aas_beam_tree, hf_aas_beam_freq_value_re, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* move to next field */
 				offset++;
 				/* display the Frequency Value (imaginary part) */
-				proto_tree_add_item(aas_beam_tree, hf_aas_beam_freq_value_im, tvb, offset, 1, FALSE);
+				proto_tree_add_item(aas_beam_tree, hf_aas_beam_freq_value_im, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* move to next field */
 				offset++;
 			}
 		}
 		/* display the RSSI Mean Value */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_rssi_value, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_rssi_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next field */
 		offset++;
 		/* display the CINR Mean Value */
-		proto_tree_add_item(aas_beam_tree, hf_aas_beam_cinr_value, tvb, offset, 1, FALSE);
+		proto_tree_add_item(aas_beam_tree, hf_aas_beam_cinr_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 }
 #endif

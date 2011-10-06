@@ -93,9 +93,9 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"Ranging Response");
       rngrsp_tree = proto_item_add_subtree (it, ett_docsis_rngrsp);
       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_sid, tvb, 0, 2,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_upstream_chid, tvb,
-			   2, 1, FALSE);
+			   2, 1, ENC_BIG_ENDIAN);
 
       length = tvb_reported_length_remaining (tvb, 0);
       pos = 3;
@@ -134,7 +134,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (tlvlen == 2)
 		{
 		  proto_tree_add_item (rngrsp_tree, hf_docsis_rngrsp_freq_adj,
-				       tvb, pos, tlvlen, FALSE);
+				       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -149,7 +149,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (tlvlen == 1)
 		proto_tree_add_item (rngrsp_tree,
 				     hf_docsis_rngrsp_ranging_status, tvb,
-				     pos, tlvlen, FALSE);
+				     pos, tlvlen, ENC_BIG_ENDIAN);
 	      else
 		{
 		  THROW (ReportedBoundsError);
@@ -159,7 +159,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (tlvlen == 4)
 		proto_tree_add_item (rngrsp_tree,
 				     hf_docsis_rngrsp_down_freq_over, tvb,
-				     pos, tlvlen, FALSE);
+				     pos, tlvlen, ENC_BIG_ENDIAN);
 	      else
 		{
 		  THROW (ReportedBoundsError);
@@ -169,7 +169,7 @@ dissect_rngrsp (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (tlvlen == 1)
 		proto_tree_add_item (rngrsp_tree,
 				     hf_docsis_rngrsp_upstream_ch_over, tvb,
-				     pos, tlvlen, FALSE);
+				     pos, tlvlen, ENC_BIG_ENDIAN);
 	      else
 		{
 		  THROW (ReportedBoundsError);

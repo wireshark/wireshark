@@ -63,11 +63,11 @@ static void dissect_wimax_cdma_code_decoder(tvbuff_t *tvb, packet_info *pinfo, p
 		/* add CDMA Code subtree */
 		cdma_tree = proto_item_add_subtree(cdma_item, ett_wimax_cdma_code_decoder);
 		/* display the first CDMA Code */
-		proto_tree_add_item(cdma_tree, hf_wimax_ranging_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(cdma_tree, hf_wimax_ranging_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the 2nd CDMA Code */
-		proto_tree_add_item(cdma_tree, hf_wimax_ranging_symbol_offset, tvb, offset+1, 1, FALSE);
+		proto_tree_add_item(cdma_tree, hf_wimax_ranging_symbol_offset, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 		/* display the 3rd CDMA Code */
-		proto_tree_add_item(cdma_tree, hf_wimax_ranging_subchannel_offset, tvb, offset+2, 1, FALSE);
+		proto_tree_add_item(cdma_tree, hf_wimax_ranging_subchannel_offset, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 	}
 }
 

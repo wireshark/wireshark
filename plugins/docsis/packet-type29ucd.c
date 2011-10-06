@@ -224,13 +224,13 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					"type29ucd Message");
       type29ucd_tree = proto_item_add_subtree (type29ucd_item, ett_docsis_type29ucd);
       proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_upstream_chid, tvb, 0, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_config_ch_cnt, tvb, 1, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_mini_slot_size, tvb, 2, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
       proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_down_chid, tvb, 3, 1,
-			   FALSE);
+			   ENC_BIG_ENDIAN);
 
       pos = 4;
       while (pos < len)
@@ -256,7 +256,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 	      if (length == 4)
 		{
 		  proto_tree_add_item (type29ucd_tree, hf_docsis_type29ucd_frequency, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		  pos = pos + length;
 		}
 	      else
@@ -415,7 +415,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				     length);
 	      burst_descr_tree = proto_item_add_subtree (it, ett_burst_descr);
 	      proto_tree_add_item (burst_descr_tree, hf_docsis_type29ucd_iuc, tvb,
-				   pos++, 1, FALSE);
+				   pos++, 1, ENC_BIG_ENDIAN);
 	      endtlvpos = pos + length - 1;
 	      while (pos < endtlvpos)
 		{
@@ -428,7 +428,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_mod_type, tvb,
-					       pos, tlvlen, FALSE);
+					       pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -440,7 +440,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_diff_encoding,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -452,7 +452,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_preamble_len,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -464,7 +464,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_preamble_val_off,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -488,7 +488,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_fec_codeword,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -500,7 +500,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_scrambler_seed,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -512,7 +512,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_max_burst, tvb,
-					       pos, tlvlen, FALSE);
+					       pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -524,7 +524,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_guard_time,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -536,7 +536,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_last_cw_len,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -548,7 +548,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			 {
 			    proto_tree_add_item (burst_descr_tree,
 						 hf_docsis_burst_scrambler_onoff,
-						 tvb, pos, tlvlen, FALSE);
+						 tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			 }
 		       else
 			 {
@@ -567,7 +567,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 				     length);
 	      burst_descr_tree = proto_item_add_subtree (it, ett_burst_descr);
 	      proto_tree_add_item (burst_descr_tree, hf_docsis_type29ucd_iuc, tvb,
-				   pos++, 1, FALSE);
+				   pos++, 1, ENC_BIG_ENDIAN);
 	      endtlvpos = pos + length - 1;
 	      while (pos < endtlvpos)
 		{
@@ -580,7 +580,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_mod_type, tvb,
-					       pos, tlvlen, FALSE);
+					       pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -592,7 +592,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_diff_encoding,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -604,7 +604,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_preamble_len,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -616,7 +616,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_preamble_val_off,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -640,7 +640,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_fec_codeword,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -652,7 +652,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_scrambler_seed,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -664,7 +664,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_max_burst, tvb,
-					       pos, tlvlen, FALSE);
+					       pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -676,7 +676,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_guard_time,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -688,7 +688,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_last_cw_len,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -700,7 +700,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_scrambler_onoff,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -721,7 +721,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_rs_int_depth,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -733,7 +733,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_rs_int_block,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -745,7 +745,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_preamble_type,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -757,7 +757,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_scdma_scrambler_onoff,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -769,7 +769,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_scdma_codes_per_subframe,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -781,7 +781,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_scdma_framer_int_step_size,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -793,7 +793,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_tcm_enabled,
-					       tvb, pos, tlvlen, FALSE);
+					       tvb, pos, tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{

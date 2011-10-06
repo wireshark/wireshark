@@ -120,7 +120,7 @@ dissect_vsif (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
         proto_tree_add_protocol_format (tree, proto_docsis_vsif, tvb, 0, -1,
                                         "VSIF Encodings");
       vsif_tree = proto_item_add_subtree (it, ett_docsis_vsif);
-      proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendorid, tvb, 2, 3, FALSE);
+      proto_tree_add_item (vsif_tree, hf_docsis_vsif_vendorid, tvb, 2, 3, ENC_BIG_ENDIAN);
 
       /* switch on the Vendor ID */
       switch (value)
@@ -169,7 +169,7 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
         {
         case NUM_PHONES:
           proto_tree_add_item (tree, hf_docsis_vsif_cisco_numphones, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_BIG_ENDIAN);
           break;
         case IP_PREC:
           ipprec_it =
@@ -189,14 +189,14 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
                     THROW (ReportedBoundsError);
                   proto_tree_add_item (ipprec_tree,
                                        hf_docsis_vsif_cisco_ipprec_val, tvb,
-                                       pos, length, FALSE);
+                                       pos, length, ENC_BIG_ENDIAN);
                   break;
                 case IP_PREC_BW:
                   if (length != 4)
                     THROW (ReportedBoundsError);
                   proto_tree_add_item (ipprec_tree,
                                        hf_docsis_vsif_cisco_ipprec_bw, tvb,
-                                       pos, length, FALSE);
+                                       pos, length, ENC_BIG_ENDIAN);
                   break;
                 default:
                   THROW (ReportedBoundsError);

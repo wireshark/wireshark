@@ -654,9 +654,9 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 		frag_len = ((tvb_get_ntohl(payload_tvb, payload_offset) & FRAG_LENGTH_MASK) >> 8);
 		/* get the sequence number */
 		seq_number = (tvb_get_ntohs(payload_tvb, payload_offset) & SEQ_NUMBER_MASK_11) >> 3;
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc_ext, payload_tvb, payload_offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_bsn, payload_tvb, payload_offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_bsn, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 		/* update the length and offset */
 		payload_length -= 3;
 		payload_offset += 3;
@@ -669,9 +669,9 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 			frag_len = ((tvb_get_ntohl(payload_tvb, payload_offset) & FRAG_LENGTH_MASK) >> 8);
 			/* get the sequence number */
 			seq_number = (tvb_get_ntohs(payload_tvb, payload_offset) & SEQ_NUMBER_MASK_11) >> 3;
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc_ext, payload_tvb, payload_offset, 3, FALSE);
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn_ext, payload_tvb, payload_offset, 3, FALSE);
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, FALSE);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len_ext, payload_tvb, payload_offset, 3, ENC_BIG_ENDIAN);
 			/* update the length and offset */
 			payload_length -= 3;
 			payload_offset += 3;
@@ -682,9 +682,9 @@ static guint decode_packing_subheader(tvbuff_t *payload_tvb, packet_info *pinfo,
 			frag_len = (tvb_get_ntohs(payload_tvb, payload_offset) & PACKING_SUBHEADER_LENGTH_MASK);
 			/* get the sequence number */
 			seq_number = (tvb_get_guint8(payload_tvb, payload_offset) & SEQ_NUMBER_MASK) >> 3;
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc, payload_tvb, payload_offset, 2, FALSE);
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn, payload_tvb, payload_offset, 2, FALSE);
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len, payload_tvb, payload_offset, 2, FALSE);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fc, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_fsn, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_packing_subhd_len, payload_tvb, payload_offset, 2, ENC_BIG_ENDIAN);
 			/* update the length and offset */
 			payload_length -= 2;
 			payload_offset += 2;
@@ -784,30 +784,30 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 		/* get the CID */
 		mac_cid = tvb_get_ntohs(tvb, (offset+3));
 		/* display the Header Type (HT) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_ht, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_ht, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the Encryption Control (EC) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_ec, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_ec, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the sub-types (Type) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_5, tvb, offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_4, tvb, offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_3, tvb, offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_2, tvb, offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_1, tvb, offset, 3, FALSE);
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_0, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_5, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_4, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_3, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_2, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_1, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_type_0, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the Extended sub-header Field (ESF) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_esf, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_esf, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the CRC Indicator (CI) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_ci, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_ci, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the Encryption Key Sequence (EKS) */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_eks, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_eks, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the reserved field */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_rsv, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_rsv, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* display the length */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_len, tvb, offset, 3, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_len, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* Decode and display the CID */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_cid, tvb, (offset+3), 2, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_cid, tvb, (offset+3), 2, ENC_BIG_ENDIAN);
 		/* Decode and display the HCS */
-		proto_tree_add_item(generic_tree, hf_mac_header_generic_hcs, tvb, (offset+5), 1, FALSE);
+		proto_tree_add_item(generic_tree, hf_mac_header_generic_hcs, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
 		/* get the frame length without MAC header */
 		length = mac_len - WIMAX_MAC_HEADER_SIZE;
 #ifdef DEBUG
@@ -854,7 +854,7 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			/* add Mesh subheader subtree */
 			generic_tree = proto_item_add_subtree(generic_item, ett_mac_mesh_subheader_decoder);
 			/* decode and display the Mesh subheader */
-			proto_tree_add_item(generic_tree, hf_mac_header_generic_mesh_subheader, tvb, offset, 2, FALSE);
+			proto_tree_add_item(generic_tree, hf_mac_header_generic_mesh_subheader, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* update the length and offset */
 			length -= 2;
 			offset += 2;
@@ -872,8 +872,8 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				generic_item = proto_tree_add_protocol_format(tree, proto_mac_header_generic_decoder, tvb, offset, length, "Fast-feedback allocation (DL) subheader (%u bytes)", length);
 				/* add Fast-feedback allocation subheader subtree */
 				generic_tree = proto_item_add_subtree(generic_item, ett_mac_fast_fb_subheader_decoder);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_alloc_offset, tvb, offset, 1, FALSE);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_fb_type, tvb, offset, 1, FALSE);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_alloc_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_fast_fb_subhd_fb_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* update the length and offset */
 				length -= 1;
 				offset += 1;
@@ -904,25 +904,25 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				break;
 				}
 				/* Create tree for Scheduling Service Type (UGS) */
-				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ugs_tree, tvb, offset, 2, FALSE);
+				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ugs_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
 				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_si, tvb, offset, 2, FALSE);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_pm, tvb, offset, 2, FALSE);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fli, tvb, offset, 2, FALSE);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fl, tvb, offset, 2, FALSE);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv, tvb, offset, 2, FALSE);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_si, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_pm, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fli, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_fl, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ugs_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 				/* Create tree for Scheduling Service Type (Extended RTPS) */
-				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_rtps_tree, tvb, offset, 2, FALSE);
+				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_rtps_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
 				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_pbr, tvb, offset, 2, FALSE);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fli, tvb, offset, 2, FALSE);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fl, tvb, offset, 2, FALSE);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_pbr, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fli, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_ext_fl, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 				/* Create tree for Scheduling Service Type (Piggyback Request) */
-				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_pbr_tree, tvb, offset, 2, FALSE);
+				child_item = proto_tree_add_item(generic_tree, hf_mac_header_generic_grant_mgmt_ext_pbr_tree, tvb, offset, 2, ENC_BIG_ENDIAN);
 				child_tree = proto_item_add_subtree(child_item, ett_mac_grant_mgmt_subheader_decoder);
-				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_pbr, tvb, offset, 2, FALSE);
+				proto_tree_add_item(child_tree, hf_mac_header_generic_grant_mgmt_subhd_pbr, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 				/* update the length and offset */
 				length -= 2;
@@ -945,9 +945,9 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 			{	/* get the sequence number */
 				seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
 				/* decode and display the header */
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, FALSE);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_bsn, tvb, offset, 2, FALSE);
-				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, FALSE);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_bsn, tvb, offset, 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* update the length and offset */
 				length -= 2;
 				offset += 2;
@@ -958,9 +958,9 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				{	/* get the sequence number */
 					seq_number = (tvb_get_ntohs(tvb, offset) & SEQ_NUMBER_MASK_11) >> 3;
 					/* decode and display the header */
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, FALSE);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn_ext, tvb, offset, 2, FALSE);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, FALSE);
+					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv_ext, tvb, offset, 2, ENC_BIG_ENDIAN);
 					/* update the length and offset */
 					length -= 2;
 					offset += 2;
@@ -969,9 +969,9 @@ void dissect_mac_header_generic_decoder(tvbuff_t *tvb, packet_info *pinfo, proto
 				{	/* get the sequence number */
 					seq_number = (tvb_get_guint8(tvb, offset) & SEQ_NUMBER_MASK) >> 3;
 					/* decode and display the header */
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc, tvb, offset, 1, FALSE);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn, tvb, offset, 1, FALSE);
-					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv, tvb, offset, 1, FALSE);
+					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fc, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_fsn, tvb, offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(generic_tree, hf_mac_header_generic_frag_subhd_rsv, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/* update the length and offset */
 					length -= 1;
 					offset += 1;
@@ -1228,7 +1228,7 @@ check_crc:
 				/* calculate the CRC */
         	    calculated_crc = wimax_mac_calc_crc32(tvb_get_ptr(tvb, 0, mac_len - sizeof(mac_crc)), mac_len - sizeof(mac_crc));
 				/* display the CRC */
-				generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), FALSE);
+				generic_item = proto_tree_add_item(tree, hf_mac_header_generic_crc, tvb, mac_len - sizeof(mac_crc), sizeof(mac_crc), ENC_BIG_ENDIAN);
 				if (mac_crc != calculated_crc)
 				{
 			    		proto_item_append_text(generic_item, " - incorrect! (should be: 0x%x)", calculated_crc);
@@ -1278,11 +1278,11 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 	{	/* Get the extended subheader type */
 		ubyte = (tvb_get_guint8(tvb, (offset+i)) & EXTENDED_SUB_HEADER_TYPE_MASK);
 		/* decode and display the extended subheader type (MSB) */
-		proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_rsv, tvb, (offset+i), 1, FALSE);
+		proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_rsv, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 		/* for downlink */
 		if (is_down_link(pinfo)) /* for downlink */
 		{	/* decode and display the extended subheader type */
-			ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_type_dl, tvb, (offset+i), 1, FALSE);
+			ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_type_dl, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 			/* add subtree */
 			ti_tree = proto_item_add_subtree(ti, ett_mac_ext_subheader_dl_decoder);
 			i++;
@@ -1290,43 +1290,43 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			{
 			case SDU_SN:
 				/* decode and display the extended sdu sn subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sdu_sn, tvb, (offset+i), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sdu_sn, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 				i++;
 			break;
 			case DL_SLEEP_CONTROL:
 				/* decode and display the extended dl sleep control subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_op, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv, tvb, (offset+i), 3, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_pscid, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_op, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_fswe, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_fswb, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_dl_sleep_control_rsv, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
 				i += 3;
 			break;
 			case FEEDBACK_REQ:
 				/* decode and display the extended feedback request subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_uiuc, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_fb_type,  tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_slots, tvb, (offset+i), 3, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_frame_offset, tvb, (offset+i), 3, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_uiuc, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_fb_type,  tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_ofdma_symbol_offset, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_subchannel_offset, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_slots, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_fb_req_frame_offset, tvb, (offset+i), 3, ENC_BIG_ENDIAN);
 				i += 3;
 			break;
 			case SN_REQ:
 				/* decode and display the extended SN request subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1, tvb, (offset+i), 1, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2, tvb, (offset+i), 1, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sn_req_rsv, tvb, (offset+i), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sn_req_rep_ind_1, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sn_req_rep_ind_2, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_sn_req_rsv, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 				i++;
 			break;
 			case PDU_SN_SHORT_DL:
 				/* decode and display the extended pdu sn (short) subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_short, tvb, (offset+i), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_short, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 				i++;
 			break;
 			case PDU_SN_LONG_DL:
 				/* decode and display the extended pdu sn (long) subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_long, tvb, (offset+i), 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_long, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
 				i += 2;
 			break;
 			default: /* reserved */
@@ -1335,7 +1335,7 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		}
 		else /* for uplink */
 		{	/* decode and display the extended subheader type */
-			ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_type_ul, tvb, (offset+i), 1, FALSE);
+			ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_ext_subheader_type_ul, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 			/* add subtree */
 			ti_tree = proto_item_add_subtree(ti, ett_mac_ext_subheader_ul_decoder);
 			i++;
@@ -1343,29 +1343,29 @@ static gint extended_subheader_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 			{
 			case MIMO_MODE_FEEDBACK:
 				/* decode and display the extended MIMO Mode Feedback subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mimo_mode_fb_type, tvb, (offset+i), 1, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mimo_fb_content, tvb, (offset+i), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mimo_mode_fb_type, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mimo_fb_content, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 				i++;
 			break;
 			case UL_TX_POWER_REPORT:
 				/* decode and display the extended ul tx power report subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep, tvb, (offset+i), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_ul_tx_pwr_rep, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 				i++;
 			break;
 			case MINI_FEEDBACK:
 				/* decode and display the extended MINI Feedback subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mini_fb_type, tvb, (offset+i), 2, FALSE);
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mini_fb_content, tvb, (offset+i), 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mini_fb_type, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_mini_fb_content, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
 				i += 2;
 			break;
 			case PDU_SN_SHORT_UL:
 				/* decode and display the extended pdu sn (short) subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_short, tvb, (offset+i), 1, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_short, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 				i++;
 			break;
 			case PDU_SN_LONG_UL:
 				/* decode and display the extended pdu sn (long) subheader */
-				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_long, tvb, (offset+i), 2, FALSE);
+				proto_tree_add_item(ti_tree, hf_mac_header_generic_ext_subheader_pdu_sn_long, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
 				i += 2;
 			break;
 			default: /* reserved */
@@ -1412,7 +1412,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 	/* decode and display the ARQ Feedback IEs */
 	while (!last_ie)
 	{	/* decode and display CID */
-		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_cid, tvb, offset, 2, FALSE);
+		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* move to next 16-bit word */
 		offset += 2;
 		/* Get the 2nd 16-bit */
@@ -1424,13 +1424,13 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 		/* get the number of ACK maps */
 		num_maps = (word2 & ARQ_FB_IE_NUM_MAPS_MASK) + 1;
 		/* decode and display the 2nd word */
-		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_last, tvb, offset, 2, FALSE);
-		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_ack_type, tvb, offset, 2, FALSE);
-		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_bsn, tvb, offset, 2, FALSE);
+		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_last, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_ack_type, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_bsn, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* decode and display the 3rd word */
 		if (ack_type != 1)
 		{
-			sub_ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_num_maps, tvb, offset, 2, FALSE);
+			sub_ti = proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_num_maps, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* move to next 16-bit word */
 			offset += 2;
 			proto_item_append_text(sub_ti, " (%d map(s))", num_maps);
@@ -1438,7 +1438,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 			{
 				if (ack_type != 3)
 				{
-					proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_sel_ack_map, tvb, offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_sel_ack_map, tvb, offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{	/* Get the next 16-bit */
@@ -1446,20 +1446,20 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 					/* get the sequence format */
 					seq_format = (word3 & ARQ_FB_IE_SEQ_FORMAT_MASK);
 					/* decode and display the sequence format */
-					proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq_format, tvb, offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq_format, tvb, offset, 2, ENC_BIG_ENDIAN);
 					if (!seq_format)
 					{
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq_ack_map_2, tvb, offset, 2, FALSE);
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq1_length_6, tvb, offset, 2, FALSE);
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq2_length_6, tvb, offset, 2, FALSE);
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_rsv, tvb, offset, 2, FALSE);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq_ack_map_2, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq1_length_6, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq2_length_6, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_rsv, tvb, offset, 2, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq_ack_map, tvb, offset, 2, FALSE);
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq1_length, tvb, offset, 2, FALSE);
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq2_length, tvb, offset, 2, FALSE);
-						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq3_length, tvb, offset, 2, FALSE);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq_ack_map, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq1_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq2_length, tvb, offset, 2, ENC_BIG_ENDIAN);
+						proto_tree_add_item(sub_tree, hf_mac_header_generic_arq_fb_ie_seq3_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 					}
 				}
 				/* move to next 16-bit word */
@@ -1469,7 +1469,7 @@ static gint arq_feedback_payload_decoder(tvbuff_t *tvb, packet_info *pinfo, prot
 		else
 		{
 			/* Number of ACK Maps bits are reserved when ACK TYPE == 1 */
-			proto_tree_add_item(sub_tree, hf_ack_type_reserved, tvb, offset, 2, FALSE);
+			proto_tree_add_item(sub_tree, hf_ack_type_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* move to next 16-bit word */
 			offset += 2;
 		}

@@ -238,9 +238,9 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		/* get the parent */
 		parent_item = proto_tree_get_parent(tree);
 		/* Decode and display the first 3 bytes of the header */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ht, tvb, offset, 3, FALSE);
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ec, tvb, offset, 3, FALSE);
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_type, tvb, offset, 3, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ht, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_ec, tvb, offset, 3, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_type, tvb, offset, 3, ENC_BIG_ENDIAN);
 		/* Get the first byte */
 		first_byte = tvb_get_guint8(tvb, offset);
 		/* get the sub Type */
@@ -267,67 +267,67 @@ void dissect_mac_header_type_1_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		case BR_INCREMENTAL:
 		case BR_AGGREGATE:
 			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case PHY_CHANNEL_REPORT:
 			/* Decode and display the Preferred-DIUC */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_diuc, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_diuc, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the UL TX Power */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the UL Headroom */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ulhdrm, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ulhdrm, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the reserved filed */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_2, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_2, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case BR_WITH_UL_TX_POWER_REPORT:
 			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the UL TX Power */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr_3, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_ultxpwr_3, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case BR_AND_CINR_REPORT:
 			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the CINR */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_cinr, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_cinr, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the DCD Change Indication */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_dci, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_dci, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case BR_WITH_UL_SLEEP_CONTROL:
 			/* Decode and display the Bandwidth Request */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_br_3, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the Power Saving Class ID */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_pscid, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_pscid, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the Operation */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_op, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_op, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the reserved filed */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_5, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_5, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case SN_REPORT:
 			/* Decode and display the Last field */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_last, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_last, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the SDU SN1 */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the SDU SN2 */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn2, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn2, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the SDU SN3 */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn3, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_sdu_sn3, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		case CQICH_ALLOCATION_REQUEST:
 			/* Decode and display the Feedback Type */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fb_type, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fb_type, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the FBSSI */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fbssi, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_fbssi, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the Prreferred-period */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_period, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_period, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* Decode and display the reserved filed */
-			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_7, tvb, offset, 3, FALSE);
+			proto_tree_add_item(ti_tree, hf_mac_header_type_1_rsv_7, tvb, offset, 3, ENC_BIG_ENDIAN);
 		break;
 		}
 		/* Decode and display the CID */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_cid, tvb, (offset+3), 2, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_cid, tvb, (offset+3), 2, ENC_BIG_ENDIAN);
 		/* Decode and display the HCS */
-		proto_tree_add_item(ti_tree, hf_mac_header_type_1_hcs, tvb, (offset+5), 1, FALSE);
+		proto_tree_add_item(ti_tree, hf_mac_header_type_1_hcs, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
 	}
 }
 

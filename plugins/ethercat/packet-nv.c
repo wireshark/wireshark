@@ -126,11 +126,11 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_item_set_text(ti, "%s", szText);
       offset+=(sizeof(guint8)*6);
 
-      proto_tree_add_item(nv_header_tree, hf_nv_count, tvb, offset, sizeof(guint16), TRUE);
+      proto_tree_add_item(nv_header_tree, hf_nv_count, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
       nv_count = tvb_get_letohs(tvb, offset);
       offset+=sizeof(guint16);
 
-      proto_tree_add_item(nv_header_tree, hf_nv_cycleindex, tvb, offset, sizeof(guint16), TRUE);
+      proto_tree_add_item(nv_header_tree, hf_nv_cycleindex, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
       offset = NvParserHDR_Len;
 
       for ( i=0; i < nv_count; i++ )
@@ -145,16 +145,16 @@ static void dissect_nv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          ti = proto_tree_add_item(nv_var_tree, hf_nv_varheader, tvb, offset, ETYPE_88A4_NV_DATA_HEADER_Len, ENC_NA);
 
          nv_varheader_tree = proto_item_add_subtree(ti, ett_nv_varheader);
-         proto_tree_add_item(nv_varheader_tree, hf_nv_id, tvb, offset, sizeof(guint16), TRUE);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_id, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
          offset+=sizeof(guint16);
 
-         proto_tree_add_item(nv_varheader_tree, hf_nv_hash, tvb, offset, sizeof(guint16), TRUE);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_hash, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
          offset+=sizeof(guint16);
 
-         proto_tree_add_item(nv_varheader_tree, hf_nv_length, tvb, offset, sizeof(guint16), TRUE);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_length, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
          offset+=sizeof(guint16);
 
-         proto_tree_add_item(nv_varheader_tree, hf_nv_quality, tvb, offset, sizeof(guint16), TRUE);
+         proto_tree_add_item(nv_varheader_tree, hf_nv_quality, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
          offset+=sizeof(guint16);
 
          proto_tree_add_item(nv_var_tree, hf_nv_data, tvb, offset, var_length, ENC_NA);

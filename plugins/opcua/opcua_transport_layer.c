@@ -129,12 +129,12 @@ int parseHello(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     parseString(tree, tvb, pOffset, hf_opcua_transport_endpoint);
     return -1;
 }
@@ -143,12 +143,12 @@ int parseAcknowledge(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_ver, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_rbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_sbs, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mms, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_mcc, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     return -1;
 }
 
@@ -156,8 +156,8 @@ int parseError(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_error, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_error, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     parseString(tree, tvb, pOffset, hf_opcua_transport_reason);
     return -1;
 }
@@ -171,8 +171,8 @@ int parseMessage(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
 
     /* message data contains the security layer */
     parseSecurityLayer(tree, tvb, pOffset);
@@ -203,13 +203,13 @@ int parseOpenSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
     
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     parseString(tree, tvb, pOffset, hf_opcua_transport_spu);
     parseByteString(tree, tvb, pOffset, hf_opcua_transport_scert);
     parseByteString(tree, tvb, pOffset, hf_opcua_transport_rcthumb);
-    proto_tree_add_item(tree, hf_opcua_transport_seq, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_seq, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_rqid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     
     /* add encodeable object subtree */
     ti = proto_tree_add_text(tree, tvb, 0, -1, "Message : Encodeable Object");
@@ -228,8 +228,8 @@ int parseCloseSecureChannel(proto_tree *tree, tvbuff_t *tvb, gint *pOffset)
 {
     proto_tree_add_item(tree, hf_opcua_transport_type, tvb, *pOffset, 3, TRUE); *pOffset+=3;
     proto_tree_add_item(tree, hf_opcua_transport_chunk, tvb, *pOffset, 1, TRUE); *pOffset+=1;
-    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, TRUE); *pOffset+=4;
-    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, TRUE); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_size, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
+    proto_tree_add_item(tree, hf_opcua_transport_scid, tvb, *pOffset, 4, ENC_LITTLE_ENDIAN); *pOffset+=4;
     return -1;
 }
 

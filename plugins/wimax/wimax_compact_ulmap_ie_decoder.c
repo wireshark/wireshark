@@ -410,18 +410,18 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			/* display the UL-MAP type and reserved bit */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				ul_map_offset++;
 				nibble_offset = 0;
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length = 1;
@@ -435,15 +435,15 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Nep and Nsch Code */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_nep_code_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nep_code_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
-					proto_tree_add_item(tree, hf_culmap_nsch_code, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nsch_code, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_nep_code, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_nsch_code_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nep_code, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_nsch_code_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
 				}
@@ -453,13 +453,13 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Shortened UIUC and Companded SC */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_shortened_uiuc_1, tvb, ul_map_offset, 2, FALSE);
-					proto_tree_add_item(tree, hf_culmap_companded_sc_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_shortened_uiuc_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_companded_sc_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_shortened_uiuc, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_companded_sc, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_shortened_uiuc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_companded_sc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				/* move to next byte */
 				ul_map_offset++;
@@ -473,18 +473,18 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			/* display the UL-MAP type and reserved bit */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				ul_map_offset++;
 				nibble_offset = 0;
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length = 1;
@@ -498,15 +498,15 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Nep and Nsch Code */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_nep_code_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nep_code_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
-					proto_tree_add_item(tree, hf_culmap_nsch_code, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nsch_code, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_nep_code, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_nsch_code_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nep_code, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_nsch_code_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
 				}
@@ -516,13 +516,13 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Shortened UIUC and Companded SC */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_shortened_uiuc_1, tvb, ul_map_offset, 2, FALSE);
-					proto_tree_add_item(tree, hf_culmap_companded_sc_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_shortened_uiuc_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_companded_sc_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_shortened_uiuc, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_companded_sc, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_shortened_uiuc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_companded_sc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				/* move to next byte */
 				ul_map_offset++;
@@ -537,7 +537,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{
 					nband = (nband & LSB_NIBBLE_MASK);
 					/* display the Nband */
-					proto_tree_add_item(tree, hf_culmap_num_bands_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_num_bands_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
 					nibble_offset = 0;
@@ -561,7 +561,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{
 					nband = ((nband & MSB_NIBBLE_MASK) >> 4);
 					/* display the Nband */
-					proto_tree_add_item(tree, hf_culmap_num_bands, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_num_bands, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					nibble_offset = 1;
 					if(max_logical_bands == 3)
 					{
@@ -589,14 +589,14 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* display the Nb-BITMAP */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_nb_bitmap_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nb_bitmap_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
 					nibble_offset = 0;
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_nb_bitmap, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nb_bitmap, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					nibble_offset = 1;
 				}
 				length++;
@@ -606,16 +606,16 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			if(nibble_offset & 1)
 			{
 				allocation_mode = ((byte & ALLOCATION_MODE_MASK_1) >> 2);
-				proto_tree_add_item(tree, hf_culmap_allocation_mode_1, tvb, ul_map_offset, 1, FALSE);
-				proto_tree_add_item(tree, hf_culmap_allocation_mode_rsvd_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_allocation_mode_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_culmap_allocation_mode_rsvd_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 0;
 				ul_map_offset++;
 			}
 			else
 			{
 				allocation_mode = ((byte & ALLOCATION_MODE_MASK) >> 6);
-				proto_tree_add_item(tree, hf_culmap_allocation_mode, tvb, ul_map_offset, 1, FALSE);
-				proto_tree_add_item(tree, hf_culmap_allocation_mode_rsvd, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_allocation_mode, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tree, hf_culmap_allocation_mode_rsvd, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length++;
@@ -624,11 +624,11 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_num_subchannels_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_num_subchannels_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_num_subchannels, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_num_subchannels, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				ul_map_offset++;
 				length += 2;
@@ -639,11 +639,11 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				{
 					if(nibble_offset & 1)
 					{
-						proto_tree_add_item(tree, hf_culmap_num_subchannels_1, tvb, ul_map_offset, 2, FALSE);
+						proto_tree_add_item(tree, hf_culmap_num_subchannels_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					}
 					else
 					{
-						proto_tree_add_item(tree, hf_culmap_num_subchannels, tvb, ul_map_offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_culmap_num_subchannels, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					}
 					ul_map_offset++;
 				}
@@ -657,18 +657,18 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			/* display the UL-MAP type and reserved bit */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				ul_map_offset++;
 				nibble_offset = 0;
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				nibble_offset = 1;
 			}
 			length = 1;
@@ -682,15 +682,15 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Nep and Nsch Code */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_nep_code_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nep_code_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
-					proto_tree_add_item(tree, hf_culmap_nsch_code, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nsch_code, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_nep_code, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_nsch_code_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_nep_code, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_nsch_code_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					/* move to next byte */
 					ul_map_offset++;
 				}
@@ -700,13 +700,13 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the Shortened UIUC and Companded SC */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_shortened_uiuc_1, tvb, ul_map_offset, 2, FALSE);
-					proto_tree_add_item(tree, hf_culmap_companded_sc_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_shortened_uiuc_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_companded_sc_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_shortened_uiuc, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_companded_sc, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_shortened_uiuc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_companded_sc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				}
 				/* move to next byte */
 				ul_map_offset++;
@@ -715,13 +715,13 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			/* display BIN offset */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_culmap_bin_offset_1, tvb, ul_map_offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_culmap_bin_offset_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				ul_map_offset++;
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_culmap_bin_offset, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_bin_offset, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				ul_map_offset++;
 			}
@@ -734,9 +734,9 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			/* display the UL-MAP type and reserved bit */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* move to next byte */
 				ul_map_offset++;
 				/* get the new byte */
@@ -744,18 +744,18 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				/* get the UIUC */
 				uiuc = ((byte & MSB_NIBBLE_MASK) >> 4);
 				/* display the UIUC */
-				proto_tree_add_item(tree, hf_culmap_uiuc, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_uiuc, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 			}
 			else
 			{
 				/* display the UL-MAP type */
-				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the reserved */
-				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_reserved, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* get the UIUC */
 				uiuc = (byte & LSB_NIBBLE_MASK);
 				/* display the UIUC */
-				proto_tree_add_item(tree, hf_culmap_uiuc_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_uiuc_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 			}
 			length = 2;
 			/* decode RCID IE */
@@ -782,34 +782,34 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				if(nibble_offset & 1)
 				{
 					/* display the OFDMA symbol offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the subchannel offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_7_1, tvb, ul_map_offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_7_1, tvb, ul_map_offset, 4, ENC_BIG_ENDIAN);
 					/* display the number of OFDMA symbols */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_7_1, tvb, ul_map_offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_7_1, tvb, ul_map_offset, 4, ENC_BIG_ENDIAN);
 					/* display the number of subchannels */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_7_1, tvb, ul_map_offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_7_1, tvb, ul_map_offset, 4, ENC_BIG_ENDIAN);
 					/* display the ranging method */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ranging_method_1, tvb, ul_map_offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ranging_method_1, tvb, ul_map_offset, 4, ENC_BIG_ENDIAN);
 					/* display the reserved */
-					proto_tree_add_item(tree, hf_culmap_uiuc_reserved_1, tvb, ul_map_offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_reserved_1, tvb, ul_map_offset, 4, ENC_BIG_ENDIAN);
 					ul_map_offset += 3;
 				}
 				else
 				{	/* display the OFDMA symbol offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the subchannel offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_7, tvb, ul_map_offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_7, tvb, ul_map_offset, 3, ENC_BIG_ENDIAN);
 					/* display the number of OFDMA symbols */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_7, tvb, ul_map_offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_7, tvb, ul_map_offset, 3, ENC_BIG_ENDIAN);
 					/* display the number of subchannels */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_7, tvb, ul_map_offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_7, tvb, ul_map_offset, 3, ENC_BIG_ENDIAN);
 					/* display the ranging method */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ranging_method, tvb, ul_map_offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ranging_method, tvb, ul_map_offset, 3, ENC_BIG_ENDIAN);
 					/* display the reserved */
-					proto_tree_add_item(tree, hf_culmap_uiuc_reserved, tvb, ul_map_offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_reserved, tvb, ul_map_offset, 3, ENC_BIG_ENDIAN);
 					ul_map_offset += 3;
 				}
 				length += 8;
@@ -817,21 +817,21 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			else
 			{	/* display Number of subchannels */
 				if(nibble_offset & 1)
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 				else
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				length += 2;
 				/* display the repetition coding indication and reserved bits */
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_culmap_uiuc_repetition_coding_indication_1, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_uiuc_reserved_1, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_repetition_coding_indication_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_uiuc_reserved_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					nibble_offset = 0;
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_culmap_uiuc_repetition_coding_indication, tvb, ul_map_offset, 1, FALSE);
-					proto_tree_add_item(tree, hf_culmap_uiuc_reserved, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_repetition_coding_indication, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_culmap_uiuc_reserved, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					nibble_offset = 1;
 				}
 				length += 1;
@@ -843,7 +843,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_UL_MAP_TYPE_HARQ_REGION_IE:/* 6.3.2.3.43.7.5 */
 			if(nibble_offset & 1)
 			{	/* display the UL-MAP type */
-				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the HARQ Region Change Indication */
 				proto_tree_add_item(tree, hf_culmap_harq_region_change_indication_1, tvb, ul_map_offset, 1, FALSE);
 				/* get the HARQ Region Change Indication */
@@ -854,7 +854,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			}
 			else
 			{	/* display the UL-MAP type */
-				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the HARQ Region Change Indication */
 				proto_tree_add_item(tree, hf_culmap_harq_region_change_indication, tvb, ul_map_offset, 1, FALSE);
 				/* get the HARQ Region Change Indication */
@@ -867,30 +867,30 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				if(nibble_offset & 1)
 				{
 					/* display the OFDMA symbol offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the subchannel offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of OFDMA symbols */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of subchannels */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 				}
 				else
 				{	/* display the OFDMA symbol offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the subchannel offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of OFDMA symbols */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of subchannels */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 				}
 				length += 8;
@@ -899,7 +899,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		case COMPACT_UL_MAP_TYPE_CQICH_REGION_IE:/* 6.3.2.3.43.7.6 */
 			if(nibble_offset & 1)
 			{	/* display the UL-MAP type */
-				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the CQI Region Change Indication */
 				proto_tree_add_item(tree, hf_culmap_cqi_region_change_indication_1, tvb, ul_map_offset, 1, FALSE);
 				/* get the CQI Region Change Indication */
@@ -910,7 +910,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			}
 			else
 			{	/* display the UL-MAP type */
-				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the CQI Region Change Indication */
 				proto_tree_add_item(tree, hf_culmap_cqi_region_change_indication, tvb, ul_map_offset, 1, FALSE);
 				/* get the CQI Region Change Indication */
@@ -923,30 +923,30 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 				if(nibble_offset & 1)
 				{
 					/* display the OFDMA symbol offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the subchannel offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of OFDMA symbols */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of subchannels */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_1, tvb, ul_map_offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels_1, tvb, ul_map_offset, 2, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 				}
 				else
 				{	/* display the OFDMA symbol offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_ofdma_symbol_offset, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the subchannel offset */
-					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_subchannel_offset, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of OFDMA symbols */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_ofdma_symbols, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 					/* display the number of subchannels */
-					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels, tvb, ul_map_offset, 1, FALSE);
+					proto_tree_add_item(tree, hf_culmap_uiuc_num_of_subchannels, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 					ul_map_offset++;
 				}
 				length += 8;
@@ -959,7 +959,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 		break;
 		default:/* Reserved Type */
 			/* display the reserved type */
-			proto_tree_add_item(tree, hf_culmap_reserved_type_1, tvb, ul_map_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_culmap_reserved_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
 		break;
 	}
@@ -981,14 +981,14 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 	{
 		if(cid_type == CID_TYPE_NORMAL)
 		{	/* display the normal CID */
-			proto_tree_add_item(tree, hf_rcid_ie_normal_cid_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_rcid_ie_normal_cid_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			length = 4;
 		}
 		else
 		{	/* Get the prefix bit */
 			prefix = (tvb_get_guint8(tvb, offset) & 0x08);
 			/* display the prefix */
-			proto_tree_add_item(tree, hf_rcid_ie_prefix_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_rcid_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix)
 			{	/* display the CID11 */
 				proto_tree_add_item(tree, hf_rcid_ie_cid11_3, tvb, offset, 2, FALSE);
@@ -998,17 +998,17 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			{
 				 if(cid_type == CID_TYPE_RCID11)
 				{	/* display the CID11 */
-					proto_tree_add_item(tree, hf_rcid_ie_cid11_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_rcid_ie_cid11_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 3;
 				}
 				else if(cid_type == CID_TYPE_RCID7)
 				{	/* display the normal CID7 */
-					proto_tree_add_item(tree, hf_rcid_ie_cid7_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_rcid_ie_cid7_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 2;
 				}
 				else if(cid_type == CID_TYPE_RCID3)
 				{	/* display the CID3 */
-					proto_tree_add_item(tree, hf_rcid_ie_cid3_1, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_rcid_ie_cid3_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 1;
 				}
 			}
@@ -1018,14 +1018,14 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 	{
 		if(cid_type == CID_TYPE_NORMAL)
 		{	/* display the normal CID */
-			proto_tree_add_item(tree, hf_rcid_ie_normal_cid, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_rcid_ie_normal_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 4;
 		}
 		else
 		{	/* Get the prefix bit */
 			prefix = (tvb_get_guint8(tvb, offset) & 0x08);
 			/* display the prefix */
-			proto_tree_add_item(tree, hf_rcid_ie_prefix, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix || (cid_type == CID_TYPE_RCID11))
 			{	/* display the CID11 */
 				proto_tree_add_item(tree, hf_rcid_ie_cid11_2, tvb, offset, 2, FALSE);
@@ -1035,17 +1035,17 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			{
 				if(cid_type == CID_TYPE_RCID11)
 				{	/* display the CID11 */
-					proto_tree_add_item(tree, hf_rcid_ie_cid11, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_rcid_ie_cid11, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 3;
 				}
 				else if(cid_type == CID_TYPE_RCID7)
 				{	/* display the CID7 */
-					proto_tree_add_item(tree, hf_rcid_ie_cid7, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_rcid_ie_cid7, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 2;
 				}
 				else if(cid_type == CID_TYPE_RCID3)
 				{	/* display the CID3 */
-					proto_tree_add_item(tree, hf_rcid_ie_cid3, tvb, offset, 2, FALSE);
+					proto_tree_add_item(tree, hf_rcid_ie_cid3, tvb, offset, 2, ENC_BIG_ENDIAN);
 					length = 1;
 				}
 			}
@@ -1073,16 +1073,16 @@ static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packe
 		proto_tree_add_item(tree, hf_harq_control_ie_prefix_1, tvb, offset, 2, FALSE);
 		if(prefix)
 		{	/* display the ai_sn */
-			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the spid */
-			proto_tree_add_item(tree, hf_harq_control_ie_spid_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_spid_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the acid */
-			proto_tree_add_item(tree, hf_harq_control_ie_acid_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_acid_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 2;
 		}
 		else
 		{	/* display the reserved bits */
-			proto_tree_add_item(tree, hf_harq_control_ie_reserved_1, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_reserved_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			length = 1;
 		}
 	}
@@ -1093,16 +1093,16 @@ static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packe
 		proto_tree_add_item(tree, hf_harq_control_ie_prefix, tvb, offset, 1, FALSE);
 		if(prefix)
 		{	/* display the ai_sn */
-			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* display the spid */
-			proto_tree_add_item(tree, hf_harq_control_ie_spid, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_spid, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* display the acid */
-			proto_tree_add_item(tree, hf_harq_control_ie_acid, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_acid, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 2;
 		}
 		else
 		{	/* display the reserved bits */
-			proto_tree_add_item(tree, hf_harq_control_ie_reserved, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_harq_control_ie_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
 		}
 	}
@@ -1139,17 +1139,17 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 		/* Get the IE length */
 		length = (tvb_value & EXTENSION_LENGTH_MASK_1);
 		/* display the UL-MAP type */
-		proto_tree_add_item(tree, hf_culmap_extension_type_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_culmap_extension_type_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the UL-MAP extension subtype */
-		proto_tree_add_item(tree, hf_culmap_extension_subtype_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_culmap_extension_subtype_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the IE length */
-		proto_tree_add_item(tree, hf_culmap_extension_length_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_culmap_extension_length_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 		switch (sub_type)
 		{
 			case HARQ_MODE_SWITCH:
 				/* display the HARQ mode */
-				proto_tree_add_item(tree, hf_culmap_extension_harq_mode, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_extension_harq_mode, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* Get the next byte */
 				tvb_value = tvb_get_guint8(tvb, offset);
 				/* get the HARQ mode */
@@ -1171,16 +1171,16 @@ static guint wimax_culmap_extension_ie_decoder(proto_tree *tree, packet_info *pi
 		/* Get the IE length */
 		length = ((tvb_value & EXTENSION_LENGTH_MASK) >> EXTENSION_LENGTH_SHIFT);
 		/* display the UL-MAP type */
-		proto_tree_add_item(tree, hf_culmap_extension_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_culmap_extension_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the UL-MAP extension subtype */
-		proto_tree_add_item(tree, hf_culmap_extension_subtype, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_culmap_extension_subtype, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the IE length */
-		proto_tree_add_item(tree, hf_culmap_extension_length, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_culmap_extension_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		switch (sub_type)
 		{
 			case HARQ_MODE_SWITCH:
 				/* display the HARQ mode */
-				proto_tree_add_item(tree, hf_culmap_extension_harq_mode_1, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_culmap_extension_harq_mode_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* get the HARQ mode */
 				harq_mode = (tvb_value & LSB_NIBBLE_MASK);
 			break;
@@ -1302,13 +1302,13 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 			{	/* display power control value */
 				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_control_24, tvb, offset, 3, FALSE);
 				/* display power measurement frame value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_measurement_frame_24, tvb, offset, 3, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_measurement_frame_24, tvb, offset, 3, ENC_BIG_ENDIAN);
 			}
 			else
 			{	/* display power control value */
 				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_control, tvb, offset, 1, FALSE);
 				/* display power measurement frame value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_measurement_frame, tvb, (offset + 1), 1, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_measurement_frame, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 			}
 		break;
 		case MINI_SUBCHANNEL_ALLOCATION_IE:
@@ -1330,15 +1330,15 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 			if(nibble_offset & 1)
 			{
 				/* display MINI Subchannel Allocation CType value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_ctype_16, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_ctype_16, tvb, offset, 2, ENC_BIG_ENDIAN);
 				/* display MINI Subchannel Allocation Duration value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_duration_16, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_duration_16, tvb, offset, 2, ENC_BIG_ENDIAN);
 			}
 			else
 			{	/* display MINI Subchannel Allocation CType value */
 				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_ctype, tvb, offset, 1, FALSE);
 				/* display MINI Subchannel Allocation Duration value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_duration, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_duration, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 			offset++;
 			/* decode and display CIDs, UIUCs, and Repetitions */
@@ -1346,42 +1346,42 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 			{
 				if(nibble_offset & 1)
 				{
-					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid_1, tvb, offset, 4, FALSE);
-					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_1, tvb, offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid_1, tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 2;
-					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_1, tvb, offset, 4, FALSE);
+					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 					if(i < (m-2))
 					{
 						offset += 3;
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid_3, tvb, offset, 4, FALSE);
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_3, tvb, offset, 4, FALSE);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid_3, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_3, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 2;
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_3, tvb, offset, 4, FALSE);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_3, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 3;
 					}
 					else if(m == 3)
 					{
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_padding_1, tvb, offset, 4, FALSE);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_padding_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 					}
 				}
 				else
 				{
-					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid, tvb, offset, 3, ENC_BIG_ENDIAN);
 					offset += 2;
-					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc, tvb, offset, 3, FALSE);
-					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition, tvb, offset, 3, FALSE);
+					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc, tvb, offset, 3, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition, tvb, offset, 3, ENC_BIG_ENDIAN);
 					offset += 3;
 					if(i < (m-2))
 					{
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid_2, tvb, offset, 4, FALSE);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_cid_2, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 2;
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_2, tvb, offset, 4, FALSE);
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_2, tvb, offset, 4, FALSE);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_uiuc_2, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_repetition_2, tvb, offset, 4, ENC_BIG_ENDIAN);
 						offset += 4;
 					}
 					else if(m == 3)
 					{
-						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_padding, tvb, offset, 1, FALSE);
+						proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_padding, tvb, offset, 1, ENC_BIG_ENDIAN);
 					}
 				}
 			}

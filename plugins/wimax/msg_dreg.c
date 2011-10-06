@@ -150,31 +150,31 @@ static void dissect_dreg_tlv(proto_tree *dreg_tree, gint tlv_type, tvbuff_t *tvb
 {
 	switch (tlv_type) {
 		case DREG_PAGING_INFO:
-			proto_tree_add_item(dreg_tree, hf_dreg_paging_cycle, tvb, tlv_offset, 2, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_paging_offset, tvb, tlv_offset + 2, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_paging_group_id, tvb, tlv_offset + 3, 2, FALSE);
+			proto_tree_add_item(dreg_tree, hf_dreg_paging_cycle, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_paging_offset, tvb, tlv_offset + 2, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_paging_group_id, tvb, tlv_offset + 3, 2, ENC_BIG_ENDIAN);
 			break;
 		case DREG_REQ_DURATION:
-			proto_tree_add_item(dreg_tree, hf_dreg_req_duration, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(dreg_tree, hf_dreg_req_duration, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case DREG_PAGING_CONTROLLER_ID:
 			proto_tree_add_item(dreg_tree, hf_paging_controller_id, tvb, tlv_offset, 6, FALSE);
 			break;
 		case DREG_IDLE_MODE_RETAIN_INFO:
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_sbc, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_pkm, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_reg, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_network_address, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_tod, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_tftp, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_full_service, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(dreg_tree, hf_dreg_consider_paging_pref, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_sbc, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_pkm, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_reg, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_network_address, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_tod, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_tftp, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_retain_ms_service_full_service, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(dreg_tree, hf_dreg_consider_paging_pref, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case DREG_MAC_HASH_SKIP_THRESHOLD:
-			proto_tree_add_item(dreg_tree, hf_mac_hash_skip_threshold, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(dreg_tree, hf_mac_hash_skip_threshold, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case DREG_PAGING_CYCLE_REQUEST:
-			proto_tree_add_item(dreg_tree, hf_dreg_paging_cycle_request, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(dreg_tree, hf_dreg_paging_cycle_request, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 			break;
 		default:
 			proto_tree_add_item(dreg_tree, hf_tlv_value, tvb, tlv_offset, tlv_len, ENC_NA);
@@ -412,12 +412,12 @@ void dissect_mac_mgmt_msg_dreg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 		/* add MAC DREG REQ subtree */
 		dreg_req_tree = proto_item_add_subtree(dreg_req_item, ett_mac_mgmt_msg_dreg_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(dreg_req_tree, hf_dreg_req_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dreg_req_tree, hf_dreg_req_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 		/* display the Action Code */
-		proto_tree_add_item(dreg_req_tree, hf_dreg_req_action, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dreg_req_tree, hf_dreg_req_action, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* show the Reserved bits */
-		proto_tree_add_item(dreg_req_tree, hf_dreg_req_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dreg_req_tree, hf_dreg_req_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		while(offset < tvb_len)
@@ -495,15 +495,15 @@ void dissect_mac_mgmt_msg_dreg_cmd_decoder(tvbuff_t *tvb, packet_info *pinfo, pr
 		/* add MAC DREG CMD subtree */
 		dreg_cmd_tree = proto_item_add_subtree(dreg_cmd_item, ett_mac_mgmt_msg_dreg_decoder);
 		/* display the Message Type */
-		proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_message_type, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_message_type, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset ++;
 		/* display the Action Code */
 		if (include_cor2_changes)
-			proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_action_cor2, tvb, offset, 1, FALSE);
+			proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_action_cor2, tvb, offset, 1, ENC_BIG_ENDIAN);
 		else
-			proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_action, tvb, offset, 1, FALSE);
+			proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_action, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* show the Reserved bits */
-		proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_reserved, tvb, offset, 1, FALSE);
+		proto_tree_add_item(dreg_cmd_tree, hf_dreg_cmd_reserved, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset ++;
 
 		while(offset < tvb_len)
