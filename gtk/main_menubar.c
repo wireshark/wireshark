@@ -607,7 +607,7 @@ menus_prefs_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-main_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
+main_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
 
@@ -617,7 +617,7 @@ main_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data)
+filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
 
@@ -637,7 +637,7 @@ wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 }
 
 static void
-status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
+status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
 
@@ -645,7 +645,7 @@ status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 	main_widgets_show_or_hide();
 }
 static void
-packet_list_show_hide_cb(GtkAction *action _U_, gpointer user_data)
+packet_list_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
 
@@ -653,7 +653,7 @@ packet_list_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 	main_widgets_show_or_hide();
 }
 static void
-packet_details_show_hide_cb(GtkAction *action _U_, gpointer user_data)
+packet_details_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
 
@@ -661,7 +661,7 @@ packet_details_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 	main_widgets_show_or_hide();
 }
 static void
-packet_bytes_show_hide_cb(GtkAction *action _U_, gpointer user_data)
+packet_bytes_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
 
@@ -670,7 +670,7 @@ packet_bytes_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 }
 
 static void
-timestamp_seconds_time_cb(GtkAction *action _U_, gpointer user_data)
+timestamp_seconds_time_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
 
