@@ -72,8 +72,10 @@ value_string geoip_type_name_vals[] = {
     { GEOIP_ISP_EDITION_V6,         "ISP" },
     { GEOIP_ORG_EDITION_V6,         "Organization" },
     { GEOIP_DOMAIN_EDITION_V6,      "Domain" },
+#endif /* NUM_DB_TYPES > 31 */
+#if NUM_DB_TYPES > 32 /* 1.4.8 */
     { GEOIP_NETSPEED_EDITION_REV1_V6, "Speed" },
-#endif /* NUM_DB_TYPES */
+#endif /* NUM_DB_TYPES > 32 */
 #endif /* HAVE_GEOIP_V6 */
     { WS_LAT_FAKE_EDITION,          "Latitude" },   /* fake database */
     { WS_LON_FAKE_EDITION,          "Longitude" },  /* fake database */
