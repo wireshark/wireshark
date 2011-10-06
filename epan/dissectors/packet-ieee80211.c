@@ -9418,11 +9418,13 @@ dissect_ieee80211_common (tvbuff_t * tvb, packet_info * pinfo,
       DATA_FRAME_IS_QOS(frame_type_subtype)) {
         qosoff = hdr_len - htc_len - 2;
         qos_control = tvb_get_letohs(tvb, qosoff);
-        meshoff = hdr_len;
-        mesh_flags = tvb_get_guint8 (tvb, hdr_len);
-        if (has_mesh_control(fcf, qos_control, mesh_flags)) {
-          meshctl_len = find_mesh_control_length(mesh_flags);
-          hdr_len += meshctl_len;
+        if (tvb_length(tvb) > hdr_len) {
+            meshoff = hdr_len;
+            mesh_flags = tvb_get_guint8 (tvb, hdr_len);
+            if (has_mesh_control(fcf, qos_control, mesh_flags)) {
+              meshctl_len = find_mesh_control_length(mesh_flags);
+              hdr_len += meshctl_len;
+            }
         }
   }
 
