@@ -34,6 +34,7 @@
 
 #include <glib.h>
 #include <epan/packet.h>
+#include <epan/expert.h>
 
 #define PROTO_TAG_BRP   "BRP"
 
@@ -43,16 +44,16 @@ static int proto_brp = -1;
 /*static int global_brp_port = 1958; *//* The port is registered for another protocol */
 
 static const value_string brp_packettype_names[] = {
-    { 0, "BRP" },
-    { 1, "Setup Request - BRC -> BRS" },
-    { 2, "Setup Response - BRS -> BRC" },
-    { 3, "Teardown Request - BRC -> BRS" },
-    { 4, "Teardown Response - BRS -> BRC" },
-    { 5, "Heartbeat Request - BRS -> BRC" },
-    { 6, "Heartbeat Response - BRC -> BRS" },
-    { 7, "Unidirectional Flow Create Request - BRC -> BRS" },
-    { 8, "Flow Create Response - BRS -> BRC" },
-    { 9, "Flow Delete Request BRC -> BRS" },
+    {  0, "BRP" },
+    {  1, "Setup Request - BRC -> BRS" },
+    {  2, "Setup Response - BRS -> BRC" },
+    {  3, "Teardown Request - BRC -> BRS" },
+    {  4, "Teardown Response - BRS -> BRC" },
+    {  5, "Heartbeat Request - BRS -> BRC" },
+    {  6, "Heartbeat Response - BRC -> BRS" },
+    {  7, "Unidirectional Flow Create Request - BRC -> BRS" },
+    {  8, "Flow Create Response - BRS -> BRC" },
+    {  9, "Flow Delete Request BRC -> BRS" },
     { 10, "Flow Delete Response - BRS -> BRC" },
     { 11, "Flow Get Request - BRC -> BRS" },
     { 12, "Flow Get Response - BRS -> BRC" },
@@ -63,21 +64,28 @@ static const value_string brp_packettype_names[] = {
 };
 
 static const value_string brp_stat_vals[] = {
-    { 0, "OK" },
-    { 1, "Comm Error - Network connectivity has been lost (Client Message)." },
-    { 2, "No Bandwidth - There is insufficient bandwidth available in the network to honor the request (Server Message)." },
-    { 3, "Insufficient Resource - Either there is insufficient memory or resource available to transmit the request or, insufficient resources existed at the server to complete the request. Note that insufficient bandwidth in the network is handled by the previous status value. This is the catchall for all other resource deficiencies (Client/Server Message)." },
-    { 4, "No Such - The requested flow does not exist (Server Message)." },
-    { 5, "No Session - There is no active session. The server may return this in the event that the client and server are out of sync. In that eventuality, the client must reestablish its session and recreate any flows that it believes have been lost (Server Message)." },
-    { 6, "Invalid Argument - One of the input arguments to the call was not valid (Client/Server Message)." },
-    { 7, "Unreachable - The specified BRS is not reachable (Client Message)." },
-    { 8, "Internal Error - An internal fault has occurred. This is generally indicative of a fatal condition within the client system (Server Message)." },
-    { 9, "Already Exists - The flow or session that the client requested already exists (Server Message)." },
+    {  0, "OK" },
+    {  1, "Comm Error - Network connectivity has been lost (Client Message)." },
+    {  2, "No Bandwidth - There is insufficient bandwidth available in the network to honor the request (Server Message)." },
+    {  3, "Insufficient Resource - Either there is insufficient memory or resource available to transmit the request or,"
+           " insufficient resources existed at the server to complete the request. Note that insufficient bandwidth in the"
+           " network is handled by the previous status value. This is the catchall for all other resource deficiencies"
+           " (Client/Server Message)." },
+    {  4, "No Such - The requested flow does not exist (Server Message)." },
+    {  5, "No Session - There is no active session. The server may return this in the event that the client and server"
+           " are out of sync. In that eventuality, the client must reestablish its session and recreate any flows that"
+           " it believes have been lost (Server Message)." },
+    {  6, "Invalid Argument - One of the input arguments to the call was not valid (Client/Server Message)." },
+    {  7, "Unreachable - The specified BRS is not reachable (Client Message)." },
+    {  8, "Internal Error - An internal fault has occurred. This is generally indicative of a fatal condition within"
+           " the client system (Server Message)." },
+    {  9, "Already Exists - The flow or session that the client requested already exists (Server Message)." },
     { 10, "Flow Removed - The flow was removed or lost due to issues internal to the network (Server Message)." },
     { 11, "Invalid Sender - Received packet was from an unknown sender (Server Message)." },
     { 12, "Invalid Message - Input message is not defined or malformed (Client/Server Message)." },
     { 13, "Unsupported Version - The requested version (in a setup) is not supported (Server Message)." },
-    { 14, "Pending - The requested operation is proceeding and a status will be returned with the final result shortly (Server Message)." },
+    { 14, "Pending - The requested operation is proceeding and a status will be returned with the final result"
+           " shortly (Server Message)." },
     { 0, NULL }
 };
 
@@ -147,12 +155,13 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         type = tvb_get_guint8(tvb, offset);
         offset += 0;
 
+        brp_item = proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
+        offset += 1;
+
         /* Now let's break down each packet and display it in the collapsible branch */
         switch(type)
-            {
+        {
         case 1: /* Setup Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_ver, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -160,8 +169,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 2: /* Setup Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_uint( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -169,36 +176,26 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 3: /* Teardown Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             break;
 
         case 4: /* Teardown Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             break;
 
         case 5: /* Heartbeat Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             break;
 
         case 6: /* Heartbeat Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             break;
 
         case 7: /* Uni Flow Create Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_srcip, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -216,8 +213,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 8: /* Flow Create Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -227,8 +222,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 9: /* Flow Delete Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_flid, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -236,8 +229,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 10: /* Flow Delete Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -245,8 +236,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 11: /* Flow Get Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_flid, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -254,8 +243,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 12: /* Flow Get Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -281,8 +268,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 13: /* Flow Get Next Request */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_flid, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -290,8 +275,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 14: /* Flow Get Next Response */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_trans, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset += 3;
             proto_tree_add_item( brp_tree, hf_brp_stat, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -317,8 +300,6 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         case 15: /* Flow Abort */
-            proto_tree_add_item( brp_tree, hf_brp_type, tvb, offset, 1, ENC_BIG_ENDIAN );
-            offset += 1;
             proto_tree_add_item( brp_tree, hf_brp_mbz, tvb, offset, 3, ENC_BIG_ENDIAN );
             offset +=3;
             proto_tree_add_item( brp_tree, hf_brp_flid, tvb, offset, 4, ENC_BIG_ENDIAN );
@@ -326,10 +307,10 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             break;
 
         default:
-            /* Should not get here */
-            DISSECTOR_ASSERT_NOT_REACHED();
+            /* Invalid type */
+            expert_add_info_format(pinfo, brp_item, PI_UNDECODED, PI_WARN, "Unknown packet type");
             break;
-            }
+        }
 
     }
 }
