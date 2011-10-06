@@ -344,7 +344,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
         e_uuid_t uuid;
         proto_item *pi;
 
-        it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d  ", i);
+        it = proto_tree_add_text(tree, tvb, offset, 0, "Floor %d ", i);
         tr = proto_item_add_subtree(it, ett_epm_tower_floor);
 
         len = tvb_get_letohs(tvb, offset);
@@ -383,9 +383,11 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             {
                 guint16 version = tvb_get_ntohs(tvb, offset+17);
                 const char *service = dcerpc_get_proto_name(&uuid, version);
-                if (service || uuid_name)
-                    proto_item_append_text(tr, "UUID: %s", service ? service : uuid_name);
-                else
+                if (service || uuid_name) {
+                    const char *s = service ? service : uuid_name;
+                    proto_item_append_text(tr, "UUID: %s", s);
+                    col_append_fstr(pinfo->cinfo, COL_INFO, ", %s", s);
+                } else {
                     proto_item_append_text(tr, "UUID: %08x-%04x-%04x-%02x%02x-%02x%02x%02x%02x%02x%02x Version %d.%d", uuid.Data1, uuid.Data2, uuid.Data3,
                                            uuid.Data4[0], uuid.Data4[1],
                                            uuid.Data4[2], uuid.Data4[3],
@@ -393,6 +395,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
                                            uuid.Data4[6], uuid.Data4[7],
                                            tvb_get_guint8(tvb, offset+17),
                                            tvb_get_guint8(tvb, offset+18));
+                }
             }
             break;
         }
@@ -779,3 +782,16 @@ proto_reg_handoff_epm (void)
     dcerpc_init_uuid (proto_epm3, ett_epm, &uuid_epm, ver_epm3, epm_dissectors, hf_epm_opnum);
     dcerpc_init_uuid (proto_epm4, ett_epm, &uuid_epm, ver_epm4, epm_dissectors, hf_epm_opnum);
 }
+
+/*
+ * Editor modelines  -  http://www.wireshark.org/tools/modelines.html
+ *
+ * Local variables:
+ * c-basic-offset: 4
+ * tab-width: 8
+ * indent-tabs-mode: nil
+ * End:
+ *
+ * vi: set shiftwidth=4 tabstop=8 expandtab:
+ * :indentSize=4:tabSize=8:noTabs=true:
+ */
