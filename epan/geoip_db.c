@@ -357,24 +357,26 @@ geoip_db_lookup_latlon6(geoipv6_t addr _U_, float *lat _U_, float *lon _U_) {
 const char *
 geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
     GeoIP *gi;
-    const geoipv6_t *gaddr = (geoipv6_t *) &addr;
+    geoipv6_t gaddr;
     const char *ret = not_found;
     static char val[VAL_STR_LEN];
 #if NUM_DB_TYPES > 31
     GeoIPRecord *gir;
 #endif
 
+    memcpy(&gaddr, &addr, sizeof(addr));
+
     gi = g_array_index(geoip_dat_arr, GeoIP *, dbnum);
     if (gi) {
         switch (gi->databaseType) {
             case GEOIP_COUNTRY_EDITION_V6:
-                ret = GeoIP_country_name_by_ipnum_v6(gi, *gaddr);
+                ret = GeoIP_country_name_by_ipnum_v6(gi, gaddr);
                 break;
 
 #if NUM_DB_TYPES > 31
             case GEOIP_CITY_EDITION_REV0_V6:
             case GEOIP_CITY_EDITION_REV1_V6:
-                gir = GeoIP_record_by_ipnum_v6(gi, *gaddr);
+                gir = GeoIP_record_by_ipnum_v6(gi, gaddr);
                 if (gir && gir->city && gir->region) {
                     g_snprintf(val, VAL_STR_LEN, "%s, %s", gir->city, gir->region);
                     ret = val;
@@ -387,7 +389,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
             case GEOIP_ORG_EDITION_V6:
             case GEOIP_ISP_EDITION_V6:
             case GEOIP_ASNUM_EDITION_V6:
-                ret = GeoIP_name_by_ipnum_v6(gi, *gaddr);
+                ret = GeoIP_name_by_ipnum_v6(gi, gaddr);
                 break;
 #endif /* NUM_DB_TYPES */
 
@@ -396,7 +398,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
                 float lat;
                 float lon;
                 char *c;
-                if(geoip_db_lookup_latlon6(*gaddr, &lat, &lon) == 0) {
+                if(geoip_db_lookup_latlon6(gaddr, &lat, &lon) == 0) {
                     g_snprintf(val, VAL_STR_LEN, "%f", lat);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
@@ -410,7 +412,7 @@ geoip_db_lookup_ipv6(guint dbnum, struct e_in6_addr addr, char *not_found) {
                 float lat;
                 float lon;
                 char *c;
-                if(geoip_db_lookup_latlon6(*gaddr, &lat, &lon) == 0) {
+                if(geoip_db_lookup_latlon6(gaddr, &lat, &lon) == 0) {
                     g_snprintf(val, VAL_STR_LEN, "%f", lon);
                     c = strchr(val, ',');
                     if (c != NULL) *c = '.';
