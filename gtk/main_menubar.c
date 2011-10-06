@@ -144,8 +144,6 @@ static void merge_lua_menu_items(GList *node);
 static void ws_menubar_build_external_menus(void);
 static void set_menu_sensitivity (GtkUIManager *ui_manager, const gchar *, gint);
 static void set_menu_visible(GtkUIManager *ui_manager, const gchar *path, gint val);
-static void show_hide_cb(GtkWidget *w, gpointer data, gint action);
-static void timestamp_seconds_time_cb(GtkWidget *w, gpointer d, gint action);
 static void name_resolution_cb(GtkWidget *w, gpointer d, gint action);
 static void colorize_cb(GtkWidget *w, gpointer d);
 
@@ -176,16 +174,6 @@ get_ui_file_path(const char *filename)
     return gui_desc_file_name;
 }
 #endif
-
-typedef enum {
-    SHOW_HIDE_MAIN_TOOLBAR = 1,
-    SHOW_HIDE_FILTER_TOOLBAR,
-    SHOW_HIDE_AIRPCAP_TOOLBAR,
-    SHOW_HIDE_STATUSBAR,
-    SHOW_HIDE_PACKET_LIST,
-    SHOW_HIDE_TREE_VIEW,
-    SHOW_HIDE_BYTE_VIEW
-} show_hide_values_e;
 
 typedef enum {
     CONV_ETHER = 1,
@@ -623,22 +611,18 @@ main_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/MainToolbar");
 
-    if (!widget){
-        g_warning("main_toolbar_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_MAIN_TOOLBAR);
-    }
+	recent.main_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
+
 }
 
 static void
 filter_toolbar_show_hide_cb(GtkAction * action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/FilterToolbar");
-    if (!widget){
-        g_warning("filter_toolbar_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_FILTER_TOOLBAR);
-    }
+
+	recent.filter_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
 }
 
 static void
@@ -646,11 +630,9 @@ wireless_toolbar_show_hide_cb(GtkAction *action _U_, gpointer user_data _U_)
 {
 #ifdef HAVE_AIRPCAP
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/WirelessToolbar");
-    if (!widget){
-        g_warning("wireless_toolbar_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_AIRPCAP_TOOLBAR);
-    }
+
+	recent.airpcap_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
 #endif /* HAVE_AIRPCAP */
 }
 
@@ -658,41 +640,50 @@ static void
 status_bar_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/Statusbar");
-    if (!widget){
-        g_warning("status_bar_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_STATUSBAR);
-    }
+
+	recent.statusbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
 }
 static void
 packet_list_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketList");
-    if (!widget){
-        g_warning("packet_list_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_PACKET_LIST);
-    }
+
+	recent.packet_list_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
 }
 static void
 packet_details_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketDetails");
-    if (!widget){
-        g_warning("packet_details_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_TREE_VIEW);
-    }
+
+	recent.tree_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
 }
 static void
 packet_bytes_show_hide_cb(GtkAction *action _U_, gpointer user_data)
 {
     GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/PacketBytes");
-    if (!widget){
-        g_warning("packet_bytes_show_hide_cb: No widget found");
-    }else{
-        show_hide_cb( widget, user_data, SHOW_HIDE_BYTE_VIEW);
+
+	recent.byte_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget));
+	main_widgets_show_or_hide();
+}
+
+static void
+timestamp_seconds_time_cb(GtkAction *action _U_, gpointer user_data)
+{
+	GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
+
+    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(widget))) {
+        recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
+    } else {
+        recent.gui_seconds_format = TS_SECONDS_DEFAULT;
     }
+    timestamp_set_seconds_type (recent.gui_seconds_format);
+
+    /* This call adjusts column width */
+    cf_timestamp_auto_precision(&cfile);
+    new_packet_list_queue_draw();
 }
 
 static void
@@ -717,7 +708,6 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_,
     gint value;
 
     value = gtk_radio_action_get_current_value (action);
-    g_warning("timestamp_precision_new_cb, value %u, recent.gui_time_precision %u",value, recent.gui_time_precision);
     if (recent.gui_time_precision != value) {
         /* the actual precision will be set in new_packet_list_queue_draw() below */
         if (value == TS_PREC_AUTO) {
@@ -729,18 +719,6 @@ timestamp_precision_new_cb (GtkRadioAction *action, GtkRadioAction *current _U_,
         /* This call adjusts column width */
         cf_timestamp_auto_precision(&cfile);
         new_packet_list_queue_draw();
-    }
-}
-
-
-static void
-view_menu_seconds_time_cb(GtkAction *action _U_, gpointer user_data)
-{
-    GtkWidget *widget = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes");
-    if (!widget){
-        g_warning("view_menu_seconds_time_cb: No widget found");
-    }else{
-        timestamp_seconds_time_cb(widget, user_data, 0);
     }
 }
 
@@ -1845,7 +1823,7 @@ static const GtkToggleActionEntry main_menu_bar_toggle_action_entries[] =
     {"/View/PacketList",    NULL, "Packet _List", NULL, NULL,   G_CALLBACK(packet_list_show_hide_cb), TRUE},
     {"/View/PacketDetails", NULL, "Packet _Details", NULL, NULL,    G_CALLBACK(packet_details_show_hide_cb), TRUE},
     {"/View/PacketBytes",   NULL, "Packet _Bytes", NULL, NULL,  G_CALLBACK(packet_bytes_show_hide_cb), TRUE},
-    {"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",   NULL, "Display Seconds with hours and minutes", NULL, NULL, G_CALLBACK(view_menu_seconds_time_cb), FALSE},
+    {"/View/TimeDisplayFormat/DisplaySecondsWithHoursAndMinutes",   NULL, "Display Seconds with hours and minutes", NULL, NULL, G_CALLBACK(timestamp_seconds_time_cb), FALSE},
     {"/View/NameResolution/ResolveName",                            NULL, "_Resolve Name",                          NULL, NULL, G_CALLBACK(resolve_name_cb), FALSE},
     {"/View/NameResolution/EnableforMACLayer",                      NULL, "Enable for _MAC Layer",                  NULL, NULL, G_CALLBACK(view_menu_en_for_MAC_cb), TRUE},
     {"/View/NameResolution/EnableforNetworkLayer",                  NULL, "Enable for _Network Layer",              NULL, NULL, G_CALLBACK(view_menu_en_for_network_cb), TRUE },
@@ -3646,58 +3624,6 @@ merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
 #endif
 }
 
-#if 0
-static void
-add_menu_item(menu_item_t *node_data){
-    GtkActionGroup *action_group = NULL;
-    GtkAction *action;
-    GList *action_groups, *l;
-    guint merge_id;
-
-    g_warning("path '%s', node_data->name '%s'",node_data->gui_path,node_data->name);
-    if(node_data->stock_id){
-        g_warning("node_data->stock_id %s",node_data->stock_id);
-    }
-
-    action_groups = gtk_ui_manager_get_action_groups (ui_manager_main_menubar);
-    for (l = action_groups; l != NULL; l = l->next)
-    {
-        GtkActionGroup *group = l->data;
-
-        if (strcmp (gtk_action_group_get_name (group), "MenuActionGroup") == 0){
-            /* This unrefs the action group and all of its actions */
-            action_group = group;
-            break;
-       }
-    }
-    if(!action_group){
-        g_warning("Failed to find the action group");
-        return;
-    }
-    merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-
-    action = g_object_new (GTK_TYPE_ACTION,
-               "name", node_data->name,
-               "label", node_data->label,
-               "stock_id", node_data->stock_id,
-               "sensitive", node_data->enabled,
-               NULL);
-    gtk_action_group_add_action (action_group, action);
-    g_signal_connect (action, "activate",
-               G_CALLBACK (node_data->callback), node_data->callback_data);
-
-    g_object_unref (action);
-
-    gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
-               node_data->gui_path,
-               node_data->name, /* XXX is this ok, the name for the added UI element  */
-               node_data->name, /* the name of the action to be proxied, or NULL to add a separator */
-               GTK_UI_MANAGER_MENUITEM,
-               FALSE);
-
-}
-#endif
-
 
 /*
  * Enable/disable menu sensitivity.
@@ -4174,59 +4100,6 @@ menu_recent_file_write_all(FILE *rf) {
     g_list_free(children);
 }
 
-
-static void
-show_hide_cb(GtkWidget *w, gpointer data _U_, gint action)
-{
-
-    /* save current setting in recent */
-    switch(action) {
-    case(SHOW_HIDE_MAIN_TOOLBAR):
-        recent.main_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-    case(SHOW_HIDE_FILTER_TOOLBAR):
-        recent.filter_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-#ifdef HAVE_AIRPCAP
-    case(SHOW_HIDE_AIRPCAP_TOOLBAR):
-        recent.airpcap_toolbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-#endif
-    case(SHOW_HIDE_STATUSBAR):
-        recent.statusbar_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-    case(SHOW_HIDE_PACKET_LIST):
-        recent.packet_list_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-    case(SHOW_HIDE_TREE_VIEW):
-        recent.tree_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-    case(SHOW_HIDE_BYTE_VIEW):
-        recent.byte_view_show = gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w));
-        break;
-    default:
-        g_assert_not_reached();
-    }
-
-    main_widgets_show_or_hide();
-}
-
-
-static void
-timestamp_seconds_time_cb(GtkWidget *w, gpointer d _U_, gint action _U_)
-{
-    if (gtk_check_menu_item_get_active(GTK_CHECK_MENU_ITEM(w))) {
-        recent.gui_seconds_format = TS_SECONDS_HOUR_MIN_SEC;
-    } else {
-        recent.gui_seconds_format = TS_SECONDS_DEFAULT;
-    }
-    timestamp_set_seconds_type (recent.gui_seconds_format);
-
-    /* This call adjusts column width */
-    cf_timestamp_auto_precision(&cfile);
-    new_packet_list_queue_draw();
-}
-
 void
 menu_name_resolution_changed(void)
 {
@@ -4405,74 +4278,6 @@ menu_recent_read_finished(void) {
     /* This call adjusts column width */
     cf_timestamp_auto_precision(&cfile);
     new_packet_list_queue_draw();
-#if 0
-/* This should not be needed as we set the active radioItem when we crate the actiongroup */
-    switch(recent.gui_time_format) {
-    case(TS_ABSOLUTE_WITH_DATE):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/DateandTimeofDay");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/DateandTimeofDay");
-        }
-        break;
-    case(TS_ABSOLUTE):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/TimeofDay");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/TimeofDay");
-        }
-        break;
-    case(TS_RELATIVE):
-        g_warning("TS_RELATIVE");
-        action = gtk_ui_manager_get_action(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceBeginningofCapture");
-        gtk_action_activate(action);
-        if(gtk_action_is_sensitive(action))
-            g_warning("ACTION IS SENSIBLE");
-        if(!action)
-            g_warning("NO ACTION");
-
-
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceBeginningofCapture");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceBeginningofCapture");
-        }
-        break;
-    case(TS_DELTA):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousCapturedPacket");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousCapturedPacket");
-        }
-        break;
-    case(TS_DELTA_DIS):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSincePreviousDisplayedPacket");
-        }
-        break;
-    case(TS_EPOCH):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/SecondsSinceEpoch");
-        }
-        break;
-    case(TS_UTC_WITH_DATE):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/UTCDateandTimeofDay");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/UTCDateandTimeofDay");
-        }
-        break;
-    case(TS_UTC):
-        menu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ViewMenu/TimeDisplayFormat/UTCTimeofDay");
-        if(!menu){
-            g_warning("menu_recent_read_finished: No menu found, path= /Menubar/ViewMenu/TimeDisplayFormat/UTCTimeofDay");
-        }
-        break;
-    default:
-        g_assert_not_reached();
-    }
-    /* set_active will not trigger the callback when activating an active item! */
-    recent.gui_time_format = -1;
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), FALSE);
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu), TRUE);
-#endif /* 0 */
     /* the actual precision will be set in new_packet_list_queue_draw() below */
     if (recent.gui_time_precision == TS_PREC_AUTO) {
         timestamp_set_precision(TS_PREC_AUTO_SEC);
