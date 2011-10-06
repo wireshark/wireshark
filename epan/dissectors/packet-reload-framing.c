@@ -44,7 +44,9 @@ static int hf_reload_framing_sequence = -1;
 static int hf_reload_framing_ack_sequence = -1;
 static int hf_reload_framing_message = -1;
 static int hf_reload_framing_message_length = -1;
+static int hf_reload_framing_message_data = -1;
 static int hf_reload_framing_received = -1;
+static int hf_reload_framing_parsed_received = -1;
 static int hf_reload_framing_duplicate = -1;
 static int hf_reload_framing_response_in = -1;
 static int hf_reload_framing_response_to = -1;
@@ -73,6 +75,7 @@ typedef struct _reload_frame_conv_info_t {
 /* Initialize the subtree pointers */
 static gint ett_reload_framing = -1;
 static gint ett_reload_framing_message = -1;
+static gint ett_reload_framing_received = -1;
 
 
 #define UDP_PORT_RELOAD                 6084
@@ -114,6 +117,7 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   proto_tree *reload_framing_tree;
   guint32 relo_token;
   guint32 message_length=0;
+  emem_tree_key_t transaction_id_key[4];
   guint32 sequence;
   guint effective_length;
   guint16 offset;
@@ -138,27 +142,27 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
    */
   type = tvb_get_guint8(tvb, 0);
 
-  switch(type){
-    case DATA:
-      /* in the data type, check the reload token to be sure this
-      *  is a reLoad packet
-      */
-      message_length = (tvb_get_ntohs(tvb, 1 + 4)<<8)+ tvb_get_guint8(tvb, 1 + 4 + 2);
-      if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
-        return 0;
-      }
-      relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
-      if (relo_token != RELOAD_TOKEN) {
-        return 0;
-      }
-      break;
-    case ACK:
-      if (effective_length < 9 || ! conversation) {
-        return 0;
-      }
-      break;
-    default:
+  switch(type) {
+  case DATA:
+    /* in the data type, check the reload token to be sure this
+    *  is a reLoad packet
+    */
+    message_length = (tvb_get_ntohs(tvb, 1 + 4)<<8)+ tvb_get_guint8(tvb, 1 + 4 + 2);
+    if (message_length < MIN_RELOADDATA_HDR_LENGTH) {
       return 0;
+    }
+    relo_token = tvb_get_ntohl(tvb,1 + 4 + 3);
+    if (relo_token != RELOAD_TOKEN) {
+      return 0;
+    }
+    break;
+  case ACK:
+    if (effective_length < 9 || ! conversation) {
+      return 0;
+    }
+    break;
+  default:
+    return 0;
   }
 
 
@@ -168,7 +172,25 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   col_clear(pinfo->cinfo, COL_INFO);
 
   /* Create the transaction key which may be used to track the conversation */
+
   sequence = tvb_get_ntohl(tvb, 1);
+  transaction_id_key[0].length = 1;
+  transaction_id_key[0].key = &sequence; /* sequence number */
+
+  if (type==DATA) {
+    transaction_id_key[1].length = 1;
+    transaction_id_key[1].key = &pinfo->srcport;
+    transaction_id_key[2].length = (pinfo->src.len)>>2;
+    transaction_id_key[2].key = (void*)pinfo->src.data;
+  }
+  else {
+    transaction_id_key[1].length = 1;
+    transaction_id_key[1].key = &pinfo->destport;
+    transaction_id_key[2].length = (pinfo->dst.len)>>2;
+    transaction_id_key[2].key = (void*)pinfo->dst.data;
+  }
+  transaction_id_key[3].length=0;
+  transaction_id_key[3].key=NULL;
 
   if (!conversation) {
     conversation = conversation_new(pinfo->fd->num, &pinfo->src, &pinfo->dst,
@@ -190,12 +212,12 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 
   if (!pinfo->fd->flags.visited) {
     if ((reload_frame =
-         se_tree_lookup32(reload_framing_info->transaction_pdus, sequence)) == NULL) {
+           se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key)) == NULL) {
       reload_frame = se_alloc(sizeof(reload_frame_t));
       reload_frame->data_frame = 0;
       reload_frame->ack_frame = 0;
       reload_frame->req_time = pinfo->fd->abs_ts;
-      se_tree_insert32(reload_framing_info->transaction_pdus, sequence, (void *)reload_frame);
+      se_tree_insert32_array(reload_framing_info->transaction_pdus, transaction_id_key, (void *)reload_frame);
     }
 
     /* check whether the message is a request or a response */
@@ -214,14 +236,14 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
     }
   }
   else {
-    reload_frame=se_tree_lookup32(reload_framing_info->transaction_pdus, sequence);
+    reload_frame=se_tree_lookup32_array(reload_framing_info->transaction_pdus, transaction_id_key);
   }
 
   if (!reload_frame) {
     /* create a "fake" pana_trans structure */
     reload_frame = ep_alloc(sizeof(reload_frame_t));
-    reload_frame->data_frame = 0;
-    reload_frame->ack_frame = 0;
+    reload_frame->data_frame = (type==DATA) ? pinfo->fd->num : 0;
+    reload_frame->ack_frame = (type!=DATA) ? pinfo->fd->num : 0;
     reload_frame->req_time = pinfo->fd->abs_ts;
   }
 
@@ -274,27 +296,112 @@ dissect_reload_framing_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
   switch (type) {
 
   case DATA:
-    {
-      tvbuff_t *next_tvb;
+  {
+    tvbuff_t *next_tvb;
+    proto_item *ti_message;
+    proto_tree *message_tree;
 
-      proto_tree_add_item(reload_framing_tree, hf_reload_framing_sequence, tvb, offset , 4, ENC_BIG_ENDIAN);
-      offset += 4;
-      proto_tree_add_item(reload_framing_tree, hf_reload_framing_message_length, tvb, offset, 3, ENC_BIG_ENDIAN);
-      offset += 3;
-      next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
-      if (reload_handle == NULL) {
-        expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Can not find reload dissector");
-        return tvb_length(tvb);
-      }
-      call_dissector_only(reload_handle, next_tvb, pinfo, tree);
+    proto_tree_add_item(reload_framing_tree, hf_reload_framing_sequence, tvb, offset , 4, ENC_BIG_ENDIAN);
+    offset += 4;
+    ti_message = proto_tree_add_item(reload_framing_tree, hf_reload_framing_message, tvb, offset, 3+message_length, ENC_NA);
+    proto_item_append_text(ti_message, " (opaque<%d>)", message_length);
+    message_tree =  proto_item_add_subtree(ti_message, ett_reload_framing_message);
+    proto_tree_add_item(message_tree, hf_reload_framing_message_length, tvb, offset, 3, ENC_BIG_ENDIAN);
+    offset += 3;
+    proto_tree_add_item(message_tree, hf_reload_framing_message_data, tvb, offset, message_length, ENC_NA);
+    next_tvb = tvb_new_subset(tvb, offset, effective_length - offset, message_length);
+    if (reload_handle == NULL) {
+      expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN, "Can not find reload dissector");
+      return tvb_length(tvb);
     }
-    break;
+    call_dissector_only(reload_handle, next_tvb, pinfo, tree);
+  }
+  break;
 
   case ACK:
-    proto_tree_add_item(reload_framing_tree, hf_reload_framing_ack_sequence, tvb, offset , 4, ENC_BIG_ENDIAN);
+  {
+    guint32 sequence;
+    proto_item *ti_received;
+
+    sequence = tvb_get_ntohl(tvb, offset);
+    proto_tree_add_uint(reload_framing_tree, hf_reload_framing_ack_sequence, tvb, offset , 4, sequence);
     offset += 4;
-    proto_tree_add_item(reload_framing_tree, hf_reload_framing_received, tvb, offset , 4, ENC_BIG_ENDIAN);
-    break;
+
+    ti_received = proto_tree_add_item(reload_framing_tree, hf_reload_framing_received, tvb, offset , 4, ENC_BIG_ENDIAN);
+    {
+      guint32 received;
+      int last_received=-1;
+      int index = 0;
+      proto_tree * received_tree;
+      proto_item *ti_parsed_received=NULL;
+
+      received = tvb_get_ntohl(tvb, offset);
+      while ((received<<index) != 0) {
+        if (index>=32) break;
+        if (received &(0x1<<(31-index))) {
+          if (index==0) {
+            received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
+            ti_parsed_received = proto_tree_add_item(received_tree, hf_reload_framing_parsed_received, tvb, offset, 4, ENC_NA);
+            proto_item_append_text(ti_parsed_received, "[%u", (sequence -32+index));
+            last_received = index;
+          }
+          else {
+            if (received &(0x1<<(31-index+1))) {
+              index++;
+              /* range: skip */
+              continue;
+            }
+            else {
+              /* 1st acked in a serie */
+              if (last_received<0) {
+                /* 1st acked ever */
+                received_tree = proto_item_add_subtree(ti_received, ett_reload_framing_received);
+                ti_parsed_received = proto_tree_add_item(received_tree, hf_reload_framing_parsed_received, tvb, offset, 4, ENC_NA);
+                proto_item_append_text(ti_parsed_received, "[%u",(sequence-32+index));
+              }
+              else {
+                proto_item_append_text(ti_parsed_received, ",%u",(sequence-32+index));
+              }
+              last_received = index;
+
+            }
+          }
+        }
+        else if (index>0) {
+          if ((received &(0x1<<(31-index+1))) && (received &(0x1<<(31-index+2)))) {
+            /* end of a series */
+            if ((received &(0x1<<(31-index+3)))) {
+              proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+index-1));
+            }
+            else {
+              /* just a pair */
+              proto_item_append_text(ti_received, ",%u", (sequence-32+index-1));
+            }
+          }
+          else {
+            index++;
+            continue;
+          }
+        }
+        index++;
+      }
+      if (last_received>=0) {
+        if ((received &(0x1<<(31-index+1))) && (received &(0x1<<(31-index+2)))) {
+          /* end of a series */
+          if ((received &(0x1<<(31-index+3)))) {
+            proto_item_append_text(ti_parsed_received,"-%u",(sequence-32+index-1));
+          }
+          else {
+            /* just a pair */
+            proto_item_append_text(ti_parsed_received, ",%u", (sequence-32+index-1));
+          }
+        }
+        proto_item_append_text(ti_parsed_received, "]");
+        PROTO_ITEM_SET_GENERATED(ti_parsed_received);
+      }
+    }
+  }
+  break;
 
   default:
     DISSECTOR_ASSERT_NOT_REACHED();
@@ -342,44 +449,64 @@ proto_register_reload_framing(void)
 
   static hf_register_info hf[] = {
     { &hf_reload_framing_type,
-      { "Framed Message Type", "reload_framing.type", FT_UINT8,
-        BASE_DEC, VALS(types),  0x0,  NULL, HFILL }
+      { "type (FramedMessageType)", "reload_framing.type", FT_UINT8,
+        BASE_DEC, VALS(types),  0x0,  NULL, HFILL
+      }
     },
     { &hf_reload_framing_sequence,
-      { "Sequence", "reload_framing.sequence", FT_UINT32,
-        BASE_DEC, NULL, 0x0,  NULL, HFILL }
+      { "sequence (uint32)", "reload_framing.sequence", FT_UINT32,
+        BASE_DEC, NULL, 0x0,  NULL, HFILL
+      }
     },
     { &hf_reload_framing_ack_sequence,
-      { "ACK Sequence", "reload_framing.ack_sequence", FT_UINT32,
-        BASE_DEC, NULL, 0x0,  NULL, HFILL }
+      { "ack_sequence (uint32)", "reload_framing.ack_sequence", FT_UINT32,
+        BASE_DEC, NULL, 0x0,  NULL, HFILL
+      }
     },
     { &hf_reload_framing_message,
-      { "Message", "reload_framing.message", FT_BYTES,
-        BASE_NONE, NULL, 0x0,  NULL, HFILL }
+      { "message", "reload_framing.message", FT_NONE,
+        BASE_NONE, NULL, 0x0,  NULL, HFILL
+      }
     },
     { &hf_reload_framing_message_length,
-      { "Message length", "reload_framing.message.length", FT_UINT32,
-        BASE_DEC, NULL, 0x0,  NULL, HFILL }
+      { "length (uint24)", "reload_framing.message.length", FT_UINT32,
+        BASE_DEC, NULL, 0x0,  NULL, HFILL
+      }
+    },
+    { &hf_reload_framing_message_data,
+      { "data", "reload_framing.message.data", FT_BYTES,
+        BASE_NONE, NULL, 0x0,  NULL, HFILL
+      }
     },
     { &hf_reload_framing_received,
-      { "Received", "reload_framing.received", FT_UINT32,
-        BASE_HEX, NULL, 0x0,  NULL, HFILL }
+      { "received (uint32)", "reload_framing.received", FT_UINT32,
+        BASE_HEX, NULL, 0x0,  NULL, HFILL
+      }
+    },
+    { &hf_reload_framing_parsed_received,
+      { "Acked Frames:",  "reload_framing.parsed_received", FT_NONE,
+        BASE_NONE, NULL, 0x0, NULL, HFILL
+      }
     },
     { &hf_reload_framing_response_in,
       { "Response In",  "reload_framing.response-in", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "The response to this RELOAD Request is in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "The response to this RELOAD Request is in this frame", HFILL
+      }
     },
     { &hf_reload_framing_response_to,
       { "Request In", "reload_framing.response-to", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a response to the RELOAD Request in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "This is a response to the RELOAD Request in this frame", HFILL
+      }
     },
     { &hf_reload_framing_time,
       { "Time", "reload_framing.time", FT_RELATIVE_TIME,
-        BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL }
+        BASE_NONE, NULL, 0x0, "The time between the Request and the Response", HFILL
+      }
     },
     { &hf_reload_framing_duplicate,
       { "Duplicated original message in", "reload_framing.duplicate", FT_FRAMENUM,
-        BASE_NONE, NULL, 0x0, "This is a duplicate of RELOAD message in this frame", HFILL }
+        BASE_NONE, NULL, 0x0, "This is a duplicate of RELOAD message in this frame", HFILL
+      }
     },
   };
 
@@ -387,6 +514,7 @@ proto_register_reload_framing(void)
   static gint *ett[] = {
     &ett_reload_framing,
     &ett_reload_framing_message,
+    &ett_reload_framing_received,
   };
 
   /* Register the protocol name and description */

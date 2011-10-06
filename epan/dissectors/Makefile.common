@@ -1280,6 +1280,7 @@ DISSECTOR_INCLUDES =	\
 	packet-raw.h	\
 	packet-rdp.h	\
 	packet-rdt.h	\
+	packet-reload.h	\
 	packet-rgmp.h	\
 	packet-rlc.h	\
 	packet-rlc-lte.h		\
