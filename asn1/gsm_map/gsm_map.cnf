@@ -61,6 +61,7 @@ Add-GeographicalInformation
 AgeOfLocationInformation
 AlertingPattern
 AreaEventInfo
+BasicServiceCode
 CallReferenceNumber
 CCBS-Feature
 CellGlobalIdOrServiceAreaIdFixedLength
@@ -83,6 +84,8 @@ Ext-QoS-Subscribed
 Ext2-QoS-Subscribed
 Ext3-QoS-Subscribed
 ExtensionContainer
+ExternalSignalInfo
+ForwardingOptions
 GeographicalInformation
 GetPasswordArg
 GlobalCellId
