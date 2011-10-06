@@ -525,14 +525,14 @@ dissect_qsig_err(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 /*--- dissect_qsig_transit_counter_ie ---------------------------------------*/
 static int
 dissect_qsig_transit_counter_ie(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, int length  _U_) {
-  proto_tree_add_item(tree, hf_qsig_tc, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_qsig_tc, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
   return offset;
 }
 /*--- dissect_qsig_party_category_ie ----------------------------------------*/
 static int
 dissect_qsig_party_category_ie(tvbuff_t *tvb, int offset, packet_info *pinfo  _U_, proto_tree *tree, int length  _U_) {
-  proto_tree_add_item(tree, hf_qsig_pc, tvb, offset, 1, FALSE);
+  proto_tree_add_item(tree, hf_qsig_pc, tvb, offset, 1, ENC_BIG_ENDIAN);
   offset++;
   return offset;
 }
@@ -557,9 +557,9 @@ dissect_qsig_ie(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int codeset
             val_to_str(ie_type, VALS(qsig_str_ie_type[codeset]), "unknown (0x%02X)"));
   ie_tree = proto_item_add_subtree(ti_ie, ett_qsig_ie);
   proto_tree_add_item(ie_tree, *hf_qsig_ie_type_arr[codeset], tvb, offset, 1, FALSE);
-  hidden_item = proto_tree_add_item(ie_tree, hf_qsig_ie_type, tvb, offset, 1, FALSE);
+  hidden_item = proto_tree_add_item(ie_tree, hf_qsig_ie_type, tvb, offset, 1, ENC_BIG_ENDIAN);
   PROTO_ITEM_SET_HIDDEN(hidden_item);
-  proto_tree_add_item(ie_tree, hf_qsig_ie_len, tvb, offset + 1, 1, FALSE);
+  proto_tree_add_item(ie_tree, hf_qsig_ie_len, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
   offset += 2;
   if (tvb_length_remaining(tvb, offset) <= 0)
     return;

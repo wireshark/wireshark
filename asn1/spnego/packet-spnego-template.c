@@ -1020,19 +1020,19 @@ dissect_spnego_krb5_cfx_wrap_base(tvbuff_t *tvb, int offset, packet_info *pinfo
 	/* EC */
 	ec = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_spnego_krb5_cfx_ec, tvb, offset, 2,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* RRC */
 	rrc = tvb_get_ntohs(tvb, offset);
 	proto_tree_add_item(tree, hf_spnego_krb5_cfx_rrc, tvb, offset, 2,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* sequence number */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_cfx_seq, tvb, offset, 8,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* Checksum of plaintext padded data */
@@ -1138,7 +1138,7 @@ dissect_spnego_krb5_cfx_getmic_base(tvbuff_t *tvb, int offset, packet_info *pinf
 	/* sequence number */
 
 	proto_tree_add_item(tree, hf_spnego_krb5_cfx_seq, tvb, offset, 8,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	offset += 8;
 
 	/* Checksum of plaintext padded data */

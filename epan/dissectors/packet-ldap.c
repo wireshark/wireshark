@@ -631,7 +631,7 @@ static int dissect_mscldap_ntver_flags(proto_tree *parent_tree, tvbuff_t *tvb, i
   gboolean one_bit_set = FALSE;
 
   flags=tvb_get_letohl(tvb, offset);
-  item=proto_tree_add_item(parent_tree, hf_mscldap_ntver_flags, tvb, offset, 4, TRUE);
+  item=proto_tree_add_item(parent_tree, hf_mscldap_ntver_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   if(parent_tree){
     tree = proto_item_add_subtree(item, ett_mscldap_ntver_flags);
   }
@@ -4190,7 +4190,7 @@ static int dissect_mscldap_netlogon_flags(proto_tree *parent_tree, tvbuff_t *tvb
   gboolean one_bit_set = FALSE;
 
   flags=tvb_get_letohl(tvb, offset);
-  item=proto_tree_add_item(parent_tree, hf_mscldap_netlogon_flags, tvb, offset, 4, TRUE);
+  item=proto_tree_add_item(parent_tree, hf_mscldap_netlogon_flags, tvb, offset, 4, ENC_LITTLE_ENDIAN);
   if(parent_tree){
     tree = proto_item_add_subtree(item, ett_mscldap_netlogon_flags);
   }
@@ -4384,11 +4384,11 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 					subtree = proto_item_add_subtree(item, ett_mscldap_ipdetails);
 
 					/* get sockaddr family */
-					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_family, tvb, offset, 2, TRUE);
+					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_family, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 					offset +=2;
 
 					/* get sockaddr port */
-					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_port, tvb, offset, 2, TRUE);
+					proto_tree_add_item(subtree, hf_mscldap_netlogon_ipaddress_port, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 					offset +=2;
 
 					/* get IP address */
@@ -4413,11 +4413,11 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
   offset = dissect_mscldap_ntver_flags(tree, tvb, offset);
 
   /* LM Token */
-  proto_tree_add_item(tree, hf_mscldap_netlogon_lm_token, tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_mscldap_netlogon_lm_token, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
   /* NT Token */
-  proto_tree_add_item(tree, hf_mscldap_netlogon_nt_token, tvb, offset, 2, TRUE);
+  proto_tree_add_item(tree, hf_mscldap_netlogon_nt_token, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   offset += 2;
 
 }

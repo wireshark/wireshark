@@ -317,17 +317,17 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 		6-13.
 	 */
 	/* Allocation/Retention Priority */
-	proto_tree_add_item(subtree, hf_gsm_map_ext_qos_subscribed_pri, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_ext_qos_subscribed_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Quality of Service Octets 6-13.( Octet 2 - 9 Here) */
 
 	/* Traffic class, octet 6 (see 3GPP TS 23.107) Bits 8 7 6 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_traffic_cls, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_traffic_cls, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* Delivery order, octet 6 (see 3GPP TS 23.107) Bits 5 4 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_del_order, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_del_order, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* Delivery of erroneous SDUs, octet 6 (see 3GPP TS 23.107) Bits 3 2 1 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_del_of_err_sdu, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_del_of_err_sdu, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Maximum SDU size, octet 7 (see 3GPP TS 23.107) */
@@ -375,15 +375,15 @@ dissect_gsm_map_ext_qos_subscribed(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 	}
 	offset++;
 	/* Residual Bit Error Rate (BER), octet 10 (see 3GPP TS 23.107) Bits 8 7 6 5 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_ber, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_ber, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* SDU error ratio, octet 10 (see 3GPP TS 23.107) */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_sdu_err_rat, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_sdu_err_rat, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* Transfer delay, octet 11 (See 3GPP TS 23.107) Bits 8 7 6 5 4 3 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_transfer_delay, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_transfer_delay, tvb, offset, 1, ENC_BIG_ENDIAN);
 	/* Traffic handling priority, octet 11 (see 3GPP TS 23.107) Bits 2 1 */
-	proto_tree_add_item(subtree, hf_gsm_map_qos_traff_hdl_pri, tvb, offset, 1, FALSE);
+	proto_tree_add_item(subtree, hf_gsm_map_qos_traff_hdl_pri, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/*	Guaranteed bit rate for uplink, octet 12 (See 3GPP TS 23.107)
@@ -612,16 +612,16 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 	octet = tvb_get_guint8(tvb,0);
 	coding_grp = octet >>4;
-	proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, 0, 1, FALSE);
+	proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 	sms_encoding = SMS_ENCODING_NOT_SET;
 	switch (coding_grp){
 	case 0:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp0_lang, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp0_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
 		sms_encoding = SMS_ENCODING_7BIT;
 		break;
 	case 1:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp1_lang, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp1_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
 		if ((octet & 0x0f)== 0){
 			sms_encoding = SMS_ENCODING_7BIT_LANG;
 		}else{
@@ -629,11 +629,11 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		}
 		break;
 	case 2:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp2_lang, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp2_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
 		sms_encoding = SMS_ENCODING_7BIT;
 		break;
 	case 3:
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp3_lang, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp3_lang, tvb, 0, 1, ENC_BIG_ENDIAN);
 		sms_encoding = SMS_ENCODING_7BIT;
 		break;
 		/* Coding_grp 01xx */
@@ -647,9 +647,9 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		  /* FALLTHRU */
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, FALSE);
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, FALSE);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, ENC_BIG_ENDIAN);
 		if ((octet & 0x10)== 0x10){
-			proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, FALSE);
+			proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, ENC_BIG_ENDIAN);
 		}
 		/* Bits 3 and 2 indicate the character set being used, */
 		character_set = (octet&0x0c)>>2;
@@ -679,8 +679,8 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 	case 9:
 		/* Message with User Data Header (UDH) structure:*/
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, FALSE);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, ENC_BIG_ENDIAN);
 		character_set = (octet&0x0c)>>2;
 		switch (character_set){
 		case 0:
@@ -720,8 +720,8 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		break;
 	case 15:
 		/* Data coding / message handling */
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_mess_code, tvb, 0, 1, FALSE);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_class, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_mess_code, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp15_class, tvb, 0, 1, ENC_BIG_ENDIAN);
 		character_set = (octet&0x04)>>2;
 		if (character_set == 0){
 			sms_encoding = SMS_ENCODING_7BIT;
@@ -744,8 +744,8 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  guint8		np;
 
  proto_tree_add_item(tree, hf_gsm_map_extension, tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,FALSE);
- proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,ENC_BIG_ENDIAN);
+ proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,ENC_BIG_ENDIAN);
 
  digit_str = unpack_digits(tvb, 1);
 

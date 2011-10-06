@@ -9241,7 +9241,7 @@ dissect_tetra(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Timer */
 		txtimer = tvb_get_letohl(tvb, offset);
-		tetra_sub_item = proto_tree_add_item(tetra_header_tree, hf_tetra_timer, tvb, offset, 4, TRUE);
+		tetra_sub_item = proto_tree_add_item(tetra_header_tree, hf_tetra_timer, tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		tslot = ((txtimer & 0x7800) >> 11);
 		if(tslot==4)
 			tslot = 3;

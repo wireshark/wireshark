@@ -1522,11 +1522,11 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     subtree = proto_item_add_subtree(actx->created_item, ett_digitstype);
 
     /* Octet 1 */
-    proto_tree_add_item(subtree, hf_ansi_map_type_of_digits, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_type_of_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 2 */
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_si, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_si, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitD, tvb, offset, 1, FALSE);
     proto_tree_add_item(subtree, hf_ansi_map_navail, tvb, offset, 1, FALSE);
     proto_tree_add_item(subtree, hf_ansi_map_pi, tvb, offset, 1, FALSE);
@@ -1534,8 +1534,8 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     offset++;
     /* Octet 3 */
     octet = tvb_get_guint8(tvb,offset);
-    proto_tree_add_item(subtree, hf_ansi_map_np, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_digits_enc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_np, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_digits_enc, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 4 - */
     switch(octet>>4){
@@ -1544,7 +1544,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         case 1:
             /* BCD Coding */
             octet_len = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+            proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
             if(octet_len == 0)
                 return;
             offset++;
@@ -1555,7 +1555,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         case 2:
             /* IA5 Coding */
             octet_len = tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+            proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
             if(octet_len == 0)
                 return;
             offset++;
@@ -1579,7 +1579,7 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     case 6:/* Land Mobile Numbering (ITU-T Rec. E.212) */
     case 7:/* Private Numbering Plan */
         octet_len = tvb_get_guint8(tvb,offset);
-        proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, FALSE);
+        proto_tree_add_item(subtree, hf_ansi_map_nr_digits, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(octet_len == 0)
             return;
         offset++;
@@ -1661,7 +1661,7 @@ dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* Type of Subaddress (octet 1, bits E-G) */
-    proto_tree_add_item(subtree, hf_ansi_map_subaddr_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_subaddr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Odd/Even Indicator (O/E) (octet 1, bit D) */
     proto_tree_add_item(subtree, hf_ansi_map_subaddr_odd_even, tvb, offset, 1, FALSE);
 
@@ -1759,13 +1759,13 @@ dissect_ansi_map_alertcode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* Pitch (octet 1, bits G-H) */
-    proto_tree_add_item(subtree, hf_ansi_alertcode_pitch, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_alertcode_pitch, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Cadence (octet 1, bits A-F) */
-    proto_tree_add_item(subtree, hf_ansi_alertcode_cadence, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_alertcode_cadence, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Alert Action (octet 2, bits A-C) */
-    proto_tree_add_item(subtree, hf_ansi_alertcode_alertaction, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_alertcode_alertaction, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.4 AlertResult */
@@ -1915,20 +1915,20 @@ dissect_ansi_map_announcementcode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
 
     /* Tone (octet 1) */
-    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_tone, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_tone, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Class (octet 2, bits A-D) */
-    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_class, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_class, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Standard Announcement (octet 3) */
-    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_std_ann, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_std_ann, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Custom Announcement ( octet 4 )
        e.       The assignment of this octet is left to bilateral agreement. When a Custom
        Announcement is specified it takes precedence over either the Standard
        Announcement or Tone
     */
-    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_cust_ann, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_announcementcode_cust_ann, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.8 AuthenticationCapability Updated N.S0003*/
@@ -1969,9 +1969,9 @@ dissect_ansi_map_authorizationperiod(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
-    proto_tree_add_item(subtree, hf_ansi_map_authorizationperiod_period, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_authorizationperiod_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_value, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.15 AvailabilityType */
@@ -1992,14 +1992,14 @@ dissect_ansi_map_billingid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
 
-    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* ID Number */
-    proto_tree_add_item(subtree, hf_ansi_map_idno, tvb, offset, 3, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_idno, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset = offset + 3;
-    proto_tree_add_item(subtree, hf_ansi_map_segcount, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_segcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -2050,46 +2050,46 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo _U_,
 
 
     /* Calling Number Identification Restriction Override FeatureActivity CNIROver-FA (Octet 3 bits GH )        */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cniroverfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cniroverfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Calling Number Identification Restriction: FeatureActivity CNIR-FA (Octet 3 bits EF )    */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnirfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnirfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Calling Number Identification Presentation: FeatureActivity CNIP2-FA (Octet 3 bits CD )  */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip2fa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip2fa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Calling Number Identification Presentation: FeatureActivity CNIP1-FA (Octet 3 bits AB )  */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip1fa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cnip1fa, tvb, offset, 1, ENC_BIG_ENDIAN);
     length--;
     if ( length == 0)
         return;
     offset++;
 
     /* USCF divert to voice mail: FeatureActivity USCFvm-FA (Octet 4 bits GH )  */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfvmfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfvmfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Answer Hold: FeatureActivity AH-FA (Octet 4 bits EF ) N.S0029-0 v1.0     */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ahfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ahfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Data Privacy Feature Activity DP-FA (Octet 4 bits CD ) N.S0008-0 v 1.0   */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_dpfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_dpfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Priority Call Waiting FeatureActivity PCW-FA (Octet 4 bits AB )  */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_pcwfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_pcwfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     length--;
     if ( length == 0)
         return;
     offset++;
 
     /* USCF divert to mobile station provided DN:FeatureActivity.USCFms-FA (Octet 5 bits AB ) */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfmsfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfmsfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* USCF divert to network registered DN:FeatureActivity. USCFnr-FA (Octet 5 bits CD )*/
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfnrfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_uscfnrfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* CDMA-Packet Data Service: FeatureActivity. CPDS-FA (Octet 5 bits EF ) N.S0029-0 v1.0*/
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cpdsfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cpdsfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* CDMA-Concurrent Service:FeatureActivity. CCS-FA (Octet 5 bits GH ) N.S0029-0 v1.0*/
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ccsfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ccsfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     length--;
     if ( length == 0)
         return;
     offset++;
 
     /* TDMA Enhanced Privacy and Encryption:FeatureActivity.TDMA EPE-FA (Octet 6 bits AB ) N.S0029-0 v1.0*/
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_epefa, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2238,26 +2238,26 @@ dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     subtree = proto_item_add_subtree(actx->created_item, ett_cdmachanneldata);
 
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_Frame_Offset, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_Frame_Offset, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* CDMA Channel Number */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_CDMA_ch_no, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_CDMA_ch_no, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     length = length -2;
     /* Band Class */
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_band_cls, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_band_cls, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Long Code Mask */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b6, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b6, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b5, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b5, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b4, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b4, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b3, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b3, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b2, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b2, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b1, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b1, tvb, offset, 1, ENC_BIG_ENDIAN);
     length = length - 6;
     if (length == 0)
         return;
@@ -2265,9 +2265,9 @@ dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
     /* NP_EXT */
     proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_np_ext, tvb, offset, 1, FALSE);
     /* Nominal Power */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nominal_pwr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nominal_pwr, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Number Preamble */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nr_preamble, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nr_preamble, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.31 CDMACodeChannel */
@@ -2312,11 +2312,11 @@ dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dmi, tvb, offset, 1, FALSE);
     /* Slotted Mode Indicator: (SMI) (octet 1, bit F) */
     proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_smi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitED, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitED, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Analog Transmission: (DTX) (octet 1, bit C) */
     proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dtx, tvb, offset, 1, FALSE);
     /* Power Class: (PC) (octet 1, bits A and B) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_pc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_pc, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 /* 6.5.2.47 ChannelData */
 /* Discontinuous Transmission Mode (DTX) (octet 1, bits E and D) */
@@ -2339,15 +2339,15 @@ dissect_ansi_map_channeldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     subtree = proto_item_add_subtree(actx->created_item, ett_channeldata);
 
     /* SAT Color Code (SCC) (octet 1, bits H and G) */
-    proto_tree_add_item(subtree, hf_ansi_map_channeldata_scc, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_channeldata_scc, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Discontinuous Transmission Mode (DTX) (octet 1, bits E and D) */
-    proto_tree_add_item(subtree, hf_ansi_map_channeldata_dtx, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_channeldata_dtx, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Voice Mobile Attenuation Code (VMAC) (octet 1, bits A - C)*/
-    proto_tree_add_item(subtree, hf_ansi_map_channeldata_vmac, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_channeldata_vmac, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     offset++;
     /* Channel Number (CHNO) ( octet 2 and 3 ) */
-    proto_tree_add_item(subtree, hf_ansi_map_channeldata_chno, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_channeldata_chno, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 }
 
@@ -2396,20 +2396,20 @@ dissect_ansi_map_controlchanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto
     subtree = proto_item_add_subtree(actx->created_item, ett_controlchanneldata);
 
     /* Digital Color Code (DCC) (octet 1, bit H and G) */
-    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_dcc, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitFED, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_dcc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitFED, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Control Mobile Attenuation Code (CMAC) (octet 1, bit A - C) */
-    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_cmac, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_cmac, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Channel Number (CHNO) ( octet 2 and 3 ) */
-    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_chno, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_chno, tvb, offset, 2, ENC_BIG_ENDIAN);
     /* Supplementary Digital Color Codes (SDCC1 and SDCC2) */
     offset = offset +2;
     /* SDCC1 ( octet 4, bit D and C )*/
-    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_sdcc1, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_sdcc1, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* SDCC2 ( octet 4, bit A and B )*/
-    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_sdcc2, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_controlchanneldata_sdcc2, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -2452,9 +2452,9 @@ dissect_ansi_map_deniedauthorizationperiod(tvbuff_t *tvb, packet_info *pinfo _U_
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
-    proto_tree_add_item(subtree, hf_ansi_map_deniedauthorizationperiod_period, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_deniedauthorizationperiod_period, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_value, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_value, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -2487,11 +2487,11 @@ dissect_ansi_map_extendedmscid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     subtree = proto_item_add_subtree(actx->created_item, ett_extendedmscid);
     /* Type (octet 1) */
-    proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
-    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.65 ExtendedSystemMyTypeCode */
@@ -2505,7 +2505,7 @@ dissect_ansi_map_extendedsystemmytypecode(tvbuff_t *tvb, packet_info *pinfo _U_,
 
     subtree = proto_item_add_subtree(actx->created_item, ett_extendedsystemmytypecode);
     /* Type (octet 1) */
-    proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     offset = dissect_ansi_map_SystemMyTypeCode(TRUE, tvb, offset, actx, subtree, hf_ansi_map_systemMyTypeCode);
 }
@@ -2560,11 +2560,11 @@ dissect_ansi_map_intermsccircuitid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* Trunk Group Number (G) Octet 1 */
     octet = tvb_get_guint8(tvb,offset);
-    proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Trunk Member Number (M) Octet2 */
     octet2 = tvb_get_guint8(tvb,offset);
-    proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_item_append_text(actx->created_item, " (G %u/M %u)", octet, octet2);
 }
 
@@ -2587,10 +2587,10 @@ dissect_ansi_map_messagewaitingnotificationcount(tvbuff_t *tvb, packet_info *pin
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* Type of messages (octet 1) */
-    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationcount_tom, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationcount_tom, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Number of Messages Waiting (octet 2) */
-    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationcount_no_mw, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationcount_no_mw, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -2625,11 +2625,11 @@ dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinf
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
 
     /* Message Waiting Indication (MWI) (octet 1, bits C and D) */
-    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_mwi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_mwi, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Alert Pip Tone (APT) (octet 1, bit B) */
     proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_apt, tvb, offset, 1, FALSE);
     /* Pip Tone (PT) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_pt, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.81 MobileIdentificationNumber */
@@ -2645,9 +2645,9 @@ dissect_ansi_map_mscid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree _
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
-    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
-    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2662,13 +2662,13 @@ dissect_ansi_map_mslocation(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
     /* Latitude in tenths of a second octet 1 - 3 */
-    proto_tree_add_item(subtree, hf_ansi_map_mslocation_lat, tvb, offset, 3, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_mslocation_lat, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset = offset + 3;
     /* Longitude in tenths of a second octet 4 - 6 */
-    proto_tree_add_item(subtree, hf_ansi_map_mslocation_long, tvb, offset, 3, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_mslocation_long, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset = offset + 3;
     /* Resolution in units of 1 foot octet 7, octet 8 optional */
-    proto_tree_add_item(subtree, hf_ansi_map_mslocation_res, tvb, offset, -1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_mslocation_res, tvb, offset, -1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.85 NAMPSCallMode */
@@ -2718,9 +2718,9 @@ dissect_ansi_map_nampschanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
     /* Color Code Indicator (CCIndicator) (octet 1, bits C, D, and E) */
-    proto_tree_add_item(subtree, hf_ansi_map_nampschanneldata_CCIndicator, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_nampschanneldata_CCIndicator, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Narrow Analog Voice Channel Assignment (NAVCA) (octet 1, bits A and B) */
-    proto_tree_add_item(subtree, hf_ansi_map_nampschanneldata_navca, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_nampschanneldata_navca, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -3065,7 +3065,7 @@ dissect_ansi_map_pacaindicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
     subtree = proto_item_add_subtree(actx->created_item, ett_pacaindicator);
     /* PACA Level (octet 1, bits B-E) */
-    proto_tree_add_item(subtree, hf_ansi_map_PACA_Level, tvb, offset,   1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_PACA_Level, tvb, offset,   1, ENC_BIG_ENDIAN);
     /* Permanent Activation (PA) (octet 1, bit A) */
     proto_tree_add_item(subtree, hf_ansi_map_pacaindicator_pa, tvb, offset,     1, FALSE);
 }
@@ -3089,7 +3089,7 @@ dissect_ansi_map_pc_ssn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* Type (octet 1) */
-    proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_msc_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Point Code Member Number octet 2 */
     b1 = tvb_get_guint8(tvb,offset);
@@ -3116,15 +3116,15 @@ dissect_ansi_map_pilotbillingid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 
     subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
     /* First Originating MarketID octet 1 and 2 */
-    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     /* First Originating Switch Number octet 3*/
-    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* ID Number */
-    proto_tree_add_item(subtree, hf_ansi_map_idno, tvb, offset, 3, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_idno, tvb, offset, 3, ENC_BIG_ENDIAN);
     offset = offset + 3;
-    proto_tree_add_item(subtree, hf_ansi_map_segcount, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_segcount, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.96 PreferredLanguageIndicator */
@@ -3268,10 +3268,10 @@ dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo _
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_sms_originationrestrictions);
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_fmc, tvb, offset, 1, FALSE);
     proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_direct, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_default, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_default, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -3362,7 +3362,7 @@ dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_systemcapabilities);
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_dp, tvb, offset, 1, FALSE);
     proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_ssd, tvb, offset, 1, FALSE);
     proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_cave, tvb, offset, 1, FALSE);
@@ -3457,17 +3457,17 @@ dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
     /* No Page Response (NPR) (octet 1, bits E and F) */
-    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_npr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_npr, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* No Answer (NA) (octet 1, bits G and H) */
-    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_na, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_na, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Routing Failure (RF) (octet 1, bits C and D) */
-    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_rf, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_rf, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Busy (octet 1, bits A and B) */
-    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_busy, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_busy, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* None Reachable (NR) (octet 2, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_nr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.160 TransactionCapability (TIA/EIA-41.5-D, page 5-315) */
@@ -3573,7 +3573,7 @@ dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     /* TerminationList (TL) (octet 2, bit E) */
     proto_tree_add_item(subtree, hf_ansi_trans_cap_tl, tvb, offset, 1, FALSE);
     /* Multiple Terminations (octet 2, bits A-D) */
-    proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.162 UniqueChallengeReport */
@@ -3902,10 +3902,10 @@ static const value_string ansi_map_TDMABandwidth_vals[]  = {
 
    subtree = proto_item_add_subtree(actx->created_item, ett_billingid);
    / Trunk Group Number (G) Octet 1 /
-   proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, FALSE);
+   proto_tree_add_item(subtree, hf_ansi_map_tgn, tvb, offset, 1, ENC_BIG_ENDIAN);
    offset++;
    / Trunk Member Number (M) Octet2 /
-   proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, FALSE);
+   proto_tree_add_item(subtree, hf_ansi_map_tmn, tvb, offset, 1, ENC_BIG_ENDIAN);
    }
 */
 /* 6.5.2.as ChangeServiceAttributes N.S0008-0 v 1.0 */
@@ -4162,10 +4162,10 @@ dissect_ansi_map_controlnetworkid(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     subtree = proto_item_add_subtree(actx->created_item, ett_controlnetworkid);
     /* MarketID octet 1 and 2 */
-    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_MarketID, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     /* Switch Number octet 3*/
-    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_swno, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 }
 

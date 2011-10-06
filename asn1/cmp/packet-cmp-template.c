@@ -135,19 +135,19 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 		/* RFC2510 TCP transport */
 		ti = proto_tree_add_item(tree, proto_cmp, tvb, offset, 5, FALSE);
 		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
-		proto_tree_add_item(tree, hf_cmp_tcptrans_len, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_cmp_tcptrans_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(tree, hf_cmp_tcptrans_type, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(tree, hf_cmp_tcptrans_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	} else {
 		/* post RFC2510 TCP transport - the former "type" field is now "version" */
 		ti = proto_tree_add_text(tree, tvb, offset, 7, "TCP transport");
 		tcptrans_tree = proto_item_add_subtree(ti, ett_cmp);
 		pdu_type=tvb_get_guint8(tvb, 6);
-		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_len, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
-		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_version, tvb, offset++, 1, FALSE);
-		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_flags, tvb, offset++, 1, FALSE);
-		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_type, tvb, offset++, 1, FALSE);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_version, tvb, offset++, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans10_flags, tvb, offset++, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_type, tvb, offset++, 1, ENC_BIG_ENDIAN);
 	}
 
 	col_add_str (pinfo->cinfo, COL_INFO, val_to_str (pdu_type, cmp_pdu_types, "0x%x"));
@@ -159,7 +159,7 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			offset += tvb_length_remaining(tvb, offset);
 			break;
 		case CMP_TYPE_POLLREP:
-			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			ts.secs = tvb_get_ntohl(tvb, 4);
@@ -168,13 +168,13 @@ static int dissect_cmp_tcp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pa
 			offset += 4;
 			break;
 		case CMP_TYPE_POLLREQ:
-			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			break;
 		case CMP_TYPE_NEGPOLLREP:
 			break;
 		case CMP_TYPE_PARTIALMSGREP:
-			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_next_poll_ref, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tcptrans_tree, hf_cmp_tcptrans_next_poll_ref, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			ts.secs = tvb_get_ntohl(tvb, 4);

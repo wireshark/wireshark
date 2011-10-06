@@ -168,7 +168,7 @@ dissect_PhsMeas1(gboolean implicit_tag, packet_info *pinfo, proto_tree *tree, tv
 			value = tvb_get_ntohl(tvb, offset);
 			qual = tvb_get_ntohl(tvb, offset + 4);
 
-			proto_tree_add_item(subtree, hf_sv_phmeas_instmag_i, tvb, offset, 4, FALSE);
+			proto_tree_add_item(subtree, hf_sv_phmeas_instmag_i, tvb, offset, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_bitmask(subtree, tvb, offset + 4, hf_sv_phsmeas_q, ett_phsmeas_q, q_flags, FALSE);
 
 			if (i < IEC61850_SV_MAX_PHSMEAS_ENTRIES) {
@@ -209,19 +209,19 @@ dissect_sv(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 	/* APPID */
 	if (tree && tvb_reported_length_remaining(tvb, offset) >= 2)
-		proto_tree_add_item(tree, hf_sv_appid, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_sv_appid, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Length */
 	if (tree && tvb_reported_length_remaining(tvb, offset) >= 4)
-		proto_tree_add_item(tree, hf_sv_length, tvb, offset + 2, 2, FALSE);
+		proto_tree_add_item(tree, hf_sv_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
 	/* Reserved 1 */
 	if (tree && tvb_reported_length_remaining(tvb, offset) >= 6)
-		proto_tree_add_item(tree, hf_sv_reserve1, tvb, offset + 4, 2, FALSE);
+		proto_tree_add_item(tree, hf_sv_reserve1, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
 
 	/* Reserved 2 */
 	if (tree && tvb_reported_length_remaining(tvb, offset) >= 8)
-		proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, FALSE);
+		proto_tree_add_item(tree, hf_sv_reserve2, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
 	offset = 8;
 	while (tree && tvb_reported_length_remaining(tvb, offset) > 0){

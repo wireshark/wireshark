@@ -1292,7 +1292,7 @@ dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	 * is such an MS blob or not.
 	 */
 	proto_tree_add_item(tree, hf_krb_smb_nt_status, tvb, offset, 4,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 	nt_status=tvb_get_letohl(tvb, offset);
 	if(nt_status && check_col(actx->pinfo->cinfo, COL_INFO)) {
 		col_append_fstr(actx->pinfo->cinfo, COL_INFO,
@@ -1303,11 +1303,11 @@ dissect_krb5_PW_SALT(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	proto_tree_add_item(tree, hf_krb_smb_unknown, tvb, offset, 4,
-			TRUE);
+			ENC_LITTLE_ENDIAN);
 	offset += 4;
 
 	return offset;

@@ -301,34 +301,34 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 	}
 	if (flags & COPY_INFO_FLAG) {
 		proto_tree_add_item(tree, hf_mpeg_pes_copy_info, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 	}
 	if (flags & CRC_FLAG) {
 		proto_tree_add_item(tree, hf_mpeg_pes_crc, tvb,
-				offset, 2, FALSE);
+				offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 	}
 
 	if (flags & EXTENSION_FLAG) {
 		int flags2 = tvb_get_guint8(tvb, offset);
 		proto_tree_add_item(tree, hf_mpeg_pes_extension_flags, tvb,
-				offset, 1, FALSE);
+				offset, 1, ENC_BIG_ENDIAN);
 		offset++;
 
 		if (flags2 & PRIVATE_DATA_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_private_data, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 		if (flags2 & PACK_LENGTH_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_pack_length, tvb,
-					offset, 1, FALSE);
+					offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 		}
 		if (flags2 & SEQUENCE_FLAG) {
 			proto_tree_add_item(tree, hf_mpeg_pes_sequence, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 		if (flags2 & PSTD_BUFFER_FLAG) {
@@ -339,7 +339,7 @@ dissect_mpeg_pes_header_data(tvbuff_t *tvb, packet_info *pinfo,
 		}
 		if (flags2 & EXTENSION_FLAG2) {
 			proto_tree_add_item(tree, hf_mpeg_pes_extension2, tvb,
-					offset, 2, FALSE);
+					offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 		}
 	}
@@ -372,7 +372,7 @@ dissect_mpeg_pes_pack_header(tvbuff_t *tvb, gint offset,
 
 	stuffing_length = tvb_get_guint8(tvb, offset / 8) & 0x07;
 	proto_tree_add_item(tree, hf_mpeg_pes_stuffing_length, tvb,
-			offset / 8, 1, FALSE);
+			offset / 8, 1, ENC_BIG_ENDIAN);
 	offset += 1 * 8;
 
 	if (stuffing_length > 0) {
