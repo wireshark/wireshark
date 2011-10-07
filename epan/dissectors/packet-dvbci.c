@@ -24,7 +24,7 @@
  */
 
 /* This dissector supports DVB-CI as defined in EN50221 and
- * CI+ version 1.2 (www.ci-plus.com).
+ * CI+ (www.ci-plus.com).
  * For more details, see http://wiki.wireshark.org/DVB-CI.
  *
  * The pcap input format for this dissector is documented at
@@ -275,6 +275,22 @@
 #define CC_SAC_AUTH_AES128_XCBC_MAC 0x0
 #define CC_SAC_ENC_AES128_CBC       0x0
 
+#define CC_CAP_NONE               0x0
+#define CC_CAP_CAS_PIN            0x1
+#define CC_CAP_CAS_FTA_PIN        0x2
+#define CC_CAP_CAS_PIN_CACHED     0x3
+#define CC_CAP_CAS_FTA_PIN_CACHED 0x4
+
+/* length of DVB-SI utc time field in bytes */
+#define UTC_TIME_LEN 5
+
+#define CC_PIN_BAD         0x0
+#define CC_PIN_CAM_BUSY    0x1
+#define CC_PIN_OK          0x2
+#define CC_PIN_UNCONFIRMED 0x3 
+#define CC_PIN_VB_NOT_REQ  0x4
+#define CC_PIN_CSA         0x5
+
 /* application mmi resource */
 #define ACK_CODE_OK        0x1
 #define ACK_CODE_WRONG_API 0x2
@@ -445,6 +461,13 @@ dissect_dvbci_payload_sas(guint32 tag, gint len_field _U_,
 #define T_CC_SAC_DATA_CNF               0x9F9008
 #define T_CC_SAC_SYNC_REQ               0x9F9009
 #define T_CC_SAC_SYNC_CNF               0x9F9010
+#define T_CC_PIN_CAPABILITIES_REQ       0x9F9011                              
+#define T_CC_PIN_CAPABILITIES_REPLY     0x9F9012
+#define T_CC_PIN_CMD                    0x9F9013
+#define T_CC_PIN_REPLY                  0x9F9014
+#define T_CC_PIN_EVENT                  0x9F9015
+#define T_CC_PIN_PLAYBACK               0x9F9016
+#define T_CC_PIN_MMI_REQ                0x9F9017
 #define T_REQUEST_START                 0x9F8000
 #define T_REQUEST_START_ACK             0x9F8001
 #define T_FILE_REQUEST                  0x9F8002
@@ -519,16 +542,23 @@ static const apdu_info_t apdu_info[] = {
     {T_CAM_FIRMWARE_UPGRADE_PROGRESS, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
     {T_CAM_FIRMWARE_UPGRADE_COMPLETE, 0, 1, DATA_CAM_TO_HOST, dissect_dvbci_payload_cup},
 
-    {T_CC_OPEN_REQ,         0, 0,             DATA_CAM_TO_HOST, NULL},
-    {T_CC_OPEN_CNF,         0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_DATA_REQ,         3, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_DATA_CNF,         2, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_SYNC_REQ,         0, 0,             DATA_CAM_TO_HOST, NULL},
-    {T_CC_SYNC_CNF,         0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_SAC_DATA_REQ,     8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_SAC_DATA_CNF,     8, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
-    {T_CC_SAC_SYNC_REQ,     8, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
-    {T_CC_SAC_SYNC_CNF,     8, LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_OPEN_REQ,                0,  0,             DATA_CAM_TO_HOST, NULL},
+    {T_CC_OPEN_CNF,                0,  1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_DATA_REQ,                3,  LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_DATA_CNF,                2,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_SYNC_REQ,                0,  0,             DATA_CAM_TO_HOST, NULL},
+    {T_CC_SYNC_CNF,                0,  1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_SAC_DATA_REQ,            8,  LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_cc},
+    {T_CC_SAC_DATA_CNF,            8,  LEN_FIELD_ANY, DIRECTION_ANY,    dissect_dvbci_payload_cc},
+    {T_CC_SAC_SYNC_REQ,            8,  LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_SAC_SYNC_CNF,            8,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_PIN_CAPABILITIES_REQ,    0,  0,             DATA_HOST_TO_CAM, NULL},
+    {T_CC_PIN_CAPABILITIES_REPLY,  7,  7,             DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_PIN_CMD,                 1,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_PIN_REPLY,               1,  1,             DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_PIN_EVENT,              25, 25,             DATA_CAM_TO_HOST, dissect_dvbci_payload_cc},
+    {T_CC_PIN_PLAYBACK,           16, 16,             DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
+    {T_CC_PIN_MMI_REQ,             1,  LEN_FIELD_ANY, DATA_HOST_TO_CAM, dissect_dvbci_payload_cc},
 
     {T_REQUEST_START,       2, LEN_FIELD_ANY, DATA_CAM_TO_HOST, dissect_dvbci_payload_ami},
     {T_REQUEST_START_ACK,   0, 1,             DATA_HOST_TO_CAM, dissect_dvbci_payload_ami},
@@ -601,6 +631,13 @@ static const value_string dvbci_apdu_tag[] = {
     { T_CC_SAC_DATA_CNF,               "CC SAC data confirm" },
     { T_CC_SAC_SYNC_REQ,               "CC SAC sync request" },
     { T_CC_SAC_SYNC_CNF,               "CC SAC sync confirm" },
+    { T_CC_PIN_CAPABILITIES_REQ,       "CC PIN capabilities request" },
+    { T_CC_PIN_CAPABILITIES_REPLY,     "CC PIN capabilities reply" },
+    { T_CC_PIN_CMD,                    "CC PIN command" },
+    { T_CC_PIN_REPLY,                  "CC PIN reply" },
+    { T_CC_PIN_EVENT,                  "CC PIN event" },
+    { T_CC_PIN_PLAYBACK,               "CC PIN playback" },
+    { T_CC_PIN_MMI_REQ,                "CC PIN MMI request" },
     { T_REQUEST_START,                 "Request start" },
     { T_REQUEST_START_ACK,             "Request start ack" },
     { T_FILE_REQUEST,                  "File request" },
@@ -745,6 +782,15 @@ static int hf_dvbci_sac_payload_enc = -1;
 static int hf_dvbci_sac_enc_cip = -1;
 static int hf_dvbci_sac_payload_len = -1;
 static int hf_dvbci_sac_body = -1;
+static int hf_dvbci_rating = -1;
+static int hf_dvbci_capability_field = -1;
+static int hf_dvbci_pin_chg_time = -1;
+static int hf_dvbci_pincode_status = -1;
+static int hf_dvbci_cc_prog_num = -1;
+static int hf_dvbci_pin_evt_time = -1;
+static int hf_dvbci_pin_evt_cent = -1;
+static int hf_dvbci_cc_priv_data = -1;
+static int hf_dvbci_pincode = -1;
 static int hf_dvbci_app_dom_id = -1;
 static int hf_dvbci_init_obj = -1;
 static int hf_dvbci_ack_code = -1;
@@ -1098,6 +1144,28 @@ static const value_string dvbci_cc_sac_enc[] = {
     { CC_SAC_ENC_AES128_CBC, "AES 128 CBC" },
     { 0, NULL }
 };
+static const value_string dvbci_cc_cap[] = {
+    { CC_CAP_NONE,
+        "No PIN handling capability" },
+    { CC_CAP_CAS_PIN,
+        "CAM can do PIN handling on CAS services" },
+    { CC_CAP_CAS_FTA_PIN,
+        "CAM can do PIN handling on CAS and free services" },
+    { CC_CAP_CAS_PIN_CACHED,
+        "CAM can do PIN handling on CAS services and supports PIN caching" },
+    { CC_CAP_CAS_FTA_PIN_CACHED,
+        "CAM can do PIN handling on CAS and free services, supports PIN caching" },
+    { 0, NULL }
+};
+static const value_string dvbci_pincode_status[] = {
+    { CC_PIN_BAD,         "Bad pin code" },
+    { CC_PIN_CAM_BUSY,    "CAM busy" },
+    { CC_PIN_OK,          "Pin code correct" },
+    { CC_PIN_UNCONFIRMED, "Pin code unconfirmed" },
+    { CC_PIN_VB_NOT_REQ,  "Video blanking not required" },
+    { CC_PIN_CSA,         "Content still CSA scrambled" },
+    { 0, NULL }
+};
 static const value_string dvbci_ack_code[] = {
     { ACK_CODE_OK, "Ok" },
     { ACK_CODE_WRONG_API,  "Application Domain unsupported" },
@@ -1197,6 +1265,55 @@ dvbci_init(void)
     reassembled_table_init(&spdu_reassembled_table);
 }
 
+/* read a utc_time field in an apdu and write it to utc_time
+   the encoding of the field is according to DVB-SI specification, section 5.2.5
+   16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss
+   return the length in bytes or -1 for error */ 
+static gint
+read_utc_time(tvbuff_t *tvb, gint offset, nstime_t *utc_time)
+{ 
+    gint bcd_time_offset; /* start offset of the bcd time in the tvbuff */
+    guint8 hour, min, sec;
+
+    if (!utc_time)
+        return -1;
+
+    nstime_set_zero(utc_time);
+    utc_time->secs = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
+    bcd_time_offset = offset+2;
+    hour = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
+    min = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
+    sec = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
+    if (hour>23 || min>59 || sec>59)
+        return -1;
+
+    utc_time->secs += hour*3600 + min*60 + sec;
+    return 5;
+}
+
+
+/* dissect age rating byte encoded as defined in
+   DVB-SI parental rating descriptor
+   returns rating's length in bytes or -1 for error */
+static gint
+dissect_rating(tvbuff_t *tvb, gint offset,
+        packet_info *pinfo _U_, proto_tree *tree)
+{
+    guint8 rating;
+
+    rating = tvb_get_guint8(tvb, offset);
+    if (1<=rating && rating<=0x0F) {
+        proto_tree_add_uint_format(tree, hf_dvbci_rating,
+                tvb, offset, 1, rating,
+                "Rating is %d years (%d+3)", rating+3, rating);
+    } else {
+        proto_tree_add_uint_format(tree, hf_dvbci_rating,
+                tvb, offset, 1, rating,
+                "Rating is unknown/undefined (%d)", rating);
+    }
+
+    return 1;
+}
 
 
 /* dissect a connection_descriptor for the lsc resource
@@ -1906,10 +2023,9 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
     nstime_t resp_intv;
     proto_item *pi = NULL;
     const gchar *tag_str;
+    gint time_field_len;
     nstime_t utc_time;
     gint16 local_offset;  /* field in the apdu */
-    gint bcd_time_offset; /* start offset of the bcd time in the tvbuff */
-    guint8 hour, min, sec;
 
 
     if (tag==T_DATE_TIME_ENQ) {
@@ -1937,30 +2053,21 @@ dissect_dvbci_payload_dt(guint32 tag, gint len_field,
                     "Length field for %s must be 5 or 7 bytes", tag_str);
             return;
         }
-        /* the 40bit utc_time field is encoded according to DVB-SI spec,
-         * section 5.2.5:
-         * 16bit modified julian day (MJD), 24bit 6*4bit BCD digits hhmmss */
-        nstime_set_zero(&utc_time);
-        utc_time.secs = (tvb_get_ntohs(tvb, offset) - 40587) * 86400;
-        bcd_time_offset = offset+2;
-        hour = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset));
-        min = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+1));
-        sec = BCD44_TO_DEC(tvb_get_guint8(tvb, bcd_time_offset+2));
-        if (hour>23 || min>59 || sec>59) {
+
+        time_field_len = read_utc_time(tvb, offset, &utc_time);
+        if (time_field_len<0) {
             pi = proto_tree_add_text(
-                tree, tvb, bcd_time_offset, 3, "Invalid BCD time");
+                tree, tvb, offset, 5, "Invalid UTC time field");
             expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
-                "BCD time must be hhmmss");
+                "2 bytes MJD, 3 bytes BCD time hhmmss");
             return;
         }
-        utc_time.secs += hour*3600 + min*60 + sec;
-
-        proto_tree_add_time_format(tree, hf_dvbci_utc_time, tvb, offset, 5,
-            &utc_time, "%s UTC",
-            abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
-        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ",
-            "%s UTC", abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
-        offset += 5;
+        proto_tree_add_time_format(tree, hf_dvbci_utc_time,
+                tvb, offset, time_field_len, &utc_time,
+                "%s UTC", abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+        col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s UTC",
+                abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+        offset += time_field_len;
 
         if (len_field==7) {
             local_offset = two_comp_to_int16(tvb_get_ntohs(tvb, offset));
@@ -2244,6 +2351,10 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
     guint8 status;
     guint32 msg_ctr;
     guint8 enc_flag;
+    proto_item *pi = NULL;
+    nstime_t utc_time;
+    guint8 pin_stat;
+    guint8 evt_cent;
 
     switch(tag) {
         case T_CC_OPEN_CNF:
@@ -2320,6 +2431,91 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
             /* please note that payload != body */
             proto_tree_add_item(tree, hf_dvbci_sac_body, tvb, offset, 
                     tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            break;
+        case T_CC_PIN_CAPABILITIES_REPLY:
+            proto_tree_add_item(tree, hf_dvbci_capability_field,
+                    tvb, offset, 1 , ENC_BIG_ENDIAN);
+            offset++;
+            /* we can't read_utc_time() and check with nstime_is_zero() */
+            if (tvb_get_ntoh40(tvb, offset) == 0) {
+                proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
+                        "CICAM PIN has never been changed");
+            }
+            else {
+                if (read_utc_time(tvb, offset, &utc_time) < 0) {
+                    pi = proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
+                            "Invalid UTC time field");
+                    expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                            "2 bytes MJD, 3 bytes BCD time hhmmss");
+                    break;
+                }
+                else {
+                    /* abs_time_to_str() never returns NULL */
+                    proto_tree_add_time_format(tree, hf_dvbci_pin_chg_time,
+                            tvb, offset, UTC_TIME_LEN, &utc_time,
+                            "PIN change time %s UTC",
+                            abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+                }
+            }
+            offset += UTC_TIME_LEN;
+            dissect_rating(tvb, offset, pinfo, tree);
+            break;
+        case T_CC_PIN_REPLY:
+            pin_stat = tvb_get_guint8(tvb, offset);
+            proto_tree_add_item(tree, hf_dvbci_pincode_status,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            col_append_sep_fstr(pinfo->cinfo, COL_INFO, ": ", "%s",
+                    val_to_str(pin_stat, dvbci_pincode_status, "unknown"));
+            break;
+        case T_CC_PIN_EVENT:
+            proto_tree_add_item(tree, hf_dvbci_cc_prog_num,
+                    tvb, offset, 2, ENC_BIG_ENDIAN);
+            offset += 2;
+            proto_tree_add_item(tree, hf_dvbci_pincode_status,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            dissect_rating(tvb, offset, pinfo, tree);
+            offset++;
+            if (read_utc_time(tvb, offset, &utc_time) < 0) {
+                pi = proto_tree_add_text(tree, tvb, offset, UTC_TIME_LEN,
+                        "Invalid UTC time field");
+                expert_add_info_format(pinfo, pi, PI_MALFORMED, PI_ERROR,
+                        "2 bytes MJD, 3 bytes BCD time hhmmss");
+                break;
+            }
+            else {
+                proto_tree_add_time_format(tree, hf_dvbci_pin_evt_time,
+                        tvb, offset, UTC_TIME_LEN, &utc_time,
+                        "PIN event time %s UTC",
+                        abs_time_to_str(&utc_time, ABSOLUTE_TIME_UTC, FALSE));
+            }
+            offset += UTC_TIME_LEN;
+            evt_cent = tvb_get_guint8(tvb, offset);
+            if (evt_cent > 100) {
+                pi = proto_tree_add_text(tree, tvb, offset, 1,
+                "Invalid value for event time centiseconds");
+                expert_add_info_format(pinfo, pi, PI_PROTOCOL, PI_WARN,
+                "Value must be between 0 and 100");
+            }
+            proto_tree_add_item(tree, hf_dvbci_pin_evt_cent,
+                    tvb, offset, 1, ENC_BIG_ENDIAN);
+            offset++;
+            /* length field was already checked by the caller */
+            proto_tree_add_item(tree, hf_dvbci_cc_priv_data, tvb, offset,
+                    tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            break;
+        case T_CC_PIN_PLAYBACK:
+            dissect_rating(tvb, offset, pinfo, tree);
+            offset++;
+            /* length field was already checked by the caller */
+            proto_tree_add_item(tree, hf_dvbci_cc_priv_data, tvb, offset,
+                    tvb_reported_length_remaining(tvb, offset), ENC_NA);
+            break;
+        case T_CC_PIN_CMD:
+        case T_CC_PIN_MMI_REQ:
+            proto_tree_add_item(tree, hf_dvbci_pincode, tvb, offset,
+                    tvb_reported_length_remaining(tvb, offset),
+                    ENC_ASCII|ENC_BIG_ENDIAN);
             break;
         default:
             break;
@@ -3766,6 +3962,33 @@ proto_register_dvbci(void)
                 BASE_DEC, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_sac_body,
             { "SAC body", "dvb-ci.cc.sac_body", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_rating,
+            { "Rating", "dvb-ci.cc.rating", FT_UINT8, BASE_DEC,
+                NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_capability_field,
+            { "Capability field", "dvb-ci.cc.capability_field", FT_UINT8,
+                BASE_HEX, VALS(dvbci_cc_cap), 0, NULL, HFILL } },
+        { &hf_dvbci_pin_chg_time,
+            { "PIN change time (UTC)", "dvb-ci.cc.pin_change_time",
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_pincode_status,
+            { "Pincode status field", "dvb-ci.cc.pincode_status_field", FT_UINT8,
+                BASE_HEX, VALS(dvbci_pincode_status), 0, NULL, HFILL } },
+        { &hf_dvbci_cc_prog_num,
+            { "Program number", "dvb-ci.cc.program_number", FT_UINT16,
+                BASE_HEX, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_pin_evt_time,
+            { "PIN event time (UTC)", "dvb-ci.cc.pin_event_time",
+                FT_ABSOLUTE_TIME, ABSOLUTE_TIME_UTC, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_pin_evt_cent,
+            { "PIN event time centiseconds", "dvb-ci.cc.pin_event_time_centi",
+                FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_cc_priv_data,
+            { "Private data", "dvb-ci.cc.private_data", FT_BYTES,
+                BASE_NONE, NULL, 0, NULL, HFILL } },
+        { &hf_dvbci_pincode,
+            { "PIN code", "dvb-ci.cc.pincode", FT_STRING,
                 BASE_NONE, NULL, 0, NULL, HFILL } },
         { &hf_dvbci_app_dom_id,
             { "Application Domain Identifier", "dvb-ci.ami.app_dom_id",
