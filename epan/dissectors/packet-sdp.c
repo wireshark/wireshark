@@ -66,7 +66,7 @@
 #include <epan/tap.h>
 
 #include "packet-sdp.h"
-
+#include "packet-frame.h"
 #include "packet-rtp.h"
 #include <epan/rtp_pt.h>
 
@@ -172,7 +172,6 @@ static int hf_sdp_fmtp_mpeg4_profile_level_id = -1;
 static int hf_sdp_fmtp_h263_profile = -1;
 static int hf_sdp_fmtp_h263_level = -1;
 static int hf_sdp_h264_packetization_mode = -1;
-static int hf_sdp_h264_sprop_parameter_sets = -1;
 static int hf_SDPh223LogicalChannelParameters = -1;
 
 /* hf_session_attribute hf_media_attribute subfields */
@@ -1438,7 +1437,16 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       add_new_data_source(pinfo, data_tvb, "h264 prop-parameter-sets");
 
       if(h264_handle && data_tvb){
-        dissect_h264_nal_unit(data_tvb, pinfo, tree);
+        TRY {
+          dissect_h264_nal_unit(data_tvb, pinfo, tree);
+		}
+        CATCH(BoundsError) {
+          RETHROW;
+		}
+        CATCH(ReportedBoundsError) {
+          show_reported_bounds_error(tvb, pinfo, tree);
+		}
+        ENDTRY;
         if (comma_offset != -1){
           /* Second NAL unit */
           offset = comma_offset +1;
@@ -2002,10 +2010,6 @@ proto_register_sdp(void)
     { &hf_sdp_h264_packetization_mode,
       { "Packetization mode",
         "sdp.fmtp.h264_packetization_mode",FT_UINT32, BASE_DEC,VALS(h264_packetization_mode_vals), 0x0,
-        NULL, HFILL }},
-    { &hf_sdp_h264_sprop_parameter_sets,
-      { "Sprop_parameter_sets",
-        "sdp.h264.sprop_parameter_sets", FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_SDPh223LogicalChannelParameters,
       { "h223LogicalChannelParameters", "sdp.h223LogicalChannelParameters",
