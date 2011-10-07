@@ -1017,6 +1017,7 @@ stream_process_reassembled
 string_or_null
 string_replace
 string_to_name_resolve
+str_to_str
 sua_co_class_type_acro_values   DATA
 swaptab
 t30_facsimile_control_field_vals_short  DATA
