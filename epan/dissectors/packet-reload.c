@@ -174,7 +174,6 @@ static int hf_reload_storeddata = -1;
 static int hf_reload_storedmetadata = -1;
 static int hf_reload_storeddata_storage_time =  -1;
 static int hf_reload_storeddata_lifetime = -1;
-static int hf_reload_storeddata_signature = -1;
 static int hf_reload_datavalue = -1;
 static int hf_reload_metadata = -1;
 static int hf_reload_datavalue_exists = -1;
@@ -203,7 +202,6 @@ static int hf_reload_storeans = -1;
 static int hf_reload_storeans_kind_responses = -1;
 static int hf_reload_storekindresponse = -1;
 static int hf_reload_replicas = -1;
-static int hf_reload_storeddataspecifiers = -1;
 static int hf_reload_statreq = -1;
 static int hf_reload_fetchreq = -1;
 static int hf_reload_fetchreq_specifiers = -1;
@@ -1789,7 +1787,6 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
   proto_item *ti_datavalue;
   proto_tree *datavalue_tree;
   if (meta != TRUE) {
-    guint8 exists;
     int value_length = get_opaque_length(tvb,offset+1,4);
     int hf = hf_reload_datavalue;
 
@@ -1805,7 +1802,6 @@ static int dissect_datavalue(int anchor, tvbuff_t *tvb, packet_info *pinfo, prot
 
     ti_datavalue = proto_tree_add_item(tree,  hf, tvb, offset,1+4+value_length, FALSE);
     datavalue_tree = proto_item_add_subtree(ti_datavalue,ett_reload_datavalue);
-    exists = tvb_get_guint8(tvb, offset);
     proto_tree_add_item(datavalue_tree, hf_reload_datavalue_exists, tvb, offset, 1, FALSE);
     if (kind != NULL) {
       switch(kind->id) {
@@ -2145,7 +2141,6 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
   proto_tree_add_uint(storeddata_tree, hf_reload_length_uint32, tvb, offset + local_offset, 4, storeddata_length);
   local_offset += 4;
   {
-    proto_item *ti_storagetime;
     guint64 storage_time;
     guint32 remaining_ms;
     time_t storage_time_sec;
@@ -2153,12 +2148,12 @@ dissect_storeddata(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 
 
     storage_time = tvb_get_ntoh64(tvb, offset+local_offset);
     storage_time_sec = (time_t)(storage_time/1000);
-    remaining_ms = storage_time % 1000;
+    remaining_ms = (guint32) (storage_time % 1000);
 
     l_nsTime.secs = storage_time_sec;
     l_nsTime.nsecs =  remaining_ms*1000*1000;
 
-    ti_storagetime = proto_tree_add_time(storeddata_tree, hf_reload_storeddata_storage_time, tvb, offset + local_offset, 8, &l_nsTime);
+    proto_tree_add_time(storeddata_tree, hf_reload_storeddata_storage_time, tvb, offset + local_offset, 8, &l_nsTime);
   }
   local_offset += 8;
   proto_tree_add_item(storeddata_tree, hf_reload_storeddata_lifetime, tvb, offset + local_offset, 4, ENC_BIG_ENDIAN);
@@ -3525,7 +3520,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
 
               time = tvb_get_ntoh64(tvb, offset+8);
               time_sec = (time_t)time/1000;
-              remaining_ms = time % 1000;
+              remaining_ms = (guint32)(time % 1000);
 
               l_nsTime.secs = time_sec;
               l_nsTime.nsecs =  remaining_ms*1000*1000;
@@ -3899,8 +3894,6 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *reload_forwarding_tree;
   const char *msg_class_str;
   const char *msg_method_str = NULL;
-  const char *msg_class_str_short=NULL;
-  const char *msg_method_str_short = NULL;
   gboolean fragmented = FALSE;
   gboolean last_fragment = FALSE;
   fragment_data *reload_fd_head = NULL;
@@ -4018,8 +4011,6 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   else {
     msg_class_str = val_to_str(MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");
     msg_method_str = val_to_str(MSGCODE_TO_METHOD(message_code), methods, "Unknown %d");
-    msg_class_str_short = val_to_str(MSGCODE_TO_CLASS(message_code), classes_short, "Unknown %d");
-    msg_method_str_short = val_to_str(MSGCODE_TO_METHOD(message_code), methods_short, "Unknown %d");
 
     col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
                  msg_method_str, msg_class_str);
@@ -4923,11 +4914,6 @@ proto_register_reload(void)
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
-    { &hf_reload_storeddata_signature,
-      { "signature",  "reload.storeddata.signature", FT_NONE,
-        BASE_NONE,  NULL, 0x0,  NULL, HFILL
-      }
-    },
     { &hf_reload_storedmetadata,
       { "StoredMetaData",  "reload.storedmetadata", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
@@ -5080,11 +5066,6 @@ proto_register_reload(void)
     },
     { &hf_reload_replicas,
       { "replicas", "reload.storekindresponse.replicas", FT_NONE,
-        BASE_NONE,  NULL, 0x0,  NULL, HFILL
-      }
-    },
-    { &hf_reload_storeddataspecifiers,
-      { "StoredDataSpecifiers", "reload.storeddataspecifiers", FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
@@ -5474,6 +5455,11 @@ proto_register_reload(void)
     },
     { &hf_reload_dmflag_ewma_bytes_rcvd,
       { "EWMA_BYTES_RCVD", "reload.dmflags.ewma_bytes_rcvd", FT_BOOLEAN, 1, TFS(&tfs_set_notset), 0x0,
+        NULL, HFILL
+      }
+    },
+    { &hf_reload_dmflag_underlay_hop,
+      { "UNDERLAY_HOP", "reload.dmflags.underlay_hop", FT_BOOLEAN, 1, TFS(&tfs_set_notset), 0x0,
         NULL, HFILL
       }
     },
