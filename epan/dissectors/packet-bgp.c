@@ -58,6 +58,7 @@
 #include <epan/afn.h>
 #include <epan/prefs.h>
 #include <epan/emem.h>
+#include <epan/expert.h>
 
 /* #define MAX_STR_LEN 256 */
 
@@ -335,6 +336,8 @@ static const value_string bgpcap_action[] = {
 #define MAX_SIZE_OF_IP_ADDR_STRING      16
 
 static int proto_bgp = -1;
+static int hf_bgp_marker = -1;
+static int hf_bgp_length = -1;
 static int hf_bgp_type = -1;
 static int hf_bgp_next_hop = -1;
 static int hf_bgp_as_path = -1;
@@ -3051,8 +3054,8 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
     guint8        bgp_type;      /* Message type               */
     const char    *typ;          /* Message type (string)      */
     proto_item    *ti;           /* tree item                  */
+    proto_item    *ti_len;       /* length item                */
     proto_tree    *bgp_tree;     /* BGP packet tree            */
-    proto_tree    *bgp1_tree;    /* BGP message tree           */
 
     bgp_len = tvb_get_ntohs(tvb, BGP_MARKER_SIZE);
     bgp_type = tvb_get_guint8(tvb, BGP_MARKER_SIZE + 2);
@@ -3065,73 +3068,63 @@ dissect_bgp_pdu(tvbuff_t *volatile tvb, packet_info *pinfo, proto_tree *tree,
 
     if (tree) {
         ti = proto_tree_add_item(tree, proto_bgp, tvb, 0, -1, FALSE);
-        bgp_tree = proto_item_add_subtree(ti, ett_bgp);
-
-        ti = proto_tree_add_text(bgp_tree, tvb, 0, -1, "%s", typ);
+        proto_item_append_text(ti, " - %s", typ);
 
         /* add a different tree for each message type */
         switch (bgp_type) {
             case BGP_OPEN:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp_open);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp_open);
                 break;
             case BGP_UPDATE:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp_update);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp_update);
                 break;
             case BGP_NOTIFICATION:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp_notification);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp_notification);
                 break;
             case BGP_KEEPALIVE:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp);
                 break;
             case BGP_ROUTE_REFRESH_CISCO:
             case BGP_ROUTE_REFRESH:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp_route_refresh);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp_route_refresh);
                 break;
             case BGP_CAPABILITY:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp_capability);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp_capability);
                 break;
             default:
-                bgp1_tree = proto_item_add_subtree(ti, ett_bgp);
+                bgp_tree = proto_item_add_subtree(ti, ett_bgp);
                 break;
         }
 
-        proto_tree_add_text(bgp1_tree, tvb, 0, BGP_MARKER_SIZE,
-                            "Marker: 16 bytes");
+        proto_tree_add_item(bgp_tree, hf_bgp_marker, tvb, 0, 16, ENC_NA);
 
+        ti_len = proto_tree_add_item(bgp_tree, hf_bgp_length, tvb, 16, 2, ENC_BIG_ENDIAN);
         if (bgp_len < BGP_HEADER_SIZE || bgp_len > BGP_MAX_PACKET_SIZE) {
-            proto_tree_add_text(bgp1_tree, tvb, BGP_MARKER_SIZE, 2,
-                                "Length (invalid): %u byte%s", bgp_len,
-                                plurality(bgp_len, "", "s"));
+            expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Length is invalid %u", bgp_len);
             return;
-        } else {
-            proto_tree_add_text(bgp1_tree, tvb, BGP_MARKER_SIZE, 2,
-                                "Length: %u byte%s", bgp_len,
-                                plurality(bgp_len, "", "s"));
         }
 
-        proto_tree_add_uint(bgp1_tree, hf_bgp_type, tvb,
-                                   BGP_MARKER_SIZE + 2, 1,
-                                   bgp_type);
+        proto_tree_add_item(bgp_tree, hf_bgp_type, tvb, 16 + 2, 1, ENC_BIG_ENDIAN);
 
         switch (bgp_type) {
             case BGP_OPEN:
-                dissect_bgp_open(tvb, bgp1_tree);
+                dissect_bgp_open(tvb, bgp_tree);
                 break;
             case BGP_UPDATE:
-                dissect_bgp_update(tvb, bgp1_tree);
+                dissect_bgp_update(tvb, bgp_tree);
                 break;
             case BGP_NOTIFICATION:
-                dissect_bgp_notification(tvb, bgp1_tree);
+                dissect_bgp_notification(tvb, bgp_tree);
                 break;
             case BGP_KEEPALIVE:
                 /* no data in KEEPALIVE messages */
                 break;
             case BGP_ROUTE_REFRESH_CISCO:
             case BGP_ROUTE_REFRESH:
-                dissect_bgp_route_refresh(tvb, bgp1_tree);
+                dissect_bgp_route_refresh(tvb, bgp_tree);
                 break;
             case BGP_CAPABILITY:
-                dissect_bgp_capability(tvb, bgp1_tree);
+                dissect_bgp_capability(tvb, bgp_tree);
                 break;
             default:
                 break;
@@ -3347,9 +3340,17 @@ proto_register_bgp(void)
 {
 
     static hf_register_info hf[] = {
+      /* BGP Header */
+      { &hf_bgp_marker,
+        { "Marker", "bgp.marker", FT_BYTES, BASE_NONE,
+          NULL, 0x0, "Must be set to all ones (16 Bytes)", HFILL }},
+      { &hf_bgp_length,
+        { "Length", "bgp.length", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "The total length of the message, including the header in octets", HFILL }},
       { &hf_bgp_type,
         { "Type", "bgp.type", FT_UINT8, BASE_DEC,
           VALS(bgptypevals), 0x0, "BGP message type", HFILL }},
+
       { &hf_bgp_aggregator_as,
         { "Aggregator AS", "bgp.aggregator_as", FT_UINT16, BASE_DEC,
           NULL, 0x0, NULL, HFILL}},
