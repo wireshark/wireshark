@@ -487,72 +487,74 @@ int add_mimo_compressed_beamforming_feedback_report (proto_tree *tree, tvbuff_t 
 /* ************************************************************************* */
 /*        Logical field codes (dissector's encoding of fixed fields)         */
 /* ************************************************************************* */
-#define FIELD_TIMESTAMP                 0x01  /* 64-bit timestamp                       */
-#define FIELD_BEACON_INTERVAL           0x02  /* 16-bit beacon interval                 */
-#define FIELD_CAP_INFO                  0x03  /* Add capability information tree        */
-#define FIELD_AUTH_ALG                  0x04  /* Authentication algorithm used          */
-#define FIELD_AUTH_TRANS_SEQ            0x05  /* Authentication sequence number         */
-#define FIELD_CURRENT_AP_ADDR           0x06
-#define FIELD_LISTEN_IVAL               0x07
-#define FIELD_REASON_CODE               0x08
-#define FIELD_ASSOC_ID                  0x09
-#define FIELD_STATUS_CODE               0x0A
-#define FIELD_CATEGORY_CODE             0x0B  /* Management action category */
-#define FIELD_ACTION_CODE               0x0C  /* Management action code */
-#define FIELD_DIALOG_TOKEN              0x0D  /* Management action dialog token */
-#define FIELD_WME_ACTION_CODE           0x0E  /* Management notification action code */
-#define FIELD_WME_DIALOG_TOKEN          0x0F  /* Management notification dialog token */
-#define FIELD_WME_STATUS_CODE           0x10  /* Management notification setup response status code */
-#define FIELD_QOS_ACTION_CODE           0x11
-#define FIELD_QOS_TS_INFO               0x12
-#define FIELD_DLS_ACTION_CODE           0x13
-#define FIELD_DST_MAC_ADDR              0X14  /* DLS destination MAC address */
-#define FIELD_SRC_MAC_ADDR              0X15  /* DLS source MAC address */
-#define FIELD_DLS_TIMEOUT               0X16  /* DLS timeout value */
-#define FIELD_SCHEDULE_INFO             0X17  /* Schedule Info field */
-#define FIELD_ACTION                    0X18  /* Action field */
-#define FIELD_BLOCK_ACK_ACTION_CODE     0x19
-#define FIELD_QOS_INFO_AP               0x1A
-#define FIELD_QOS_INFO_STA              0x1B
-#define FIELD_BLOCK_ACK_PARAM           0x1C
-#define FIELD_BLOCK_ACK_TIMEOUT         0x1D
-#define FIELD_BLOCK_ACK_SSC             0x1E
-#define FIELD_DELBA_PARAM_SET           0x1F
-#define FIELD_MAX_REG_PWR               0x20
-#define FIELD_MEASUREMENT_PILOT_INT     0x21
-#define FIELD_COUNTRY_STR               0x22
-#define FIELD_MAX_TX_PWR                0x23
-#define FIELD_TX_PWR_USED               0x24
-#define FIELD_TRANSCEIVER_NOISE_FLOOR   0x25
-#define FIELD_DS_PARAM_SET              0x26
-#define FIELD_CHANNEL_WIDTH             0x27
-#define FIELD_SM_PWR_CNTRL              0x28
-#define FIELD_PCO_PHASE_CNTRL           0x29
-#define FIELD_PSMP_PARAM_SET            0x2A
-#define FIELD_PSMP_STA_INFO             0x2B
-#define FIELD_MIMO_CNTRL                0x2C
-#define FIELD_ANT_SELECTION             0x2D
-#define FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT 0x2E
-#define FIELD_HT_INFORMATION            0x2F
-#define FIELD_HT_ACTION_CODE            0x30
-#define FIELD_PA_ACTION_CODE            0x31
-#define FIELD_FT_ACTION_CODE            0x32
-#define FIELD_STA_ADDRESS               0x33
-#define FIELD_TARGET_AP_ADDRESS         0x34
-/* unassigned                           0x35 */
-/* unassigned                           0x36 */
-#define FIELD_GAS_COMEBACK_DELAY        0x37
-#define FIELD_GAS_FRAGMENT_ID           0x38
-#define FIELD_SA_QUERY_ACTION_CODE      0x39
-#define FIELD_TRANSACTION_ID            0x3A
-#define FIELD_TDLS_ACTION_CODE          0x3B
-#define FIELD_TARGET_CHANNEL            0x3C
-#define FIELD_REGULATORY_CLASS          0x3D
-#define FIELD_MESH_ACTION               0x3E
-#define FIELD_MULTIHOP_ACTION           0x3F
-#define FIELD_MESH_CONTROL              0x40
-#define FIELD_SELFPROT_ACTION           0x41
-
+enum fixed_field {
+  FIELD_TIMESTAMP, /* 64-bit timestamp */
+  FIELD_BEACON_INTERVAL, /* 16-bit beacon interval */
+  FIELD_CAP_INFO, /* Add capability information tree */
+  FIELD_AUTH_ALG, /* Authentication algorithm used */
+  FIELD_AUTH_TRANS_SEQ, /* Authentication sequence number */
+  FIELD_CURRENT_AP_ADDR,
+  FIELD_LISTEN_IVAL,
+  FIELD_REASON_CODE,
+  FIELD_ASSOC_ID,
+  FIELD_STATUS_CODE,
+  FIELD_CATEGORY_CODE, /* Management action category */
+  FIELD_ACTION_CODE, /* Management action code */
+  FIELD_DIALOG_TOKEN, /* Management action dialog token */
+  FIELD_WME_ACTION_CODE, /* Management notification action code */
+  FIELD_WME_DIALOG_TOKEN, /* Management notification dialog token */
+  FIELD_WME_STATUS_CODE, /* Management notification setup response status code
+                          */
+  FIELD_QOS_ACTION_CODE,
+  FIELD_QOS_TS_INFO,
+  FIELD_DLS_ACTION_CODE,
+  FIELD_DST_MAC_ADDR, /* DLS destination MAC address */
+  FIELD_SRC_MAC_ADDR, /* DLS source MAC address */
+  FIELD_DLS_TIMEOUT, /* DLS timeout value */
+  FIELD_SCHEDULE_INFO, /* Schedule Info field */
+  FIELD_ACTION, /* Action field */
+  FIELD_BLOCK_ACK_ACTION_CODE,
+  FIELD_QOS_INFO_AP,
+  FIELD_QOS_INFO_STA,
+  FIELD_BLOCK_ACK_PARAM,
+  FIELD_BLOCK_ACK_TIMEOUT,
+  FIELD_BLOCK_ACK_SSC,
+  FIELD_DELBA_PARAM_SET,
+  FIELD_MAX_REG_PWR,
+  FIELD_MEASUREMENT_PILOT_INT,
+  FIELD_COUNTRY_STR,
+  FIELD_MAX_TX_PWR,
+  FIELD_TX_PWR_USED,
+  FIELD_TRANSCEIVER_NOISE_FLOOR,
+  FIELD_DS_PARAM_SET,
+  FIELD_CHANNEL_WIDTH,
+  FIELD_SM_PWR_CNTRL,
+  FIELD_PCO_PHASE_CNTRL,
+  FIELD_PSMP_PARAM_SET,
+  FIELD_PSMP_STA_INFO,
+  FIELD_MIMO_CNTRL,
+  FIELD_ANT_SELECTION,
+  FIELD_EXTENDED_CHANNEL_SWITCH_ANNOUNCEMENT,
+  FIELD_HT_INFORMATION,
+  FIELD_HT_ACTION_CODE,
+  FIELD_PA_ACTION_CODE,
+  FIELD_FT_ACTION_CODE,
+  FIELD_STA_ADDRESS,
+  FIELD_TARGET_AP_ADDRESS,
+  FIELD_GAS_COMEBACK_DELAY,
+  FIELD_GAS_FRAGMENT_ID,
+  FIELD_SA_QUERY_ACTION_CODE,
+  FIELD_TRANSACTION_ID,
+  FIELD_TDLS_ACTION_CODE,
+  FIELD_TARGET_CHANNEL,
+  FIELD_REGULATORY_CLASS,
+  FIELD_MESH_ACTION,
+  FIELD_MULTIHOP_ACTION,
+  FIELD_MESH_CONTROL,
+  FIELD_SELFPROT_ACTION,
+  /* add any new fixed field value above this line */
+  MAX_FIELD_NUM
+};
 
 /* ************************************************************************* */
 /*        Logical field codes (IEEE 802.11 encoding of tags)                 */
@@ -4184,7 +4186,8 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
 /* ************************************************************************* */
 
 static guint
-add_fixed_field(proto_tree *tree, tvbuff_t *tvb, int offset, int lfcode);
+add_fixed_field(proto_tree *tree, tvbuff_t *tvb, int offset,
+                enum fixed_field lfcode);
 
 static guint
 add_ff_timestamp(proto_tree *tree, tvbuff_t *tvb, int offset)
@@ -5525,7 +5528,7 @@ add_ff_regulatory_class(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 struct ieee80211_fixed_field_dissector {
-  int lfcode;
+  enum fixed_field lfcode;
   guint (*dissector)(proto_tree *tree, tvbuff_t *tvb, int offset);
 };
 
@@ -5600,7 +5603,8 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
 #undef FF_FIELD
 
 static guint
-add_fixed_field(proto_tree *tree, tvbuff_t *tvb, int offset, int lfcode)
+add_fixed_field(proto_tree *tree, tvbuff_t *tvb, int offset,
+                enum fixed_field lfcode)
 {
   int i;
   for (i = 0; ff_dissectors[i].dissector; i++) {
