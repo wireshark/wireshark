@@ -11,7 +11,7 @@
 #
 # Versions to download and install.
 #
-# These are required.
+# The following libraries are required.
 #
 GETTEXT_VERSION=0.18.1.1
 GLIB_VERSION=2.29.8
@@ -28,10 +28,11 @@ GDK_PIXBUF_VERSION=2.23.4
 GTK_VERSION=2.24.5
 
 #
-# These are optional.  Comment them out if you don't want them.
+# The following libraries are optional.
+# Comment them out if you don't want them, but note that some of
+# the optional libraries are required by other optional libraries.
 #
 LIBSMI_VERSION=0.4.8
-GEOIP_VERSION=1.4.8
 #
 # libgpg-error is required for libgcrypt.
 #
@@ -52,6 +53,7 @@ PORTAUDIO_VERSION=pa_stable_v19_20110326
 # current version; should we just download that, with some other
 # way of specifying whether to download the GeoIP API?
 #
+GEOIP_VERSION=1.4.8
 
 #
 # You need Xcode installed to get the compilers.
