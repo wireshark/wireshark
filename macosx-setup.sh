@@ -31,7 +31,7 @@ GTK_VERSION=2.24.5
 # These are optional.  Comment them out if you don't want them.
 #
 LIBSMI_VERSION=0.4.8
-GEOIP_VERSION=1.4.5
+GEOIP_VERSION=1.4.8
 #
 # libgpg-error is required for libgcrypt.
 #
@@ -52,7 +52,6 @@ PORTAUDIO_VERSION=pa_stable_v19_20110326
 # current version; should we just download that, with some other
 # way of specifying whether to download the GeoIP API?
 #
-GEOIP_VERSION=1.4.8
 
 #
 # You need Xcode installed to get the compilers.
