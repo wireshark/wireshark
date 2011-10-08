@@ -72,6 +72,9 @@
 /* Define to use GEOIP library */
 #cmakedefine HAVE_GEOIP 1
 
+/* Define if GEOIP library supports IPv6 (GeoIP 1.4.5 and later) */
+#cmakedefine HAVE_GEOIP_V6 1
+
 /* Define to use capabilities library */
 #cmakedefine HAVE_LIBCAP 1
 
