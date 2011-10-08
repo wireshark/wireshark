@@ -5308,7 +5308,7 @@ wpa_ucs_base_custom(gchar *result, guint32 ucs)
   oui_result = ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, ucs >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( ucs & 0xFF, ieee80211_wfa_ie_wpa_keymgmt_vals, "Unknown %d") );
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( ucs & 0xFF, ieee80211_wfa_ie_wpa_cipher_vals, "Unknown %d") );
 
 }
 static void
@@ -5318,7 +5318,7 @@ wpa_akms_base_custom(gchar *result, guint32 akms)
   oui_result = ep_alloc(SHORT_STR);
   oui_result[0] = '\0';
   oui_base_custom(oui_result, akms >> 8);
-  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( akms & 0xFF, ieee80211_rsn_keymgmt_vals, "Unknown %d") );
+  g_snprintf(result, ITEM_LABEL_LENGTH, "%s %s", oui_result, val_to_str( akms & 0xFF, ieee80211_wfa_ie_wpa_keymgmt_vals, "Unknown %d") );
 }
 
 static gchar *
