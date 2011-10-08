@@ -29,7 +29,7 @@
  * - draft-ietf-p2psip-service-discovery-03
  * - draft-ietf-p2psip-self-tuning-04
  * - draft-ietf-p2psip-diagnostics-06
- * - draft-zong-p2psip-drr-00
+ * - draft-zong-p2psip-drr-01
  */
 
 #ifdef HAVE_CONFIG_H
@@ -384,7 +384,7 @@ typedef struct _reload_conv_info_t {
 
 /* RELOAD forwarding option type */
 #define OPTIONTYPE_RESERVED                  0
-#define OPTIONTYPE_EXTENSIVE_ROUTING_MODE    1
+#define OPTIONTYPE_EXTENSIVE_ROUTING_MODE    2
 
 /* RELOAD CandTypes */
 #define CANDTYPE_RESERVED        0
@@ -3878,7 +3878,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   proto_tree *reload_tree;
   guint32 relo_token;
   guint effective_length;
-  guint msg_length;
+  guint msg_length, dgram_msg_length;
   guint16 offset;
   conversation_t *conversation;
   reload_conv_info_t *reload_info;
@@ -3897,8 +3897,8 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   gboolean fragmented = FALSE;
   gboolean last_fragment = FALSE;
   fragment_data *reload_fd_head = NULL;
-  gboolean save_fragmented;
   guint32 fragment = 0;
+  gboolean save_fragmented = FALSE;
   gboolean update_col_info = TRUE;
 
   offset = 0;
@@ -3918,12 +3918,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
   msg_length = get_reload_message_length(pinfo, tvb, offset);
-
-  if (effective_length < msg_length) {
-    /* The effective length is too small for the packet */
-    expert_add_info_format(pinfo, NULL, PI_PROTOCOL, PI_ERROR, "Truncated RELOAD packet");
-    return 0;
-  }
+  dgram_msg_length = msg_length;
 
   /* The message seems to be a valid reLOAD message! */
 
@@ -3945,7 +3940,6 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   forwarding_length = MIN_HDR_LENGTH + (via_list_length + destination_list_length + options_length);
 
-  message_code = tvb_get_ntohs(tvb, forwarding_length);
 
   /* Do we already have a conversation ? */
   conversation = find_or_create_conversation(pinfo);
@@ -3963,95 +3957,9 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     conversation_add_proto_data(conversation, proto_reload, reload_info);
   }
 
-  if (!pinfo->fd->flags.visited) {
-    if ((reload_trans =
-           se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {
-      reload_trans = se_alloc(sizeof(reload_transaction_t));
-      reload_trans->req_frame = 0;
-      reload_trans->rep_frame = 0;
-      reload_trans->req_time = pinfo->fd->abs_ts;
-      se_tree_insert32_array(reload_info->transaction_pdus, transaction_id_key, (void *)reload_trans);
-    }
-
-    /* check whether the message is a request or a response */
-
-    if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
-      /* This is a request */
-      if (reload_trans->req_frame == 0) {
-        reload_trans->req_frame = pinfo->fd->num;
-      }
-    }
-    else {
-      /* This is a catch-all for all non-request messages */
-      if (reload_trans->rep_frame == 0) {
-        reload_trans->rep_frame = pinfo->fd->num;
-      }
-    }
-  }
-  else {
-    reload_trans=se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key);
-  }
-
-  if (!reload_trans) {
-    /* create a "fake" pana_trans structure */
-    reload_trans = ep_alloc(sizeof(reload_transaction_t));
-    reload_trans->req_frame = 0;
-    reload_trans->rep_frame = 0;
-    reload_trans->req_time = pinfo->fd->abs_ts;
-  }
-
   ti = proto_tree_add_item(tree, proto_reload, tvb, 0, -1, FALSE);
 
-  if (message_code == RELOAD_ERROR) {
-    error_code = tvb_get_ntohs(tvb, forwarding_length + 2+4);
-    msg_class_str = "Error Response";
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
-    proto_item_append_text(ti, ": %s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
-  }
-  else {
-    msg_class_str = val_to_str(MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");
-    msg_method_str = val_to_str(MSGCODE_TO_METHOD(message_code), methods, "Unknown %d");
-
-    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
-                 msg_method_str, msg_class_str);
-    proto_item_append_text(ti, ": %s %s", msg_method_str, msg_class_str);
-  }
-
   reload_tree = proto_item_add_subtree(ti, ett_reload);
-
-  /* Retransmission control */
-  if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
-    if (reload_trans->req_frame != pinfo->fd->num) {
-      proto_item *it;
-      it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
-    }
-    if (reload_trans->rep_frame) {
-      proto_item *it;
-      it = proto_tree_add_uint(reload_tree, hf_reload_response_in, tvb, 0, 0, reload_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
-    }
-  }
-  else {
-    /* This is a response */
-    if (reload_trans->rep_frame != pinfo->fd->num) {
-      proto_item *it;
-      it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->rep_frame);
-      PROTO_ITEM_SET_GENERATED(it);
-    }
-
-    if (reload_trans->req_frame) {
-      proto_item *it;
-      nstime_t ns;
-
-      it = proto_tree_add_uint(reload_tree, hf_reload_response_to, tvb, 0, 0, reload_trans->req_frame);
-      PROTO_ITEM_SET_GENERATED(it);
-
-      nstime_delta(&ns, &pinfo->fd->abs_ts, &reload_trans->req_time);
-      it = proto_tree_add_time(reload_tree, hf_reload_time, tvb, 0, 0, &ns);
-      PROTO_ITEM_SET_GENERATED(it);
-    }
-  }
 
   /*
    * Message dissection
@@ -4180,13 +4088,12 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
   offset += options_length;
 
-  save_fragmented = pinfo->fragmented;
   if ((reload_defragment) && ((fragmented != FALSE) && !((fragment == 0) && (last_fragment)))) {
     tvbuff_t   *next_tvb = NULL;
+    reload_fd_head = NULL;
 
-    pinfo->fragmented = TRUE;
     if (tvb_bytes_exist(tvb, offset, msg_length - offset)) {
-      fragment_add_check(tvb, offset, pinfo,
+      reload_fd_head = fragment_add_check(tvb, offset, pinfo,
                          transaction_id[0]^transaction_id[1],
                          reload_fragment_table,
                          reload_reassembled_table,
@@ -4199,24 +4106,123 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     }
     if (next_tvb == NULL) {
       /* Just show this as a fragment. */
-      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented RELOAD protocol (trans id=%x%x off=%u)",
+      col_add_fstr(pinfo->cinfo, COL_INFO, "Fragmented RELOAD protocol (trans id=%x%x off=%u",
                    transaction_id[0],transaction_id[1], fragment);
       if (reload_fd_head && reload_fd_head->reassembled_in != pinfo->fd->num) {
         col_append_fstr(pinfo->cinfo, COL_INFO, " [Reassembled in #%u]",
                         reload_fd_head->reassembled_in);
       }
+      save_fragmented = pinfo->fragmented;
+      pinfo->fragmented = TRUE;
       call_dissector(data_handle, tvb_new_subset_remaining(tvb, offset), pinfo, tree);
       pinfo->fragmented = save_fragmented;
       return effective_length;
     }
     tvb = next_tvb;
+    msg_length -= offset; /* need to adjust the length, as the new tvb starts after the forwarding header */
     offset = 0;
   }
-  else {
-    pinfo->fragmented = FALSE;
+
+  effective_length = tvb_length(tvb);
+  if (effective_length < msg_length) {
+    /* The effective length is too small for the packet */
+    expert_add_info_format(pinfo, NULL, PI_PROTOCOL, PI_ERROR, "Truncated RELOAD packet");
+    return 0;
   }
 
-  offset += dissect_reload_messagecontents(tvb, pinfo, reload_tree, offset, (msg_length - offset));
+  /*Handle retransmission after reassembly since we use message_contents for it */
+
+  message_code = tvb_get_ntohs(tvb, offset);
+
+  if (!pinfo->fd->flags.visited) {
+
+    if ((reload_trans =
+           se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key)) == NULL) {
+      reload_trans = se_alloc(sizeof(reload_transaction_t));
+      reload_trans->req_frame = 0;
+      reload_trans->rep_frame = 0;
+      reload_trans->req_time = pinfo->fd->abs_ts;
+      se_tree_insert32_array(reload_info->transaction_pdus, transaction_id_key, (void *)reload_trans);
+    }
+
+    /* check whether the message is a request or a response */
+
+    if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
+      /* This is a request */
+      if (reload_trans->req_frame == 0) {
+        reload_trans->req_frame = pinfo->fd->num;
+      }
+    }
+    else {
+      /* This is a catch-all for all non-request messages */
+      if (reload_trans->rep_frame == 0) {
+        reload_trans->rep_frame = pinfo->fd->num;
+      }
+    }
+  }
+  else {
+    reload_trans=se_tree_lookup32_array(reload_info->transaction_pdus, transaction_id_key);
+  }
+
+  if (!reload_trans) {
+    /* create a "fake" pana_trans structure */
+    reload_trans = ep_alloc(sizeof(reload_transaction_t));
+    reload_trans->req_frame = 0;
+    reload_trans->rep_frame = 0;
+    reload_trans->req_time = pinfo->fd->abs_ts;
+  }
+
+  /* Retransmission control */
+  if (IS_REQUEST(message_code) && (message_code != RELOAD_ERROR)) {
+    if (reload_trans->req_frame != pinfo->fd->num) {
+      proto_item *it;
+      it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->req_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+    if (reload_trans->rep_frame) {
+      proto_item *it;
+      it = proto_tree_add_uint(reload_tree, hf_reload_response_in, tvb, 0, 0, reload_trans->rep_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+  }
+  else {
+    /* This is a response */
+    if (reload_trans->rep_frame != pinfo->fd->num) {
+      proto_item *it;
+      it = proto_tree_add_uint(reload_tree, hf_reload_duplicate, tvb, 0, 0, reload_trans->rep_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+
+    if (reload_trans->req_frame) {
+      proto_item *it;
+      nstime_t ns;
+
+      it = proto_tree_add_uint(reload_tree, hf_reload_response_to, tvb, 0, 0, reload_trans->req_frame);
+      PROTO_ITEM_SET_GENERATED(it);
+
+      nstime_delta(&ns, &pinfo->fd->abs_ts, &reload_trans->req_time);
+      it = proto_tree_add_time(reload_tree, hf_reload_time, tvb, 0, 0, &ns);
+      PROTO_ITEM_SET_GENERATED(it);
+    }
+  }
+
+  if (message_code == RELOAD_ERROR) {
+    error_code = tvb_get_ntohs(tvb, forwarding_length + 2+4);
+    msg_class_str = "Error Response";
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
+    proto_item_append_text(ti, ": %s %s", msg_class_str, val_to_str(error_code, errorcodes, "Unknown"));
+  }
+  else {
+    msg_class_str = val_to_str(MSGCODE_TO_CLASS(message_code), classes, "Unknown %d");
+    msg_method_str = val_to_str(MSGCODE_TO_METHOD(message_code), methods, "Unknown %d");
+
+    col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s",
+                 msg_method_str, msg_class_str);
+    proto_item_append_text(ti, ": %s %s", msg_method_str, msg_class_str);
+  }
+
+
+  offset += dissect_reload_messagecontents(tvb, pinfo, reload_tree, offset, (effective_length - offset));
 
   /* Security Block */
   {
@@ -4307,7 +4313,7 @@ dissect_reload_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   }
 
 
-  return msg_length;
+  return dgram_msg_length;
 }
 
 static void
@@ -5877,7 +5883,7 @@ proto_register_reload(void)
                                  10,
                                  &reload_nodeid_length);
   prefs_register_string_preference(reload_module, "topology_plugin",
-                                   "topology plugin", "top;ogy plugin defined in the overlay", &reload_topology_plugin);
+                                   "topology plugin", "topology plugin defined in the overlay", &reload_topology_plugin);
 
   register_init_routine(reload_defragment_init);
 }
