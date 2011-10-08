@@ -1576,6 +1576,8 @@ static int hf_ieee80211_ff_anqp_info_length = -1;
 static int hf_ieee80211_ff_anqp_info = -1;
 static int hf_ieee80211_ff_anqp_query_id = -1;
 static int hf_ieee80211_ff_anqp_capability = -1;
+static int hf_ieee80211_ff_anqp_capability_vlen = -1;
+static int hf_ieee80211_ff_anqp_capability_vendor = -1;
 static int hf_ieee80211_ff_venue_info_group = -1;
 static int hf_ieee80211_ff_venue_info_type = -1;
 static int hf_ieee80211_ff_anqp_venue_length = -1;
@@ -2597,6 +2599,7 @@ static gint ett_gas_query = -1;
 static gint ett_gas_anqp = -1;
 static gint ett_nai_realm = -1;
 static gint ett_nai_realm_eap = -1;
+static gint ett_anqp_vendor_capab = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -3574,15 +3577,46 @@ dissect_anqp_query_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
 static void
 dissect_anqp_capab_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
 {
-    while (offset + 2 <= end) {
-      proto_tree_add_item(tree, hf_ieee80211_ff_anqp_capability,
+  guint16 id, len;
+  proto_item *item;
+  proto_tree *vtree;
+  guint32 oui;
+
+  while (offset + 2 <= end) {
+    id = tvb_get_letohs(tvb, offset);
+    item = proto_tree_add_item(tree, hf_ieee80211_ff_anqp_capability,
+                               tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    if (id == ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST) {
+      vtree = proto_item_add_subtree(item, ett_anqp_vendor_capab);
+      len = tvb_get_letohs(tvb, offset);
+      proto_tree_add_item(vtree, hf_ieee80211_ff_anqp_capability_vlen,
                           tvb, offset, 2, ENC_LITTLE_ENDIAN);
       offset += 2;
+      if (len < 3 || offset + len > end) {
+        expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                               "Invalid vendor-specific ANQP capability");
+        return;
+      }
+      oui = tvb_get_ntoh24(tvb, offset);
+      proto_tree_add_item(vtree, hf_ieee80211_tag_oui, tvb, offset, 3, ENC_NA);
+      offset += 3;
+      len -= 3;
+
+      switch (oui) {
+      default:
+        proto_tree_add_item(vtree, hf_ieee80211_ff_anqp_capability_vendor,
+                            tvb, offset, len, ENC_NA);
+        break;
+      }
+
+      offset += len;
     }
-    if (offset != end) {
-      expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
-                             "Unexpected ANQP Capability list format");
-    }
+  }
+  if (offset != end) {
+    expert_add_info_format(g_pinfo, tree, PI_MALFORMED, PI_ERROR,
+                           "Unexpected ANQP Capability list format");
+  }
 }
 
 static const value_string venue_group_vals[] = {
@@ -14125,6 +14159,14 @@ proto_register_ieee80211 (void)
      {"ANQP Capability", "wlan_mgt.fixed.anqp.capability",
       FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
       "Access Network Query Protocol Query ID", HFILL }},
+    {&hf_ieee80211_ff_anqp_capability_vlen,
+     {"Vendor-specific Capability Length",
+      "wlan_mgt.fixed.anqp.capability_vlen",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_capability_vendor,
+     {"Vendor-specific Capability",
+      "wlan_mgt.fixed.anqp.capability_vendor",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
     {&hf_ieee80211_ff_venue_info_group,
      {"Venue Group", "wlan_mgt.fixed.venue_info.group",
@@ -16789,7 +16831,8 @@ proto_register_ieee80211 (void)
     &ett_gas_query,
     &ett_gas_anqp,
     &ett_nai_realm,
-    &ett_nai_realm_eap
+    &ett_nai_realm_eap,
+    &ett_anqp_vendor_capab
   };
   module_t *wlan_module;
 
