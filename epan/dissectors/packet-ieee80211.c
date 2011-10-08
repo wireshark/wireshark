@@ -131,6 +131,8 @@
 #include <epan/crypt/airpdcap_ws.h>
 /* Davide Schiera (2006-11-22) ---------------------------------------------- */
 
+extern const value_string eap_type_vals[]; /* from packet-eap.c */
+
 #ifndef roundup2
 #define roundup2(x, y)  (((x)+((y)-1))&(~((y)-1)))  /* if y is powers of two */
 #endif
@@ -1586,6 +1588,18 @@ static int hf_ieee80211_ff_anqp_roaming_consortium_oi_len = -1;
 static int hf_ieee80211_ff_anqp_roaming_consortium_oi = -1;
 static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv6 = -1;
 static int hf_ieee80211_ff_anqp_ip_addr_avail_ipv4 = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_count = -1;
+static int hf_ieee80211_ff_anqp_nai_field_len = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_encoding = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_length = -1;
+static int hf_ieee80211_ff_anqp_nai_realm = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_eap_count = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_eap_len = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_eap_method = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_auth_param_count = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_auth_param_id = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_auth_param_len = -1;
+static int hf_ieee80211_ff_anqp_nai_realm_auth_param_value = -1;
 static int hf_ieee80211_3gpp_gc_gud = -1;
 static int hf_ieee80211_3gpp_gc_udhl = -1;
 static int hf_ieee80211_3gpp_gc_iei = -1;
@@ -2581,6 +2595,8 @@ static gint ett_adv_proto = -1;
 static gint ett_adv_proto_tuple = -1;
 static gint ett_gas_query = -1;
 static gint ett_gas_anqp = -1;
+static gint ett_nai_realm = -1;
+static gint ett_nai_realm_eap = -1;
 
 static const fragment_items frag_items = {
   &ett_fragment,
@@ -3709,6 +3725,143 @@ dissect_ip_addr_type_availability_info(proto_tree *tree, tvbuff_t *tvb,
                       tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
+static const value_string nai_realm_encoding_vals[] = {
+  { 0, "Formatted in accordance with RFC 4282" },
+  { 1, "UTF-8 formatted that is not formatted in accordance with RFC 4282" },
+  { 0, NULL }
+};
+
+static const value_string nai_realm_auth_param_id_vals[] = {
+  { 1, "Expanded EAP Method" },
+  { 2, "Non-EAP Inner Authentication Type" },
+  { 3, "Inner Authentication EAP Method Type" },
+  { 4, "Expanded Inner EAP Method" },
+  { 5, "Credential Type" },
+  { 6, "Tunneled EAP Method Credential Type" },
+  { 221, "Vendor Specific" },
+  { 0, NULL }
+};
+
+static void
+dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
+{
+  guint16 count, len;
+  proto_item *item, *r_item;
+  int f_end, eap_end;
+  guint8 nai_len, eap_count, eap_len, auth_param_count, auth_param_len;
+  guint8 auth_param_id;
+  proto_tree *realm_tree, *eap_tree;
+  guint8 *realm;
+
+  count = tvb_get_letohs(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nai_realm_count,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+  while (count > 0) {
+    len = tvb_get_letohs(tvb, offset);
+    r_item = proto_tree_add_text(tree, tvb, offset, 2 + len, "NAI Realm Data");
+    realm_tree = proto_item_add_subtree(r_item, ett_nai_realm);
+
+    item = proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_field_len,
+                               tvb, offset, 2, ENC_LITTLE_ENDIAN);
+    offset += 2;
+    if (offset + len > end) {
+      expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Invalid NAI Realm List");
+      break;
+    }
+    f_end = offset + len;
+    proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm_encoding,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    nai_len = tvb_get_guint8(tvb, offset);
+    item = proto_tree_add_item(realm_tree,
+                               hf_ieee80211_ff_anqp_nai_realm_length,
+                               tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+    if (offset + nai_len > f_end) {
+      expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                             "Invalid NAI Realm Data");
+      break;
+    }
+    proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm,
+                        tvb, offset, nai_len, ENC_NA);
+    realm = tvb_get_string(tvb, offset, nai_len);
+    if (realm) {
+      proto_item_append_text(r_item, " (%s)", realm);
+      g_free(realm);
+    }
+    offset += nai_len;
+    eap_count = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm_eap_count,
+                        tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    offset++;
+
+    while (eap_count > 0) {
+      eap_len = tvb_get_guint8(tvb, offset);
+      eap_end = offset + 1 + eap_len;
+      item = proto_tree_add_text(realm_tree, tvb, offset, 1 + eap_len,
+                                 "EAP Method");
+      eap_tree = proto_item_add_subtree(item, ett_nai_realm_eap);
+
+      item = proto_tree_add_item(eap_tree,
+                                 hf_ieee80211_ff_anqp_nai_realm_eap_len,
+                                 tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+      if (offset + eap_len > f_end) {
+        expert_add_info_format(g_pinfo, item, PI_MALFORMED, PI_ERROR,
+                               "Invalid EAP Method subfield");
+        break;
+      }
+
+      proto_item_append_text(eap_tree, ": %s",
+                             val_to_str(tvb_get_guint8(tvb, offset),
+                                        eap_type_vals, "Unknown (%d)"));
+      proto_tree_add_item(eap_tree, hf_ieee80211_ff_anqp_nai_realm_eap_method,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+      auth_param_count = tvb_get_guint8(tvb, offset);
+      proto_tree_add_item(eap_tree,
+                          hf_ieee80211_ff_anqp_nai_realm_auth_param_count,
+                          tvb, offset, 1, ENC_LITTLE_ENDIAN);
+      offset++;
+
+      while (auth_param_count > 0) {
+        auth_param_id = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(eap_tree,
+                            hf_ieee80211_ff_anqp_nai_realm_auth_param_id,
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        auth_param_len = tvb_get_guint8(tvb, offset);
+        proto_tree_add_item(eap_tree,
+                            hf_ieee80211_ff_anqp_nai_realm_auth_param_len,
+                            tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        offset++;
+        item = proto_tree_add_item(
+          eap_tree, hf_ieee80211_ff_anqp_nai_realm_auth_param_value,
+          tvb, offset, auth_param_len, ENC_NA);
+        if (auth_param_id == 3 && auth_param_len == 1) {
+          guint8 inner_method = tvb_get_guint8(tvb, offset);
+          const char *str;
+          str = val_to_str(inner_method, eap_type_vals, "Unknown (%d)");
+
+          proto_item_append_text(eap_tree, " / %s", str);
+          proto_item_append_text(item, " - %s", str);
+        }
+        offset += auth_param_len;
+
+        auth_param_count--;
+      }
+
+      offset = eap_end;
+      eap_count--;
+    }
+
+    offset = f_end;
+    count--;
+  }
+}
+
 static void
 dissect_3gpp_cellular_network_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
@@ -3820,6 +3973,9 @@ dissect_anqp_info(proto_tree *tree, tvbuff_t *tvb, int offset,
     break;
   case ANQP_INFO_IP_ADDR_TYPE_AVAILABILITY_INFO:
     dissect_ip_addr_type_availability_info(tree, tvb, offset);
+    break;
+  case ANQP_INFO_NAI_REALM_LIST:
+    dissect_nai_realm_list(tree, tvb, offset, offset + len);
     break;
   case ANQP_INFO_3GPP_CELLULAR_NETWORK_INFO:
     dissect_3gpp_cellular_network_info(tree, tvb, offset);
@@ -14023,6 +14179,55 @@ proto_register_ieee80211 (void)
       FT_UINT8, BASE_DEC, VALS(ip_addr_avail_ipv4_vals), 0xfc,
       "IP Address Type Availability information for IPv4", HFILL }},
 
+    {&hf_ieee80211_ff_anqp_nai_realm_count,
+     {"NAI Realm Count", "wlan_mgt.fixed.anqp.nai_realm_list.count",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_field_len,
+     {"NAI Realm Data Field Length",
+      "wlan_mgt.fixed.anqp.nai_realm_list.field_len",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_encoding,
+     {"NAI Realm Encoding",
+      "wlan_mgt.fixed.naqp_nai_realm_list.encoding",
+      FT_UINT8, BASE_DEC, VALS(nai_realm_encoding_vals), 0x01, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_length,
+     {"NAI Realm Length",
+      "wlan_mgt.fixed.naqp_nai_realm_list.realm_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm,
+     {"NAI Realm",
+      "wlan_mgt.fixed.naqp_nai_realm_list.realm",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_eap_count,
+     {"EAP Method Count",
+      "wlan_mgt.fixed.naqp_nai_realm_list.eap_method_count",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_eap_len,
+     {"EAP Method subfield Length",
+      "wlan_mgt.fixed.naqp_nai_realm_list.eap_method_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_eap_method,
+     {"EAP Method",
+      "wlan_mgt.fixed.naqp_nai_realm_list.eap_method",
+      FT_UINT8, BASE_DEC, VALS(eap_type_vals), 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_auth_param_count,
+     {"Authentication Parameter Count",
+      "wlan_mgt.fixed.naqp_nai_realm_list.auth_param_count",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_auth_param_id,
+     {"Authentication Parameter ID",
+      "wlan_mgt.fixed.naqp_nai_realm_list.auth_param_id",
+      FT_UINT8, BASE_DEC, VALS(nai_realm_auth_param_id_vals),
+      0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_auth_param_len,
+     {"Authentication Parameter Length",
+      "wlan_mgt.fixed.naqp_nai_realm_list.auth_param_len",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_anqp_nai_realm_auth_param_value,
+     {"Authentication Parameter Value",
+      "wlan_mgt.fixed.naqp_nai_realm_list.auth_param_value",
+      FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
+
     {&hf_ieee80211_3gpp_gc_gud,
      {"GUD", "wlan_mgt.fixed.anqp.3gpp_cellular_info.gud",
       FT_UINT8, BASE_DEC, NULL, 0,
@@ -16582,7 +16787,9 @@ proto_register_ieee80211 (void)
     &ett_adv_proto,
     &ett_adv_proto_tuple,
     &ett_gas_query,
-    &ett_gas_anqp
+    &ett_gas_anqp,
+    &ett_nai_realm,
+    &ett_nai_realm_eap
   };
   module_t *wlan_module;
 
