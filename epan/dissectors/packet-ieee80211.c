@@ -1645,16 +1645,37 @@ static int hf_ieee80211_ff_block_ack_params_policy = -1;
 static int hf_ieee80211_ff_block_ack_params_tid = -1;
 static int hf_ieee80211_ff_block_ack_params_buffer_size = -1;
 
+static const int *ieee80211_ff_block_ack_params_fields[] = {
+  &hf_ieee80211_ff_block_ack_params_amsdu_permitted,
+  &hf_ieee80211_ff_block_ack_params_policy,
+  &hf_ieee80211_ff_block_ack_params_tid,
+  &hf_ieee80211_ff_block_ack_params_buffer_size,
+  NULL
+};
+
 static int hf_ieee80211_ff_block_ack_timeout = -1;
 
 static int hf_ieee80211_ff_block_ack_ssc = -1;
 static int hf_ieee80211_ff_block_ack_ssc_fragment = -1;
 static int hf_ieee80211_ff_block_ack_ssc_sequence = -1;
 
+static const int *ieee80211_ff_block_ack_ssc_fields[] = {
+  &hf_ieee80211_ff_block_ack_ssc_fragment,
+  &hf_ieee80211_ff_block_ack_ssc_sequence,
+  NULL
+};
+
 static int hf_ieee80211_ff_delba_param = -1;
 static int hf_ieee80211_ff_delba_param_reserved = -1;
 static int hf_ieee80211_ff_delba_param_init = -1;
 static int hf_ieee80211_ff_delba_param_tid = -1;
+
+static const int *ieee80211_ff_delba_param_fields[] = {
+  &hf_ieee80211_ff_delba_param_reserved,
+  &hf_ieee80211_ff_delba_param_init,
+  &hf_ieee80211_ff_delba_param_tid,
+  NULL
+};
 
 static int hf_ieee80211_ff_max_reg_pwr = -1;
 static int hf_ieee80211_ff_measurement_pilot_int = -1;
@@ -1671,6 +1692,15 @@ static int hf_ieee80211_ff_qos_info_ap_queue_req = -1;
 static int hf_ieee80211_ff_qos_info_ap_txop_request = -1;
 static int hf_ieee80211_ff_qos_info_ap_reserved = -1;
 
+static const int *ieee80211_ff_qos_info_ap_fields[] = {
+  &hf_ieee80211_ff_qos_info_ap_edca_param_set_counter,
+  &hf_ieee80211_ff_qos_info_ap_q_ack,
+  &hf_ieee80211_ff_qos_info_ap_queue_req,
+  &hf_ieee80211_ff_qos_info_ap_txop_request,
+  &hf_ieee80211_ff_qos_info_ap_reserved,
+  NULL
+};
+
 static int hf_ieee80211_ff_qos_info_sta = -1;
 static int hf_ieee80211_ff_qos_info_sta_ac_vo = -1;
 static int hf_ieee80211_ff_qos_info_sta_ac_vi = -1;
@@ -1680,10 +1710,28 @@ static int hf_ieee80211_ff_qos_info_sta_q_ack = -1;
 static int hf_ieee80211_ff_qos_info_sta_max_sp_len = -1;
 static int hf_ieee80211_ff_qos_info_sta_more_data_ack = -1;
 
+static const int *ieee80211_ff_qos_info_sta_fields[] = {
+  &hf_ieee80211_ff_qos_info_sta_ac_vo,
+  &hf_ieee80211_ff_qos_info_sta_ac_vi,
+  &hf_ieee80211_ff_qos_info_sta_ac_bk,
+  &hf_ieee80211_ff_qos_info_sta_ac_be,
+  &hf_ieee80211_ff_qos_info_sta_q_ack,
+  &hf_ieee80211_ff_qos_info_sta_max_sp_len,
+  &hf_ieee80211_ff_qos_info_sta_more_data_ack,
+  NULL
+};
+
 static int hf_ieee80211_ff_sm_pwr_save = -1;
 static int hf_ieee80211_ff_sm_pwr_save_enabled = -1;
 static int hf_ieee80211_ff_sm_pwr_save_sm_mode = -1;
 static int hf_ieee80211_ff_sm_pwr_save_reserved = -1;
+
+static const int *ieee80211_ff_sw_pwr_save_fields[] = {
+  &hf_ieee80211_ff_sm_pwr_save_enabled,
+  &hf_ieee80211_ff_sm_pwr_save_sm_mode,
+  &hf_ieee80211_ff_sm_pwr_save_reserved,
+  NULL
+};
 
 static int hf_ieee80211_ff_pco_phase_cntrl = -1;
 
@@ -1691,6 +1739,13 @@ static int hf_ieee80211_ff_psmp_param_set = -1;
 static int hf_ieee80211_ff_psmp_param_set_n_sta = -1;
 static int hf_ieee80211_ff_psmp_param_set_more_psmp = -1;
 static int hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration = -1;
+
+static const int *ieee80211_ff_psmp_param_set_fields[] = {
+  &hf_ieee80211_ff_psmp_param_set_n_sta,
+  &hf_ieee80211_ff_psmp_param_set_more_psmp,
+  &hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration,
+  NULL
+};
 
 static int hf_ieee80211_ff_mimo_cntrl = -1;
 static int hf_ieee80211_ff_mimo_cntrl_nc_index = -1;
@@ -1713,17 +1768,45 @@ static int hf_ieee80211_ff_ant_selection_5 = -1;
 static int hf_ieee80211_ff_ant_selection_6 = -1;
 static int hf_ieee80211_ff_ant_selection_7 = -1;
 
+static const int *ieee80211_ff_ant_selection_fields[] = {
+  &hf_ieee80211_ff_ant_selection_0,
+  &hf_ieee80211_ff_ant_selection_1,
+  &hf_ieee80211_ff_ant_selection_2,
+  &hf_ieee80211_ff_ant_selection_3,
+  &hf_ieee80211_ff_ant_selection_4,
+  &hf_ieee80211_ff_ant_selection_5,
+  &hf_ieee80211_ff_ant_selection_6,
+  &hf_ieee80211_ff_ant_selection_7,
+  NULL
+};
+
 static int hf_ieee80211_ff_ext_channel_switch_announcement = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number = -1;
 static int hf_ieee80211_ff_ext_channel_switch_announcement_switch_count = -1;
 
+static const int *ieee80211_ff_ext_channel_switch_announcement_fields[] = {
+  &hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode,
+  &hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class,
+  &hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number,
+  &hf_ieee80211_ff_ext_channel_switch_announcement_switch_count,
+  NULL
+};
+
 static int hf_ieee80211_ff_ht_info = -1;
 static int hf_ieee80211_ff_ht_info_information_request = -1;
 static int hf_ieee80211_ff_ht_info_40_mhz_intolerant = -1;
 static int hf_ieee80211_ff_ht_info_sta_chan_width = -1;
 static int hf_ieee80211_ff_ht_info_reserved = -1;
+
+static const int *ieee80211_ff_ht_info_fields[] = {
+  &hf_ieee80211_ff_ht_info_information_request,
+  &hf_ieee80211_ff_ht_info_40_mhz_intolerant,
+  &hf_ieee80211_ff_ht_info_sta_chan_width,
+  &hf_ieee80211_ff_ht_info_reserved,
+  NULL
+};
 
 static int hf_ieee80211_ff_ht_action = -1;
 
@@ -2387,6 +2470,21 @@ static int hf_ieee80211_tsinfo_up = -1;
 static int hf_ieee80211_tsinfo_ack = -1;
 static int hf_ieee80211_tsinfo_sched = -1;
 static int hf_ieee80211_tsinfo_rsv = -1;
+
+static const int *ieee80211_tsinfo_fields[] = {
+  &hf_ieee80211_tsinfo_type,
+  &hf_ieee80211_tsinfo_tsid,
+  &hf_ieee80211_tsinfo_dir,
+  &hf_ieee80211_tsinfo_access,
+  &hf_ieee80211_tsinfo_agg,
+  &hf_ieee80211_tsinfo_apsd,
+  &hf_ieee80211_tsinfo_up,
+  &hf_ieee80211_tsinfo_ack,
+  &hf_ieee80211_tsinfo_sched,
+  &hf_ieee80211_tsinfo_rsv,
+  NULL
+};
+
 static int hf_ieee80211_tspec_nor_msdu = -1;
 static int hf_ieee80211_tspec_max_msdu = -1;
 static int hf_ieee80211_tspec_min_srv = -1;
@@ -4369,23 +4467,10 @@ add_ff_block_ack_action_code(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_block_ack_param(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *param_item;
-  proto_tree *param_tree;
-
-  param_item = proto_tree_add_item(tree, hf_ieee80211_ff_block_ack_params, tvb,
-                                   offset, 2, ENC_LITTLE_ENDIAN);
-  param_tree = proto_item_add_subtree(param_item, ett_ff_ba_param_tree);
-
-  proto_tree_add_item(param_tree,
-                      hf_ieee80211_ff_block_ack_params_amsdu_permitted, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_policy, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_tid, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_block_ack_params_buffer_size,
-                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_block_ack_params,
+                         ett_ff_ba_param_tree,
+                         ieee80211_ff_block_ack_params_fields,
+                         ENC_LITTLE_ENDIAN);
   return 2;
 }
 
@@ -4400,50 +4485,18 @@ add_ff_block_ack_timeout(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_block_ack_ssc(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *ssc_item;
-  proto_tree *ssc_tree;
-
-  ssc_item = proto_tree_add_item(tree, hf_ieee80211_ff_block_ack_ssc, tvb,
-                                 offset, 2, ENC_LITTLE_ENDIAN);
-  ssc_tree = proto_item_add_subtree(ssc_item, ett_ff_ba_ssc_tree);
-
-  proto_tree_add_item(ssc_tree, hf_ieee80211_ff_block_ack_ssc_fragment, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ssc_tree, hf_ieee80211_ff_block_ack_ssc_sequence, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_block_ack_ssc,
+                         ett_ff_ba_ssc_tree, ieee80211_ff_block_ack_ssc_fields,
+                         ENC_LITTLE_ENDIAN);
   return 2;
 }
 
 static guint
 add_ff_qos_ts_info(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *tsinfo_item;
-  proto_tree *tsinfo_tree;
-
-  tsinfo_item = proto_tree_add_item(tree, hf_ieee80211_tsinfo, tvb, offset, 3,
-                                    ENC_LITTLE_ENDIAN);
-  tsinfo_tree = proto_item_add_subtree(tsinfo_item, ett_tsinfo_tree);
-
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_type, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_tsid, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_dir, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_access, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_agg, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_apsd, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_up, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_ack, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_sched, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(tsinfo_tree, hf_ieee80211_tsinfo_rsv, tvb, offset, 3,
-                      ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_tsinfo,
+                         ett_tsinfo_tree, ieee80211_tsinfo_fields,
+                         ENC_LITTLE_ENDIAN);
   return 3;
 }
 
@@ -4546,19 +4599,9 @@ add_ff_dls_timeout(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_delba_param_set(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *param_item;
-  proto_tree *param_tree;
-
-  param_item = proto_tree_add_item(tree, hf_ieee80211_ff_delba_param, tvb,
-                                   offset, 2, ENC_LITTLE_ENDIAN);
-  param_tree = proto_item_add_subtree(param_item, ett_ff_ba_param_tree);
-
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_delba_param_reserved, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_delba_param_init, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_delba_param_tid, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_delba_param,
+                         ett_ff_ba_param_tree, ieee80211_ff_delba_param_fields,
+                         ENC_LITTLE_ENDIAN);
   return 2;
 }
 
@@ -4621,72 +4664,27 @@ add_ff_channel_width(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_qos_info_ap(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *info_item;
-  proto_tree *info_tree;
-
-  info_item = proto_tree_add_item(tree, hf_ieee80211_ff_qos_info_ap, tvb,
-                                  offset, 1, ENC_LITTLE_ENDIAN);
-  info_tree = proto_item_add_subtree(info_item, ett_ff_qos_info);
-
-  proto_tree_add_item(info_tree,
-                      hf_ieee80211_ff_qos_info_ap_edca_param_set_counter, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_q_ack, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_queue_req, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_txop_request, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_ap_reserved, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_qos_info_ap,
+                         ett_ff_qos_info, ieee80211_ff_qos_info_ap_fields,
+                         ENC_LITTLE_ENDIAN);
   return 1;
 }
 
 static guint
 add_ff_qos_info_sta(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *info_item;
-  proto_tree *info_tree;
-
-  info_item = proto_tree_add_item(tree, hf_ieee80211_ff_qos_info_sta, tvb,
-                                  offset, 1, ENC_LITTLE_ENDIAN);
-  info_tree = proto_item_add_subtree(info_item, ett_ff_qos_info);
-
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_vo, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_vi, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_bk, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_ac_be, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_q_ack, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_max_sp_len, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_qos_info_sta_more_data_ack,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_qos_info_sta,
+                         ett_ff_qos_info, ieee80211_ff_qos_info_sta_fields,
+                         ENC_LITTLE_ENDIAN);
   return 1;
 }
 
 static guint
 add_ff_sm_pwr_cntrl(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *info_item;
-  proto_tree *info_tree;
-
-  info_item = proto_tree_add_item(tree, hf_ieee80211_ff_sm_pwr_save, tvb,
-                                  offset, 1, ENC_LITTLE_ENDIAN);
-  info_tree = proto_item_add_subtree(info_item, ett_ff_sm_pwr_save);
-
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_sm_pwr_save_enabled, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_sm_pwr_save_sm_mode, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(info_tree, hf_ieee80211_ff_sm_pwr_save_reserved, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_sm_pwr_save,
+                         ett_ff_sm_pwr_save, ieee80211_ff_sw_pwr_save_fields,
+                         ENC_LITTLE_ENDIAN);
   return 1;
 }
 
@@ -4701,21 +4699,10 @@ add_ff_pco_phase_cntrl(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_psmp_param_set(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *param_item;
-  proto_tree *param_tree;
-
-  param_item = proto_tree_add_item(tree, hf_ieee80211_ff_psmp_param_set, tvb,
-                                   offset, 2, ENC_LITTLE_ENDIAN);
-  param_tree = proto_item_add_subtree(param_item, ett_ff_psmp_param_set);
-
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_psmp_param_set_n_sta, tvb,
-                      offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree, hf_ieee80211_ff_psmp_param_set_more_psmp,
-                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(param_tree,
-                      hf_ieee80211_ff_psmp_param_set_psmp_sequence_duration,
-                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_psmp_param_set,
+                         ett_ff_psmp_param_set,
+                         ieee80211_ff_psmp_param_set_fields,
+                         ENC_LITTLE_ENDIAN);
   return 2;
 }
 
@@ -4757,30 +4744,9 @@ add_ff_mimo_cntrl(proto_tree *tree, tvbuff_t *tvb, int offset)
 static guint
 add_ff_ant_selection(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *ant_item;
-  proto_tree *ant_tree;
-
-  ant_item = proto_tree_add_item(tree, hf_ieee80211_ff_ant_selection, tvb,
-                                 offset, 1, ENC_LITTLE_ENDIAN);
-  ant_tree = proto_item_add_subtree(ant_item, ett_ff_ant_sel);
-
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_0, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_1, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_2, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_3, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_4, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_5, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_6, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ant_tree, hf_ieee80211_ff_ant_selection_7, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_ant_selection,
+                         ett_ff_ant_sel, ieee80211_ff_ant_selection_fields,
+                         ENC_LITTLE_ENDIAN);
   return 1;
 }
 
@@ -4788,39 +4754,20 @@ static guint
 add_ff_extended_channel_switch_announcement(proto_tree *tree, tvbuff_t *tvb,
                                             int offset)
 {
-  proto_item *chan_item;
-  proto_tree *chan_tree;
-
-  chan_item = proto_tree_add_item(tree, hf_ieee80211_ff_ext_channel_switch_announcement, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  chan_tree = proto_item_add_subtree(chan_item, ett_ff_chan_switch_announce);
-
-  proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_switch_mode, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_new_reg_class, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_new_chan_number, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(chan_tree, hf_ieee80211_ff_ext_channel_switch_announcement_switch_count, tvb, offset, 4, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset,
+                         hf_ieee80211_ff_ext_channel_switch_announcement,
+                         ett_ff_chan_switch_announce,
+                         ieee80211_ff_ext_channel_switch_announcement_fields,
+                         ENC_LITTLE_ENDIAN);
   return 4;
 }
 
 static guint
 add_ff_ht_information(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
-  proto_item *ht_item;
-  proto_tree *ht_tree;
-
-  ht_item = proto_tree_add_uint(tree, hf_ieee80211_ff_ht_info, tvb, offset, 1,
-                                ENC_LITTLE_ENDIAN);
-  ht_tree = proto_item_add_subtree(ht_item, ett_ff_ht_info);
-
-  proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_information_request,
-                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_40_mhz_intolerant, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_sta_chan_width, tvb,
-                      offset, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(ht_tree, hf_ieee80211_ff_ht_info_reserved, tvb, offset,
-                      1, ENC_LITTLE_ENDIAN);
-
+  proto_tree_add_bitmask(tree, tvb, offset, hf_ieee80211_ff_ht_info,
+                         ett_ff_ht_info, ieee80211_ff_ht_info_fields,
+                         ENC_LITTLE_ENDIAN);
   return 1;
 }
 
