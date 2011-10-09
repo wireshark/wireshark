@@ -57,6 +57,7 @@
 #include <epan/packet.h>
 #include <epan/uat-int.h>
 #include <epan/value_string.h>
+#include <epan/filesystem.h>
 
 #include "../stat_menu.h"
 
@@ -84,6 +85,8 @@ struct _uat_rep_t {
 	GtkWidget* bt_edit;
 	GtkWidget* bt_copy;
 	GtkWidget* bt_delete;
+	GtkWidget* bt_refresh;
+	GtkWidget* bt_clear;
 	GtkWidget* bt_up;
 	GtkWidget* bt_down;
 	GtkWidget* bt_apply;
@@ -92,8 +95,6 @@ struct _uat_rep_t {
 	GtkWidget* unsaved_window;
 
 	gint selected;
-	gboolean dont_save;
-	GtkTreeSelection  *selection;
 };
 
 struct _str_pair {
@@ -193,19 +194,11 @@ static void append_row(uat_t* uat, guint idx) {
 
 	if (! uat->rep) return;
 
-	/* gtk_clist_freeze(GTK_CLIST(uat->rep->clist)); */
-
 	gtk_list_store_insert_before(uat->rep->list_store, &iter, NULL);
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		g_ptr_array_add(a,fld_tostr(rec,&(f[colnum])));
 		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec,&(f[colnum])), -1);
 	}
-
-	
-	/* rownum = gtk_clist_append(GTK_CLIST(uat->rep->clist), (gchar**)a->pdata);
-	gtk_clist_set_row_data(GTK_CLIST(uat->rep->clist), rownum, rec); */
-
-	/* gtk_clist_thaw(GTK_CLIST(uat->rep->clist)); */
 
 	g_ptr_array_free(a,TRUE);
 }
@@ -219,8 +212,6 @@ static void reset_row(uat_t* uat, guint idx) {
 
 	if (! uat->rep) return;
 
-	/* gtk_clist_freeze(GTK_CLIST(uat->rep->clist)); */
-
 	path = gtk_tree_path_new_from_indices(idx, -1);
 	if (!path || !gtk_tree_model_get_iter(GTK_TREE_MODEL(uat->rep->list_store), &iter, path)) {
 		return;
@@ -228,11 +219,7 @@ static void reset_row(uat_t* uat, guint idx) {
 
 	for ( colnum = 0; colnum < uat->ncols; colnum++ ) {
 		gtk_list_store_set(uat->rep->list_store, &iter, colnum, fld_tostr(rec,&(f[colnum])), -1);
-		/* gtk_clist_set_text(GTK_CLIST(uat->rep->clist), idx, colnum, fld_tostr(rec,&(f[colnum]))); */
 	}
-	
-	/* gtk_clist_thaw(GTK_CLIST(uat->rep->clist)); */
-
 }
 
 static guint8* unhexbytes(const char* si, guint len, guint* len_p, const char** err) {
@@ -571,7 +558,6 @@ static void uat_del_cb(GtkButton *button _U_, gpointer u) {
 		if (path && gtk_tree_model_get_iter(GTK_TREE_MODEL(ud->uat->rep->list_store), &iter, path)) {
 			gtk_list_store_remove(ud->uat->rep->list_store, &iter);
 		}
-		/* gtk_clist_remove(GTK_CLIST(ud->uat->rep->clist),ud->idx); */
 	}
 
 	ud->uat->changed = TRUE;
@@ -704,7 +690,6 @@ static void uat_up_cb(GtkButton *button _U_, gpointer u) {
 
 	uat_swap(uat,row,row-1);
 	tree_view_list_store_move_selection(uat->rep->list, TRUE);
-	/* gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row-1); */
 
 	uat->changed = TRUE;
 
@@ -721,7 +706,6 @@ static void uat_down_cb(GtkButton *button _U_, gpointer u) {
 
 	uat_swap(uat,row,row+1);
 	tree_view_list_store_move_selection(uat->rep->list, FALSE);
-	/* gtk_clist_swap_rows(GTK_CLIST(uat->rep->clist),row,row+1); */
 
 	uat->changed = TRUE;
 
@@ -783,6 +767,34 @@ static void uat_ok_cb(GtkButton *button _U_, gpointer u) {
 	uat->rep = NULL;
 }
 
+static void uat_clear_cb(GtkButton *button _U_, gpointer u) {
+	uat_t *uat = u;
+
+	gtk_list_store_clear(uat->rep->list_store);
+	uat_clear(uat);
+	uat->changed = TRUE;
+}
+
+static void uat_refresh_cb(GtkButton *button _U_, gpointer u) {
+	uat_t *uat = u;
+	gchar *err = NULL;
+	guint i;
+
+	uat_clear_cb(button, u);
+
+	uat->from_global = TRUE;
+	uat_load(uat,&err);
+	uat->from_global = FALSE;
+	uat->changed = TRUE;
+
+	if (err) {
+		report_failure("Error while loading %s: %s",uat->name,err);
+	}
+
+	for (i = 0 ; i < *(uat->nrows_p); i++) {
+		append_row(uat, i);
+	}
+}
 
 
 static void remember_selected_row(GtkWidget *w _U_, gpointer u) {
@@ -883,10 +895,12 @@ static GtkWidget* uat_window(void* u) {
 	guint i;
 	guint colnum;
 	GType *col_types;
-	GtkWidget *hbox, *vbox, *move_hbox, *edit_hbox;
+	GtkWidget *hbox, *vbox, *move_hbox, *edit_hbox, *refresh_hbox;
 	GtkTreeViewColumn *column;
 	GtkCellRenderer *renderer;
 	GtkTreeSelection *selection;
+	gchar *global_fname;
+	gboolean global_file_exists;
 
 	if (uat->rep) {
 		window_present(uat->rep->window);
@@ -894,6 +908,10 @@ static GtkWidget* uat_window(void* u) {
 	} else {
 		uat->rep = rep = g_malloc0(sizeof(uat_rep_t));
 	}
+
+	global_fname = get_datafile_path(uat->filename);
+	global_file_exists = file_exists(global_fname);
+	g_free (global_fname);
 
 	rep->window = dlg_conf_window_new(uat->name);
 
@@ -941,28 +959,11 @@ static GtkWidget* uat_window(void* u) {
 		gtk_tree_view_append_column (rep->list, column);
 		if (f[colnum].desc != NULL)
 			gtk_widget_set_tooltip_text(gtk_tree_view_column_get_button(column), f[colnum].desc);
-
-		/*
-		gtk_clist_set_column_title(GTK_CLIST(rep->clist), colnum, f[colnum].title);
-		gtk_clist_set_column_auto_resize(GTK_CLIST(rep->clist), colnum, TRUE);
-		*/
 	}
-
-	/*
-	gtk_clist_column_titles_show(GTK_CLIST(rep->clist));
-	gtk_clist_freeze(GTK_CLIST(rep->clist));
-	*/
 
 	for ( i = 0 ; i < *(uat->nrows_p); i++ ) {
 		append_row(uat, i);
 	}
-
-	/* gtk_clist_thaw(GTK_CLIST(rep->clist)); */
-
-/*	rep->selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(rep->clist)); 
-	gtk_tree_selection_set_mode(rep->selection, GTK_SELECTION_SINGLE);
-*/
-	/* gtk_clist_set_selection_mode(GTK_CLIST(rep->clist), GTK_SELECTION_SINGLE); */
 
 	if(uat->help) {
 		GtkWidget* help_btn;
@@ -978,25 +979,47 @@ static GtkWidget* uat_window(void* u) {
 	gtk_box_pack_start(GTK_BOX(vbox), move_hbox, TRUE, FALSE, 0);
 
 	edit_hbox = gtk_vbutton_box_new();
-	gtk_box_pack_end(GTK_BOX(vbox), edit_hbox, TRUE, FALSE, 0);
+	gtk_box_pack_start(GTK_BOX(vbox), edit_hbox, TRUE, FALSE, 0);
 
+	refresh_hbox = gtk_vbutton_box_new();
+	gtk_box_pack_end(GTK_BOX(vbox), refresh_hbox, TRUE, FALSE, 0);
+
+
+	rep->bt_up = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
+	gtk_widget_set_tooltip_text(rep->bt_up, "Move selected entry up");
 
 	rep->bt_down = gtk_button_new_from_stock(GTK_STOCK_GO_DOWN);
-	rep->bt_up = gtk_button_new_from_stock(GTK_STOCK_GO_UP);
+	gtk_widget_set_tooltip_text(rep->bt_down, "Move selected entry down");
 
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_up, TRUE, FALSE, 5);
 	gtk_box_pack_start(GTK_BOX(move_hbox), rep->bt_down, TRUE, FALSE, 5);
 
 
 	rep->bt_new = gtk_button_new_from_stock(GTK_STOCK_NEW);
+	gtk_widget_set_tooltip_text(rep->bt_new, "Create a new entry");
+
 	rep->bt_edit = gtk_button_new_from_stock(WIRESHARK_STOCK_EDIT);
+	gtk_widget_set_tooltip_text(rep->bt_edit, "Edit selected entry");
+
 	rep->bt_copy = gtk_button_new_from_stock(GTK_STOCK_COPY);
+	gtk_widget_set_tooltip_text(rep->bt_copy, "Copy selected entry");
+
 	rep->bt_delete = gtk_button_new_from_stock(GTK_STOCK_DELETE);
+	gtk_widget_set_tooltip_text(rep->bt_delete, "Delete selected entry");
 
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_new, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_edit, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_copy, TRUE, FALSE, 5);
 	gtk_box_pack_end(GTK_BOX(edit_hbox), rep->bt_delete, TRUE, FALSE, 5);
+
+	rep->bt_refresh = gtk_button_new_from_stock(GTK_STOCK_REFRESH);
+	gtk_widget_set_tooltip_text(rep->bt_refresh, "Refresh from system defaults");
+
+	rep->bt_clear = gtk_button_new_from_stock(GTK_STOCK_CLEAR);
+	gtk_widget_set_tooltip_text(rep->bt_clear, "Delete all entries");
+
+	gtk_box_pack_end(GTK_BOX(refresh_hbox), rep->bt_refresh, TRUE, FALSE, 5);
+	gtk_box_pack_end(GTK_BOX(refresh_hbox), rep->bt_clear, TRUE, FALSE, 5);
 
 
 	rep->bt_apply = g_object_get_data(G_OBJECT(rep->bbox),GTK_STOCK_APPLY);
@@ -1010,9 +1033,8 @@ static GtkWidget* uat_window(void* u) {
 	gtk_widget_set_sensitive (rep->bt_edit, FALSE);
 	gtk_widget_set_sensitive (rep->bt_copy, FALSE);
 	gtk_widget_set_sensitive (rep->bt_delete, FALSE);
+	gtk_widget_set_sensitive (rep->bt_refresh, global_file_exists);
 
-
-/*	g_signal_connect(rep->selection, "changed", G_CALLBACK(remember_selected_row), uat);*/
 	g_signal_connect(rep->list, "row-activated", G_CALLBACK(uat_double_click_cb), uat);
 	g_signal_connect(selection, "changed", G_CALLBACK(remember_selected_row), uat);
 
@@ -1021,6 +1043,9 @@ static GtkWidget* uat_window(void* u) {
 	g_signal_connect(rep->bt_edit, "clicked", G_CALLBACK(uat_edit_cb), uat);
 	g_signal_connect(rep->bt_copy, "clicked", G_CALLBACK(uat_copy_cb), uat);
 	g_signal_connect(rep->bt_delete, "clicked", G_CALLBACK(uat_delete_cb), uat);
+
+	g_signal_connect(rep->bt_refresh, "clicked", G_CALLBACK(uat_refresh_cb), uat);
+	g_signal_connect(rep->bt_clear, "clicked", G_CALLBACK(uat_clear_cb), uat);
 
 	g_signal_connect(rep->bt_up, "clicked", G_CALLBACK(uat_up_cb), uat);
 	g_signal_connect(rep->bt_down, "clicked", G_CALLBACK(uat_down_cb), uat);

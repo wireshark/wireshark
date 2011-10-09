@@ -66,6 +66,7 @@ struct _uat_t {
 	uat_rep_t* rep;
 	uat_rep_free_cb_t free_rep;
 	gboolean loaded;
+	gboolean from_global;
 };
 
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing);

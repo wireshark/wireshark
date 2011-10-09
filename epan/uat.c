@@ -97,6 +97,7 @@ uat_t* uat_new(const char* name,
     uat->user_data = g_array_new(FALSE,FALSE,(guint)uat->record_size);
     uat->changed = FALSE;
     uat->loaded = FALSE;
+    uat->from_global = FALSE;
     uat->rep = NULL;
     uat->free_rep = NULL;
     uat->help = help;
@@ -166,21 +167,21 @@ void uat_remove_record_idx(uat_t* uat, guint idx) {
 
 /* The returned filename was g_malloc()'d so the caller must free it */
 gchar* uat_get_actual_filename(uat_t* uat, gboolean for_writing) {
+    gchar *pers_fname = NULL;
 
-    gchar* pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, for_writing);
+    if (! uat->from_global) {
+        pers_fname =  get_persconffile_path(uat->filename, uat->from_profile, for_writing);
+    }
 
-    if (! for_writing ) {
+    if ((! for_writing ) && (! file_exists(pers_fname) )) {
         gchar* data_fname = get_datafile_path(uat->filename);
 
-        if ((! file_exists(pers_fname) ) && file_exists(data_fname)) {
+        if (file_exists(data_fname)) {
             g_free(pers_fname);
             return data_fname;
         }
 
         g_free(data_fname);
-    }
-
-    if ((! file_exists(pers_fname) ) && (! for_writing ) ) {
         g_free(pers_fname);
         return NULL;
     }
