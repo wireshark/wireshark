@@ -1708,6 +1708,10 @@ file_exists(const char *fname)
 {
     ws_statb64 file_stat;
 
+    if (!fname) {
+        return FALSE;
+    }
+
 #ifdef _WIN32
     /*
      * This is a bit tricky on win32. The st_ino field is documented as:
