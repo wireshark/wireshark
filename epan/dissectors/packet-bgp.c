@@ -155,6 +155,12 @@ static const value_string bgpattr_origin[] = {
     { 0, NULL }
 };
 
+static const value_string bgp_open_opt_vals[] = {
+    { BGP_OPTION_AUTHENTICATION, "Authentication" },
+    { BGP_OPTION_CAPABILITY, "Capability" },
+    { 0, NULL }
+};
+
 static const value_string as_segment_type[] = {
     { 1, "AS_SET" },
     { 2, "AS_SEQUENCE" },
@@ -339,6 +345,18 @@ static int proto_bgp = -1;
 static int hf_bgp_marker = -1;
 static int hf_bgp_length = -1;
 static int hf_bgp_type = -1;
+static int hf_bgp_open_version = -1;
+static int hf_bgp_open_myas = -1;
+static int hf_bgp_open_holdtime = -1;
+static int hf_bgp_open_identifier = -1;
+static int hf_bgp_open_opt_len = -1;
+static int hf_bgp_open_opt_params = -1;
+static int hf_bgp_open_opt_param = -1;
+static int hf_bgp_open_opt_param_type = -1;
+static int hf_bgp_open_opt_param_len = -1;
+static int hf_bgp_open_opt_param_auth = -1;
+static int hf_bgp_open_opt_param_cap = -1;
+static int hf_bgp_open_opt_param_unknown = -1;
 static int hf_bgp_next_hop = -1;
 static int hf_bgp_as_path = -1;
 static int hf_bgp_community_as = -1;
@@ -1625,97 +1643,92 @@ static const value_string community_vals[] = {
 static void
 dissect_bgp_open(tvbuff_t *tvb, proto_tree *tree)
 {
-    struct bgp_open bgpo;      /* BGP OPEN message      */
-    /*int             hlen; */ /* message length - not used in the dissection below */
+    guint8          optlen;    /* Option Length */
     int             ptype;     /* parameter type        */
     int             plen;      /* parameter length      */
     int             ctype;     /* capability type       */
     int             clen;      /* capability length     */
     int             cend;      /* capabilities end      */
-    int             ostart;    /* options start         */
     int             oend;      /* options end           */
-    int             p;         /* tvb offset counter    */
+    int             offset;    /* tvb offset counter    */
     proto_item      *ti;       /* tree item             */
-    proto_tree      *subtree;  /* subtree for options   */
-    proto_tree      *subtree1; /* subtree for an option */
-    proto_tree      *subtree2; /* subtree for an option */
+    proto_tree      *opt_tree;  /* subtree for options   */
+    proto_tree      *par_tree;  /* subtree for par options   */
+    proto_tree      *cap_tree; /* subtree for cap option */
 
-    /* snarf OPEN message */
-    tvb_memcpy(tvb, bgpo.bgpo_marker, 0, BGP_MIN_OPEN_MSG_SIZE);
-    /* hlen = g_ntohs(bgpo.bgpo_len); */
+    offset = BGP_MARKER_SIZE + 2 + 1;
 
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_open, bgpo_version), 1,
-        "Version: %u", bgpo.bgpo_version);
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_open, bgpo_myas), 2,
-        "My AS: %u", g_ntohs(bgpo.bgpo_myas));
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_open, bgpo_holdtime), 2,
-        "Hold time: %u", g_ntohs(bgpo.bgpo_holdtime));
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_open, bgpo_id), 4,
-        "BGP identifier: %s", ip_to_str((guint8 *)&bgpo.bgpo_id));
-    proto_tree_add_text(tree, tvb,
-        offsetof(struct bgp_open, bgpo_optlen), 1,
-        "Optional parameters length: %u byte%s", bgpo.bgpo_optlen,
-        plurality(bgpo.bgpo_optlen, "", "s"));
+    proto_tree_add_item(tree, hf_bgp_open_version, tvb, offset, 1, ENC_BIG_ENDIAN);
+    offset += 1;
+
+    proto_tree_add_item(tree, hf_bgp_open_myas, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_bgp_open_holdtime, tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+
+    proto_tree_add_item(tree, hf_bgp_open_identifier, tvb, offset, 4, ENC_NA);
+    offset += 4;
+
+    proto_tree_add_item(tree, hf_bgp_open_opt_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+    optlen = tvb_get_guint8(tvb, offset);
+    offset += 1;
 
     /* optional parameters */
-    if (bgpo.bgpo_optlen > 0) {
-        /* add a subtree and setup some offsets */
-        ostart = BGP_MIN_OPEN_MSG_SIZE;
-        ti = proto_tree_add_text(tree, tvb, ostart, bgpo.bgpo_optlen,
-             "Optional parameters");
-        subtree = proto_item_add_subtree(ti, ett_bgp_options);
-        p = ostart;
-        oend = p + bgpo.bgpo_optlen;
+    if (optlen > 0) {
+        oend = offset + optlen;
+
+        /* add a subtree */
+        ti = proto_tree_add_item(tree, hf_bgp_open_opt_params, tvb, offset, optlen, ENC_NA);
+        opt_tree = proto_item_add_subtree(ti, ett_bgp_options);
 
         /* step through all of the optional parameters */
-        while (p < oend) {
+        while (offset < oend) {
 
-            /* grab the type and length */
-            ptype = tvb_get_guint8(tvb, p++);
-            plen = tvb_get_guint8(tvb, p++);
+            /* add a subtree */
+            ti = proto_tree_add_item(opt_tree, hf_bgp_open_opt_param, tvb, offset, -1, ENC_NA);
+            par_tree = proto_item_add_subtree(ti, ett_bgp_options);
+
+            /* display and grab the type ... */
+            proto_tree_add_item(par_tree, hf_bgp_open_opt_param_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+            ptype = tvb_get_guint8(tvb, offset);
+            proto_item_append_text(ti, ": %s", val_to_str(ptype, bgp_open_opt_vals, "Unknown Parameter %d"));
+            offset += 1;
+
+            /* ... and length */
+            proto_tree_add_item(par_tree, hf_bgp_open_opt_param_len, tvb, offset, 1, ENC_BIG_ENDIAN);
+            plen = tvb_get_guint8(tvb, offset);
+            proto_item_set_len(ti, plen+2);
+            offset += 1;
 
             /* check the type */
             switch (ptype) {
                 case BGP_OPTION_AUTHENTICATION:
-                    proto_tree_add_text(subtree, tvb, p - 2, 2 + plen,
-                                        "Authentication information (%u byte%s)", plen,
-                                        plurality(plen, "", "s"));
+                    proto_tree_add_item(par_tree, hf_bgp_open_opt_param_auth, tvb, offset, plen, ENC_NA);
+                    offset += plen;
                     break;
                 case BGP_OPTION_CAPABILITY:
                     /* grab the capability code */
-                    cend = p - 1 + plen;
-                    ti = proto_tree_add_text(subtree, tvb, p - 4,
-                                             2 + plen, "Capabilities Advertisement (%u bytes)",
-                                             2 + plen);
-                    subtree1 = proto_item_add_subtree(ti, ett_bgp_option);
-                    proto_tree_add_text(subtree1, tvb, p - 4,
-                                        1, "Parameter type: Capabilities (2)");
-                    proto_tree_add_text(subtree1, tvb, p - 3,
-                                        1, "Parameter length: %u byte%s", plen,
-                                        plurality(plen, "", "s"));
-                    p -= 2;
+                    cend = offset + plen;
 
                     /* step through all of the capabilities */
-                    while (p < cend) {
-                        ctype = tvb_get_guint8(tvb, p++);
-                        clen = tvb_get_guint8(tvb, p++);
+                    while (offset < cend) {
+                        ti = proto_tree_add_item(par_tree, hf_bgp_open_opt_param_cap, tvb, offset, -1, ENC_NA);
 
-                        ti = proto_tree_add_text(subtree1, tvb, p - 2,
-                                                 2 + clen, "%s (%u byte%s)", val_to_str(ctype,
-                                                                                        capability_vals, "Unknown capability"),
-                                                 2 + clen, plurality(clen, "", "s"));
-                        subtree2 = proto_item_add_subtree(ti, ett_bgp_option);
-                        dissect_bgp_capability_item(tvb, &p,
-                                                    subtree2, ctype, clen);
+                        ctype = tvb_get_guint8(tvb, offset);
+                        proto_item_append_text(ti, ": %s", val_to_str(ctype, capability_vals, "Unknown capability %d"));
+                        offset += 1;
+
+                        clen = tvb_get_guint8(tvb, offset);
+                        proto_item_set_len(ti, clen+2);
+                        offset += 1;
+
+                        cap_tree = proto_item_add_subtree(ti, ett_bgp_option);
+                        dissect_bgp_capability_item(tvb, &offset, cap_tree, ctype, clen);
                     }
                     break;
                 default:
-                    proto_tree_add_text(subtree, tvb, p - 2, 2 + plen,
-                                        "Unknown optional parameter");
+                    proto_tree_add_item(opt_tree, hf_bgp_open_opt_param_unknown, tvb, offset, plen, ENC_NA);
                     break;
             } /* switch (ptype) */
         }
@@ -3350,6 +3363,43 @@ proto_register_bgp(void)
       { &hf_bgp_type,
         { "Type", "bgp.type", FT_UINT8, BASE_DEC,
           VALS(bgptypevals), 0x0, "BGP message type", HFILL }},
+      /* Open Message */
+      { &hf_bgp_open_version,
+        { "Version", "bgp.open.version", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "The protocol version number", HFILL }},
+      { &hf_bgp_open_myas,
+        { "My AS", "bgp.open.myas", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "The Autonomous System number of the sender", HFILL }},
+      { &hf_bgp_open_holdtime,
+        { "Hold Time", "bgp.open.holdtime", FT_UINT16, BASE_DEC,
+          NULL, 0x0, "The number of seconds the sender proposes for Hold Time", HFILL }},
+      { &hf_bgp_open_identifier,
+        { "BGP Identifier", "bgp.open.identifier", FT_IPv4, BASE_NONE,
+          NULL, 0x0, "The BGP Identifier of the sender", HFILL }},
+      { &hf_bgp_open_opt_len,
+        { "Optional Parameters Length", "bgp.open.opt.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "The total length of the Optional Parameters field in octets", HFILL }},
+      { &hf_bgp_open_opt_params,
+        { "Optional Parameters", "bgp.open.opt", FT_NONE, BASE_NONE,
+          NULL, 0x0, "List of optional parameters", HFILL }},
+      { &hf_bgp_open_opt_param,
+        { "Optional Parameter", "bgp.open.opt.param", FT_NONE, BASE_NONE,
+          NULL, 0x0, NULL, HFILL }},
+      { &hf_bgp_open_opt_param_type,
+        { "Parameter Type", "bgp.open.opt.param.type", FT_UINT8, BASE_DEC,
+          VALS(bgp_open_opt_vals), 0x0, "Unambiguously identifies individual parameters", HFILL }},
+      { &hf_bgp_open_opt_param_len,
+        { "Parameter Length", "bgp.open.opt.param.len", FT_UINT8, BASE_DEC,
+          NULL, 0x0, "Length of the Parameter Value", HFILL }},
+      { &hf_bgp_open_opt_param_auth,
+        { "Authentification Data", "bgp.open.opt.param.auth", FT_BYTES, BASE_NONE,
+          NULL, 0x0, "Deprecated", HFILL }},
+      { &hf_bgp_open_opt_param_cap,
+        { "Capability", "bgp.open.opt.param.cap", FT_NONE, BASE_NONE,
+          NULL, 0x0, "Optional Parameter that is used by a BGP speaker to convey to its BGP peer the list of capabilities supported by the speaker", HFILL }},
+      { &hf_bgp_open_opt_param_unknown,
+        { "Unknown", "bgp.open.opt.param.unknown", FT_BYTES, BASE_NONE,
+          NULL, 0x0, "Unknown Parameter", HFILL }},
 
       { &hf_bgp_aggregator_as,
         { "Aggregator AS", "bgp.aggregator_as", FT_UINT16, BASE_DEC,
