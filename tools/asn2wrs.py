@@ -1618,7 +1618,6 @@ class EthCtx:
 
   #--- eth_output_export ------------------------------------------------------
   def eth_output_export(self):
-    if (not len(self.eth_export_ord)): return
     fx = self.output.file_open('exp', ext='h')
     for t in self.eth_export_ord:  # vals
       if (self.eth_type[t]['export'] & EF_ENUM) and self.eth_type[t]['val'].eth_has_enum(t, self):
