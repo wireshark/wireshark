@@ -66,9 +66,24 @@ void dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 /*--- Included file: packet-gsm_map-exp.h ---*/
 #line 1 "../../asn1/gsm_map/packet-gsm_map-exp.h"
 
+/* --- Module Remote-Operations-Information-Objects --- --- ---               */
+
+
+/* --- Module MobileDomainDefinitions --- --- ---                             */
+
+
+/* --- Module MAP-ApplicationContexts --- --- ---                             */
+
+
 /* --- Module MAP-SS-Code --- --- ---                                         */
 
 int dissect_gsm_map_SS_Code(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* --- Module MAP-BS-Code --- --- ---                                         */
+
+
+/* --- Module MAP-TS-Code --- --- ---                                         */
+
 
 /* --- Module MAP-ExtensionDataTypes --- --- ---                              */
 
@@ -134,6 +149,9 @@ extern const value_string gsm_map_sm_SM_RP_OA_vals[];
 int dissect_gsm_map_sm_SM_RP_DA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_sm_SM_RP_OA(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 
+/* --- Module MAP-OM-DataTypes --- --- ---                                    */
+
+
 /* --- Module MAP-MS-DataTypes --- --- ---                                    */
 
 extern const value_string gsm_map_ms_DefaultGPRS_Handling_vals[];
@@ -194,6 +212,39 @@ int dissect_gsm_map_lcs_VelocityEstimate(gboolean implicit_tag _U_, tvbuff_t *tv
 int dissect_gsm_map_lcs_Add_GeographicalInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
 int dissect_gsm_map_lcs_LCS_ClientID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
 
+/* --- Module MAP-GR-DataTypes --- --- ---                                    */
+
+
+/* --- Module MAP-DialogueInformation --- --- ---                             */
+
+
+/* --- Module MAP-LocationServiceOperations --- --- ---                       */
+
+
+/* --- Module MAP-Group-Call-Operations --- --- ---                           */
+
+
+/* --- Module MAP-ShortMessageServiceOperations --- --- ---                   */
+
+
+/* --- Module MAP-SupplementaryServiceOperations --- --- ---                  */
+
+
+/* --- Module MAP-CallHandlingOperations --- --- ---                          */
+
+
+/* --- Module MAP-OperationAndMaintenanceOperations --- --- ---               */
+
+
+/* --- Module MAP-MobileServiceOperations --- --- ---                         */
+
+
+/* --- Module MAP-Errors --- --- ---                                          */
+
+
+/* --- Module MAP-Protocol --- --- ---                                        */
+
+
 /* --- Module DummyMAP --- --- ---                                            */
 
 extern const value_string gsm_old_GSMMAPLocalErrorcode_vals[];
@@ -209,6 +260,9 @@ int dissect_gsm_old_ProtectedPayload(gboolean implicit_tag _U_, tvbuff_t *tvb _U
 
 extern const value_string gsm_ss_LocationMethod_vals[];
 int dissect_gsm_ss_LocationMethod(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* --- Module SS-Operations --- --- ---                                       */
+
 
 /*--- End of included file: packet-gsm_map-exp.h ---*/
 #line 58 "../../asn1/gsm_map/packet-gsm_map-template.h"
