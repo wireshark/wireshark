@@ -49,11 +49,12 @@ $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
 		-D $(srcdir) \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 
+# Don't clean these up until/unless we start building them...
+#$(DISSECTOR) \
+#$(DISSECTOR_HEADER) \
 CLEANFILES = \
 	parsetab.py \
 	parsetab.pyc \
-	$(DISSECTOR) \
-	$(DISSECTOR_HEADER) \
 	*-exp.cnf \
 	packet-*-{dis-tab,ettarr,ett,exp,fn,hfarr,hf,table*,val}.[hc]
 

@@ -64,11 +64,12 @@ $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
 !ENDIF
 !ENDIF
 
+# Don't clean these up until/unless we start building them...
+		$(DISSECTOR) \
+		$(DISSECTOR_HEADER) \
 clean:
 	rm -f parsetab.py \
 		parsetab.pyc \
-		$(DISSECTOR) \
-		$(DISSECTOR_HEADER) \
 		*-exp.cnf \
 		packet-*-{dis-tab,ettarr,ett,fn,hfarr,hf,table*,val}.[hc]
 
