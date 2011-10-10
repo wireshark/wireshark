@@ -240,6 +240,7 @@ set(ASN1_DISSECTOR_SRC
 	dissectors/packet-smrse.c
 	dissectors/packet-spnego.c
 	dissectors/packet-sv.c
+	dissectors/packet-t38.c
 	dissectors/packet-ulp.c
 	dissectors/packet-wlancertextn.c
 	dissectors/packet-x224.c
@@ -1009,7 +1010,6 @@ set(DISSECTOR_SRC
 	dissectors/packet-synphasor.c
 	dissectors/packet-syslog.c
 	dissectors/packet-t30.c
-	dissectors/packet-t38.c
 	dissectors/packet-tacacs.c
 	dissectors/packet-tali.c
 	dissectors/packet-tapa.c
