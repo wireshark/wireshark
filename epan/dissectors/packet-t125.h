@@ -38,7 +38,12 @@
 #include <epan/dissectors/packet-per.h>
 
 
-#include "packet-t125-exp.h"
+
+/*--- Included file: packet-t125-exp.h ---*/
+#line 1 "../../asn1/t125/packet-t125-exp.h"
+
+/*--- End of included file: packet-t125-exp.h ---*/
+#line 34 "../../asn1/t125/packet-t125-template.h"
 
 
 #endif  /* PACKET_T125_H */

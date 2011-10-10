@@ -38,6 +38,12 @@
 /*--- Included file: packet-qsig-exp.h ---*/
 #line 1 "../../asn1/qsig/packet-qsig-exp.h"
 
+/* --- Module General-Error-List --- --- ---                                  */
+
+
+/* --- Modules Manufacturer-specific-service-extension-class-asn1-97 PSS1-generic-parameters-definition-asn1-97 Addressing-Data-Elements-asn1-97 --- --- --- */
+
+
 /* --- Module Name-Operations-asn1-97 --- --- ---                             */
 
 
@@ -48,6 +54,81 @@ static const value_string qsig_na_Name_vals[] = {
   { 0, NULL }
 };
 extern int dissect_qsig_na_Name(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_);
+
+/* --- Module Call-Diversion-Operations-asn1-97 --- --- ---                   */
+
+
+/* --- Module Path-Replacement-Operations-asn1-97 --- --- ---                 */
+
+
+/* --- Module Call-Transfer-Operations-asn1-97 --- --- ---                    */
+
+
+/* --- Module SS-CC-Operations-asn1-97 --- --- ---                            */
+
+
+/* --- Module Call-Offer-Operations-asn1-97 --- --- ---                       */
+
+
+/* --- Module Do-Not-Disturb-Operations-asn1-97 --- --- ---                   */
+
+
+/* --- Module Call-Intrusion-Operations-asn1-97 --- --- ---                   */
+
+
+/* --- Module SS-AOC-Operations-asn1-97 --- --- ---                           */
+
+
+/* --- Module Recall-Operations-asn1-97 --- --- ---                           */
+
+
+/* --- Module Synchronization-Operations-asn1-97 --- --- ---                  */
+
+
+/* --- Module Call-Interception-Operations-asn1-97 --- --- ---                */
+
+
+/* --- Module Common-Information-Operations-asn1-97 --- --- ---               */
+
+
+/* --- Module Call-Interruption-Operations-asn1-97 --- --- ---                */
+
+
+/* --- Module PUM-Registration-Operations-asn1-97 --- --- ---                 */
+
+
+/* --- Module Private-User-Mobility-Call-Handling-Operations-asn1-97 --- --- --- */
+
+
+/* --- Module Single-Step-Call-Transfer-Operations-asn1-97 --- --- ---        */
+
+
+/* --- Module WTM-Location-Registration-Operations-asn1-97 --- --- ---        */
+
+
+/* --- Module Wireless-Terminal-Call-Handling-Operations-asn1-97 --- --- ---  */
+
+
+/* --- Module WTM-Authentication-Operations-asn1-97 --- --- ---               */
+
+
+/* --- Module SS-SD-Operations-asn1-97 --- --- ---                            */
+
+
+/* --- Module Call-Identification-and-Call-Linkage-Operations-asn1-97 --- --- --- */
+
+
+/* --- Module Short-Message-Service-Operations-asn1-97 --- --- ---            */
+
+
+/* --- Module SS-MCR-Operations-asn97 --- --- ---                             */
+
+
+/* --- Module SS-MCM-Operations-asn1-97 --- --- ---                           */
+
+
+/* --- Module SS-MID-Operations-asn1-97 --- --- ---                           */
+
 
 /*--- End of included file: packet-qsig-exp.h ---*/
 #line 30 "../../asn1/qsig/packet-qsig-template.h"
