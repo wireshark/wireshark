@@ -40,6 +40,8 @@
 #       copy_files           : generate the dissectors into epan\dissectors
 #                            :  (This is, in effect, the same as invoking this makefile w/o a target).
 
+include Custom.make 
+
 BER_LIST= \
 	acp133			\
 	acse			\
@@ -102,7 +104,8 @@ BER_LIST= \
 	x509af			\
 	x509ce			\
 	x509if			\
-	x509sat
+	x509sat			\
+	$(CUSTOM_BER_LIST)
 
 PER_LIST= \
 	h225			\
@@ -134,7 +137,7 @@ PER_LIST= \
 	ulp			\
 	x2ap			\
 ###	x721
-
+	$(CUSTOM_PER_LIST)
 
 !IFNDEF ASN1_MAKE_TARGET
 ASN1_MAKE_TARGET=all

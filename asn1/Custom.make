@@ -24,3 +24,9 @@
 # Note you need to add a Cutom.m4 file too.
 #
 CUSTOM_SUBDIRS = 
+
+# Add custom dirs here for BER dissectors on Windows
+CUSTOM_BER_LIST = 
+
+# Add custom dirs here for PER dissectors on Windows
+CUSTOM_PER_LIST =
