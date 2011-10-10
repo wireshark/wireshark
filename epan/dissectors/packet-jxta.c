@@ -1080,7 +1080,7 @@ static int dissect_jxta_message_framing(tvbuff_t * tvb, packet_info * pinfo, pro
             /*
              *   Put header name into the protocol tree
              */
-            proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_name, tvb, tree_offset, 1, headernamelen);
+            proto_tree_add_item(framing_header_tree, hf_jxta_framing_header_name, tvb, tree_offset, sizeof(gint8), ENC_BIG_ENDIAN);
 
             /*
              *   Append header name into the header protocol item. It's a nice hint so you don't have to reveal all headers.
