@@ -3895,8 +3895,8 @@ static void dissect_r3_upstreammfgfield_checkpointlog (tvbuff_t *tvb, guint32 st
     }
 
     proto_item_append_text (cpe_item, " (%s, %s)", resets [resettype], desc);
-    proto_item_append_text (proto_tree_add_item (cpe_tree, hf_r3_checkpointlog_rcon, tvb, start_offset + i + 0, 1, TRUE), " (%s)", resets [resettype]);
-    proto_item_append_text (proto_tree_add_item (cpe_tree, hf_r3_checkpointlog_checkpoint, tvb, start_offset + i + 1, 1, TRUE), " (%s)", desc);
+    proto_item_append_text (proto_tree_add_item (cpe_tree, hf_r3_checkpointlog_rcon, tvb, start_offset + i + 0, 1, ENC_LITTLE_ENDIAN), " (%s)", resets [resettype]);
+    proto_item_append_text (proto_tree_add_item (cpe_tree, hf_r3_checkpointlog_checkpoint, tvb, start_offset + i + 1, 1, ENC_LITTLE_ENDIAN), " (%s)", desc);
   }
 }
 
@@ -3906,25 +3906,25 @@ static void dissect_r3_upstreammfgfield_cpuregisters (tvbuff_t *tvb, guint32 sta
   proto_item *cr_item = proto_tree_add_text (tree, tvb, start_offset, -1, "CPU Registers");
   proto_tree *cr_tree = proto_item_add_subtree (cr_item, ett_r3cpuregisters);
 
-  tmp_tree [ 0] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon,  tvb, start_offset +  0, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 1] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon2, tvb, start_offset +  1, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 2] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon3, tvb, start_offset +  2, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 3] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir1,    tvb, start_offset +  3, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 4] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir2,    tvb, start_offset +  4, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 5] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir3,    tvb, start_offset +  5, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 6] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie1,    tvb, start_offset +  6, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 7] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie2,    tvb, start_offset +  7, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 8] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie3,    tvb, start_offset +  8, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [ 9] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr1,    tvb, start_offset +  9, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [10] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr2,    tvb, start_offset + 10, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [11] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr3,    tvb, start_offset + 11, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [12] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcon,    tvb, start_offset + 12, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [13] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_osccon,  tvb, start_offset + 13, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [14] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcsta,   tvb, start_offset + 14, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [15] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_txsta,   tvb, start_offset + 15, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [16] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcsta2,  tvb, start_offset + 16, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [17] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_txsta2,  tvb, start_offset + 17, 1, TRUE), ett_r3cpuregister);
-  tmp_tree [18] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_wdtcon,  tvb, start_offset + 18, 1, TRUE), ett_r3cpuregister);
+  tmp_tree [ 0] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon,  tvb, start_offset +  0, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 1] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon2, tvb, start_offset +  1, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 2] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_intcon3, tvb, start_offset +  2, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 3] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir1,    tvb, start_offset +  3, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 4] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir2,    tvb, start_offset +  4, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 5] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pir3,    tvb, start_offset +  5, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 6] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie1,    tvb, start_offset +  6, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 7] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie2,    tvb, start_offset +  7, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 8] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_pie3,    tvb, start_offset +  8, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [ 9] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr1,    tvb, start_offset +  9, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [10] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr2,    tvb, start_offset + 10, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [11] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_ipr3,    tvb, start_offset + 11, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [12] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcon,    tvb, start_offset + 12, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [13] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_osccon,  tvb, start_offset + 13, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [14] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcsta,   tvb, start_offset + 14, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [15] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_txsta,   tvb, start_offset + 15, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [16] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_rcsta2,  tvb, start_offset + 16, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [17] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_txsta2,  tvb, start_offset + 17, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
+  tmp_tree [18] = proto_item_add_subtree (proto_tree_add_item (cr_tree, hf_r3_cpuregisters_wdtcon,  tvb, start_offset + 18, 1, ENC_LITTLE_ENDIAN), ett_r3cpuregister);
 
   proto_tree_add_boolean (tmp_tree [ 0], hf_r3_cpuregisters_intcon_rbif,     tvb, start_offset +  0, 1, tvb_get_guint8 (tvb, start_offset +  0));
   proto_tree_add_boolean (tmp_tree [ 0], hf_r3_cpuregisters_intcon_int0if,   tvb, start_offset +  0, 1, tvb_get_guint8 (tvb, start_offset +  0));
@@ -4259,26 +4259,26 @@ static void dissect_r3_upstreammfgfield_dumpm41t81 (tvbuff_t *tvb, guint32 start
     expert_add_info_format (pinfo, tree, PI_UNDECODED, PI_WARN, "Length of M41T81 RTC register dump not 20 octets");
   else
   {
-    tmp_tree [ 0] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg00, tvb, start_offset +  0, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 1] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg01, tvb, start_offset +  1, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 2] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg02, tvb, start_offset +  2, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 3] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg03, tvb, start_offset +  3, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 4] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg04, tvb, start_offset +  4, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 5] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg05, tvb, start_offset +  5, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 6] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg06, tvb, start_offset +  6, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 7] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg07, tvb, start_offset +  7, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 8] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg08, tvb, start_offset +  8, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [ 9] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg09, tvb, start_offset +  9, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [10] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0a, tvb, start_offset + 10, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [11] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0b, tvb, start_offset + 11, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [12] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0c, tvb, start_offset + 12, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [13] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0d, tvb, start_offset + 13, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [14] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0e, tvb, start_offset + 14, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [15] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0f, tvb, start_offset + 15, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [16] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg10, tvb, start_offset + 16, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [17] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg11, tvb, start_offset + 17, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [18] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg12, tvb, start_offset + 18, 1, TRUE), ett_r3m41t81register);
-    tmp_tree [19] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg13, tvb, start_offset + 19, 1, TRUE), ett_r3m41t81register);
+    tmp_tree [ 0] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg00, tvb, start_offset +  0, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 1] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg01, tvb, start_offset +  1, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 2] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg02, tvb, start_offset +  2, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 3] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg03, tvb, start_offset +  3, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 4] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg04, tvb, start_offset +  4, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 5] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg05, tvb, start_offset +  5, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 6] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg06, tvb, start_offset +  6, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 7] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg07, tvb, start_offset +  7, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 8] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg08, tvb, start_offset +  8, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [ 9] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg09, tvb, start_offset +  9, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [10] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0a, tvb, start_offset + 10, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [11] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0b, tvb, start_offset + 11, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [12] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0c, tvb, start_offset + 12, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [13] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0d, tvb, start_offset + 13, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [14] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0e, tvb, start_offset + 14, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [15] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg0f, tvb, start_offset + 15, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [16] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg10, tvb, start_offset + 16, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [17] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg11, tvb, start_offset + 17, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [18] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg12, tvb, start_offset + 18, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
+    tmp_tree [19] = proto_item_add_subtree (proto_tree_add_item (rtc_tree, hf_r3_dumpm41t81_reg13, tvb, start_offset + 19, 1, ENC_LITTLE_ENDIAN), ett_r3m41t81register);
 
     proto_tree_add_bits_item (tmp_tree [ 0], hf_r3_dumpm41t81_reg00_sec1,       tvb, offset_in_bits, 4, TRUE);  offset_in_bits += 4;
     proto_tree_add_bits_item (tmp_tree [ 0], hf_r3_dumpm41t81_reg00_sec01,      tvb, offset_in_bits, 4, TRUE);  offset_in_bits += 4;
@@ -4416,7 +4416,7 @@ static void dissect_r3_upstreammfgfield_mortisepins (tvbuff_t *tvb, guint32 star
 
 static void dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start_offset _U_, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_item_append_text (proto_tree_add_item (tree, hf_r3_testkeypad, tvb, 0, 1, TRUE), " ('%c')", tvb_get_guint8 (tvb, 0));
+  proto_item_append_text (proto_tree_add_item (tree, hf_r3_testkeypad, tvb, 0, 1, ENC_LITTLE_ENDIAN), " ('%c')", tvb_get_guint8 (tvb, 0));
 }
 
 static void dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset _U_, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
