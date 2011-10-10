@@ -506,7 +506,7 @@ dissect_dec_rt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         offset++;
     } else {
         proto_tree_add_item(flags_tree, hf_dec_rt_short_msg,
-                tvb, offset, 1, msg_flags);
+                tvb, offset, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_boolean(flags_tree, hf_dec_rt_rqr, tvb,
                     offset, 1, msg_flags);
         proto_tree_add_boolean(flags_tree, hf_dec_rt_rts, tvb,

@@ -1087,7 +1087,7 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
 
             /* Flow Priority */
             proto_tree_add_item(exts_tree1, hf_a11_fqi_flow_priority, tvb,offset+clen , 1, ENC_BIG_ENDIAN);
-			
+
             /*  Num of QoS attribute sets */
             proto_tree_add_item(exts_tree1, hf_a11_fqi_num_qos_attribute_set, tvb, offset+clen, 1, ENC_BIG_ENDIAN);
 
@@ -1098,7 +1098,7 @@ static void dissect_fwd_qosinfo(tvbuff_t* tvb, int offset, proto_tree* ext_tree)
             /* QoS attribute set */
             ti2 = proto_tree_add_text(exts_tree1, tvb, offset+clen, 4, "QoS Attribute Set");
             exts_tree2 = proto_item_add_subtree(ti2, ett_a11_fqi_qos_attribute_set);
-			
+
             /* QoS attribute setid */
             proto_tree_add_item(exts_tree2, hf_a11_fqi_qos_attribute_setid, tvb, offset+clen, 2, ENC_BIG_ENDIAN);
             clen++;
@@ -1401,7 +1401,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
                                             "Unknown Extension %u"));
         ext_tree = proto_item_add_subtree(ti, ett_a11_ext);
 
-        proto_tree_add_item(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);
+        proto_tree_add_item(ext_tree, hf_a11_ext_type, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         if (ext_type == SS_EXT) {
