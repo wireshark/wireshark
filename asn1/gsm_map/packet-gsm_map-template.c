@@ -645,8 +645,8 @@ dissect_cbs_data_coding_scheme(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 		  /* FALLTHRU */
 	case 7:
 		  /* FALLTHRU */
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, FALSE);
-		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, FALSE);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_comp, tvb, 0, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class_ind, tvb, 0, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_char_set, tvb, 0, 1, ENC_BIG_ENDIAN);
 		if ((octet & 0x10)== 0x10){
 			proto_tree_add_item(tree, hf_gsm_map_cbs_coding_grp4_7_class, tvb, 0, 1, ENC_BIG_ENDIAN);
@@ -743,7 +743,7 @@ dissect_gsm_map_msisdn(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
  guint8		na;
  guint8		np;
 
- proto_tree_add_item(tree, hf_gsm_map_extension, tvb, 0,1,FALSE);
+ proto_tree_add_item(tree, hf_gsm_map_extension, tvb, 0,1,ENC_BIG_ENDIAN);
  proto_tree_add_item(tree, hf_gsm_map_nature_of_number, tvb, 0,1,ENC_BIG_ENDIAN);
  proto_tree_add_item(tree, hf_gsm_map_number_plan, tvb, 0,1,ENC_BIG_ENDIAN);
 

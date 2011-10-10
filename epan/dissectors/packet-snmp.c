@@ -1099,7 +1099,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case SNMP_ENGINEID_FORMAT_IPV6:
 	/* 16-byte IPv6 address */
 	if (len_remain==16) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+	  proto_tree_add_item(tree, hf_snmp_engineid_ipv6, tvb, offset, 16, ENC_NA);
 	  offset+=16;
 	  len_remain=0;
 	}

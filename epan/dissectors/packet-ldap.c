@@ -4274,7 +4274,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			if ((version & NETLOGON_NT_VERSION_5) == NETLOGON_NT_VERSION_5){
 
 				/* domain guid */
-				proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
+				proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 				offset += 16;
 
 				/* domain guid part 2
@@ -4315,7 +4315,7 @@ static void dissect_NetLogon_PDU(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 			offset = dissect_mscldap_netlogon_flags(tree, tvb, offset);
 
 			/* Domain GUID */
-			proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, TRUE);
+			proto_tree_add_item(tree, hf_mscldap_domain_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 			offset += 16;
 
 			/* Forest */

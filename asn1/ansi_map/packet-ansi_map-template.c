@@ -739,10 +739,10 @@ dissect_ansi_map_digits_type(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     /* Octet 2 */
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_si, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitD, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_navail, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_pi, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_na, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitD, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_navail, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_na, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     /* Octet 3 */
     octet = tvb_get_guint8(tvb,offset);
@@ -875,7 +875,7 @@ dissect_ansi_map_subaddress(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
     /* Type of Subaddress (octet 1, bits E-G) */
     proto_tree_add_item(subtree, hf_ansi_map_subaddr_type, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Odd/Even Indicator (O/E) (octet 1, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_subaddr_odd_even, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_subaddr_odd_even, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /*
@@ -1395,21 +1395,21 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
     /* Call Mode (octet 1, bit H) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls5, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls5, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit G) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls4, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls4, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls3, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls3, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls2, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls2, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls1, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls1, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_namps, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_namps, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_amps, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_amps, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cdma, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cdma, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     length--;
     if ( length == 0)
@@ -1417,15 +1417,15 @@ dissect_ansi_map_cdmacallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
     offset++;
 
     /* Call Mode (octet 2, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls10, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls10, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 2, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls9, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls9, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 2, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls8, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls8, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 2, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls7, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls7, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Mode (octet 2, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls6, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmacallmode_cls6, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.30 CDMAChannelData */
@@ -1449,14 +1449,14 @@ dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 
     subtree = proto_item_add_subtree(actx->created_item, ett_cdmachanneldata);
 
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_Frame_Offset, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* CDMA Channel Number */
     proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_CDMA_ch_no, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset = offset + 2;
     length = length -2;
     /* Band Class */
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_band_cls, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Long Code Mask */
     proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_lc_mask_b6, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1475,7 +1475,7 @@ dissect_ansi_map_cdmachanneldata(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
         return;
     offset++;
     /* NP_EXT */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_np_ext, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_np_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Nominal Power */
     proto_tree_add_item(subtree, hf_ansi_map_cdmachanneldata_nominal_pwr, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Number Preamble */
@@ -1519,14 +1519,14 @@ dissect_ansi_map_cdmastationclassmark(tvbuff_t *tvb, packet_info *pinfo _U_, pro
 
     subtree = proto_item_add_subtree(actx->created_item, ett_cdmastationclassmark);
 
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Dual-mode Indicator(DMI) (octet 1, bit G) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dmi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dmi, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Slotted Mode Indicator: (SMI) (octet 1, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_smi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_smi, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitED, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Analog Transmission: (DTX) (octet 1, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dtx, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_dtx, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Power Class: (PC) (octet 1, bits A and B) */
     proto_tree_add_item(subtree, hf_ansi_map_cdmastationclassmark_pc, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -1581,11 +1581,11 @@ dissect_ansi_map_confidentialitymodes(tvbuff_t *tvb, packet_info *pinfo _U_, pro
     subtree = proto_item_add_subtree(actx->created_item, ett_confidentialitymodes);
 
     /* DataPrivacy (DP) Confidentiality Status (octet 1, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_dp, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_dp, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Signaling Message Encryption (SE) Confidentiality Status (octet 1, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_se, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_se, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Voice Privacy (VP) Confidentiality Status (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_vp, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_ConfidentialityModes_vp, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -1755,7 +1755,7 @@ dissect_ansi_map_handoffstate(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 
     subtree = proto_item_add_subtree(actx->created_item, ett_handoffstate);
     /* Party Involved (PI) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_handoffstate_pi, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_handoffstate_pi, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.72 InterMSCCircuitID */
@@ -1839,7 +1839,7 @@ dissect_ansi_map_messagewaitingnotificationtype(tvbuff_t *tvb, packet_info *pinf
     /* Message Waiting Indication (MWI) (octet 1, bits C and D) */
     proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_mwi, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Alert Pip Tone (APT) (octet 1, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_apt, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_apt, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Pip Tone (PT) (octet 1, bit A) */
     proto_tree_add_item(subtree, hf_ansi_map_messagewaitingnotificationtype_pt, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -1893,8 +1893,8 @@ dissect_ansi_map_nampscallmode(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
     /* Call Mode (octet 1, bits A and B) */
-    proto_tree_add_item(subtree, hf_ansi_map_nampscallmode_amps, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_nampscallmode_namps, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_nampscallmode_amps, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_nampscallmode_namps, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.86 NAMPSChannelData */
@@ -2174,69 +2174,69 @@ dissect_ansi_map_originationtriggers(tvbuff_t *tvb, packet_info *pinfo _U_, prot
     subtree = proto_item_add_subtree(actx->created_item, ett_originationtriggers);
 
     /* Revertive Call (RvtC) (octet 1, bit H)*/
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_rvtc, tvb, offset,     1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_rvtc, tvb, offset,     1, ENC_BIG_ENDIAN);
     /* Unrecognized Number (Unrec) (octet 1, bit G) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_unrec, tvb, offset,    1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_unrec, tvb, offset,    1, ENC_BIG_ENDIAN);
     /* World Zone (WZ) (octet 1, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_wz, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_wz, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* International (Int'l ) (octet 1, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_int, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_int, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* Inter-LATA Toll (OLATA) (octet 1, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_olata, tvb, offset,    1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_olata, tvb, offset,    1, ENC_BIG_ENDIAN);
     /* Intra-LATA Toll (ILATA) (octet 1, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ilata, tvb, offset,    1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ilata, tvb, offset,    1, ENC_BIG_ENDIAN);
     /* Local (octet 1, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_local, tvb, offset,    1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_local, tvb, offset,    1, ENC_BIG_ENDIAN);
     /* All Origination (All) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_all, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_all, tvb, offset,      1, ENC_BIG_ENDIAN);
     offset++;
 
     /*Prior Agreement (PA) (octet 2, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_pa, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_pa, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* Double Pound (DP) (octet 2, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_dp, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_dp, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* Pound (octet 2, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_pound, tvb, offset,    1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_pound, tvb, offset,    1, ENC_BIG_ENDIAN);
     /* Double Star (DS) (octet 2, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ds, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ds, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* Star (octet 2, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_star, tvb, offset,     1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_star, tvb, offset,     1, ENC_BIG_ENDIAN);
     offset++;
 
     /* 7 digit (octet 3, bit H) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_sevendig, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_sevendig, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* 6 digit (octet 3, bit G) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_sixdig, tvb, offset,   1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_sixdig, tvb, offset,   1, ENC_BIG_ENDIAN);
     /* 5 digit (octet 3, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fivedig, tvb, offset,  1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fivedig, tvb, offset,  1, ENC_BIG_ENDIAN);
     /* 4 digit (octet 3, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fourdig, tvb, offset,  1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fourdig, tvb, offset,  1, ENC_BIG_ENDIAN);
     /* 3 digit (octet 3, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_threedig, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_threedig, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* 2 digit (octet 3, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_twodig, tvb, offset,   1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_twodig, tvb, offset,   1, ENC_BIG_ENDIAN);
     /* 1 digit (octet 3, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_onedig, tvb, offset,   1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_onedig, tvb, offset,   1, ENC_BIG_ENDIAN);
     /* No digits (octet 3, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_nodig, tvb, offset,    1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_nodig, tvb, offset,    1, ENC_BIG_ENDIAN);
     offset++;
 
     /* 15 digit (octet 4, bit H) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fifteendig, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fifteendig, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* 14 digit (octet 4, bit G) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fourteendig, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_fourteendig, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* 13 digit (octet 4, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_thirteendig, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_thirteendig, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* 12 digit (octet 4, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_twelvedig, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_twelvedig, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* 11 digit (octet 4, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_elevendig, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_elevendig, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* 10 digit (octet 4, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_tendig, tvb, offset,   1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_tendig, tvb, offset,   1, ENC_BIG_ENDIAN);
     /* 9 digit (octet 4, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ninedig, tvb, offset,  1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_ninedig, tvb, offset,  1, ENC_BIG_ENDIAN);
     /* 8 digits (octet 4, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_eightdig, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_originationtriggers_eightdig, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 
@@ -2279,7 +2279,7 @@ dissect_ansi_map_pacaindicator(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
     /* PACA Level (octet 1, bits B-E) */
     proto_tree_add_item(subtree, hf_ansi_map_PACA_Level, tvb, offset,   1, ENC_BIG_ENDIAN);
     /* Permanent Activation (PA) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_pacaindicator_pa, tvb, offset,     1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_pacaindicator_pa, tvb, offset,     1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.92 PageIndicator */
@@ -2481,8 +2481,8 @@ dissect_ansi_map_sms_originationrestrictions(tvbuff_t *tvb, packet_info *pinfo _
 
     subtree = proto_item_add_subtree(actx->created_item, ett_sms_originationrestrictions);
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitHGFE, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_fmc, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_direct, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_fmc, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_direct, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(subtree, hf_ansi_map_sms_originationrestrictions_default, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
@@ -2575,12 +2575,12 @@ dissect_ansi_map_systemcapabilities(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 
     subtree = proto_item_add_subtree(actx->created_item, ett_systemcapabilities);
     proto_tree_add_item(subtree, hf_ansi_map_reservedBitHG, tvb, offset, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_dp, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_ssd, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_cave, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_vp, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_se, tvb, offset, 1, FALSE);
-    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_auth, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_dp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_ssd, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_cave, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_vp, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_se, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(subtree, hf_ansi_map_systemcapabilities_auth, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 /* 6.5.2.151 TDMABurstIndicator */
@@ -2667,7 +2667,7 @@ dissect_ansi_map_terminationtriggers(tvbuff_t *tvb, packet_info *pinfo _U_, prot
 
     subtree = proto_item_add_subtree(actx->created_item, ett_transactioncapability);
 
-    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_reservedBitH, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* No Page Response (NPR) (octet 1, bits E and F) */
     proto_tree_add_item(subtree, hf_ansi_map_terminationtriggers_npr, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* No Answer (NA) (octet 1, bits G and H) */
@@ -2763,27 +2763,27 @@ dissect_ansi_map_transactioncapability(tvbuff_t *tvb, packet_info *pinfo _U_, pr
     subtree = proto_item_add_subtree(actx->created_item, ett_transactioncapability);
 
     /*NAME Capability Indicator (NAMI) (octet 1, bit H) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_nami, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_nami, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* NDSS Capability (NDSS) (octet 1, bit G) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_ndss, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_ndss, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* UZ Capability Indicator (UZCI) (octet 1, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_uzci, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_uzci, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Subscriber PIN Intercept (SPINI) (octet 1, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_spini, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_spini, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Remote User Interaction (RUI) (octet 1, bit D) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_rui, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_rui, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Announcements (ANN) (octet 1, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_ann, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_ann, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Busy Detection (BUSY) (octet 1, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_busy, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_busy, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Profile (PROF) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_prof, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_trans_cap_prof, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* WIN Addressing (WADDR) (octet 2, bit F) */
-    proto_tree_add_item(subtree, hf_ansi_trans_cap_waddr, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_trans_cap_waddr, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* TerminationList (TL) (octet 2, bit E) */
-    proto_tree_add_item(subtree, hf_ansi_trans_cap_tl, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_trans_cap_tl, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Multiple Terminations (octet 2, bits A-D) */
     proto_tree_add_item(subtree, hf_ansi_trans_cap_multerm, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
@@ -3267,54 +3267,54 @@ dissect_ansi_map_triggercapability(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
 
     /* O_No_Answer (ONA) (octet 1, bit H)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_ona, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_ona, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* O_Disconnect (ODISC) (octet 1, bit G)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_odisc, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_odisc, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* O_Answer (OANS) (octet 1, bit F)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_oans, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_oans, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* Origination_Attempt_Authorized (OAA) (octet 1, bit E)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_oaa, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_oaa, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* Revertive_Call (RvtC) (octet 1, bit D)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_rvtc, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_rvtc, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* All_Calls (All) (octet 1, bit C)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_all, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_all, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* K-digit (K-digit) (octet 1, bit B)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_kdigit, tvb, offset,     1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_kdigit, tvb, offset,     1, ENC_BIG_ENDIAN);
     /* Introducing Star/Pound (INIT) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_init, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_init, tvb, offset,       1, ENC_BIG_ENDIAN);
     offset++;
 
 
     /* O_Called_Party_Busy (OBSY) (octet 2, bit H)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_obsy, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_obsy, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* Called_Routing_Address_Available (CdRAA) (octet 2, bit G)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_cdraa, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_cdraa, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* Initial_Termination (IT) (octet 2, bit F)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_it, tvb, offset,         1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_it, tvb, offset,         1, ENC_BIG_ENDIAN);
     /* Calling_Routing_Address_Available (CgRAA)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_cgraa, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_cgraa, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* Advanced_Termination (AT) (octet 2, bit D)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_at, tvb, offset,         1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_at, tvb, offset,         1, ENC_BIG_ENDIAN);
     /* Prior_Agreement (PA) (octet 2, bit C)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_pa, tvb, offset,         1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_pa, tvb, offset,         1, ENC_BIG_ENDIAN);
     /* Unrecognized_Number (Unrec) (octet 2, bit B)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_unrec, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_unrec, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* Call Types (CT) (octet 2, bit A)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_ct, tvb, offset,         1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_ct, tvb, offset,         1, ENC_BIG_ENDIAN);
     offset++;
     /* */
     /* */
     /* */
     /* T_Disconnect (TDISC) (octet 3, bit E)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tdisc, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tdisc, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* T_Answer (TANS) (octet 3, bit D)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tans, tvb, offset,       1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tans, tvb, offset,       1, ENC_BIG_ENDIAN);
     /* T_No_Answer (TNA) (octet 3, bit C)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tna, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tna, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* T_Busy (TBusy) (octet 3, bit B)*/
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tbusy, tvb, offset,      1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tbusy, tvb, offset,      1, ENC_BIG_ENDIAN);
     /* Terminating_Resource_Available (TRA) (octet 3, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tra, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_triggercapability_tra, tvb, offset,        1, ENC_BIG_ENDIAN);
 
 }
 /* 6.5.2.ei DMH_ServiceID N.S0018 */
@@ -3347,11 +3347,11 @@ dissect_ansi_map_winoperationscapability(tvbuff_t *tvb, packet_info *pinfo _U_, 
     subtree = proto_item_add_subtree(actx->created_item, ett_winoperationscapability);
 
     /* PositionRequest (POS) (octet 1, bit C) */
-    proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_pos, tvb, offset,  1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_pos, tvb, offset,  1, ENC_BIG_ENDIAN);
     /* CallControlDirective (CCDIR) (octet 1, bit B) */
-    proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_ccdir, tvb, offset,        1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_ccdir, tvb, offset,        1, ENC_BIG_ENDIAN);
     /* ConnectResource (CONN) (octet 1, bit A) */
-    proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_conn, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_winoperationscapability_conn, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 }
 /*
