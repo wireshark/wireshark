@@ -22,11 +22,6 @@
 
 PROTOCOL_NAME = h245
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = \
 	$(PROTOCOL_NAME)-exp.cnf
 

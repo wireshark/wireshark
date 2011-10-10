@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=camel
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST_LATE = \
 	../ros/Remote-Operations-Information-Objects.asn \
 	../ros/Remote-Operations-Generic-ROS-PDUs.asn
@@ -60,12 +56,12 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -L
 
-EXTRA_CNF=../inap/inap-exp.cnf \
-	../gsm_map/gsm_map-exp.cnf
+EXTRA_CNF=$(builddir)/../inap/inap-exp.cnf \
+	$(builddir)/../gsm_map/gsm_map-exp.cnf
 
-../gsm_map/gsm_map-exp.cnf:
-	(cd ../gsm_map && $(MAKE_CNF_EXPORT))
+$(builddir)/../gsm_map/gsm_map-exp.cnf:
+	(cd $(builddir)/../gsm_map && $(MAKE_CNF_EXPORT))
 
-../inap/inap-exp.cnf:
-	(cd ../inap && $(MAKE_CNF_EXPORT))
+$(builddir)/../inap/inap-exp.cnf:
+	(cd $(builddir)/../inap && $(MAKE_CNF_EXPORT))
 

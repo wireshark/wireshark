@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=cmip
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = \
 	$(PROTOCOL_NAME)-exp.cnf
 
@@ -55,8 +51,8 @@ SRC_FILES = \
 A2W_FLAGS= -b -e
 
 EXTRA_CNF= \
-	../acse/acse-exp.cnf
+	$(builddir)/../acse/acse-exp.cnf
 
-../acse/acse-exp.cnf:
-	(cd ../acse && $(MAKE_CNF_EXPORT))
+$(builddir)/../acse/acse-exp.cnf:
+	(cd $(builddir)/../acse && $(MAKE_CNF_EXPORT))
 

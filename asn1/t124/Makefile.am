@@ -24,3 +24,5 @@ include ../Makefile.preinc
 include Makefile.common
 include ../Makefile.inc
 
+MCS-PROTOCOL.asn: ../t125/MCS-PROTOCOL.asn
+	cp $< $(srcdir)/$@

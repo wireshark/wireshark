@@ -22,8 +22,6 @@
 
 PROTOCOL_NAME=q932-ros
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
-
 PROTO_OPT = -p q932.ros
 
 
@@ -47,8 +45,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF = \
-	../ros/ros-inv.cnf \
-	../ros/ros-res.cnf \
-	../ros/ros-err.cnf \
-	../ros/ros-rej.cnf
+	$(builddir)/../ros/ros-inv.cnf \
+	$(builddir)/../ros/ros-res.cnf \
+	$(builddir)/../ros/ros-err.cnf \
+	$(builddir)/../ros/ros-rej.cnf
 

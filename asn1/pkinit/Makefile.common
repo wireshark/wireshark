@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=pkinit
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = PKINIT.asn
@@ -46,8 +42,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../cms/cms-exp.cnf
+	$(builddir)/../cms/cms-exp.cnf
 
-../cms/cms-exp.cnf:
-	(cd ../cms && $(MAKE_CNF_EXPORT))
+$(builddir)/../cms/cms-exp.cnf:
+	(cd $(builddir)/../cms && $(MAKE_CNF_EXPORT))
 

@@ -22,9 +22,6 @@
 
 PROTOCOL_NAME=gsm_map
 
-DISSECTOR_FILES=packet-gsm_map.c \
-	packet-gsm_map.h
-
 PROTO_OPT =
 
 EXPORT_FILES = \

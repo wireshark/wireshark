@@ -22,9 +22,6 @@
 
 PROTOCOL_NAME=gprscdr
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
 EXPORT_FILES = \
 	$(PROTOCOL_NAME)-exp.cnf
 
@@ -47,10 +44,10 @@ SRC_FILES = \
 
 A2W_FLAGS= -b -e
 
-EXTRA_CNF=../gsm_map/gsm_map-exp.cnf
+EXTRA_CNF=$(builddir)/../gsm_map/gsm_map-exp.cnf
 
-../gsm_map/gsm_map-exp.cnf:
-	(cd ../gsm_map && $(MAKE_CNF_EXPORT))
+$(builddir)/../gsm_map/gsm_map-exp.cnf:
+	(cd $(builddir)/../gsm_map && $(MAKE_CNF_EXPORT))
 
 
 

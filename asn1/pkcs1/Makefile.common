@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=pkcs1
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = PKIXAlgs-2009.asn
@@ -46,8 +42,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../x509af/x509af-exp.cnf
+	$(builddir)/../x509af/x509af-exp.cnf
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 

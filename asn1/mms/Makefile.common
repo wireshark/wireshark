@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=mms
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = $(PROTOCOL_NAME).asn
@@ -46,8 +42,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../acse/acse-exp.cnf
+	$(builddir)/../acse/acse-exp.cnf
 
-../acse/acse-exp.cnf:
-	(cd ../acse && $(MAKE_CNF_EXPORT))
+$(builddir)/../acse/acse-exp.cnf:
+	(cd $(builddir)/../acse && $(MAKE_CNF_EXPORT))
 

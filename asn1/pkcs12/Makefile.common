@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=pkcs12
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = $(PROTOCOL_NAME).asn
@@ -47,16 +43,16 @@ A2W_FLAGS= -b -e
 
 # Note the order here is important, cms needs at least x509af-exp to be generated first 
 EXTRA_CNF= \
-	../x509if/x509if-exp.cnf  \
-	../x509af/x509af-exp.cnf \
-	../cms/cms-exp.cnf 
+	$(builddir)/../x509if/x509if-exp.cnf  \
+	$(builddir)/../x509af/x509af-exp.cnf \
+	$(builddir)/../cms/cms-exp.cnf 
 
-../cms/cms-exp.cnf:
-	(cd ../cms && $(MAKE_CNF_EXPORT))
+$(builddir)/../cms/cms-exp.cnf:
+	(cd $(builddir)/../cms && $(MAKE_CNF_EXPORT))
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509if/x509if-exp.cnf:
+	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))
 

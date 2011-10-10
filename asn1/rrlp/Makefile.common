@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME = rrlp
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c
-
-
 EXT_ASN_FILE_LIST = \
 	../gsm_map/MAP-ExtensionDataTypes.asn	\
 	../gsm_map/MAP-LCS-DataTypes.asn 

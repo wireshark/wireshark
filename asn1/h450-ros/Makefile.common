@@ -25,11 +25,6 @@ PROTOCOL_NAME = h450-ros
 # The file needs to use h450 for the filter elements etc
 PROTO_OPT = -p h450.ros
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c	\
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST = ../ros/Remote-Operations-Information-Objects.asn
@@ -52,7 +47,7 @@ SRC_FILES = \
 A2W_FLAGS= -e
 
 EXTRA_CNF = \
-	../ros/ros-inv.cnf \
-	../ros/ros-res.cnf \
-	../ros/ros-err.cnf \
-	../ros/ros-rej.cnf
+	$(builddir)/../ros/ros-inv.cnf \
+	$(builddir)/../ros/ros-res.cnf \
+	$(builddir)/../ros/ros-err.cnf \
+	$(builddir)/../ros/ros-rej.cnf

@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=pkixac
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = PKIXAttributeCertificate.asn
@@ -46,16 +42,16 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../pkix1explicit/pkix1explicit_exp.cnf \
-	../pkix1implicit/pkix1implicit_exp.cnf \
-	../x509ce/x509ce-exp.cnf
+	$(builddir)/../pkix1explicit/pkix1explicit_exp.cnf \
+	$(builddir)/../pkix1implicit/pkix1implicit_exp.cnf \
+	$(builddir)/../x509ce/x509ce-exp.cnf
 
-../pkix1explicit/pkix1explicit_exp.cnf:
-	(cd ../pkix1explicit && $(MAKE_CNF_EXPORT))
+$(builddir)/../pkix1explicit/pkix1explicit_exp.cnf:
+	(cd $(builddir)/../pkix1explicit && $(MAKE_CNF_EXPORT))
 
-../pkix1implicit/pkix1implicit_exp.cnf:
-	(cd ../pkix1implicit && $(MAKE_CNF_EXPORT))
+$(builddir)/../pkix1implicit/pkix1implicit_exp.cnf:
+	(cd $(builddir)/../pkix1implicit && $(MAKE_CNF_EXPORT))
 
-../x509ce/x509ce-exp.cnf:
-	(cd ../x509ce && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509ce/x509ce-exp.cnf:
+	(cd $(builddir)/../x509ce && $(MAKE_CNF_EXPORT))
 

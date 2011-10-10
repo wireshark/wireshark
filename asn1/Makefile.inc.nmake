@@ -21,7 +21,12 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
-generate_dissector: $(DISSECTOR_FILES)
+
+DISSECTOR=../../epan/dissectors/packet-$(PROTOCOL_NAME).c
+# This header file need not exist/get generated.  It is only used when cleaning.
+DISSECTOR_HEADER=../../epan/dissectors/packet-$(PROTOCOL_NAME).h
+
+all: $(DISSECTOR)
 
 generate_export: $(EXPORT_FILES)
 
@@ -29,7 +34,7 @@ generate_export: $(EXPORT_FILES)
 PROTO_OPT = -p $(PROTOCOL_NAME)
 !ENDIF
 
-$(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
+$(DISSECTOR): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 !IFDEF PYTHON
 	$(PYTHON) "../../tools/asn2wrs.py" \
 		$(A2W_FLAGS) \
@@ -37,6 +42,7 @@ $(DISSECTOR_FILES): ../../tools/asn2wrs.py $(SRC_FILES) $(EXTRA_CNF)
 		-c ./$(PROTOCOL_NAME).cnf \
 		-s ./packet-$(PROTOCOL_NAME)-template \
 		-D . \
+		-O ../../epan/dissectors \
 		$(EXT_ASN_FILE_LIST) $(ASN_FILE_LIST) $(EXT_ASN_FILE_LIST_LATE)
 !ELSE
 	@echo Error: You need Python to use asn2wrs.py
@@ -61,7 +67,8 @@ $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
 clean:
 	rm -f parsetab.py \
 		parsetab.pyc \
-		$(DISSECTOR_FILES) \
+		$(DISSECTOR) \
+		$(DISSECTOR_HEADER) \
 		*-exp.cnf \
 		packet-*-{dis-tab,ettarr,ett,fn,hfarr,hf,table*,val}.[hc]
 

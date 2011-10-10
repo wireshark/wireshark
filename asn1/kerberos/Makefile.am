@@ -22,5 +22,6 @@
 
 include ../Makefile.preinc
 include Makefile.common
-include ../Makefile.inc
+# Comment this out to allow 'make all' to work
+#include ../Makefile.inc
 

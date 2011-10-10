@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=gnm
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = GNM.asn
@@ -46,8 +42,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../cmip/cmip-exp.cnf
+	$(builddir)/../cmip/cmip-exp.cnf
 
-../cmip/cmip-exp.cnf:
-	(cd ../cmip && $(MAKE_CNF_EXPORT))
+$(builddir)/../cmip/cmip-exp.cnf:
+	(cd $(builddir)/../cmip && $(MAKE_CNF_EXPORT))
 

@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=disp
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = \
 	$(PROTOCOL_NAME)-exp.cnf
 
@@ -49,24 +45,24 @@ SRC_FILES = \
 A2W_FLAGS= -b -e 
 
 EXTRA_CNF= \
-	../dap/dap-exp.cnf \
-	../dop/dop-exp.cnf \
-	../dsp/dsp-exp.cnf \
-	../x509af/x509af-exp.cnf \
-	../x509if/x509if-exp.cnf
+	$(builddir)/../dap/dap-exp.cnf \
+	$(builddir)/../dop/dop-exp.cnf \
+	$(builddir)/../dsp/dsp-exp.cnf \
+	$(builddir)/../x509af/x509af-exp.cnf \
+	$(builddir)/../x509if/x509if-exp.cnf
 
-../dap/dap-exp.cnf:
-	(cd ../dap && $(MAKE_CNF_EXPORT))
+$(builddir)/../dap/dap-exp.cnf:
+	(cd $(builddir)/../dap && $(MAKE_CNF_EXPORT))
 
-../dop/dop-exp.cnf:
-	(cd ../dop && $(MAKE_CNF_EXPORT))
+$(builddir)/../dop/dop-exp.cnf:
+	(cd $(builddir)/../dop && $(MAKE_CNF_EXPORT))
 
-../dsp/dsp-exp.cnf:
-	(cd ../dsp && $(MAKE_CNF_EXPORT))
+$(builddir)/../dsp/dsp-exp.cnf:
+	(cd $(builddir)/../dsp && $(MAKE_CNF_EXPORT))
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509if/x509if-exp.cnf:
+	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))
 

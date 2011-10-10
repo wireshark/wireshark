@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=p1
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST =
@@ -49,27 +45,27 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -C
 
 EXTRA_CNF= \
-	../x509af/x509af-exp.cnf \
-	../x509ce/x509ce-exp.cnf \
-	../x509if/x509if-exp.cnf \
-	../x509sat/x509sat-exp.cnf \
-	../ros/ros-exp.cnf \
-	../rtse/rtse-exp.cnf
+	$(builddir)/../x509af/x509af-exp.cnf \
+	$(builddir)/../x509ce/x509ce-exp.cnf \
+	$(builddir)/../x509if/x509if-exp.cnf \
+	$(builddir)/../x509sat/x509sat-exp.cnf \
+	$(builddir)/../ros/ros-exp.cnf \
+	$(builddir)/../rtse/rtse-exp.cnf
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 
-../x509ce/x509ce-exp.cnf:
-	(cd ../x509ce && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509ce/x509ce-exp.cnf:
+	(cd $(builddir)/../x509ce && $(MAKE_CNF_EXPORT))
 
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509if/x509if-exp.cnf:
+	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))
 
-../x509sat/x509sat-exp.cnf:
-	(cd ../x509sat && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509sat/x509sat-exp.cnf:
+	(cd $(builddir)/../x509sat && $(MAKE_CNF_EXPORT))
 
-../ros/ros-exp.cnf:
-	(cd ../ros && $(MAKE_CNF_EXPORT))
+$(builddir)/../ros/ros-exp.cnf:
+	(cd $(builddir)/../ros && $(MAKE_CNF_EXPORT))
 
-../rtse/rtse-exp.cnf:
-	(cd ../rtse && $(MAKE_CNF_EXPORT))
+$(builddir)/../rtse/rtse-exp.cnf:
+	(cd $(builddir)/../rtse && $(MAKE_CNF_EXPORT))

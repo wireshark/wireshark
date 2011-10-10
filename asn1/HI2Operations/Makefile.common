@@ -22,8 +22,6 @@
 
 PROTOCOL_NAME=HI2Operations
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c 
-
 ASN_FILE_LIST = HI2Operations_ver11.asn \
 	UmtsHI2Operations.asn \
 	TS101909201.asn \

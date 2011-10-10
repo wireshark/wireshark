@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=pkixqualified
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = PKIXqualified.asn
@@ -46,16 +42,16 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	 ../x509af/x509af-exp.cnf \
-	 ../x509ce/x509ce-exp.cnf \
-	 ../x509sat/x509sat-exp.cnf
+	 $(builddir)/../x509af/x509af-exp.cnf \
+	 $(builddir)/../x509ce/x509ce-exp.cnf \
+	 $(builddir)/../x509sat/x509sat-exp.cnf
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 
-../x509ce/x509ce-exp.cnf:
-	(cd ../x509ce && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509ce/x509ce-exp.cnf:
+	(cd $(builddir)/../x509ce && $(MAKE_CNF_EXPORT))
 
-../x509sat/x509sat-exp.cnf:
-	(cd ../x509sat && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509sat/x509sat-exp.cnf:
+	(cd $(builddir)/../x509sat && $(MAKE_CNF_EXPORT))
 

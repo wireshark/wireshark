@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=kerberos
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = \
         $(PROTOCOL_NAME)-exp.cnf
 

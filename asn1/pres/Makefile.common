@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=pres
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = ISO8823-PRESENTATION.asn ISO9576-PRESENTATION.asn
@@ -46,8 +42,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../rtse/rtse-exp.cnf
+	$(builddir)/../rtse/rtse-exp.cnf
 
-../rtse/rtse-exp.cnf:
-	(cd ../rtse && $(MAKE_CNF_EXPORT))
+$(builddir)/../rtse/rtse-exp.cnf:
+	(cd $(builddir)/../rtse && $(MAKE_CNF_EXPORT))
 

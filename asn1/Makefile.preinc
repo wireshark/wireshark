@@ -23,6 +23,3 @@
 
 MAKE_CNF_EXPORT = $(MAKE) generate_export
 
-# Don't generate all the dissectors during toplevel make.
-all:
-

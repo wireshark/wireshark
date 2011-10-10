@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=cmp
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = CMP.asn
@@ -46,10 +42,10 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-	../pkix1explicit/pkix1explicit_exp.cnf \
-	../pkix1implicit/pkix1implicit_exp.cnf \
-	../crmf/crmf-exp.cnf
+	$(builddir)/../pkix1explicit/pkix1explicit_exp.cnf \
+	$(builddir)/../pkix1implicit/pkix1implicit_exp.cnf \
+	$(builddir)/../crmf/crmf-exp.cnf
 
-../crmf/crmf-exp.cnf:
-	(cd ../crmf && $(MAKE_CNF_EXPORT))
+$(builddir)/../crmf/crmf-exp.cnf:
+	(cd $(builddir)/../crmf && $(MAKE_CNF_EXPORT))
 

@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME = h501
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c
-
-
 EXT_ASN_FILE_LIST = 
 
 ASN_FILE_LIST = \
@@ -44,12 +40,12 @@ SRC_FILES = \
 A2W_FLAGS = 
 
 EXTRA_CNF = \
-	../h225/h225-exp.cnf	\
-	../h235/h235-exp.cnf
+	$(builddir)/../h225/h225-exp.cnf	\
+	$(builddir)/../h235/h235-exp.cnf
 
-../h225/h225-exp.cnf:
-	(cd ../h225 && $(MAKE_CNF_EXPORT))
+$(builddir)/../h225/h225-exp.cnf:
+	(cd $(builddir)/../h225 && $(MAKE_CNF_EXPORT))
 
-../h235/h235-exp.cnf:
-	(cd ../h235 && $(MAKE_CNF_EXPORT))
+$(builddir)/../h235/h235-exp.cnf:
+	(cd $(builddir)/../h235 && $(MAKE_CNF_EXPORT))
 

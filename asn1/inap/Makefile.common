@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=inap
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST_LATE = \
@@ -74,11 +70,11 @@ SRC_FILES = \
 A2W_FLAGS= -b -e
 
 EXTRA_CNF= \
-	../dap/dap-exp.cnf \
-	../dsp/dsp-exp.cnf
+	$(builddir)/../dap/dap-exp.cnf \
+	$(builddir)/../dsp/dsp-exp.cnf
 	
-../dap/dap-exp.cnf:
-	(cd ../dap && $(MAKE_CNF_EXPORT))	
+$(builddir)/../dap/dap-exp.cnf:
+	(cd $(builddir)/../dap && $(MAKE_CNF_EXPORT))	
 
-../dsp/dsp-exp.cnf:
-	(cd ../dsp && $(MAKE_CNF_EXPORT))	
+$(builddir)/../dsp/dsp-exp.cnf:
+	(cd $(builddir)/../dsp && $(MAKE_CNF_EXPORT))	

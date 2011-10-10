@@ -22,9 +22,6 @@
 #Dummy entry to pass the clean target
 PROTOCOL_NAME = dummy
 
-DISSECTOR_FILES = \
-	packet-$(PROTOCOL_NAME).c
-
 EXTRA_DIST = \
 	Attribute-ASN1Module.asn \
 	ManagedObjectClassesDefinitions.asn \

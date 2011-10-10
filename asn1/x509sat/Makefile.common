@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=x509sat
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = \
         $(PROTOCOL_NAME)-exp.cnf
 
@@ -49,12 +45,12 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -r Syntax
 
 EXTRA_CNF= \
-	../x509if/x509if-exp.cnf \
-	../p1/p1-exp.cnf 
+	$(builddir)/../x509if/x509if-exp.cnf \
+	$(builddir)/../p1/p1-exp.cnf 
 
-../x509if/x509if-exp.cnf:
-	(cd ../x509if && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509if/x509if-exp.cnf:
+	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))
 
-../p1/p1-exp.cnf:
-	(cd ../p1 && $(MAKE_CNF_EXPORT))
+$(builddir)/../p1/p1-exp.cnf:
+	(cd $(builddir)/../p1 && $(MAKE_CNF_EXPORT))
 

@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=ess
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = ExtendedSecurityServices.asn
@@ -46,16 +42,16 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -k -C
 
 EXTRA_CNF= \
-	../cms/cms-exp.cnf \
-	../x509af/x509af-exp.cnf \
-	../x509ce/x509ce-exp.cnf
+	$(builddir)/../cms/cms-exp.cnf \
+	$(builddir)/../x509af/x509af-exp.cnf \
+	$(builddir)/../x509ce/x509ce-exp.cnf
 
-../cms/cms-exp.cnf:
-	(cd ../cms && $(MAKE_CNF_EXPORT))
+$(builddir)/../cms/cms-exp.cnf:
+	(cd $(builddir)/../cms && $(MAKE_CNF_EXPORT))
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 
-../x509ce/x509ce-exp.cnf:
-	(cd ../x509ce && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509ce/x509ce-exp.cnf:
+	(cd $(builddir)/../x509ce && $(MAKE_CNF_EXPORT))
 

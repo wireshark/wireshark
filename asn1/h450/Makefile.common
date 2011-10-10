@@ -22,8 +22,6 @@
 
 PROTOCOL_NAME=h450
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c
-
 # need empty -p <proto> option, default is -p $(PROTOCOL_NAME)
 PROTO_OPT =
 
@@ -67,12 +65,12 @@ SRC_FILES = \
 A2W_FLAGS= 
 
 EXTRA_CNF = \
-	../h225/h225-exp.cnf	\
-	../h450-ros/h450-ros-exp.cnf
+	$(builddir)/../h225/h225-exp.cnf	\
+	$(builddir)/../h450-ros/h450-ros-exp.cnf
 
-../h225/h225-exp.cnf:
-	(cd ../h225 && $(MAKE_CNF_EXPORT))
+$(builddir)/../h225/h225-exp.cnf:
+	(cd $(builddir)/../h225 && $(MAKE_CNF_EXPORT))
 
-../h450-ros/h450-ros-exp.cnf:
-	(cd ../h450-ros && $(MAKE_CNF_EXPORT))
+$(builddir)/../h450-ros/h450-ros-exp.cnf:
+	(cd $(builddir)/../h450-ros && $(MAKE_CNF_EXPORT))
 

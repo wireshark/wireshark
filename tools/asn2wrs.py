@@ -567,8 +567,8 @@ def rel_dissector_path(filename):
     path_parts.pop(0)
   path_parts.insert(0, '..')
   path_parts.insert(0, '..')
-  return '/'.join(path_parts)  
-  
+  return '/'.join(path_parts)
+
 
 #--- EthCtx -------------------------------------------------------------------
 class EthCtx:
@@ -1394,7 +1394,7 @@ class EthCtx:
       out += '  { %3s, "%s" },\n' % (vval, id)
     out += "  { 0, NULL }\n};\n"
     if (use_ext):
-      out += "\nstatic value_string_ext %s_ext = VALUE_STRING_EXT_INIT(%s);\n" % (self.eth_vals_nm(tname), self.eth_vals_nm(tname)) 
+      out += "\nstatic value_string_ext %s_ext = VALUE_STRING_EXT_INIT(%s);\n" % (self.eth_vals_nm(tname), self.eth_vals_nm(tname))
     return out
 
   #--- eth_enum_prefix ------------------------------------------------------------
@@ -2817,12 +2817,9 @@ class EthOut:
       fn += '-' + ftype
     fn += '.' + ext
     return fn
-  #--- output_fullname -------------------------------------------------------
-  def output_fullname(self, ftype, ext='c'):
-    return os.path.join(self.outdir, self.output_fname(ftype, ext=ext))
   #--- file_open -------------------------------------------------------
   def file_open(self, ftype, ext='c'):
-    fn = self.output_fullname(ftype, ext=ext)
+    fn = self.output_fname(ftype, ext=ext)
     if self.created_file_exists(fn):
       fx = file(fn, 'a')
     else:
@@ -2877,11 +2874,11 @@ class EthOut:
   def make_single_file(self):
     if (not self.single_file): return
     in_nm = self.single_file + '.c'
-    out_nm = self.output_fullname('')
+    out_nm = os.path.join(self.outdir, self.output_fname(''))
     self.do_include(out_nm, in_nm)
     in_nm = self.single_file + '.h'
     if (os.path.exists(in_nm)):
-      out_nm = self.output_fullname('', ext='h')
+      out_nm = os.path.join(self.outdir, self.output_fname('', ext='h'))
       self.do_include(out_nm, in_nm)
     if (not self.keep):
       for fn in self.created_files_ord:
@@ -3938,7 +3935,7 @@ class SeqType (SqType):
           if isinstance(e.val, ExtensionAdditionGroup):
             e.val.parent_ident = ident
             e.val.parent_tname = ectx.type[ident]['tname']
-            if (e.val.ver): 
+            if (e.val.ver):
               e.val.SetName("eag_v%s" % (e.val.ver))
             else:
               e.val.SetName("eag_%d" % (eag_num))
@@ -7765,7 +7762,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -p proto      : Protocol name (implies -S). Default is module-name
                   from input_file (renamed by #.MODULE if present)
   -o name       : Output files name core (default is <proto>)
-  -O dir        : Output directory
+  -O dir        : Output directory for dissector
   -c cnf_file   : Conformance file
   -I path       : Path for conformance file includes
   -e            : Create conformance file for exported types
@@ -7778,7 +7775,7 @@ asn2wrs [-h|?] [-d dbg] [-b] [-p proto] [-c cnf_file] [-e] input_file(s) ...
   -D dir        : Directory for input_file(s) (default: '.')
   -C            : Add check for SIZE constraints
   -r prefix     : Remove the prefix from type names
-  
+
   input_file(s) : Input ASN.1 file(s)
 
   -d dbg        : Debug output, dbg = [l][y][p][s][a][t][c][m][o]

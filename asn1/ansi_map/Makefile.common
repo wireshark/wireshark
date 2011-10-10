@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=ansi_map
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXT_ASN_FILE_LIST =
 
 ASN_FILE_LIST = $(PROTOCOL_NAME).asn
@@ -46,8 +42,8 @@ SRC_FILES = \
 A2W_FLAGS= -b 
 
 EXTRA_CNF= \
-        ../gsm_map/gsm_map-exp.cnf
+        $(builddir)/../gsm_map/gsm_map-exp.cnf
 
-../gsm_map/gsm_map-exp.cnf:
-	(cd ../gsm_map && $(MAKE_CNF_EXPORT))
+$(builddir)/../gsm_map/gsm_map-exp.cnf:
+	(cd $(builddir)/../gsm_map && $(MAKE_CNF_EXPORT))
 

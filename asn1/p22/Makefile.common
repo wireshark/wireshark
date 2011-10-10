@@ -22,10 +22,6 @@
 
 PROTOCOL_NAME=p22
 
-DISSECTOR_FILES=packet-$(PROTOCOL_NAME).c \
-	packet-$(PROTOCOL_NAME).h
-
-
 EXPORT_FILES = $(PROTOCOL_NAME)-exp.cnf
 
 EXT_ASN_FILE_LIST =
@@ -58,28 +54,28 @@ SRC_FILES = \
 A2W_FLAGS= -b -e -C
 
 EXTRA_CNF= \
-	../acse/acse-exp.cnf \
-	../ftam/ftam-exp.cnf \
-	../p7/p7-exp.cnf \
-	../p1/p1-exp.cnf \
-	../x509af/x509af-exp.cnf \
-	../x509ce/x509ce-exp.cnf
+	$(builddir)/../acse/acse-exp.cnf \
+	$(builddir)/../ftam/ftam-exp.cnf \
+	$(builddir)/../p7/p7-exp.cnf \
+	$(builddir)/../p1/p1-exp.cnf \
+	$(builddir)/../x509af/x509af-exp.cnf \
+	$(builddir)/../x509ce/x509ce-exp.cnf
 
-../acse/acse-exp.cnf:
-	(cd ../acse && $(MAKE_CNF_EXPORT))
+$(builddir)/../acse/acse-exp.cnf:
+	(cd $(builddir)/../acse && $(MAKE_CNF_EXPORT))
 
-../ftam/ftam-exp.cnf:
-	(cd ../ftam && $(MAKE_CNF_EXPORT))
+$(builddir)/../ftam/ftam-exp.cnf:
+	(cd $(builddir)/../ftam && $(MAKE_CNF_EXPORT))
 
-../p7/p7-exp.cnf:
-	(cd ../p7 && $(MAKE_CNF_EXPORT))
+$(builddir)/../p7/p7-exp.cnf:
+	(cd $(builddir)/../p7 && $(MAKE_CNF_EXPORT))
 
-../p1/p1-exp.cnf:
-	(cd ../p1 && $(MAKE_CNF_EXPORT))
+$(builddir)/../p1/p1-exp.cnf:
+	(cd $(builddir)/../p1 && $(MAKE_CNF_EXPORT))
 
-../x509af/x509af-exp.cnf:
-	(cd ../x509af && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509af/x509af-exp.cnf:
+	(cd $(builddir)/../x509af && $(MAKE_CNF_EXPORT))
 
-../x509ce/x509ce-exp.cnf:
-	(cd ../x509ce && $(MAKE_CNF_EXPORT))
+$(builddir)/../x509ce/x509ce-exp.cnf:
+	(cd $(builddir)/../x509ce && $(MAKE_CNF_EXPORT))
 
