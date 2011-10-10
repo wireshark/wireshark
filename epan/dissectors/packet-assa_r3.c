@@ -64,26 +64,26 @@ static gint hf_r3_commanddata = -1;        /* Command data (not always present) 
 
 static gint hf_r3_commandmfglength = -1;   /* Mfg Command length */
 static gint hf_r3_commandmfg = -1;         /* Mfg Command (cmdCommand_e) */
-static gint hf_r3_commandmfgdata = -1;     /* Mfg Command data (not always present) */
+/*static gint hf_r3_commandmfgdata = -1;*/    /* Mfg Command data (not always present) */
 
 static gint hf_r3_responselength = -1;     /* Response length */
 static gint hf_r3_responsecommand = -1;    /* Response command */
 static gint hf_r3_responsetype = -1;       /* Response type (responseType_e) */
 static gint hf_r3_responsetocommand = -1;  /* Response to command (cmdCommand_e) */
-static gint hf_r3_responsedata = -1;       /* Response data (not always present) */
+/*static gint hf_r3_responsedata = -1;*/       /* Response data (not always present) */
 
 static gint hf_r3_upstreamcommand = -1;
 
 static gint hf_r3_upstreamfield = -1;                /* Upstream field (length + type + data) */
 static gint hf_r3_upstreamfieldlength = -1;          /* Upstream field length */
 static gint hf_r3_upstreamfieldtype = -1;            /* Upstream field type (upstreamField_e) */
-static gint hf_r3_upstreamfielddatalen = -1;         /* Upstream field data length */
+/*static gint hf_r3_upstreamfielddatalen = -1;*/         /* Upstream field data length */
 static gint hf_r3_upstreamfielderror = -1;           /* Upstream field is unknown type */
 static gint hf_r3_upstreamfieldarray [UPSTREAMFIELD_LAST];
 
 static gint hf_r3_configitems = -1;
 static gint hf_r3_configitem = -1;
-static gint hf_r3_configfield = -1;
+/*static gint hf_r3_configfield = -1;*/
 static gint hf_r3_configitemlength = -1;
 static gint hf_r3_configitemtype = -1;
 static gint hf_r3_configitemdata = -1;
@@ -240,7 +240,7 @@ static gint hf_r3_dpacreply_reply = -1;
 
 static gint hf_r3_mfgfield_length = -1;
 static gint hf_r3_mfgfield = -1;
-static gint hf_r3_mfgfield_data = -1;
+/*static gint hf_r3_mfgfield_data = -1;*/
 
 static gint hf_r3_mfgsetserialnumber = -1;
 static gint hf_r3_mfgsetcryptkey = -1;
@@ -338,7 +338,7 @@ static gint hf_r3_lockstate_uapmreslocksactive = -1;
 static gint hf_r3_lockstate_nvramprotect = -1;
 static gint hf_r3_lockstate_nvramchecksum = -1;
 
-static gint hf_r3_mortisestatelog = -1;
+/*static gint hf_r3_mortisestatelog = -1;*/
 static gint hf_r3_mortisestatelog_pointer = -1;
 static gint hf_r3_mortisestatelog_mortisetype = -1;
 static gint hf_r3_mortisestatelog_waiting = -1;
@@ -620,8 +620,8 @@ static gint hf_r3_debuglog_tick = -1;
 static gint hf_r3_adduserparamtype = -1;
 static gint hf_r3_adduserparamtypelength = -1;
 static gint hf_r3_adduserparamtypetype = -1;
-static gint hf_r3_adduserparamtypedatalen = -1;
-static gint hf_r3_adduserparamtypeerror = -1;
+/*static gint hf_r3_adduserparamtypedatalen = -1;*/
+/*static gint hf_r3_adduserparamtypeerror = -1;*/
 static gint hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_LAST];
 
 /*
@@ -2218,20 +2218,20 @@ static hf_register_info hf [] =
 
   { &hf_r3_commandmfglength, { "Mfg Command Length", "r3.commandmfg.length",  FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_commandmfg,       { "Mfg Command",        "r3.commandmfg.command", FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdmfgnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_commandmfgdata,   { "Mfg Command Data",   "r3.commandmfg.data",    FT_NONE,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_commandmfgdata,   { "Mfg Command Data",   "r3.commandmfg.data",    FT_NONE,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},*/
 
   { &hf_r3_responselength,    { "Response Length",      "r3.response.length",       FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_responsecommand,   { "Response Command",     "r3.response.command",      FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_responsetype,      { "Response Type",        "r3.response.responsetype", FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_responsetypenames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_responsetocommand, { "Response To Command",  "r3.response.to_command",   FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_cmdnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_responsedata,      { "Response Data",        "r3.response.data",         FT_NONE,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_responsedata,      { "Response Data",        "r3.response.data",         FT_NONE,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},*/
 
   { &hf_r3_upstreamcommand, { "Upstream Command", "r3.upstreamcommand.command", FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_upstreamcommandnames_ext, 0x0, NULL, HFILL }},
 
   { &hf_r3_upstreamfield,                                           { "Upstream Field",         "r3.upstreamfield",                     FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_upstreamfieldlength,                                     { "Field Length",           "r3.upstreamfield.length",              FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_upstreamfieldtype,                                       { "Field Type",             "r3.upstreamfield.type",                FT_UINT8,   BASE_DEC_HEX|BASE_EXT_STRING, &r3_upstreamfieldnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_upstreamfielddatalen,                                    { "Data Length",            "r3.upstreamfield.datalen",             FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_upstreamfielddatalen,                                    { "Data Length",            "r3.upstreamfield.datalen",             FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},*/
   { &hf_r3_upstreamfielderror,                                      { "Error",                  "r3.upstreamfield.error",               FT_STRING,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_SERIALNUMBER],         { "Serial Number",          "r3.upstreamfield.serialnumber",        FT_STRING,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_upstreamfieldarray [UPSTREAMFIELD_NAR],                  { "Next Available Record",  "r3.upstreamfield.nar",                 FT_UINT16,  BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
@@ -2265,7 +2265,7 @@ static hf_register_info hf [] =
 
   { &hf_r3_configitems,           { "Configuration Item List",    "r3.configitems",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_configitem,            { "Configuration Item",         "r3.configitem",              FT_UINT8,   BASE_DEC_HEX|BASE_EXT_STRING, &r3_configitemnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_configfield,           { "Config Field",               "r3.configfield",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_configfield,           { "Config Field",               "r3.configfield",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},*/
   { &hf_r3_configitemlength,      { "Configuration Item Length",  "r3.configitem.length",       FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_configitemtype,        { "Configuration Item Type",    "r3.configitem.type",         FT_UINT8,   BASE_DEC_HEX|BASE_EXT_STRING, &r3_configtypenames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_configitemdata,        { "Configuration Item Data",    "r3.configitem.data",         FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
@@ -2466,7 +2466,7 @@ static hf_register_info hf [] =
 
   { &hf_r3_mfgfield_length, { "Field Length", "r3.mfgfield.length",  FT_UINT8, BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mfgfield,        { "Field",        "r3.mfgfield.field",   FT_UINT8, BASE_DEC_HEX|BASE_EXT_STRING, &r3_mfgfieldnames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_mfgfield_data,   { "Field Data",   "r3.mfgfield.data",    FT_NONE,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_mfgfield_data,   { "Field Data",   "r3.mfgfield.data",    FT_NONE,  BASE_NONE,    NULL, 0x0, NULL, HFILL }}, */
 
   { &hf_r3_mfgsetserialnumber, { "Serial Number", "r3.mfgsetserialnumber", FT_STRING, BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mfgsetcryptkey,     { "Crypt Key",     "r3.mfgsetcryptkey",     FT_BYTES,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
@@ -2571,7 +2571,7 @@ static hf_register_info hf [] =
   { &hf_r3_lockstate_nvramprotect,       { "NVRAM Protect",        "r3.lockstate.nvramprotect",       FT_BOOLEAN, 24, NULL, 0x00100000, NULL, HFILL }},
   { &hf_r3_lockstate_nvramchecksum,      { "MVRAM Checksum",       "r3.lockstate.nvramchecksum",      FT_BOOLEAN, 24, NULL, 0x00200000, NULL, HFILL }},
 
-  { &hf_r3_mortisestatelog,             { "Mortise State Log",       "r3.mortisestatelog",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_mortisestatelog,             { "Mortise State Log",       "r3.mortisestatelog",             FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }}, */
   { &hf_r3_mortisestatelog_pointer,     { "Event Pointer",           "r3.mortisestatelog.pointer",     FT_UINT8,   BASE_HEX_DEC, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_mortisetype, { "Mortise Type",            "r3.mortisestatelog.mortisetype", FT_UINT8,   BASE_HEX_DEC|BASE_EXT_STRING, &r3_mortisetypenames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_mortisestatelog_waiting,     { "Waiting For Door Closed", "r3.mortisestatelog.waiting",     FT_BOOLEAN, 8,            TFS (&tfs_true_false ), 0x00, NULL, HFILL }},
@@ -2853,8 +2853,8 @@ static hf_register_info hf [] =
   { &hf_r3_adduserparamtype,                                          { "Upstream Field",     "r3.manageuser",                  FT_NONE,    BASE_NONE,    NULL, 0x0, NULL, HFILL }},
   { &hf_r3_adduserparamtypelength,                                    { "Field Length",       "r3.manageuser.length",           FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_adduserparamtypetype,                                      { "Field Type",         "r3.manageuser.type",             FT_UINT8,   BASE_DEC_HEX|BASE_EXT_STRING, &r3_adduserparamtypenames_ext, 0x0, NULL, HFILL }},
-  { &hf_r3_adduserparamtypedatalen,                                   { "Data Length",        "r3.manageuser.datalen",          FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
-  { &hf_r3_adduserparamtypeerror,                                     { "Error",              "r3.manageuser.error",            FT_STRING,  BASE_NONE,    NULL, 0x0, NULL, HFILL }},
+/*  { &hf_r3_adduserparamtypedatalen,                                   { "Data Length",        "r3.manageuser.datalen",          FT_UINT8,   BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},*/
+/*  { &hf_r3_adduserparamtypeerror,                                     { "Error",              "r3.manageuser.error",            FT_STRING,  BASE_NONE,    NULL, 0x0, NULL, HFILL }}, */
   { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_DISPOSITION],      { "Disposition",        "r3.manageuser.disposition",      FT_UINT8,   BASE_DEC_HEX|BASE_EXT_STRING, &r3_dispositionnames_ext, 0x0, NULL, HFILL }},
   { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_USERNO],           { "User Number",        "r3.manageuser.usernumber",       FT_UINT16,  BASE_DEC_HEX, NULL, 0x0, NULL, HFILL }},
   { &hf_r3_adduserparamtypearray [ADDUSERPARAMTYPE_ACCESSALWAYS],     { "Access Always",      "r3.manageuser.accessalways",     FT_BOOLEAN, BASE_NONE,    NULL, 0x0, NULL, HFILL }},
@@ -3672,6 +3672,7 @@ static void dissect_r3_upstreamcommand_rmteventlogrecord (tvbuff_t *tvb, guint32
 
 static void dissect_r3_upstreamcommand_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
+  /* XXX: hf[] entries for the following hf indexes do not exist ?? */
   proto_tree_add_item (tree, hf_r3_dpacreply_stuff, tvb, start_offset + 2, 1, TRUE);
   proto_tree_add_item (tree, hf_r3_dpacreply_length, tvb, start_offset + 3, 1, TRUE);
   proto_tree_add_item (tree, hf_r3_dpacreply_reply, tvb, start_offset + 4, -1, TRUE);
@@ -5143,6 +5144,7 @@ static void dissect_r3_cmd_dpac (tvbuff_t *tvb, guint32 start_offset, guint32 le
 
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command, tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
+  /* XXX: hf[] entries for the following hf indexes do not exist ?? */
   proto_tree_add_item (tree, hf_r3_dpac_action, payload_tvb, 0, 1, TRUE);
   proto_tree_add_item (tree, hf_r3_dpac_waittime, payload_tvb, 1, 2, TRUE);
   proto_tree_add_item (tree, hf_r3_dpac_command, payload_tvb, 3, -1, TRUE);
