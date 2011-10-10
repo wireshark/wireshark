@@ -142,13 +142,13 @@ dissect_ipvs_syncd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		proto_tree_add_item(ctree, hf_dport, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(ctree, hf_caddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(ctree, hf_vaddr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(ctree, hf_vaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(ctree, hf_daddr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(ctree, hf_daddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		flags = tvb_get_ntohs(tvb, offset);

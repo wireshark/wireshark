@@ -775,7 +775,7 @@ dissect_ppi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                  tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
         ppi_flags_tree = proto_item_add_subtree(ti, ett_ppi_flags);
         proto_tree_add_item(ppi_flags_tree, hf_ppi_head_flag_alignment,
-                            tvb, offset + 1, 1, TRUE);
+                            tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(ppi_flags_tree, hf_ppi_head_flag_reserved,
                             tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
 

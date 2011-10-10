@@ -410,7 +410,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                      (tvb_strneql(tvb, offset, "cisco", strlen("cisco"))) == 0 ? "" : "Non-",
                                                      auth_buf);
         			offset += 8;
-        			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, FALSE);
+        			proto_tree_add_item(hsrp_tree, hf_hsrp_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
         			offset += 4;
         		} else if (opcode == 3) {
         			proto_tree_add_item(hsrp_tree, hf_hsrp_adv_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -509,10 +509,10 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 			offset+=4;
                                         if (ipver == 4) {
                                                 /* Fetch Virtual IP as IPv4 */
-                                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr, tvb, offset, 4, FALSE);
+                                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         } else if (ipver == 6) {
                                                 /* Fetch Virtual IP as IPv6 */
-                                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr_v6, tvb, offset, 16, FALSE);
+                                                proto_tree_add_item(group_state_tlv, hf_hsrp2_virt_ip_addr_v6, tvb, offset, 16, ENC_NA);
                                         } else {
                                                 /* Unknown protocol */
                         			next_tvb = tvb_new_subset_remaining(tvb, offset);
@@ -582,7 +582,7 @@ dissect_hsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                         offset++;
                                         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_flags, tvb, offset, 2, ENC_BIG_ENDIAN);
                                         offset+=2;
-                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, FALSE);
+                                        proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         offset+=4;
                                         proto_tree_add_item(md5_auth_tlv, hf_hsrp2_md5_key_id, tvb, offset, 4, ENC_BIG_ENDIAN);
                                         offset+=4;

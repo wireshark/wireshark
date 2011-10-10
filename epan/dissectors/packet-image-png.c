@@ -268,9 +268,9 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 
 
 		it=proto_tree_add_item(chunk_tree, hf_png_chunk_type, tvb, offset, 4, FALSE);
-		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_anc, tvb, offset, 4, FALSE);
-		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_priv, tvb, offset, 4, FALSE);
-		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_stc, tvb, offset, 4, FALSE);
+		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_anc, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset+=4;
 
 		if (len >= 1000000000)

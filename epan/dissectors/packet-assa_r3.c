@@ -3415,7 +3415,7 @@ static void dissect_r3_upstreamfields (tvbuff_t *tvb, guint32 start_offset _U_, 
             proto_tree_add_item (datetime_tree, hf_r3_datetime_hours, tvb, offset + 4, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item (datetime_tree, hf_r3_datetime_minutes, tvb, offset + 5, 1, ENC_LITTLE_ENDIAN);
             proto_tree_add_item (datetime_tree, hf_r3_datetime_seconds, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);
-            proto_tree_add_item (datetime_tree, hf_r3_datetime_dst, tvb, offset + 7, 1, TRUE);
+            proto_tree_add_item (datetime_tree, hf_r3_datetime_dst, tvb, offset + 7, 1, ENC_LITTLE_ENDIAN);
           }
         }
         break;
@@ -3637,7 +3637,7 @@ static void dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start
         break;
 
       case CONFIGTYPE_BOOL :
-        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_bool, tvb, offset + 3, 1, TRUE);
+        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_bool, tvb, offset + 3, 1, ENC_LITTLE_ENDIAN);
         break;
 
       case CONFIGTYPE_8 :
@@ -4375,7 +4375,7 @@ static void dissect_r3_upstreammfgfield_checksumresults (tvbuff_t *tvb, guint32 
 
       proto_tree_add_item (res_tree, hf_r3_checksumresults_length, tvb, start_offset + i + 0, 1, ENC_LITTLE_ENDIAN);
       proto_tree_add_item (res_tree, hf_r3_checksumresults_field, tvb, start_offset + i + 1, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item (res_tree, hf_r3_checksumresults_state, tvb, start_offset + i + 2, 1, TRUE);
+      proto_tree_add_item (res_tree, hf_r3_checksumresults_state, tvb, start_offset + i + 2, 1, ENC_LITTLE_ENDIAN);
     }
   }
 }
@@ -4387,7 +4387,7 @@ static void dissect_r3_upstreammfgfield_mortisestatelog (tvbuff_t *tvb, guint32 
 
   proto_tree_add_item (tree, hf_r3_mortisestatelog_pointer, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_mortisestatelog_mortisetype, tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item (tree, hf_r3_mortisestatelog_waiting, tvb, start_offset + 2, 1, TRUE);
+  proto_tree_add_item (tree, hf_r3_mortisestatelog_waiting, tvb, start_offset + 2, 1, ENC_LITTLE_ENDIAN);
 
   for (start_offset += 3, i = 0; i < l; i += 3)
   {
@@ -4590,7 +4590,7 @@ static void dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint
           break;
 
         case CONFIGTYPE_BOOL :
-          proto_tree_add_item (sc_tree, hf_r3_configitemdata_bool, payload_tvb, offset + 2, 1, TRUE);
+          proto_tree_add_item (sc_tree, hf_r3_configitemdata_bool, payload_tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
           break;
 
         case CONFIGTYPE_8 :
@@ -4876,7 +4876,7 @@ static void dissect_r3_cmd_rmtauthretry (tvbuff_t *tvb, guint32 start_offset, gu
   proto_tree_add_item (tree, hf_r3_commandlength, tvb, start_offset + 0, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_command, tvb, start_offset + 1, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item (tree, hf_r3_rmtauthretry_sequence, payload_tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item (tree, hf_r3_rmtauthretry_retry, payload_tvb, 2, 1, TRUE);
+  proto_tree_add_item (tree, hf_r3_rmtauthretry_retry, payload_tvb, 2, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void dissect_r3_cmd_filters (tvbuff_t *tvb, guint32 start_offset, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
@@ -4933,7 +4933,7 @@ static void dissect_r3_cmd_alarmconfigure (tvbuff_t *tvb, guint32 start_offset, 
 
     proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_length, payload_tvb, offset + 0, 1, ENC_LITTLE_ENDIAN);
     proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_id, payload_tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
-    proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_state, payload_tvb, offset + 2, 1, TRUE);
+    proto_tree_add_item (alarmcfg_tree, hf_r3_alarm_state, payload_tvb, offset + 2, 1, ENC_LITTLE_ENDIAN);
 
     alarms++;
     offset += tvb_get_guint8 (payload_tvb, offset);
@@ -5292,7 +5292,7 @@ static void dissect_r3_cmdmfg_forceoptions (tvbuff_t *tvb, guint32 start_offset,
 
     switch (tvb_get_guint8 (tvb, start_offset + i) - 2)
     {
-      case 1  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_8,  tvb, start_offset + i + 2, 1, TRUE); break;
+      case 1  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_8,  tvb, start_offset + i + 2, 1, ENC_LITTLE_ENDIAN); break;
       case 2  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_16, tvb, start_offset + i + 2, 2, ENC_LITTLE_ENDIAN); break;
       case 3  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_24, tvb, start_offset + i + 2, 3, ENC_LITTLE_ENDIAN); break;
       case 4  : proto_tree_add_item (force_tree, hf_r3_forceoptions_state_32, tvb, start_offset + i + 2, 4, ENC_LITTLE_ENDIAN); break;

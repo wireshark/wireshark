@@ -422,7 +422,7 @@ epm_dissect_tower_data (tvbuff_t *tvb, int offset,
             break;
 
         case PROTO_ID_IP: /* this one is always big endian */
-            proto_tree_add_item(tr, hf_epm_proto_ip, tvb, offset, 4, FALSE);
+            proto_tree_add_item(tr, hf_epm_proto_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
             proto_item_append_text(tr, "IP:%s", tvb_ip_to_str(tvb, offset));
             break;
 

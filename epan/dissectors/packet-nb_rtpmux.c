@@ -110,7 +110,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
         /* XXX - what if the T bit is set? */
         proto_tree_add_item(nb_rtpmux_tree,
-            hf_nb_rtpmux_compressed, tvb, offset, 1, FALSE);
+            hf_nb_rtpmux_compressed, tvb, offset, 1, ENC_BIG_ENDIAN);
 		tbit = tvb_get_guint8(tvb,offset)>>7;
 		if(tbit == 1){
 			/* 6.4.2.4 Transport Format for multiplexing with RTP header compression */
@@ -118,7 +118,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
 			proto_tree_add_item(nb_rtpmux_tree,
 				hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset, 1, FALSE);			
+            proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset, 1, ENC_BIG_ENDIAN);			
 			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 			cmp_rtp_item = proto_tree_add_text( nb_rtpmux_tree, tvb, offset+5, 3, "Compressed RTP header" );
@@ -136,7 +136,7 @@ dissect_nb_rtpmux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_dstport, tvb, offset, 2, dstport );
 			proto_tree_add_item(nb_rtpmux_tree,
 				hf_nb_rtpmux_length, tvb, offset+2, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset, 1, FALSE);			
+            proto_tree_add_item(nb_rtpmux_tree, hf_nb_r_bit, tvb, offset, 1, ENC_BIG_ENDIAN);			
 			srcport = (tvb_get_ntohs(tvb, offset+3) & 0x7fff) << 1;
 			proto_tree_add_uint(nb_rtpmux_tree, hf_nb_rtpmux_srcport, tvb, offset+3, 2, srcport );
 

@@ -352,7 +352,7 @@ dissect_rtnet_tdma_station_list(tvbuff_t *tvb, guint offset, proto_tree *tree)
   for( i = 0; i < nr_stations; i++ )
   {
     proto_tree_add_item(tree, hf_tdma_v1_msg_station_list_ip, tvb,
-                        offset, 4, FALSE );
+                        offset, 4, ENC_BIG_ENDIAN );
 
     offset += 4;
 
@@ -631,7 +631,7 @@ dissect_rtmac(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
       item = proto_tree_add_item(rtmac_tree, hf_rtmac_header_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
       ti = proto_item_add_subtree(item, ett_rtmac_flags);
       proto_tree_add_item(ti, hf_rtmac_header_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(ti, hf_rtmac_header_flags_tunnel, tvb, offset, 1, FALSE);
+      proto_tree_add_item(ti, hf_rtmac_header_flags_tunnel, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset += 1;
   }
@@ -720,10 +720,10 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              break;
 
            case RTCFG_ADDRESS_TYPE_IP:
-             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN );
              offset += 4;
 
-             proto_tree_add_item( rtcfg_tree, hf_rtcfg_server_ip_address, tvb, offset, 4, FALSE );
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_server_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN );
              offset += 4;
 
              break;
@@ -755,7 +755,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              break;
 
            case RTCFG_ADDRESS_TYPE_IP:
-             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN );
              offset += 4;
              break;
          }
@@ -786,7 +786,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              break;
 
            case RTCFG_ADDRESS_TYPE_IP:
-             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN );
              offset += 4;
              break;
          }
@@ -866,7 +866,7 @@ dissect_rtcfg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
              break;
 
            case RTCFG_ADDRESS_TYPE_IP:
-             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, FALSE );
+             proto_tree_add_item( rtcfg_tree, hf_rtcfg_client_ip_address, tvb, offset, 4, ENC_BIG_ENDIAN );
              offset += 4;
              break;
          }

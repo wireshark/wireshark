@@ -1629,9 +1629,9 @@ dhcpv6_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree,
              * +-----+-+-+-+
              */
             proto_tree_add_item(subtree, hf_clientfqdn_reserved, tvb, off, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(subtree, hf_clientfqdn_n, tvb, off, 1, FALSE);
-            proto_tree_add_item(subtree, hf_clientfqdn_o, tvb, off, 1, FALSE);
-            proto_tree_add_item(subtree, hf_clientfqdn_s, tvb, off, 1, FALSE);
+            proto_tree_add_item(subtree, hf_clientfqdn_n, tvb, off, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_clientfqdn_o, tvb, off, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(subtree, hf_clientfqdn_s, tvb, off, 1, ENC_BIG_ENDIAN);
 
             dhcpv6_domain(subtree, tvb, off+1, optlen-1);
         }
@@ -1880,10 +1880,10 @@ dissect_dhcpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         if (tree) {
             proto_tree_add_item(bp_tree, hf_dhcpv6_msgtype, tvb, off, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(bp_tree, hf_dhcpv6_hopcount, tvb, off + 1, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2, 16, FALSE);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_linkaddr, tvb, off + 2, 16, ENC_NA);
             tvb_get_ipv6(tvb, off + 2, &in6);
             col_append_fstr(pinfo->cinfo, COL_INFO, "L: %s ", ip6_to_str(&in6));
-            proto_tree_add_item(bp_tree, hf_dhcpv6_peeraddr, tvb, off + 18, 16, FALSE);
+            proto_tree_add_item(bp_tree, hf_dhcpv6_peeraddr, tvb, off + 18, 16, ENC_NA);
         }
         off += 34;
     } else {

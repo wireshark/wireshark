@@ -603,7 +603,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 20)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_serv_instance, tvb, (offset+4),
-                        16, FALSE);
+                        16, ENC_BIG_ENDIAN);
     {
       e_guid_t guid;
       char buf[GUID_STR_LEN];
@@ -649,7 +649,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       } else {
         guint32 ip;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv4, tvb,
-                            (offset+4), 4, FALSE);
+                            (offset+4), 4, ENC_BIG_ENDIAN);
         ip = tvb_get_ipv4(tvb, (offset+4));
         proto_item_append_text(attr_tree, ": %s:%u", ip_to_str((guint8 *)&ip),
                                tvb_get_ntohs(tvb, (offset+2)));
@@ -662,7 +662,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
       } else {
         struct e_in6_addr ipv6;
         proto_tree_add_item(attr_tree, xmcp_attr_servtrans_ipv6, tvb,
-                            (offset+4), 16, FALSE);
+                            (offset+4), 16, ENC_NA);
         tvb_get_ipv6(tvb, (offset+4), &ipv6);
         proto_item_append_text(attr_tree, ": [%s]:%u", ip6_to_str(&ipv6),
                                tvb_get_ntohs(tvb, (offset+2)));
@@ -719,7 +719,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                               tvb, current_offset, 2, ENC_BIG_ENDIAN);
           proto_tree_add_item(flag_tree,
                               xmcp_attr_flag_removal_reason_network_withdraw,
-                              tvb, current_offset, 2, FALSE);
+                              tvb, current_offset, 2, ENC_BIG_ENDIAN);
           if (flag_value & XMCP_REMOVAL_REASON_NETWORK_WITHDRAW) {
             proto_item_append_text(flag_tree, " (network withdraw)");
           }
@@ -739,7 +739,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
                               tvb, current_offset, 2, ENC_BIG_ENDIAN);
           proto_tree_add_item(flag_tree,
                               xmcp_attr_flag_visibility_unauthenticated,
-                              tvb, current_offset, 2, FALSE);
+                              tvb, current_offset, 2, ENC_BIG_ENDIAN);
           if (flag_value & XMCP_SERVICE_VISIBILITY_UNAUTHENTICATED) {
             proto_item_append_text(flag_tree,
                                    " (visible to unauthenticated clients)");

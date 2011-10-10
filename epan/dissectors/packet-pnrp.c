@@ -896,7 +896,7 @@ static void dissect_ipv6_endpoint_structure(tvbuff_t *tvb, gint offset, gint len
 static void dissect_ipv6_address(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)
 {
     while (0 <= tvb_reported_length_remaining(tvb, offset+16) && 16 <=length) {
-        proto_tree_add_item(tree, hf_pnrp_message_ipv6, tvb, offset, 16, FALSE);
+        proto_tree_add_item(tree, hf_pnrp_message_ipv6, tvb, offset, 16, ENC_NA);
         offset += 16;
         length -= 16;
     }

@@ -241,7 +241,7 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
 	       tvb_get_ntohs(tvb, 20) >> 1);
   if (tree) {
     proto_tree_add_item(fh_tree, hf_isl_vlan_id, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, FALSE);
+    proto_tree_add_item(fh_tree, hf_isl_bpdu, payload_tvb, 6, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(fh_tree, hf_isl_index, payload_tvb, 8, 2, ENC_BIG_ENDIAN);
   }
 
@@ -311,11 +311,11 @@ dissect_isl(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int fcs_len)
   case TYPE_TR:
     if (tree) {
       proto_tree_add_item(fh_tree, hf_isl_src_vlan_id, payload_tvb, 10, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(fh_tree, hf_isl_explorer, payload_tvb, 10, 2, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_explorer, payload_tvb, 10, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(fh_tree, hf_isl_dst_route_descriptor, payload_tvb, 12, 2, ENC_BIG_ENDIAN);
       proto_tree_add_item(fh_tree, hf_isl_src_route_descriptor, payload_tvb, 14, 2, ENC_BIG_ENDIAN);
       /* This doesn't appear to be present in at least one capture I've seen. */
-      proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, payload_tvb, 16, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_isl_fcs_not_incl, payload_tvb, 16, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(fh_tree, hf_isl_esize, payload_tvb, 16, 1, ENC_BIG_ENDIAN);
     }
     next_tvb = tvb_new_subset_remaining(payload_tvb, 17);

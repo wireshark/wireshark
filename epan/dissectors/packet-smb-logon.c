@@ -791,7 +791,7 @@ dissect_smb_pdc_response_ads(tvbuff_t *tvb, packet_info *pinfo _U_,
 	offset += 4;
 
 	/* server ip */
-	proto_tree_add_item(tree, hf_server_ip, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_server_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* unknown uint32 type */

@@ -852,7 +852,7 @@ dissect_ecmg_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinf
 		proto_item_append_text(simulcrypt_item, " (%d ms)", pvaluedec);
 		break;
 	case SIMULCRYPT_ECMG_ACCESS_CRITERIA_TRANSFER_MODE:
-		proto_tree_add_item(tree, hf_simulcrypt_access_criteria_transfer_mode, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_access_criteria_transfer_mode, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_ECMG_CP_NUMBER:
 		proto_tree_add_item(tree, hf_simulcrypt_cp_number, tvb, offset, plen, ENC_BIG_ENDIAN);
@@ -964,10 +964,10 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_eis_channel_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SERVICE_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_service_flag, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_service_flag, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_COMPONENT_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_component_flag, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_component_flag, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_MAX_SCG:
 		proto_tree_add_item(tree, hf_simulcrypt_max_scg, tvb, offset, plen, ENC_BIG_ENDIAN);
@@ -1031,7 +1031,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(simulcrypt_activation_time_tree, hf_simulcrypt_hundredth_second, tvb, offset+7, 1, ENC_BIG_ENDIAN); /* eighth byte */
 		break;
 	case SIMULCRYPT_EIS_ACTIVATION_PENDING_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_activation_pending_flag, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_activation_pending_flag, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_COMPONENT_ID:
 		proto_tree_add_item(tree, hf_simulcrypt_component_id, tvb, offset, plen, ENC_BIG_ENDIAN);
@@ -1043,7 +1043,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_transport_stream_id, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_AC_CHANGED_FLAG:
-		proto_tree_add_item(tree, hf_simulcrypt_ac_changed_flag, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_ac_changed_flag, tvb, offset, plen, ENC_BIG_ENDIAN);
 		break;
 	case SIMULCRYPT_EIS_SCG_CURRENT_REFERENCE_ID:
 		proto_tree_add_item(tree, hf_simulcrypt_scg_current_reference_id, tvb, offset, plen, ENC_BIG_ENDIAN);

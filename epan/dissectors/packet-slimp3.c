@@ -360,7 +360,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_display,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 
 	    /* Loop through the commands */
@@ -461,7 +461,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_CONTROL:
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_control,
-				       tvb, offset+1, 1, FALSE);
+				       tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+1, 1, "Command: %s",
 				val_to_str(tvb_get_guint8(tvb, offset+1),
@@ -478,7 +478,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_HELLO:
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_hello,
-				       tvb, offset+1, 1, FALSE);
+				       tvb, offset+1, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (to_server) {
 		guint8 fw_ver = 0;
@@ -499,7 +499,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_I2C:
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_i2c,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (to_server) {
 		/* Hello response; client->server */
@@ -524,7 +524,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_DATA_REQ:
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_data_request,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 2,
 				"Requested offset: %d bytes.",
@@ -550,7 +550,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_data,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    if (old_protocol) {
 	        proto_tree_add_text(slimp3_tree, tvb, offset, -1,
@@ -599,7 +599,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	if (tree) {
 	    guint8 fw_ver;
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_discover_request,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+1, 1,
 				"Device ID: %d.", tvb_get_guint8(tvb, offset+1));
@@ -618,7 +618,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case SLIMP3_DISC_RSP:
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_discover_response,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+2, 4,
 				"Server Address: %s.",
@@ -646,7 +646,7 @@ dissect_slimp3(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	*/
 	if (tree) {
 	    hidden_item = proto_tree_add_item(slimp3_tree, hf_slimp3_data_ack,
-				       tvb, offset, 1, FALSE);
+				       tvb, offset, 1, ENC_BIG_ENDIAN);
 	    PROTO_ITEM_SET_HIDDEN(hidden_item);
 	    proto_tree_add_text(slimp3_tree, tvb, offset+6, 2,
 				"Write Pointer: %d",

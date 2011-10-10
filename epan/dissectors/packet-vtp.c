@@ -177,7 +177,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 4;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_upd_id, tvb,
-			    offset, 4, FALSE);
+			    offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			upd_timestamp = tvb_get_ptr(tvb, offset, 12);

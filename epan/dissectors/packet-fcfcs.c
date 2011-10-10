@@ -402,7 +402,7 @@ dissect_fcfcs_gapnl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 proto_tree_add_string (tree, hf_fcs_portname, tvb, offset, 8,
                                        tvb_fcwwn_to_str (tvb, offset));
                 proto_tree_add_item (tree, hf_fcs_portflags, tvb, offset+10,
-                                     1, 0);
+                                     1, ENC_BIG_ENDIAN);
                 proto_tree_add_item (tree, hf_fcs_porttype, tvb, offset+11,
                                      1, ENC_BIG_ENDIAN);
                 offset += 12;

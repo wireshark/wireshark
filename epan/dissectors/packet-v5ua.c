@@ -240,12 +240,12 @@ guint8 tei = -1;
   if     (iua_version == RFC)   offset = DLCI_SAPI_OFFSET;
   else if(iua_version == DRAFT) offset = DLCI_HEADER_LENGTH + tvb_get_ntohs(parameter_tvb, DLCI_LENGTH_OFFSET);
 
-  proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, offset,  DLCI_SAPI_LENGTH,  FALSE);
-  proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, offset,  DLCI_SAPI_LENGTH,  FALSE);
+  proto_tree_add_item(parameter_tree, hf_dlci_zero_bit,  parameter_tvb, offset,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
+  proto_tree_add_item(parameter_tree, hf_dlci_spare_bit, parameter_tvb, offset,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_dlci_sapi,      parameter_tvb, offset,  DLCI_SAPI_LENGTH,  ENC_BIG_ENDIAN);
 
   offset += DLCI_SAPI_LENGTH;
-  proto_tree_add_item(parameter_tree, hf_dlci_one_bit,   parameter_tvb, offset,  DLCI_TEI_LENGTH,   FALSE);
+  proto_tree_add_item(parameter_tree, hf_dlci_one_bit,   parameter_tvb, offset,  DLCI_TEI_LENGTH,   ENC_BIG_ENDIAN);
   proto_tree_add_item(parameter_tree, hf_dlci_tei,       parameter_tvb, offset,  DLCI_TEI_LENGTH,   ENC_BIG_ENDIAN);
 
 sapi = tvb_get_ntohs(parameter_tvb, offset-DLCI_TEI_LENGTH-DLCI_SAPI_LENGTH)>>2;

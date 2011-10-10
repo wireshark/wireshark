@@ -350,7 +350,7 @@ dissect_xfr_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *
 
 	offset = dissect_rpc_string(tvb, sub_tree, hf_ypserv_peer, offset, NULL);
 
-	proto_tree_add_item(tree, hf_ypserv_transid, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ypserv_transid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_ypserv_prog, offset);
@@ -383,7 +383,7 @@ dissect_xfr_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree 
 {
 	proto_item_append_text(tree, " XFR reply");
 
-	proto_tree_add_item(tree, hf_ypserv_transid, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ypserv_transid, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	offset = dissect_rpc_uint32(tvb, tree, hf_ypserv_xfrstat, offset);

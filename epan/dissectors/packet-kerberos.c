@@ -1819,7 +1819,7 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
     address_str[0]='\0';
     switch(addr_type){
     case KRB5_ADDR_IPv4:
-        it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, FALSE);
+        it=proto_tree_add_item(tree, hf_krb_address_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
         g_snprintf(address_str,ADDRESS_STR_BUFSIZ,"%d.%d.%d.%d",tvb_get_guint8(tvb, offset),tvb_get_guint8(tvb, offset+1),tvb_get_guint8(tvb, offset+2),tvb_get_guint8(tvb, offset+3));
         break;
     case KRB5_ADDR_NETBIOS:
@@ -1834,7 +1834,7 @@ static int dissect_krb5_address(proto_tree *tree, tvbuff_t *tvb, int offset, asn
     }
     break;
     case KRB5_ADDR_IPv6:
-        it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, FALSE);
+        it=proto_tree_add_item(tree, hf_krb_address_ipv6, tvb, offset, INET6_ADDRLEN, ENC_NA);
         g_snprintf(address_str, ADDRESS_STR_BUFSIZ, "%s", tvb_ip6_to_str(tvb, offset));
         break;
     default:
@@ -3351,13 +3351,13 @@ dissect_krb5_rfc1964_checksum(asn1_ctx_t *actx _U_, proto_tree *tree, tvbuff_t *
 
 
     /* flags */
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_dce_style, tvb, offset, 4, TRUE);
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_integ, tvb, offset, 4, TRUE);
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_conf, tvb, offset, 4, TRUE);
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_sequence, tvb, offset, 4, TRUE);
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_replay, tvb, offset, 4, TRUE);
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_mutual, tvb, offset, 4, TRUE);
-    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_deleg, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_dce_style, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_integ, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_conf, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_sequence, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_replay, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_mutual, tvb, offset, 4, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(tree, hf_krb_gssapi_c_flag_deleg, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;
 
     /* the next fields are optional so we have to check that we have

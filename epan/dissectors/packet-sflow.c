@@ -1141,10 +1141,10 @@ dissect_sflow_5_ipv4(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     }
     offset += 4;
 
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_src, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_src, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(tree, hf_sflow_245_ipv4_dst, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_ipv4_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     src_port = tvb_get_ntohl(tvb, offset);
@@ -1231,10 +1231,10 @@ dissect_sflow_5_ipv6(tvbuff_t *tvb, proto_tree *tree, gint offset) {
     }
     offset += 4;
 
-    proto_tree_add_item(tree, hf_sflow_245_ipv6_src, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_ipv6_src, tvb, offset, 16, ENC_NA);
     offset += 16;
 
-    proto_tree_add_item(tree, hf_sflow_245_ipv6_dst, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_sflow_245_ipv6_dst, tvb, offset, 16, ENC_NA);
     offset += 16;
 
     src_port = tvb_get_ntohl(tvb, offset);

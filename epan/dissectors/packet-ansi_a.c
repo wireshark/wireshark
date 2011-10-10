@@ -3169,7 +3169,7 @@ elem_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, gc
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_pdsn_ip_addr, tvb, curr_offset, len, FALSE);
+    proto_tree_add_item(tree, hf_ansi_a_pdsn_ip_addr, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 
     curr_offset += len;
 
@@ -3188,7 +3188,7 @@ elem_s_pdsn_ip_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_s_pdsn_ip_addr, tvb, curr_offset, len, FALSE);
+    proto_tree_add_item(tree, hf_ansi_a_s_pdsn_ip_addr, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 
     curr_offset += len;
 
@@ -3948,7 +3948,7 @@ elem_anchor_pdsn_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_anchor_ip_addr, tvb, curr_offset, len, FALSE);
+    proto_tree_add_item(tree, hf_ansi_a_anchor_ip_addr, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 
     curr_offset += len;
 
@@ -3967,7 +3967,7 @@ elem_anchor_pp_addr(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint len, 
 
     curr_offset = offset;
 
-    proto_tree_add_item(tree, hf_ansi_a_anchor_pp_ip_addr, tvb, curr_offset, len, FALSE);
+    proto_tree_add_item(tree, hf_ansi_a_anchor_pp_ip_addr, tvb, curr_offset, len, ENC_BIG_ENDIAN);
 
     curr_offset += len;
 
@@ -8007,7 +8007,7 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
             SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
 
             proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv6_addr,
-                tvb, curr_offset, 16, FALSE);
+                tvb, curr_offset, 16, ENC_NA);
 
             rtp_src_addr.type = AT_IPv6;
             rtp_src_addr.len = 16;
@@ -8022,7 +8022,7 @@ elem_a2p_bearer_session(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint l
             SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
 
             proto_tree_add_item(tree, hf_ansi_a_a2p_bearer_ipv4_addr,
-                tvb, curr_offset, 4, FALSE);
+                tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 
             rtp_src_addr.type = AT_IPv4;
             rtp_src_addr.len = 4;
@@ -8237,7 +8237,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
                 SHORT_DATA_CHECK(len - (curr_offset - offset), 18);
 
                 proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv6_addr,
-                    tvb, curr_offset, 16, FALSE);
+                    tvb, curr_offset, 16, ENC_NA);
 
                 if (format_assigned)
                 {
@@ -8255,7 +8255,7 @@ elem_a2p_bearer_format(tvbuff_t *tvb, proto_tree *tree, guint32 offset, guint le
                 SHORT_DATA_CHECK(len - (curr_offset - offset), 6);
 
                 proto_tree_add_item(subtree, hf_ansi_a_a2p_bearer_ipv4_addr,
-                    tvb, curr_offset, 4, FALSE);
+                    tvb, curr_offset, 4, ENC_BIG_ENDIAN);
 
                 if (format_assigned)
                 {

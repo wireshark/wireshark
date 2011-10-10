@@ -1571,28 +1571,28 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_cfp,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_preamble,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_wep,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_frag,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_fcs,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_datapad,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_badfcs,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(flags_tree,
 						    hf_radiotap_flags_shortgi,
-						    tvb, offset, 1, FALSE);
+						    tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
 			break;
 		}

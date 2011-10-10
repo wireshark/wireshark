@@ -1749,7 +1749,7 @@ skip_lrh:
 
             proto_tree_add_item(global_route_header_tree, hf_infiniband_next_header,        tvb, offset, 1, ENC_BIG_ENDIAN); offset +=1;
             proto_tree_add_item(global_route_header_tree, hf_infiniband_hop_limit,          tvb, offset, 1, ENC_BIG_ENDIAN); offset +=1;
-            proto_tree_add_item(global_route_header_tree, hf_infiniband_source_gid,         tvb, offset, 16, FALSE);
+            proto_tree_add_item(global_route_header_tree, hf_infiniband_source_gid,         tvb, offset, 16, ENC_NA);
 
             tvb_get_ipv6(tvb, offset, &SRCgid);
 
@@ -1759,7 +1759,7 @@ skip_lrh:
 
             offset += 16;
 
-            proto_tree_add_item(global_route_header_tree, hf_infiniband_destination_gid,    tvb, offset, 16, FALSE);
+            proto_tree_add_item(global_route_header_tree, hf_infiniband_destination_gid,    tvb, offset, 16, ENC_NA);
 
             tvb_get_ipv6(tvb, offset, &DSTgid);
 
@@ -1788,15 +1788,15 @@ skip_lrh:
             col_append_str(pinfo->cinfo, COL_INFO, val_to_str((guint32)opCode, OpCodeMap, "Unknown OpCode"));
             offset +=1;
 
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_solicited_event,              tvb, offset, 1, FALSE);
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_migreq,                       tvb, offset, 1, FALSE);
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_solicited_event,              tvb, offset, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_migreq,                       tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_pad_count,                    tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_transport_header_version,     tvb, offset, 1, ENC_BIG_ENDIAN); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_partition_key,                tvb, offset, 2, ENC_BIG_ENDIAN); offset +=2;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved8,                    tvb, offset, 1, ENC_BIG_ENDIAN); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_destination_qp,               tvb, offset, 3, ENC_BIG_ENDIAN);
             pinfo->destport = tvb_get_ntoh24(tvb, offset); offset +=3;
-            proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request,          tvb, offset, 1, FALSE);
+            proto_tree_add_item(base_transport_header_tree, hf_infiniband_acknowledge_request,          tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_reserved7,                    tvb, offset, 1, ENC_BIG_ENDIAN); offset +=1;
             proto_tree_add_item(base_transport_header_tree, hf_infiniband_packet_sequence_number,       tvb, offset, 3, ENC_BIG_ENDIAN); offset +=3;
 
@@ -2740,12 +2740,12 @@ static gboolean parse_EoIB(proto_tree *tree, tvbuff_t *tvb, gint offset, packet_
     proto_tree_add_item(header_subtree, hf_infiniband_ver, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(header_subtree, hf_infiniband_tcp_chk, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(header_subtree, hf_infiniband_ip_chk, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(header_subtree, hf_infiniband_fcs, tvb, offset, 2, FALSE);
+    proto_tree_add_item(header_subtree, hf_infiniband_fcs, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     ms = tvb_get_bits8(tvb, (offset + 1)*8 + 2, 1);
     seg_offset = tvb_get_bits8(tvb, (offset + 1)*8 + 3, 5);
 
-    proto_tree_add_item(header_subtree, hf_infiniband_ms, tvb, offset, 2, FALSE);
+    proto_tree_add_item(header_subtree, hf_infiniband_ms, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(header_subtree, hf_infiniband_seg_off, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
     proto_tree_add_item(header_subtree, hf_infiniband_seg_id, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
@@ -3049,9 +3049,9 @@ static void parse_COM_MGT(proto_tree *parentTree, packet_info *pinfo, tvbuff_t *
             local_lid = tvb_get_ntohs(tvb, local_offset); local_offset += 2;
             proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_lid, tvb, local_offset, 2, ENC_BIG_ENDIAN);
             remote_lid = tvb_get_ntohs(tvb, local_offset); local_offset += 2;
-            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_local_gid, tvb, local_offset, 16, ENC_NA);
             tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)local_gid); local_offset += 16;
-            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, FALSE);
+            proto_tree_add_item(CM_header_tree, hf_cm_req_primary_remote_gid, tvb, local_offset, 16, ENC_NA);
             tvb_get_ipv6(tvb, local_offset, (struct e_in6_addr*)remote_gid); local_offset += 16;
             proto_tree_add_item(CM_header_tree, hf_cm_req_primary_flow_label, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
             local_offset += 1;  /* skip reserved */
@@ -3682,22 +3682,22 @@ static void parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
         case 64:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 64 DataDetails");
             local_offset +=6;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, FALSE);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, ENC_NA);  local_offset+=16;
         break;
         case 65:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 65 DataDetails");
             local_offset +=6;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, FALSE);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, ENC_NA);  local_offset+=16;
         break;
         case 66:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 66 DataDetails");
             local_offset +=6;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, FALSE);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, ENC_NA);  local_offset+=16;
         break;
         case 67:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 67 DataDetails");
             local_offset +=6;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, FALSE);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR,    tvb, local_offset, 16, ENC_NA);  local_offset+=16;
         break;
         case 68:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 68 DataDetails");
@@ -3776,8 +3776,8 @@ static void parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_QP1,        tvb, local_offset, 3, ENC_BIG_ENDIAN);  local_offset+=3;
             local_offset +=1;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_QP2,        tvb, local_offset, 3, ENC_BIG_ENDIAN);  local_offset+=3;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR1,   tvb, local_offset, 16, FALSE);  local_offset+=16;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2,   tvb, local_offset, 16, FALSE);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR1,   tvb, local_offset, 16, ENC_NA);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2,   tvb, local_offset, 16, ENC_NA);  local_offset+=16;
         break;
         case 258:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 258 DataDetails");
@@ -3789,12 +3789,12 @@ static void parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_QP1,        tvb, local_offset, 3, ENC_BIG_ENDIAN);  local_offset+=3;
             local_offset +=1;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_QP2,        tvb, local_offset, 3, ENC_BIG_ENDIAN);  local_offset+=3;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR1,   tvb, local_offset, 16, FALSE);  local_offset+=16;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2,   tvb, local_offset, 16, FALSE);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR1,   tvb, local_offset, 16, ENC_NA);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2,   tvb, local_offset, 16, ENC_NA);  local_offset+=16;
         break;
         case 259:
             proto_item_set_text(DataDetails_header_item, "%s", "Trap 259 DataDetails");
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_DataValid,  tvb, local_offset, 2, FALSE);  local_offset+=2;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_DataValid,  tvb, local_offset, 2, ENC_NA);  local_offset+=2;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_LIDADDR1,   tvb, local_offset, 2, ENC_BIG_ENDIAN);  local_offset+=2;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_LIDADDR2,   tvb, local_offset, 2, ENC_BIG_ENDIAN);  local_offset+=2;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_PKEY,       tvb, local_offset, 2, ENC_BIG_ENDIAN);  local_offset+=2;
@@ -3802,9 +3802,9 @@ static void parse_NoticeDataDetails(proto_tree* parentTree, tvbuff_t* tvb, gint 
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_QP1,        tvb, local_offset, 3, ENC_BIG_ENDIAN);  local_offset+=3;
             local_offset +=1;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_QP2,        tvb, local_offset, 3, ENC_BIG_ENDIAN);  local_offset+=3;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR1,   tvb, local_offset, 16, FALSE);  local_offset+=16;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2,   tvb, local_offset, 16, FALSE);  local_offset+=16;
-            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_SWLIDADDR,  tvb, local_offset, 2, FALSE);  local_offset+=2;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR1,   tvb, local_offset, 16, ENC_NA);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_GIDADDR2,   tvb, local_offset, 16, ENC_NA);  local_offset+=16;
+            proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_SWLIDADDR,  tvb, local_offset, 2, ENC_NA);  local_offset+=2;
             proto_tree_add_item(DataDetails_header_tree, hf_infiniband_Trap_PORTNO,     tvb, local_offset, 1, ENC_BIG_ENDIAN);  local_offset+=1;
         break;
         default:
@@ -3845,7 +3845,7 @@ static void parse_NoticesAndTraps(proto_tree* parentTree, tvbuff_t* tvb, gint *o
     proto_tree_add_item(NoticesAndTraps_header_tree, hf_infiniband_Notice_DataDetails,              tvb, local_offset, 54, ENC_NA); local_offset+=54;
 
     /* Only Defined For GMPs not SMPs which is not part of this dissector phase
-    *proto_tree_add_item(NoticesAndTraps_header_tree, hf_infiniband_Notice_IssuerGID,               tvb, local_offset, 16, FALSE); local_offset+=16;
+    *proto_tree_add_item(NoticesAndTraps_header_tree, hf_infiniband_Notice_IssuerGID,               tvb, local_offset, 16, ENC_NA); local_offset+=16;
     *proto_tree_add_item(NoticesAndTraps_header_tree, hf_infiniband_Notice_ClassTrapSpecificData,   tvb, local_offset, 1, ENC_NA); local_offset+=1; */
 
 }
@@ -4541,7 +4541,7 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
                 break;
             case 0x00F3:
                 /* InformInfoRecord */
-                proto_tree_add_item(SA_header_tree, hf_infiniband_InformInfoRecord_SubscriberGID,   tvb, local_offset, 16, FALSE); local_offset+=16;
+                proto_tree_add_item(SA_header_tree, hf_infiniband_InformInfoRecord_SubscriberGID,   tvb, local_offset, 16, ENC_NA); local_offset+=16;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_InformInfoRecord_Enum,            tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
                 local_offset+=6; /* Reserved bits */
                 break;
@@ -4553,14 +4553,14 @@ static void parse_RID(proto_tree* SA_header_tree, tvbuff_t* tvb, gint *offset, M
             case 0x0031:
                 /* ServiceRecord */
                 proto_tree_add_item(SA_header_tree, hf_infiniband_ServiceRecord_ServiceID,      tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset+=8;
-                proto_tree_add_item(SA_header_tree, hf_infiniband_ServiceRecord_ServiceGID,     tvb, local_offset, 16, FALSE); local_offset+=16;
+                proto_tree_add_item(SA_header_tree, hf_infiniband_ServiceRecord_ServiceGID,     tvb, local_offset, 16, ENC_NA); local_offset+=16;
                 proto_tree_add_item(SA_header_tree, hf_infiniband_ServiceRecord_ServiceP_Key,   tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
                 local_offset+=2;
                 break;
             case 0x0038:
                 /* MCMemberRecord */
-                proto_tree_add_item(SA_header_tree, hf_infiniband_MCMemberRecord_MGID,      tvb, local_offset, 16, FALSE); local_offset+=16;
-                proto_tree_add_item(SA_header_tree, hf_infiniband_MCMemberRecord_PortGID,   tvb, local_offset, 16, FALSE); local_offset+=16;
+                proto_tree_add_item(SA_header_tree, hf_infiniband_MCMemberRecord_MGID,      tvb, local_offset, 16, ENC_NA); local_offset+=16;
+                proto_tree_add_item(SA_header_tree, hf_infiniband_MCMemberRecord_PortGID,   tvb, local_offset, 16, ENC_NA); local_offset+=16;
                 break;
             case 0x0030:
                 /* GuidInfoRecord */
@@ -4593,7 +4593,7 @@ static void parse_InformInfo(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     proto_item_set_text(InformInfo_header_item, "%s", "InformInfo");
     InformInfo_header_tree = proto_item_add_subtree(InformInfo_header_item, ett_informinfo);
 
-    proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_GID,                   tvb, local_offset, 16, FALSE); local_offset+=16;
+    proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_GID,                   tvb, local_offset, 16, ENC_NA); local_offset+=16;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_LIDRangeBegin,         tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
     proto_tree_add_item(InformInfo_header_tree, hf_infiniband_InformInfo_LIDRangeEnd,           tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
     local_offset+=2; /* Reserved Bits */
@@ -4687,8 +4687,8 @@ static void parse_PathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *offset
     PathRecord_header_tree = proto_item_add_subtree(PathRecord_header_item, ett_pathrecord);
     local_offset += 8; /* Reserved Bits */
 
-    proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_DGID,          tvb, local_offset, 16, FALSE); local_offset+=16;
-    proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_SGID,          tvb, local_offset, 16, FALSE); local_offset+=16;
+    proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_DGID,          tvb, local_offset, 16, ENC_NA); local_offset+=16;
+    proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_SGID,          tvb, local_offset, 16, ENC_NA); local_offset+=16;
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_DLID,          tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_SLID,          tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset+=2;
     proto_tree_add_item(PathRecord_header_tree, hf_infiniband_PathRecord_RawTraffic,    tvb, local_offset, 1, ENC_BIG_ENDIAN);
@@ -4826,12 +4826,12 @@ static void parse_MultiPathRecord(proto_tree* parentTree, tvbuff_t* tvb, gint *o
 
     for(i = 0; i < SDGIDCount; i++)
     {
-        SDGID = proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_SDGID,       tvb, local_offset, 16, FALSE); local_offset+=16;
+        SDGID = proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_SDGID,       tvb, local_offset, 16, ENC_NA); local_offset+=16;
         proto_item_set_text(SDGID, "(%s%u)","SGID", i);
     }
     for(i = 0; i < DGIDCount; i++)
     {
-        SDGID = proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_SDGID,       tvb, local_offset, 16, FALSE); local_offset+=16;
+        SDGID = proto_tree_add_item(MultiPathRecord_header_tree, hf_infiniband_MultiPathRecord_SDGID,       tvb, local_offset, 16, ENC_NA); local_offset+=16;
         proto_item_set_text(SDGID, "(%s%u)","DGID", i);
     }
 }

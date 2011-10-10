@@ -107,9 +107,9 @@ dissect_socketcan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		can_tree = proto_item_add_subtree(ti, ett_can);
 
 		proto_tree_add_item(can_tree, hf_can_ident, tvb, 0, 4, ENC_BIG_ENDIAN );
-		proto_tree_add_item(can_tree, hf_can_extflag, tvb, 0, 4, FALSE );
-		proto_tree_add_item(can_tree, hf_can_rtrflag, tvb, 0, 4, FALSE );
-		proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, FALSE );
+		proto_tree_add_item(can_tree, hf_can_extflag, tvb, 0, 4, ENC_BIG_ENDIAN );
+		proto_tree_add_item(can_tree, hf_can_rtrflag, tvb, 0, 4, ENC_BIG_ENDIAN );
+		proto_tree_add_item(can_tree, hf_can_errflag, tvb, 0, 4, ENC_BIG_ENDIAN );
 		proto_tree_add_item(can_tree, hf_can_len, tvb, CAN_LEN_OFFSET, 1, ENC_BIG_ENDIAN );
 
 		next_tvb =  tvb_new_subset(tvb, CAN_DATA_OFFSET, tvb_get_guint8(tvb, CAN_LEN_OFFSET), 8 );

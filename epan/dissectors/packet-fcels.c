@@ -1259,9 +1259,9 @@ dissect_fcels_farp (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
         proto_tree_add_string (farp_tree, hf_fcels_respnname, tvb, offset+32,
                                8, tvb_fcwwn_to_str (tvb, offset+32));
         proto_tree_add_item (farp_tree, hf_fcels_reqipaddr, tvb, offset+40,
-                             16, FALSE);
+                             16, ENC_NA);
         proto_tree_add_item (farp_tree, hf_fcels_respipaddr, tvb, offset+56,
-                             16, FALSE);
+                             16, ENC_NA);
     }
 }
 
@@ -1908,7 +1908,7 @@ dissect_fcels_rnid (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
                 proto_tree_add_item (rnid_tree, hf_fcels_tcpport, tvb,
                                      offset+54, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item (rnid_tree, hf_fcels_ip, tvb, offset+56,
-                                     16, FALSE);
+                                     16, ENC_NA);
                 proto_tree_add_item (rnid_tree, hf_fcels_vendorsp, tvb,
                                      offset+74, 2, ENC_BIG_ENDIAN);
             }

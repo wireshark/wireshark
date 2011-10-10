@@ -249,11 +249,11 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				if (sebek_type == 2) {
 					/*data is socket data, process accordingly*/
-					proto_tree_add_item(sebek_tree, hf_sebek_socket_dst_ip, tvb, offset, 4, FALSE);
+					proto_tree_add_item(sebek_tree, hf_sebek_socket_dst_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					proto_tree_add_item(sebek_tree, hf_sebek_socket_dst_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;
-					proto_tree_add_item(sebek_tree, hf_sebek_socket_src_ip, tvb, offset, 4, FALSE);
+					proto_tree_add_item(sebek_tree, hf_sebek_socket_src_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					proto_tree_add_item(sebek_tree, hf_sebek_socket_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
 					offset += 2;

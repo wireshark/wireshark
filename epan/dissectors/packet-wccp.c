@@ -364,7 +364,7 @@ dissect_web_cache_list_entry(tvbuff_t *tvb, int offset, int idx,
 	    "Web-Cache List Entry(%d)", idx);
 	list_entry_tree = proto_item_add_subtree(tl, ett_cache_info);
 	proto_tree_add_item(list_entry_tree, hf_cache_ip, tvb, offset, 4,
-	    FALSE);
+	    ENC_BIG_ENDIAN);
 	dissect_hash_data(tvb, offset + 4, list_entry_tree);
 }
 

@@ -530,7 +530,7 @@ void dissect_cie_list(tvbuff_t *tvb,
 
 			case AFNUM_INET:
 				if (cli_addr_len == 4)
-					proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, FALSE);
+					proto_tree_add_item(cie_tree, hf_nhrp_client_nbma_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 				else {
 					proto_tree_add_text(cie_tree, tvb, offset, cli_addr_len,
 					    "Client NBMA Address: %s",
@@ -676,7 +676,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 
 		case AFNUM_INET:
 			if (shl == 4)
-				proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr, tvb, offset, 4, FALSE);
+				proto_tree_add_item(nhrp_tree, hf_nhrp_src_nbma_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 			else {
 				proto_tree_add_text(nhrp_tree, tvb, offset, shl,
 				    "Source NBMA Address: %s",
@@ -702,7 +702,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	}
 
 	if (*srcLen == 4) {
-		proto_tree_add_item(nhrp_tree, hf_nhrp_src_prot_addr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(nhrp_tree, hf_nhrp_src_prot_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	else if (*srcLen) {
@@ -713,7 +713,7 @@ void dissect_nhrp_mand(tvbuff_t *tvb,
 	}
 
 	if (dstLen == 4) {
-		proto_tree_add_item(nhrp_tree, hf_nhrp_dst_prot_addr, tvb, offset, 4, FALSE);
+		proto_tree_add_item(nhrp_tree, hf_nhrp_dst_prot_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	else if (dstLen) {
@@ -878,11 +878,11 @@ void dissect_nhrp_ext(tvbuff_t *tvb,
 				devcap_tree = proto_item_add_subtree(devcap_item, ett_nhrp_devcap_ext);
 				cap_item = proto_tree_add_item(devcap_tree, hf_nhrp_devcap_ext_srccap, tvb, offset, 4, ENC_BIG_ENDIAN);
 				cap_tree = proto_item_add_subtree(cap_item, ett_nhrp_devcap_ext_srccap);
-				proto_tree_add_item(cap_tree, hf_nhrp_devcap_ext_srccap_V, tvb, offset, 4, FALSE);
+				proto_tree_add_item(cap_tree, hf_nhrp_devcap_ext_srccap_V, tvb, offset, 4, ENC_BIG_ENDIAN);
 
 				cap_item = proto_tree_add_item(devcap_tree, hf_nhrp_devcap_ext_dstcap, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 				cap_tree = proto_item_add_subtree(cap_item, ett_nhrp_devcap_ext_dstcap);
-				proto_tree_add_item(cap_tree, hf_nhrp_devcap_ext_dstcap_V, tvb, offset + 4, 4, FALSE);
+				proto_tree_add_item(cap_tree, hf_nhrp_devcap_ext_dstcap_V, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 				goto skip_switch;
 			}
 
@@ -915,7 +915,7 @@ void dissect_nhrp_ext(tvbuff_t *tvb,
 					proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
 					proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_spi, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 					if (srcLen == 4)
-						proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr, tvb, offset + 4, 4, FALSE);
+						proto_tree_add_item(auth_tree, hf_nhrp_auth_ext_src_addr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 					else if (srcLen) {
 						proto_tree_add_text(auth_tree, tvb, offset + 4, srcLen,
 							"Source Address: %s",

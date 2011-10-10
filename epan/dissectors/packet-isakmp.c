@@ -2763,18 +2763,18 @@ dissect_isakmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       ftree = proto_item_add_subtree(fti, ett_isakmp_flags);
 
       if (isakmp_version == 1) {
-        proto_tree_add_item(ftree, hf_isakmp_flag_e, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ftree, hf_isakmp_flag_e, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ftree, hf_isakmp_flag_c, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ftree, hf_isakmp_flag_c, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ftree, hf_isakmp_flag_a, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ftree, hf_isakmp_flag_a, tvb, offset, 1, ENC_BIG_ENDIAN);
 
       } else if (isakmp_version == 2) {
-        proto_tree_add_item(ftree, hf_isakmp_flag_i, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ftree, hf_isakmp_flag_i, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ftree, hf_isakmp_flag_v, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ftree, hf_isakmp_flag_v, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ftree, hf_isakmp_flag_r, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ftree, hf_isakmp_flag_r, tvb, offset, 1, ENC_BIG_ENDIAN);
 
       }
       offset += 1;
@@ -2863,7 +2863,7 @@ dissect_payload_header(tvbuff_t *tvb, int offset, int length,
   proto_tree_add_item(ntree, hf_isakmp_nextpayload, tvb, offset, 1, FALSE);
 
   if (isakmp_version == 2) {
-    proto_tree_add_item(ntree, hf_isakmp_criticalpayload, tvb, offset+1, 1, FALSE);
+    proto_tree_add_item(ntree, hf_isakmp_criticalpayload, tvb, offset+1, 1, ENC_BIG_ENDIAN);
   }
   proto_tree_add_item(ntree, hf_isakmp_payloadlen, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 
@@ -2899,9 +2899,9 @@ dissect_sa(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       sti = proto_tree_add_item(tree, hf_isakmp_sa_situation, tvb, offset, 4, ENC_NA);
       stree = proto_item_add_subtree(sti, ett_isakmp_sa);
 
-      proto_tree_add_item(stree, hf_isakmp_sa_situation_identity_only, tvb, offset, 4, FALSE);
-      proto_tree_add_item(stree, hf_isakmp_sa_situation_secrecy, tvb, offset, 4, FALSE);
-      proto_tree_add_item(stree, hf_isakmp_sa_situation_integrity, tvb, offset, 4, FALSE);
+      proto_tree_add_item(stree, hf_isakmp_sa_situation_identity_only, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(stree, hf_isakmp_sa_situation_secrecy, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(stree, hf_isakmp_sa_situation_integrity, tvb, offset, 4, ENC_BIG_ENDIAN);
 
       offset += 4;
       length -= 4;
@@ -3008,7 +3008,7 @@ dissect_rohc_supported(tvbuff_t *tvb, proto_tree *rohc_tree, int offset )
 	rohc_item = proto_tree_add_item(rohc_tree, hf_isakmp_notify_data_rohc_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(rohc_item," (t=%d,l=%d) %s",rohc, optlen, val_to_str(rohc, rohc_attr_type, "Unknown Attribute Type (%02d)") );
 	sub_rohc_tree = proto_item_add_subtree(rohc_item, ett_isakmp_rohc_attr);
-	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, FALSE);
+	proto_tree_add_item(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_uint(sub_rohc_tree, hf_isakmp_notify_data_rohc_attr_type, tvb, offset, 2, rohc);
 
 	offset += 2;
@@ -3153,7 +3153,7 @@ dissect_transform_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_tree,
 	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_tf_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item, " (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type, transform_isakmp_attr_type, "Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_attr);
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_format, tvb, offset, 2, FALSE);
+	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_tf_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_tf_attr_type_v1, tvb, offset, 2, transform_attr_type);
 
 	offset += 2;
@@ -3252,7 +3252,7 @@ dissect_transform_ike_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_t
 	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike_attr_type,"Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike_attr);
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_format, tvb, offset, 2, FALSE);
+	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike_attr_type, tvb, offset, 2, transform_attr_type);
 
 	offset += 2;
@@ -3366,7 +3366,7 @@ dissect_transform_ike2_attribute(tvbuff_t *tvb, proto_tree *transform_attr_type_
 	transform_attr_type_item = proto_tree_add_item(transform_attr_type_tree, hf_isakmp_ike2_attr, tvb, offset, 2+len+optlen, ENC_NA);
         proto_item_append_text(transform_attr_type_item," (t=%d,l=%d) %s",transform_attr_type, optlen, val_to_str(transform_attr_type,transform_ike2_attr_type,"Unknown Attribute Type (%02d)") );
 	sub_transform_attr_type_tree = proto_item_add_subtree(transform_attr_type_item, ett_isakmp_tf_ike2_attr);
-	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_format, tvb, offset, 2, FALSE);
+	proto_tree_add_item(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_uint(sub_transform_attr_type_tree, hf_isakmp_ike2_attr_type, tvb, offset, 2, transform_attr_type);
 
 	offset += 2;
@@ -3583,7 +3583,7 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
   idtree = proto_item_add_subtree(idit, ett_isakmp_id);
   switch (id_type) {
     case IKE_ID_IPV4_ADDR:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
       proto_item_append_text(idit, "%s", tvb_ip_to_str(tvb, offset));
       break;
     case IKE_ID_FQDN:
@@ -3595,27 +3595,27 @@ dissect_id(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakmp_v
       proto_item_append_text(idit, "%s", tvb_get_ephemeral_string(tvb, offset,length));
       break;
     case IKE_ID_IPV4_ADDR_SUBNET:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, FALSE);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_addr, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_subnet, tvb, offset+4, 4, ENC_BIG_ENDIAN);
       proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
       break;
     case IKE_ID_IPV4_ADDR_RANGE:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_start, tvb, offset, 4, FALSE);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_end, tvb, offset+4, 4, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_start, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv4_range_end, tvb, offset+4, 4, ENC_BIG_ENDIAN);
       proto_item_append_text(idit, "%s/%s", tvb_ip_to_str(tvb, offset), tvb_ip_to_str(tvb, offset+4));
       break;
     case IKE_ID_IPV6_ADDR:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, ENC_NA);
       proto_item_append_text(idit, "%s", tvb_ip6_to_str(tvb, offset));
       break;
     case IKE_ID_IPV6_ADDR_SUBNET:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, FALSE);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_subnet, tvb, offset+16, 16, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_addr, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_subnet, tvb, offset+16, 16, ENC_NA);
       proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
       break;
     case IKE_ID_IPV6_ADDR_RANGE:
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_start, tvb, offset, 16, FALSE);
-      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_end, tvb, offset+16, 16, FALSE);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_start, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(idtree, hf_isakmp_id_data_ipv6_range_end, tvb, offset+16, 16, ENC_NA);
       proto_item_append_text(idit, "%s/%s", tvb_ip6_to_str(tvb, offset), tvb_ip6_to_str(tvb, offset+16));
       break;
     case IKE_ID_KEY_ID:
@@ -3837,7 +3837,7 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                proto_tree_add_item(tree, hf_isakmp_notify_data_dpd_are_you_there_ack, tvb, offset, length, ENC_BIG_ENDIAN);
           break;
           case 40501: /* UNITY Load Balance */
-               proto_tree_add_item(tree, hf_isakmp_notify_data_unity_load_balance, tvb, offset, length, FALSE);
+               proto_tree_add_item(tree, hf_isakmp_notify_data_unity_load_balance, tvb, offset, length, ENC_BIG_ENDIAN);
           break;
           default:
                /* No Default Action */
@@ -3856,10 +3856,10 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                switch(tvb_get_guint8(tvb, offset)){ /* Ident Type ? */
                 case 1:
-                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4, tvb, offset+2, 4, FALSE);
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 break;
                 case 2:
-                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv6, tvb, offset+2, 16, FALSE);
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_ipv6, tvb, offset+2, 16, ENC_NA);
                 break;
                 case 3:
                  proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_new_resp_gw_ident_fqdn, tvb, offset+2, tvb_get_guint8(tvb,offset+1), FALSE);
@@ -3880,10 +3880,10 @@ dissect_notif(tvbuff_t *tvb, int offset, int length, proto_tree *tree, int isakm
                proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_gw_ident_len, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                switch(tvb_get_guint8(tvb, offset)){ /* Ident Type ? */
                 case 1:
-                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv4, tvb, offset+2, 4, FALSE);
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv4, tvb, offset+2, 4, ENC_BIG_ENDIAN);
                 break;
                 case 2:
-                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6, tvb, offset+2, 16, FALSE);
+                 proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident_ipv6, tvb, offset+2, 16, ENC_NA);
                 break;
                 default :
                   proto_tree_add_item(tree, hf_isakmp_notify_data_redirect_org_resp_gw_ident, tvb, offset+2, tvb_get_guint8(tvb,offset+1), ENC_NA);
@@ -4057,7 +4057,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 	   sub_cfg_attr_type_tree = proto_item_add_subtree(cfg_attr_type_item, ett_isakmp_cfg_attr);
 	   proto_tree_add_uint(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_type_v2, tvb, offset, 2, cfg_attr_type);
 	}
-        proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_format, tvb, offset, 2, FALSE);
+        proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_format, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 	if (len)
 	{
@@ -4078,14 +4078,14 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_address, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_address, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 
 		}
 		break;
 	case INTERNAL_IP4_NETMASK: /* 2 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_netmask, tvb, offset, 4, FALSE);
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
 		break;
 	case INTERNAL_IP4_DNS: /* 3 */
 		offset_end = offset + optlen;
@@ -4094,7 +4094,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dns, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 
@@ -4107,7 +4107,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_nbns, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_nbns, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 
@@ -4123,7 +4123,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dhcp, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_dhcp, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 
@@ -4140,14 +4140,14 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address, tvb, offset, 16, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_address, tvb, offset, 16, ENC_BIG_ENDIAN);
 				offset += 16;
 			}
 
 		}
 		break;
 	case INTERNAL_IP6_NETMASK: /* 9 Only in IKEv1 */
-		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, FALSE);
+		proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_netmask, tvb, offset, 18, ENC_NA);
 		break;
 	case INTERNAL_IP6_DNS: /* 10 */
 		offset_end = offset + optlen;
@@ -4156,7 +4156,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dns, tvb, offset, 16, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dns, tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
 
@@ -4169,7 +4169,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_nbns, tvb, offset, 16, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_nbns, tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
 
@@ -4182,7 +4182,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dhcp, tvb, offset, 16, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_dhcp, tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
 
@@ -4195,8 +4195,8 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, FALSE);
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip4_subnet_netmask, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 8;
 			}
 
@@ -4222,7 +4222,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_ip, tvb, offset, 16, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_ip, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_subnet_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
@@ -4243,7 +4243,7 @@ dissect_config_attribute(tvbuff_t *tvb, proto_tree *cfg_attr_type_tree, int offs
 		{
 			while (offset_end-offset > 0)
 			{
-				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_ip, tvb, offset, 16, FALSE);
+				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_ip, tvb, offset, 16, ENC_NA);
 				offset += 16;
 				proto_tree_add_item(sub_cfg_attr_type_tree, hf_isakmp_cfg_attr_internal_ip6_prefix_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 				offset += 1;
@@ -4360,11 +4360,11 @@ dissect_nat_original_address(tvbuff_t *tvb, int offset, int length, proto_tree *
   switch (id_type) {
 
   case IKE_ID_IPV4_ADDR:
-    proto_tree_add_item(tree, hf_isakmp_nat_original_address_ipv4, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_isakmp_nat_original_address_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
     break;
 
   case IKE_ID_IPV6_ADDR:
-    proto_tree_add_item(tree, hf_isakmp_nat_original_address_ipv6, tvb, offset, 16, FALSE);
+    proto_tree_add_item(tree, hf_isakmp_nat_original_address_ipv6, tvb, offset, 16, ENC_NA);
     break;
 
   default:
@@ -4416,10 +4416,10 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 	offset += 2;
 	length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv4, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	length -= 4;
-	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv4, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv4, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 	length -= 4;
 	break;
@@ -4445,11 +4445,11 @@ dissect_ts(tvbuff_t *tvb, int offset, int length, proto_tree *tree)
 	offset += 2;
 	length -= 2;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv6, tvb, offset, 16, FALSE);
+	proto_tree_add_item(tree, hf_isakmp_ts_start_addr_ipv6, tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
-	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv6, tvb, offset, 16, FALSE);
+	proto_tree_add_item(tree, hf_isakmp_ts_end_addr_ipv6, tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 	break;

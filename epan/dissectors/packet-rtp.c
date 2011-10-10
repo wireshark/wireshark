@@ -1089,7 +1089,7 @@ dissect_rtp_rfc2198(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
 		/* Add a subtree for this header and add items */
 		ti = proto_tree_add_text(rfc2198_tree, tvb, offset, (hdr_follow)?4:1, "Header %u", cnt);
 		rfc2198_hdr_tree = proto_item_add_subtree(ti, ett_rtp_rfc2198_hdr);
-		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, FALSE );
+		proto_tree_add_item(rfc2198_hdr_tree, hf_rtp_rfc2198_follow, tvb, offset, 1, ENC_BIG_ENDIAN );
 		proto_tree_add_uint_format(rfc2198_hdr_tree, hf_rtp_payload_type, tvb,
 		    offset, 1, octet1, "Payload type: %s (%u)",
 			payload_type_str ? payload_type_str : val_to_str_ext(hdr_new->pt, &rtp_payload_type_vals_ext, "Unknown"),

@@ -715,7 +715,7 @@ static int dissect_edonkey_metatag(tvbuff_t *tvb, packet_info *pinfo _U_,
             edonkey_tree_add_metatag_name(metatag_tree, tvb, tag_offset-tag_name_size, tag_name_size, special_tagtype);
             trans_tagtype = edonkey_metatag_name_get_type(tvb, offset+3, tag_name_size, special_tagtype);
             if (trans_tagtype == EDONKEY_STAG_IP) {
-                proto_tree_add_item(metatag_tree, hf_edonkey_ip, tvb, tag_offset, 4, FALSE);
+                proto_tree_add_item(metatag_tree, hf_edonkey_ip, tvb, tag_offset, 4, ENC_BIG_ENDIAN);
             }
             else if (trans_tagtype == EMULE_STAG_SERVER_VERSION) {
                 guint16 maj, min;
@@ -857,7 +857,7 @@ static int dissect_edonkey_address(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <Address> ::= <IP> <Port> */
     /*    guint32 ip = tvb_get_letohl(tvb, offset);
           proto_tree_add_ipv4(tree, hf_edonkey_ip, tvb, offset, 4, ip); */
-    proto_tree_add_item(tree, hf_edonkey_ip, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_edonkey_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(tree, hf_edonkey_port, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
     return offset+6;
 }
@@ -881,7 +881,7 @@ static int dissect_kademlia_tcp_port(tvbuff_t *tvb, packet_info *pinfo _U_,
 static int dissect_kademlia_ip_address(tvbuff_t *tvb, packet_info *pinfo _U_,
                                        int offset, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_kademlia_ip, tvb, offset, 4, TRUE);
+    proto_tree_add_item(tree, hf_kademlia_ip, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     return offset + 4;
 }
 
@@ -1196,7 +1196,7 @@ static int dissect_emule_sourceOBFU(tvbuff_t *tvb, packet_info *pinfo _U_,
     ti = proto_tree_add_item(tree, hf_emule_sourceOBFU, tvb, offset, 7 + ((settings & 0x80) ? 16 : 0), ENC_NA);
     sourceOBFU_tree = proto_item_add_subtree(ti, ett_emule_sourceOBFU);
 
-    proto_tree_add_item(sourceOBFU_tree, hf_edonkey_ip, tvb, offset, 4, FALSE);
+    proto_tree_add_item(sourceOBFU_tree, hf_edonkey_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(sourceOBFU_tree, hf_edonkey_port, tvb, offset+4, 2, ENC_LITTLE_ENDIAN);
     proto_tree_add_text(sourceOBFU_tree, tvb, offset+6, 1, "Obfuscation Settings: %u", settings);
     offset += 7;
@@ -1222,7 +1222,7 @@ static int dissect_edonkey_client_id(tvbuff_t *tvb, packet_info *pinfo _U_,
     /* <Client ID> ::= guint32 */
     /*    guint32 ip = tvb_get_letohl(tvb, offset);
           proto_tree_add_ipv4(tree, hf_edonkey_client_id, tvb, offset, 4, ip); */
-    ti = proto_tree_add_item(tree, hf_edonkey_client_id, tvb, offset, 4, FALSE);
+    ti = proto_tree_add_item(tree, hf_edonkey_client_id, tvb, offset, 4, ENC_BIG_ENDIAN);
     if (fileinfo) {
         guint32 ip = tvb_get_letohl(tvb, offset);
         guint16 port = tvb_get_letohs(tvb, offset+4);
@@ -2436,7 +2436,7 @@ static int dissect_kademlia_tag(tvbuff_t *tvb, packet_info *pinfo _U_,
                     case KADEMLIA_TAG_SOURCEIP:
                     {
                         int ipa = 0, ipb = 0, ipc = 0, ipd = 0;
-                        proto_tree_add_item( subtree, hf_kademlia_tag_ipv4, tvb, offset, 4, TRUE);
+                        proto_tree_add_item( subtree, hf_kademlia_tag_ipv4, tvb, offset, 4, ENC_LITTLE_ENDIAN);
                         value = tvb_get_letohl( tvb, offset );
                         ipa = (value / (256*256*256)) % 256;
                         ipb = (value / (256*256)) % 256;

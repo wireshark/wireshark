@@ -2293,7 +2293,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                             plurality(tlen, "", "s"));
                     } else {
                         proto_tree_add_item(subtree2, hf_bgp_next_hop, tvb,
-                                            o + i + aoff, tlen, FALSE);
+                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
                     }
                     break;
                 case BGPTYPE_MULTI_EXIT_DISC:
@@ -2343,7 +2343,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         proto_tree_add_uint(subtree2, hf_bgp_aggregator_as, tvb,
                                             o + i + aoff, asn_len, aggregator_as);
                         proto_tree_add_item(subtree2, hf_bgp_aggregator_origin, tvb,
-                                            o + i + aoff + asn_len, 4, FALSE);
+                                            o + i + aoff + asn_len, 4, ENC_BIG_ENDIAN);
                     }
                     break;
                 case BGPTYPE_COMMUNITIES:
@@ -2399,7 +2399,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                             plurality(tlen, "", "s"));
                     } else {
                         proto_tree_add_item(subtree2, hf_bgp_originator_id, tvb,
-                                            o + i + aoff, tlen, FALSE);
+                                            o + i + aoff, tlen, ENC_BIG_ENDIAN);
                     }
                     break;
                 case BGPTYPE_MP_REACH_NLRI:
@@ -2754,7 +2754,7 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                         subtree3 = proto_item_add_subtree(ti, ett_bgp_ssa);
 
                         proto_tree_add_item(subtree3, hf_bgp_ssa_t, tvb,
-                                            q, 1, FALSE);
+                                            q, 1, ENC_BIG_ENDIAN);
                         hidden_item = proto_tree_add_item(subtree3, hf_bgp_ssa_type, tvb,
                                                           q, 2, ENC_BIG_ENDIAN);
                         PROTO_ITEM_SET_HIDDEN(hidden_item);
@@ -2776,9 +2776,9 @@ dissect_bgp_update(tvbuff_t *tvb, proto_tree *tree)
                                 ti = proto_tree_add_text(subtree3, tvb, q + 6, 1, "Flags");
                                 subtree4 = proto_item_add_subtree(ti, ett_bgp_ssa_subtree) ;
                                 proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_s, tvb,
-                                                    q + 6, 1, FALSE);
+                                                    q + 6, 1, ENC_BIG_ENDIAN);
                                 proto_tree_add_item(subtree4, hf_bgp_ssa_l2tpv3_unused, tvb,
-                                                    q + 6, 1, FALSE);
+                                                    q + 6, 1, ENC_BIG_ENDIAN);
 
                                 ssa_v3_len = tvb_get_guint8(tvb, q + 7);
                                 if (ssa_v3_len + 8 == ssa_len){

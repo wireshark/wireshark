@@ -265,7 +265,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 
 		proto_tree_add_item(edp_tree, hf_ismp_edp_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
-		proto_tree_add_item(edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_module_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_module_mac, tvb, offset, 6, FALSE);
 		offset += 6;
@@ -273,7 +273,7 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		offset += 4;
 		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_mac, tvb, offset, 6, FALSE);
 		offset += 6;
-		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, FALSE);
+		proto_tree_add_item(edp_tree, hf_ismp_edp_chassis_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		device_type = tvb_get_ntohs(tvb, offset);
 		proto_tree_add_item(edp_tree, hf_ismp_edp_device_type, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -293,45 +293,45 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 		switch (device_type) {
 			case EDP_DEVICE_TYPE_SFS17:
 			case EDP_DEVICE_TYPE_SFS18:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_flood, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_port, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_core, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_switch, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_isolated, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_redun, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_conmsg, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_calltap, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_tagflood, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_unused2, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_resolve, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_flood, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_lsp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_sfssup, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_unused1, tvb, offset, 4, FALSE);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_flood, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_port, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_core, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_uplink_switch, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_isolated, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_redun, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_conmsg, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_calltap, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_tagflood, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_unused2, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_resolve, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_flood, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_lsp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_sfssup, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_sfs_option_unused1, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			case EDP_DEVICE_TYPE_ROUTER:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_level1, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_trans, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_route, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_igmp_snoop, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_gmrp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_gvrp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_8021q, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_dvmrp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_ospf, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_bgp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_rip, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_igmp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_ssr, tvb, offset, 4, FALSE);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_level1, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_trans, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_route, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_igmp_snoop, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_gmrp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_gvrp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_8021q, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_dvmrp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_ospf, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_bgp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_rip, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_igmp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_rtr_option_ssr, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			case EDP_DEVICE_TYPE_BRIDGE:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_level1, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_trans, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_route, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_igmp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_gmrp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_gvrp, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_8021q, tvb, offset, 4, FALSE);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_level1, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_trans, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_route, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_igmp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_gmrp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_gvrp, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_switch_option_8021q, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			case EDP_DEVICE_TYPE_VLANMAN:
 				break;
@@ -341,9 +341,9 @@ dissect_ismp_edp(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *ismp
 			case EDP_DEVICE_TYPE_WIN98:
 			case EDP_DEVICE_TYPE_UNIXSERVER:
 			case EDP_DEVICE_TYPE_UNIXCLIENT:
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_ad, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_dns, tvb, offset, 4, FALSE);
-				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_dhcp, tvb, offset, 4, FALSE);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_ad, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_dns, tvb, offset, 4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(edp_options_tree, hf_ismp_edp_end_station_option_dhcp, tvb, offset, 4, ENC_BIG_ENDIAN);
 				break;
 			case EDP_DEVICE_TYPE_ACCESSPOINT:
 			default:

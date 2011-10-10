@@ -317,21 +317,21 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 	ofs = offset +AFPSTATUS_FLAGOFF;
 	ti = proto_tree_add_item(tree, hf_dsi_server_flag, tvb, ofs, 2, ENC_BIG_ENDIAN);
 	sub_tree = proto_item_add_subtree(ti, ett_dsi_status_server_flag);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_copyfile      , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_passwd        , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_no_save_passwd, tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_msg       , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_sig       , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_tcpip         , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_notify        , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_reconnect     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_directory     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_utf8_name     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_uuid          , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_ext_sleep     , tvb, ofs, 2, FALSE);
-	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, FALSE);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_copyfile      , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_passwd        , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_no_save_passwd, tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_msg       , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_srv_sig       , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_tcpip         , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_notify        , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_reconnect     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_directory     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_utf8_name     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_uuid          , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_ext_sleep     , tvb, ofs, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(sub_tree, hf_dsi_server_flag_fast_copy     , tvb, ofs, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, FALSE);
+	proto_tree_add_item(tree, hf_dsi_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, ENC_BIG_ENDIAN);
 
 	flag = tvb_get_ntohs(tvb, ofs);
 	if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
@@ -366,7 +366,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_MACHOFF);
 	if (ofs)
-		proto_tree_add_item(tree, hf_dsi_server_type, tvb, ofs, 1, FALSE);
+		proto_tree_add_item(tree, hf_dsi_server_type, tvb, ofs, 1, ENC_BIG_ENDIAN);
 
 	ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
 	if (ofs) {
@@ -376,7 +376,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_vers);
 		for (i = 0; i < nbe; i++) {
 			len = tvb_get_guint8(tvb, ofs);
-			proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, FALSE);
+			proto_tree_add_item(sub_tree, hf_dsi_server_vers, tvb, ofs, 1, ENC_BIG_ENDIAN);
 			ofs += len + 1;
 		}
 	}
@@ -389,7 +389,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_uams);
 		for (i = 0; i < nbe; i++) {
 			len = tvb_get_guint8(tvb, ofs);
-			proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, FALSE);
+			proto_tree_add_item(sub_tree, hf_dsi_server_uams, tvb, ofs, 1, ENC_BIG_ENDIAN);
 			ofs += len + 1;
 		}
 	}
@@ -478,7 +478,7 @@ dissect_dsi_reply_get_status(tvbuff_t *tvb, proto_tree *tree, gint offset)
 		sub_tree = proto_item_add_subtree(ti, ett_dsi_directory);
 		for (i = 0; i < nbe; i++) {
 			len = tvb_get_guint8(tvb, ofs);
-			proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, FALSE);
+			proto_tree_add_item(sub_tree, hf_dsi_server_directory, tvb, ofs, 1, ENC_BIG_ENDIAN);
 			ofs += len + 1;
 		}
 	}

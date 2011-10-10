@@ -2180,13 +2180,13 @@ dissect_nt_ace_object(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 
 	/* is there a GUID ? */
 	if(flags&0x00000001){
-		proto_tree_add_item(tree, hf_nt_ace_guid, tvb, offset, 16, TRUE);
+		proto_tree_add_item(tree, hf_nt_ace_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 		offset+=16;
 	}
 
 	/* is there an inherited GUID ? */
 	if(flags&0x00000002){
-		proto_tree_add_item(tree, hf_nt_ace_inherited_guid, tvb, offset, 16, TRUE);
+		proto_tree_add_item(tree, hf_nt_ace_inherited_guid, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 		offset+=16;
 	}
 

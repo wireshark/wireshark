@@ -504,11 +504,11 @@ dissect_mpa_req_rep(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset += MPA_REQ_REP_KEY_LEN;
 
 		proto_tree_add_item(mpa_header_tree, hf_mpa_flag_m, tvb,
-				offset, MPA_REQ_REP_FLAG_LEN, FALSE);
+				offset, MPA_REQ_REP_FLAG_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mpa_header_tree, hf_mpa_flag_c, tvb,
-				offset, MPA_REQ_REP_FLAG_LEN, FALSE);
+				offset, MPA_REQ_REP_FLAG_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mpa_header_tree, hf_mpa_flag_r, tvb,
-				offset, MPA_REQ_REP_FLAG_LEN, FALSE);
+				offset, MPA_REQ_REP_FLAG_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(mpa_header_tree, hf_mpa_flag_res, tvb,
 				offset, MPA_REQ_REP_FLAG_LEN, ENC_BIG_ENDIAN);
 		offset += MPA_REQ_REP_FLAG_LEN;

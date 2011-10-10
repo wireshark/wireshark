@@ -530,7 +530,7 @@ dissect_pppoe_tags(tvbuff_t *tvb, packet_info *pinfo, int offset, proto_tree *tr
                                                 proto_tree_add_item(pppoe_tree, hf_pppoed_tag_cdr_units, tvb,
                                                                     tagstart+4, 2, ENC_BIG_ENDIAN);
                                                 proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_r, tvb,
-						                    tagstart+4, 2, FALSE);
+						                    tagstart+4, 2, ENC_BIG_ENDIAN);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_rlq, tvb,
 						                    tagstart+6, 1, ENC_BIG_ENDIAN);
 						proto_tree_add_item(pppoe_tree, hf_pppoed_tag_metrics_resource, tvb,

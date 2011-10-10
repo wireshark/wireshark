@@ -89,7 +89,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if (tree) {
 			proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
-				0, 4, FALSE);
+				0, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
 				6, 2, etypev2);
 		}
@@ -107,7 +107,7 @@ dissect_symantec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		}
 		if (tree) {
 			proto_tree_add_item(symantec_tree, hf_symantec_if, tvb,
-				0, 4, FALSE);
+				0, 4, ENC_BIG_ENDIAN);
 			proto_tree_add_uint(symantec_tree, hf_symantec_etype, tvb,
 				10, 2, etypev3);
 		}

@@ -383,7 +383,7 @@ dissect_mip_extensions(tvbuff_t *tvb, int offset, proto_tree *tree)
 	  numCOAs = (length - 6) / 4;
 	  for (i=0; i<numCOAs; i++) {
 		proto_tree_add_item(mip_tree, hf_icmp_mip_coa, tvb, offset,
-							4, FALSE);
+							4, ENC_BIG_ENDIAN);
 		offset+=4;
 	  }
 	  break;
@@ -1012,7 +1012,7 @@ dissect_icmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	break;
 
       case ICMP_REDIRECT:
-        proto_tree_add_item(icmp_tree, hf_icmp_redir_gw, tvb, 4, 4, FALSE);
+        proto_tree_add_item(icmp_tree, hf_icmp_redir_gw, tvb, 4, 4, ENC_BIG_ENDIAN);
 	break;
   }
 

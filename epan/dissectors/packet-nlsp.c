@@ -1072,7 +1072,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		proto_tree_add_item(tree, hf_nlsp_lsp_attached_flag, tvb,
 		    offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_nlsp_lsp_lspdbol, tvb,
-		    offset, 1, FALSE);
+		    offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_nlsp_lsp_router_type, tvb,
 		    offset, 1, ENC_BIG_ENDIAN);
 	}

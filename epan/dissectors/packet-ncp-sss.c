@@ -304,100 +304,100 @@ process_flags(proto_tree *sss_tree, tvbuff_t *tvb, guint32 foffset)
             switch(bvalue)
             {
                 case 0x00000001:
-                        proto_tree_add_item(flags_tree, hfbit1, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit1, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000002:
-                    proto_tree_add_item(flags_tree, hfbit2, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(flags_tree, hfbit2, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000004:
-                    proto_tree_add_item(flags_tree, hfbit3, tvb, foffset, 4, FALSE);
+                    proto_tree_add_item(flags_tree, hfbit3, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000008:
-                        proto_tree_add_item(flags_tree, hfbit4, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit4, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000010:
-                        proto_tree_add_item(flags_tree, hfbit5, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit5, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000020:
-                        proto_tree_add_item(flags_tree, hfbit6, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit6, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000040:
-                        proto_tree_add_item(flags_tree, hfbit7, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit7, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000080:
-                        proto_tree_add_item(flags_tree, hfbit8, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit8, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000100:
-                        proto_tree_add_item(flags_tree, hfbit9, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit9, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000200:
-                        proto_tree_add_item(flags_tree, hfbit10, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit10, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000400:
-                        proto_tree_add_item(flags_tree, hfbit11, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit11, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00000800:
-                        proto_tree_add_item(flags_tree, hfbit12, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit12, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00001000:
-                        proto_tree_add_item(flags_tree, hfbit13, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit13, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00002000:
-                        proto_tree_add_item(flags_tree, hfbit14, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit14, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00004000:
-                        proto_tree_add_item(flags_tree, hfbit15, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit15, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00008000:
-                        proto_tree_add_item(flags_tree, hfbit16, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit16, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00010000:
-                        proto_tree_add_item(flags_tree, hfbit17, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit17, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00020000:
-                        proto_tree_add_item(flags_tree, hfbit18, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit18, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00040000:
-                        proto_tree_add_item(flags_tree, hfbit19, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit19, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00080000:
-                        proto_tree_add_item(flags_tree, hfbit20, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit20, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00100000:
-                        proto_tree_add_item(flags_tree, hfbit21, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit21, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00200000:
-                        proto_tree_add_item(flags_tree, hfbit22, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit22, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00400000:
-                        proto_tree_add_item(flags_tree, hfbit23, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit23, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x00800000:
-                        proto_tree_add_item(flags_tree, hfbit24, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit24, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x01000000:
-                        proto_tree_add_item(flags_tree, hfbit25, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit25, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x02000000:
-                        proto_tree_add_item(flags_tree, hfbit26, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit26, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x04000000:
-                        proto_tree_add_item(flags_tree, hfbit27, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit27, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x08000000:
-                        proto_tree_add_item(flags_tree, hfbit28, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit28, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x10000000:
-                        proto_tree_add_item(flags_tree, hfbit29, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit29, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x20000000:
-                        proto_tree_add_item(flags_tree, hfbit30, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit30, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x40000000:
-                        proto_tree_add_item(flags_tree, hfbit31, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit31, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 case 0x80000000:
-                        proto_tree_add_item(flags_tree, hfbit32, tvb, foffset, 4, FALSE);
+                        proto_tree_add_item(flags_tree, hfbit32, tvb, foffset, 4, ENC_BIG_ENDIAN);
                         break;
                 default:
                         break;

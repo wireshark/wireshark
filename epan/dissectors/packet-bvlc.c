@@ -211,7 +211,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* List of BDT Entries:	N*10-octet */
 			while ((bvlc_length - offset) > 9) {
 				proto_tree_add_item(bdt_tree, hf_bvlc_bdt_ip,
-					tvb, offset, 4, FALSE);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(bdt_tree, hf_bvlc_bdt_port,
 					tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -251,7 +251,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			/* List of FDT Entries:	N*10-octet */
 			while ((bvlc_length - offset) > 9) {
 				proto_tree_add_item(fdt_tree, hf_bvlc_fdt_ip,
-					tvb, offset, 4, FALSE);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 				proto_tree_add_item(fdt_tree, hf_bvlc_fdt_port,
 					tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -270,7 +270,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case 0x08: /* Delete-Foreign-Device-Table-Entry */
 			/* FDT Entry:	6-octets */
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fdt_ip,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fdt_port,
 				tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -284,7 +284,7 @@ dissect_bvlc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				 */
 			/* proto_tree_add_bytes_format(); */
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fwd_ip,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 			proto_tree_add_item(bvlc_tree, hf_bvlc_fwd_port,
 				tvb, offset, 2, ENC_BIG_ENDIAN);

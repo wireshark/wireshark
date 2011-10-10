@@ -1227,7 +1227,7 @@ rs21(tvbuff_t *tvb, proto_tree *tree)
 	addrtype = tvb_get_guint8(tvb, 8) & 0x7f;
 	if (addrtype == 0x01) {
 		/* IP address and RMCP port are in network byte order! */
-		proto_tree_add_item(tree, hf_ipmi_picmg_21_ipaddr, tvb, 9, 4, FALSE);
+		proto_tree_add_item(tree, hf_ipmi_picmg_21_ipaddr, tvb, 9, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_ipmi_picmg_21_rmcpport, tvb, 13, 2, ENC_BIG_ENDIAN);
 	};
 }

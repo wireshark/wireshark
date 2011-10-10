@@ -508,7 +508,7 @@ acn_add_address(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int off
       proto_tree_add_item(addr_tree, hf_acn_port, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       /* Add Address */
-      proto_tree_add_item(addr_tree, hf_acn_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+      proto_tree_add_item(addr_tree, hf_acn_ipv6, tvb, offset, 16, ENC_NA);
       /* Append port and address to tree item */
       tvb_get_ipv6(tvb, offset, &IPv6);
       SET_ADDRESS(&addr, AT_IPv6, sizeof(struct e_in6_addr), &IPv6);

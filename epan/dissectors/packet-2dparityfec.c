@@ -144,12 +144,12 @@ static void dissect_2dparityfec(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_snbase_low,      tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_length_recovery, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_rfc2733_ext,     tvb, offset, 1, FALSE);
+      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_rfc2733_ext,     tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_pt_recovery,     tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_mask,            tvb, offset, 3, FALSE); offset += 3;
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_ts_recovery,     tvb, offset, 4, ENC_BIG_ENDIAN); offset += 4;
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_ts_pro_mpeg_ext, tvb, offset, 1, FALSE);
-      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_row_flag,        tvb, offset, 1, FALSE);
+      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_ts_pro_mpeg_ext, tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_row_flag,        tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_type,            tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_index,           tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;
       proto_tree_add_item(tree_2dparityfec, hf_2dparityfec_offset,          tvb, offset, 1, ENC_BIG_ENDIAN); offset += 1;

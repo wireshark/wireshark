@@ -515,7 +515,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
 	  /* subtype */
 	  proto_tree_add_item(ext_tree, hf_mip_dhaext_stype, tvb, offset, 1, ENC_BIG_ENDIAN);
 	  /* Home Agent */
-	  proto_tree_add_item(ext_tree, hf_mip_dhaext_addr, tvb, offset + 1, 4, FALSE);
+	  proto_tree_add_item(ext_tree, hf_mip_dhaext_addr, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
 	  break;
 	case MSG_STR_EXT:
 	  /* sub-type */
@@ -705,15 +705,15 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 2;
 
 	  /* home address */
-	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* home agent address */
-	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* Care of Address */
-	  proto_tree_add_item(mip_tree, hf_mip_coa, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_coa, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* Identifier - assumed to be an NTP time here */
@@ -747,11 +747,11 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 2;
 
 	  /* Home address */
-	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* Home Agent Address */
-	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_haaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* Identifier - assumed to be an NTP time here */
@@ -819,15 +819,15 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 2;
 
 	  /* home address */
-	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* home domain address */
-	  proto_tree_add_item(mip_tree, hf_mip_hda, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_hda, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* foreign domain address */
-	  proto_tree_add_item(mip_tree, hf_mip_fda, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_fda, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* revocation identifier */
@@ -862,7 +862,7 @@ dissect_mip( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  offset += 2;
 
 	  /* home address */
-	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, FALSE);
+	  proto_tree_add_item(mip_tree, hf_mip_homeaddr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	  offset += 4;
 
 	  /* revocation identifier */

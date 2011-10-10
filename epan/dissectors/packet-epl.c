@@ -1021,8 +1021,8 @@ dissect_epl_soa(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, guint8 
 
     if (epl_tree)
     {
-        proto_tree_add_item(epl_tree, hf_epl_soa_ea, tvb, offset, 1, TRUE);
-        proto_tree_add_item(epl_tree, hf_epl_soa_er, tvb, offset, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_soa_ea, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(epl_tree, hf_epl_soa_er, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     }
     offset += 2;
 
@@ -1187,8 +1187,8 @@ dissect_epl_asnd_ires(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
     proto_item  *ti_feat;
     proto_tree  *epl_feat_tree;
 
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_en, tvb, offset, 1, TRUE);
-    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ec, tvb, offset, 1, TRUE);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_en, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     offset += 1;
 
     proto_tree_add_item(epl_tree, hf_epl_asnd_identresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -1316,8 +1316,8 @@ dissect_epl_asnd_sres(proto_tree *epl_tree, tvbuff_t *tvb, packet_info *pinfo, g
 
     if (epl_tree)
     {
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_en, tvb, offset, 1, TRUE);
-        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, TRUE);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_en, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_ec, tvb, offset, 1, ENC_LITTLE_ENDIAN);
         offset += 1;
 
         proto_tree_add_item(epl_tree, hf_epl_asnd_statusresponse_pr, tvb, offset, 1, ENC_LITTLE_ENDIAN);

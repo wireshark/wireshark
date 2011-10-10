@@ -520,9 +520,9 @@ dissect_iwarp_ddp_rdmap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				ett_iwarp_ddp);
 
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_t_flag, tvb,
-				offset, DDP_CONTROL_FIELD_LEN, FALSE);
+				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_l_flag, tvb,
-				offset, DDP_CONTROL_FIELD_LEN, FALSE);
+				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_rsvd, tvb,
 				offset, DDP_CONTROL_FIELD_LEN, ENC_BIG_ENDIAN);
 		proto_tree_add_item(ddp_ctrl_field_tree, hf_iwarp_ddp_dv, tvb, offset,

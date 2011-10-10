@@ -389,7 +389,7 @@ static void dissect_mapiprops(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 		if(tag & 0x80000000) {
 
 			/* it is a named property */
-			proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, TRUE);
+			proto_tree_add_item(tag_tree, hf_tnef_property_tag_set, tvb, offset, 16, ENC_LITTLE_ENDIAN);
 			offset += 16;
 
 			tag_kind = tvb_get_letohl(tvb, offset);

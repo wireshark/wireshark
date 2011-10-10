@@ -1699,7 +1699,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
 			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
-					    tvb, optoff + 1, 16, TRUE);
+					    tvb, optoff + 1, 16, ENC_LITTLE_ENDIAN);
 		/* From RFC 4631 paragraph 6.1 DHCPv4 Client Behavior:
 			To send an RFC 3315-style binding identifier in a DHCPv4 'client
 			identifier' option, the type of the 'client identifier' option is set
@@ -1810,7 +1810,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		} else if (optlen == 17 && byte == 0) {
 			/* Identifier is a UUID */
 			proto_tree_add_item(v_tree, hf_bootp_client_identifier_uuid,
-					    tvb, optoff + 1, 16, TRUE);
+					    tvb, optoff + 1, 16, ENC_LITTLE_ENDIAN);
 		} else {
 			/* otherwise, it's opaque data */
 		}
@@ -2252,7 +2252,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		proto_tree_add_item(v_tree, hf_bootp_option_6RD_ipv4_mask_len, tvb, optoff, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix_len, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix, tvb, optoff+2, 16, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_6RD_prefix, tvb, optoff+2, 16, ENC_NA);
 		proto_tree_add_item(v_tree, hf_bootp_option_6RD_border_relay_ip, tvb, optoff+18, 4, ENC_BIG_ENDIAN);
 
 		/* More Border Relay IPv4 addresses included */

@@ -208,7 +208,7 @@ dissect_glbp_hello(tvbuff_t *tvb, int offset,
       expert_add_info_format(pinfo, NULL, PI_MALFORMED, PI_ERROR, "Wrong IPv6 address length: %u", addrlen);
       return offset + addrlen;
     }
-    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualipv6, tvb, offset, addrlen, ENC_NA);
     break;
   default:
     proto_tree_add_item(tlv_tree, hf_glbp_hello_virtualunk, tvb, offset, addrlen, ENC_NA);

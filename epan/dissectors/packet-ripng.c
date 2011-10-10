@@ -96,7 +96,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		rte_tree = proto_item_add_subtree(rte_ti, ett_ripng_rte);
 
 		/* IPv6 Prefix */
-		proto_tree_add_item(rte_tree, hf_ripng_rte_ipv6_prefix, tvb, offset, 16, FALSE);
+		proto_tree_add_item(rte_tree, hf_ripng_rte_ipv6_prefix, tvb, offset, 16, ENC_NA);
 		proto_item_append_text(rte_ti, ": IPv6 Prefix: %s", tvb_ip6_to_str(tvb, offset));
 		offset += 16;
 

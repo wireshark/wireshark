@@ -280,7 +280,7 @@ dissect_getinforesponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
             offset, 2,
             "PAL Capabilities");
     btamp_controller_tree=proto_item_add_subtree(ti_controller, ett_btamp_caps);
-    proto_tree_add_item(btamp_controller_tree, hf_btamp_pal_caps_guaranteed, tvb, offset, 2, TRUE);
+    proto_tree_add_item(btamp_controller_tree, hf_btamp_pal_caps_guaranteed, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset+=2;
 
     proto_tree_add_item(tree, hf_btamp_amp_assoc_size, tvb, offset, 2, ENC_LITTLE_ENDIAN);

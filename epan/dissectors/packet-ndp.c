@@ -308,7 +308,7 @@ dissect_ndp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		ndp_tree = proto_item_add_subtree(ti, ett_ndp);
 
 		proto_tree_add_item(ndp_tree, hf_ndp_ip_address, tvb,
-			NDP_IP_ADDRESS, 4, FALSE);
+			NDP_IP_ADDRESS, 4, ENC_BIG_ENDIAN);
 
 
 		proto_tree_add_item(ndp_tree, hf_ndp_segment_identifier, tvb,

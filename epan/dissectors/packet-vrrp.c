@@ -206,10 +206,10 @@ dissect_vrrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		while (addr_count > 0) {
 			if (is_ipv6) {
-				proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, FALSE);
+				proto_tree_add_item(vrrp_tree, hf_vrrp_ip6, tvb, offset, 16, ENC_NA);
 				offset+=16;
 			} else {
-				proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, FALSE);
+				proto_tree_add_item(vrrp_tree, hf_vrrp_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset+=4;
 			}
 			addr_count--;

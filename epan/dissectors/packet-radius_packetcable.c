@@ -377,9 +377,9 @@ static const gchar* dissect_packetcable_time_electr_surv_ind(proto_tree* tree, t
 		return "None";
 
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_cdc_address,
-						tvb, 0, 4, FALSE);
+						tvb, 0, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_df_ccc_address,
-						tvb, 4, 4, FALSE);
+						tvb, 4, 4, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_cdc_port,
 						tvb, 8, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_packetcable_electronic_surveillance_indication_ccc_port,

@@ -565,51 +565,51 @@ dissect_swils_ess_capability (tvbuff_t *tvb, proto_tree *tree, int offset,
         switch (srvr_type) {
         case FCCT_GSRVR_DNS:
             proto_tree_add_item (tree, hf_swils_ess_dns_zlacc, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_dns_obj3h, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_dns_obj2h, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_dns_obj1h, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_dns_obj0h, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_dns_vendor, tvb,
                                  offset+4, 4, ENC_BIG_ENDIAN);
             break;
         case FCCT_GSRVR_FCTLR:
             proto_tree_add_item (tree, hf_swils_ess_fctlr_rscn, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fctlr_vendor, tvb,
                                  offset+4, 4, ENC_BIG_ENDIAN);
             break;
         case FCCT_GSRVR_FCS:
             proto_tree_add_item (tree, hf_swils_ess_fcs_basic, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fcs_platform, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fcs_topology, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fcs_enhanced, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             break;
         case FCCT_GSRVR_FZS:
             proto_tree_add_item (tree, hf_swils_ess_fzs_enh_supp, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_enh_ena, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_mr, tvb, offset+3,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_defzone, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_zsdb_supp, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_zsdb_ena, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_adc_supp, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_swils_ess_fzs_hardzone, tvb,
-                                 offset+3, 1, 0);
+                                 offset+3, 1, ENC_BIG_ENDIAN);
             break;
         default:
             break;

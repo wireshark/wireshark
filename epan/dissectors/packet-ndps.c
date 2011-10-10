@@ -2351,7 +2351,7 @@ print_address(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
         break;
     case 0x00000001:
         proto_tree_add_item(ndps_tree, hf_ndps_port, tvb, foffset, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ndps_tree, hf_ndps_ip, tvb, foffset+2, 4, FALSE);
+        proto_tree_add_item(ndps_tree, hf_ndps_ip, tvb, foffset+2, 4, ENC_BIG_ENDIAN);
         break;
     default:
         break;
@@ -2657,7 +2657,7 @@ server_entry(tvbuff_t* tvb, proto_tree *ndps_tree, int foffset)
             foffset += 4;
             break;
         case 3:   /* Boolean */
-            proto_tree_add_item(btree, hf_info_boolean, tvb, foffset, 4, FALSE);
+            proto_tree_add_item(btree, hf_info_boolean, tvb, foffset, 4, ENC_BIG_ENDIAN);
             foffset += 4;
             break;
         case 4:   /* String */

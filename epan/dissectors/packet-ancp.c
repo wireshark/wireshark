@@ -616,7 +616,7 @@ dissect_ancp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             offset += 3;
 
             proto_tree_add_item(ancp_tree, hf_ancp_i_flag, tvb, offset, 1,
-                    FALSE); /* treat as 1B, but dont change offset */
+                    ENC_BIG_ENDIAN); /* treat as 1B, but dont change offset */
 
             sti = proto_tree_add_item(ancp_tree, hf_ancp_submsg_num, tvb,
                     offset, 2, ENC_BIG_ENDIAN);

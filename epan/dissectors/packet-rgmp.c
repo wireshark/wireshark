@@ -95,7 +95,7 @@ dissect_rgmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, int off
     igmp_checksum(tree, tvb, hf_checksum, hf_checksum_bad, pinfo, 0);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, FALSE);
+    proto_tree_add_item(tree, hf_maddr, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
 
     return offset;

@@ -1618,13 +1618,13 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
 
                                    proto_tree_add_item(sbusdata_tree, hf_sbus_flags_accu,
-                                                       tvb, offset, 1, FALSE);
+                                                       tvb, offset, 1, ENC_BIG_ENDIAN);
                                    proto_tree_add_item(sbusdata_tree, hf_sbus_flags_error,
-                                                       tvb, offset, 1, FALSE);
+                                                       tvb, offset, 1, ENC_BIG_ENDIAN);
                                    proto_tree_add_item(sbusdata_tree, hf_sbus_flags_negative,
-                                                       tvb, offset, 1, FALSE);
+                                                       tvb, offset, 1, ENC_BIG_ENDIAN);
                                    proto_tree_add_item(sbusdata_tree, hf_sbus_flags_zero,
-                                                       tvb, offset, 1, FALSE);
+                                                       tvb, offset, 1, ENC_BIG_ENDIAN);
                                    offset +=1;
                                    break;
 
@@ -1695,15 +1695,15 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           sbusdata_tree = proto_item_add_subtree(dt, ett_sbus_data);
 
                                           proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_1,
-                                                              tvb, offset, 1, FALSE);
+                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                                           proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_2,
-                                                              tvb, offset, 1, FALSE);
+                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                                           proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_3,
-                                                              tvb, offset, 1, FALSE);
+                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                                           proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_4,
-                                                              tvb, offset, 1, FALSE);
+                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                                           proto_tree_add_item(sbusdata_tree, hf_sbus_sysinfo0_5,
-                                                              tvb, offset, 1, FALSE);
+                                                              tvb, offset, 1, ENC_BIG_ENDIAN);
                                           offset += 1;
                                    } else {
                                           /*do not dissect all system info telegrams as there is no need*/

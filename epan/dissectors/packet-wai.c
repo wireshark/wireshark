@@ -251,14 +251,14 @@ dissect_flag(tvbuff_t *tvb, guint offset, proto_tree *tree)
     flag_item = proto_tree_add_item(tree, hf_wai_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     flag_tree = proto_item_add_subtree (flag_item, ett_wai_flags);
 
-    proto_tree_add_item (flag_tree, hf_wai_bk_rekeying_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_preauthentication_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_certificate_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_optional_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_usk_rekeying_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_negotiation_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_revoking_flag, tvb, offset, 1, FALSE);
-    proto_tree_add_item (flag_tree, hf_wai_reserved_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item (flag_tree, hf_wai_bk_rekeying_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_preauthentication_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_certificate_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_optional_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_usk_rekeying_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_negotiation_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_revoking_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (flag_tree, hf_wai_reserved_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 inline static void

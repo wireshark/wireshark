@@ -418,7 +418,7 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
 			proto_item_append_text(it, "%s", val_to_str(profile, scsi_getconf_current_profile_val, "Unknown 0x%04x"));
 
 			cur_profile=tvb_get_guint8(tvb_v, offset_v+2);
-                        proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, tvb_v, offset_v+2, 1, 0);
+                        proto_tree_add_item (tr, hf_scsi_mmc_feature_profile_current, tvb_v, offset_v+2, 1, ENC_BIG_ENDIAN);
 			if(cur_profile&0x01){
 				proto_item_append_text(it, "  [CURRENT PROFILE]");
 			}
@@ -431,14 +431,14 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
                     /* no data for this one */
                     break;
                 case 0x001e: /* cd read */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_dap, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_c2flag, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_cdtext, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_dap, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_c2flag, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_cdread_cdtext, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
                     break;
                 case 0x0021: /* incremental streaming writeable */
                     proto_tree_add_item (tree, hf_scsi_mmc_feature_dts, tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
                     offset_v+=2;
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_buf, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_buf, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
                     offset_v+=1;
                     num_linksize=tvb_get_guint8(tvb_v, offset_v);
                     proto_tree_add_item (tree, hf_scsi_mmc_feature_isw_num_linksize, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
@@ -449,36 +449,36 @@ dissect_mmc4_getconfiguration (tvbuff_t *tvb, packet_info *pinfo _U_,
                     }
                     break;
                 case 0x002a: /* dvd-rw */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_write, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_quickstart, tvb_v, offset_v, 2, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_closeonly, tvb_v, offset_v, 2, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_write, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_quickstart, tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdrw_closeonly, tvb_v, offset_v, 2, ENC_BIG_ENDIAN);
                     break;
                 case 0x002b: /* dvd-r */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_write, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_write, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
                     break;
                 case 0x002d: /* track at once */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_buf, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwraw, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwpack, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_testwrite, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_cdrw, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwsubcode, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_buf, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwraw, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwpack, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_testwrite, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_cdrw, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_tao_rwsubcode, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item (tree, hf_scsi_mmc_feature_dts, tvb_v, offset_v+2, 2, ENC_BIG_ENDIAN);
                     break;
                 case 0x002e: /* session at once */
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_buf, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_sao, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rawms, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_raw, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_testwrite, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_cdrw, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_buf, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_sao, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rawms, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_raw, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_testwrite, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_cdrw, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_rw, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
                     proto_tree_add_item (tree, hf_scsi_mmc_feature_sao_mcsl, tvb_v, offset_v+1, 3, ENC_BIG_ENDIAN);
                     break;
                 case 0x002f: /* dvd-r/-rw*/
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_buf, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_testwrite, tvb_v, offset_v, 1, 0);
-                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_dvdrw, tvb_v, offset_v, 1, 0);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_buf, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_testwrite, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item (tree, hf_scsi_mmc_feature_dvdr_dvdrw, tvb_v, offset_v, 1, ENC_BIG_ENDIAN);
                     break;
                 case 0x0108: /* logical unit serial number */
                     proto_tree_add_item (tree, hf_scsi_mmc_feature_lun_sn, tvb_v, offset_v, additional_length, 0);
@@ -536,7 +536,7 @@ dissect_mmc4_readtocpmaatip (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
         switch(format){
         case 0x00:
         case 0x01:
-            proto_tree_add_item (tree, hf_scsi_mmc_readtoc_time, tvb, offset, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_mmc_readtoc_time, tvb, offset, 1, ENC_BIG_ENDIAN);
             /* save time so we can pick it up in the response */
             if(tvb_get_guint8(tvb, offset)&0x02){
                 cdata->itlq->flags|=0x0100;
@@ -643,7 +643,7 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
     }
     if(tree && (!isreq)) {
         proto_tree_add_item (tree, hf_scsi_mmc_data_length, tvb, 0, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_erasable, tvb, 2, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_erasable, tvb, 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_state_of_last_session, tvb, 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_disk_status, tvb, 2, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_first_track, tvb, offset+3, 1, ENC_BIG_ENDIAN);
@@ -653,11 +653,11 @@ dissect_mmc4_readdiscinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
         proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_first_track_in_last_session, tvb, 5, 1, (tvb_get_guint8(tvb, offset+10)<<8)|tvb_get_guint8(tvb, offset+5));
         /*  last track in last session  offset+6 and offset+11 */
         proto_tree_add_uint (tree, hf_scsi_mmc_disc_info_last_track_in_last_session, tvb, 6, 1, (tvb_get_guint8(tvb, offset+11)<<8)|tvb_get_guint8(tvb, offset+6));
-        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_did_v, tvb, offset+7, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_dbc_v, tvb, offset+7, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_uru, tvb, offset+7, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_dac_v, tvb, offset+7, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_dbit, tvb, offset+7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_did_v, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_dbc_v, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_uru, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_dac_v, tvb, offset+7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_disc_info_dbit, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_bgfs, tvb, offset+7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_disc_type, tvb, offset+8, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_disc_info_disc_identification, tvb, offset+12, 4, ENC_BIG_ENDIAN);
@@ -723,7 +723,7 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	    proto_tree_add_item (tree, hf_scsi_mmc_disc_num_layers, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
 	    /* track path */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_track_path, tvb, offset+2, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_track_path, tvb, offset+2, 1, ENC_BIG_ENDIAN);
 
 	    /* disc structure */
 	    proto_tree_add_item (tree, hf_scsi_mmc_disc_structure_layer, tvb, offset+2, 1, ENC_BIG_ENDIAN);
@@ -744,18 +744,18 @@ dissect_mmc4_readdiscstructure (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tre
 	    }
 
 	    /* extended format info */
-	    proto_tree_add_item (tree, hf_scsi_mmc_disc_extended_format_info, tvb, offset+16, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_disc_extended_format_info, tvb, offset+16, 1, ENC_BIG_ENDIAN);
 
 	    /* disk application code */
 	    proto_tree_add_item (tree, hf_scsi_mmc_disc_application_code, tvb, offset+17, 1, ENC_BIG_ENDIAN);
 
 	    /* extended information blocks */
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib5, tvb, offset+18, 1, 0);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib4, tvb, offset+18, 1, 0);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib3, tvb, offset+18, 1, 0);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib2, tvb, offset+18, 1, 0);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib1, tvb, offset+18, 1, 0);
-	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib0, tvb, offset+18, 1, 0);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib5, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib4, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib3, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib2, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib1, tvb, offset+18, 1, ENC_BIG_ENDIAN);
+	    proto_tree_add_item (tree, hf_scsi_mmc_adip_eib0, tvb, offset+18, 1, ENC_BIG_ENDIAN);
 
 	    /* disk manufacturer id */
 	    proto_tree_add_item (tree, hf_scsi_mmc_adip_device_manuf_id, tvb, offset+19, 8, 0);
@@ -818,8 +818,8 @@ dissect_mmc4_synchronizecache (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 
 {
     if (tree && isreq && iscdb) {
-        proto_tree_add_item (tree, hf_scsi_mmc_synccache_immed, tvb, offset, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_synccache_reladr, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_synccache_immed, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_synccache_reladr, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_lba, tvb, offset+1, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_num_blocks, tvb, offset+6, 2, ENC_BIG_ENDIAN);
         proto_tree_add_bitmask(tree, tvb, offset+8, hf_scsi_control,
@@ -954,16 +954,16 @@ dissect_mmc4_readtrackinformation (tvbuff_t *tvb, packet_info *pinfo _U_, proto_
         proto_tree_add_uint (tree, hf_scsi_mmc_track, tvb, 2, 1, (tvb_get_guint8(tvb, offset+32)<<8)|tvb_get_guint8(tvb, offset+2));
         /* session  offset+3 and offset+33 */
         proto_tree_add_uint (tree, hf_scsi_mmc_session, tvb, 3, 1, (tvb_get_guint8(tvb, offset+33)<<8)|tvb_get_guint8(tvb, offset+3));
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_damage, tvb, 5, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_copy, tvb, 5, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_damage, tvb, 5, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_copy, tvb, 5, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_rti_track_mode, tvb, 5, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_rt, tvb, 6, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_blank, tvb, 6, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_packet, tvb, 6, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_fp, tvb, 6, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_rt, tvb, 6, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_blank, tvb, 6, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_packet, tvb, 6, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_fp, tvb, 6, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_rti_data_mode, tvb, 6, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_lra_v, tvb, 7, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_mmc_rti_nwa_v, tvb, 7, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_lra_v, tvb, 7, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_mmc_rti_nwa_v, tvb, 7, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_track_start_address, tvb, offset+8, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_next_writable_address, tvb, offset+12, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_scsi_mmc_free_blocks, tvb, offset+16, 4, ENC_BIG_ENDIAN);
@@ -1032,7 +1032,7 @@ dissect_mmc4_close_track (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tre
 {
     if (tree && isreq && iscdb) {
 	/* immediate */
-        proto_tree_add_item (tree, hf_scsi_mmc_closetrack_immed, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_closetrack_immed, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	/* close function */
@@ -1063,7 +1063,7 @@ dissect_mmc4_readbuffercapacity (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 {
     if (tree && isreq && iscdb) {
         cdata->itlq->flags=0;
-        proto_tree_add_item (tree, hf_scsi_mmc_rbc_block, tvb, offset, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_mmc_rbc_block, tvb, offset, 1, ENC_BIG_ENDIAN);
         if(tvb_get_guint8(tvb, offset)&0x01){
             cdata->itlq->flags=1;
         }
@@ -1140,9 +1140,9 @@ dissect_mmc4_setstreaming (tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
         switch(cdata->itlq->flags){
         case 0x00: /* performance descriptor */
             proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_wrc, tvb, offset+0, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_rdd, tvb, offset+0, 1, 0);
-            proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_exact, tvb, offset+0, 1, 0);
-            proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_ra, tvb, offset+0, 1, 0);
+            proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_rdd, tvb, offset+0, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_exact, tvb, offset+0, 1, ENC_BIG_ENDIAN);
+            proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_ra, tvb, offset+0, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_start_lba, tvb, offset+4, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_end_lba, tvb, offset+8, 4, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_scsi_mmc_setstreaming_read_size, tvb, offset+12, 4, ENC_BIG_ENDIAN);

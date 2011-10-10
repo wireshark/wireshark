@@ -1626,7 +1626,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         ti = proto_tree_add_text(command_tree, tvb, offset, 8, "Block Record");
                         omron_block_record_tree = proto_item_add_subtree(ti, ett_omron_block_record);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_status, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_num_nodes, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_cio_area, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_kind_of_dm, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
@@ -1659,7 +1659,7 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         ti = proto_tree_add_text(command_tree, tvb, offset, 8, "Block Record");
                         omron_block_record_tree = proto_item_add_subtree(ti, ett_omron_block_record);
-                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_status, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_status, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_node_num_num_nodes, tvb, offset, 1, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_cio_area, tvb, (offset+1), 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(omron_block_record_tree, hf_omron_block_record_kind_of_dm, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
@@ -2049,18 +2049,18 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     {
                         ti = proto_tree_add_text(netw_nodes_sts_tree, tvb, offset, 1, "Node Number %d", node_num);
                         field_tree = proto_item_add_subtree(ti, ett_omron_netw_node_sts);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_3, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_2, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_1, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_0, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_low_0, tvb, offset, 1, ENC_BIG_ENDIAN);
                         node_num = node_num + 1;
 
                         ti = proto_tree_add_text(netw_nodes_sts_tree, tvb, offset, 1, "Node Number %d", node_num);
                         field_tree = proto_item_add_subtree(ti, ett_omron_netw_node_sts);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_3, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_2, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_1, tvb, offset, 1, FALSE);
-                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_0, tvb, offset, 1, FALSE);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_3, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_2, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_1, tvb, offset, 1, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(field_tree, hf_omron_netw_node_sts_high_0, tvb, offset, 1, ENC_BIG_ENDIAN);
                         node_num = node_num + 1;
 
                         offset = offset + 1;
@@ -2128,8 +2128,8 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* add status flag tree */
                     ti = proto_tree_add_item(command_tree, hf_omron_status_flags, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_flags_slave_master, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_flags_data_link, tvb, (offset+2), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_flags_slave_master, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_flags_data_link, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
 
                     /* command_tree for master node */
                     proto_tree_add_item(command_tree, hf_omron_master_node_number, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
@@ -2142,138 +2142,138 @@ dissect_omron_fins(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     /* Status block 1 */
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+0), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+0), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+0), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+1), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+1), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+1), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+0), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+2), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+2), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+2), 1, ENC_BIG_ENDIAN);
 
                     /* status block 2 */
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+3), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+3), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+3), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+4), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+4), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+4), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+3), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+5), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+5), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+5), 1, ENC_BIG_ENDIAN);
 
                     /* status block 3 */
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+6), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+6), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+6), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+7), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+7), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+7), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+6), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+8), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+8), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+8), 1, ENC_BIG_ENDIAN);
 
                     /* status block 4 */
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+9), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+9), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_0, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_1, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_2, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_3, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_4, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_5, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_6, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_node_7, tvb, (offset+9), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+10), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+10), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_0, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_1, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_2, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_3, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_4, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_5, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_6, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_1_node_7, tvb, (offset+10), 1, ENC_BIG_ENDIAN);
 
                     ti = proto_tree_add_item(status_flags_tree, hf_omron_status_flags, tvb, (offset+9), 3, ENC_BIG_ENDIAN);
                     omron_status_tree = proto_item_add_subtree(ti, ett_omron_status_block);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+11), 1, FALSE);
-                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+11), 1, FALSE);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_0, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_1, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_2, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_3, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_4, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_5, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_6, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
+                    proto_tree_add_item(omron_status_tree, hf_omron_status_2_node_7, tvb, (offset+11), 1, ENC_BIG_ENDIAN);
 
                     offset = offset + 12;
                 }

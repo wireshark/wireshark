@@ -198,9 +198,9 @@ dissect_unspec_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 	proto_tree_add_item(rip_vektor_tree, hf_rip_route_tag, tvb, offset+2, 2,
 			ENC_BIG_ENDIAN);
 	proto_tree_add_item(rip_vektor_tree, hf_rip_netmask, tvb, offset+8, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	proto_tree_add_item(rip_vektor_tree, hf_rip_next_hop, tvb, offset+12, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
     }
     proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb,
 			offset+16, 4, metric);
@@ -226,13 +226,13 @@ dissect_ip_rip_vektor(tvbuff_t *tvb, int offset, guint8 version,
 			ENC_BIG_ENDIAN);
     }
 
-    proto_tree_add_item(rip_vektor_tree, hf_rip_ip, tvb, offset+4, 4, FALSE);
+    proto_tree_add_item(rip_vektor_tree, hf_rip_ip, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
     if (version == RIPv2) {
 	proto_tree_add_item(rip_vektor_tree, hf_rip_netmask, tvb, offset+8, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
 	proto_tree_add_item(rip_vektor_tree, hf_rip_next_hop, tvb, offset+12, 4,
-			    FALSE);
+			    ENC_BIG_ENDIAN);
     }
     proto_tree_add_uint(rip_vektor_tree, hf_rip_metric, tvb,
 			offset+16, 4, metric);

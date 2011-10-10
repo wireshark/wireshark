@@ -519,7 +519,7 @@ static void payload_ccsds_secondary_header_dissector ( proto_tree* ehs_secondary
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_5, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_4, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_3, tvb, *offset, 1, ENC_BIG_ENDIAN );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_vcdu_sequence_error, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_vcdu_sequence_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_packet_sequence_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_0, tvb, *offset, 1, ENC_BIG_ENDIAN );
   ++(*offset);
@@ -534,8 +534,8 @@ static void core_ccsds_secondary_header_dissector ( proto_tree* ehs_secondary_he
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_version, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_5, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_4, tvb, *offset, 1, ENC_BIG_ENDIAN );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_parent_stream_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_vcdu_sequence_error, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_parent_stream_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_vcdu_sequence_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_packet_sequence_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_0, tvb, *offset, 1, ENC_BIG_ENDIAN );
   ++(*offset);
@@ -551,7 +551,7 @@ static void payload_bpdu_secondary_header_dissector ( proto_tree* ehs_secondary_
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_5, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_4, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_3, tvb, *offset, 1, ENC_BIG_ENDIAN );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_vcdu_sequence_error, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_vcdu_sequence_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_1, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_data_status_bit_0, tvb, *offset, 1, ENC_BIG_ENDIAN );
   ++(*offset);
@@ -591,20 +591,20 @@ static void tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tr
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_secondary_header_length, tvb, *offset, 2, ENC_BIG_ENDIAN );
   *offset += 2;
 
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_extra_data_packet, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_extra_data_packet, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_backup_stream_id_number, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_end_of_data_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_parent_frame_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_checksum_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_fixed_value_error, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_parent_frame_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_checksum_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_fixed_value_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
   ++(*offset);
 
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_minor_frame_counter_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_format_id_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_bit_slip_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_sync_error, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_aoslos_flag, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_override_errors_flag, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_minor_frame_counter_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_format_id_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_bit_slip_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_sync_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_aoslos_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_override_errors_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_data_status, tvb, *offset, 1, ENC_BIG_ENDIAN );
   ++(*offset);
 
@@ -639,9 +639,9 @@ static void tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tr
   cntmet_present = tvb_get_guint8 ( tvb, *offset ) & 0x80;
   obt_present = tvb_get_guint8 ( tvb, *offset ) & 0x40;
   mjfs_present = tvb_get_guint8 ( tvb, *offset ) & 0x20;
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_cntmet_present, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_present, tvb, *offset, 1, FALSE );
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_major_frame_status_present, tvb, *offset, 1, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_cntmet_present, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_present, tvb, *offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_major_frame_status_present, tvb, *offset, 1, ENC_BIG_ENDIAN );
   /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_reserved, tvb, *offset, 1, ENC_BIG_ENDIAN ); */
   ++(*offset);
 
@@ -707,10 +707,10 @@ static void tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tr
     proto_tree_add_text ( ehs_secondary_header_tree, tvb, *offset-7, 7,
        "%04d/%03d:%02d:%02d:%02d.%1d = OBT Time", year + 1900, jday, hour, minute, second, tenths );
 
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_delta_time_flag, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_computed_flag, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_not_retrieved_flag, tvb, *offset, 1, FALSE );
-    /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_reserved, tvb, *offset, 1, FALSE ); */
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_delta_time_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_computed_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_not_retrieved_flag, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_reserved, tvb, *offset, 1, ENC_BIG_ENDIAN ); */
     proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_obt_source_apid, tvb, *offset, 1, ENC_BIG_ENDIAN );
   }
 
@@ -726,9 +726,9 @@ static void tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tr
     {
       proto_tree_add_text ( ehs_secondary_header_tree, tvb, *offset, 1, "Major Frame Status Byte# %d", j );
       /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_reserved, tvb, *offset, 1, ENC_BIG_ENDIAN ); */
-      proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_parent_frame_error, tvb, *offset, 1, FALSE );
-      proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_checksum_error, tvb, *offset, 1, FALSE );
-      proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_fixed_value_error, tvb, *offset, 1, FALSE );
+      proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_parent_frame_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+      proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_checksum_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+      proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mjfs_fixed_value_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
       ++(*offset);
     }
   }
@@ -738,14 +738,14 @@ static void tdm_secondary_header_dissector ( proto_tree* ehs_secondary_header_tr
   for ( j=0; j < num_minor_frames; ++j )
   {
     proto_tree_add_text ( ehs_secondary_header_tree, tvb, *offset, 1, "Minor Frame Status Byte# %d", j );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_parent_frame_error, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_data_not_available, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_checksum_error, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_fixed_value_error, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_counter_error, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_format_id_error, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_bit_slip_error, tvb, *offset, 1, FALSE );
-    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_sync_error, tvb, *offset, 1, FALSE );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_parent_frame_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_data_not_available, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_checksum_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_fixed_value_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_counter_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_format_id_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_bit_slip_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
+    proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_tdm_mnfs_sync_error, tvb, *offset, 1, ENC_BIG_ENDIAN );
     ++(*offset);
   }
 
@@ -903,7 +903,7 @@ static void udsm_data_zone_dissector ( proto_tree* ehs_tree, tvbuff_t* tvb, int*
   ++(*offset);
 
   /* proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_unused3, tvb, *offset, 2, ENC_BIG_ENDIAN ); */
-  proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_gse_pkt_id, tvb, *offset, 2, FALSE );
+  proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_gse_pkt_id, tvb, *offset, 2, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_payload_vs_core, tvb, *offset, 2, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_data_zone_tree, hf_ehs_dz_udsm_apid, tvb, *offset, 2, ENC_BIG_ENDIAN );
   *offset += 2;
@@ -1114,9 +1114,9 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_text ( ehs_primary_header_tree, tvb, offset-7, 7,
           "%04d/%03d:%02d:%02d:%02d.%1d = EHS Ground Receipt Time", year + 1900, jday, hour, minute, second, tenths );
 
-        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_new_data_flag, tvb, offset, 1, FALSE );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_new_data_flag, tvb, offset, 1, ENC_BIG_ENDIAN );
         /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad1, tvb, offset, 1, ENC_BIG_ENDIAN ); */
-        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hold_flag, tvb, offset, 1, FALSE );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hold_flag, tvb, offset, 1, ENC_BIG_ENDIAN );
         proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_sign_flag, tvb, offset, 1, FALSE );
         ++offset;
 

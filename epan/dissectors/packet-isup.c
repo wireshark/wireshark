@@ -2505,7 +2505,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       /*CCITT*/
       proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       offset ++;
       length--;
       if (length == 0)
@@ -2526,7 +2526,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       /*ANSI*/
       proto_tree_add_item(parameter_tree, hf_isup_cause_location, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       offset ++;
       length--;
       if (length == 0)
@@ -2547,7 +2547,7 @@ dissect_ansi_isup_cause_indicators_parameter(tvbuff_t *parameter_tvb, proto_tree
       return;
     default:
       proto_tree_add_item(parameter_tree, hf_ansi_isup_coding_standard, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE);
+      proto_tree_add_item(parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN);
       break;
   }
   proto_item_set_text(parameter_item, "Cause indicators(%u byte%s length)", length , plurality(length, "", "s"));
@@ -2806,14 +2806,14 @@ dissect_nsap(tvbuff_t *parameter_tvb,gint offset,gint len, proto_tree *parameter
         proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2 , 17,
                             "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
         proto_tree_add_item(parameter_tree, hf_nsap_ipv6_addr, parameter_tvb, offset + 2,
-                            16, FALSE);
+                            16, ENC_NA);
 
       }
       else { /* IPv4 addr */
         /* XXX - this is really only for ICP 1 */
         proto_tree_add_text(parameter_tree, parameter_tvb, offset + 2, 17,
                             "DSP = %s", tvb_bytes_to_str(parameter_tvb, offset + 2, 17));
-        proto_tree_add_item(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, FALSE);
+        proto_tree_add_item(parameter_tree, hf_nsap_ipv4_addr, parameter_tvb, offset + 2, 4, ENC_BIG_ENDIAN);
       }
 
       break;
@@ -3344,7 +3344,7 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
 
     /* length indicator may be 11 bits long */
     offset = offset + 1;
-    proto_tree_add_item( bat_ase_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+    proto_tree_add_item( bat_ase_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     tempdata = tvb_get_guint8(parameter_tvb, offset);
     if ( tempdata & 0x80 ) {
       length_indicator = tempdata & 0x7f;
@@ -3373,10 +3373,10 @@ dissect_bat_ase_Encapsulated_Application_Information(tvbuff_t *parameter_tvb, pa
                           offset - length_ind_len + 1, length_ind_len, length_indicator );
 
       offset = offset + 1;
-      proto_tree_add_item( bat_ase_element_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
-      proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( bat_ase_element_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
+      proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_pass_on_not_possible, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
-      proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_general_action, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( bat_ase_element_tree, hf_Send_notification_ind_for_general_action, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       proto_tree_add_item( bat_ase_element_tree, hf_Instruction_ind_for_general_action, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       offset = offset + 1;
     }
@@ -3633,7 +3633,7 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
   if ( (aci16 & H_8BIT_MASK) == 0x80) {
     /* Octet 1 */
     aci16 = aci16 & 0x7f;
-    proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+    proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     proto_tree_add_uint(parameter_tree, hf_isup_app_cont_ident , parameter_tvb, offset, 1, aci16);
     offset = offset + 1;
   }
@@ -3646,23 +3646,23 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
 
   /* Octet 2 */
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, -1, "Application transport instruction indicators: ");
-  proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
-  proto_tree_add_item( parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, FALSE );
-  proto_tree_add_item( parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, FALSE );
+  proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item( parameter_tree, hf_isup_app_Send_notification_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item( parameter_tree, hf_isup_app_Release_call_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
   offset = offset + 1;
 
   /* Octet 3*/
   proto_tree_add_text(parameter_tree, parameter_tvb, offset, 1, "APM segmentation indicator:");
   si_and_apm_seg_ind  = tvb_get_guint8(parameter_tvb, offset);
-  proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
-  proto_tree_add_item( parameter_tree, hf_isup_apm_si_ind, parameter_tvb, offset, 1, FALSE );
+  proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
+  proto_tree_add_item( parameter_tree, hf_isup_apm_si_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
   proto_tree_add_item( parameter_tree, hf_isup_apm_segmentation_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
   offset = offset + 1;
 
   /* Octet 3a */
   if ( (si_and_apm_seg_ind & H_8BIT_MASK) == 0x00) {
     apm_Segmentation_local_ref  = tvb_get_guint8(parameter_tvb, offset);
-    proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, FALSE );
+    proto_tree_add_item( parameter_tree, hf_isup_extension_ind, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     proto_tree_add_item( parameter_tree, hf_isup_apm_slr, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
     offset = offset + 1;
   }
@@ -3674,10 +3674,10 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
     offset++;
     if ( octet != 0){
       /* 4b */
-      proto_tree_add_item( parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       /* nature of address indicator */
       offset++;
-      proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       offset++;
       /* Address digits */
@@ -3690,10 +3690,10 @@ dissect_isup_application_transport_parameter(tvbuff_t *parameter_tvb, packet_inf
     offset++;
     if ( octet != 0){
       /* 4b */
-      proto_tree_add_item( parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( parameter_tree, hf_isup_odd_even_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       /* nature of address indicator */
       offset++;
-      proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, FALSE );
+      proto_tree_add_item( parameter_tree, hf_isup_inn_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       proto_tree_add_item( parameter_tree, hf_isup_numbering_plan_indicator, parameter_tvb, offset, 1, ENC_BIG_ENDIAN );
       offset++;
       /* Address digits */

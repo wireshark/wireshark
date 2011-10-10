@@ -1223,7 +1223,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				item_len = tvb_get_guint8( tvb, offset );
 				/* Item len of 1 because its an FT_UINT_STRING... */
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_sip_uri,
-				                    tvb, offset, 1, FALSE );
+				                    tvb, offset, 1, ENC_BIG_ENDIAN );
 				offset++;
 
 				col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
@@ -1332,7 +1332,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* Reason phrase */
 				item_len = tvb_get_guint8( tvb, offset );
 				if ( item_len != 0 )
-					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, FALSE );
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, ENC_BIG_ENDIAN );
 
 				offset += (item_len+1);
 				packet_len -= (item_len+1);
@@ -1485,7 +1485,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_session_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN );
 
 				/* Additional indications */
-				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_add_ind_mao, tvb, offset + 3, 1, FALSE );
+				proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_conn_add_ind_mao, tvb, offset + 3, 1, ENC_BIG_ENDIAN );
 
 				offset += 4;
 				packet_len -= 4;
@@ -1536,8 +1536,8 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 
 			proto_item* mux_item = proto_tree_add_item(tree, hf_rtcp_app_mux, tvb, offset, packet_len, ENC_NA);
 			proto_tree* mux_tree = proto_item_add_subtree( mux_item, ett_mux );
-			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, FALSE );
-			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, FALSE );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_mux, tvb, offset, 1, ENC_BIG_ENDIAN );
+			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_cp, tvb, offset, 1, ENC_BIG_ENDIAN );
 			proto_tree_add_item( mux_tree, hf_rtcp_app_mux_selection, tvb, offset, 1, ENC_BIG_ENDIAN );
 			local_port = tvb_get_ntohs( tvb, offset+2 );
 			proto_tree_add_uint( mux_tree, hf_rtcp_app_mux_localmuxport, tvb, offset+2, 2, local_port*2 );

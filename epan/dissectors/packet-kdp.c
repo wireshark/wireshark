@@ -123,12 +123,12 @@ static void dissect_kdp(tvbuff_t *tvb,
       ti = proto_tree_add_item(kdp_tree, hf_kdp_flags, tvb, 2, 1, ENC_BIG_ENDIAN);
       flags_tree = proto_item_add_subtree(ti, ett_kdp_flags);
 
-      proto_tree_add_item(flags_tree, hf_kdp_drop_flag, tvb, 2, 1, FALSE);
-      proto_tree_add_item(flags_tree, hf_kdp_syn_flag, tvb, 2, 1, FALSE);
-      proto_tree_add_item(flags_tree, hf_kdp_ack_flag, tvb, 2, 1, FALSE);
-      proto_tree_add_item(flags_tree, hf_kdp_rst_flag, tvb, 2, 1, FALSE);
-      proto_tree_add_item(flags_tree, hf_kdp_bcst_flag, tvb, 2, 1, FALSE);
-      proto_tree_add_item(flags_tree, hf_kdp_dup_flag, tvb, 2, 1, FALSE);
+      proto_tree_add_item(flags_tree, hf_kdp_drop_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_kdp_syn_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_kdp_ack_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_kdp_rst_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_kdp_bcst_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(flags_tree, hf_kdp_dup_flag, tvb, 2, 1, ENC_BIG_ENDIAN);
 
       proto_tree_add_item(kdp_tree, hf_kdp_errors, tvb, 3, 1, ENC_BIG_ENDIAN);
 

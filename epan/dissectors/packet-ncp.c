@@ -543,35 +543,35 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         flags_tree = proto_item_add_subtree(ti, ett_ncp_system_flags);
 
         proto_tree_add_item(flags_tree, hf_ncp_system_flags_abt,
-            tvb, commhdr + 2, 1, FALSE);
+            tvb, commhdr + 2, 1, ENC_BIG_ENDIAN);
         if (flags & ABT) {
             proto_item_append_text(ti, "  ABT");
         }
         flags&=(~( ABT ));
 
         proto_tree_add_item(flags_tree, hf_ncp_system_flags_bsy,
-            tvb, commhdr + 2, 1, FALSE);
+            tvb, commhdr + 2, 1, ENC_BIG_ENDIAN);
         if (flags & BSY) {
             proto_item_append_text(ti, "  BSY");
         }
         flags&=(~( BSY ));
 
         proto_tree_add_item(flags_tree, hf_ncp_system_flags_eob,
-            tvb, commhdr + 2, 1, FALSE);
+            tvb, commhdr + 2, 1, ENC_BIG_ENDIAN);
         if (flags & EOB) {
             proto_item_append_text(ti, "  EOB");
         }
         flags&=(~( EOB ));
 
         proto_tree_add_item(flags_tree, hf_ncp_system_flags_lst,
-            tvb, commhdr + 2, 1, FALSE);
+            tvb, commhdr + 2, 1, ENC_BIG_ENDIAN);
         if (flags & LST) {
             proto_item_append_text(ti, "  LST");
         }
         flags&=(~( LST ));
 
         proto_tree_add_item(flags_tree, hf_ncp_system_flags_sys,
-            tvb, commhdr + 2, 1, FALSE);
+            tvb, commhdr + 2, 1, ENC_BIG_ENDIAN);
         if (flags & SYS) {
             proto_item_append_text(ti, "  SYS");
         }

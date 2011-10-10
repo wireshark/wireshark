@@ -250,7 +250,7 @@ dissect_winsrepl_wins_owner(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 	}
 
 	/* ADDRESS */
-	proto_tree_add_item(owner_tree, hf_winsrepl_owner_address, winsrepl_tvb, winsrepl_offset, 4, FALSE);
+	proto_tree_add_item(owner_tree, hf_winsrepl_owner_address, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	/* MAX_VERSION */
@@ -294,7 +294,7 @@ dissect_winsrepl_table_reply(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	}
 
 	/* INITIATOR */
-	proto_tree_add_item(table_tree, hf_winsrepl_table_initiator, winsrepl_tvb, winsrepl_offset, 4, FALSE);
+	proto_tree_add_item(table_tree, hf_winsrepl_table_initiator, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	return winsrepl_offset;
@@ -328,7 +328,7 @@ dissect_winsrepl_wins_ip(tvbuff_t *winsrepl_tvb, _U_ packet_info *pinfo,
 	}
 
 	/* OWNER */
-	proto_tree_add_item(ip_tree, hf_winsrepl_ip_owner, winsrepl_tvb, winsrepl_offset, 4, FALSE);
+	proto_tree_add_item(ip_tree, hf_winsrepl_ip_owner, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	/* IP */
@@ -482,7 +482,7 @@ dissect_winsrepl_wins_name(tvbuff_t *winsrepl_tvb, packet_info *pinfo,
 	}
 
 	/* UNKNOWN, little or big endian??? */
-	proto_tree_add_item(name_tree, hf_winsrepl_name_unknown, winsrepl_tvb, winsrepl_offset, 4, FALSE);
+	proto_tree_add_item(name_tree, hf_winsrepl_name_unknown, winsrepl_tvb, winsrepl_offset, 4, ENC_BIG_ENDIAN);
 	winsrepl_offset += 4;
 
 	proto_item_set_len(name_item, winsrepl_offset - old_offset);

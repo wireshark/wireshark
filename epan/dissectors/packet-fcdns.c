@@ -482,7 +482,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             }
             if (tvb_offset_exists (tvb, 572)) {
                 proto_tree_add_item (req_tree, hf_fcdns_rply_ipnode, tvb,
-                                     offset+540, 16, 0);
+                                     offset+540, 16, ENC_NA);
             }
             if (tvb_offset_exists (tvb, 576)) {
                 dissect_cos_flags(req_tree, tvb, offset+556, hf_fcdns_reply_cos);
@@ -492,7 +492,7 @@ dissect_fcdns_ganxt (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
             }
             if (tvb_offset_exists (tvb, 624)) {
                 proto_tree_add_item (req_tree, hf_fcdns_rply_ipport, tvb,
-                                     offset+592, 16, 0);
+                                     offset+592, 16, ENC_NA);
             }
             if (tvb_offset_exists (tvb, 632)) {
                 proto_tree_add_string (req_tree, hf_fcdns_rply_fpname, tvb,
@@ -698,7 +698,7 @@ dissect_fcdns_gipppn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
         }
         else {
             proto_tree_add_item (req_tree, hf_fcdns_rply_ipport, tvb, offset,
-                                 16, 0);
+                                 16, ENC_NA);
         }
     }
 }
@@ -740,7 +740,7 @@ dissect_fcdns_gipnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
         }
         else {
             proto_tree_add_item (req_tree, hf_fcdns_rply_ipnode, tvb, offset,
-                                 16, 0);
+                                 16, ENC_NA);
         }
     }
 }
@@ -917,7 +917,7 @@ dissect_fcdns_gidipp (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
     if (req_tree) {
         if (isreq) {
             proto_tree_add_item (req_tree, hf_fcdns_req_ip, tvb, offset,
-                                 16, 0);
+                                 16, ENC_NA);
         }
         else {
             do {
@@ -1060,7 +1060,7 @@ dissect_fcdns_rippid (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
                                offset+1, 3,
                                tvb_fc_to_str (tvb, offset+1));
         proto_tree_add_item (req_tree, hf_fcdns_req_ip, tvb,
-                             offset+4, 16, 0);
+                             offset+4, 16, ENC_NA);
     }
 }
 
@@ -1110,7 +1110,7 @@ dissect_fcdns_ripnn (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
     if (req_tree && isreq) {
         proto_tree_add_string (req_tree, hf_fcdns_req_nname, tvb, offset, 8,
                                tvb_fcwwn_to_str (tvb, offset));
-        proto_tree_add_item (req_tree, hf_fcdns_req_ip, tvb, offset+8, 16, 0);
+        proto_tree_add_item (req_tree, hf_fcdns_req_ip, tvb, offset+8, 16, ENC_NA);
     }
 }
 
@@ -1243,11 +1243,11 @@ dissect_fcdns_swils_entries (tvbuff_t *tvb, proto_tree *tree, int offset)
             }
             proto_tree_add_item (tree, hf_fcdns_rply_ipa, tvb, offset, 8, ENC_NA);
             proto_tree_add_item (tree, hf_fcdns_rply_ipnode, tvb, offset+8, 16,
-                                 0);
+                                 ENC_NA);
             dissect_cos_flags(tree, tvb, offset+24, hf_fcdns_reply_cos);
             dissect_fc4type(tree, tvb, offset+28, hf_fcdns_rply_gft);
             proto_tree_add_item (tree, hf_fcdns_rply_ipport, tvb, offset+60,
-                                 16, 0);
+                                 16, ENC_NA);
             proto_tree_add_string (tree, hf_fcdns_rply_fpname, tvb, offset+76,
                                    8, tvb_fcwwn_to_str (tvb, offset+76));
             proto_tree_add_string (tree, hf_fcdns_rply_hrdaddr, tvb, offset+85,
@@ -1330,7 +1330,7 @@ dissect_fcdns_geip (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 
     if (isreq) {
         if (req_tree) {
-            proto_tree_add_item (req_tree, hf_fcdns_req_ip, tvb, offset, 16, 0);
+            proto_tree_add_item (req_tree, hf_fcdns_req_ip, tvb, offset, 16, ENC_NA);
         }
     }
     else {
@@ -1411,7 +1411,7 @@ dissect_fcdns_geipp (tvbuff_t *tvb, proto_tree *req_tree, gboolean isreq)
 
     if (isreq) {
         if (req_tree) {
-            proto_tree_add_item (req_tree, hf_fcdns_portip, tvb, offset, 4, 0);
+            proto_tree_add_item (req_tree, hf_fcdns_portip, tvb, offset, 4, ENC_BIG_ENDIAN);
         }
     }
     else {

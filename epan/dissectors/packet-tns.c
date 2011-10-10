@@ -201,27 +201,27 @@ static void dissect_tns_service_options(tvbuff_t *tvb, int offset,
 {
 
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_bconn, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_pc, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hc, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_fd, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_hd, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc1, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dc2, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_dio, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ap, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_ra, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(sopt_tree, hf_tns_sopt_flag_sa, tvb,
-			offset, 2, FALSE);
+			offset, 2, ENC_BIG_ENDIAN);
 
 }
 
@@ -229,11 +229,11 @@ static void dissect_tns_connect_flag(tvbuff_t *tvb, int offset,
 	proto_tree *cflag_tree)
 {
 
-	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, FALSE);
-	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, FALSE);
-	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, FALSE);
-	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, FALSE);
-	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, FALSE);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nareq, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_nalink, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_enablena, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_ichg, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(cflag_tree, hf_tns_conn_flag_wantna, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
@@ -280,15 +280,15 @@ static void dissect_tns_data(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		ti = proto_tree_add_item(data_tree, hf_tns_data_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 		df_tree = proto_item_add_subtree(ti, ett_tns_data_flag);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_send, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_rc, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_c, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_reserved, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_more, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_eof, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_dic, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_rts, tvb, offset, 2, FALSE);
-		proto_tree_add_item(df_tree, hf_tns_data_flag_sntt, tvb, offset, 2, FALSE);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_send, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_rc, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_c, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_reserved, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_more, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_eof, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_dic, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_rts, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(df_tree, hf_tns_data_flag_sntt, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 
@@ -387,22 +387,22 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 		ntp_tree = proto_item_add_subtree(ti, ett_tns_ntp_flag);
 
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_hangon, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_crel, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_tduio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_srun, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_dtest, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_cbio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_asio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_pio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_grant, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_handoff, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigpipe, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigurg, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_urgentio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_fdio, tvb, offset, 2, FALSE);
-		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_testop, tvb, offset, 2, FALSE);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_hangon, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_crel, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_tduio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_srun, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_dtest, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_cbio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_asio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_pio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_grant, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_handoff, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigpipe, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_sigurg, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_urgentio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_fdio, tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(ntp_tree, hf_tns_ntp_flag_testop, tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 	offset += 2;
 

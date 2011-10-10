@@ -582,7 +582,7 @@ dissect_configrequest(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_t
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, " (DCID: 0x%04x)", dcid);
 
-	proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	if(tvb_length_remaining(tvb, offset)){
@@ -720,7 +720,7 @@ dissect_configresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_
 	proto_tree_add_item(tree, hf_btl2cap_scid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
-	proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, TRUE);
+	proto_tree_add_item(tree, hf_btl2cap_continuation_flag, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	offset+=2;
 
 	result = tvb_get_letohs(tvb, offset);

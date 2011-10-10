@@ -1894,7 +1894,7 @@ static int
 dissect_ndmp_v4_tcp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tree)
 {
 	/* IP addr */
-	proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset+=4;
 
 	/* TCP port */
@@ -1935,7 +1935,7 @@ dissect_ndmp_addr(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 	  	/* this became an array in version 4 and beyond */
 		if(get_ndmp_protocol_version()<NDMP_PROTOCOL_V4){
 			/* IP addr */
-			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_ndmp_addr_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset+=4;
 
 			/* TCP port */

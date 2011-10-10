@@ -919,12 +919,12 @@ static int dissect_pdcp_ir_packet(proto_tree *tree,
 
         /* Source address */
         source = tvb_get_ipv4(tvb, offset);
-        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_src, tvb, offset, 4, FALSE);
+        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_src, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* Dest address */
         dest = tvb_get_ipv4(tvb, offset);
-        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_dst, tvb, offset, 4, FALSE);
+        proto_tree_add_item(static_ipv4_tree, hf_pdcp_lte_rohc_ip_dst, tvb, offset, 4, ENC_BIG_ENDIAN);
         offset += 4;
 
         /* Set proper length for subtree */

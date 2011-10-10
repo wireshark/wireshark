@@ -115,7 +115,7 @@ dissect_trill( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
     proto_tree_add_item( trill_tree, hf_trill_reserved, tvb, offset,
       TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
     proto_tree_add_item( trill_tree, hf_trill_multi_dst, tvb, offset,
-      TRILL_BIT_FIELDS_LEN, FALSE ) ;
+      TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;
     proto_tree_add_item( trill_tree, hf_trill_op_len, tvb, offset,
       TRILL_BIT_FIELDS_LEN, ENC_BIG_ENDIAN ) ;  
     proto_tree_add_item( trill_tree, hf_trill_hop_cnt, tvb, offset,

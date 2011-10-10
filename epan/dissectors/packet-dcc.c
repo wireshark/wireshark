@@ -358,13 +358,13 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						ti = proto_tree_add_item(dcc_optree, hf_dcc_trace, tvb, offset,
 							4, ENC_BIG_ENDIAN);
 						dcc_tracetree = proto_item_add_subtree(ti, ett_dcc_trace);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_admin, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_anon, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_client, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_rlim, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_query, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_ridc, tvb, offset, 4, FALSE);
-						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_flood, tvb, offset, 4, FALSE);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_admin, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_anon, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_client, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_rlim, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_query, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_ridc, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(dcc_tracetree, hf_dcc_trace_flood, tvb, offset, 4, ENC_BIG_ENDIAN);
 					}
 					else if ( aop == DCC_AOP_FLOD )
 					{

@@ -483,23 +483,23 @@ nbns_add_nbns_flags(column_info *cinfo, proto_tree *nbns_tree, tvbuff_t *tvb, in
 	    tvb, offset, 2, flags, "Flags: 0x%04x (%s)", flags, buf);
 	field_tree = proto_item_add_subtree(tf, ett_nbns_flags);
 	proto_tree_add_item(field_tree, hf_nbns_flags_response,
-	    tvb, offset, 2, FALSE);
+	    tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(field_tree, hf_nbns_flags_opcode,
 	    tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (flags & F_RESPONSE) {
 		proto_tree_add_item(field_tree, hf_nbns_flags_authoritative,
-			  tvb, offset, 2, FALSE);
+			  tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 	proto_tree_add_item(field_tree, hf_nbns_flags_truncated,
-	    tvb, offset, 2, FALSE);
+	    tvb, offset, 2, ENC_BIG_ENDIAN);
 	proto_tree_add_item(field_tree, hf_nbns_flags_recdesired,
-	    tvb, offset, 2, FALSE);
+	    tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (flags & F_RESPONSE) {
 		proto_tree_add_item(field_tree, hf_nbns_flags_recavail,
-		    tvb, offset, 2, FALSE);
+		    tvb, offset, 2, ENC_BIG_ENDIAN);
 	}
 	proto_tree_add_item(field_tree, hf_nbns_flags_broadcast,
-	    tvb, offset, 2, FALSE);
+	    tvb, offset, 2, ENC_BIG_ENDIAN);
 	if (flags & F_RESPONSE && !is_wack) {
 		proto_tree_add_item(field_tree, hf_nbns_flags_rcode,
 		    tvb, offset, 2, ENC_BIG_ENDIAN);

@@ -301,11 +301,11 @@ dissect_vuze_dht_address(tvbuff_t *tvb, packet_info _U_*pinfo, proto_tree *tree,
   switch(ip_length)
   {
   case TL_IPv4:
-    proto_tree_add_item(sub_tree, hf_vuze_dht_address_v4, tvb, offset, ip_length, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_address_v4, tvb, offset, ip_length, ENC_BIG_ENDIAN);
     SET_ADDRESS( &addr, AT_IPv4, ip_length, tvb_get_ptr( tvb, offset, ip_length) );
     break;
   case TL_IPv6:
-    proto_tree_add_item(sub_tree, hf_vuze_dht_address_v6, tvb, offset, ip_length, FALSE);
+    proto_tree_add_item(sub_tree, hf_vuze_dht_address_v6, tvb, offset, ip_length, ENC_NA);
     SET_ADDRESS( &addr, AT_IPv6, ip_length, tvb_get_ptr( tvb, offset, ip_length) );
     break;
   default:

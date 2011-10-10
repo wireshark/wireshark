@@ -347,7 +347,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
             switch (type) {
             case TLV_FEC_STACK_LDP_IPv4:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4,
-                    tvb, offset + 4, 4, FALSE);
+                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv4_mask,
                     tvb, offset + 8, 1, ENC_BIG_ENDIAN);
                 if (length == 8)
@@ -355,7 +355,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
 	    case TLV_FEC_STACK_LDP_IPv6:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6,
-                    tvb, offset + 4, 16, FALSE);
+                    tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_ldp_ipv6_mask,
                     tvb, offset + 20, 1, ENC_BIG_ENDIAN);
                 if (length == 20)
@@ -368,7 +368,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		    return;
 		}
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_endpoint,
-		    tvb, offset + 4, 4, FALSE);
+		    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
 		    tvb, offset + 8, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
@@ -380,7 +380,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		    tvb, offset + 12, 4, ENC_BIG_ENDIAN);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv4_ipv4_sender,
-		    tvb, offset + 16, 4, FALSE);
+		    tvb, offset + 16, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
 		    tvb, offset + 20, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
@@ -393,7 +393,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_endpoint,
-                    tvb, offset + 4, 16, FALSE);
+                    tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz1,
                     tvb, offset + 20, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_tunnel_id,
@@ -406,7 +406,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     tvb, offset + 24, 16, ENC_NA);
 		PROTO_ITEM_SET_HIDDEN(hidden_item);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ipv6_ipv6_sender,
-                    tvb, offset + 40, 16, FALSE);
+                    tvb, offset + 40, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_mbz2,
                     tvb, offset + 56, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_rsvp_ip_lsp_id,
@@ -414,7 +414,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                 break;
             case TLV_FEC_STACK_L2_CID_OLD:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_remote,
-                    tvb, offset + 4, 4, FALSE);
+                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_vcid,
                     tvb, offset + 8, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_encap,
@@ -429,9 +429,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
                     return;
                 }
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_sender,
-                    tvb, offset + 4, 4, FALSE);
+                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_remote,
-                    tvb, offset + 8, 4, FALSE);
+                    tvb, offset + 8, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_vcid,
                     tvb, offset + 12, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_l2cid_encap,
@@ -453,9 +453,9 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		break;
 	    case TLV_FEC_STACK_BGP_LAB_v4:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_nh,
-                    tvb, offset + 4, 4, FALSE);
+                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_ipv4,
-                    tvb, offset + 8, 4, FALSE);
+                    tvb, offset + 8, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_bgp_len,
                     tvb, offset + 12, 1, ENC_BIG_ENDIAN);
                 if (length == 12)
@@ -463,7 +463,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		break;
 	    case TLV_FEC_STACK_GEN_IPv4:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv4,
-                    tvb, offset + 4, 4, FALSE);
+                    tvb, offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv4_mask,
                     tvb, offset + 8, 1, ENC_BIG_ENDIAN);
                 if (length == 8)
@@ -471,7 +471,7 @@ dissect_mpls_echo_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem
 		break;
 	    case TLV_FEC_STACK_GEN_IPv6:
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv6,
-                    tvb, offset + 4, 16, FALSE);
+                    tvb, offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tlv_fec_tree, hf_mpls_echo_tlv_fec_gen_ipv6_mask,
                     tvb, offset + 20, 1, ENC_BIG_ENDIAN);
                 if (length == 20)
@@ -553,30 +553,30 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_flag_res, tvb,
                             offset + 3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_flag_i, tvb,
-                            offset + 3, 1, FALSE);
+                            offset + 3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_flag_n, tvb,
-                            offset + 3, 1, FALSE);
+                            offset + 3, 1, ENC_BIG_ENDIAN);
 
 	addr_type = tvb_get_guint8(tvb, offset + 2);
 	switch(addr_type){
 	case TLV_ADDR_IPv4:
         	proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ip, tvb,
-				offset + 4, 4, FALSE);
+				offset + 4, 4, ENC_BIG_ENDIAN);
         	proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_int_ip, tvb,
-				offset + 8, 4, FALSE);
+				offset + 8, 4, ENC_BIG_ENDIAN);
 		break;
 	case TLV_ADDR_UNNUM_IPv4:
 	case TLV_ADDR_UNNUM_IPv6:
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ip, tvb,
-                                offset + 4, 4, FALSE);
+                                offset + 4, 4, ENC_BIG_ENDIAN);
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_if_index, tvb,
                                 offset + 8, 4, ENC_BIG_ENDIAN);
 		break;
 	case TLV_ADDR_IPv6:
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_ds_ipv6, tvb,
-                                offset + 4, 16, FALSE);
+                                offset + 4, 16, ENC_NA);
                 proto_tree_add_item(tree, hf_mpls_echo_tlv_ds_map_int_ipv6, tvb,
-                                offset + 20, 16, FALSE);
+                                offset + 20, 16, ENC_NA);
 		rem -= 24;
 		offset += 24;
                 break;
@@ -618,7 +618,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 			"Multipath Information");
 		tlv_ds_map_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ds_map);
 		proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_ip, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		break;
 	    case TLV_DS_MAP_HASH_IP_RANGE:
 		if(mplen != 8){
@@ -630,9 +630,9 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 			"Multipath Information");
 		tlv_ds_map_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ds_map);
 		proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_ip_low, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_ip_high, tvb,
-			offset + 4, 4, FALSE);
+			offset + 4, 4, ENC_BIG_ENDIAN);
 		break;
             case TLV_DS_MAP_HASH_NO_MP:
             case TLV_DS_MAP_HASH_NO_LABEL:
@@ -651,7 +651,7 @@ dissect_mpls_echo_tlv_ds_map(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
 			"Multipath Information");
 		tlv_ds_map_tree = proto_item_add_subtree(ti, ett_mpls_echo_tlv_ds_map);
 		proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_ip, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		if(mplen > 4)
 			proto_tree_add_item(tlv_ds_map_tree, hf_mpls_echo_tlv_ds_map_mp_mask, tvb,
 				offset + 4, mplen - 4, ENC_NA);
@@ -722,10 +722,10 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 			proto_tree_add_text(tree, tvb, offset, 4, "Incorrect address type for TLV ?");
 		}
 		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		if (type == TLV_ADDR_IPv4) {
 			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv4_int_addr, tvb,
-				offset + 4, 4, FALSE);
+				offset + 4, 4, ENC_BIG_ENDIAN);
 		} else {
 			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_int_index, tvb,
 				offset + 4, 4, ENC_BIG_ENDIAN);
@@ -738,10 +738,10 @@ dissect_mpls_echo_tlv_ilso(tvbuff_t *tvb, guint offset, proto_tree *tree, int re
 		}
 
 		proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_addr, tvb,
-			offset, 16, FALSE);
+			offset, 16, ENC_NA);
 		if (type == TLV_ADDR_IPv6) {
 			proto_tree_add_item(tree, hf_mpls_echo_tlv_ilso_ipv6_int_addr, tvb,
-				offset + 16, 16, FALSE);
+				offset + 16, 16, ENC_NA);
 			offset += 32;
 			rem -= 32;
 		} else {
@@ -898,7 +898,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                                 break;
                         }
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv4,
-                            tvb, offset + 4, 4, FALSE);
+                            tvb, offset + 4, 4, ENC_BIG_ENDIAN);
 			break;
 		case TLV_RTO_IPv6:
                         if(length != 16) {
@@ -908,7 +908,7 @@ dissect_mpls_echo_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem, gb
                                 break;
                         }
                         proto_tree_add_item(mpls_echo_tlv_tree, hf_mpls_echo_tlv_rto_ipv6,
-                            tvb, offset + 4, 16, FALSE);
+                            tvb, offset + 4, 16, ENC_NA);
 			break;
 		case TLV_VENDOR_PRIVATE_START:
 			if (length < 4) { /* SMI Enterprise code */
@@ -1024,7 +1024,7 @@ dissect_mpls_echo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		    proto_tree_add_item(mpls_echo_gflags,
 			hf_mpls_echo_flag_sbz, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 		    proto_tree_add_item(mpls_echo_gflags,
-			hf_mpls_echo_flag_v, tvb, offset + 2, 2, FALSE);
+			hf_mpls_echo_flag_v, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 		} else {
 		    proto_tree_add_item(mpls_echo_tree,
 			hf_mpls_echo_mbz, tvb, offset + 2, 2, ENC_BIG_ENDIAN);

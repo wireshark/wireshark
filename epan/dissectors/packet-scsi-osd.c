@@ -403,12 +403,12 @@ dissect_osd_option(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(it, ett_osd_option);
 	}
 
-	proto_tree_add_item(tree, hf_scsi_osd_option_dpo, tvb, offset, 1, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_option_dpo, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(option&0x10){
 		proto_item_append_text(tree, " DPO");
 	}
 
-	proto_tree_add_item(tree, hf_scsi_osd_option_fua, tvb, offset, 1, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_option_fua, tvb, offset, 1, ENC_BIG_ENDIAN);
 	if(option&0x08){
 		proto_item_append_text(tree, " FUA");
 	}
@@ -662,47 +662,47 @@ dissect_osd_permissions(tvbuff_t *tvb, int offset, proto_tree *parent_tree)
 		tree = proto_item_add_subtree(it, ett_osd_permission_bitmask);
 	}
 
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_read, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_read, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x8000){
 		proto_item_append_text(tree, " READ");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_write, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_write, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x4000){
 		proto_item_append_text(tree, " WRITE");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_get_attr, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_get_attr, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x2000){
 		proto_item_append_text(tree, " GET_ATTR");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_set_attr, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_set_attr, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x1000){
 		proto_item_append_text(tree, " SET_ATTR");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_create, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_create, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0800){
 		proto_item_append_text(tree, " CREATE");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_remove, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_remove, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0400){
 		proto_item_append_text(tree, " REMOVE");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_obj_mgmt, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_obj_mgmt, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0200){
 		proto_item_append_text(tree, " OBJ_MGMT");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_append, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_append, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0100){
 		proto_item_append_text(tree, " APPEND");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_dev_mgmt, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_dev_mgmt, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0080){
 		proto_item_append_text(tree, " DEV_MGMT");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_global, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_global, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0040){
 		proto_item_append_text(tree, " GLOBAL");
 	}
-	proto_tree_add_item(tree, hf_scsi_osd_permissions_pol_sec, tvb, offset, 2, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_permissions_pol_sec, tvb, offset, 2, ENC_BIG_ENDIAN);
 	if(permissions&0x0020){
 		proto_item_append_text(tree, " POL/SEC");
 	}
@@ -1140,8 +1140,8 @@ dissect_osd_list(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		offset+=3;
 
 		/* LSTCHG and ROOT flags */
-		proto_tree_add_item(tree, hf_scsi_osd_list_flags_lstchg, tvb, offset, 1, 0);
-		proto_tree_add_item(tree, hf_scsi_osd_list_flags_root, tvb, offset, 1, 0);
+		proto_tree_add_item(tree, hf_scsi_osd_list_flags_lstchg, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_scsi_osd_list_flags_root, tvb, offset, 1, ENC_BIG_ENDIAN);
 		is_root=tvb_get_guint8(tvb, offset)&0x01;
 		offset++;
 
@@ -1485,7 +1485,7 @@ static const true_false_string collection_fcr_tfs = {
 static void
 dissect_osd_collection_fcr(tvbuff_t *tvb, int offset, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_scsi_osd_collection_fcr, tvb, offset, 1, 0);
+	proto_tree_add_item(tree, hf_scsi_osd_collection_fcr, tvb, offset, 1, ENC_BIG_ENDIAN);
 }
 
 static void

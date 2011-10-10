@@ -4576,7 +4576,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 80):		 /* FRAGMENTED */
 		case ((VENDOR_NTOP << 16) | 80): /* FRAGMENTED */
 		        ti = proto_tree_add_item(pdutree, hf_pie_ntop_fragmented,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 81):		 /* FINGERPRINT */
 		case ((VENDOR_NTOP << 16) | 81): /* FINGERPRINT */
@@ -4688,7 +4688,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 114):	          /* UNTUNNELED_IPV4_SRC_ADDR */
 		case ((VENDOR_NTOP << 16) | 114): /* UNTUNNELED_IPV4_SRC_ADDR */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_ipv4_src_addr,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 115):	          /* UNTUNNELED_L4_SRC_PORT */
 		case ((VENDOR_NTOP << 16) | 115): /* UNTUNNELED_L4_SRC_PORT */
@@ -4698,7 +4698,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 116):	          /* UNTUNNELED_IPV4_DST_ADDR */
 		case ((VENDOR_NTOP << 16) | 116): /* UNTUNNELED_IPV4_DST_ADDR */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_untunneled_ipv4_dst_addr,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 117):	          /* UNTUNNELED_L4_DST_PORT */
 		case ((VENDOR_NTOP << 16) | 117): /* UNTUNNELED_L4_DST_PORT */
@@ -4764,7 +4764,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 139):		  /* SIP_RTP_SRC_IP */
 		case ((VENDOR_NTOP << 16) | 139): /* SIP_RTP_SRC_IP */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_src_ip,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 140):           /* SIP_RTP_SRC_PORT */
 		case ((VENDOR_NTOP << 16) | 140): /* SIP_RTP_SRC_PORT */
@@ -4774,7 +4774,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 141):		  /* SIP_RTP_DST_IP */
 		case ((VENDOR_NTOP << 16) | 141): /* SIP_RTP_DST_IP */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_sip_rtp_dst_ip,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 142):           /* SIP_RTP_DST_PORT */
 		case ((VENDOR_NTOP << 16) | 142): /* SIP_RTP_DST_PORT */
@@ -4924,7 +4924,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
                 /* START Plixer International */
 		case ((VENDOR_PLIXER << 16) | 100):    /* client_ip_v4 */
 			ti = proto_tree_add_item(pdutree, hf_pie_plixer_client_ip_v4,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case ((VENDOR_PLIXER << 16) | 101):    /* client_hostname */
 			gen_str = tvb_format_text(tvb, offset, length);
@@ -4943,7 +4943,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 		case ((VENDOR_PLIXER << 16) | 104):    /* server_ip_v4 */
 			ti = proto_tree_add_item(pdutree, hf_pie_plixer_server_ip_v4,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_BIG_ENDIAN);
 			break;
 		case ((VENDOR_PLIXER << 16) | 105):    /* recipient_address */
 			gen_str = tvb_format_text(tvb, offset, length);

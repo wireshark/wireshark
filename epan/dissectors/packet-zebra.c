@@ -225,12 +225,12 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			/* XXX - switch on the address family here, instead? */
 			if (len == 17) { /* IPv4 */
 				proto_tree_add_item(tree, hf_zebra_prefix4,
-					tvb, offset, 4, FALSE);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			else if (len == 41) { /* IPv6 */
 				proto_tree_add_item(tree, hf_zebra_prefix6,
-					tvb, offset, 16, FALSE);
+					tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
 			else break;
@@ -241,12 +241,12 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 
 			if (len == 17) { /* IPv4 */
 				proto_tree_add_item(tree, hf_zebra_dest4,
-					tvb, offset, 4, FALSE);
+					tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			else if (len == 41) { /* IPv6 */
 				proto_tree_add_item(tree, hf_zebra_dest6,
-					tvb, offset, 16, FALSE);
+					tvb, offset, 16, ENC_NA);
 				offset += 16;
 			}
 			break;
@@ -298,7 +298,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 				while (i--) {
 					proto_tree_add_item(tree,
 						hf_zebra_nexthop4, tvb,
-						offset, 4, FALSE);
+						offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 				}
 			}
@@ -375,7 +375,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 				while (i--) {
 					proto_tree_add_item(tree,
 						hf_zebra_nexthop6, tvb,
-						offset, 16, FALSE);
+						offset, 16, ENC_NA);
 					offset += 16;
 				}
 			}
@@ -416,7 +416,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			break;
 		case ZEBRA_IPV4_NEXTHOP_LOOKUP:
 			proto_tree_add_item(tree, hf_zebra_nexthop4,
-				tvb, offset, 4, FALSE);
+				tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
 			proto_tree_add_item(tree, hf_zebra_metric,

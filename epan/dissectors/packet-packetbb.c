@@ -222,12 +222,12 @@ static int dissect_pbb_tlvblock(tvbuff_t *tvb, proto_tree *tree, guint offset,
     tlvFlags_item = proto_tree_add_item(tlv_tree, hf_packetbb_tlv_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
     tlv_flags_tree = proto_item_add_subtree(tlvFlags_item, ett_packetbb_tlv_flags);
 
-    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hastypext, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hassingleindex, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasmultiindex, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasvalue, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasextlen, tvb, offset, 1, FALSE);
-    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasmultivalue, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hastypext, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hassingleindex, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasmultiindex, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasvalue, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasextlen, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tlv_flags_tree, hf_packetbb_tlv_flags_hasmultivalue, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     if ((tlvFlags & TLV_HAS_TYPEEXT) != 0) {
@@ -435,11 +435,11 @@ static int dissect_pbb_addressblock(tvbuff_t *tvb, proto_tree *tree, guint offse
   addrFlags_item = proto_tree_add_item(addr_tree, hf_packetbb_addr_flags, tvb, block_index+1, 1, ENC_BIG_ENDIAN);
   addrFlags_tree = proto_item_add_subtree(addrFlags_item, ett_packetbb_addr_flags);
 
-  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hashead, tvb, block_index+1, 1, FALSE);
-  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hasfulltail, tvb, block_index+1, 1, FALSE);
-  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_haszerotail, tvb, block_index+1, 1, FALSE);
-  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hassingleprelen, tvb, block_index+1, 1, FALSE);
-  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hasmultiprelen, tvb, block_index+1, 1, FALSE);
+  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hashead, tvb, block_index+1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hasfulltail, tvb, block_index+1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_haszerotail, tvb, block_index+1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hassingleprelen, tvb, block_index+1, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(addrFlags_tree, hf_packetbb_addr_flags_hasmultiprelen, tvb, block_index+1, 1, ENC_BIG_ENDIAN);
 
   if ((address_flags & ADDR_HASHEAD) != 0) {
     /* add head */

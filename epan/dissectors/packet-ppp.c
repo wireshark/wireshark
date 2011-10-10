@@ -3998,7 +3998,7 @@ dissect_iphc_crtp_cs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     while (offset < length) {
       proto_tree_add_item(cs_tree, hf, tvb, offset, cid_size, FALSE);
       offset += cid_size;
-      proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_invalid, tvb, offset, 1, FALSE);
+      proto_tree_add_item(cs_tree, hf_iphc_crtp_cs_invalid, tvb, offset, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item(cs_tree, hf_iphc_crtp_seq, tvb, offset, 1, ENC_BIG_ENDIAN);
       ++offset;
       proto_tree_add_item(cs_tree, hf_iphc_crtp_gen, tvb, offset, 1, ENC_BIG_ENDIAN);

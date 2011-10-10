@@ -248,7 +248,7 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         case ID_3GPP2_SDI_FLAG:
              {
 			  value = tvb_get_guint8(tvb,offset);
-              proto_tree_add_item(attr_tree, hf_gre_3ggp2_sdi, tvb, offset, attrib_length, FALSE);
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_sdi, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
 			  proto_item_append_text(attr_item," - %s",
 				  (value & 0x80) ? "Packet suitable for 1x SDB or HRPD DOS transmission" : "Reserved");
 
@@ -264,10 +264,10 @@ dissect_gre_3gpp2_attribs(tvbuff_t *tvb, int offset, proto_tree *tree)
         case ID_3GPP2_FLOW_CTRL:
              {
 			  value = tvb_get_guint8(tvb,offset);
-              proto_tree_add_item(attr_tree, hf_gre_3ggp2_fci, tvb, offset, attrib_length, FALSE);
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_fci, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
 			  proto_item_append_text(attr_item," - %s",
 				  (value & 0x80) ? "XON" : "XOFF");
-              proto_tree_add_item(attr_tree, hf_gre_3ggp2_di, tvb, offset, attrib_length, FALSE);
+              proto_tree_add_item(attr_tree, hf_gre_3ggp2_di, tvb, offset, attrib_length, ENC_BIG_ENDIAN);
 			  proto_item_append_text(attr_item,"/%s",
 				  (value & 0x40) ? "INDEFINITE" : "TEMPORARY");
              }
@@ -290,9 +290,9 @@ dissect_gre_wccp2_redirect_header(tvbuff_t *tvb, int offset, proto_tree *tree)
   ti = proto_tree_add_item(tree, hf_gre_wccp_redirect_header, tvb, offset, 4, ENC_NA);
   rh_tree = proto_item_add_subtree(ti, ett_gre_wccp2_redirect_header);
 
-  proto_tree_add_item(rh_tree, hf_gre_wccp_dynamic_service, tvb, offset, 1, FALSE);
+  proto_tree_add_item(rh_tree, hf_gre_wccp_dynamic_service, tvb, offset, 1, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket_used, tvb, offset, 1, FALSE);
+  proto_tree_add_item(rh_tree, hf_gre_wccp_alternative_bucket_used, tvb, offset, 1, ENC_BIG_ENDIAN);
 
   proto_tree_add_item(rh_tree, hf_gre_wccp_service_id, tvb, offset +1, 1, ENC_BIG_ENDIAN);
 
@@ -359,21 +359,21 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     it_flags = proto_tree_add_item(gre_tree, hf_gre_flags_and_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     fv_tree = proto_item_add_subtree(it_flags, ett_gre_flags);
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_checksum, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_routing, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_routing, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_key, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_key, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_sequence_number, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_sequence_number, tvb, offset, 2, ENC_BIG_ENDIAN);
 
-    proto_tree_add_item(fv_tree, hf_gre_flags_strict_source_route, tvb, offset, 2, FALSE);
+    proto_tree_add_item(fv_tree, hf_gre_flags_strict_source_route, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(fv_tree, hf_gre_flags_recursion_control, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* RFC2637 Section 4.1 : Enhanced GRE Header */
     if (is_ppp) {
-      proto_tree_add_item(fv_tree, hf_gre_flags_ack, tvb, offset, 2, FALSE);
+      proto_tree_add_item(fv_tree, hf_gre_flags_ack, tvb, offset, 2, ENC_BIG_ENDIAN);
 
       proto_tree_add_item(fv_tree, hf_gre_flags_reserved_ppp, tvb, offset, 2, ENC_BIG_ENDIAN);
     }

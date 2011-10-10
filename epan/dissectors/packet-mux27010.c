@@ -442,8 +442,8 @@ getFrameAddress(tvbuff_t *tvb, proto_tree *field_tree_addr){
     g_snprintf(colSourceText,sizeof(colSourceText),"%s %s", colSourceText, dlci_char);
 
     /*Add items to subtree to display the details*/
-    proto_tree_add_item(field_tree_addr, hf_mux27010_eaaddressflag, tvb, offset, 1, FALSE);
-    proto_tree_add_item(field_tree_addr, hf_mux27010_craddressflag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree_addr, hf_mux27010_eaaddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree_addr, hf_mux27010_craddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_addr, hf_mux27010_dlciaddressflag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Get info if frame is command or response*/
@@ -585,7 +585,7 @@ getFrameLength(tvbuff_t *tvb, proto_tree *field_tree){
         length_info = length_info >> 1; /*Shift because of EA bit*/
 
         /*Add the E/A bit and the length value to the subtree*/
-        proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, FALSE);
+        proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_uint_format(field_tree, hf_mux27010_lengthframesize, tvb, offset, 1, length_info, "Info length: %i", length_info);
     }
     /*If E/A = 0 the length of the info field is >127*/
@@ -605,7 +605,7 @@ getFrameLength(tvbuff_t *tvb, proto_tree *field_tree){
 
         offset--;
         /*Add info to subtree*/
-        proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, FALSE);
+        proto_tree_add_item(field_tree, hf_mux27010_ealengthflag, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_uint_format(field_tree, hf_mux27010_lengthframesize_ea, tvb, offset, 2, length_info, "Info length: %i", length_info);
         offset++;
     }
@@ -643,8 +643,8 @@ getControlChannelFrameType(tvbuff_t *tvb, proto_tree *field_tree_ctr){
     controlchannel_type_command = controlchannel_type_command & MUX27010_COMMAND_CONTROLCHANNEL_FRAMETYPE_FLAG;
 
     /*Add info to subtree*/
-    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneleaframetype, tvb, offset, 1, FALSE);
-    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelcrframetype, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneleaframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelcrframetype, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelframetypecommand, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Check the control channel frame types and add the name to the subtree and strcat the name to the info column*/
@@ -718,7 +718,7 @@ getControlChannelLength(tvbuff_t *tvb, proto_tree *field_tree_ctr) {
     controlchannel_length_value = controlchannel_length_value >> 1; /*Shift because of EA bit*/
 
     /*Add data to subtree*/
-    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelealength, tvb, offset, 1, FALSE);
+    proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannelealength, tvb, offset, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchannellengthfield, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*Increment the offset by the number of info octets*/
@@ -764,11 +764,11 @@ getControlChannelValues(tvbuff_t *tvb, proto_tree *field_tree_ctr){
         proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscdlci, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /*Add bits of Flow Control*/
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24fc, tvb, offset+1, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24rtc, tvb, offset+1, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24rtr, tvb, offset+1, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24ring, tvb, offset+1, 1, FALSE);
-        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24dcd, tvb, offset+1, 1, FALSE);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24fc, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24rtc, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24rtr, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24ring, tvb, offset+1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(field_tree_ctr, hf_mux27010_controlchanneldetailedvaluemscv24dcd, tvb, offset+1, 1, ENC_BIG_ENDIAN);
         /**/
 
         if (controlchannel_length_value == 3) {

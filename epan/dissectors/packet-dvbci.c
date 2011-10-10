@@ -1377,7 +1377,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
         }
         else if (ip_ver == LSC_IPV6) {
             proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_ipv6_addr,
-                    tvb, offset, FT_IPv6_LEN, ENC_BIG_ENDIAN);
+                    tvb, offset, FT_IPv6_LEN, ENC_NA);
             offset += FT_IPv6_LEN;
         }
         else 

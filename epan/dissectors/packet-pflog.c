@@ -249,10 +249,10 @@ dissect_pflog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case BSD_AF_INET6_BSD:
-      proto_tree_add_item(pflog_tree, hf_pflog_saddr_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pflog_tree, hf_pflog_saddr_ipv6, tvb, offset, 16, ENC_NA);
       offset += 16;
 
-      proto_tree_add_item(pflog_tree, hf_pflog_daddr_ipv6, tvb, offset, 16, ENC_BIG_ENDIAN);
+      proto_tree_add_item(pflog_tree, hf_pflog_daddr_ipv6, tvb, offset, 16, ENC_NA);
       offset += 16;
       break;
 

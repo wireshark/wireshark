@@ -287,12 +287,12 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(smex_tree, hf_smex_framelen, tvb, offset, 2, first_word);
 		offset += 2;
 
-		proto_tree_add_item(smex_tree, hf_smex_rs_enable, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_rs_error, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_crc_enable, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_crc_error, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_mcs_enable, tvb, offset, 1, FALSE);
-		proto_tree_add_item(smex_tree, hf_smex_mcs_num_error, tvb, offset, 1, FALSE);
+		proto_tree_add_item(smex_tree, hf_smex_rs_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_rs_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_crc_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_crc_error, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_mcs_enable, tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(smex_tree, hf_smex_mcs_num_error, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(smex_tree, hf_smex_data_inv, tvb, offset, 1, ENC_BIG_ENDIAN);
 		++offset;
 
@@ -340,7 +340,7 @@ dissect_vcdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		offset += 2;
 		proto_tree_add_item(vcdu_tree, hf_vcdu_seq, tvb, offset, 3, ENC_BIG_ENDIAN);
 		offset += 3;
-		proto_tree_add_item(vcdu_tree, hf_vcdu_replay, tvb, offset, 1, FALSE);
+		proto_tree_add_item(vcdu_tree, hf_vcdu_replay, tvb, offset, 1, ENC_BIG_ENDIAN);
 		++offset;
 
                 /* extract mpdu/bpdu header word */

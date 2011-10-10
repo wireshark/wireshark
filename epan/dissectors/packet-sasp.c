@@ -530,7 +530,7 @@ static void dissect_reg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	 offset+=2;
 
 	 /* Reg Req LB Flag */
-	 proto_tree_add_item(reg_req_data,hf_reg_req_lbflag,tvb,offset,1,FALSE);
+	 proto_tree_add_item(reg_req_data,hf_reg_req_lbflag,tvb,offset,1,ENC_BIG_ENDIAN);
 	 offset+=1;
 
 	 gmd_cnt=tvb_get_ntohs(tvb, offset);
@@ -596,7 +596,7 @@ static void dissect_dereg_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 offset)
 	offset+=2;
 
 	/* LB Flag */
-	proto_tree_add_item(dereg_req_data,hf_dereg_req_lbflag,tvb,offset,1,FALSE);
+	proto_tree_add_item(dereg_req_data,hf_dereg_req_lbflag,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/* Reason */
@@ -707,7 +707,7 @@ static void dissect_setmemstate_req(tvbuff_t *tvb,proto_tree *pay_load,guint32 o
 	offset+=2;
 
 	/*LB Flag*/
-	proto_tree_add_item(setmemstate_req_data,hf_setmemstate_req_lbflag,tvb,offset,1,FALSE);
+	proto_tree_add_item(setmemstate_req_data,hf_setmemstate_req_lbflag,tvb,offset,1,ENC_BIG_ENDIAN);
 	offset+=1;
 
 	/*Group Data Count*/
@@ -780,7 +780,7 @@ static guint32 dissect_memdatacomp(tvbuff_t *tvb, proto_tree *pay_load,guint32 o
 	offset+=2;
 
 	/*Ip*/
-	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_ip, tvb, offset,16, FALSE);
+	proto_tree_add_item(memdatacomp_tree, hf_sasp_memdatacomp_ip, tvb, offset,16, ENC_NA);
 	offset+=16;
 
 

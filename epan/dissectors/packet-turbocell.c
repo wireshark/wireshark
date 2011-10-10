@@ -167,7 +167,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
         }
 
         proto_tree_add_item(turbocell_tree, hf_turbocell_unknown, tvb, 0x0E, 2, ENC_BIG_ENDIAN);
-        proto_tree_add_item(turbocell_tree, hf_turbocell_ip, tvb, 0x10, 4, FALSE);
+        proto_tree_add_item(turbocell_tree, hf_turbocell_ip, tvb, 0x10, 4, ENC_BIG_ENDIAN);
 
     }
 

@@ -175,7 +175,7 @@ dissect_synergy(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		else if(strncmp(buffer,"CCLP",4)==0)
 			dissect_synergy_cclp(tvb,pinfo,synergy_tree,offset+4);
 		else if(strncmp(buffer,"CSEC",4)==0)
-			proto_tree_add_item(synergy_tree,hf_synergy_csec,tvb,offset+4,1,FALSE);
+			proto_tree_add_item(synergy_tree,hf_synergy_csec,tvb,offset+4,1,ENC_BIG_ENDIAN);
 		else if(strncmp(buffer,"CROP",4)==0)
 			proto_tree_add_item(synergy_tree,hf_synergy_crop,tvb,offset+4,-1,ENC_NA);
 		else if(strncmp(buffer,"CIAK",4)==0)

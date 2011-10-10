@@ -352,7 +352,7 @@ dissect_pktc_ap_request(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int
     offset=dissect_pktc_list_of_ciphersuites(pinfo, tree, tvb, offset, doi);
 
     /* re-establish flag */
-    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
     /* sha-1 hmac */
@@ -389,11 +389,11 @@ dissect_pktc_ap_reply(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int o
     offset+=4;
 
     /* re-establish flag */
-    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
     /* ack required flag */
-    proto_tree_add_item(tree, hf_pktc_ack_required_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pktc_ack_required_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
     /* sha-1 hmac */
@@ -454,7 +454,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
     offset+=4;
 
     /* re-establish flag */
-    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, FALSE);
+    proto_tree_add_item(tree, hf_pktc_reestablish_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset+=1;
 
     /* sha-1 hmac */

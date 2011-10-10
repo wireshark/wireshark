@@ -487,7 +487,7 @@ dissect_aodv_rerr(tvbuff_t *tvb, packet_info *pinfo, proto_tree *aodv_tree,
 	for (i = 0; i < dest_count; i++) {
 	    proto_tree_add_item(aodv_unreach_dest_tree,
 				hf_aodv_unreach_dest_ipv6,
-				tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+				tvb, offset, INET6_ADDRLEN, ENC_NA);
 	    offset += INET6_ADDRLEN;
 	    proto_tree_add_item(aodv_unreach_dest_tree, hf_aodv_dest_seqno,
 				tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -746,7 +746,7 @@ dissect_aodv_draft_01_v6_rerr(tvbuff_t *tvb, packet_info *pinfo,
 	offset += 4;
 	proto_tree_add_item(aodv_unreach_dest_tree,
 			    hf_aodv_unreach_dest_ipv6,
-			    tvb, offset, INET6_ADDRLEN, ENC_BIG_ENDIAN);
+			    tvb, offset, INET6_ADDRLEN, ENC_NA);
 	offset += INET6_ADDRLEN;
     }
 }

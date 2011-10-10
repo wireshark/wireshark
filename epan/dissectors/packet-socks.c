@@ -324,7 +324,7 @@ static int display_address(tvbuff_t *tvb, int offset, proto_tree *tree) {
 
 	if ( a_type == 1){		/* IPv4 address */
 		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset,
-					4, FALSE);
+					4, ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 	else if ( a_type == 3){	/* domain name address */
@@ -334,7 +334,7 @@ static int display_address(tvbuff_t *tvb, int offset, proto_tree *tree) {
 	}
 	else if ( a_type == 4){	/* IPv6 address */
 		proto_tree_add_item( tree, hf_socks_ip6_dst, tvb, offset,
-				16, FALSE);
+				16, ENC_NA);
 		offset += 16;
 	}
 
@@ -493,7 +493,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						/* Do destination address */
 		tvb_memcpy(tvb, ipaddr, offset, 4);
 		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset,
-				4, FALSE);
+				4, ENC_BIG_ENDIAN);
 
 		offset += 4;
 
@@ -536,7 +536,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 2;
 						/* Do remote address	*/
 		proto_tree_add_item( tree, hf_socks_ip_dst, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 	}
 
 	else if ( compare_packet( hash_info->v4_user_name_row)){

@@ -330,9 +330,9 @@ dissect_fcencap_header (tvbuff_t *tvb, proto_tree *tree, gint offset)
             proto_tree_add_item (tree, hf_fcip_encap_word1, tvb, offset+4,
                                  4, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_fcip_pflags_changed, tvb, offset+8,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_fcip_pflags_special, tvb, offset+8,
-                                 1, 0);
+                                 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (tree, hf_fcip_pflags_c, tvb, offset+10, 1, ENC_BIG_ENDIAN);
         }
 

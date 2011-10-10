@@ -1053,7 +1053,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
             ti = proto_tree_add_text(val_tree, tvb, offset, 8+vc_len, "FEC Element %u", ix);
             fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, FALSE);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vctype, tvb, offset+1, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_infolength, tvb, offset+3,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_groupid,tvb, offset +4, 4, ENC_BIG_ENDIAN);
@@ -1103,7 +1103,7 @@ dissect_tlv_fec(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
             ti = proto_tree_add_text(val_tree, tvb, offset, 8+vc_len, "FEC Element %u", ix);
             fec_tree = proto_item_add_subtree(ti, ett_ldp_fec);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_wc, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, FALSE);
+            proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_controlword, tvb, offset+1, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_vctype, tvb, offset+1, 2, ENC_BIG_ENDIAN);
             proto_tree_add_item(fec_tree, hf_ldp_tlv_fec_vc_infolength, tvb, offset+3,1,ENC_BIG_ENDIAN);
             rem -= 4;
@@ -1405,8 +1405,8 @@ dissect_tlv_status(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     ti=proto_tree_add_text(tree, tvb, offset, rem, "Status");
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
-    proto_tree_add_item(val_tree, hf_ldp_tlv_status_ebit, tvb, offset, 1, FALSE);
-    proto_tree_add_item(val_tree, hf_ldp_tlv_status_fbit, tvb, offset, 1, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_status_ebit, tvb, offset, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_status_fbit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     data=tvb_get_ntohl(tvb, offset)&0x3FFFFFFF;
     proto_tree_add_uint_format(val_tree, hf_ldp_tlv_status_data, tvb, offset, 4,
@@ -1434,7 +1434,7 @@ dissect_tlv_returned_pdu(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_returned_version, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_returned_pdu_len, tvb, offset+2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(val_tree, hf_ldp_tlv_returned_lsr, tvb, offset+4, 4, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_returned_lsr, tvb, offset+4, 4, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_returned_ls_id, tvb, offset+8, 2, ENC_BIG_ENDIAN);
     offset += 10;
     rem -= 10;
@@ -1462,7 +1462,7 @@ dissect_tlv_returned_message(tvbuff_t *tvb, guint offset, proto_tree *tree, int 
     ti=proto_tree_add_text(tree, tvb, offset, rem, "Returned Message");
     val_tree=proto_item_add_subtree(ti, ett_ldp_tlv_val);
 
-    proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_ubit, tvb, offset, 1, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_returned_msg_ubit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
     type=tvb_get_ntohs(tvb, offset)&0x7FFF;
     /*chk for vendor-private*/
@@ -1515,8 +1515,8 @@ dissect_tlv_common_hello_parms(tvbuff_t *tvb, guint offset, proto_tree *tree)
     val_tree=tree;
 #endif
     proto_tree_add_item(val_tree, hf_ldp_tlv_val_hold, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, FALSE);
-    proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_val_target, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_val_request, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(val_tree, hf_ldp_tlv_val_res, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 }
 
@@ -1564,10 +1564,10 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, 
     proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ka, tvb,offset + 2, 2, ENC_BIG_ENDIAN);
 
     /*A bit*/
-    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_advbit,tvb, offset + 4, 1, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_advbit,tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
     /*D bit*/
-    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ldetbit,tvb, offset + 4, 1, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_ldetbit,tvb, offset + 4, 1, ENC_BIG_ENDIAN);
 
     /*Path Vector Limit*/
     proto_tree_add_item(val_tree, hf_ldp_tlv_sess_pvlim,tvb, offset + 5, 1, ENC_BIG_ENDIAN);
@@ -1576,7 +1576,7 @@ dissect_tlv_common_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, 
     proto_tree_add_item(val_tree, hf_ldp_tlv_sess_mxpdu,tvb, offset + 6, 2, ENC_BIG_ENDIAN);
 
     /*Rx LSR*/
-    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_rxlsr,tvb, offset + 8, 4, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_rxlsr,tvb, offset + 8, 4, ENC_BIG_ENDIAN);
 
     /*Rx LS*/
     proto_tree_add_item(val_tree, hf_ldp_tlv_sess_rxls,tvb, offset + 12, 2, ENC_BIG_ENDIAN);
@@ -1609,7 +1609,7 @@ dissect_tlv_atm_session_parms(tvbuff_t *tvb, guint offset, proto_tree *tree, int
                                tvb, offset, 1, numlr, "Number of Label Range components: %u",
                                numlr);
 
-    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_dir,tvb, offset, 1, FALSE);
+    proto_tree_add_item(val_tree, hf_ldp_tlv_sess_atm_dir,tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*move into range components*/
     offset += 4;
@@ -1684,7 +1684,7 @@ dissect_tlv_frame_relay_session_parms(tvbuff_t *tvb, guint offset,proto_tree *tr
                                numlr);
 
     proto_tree_add_item(val_tree, hf_ldp_tlv_sess_fr_dir,
-                        tvb, offset, 1, FALSE);
+                        tvb, offset, 1, ENC_BIG_ENDIAN);
 
     /*move into range components*/
     offset += 4;
@@ -1749,12 +1749,12 @@ dissect_tlv_ft_session(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     flags = tvb_get_ntohs(tvb, offset);
     proto_item_append_text(ti, " (%s%s)", (flags & 0x8000) ? "R, " : "",
                            val_to_str(flags & 0xF, tlv_ft_flags, "Invalid"));
-    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_r, tvb, offset, 2, FALSE);
+    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_r, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_res, tvb, offset, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_s, tvb, offset, 2, FALSE);
-    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_a, tvb, offset, 2, FALSE);
-    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_c, tvb, offset, 2, FALSE);
-    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_l, tvb, offset, 2, FALSE);
+    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_s, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_a, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_c, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item(flags_tree, hf_ldp_tlv_ft_sess_flag_l, tvb, offset, 2, ENC_BIG_ENDIAN);
 
     /* Reserved */
     proto_tree_add_item(val_tree, hf_ldp_tlv_ft_sess_res, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
@@ -1790,7 +1790,7 @@ dissect_tlv_lspid(tvbuff_t *tvb, guint offset,proto_tree *tree, int rem)
                         tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
     proto_tree_add_item(val_tree, hf_ldp_tlv_lspid_ldpid,
-                        tvb, offset, 4, FALSE);
+                        tvb, offset, 4, ENC_BIG_ENDIAN);
 }
 
 static void
@@ -1815,7 +1815,7 @@ dissect_tlv_er_hop_ipv4(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
         proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_prefix4,
-                            tvb, offset, 4, FALSE);
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1841,7 +1841,7 @@ dissect_tlv_er_hop_ipv6(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                             tvb, offset, 1, ENC_BIG_ENDIAN);
         offset ++;
         proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_prefix6,
-                            tvb, offset, 16, FALSE);
+                            tvb, offset, 16, ENC_NA);
     }
 }
 
@@ -1890,7 +1890,7 @@ dissect_tlv_er_hop_lspid(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                             tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
         proto_tree_add_item(val_tree, hf_ldp_tlv_er_hop_ldpid,
-                            tvb, offset, 4, FALSE);
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
     }
 }
 
@@ -1914,12 +1914,12 @@ dissect_tlv_traffic(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
     if(val_tree != NULL) {
         /* flags */
         proto_tree_add_item(val_tree, hf_ldp_tlv_flags_reserv, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_weight, tvb, offset, 1, FALSE);
-        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_ebs, tvb, offset, 1, FALSE);
-        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_cbs, tvb, offset, 1, FALSE);
-        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_cdr, tvb, offset, 1, FALSE);
-        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_pbs, tvb, offset, 1, FALSE);
-        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_pdr, tvb, offset, 1, FALSE);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_weight, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_ebs, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_cbs, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_cdr, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_pbs, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(val_tree, hf_ldp_tlv_flags_pdr, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         offset ++;
         /* frequency */
@@ -2258,7 +2258,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                                     "Error processing IPv4 Transport Address TLV: length is %d, should be 4",
                                     length);
             else {
-                proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv4_taddr, tvb, offset + 4, 4, FALSE);
+                proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv4_taddr, tvb, offset + 4, 4, ENC_BIG_ENDIAN);
             }
             break;
 
@@ -2278,7 +2278,7 @@ dissect_tlv(tvbuff_t *tvb, guint offset, proto_tree *tree, int rem)
                                     "Error processing IPv6 Transport Address TLV: length is %d, should be 16",
                                     length);
             else {
-                proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv6_taddr, tvb, offset + 4, 16, FALSE);
+                proto_tree_add_item(tlv_tree, hf_ldp_tlv_ipv6_taddr, tvb, offset + 4, 16, ENC_NA);
             }
             break;
 
@@ -2558,7 +2558,7 @@ dissect_msg(tvbuff_t *tvb, guint offset, packet_info *pinfo, proto_tree *tree)
 
         msg_tree = proto_item_add_subtree(ti, ett_ldp_message);
 
-        proto_tree_add_item(msg_tree, hf_ldp_msg_ubit, tvb, offset, 1, FALSE);
+        proto_tree_add_item(msg_tree, hf_ldp_msg_ubit, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         switch (type) {
         case LDP_VENDOR_PRIVATE_START:
@@ -2637,7 +2637,7 @@ dissect_ldp_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         tvb_set_reported_length(tvb, length);
 
     if (tree) {
-        proto_tree_add_item(pdu_tree, hf_ldp_lsr, tvb, offset+4, 4, FALSE);
+        proto_tree_add_item(pdu_tree, hf_ldp_lsr, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(pdu_tree, hf_ldp_ls_id, tvb, offset+8, 2, ENC_BIG_ENDIAN);
     }
     offset += 10;

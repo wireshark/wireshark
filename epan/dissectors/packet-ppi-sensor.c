@@ -254,17 +254,17 @@ dissect_ppi_sensor(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         pt = proto_tree_add_uint(ppi_sensor_tree, hf_ppi_sensor_present, tvb, offset + 4, 4, present);
         present_tree = proto_item_add_subtree(pt, ett_ppi_sensor_present); /* this represents the present bitmask field */
 
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_sensortype, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_scalefactor, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_x, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_y, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_z, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_t, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_e, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_descstr, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_appspecific_num, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_appspecific_data, tvb, 4, 4, TRUE);
-        proto_tree_add_item(present_tree, hf_ppi_sensor_present_ext, tvb, 4, 4, TRUE);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_sensortype, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_scalefactor, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_x, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_y, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_z, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_t, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_val_e, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_descstr, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_appspecific_num, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_appspecific_data, tvb, 4, 4, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(present_tree, hf_ppi_sensor_present_ext, tvb, 4, 4, ENC_LITTLE_ENDIAN);
     }
     offset += PPI_GEOBASE_MIN_HEADER_LEN;
     length_remaining -= PPI_GEOBASE_MIN_HEADER_LEN;

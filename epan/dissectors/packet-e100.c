@@ -98,7 +98,7 @@ dissect_e100(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_item(e100_tree, hf_e100_seq, tvb,
                         e100_seq.offset, e100_seq.len, ENC_BIG_ENDIAN);
                 proto_tree_add_item(e100_tree, hf_e100_ip, tvb,
-                        e100_ip.offset, e100_ip.len, FALSE);
+                        e100_ip.offset, e100_ip.len, ENC_BIG_ENDIAN);
                 proto_tree_add_item(e100_tree, hf_e100_mon_pkt_id, tvb,
                         e100_mon_pkt_id.offset, e100_mon_pkt_id.len, ENC_BIG_ENDIAN);
                 {

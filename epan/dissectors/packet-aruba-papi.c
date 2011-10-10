@@ -112,7 +112,7 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
 		    offset += 5;
 		break;
 		case 0x05:
-		    proto_tree_add_item(debug_tree, hf_papi_debug_ipv4, tvb, offset+1, 4, FALSE);
+		    proto_tree_add_item(debug_tree, hf_papi_debug_ipv4, tvb, offset+1, 4, ENC_BIG_ENDIAN);
 		    offset += 5;
 		break;
 		case 0x07:
@@ -166,10 +166,10 @@ dissect_papi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(papi_tree, hf_papi_hdr_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_ip_destination, tvb, offset, 4, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_ip_destination, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
-		proto_tree_add_item(papi_tree, hf_papi_hdr_ip_source, tvb, offset, 4, FALSE);
+		proto_tree_add_item(papi_tree, hf_papi_hdr_ip_source, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		proto_tree_add_item(papi_tree, hf_papi_hdr_unknown, tvb, offset, 2, ENC_BIG_ENDIAN);

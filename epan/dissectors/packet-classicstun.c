@@ -412,13 +412,13 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							case 1:
 								if (att_length < 8)
 									break;
-								proto_tree_add_item(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, FALSE);
+								proto_tree_add_item(att_tree, classicstun_att_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 								break;
 
 							case 2:
 								if (att_length < 20)
 									break;
-								proto_tree_add_item(att_tree, classicstun_att_ipv6, tvb, offset+4, 16, FALSE);
+								proto_tree_add_item(att_tree, classicstun_att_ipv6, tvb, offset+4, 16, ENC_NA);
 								break;
 						}
 						break;
@@ -426,8 +426,8 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					case CHANGE_REQUEST:
 						if (att_length < 4)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_change_ip, tvb, offset, 4, FALSE);
-						proto_tree_add_item(att_tree, classicstun_att_change_port, tvb, offset, 4, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_change_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
+						proto_tree_add_item(att_tree, classicstun_att_change_port, tvb, offset, 4, ENC_BIG_ENDIAN);
 						break;
 
 					case USERNAME:
@@ -507,7 +507,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							case 1:
 								if (att_length < 8)
 									break;
-								proto_tree_add_item(att_tree, classicstun_att_xor_ipv4, tvb, offset+4, 4, FALSE);
+								proto_tree_add_item(att_tree, classicstun_att_xor_ipv4, tvb, offset+4, 4, ENC_BIG_ENDIAN);
 
 								/* Show the address 'in the clear'.
 								   XOR (host order) transid with (host order) xor-address.
@@ -521,7 +521,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							case 2:
 								if (att_length < 20)
 									break;
-								proto_tree_add_item(att_tree, classicstun_att_xor_ipv6, tvb, offset+4, 16, FALSE);
+								proto_tree_add_item(att_tree, classicstun_att_xor_ipv6, tvb, offset+4, 16, ENC_NA);
 								break;
 						}
 						break;

@@ -1240,21 +1240,21 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
           codec_tree =
             proto_item_add_subtree (ie_item, ett_iax2_codecs);
 
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g723_1, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_gsm, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_alaw, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_slinear, tvb, offset + 2, ies_len, FALSE );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_g723_1, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_gsm, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_ulaw, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_alaw, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_slinear, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_g729a, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_speex, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_jpeg, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_png, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_h261, tvb, offset + 2, ies_len, FALSE );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_h263, tvb, offset + 2, ies_len, FALSE );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_g729a, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_speex, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_jpeg, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_png, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_h261, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_h263, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           break;
         }
 
@@ -1545,7 +1545,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
 
       proto_tree_add_item (iax2_tree, hf_iax2_dcallno, tvb, offset, 2, ENC_BIG_ENDIAN );
 
-      proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, FALSE );
+      proto_tree_add_item(iax2_tree, hf_iax2_retransmission, tvb, offset, 2, ENC_BIG_ENDIAN );
 
       if( iax_call ) {
         proto_item *item =
@@ -1641,7 +1641,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
     if( packet_type_tree ) {
       proto_item *item;
       proto_tree_add_item (packet_type_tree, hf_iax2_video_csub, tvb, offset+9, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (packet_type_tree, hf_iax2_marker, tvb, offset+9, 1, FALSE);
+      proto_tree_add_item (packet_type_tree, hf_iax2_marker, tvb, offset+9, 1, ENC_BIG_ENDIAN);
       item = proto_tree_add_uint (packet_type_tree, hf_iax2_video_codec, tvb, offset+9, 1, codec);
       PROTO_ITEM_SET_GENERATED(item);
     }

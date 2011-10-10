@@ -461,350 +461,350 @@ static const value_string scsi_log_pc_val[] = {
 static void
 log_parameter_2e_0001(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_rw, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_rw, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : write warning flag */
 static void
 log_parameter_2e_0002(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_ww, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_ww, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : hard error flag */
 static void
 log_parameter_2e_0003(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_he, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_he, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : media flag */
 static void
 log_parameter_2e_0004(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_media, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_media, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : read failure flag */
 static void
 log_parameter_2e_0005(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_rf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_rf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : write failure flag */
 static void
 log_parameter_2e_0006(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_wf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_wf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : media life flag */
 static void
 log_parameter_2e_0007(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_ml, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_ml, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : not data grade flag */
 static void
 log_parameter_2e_0008(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_ndg, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_ndg, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : write protect flag */
 static void
 log_parameter_2e_0009(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_wp, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_wp, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : no removal flag */
 static void
 log_parameter_2e_000a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_nr, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_nr, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : cleaning media flag */
 static void
 log_parameter_2e_000b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_cm, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_cm, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : unsupported format flag */
 static void
 log_parameter_2e_000c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_uf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_uf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : removable mechanical cartridge failure flag */
 static void
 log_parameter_2e_000d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_rmcf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_rmcf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : unrecoverable mechanical cartridge failure flag */
 static void
 log_parameter_2e_000e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_umcf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_umcf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : memory chip in cartridge failure flag */
 static void
 log_parameter_2e_000f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_mcicf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_mcicf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : forced eject flag */
 static void
 log_parameter_2e_0010(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_fe, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_fe, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : read only format flag */
 static void
 log_parameter_2e_0011(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_rof, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_rof, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : tape directory corrupted on load flag */
 static void
 log_parameter_2e_0012(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_tdcol, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_tdcol, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : nearing media life flag */
 static void
 log_parameter_2e_0013(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_nml, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_nml, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : clean now flag */
 static void
 log_parameter_2e_0014(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_cn, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_cn, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : clean periodic flag */
 static void
 log_parameter_2e_0015(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_cp, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_cp, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : expired cleaning media flag */
 static void
 log_parameter_2e_0016(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_ecm, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_ecm, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : invalid cleaning tape flag */
 static void
 log_parameter_2e_0017(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_ict, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_ict, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : retention requested flag */
 static void
 log_parameter_2e_0018(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_rr, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_rr, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : dual port interface error flag */
 static void
 log_parameter_2e_0019(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_dpie, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_dpie, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : cooling fan failure flag */
 static void
 log_parameter_2e_001a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_cff, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_cff, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : power supply failure flag */
 static void
 log_parameter_2e_001b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_psf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_psf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : power consumption flag */
 static void
 log_parameter_2e_001c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_pc, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_pc, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : drive maintenance flag */
 static void
 log_parameter_2e_001d(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_dm, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_dm, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : hardware a flag */
 static void
 log_parameter_2e_001e(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_hwa, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_hwa, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : hardware b flag */
 static void
 log_parameter_2e_001f(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_hwb, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_hwb, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : interface flag */
 static void
 log_parameter_2e_0020(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_if, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_if, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : eject media flag */
 static void
 log_parameter_2e_0021(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_em, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_em, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : download failed flag */
 static void
 log_parameter_2e_0022(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_dwf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_dwf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : drive humidity flag */
 static void
 log_parameter_2e_0023(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_drhu, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_drhu, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : drive temperature flag */
 static void
 log_parameter_2e_0024(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_drtm, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_drtm, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : drive voltage flag */
 static void
 log_parameter_2e_0025(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_drvo, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_drvo, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : periodic failure flag */
 static void
 log_parameter_2e_0026(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_pefa, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_pefa, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : diagnostics required flag */
 static void
 log_parameter_2e_0027(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_dire, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_dire, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : lost statistics flag */
 static void
 log_parameter_2e_0032(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_lost, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_lost, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : tape directory invalid at unload flag */
 static void
 log_parameter_2e_0033(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_tduau, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_tduau, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : tape system area write failure flag */
 static void
 log_parameter_2e_0034(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_tsawf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_tsawf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : tape system area read failure flag */
 static void
 log_parameter_2e_0035(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_tsarf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_tsarf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : no start of data flag */
 static void
 log_parameter_2e_0036(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_nsod, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_nsod, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : loading failure flag */
 static void
 log_parameter_2e_0037(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_lofa, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_lofa, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : unrecoverable unload failure flag */
 static void
 log_parameter_2e_0038(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_uuf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_uuf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : automatic interface failure flag */
 static void
 log_parameter_2e_0039(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_aif, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_aif, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : firmware failure flag */
 static void
 log_parameter_2e_003a(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_fwf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_fwf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : worm medium integrity check failed flag */
 static void
 log_parameter_2e_003b(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_wmicf, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_wmicf, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 /* TapeAlert page : worm medium overwrite attempted flag */
 static void
 log_parameter_2e_003c(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 {
-    proto_tree_add_item(tree, hf_scsi_log_ta_wmoa, tvb, 0, 1, 0);
+    proto_tree_add_item(tree, hf_scsi_log_ta_wmoa, tvb, 0, 1, ENC_BIG_ENDIAN);
 }
 
 
@@ -2741,12 +2741,12 @@ dissect_scsi_spc_modepage (tvbuff_t *tvb, packet_info *pinfo _U_,
                              (flags & 0x2) >> 1, (flags & 0x1));
         flags = tvb_get_guint8 (tvb, offset+3);
         proto_tree_add_item (tree, hf_scsi_modesns_qmod, tvb, offset+3, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item (tree, hf_scsi_modesns_qerr, tvb, offset+3, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_modesns_qerr, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text (tree, tvb, offset+3, 1, "Disable Queuing: %u",
                              flags & 0x1);
         flags = tvb_get_guint8 (tvb, offset+4);
-        proto_tree_add_item (tree, hf_scsi_modesns_rac, tvb, offset+4, 1, 0);
-        proto_tree_add_item (tree, hf_scsi_modesns_tas, tvb, offset+4, 1, 0);
+        proto_tree_add_item (tree, hf_scsi_modesns_rac, tvb, offset+4, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item (tree, hf_scsi_modesns_tas, tvb, offset+4, 1, ENC_BIG_ENDIAN);
         proto_tree_add_text (tree, tvb, offset+4, 1,
                              "SWP: %u, RAERP: %u, UAAERP: %u, EAERP: %u",
                              (flags & 0x8) >> 3, (flags & 0x4) >> 2,
@@ -4124,7 +4124,7 @@ dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     hidden_item = proto_tree_add_item (sns_tree, hf_scsi_ascq, tvb, offset+13, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     proto_tree_add_item (sns_tree, hf_scsi_fru, tvb, offset+14, 1, ENC_BIG_ENDIAN);
-    proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_sksv, tvb, offset+15, 1, ENC_BIG_ENDIAN);
     proto_tree_add_text (sns_tree, tvb, offset+15, 3,
                              "Sense Key Specific: %s",
                              tvb_bytes_to_str (tvb, offset+15, 3));

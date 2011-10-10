@@ -124,7 +124,7 @@ dissect_hyperscsi(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_tree_add_uint(hs_hdr_tree, hf_hs_res, tvb, 0, 1, hs_res);
     proto_tree_add_uint(hs_hdr_tree, hf_hs_tagno, tvb, 0, 2, hs_tagno);
-    proto_tree_add_item(hs_hdr_tree, hf_hs_lastfrag, tvb, 1, 1, FALSE);
+    proto_tree_add_item(hs_hdr_tree, hf_hs_lastfrag, tvb, 1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_uint(hs_hdr_tree, hf_hs_fragno, tvb, 1, 2, hs_fragno);
 
   }

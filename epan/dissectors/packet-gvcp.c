@@ -268,8 +268,8 @@ dissect_gvcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x04: /* Assign new temporary network configuration */
       if (packet_plsize >= 48) {
         proto_tree_add_item(gvcp_tree, hf_gvcp_ether, tvb, 10, 6, FALSE);
-        proto_tree_add_item(gvcp_tree, hf_gvcp_ip, tvb, 28, 4, FALSE);
-        proto_tree_add_item(gvcp_tree, hf_gvcp_netmask, tvb, 44, 4, FALSE);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_ip, tvb, 28, 4, ENC_BIG_ENDIAN);
+        proto_tree_add_item(gvcp_tree, hf_gvcp_netmask, tvb, 44, 4, ENC_BIG_ENDIAN);
       }
       break;
     case 0x80: /* Register Read Request */

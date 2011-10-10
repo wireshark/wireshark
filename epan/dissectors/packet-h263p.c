@@ -93,8 +93,8 @@ dissect_h263P( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree )
           
 	  data16 = tvb_get_ntohs(tvb,offset);
 	  proto_tree_add_item( h263P_tree, hf_h263P_rr, tvb, offset, 2, ENC_BIG_ENDIAN );
-	  proto_tree_add_item( h263P_tree, hf_h263P_pbit, tvb, offset, 2, FALSE );
-	  proto_tree_add_item( h263P_tree, hf_h263P_vbit, tvb, offset, 2, FALSE );
+	  proto_tree_add_item( h263P_tree, hf_h263P_pbit, tvb, offset, 2, ENC_BIG_ENDIAN );
+	  proto_tree_add_item( h263P_tree, hf_h263P_vbit, tvb, offset, 2, ENC_BIG_ENDIAN );
 	  proto_tree_add_item( h263P_tree, hf_h263P_plen, tvb, offset, 2, FALSE );
 	  proto_tree_add_item( h263P_tree, hf_h263P_pebit, tvb, offset, 2, ENC_BIG_ENDIAN );
 	  offset = offset +2;

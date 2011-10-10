@@ -616,13 +616,13 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                         locator_type = tvb_get_guint8(tvb, newoffset + 1);
                         if (locator_type == 0) {
                                 ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
-                                                             tvb, newoffset + 8, 16, FALSE);
+                                                             tvb, newoffset + 8, 16, ENC_NA);
                         } else if (locator_type == 1) {
                                 ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
-                                                             tvb, newoffset + 12, 16, FALSE);
+                                                             tvb, newoffset + 12, 16, ENC_NA);
                         } else if (locator_type == 2) {
                                 ti_loc = proto_tree_add_item(t, hf_hip_tlv_locator_address,
-                                                             tvb, newoffset + 20, 16, FALSE);
+                                                             tvb, newoffset + 20, 16, ENC_NA);
                         } else {
                                 /* unknown or malformed locator type jumping over it */
                                 ti_loc = NULL;
@@ -659,7 +659,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                         /* Locator types 1 and 0 RFC 5206 section 4.2.*/
                                         /* Locator */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
-                                                            tvb, newoffset, 16, FALSE);
+                                                            tvb, newoffset, 16, ENC_NA);
                                         newoffset += 16;                                       
                                         tlv_len -= 24;
                                 } else if (locator_type == 1) {
@@ -670,7 +670,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                         newoffset += 4;
                                         /* Locator */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
-                                                            tvb, newoffset, 16, FALSE);
+                                                            tvb, newoffset, 16, ENC_NA);
                                         newoffset += 16;                                       
                                         tlv_len -= 28;
                                 } else if (locator_type == 2) {
@@ -703,7 +703,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                                         newoffset += 4;
                                         /* Locator */
                                         proto_tree_add_item(ti_loc, hf_hip_tlv_locator_address,
-                                                            tvb, newoffset, 16, FALSE);
+                                                            tvb, newoffset, 16, ENC_NA);
                                         newoffset += 16;
                                         tlv_len -= 36;
                                 }
@@ -1083,13 +1083,13 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
         case PARAM_FROM:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
                 /* Address */
-                proto_tree_add_item(t, hf_hip_tlv_from_address, tvb, newoffset, 16, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_from_address, tvb, newoffset, 16, ENC_NA);
                 break;
         case PARAM_VIA_RVS:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
                 /* RVS Addresses  */
                 while (tlv_len > 0) {
-                        proto_tree_add_item(t, hf_hip_tlv_rvs_address, tvb, newoffset, 16, FALSE);
+                        proto_tree_add_item(t, hf_hip_tlv_rvs_address, tvb, newoffset, 16, ENC_NA);
                         tlv_len -= 16;
                         newoffset += 16;
                 }
@@ -1106,7 +1106,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_relay_from_reserved, tvb, newoffset, 1, ENC_BIG_ENDIAN);
                 newoffset += 1;
                 /* Address */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, ENC_NA);
                 break;
         case PARAM_RELAY_TO:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -1120,7 +1120,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_relay_to_reserved, tvb, newoffset, 1, ENC_BIG_ENDIAN);
                 newoffset += 1;
                 /* Address */
-                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_relay_to_address, tvb, newoffset, 16, ENC_NA);
                 break;
         case PARAM_REG_FROM:
                 t = proto_item_add_subtree(ti, ett_hip_tlv_data);
@@ -1134,7 +1134,7 @@ dissect_hip_tlv(tvbuff_t *tvb, int offset, proto_item *ti, int type, int tlv_len
                 proto_tree_add_item(t, hf_hip_tlv_reg_from_reserved, tvb, newoffset, 1, ENC_BIG_ENDIAN);
                 newoffset += 1;
                 /* Address */
-                proto_tree_add_item(t, hf_hip_tlv_reg_from_address, tvb, newoffset, 16, FALSE);
+                proto_tree_add_item(t, hf_hip_tlv_reg_from_address, tvb, newoffset, 16, ENC_NA);
                 break;
         default:
                 break;

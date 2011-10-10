@@ -1280,7 +1280,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
 	col_append_fstr(cinfo, COL_INFO, " %s", addr);
 
 	proto_item_append_text(trr, ", addr %s", addr);
-	proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, FALSE);
+	proto_tree_add_item(rr_tree, hf_dns_rr_addr, tvb, cur_offset, 4, ENC_BIG_ENDIAN);
 
       if ((class & 0x7f) == C_IN) {
 	tvb_memcpy(tvb, &addr_int, cur_offset, sizeof(addr_int));
@@ -1992,7 +1992,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
         proto_tree_add_item(rr_tree, hf_dns_nsec3_algo, tvb, cur_offset++, 1, ENC_BIG_ENDIAN);
         flags_item = proto_tree_add_item(rr_tree, hf_dns_nsec3_flags, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         flags_tree = proto_item_add_subtree(flags_item, ett_nsec3_flags);
-        proto_tree_add_item(flags_tree, hf_dns_nsec3_flag_optout, tvb, cur_offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_dns_nsec3_flag_optout, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
         cur_offset++;
         proto_tree_add_item(rr_tree, hf_dns_nsec3_iterations, tvb, cur_offset, 2, ENC_BIG_ENDIAN);
         cur_offset += 2;
@@ -2785,7 +2785,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
       	     if (rr_len < 1)
                 goto bad_rr;
       	     afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
-      	     proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, FALSE);
+      	     proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       	     proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, FALSE);
       	     cur_offset += 1;
       	     rr_len -= 1;
@@ -3228,19 +3228,19 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 		flags, buf);
   field_tree = proto_item_add_subtree(tf, ett_dns_flags);
   proto_tree_add_item(field_tree, hf_dns_flags_response,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(field_tree, hf_dns_flags_opcode,
 		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
   if (is_llmnr) {
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_conflict_response,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     } else {
       proto_tree_add_item(field_tree, hf_dns_flags_conflict_query,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     }
     proto_tree_add_item(field_tree, hf_dns_flags_truncated,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_dns_flags_tentative,
 		tvb, offset + DNS_FLAGS, 2, FALSE);
     if (flags & F_RESPONSE) {
@@ -3250,24 +3250,24 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
   } else {
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_authoritative,
- 		tvb, offset + DNS_FLAGS, 2, FALSE);
+ 		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     }
     proto_tree_add_item(field_tree, hf_dns_flags_truncated,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_dns_flags_recdesired,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_recavail,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     }
     proto_tree_add_item(field_tree, hf_dns_flags_z,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_authenticated,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     }
     proto_tree_add_item(field_tree, hf_dns_flags_checkdisable,
-                tvb, offset + DNS_FLAGS, 2, FALSE);
+                tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_rcode,
 		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);

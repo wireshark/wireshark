@@ -412,7 +412,7 @@ static void dissect_bind(tvbuff_t *tvb, int offset,
 
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_bindaddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 	offset += 4;
 
 	if ( tree)
@@ -499,7 +499,7 @@ static void dissect_request_connect(tvbuff_t *tvb, int offset,
 
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 
 	conv_info->dst_addr = tvb_get_ipv4( tvb, offset);
 
@@ -535,7 +535,7 @@ static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 12;
 
 		proto_tree_add_item( tree, hf_msproxy_server_int_port, tvb,
@@ -547,7 +547,7 @@ static void dissect_bind_info_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 
 		offset += 78;
 		display_application_name( tvb, offset, tree);
@@ -613,7 +613,7 @@ static void dissect_udp_bind(tvbuff_t *tvb, int offset,
 
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 
 	offset += 96;
 
@@ -748,7 +748,7 @@ static void dissect_hello_ack(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_serveraddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 		offset += 4;
 	}
 }
@@ -784,7 +784,7 @@ static void dissect_udpassociate_ack(tvbuff_t *tvb, int offset,
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 
 		offset += 96;
 		display_application_name( tvb, offset, tree);
@@ -838,7 +838,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 
 	if ( tree){
 		proto_tree_add_item( tree, hf_msproxy_server_int_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		offset += 14;
 
  		proto_tree_add_item( tree, hf_msproxy_server_ext_port, tvb,
@@ -846,7 +846,7 @@ static void dissect_connect_ack( tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 		offset += 80;
 
 		display_application_name( tvb, offset, tree);
@@ -877,7 +877,7 @@ static void dissect_tcp_bind_ack( tvbuff_t *tvb, int offset, proto_tree *tree) {
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 
 		offset += 88;
 
@@ -909,7 +909,7 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 	conv_info->dst_addr = tvb_get_ipv4( tvb, offset);
 	if ( tree)
 		proto_tree_add_item( tree, hf_msproxy_dstaddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 	offset += 12;
 
 	conv_info->server_int_port = tvb_get_ntohs( tvb, offset);
@@ -924,7 +924,7 @@ static void dissect_bind_info( tvbuff_t *tvb, int offset, packet_info *pinfo,
 		offset += 2;
 
 		proto_tree_add_item( tree, hf_msproxy_server_ext_addr, tvb,
-			offset, 4, FALSE);
+			offset, 4, ENC_BIG_ENDIAN);
 
 		offset += 78;
 		display_application_name( tvb, offset, tree);
@@ -958,7 +958,7 @@ static void dissect_resolve(tvbuff_t *tvb, int offset, proto_tree *tree) {
 		offset += addr_offset;
 
 		proto_tree_add_item( tree, hf_msproxy_resolvaddr, tvb, offset, 4,
-			FALSE);
+			ENC_BIG_ENDIAN);
 	}
 }
 

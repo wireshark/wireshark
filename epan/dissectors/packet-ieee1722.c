@@ -140,21 +140,21 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          * CD field is 1 bit
          * Subtype field is 7 bits
          */
-        proto_tree_add_item(ieee1722_tree, hf_1722_cdfield, tvb, IEEE_1722_CD_OFFSET, 1, FALSE);
+        proto_tree_add_item(ieee1722_tree, hf_1722_cdfield, tvb, IEEE_1722_CD_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_subtype, tvb, IEEE_1722_CD_OFFSET, 1, ENC_BIG_ENDIAN);
 
-        proto_tree_add_item(ieee1722_tree, hf_1722_svfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
+        proto_tree_add_item(ieee1722_tree, hf_1722_svfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_verfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_mrfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(ieee1722_tree, hf_1722_gvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
-        proto_tree_add_item(ieee1722_tree, hf_1722_tvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, FALSE);
+        proto_tree_add_item(ieee1722_tree, hf_1722_gvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ieee1722_tree, hf_1722_tvfield, tvb, IEEE_1722_VERSION_OFFSET, 1, ENC_BIG_ENDIAN);
 
         /* Add the rest of the packet fields */
         proto_tree_add_item(ieee1722_tree, hf_1722_seqnum, tvb,
                             IEEE_1722_SEQ_NUM_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_tufield, tvb,
-                            IEEE_1722_TU_FIELD_OFFSET, 1, FALSE);
+                            IEEE_1722_TU_FIELD_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_stream_id, tvb, 
                             IEEE_1722_STREAM_ID_OFFSET, 8, ENC_BIG_ENDIAN);
@@ -189,7 +189,7 @@ static void dissect_1722(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(ieee1722_tree, hf_1722_qpc, tvb,
                             IEEE_1722_FN_OFFSET, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ieee1722_tree, hf_1722_sph, tvb,
-                            IEEE_1722_FN_OFFSET, 1, FALSE);
+                            IEEE_1722_FN_OFFSET, 1, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(ieee1722_tree, hf_1722_dbc, tvb,
                             IEEE_1722_DBC_OFFSET, 1, ENC_BIG_ENDIAN);

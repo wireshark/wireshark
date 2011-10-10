@@ -4787,7 +4787,7 @@ fTagHeaderTree (tvbuff_t *tvb, proto_tree *tree, guint offset,
 
 		subtree = proto_item_add_subtree(ti, ett_bacapp_tag);
 		/* details if needed */
-		proto_tree_add_item(subtree, hf_BACnetTagClass, tvb, offset, 1, FALSE);
+		proto_tree_add_item(subtree, hf_BACnetTagClass, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if (tag_is_extended_tag_number(tag)) {
 			proto_tree_add_uint_format(subtree,
 					hf_BACnetContextTagNumber,

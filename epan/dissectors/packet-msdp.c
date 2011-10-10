@@ -213,7 +213,7 @@ dissect_msdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 break;
                         case MSDP_SA_REQ:
                                 proto_tree_add_item(msdp_tree, hf_msdp_sa_req_res, tvb, offset, 1, ENC_BIG_ENDIAN);
-                                proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset + 1, 4, FALSE);
+                                proto_tree_add_item(msdp_tree, hf_msdp_sa_req_group, tvb, offset + 1, 4, ENC_BIG_ENDIAN);
                                 offset += 5;
                                 break;
                         case MSDP_NOTIFICATION:
@@ -255,7 +255,7 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                	*offset += length;
                 return;
         }
-        proto_tree_add_item(tree, hf_msdp_sa_rp_addr, tvb, *offset, 4, FALSE);
+        proto_tree_add_item(tree, hf_msdp_sa_rp_addr, tvb, *offset, 4, ENC_BIG_ENDIAN);
         *offset += 4;
         length -= 4;
 
@@ -282,10 +282,10 @@ static void dissect_msdp_sa(tvbuff_t *tvb, packet_info *pinfo,
                 proto_tree_add_item(entry_tree, hf_msdp_sa_sprefix_len, tvb, *offset, 1, ENC_BIG_ENDIAN);
                 *offset += 1;
                 length -= 1;
-                proto_tree_add_item(entry_tree, hf_msdp_sa_group_addr, tvb, *offset, 4, FALSE);
+                proto_tree_add_item(entry_tree, hf_msdp_sa_group_addr, tvb, *offset, 4, ENC_BIG_ENDIAN);
                 *offset += 4;
                 length -= 4;
-                proto_tree_add_item(entry_tree, hf_msdp_sa_src_addr, tvb, *offset, 4, FALSE);
+                proto_tree_add_item(entry_tree, hf_msdp_sa_src_addr, tvb, *offset, 4, ENC_BIG_ENDIAN);
                 *offset += 4;
                 length -= 4;
         }

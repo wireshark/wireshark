@@ -89,7 +89,7 @@ dissect_ypbind_domain_v2_reply(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	case YPBIND_RESP_TYPE_SUCC_VAL:
 		/* ip address */
 		proto_tree_add_item(tree, hf_ypbind_addr,
-			tvb, offset, 4, FALSE);
+			tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		/* port */
@@ -116,7 +116,7 @@ dissect_ypbind_setdomain_v2_request(tvbuff_t *tvb, int offset, packet_info *pinf
 
 	/* ip address */
 	proto_tree_add_item(tree, hf_ypbind_addr,
-		tvb, offset, 4, FALSE);
+		tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* port */

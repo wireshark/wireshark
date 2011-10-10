@@ -238,9 +238,9 @@ dissect_flags(tvbuff_t *tvb, int offset, proto_tree *tree)
             proto_tree *flags_tree =
                 proto_item_add_subtree(flags_item, ett_vxi11_core_flags);
 
-            proto_tree_add_item(flags_tree, hf_vxi11_core_flag_wait_lock, tvb, offset, 4, FALSE);
-            proto_tree_add_item(flags_tree, hf_vxi11_core_flag_end, tvb, offset, 4, FALSE);
-            proto_tree_add_item(flags_tree, hf_vxi11_core_flag_term_chr_set, tvb, offset, 4, FALSE);
+            proto_tree_add_item(flags_tree, hf_vxi11_core_flag_wait_lock, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_vxi11_core_flag_end, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(flags_tree, hf_vxi11_core_flag_term_chr_set, tvb, offset, 4, ENC_BIG_ENDIAN);
 
             if (flags != 0)
             {
@@ -283,9 +283,9 @@ dissect_reason(tvbuff_t *tvb, int offset, proto_tree *tree)
             proto_tree *reason_tree =
                 proto_item_add_subtree(reason_item, ett_vxi11_core_reason);
 
-            proto_tree_add_item(reason_tree, hf_vxi11_core_reason_req_cnt, tvb, offset, 4, FALSE);
-            proto_tree_add_item(reason_tree, hf_vxi11_core_reason_chr, tvb, offset, 4, FALSE);
-            proto_tree_add_item(reason_tree, hf_vxi11_core_reason_end, tvb, offset, 4, FALSE);
+            proto_tree_add_item(reason_tree, hf_vxi11_core_reason_req_cnt, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(reason_tree, hf_vxi11_core_reason_chr, tvb, offset, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(reason_tree, hf_vxi11_core_reason_end, tvb, offset, 4, ENC_BIG_ENDIAN);
 
             if (reason != 0)
             {

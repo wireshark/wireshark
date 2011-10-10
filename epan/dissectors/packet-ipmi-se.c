@@ -1805,7 +1805,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_se_evt_sensor_num, tvb, 2, 1, TRUE);
 	ti = proto_tree_add_item(tree, hf_ipmi_se_evt_byte3, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_byte3);
-	proto_tree_add_item(s_tree, hf_ipmi_se_evt_dir, tvb, 3, 1, TRUE);
+	proto_tree_add_item(s_tree, hf_ipmi_se_evt_dir, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_evt_type, tvb, 3, 1, evtype,
 			"%sEvent/Reading type: %s (0x%02x)", ipmi_dcd8(evtype, 0x7f),
 			eti->desc, evtype);
@@ -1922,21 +1922,21 @@ cfgparam_00(tvbuff_t *tvb, proto_tree *tree)
 static void
 cfgparam_01(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp01_alert_startup, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp01_startup, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp01_event_msg, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp01_pef, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp01_alert_startup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp01_startup, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp01_event_msg, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp01_pef, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 static void
 cfgparam_02(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_se_cp02_diag_intr, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp02_oem_action, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp02_pwr_cycle, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp02_reset, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp02_pwr_down, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_se_cp02_alert, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_cp02_diag_intr, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp02_oem_action, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp02_pwr_cycle, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp02_reset, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp02_pwr_down, tvb, 0, 1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(tree, hf_ipmi_se_cp02_alert, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 }
 
 
@@ -2321,7 +2321,7 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 	ti = proto_tree_add_uint_format(tree, hf_ipmi_se_13_byte1, tvb, 0, 1,
 			pno, "Parameter selector: %s (0x%02x)", desc, pno);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_13_byte1);
-	proto_tree_add_item(s_tree, hf_ipmi_se_13_getrev, tvb, 0, 1, TRUE);
+	proto_tree_add_item(s_tree, hf_ipmi_se_13_getrev, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format(s_tree, hf_ipmi_se_13_param, tvb, 0, 1,
 			pno, "%sParameter selector: %s (0x%02x)",
 			ipmi_dcd8(pno, 0x7f), desc, pno);

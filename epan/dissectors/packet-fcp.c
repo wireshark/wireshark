@@ -447,8 +447,8 @@ dissect_fcp_cmnd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree, pro
 	    fchdr->itlq->task_flags|=SCSI_DATA_WRITE;
 	}
     }
-    proto_tree_add_item(tree, hf_fcp_rddata, tvb, offset+11, 1, 0);
-    proto_tree_add_item(tree, hf_fcp_wrdata, tvb, offset+11, 1, 0);
+    proto_tree_add_item(tree, hf_fcp_rddata, tvb, offset+11, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_fcp_wrdata, tvb, offset+11, 1, ENC_BIG_ENDIAN);
 
     tvb_len=tvb_length_remaining(tvb, offset+12);
     if(tvb_len>(16+add_len))

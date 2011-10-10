@@ -1001,23 +1001,23 @@ dissect_mip6_bu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                 MIP6_BU_SEQNR_OFF, MIP6_BU_SEQNR_LEN, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(data_tree, hf_mip6_bu_a_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_bu_h_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_bu_l_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_bu_k_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_bu_m_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_nemo_bu_r_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_bu_p_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_bu_f_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_bu_t_flag, tvb,
-                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, FALSE);
+                MIP6_BU_FLAGS_OFF, MIP6_BU_FLAGS_LEN, ENC_BIG_ENDIAN);
 
         if ((tvb_get_guint8(tvb, MIP6_BU_FLAGS_OFF) & 0x0004 ) == 0x0004)
             proto_nemo = 1;
@@ -1050,13 +1050,13 @@ dissect_mip6_ba(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
         proto_tree_add_item(data_tree, hf_mip6_ba_status, tvb,
                 MIP6_BA_STATUS_OFF, MIP6_BA_STATUS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_ba_k_flag, tvb,
-                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
+                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_nemo_ba_r_flag, tvb,
-                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
+                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_ba_p_flag, tvb,
-                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
+                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_pmip6_ba_t_flag, tvb,
-                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, FALSE);
+                MIP6_BA_FLAGS_OFF, MIP6_BA_FLAGS_LEN, ENC_BIG_ENDIAN);
         if ((tvb_get_guint8(tvb, MIP6_BA_FLAGS_OFF) & 0x0040 ) == 0x0040)
             proto_nemo = 1;
 
@@ -1090,7 +1090,7 @@ dissect_mip6_be(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
         proto_tree_add_item(data_tree, hf_mip6_be_status, tvb,
                 MIP6_BE_STATUS_OFF, MIP6_BE_STATUS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_be_haddr, tvb,
-                MIP6_BE_HOA_OFF, MIP6_BE_HOA_LEN, FALSE);
+                MIP6_BE_HOA_OFF, MIP6_BE_HOA_LEN, ENC_NA);
     }
 
     return MIP6_DATA_OFF + MIP6_BE_LEN;
@@ -1110,9 +1110,9 @@ dissect_mip6_hb(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
         data_tree = proto_item_add_subtree(ti, ett_mip6);
 
         proto_tree_add_item(data_tree, hf_mip6_hb_u_flag, tvb,
-                MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, FALSE);
+                MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_mip6_hb_r_flag, tvb,
-                MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, FALSE);
+                MIP6_HB_FLAGS_OFF, MIP6_HB_FLAGS_LEN, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(data_tree, hf_mip6_hb_seqnr, tvb,
                 MIP6_HB_SEQNR_OFF, MIP6_HB_SEQNR_LEN, ENC_BIG_ENDIAN);
@@ -1157,13 +1157,13 @@ dissect_fmip6_fbu(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                 FMIP6_FBU_SEQNR_OFF, FMIP6_FBU_SEQNR_LEN, ENC_BIG_ENDIAN);
 
         proto_tree_add_item(data_tree, hf_fmip6_fbu_a_flag, tvb,
-                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_fmip6_fbu_h_flag, tvb,
-                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_fmip6_fbu_l_flag, tvb,
-                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_fmip6_fbu_k_flag, tvb,
-                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, FALSE);
+                FMIP6_FBU_FLAGS_OFF, FMIP6_FBU_FLAGS_LEN, ENC_BIG_ENDIAN);
 
         lifetime = tvb_get_ntohs(tvb, FMIP6_FBU_LIFETIME_OFF);
         proto_tree_add_uint_format(data_tree, hf_fmip6_fbu_lifetime, tvb,
@@ -1193,7 +1193,7 @@ dissect_fmip6_fback(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
         proto_tree_add_item(data_tree, hf_fmip6_fback_status, tvb,
                 FMIP6_FBACK_STATUS_OFF, FMIP6_FBACK_STATUS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_fmip6_fback_k_flag, tvb,
-                FMIP6_FBACK_FLAGS_OFF, FMIP6_FBACK_FLAGS_LEN, FALSE);
+                FMIP6_FBACK_FLAGS_OFF, FMIP6_FBACK_FLAGS_LEN, ENC_BIG_ENDIAN);
         proto_tree_add_item(data_tree, hf_fmip6_fback_seqnr, tvb,
                 FMIP6_FBACK_SEQNR_OFF, FMIP6_FBACK_SEQNR_LEN, ENC_BIG_ENDIAN);
         lifetime = tvb_get_ntohs(tvb, FMIP6_FBACK_LIFETIME_OFF);
@@ -1259,13 +1259,13 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                 PMIP6_BRI_SEQNR_OFF, PMIP6_BRI_SEQNR_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_ip_flag, tvb,
-                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_ia_flag, tvb,
-                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_ig_flag, tvb,
-                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_res, tvb,
                 PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, ENC_BIG_ENDIAN);
@@ -1291,10 +1291,10 @@ dissect_pmip6_bri(tvbuff_t *tvb, proto_tree *mip6_tree, packet_info *pinfo)
                 PMIP6_BRI_SEQNR_OFF, PMIP6_BRI_SEQNR_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_ap_flag, tvb,
-                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_ag_flag, tvb,
-                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, FALSE);
+                PMIP6_BRI_FLAGS_OFF, PMIP6_BRI_FLAGS_LEN, ENC_BIG_ENDIAN);
 
             proto_tree_add_item(field_tree, hf_pmip6_bri_res, tvb,
                 PMIP6_BRI_RES_OFF, PMIP6_BRI_RES_LEN, ENC_BIG_ENDIAN);
@@ -1350,7 +1350,7 @@ dissect_mip6_nemo_opt_mnp(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             offset + MIP6_NEMO_MNP_PL_OFF, 1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(field_tree, hf_mip6_nemo_mnp_mnp, tvb,
-            offset + MIP6_NEMO_MNP_MNP_OFF, MIP6_NEMO_MNP_MNP_LEN, FALSE);
+            offset + MIP6_NEMO_MNP_MNP_OFF, MIP6_NEMO_MNP_MNP_LEN, ENC_NA);
 }
 
 static void
@@ -1580,10 +1580,10 @@ dissect_pmip6_opt_ipv4ha(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
     len = MIP6_IPV4HA_PREFIXL_LEN;
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_preflen, tvb, p, len, ENC_BIG_ENDIAN);
-    proto_tree_add_item(field_tree, hf_mip6_ipv4ha_p_flag, tvb, p, len+1, FALSE);
+    proto_tree_add_item(field_tree, hf_mip6_ipv4ha_p_flag, tvb, p, len+1, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset + MIP6_IPV4HA_HA_OFF, MIP6_IPV4HA_HA_LEN, FALSE);
+            offset + MIP6_IPV4HA_HA_OFF, MIP6_IPV4HA_HA_LEN, ENC_BIG_ENDIAN);
 
 }
 
@@ -1605,7 +1605,7 @@ dissect_pmip6_opt_ipv4aa(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
             offset + MIP6_IPV4AA_PREFIXL_OFF, MIP6_IPV4AA_PREFIXL_LEN, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset + MIP6_IPV4AA_HA_OFF, MIP6_IPV4AA_HA_LEN, FALSE);
+            offset + MIP6_IPV4AA_HA_OFF, MIP6_IPV4AA_HA_LEN, ENC_BIG_ENDIAN);
 
 }
 
@@ -1634,7 +1634,7 @@ dissect_pmip6_opt_ipv4hareq(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offse
             offset + MIP6_IPV4HAREQ_PREFIXL_OFF, MIP6_IPV4HAREQ_PREFIXL_LEN, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset + MIP6_IPV4HAREQ_HA_OFF, MIP6_IPV4HAREQ_HA_LEN, FALSE);
+            offset + MIP6_IPV4HAREQ_HA_OFF, MIP6_IPV4HAREQ_HA_LEN, ENC_BIG_ENDIAN);
 
 }
 
@@ -1656,7 +1656,7 @@ dissect_pmip6_opt_ipv4harep(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offse
             offset + MIP6_IPV4HAREP_PREFIXL_OFF, MIP6_IPV4HAREP_PREFIXL_LEN, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4ha_ha, tvb,
-            offset + MIP6_IPV4HAREP_HA_OFF, MIP6_IPV4HAREP_HA_LEN, FALSE);
+            offset + MIP6_IPV4HAREP_HA_OFF, MIP6_IPV4HAREP_HA_LEN, ENC_BIG_ENDIAN);
 
 }
 
@@ -1672,7 +1672,7 @@ dissect_pmip6_opt_ipv4dra(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int offset,
     field_tree = proto_item_add_subtree(tf, *optp->subtree_index);
 
     proto_tree_add_item(field_tree, hf_mip6_ipv4dra_dra, tvb,
-            offset + MIP6_IPV4DRA_DRA_OFF, MIP6_IPV4DRA_DRA_LEN, FALSE);
+            offset + MIP6_IPV4DRA_DRA_OFF, MIP6_IPV4DRA_DRA_LEN, ENC_BIG_ENDIAN);
 
 }
 

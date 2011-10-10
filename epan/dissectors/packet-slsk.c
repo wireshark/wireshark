@@ -996,7 +996,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             "Connection Type: %s (Char: %s)", connection_type(str),
             format_text(str, len));
           offset += 4+len;
-          proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
           offset += 4;
           proto_tree_add_item(slsk_tree, hf_slsk_port, tvb, offset, 4, ENC_LITTLE_ENDIAN);
           offset += 4;
@@ -2129,7 +2129,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 "User #%d: %s", i+1,
                 tvb_format_text(tvb, offset+4, len));
               offset += 4+len;
-              proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, FALSE);
+              proto_tree_add_item(slsk_tree, hf_slsk_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
               offset += 4;
               proto_tree_add_uint_format(slsk_tree, hf_slsk_port, tvb, offset, 4, tvb_get_letohl(tvb, offset),
                 "Port Number #%d: %d", i+1, tvb_get_letohl(tvb, offset));

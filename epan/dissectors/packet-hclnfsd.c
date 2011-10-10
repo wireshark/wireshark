@@ -173,7 +173,7 @@ dissect_hclnfsd_authorize_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_
 	proto_item *ident_item = NULL;
 	proto_tree *ident_tree = NULL;
 
-	proto_tree_add_item(tree, hf_hclnfsd_server_ip, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_hclnfsd_server_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	request_type = tvb_get_ntohl(tvb, offset);
@@ -291,7 +291,7 @@ dissect_hclnfsd_grp_to_number_reply(tvbuff_t *tvb, int offset, packet_info *pinf
 static int
 dissect_hclnfsd_return_host_call(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_hclnfsd_host_ip, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_hclnfsd_host_ip, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	return offset;

@@ -1395,7 +1395,7 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
 						idx + l2tpv3_cookie + 1, 3, ENC_BIG_ENDIAN);
 		}
@@ -1408,10 +1408,10 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_v, tvb,
-						idx + l2tpv3_cookie,1, FALSE);
+						idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb,
-						idx + l2tpv3_cookie,1, FALSE);
+						idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_flow_id, tvb,
 						idx + l2tpv3_cookie,1, ENC_BIG_ENDIAN);
@@ -1428,20 +1428,20 @@ process_l2tpv3_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			l2_specific = proto_item_add_subtree(ti, ett_l2tp_l2_spec);
 
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_s, tvb, idx + l2tpv3_cookie,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_t, tvb, idx + l2tpv3_cookie,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 			/*
 			 * As per RFC 4454, the T bit specifies whether
 			 * we're transporting an OAM cell or an AAL5 frame.
 			 */
 			oam_cell = tvb_get_guint8(tvb, idx + l2tpv3_cookie) & 0x08;
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_g, tvb, idx + l2tpv3_cookie,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_c, tvb, idx + l2tpv3_cookie,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_u, tvb, idx + l2tpv3_cookie,
-						1, FALSE);
+						1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(l2_specific, hf_l2tp_l2_spec_sequence, tvb,
 						idx + l2tpv3_cookie + 1, 3, ENC_BIG_ENDIAN);
 		}

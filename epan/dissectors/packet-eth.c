@@ -292,15 +292,15 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
     if (addr_item)
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
     addr_item = proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if (addr_item)
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
     ti = proto_tree_add_item(fh_tree, hf_eth_invalid_lentype, tvb, 12, 2, ENC_BIG_ENDIAN);
     expert_add_info_format(pinfo, ti, PI_PROTOCOL, PI_WARN,
@@ -337,16 +337,16 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
     dissect_802_3(ehdr->type, is_802_2, tvb, ETH_HEADER_SIZE, pinfo,
         parent_tree, fh_tree, hf_eth_len, hf_eth_trailer, fcs_len);
@@ -378,8 +378,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         addr_tree = proto_item_add_subtree(addr_item, ett_addr);
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 0, 6, dst_addr);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 0, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 0, 3, ENC_BIG_ENDIAN);
 
     addr_item=proto_tree_add_ether(fh_tree, hf_eth_src, tvb, 6, 6, src_addr);
     if(addr_item){
@@ -390,8 +390,8 @@ dissect_eth_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree,
         }
     }
     proto_tree_add_ether(addr_tree, hf_eth_addr, tvb, 6, 6, src_addr);
-    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, FALSE);
-    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, FALSE);
+    proto_tree_add_item(addr_tree, hf_eth_lg, tvb, 6, 3, ENC_BIG_ENDIAN);
+    proto_tree_add_item(addr_tree, hf_eth_ig, tvb, 6, 3, ENC_BIG_ENDIAN);
 
     ethertype(ehdr->type, tvb, ETH_HEADER_SIZE, pinfo, parent_tree, fh_tree, hf_eth_type,
           hf_eth_trailer, fcs_len);

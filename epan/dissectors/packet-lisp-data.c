@@ -114,15 +114,15 @@ dissect_lisp_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         lisp_data_flags_tree = proto_item_add_subtree(tif, ett_lisp_data_flags);
 
         proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_nonce, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags_nonce, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_lsb, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags_lsb, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_enr, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags_enr, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_mv, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags_mv, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(lisp_data_flags_tree,
-                hf_lisp_data_flags_iid, tvb, offset, 1, FALSE);
+                hf_lisp_data_flags_iid, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(lisp_data_flags_tree,
                 hf_lisp_data_flags_res, tvb, offset, 1, ENC_BIG_ENDIAN);
 

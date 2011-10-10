@@ -2329,7 +2329,7 @@ dissect_ff_msg_sm_find_tag_reply_req(tvbuff_t *tvb, gint offset,
 	length -= 4;
 
 	proto_tree_add_item(sub_tree,
-		hf_ff_sm_find_tag_reply_req_ip_addr, tvb, offset, 16, FALSE);
+		hf_ff_sm_find_tag_reply_req_ip_addr, tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
@@ -2848,7 +2848,7 @@ dissect_ff_msg_sm_id_rsp(tvbuff_t *tvb, gint offset,
 	length -= 2;
 
 	proto_tree_add_item(sub_tree,
-		hf_ff_sm_id_rsp_operational_ip_addr, tvb, offset, 16, FALSE);
+		hf_ff_sm_id_rsp_operational_ip_addr, tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
@@ -3304,7 +3304,7 @@ dissect_ff_msg_sm_set_assign_info_req(tvbuff_t *tvb, gint offset,
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_sm_set_assign_info_req_operational_ip_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
@@ -4018,7 +4018,7 @@ dissect_ff_msg_sm_dev_annunc_req(tvbuff_t *tvb, gint offset,
 	length -= 2;
 
 	proto_tree_add_item(sub_tree,
-		hf_ff_sm_dev_annunc_req_operational_ip_addr, tvb, offset, 16, FALSE);
+		hf_ff_sm_dev_annunc_req_operational_ip_addr, tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
@@ -9456,25 +9456,25 @@ dissect_ff_msg_lr_get_info_rsp(
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_get_info_rsp_diagnostic_msg_if_a_send_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_get_info_rsp_diagnostic_msg_if_a_recv_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_get_info_rsp_diagnostic_msg_if_b_send_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_get_info_rsp_diagnostic_msg_if_b_recv_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
@@ -9711,25 +9711,25 @@ dissect_ff_msg_lr_put_info_req(
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_req_diagnostic_msg_if_a_send_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_req_diagnostic_msg_if_a_recv_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_req_diagnostic_msg_if_b_send_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_req_diagnostic_msg_if_b_recv_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
@@ -9902,25 +9902,25 @@ dissect_ff_msg_lr_put_info_rsp(
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_rsp_diagnostic_msg_if_a_send_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_rsp_diagnostic_msg_if_a_recv_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_rsp_diagnostic_msg_if_b_send_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 
 	proto_tree_add_item(sub_tree,
 		hf_ff_lr_put_info_rsp_diagnostic_msg_if_b_recv_addr,
-		tvb, offset, 16, FALSE);
+		tvb, offset, 16, ENC_NA);
 	offset += 16;
 	length -= 16;
 

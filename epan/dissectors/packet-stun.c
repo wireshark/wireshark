@@ -664,7 +664,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				case 2:
 					if (att_length < 20)
 						break;
-					proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, ENC_BIG_ENDIAN);
+					proto_tree_add_item(att_tree, stun_att_ipv6, tvb, offset+4, 16, ENC_NA);
 					break;
 				}
 				break;

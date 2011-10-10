@@ -154,7 +154,7 @@ dissect_begin_request(tvbuff_t *tvb, proto_tree *fcgi_tree, gint offset, guint16
    offset += 2;
 
    proto_tree_add_item(br_tree, hf_fcgi_begin_request_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
-   proto_tree_add_item(br_tree, hf_fcgi_begin_request_keep_conn, tvb, offset, 1, FALSE);
+   proto_tree_add_item(br_tree, hf_fcgi_begin_request_keep_conn, tvb, offset, 1, ENC_BIG_ENDIAN);
    offset += 1;
 
    offset += 5;

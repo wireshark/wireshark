@@ -301,7 +301,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 			if (paramlen - 1 > 0) {
 				proto_tree_add_item(v_tree,
 				    hf_rsip_parameter_address_ipv4, tvb,
-				    off + 4, paramlen - 1, FALSE);
+				    off + 4, paramlen - 1, ENC_BIG_ENDIAN);
 				proto_item_append_text(pti, ": %s",
 				    tvb_ip_to_str(tvb, off + 4));
 			} else
@@ -312,7 +312,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 			if (paramlen - 1 > 0) {
 				proto_tree_add_item(v_tree,
 				    hf_rsip_parameter_address_ipv4_netmask,
-				    tvb, off + 4, paramlen - 1, FALSE);
+				    tvb, off + 4, paramlen - 1, ENC_BIG_ENDIAN);
 				proto_item_append_text(pti, "(netmask): %s",
 				    tvb_ip_to_str(tvb, off + 4));
 			} else
@@ -324,7 +324,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 				tvb_get_ipv6(tvb, off + 4, &in6);
 				proto_tree_add_item(v_tree,
 				    hf_rsip_parameter_address_ipv6, tvb,
-				    off + 4, paramlen - 1, FALSE);
+				    off + 4, paramlen - 1, ENC_NA);
 				proto_item_append_text(pti, ": %s",
 				    ip6_to_str(&in6));
 			} else

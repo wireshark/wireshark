@@ -167,7 +167,7 @@ dissect_x224_dt(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 
 
 	/* EOT / NR */
-	proto_tree_add_item(tree, hf_x224_eot, tvb, offset, 1, FALSE);
+	proto_tree_add_item(tree, hf_x224_eot, tvb, offset, 1, ENC_BIG_ENDIAN);
 	proto_tree_add_item(tree, hf_x224_nr, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset+=1;
 

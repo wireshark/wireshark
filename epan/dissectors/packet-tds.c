@@ -1811,11 +1811,11 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
             item1 = proto_tree_add_item(sub_tree, hf_tds_type_info_collation, tvb, *offset, 5, ENC_NA);
             collation_tree = proto_item_add_subtree(item1, ett_tds_type_info_collation);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_lcid, tvb, *offset, 4, TRUE);
-            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_case, tvb, *offset, 4, TRUE);
-            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_accent, tvb, *offset, 4, TRUE);
-            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_kana, tvb, *offset, 4, TRUE);
-            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_width, tvb, *offset, 4, TRUE);
-            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_binary, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_case, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_accent, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_kana, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_width, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_binary, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_version, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_sortid, tvb, *offset + 4, 1, ENC_LITTLE_ENDIAN);
             *offset += 5;
@@ -1885,7 +1885,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
         case TDS_DATA_TYPE_NULL:            /* Null (no data associated with this type) */
             break;
         case TDS_DATA_TYPE_BIT:             /* Bit (1 byte data representation) */
-            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset, 1, TRUE);
+            proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset, 1, ENC_LITTLE_ENDIAN);
             *offset += 1;
             break;
         case TDS_DATA_TYPE_INT1:            /* TinyInt (1 byte data representation) */
@@ -1930,7 +1930,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             switch(length) {
                 case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
-                case 16: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, TRUE); break;
+                case 16: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_guid, tvb, *offset + 1, length, ENC_LITTLE_ENDIAN); break;
                 default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
             }
             *offset += 1 + length;
@@ -1940,7 +1940,7 @@ dissect_tds_type_varbyte(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto
             length_item = proto_tree_add_uint(sub_tree, hf_tds_type_varbyte_length, tvb, *offset, 1, length);
             switch(length) {
                 case GEN_NULL: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_null, tvb, *offset, 0, ENC_NA); break;
-                case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, TRUE); break;
+                case 1: proto_tree_add_item(sub_tree, hf_tds_type_varbyte_data_boolean, tvb, *offset + 1, 1, ENC_LITTLE_ENDIAN); break;
                 default: expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Invalid length");
             }
             *offset += 1 + length;
@@ -2107,9 +2107,9 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         }
         item = proto_tree_add_item(tree, hf_tds_rpc_options, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         sub_tree = proto_item_add_subtree(item, ett_tds_rpc_options);
-        proto_tree_add_item(sub_tree, hf_tds_rpc_options_with_recomp, tvb, offset, 2, TRUE);
-        proto_tree_add_item(sub_tree, hf_tds_rpc_options_no_metadata, tvb, offset, 2, TRUE);
-        proto_tree_add_item(sub_tree, hf_tds_rpc_options_reuse_metadata, tvb, offset, 2, TRUE);
+        proto_tree_add_item(sub_tree, hf_tds_rpc_options_with_recomp, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_tds_rpc_options_no_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_tds_rpc_options_reuse_metadata, tvb, offset, 2, ENC_LITTLE_ENDIAN);
         offset += 2;
 
         /* dissect parameters */
@@ -2134,8 +2134,8 @@ dissect_tds_rpc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             }
             item = proto_tree_add_item(sub_tree, hf_tds_rpc_parameter_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             status_sub_tree = proto_item_add_subtree(item, ett_tds_rpc_parameter_status);
-            proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_by_ref, tvb, offset, 1, TRUE);
-            proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_default, tvb, offset, 1, TRUE);
+            proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_by_ref, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(status_sub_tree, hf_tds_rpc_parameter_status_default, tvb, offset, 1, ENC_LITTLE_ENDIAN);
             ++offset;
             data_type = dissect_tds_type_info(tvb, &offset, pinfo, sub_tree, &plp);
             dissect_tds_type_varbyte(tvb, &offset, pinfo, sub_tree, hf_tds_rpc_parameter_value, data_type, plp);
@@ -2291,11 +2291,11 @@ dissect_netlib_buffer(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(tds_tree, hf_tds_type, tvb, offset, 1, ENC_LITTLE_ENDIAN);
     tds_item = proto_tree_add_item(tds_tree, hf_tds_status, tvb, offset + 1, 1, ENC_LITTLE_ENDIAN);
     tds_status_tree = proto_item_add_subtree(tds_item, ett_tds_status);
-    proto_tree_add_item(tds_status_tree, hf_tds_status_eom, tvb, offset + 1, 1, FALSE);
-    proto_tree_add_item(tds_status_tree, hf_tds_status_ignore, tvb, offset + 1, 1, FALSE);
-    proto_tree_add_item(tds_status_tree, hf_tds_status_event_notif, tvb, offset + 1, 1, FALSE);
-    proto_tree_add_item(tds_status_tree, hf_tds_status_reset_conn, tvb, offset + 1, 1, FALSE);
-    proto_tree_add_item(tds_status_tree, hf_tds_status_reset_conn_skip_tran,tvb, offset + 1, 1, FALSE);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_eom, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_ignore, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_event_notif, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_reset_conn, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tds_status_tree, hf_tds_status_reset_conn_skip_tran,tvb, offset + 1, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(tds_tree, hf_tds_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tds_tree, hf_tds_channel, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(tds_tree, hf_tds_packet_number, tvb, offset + 6, 1, ENC_LITTLE_ENDIAN);

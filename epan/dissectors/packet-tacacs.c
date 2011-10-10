@@ -221,7 +221,7 @@ dissect_tacacs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_result1, tvb, 8, 4,
 		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_destaddr, tvb, 12, 4,
-		FALSE);
+		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_destport, tvb, 16, 2,
 		ENC_BIG_ENDIAN);
 	    proto_tree_add_item(tacacs_tree, hf_tacacs_line, tvb, 18, 2,

@@ -7022,7 +7022,7 @@ dissect_wsie_ie(proto_tree * tree, tvbuff_t * tvb, int offset, guint32 tag_len _
       local_offset += 1;
     }
     if (pst_contents & WAVE_IPV6ADDR) {
-      proto_tree_add_item(cap_tree, hf_ieee80211_pst_ipv6addr, tvb, local_offset, 16, ENC_BIG_ENDIAN);
+      proto_tree_add_item(cap_tree, hf_ieee80211_pst_ipv6addr, tvb, local_offset, 16, ENC_NA);
       local_offset += 16;
       proto_tree_add_item(cap_tree, hf_ieee80211_pst_serviceport, tvb, local_offset, 2, ENC_BIG_ENDIAN);
       local_offset += 2;
@@ -8110,9 +8110,9 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
             }
             else if (version == 6)
             {
-              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv6_src, tvb, offset, 16, ENC_BIG_ENDIAN);
+              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv6_src, tvb, offset, 16, ENC_NA);
               offset += 16;
-              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv6_dst, tvb, offset, 16, ENC_BIG_ENDIAN);
+              proto_tree_add_item(tree, hf_ieee80211_tclas_ipv6_dst, tvb, offset, 16, ENC_NA);
               offset += 16;
               proto_tree_add_item(tree, hf_ieee80211_tclas_src_port, tvb, offset, 2, ENC_BIG_ENDIAN);
               offset += 2;

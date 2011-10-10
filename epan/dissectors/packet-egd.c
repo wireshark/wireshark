@@ -123,7 +123,7 @@ static void dissect_egd(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
     proto_tree_add_item(egd_tree, hf_egd_rid, tvb, offset, 2, ENC_LITTLE_ENDIAN);
     offset += 2;
-    proto_tree_add_item(egd_tree, hf_egd_pid, tvb, offset, 4, FALSE);
+    proto_tree_add_item(egd_tree, hf_egd_pid, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(egd_tree, hf_egd_exid, tvb, offset, 4, ENC_LITTLE_ENDIAN);
     offset += 4;

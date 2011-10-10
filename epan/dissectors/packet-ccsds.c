@@ -383,7 +383,7 @@ dissect_ccsds(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         proto_tree_add_text(secondary_header_tree, tvb, offset-5, 5, "%s = Embedded Time", time_string);
 
 			proto_tree_add_item(secondary_header_tree, hf_ccsds_timeid, tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(secondary_header_tree, hf_ccsds_checkword_flag, tvb, offset, 1, FALSE);
+			proto_tree_add_item(secondary_header_tree, hf_ccsds_checkword_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
 
 			/* Global Preference: how to handle checkword flag */
 			switch (global_dissect_checkword) {

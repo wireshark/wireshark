@@ -278,7 +278,7 @@ dissect_sacch_l1h(tvbuff_t *tvb, proto_tree *tree)
 	/* Power Level */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_power_lev, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Fast Power Control */
-	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, FALSE);
+	proto_tree_add_item(l1h_tree, hf_sacch_l1h_fpc, tvb, 0, 1, ENC_BIG_ENDIAN);
 	/* Acutal Timing Advance */
 	proto_tree_add_item(l1h_tree, hf_sacch_l1h_ta, tvb, 1, 1, ENC_BIG_ENDIAN);
 }

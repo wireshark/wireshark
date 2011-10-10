@@ -3861,14 +3861,14 @@ de_sm_pdp_addr(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offs
 	switch (pdp_type_num)
 	{
 		case 0x57:
-			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_NA);
 			curr_offset+=16;
 			break;
 
 		case 0x8d:
 			proto_tree_add_item(tree,hf_gsm_a_sm_ip4_address,tvb,curr_offset,4,ENC_BIG_ENDIAN);
 			curr_offset+=4;
-			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_NA);
 			curr_offset+=16;
 			break;
 
@@ -4696,10 +4696,10 @@ de_sm_tflow_temp(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 of
 
 				case 0x20:
 					str="IPv6 remote address type";
-					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_address,tvb,curr_offset,16,ENC_NA);
 					curr_offset+=16;
 					curr_len-=16;
-					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_mask,tvb,curr_offset,16,ENC_BIG_ENDIAN);
+					proto_tree_add_item(comp_tree,hf_gsm_a_sm_ip6_mask,tvb,curr_offset,16,ENC_NA);
 					curr_offset+=16;
 					curr_len-=16;
 					pf_length-=32;

@@ -1649,8 +1649,8 @@ dissect_exteap_wps(proto_tree *eap_tree, tvbuff_t *tvb, int offset,
   pi = proto_tree_add_item(eap_tree, hf_eapwps_flags,      tvb, offset, 1, ENC_BIG_ENDIAN);
   pt = proto_item_add_subtree(pi, ett_eap_wps_flags);
 
-  proto_tree_add_item(pt, hf_eapwps_flag_mf,    tvb, offset, 1, FALSE);
-  proto_tree_add_item(pt, hf_eapwps_flag_lf,    tvb, offset, 1, FALSE);
+  proto_tree_add_item(pt, hf_eapwps_flag_mf,    tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(pt, hf_eapwps_flag_lf,    tvb, offset, 1, ENC_BIG_ENDIAN);
   offset += 1; size -= 1;
 
   if (flags & MASK_WSC_FLAG_LF) {
