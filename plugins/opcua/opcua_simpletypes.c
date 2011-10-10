@@ -391,8 +391,8 @@ void parseLocalizedText(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *sz
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti = proto_tree_add_text(subtree, tvb, 0, -1, "EncodingMask");
     mask_tree = proto_item_add_subtree(ti, ett_opcua_localizedtext);
-    proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_localeflag, tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_textflag,   tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_localeflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_loctext_mask_textflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & LOCALIZEDTEXT_ENCODINGBYTE_LOCALE)
@@ -482,12 +482,12 @@ void parseDiagnosticInfo(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *s
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti = proto_tree_add_text(subtree, tvb, 0, -1, "EncodingMask");
     mask_tree = proto_item_add_subtree(ti, ett_opcua_diagnosticinfo);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_symbolicflag,        tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_namespaceflag,       tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_localizedtextflag,   tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_additionalinfoflag,  tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_innerstatuscodeflag, tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_innerdiaginfoflag,   tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_symbolicflag,        tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_namespaceflag,       tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_localizedtextflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_additionalinfoflag,  tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_innerstatuscodeflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_diag_mask_innerdiaginfoflag,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & DIAGNOSTICINFO_ENCODINGMASK_SYMBOLICID_FLAG)
@@ -538,12 +538,12 @@ void parseDataValue(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *szFiel
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti = proto_tree_add_text(subtree, tvb, 0, -1, "EncodingMask");
     mask_tree = proto_item_add_subtree(ti, ett_opcua_datavalue);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_valueflag,           tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_statuscodeflag,      tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcetimestampflag, tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_servertimestampflag, tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcepicoseconds,   tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_serverpicoseconds,   tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_valueflag,           tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_statuscodeflag,      tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcetimestampflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_servertimestampflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_sourcepicoseconds,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_datavalue_mask_serverpicoseconds,   tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & DATAVALUE_ENCODINGBYTE_VALUE)
@@ -844,8 +844,8 @@ void parseExtensionObject(proto_tree *tree, tvbuff_t *tvb, gint *pOffset, char *
     EncodingMask = tvb_get_guint8(tvb, iOffset);
     ti = proto_tree_add_text(extobj_tree, tvb, 0, -1, "EncodingMask");
     mask_tree = proto_item_add_subtree(ti, ett_opcua_extobj_encodingmask);
-    proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_binbodyflag, tvb, iOffset, 1, TRUE);
-    proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_xmlbodyflag, tvb, iOffset, 1, TRUE);
+    proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_binbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_item(mask_tree, hf_opcua_extobj_mask_xmlbodyflag, tvb, iOffset, 1, ENC_LITTLE_ENDIAN);
     iOffset++;
 
     if (EncodingMask & EXTOBJ_ENCODINGMASK_BINBODY_FLAG) /* has binary body ? */

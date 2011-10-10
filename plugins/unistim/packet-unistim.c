@@ -310,7 +310,7 @@ dissect_payload(proto_tree *overall_unistim_tree,tvbuff_t *tvb, gint offset, pac
          uinfo->it_port = pinfo->srcport;
          uinfo->termid = tvb_get_ntohl(tvb,offset);
 
-         proto_tree_add_item(unistim_tree,hf_terminal_id,tvb,offset,4,FALSE);
+         proto_tree_add_item(unistim_tree,hf_terminal_id,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;
          break;
       case 0x03:
@@ -539,7 +539,7 @@ dissect_basic_phone(proto_tree *msg_tree,
       case 0x01:
    /*Basic Manager Options Report*/
          proto_tree_add_item(msg_tree,hf_basic_switch_options_secure,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x02:
@@ -607,27 +607,27 @@ dissect_basic_switch(proto_tree *msg_tree,
    switch(basic_cmd){
       case 0x01:
    /*Query Basic Manager*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_attr,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_opts,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_fw,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_hw_id,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_it_type,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_prod_eng_code,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_basic_switch_query_gray_mkt_info,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x02:
    /*Basic Manager Options*/
          proto_tree_add_item(msg_tree,hf_basic_switch_options_secure,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x06:
@@ -645,7 +645,7 @@ dissect_basic_switch(proto_tree *msg_tree,
          uinfo->set_termid = 1;
 
          proto_tree_add_item(msg_tree,hf_basic_switch_terminal_id,
-                             tvb,offset,msg_len,FALSE);
+                             tvb,offset,msg_len,ENC_BIG_ENDIAN);
          offset+=msg_len;
          break;
       case 0x08:
@@ -690,7 +690,7 @@ dissect_broadcast_switch(proto_tree *msg_tree,
       case 0x01:
    /*Logical Icon Update*/
          proto_tree_add_item(msg_tree,hf_basic_bit_field,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_state,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_cadence,
@@ -796,15 +796,15 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x0b:
    /*Call Duration Timer*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_call_timer_mode,tvb,offset,
-                             1,FALSE);
+                             1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_call_timer_reset,tvb,offset,
-                             1,FALSE);
+                             1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_call_timer_display,tvb,offset,
-                             1,FALSE);
+                             1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_call_timer_delay,tvb,offset,
-                             1,FALSE);
+                             1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_call_timer_id,tvb,offset,
                              1,ENC_BIG_ENDIAN);
@@ -829,99 +829,99 @@ dissect_display_switch(proto_tree *msg_tree,
    /*Clear Field*/
          clear_mask=tvb_get_guint8(tvb,offset);
    /*need to know which paths to take*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_numeric,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_context,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_date,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
 
          proto_tree_add_item(msg_tree,hf_display_clear_time,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_line,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_softkey,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_clear_softkey_label,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          if((clear_mask&DISPLAY_CLEAR_LINE)==DISPLAY_CLEAR_LINE){
-            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_1,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_2,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_3,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_4,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_5,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_6,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_7,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_line_8,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
          if((clear_mask&DISPLAY_CLEAR_STATUS_BAR_ICON)==
                         DISPLAY_CLEAR_STATUS_BAR_ICON){
-            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_1,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_2,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_3,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_4,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_5,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_6,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_7,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_status_bar_icon_8,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
          if((clear_mask&DISPLAY_CLEAR_SOFTKEY)==DISPLAY_CLEAR_SOFTKEY){
-            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_1,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_2,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_3,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_4,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_5,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_6,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_7,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_soft_key_8,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
          if((clear_mask&DISPLAY_CLEAR_SOFTKEY_LABEL)==DISPLAY_CLEAR_SOFTKEY_LABEL){
-            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_clear_sk_label_key_id,tvb,offset,1,ENC_BIG_ENDIAN);
-            proto_tree_add_item(msg_tree,hf_display_clear_all_slks,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_display_clear_all_slks,tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
          break;
       case 0x10:
    /*Cursor Control*/
          movement_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_move_cmd,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_cursor_blink,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_cursor_blink,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          if(msg_len==0){
    /*turn cursor off*/
@@ -929,15 +929,15 @@ dissect_display_switch(proto_tree *msg_tree,
          }
          if((movement_byte&0x01)==0x01){
             address_byte=tvb_get_guint8(tvb,offset);
-            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_write_address_numeric,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_write_address_context,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_write_address_line,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(msg_tree,hf_display_write_address_soft_key,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
                              DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)
                proto_tree_add_item(msg_tree,
@@ -949,7 +949,7 @@ dissect_display_switch(proto_tree *msg_tree,
                break;
             }
          }
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_address_char_pos,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_address_line_number,
@@ -968,10 +968,10 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x14:
    /*Status Bar Icon Update*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_icon_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
-         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_state,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_cadence,
@@ -997,8 +997,8 @@ dissect_display_switch(proto_tree *msg_tree,
          if((time_date_mask&DISPLAY_USE_DATE_FORMAT)==DISPLAY_USE_DATE_FORMAT){
             proto_tree_add_item(msg_tree,hf_display_date_format,tvb,offset,1,ENC_BIG_ENDIAN);
          }
-         proto_tree_add_item(msg_tree,hf_display_use_time_format,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_use_date_format,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_use_time_format,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_use_date_format,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          break;
       case 0x18:
@@ -1013,17 +1013,17 @@ dissect_display_switch(proto_tree *msg_tree,
          address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
          address_byte=tvb_get_guint8(tvb,offset);
          proto_tree_add_item(address_tree,hf_basic_bit_field,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_numeric,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_context,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_line,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
 
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
                           DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG){
@@ -1034,7 +1034,7 @@ dissect_display_switch(proto_tree *msg_tree,
          offset+=1;msg_len-=1;
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
              DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
-            proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+            proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(address_tree,
                                 hf_display_write_address_char_pos,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1060,19 +1060,19 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x1a:
    /*address|no control|yes tag|no*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          set_ascii_item(msg_tree,tvb,offset,msg_len);
          offset+=msg_len;
@@ -1085,22 +1085,22 @@ dissect_display_switch(proto_tree *msg_tree,
          tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address Data");
          address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
          address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,
                              hf_display_write_address_numeric,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,
                              hf_display_write_address_context,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,
                              hf_display_write_address_line,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,
                              hf_display_write_address_soft_key,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,
                              hf_display_write_address_soft_label,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
                           DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG){
             proto_tree_add_item(address_tree,hf_display_write_address_softkey_id,
@@ -1123,19 +1123,19 @@ dissect_display_switch(proto_tree *msg_tree,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          set_ascii_item(msg_tree,tvb,offset,msg_len);
          offset+=msg_len;
@@ -1152,17 +1152,17 @@ dissect_display_switch(proto_tree *msg_tree,
          tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address Data");
          address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
          address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_numeric,tvb,
-                             offset,1,FALSE);
+                             offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_context,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_line,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
              DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)
             proto_tree_add_item(address_tree,
@@ -1189,19 +1189,19 @@ dissect_display_switch(proto_tree *msg_tree,
          break;
       case 0x1e:
    /*address|no control|yes tag|yes*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
 
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,msg_len,ENC_NA);
@@ -1216,17 +1216,17 @@ dissect_display_switch(proto_tree *msg_tree,
          tmp_ti=proto_tree_add_text(msg_tree,tvb,offset,0,"Address");
          address_tree=proto_item_add_subtree(tmp_ti,ett_unistim);
          address_byte=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(address_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_numeric,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_context,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_line,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_soft_key,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(address_tree,hf_display_write_address_soft_label,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)==
                           DISPLAY_WRITE_ADDRESS_SOFT_KEY_FLAG)
             proto_tree_add_item(address_tree,hf_display_write_address_softkey_id,
@@ -1250,19 +1250,19 @@ dissect_display_switch(proto_tree *msg_tree,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
          }
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_cursor_move,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_clear_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_left,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_shift_right,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_write_highlight,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_write_tag,
                              tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1293,10 +1293,10 @@ dissect_display_switch(proto_tree *msg_tree,
       case 0x23:
    /*Highlighted Field Definition*/
          highlight_cmd=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_softkey_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;proto_tree_add_item(msg_tree,hf_display_hlight_start,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -1338,7 +1338,7 @@ dissect_display_switch(proto_tree *msg_tree,
       case 0x31:
    /*Layered Softkey Clear*/
          proto_tree_add_item(msg_tree,hf_display_layer_skey_id,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_layer_all_skeys,tvb,offset,msg_len,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_layer_all_skeys,tvb,offset,msg_len,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_layer_number,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -1346,7 +1346,7 @@ dissect_display_switch(proto_tree *msg_tree,
       case 0x32:
    /*Set Visible Softkey Layer*/
          proto_tree_add_item(msg_tree,hf_display_layer_skey_id,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_layer_all_skeys,tvb,offset,msg_len,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_layer_all_skeys,tvb,offset,msg_len,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_layer_number,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -1354,7 +1354,7 @@ dissect_display_switch(proto_tree *msg_tree,
       case 0x33:
    /*Layered Softkey Cadence Download*/
          proto_tree_add_item(msg_tree,hf_display_layer_skey_id,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_display_once_or_cyclic,tvb,offset,msg_len,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_once_or_cyclic,tvb,offset,msg_len,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          while(msg_len>0){
             proto_tree_add_item(msg_tree,hf_display_layer_number,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1425,10 +1425,10 @@ dissect_display_phone(proto_tree *msg_tree,
          break;
       case 0x02:
    /*Cursor Location Report*/
-         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_softkey_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_display_cursor_char_pos,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1438,10 +1438,10 @@ dissect_display_phone(proto_tree *msg_tree,
       case 0x03:
    /*Highlight Status On*/
          highlight_cmd=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_display_cursor_numeric,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_context ,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_line,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_display_cursor_softkey,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_display_cursor_softkey_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;proto_tree_add_item(msg_tree,hf_display_hlight_start,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -1502,7 +1502,7 @@ dissect_key_indicator_switch(proto_tree *msg_tree,
    switch(key_cmd){
       case 0x00:
    /*LED Update*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_key_led_cadence,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_key_led_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -1529,10 +1529,10 @@ dissect_key_indicator_switch(proto_tree *msg_tree,
          break;
       case 0x07:
    /*Key/Indicator Manager Options*/
-         proto_tree_add_item(msg_tree,hf_keys_send_key_rel,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_enable_vol,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_conspic_prog_key,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_acd_super_control,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_keys_send_key_rel,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_enable_vol,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_conspic_prog_key,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_acd_super_control,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_keys_local_dial_feedback,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          break;
@@ -1586,7 +1586,7 @@ dissect_key_indicator_switch(proto_tree *msg_tree,
    /*Phone Icon Update*/
          proto_tree_add_item(msg_tree,hf_key_icon_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_state,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_cadence,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -1621,7 +1621,7 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
          /* Extract the key code */
          uinfo->key_val = (tvb_get_guint8(tvb,offset) & 0x3F);
 
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_key_code,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_key_command,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
@@ -1657,11 +1657,11 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_key_programmable_keys,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_keys_soft_keys,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_keys_hd_key,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_mute_key,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_quit_key,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_copy_key,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_mwi_key,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_keys_hd_key,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_mute_key,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_quit_key,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_copy_key,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_mwi_key,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_keys_num_nav_keys,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_keys_num_conspic_keys,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -1670,10 +1670,10 @@ dissect_key_indicator_phone(proto_tree *msg_tree,
          break;
       case 0x09:
    /*Key/Indicator Manager Options Report*/
-         proto_tree_add_item(msg_tree,hf_keys_send_key_rel,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_enable_vol,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_conspic_prog_key,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_keys_acd_super_control,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_keys_send_key_rel,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_enable_vol,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_conspic_prog_key,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_keys_acd_super_control,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_keys_local_dial_feedback,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          break;
@@ -1713,20 +1713,20 @@ dissect_network_switch(proto_tree *msg_tree,
          break;
       case 0x04:
    /*Query Network Manager*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_diag_flag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_managers_flag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_attributes_flag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_serv_info_flag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_options_flag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_sanity_flag,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_diag_flag,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_managers_flag,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_attributes_flag,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_serv_info_flag,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_options_flag,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_sanity_flag,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x05:
    /*Network Manager Options*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_enable_diag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_enable_rudp,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_enable_diag,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_enable_rudp,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x06:
@@ -1768,9 +1768,9 @@ dissect_network_switch(proto_tree *msg_tree,
       case 0x0e:
    /*Download Software Upgrade*/
          proto_tree_add_item(msg_tree,hf_net_file_xfer_mode,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_net_force_download,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_use_file_server_port,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_use_local_port,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_net_force_download,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_use_file_server_port,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_net_use_local_port,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,1,ENC_NA);
          offset+=1;msg_len-=1;
@@ -1784,7 +1784,7 @@ dissect_network_switch(proto_tree *msg_tree,
          offset+=2;msg_len-=2;
          proto_tree_add_item(msg_tree,hf_net_local_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_net_file_server_address,tvb,offset,4,FALSE);
+         proto_tree_add_item(msg_tree,hf_net_file_server_address,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;msg_len-=4;
          break;
       case 0x0f:
@@ -1867,7 +1867,7 @@ dissect_expansion_switch(proto_tree *msg_tree,
          offset+=1;
          msg_len-=1;
          proto_tree_add_item(msg_tree,hf_basic_bit_field,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_state,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_broadcast_icon_cadence,
@@ -1926,19 +1926,19 @@ dissect_network_phone(proto_tree *msg_tree,
          break;
       case 0x03:
    /*Network Manager Diagnostic Info*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_net_phone_rx_ovr_flag,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_net_phone_tx_ovr_flag,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_net_phone_rx_empty_flag,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_net_phone_invalid_msg_flag,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_net_phone_eeprom_insane_flag,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_net_phone_eeprom_unsafe_flag,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x04:
@@ -1949,7 +1949,7 @@ dissect_network_phone(proto_tree *msg_tree,
       case 0x05:
    /*Network Manager Options Report*/
          proto_tree_add_boolean(msg_tree,hf_net_phone_diag,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_net_phone_rudp,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_net_phone_rudp,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x08:
@@ -1995,7 +1995,7 @@ dissect_network_phone(proto_tree *msg_tree,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
             proto_tree_add_item(server_tree,hf_net_phone_server_ip,
-                                tvb,offset,4,FALSE);
+                                tvb,offset,4,ENC_BIG_ENDIAN);
             offset+=4;msg_len-=4;
          }
          break;
@@ -2025,14 +2025,14 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
    switch(audio_cmd){
    case 0x00:
    /*Query Audio Manager*/
-      proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_attr,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_opts,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_alert,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_adj_rx_vol,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_def_rx_vol,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_handset,tvb,offset,1,FALSE);
-      proto_tree_add_item(msg_tree,hf_audio_mgr_headset,tvb,offset,1,FALSE);
+      proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_attr,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_opts,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_alert,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_adj_rx_vol,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_def_rx_vol,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_handset,tvb,offset,1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(msg_tree,hf_audio_mgr_headset,tvb,offset,1,ENC_BIG_ENDIAN);
       offset+=1;
       proto_tree_add_item(msg_tree,hf_audio_default_rx_vol_id,
                           tvb,offset,1,ENC_BIG_ENDIAN);
@@ -2044,27 +2044,27 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
       break;
    case 0x02:
    /*Audio Manager Options*/
-      proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+      proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
       proto_tree_add_item(msg_tree,hf_audio_mgr_opt_max_vol,
-                          tvb,offset,1,FALSE);
+                          tvb,offset,1,ENC_BIG_ENDIAN);
       proto_tree_add_item(msg_tree,hf_audio_mgr_opt_adj_vol,
-                          tvb,offset,1,FALSE);
+                          tvb,offset,1,ENC_BIG_ENDIAN);
       proto_tree_add_item(msg_tree,hf_audio_mgr_opt_aa_rx_vol_rpt,
-                          tvb,offset,1,FALSE);
+                          tvb,offset,1,ENC_BIG_ENDIAN);
       proto_tree_add_item(msg_tree,hf_audio_mgr_opt_hs_on_air,
-                          tvb,offset,1,FALSE);
+                          tvb,offset,1,ENC_BIG_ENDIAN);
       proto_tree_add_item(msg_tree,hf_audio_mgr_opt_hd_on_air,
-                          tvb,offset,1,FALSE);
+                          tvb,offset,1,ENC_BIG_ENDIAN);
       proto_tree_add_item(msg_tree,hf_audio_mgr_opt_noise_squelch,
-                          tvb,offset,1,FALSE);
+                          tvb,offset,1,ENC_BIG_ENDIAN);
       offset+=1;
          break;
       case 0x04:
    /*Mute/Unmute*/
          while(msg_len>0){
-            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
-            proto_tree_add_item(msg_tree,hf_audio_mgr_mute,tvb,offset,1,FALSE);
-            proto_tree_add_item(msg_tree,hf_audio_mgr_tx_rx,tvb,offset,1,FALSE);
+            proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_audio_mgr_mute,tvb,offset,1,ENC_BIG_ENDIAN);
+            proto_tree_add_item(msg_tree,hf_audio_mgr_tx_rx,tvb,offset,1,ENC_BIG_ENDIAN);
             offset+=1;msg_len-=1;
             proto_tree_add_item(msg_tree,hf_audio_mgr_stream_id,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
@@ -2077,7 +2077,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
                              hf_audio_mgr_transducer_based_tone_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_mgr_attenuated,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x11:
@@ -2088,13 +2088,13 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          break;
       case 0x12:
    /*Alerting Tone Configuration*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_mgr_warbler_select,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_mgr_transducer_routing,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_mgr_tone_vol_range,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_mgr_cadence_select,
@@ -2138,7 +2138,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
       case 0x18:
    /*Transducer Based Tone Volume Level*/
          proto_tree_add_item(msg_tree,hf_basic_bit_field,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,
                              hf_audio_mgr_transducer_based_tone_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
@@ -2148,18 +2148,18 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
       case 0x1a:
    /*Visual Transducer Based Tone Enable*/
          proto_tree_add_item(msg_tree,hf_audio_visual_tones,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          break;
       case 0x1b:
    /*Stream Based Tone On*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_stream_based_tone_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_stream_based_tone_rx_tx,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_stream_based_tone_mute,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          proto_tree_add_item(msg_tree,hf_audio_stream_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
@@ -2168,11 +2168,11 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          break;
       case 0x1c:
    /*Stream Based Tone Off*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_stream_based_tone_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_stream_based_tone_rx_tx,
-                             tvb,offset,1,FALSE);
+                             tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
          proto_tree_add_item(msg_tree,hf_audio_stream_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;
@@ -2257,7 +2257,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_tos,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_precedence,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_frf_11,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_frf_11,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_rtcp_bucket_id,
                              tvb,offset,1,ENC_BIG_ENDIAN);
@@ -2316,16 +2316,16 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          /* Tap info again */
          uinfo->trans_connect = 1;
 
-         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_transducer_pair,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_rx_enable,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_tx_enable,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_rx_enable,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_tx_enable,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
-         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field, tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_apb_number,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_sidetone_disable,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_destruct_additive,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_dont_force_active,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_sidetone_disable,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_destruct_additive,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_dont_force_active,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          while(msg_len>0){
             proto_tree_add_item(msg_tree,hf_audio_mgr_stream_id,tvb,offset,1,ENC_LITTLE_ENDIAN);
@@ -2340,7 +2340,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
       case 0x37:
    /*Query RTCP Statistics*/
          proto_tree_add_item(msg_tree,hf_audio_rtcp_bucket_id,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_clear_bucket,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_clear_bucket,tvb,offset,1,ENC_BIG_ENDIAN);
 
          offset+=1;msg_len-=1;
          break;
@@ -2355,7 +2355,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
             param_tree=proto_item_add_subtree(param,ett_unistim);
             vocoder_param=tvb_get_guint8(tvb,offset);
             proto_tree_add_item(param_tree,hf_basic_bit_field,
-                                tvb,offset,1,FALSE);
+                                tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(param_tree,hf_audio_vocoder_param,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
             proto_tree_add_item(param_tree,hf_audio_vocoder_entity,
@@ -2363,9 +2363,9 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
             offset+=1;msg_len-=1;
             if((vocoder_param&0x0a)==0x0a){
                proto_tree_add_item(param_tree,hf_audio_vocoder_annexa,
-                                   tvb,offset,1,FALSE);
+                                   tvb,offset,1,ENC_BIG_ENDIAN);
                proto_tree_add_item(param_tree,hf_audio_vocoder_annexb,
-                                   tvb,offset,1,FALSE);
+                                   tvb,offset,1,ENC_BIG_ENDIAN);
                offset+=1;msg_len-=1;
             }
             else if((vocoder_param&0x0b)==0x0b){
@@ -2412,14 +2412,14 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          offset+=2;msg_len-=2;
          proto_tree_add_item(msg_tree,hf_audio_far_end_echo_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_far_end_ip_address,tvb,offset,4,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_far_end_ip_address,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;msg_len-=4;
          break;
       case 0x3c:
    /*Port Mapping Discovery Ack*/
          proto_tree_add_item(msg_tree,hf_audio_nat_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_nat_ip_address,tvb,offset,4,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_nat_ip_address,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;msg_len-=4;
          break;
       case 0x3d:
@@ -2484,7 +2484,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          break;
       case 0x07:
    /*Audio Manager Attributes Info*/
-         proto_tree_add_item(msg_tree,hf_audio_hf_support,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_hf_support,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          while(msg_len>0){
           proto_tree_add_item(msg_tree,hf_rx_vocoder_type,tvb,offset,1,ENC_BIG_ENDIAN);
@@ -2493,31 +2493,31 @@ dissect_audio_phone(proto_tree *msg_tree,
          break;
       case 0x08:
    /*Audio Manager Options Report*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_max,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_adj_vol,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_auto_adj_vol,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_hs_on_air,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_hd_on_air,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_noise_squelch,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_max,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_adj_vol,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_auto_adj_vol,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_hs_on_air,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_hd_on_air,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_opt_rpt_noise_squelch,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          break;
       case 0x09:
    /*Adjustable Rx Volume Report*/
-         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_basic_bit_field,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_rx_vol_apb_rpt,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_up,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_floor,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_ceiling,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_up,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_floor,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_ceiling,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          break;
       case 0x0a:
    /*Adjustable Rx Volume Information*/
          proto_tree_add_item(msg_tree,hf_audio_current_adj_vol_id,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_rx_vol_apb_rpt,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_up,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_floor,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_ceiling,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_up,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_floor,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_ceiling,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_current_rx_level,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -2528,9 +2528,9 @@ dissect_audio_phone(proto_tree *msg_tree,
    /*APB's Default Rx Volume Value*/
          proto_tree_add_item(msg_tree,hf_audio_current_adj_vol_id,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_rx_vol_apb_rpt,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_up,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_floor,tvb,offset,1,FALSE);
-         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_ceiling,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_up,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_floor,tvb,offset,1,ENC_BIG_ENDIAN);
+         proto_tree_add_item(msg_tree,hf_audio_rx_vol_vol_ceiling,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_current_rx_level,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -2565,7 +2565,7 @@ dissect_audio_phone(proto_tree *msg_tree,
    /*Port Mapping Discovery*/
          proto_tree_add_item(msg_tree,hf_audio_phone_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_phone_ip,tvb,offset,4,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_phone_ip,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;msg_len-=4;
          break;
       case 0x12:
@@ -2578,7 +2578,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_phone_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_phone_ip,tvb,offset,4,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_phone_ip,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;msg_len-=4;
          proto_tree_add_item(msg_tree,hf_audio_phone_add_len,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
@@ -2591,7 +2591,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_audio_mgr_stream_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          stream_state=tvb_get_guint8(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_audio_stream_state,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_stream_state,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          if((AUDIO_STREAM_STATE&stream_state)!=AUDIO_STREAM_STATE)
            break;
@@ -2606,7 +2606,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_audio_tos,tvb,offset,1,ENC_BIG_ENDIAN);
          proto_tree_add_item(msg_tree,hf_audio_precedence,tvb,offset,1,ENC_BIG_ENDIAN);
-         proto_tree_add_item(msg_tree,hf_audio_frf_11,tvb,offset,1,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_frf_11,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;
          proto_tree_add_item(msg_tree,hf_rtcp_bucket_id,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;

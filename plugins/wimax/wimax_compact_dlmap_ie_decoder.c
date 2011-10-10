@@ -1006,7 +1006,7 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 		/* display the DL-MAP type */
 		proto_tree_add_item(tree, hf_format_config_ie_dl_map_type_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 		/* display the New format Indication */
-		proto_tree_add_item(tree, hf_format_config_ie_new_format_indication_1, tvb, dl_map_offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_format_config_ie_new_format_indication_1, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 		/* update the length in nibble */
 		length = 1;
 		/* move to next byte */
@@ -1055,7 +1055,7 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 		{	/* display the DL-MAP type */
 			proto_tree_add_item(tree, hf_format_config_ie_dl_map_type_32, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the New format Indication */
-			proto_tree_add_item(tree, hf_format_config_ie_new_format_indication_32, tvb, dl_map_offset, 4, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_new_format_indication_32, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the CID Type */
 			proto_tree_add_item(tree, hf_format_config_ie_cid_type_1, tvb, dl_map_offset, 4, ENC_BIG_ENDIAN);
 			/* display the Safety Pattern */
@@ -1091,7 +1091,7 @@ static guint wimax_compact_dlmap_format_configuration_ie_decoder(proto_tree *tre
 		{	/* display the DL-MAP type */
 			proto_tree_add_item(tree, hf_format_config_ie_dl_map_type, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 			/* display the New format Indication */
-			proto_tree_add_item(tree, hf_format_config_ie_new_format_indication, tvb, dl_map_offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_format_config_ie_new_format_indication, tvb, dl_map_offset, 1, ENC_BIG_ENDIAN);
 			/* update the length in nibble */
 			length = 1;
 		}
@@ -1203,7 +1203,7 @@ static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packe
 	{	/* Get the prefix bit */
 		prefix = (byte & 0x08);
 		/* display the prefix */
-		proto_tree_add_item(tree, hf_harq_control_ie_prefix_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_harq_control_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		if(prefix)
 		{	/* display the ai_sn */
 			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn_1, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1223,7 +1223,7 @@ static guint wimax_compact_dlmap_harq_control_ie_decoder(proto_tree *tree, packe
 	{	/* Get the prefix bit */
 		prefix = (byte & 0x80);
 		/* display the prefix */
-		proto_tree_add_item(tree, hf_harq_control_ie_prefix, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_harq_control_ie_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if(prefix)
 		{	/* display the ai_sn */
 			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
@@ -1259,7 +1259,7 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 		cqich_indicator = (byte & 0x08);
 		if(cqich_indicator)
 		{	/* display the CQICH indicator */
-			proto_tree_add_item(tree, hf_cqich_control_ie_indicator_1, tvb, offset, 3, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_indicator_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* display the allocation index */
 			proto_tree_add_item(tree, hf_cqich_control_ie_alloc_id_1, tvb, offset, 3, ENC_BIG_ENDIAN);
 			/* display the period */
@@ -1272,7 +1272,7 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 		}
 		else
 		{	/* display the CQICH indicator */
-			proto_tree_add_item(tree, hf_cqich_control_ie_indicator_1, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_indicator_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* display the CQI reporting threshold */
 			proto_tree_add_item(tree, hf_cqich_control_ie_cqi_rep_threshold_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 1;
@@ -1283,7 +1283,7 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 		cqich_indicator = (byte & 0x80);
 		if(cqich_indicator)
 		{	/* display the CQICH indicator */
-			proto_tree_add_item(tree, hf_cqich_control_ie_indicator, tvb, offset, 2, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_indicator, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the allocation index */
 			proto_tree_add_item(tree, hf_cqich_control_ie_alloc_id, tvb, offset, 2, ENC_BIG_ENDIAN);
 			/* display the period */
@@ -1296,7 +1296,7 @@ static guint wimax_compact_dlmap_cqich_control_ie_decoder(proto_tree *tree, pack
 		}
 		else
 		{	/* display the CQICH indicator */
-			proto_tree_add_item(tree, hf_cqich_control_ie_indicator, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tree, hf_cqich_control_ie_indicator, tvb, offset, 1, ENC_BIG_ENDIAN);
 			/* display the CQI reporting threshold */
 			proto_tree_add_item(tree, hf_cqich_control_ie_cqi_rep_threshold, tvb, offset, 1, ENC_BIG_ENDIAN);
 			length = 1;

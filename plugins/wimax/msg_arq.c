@@ -385,7 +385,7 @@ void dissect_mac_mgmt_msg_arq_feedback_decoder(tvbuff_t *tvb, packet_info *pinfo
 			/* add ARQ Feedback IE subtree */
 			arq_fb_tree = proto_item_add_subtree(arq_fb_item, ett_mac_mgmt_msg_arq_decoder);
 			proto_tree_add_item(arq_fb_tree, hf_arq_cid, tvb, offset, 2, ENC_BIG_ENDIAN);
-			proto_tree_add_item(arq_fb_tree, hf_arq_last, tvb, offset + 2, 1, FALSE);
+			proto_tree_add_item(arq_fb_tree, hf_arq_last, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(arq_fb_tree, hf_arq_ack_type, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(arq_fb_tree, hf_arq_bsn, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
 			if (arq_ack_type != ARQ_CUMULATIVE_ACK_ENTRY) {

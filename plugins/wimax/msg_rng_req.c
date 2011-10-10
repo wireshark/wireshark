@@ -163,8 +163,8 @@ void dissect_power_saving_class(proto_tree *rng_req_tree, gint tlv_type, tvbuff_
 				/* add subtree */
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, power_saving_class_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Power Saving Class (%u byte)", tlv_len);
 				proto_tree_add_item(tlv_tree, hf_rng_definition_of_power_saving_class_present, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tlv_tree, hf_rng_activation_of_power_saving_class, tvb, tlv_offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_rng_trf_ind_required, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_rng_activation_of_power_saving_class, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_rng_trf_ind_required, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tlv_tree, hf_rng_power_saving_class_reserved, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				break;
 			case RNG_POWER_SAVING_CLASS_ID:
@@ -283,13 +283,13 @@ void dissect_mac_mgmt_msg_rng_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case RNG_REQ_RANGING_ANOMALIES:
 					/* add TLV subtree */
 					tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, proto_mac_mgmt_msg_rng_req_decoder, tvb, tlv_offset, tlv_len, "Ranging Anomalies %d", tvb_get_guint8(tvb, tlv_offset));
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_max_power, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_min_power, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_timing_adj, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_max_power, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_min_power, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tlv_tree, hf_rng_req_ranging_anomalies_timing_adj, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_AAS_BROADCAST:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(tlv_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_rng_req_aas_broadcast, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_REQ_SERVING_BS_ID:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rng_req_decoder, rng_req_tree, hf_rng_req_serving_bs_id, tvb, tlv_offset, 6, FALSE);

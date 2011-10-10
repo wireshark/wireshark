@@ -428,15 +428,15 @@ static void dissect_ams(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
      anItem = proto_tree_add_item(ams_tree, hf_ams_stateflags, tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
      ams_statetree = proto_item_add_subtree(anItem, ett_ams_stateflags);
-     proto_tree_add_item(ams_statetree, hf_ams_stateresponse,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_statenoreturn,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_stateadscmd,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_statesyscmd,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_statehighprio,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_statetimestampadded,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_stateudp,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_stateinitcmd,tvb, offset, sizeof(guint16), TRUE);
-     proto_tree_add_item(ams_statetree, hf_ams_statebroadcast,tvb, offset, sizeof(guint16), TRUE);
+     proto_tree_add_item(ams_statetree, hf_ams_stateresponse,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_statenoreturn,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_stateadscmd,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_statesyscmd,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_statehighprio,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_statetimestampadded,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_stateudp,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_stateinitcmd,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
+     proto_tree_add_item(ams_statetree, hf_ams_statebroadcast,tvb, offset, sizeof(guint16), ENC_LITTLE_ENDIAN);
      stateflags = tvb_get_letohs(tvb, offset);
      offset+=sizeof(guint16);
 

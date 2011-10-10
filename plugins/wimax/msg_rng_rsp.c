@@ -398,7 +398,7 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_RSP_AAS_BROADCAST_PERMISSION:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_broadcast, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_broadcast, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_broadcast, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_FRAME_NUMBER:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_frame_number, tvb, tlv_offset, 3, FALSE);
@@ -416,7 +416,7 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_RSP_RESOURCE_RETAIN_FLAG:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_resource_retain_flag, tvb, tlv_offset, 1, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_resource_retain_flag, tvb, tlv_offset, 1, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_resource_retain_flag, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_HO_PROCESS_OPTIMIZATION:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ho_process_optimization, tvb, tlv_offset, 2, FALSE);

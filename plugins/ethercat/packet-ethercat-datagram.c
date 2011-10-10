@@ -648,13 +648,13 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
                suboffset += 1;
                aitem = proto_tree_add_item(ecat_fmmu_tree, hf_ecat_fmmu_type, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
                ecat_fmmu_type_tree = proto_item_add_subtree(aitem, ett_ecat_fmmu_type);
-               proto_tree_add_item(ecat_fmmu_type_tree, hf_ecat_fmmu_typeread, tvb, suboffset, 1, TRUE);
-               proto_tree_add_item(ecat_fmmu_type_tree, hf_ecat_fmmu_typewrite, tvb, suboffset, 1, TRUE);
+               proto_tree_add_item(ecat_fmmu_type_tree, hf_ecat_fmmu_typeread, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_fmmu_type_tree, hf_ecat_fmmu_typewrite, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
 
                suboffset += 1;
                aitem = proto_tree_add_item(ecat_fmmu_tree, hf_ecat_fmmu_active, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
                ecat_fmmu_active_tree = proto_item_add_subtree(aitem, ett_ecat_fmmu_active);
-               proto_tree_add_item(ecat_fmmu_active_tree, hf_ecat_fmmu_active0, tvb, suboffset, 1, TRUE);
+               proto_tree_add_item(ecat_fmmu_active_tree, hf_ecat_fmmu_active0, tvb, suboffset, 1, ENC_LITTLE_ENDIAN);
 
                suboffset += 4;
             }
@@ -674,18 +674,18 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                   aitem = proto_tree_add_item(ecat_syncman_tree, hf_ecat_syncman_flags, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
                   ecat_syncflag_tree = proto_item_add_subtree(aitem, ett_ecat_syncflag);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag0, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag1, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag2, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag4, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag5, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag8, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag9, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag10, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag11, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag12, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag13, tvb, suboffset, 4, TRUE);
-                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag16, tvb, suboffset, 4, TRUE);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag0, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag1, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag2, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag4, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag5, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag8, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag9, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag10, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag11, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag12, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag13, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+                  proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag16, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
                   suboffset+=4;
                }
             }
@@ -709,18 +709,18 @@ static void dissect_ecat_datagram(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 
                aitem = proto_tree_add_item(ecat_syncman_tree, hf_ecat_syncman_flags, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
                ecat_syncflag_tree = proto_item_add_subtree(aitem, ett_ecat_syncflag);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag0, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag1, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag2, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag4, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag5, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag8, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag9, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag10, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag11, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag12, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag13, tvb, suboffset, 4, TRUE);
-               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag16, tvb, suboffset, 4, TRUE);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag0, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag1, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag2, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag4, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag5, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag8, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag9, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag10, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag11, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag12, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag13, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
+               proto_tree_add_item(ecat_syncflag_tree, hf_ecat_syncman_flag16, tvb, suboffset, 4, ENC_LITTLE_ENDIAN);
                suboffset+=4;
             }
          }

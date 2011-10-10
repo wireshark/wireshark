@@ -1476,7 +1476,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 4)
             {
               proto_tree_add_item (ipclsfr_tree, hf_docsis_tlv_ipclsfr_src,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1488,7 +1488,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
             {
               proto_tree_add_item (ipclsfr_tree,
                                    hf_docsis_tlv_ipclsfr_srcmask, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1499,7 +1499,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 4)
             {
               proto_tree_add_item (ipclsfr_tree, hf_docsis_tlv_ipclsfr_dst,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1511,7 +1511,7 @@ dissect_ip_classifier (tvbuff_t * tvb, proto_tree * tree, int start,
             {
               proto_tree_add_item (ipclsfr_tree,
                                    hf_docsis_tlv_ipclsfr_dstmask, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1659,7 +1659,7 @@ dissect_classifiers (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (clsfr_tree, hf_docsis_tlv_clsfr_act_state,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1773,7 +1773,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_concat, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1795,7 +1795,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_frag, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1806,7 +1806,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_phs, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1817,7 +1817,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_igmp, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1828,7 +1828,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_privacy, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1897,7 +1897,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_dcc, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1930,7 +1930,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_exp_unicast_sid, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2002,7 +2002,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_sac, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2013,7 +2013,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_code_hop_mode2, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2169,7 +2169,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_map_ucd, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2191,7 +2191,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_ipv6, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2304,7 +2304,7 @@ dissect_cos (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len)
           if (length == 1)
             {
               proto_tree_add_item (cos_tree, hf_docsis_tlv_cos_privacy_enable,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2509,7 +2509,7 @@ dissect_dut_filter (tvbuff_t * tvb, proto_tree * tree,
           if (length == 1)
             {
               proto_tree_add_item (dut_tree, hf_docsis_tlv_dut_filter_control, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -3928,7 +3928,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 1)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_net_access,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -3990,7 +3990,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 4)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_modem_addr,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4052,7 +4052,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
               {
                 proto_tree_add_item (tlv_tree,
                                      hf_docsis_tlv_tftp_prov_modem_address,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4063,7 +4063,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 4)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4109,7 +4109,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 1)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_privacy_enable,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4155,7 +4155,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
                   {
                     proto_tree_add_item (tlv_tree,
                                          hf_docsis_tlv_subs_mgmt_ip_entry,
-                                         tvb, pos + x, 4, FALSE);
+                                         tvb, pos + x, 4, ENC_BIG_ENDIAN);
                   }
               }
             else
@@ -4177,7 +4177,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 1)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_20_mode,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4188,7 +4188,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 1)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_enable_test_modes,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4263,7 +4263,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 16)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_upg_srvr_ipv6,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_NA);
               }
             else
               {
@@ -4274,7 +4274,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 16)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_tftp_prov_cm_ipv6_addr,
-                                     tvb, pos, length, FALSE);
+                                     tvb, pos, length, ENC_NA);
               }
             else
               {

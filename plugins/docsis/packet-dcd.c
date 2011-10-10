@@ -230,7 +230,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 4)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_ip_source_addr, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -241,7 +241,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 4)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_ip_source_mask, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -252,7 +252,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 4)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_ip_dest_addr, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{
@@ -263,7 +263,7 @@ dissect_dcd_down_classifier_ip (tvbuff_t * tvb, proto_tree * tree, int start, gu
 	      if (length == 4)
 		{
 		  proto_tree_add_item (dcd_tree, hf_docsis_dcd_cfr_ip_dest_mask, tvb,
-				       pos, length, FALSE);
+				       pos, length, ENC_BIG_ENDIAN);
 		}
 	      else
 		{

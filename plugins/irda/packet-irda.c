@@ -480,13 +480,13 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
 
         if (data)
         {
-            proto_tree_add_item(tree, hf_ttp_m, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_ttp_m, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_ttp_dcredit, tvb, offset, 1, FALSE);
             offset++;
         }
         else
         {
-            proto_tree_add_item(tree, hf_ttp_p, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_ttp_p, tvb, offset, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(tree, hf_ttp_icredit, tvb, offset, 1, FALSE);
             offset++;
         }
@@ -618,18 +618,18 @@ static void dissect_iap_request(tvbuff_t* tvb, packet_info* pinfo, proto_tree* r
 
         ti       = proto_tree_add_item(tree, hf_iap_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
         ctl_tree = proto_item_add_subtree(ti, ett_iap_ctl);
-        proto_tree_add_item(ctl_tree, hf_iap_ctl_lst, tvb, offset, 1, FALSE);
-        proto_tree_add_item(ctl_tree, hf_iap_ctl_ack, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ctl_tree, hf_iap_ctl_lst, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ctl_tree, hf_iap_ctl_ack, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ctl_tree, hf_iap_ctl_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         switch (op)
         {
             case GET_VALUE_BY_CLASS:
-                proto_tree_add_item(tree, hf_iap_class_name, tvb, offset, 1, FALSE);
+                proto_tree_add_item(tree, hf_iap_class_name, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1 + clen;
 
-                proto_tree_add_item(tree, hf_iap_attr_name, tvb, offset, 1, FALSE);
+                proto_tree_add_item(tree, hf_iap_attr_name, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset += 1 + alen;
                 break;
         }
@@ -766,8 +766,8 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
 
         ti       = proto_tree_add_item(tree, hf_iap_ctl, tvb, offset, 1, ENC_BIG_ENDIAN);
         ctl_tree = proto_item_add_subtree(ti, ett_iap_ctl);
-        proto_tree_add_item(ctl_tree, hf_iap_ctl_lst, tvb, offset, 1, FALSE);
-        proto_tree_add_item(ctl_tree, hf_iap_ctl_ack, tvb, offset, 1, FALSE);
+        proto_tree_add_item(ctl_tree, hf_iap_ctl_lst, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ctl_tree, hf_iap_ctl_ack, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(ctl_tree, hf_iap_ctl_opcode, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
@@ -838,7 +838,7 @@ static void dissect_iap_result(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
                                 if (!iap_conv || !iap_conv->pattr_dissector ||
                                     !iap_conv->pattr_dissector->value_dissector(tvb, offset, pinfo, entry_tree,
                                                                                 n, type))
-                                    proto_tree_add_item(entry_tree, hf_iap_string, tvb, offset + 1, 1, FALSE);
+                                    proto_tree_add_item(entry_tree, hf_iap_string, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
                                 break;
                         }
                         offset += attr_len;
@@ -1079,7 +1079,7 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
 
         ti       = proto_tree_add_item(tree, hf_lmp_dst, tvb, offset, 1, ENC_BIG_ENDIAN);
         dst_tree = proto_item_add_subtree(ti, ett_lmp_dst);
-        proto_tree_add_item(dst_tree, hf_lmp_dst_control, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dst_tree, hf_lmp_dst_control, tvb, offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(dst_tree, hf_lmp_dst_lsap, tvb, offset, 1, FALSE);
         offset++;
 
@@ -1497,7 +1497,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
         ti = proto_tree_add_item(i_tree, hf_xid_flags, tvb, offset, 1, ENC_BIG_ENDIAN);
         flags_tree = proto_item_add_subtree(ti, ett_xid_flags);
         proto_tree_add_item(flags_tree, hf_xid_s, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(flags_tree, hf_xid_conflict, tvb, offset, 1, FALSE);
+        proto_tree_add_item(flags_tree, hf_xid_conflict, tvb, offset, 1, ENC_BIG_ENDIAN);
     }
     offset++;
 
@@ -1733,7 +1733,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         /* create subtree for the address field */
         ti     = proto_tree_add_item(tree, hf_lap_a, tvb, offset, 1, ENC_BIG_ENDIAN);
         a_tree = proto_item_add_subtree(ti, ett_lap_a);
-        proto_tree_add_item(a_tree, hf_lap_a_cr, tvb, offset, 1, FALSE);
+        proto_tree_add_item(a_tree, hf_lap_a_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
         addr_item = proto_tree_add_item(a_tree, hf_lap_a_address, tvb, offset, 1, FALSE);
         switch (a & ~CMD_FRAME)
         {

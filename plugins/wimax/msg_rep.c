@@ -338,12 +338,12 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						case REP_REQ_REPORT_TYPE:
 						/* decode and display the Report type */
 						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_report_type, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit0, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit1, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit2, tvb, (offset + tlv_offset), length, FALSE);
+						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit0, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit1, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit3_6, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 /*						proto_item_append_text(ti, " dB");*/
-						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit7, tvb, (offset + tlv_offset), length, FALSE);
+						proto_tree_add_item(ti_tree, hf_rep_req_rep_type_bit7, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						break;
 						case REP_REQ_CHANNEL_NUMBER:
 						/* decode and display the Channel Number */
@@ -360,8 +360,8 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* decode and display the zone specific physical cinr request */
 						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_zone_spec_phy_cinr_request, tvb, (offset + tlv_offset), length, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit0_2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
-						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit3, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit4, tvb, (offset + tlv_offset), length, FALSE);
+						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit3, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit4, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit5_6, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit7, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_phy_cinr_req_bit8_13, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -381,8 +381,8 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						/* decode and display the zone specific effective cinr request */
 						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_zone_spec_effective_cinr_request, tvb, offset, tlv_len, FALSE);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit0_2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
-						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit3, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit4, tvb, (offset + tlv_offset), length, FALSE);
+						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit3, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit4, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit5_6, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 	/*					proto_item_append_text(ti, " dB");*/
 						proto_tree_add_item(ti_tree, hf_rep_req_zone_spec_effective_cinr_req_bit7, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
@@ -398,7 +398,7 @@ void dissect_mac_mgmt_msg_rep_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 						case REP_REQ_CHANNEL_SELECTIVITY_REPORT:
 						/* decode and display the channel selectivity report */
 						ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_req_decoder, tlv_tree, hf_rep_req_channel_selectivity_report, tvb, (offset + tlv_offset), length, FALSE);
-						proto_tree_add_item(ti_tree, hf_rep_req_channel_selectivity_rep_bit0, tvb, (offset + tlv_offset), length, FALSE);
+						proto_tree_add_item(ti_tree, hf_rep_req_channel_selectivity_rep_bit0, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						proto_tree_add_item(ti_tree, hf_rep_req_channel_selectivity_rep_bit1_7, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 						break;
 						default:
@@ -514,10 +514,10 @@ void dissect_mac_mgmt_msg_rep_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 							break;
 							case REP_RSP_REPORT_BASIC_REPORT:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_rep_rsp_decoder, tlv_tree, hf_rep_rsp_report_type_basic_report, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit0, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit1, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit2, tvb, (offset + tlv_offset), length, FALSE);
-								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit3, tvb, (offset + tlv_offset), length, FALSE);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit0, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit1, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit2, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_bit3, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_rep_rsp_report_type_basic_report_reserved, tvb, (offset + tlv_offset), length, ENC_BIG_ENDIAN);
 							break;
 							case REP_RSP_REPORT_CINR_REPORT:

@@ -240,11 +240,11 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			break;
 		case REG_SS_MGMT_SUPPORT:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_ss_mgmt_support, tvb, tlv_offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_ss_mgmt_support, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_ss_mgmt_support, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_IP_MGMT_MODE:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_ip_mgmt_mode, tvb, tlv_offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_ip_mgmt_mode, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_ip_mgmt_mode, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_IP_VERSION:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_ip_version, tvb, tlv_offset, tlv_len, FALSE);
@@ -258,10 +258,10 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case REG_POWER_SAVING_CLASS_CAPABILITY:
 			/* add TLV subtree */
 			tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, tlv_len, "Power saving class capability (%d)", tvb_get_ntohs(tvb, tlv_offset));
-			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_i, tvb, tlv_offset, 2, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_ii, tvb, tlv_offset, 2, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_iii, tvb, tlv_offset, 2, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_multi_active_power_saving_classes, tvb, tlv_offset, 2, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_i, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_ii, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_type_iii, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_multi_active_power_saving_classes, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_reg_total_power_saving_class_instances, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_reg_power_saving_class_reserved, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 			break;
@@ -313,7 +313,7 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			break;
 		case REG_ARQ_SUPPORT:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_arq, tvb, tlv_offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_arq, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_arq, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_DSX_FLOW_CONTROL:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_dsx_flow_control, tvb, tlv_offset, tlv_len, FALSE);
@@ -324,9 +324,9 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 			break;
 		case REG_MAC_CRC_SUPPORT:
 			if (!include_cor2_changes) {
-				proto_tree_add_item(reg_req_tree, hf_reg_mac_crc_support, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(reg_req_tree, hf_reg_mac_crc_support, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_mac_crc_support, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_mac_crc_support, tvb, tlv_offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_reg_mac_crc_support, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			} else {
 				/* Unknown TLV Type */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, (tvb_len - tlv_offset), FALSE);
@@ -409,11 +409,11 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 
 		case REG_TLV_T_21_PACKING_SUPPORT:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_tlv_t_21_packing_support, tvb, tlv_offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_21_packing_support, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_21_packing_support, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_TLV_T_22_MAC_EXTENDED_RTPS_SUPPORT:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_tlv_t_22_mac_extended_rtps_support, tvb, tlv_offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_22_mac_extended_rtps_support, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_22_mac_extended_rtps_support, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_TLV_T_23_MAX_NUM_BURSTS_TRANSMITTED_CONCURRENTLY_TO_THE_MS:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_reg_tlv_t_23_max_num_bursts_concurrently_to_the_ms, tvb, tlv_offset, tlv_len, FALSE);
@@ -422,20 +422,20 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case REG_TLV_T_26_METHOD_FOR_ALLOCATING_IP_ADDR_SECONDARY_MGMNT_CONNECTION:
 			/* add TLV subtree */
 			tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, tlv_len, "Method for allocating IP address for the secondary management connection (%d)", tvb_get_guint8(tvb, tlv_offset));
-			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcp, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_mobile_ipv4, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcpv6, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_ipv6, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcp, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_mobile_ipv4, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_dhcpv6, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_ipv6, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_reg_method_for_allocating_ip_addr_sec_mgmt_conn_rsvd, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_TLV_T_27_HANDOVER_SUPPORTED:
 			/* add TLV subtree */
 			tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, tlv_len, "Handover Support (%d)", tvb_get_guint8(tvb, tlv_offset));
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_fbss_mdho_ho_disable, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_fbss_mdho_dl_rf_monitoring_maps, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_mdho_dl_monitoring_single_map, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_mdho_dl_monitoring_maps, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_mdho_ul_multiple, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_fbss_mdho_ho_disable, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_fbss_mdho_dl_rf_monitoring_maps, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_mdho_dl_monitoring_single_map, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_mdho_dl_monitoring_maps, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_mdho_ul_multiple, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_27_handover_reserved, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_TLV_T_29_HO_PROCESS_OPTIMIZATION_MS_TIMER:
@@ -445,9 +445,9 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case REG_TLV_T_31_MOBILITY_FEATURES_SUPPORTED:
 			/* add TLV subtree */
 			tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, tlv_len, "Mobility Features Supported (%d)", tvb_get_guint8(tvb, tlv_offset));
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_31_mobility_handover, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_31_mobility_sleep_mode, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_31_mobility_idle_mode, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_31_mobility_handover, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_31_mobility_sleep_mode, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_tlv_t_31_mobility_idle_mode, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case REG_TLV_T_40_ARQ_ACK_TYPE:
 			/* add TLV subtree */

@@ -330,7 +330,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
         case BPKM_IP_ADDRESS:
           if (length == 4)
             proto_tree_add_item (tree, hf_docsis_bpkmattr_ip_address, tvb,
-                                 pos, length, FALSE);
+                                 pos, length, ENC_BIG_ENDIAN);
           else
             THROW (ReportedBoundsError);
           break;

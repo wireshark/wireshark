@@ -197,8 +197,8 @@ dissect_esl_header(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree) {
             flags =  tvb_get_letohs(tvb, offset);
             proto_tree_add_uint(esl_header_tree, hf_esl_port, tvb, offset, 2, flags_to_port(flags));
 
-            proto_tree_add_item(esl_header_tree, hf_esl_crcerror, tvb, offset, 2, TRUE);
-            proto_tree_add_item(esl_header_tree, hf_esl_alignerror, tvb, offset, 2, TRUE);
+            proto_tree_add_item(esl_header_tree, hf_esl_crcerror, tvb, offset, 2, ENC_LITTLE_ENDIAN);
+            proto_tree_add_item(esl_header_tree, hf_esl_alignerror, tvb, offset, 2, ENC_LITTLE_ENDIAN);
             offset+=2;
 
             proto_tree_add_item(esl_header_tree, hf_esl_timestamp, tvb, offset, 8, ENC_LITTLE_ENDIAN);

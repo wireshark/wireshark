@@ -845,7 +845,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the UL-MAP type */
 				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the HARQ Region Change Indication */
-				proto_tree_add_item(tree, hf_culmap_harq_region_change_indication_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_harq_region_change_indication_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* get the HARQ Region Change Indication */
 				harq_region_change_indication = (byte & 0x01);
 				/* move to next byte */
@@ -856,7 +856,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the UL-MAP type */
 				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the HARQ Region Change Indication */
-				proto_tree_add_item(tree, hf_culmap_harq_region_change_indication, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_harq_region_change_indication, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* get the HARQ Region Change Indication */
 				harq_region_change_indication = (byte & 0x10);
 				nibble_offset = 1;
@@ -901,7 +901,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the UL-MAP type */
 				proto_tree_add_item(tree, hf_culmap_ul_map_type_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the CQI Region Change Indication */
-				proto_tree_add_item(tree, hf_culmap_cqi_region_change_indication_1, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_cqi_region_change_indication_1, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* get the CQI Region Change Indication */
 				cqi_region_change_indication = (byte & 0x01);
 				/* move to next byte */
@@ -912,7 +912,7 @@ guint wimax_compact_ulmap_ie_decoder(proto_tree *tree, packet_info *pinfo, tvbuf
 			{	/* display the UL-MAP type */
 				proto_tree_add_item(tree, hf_culmap_ul_map_type, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* display the CQI Region Change Indication */
-				proto_tree_add_item(tree, hf_culmap_cqi_region_change_indication, tvb, ul_map_offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_culmap_cqi_region_change_indication, tvb, ul_map_offset, 1, ENC_BIG_ENDIAN);
 				/* get the CQI Region Change Indication */
 				cqi_region_change_indication = (byte & 0x10);
 				nibble_offset = 1;
@@ -1070,7 +1070,7 @@ static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packe
 	{	/* Get the prefix bit */
 		prefix = (byte & 0x08);
 		/* display the prefix */
-		proto_tree_add_item(tree, hf_harq_control_ie_prefix_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_harq_control_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		if(prefix)
 		{	/* display the ai_sn */
 			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn_1, tvb, offset, 2, ENC_BIG_ENDIAN);
@@ -1090,7 +1090,7 @@ static guint wimax_compact_ulmap_harq_control_ie_decoder(proto_tree *tree, packe
 	{	/* Get the prefix bit */
 		prefix = (byte & 0x80);
 		/* display the prefix */
-		proto_tree_add_item(tree, hf_harq_control_ie_prefix, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_harq_control_ie_prefix, tvb, offset, 1, ENC_BIG_ENDIAN);
 		if(prefix)
 		{	/* display the ai_sn */
 			proto_tree_add_item(tree, hf_harq_control_ie_ai_sn, tvb, offset, 1, ENC_BIG_ENDIAN);
