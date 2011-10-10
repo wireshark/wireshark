@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tetra.c                                                             */
-/* ../../tools/asn2wrs.py -u -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . tetra.asn */
+/* ../../tools/asn2wrs.py -u -p tetra -c ./tetra.cnf -s ./packet-tetra-template -D . -O ../../epan/dissectors tetra.asn */
 
 /* Input file: packet-tetra-template.c */
 
@@ -96,7 +96,6 @@ static int hf_tetra_AACH_PDU = -1;                /* AACH */
 static int hf_tetra_BSCH_PDU = -1;                /* BSCH */
 static int hf_tetra_BNCH_PDU = -1;                /* BNCH */
 static int hf_tetra_MAC_ACCESS_PDU = -1;          /* MAC_ACCESS */
-static int hf_tetra_MAC_DATA_PDU = -1;            /* MAC_DATA */
 static int hf_tetra_MAC_FRAG_PDU = -1;            /* MAC_FRAG */
 static int hf_tetra_MAC_FRAG120_PDU = -1;         /* MAC_FRAG120 */
 static int hf_tetra_MAC_END_UPLINK_PDU = -1;      /* MAC_END_UPLINK */
@@ -242,9 +241,6 @@ static int hf_tetra_capacityRequest = -1;         /* FRAG */
 static int hf_tetra_tm_sdu_01 = -1;               /* U_LLC_PDU */
 static int hf_tetra_frag = -1;                    /* Frag1 */
 static int hf_tetra_reservation_requirement = -1;  /* SLOT_APPLY */
-static int hf_tetra_lengthIndicationOrCapacityRequest_01 = -1;  /* T_lengthIndicationOrCapacityRequest_01 */
-static int hf_tetra_lengthIndication_01 = -1;     /* LengthIndicationMacData */
-static int hf_tetra_capacityRequest_01 = -1;      /* FRAG6 */
 static int hf_tetra_sub_type = -1;                /* INTEGER_0_1 */
 static int hf_tetra_tm_sdu_02 = -1;               /* BIT_STRING_SIZE_264 */
 static int hf_tetra_tm_sdu_03 = -1;               /* BIT_STRING_SIZE_120 */
@@ -256,7 +252,7 @@ static int hf_tetra_lengthInd_ReservationReq_01 = -1;  /* T_lengthInd_Reservatio
 static int hf_tetra_lengthInd = -1;               /* LengthIndMacHu */
 static int hf_tetra_tm_sdu_06 = -1;               /* BIT_STRING_SIZE_85 */
 static int hf_tetra_position_of_grant = -1;       /* Position_Of_Grant */
-static int hf_tetra_lengthIndication_02 = -1;     /* LengthIndicationMacEndDl */
+static int hf_tetra_lengthIndication_01 = -1;     /* LengthIndicationMacEndDl */
 static int hf_tetra_slot_granting = -1;           /* T_slot_granting */
 static int hf_tetra_none = -1;                    /* NULL */
 static int hf_tetra_slot_granting_param = -1;     /* SlotGranting */
@@ -288,7 +284,7 @@ static int hf_tetra_channel_allocation_01 = -1;   /* T_channel_allocation_01 */
 static int hf_tetra_tm_sdu_08 = -1;               /* BIT_STRING_SIZE_111 */
 static int hf_tetra_encryption_mode = -1;         /* INTEGER_0_3 */
 static int hf_tetra_access_ack = -1;              /* T_access_ack */
-static int hf_tetra_lengthIndication_03 = -1;     /* LengthIndicationMacResource */
+static int hf_tetra_lengthIndication_02 = -1;     /* LengthIndicationMacResource */
 static int hf_tetra_address_01 = -1;              /* AddressMacResource */
 static int hf_tetra_power_control = -1;           /* T_power_control */
 static int hf_tetra_powerParameters = -1;         /* PowerControl */
@@ -308,8 +304,6 @@ static int hf_tetra_eventlabel = -1;              /* INTEGER_0_1023 */
 static int hf_tetra_ventlabel = -1;               /* INTEGER_0_1023 */
 static int hf_tetra_usage_maker = -1;             /* INTEGER_0_63 */
 static int hf_tetra_smi_eventlabel = -1;          /* BIT_STRING_SIZE_34 */
-static int hf_tetra_freq_band = -1;               /* INTEGER_0_15 */
-static int hf_tetra_reverse_operation_02 = -1;    /* BOOLEAN */
 static int hf_tetra_broadcast_channel = -1;       /* INTEGER_0_1 */
 static int hf_tetra_access_code = -1;             /* INTEGER_0_3 */
 static int hf_tetra_imm_01 = -1;                  /* INTEGER_0_15 */
@@ -677,11 +671,6 @@ static int hf_tetra_optional_elements_25 = -1;    /* T_optional_elements_25 */
 static int hf_tetra_type2_element_03 = -1;        /* T_type2_element_03 */
 static int hf_tetra_type3_05 = -1;                /* T_type3_05 */
 static int hf_tetra_type3_elements_05 = -1;       /* T_type3_elements_05 */
-static int hf_tetra_encryption_flag = -1;         /* INTEGER_0_1 */
-static int hf_tetra_communication_type = -1;      /* CALLMODE */
-static int hf_tetra_speech_service = -1;          /* INTEGER_0_3 */
-static int hf_tetra_communication_type_01 = -1;   /* INTEGER_0_3 */
-static int hf_tetra_slots_per_frame = -1;         /* INTEGER_0_3 */
 static int hf_tetra_called_party_sna = -1;        /* INTEGER_0_255 */
 static int hf_tetra_called_party_ssi = -1;        /* INTEGER_0_16777215 */
 static int hf_tetra_called_party_ssi_extention = -1;  /* T_called_party_ssi_extention */
@@ -730,9 +719,6 @@ static gint ett_tetra_U_MLE_PDU = -1;
 static gint ett_tetra_ComplexSDU = -1;
 static gint ett_tetra_T_lengthIndicationOrCapacityRequest = -1;
 static gint ett_tetra_FRAG = -1;
-static gint ett_tetra_MAC_DATA = -1;
-static gint ett_tetra_T_lengthIndicationOrCapacityRequest_01 = -1;
-static gint ett_tetra_FRAG6 = -1;
 static gint ett_tetra_MAC_FRAG = -1;
 static gint ett_tetra_MAC_FRAG120 = -1;
 static gint ett_tetra_MAC_END_UPLINK = -1;
@@ -763,7 +749,6 @@ static gint ett_tetra_SMI_NEED = -1;
 static gint ett_tetra_SSI_EVENT_NEED = -1;
 static gint ett_tetra_SSI_USAGE_NEED = -1;
 static gint ett_tetra_SMI_EVENT_NEED = -1;
-static gint ett_tetra_ExtendCarrier = -1;
 static gint ett_tetra_MAC_ACCESS_DEFINE = -1;
 static gint ett_tetra_T_optional_field = -1;
 static gint ett_tetra_D_LLC_PDU = -1;
@@ -970,8 +955,6 @@ static gint ett_tetra_T_optional_elements_25 = -1;
 static gint ett_tetra_T_type2_element_03 = -1;
 static gint ett_tetra_T_type3_05 = -1;
 static gint ett_tetra_T_type3_elements_05 = -1;
-static gint ett_tetra_SPEECHMODE = -1;
-static gint ett_tetra_DATAMODE = -1;
 static gint ett_tetra_Calling_party_address_type = -1;
 static gint ett_tetra_T_called_party_ssi_extention = -1;
 static gint ett_tetra_Proprietary = -1;
@@ -2528,7 +2511,7 @@ static const per_sequence_t U_LOCATION_UPDATE_DEMAND_sequence[] = {
 
 int
 dissect_tetra_U_LOCATION_UPDATE_DEMAND(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 93 "../../asn1/tetra/tetra.cnf"
+#line 102 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_LOCATION_UPDATE_DEMAND, U_LOCATION_UPDATE_DEMAND_sequence);
 
@@ -2563,7 +2546,7 @@ static const per_sequence_t U_MM_STATUS_sequence[] = {
 
 int
 dissect_tetra_U_MM_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 229 "../../asn1/tetra/tetra.cnf"
+#line 238 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_MM_STATUS, U_MM_STATUS_sequence);
 
@@ -2790,7 +2773,7 @@ static const per_sequence_t U_ATTACH_DETACH_GROUP_IDENTITY_sequence[] = {
 
 int
 dissect_tetra_U_ATTACH_DETACH_GROUP_IDENTITY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 239 "../../asn1/tetra/tetra.cnf"
+#line 248 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY, U_ATTACH_DETACH_GROUP_IDENTITY_sequence);
 
@@ -2885,7 +2868,7 @@ static const per_sequence_t U_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence[] = {
 
 int
 dissect_tetra_U_ATTACH_DETACH_GROUP_IDENTITY_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 244 "../../asn1/tetra/tetra.cnf"
+#line 253 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_ATTACH_DETACH_GROUP_IDENTITY_ACK, U_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence);
 
@@ -3177,7 +3160,7 @@ static const per_sequence_t U_ALERT_sequence[] = {
 
 int
 dissect_tetra_U_ALERT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 178 "../../asn1/tetra/tetra.cnf"
+#line 187 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_ALERT, U_ALERT_sequence);
 
@@ -3295,7 +3278,7 @@ static const per_sequence_t U_CONNECT_sequence[] = {
 
 int
 dissect_tetra_U_CONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 183 "../../asn1/tetra/tetra.cnf"
+#line 192 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_CONNECT, U_CONNECT_sequence);
 
@@ -3383,7 +3366,7 @@ static const per_sequence_t U_DISCONNECT_sequence[] = {
 
 int
 dissect_tetra_U_DISCONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 188 "../../asn1/tetra/tetra.cnf"
+#line 197 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_DISCONNECT, U_DISCONNECT_sequence);
 
@@ -3417,7 +3400,7 @@ static const per_sequence_t U_RELEASE_sequence[] = {
 
 int
 dissect_tetra_U_RELEASE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 70 "../../asn1/tetra/tetra.cnf"
+#line 79 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_RELEASE, U_RELEASE_sequence);
 
@@ -3592,7 +3575,7 @@ static const per_sequence_t U_SETUP_sequence[] = {
 
 int
 dissect_tetra_U_SETUP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 198 "../../asn1/tetra/tetra.cnf"
+#line 207 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_SETUP, U_SETUP_sequence);
 
@@ -3648,7 +3631,7 @@ static const per_sequence_t U_STATUS_sequence[] = {
 
 int
 dissect_tetra_U_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 203 "../../asn1/tetra/tetra.cnf"
+#line 212 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_STATUS, U_STATUS_sequence);
 
@@ -3725,7 +3708,7 @@ static const per_sequence_t U_TX_CEASED_sequence[] = {
 
 int
 dissect_tetra_U_TX_CEASED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 223 "../../asn1/tetra/tetra.cnf"
+#line 232 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_TX_CEASED, U_TX_CEASED_sequence);
 
@@ -3805,7 +3788,7 @@ static const per_sequence_t U_TX_DEMAND_sequence[] = {
 
 int
 dissect_tetra_U_TX_DEMAND(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 218 "../../asn1/tetra/tetra.cnf"
+#line 227 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_TX_DEMAND, U_TX_DEMAND_sequence);
 
@@ -3894,7 +3877,7 @@ static const per_sequence_t U_CALL_RESTORE_sequence[] = {
 
 int
 dissect_tetra_U_CALL_RESTORE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 213 "../../asn1/tetra/tetra.cnf"
+#line 222 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_CALL_RESTORE, U_CALL_RESTORE_sequence);
 
@@ -3986,7 +3969,7 @@ static const per_sequence_t U_SDS_DATA_sequence[] = {
 
 int
 dissect_tetra_U_SDS_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 208 "../../asn1/tetra/tetra.cnf"
+#line 217 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_U_SDS_DATA, U_SDS_DATA_sequence);
 
@@ -4650,141 +4633,6 @@ static int
 dissect_tetra_MAC_ACCESS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_MAC_ACCESS, MAC_ACCESS_sequence);
-
-  return offset;
-}
-
-
-static const value_string tetra_LengthIndicationMacData_vals[] = {
-  {   0, "null" },
-  {   1, "reserved-1" },
-  {   2, "reserved-2" },
-  {   3, "bits-24" },
-  {   4, "bits-32" },
-  {   5, "bits-40" },
-  {   6, "bits-48" },
-  {   7, "bits-56" },
-  {   8, "bits-64" },
-  {   9, "bits-72" },
-  {  10, "bits-80" },
-  {  11, "bits-88" },
-  {  12, "bits-96" },
-  {  13, "bits-104" },
-  {  14, "bits-112" },
-  {  15, "bits-120" },
-  {  16, "bits-128" },
-  {  17, "bits-136" },
-  {  18, "bits-144" },
-  {  19, "bits-152" },
-  {  20, "bits-160" },
-  {  21, "bits-168" },
-  {  22, "bits-176" },
-  {  23, "bits-184" },
-  {  24, "bits-192" },
-  {  25, "bits-200" },
-  {  26, "bits-208" },
-  {  27, "bits-216" },
-  {  28, "bits-224" },
-  {  29, "bits-232" },
-  {  30, "bits-240" },
-  {  31, "bits-248" },
-  {  32, "bits-256" },
-  {  33, "bits-264" },
-  {  34, "bits-272" },
-  {  35, "reserved-35" },
-  {  36, "reserved-36" },
-  {  37, "reserved-37" },
-  {  38, "reserved-38" },
-  {  39, "reserved-39" },
-  {  40, "reserved-40" },
-  {  41, "reserved-41" },
-  {  42, "reserved-42" },
-  {  43, "reserved-43" },
-  {  44, "reserved-44" },
-  {  45, "reserved-45" },
-  {  46, "reserved-46" },
-  {  47, "reserved-47" },
-  {  48, "reserved-48" },
-  {  49, "reserved-49" },
-  {  50, "reserved-50" },
-  {  51, "reserved-51" },
-  {  52, "reserved-52" },
-  {  53, "reserved-53" },
-  {  54, "reserved-54" },
-  {  55, "reserved-55" },
-  {  56, "reserved-56" },
-  {  57, "reserved-57" },
-  {  58, "reserved-58" },
-  {  59, "reserved-59" },
-  {  60, "reserved-60" },
-  {  61, "reserved-61" },
-  {  62, "second-halfslot-stolen" },
-  {  63, "start-frag" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tetra_LengthIndicationMacData(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     64, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t FRAG6_sequence[] = {
-  { &hf_tetra_frag          , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Frag1 },
-  { &hf_tetra_reservation_requirement, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_SLOT_APPLY },
-  { &hf_tetra_reserved_01   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_FRAG6(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_FRAG6, FRAG6_sequence);
-
-  return offset;
-}
-
-
-static const value_string tetra_T_lengthIndicationOrCapacityRequest_01_vals[] = {
-  {   0, "lengthIndication" },
-  {   1, "capacityRequest" },
-  { 0, NULL }
-};
-
-static const per_choice_t T_lengthIndicationOrCapacityRequest_01_choice[] = {
-  {   0, &hf_tetra_lengthIndication_01, ASN1_NO_EXTENSIONS     , dissect_tetra_LengthIndicationMacData },
-  {   1, &hf_tetra_capacityRequest_01, ASN1_NO_EXTENSIONS     , dissect_tetra_FRAG6 },
-  { 0, NULL, 0, NULL }
-};
-
-static int
-dissect_tetra_T_lengthIndicationOrCapacityRequest_01(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_choice(tvb, offset, actx, tree, hf_index,
-                                 ett_tetra_T_lengthIndicationOrCapacityRequest_01, T_lengthIndicationOrCapacityRequest_01_choice,
-                                 NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t MAC_DATA_sequence[] = {
-  { &hf_tetra_pdu_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
-  { &hf_tetra_encrypted_flag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Encrypted_Flag },
-  { &hf_tetra_address       , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Address },
-  { &hf_tetra_lengthIndicationOrCapacityRequest_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_lengthIndicationOrCapacityRequest_01 },
-  { &hf_tetra_tm_sdu_01     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_U_LLC_PDU },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_MAC_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_MAC_DATA, MAC_DATA_sequence);
 
   return offset;
 }
@@ -5503,7 +5351,7 @@ static const per_sequence_t MAC_END_DOWNLINK_sequence[] = {
   { &hf_tetra_sub_type      , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
   { &hf_tetra_fill_bit_indication, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Fill_Bit_Indication },
   { &hf_tetra_position_of_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Position_Of_Grant },
-  { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
+  { &hf_tetra_lengthIndication_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
   { &hf_tetra_slot_granting , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting },
   { &hf_tetra_channel_allocation, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation },
   { &hf_tetra_tm_sdu_07     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_255 },
@@ -5577,7 +5425,7 @@ static const per_sequence_t MAC_END_DOWN111_sequence[] = {
   { &hf_tetra_pdu_type_02   , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_7 },
   { &hf_tetra_fill_bit_ind  , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
   { &hf_tetra_position_of_grant_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
+  { &hf_tetra_lengthIndication_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacEndDl },
   { &hf_tetra_slot_granting_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_slot_granting_01 },
   { &hf_tetra_channel_allocation_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_channel_allocation_01 },
   { &hf_tetra_tm_sdu_08     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BIT_STRING_SIZE_111 },
@@ -6104,7 +5952,7 @@ static const per_sequence_t D_LOCATION_UPDATE_ACCEPT_sequence[] = {
 
 int
 dissect_tetra_D_LOCATION_UPDATE_ACCEPT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 99 "../../asn1/tetra/tetra.cnf"
+#line 108 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_LOCATION_UPDATE_ACCEPT, D_LOCATION_UPDATE_ACCEPT_sequence);
 
@@ -6124,7 +5972,7 @@ static const per_sequence_t D_LOCATION_UPDATE_REJECT_sequence[] = {
 
 int
 dissect_tetra_D_LOCATION_UPDATE_REJECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 249 "../../asn1/tetra/tetra.cnf"
+#line 258 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_LOCATION_UPDATE_REJECT, D_LOCATION_UPDATE_REJECT_sequence);
 
@@ -6343,7 +6191,7 @@ static const per_sequence_t D_ATTACH_DETACH_GROUP_IDENTITY_sequence[] = {
 
 int
 dissect_tetra_D_ATTACH_DETACH_GROUP_IDENTITY(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 254 "../../asn1/tetra/tetra.cnf"
+#line 263 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY, D_ATTACH_DETACH_GROUP_IDENTITY_sequence);
 
@@ -6438,7 +6286,7 @@ static const per_sequence_t D_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence[] = {
 
 int
 dissect_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 259 "../../asn1/tetra/tetra.cnf"
+#line 268 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ATTACH_DETACH_GROUP_IDENTITY_ACK, D_ATTACH_DETACH_GROUP_IDENTITY_ACK_sequence);
 
@@ -6456,7 +6304,7 @@ static const per_sequence_t D_MM_STATUS_sequence[] = {
 
 int
 dissect_tetra_D_MM_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 234 "../../asn1/tetra/tetra.cnf"
+#line 243 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_MM_STATUS, D_MM_STATUS_sequence);
 
@@ -6649,7 +6497,7 @@ static const per_sequence_t D_ALERT_sequence[] = {
 
 int
 dissect_tetra_D_ALERT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 130 "../../asn1/tetra/tetra.cnf"
+#line 139 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_ALERT, D_ALERT_sequence);
 
@@ -6798,7 +6646,7 @@ static const per_sequence_t D_CALL_PROCEEDING_sequence[] = {
 
 int
 dissect_tetra_D_CALL_PROCEEDING(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 82 "../../asn1/tetra/tetra.cnf"
+#line 91 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CALL_PROCEEDING, D_CALL_PROCEEDING_sequence);
 
@@ -6989,7 +6837,7 @@ static const per_sequence_t D_CONNECT_sequence[] = {
 
 int
 dissect_tetra_D_CONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 105 "../../asn1/tetra/tetra.cnf"
+#line 114 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CONNECT, D_CONNECT_sequence);
 
@@ -7092,7 +6940,7 @@ static const per_sequence_t D_CONNECT_ACK_sequence[] = {
 
 int
 dissect_tetra_D_CONNECT_ACK(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 115 "../../asn1/tetra/tetra.cnf"
+#line 124 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CONNECT_ACK, D_CONNECT_ACK_sequence);
 
@@ -7111,7 +6959,7 @@ static const per_sequence_t D_DISCONNECT_sequence[] = {
 
 int
 dissect_tetra_D_DISCONNECT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 125 "../../asn1/tetra/tetra.cnf"
+#line 134 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_DISCONNECT, D_DISCONNECT_sequence);
 
@@ -7131,7 +6979,7 @@ static const per_sequence_t D_INFO_sequence[] = {
 
 int
 dissect_tetra_D_INFO(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 120 "../../asn1/tetra/tetra.cnf"
+#line 129 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_INFO, D_INFO_sequence);
 
@@ -7232,7 +7080,7 @@ static const per_sequence_t D_RELEASE_sequence[] = {
 
 int
 dissect_tetra_D_RELEASE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 75 "../../asn1/tetra/tetra.cnf"
+#line 84 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_RELEASE, D_RELEASE_sequence);
 
@@ -7382,7 +7230,7 @@ static const per_sequence_t D_SETUP_sequence[] = {
 
 int
 dissect_tetra_D_SETUP(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 87 "../../asn1/tetra/tetra.cnf"
+#line 96 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_SETUP, D_SETUP_sequence);
 
@@ -7437,7 +7285,7 @@ static const per_sequence_t D_STATUS_sequence[] = {
 
 int
 dissect_tetra_D_STATUS(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 141 "../../asn1/tetra/tetra.cnf"
+#line 150 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_STATUS, D_STATUS_sequence);
 
@@ -7538,7 +7386,7 @@ static const per_sequence_t D_TX_CEASED_sequence[] = {
 
 int
 dissect_tetra_D_TX_CEASED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "../../asn1/tetra/tetra.cnf"
+#line 144 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_CEASED, D_TX_CEASED_sequence);
 
@@ -7558,7 +7406,7 @@ static const per_sequence_t D_TX_CONTINUE_sequence[] = {
 
 int
 dissect_tetra_D_TX_CONTINUE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 146 "../../asn1/tetra/tetra.cnf"
+#line 155 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_CONTINUE, D_TX_CONTINUE_sequence);
 
@@ -7580,7 +7428,7 @@ static const per_sequence_t D_TX_GRANTED_sequence[] = {
 
 int
 dissect_tetra_D_TX_GRANTED(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 151 "../../asn1/tetra/tetra.cnf"
+#line 160 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_GRANTED, D_TX_GRANTED_sequence);
 
@@ -7600,7 +7448,7 @@ static const per_sequence_t D_TX_WAIT_sequence[] = {
 
 int
 dissect_tetra_D_TX_WAIT(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 157 "../../asn1/tetra/tetra.cnf"
+#line 166 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_TX_WAIT, D_TX_WAIT_sequence);
 
@@ -7830,7 +7678,7 @@ static const per_sequence_t D_CALL_RESTORE_sequence[] = {
 
 int
 dissect_tetra_D_CALL_RESTORE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 162 "../../asn1/tetra/tetra.cnf"
+#line 171 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_CALL_RESTORE, D_CALL_RESTORE_sequence);
 
@@ -7911,7 +7759,7 @@ static const per_sequence_t D_SDS_DATA_sequence[] = {
 
 int
 dissect_tetra_D_SDS_DATA(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 167 "../../asn1/tetra/tetra.cnf"
+#line 176 "../../asn1/tetra/tetra.cnf"
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_D_SDS_DATA, D_SDS_DATA_sequence);
 
@@ -8616,7 +8464,7 @@ static const per_sequence_t MAC_RESOURCE_sequence[] = {
   { &hf_tetra_position_of_grant, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_Position_Of_Grant },
   { &hf_tetra_encryption_mode, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
   { &hf_tetra_access_ack    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_T_access_ack },
-  { &hf_tetra_lengthIndication_03, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacResource },
+  { &hf_tetra_lengthIndication_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_LengthIndicationMacResource },
   { &hf_tetra_address_01    , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_AddressMacResource },
   { NULL, 0, 0, NULL }
 };
@@ -8625,23 +8473,6 @@ static int
 dissect_tetra_MAC_RESOURCE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
                                    ett_tetra_MAC_RESOURCE, MAC_RESOURCE_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t ExtendCarrier_sequence[] = {
-  { &hf_tetra_freq_band     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_15 },
-  { &hf_tetra_offset_01     , ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { &hf_tetra_duplex_spacing, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_7 },
-  { &hf_tetra_reverse_operation_02, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_BOOLEAN },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_ExtendCarrier(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_ExtendCarrier, ExtendCarrier_sequence);
 
   return offset;
 }
@@ -8707,56 +8538,6 @@ dissect_tetra_MAC_ACCESS_DEFINE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *a
   return offset;
 }
 
-
-static const value_string tetra_CALLMODE_vals[] = {
-  {   0, "single-call" },
-  {   1, "group-call" },
-  {   2, "reserve" },
-  {   3, "broadcase" },
-  { 0, NULL }
-};
-
-
-static int
-dissect_tetra_CALLMODE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_enumerated(tvb, offset, actx, tree, hf_index,
-                                     4, NULL, FALSE, 0, NULL);
-
-  return offset;
-}
-
-
-static const per_sequence_t SPEECHMODE_sequence[] = {
-  { &hf_tetra_encryption_flag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_communication_type, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_CALLMODE },
-  { &hf_tetra_speech_service, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_SPEECHMODE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_SPEECHMODE, SPEECHMODE_sequence);
-
-  return offset;
-}
-
-
-static const per_sequence_t DATAMODE_sequence[] = {
-  { &hf_tetra_encryption_flag, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_1 },
-  { &hf_tetra_communication_type_01, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { &hf_tetra_slots_per_frame, ASN1_NO_EXTENSIONS     , ASN1_NOT_OPTIONAL, dissect_tetra_INTEGER_0_3 },
-  { NULL, 0, 0, NULL }
-};
-
-static int
-dissect_tetra_DATAMODE(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-  offset = dissect_per_sequence(tvb, offset, actx, tree, hf_index,
-                                   ett_tetra_DATAMODE, DATAMODE_sequence);
-
-  return offset;
-}
-
 /*--- PDUs ---*/
 
 static void dissect_AACH_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
@@ -8778,11 +8559,6 @@ static void dissect_MAC_ACCESS_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, pr
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
   dissect_tetra_MAC_ACCESS(tvb, 0, &asn1_ctx, tree, hf_tetra_MAC_ACCESS_PDU);
-}
-static void dissect_MAC_DATA_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
-  asn1_ctx_t asn1_ctx;
-  asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, FALSE, pinfo);
-  dissect_tetra_MAC_DATA(tvb, 0, &asn1_ctx, tree, hf_tetra_MAC_DATA_PDU);
 }
 static void dissect_MAC_FRAG_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -9358,10 +9134,6 @@ void proto_register_tetra (void)
         NULL, HFILL }},
     { &hf_tetra_MAC_ACCESS_PDU,
       { "MAC-ACCESS", "tetra.MAC_ACCESS",
-        FT_NONE, BASE_NONE, NULL, 0,
-        NULL, HFILL }},
-    { &hf_tetra_MAC_DATA_PDU,
-      { "MAC-DATA", "tetra.MAC_DATA",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
     { &hf_tetra_MAC_FRAG_PDU,
@@ -9944,18 +9716,6 @@ void proto_register_tetra (void)
       { "reservation-requirement", "tetra.reservation_requirement",
         FT_UINT32, BASE_DEC, VALS(tetra_SLOT_APPLY_vals), 0,
         "SLOT_APPLY", HFILL }},
-    { &hf_tetra_lengthIndicationOrCapacityRequest_01,
-      { "lengthIndicationOrCapacityRequest", "tetra.lengthIndicationOrCapacityRequest",
-        FT_UINT32, BASE_DEC, VALS(tetra_T_lengthIndicationOrCapacityRequest_01_vals), 0,
-        "T_lengthIndicationOrCapacityRequest_01", HFILL }},
-    { &hf_tetra_lengthIndication_01,
-      { "lengthIndication", "tetra.lengthIndication",
-        FT_UINT32, BASE_DEC, VALS(tetra_LengthIndicationMacData_vals), 0,
-        "LengthIndicationMacData", HFILL }},
-    { &hf_tetra_capacityRequest_01,
-      { "capacityRequest", "tetra.capacityRequest",
-        FT_NONE, BASE_NONE, NULL, 0,
-        "FRAG6", HFILL }},
     { &hf_tetra_sub_type,
       { "sub-type", "tetra.sub_type",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -10000,7 +9760,7 @@ void proto_register_tetra (void)
       { "position-of-grant", "tetra.position_of_grant",
         FT_UINT32, BASE_DEC, VALS(tetra_Position_Of_Grant_vals), 0,
         NULL, HFILL }},
-    { &hf_tetra_lengthIndication_02,
+    { &hf_tetra_lengthIndication_01,
       { "lengthIndication", "tetra.lengthIndication",
         FT_UINT32, BASE_DEC, VALS(tetra_LengthIndicationMacEndDl_vals), 0,
         "LengthIndicationMacEndDl", HFILL }},
@@ -10128,7 +9888,7 @@ void proto_register_tetra (void)
       { "access-ack", "tetra.access_ack",
         FT_UINT32, BASE_DEC, VALS(tetra_T_access_ack_vals), 0,
         NULL, HFILL }},
-    { &hf_tetra_lengthIndication_03,
+    { &hf_tetra_lengthIndication_02,
       { "lengthIndication", "tetra.lengthIndication",
         FT_UINT32, BASE_DEC, VALS(tetra_LengthIndicationMacResource_vals), 0,
         "LengthIndicationMacResource", HFILL }},
@@ -10208,14 +9968,6 @@ void proto_register_tetra (void)
       { "smi-eventlabel", "tetra.smi_eventlabel",
         FT_BYTES, BASE_NONE, NULL, 0,
         "BIT_STRING_SIZE_34", HFILL }},
-    { &hf_tetra_freq_band,
-      { "freq-band", "tetra.freq_band",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_15", HFILL }},
-    { &hf_tetra_reverse_operation_02,
-      { "reverse-operation", "tetra.reverse_operation",
-        FT_BOOLEAN, BASE_NONE, NULL, 0,
-        "BOOLEAN", HFILL }},
     { &hf_tetra_broadcast_channel,
       { "broadcast-channel", "tetra.broadcast_channel",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -11684,26 +11436,6 @@ void proto_register_tetra (void)
       { "type3-elements", "tetra.type3_elements",
         FT_NONE, BASE_NONE, NULL, 0,
         "T_type3_elements_05", HFILL }},
-    { &hf_tetra_encryption_flag,
-      { "encryption-flag", "tetra.encryption_flag",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_1", HFILL }},
-    { &hf_tetra_communication_type,
-      { "communication-type", "tetra.communication_type",
-        FT_UINT32, BASE_DEC, VALS(tetra_CALLMODE_vals), 0,
-        "CALLMODE", HFILL }},
-    { &hf_tetra_speech_service,
-      { "speech-service", "tetra.speech_service",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_3", HFILL }},
-    { &hf_tetra_communication_type_01,
-      { "communication-type", "tetra.communication_type",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_3", HFILL }},
-    { &hf_tetra_slots_per_frame,
-      { "slots-per-frame", "tetra.slots_per_frame",
-        FT_UINT32, BASE_DEC, NULL, 0,
-        "INTEGER_0_3", HFILL }},
     { &hf_tetra_called_party_sna,
       { "called-party-sna", "tetra.called_party_sna",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -11782,9 +11514,6 @@ void proto_register_tetra (void)
     &ett_tetra_ComplexSDU,
     &ett_tetra_T_lengthIndicationOrCapacityRequest,
     &ett_tetra_FRAG,
-    &ett_tetra_MAC_DATA,
-    &ett_tetra_T_lengthIndicationOrCapacityRequest_01,
-    &ett_tetra_FRAG6,
     &ett_tetra_MAC_FRAG,
     &ett_tetra_MAC_FRAG120,
     &ett_tetra_MAC_END_UPLINK,
@@ -11815,7 +11544,6 @@ void proto_register_tetra (void)
     &ett_tetra_SSI_EVENT_NEED,
     &ett_tetra_SSI_USAGE_NEED,
     &ett_tetra_SMI_EVENT_NEED,
-    &ett_tetra_ExtendCarrier,
     &ett_tetra_MAC_ACCESS_DEFINE,
     &ett_tetra_T_optional_field,
     &ett_tetra_D_LLC_PDU,
@@ -12022,8 +11750,6 @@ void proto_register_tetra (void)
     &ett_tetra_T_type2_element_03,
     &ett_tetra_T_type3_05,
     &ett_tetra_T_type3_elements_05,
-    &ett_tetra_SPEECHMODE,
-    &ett_tetra_DATAMODE,
     &ett_tetra_Calling_party_address_type,
     &ett_tetra_T_called_party_ssi_extention,
     &ett_tetra_Proprietary,

@@ -48,8 +48,6 @@ static int ett_gprscdr = -1;
 static int ett_gprscdr_timestamp = -1;
 #include "packet-gprscdr-ett.c"
 
-static dissector_handle_t gprscdr_handle;
-
 #include "packet-gprscdr-fn.c"
 
 

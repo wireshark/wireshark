@@ -6,6 +6,21 @@
 
 #.MODULE
 
+#.OMIT_ASSIGNMENT
+CalledNumber
+CallReference
+ChargeIndicator
+MscNo
+SystemType
+SGSNMTLCSRecord
+SGSNMOLCSRecord
+SGSNNILCSRecord
+LCSCause
+LCSClientIdentity
+LCSQoSInfo
+LocationAreaAndCell
+PositioningData
+
 #.EXPORTS
 GPRSCallEventRecord
 GPRSCallEventRecord_PDU
