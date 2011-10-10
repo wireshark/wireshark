@@ -2266,7 +2266,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree *sub_tree;
     tvbuff_t *sub_tvb;
     gint8 attr_size = 0;
-    unsigned long long big_num;
+    guint64 big_num;
 
     sub_ti = proto_tree_add_text(tree, tvb, offset, 24, "Wide Metric");
     sub_tree = proto_item_add_subtree(sub_ti, ett_eigrp_tlv_metric);
