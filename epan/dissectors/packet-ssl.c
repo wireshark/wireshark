@@ -1245,7 +1245,7 @@ process_ssl_payload(tvbuff_t *tvb, volatile int offset, packet_info *pinfo,
 
     if (association && association->handle) {
         ssl_debug_printf("dissect_ssl3_record found association %p\n", (void *)association);
-        
+
       if (dissector_try_heuristic(ssl_heur_subdissector_list, next_tvb,
 				  pinfo, proto_tree_get_root(tree))) {
       } else {
@@ -1865,7 +1865,7 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
             /* add nodes for the message type and message length */
             if (ssl_hand_tree)
                 proto_tree_add_item(ssl_hand_tree, hf_ssl_handshake_type,
-                                    tvb, offset, 1, msg_type);
+                                    tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
             if (ssl_hand_tree)
                 proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,

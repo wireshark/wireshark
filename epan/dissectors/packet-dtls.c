@@ -1155,7 +1155,7 @@ dissect_dtls_handshake(tvbuff_t *tvb, packet_info *pinfo,
           /* add nodes for the message type and message length */
           if (ssl_hand_tree)
             proto_tree_add_item(ssl_hand_tree, hf_dtls_handshake_type,
-                                tvb, offset, 1, msg_type);
+                                tvb, offset, 1, ENC_BIG_ENDIAN);
           offset++;
           if (ssl_hand_tree)
             proto_tree_add_uint(ssl_hand_tree, hf_dtls_handshake_length,
