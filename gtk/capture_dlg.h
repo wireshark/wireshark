@@ -100,6 +100,10 @@ enum
     NUM_COLUMNS
 };
 
+/** Initialize background capture filter syntax checking
+ */
+void capture_filter_init(void);
+
 /** User requested the "Capture Options" dialog box by menu or toolbar.
  *
  * @param widget parent widget (unused)
@@ -160,10 +164,10 @@ typedef struct {
 cap_settings_t
 capture_get_cap_settings (gchar *if_name);
 
-GtkTreeModel* 
+GtkTreeModel*
 create_and_fill_model (GtkTreeView *view);
 
-gboolean 
+gboolean
 query_tooltip_tree_view_cb (GtkWidget  *widget,
                             gint        x,
                             gint        y,
@@ -171,7 +175,7 @@ query_tooltip_tree_view_cb (GtkWidget  *widget,
                             GtkTooltip *tooltip,
                             gpointer    data);
 
-void 
+void
 activate_monitor (GtkTreeViewColumn *tree_column, GtkCellRenderer *renderer,
                   GtkTreeModel *tree_model, GtkTreeIter *iter, gpointer data);
 
@@ -190,7 +194,7 @@ capture_remote_combo_recent_write_all(FILE *rf);
  * @param s string with hostname,port,auth_type
  * @return TRUE if correctly added
  */
-gboolean 
+gboolean
 capture_remote_combo_add_recent(gchar *s);
 #endif
 

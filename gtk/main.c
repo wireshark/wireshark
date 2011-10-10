@@ -1008,7 +1008,7 @@ main_window_delete_event_cb(GtkWidget *widget _U_, GdkEvent *event _U_, gpointer
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
     gtk_window_present(GTK_WINDOW(top_level));
     /* user didn't saved his current file, ask him */
-    dialog = simple_dialog(ESD_TYPE_CONFIRMATION, 
+    dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                 ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
                 "%sSave capture file before program quit?%s\n\n"
                 "If you quit the program without saving, your capture data will be discarded.",
@@ -1115,7 +1115,7 @@ file_quit_cmd_cb(GtkWidget *widget _U_, gpointer data _U_)
 
   if((cfile.state != FILE_CLOSED) && !cfile.user_saved && prefs.gui_ask_unsaved) {
        /* user didn't saved his current file, ask him */
-       dialog = simple_dialog(ESD_TYPE_CONFIRMATION, 
+       dialog = simple_dialog(ESD_TYPE_CONFIRMATION,
                   ((cfile.state == FILE_READ_IN_PROGRESS) ? ESD_BTNS_QUIT_DONTSAVE_CANCEL : ESD_BTNS_SAVE_QUIT_DONTSAVE_CANCEL),
                    "%sSave capture file before program quit?%s\n\n"
                    "If you quit the program without saving, your capture data will be discarded.",
@@ -2917,6 +2917,7 @@ main(int argc, char *argv[])
 
   color_filters_init();
   decode_as_init();
+  capture_filter_init();
 
   /* the window can be sized only, if it's not already shown, so do it now! */
   main_load_window_geometry(top_level);
