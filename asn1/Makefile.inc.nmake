@@ -65,8 +65,8 @@ $(EXPORT_FILES): ../../tools/asn2wrs.py $(SRC_FILES)
 !ENDIF
 
 # Don't clean these up until/unless we start building them...
-		$(DISSECTOR) \
-		$(DISSECTOR_HEADER) \
+#		$(DISSECTOR) \
+#		$(DISSECTOR_HEADER) \
 clean:
 	rm -f parsetab.py \
 		parsetab.pyc \
