@@ -1387,8 +1387,8 @@ dissect_iscsi_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint off
     } else if(opcode == ISCSI_OPCODE_SNACK_REQUEST) {
 	    /* SNACK Request */
 	    {
-		gint b = tvb_get_guint8(tvb, offset + 1);
 #if 0
+		gint b = tvb_get_guint8(tvb, offset + 1);
 		proto_item *tf = proto_tree_add_uint(ti, hf_iscsi_Flags, tvb, offset + 1, 1, b);
 		proto_tree *tt = proto_item_add_subtree(tf, ett_iscsi_Flags);
 #endif
