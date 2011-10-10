@@ -83,18 +83,6 @@ maintainer-clean: distclean
 # Stuff included from template and "cnf" files has "\r\n" on windows, while
 # the generated stuff has "\n".
 
-fix_eol: generate_dissector
-	u2d $(DISSECTOR_FILES)
+fix_eol: $(DISSECTOR)
+	u2d $(DISSECTOR) $(DISSECTOR_HEADER)
 
-copy_files: generate_dissector
-   @<<copy_files.bat
-@FOR %%A IN ($(DISSECTOR_FILES)) DO xcopy %%A ..\..\epan\dissectors /d /y
-<<
-
-compare_files: generate_dissector
-   @<<compare_files.bat
-@setlocal
-@set CYGWIN=%CYGWIN% nodosfilewarning
-@FOR %%A IN ($(DISSECTOR_FILES)) DO @diff -U 0 -I '\^#line' -I '[[:blank:]]\*[[:blank:]]\^$Id:[[:blank:]]' ..\..\epan\dissectors\%%A %%A
-@exit /b 0
-<<

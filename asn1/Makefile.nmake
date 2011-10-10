@@ -29,17 +29,15 @@
 #    Do default target 'all' which invokes the Makefile.nmake
 #     in each individual ASN1 sub-directory using the value of ASN1_MAKE_TARGET
 #     as the make target.
-#    (If ASN1_MAKE_TARGET is not defined then default to "copy_files"
-#     which generates the individual ASN1 dissector files and then copies
-#     the generated .[hc] files to epan\dissectors).
+#    (If ASN1_MAKE_TARGET is not defined then default to "all"
+#     which generates the individual ASN1 dissector files into
+#     epan\dissectors).
 #
 # 2. If this Makefile is invoked with one of the following targets, then do the action for the target:
 #    Reinvoke this Makefile with 'all' as target and with ASN1_MAKE_TARGET
 #     defined as appropriate.
 #       clean
-#       generate_dissector   : generate the dissectors but do *not* copy the [.hc] files to epan\dissectors
-#       compare_files        : generate the dissectors and then *compare* the .[hc] files to epan\dissectors
-#       copy_files           : generate the dissectors and then copy the .[hc] files to epan\dissectors
+#       copy_files           : generate the dissectors into epan\dissectors
 #                            :  (This is, in effect, the same as invoking this makefile w/o a target).
 
 BER_LIST= \
@@ -139,7 +137,7 @@ PER_LIST= \
 
 
 !IFNDEF ASN1_MAKE_TARGET
-ASN1_MAKE_TARGET=copy_files
+ASN1_MAKE_TARGET=all
 !ENDIF
 
 all: ber per
@@ -156,8 +154,10 @@ $(BER_LIST) $(PER_LIST) : _FORCE_  # _FORCE_ req'd since each target actually ex
 # When this Makefile is invoked with an explicit target then
 #  this Makefile is re-invoked with 'all' as target and with
 #  ASN1_MAKE_TARGET defined as to the action needed.
+# copy_files is a bit of a misnomer now, but we need another
+# (non-"all") target...
 
-clean generate_dissector compare_files copy_files :
+clean copy_files :
 	$(MAKE) /$(MAKEFLAGS) -f Makefile.nmake	all ASN1_MAKE_TARGET=$@
 
 ####

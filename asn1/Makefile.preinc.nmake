@@ -27,5 +27,3 @@ MAKE_CNF_EXPORT = $(MAKE) /$(MAKEFLAGS) -f Makefile.nmake generate_export
 # An automake variable used in several Makefile.common's
 builddir=.
 
-all: generate_dissector
-
