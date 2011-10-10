@@ -14,12 +14,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -42,24 +42,16 @@ static int hf_manolito_checksum = -1;
 static int hf_manolito_seqno = -1;
 static int hf_manolito_src = -1;
 static int hf_manolito_dest = -1;
+static int hf_manolito_options_short = -1;
 static int hf_manolito_options = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_manolito = -1;
 
-struct MANOLITO_HEADER {
-	guint32 checksum;
-	guint32 seqno;
-	guint32 src;
-	guint32 dest;
-	guint32 options;
-};
-
 /* Code to actually dissect the packets */
 static void
 dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-	struct MANOLITO_HEADER header;
 	unsigned int offset;
 
 	/* Set up structures needed to add the protocol subtree and manage it */
@@ -69,39 +61,31 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	/* Make entries in Protocol column and Info column on summary display */
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "MANOLITO");
-    
+
 	ti = proto_tree_add_item(tree, proto_manolito, tvb, 0, -1, FALSE);
 
 	manolito_tree = proto_item_add_subtree(ti, ett_manolito);
 
 	/* MANOLITO packet header (network byte order) */
-	header.checksum = tvb_get_ntohl(tvb, 0);
-	header.seqno = tvb_get_ntohl(tvb, 4);
-	header.src = tvb_get_ipv4(tvb, 8);
-	header.dest = tvb_get_ipv4(tvb, 12);
-	if (tvb_reported_length(tvb) == 19)
-	{
-		header.options = (tvb_get_ntohs(tvb, 16) << 8) +
-				tvb_get_guint8(tvb, 18);
+	proto_tree_add_item(manolito_tree,
+	    hf_manolito_checksum, tvb, 0, 4, ENC_BIG_ENDIAN);
+	proto_tree_add_item(manolito_tree,
+	    hf_manolito_seqno, tvb, 4, 4, ENC_BIG_ENDIAN);
+
+	proto_tree_add_item(manolito_tree,
+	    hf_manolito_src, tvb, 8, 4, ENC_BIG_ENDIAN);
+
+	proto_tree_add_item(manolito_tree,
+	    hf_manolito_dest, tvb, 12, 4, ENC_BIG_ENDIAN);
+
+	if (tvb_reported_length(tvb) == 19) {
 		packet_type = "Ping (truncated)";
+		proto_tree_add_item(manolito_tree,
+		    hf_manolito_options_short, tvb, 16, 3, ENC_BIG_ENDIAN);
 	} else {
-		header.options = tvb_get_ntohl(tvb, 16);
+		proto_tree_add_item(manolito_tree,
+		    hf_manolito_options, tvb, 16, 4, ENC_BIG_ENDIAN);
 	}
-
-	proto_tree_add_item(manolito_tree,
-	    hf_manolito_checksum, tvb, 0, 4, header.checksum);
-	proto_tree_add_item(manolito_tree,
-	    hf_manolito_seqno, tvb, 4, 4, header.seqno);
-
-	proto_tree_add_ipv4(manolito_tree,
-	    hf_manolito_src, tvb, 8, 4, header.src);
-
-	proto_tree_add_ipv4(manolito_tree,
-	    hf_manolito_dest, tvb, 12, 4, header.dest);
-
-	proto_tree_add_item(manolito_tree,
-	    hf_manolito_options, tvb, 16, 4, header.options);
-
 
 	if (tvb_reported_length(tvb) <= 20)      /* no payload, just headers */
 	{
@@ -112,7 +96,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	 	/* fields format: 2-byte name, optional NULL, 1-byte lenlen, */
 		/* that many bytes(len or data), for NI,CN,VL is len, more */
 		/* (that many bytes) data follows; else is raw data. */
-		do 
+		do
 		{
 			guint16 field_name;      /* 16-bit field name */
 			guint8 dtype;            /* data-type */
@@ -188,7 +172,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			 */
 			data = ep_alloc((guint)length + 1);
 			tvb_memcpy(tvb, data, ++offset, length);
-			offset += length; 
+			offset += length;
 
 			/* convert the 16-bit integer field name to a string */
                         /* XXX: changed this to use g_htons */
@@ -196,7 +180,7 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			field_name_str[1] = (g_htons(field_name) & 0xff00) >> 8;
 			field_name_str[2] = 0;
 
-			if (dtype == MANOLITO_STRING) 
+			if (dtype == MANOLITO_STRING)
 			{
 				data[length] = 0;
 				proto_tree_add_text(manolito_tree, tvb, start,
@@ -237,13 +221,13 @@ dissect_manolito(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 void
 proto_register_manolito(void)
-{                 
+{
 
 /* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_manolito_checksum,
 			{ "Checksum",           "manolito.checksum",
-			FT_UINT32, BASE_HEX, NULL, 0,         
+			FT_UINT32, BASE_HEX, NULL, 0,
 			"Checksum used for verifying integrity", HFILL }
 		},
                 { &hf_manolito_seqno,
@@ -261,11 +245,16 @@ proto_register_manolito(void)
                         FT_IPv4, BASE_NONE, NULL, 0,
                        "Destination IPv4 address", HFILL }
                 },
+                { &hf_manolito_options_short,
+                        { "Options", "manolito.options",
+                        FT_UINT24, BASE_HEX, NULL, 0,
+                       "Packet-dependent data", HFILL }
+                },
                 { &hf_manolito_options,
                         { "Options", "manolito.options",
-                        FT_UINT32, BASE_HEX, NULL, 0, 
+                        FT_UINT32, BASE_HEX, NULL, 0,
                        "Packet-dependent data", HFILL }
-                }, 
+                },
 	};
 
 	static gint *ett[] = {
