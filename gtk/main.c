@@ -2917,7 +2917,9 @@ main(int argc, char *argv[])
 
   color_filters_init();
   decode_as_init();
+#ifdef HAVE_LIBPCAP
   capture_filter_init();
+#endif
 
   /* the window can be sized only, if it's not already shown, so do it now! */
   main_load_window_geometry(top_level);
