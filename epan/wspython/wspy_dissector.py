@@ -311,7 +311,7 @@ class Dissector(object):
               self.create_dissector_handle(self.__protocol)
           else:
             handle = private_handle
-        self.__wsl.dissector_add(type, protocol_id, handle)
+        self.__wsl.dissector_add_uint(type, protocol_id, handle)
     except Exception, e:
       print "creating dissector failed", e
       raise
