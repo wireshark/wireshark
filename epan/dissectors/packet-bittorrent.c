@@ -726,7 +726,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       offset += 4;
       length -= 4;
       piece_begin = tvb_get_ntohl(tvb, offset);
-      proto_tree_add_item(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, ENC_BIG_ENDIAN);
+      proto_tree_add_uint(mtree, hf_bittorrent_piece_begin, tvb, offset, 4, piece_begin);
       offset += 4;
       length -= 4;
       proto_tree_add_item(mtree, hf_bittorrent_piece_data, tvb, offset, length, ENC_NA);
