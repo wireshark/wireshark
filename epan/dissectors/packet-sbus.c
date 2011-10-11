@@ -655,6 +655,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        guint8 sbus_web_aid;
        guint8 sbus_web_seq;
        guint8 sbus_rdwr_type;
+       guint8 sbus_rdwr_sequence;
        guint8 sbus_rdwr_block_tlg;
        guint8 sbus_rdwr_block_type;
        guint8 sbus_rdwr_ack_nak;
@@ -1173,19 +1174,21 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    /* WebServer Request */
                             case SBUS_WEB_SERVER_SERIAL_COMM:
                                    sbus_web_size = tvb_get_guint8(tvb,offset);
-                                   proto_tree_add_item(sbus_tree,
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_size, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_web_size);
                                    offset += 1;
 
-                                   proto_tree_add_item(sbus_tree,
+                                   sbus_web_aid = tvb_get_guint8(tvb,offset);
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_aid, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_web_aid);
                                    offset += 1;
 
-                                   proto_tree_add_item(sbus_tree,
+                                   sbus_web_seq = tvb_get_guint8(tvb,offset);
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_seq, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_web_seq);
                                    offset += 1;
 
                                    if (sbus_web_size > 1) {
@@ -1216,9 +1219,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           offset += 1;
                                    }
                                    sbus_rdwr_type = tvb_get_guint8(tvb,offset);
-                                   proto_tree_add_item(sbus_tree,
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rdwr_telegram_type, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_rdwr_type);
                                    offset += 1;
                                    switch(sbus_rdwr_type) {
                                           case SBUS_WR_START_OF_STREAM:
@@ -1268,17 +1271,19 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                  }
                                                  break;
                                           case SBUS_WR_BLOCK_DATA_STREAM:
-                                                 proto_tree_add_item(sbus_tree,
+                                                 sbus_rdwr_sequence = tvb_get_guint8(tvb,offset);
+                                                 proto_tree_add_uint(sbus_tree,
                                                                      hf_sbus_rdwr_telegram_sequence, tvb, offset,
-                                                                     1, ENC_BIG_ENDIAN);
+                                                                     1, sbus_rdwr_sequence);
                                                  offset += 1;
                                                  /*do not display a field for block data (skip)*/
                                                  offset += (sbus_rdwr_length-1);
                                                  break;
                                           case SBUS_WR_BLOCK_END_OF_STREAM:
-                                                 proto_tree_add_item(sbus_tree,
+                                                 sbus_rdwr_sequence = tvb_get_guint8(tvb,offset);
+                                                 proto_tree_add_uint(sbus_tree,
                                                                      hf_sbus_rdwr_telegram_sequence, tvb, offset,
-                                                                     1, ENC_BIG_ENDIAN);
+                                                                     1, sbus_rdwr_sequence);
                                                  offset += 1;
                                                  /*do not display a field for block data (skip it)*/
                                                  offset += (sbus_rdwr_length-5);
@@ -1709,20 +1714,22 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                    /* Response: Webserver request */
                             case SBUS_WEB_SERVER_SERIAL_COMM:
                                    sbus_web_size = tvb_get_guint8(tvb,offset);
-                                   proto_tree_add_item(sbus_tree,
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_size, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_web_size);
                                    offset += 1;
 
-                                   proto_tree_add_item(sbus_tree,
+                                   sbus_web_aid = tvb_get_guint8(tvb,offset);
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_web_aid, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_web_aid);
                                    offset += 1;
 
                                    if (sbus_web_size > 1) {
-                                          proto_tree_add_item(sbus_tree,
+                                          sbus_web_seq = tvb_get_guint8(tvb,offset);
+                                          proto_tree_add_uint(sbus_tree,
                                                               hf_sbus_web_seq, tvb, offset,
-                                                              1, ENC_BIG_ENDIAN);
+                                                              1, sbus_web_seq);
                                           offset += 1;
 
                                           dt = proto_tree_add_text(sbus_tree, tvb, offset,
@@ -1741,9 +1748,9 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                             case SBUS_RD_WR_PCD_BLOCK:
                                    sbus_rdwr_block_tlg = request_val->block_tlg;
                                    sbus_rdwr_length = tvb_get_guint8(tvb,offset);
-                                   proto_tree_add_item(sbus_tree,
+                                   proto_tree_add_uint(sbus_tree,
                                                        hf_sbus_rdwr_block_length, tvb, offset,
-                                                       1, ENC_BIG_ENDIAN);
+                                                       1, sbus_rdwr_length);
                                    offset += 1;
                                    hi = proto_tree_add_item(sbus_tree,
                                                             hf_sbus_rdwr_acknakcode, tvb, offset,

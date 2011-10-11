@@ -1401,7 +1401,7 @@ dissect_a11_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
                                             "Unknown Extension %u"));
         ext_tree = proto_item_add_subtree(ti, ett_a11_ext);
 
-        proto_tree_add_item(ext_tree, hf_a11_ext_type, tvb, offset, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(ext_tree, hf_a11_ext_type, tvb, offset, 1, ext_type);
         offset++;
 
         if (ext_type == SS_EXT) {

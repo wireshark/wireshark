@@ -580,7 +580,7 @@ static void dissect_9P_mode(tvbuff_t * tvb,  proto_item * item,int offset)
 		return;
 	proto_tree_add_boolean(mode_tree, hf_9P_mode_c, tvb, offset, 1, mode);
 	proto_tree_add_boolean(mode_tree, hf_9P_mode_t, tvb, offset, 1, mode);
-	proto_tree_add_item(mode_tree, hf_9P_mode_rwx, tvb, offset, 1, ENC_NA);
+	proto_tree_add_uint(mode_tree, hf_9P_mode_rwx, tvb, offset, 1, mode);
 }
 
 /* dissect 9P Qid */
