@@ -459,7 +459,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
                             "Unknown Extension %u"));
     ext_tree = proto_item_add_subtree(ti, ett_mip_ext);
 
-    proto_tree_add_item(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
+    proto_tree_add_uint(ext_tree, hf_mip_ext_type, tvb, offset, 1, ext_type);
     offset++;
     if (ext_type != GEN_AUTH_EXT &&
         ext_type != PMIPv4_NON_SKIP_EXT &&
@@ -475,8 +475,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
     case FH_AUTH_EXT:
       /* All these extensions look the same.  4 byte SPI followed by a key */
       proto_tree_add_item(ext_tree, hf_mip_aext_spi, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset+4, ext_len-4,
-                          ENC_NA);
+      proto_tree_add_item(ext_tree, hf_mip_aext_auth, tvb, offset+4, ext_len-4, ENC_NA);
       break;
     case MN_NAI_EXT:
       proto_tree_add_item(ext_tree, hf_mip_next_nai, tvb, offset,
@@ -567,10 +566,10 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
       break;
     case PMIPv4_NON_SKIP_EXT:   /* draft-leung-mip4-proxy-mode */
       /* sub-type */
-      proto_tree_add_item(ext_tree, hf_mip_pmipv4nonskipext_stype, tvb, offset, 1, ext_subtype);
+      proto_tree_add_uint(ext_tree, hf_mip_pmipv4nonskipext_stype, tvb, offset, 1, ext_subtype);
       offset++;
           /* len */
-      proto_tree_add_item(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
+      proto_tree_add_uint(ext_tree, hf_mip_ext_len, tvb, offset, 2, ext_len);
       offset+=2;
       if(ext_subtype == 1){
         /* Sub-type == 1 : PMIPv4 Per-Node Authentication Method */
@@ -584,7 +583,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
                    "PMIPv4 Sub-Type: %s",
                    val_to_str(ext_subtype, mip_pmipv4skipext_stypes, "Unknown Sub-Type %u"));
       pmipv4_tree = proto_item_add_subtree(tp, ett_mip_pmipv4_ext);
-      proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
+      proto_tree_add_uint(pmipv4_tree, hf_mip_pmipv4skipext_stype, tvb, offset, 1, ext_subtype);
 
       if (ext_subtype == PMIPv4_SKIPEXT_STYPE_INTERFACE_ID) {
         proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_interfaceid, tvb, offset + 1, ext_len-1, ENC_NA);
@@ -593,7 +592,7 @@ dissect_mip_extensions( tvbuff_t *tvb, int offset, proto_tree *tree)
         proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_deviceid_id, tvb, offset + 2, ext_len - 2, ENC_NA);
       } else if (ext_subtype == PMIPv4_SKIPEXT_STYPE_SUBSCRIBER_ID) {
         pmipv4skipext_subscriberid_type = tvb_get_guint8(tvb, offset + 1);
-        proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_type, tvb, offset + 1, 1, ENC_BIG_ENDIAN);
+        proto_tree_add_uint(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_type, tvb, offset + 1, 1, pmipv4skipext_subscriberid_type);
         if (pmipv4skipext_subscriberid_type == 1) {
           proto_tree_add_item(pmipv4_tree, hf_mip_pmipv4skipext_subscriberid_id, tvb, offset + 2, ext_len - 2, ENC_NA);
         }
