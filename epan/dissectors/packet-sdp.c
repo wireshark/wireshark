@@ -1299,7 +1299,7 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
   guint8 *field_name;
   gchar *format_specific_parameter;
   proto_item *item;
-  tvbuff_t *data_tvb;
+  tvbuff_t * volatile data_tvb;
 
   end_offset = offset + tokenlen;
 
@@ -1439,13 +1439,13 @@ decode_sdp_fmtp(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, gint offset
       if(h264_handle && data_tvb){
         TRY {
           dissect_h264_nal_unit(data_tvb, pinfo, tree);
-		}
+        }
         CATCH(BoundsError) {
           RETHROW;
-		}
+        }
         CATCH(ReportedBoundsError) {
           show_reported_bounds_error(tvb, pinfo, tree);
-		}
+        }
         ENDTRY;
         if (comma_offset != -1){
           /* Second NAL unit */
