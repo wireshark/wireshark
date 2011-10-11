@@ -125,6 +125,7 @@ ASN1_DISSECTOR_SRC = \
 	packet-h501.c \
 	packet-HI2Operations.c \
 	packet-hnbap.c \
+	packet-lcsap.c \
 	packet-idmp.c \
 	packet-inap.c \
 	packet-logotypecertextn.c \

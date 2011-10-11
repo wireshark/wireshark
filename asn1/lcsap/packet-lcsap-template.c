@@ -150,18 +150,18 @@ proto_reg_handoff_lcsap(void)
 		lcsap_handle = find_dissector("lcsap");
 		
 		dissector_add_handle("sctp.port", lcsap_handle);   /* for "decode-as"  */
-		dissector_add("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
+		dissector_add_uint("sctp.ppi", LCS_AP_PAYLOAD_PROTOCOL_ID,   lcsap_handle);
 		Initialized=TRUE;
 #include "packet-lcsap-dis-tab.c"
 	} else {
 		if (SctpPort != 0) {
-			dissector_delete("sctp.port", SctpPort, lcsap_handle);
+			dissector_delete_uint("sctp.port", SctpPort, lcsap_handle);
 		}
 	}
 
 	SctpPort=gbl_lcsapSctpPort;
 	if (SctpPort != 0) {
-		dissector_add("sctp.port", SctpPort, lcsap_handle);
+		dissector_add_uint("sctp.port", SctpPort, lcsap_handle);
 	}
 }
 

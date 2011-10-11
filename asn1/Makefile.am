@@ -63,6 +63,7 @@ SUBDIRS = 		\
 	idmp		\
 	inap		\
 	kerberos	\
+	lcsap		\
 	ldap		\
 	logotypecertextn \
 	lte-rrc		\

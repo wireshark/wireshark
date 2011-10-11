@@ -119,6 +119,7 @@ PER_LIST= \
 	h460			\
 	h501			\
 	hnbap			\
+	lcsap			\
 	lte-rrc			\
 	nbap			\
 	mpeg-audio		\
