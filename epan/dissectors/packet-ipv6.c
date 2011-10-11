@@ -285,7 +285,7 @@ static gboolean ipv6_summary_in_tree = TRUE;
 
 #ifdef HAVE_GEOIP_V6
 /* Look up addresses in GeoIP */
-static gboolean ipv6_use_geoip = FALSE;
+static gboolean ipv6_use_geoip = TRUE;
 #endif /* HAVE_GEOIP_V6 */
 
 #ifndef offsetof
@@ -412,6 +412,7 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, struct e_in6_addr s
   guint item_cnt;
 
   num_dbs = geoip_db_num_dbs();
+  if (num_dbs < 1) return;
 
   geoip_info_item = proto_tree_add_text(tree, tvb, offset + IP6H_SRC, 16, "Source GeoIP: ");
   geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);

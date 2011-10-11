@@ -80,7 +80,7 @@ static gboolean ip_tso_supported = TRUE;
 
 #ifdef HAVE_GEOIP
 /* Look up addresses in GeoIP */
-static gboolean ip_use_geoip = FALSE;
+static gboolean ip_use_geoip = TRUE;
 #endif /* HAVE_GEOIP */
 
 /* Interpret the reserved flag as security flag (RFC 3514) */
@@ -406,6 +406,7 @@ add_geoip_info(proto_tree *tree, tvbuff_t *tvb, gint offset, guint32 src32, guin
   guint item_cnt;
 
   num_dbs = geoip_db_num_dbs();
+  if (num_dbs < 1) return;
 
   geoip_info_item = proto_tree_add_text(tree, tvb, offset + IPH_SRC, 4, "Source GeoIP: ");
   geoip_info_tree = proto_item_add_subtree(geoip_info_item, ett_geoip_info);
@@ -1380,8 +1381,8 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
   /* if IP is not referenced from any filters we dont need to worry about
      generating any tree items.  We must do this after we created the actual
      protocol above so that proto hier stat still works though.
-     XXX: Note that because of the following optimization expert items must 
-          not be generated inside of an 'if (tree) ...' 
+     XXX: Note that because of the following optimization expert items must
+          not be generated inside of an 'if (tree) ...'
           so that Analyze ! Expert ...  will work.
   */
   if(!proto_field_is_referenced(parent_tree, proto_ip)){
@@ -1548,7 +1549,7 @@ dissect_ip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
                        if (tree==NULL) then item will be NULL
                        else item should be from the add_boolean(..., hf_ip_checksum_bad, ...) above */
       expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad checksum");
-  } else { 
+  } else {
     ipsum = 0;
     if (tree) {
       item = proto_tree_add_uint_format(ip_tree, hf_ip_checksum, tvb, offset + 10, 2, iph->ip_sum,
