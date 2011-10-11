@@ -1864,8 +1864,8 @@ dissect_ssl3_handshake(tvbuff_t *tvb, packet_info *pinfo,
         {
             /* add nodes for the message type and message length */
             if (ssl_hand_tree)
-                proto_tree_add_item(ssl_hand_tree, hf_ssl_handshake_type,
-                                    tvb, offset, 1, ENC_BIG_ENDIAN);
+                proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_type,
+                                    tvb, offset, 1, msg_type);
             offset++;
             if (ssl_hand_tree)
                 proto_tree_add_uint(ssl_hand_tree, hf_ssl_handshake_length,
