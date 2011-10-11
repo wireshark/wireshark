@@ -7822,6 +7822,239 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
 /* ************************************************************************* */
 
 
+static int beacon_padding = 0; /* beacon padding bug */
+
+static int ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
+                              proto_item *ti, proto_item *ti_len,
+                              guint32 tag_len, tvbuff_t *tvb, int offset)
+{
+  /* 7.3.2.1 SSID element (0) */
+  guint8 *ssid; /* The SSID may consist of arbitrary bytes */
+
+  if (beacon_padding != 0) /* padding bug */
+    return offset;
+
+  if(tag_len > MAX_SSID_LEN) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "SSID length (%u) greater than maximum (%u)",
+                           tag_len, MAX_SSID_LEN);
+  }
+
+  ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
+  AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
+  proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
+                      ENC_BIG_ENDIAN);
+  if (tag_len > 0) {
+    proto_item_append_text(ti, ": %s", ssid);
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", ssid);
+
+    /* Wlan Stats */
+    memcpy(wlan_stats.ssid, ssid, MIN(tag_len, MAX_SSID_LEN));
+    wlan_stats.ssid_len = tag_len;
+  } else {
+    proto_item_append_text(ti, ": Broadcast");
+
+    col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
+  }
+
+  beacon_padding++; /* padding bug */
+
+  return offset + 2 + tag_len;
+}
+
+static int ieee80211_tag_supp_rates(packet_info *pinfo, proto_tree *tree,
+                                    proto_item *ti, proto_item *ti_len,
+                                    guint32 tag_len, tvbuff_t *tvb,
+                                    int offset, int tag_end)
+{
+  /* 7.3.2.2 Supported Rates element (1) */
+  if (tag_len < 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u too short, must be greater than 0",
+                           tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  while (offset < tag_end) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1,
+                        ENC_BIG_ENDIAN);
+    proto_item_append_text(ti, " %s,",
+                           val_to_str(tvb_get_guint8(tvb, offset),
+                                      ieee80211_supported_rates_vals,
+                                      "Unknown Rate") );
+    offset++;
+  }
+
+  proto_item_append_text(ti, " [Mbit/sec]");
+
+  return offset;
+}
+
+static int ieee80211_tag_fh_parameter(packet_info *pinfo, proto_tree *tree,
+                                      proto_item *ti_len, guint32 tag_len,
+                                      tvbuff_t *tvb, int offset)
+{
+  /* 7.3.2.3 FH Parameter Set element (2) */
+  if (tag_len < 5) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u too short, must be >= 5", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_dwell_time,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_set,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_pattern,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_index,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  return offset;
+}
+
+static int ieee80211_tag_ds_parameter(packet_info *pinfo, proto_tree *tree,
+                                      proto_item *ti, proto_item *ti_len,
+                                      guint32 tag_len, tvbuff_t *tvb,
+                                      int offset)
+{
+  /* 7.3.2.4 DS Parameter Set element (3) */
+  if (tag_len != 1) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u wrong, must be = 1", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_ds_param_channel,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+
+  proto_item_append_text(ti, " : Current Channel: %u",
+                         tvb_get_guint8(tvb, offset));
+
+  wlan_stats.channel = tvb_get_guint8(tvb, offset);
+  offset++;
+
+  return offset;
+}
+
+static int ieee80211_tag_cf_parameter(packet_info *pinfo, proto_tree *tree,
+                                      proto_item *ti, proto_item *ti_len,
+                                      guint32 tag_len, tvbuff_t *tvb,
+                                      int offset)
+{
+  /* 7.3.2.5 CF Parameter Set element (4) */
+  if (tag_len != 6) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u wrong, must be = 6", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_cfp_count,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, ": CFP count %u", tvb_get_guint8(tvb, offset));
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_cfp_period,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, ": CFP Period %u", tvb_get_guint8(tvb, offset));
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_cfp_max_duration,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, ": CFP Max Duration %u",
+                         tvb_get_letohs(tvb, offset));
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_cfp_dur_remaining,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, ": CFP Dur Remaining %u",
+                         tvb_get_letohs(tvb, offset));
+  offset++;
+
+  return offset;
+}
+
+static int ieee80211_tag_tim(packet_info *pinfo, proto_tree *tree,
+                             proto_item *ti, proto_item *ti_len,
+                             guint32 tag_len, tvbuff_t *tvb, int offset)
+{
+  proto_tree *bmapctl_tree;
+  proto_item *bmapctl_item;
+
+  /* 7.3.2.6 TIM (5) */
+  if (tag_len < 4) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u too short, must be >= 4", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tim_dtim_count,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, ": DTIM %u of", tvb_get_guint8(tvb, offset));
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tim_dtim_period,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, " %u bitmap", tvb_get_guint8(tvb, offset + 1));
+  offset++;
+
+  bmapctl_item = proto_tree_add_item(tree, hf_ieee80211_tim_bmapctl,
+                                     tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  bmapctl_tree = proto_item_add_subtree(bmapctl_item, ett_tag_bmapctl_tree);
+  proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_mcast,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_offset,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tim_partial_virtual_bitmap,
+                      tvb, offset, tag_len - 3, ENC_NA);
+  offset += tag_len - 3;
+
+  return offset;
+}
+
+static int ieee80211_tag_ibss_parameter(packet_info *pinfo, proto_tree *tree,
+                                        proto_item *ti, proto_item *ti_len,
+                                        guint32 tag_len, tvbuff_t *tvb,
+                                        int offset)
+{
+  /* 7.3.2.7 IBSS Parameter Set element (6) */
+
+  if (tag_len != 2) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u wrong, must be = 2", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_ibss_atim_window,
+                      tvb, offset, 2, ENC_LITTLE_ENDIAN);
+  proto_item_append_text(ti, ": ATIM window 0x%x",
+                         tvb_get_letohs(tvb, offset));
+  offset += 2;
+
+  return offset;
+}
 
 static const value_string environment_vals[] = {
   { 0x20, "Any" },
@@ -7830,7 +8063,161 @@ static const value_string environment_vals[] = {
   { 0,    NULL }
 };
 
-static int beacon_padding = 0; /* beacon padding bug */
+static int ieee80211_tag_country_info(packet_info *pinfo, proto_tree *tree,
+                                      proto_item *ti, proto_item *ti_len,
+                                      guint32 tag_len, tvbuff_t *tvb,
+                                      int offset, int tag_end)
+{
+  /* 7.3.2.9 Country information element (7) */
+  proto_tree *sub_tree;
+  proto_item *sub_item;
+
+  if (tag_len < 6) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u too short, must be >= 6", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_country_info_code,
+                      tvb, offset, 2, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, ": Country Code %s",
+                         tvb_get_ephemeral_string(tvb, offset, 2));
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_country_info_env,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, ", Environment %s",
+                         val_to_str(tvb_get_guint8(tvb, offset),
+                                    environment_vals,"Unknown (0x%02x)"));
+  offset++;
+
+  while (offset < tag_end) {
+    /* Padding ? */
+    if ((tag_end - offset) < 3) {
+      proto_tree_add_item(tree, hf_ieee80211_tag_country_info_pad,
+                          tvb, offset, 1, ENC_NA);
+      offset++;
+      continue;
+    }
+    if (tvb_get_guint8(tvb, offset) <= 200) { /* 802.11d */
+      sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_fnm,
+                                     tvb, offset, 3, ENC_NA);
+      sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_fnm_tree);
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_fcn,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text(sub_item, ": First Channel Number: %d",
+                             tvb_get_guint8(tvb, offset));
+      offset++;
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_nc,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text(sub_item, ", Number of Channels: %d",
+                             tvb_get_guint8(tvb, offset));
+      offset++;
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_mtpl,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text(sub_item,
+                             ", Maximum Transmit Power Level: %d dBm",
+                             tvb_get_guint8(tvb, offset));
+      offset++;
+    } else { /* 802.11j */
+      sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_rrc,
+                                     tvb, offset, 3, ENC_NA);
+      sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_rcc_tree);
+
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rei,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text(sub_item,
+                             ": Regulatory Extension Identifier: %d",
+                             tvb_get_guint8(tvb, offset));
+      offset++;
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rc,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text(sub_item, ", Regulatory Class: %d",
+                             tvb_get_guint8(tvb, offset));
+      offset++;
+      proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_cc,
+                          tvb, offset, 1, ENC_BIG_ENDIAN);
+      proto_item_append_text(sub_item, ", Coverage Class: %d",
+                             tvb_get_guint8(tvb, offset));
+      offset++;
+    }
+  }
+
+  return offset;
+}
+
+static int ieee80211_tag_fh_hopping_parameter(packet_info *pinfo,
+                                              proto_tree *tree,
+                                              proto_item *ti,
+                                              proto_item *ti_len,
+                                              guint32 tag_len, tvbuff_t *tvb,
+                                              int offset)
+{
+  /* 7.3.2.10 Hopping Pattern Parameters information element (8) */
+  if (tag_len < 2) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u too short, must be >= 2", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_parameter_prime_radix,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, ": Prime Radix: %u", tvb_get_guint8(tvb, offset));
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_parameter_nb_channels,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_item_append_text(ti, ", Number of Channels: %u",
+                         tvb_get_guint8(tvb, offset));
+  offset++;
+
+  return offset;
+}
+
+static int ieee80211_tag_fh_hopping_table(packet_info *pinfo, proto_tree *tree,
+                                          proto_item *ti_len,
+                                          guint32 tag_len, tvbuff_t *tvb,
+                                          int offset, int tag_end)
+{
+  /* 7.3.2.11 Hopping Pattern Table information element (9) */
+  if (tag_len < 4) {
+    expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
+                           "Tag length %u too short, must be >= 4", tag_len);
+    return offset;
+  }
+
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_flag,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_number_of_sets,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_modulus,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_offset,
+                      tvb, offset, 1, ENC_BIG_ENDIAN);
+  offset++;
+
+  while (offset < tag_end) {
+    proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_random_table,
+                        tvb, offset, 2, ENC_BIG_ENDIAN);
+    offset += 2;
+  }
+
+  return offset;
+}
+
 static int
 add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int offset, int ftype)
 {
@@ -7866,264 +8253,46 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
   }
   ti_len = proto_tree_add_uint(tree, hf_ieee80211_tag_length, tvb, offset + 1, tag_len_len, tag_len);
 
-  switch (tag_no)
-  {
-
-    case TAG_SSID:  /* 7.3.2.1 SSID element (0) */
-      if(beacon_padding == 0) /* padding bug */
-      {
-        guint8 *ssid; /* The SSID may consist of arbitrary bytes */
-
-        if(tag_len > MAX_SSID_LEN) {
-          expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR,
-                                 "SSID length (%u) greater than maximum (%u)",
-                                 tag_len, MAX_SSID_LEN);
-        }
-
-        ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
-        AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
-        proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len, ENC_BIG_ENDIAN);
-        if (tag_len > 0) {
-          proto_item_append_text(ti, ": %s", ssid);
-
-          col_append_fstr(pinfo->cinfo, COL_INFO, ", SSID=%s", ssid );
-
-          /* Wlan Stats */
-          memcpy(wlan_stats.ssid, ssid, MIN(tag_len, MAX_SSID_LEN));
-          wlan_stats.ssid_len = tag_len;
-        } else {
-          proto_item_append_text(ti, ": Broadcast");
-
-          col_append_str(pinfo->cinfo, COL_INFO, ", SSID=Broadcast");
-        }
-
-        beacon_padding++; /* padding bug */
-      }
-      break;
-
-    case TAG_SUPP_RATES: /* 7.3.2.2 Supported Rates element (1) */
-      if(tag_len < 1)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be greater than 0", tag_len);
-        break;
-      }
-      offset += 2;
-
-      while(offset < tag_end)
-      {
-        proto_tree_add_item(tree, hf_ieee80211_tag_supp_rates, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, " %s,", val_to_str(tvb_get_guint8(tvb, offset), ieee80211_supported_rates_vals, "Unknown Rate") );
-        offset += 1;
-      }
-      proto_item_append_text(ti, " [Mbit/sec]");
-      break;
-
-    case TAG_FH_PARAMETER: /* 7.3.2.3 FH Parameter Set element (2) */
-      if(tag_len < 5)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 5", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_dwell_time, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_set, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_pattern, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hop_index, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      offset += 1;
-      break;
-
-    case TAG_DS_PARAMETER: /* 7.3.2.4 DS Parameter Set element (3) */
-      if(tag_len != 1)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u wrong, must be = 1", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_ds_param_channel, tvb, offset , 1, ENC_BIG_ENDIAN);
-
-      proto_item_append_text(ti, " : Current Channel: %u", tvb_get_guint8(tvb, offset));
-
-      wlan_stats.channel = tvb_get_guint8(tvb, offset);
-      break;
-
-    case TAG_CF_PARAMETER: /* 7.3.2.5 CF Parameter Set element (4) */
-      if(tag_len != 6)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u wrong, must be = 6", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_count, tvb, offset , 1, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, ": CFP count %u", tvb_get_guint8(tvb, offset));
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_period, tvb, offset , 1, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, ": CFP Period %u", tvb_get_guint8(tvb, offset));
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_max_duration, tvb, offset , 2, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(ti, ": CFP Max Duration %u", tvb_get_letohs(tvb, offset));
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_cfp_dur_remaining, tvb, offset , 2, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(ti, ": CFP Dur Remaining %u", tvb_get_letohs(tvb, offset));
-      offset += 2;
-      break;
-
-    case TAG_TIM: /* 7.3.2.6 TIM (5) */
-      {
-      proto_tree *bmapctl_tree;
-      proto_item *bmapctl_item;
-      if (tag_len < 4)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 4", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tim_dtim_count, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(ti, ": DTIM %u of", tvb_get_guint8(tvb, offset));
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tim_dtim_period, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(ti, " %u bitmap", tvb_get_guint8(tvb, offset + 1));
-      offset += 1;
-
-      bmapctl_item = proto_tree_add_item(tree, hf_ieee80211_tim_bmapctl, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      bmapctl_tree = proto_item_add_subtree(bmapctl_item, ett_tag_bmapctl_tree);
-      proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_mcast, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(bmapctl_tree, hf_ieee80211_tim_bmapctl_offset, tvb, offset, 1, ENC_LITTLE_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tim_partial_virtual_bitmap, tvb, offset, tag_len - 3, ENC_NA);
-
+  switch (tag_no) {
+  case TAG_SSID:
+    offset += ieee80211_tag_ssid(pinfo, tree, ti, ti_len, tag_len, tvb,
+                                 offset);
     break;
-    }
-    case TAG_IBSS_PARAMETER: /* 7.3.2.7 IBSS Parameter Set element (6) */
-      if(tag_len != 2)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u wrong, must be = 2", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_ibss_atim_window, tvb, offset, 2, ENC_LITTLE_ENDIAN);
-      proto_item_append_text(ti, ": ATIM window 0x%x", tvb_get_letohs(tvb, offset));
-
-      break;
-    case TAG_COUNTRY_INFO: /* 7.3.2.9 Country information element (7) */
-      {
-        proto_tree *sub_tree;
-        proto_item *sub_item;
-        if (tag_len < 6)
-        {
-          expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 6", tag_len);
-          break;
-        }
-        offset += 2;
-
-        proto_tree_add_item(tree, hf_ieee80211_tag_country_info_code, tvb, offset, 2, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, ": Country Code %s", tvb_get_ephemeral_string(tvb, offset, 2));
-        offset += 2;
-
-        proto_tree_add_item(tree, hf_ieee80211_tag_country_info_env, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_item_append_text(ti, ", Environment %s", val_to_str(tvb_get_guint8(tvb, offset), environment_vals,"Unknown (0x%02x)"));
-        offset += 1;
-
-        while(offset < tag_end)
-        {
-          /* Padding ? */
-          if ((tag_end - offset) < 3)
-          {
-            proto_tree_add_item(tree, hf_ieee80211_tag_country_info_pad, tvb, offset, 1, ENC_NA);
-            offset += 1;
-            continue;
-          }
-          if(tvb_get_guint8(tvb, offset) <= 200) { /* 802.11d */
-            sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_fnm, tvb, offset, 3, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_fnm_tree);
-
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_fcn, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(sub_item, ": First Channel Number: %d", tvb_get_guint8(tvb, offset));
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_nc, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(sub_item, ", Number of Channels: %d", tvb_get_guint8(tvb, offset));
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_fnm_mtpl, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(sub_item, ", Maximum Transmit Power Level: %d dBm", tvb_get_guint8(tvb, offset));
-            offset += 1;
-          } else { /* 802.11j */
-            sub_item = proto_tree_add_item(tree, hf_ieee80211_tag_country_info_rrc, tvb, offset, 3, ENC_NA);
-            sub_tree = proto_item_add_subtree(sub_item, ett_tag_country_rcc_tree);
-
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rei, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(sub_item, ": Regulatory Extension Identifier: %d", tvb_get_guint8(tvb, offset));
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_rc, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(sub_item, ", Regulatory Class: %d", tvb_get_guint8(tvb, offset));
-            offset += 1;
-            proto_tree_add_item(sub_tree, hf_ieee80211_tag_country_info_rrc_cc, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_item_append_text(sub_item, ", Coverage Class: %d", tvb_get_guint8(tvb, offset));
-            offset += 1;
-          }
-
-        }
-
-      }
-      break;
-
-    case TAG_FH_HOPPING_PARAMETER: /* 7.3.2.10 Hopping Pattern Parameters information element (8) */
-      if (tag_len < 2)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 2", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_parameter_prime_radix, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, ": Prime Radix: %u", tvb_get_guint8(tvb, offset));
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_parameter_nb_channels, tvb, offset, 1, ENC_BIG_ENDIAN);
-      proto_item_append_text(ti, ", Number of Channels: %u", tvb_get_guint8(tvb, offset));
-      offset += 1;
-      break;
-
-    case TAG_FH_HOPPING_TABLE: /* 7.3.2.11 Hopping Pattern Table information element (9) */
-      if (tag_len < 4)
-      {
-        expert_add_info_format(pinfo, ti_len, PI_MALFORMED, PI_ERROR, "Tag length %u too short, must be >= 4", tag_len);
-        break;
-      }
-      offset += 2;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_number_of_sets, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_modulus, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
-
-      proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_table_offset, tvb, offset, 1, ENC_BIG_ENDIAN);
-      offset += 1;
-
-      while(offset < tag_end )
-      {
-        proto_tree_add_item(tree, hf_ieee80211_tag_fh_hopping_random_table, tvb, offset, 2, ENC_BIG_ENDIAN);
-        offset += 2;
-      }
-      break;
+  case TAG_SUPP_RATES:
+    offset += ieee80211_tag_supp_rates(pinfo, tree, ti, ti_len, tag_len, tvb,
+                                       offset, tag_end);
+    break;
+  case TAG_FH_PARAMETER:
+    offset += ieee80211_tag_fh_parameter(pinfo, tree, ti_len, tag_len, tvb,
+                                         offset);
+    break;
+  case TAG_DS_PARAMETER:
+    offset += ieee80211_tag_ds_parameter(pinfo, tree, ti, ti_len, tag_len, tvb,
+                                         offset);
+    break;
+  case TAG_CF_PARAMETER:
+    offset += ieee80211_tag_cf_parameter(pinfo, tree, ti, ti_len, tag_len, tvb,
+                                         offset);
+    break;
+  case TAG_TIM:
+    offset += ieee80211_tag_tim(pinfo, tree, ti, ti_len, tag_len, tvb, offset);
+    break;
+  case TAG_IBSS_PARAMETER:
+    offset += ieee80211_tag_ibss_parameter(pinfo, tree, ti, ti_len, tag_len,
+                                           tvb, offset);
+    break;
+  case TAG_COUNTRY_INFO:
+    offset += ieee80211_tag_country_info(pinfo, tree, ti, ti_len, tag_len, tvb,
+                                         offset, tag_end);
+    break;
+  case TAG_FH_HOPPING_PARAMETER:
+    offset += ieee80211_tag_fh_hopping_parameter(pinfo, tree, ti, ti_len,
+                                                 tag_len, tvb, offset);
+    break;
+  case TAG_FH_HOPPING_TABLE:
+    offset += ieee80211_tag_fh_hopping_table(pinfo, tree, ti_len, tag_len,
+                                             tvb, offset, tag_end);
+    break;
 
     case TAG_REQUEST: /* 7.3.2.12 Request information element (10) */
       while(offset < tag_end )
