@@ -52,6 +52,19 @@
 
 #include "packet-tetra.h"
 
+/* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
+/* The following types and definitions are imported from libosmocore,
+ * the original source of the GSMTAP format.
+ *
+ * prior to getting them accepted/included into the official Osmocom
+ * GSMTAP definition, available from
+ * http://cgit.osmocom.org/cgit/libosmocore/tree/include/osmocom/core/gsmtap.h
+ *
+ * The GSMTAP maintainer can be contacted via the
+ * openbsc@lists.osmocom.org mailing list, or by private e-mail
+ * to laforge@gnumonks.org
+ */
+/* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_TYPE_UM				0x01
 #define GSMTAP_TYPE_ABIS			0x02
 #define GSMTAP_TYPE_UM_BURST		0x03	/* raw burst bits */
@@ -62,6 +75,7 @@
 #define GSMTAP_TYPE_GB_LLC			0x08 /* GPRS Gb interface: LLC */
 #define GSMTAP_TYPE_GB_SNDCP		0x09 /* GPRS Gb interface: SNDCP */
 
+/* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_BURST_UNKNOWN		0x00
 #define GSMTAP_BURST_FCCH			0x01
 #define GSMTAP_BURST_PARTIAL_SCH	0x02
@@ -80,6 +94,7 @@
 #define GSMTAP_BURST_HACK               0x14	/* WiMAX HARQ ACK burst */
 #define GSMTAP_BURST_PHY_ATTRIBUTES     0x15	/* WiMAX PHY Attributes burst */
 
+/* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 #define GSMTAP_CHANNEL_UNKNOWN		0x00
 #define GSMTAP_CHANNEL_BCCH			0x01
 #define GSMTAP_CHANNEL_CCCH			0x02
@@ -95,6 +110,7 @@
 #define GSMTAP_CHANNEL_ACCH			0x80
 
 
+/* ====== DO NOT MAKE UNAPPROVED MODIFICATIONS HERE ===== */
 /* sub-types for TYPE_TETRA_AIR */
 #define GSMTAP_TETRA_BSCH			0x01
 #define GSMTAP_TETRA_AACH			0x02
