@@ -5022,7 +5022,7 @@ add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, int offset)
       proto_tree_add_text(tree, tvb, offset, 1, "Subtype %u", subtype);
       offset++;
       if (subtype == WFA_SUBTYPE_P2P) {
-        offset = dissect_wifi_p2p_public_action(tree, tvb, offset);
+        offset = dissect_wifi_p2p_public_action(g_pinfo, tree, tvb, offset);
       }
       break;
     default:

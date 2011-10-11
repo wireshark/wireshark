@@ -968,10 +968,16 @@ void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
   }
 }
 
-int dissect_wifi_p2p_public_action(proto_tree *tree, tvbuff_t *tvb, int offset)
+int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
+                                   tvbuff_t *tvb, int offset)
 {
+  guint8 subtype;
   proto_tree_add_item(tree, hf_p2p_public_action_subtype, tvb, offset, 1,
                       ENC_BIG_ENDIAN);
+  subtype = tvb_get_guint8(tvb, offset);
+  col_append_fstr(pinfo->cinfo, COL_INFO, ", P2P - %s",
+                  val_to_str(subtype, p2p_public_action_subtypes,
+                             "Unknown (%u)"));
   offset++;
   proto_tree_add_item(tree, hf_p2p_public_action_dialog_token, tvb, offset, 1,
                       ENC_BIG_ENDIAN);

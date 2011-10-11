@@ -27,8 +27,8 @@
 
 void dissect_wifi_p2p_ie(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 			 int offset, gint size);
-int dissect_wifi_p2p_public_action(proto_tree *tree, tvbuff_t *tvb,
-				   int offset);
+int dissect_wifi_p2p_public_action(packet_info *pinfo, proto_tree *tree,
+                                   tvbuff_t *tvb, int offset);
 int dissect_wifi_p2p_action(proto_tree *tree, tvbuff_t *tvb, int offset);
 void dissect_wifi_p2p_anqp(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb,
 			   int offset, gboolean request);
