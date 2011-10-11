@@ -1,0 +1,521 @@
+-- $Id$
+-- ETSI TS 129 171 V9.2.0 (2010-10)
+-- ************************************************************** 
+-- 
+-- Information Element Definitions 
+-- 
+-- **************************************************************  
+
+ 
+LCS-AP-IEs { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)  
+eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-IEs (2)} 
+ 
+DEFINITIONS AUTOMATIC TAGS ::=  
+ 
+BEGIN 
+ 
+IMPORTS 
+ 
+ max-No-Of-Points, 
+ max-Set, 
+ max-GNSS-Set 
+FROM LCS-AP-Constants 
+ 
+ Criticality, 
+ ProcedureCode, 
+ TriggeringMessage, 
+ ProtocolIE-ID 
+FROM LCS-AP-CommonDataTypes 
+ 
+ ProtocolExtensionContainer{}, 
+ LCS-AP-PROTOCOL-EXTENSION 
+FROM LCS-AP-Containers; 
+ 
+ 
+-- A 
+ 
+ 
+APDU   ::= OCTET STRING 
+ 
+Accuracy-Fulfillment-Indicator ::= ENUMERATED { 
+ requested-accuracy-fulfilled, 
+ requested-accuracy-not-fulfilled, 
+ ... 
+} 
+ 
+Altitude ::= INTEGER (1..65535) 
+ 
+ 
+Altitude-And-Direction ::= SEQUENCE { 
+ direction-Of-Altitude Direction-Of-Altitude, 
+ altitude    Altitude, 
+ ... 
+} 
+  
+Angle ::= INTEGER (0..179) 
+ 
+-- B 
+ 
+Bearing ::= INTEGER (0..359) 
+ 
+ 
+-- C 
+ 
+ 
+CellIdentity    ::= BIT STRING (SIZE (28)) 
+ 
+Confidence   ::= INTEGER (0..100) 
+ 
+Correlation-ID    ::= OCTET STRING (SIZE (4)) 
+ 
+ 
+-- D 
+ 
+DegreesLatitude   ::= INTEGER (0..8388607)    -- 23 bit field 
+ 
+DegreesLongitude  ::= INTEGER (-8388608..8388607) -- 24 bit field 
+ 
+Direction-Of-Altitude ::= ENUMERATED { 
+ height, 
+ depth 
+} 
+ 
+-- E 
+  
+E-CGI       ::= SEQUENCE { 
+ pLMNidentity   PLMN-ID, 
+ cell-ID     CellIdentity, 
+  iE-Extensions      ProtocolExtensionContainer { { E-CGI-ExtIEs} } OPTIONAL, 
+ ...} 
+ 
+E-CGI-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Ellipsoid-Point-With-Uncertainty-Ellipse  ::= SEQUENCE { 
+ geographical-Coordinates Geographical-Coordinates, 
+ uncertainty-Ellipse   Uncertainty-Ellipse, 
+ confidence     Confidence, 
+ iE-Extensions    ProtocolExtensionContainer { { Ellipsoid-Point-With-Uncertainty-
+Ellipse-ExtIEs} } OPTIONAL, 
+ ...} 
+ 
+Ellipsoid-Point-With-Uncertainty-Ellipse-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Ellipsoid-Point-With-Altitude  ::= SEQUENCE { 
+ geographical-Coordinates Geographical-Coordinates, 
+ altitude-And-Direction  Altitude-And-Direction, 
+ iE-Extensions    ProtocolExtensionContainer { { Ellipsoid-Point-With-Altitude-ExtIEs} 
+} OPTIONAL, 
+ ...} 
+  
+Ellipsoid-Point-With-Altitude-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid ::= SEQUENCE { 
+ geographical-Coordinates Geographical-Coordinates, 
+ altitude-And-Direction  Altitude-And-Direction, 
+ uncertainty-Ellipse   Uncertainty-Ellipse, 
+ uncertainty-Altitude  Uncertainty-Altitude, 
+ confidence     Confidence, 
+ iE-Extensions    ProtocolExtensionContainer { { Ellipsoid-Point-With-Altitude-And-
+Uncertainty-Ellipsoid-ExtIEs} } OPTIONAL, 
+ ...} 
+  
+Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Ellipsoid-Arc      ::= SEQUENCE { 
+ geographical-Coordinates Geographical-Coordinates, 
+ inner-Radius    Inner-Radius, 
+ uncertainty-Radius   Uncertainty-Code, 
+ offset-Angle    Angle, 
+ included-Angle    Angle, 
+ confidence     Confidence, 
+  iE-Extensions        ProtocolExtensionContainer { { Ellipsoid-Arc-ExtIEs} } OPTIONAL, 
+ ... 
+} 
+ 
+Ellipsoid-Arc-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+ENB-ID    ::= CHOICE {  
+ macro-eNB-ID  Macro-eNB-ID, 
+ home-eNB-ID  Home-eNB-ID, 
+ ... 
+} 
+ 
+ 
+ 
+E-SMLC-ID ::= INTEGER (0..255) 
+ 
+  
+-- F 
+-- G 
+ 
+Geographical-Area   ::= CHOICE { 
+ point             Point, 
+ point-With-Uncertainty          Point-With-Uncertainty, 
+ ellipsoidPoint-With-Uncertainty-Ellipse     Ellipsoid-Point-With-Uncertainty-Ellipse, 
+ polygon             Polygon, 
+ ellipsoid-Point-With-Altitude       Ellipsoid-Point-With-Altitude, 
+ ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid Ellipsoid-Point-With-Altitude-And-Uncertainty-Ellipsoid,  
+ ellipsoid-Arc           Ellipsoid-Arc, 
+ ... 
+} 
+ 
+Geographical-Coordinates  ::= SEQUENCE { 
+ latitudeSign   LatitudeSign, 
+ degreesLatitude   DegreesLatitude, 
+ degreesLongitude  DegreesLongitude, 
+ iE-Extensions   ProtocolExtensionContainer { {Geographical-Coordinates-ExtIEs} } 
+OPTIONAL, 
+ ... 
+} 
+ 
+Geographical-Coordinates-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Global-eNB-ID  ::= SEQUENCE { 
+ pLMN-ID  PLMN-ID, 
+ eNB-ID  ENB-ID 
+} 
+ 
+ 
+GNSS-Positioning-Method-And-Usage ::= OCTET STRING (SIZE (1)) 
+ 
+GNSS-Positioning-Data-Set ::= SEQUENCE (SIZE (1..max-GNSS-Set)) OF GNSS-Positioning-Method-And-Usage 
+ 
+ 
+-- H 
+ 
+Home-eNB-ID ::= BIT STRING (SIZE (28)) 
+ 
+Horizontal-Accuracy ::= INTEGER (0..127) 
+ 
+ 
+ 
+Horizontal-Speed-And-Bearing  ::= SEQUENCE { 
+ bearing      Bearing, 
+ horizontal-Speed   INTEGER (0..2047) 
+} 
+ 
+ 
+Horizontal-Velocity ::= SEQUENCE { 
+ horizontal-Speed-And-Bearing  Horizontal-Speed-And-Bearing, 
+  iE-Extensions    ProtocolExtensionContainer { { Horizontal-Velocity-ExtIEs} } OPTIONAL, 
+ ... 
+} 
+ 
+Horizontal-Velocity-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+Horizontal-With-Vertical-Velocity   ::= SEQUENCE { 
+ horizontal-Speed-And-Bearing Horizontal-Speed-And-Bearing, 
+ vertical-Velocity    Vertical-Velocity, 
+ iE-Extensions     ProtocolExtensionContainer { { Horizontal-With-Vertical-
+Velocity-ExtIEs} } OPTIONAL, 
+ ... 
+} 
+ 
+Horizontal-With-Vertical-Velocity-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+Horizontal-Velocity-With-Uncertainty   ::= SEQUENCE {  
+ horizontal-Speed-And-Bearing  Horizontal-Speed-And-Bearing, 
+ uncertainty-Speed     INTEGER (0..255), 
+ iE-Extensions      ProtocolExtensionContainer { { Horizontal-Velocity-With-
+Uncertainty-ExtIEs} } OPTIONAL, 
+ ... 
+} 
+ 
+Horizontal-Velocity-With-Uncertainty-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+Horizontal-With-Vertical-Velocity-And-Uncertainty ::= SEQUENCE { 
+ horizontal-Speed-And-Bearing Horizontal-Speed-And-Bearing, 
+ vertical-Velocity    Vertical-Velocity, 
+ horizontal-Uncertainty-Speed INTEGER (0..255), 
+ vertical-Uncertainty-Speed  INTEGER (0..255), 
+ iE-Extensions     ProtocolExtensionContainer { { Horizontal-With-Vertical-
+Velocity-And-Uncertainty-ExtIEs} } OPTIONAL, 
+ ... 
+} 
+ 
+Horizontal-With-Vertical-Velocity-And-Uncertainty-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+-- I 
+ 
+IMSI    ::= OCTET STRING (SIZE (3..8)) 
+ 
+IMEI    ::= OCTET STRING (SIZE (8)) 
+ 
+ 
+Include-Velocity  ::= ENUMERATED { 
+ requested, 
+ not-Requested, 
+... 
+} 
+ 
+ 
+Inner-Radius     ::= INTEGER (0..65535)    -- 16 bit field 
+ 
+ 
+-- J 
+-- K 
+-- L 
+ 
+LatitudeSign     ::= ENUMERATED { 
+ north, 
+ south 
+} 
+ 
+ 
+Location-Type     ::= ENUMERATED { 
+ geographic-Information, 
+ assistance-Information, 
+ ... 
+} 
+ 
+LCS-Cause   ::= CHOICE { 
+radio-Network-Layer Radio-Network-Layer-Cause, 
+transport-Layer    Transport-Layer-Cause, 
+protocol   Protocol-Cause, 
+misc    Misc-Cause 
+} 
+ 
+ 
+LCS-Client-Type   ::= ENUMERATED { 
+ emergency-Services, 
+ value-Added-Services, 
+ pLMN-Operator-Services, 
+ lawful-Intercept-Services, 
+ pLMN-Operator-broadcast-Services, 
+ pLMN-Operator-OM, 
+ pLMN-Operator-Anonymous-Statistics, 
+ pLMN-Operator-Target-MS-Service-Support, 
+ ... 
+}  
+ 
+ 
+LCS-Priority    ::= OCTET STRING (SIZE (1)) 
+ 
+ 
+LCS-QoS       ::= SEQUENCE { 
+ horizontal-Accuracy   Horizontal-Accuracy  OPTIONAL, 
+ vertical-Requested   Vertical-Requested   OPTIONAL, 
+ vertical-Accuracy   Vertical-Accuracy  OPTIONAL, 
+ response-Time    Response-Time   OPTIONAL, 
+ ... 
+}  
+ 
+ 
+ 
+-- M 
+ 
+Macro-eNB-ID ::= BIT STRING (SIZE (20)) 
+ 
+Message-Identifier ::= BIT STRING (SIZE (16)) 
+ 
+Misc-Cause  ::= ENUMERATED { 
+ processing-Overload, 
+ hardware-Failure, 
+ o-And-M-Intervention, 
+ unspecified, 
+... 
+} 
+ 
+MultipleAPDUs ::= SEQUENCE (SIZE (1.. 3)) OF APDU 
+ 
+ 
+-- N 
+ 
+Network-Element     ::= CHOICE { 
+global-eNB-ID   Global-eNB-ID, 
+e-SMLC-ID    E-SMLC-ID 
+} 
+ 
+-- O 
+ 
+Orientation-Major-Axis ::= INTEGER (0..89) 
+ 
+-- P 
+ 
+Payload-Type ::= ENUMERATED { 
+lPP, 
+lPPa, 
+... 
+} 
+ 
+PLMN-ID ::= TBCD-STRING  
+ 
+Point        ::= SEQUENCE { 
+ geographical-Coordinates Geographical-Coordinates, 
+ iE-Extensions    ProtocolExtensionContainer { {Point-ExtIEs} } OPTIONAL, 
+ ... 
+} 
+ 
+Point-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Point-With-Uncertainty      ::= SEQUENCE { 
+ geographical-Coordinates Geographical-Coordinates, 
+ uncertainty-Code   Uncertainty-Code, 
+ iE-Extensions    ProtocolExtensionContainer { {Point-With-Uncertainty-ExtIEs} } 
+OPTIONAL, 
+ ...} 
+ 
+Point-With-Uncertainty-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+Polygon ::= SEQUENCE (SIZE (1..max-No-Of-Points)) OF Polygon-Point 
+ 
+  
+Polygon-Point ::= SEQUENCE { 
+  geographical-Coordinates Geographical-Coordinates, 
+  iE-Extensions    ProtocolExtensionContainer { {Polygon-Point-ExtIEs} } OPTIONAL, 
+  ... 
+ } 
+ 
+Polygon-Point-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+ 
+Positioning-Data     ::= SEQUENCE { 
+ positioning-Data-Set  Positioning-Data-Set  OPTIONAL, 
+ gNSS-Positioning-Data-Set GNSS-Positioning-Data-Set OPTIONAL, 
+  iE-Extensions        ProtocolExtensionContainer { { Positioning-Data-ExtIEs} } OPTIONAL, 
+  ... 
+ } 
+ 
+Positioning-Data-ExtIEs LCS-AP-PROTOCOL-EXTENSION ::= { 
+ ... 
+} 
+ 
+Positioning-Data-Set  ::= SEQUENCE (SIZE (1..max-Set)) OF Positioning-Method-And-Usage 
+ 
+Positioning-Method-And-Usage  ::= OCTET STRING (SIZE (1)) 
+ 
+Protocol-Cause  ::= ENUMERATED { 
+transfer-Syntax-Error, 
+abstract-Syntax-Error-Reject, 
+abstract-Syntax-Error-Ignore-And-Notify, 
+message-Not-Compatible-With-Receiver-State, 
+semantic-Error, 
+unspecified, 
+abstract-Syntax-Error, 
+... 
+} 
+ 
+-- Q 
+-- R 
+ 
+Radio-Network-Layer-Cause   ::= ENUMERATED { 
+unspecified, 
+... 
+} 
+ 
+Response-Time          ::= ENUMERATED { 
+ low-Delay(0), 
+ delay-Tolerant(1), 
+... 
+} 
+ 
+Return-Error-Type ::= ENUMERATED { 
+yes, 
+no 
+} 
+ 
+Return-Error-Cause ::= ENUMERATED { 
+system-Failure, 
+protocol-Error, 
+destination-Unknown, 
+destination-Unreachable, 
+congestion, 
+... 
+} 
+ 
+-- S 
+-- T 
+ 
+TBCD-STRING ::= OCTET STRING (SIZE (3)) 
+ 
+Transport-Layer-Cause   ::= ENUMERATED { 
+tranport-Resource-Unavailable, 
+unspecified, 
+... 
+} 
+ 
+-- U 
+  
+Uncertainty-Altitude ::= INTEGER (0..127) 
+ 
+Uncertainty-Code  ::= INTEGER (0..127) 
+ 
+Uncertainty-Ellipse   ::= SEQUENCE { 
+ uncertainty-SemiMajor  Uncertainty-Code, 
+ uncertainty-SemiMinor  Uncertainty-Code, 
+ orientation-Major-Axis  Orientation-Major-Axis 
+} 
+ 
+UE-Positioning-Capability   ::= SEQUENCE { 
+ lPP       BOOLEAN, 
+ ... 
+} 
+ 
+-- V 
+ 
+Velocity-Estimate ::= CHOICE { 
+ horizontal-Velocity         Horizontal-Velocity, 
+ horizontal-With-Vertical-Velocity     Horizontal-With-Vertical-Velocity, 
+ horizontal-Velocity-With-Uncertainty    Horizontal-Velocity-With-Uncertainty, 
+ horizontal-With-Vertical-Velocity-And-Uncertainty Horizontal-With-Vertical-Velocity-And-Uncertainty, 
+ ... 
+} 
+ 
+Vertical-Requested    ::= ENUMERATED { 
+ vertical-coordinate-Is-Not-Requested(0), 
+ vertical-coordinate-Is-Requested(1) 
+} 
+ 
+Vertical-Accuracy ::= INTEGER (0..127) 
+ 
+Vertical-Velocity ::= SEQUENCE { 
+ vertical-Speed         INTEGER (0..255), 
+ vertical-Speed-Direction        Vertical-Speed-Direction 
+} 
+ 
+Vertical-Speed-Direction ::= ENUMERATED { 
+ upward, 
+ downward 
+} 
+ 
+ 
+-- W 
+-- X 
+-- Y 
+ 
+END

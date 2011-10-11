@@ -1,0 +1,166 @@
+-- $Id$
+-- ETSI TS 129 171 V9.2.0 (2010-10)
+-- ************************************************************** 
+--  
+-- Elementary Procedure definitions 
+-- 
+-- ************************************************************** 
+ 
+LCS-AP-PDU-Descriptions { 
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0)  
+eps-Access (21) modules (3) lcs-AP (4) version1 (1) lcs-AP-PDU-Descriptions (0)} 
+ 
+ 
+DEFINITIONS AUTOMATIC TAGS ::=  
+ 
+BEGIN 
+ 
+-- ************************************************************** 
+-- 
+-- IE parameter types from other modules. 
+-- 
+-- ************************************************************** 
+ 
+IMPORTS 
+ Criticality, 
+ ProcedureCode 
+FROM LCS-AP-CommonDataTypes 
+ 
+ Location-Request, 
+ Location-Response, 
+ Location-Abort-Request, 
+ Connection-Oriented-Information, 
+ Connectionless-Information, 
+ Reset-Request, 
+ Reset-Acknowledge 
+FROM LCS-AP-PDU-Contents 
+ 
+ id-Location-Service-Request, 
+ id-Connection-Oriented-Information-Transfer, 
+ id-Connectionless-Information-Transfer, 
+ id-Location-Abort, 
+ id-Reset 
+FROM LCS-AP-Constants; 
+ 
+-- ************************************************************** 
+-- 
+-- Interface Elementary Procedure Class 
+-- 
+-- ************************************************************** 
+ 
+LCS-AP-ELEMENTARY-PROCEDURE ::= CLASS { 
+ &InitiatingMessage    , 
+ &SuccessfulOutcome      OPTIONAL, 
+ &UnsuccessfulOutcome     OPTIONAL, 
+ &procedureCode   ProcedureCode  UNIQUE, 
+ &criticality   Criticality  DEFAULT ignore 
+} 
+WITH SYNTAX { 
+ INITIATING MESSAGE  &InitiatingMessage 
+  [SUCCESSFUL OUTCOME   &SuccessfulOutcome] 
+ [UNSUCCESSFUL OUTCOME &UnsuccessfulOutcome] 
+ PROCEDURE CODE   &procedureCode 
+ [CRITICALITY   &criticality] 
+} 
+ 
+-- ************************************************************** 
+-- 
+-- Interface PDU Definition 
+-- 
+-- ************************************************************** 
+ 
+LCS-AP-PDU ::= CHOICE { 
+ initiatingMessage InitiatingMessage, 
+ successfulOutcome SuccessfulOutcome, 
+ unsuccessfulOutcome UnsuccessfulOutcome, 
+ ... 
+} 
+ 
+InitiatingMessage ::= SEQUENCE { 
+ procedureCode LCS-AP-ELEMENTARY-PROCEDURE.&procedureCode  ({LCS-AP-ELEMENTARY-PROCEDURES}),  
+ criticality  LCS-AP-ELEMENTARY-PROCEDURE.&criticality  ({LCS-AP-ELEMENTARY-PROCEDURES}{@procedureCode}), 
+ value   LCS-AP-ELEMENTARY-PROCEDURE.&InitiatingMessage ({LCS-AP-ELEMENTARY-PROCEDURES}{@procedureCode}) 
+} 
+ 
+SuccessfulOutcome ::= SEQUENCE { 
+ procedureCode LCS-AP-ELEMENTARY-PROCEDURE.&procedureCode  ({LCS-AP-ELEMENTARY-PROCEDURES}), 
+ criticality  LCS-AP-ELEMENTARY-PROCEDURE.&criticality  ({LCS-AP-ELEMENTARY-PROCEDURES}{@procedureCode}), 
+ value   LCS-AP-ELEMENTARY-PROCEDURE.&SuccessfulOutcome ({LCS-AP-ELEMENTARY-PROCEDURES}{@procedureCode}) 
+} 
+ 
+UnsuccessfulOutcome ::= SEQUENCE { 
+ procedureCode LCS-AP-ELEMENTARY-PROCEDURE.&procedureCode   ({LCS-AP-ELEMENTARY-PROCEDURES}), 
+ criticality  LCS-AP-ELEMENTARY-PROCEDURE.&criticality   ({LCS-AP-ELEMENTARY-PROCEDURES}{@procedureCode}), 
+ value   LCS-AP-ELEMENTARY-PROCEDURE.&UnsuccessfulOutcome ({LCS-AP-ELEMENTARY-PROCEDURES}{@procedureCode}) 
+} 
+ 
+-- ************************************************************** 
+-- 
+-- Interface Elementary Procedure List 
+-- 
+-- ************************************************************** 
+ 
+LCS-AP-ELEMENTARY-PROCEDURES LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ LCS-AP-ELEMENTARY-PROCEDURES-CLASS-1 | 
+ LCS-AP-ELEMENTARY-PROCEDURES-CLASS-2 , 
+ ... 
+} 
+ 
+LCS-AP-ELEMENTARY-PROCEDURES-CLASS-1 LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ location-Service-Request     | 
+ connectionless-Information-Transfer   | 
+ location-Abort        | 
+ reset          , 
+ ... 
+} 
+ 
+ 
+ 
+LCS-AP-ELEMENTARY-PROCEDURES-CLASS-2 LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ connection-Oriented-Information-Transfer , 
+ ... 
+} 
+ 
+-- ************************************************************** 
+-- 
+-- Interface Elementary Procedures 
+-- 
+-- ************************************************************** 
+ 
+ 
+location-Service-Request LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ INITIATING MESSAGE  Location-Request 
+ SUCCESSFUL OUTCOME  Location-Response 
+ UNSUCCESSFUL OUTCOME Location-Response 
+ PROCEDURE CODE   id-Location-Service-Request 
+ CRITICALITY    reject 
+} 
+ 
+connection-Oriented-Information-Transfer LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ INITIATING MESSAGE  Connection-Oriented-Information 
+ PROCEDURE CODE   id-Connection-Oriented-Information-Transfer 
+ CRITICALITY    reject 
+} 
+ 
+connectionless-Information-Transfer LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ INITIATING MESSAGE  Connectionless-Information 
+ UNSUCCESSFUL OUTCOME Connectionless-Information 
+ PROCEDURE CODE   id-Connectionless-Information-Transfer 
+ CRITICALITY    reject 
+}  
+ 
+location-Abort LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ INITIATING MESSAGE  Location-Abort-Request 
+ SUCCESSFUL OUTCOME  Location-Response 
+ PROCEDURE CODE   id-Location-Abort 
+ CRITICALITY    reject 
+} 
+ 
+reset LCS-AP-ELEMENTARY-PROCEDURE ::= { 
+ INITIATING MESSAGE  Reset-Request  
+ SUCCESSFUL OUTCOME  Reset-Acknowledge 
+ PROCEDURE CODE   id-Reset 
+ CRITICALITY    reject 
+} 
+ 
+END

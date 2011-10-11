@@ -1,0 +1,229 @@
+# lcsap.cnf
+# lcsap conformation file
+
+# $Id$
+
+#.OPT
+PER
+ALIGNED
+#.END
+
+#.EXPORTS
+
+#.PDU_NEW
+LCS-AP-PDU
+
+#.MAKE_ENUM
+ProcedureCode
+ProtocolIE-ID
+
+#.NO_EMIT
+TBCD-STRING
+
+#.OMIT_ASSIGNMENT
+# Get rid of unused code warnings
+Presence
+
+TriggeringMessage
+ProtocolIE-ContainerList
+Message-Identifier
+
+#.END
+
+
+#.TYPE_RENAME
+InitiatingMessage/value InitiatingMessage_value
+SuccessfulOutcome/value SuccessfulOutcome_value
+UnsuccessfulOutcome/value UnsuccessfulOutcome_value
+
+#.FIELD_RENAME
+
+InitiatingMessage/value initiatingMessagevalue
+UnsuccessfulOutcome/value unsuccessfulOutcome_value
+SuccessfulOutcome/value successfulOutcome_value
+
+
+
+
+ProtocolIE-Field/value ie_field_value
+
+#.FN_PARS ProtocolIE-ID  VAL_PTR=&ProtocolIE_ID
+#.FN_FTR ProtocolIE-ID
+  if (tree) {
+    proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lcsap_ProtocolIE_ID_vals), "unknown (%d)"));
+  }
+#.END
+
+
+#.FN_PARS ProtocolIE-Field/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolIEFieldValue 
+#.FN_PARS ProtocolExtensionID  VAL_PTR=&ProtocolExtensionID
+#.FN_PARS ProtocolExtensionField/extensionValue  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_ProtocolExtensionFieldExtensionValue
+
+#.FN_PARS  ProcedureCode  VAL_PTR = &ProcedureCode
+#.FN_FTR ProcedureCode
+
+	if (check_col(actx->pinfo->cinfo, COL_INFO))
+	{
+		guint8 tmp = tvb_get_guint8(tvb, 0);
+			
+		if(tmp == 0)
+				
+		col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sReq",
+			   val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
+			        "unknown message"));
+
+		else if(tmp == 32)
+			col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%sResp",
+				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,
+				    "unknown message"));
+			else
+				col_add_fstr(actx->pinfo->cinfo, COL_INFO, "%s",
+				  val_to_str(ProcedureCode, lcsap_ProcedureCode_vals,	
+				    "unknown message"));
+ 
+	}
+
+        if (ProcedureCode != 0) 
+	{
+                
+		_pro_code.code = ProcedureCode;
+ 
+		actx->pinfo->private_data = &_pro_code;
+   
+	}
+#.END
+
+#.FN_PARS InitiatingMessage/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_InitiatingMessageValue
+
+#.FN_PARS SuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_SuccessfulOutcomeValue
+
+#.FN_PARS UnsuccessfulOutcome/value  FN_VARIANT=_pdu_new  TYPE_REF_FN=dissect_UnsuccessfulOutcomeValue
+
+#--- Parameterization is not supported in asn2wrs ---
+
+#ProtocolIE-ContainerList {INTEGER : lowerBound, INTEGER : upperBound, LCS-AP-PROTOCOL-IES : IEsSetParam} ::=
+#	SEQUENCE (SIZE (lowerBound..upperBound)) OF
+#	ProtocolIE-Container {{IEsSetParam}}
+
+
+#.END
+
+
+# Currently not used
+# FN_PARS ProtocolIE-ContainerPairList
+#MIN_VAL = asn1_param_get_integer(%(ACTX)s,"lowerBound")
+#MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
+# FN_HDR ProtocolIE-ContainerPairList
+#  static const asn1_par_def_t ProtocolIE_ContainerPairList_pars[] = {
+#    { "lowerBound", ASN1_PAR_INTEGER },
+#    { "upperBound", ASN1_PAR_INTEGER },
+#    { NULL, 0 }
+#  };
+#  asn1_stack_frame_check(actx, "ProtocolIE-ContainerPairList", ProtocolIE_ContainerPairList_pars);
+# END
+
+
+
+
+
+
+# following construction is not supported by asn2wrs
+# PLMN-ID ::= TBCD-STRING (SIZE (3))
+# TBCD-STRING ::= OCTET STRING
+
+#.FN_BODY PLMN-ID  VAL_PTR = parameter_tvb
+  tvbuff_t *parameter_tvb=NULL;
+  offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
+                                       3, 3, FALSE, &parameter_tvb);
+	if(tvb_length(tvb)==0) 
+		return offset;
+		
+	if (!parameter_tvb)
+		return offset;
+	dissect_e212_mcc_mnc(parameter_tvb, tree, 0);
+#.END
+
+#.TYPE_ATTR
+ProtocolExtensionID TYPE = FT_UINT8  DISPLAY = BASE_DEC STRINGS = VALS(lcsap_ProtocolIE_ID_vals)
+#.ASSIGN_VALUE_TO_TYPE  # LCSAP does not have constants assigned to types, they are pure INTEGER
+# ProcedureCode
+id-Location-Service-Request                    ProcedureCode
+id-Connection-Oriented-Information-Transfer    ProcedureCode
+id-Connectionless-Information-Transfer         ProcedureCode
+id-Location-Abort                              ProcedureCode
+id-Reset                                       ProcedureCode
+
+# ProtocolIE-ID
+id-Correlation-ID                   ProtocolIE-ID
+id-Location-Type                    ProtocolIE-ID
+id-E-UTRAN-Cell-Identifier          ProtocolIE-ID
+id-LCS-Client-Type                  ProtocolIE-ID
+id-LCS-Priority                     ProtocolIE-ID
+id-LCS-QOS                          ProtocolIE-ID
+id-UE-Positioning-Capability        ProtocolIE-ID
+id-Include-Velocity                 ProtocolIE-ID
+id-IMSI                             ProtocolIE-ID
+id-IMEI                             ProtocolIE-ID
+id-MultipleAPDUs                    ProtocolIE-ID
+id-Positioning-Data                 ProtocolIE-ID
+id-Velocity-Estimate                ProtocolIE-ID
+id-Accuracy-Fulfillment-Indicator   ProtocolIE-ID
+id-LCS-Cause                        ProtocolIE-ID
+id-Payload-Type                     ProtocolIE-ID
+id-Return-Error-Cause               ProtocolIE-ID
+id-APDU                             ProtocolIE-ID
+id-Return-Error-Request             ProtocolIE-ID
+id-Location-Estimate                ProtocolIE-ID
+id-Source-Identity                  ProtocolIE-ID
+id-Destination-ID                   ProtocolIE-ID
+
+
+#.REGISTER_NEW
+
+#LCS-AP-PROTOCOL-IES
+Return-Error-Type                       N lcsap.ies id-Return-Error-Request
+Network-Element                         N lcsap.ies id-Destination-ID
+Network-Element                         N lcsap.ies id-Source-Identity
+Geographical-Area                       N lcsap.ies id-Location-Estimate
+Correlation-ID						    N lcsap.ies id-Correlation-ID
+Location-Type                           N lcsap.ies id-Location-Type
+E-CGI                                   N lcsap.ies id-E-UTRAN-Cell-Identifier
+LCS-Priority                            N lcsap.ies id-LCS-Priority
+LCS-QoS                                 N lcsap.ies id-LCS-QOS
+LCS-Client-Type                         N lcsap.ies id-LCS-Client-Type
+UE-Positioning-Capability               N lcsap.ies id-UE-Positioning-Capability
+Include-Velocity                        N lcsap.ies id-Include-Velocity
+IMSI                                    N lcsap.ies id-IMSI
+IMEI                                    N lcsap.ies id-IMEI
+MultipleAPDUs                           N lcsap.ies id-MultipleAPDUs
+Positioning-Data                        N lcsap.ies id-Positioning-Data
+Velocity-Estimate                       N lcsap.ies id-Velocity-Estimate
+Accuracy-Fulfillment-Indicator          N lcsap.ies id-Accuracy-Fulfillment-Indicator
+LCS-Cause                               N lcsap.ies id-LCS-Cause
+Payload-Type                            N lcsap.ies id-Payload-Type
+Return-Error-Cause                      N lcsap.ies id-Return-Error-Cause
+
+
+
+
+
+Location-Request                       N lcsap.proc.imsg id-Location-Service-Request 
+Location-Response                      N lcsap.proc.sout id-Location-Service-Request 
+Location-Response                      N lcsap.proc.uout id-Location-Service-Request 
+
+Connection-Oriented-Information        N lcsap.proc.imsg id-Connection-Oriented-Information-Transfer
+
+Connectionless-Information             N lcsap.proc.imsg id-Connectionless-Information-Transfer
+Connectionless-Information             N lcsap.proc.uout id-Connectionless-Information-Transfer
+
+Location-Abort-Request                 N lcsap.proc.imsg id-Location-Abort
+Location-Response                      N lcsap.proc.sout id-Location-Abort
+
+Reset-Request                          N lcsap.proc.imsg id-Reset
+Reset-Acknowledge                      N lcsap.proc.sout id-Reset
+
+
+
+#.TYPE_ATTR
+BitRate TYPE = FT_UINT64 DISPLAY = BASE_DEC STRINGS = NULL
+#.END
