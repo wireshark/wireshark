@@ -2,7 +2,7 @@ from wspy_dissector import Dissector
 from wspy_dissector import FT_UINT8, FT_NONE
 from wspy_dissector import BASE_NONE, BASE_HEX
 
-class homeplug(Dissector):
+class homeplug_py(Dissector):
   # return the two first parameters of dissector_add as a tuple
   def protocol_ids(self):
     #you could use self.find_dissector() or self.create_dissector_handle() as
@@ -58,33 +58,33 @@ HOMEPLUG_MEHDR_MEV    = 0xE0
 HOMEPLUG_MEHDR_METYPE = 0x1F
 
 def register_protocol():
-  tp = homeplug("HomePlug protocol", "HomePlug", "homeplug")
+  tp = homeplug_py("HomePlug protocol (python)", "HomePlug.py", "homeplug_py")
 
   #
   # Register Protocol Fields
   #
   hf = tp.hf
   # MAC Control Field
-  hf.add("Mac Control Field", "homeplug.mctrl", FT_NONE, BASE_NONE)
-  hf.add("Reserved", "homeplug.mctrl.rsvd", FT_UINT8, bitmask=HOMEPLUG_MCTRL_RSVD)
-  hf.add("Number of MAC Data Entries", "homeplug.mctrl.ne", FT_UINT8, bitmask=HOMEPLUG_MCTRL_NE)
+  hf.add("Mac Control Field", "homeplug_py.mctrl", FT_NONE, BASE_NONE)
+  hf.add("Reserved", "homeplug_py.mctrl.rsvd", FT_UINT8, bitmask=HOMEPLUG_MCTRL_RSVD)
+  hf.add("Number of MAC Data Entries", "homeplug_py.mctrl.ne", FT_UINT8, bitmask=HOMEPLUG_MCTRL_NE)
 
   # MAC Entry Header
-  hf.add("MAC Management Entry Header", "homeplug.mehdr", FT_NONE, BASE_NONE)
-  hf.add("MAC Entry Version", "homeplug.mehdr.mev", FT_UINT8, bitmask=HOMEPLUG_MEHDR_MEV)
-  hf.add("MAC Entry Type", "homeplug.mehdr.metype", FT_UINT8, BASE_HEX, bitmask=HOMEPLUG_MEHDR_METYPE)
+  hf.add("MAC Management Entry Header", "homeplug_py.mehdr", FT_NONE, BASE_NONE)
+  hf.add("MAC Entry Version", "homeplug_py.mehdr.mev", FT_UINT8, bitmask=HOMEPLUG_MEHDR_MEV)
+  hf.add("MAC Entry Type", "homeplug_py.mehdr.metype", FT_UINT8, BASE_HEX, bitmask=HOMEPLUG_MEHDR_METYPE)
 
   # MAC Entry Len
-  hf.add("MAC Management Entry Length", "homeplug.melen", FT_UINT8)
+  hf.add("MAC Management Entry Length", "homeplug_py.melen", FT_UINT8)
 
   # MAC Management Entry
-  hf.add("MAC Management Entry Data", "homeplug.mmentry", FT_UINT8)
+  hf.add("MAC Management Entry Data", "homeplug_py.mmentry", FT_UINT8)
 
   #
   # Register Subtrees
   #
   subt = tp.subtrees
-  #subt.add("homeplug") => we let Dissector output the main tree of this protocol
+  #subt.add("homeplug_py") => we let Dissector output the main tree of this protocol
   subt.add("mctrl")
   subt.add("mehdr")
   return tp
