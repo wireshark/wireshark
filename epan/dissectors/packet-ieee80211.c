@@ -552,6 +552,7 @@ enum fixed_field {
   FIELD_MULTIHOP_ACTION,
   FIELD_MESH_CONTROL,
   FIELD_SELFPROT_ACTION,
+  FIELD_WNM_ACTION_CODE,
   /* add any new fixed field value above this line */
   MAX_FIELD_NUM
 };
@@ -1049,6 +1050,8 @@ static const value_string aruba_mgt_typevals[] = {
 #define CAT_HT                  7
 #define CAT_SA_QUERY            8
 #define CAT_PUBLIC_PROTECTED    9
+#define CAT_WNM                 10
+#define CAT_UNPROTECTED_WNM     11
 #define CAT_TDLS                12
 
 /* per 11s draft 12.0 */
@@ -1213,6 +1216,71 @@ static const value_string anqp_info_id_vals[] =
   {ANQP_INFO_EMERGENCY_NAI, "Emergency NAI"},
   {ANQP_INFO_ANQP_VENDOR_SPECIFIC_LIST, "ANQP vendor-specific list"},
   {0, NULL}
+};
+
+/* IEEE 802.11v - WNM Action field values */
+enum wnm_action {
+	WNM_EVENT_REQ = 0,
+	WNM_EVENT_REPORT = 1,
+	WNM_DIAGNOSTIC_REQ = 2,
+	WNM_DIAGNOSTIC_REPORT = 3,
+	WNM_LOCATION_CFG_REQ = 4,
+	WNM_LOCATION_CFG_RESP = 5,
+	WNM_BSS_TRANS_MGMT_QUERY = 6,
+	WNM_BSS_TRANS_MGMT_REQ = 7,
+	WNM_BSS_TRANS_MGMT_RESP = 8,
+	WNM_FMS_REQ = 9,
+	WNM_FMS_RESP = 10,
+	WNM_COLLOCATED_INTERFERENCE_REQ = 11,
+	WNM_COLLOCATED_INTERFERENCE_REPORT = 12,
+	WNM_TFS_REQ = 13,
+	WNM_TFS_RESP = 14,
+	WNM_TFS_NOTIFY = 15,
+	WNM_SLEEP_MODE_REQ = 16,
+	WNM_SLEEP_MODE_RESP = 17,
+	WNM_TIM_BROADCAST_REQ = 18,
+	WNM_TIM_BROADCAST_RESP = 19,
+	WNM_QOS_TRAFFIC_CAPAB_UPDATE = 20,
+	WNM_CHANNEL_USAGE_REQ = 21,
+	WNM_CHANNEL_USAGE_RESP = 22,
+	WNM_DMS_REQ = 23,
+	WNM_DMS_RESP = 24,
+	WNM_TIMING_MEASUREMENT_REQ = 25,
+	WNM_NOTIFICATION_REQ = 26,
+	WNM_NOTIFICATION_RESP = 27
+};
+
+static const value_string wnm_action_codes[] =
+{
+  { WNM_EVENT_REQ, "Event Request" },
+  { WNM_EVENT_REPORT, "Event Report" },
+  { WNM_DIAGNOSTIC_REQ, "Diagnostic Request" },
+  { WNM_DIAGNOSTIC_REPORT, "Diagnostic Report" },
+  { WNM_LOCATION_CFG_REQ, "Location Configuration Request" },
+  { WNM_LOCATION_CFG_RESP, "Location Configuration Response" },
+  { WNM_BSS_TRANS_MGMT_QUERY, "BSS Transition Management Query" },
+  { WNM_BSS_TRANS_MGMT_REQ, "BSS Transition Management Request" },
+  { WNM_BSS_TRANS_MGMT_RESP, "BSS Transition Management Response" },
+  { WNM_FMS_REQ, "FMS Request" },
+  { WNM_FMS_RESP, "FMS Response" },
+  { WNM_COLLOCATED_INTERFERENCE_REQ, "Collocated Interference Request" },
+  { WNM_COLLOCATED_INTERFERENCE_REPORT, "Collocated Interference Report" },
+  { WNM_TFS_REQ, "TFS Request" },
+  { WNM_TFS_RESP, "TFS Response" },
+  { WNM_TFS_NOTIFY, "TFS Notify" },
+  { WNM_SLEEP_MODE_REQ, "WNM-Sleep Mode Request" },
+  { WNM_SLEEP_MODE_RESP, "WNM-Sleep Mode Response" },
+  { WNM_TIM_BROADCAST_REQ, "TIM Broadcast Request" },
+  { WNM_TIM_BROADCAST_RESP, "TIM Broadcast Response" },
+  { WNM_QOS_TRAFFIC_CAPAB_UPDATE, "QoS Traffic Capability Update" },
+  { WNM_CHANNEL_USAGE_REQ, "Channel Usage Request" },
+  { WNM_CHANNEL_USAGE_RESP, "Channel Usage Response" },
+  { WNM_DMS_REQ, "DMS Request" },
+  { WNM_DMS_RESP, "DMS Response" },
+  { WNM_TIMING_MEASUREMENT_REQ, "Timing Measurement Request" },
+  { WNM_NOTIFICATION_REQ, "WNM-Notification Request" },
+  { WNM_NOTIFICATION_RESP, "WNM-Notification Response" },
+  { 0, NULL }
 };
 
 /*** End: Action Fixed Parameter ***/
@@ -1615,6 +1683,16 @@ static int hf_ieee80211_ff_anqp_domain_name = -1;
 static int hf_ieee80211_ff_tdls_action_code = -1;
 static int hf_ieee80211_ff_target_channel = -1;
 static int hf_ieee80211_ff_regulatory_class = -1;
+static int hf_ieee80211_ff_wnm_action_code = -1;
+static int hf_ieee80211_ff_request_mode_pref_cand = -1;
+static int hf_ieee80211_ff_request_mode_abridged = -1;
+static int hf_ieee80211_ff_request_mode_disassoc_imminent = -1;
+static int hf_ieee80211_ff_request_mode_bss_term_included = -1;
+static int hf_ieee80211_ff_request_mode_ess_disassoc_imminent = -1;
+static int hf_ieee80211_ff_disassoc_timer = -1;
+static int hf_ieee80211_ff_validity_interval = -1;
+static int hf_ieee80211_ff_url_len = -1;
+static int hf_ieee80211_ff_url = -1;
 
 static int hf_ieee80211_ff_sa_query_action_code = -1;
 static int hf_ieee80211_ff_transaction_id = -1;
@@ -5177,6 +5255,80 @@ add_ff_action_self_protected(proto_tree *tree, tvbuff_t *tvb, int offset)
 }
 
 static guint
+wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  int start = offset;
+  guint8 mode;
+  gint left;
+
+  offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
+
+  mode = tvb_get_guint8(tvb, offset);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_pref_cand,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_abridged,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_disassoc_imminent,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_bss_term_included,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(tree, hf_ieee80211_ff_request_mode_ess_disassoc_imminent,
+                      tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  offset++;
+
+  proto_tree_add_item(tree, hf_ieee80211_ff_disassoc_timer, tvb, offset, 2,
+                      ENC_LITTLE_ENDIAN);
+  offset += 2;
+
+  proto_tree_add_item(tree, hf_ieee80211_ff_validity_interval, tvb, offset, 1,
+                      ENC_LITTLE_ENDIAN);
+  offset++;
+
+  if (mode & 0x08) {
+    proto_tree_add_text(tree, tvb, offset, 8, "BSS Termination Duration");
+    offset += 8;
+  }
+
+  if (mode & 0x10) {
+    guint8 url_len;
+    url_len = tvb_get_guint8(tvb, offset);
+    proto_tree_add_item(tree, hf_ieee80211_ff_url_len, tvb, offset, 1,
+                        ENC_LITTLE_ENDIAN);
+    offset++;
+    proto_tree_add_item(tree, hf_ieee80211_ff_url, tvb, offset, url_len,
+                        ENC_NA);
+    offset += url_len;
+  }
+
+  left = tvb_reported_length_remaining(tvb, offset);
+  if (left > 0) {
+    proto_tree_add_text(tree, tvb, offset, left,
+                        "BSS Transition Candidate List Entries");
+    offset += left;
+  }
+
+  return offset - start;
+}
+
+static guint
+add_ff_action_wnm(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  guint8 code;
+  guint start = offset;
+
+  offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
+  code = tvb_get_guint8(tvb, offset);
+  offset += add_fixed_field(tree, tvb, offset, FIELD_WNM_ACTION_CODE);
+  switch (code) {
+  case WNM_BSS_TRANS_MGMT_REQ:
+    offset += wnm_bss_trans_mgmt_req(tree, tvb, offset);
+    break;
+  }
+
+  return offset - start;  /* Size of fixed fields */
+}
+
+static guint
 add_ff_action_tdls(proto_tree *tree, tvbuff_t *tvb, int offset)
 {
   guint8 code;
@@ -5373,6 +5525,8 @@ add_ff_action(proto_tree *tree, tvbuff_t *tvb, int offset)
     return add_ff_action_multihop(tree, tvb, offset);
   case CAT_SELF_PROTECTED:
     return add_ff_action_self_protected(tree, tvb, offset);
+  case CAT_WNM:
+    return add_ff_action_wnm(tree, tvb, offset);
   case CAT_TDLS:
     return add_ff_action_tdls(tree, tvb, offset);
   case CAT_MGMT_NOTIFICATION:  /* Management notification frame */
@@ -5474,6 +5628,19 @@ add_ff_regulatory_class(proto_tree *tree, tvbuff_t *tvb, int offset)
   return 1;
 }
 
+static guint
+add_ff_wnm_action_code(proto_tree *tree, tvbuff_t *tvb, int offset)
+{
+  guint8 code;
+  code = tvb_get_guint8(tvb, offset);
+  col_set_str(g_pinfo->cinfo, COL_INFO,
+              val_to_str_const(code, wnm_action_codes,
+                               "Unknown WNM Action"));
+  proto_tree_add_item(tree, hf_ieee80211_ff_wnm_action_code, tvb, offset, 1,
+                      ENC_BIG_ENDIAN);
+  return 1;
+}
+
 struct ieee80211_fixed_field_dissector {
   enum fixed_field lfcode;
   guint (*dissector)(proto_tree *tree, tvbuff_t *tvb, int offset);
@@ -5544,6 +5711,7 @@ static const struct ieee80211_fixed_field_dissector ff_dissectors[] = {
   FF_FIELD(TDLS_ACTION_CODE, tdls_action_code),
   FF_FIELD(TARGET_CHANNEL, target_channel),
   FF_FIELD(REGULATORY_CLASS, regulatory_class),
+  FF_FIELD(WNM_ACTION_CODE, wnm_action_code),
   { -1, NULL }
 };
 
@@ -12339,6 +12507,10 @@ proto_register_ieee80211 (void)
     {0x80 | CAT_SA_QUERY, "SA Query (error)"},
     {CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action"},
     {0x80 | CAT_PUBLIC_PROTECTED, "Protected Dual of Public Action (error)"},
+    {CAT_WNM, "WNM"},
+    {0x80 | CAT_WNM, "WNM (error)"},
+    {CAT_UNPROTECTED_WNM, "Unprotected WNM"},
+    {0x80 | CAT_UNPROTECTED_WNM, "Unprotected WNM (error)"},
     {CAT_TDLS, "TDLS"},
     {0x80 | CAT_TDLS, "TDLS (error)"},
     {CAT_MESH, "MESH"},
@@ -13056,7 +13228,45 @@ proto_register_ieee80211 (void)
 
     {&hf_ieee80211_ff_regulatory_class,
      {"Regulatory Class", "wlan_mgt.fixed.regulatory_class",
-      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }}
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+
+    {&hf_ieee80211_ff_wnm_action_code,
+     {"Action code", "wlan_mgt.fixed.action_code",
+      FT_UINT8, BASE_DEC, VALS(wnm_action_codes), 0,
+      "Management action code", HFILL }},
+
+    {&hf_ieee80211_ff_request_mode_pref_cand,
+     {"Preferred Candidate List Included",
+      "wlan_mgt.fixed.request_mode.pref_cand",
+      FT_UINT8, BASE_DEC, NULL, 0x01, NULL, HFILL }},
+    {&hf_ieee80211_ff_request_mode_abridged,
+     {"Abridged", "wlan_mgt.fixed.request_mode.abridged",
+      FT_UINT8, BASE_DEC, NULL, 0x02, NULL, HFILL }},
+    {&hf_ieee80211_ff_request_mode_disassoc_imminent,
+     {"Disassociation Imminent",
+      "wlan_mgt.fixed.request_mode.disassoc_imminent",
+      FT_UINT8, BASE_DEC, NULL, 0x04, NULL, HFILL }},
+    {&hf_ieee80211_ff_request_mode_bss_term_included,
+     {"BSS Termination Included",
+      "wlan_mgt.fixed.request_mode.bss_term_included",
+      FT_UINT8, BASE_DEC, NULL, 0x08, NULL, HFILL }},
+    {&hf_ieee80211_ff_request_mode_ess_disassoc_imminent,
+     {"ESS Disassociation Imminent",
+      "wlan_mgt.fixed.request_mode.ess_disassoc_imminent",
+      FT_UINT8, BASE_DEC, NULL, 0x10, NULL, HFILL }},
+    {&hf_ieee80211_ff_disassoc_timer,
+     {"Disassociation Timer", "wlan_mgt.fixed.disassoc_timer",
+      FT_UINT16, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_validity_interval,
+     {"Validity Interval", "wlan_mgt.fixed.validity_interval",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_url_len,
+     {"Session Information URL Length",
+      "wlan_mgt.fixed.session_information.url_length",
+      FT_UINT8, BASE_DEC, NULL, 0, NULL, HFILL }},
+    {&hf_ieee80211_ff_url,
+     {"Session Information URL", "wlan_mgt.fixed.session_information.url",
+      FT_STRING, BASE_NONE, NULL, 0, NULL, HFILL }},
   };
 
   static hf_register_info hf_prism[] = {
