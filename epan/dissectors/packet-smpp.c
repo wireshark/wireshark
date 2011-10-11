@@ -13,8 +13,8 @@
  *
  * Support for SMPP 5.0
  * introduced by Abhik Sarkar
- *
- * Support for Huawei SMPP+ extensions
+ * 
+ * Support for Huawei SMPP+ extensions 
  * introduced by Xu Bo and enhance by Abhik Sarkar
  *
  * $Id$
@@ -323,9 +323,9 @@ static const value_string vals_command_id[] = {         /* Operation    */
     { 0x80000113, "Cancel_broadcast_sm - resp" },
     /* Huawei SMPP+ extensions */
     { 0x01000001, "Auth_acc" },
-    { 0x81000001, "Auth_acc - resp" },
+    { 0x81000001, "Auth_acc - resp" },   
     { 0X01000002, "Sm_result_notify" },
-    { 0X81000002, "Sm_result_notify - resp" },
+    { 0X81000002, "Sm_result_notify - resp" },   
     { 0, NULL }
 };
 
@@ -1031,7 +1031,7 @@ static const value_string vals_mo_mt_flag[] = {
     { 0x03, "Reserved" },
     { 0x00, NULL }
 };
-
+ 
 static const value_string vals_operation_result[] = {
     { 0x00, "Successful" },
     { 0x01, "Protocol is not supported" },
@@ -1461,10 +1461,11 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                                    hf_smpp_receipted_message_id, offset);
                 break;
             case  0x0030:       /* ms_msg_wait_facilities       */
+                field = tvb_get_guint8(tvb, *offset);
                 proto_tree_add_item(sub_tree, hf_smpp_msg_wait_ind,
-                                    tvb, *offset, 1, ENC_NA);
+                                    tvb, *offset, 1, field);
                 proto_tree_add_item(sub_tree, hf_smpp_msg_wait_type,
-                                    tvb, *offset, 1, ENC_NA);
+                                    tvb, *offset, 1, field);
                 (*offset)++;
                 break;
             case  0x0201:       /* privacy_indicator    */
@@ -1527,10 +1528,11 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
                 (*offset)++;
                 break;
             case  0x0302:       /* callback_num_pres_ind        */
+                field = tvb_get_guint8(tvb, *offset);
                 proto_tree_add_item(sub_tree, hf_smpp_callback_num_pres,
-                                    tvb, *offset, 1, ENC_NA);
+                                    tvb, *offset, 1, field);
                 proto_tree_add_item(sub_tree, hf_smpp_callback_num_scrn,
-                                    tvb, *offset, 1, ENC_NA);
+                                    tvb, *offset, 1, field);
                 (*offset)++;
                 break;
             case  0x0303:       /* callback_num_atag    */
@@ -1727,10 +1729,11 @@ smpp_handle_tlv(proto_tree *tree, tvbuff_t *tvb, int *offset)
             case  0x1383:       /* its_session_info     */
                 smpp_handle_int1(sub_tree, tvb,
                                  hf_smpp_its_session_number, offset);
+                field = tvb_get_guint8(tvb, *offset);
                 proto_tree_add_item(sub_tree, hf_smpp_its_session_sequence,
-                                    tvb, *offset, 1, ENC_NA);
+                                    tvb, *offset, 1, field);
                 proto_tree_add_item(sub_tree, hf_smpp_its_session_ind,
-                                    tvb, *offset, 1, ENC_NA);
+                                    tvb, *offset, 1, field);
                 (*offset)++;
                 break;
 
@@ -2254,14 +2257,14 @@ huawei_auth_acc(proto_tree *tree, tvbuff_t *tvb)
     guint8 version = 0;
 
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
-    version = tvb_get_guint8(tvb, offset);
+    version = tvb_get_guint8(tvb, offset);   
     smpp_handle_string(tree, tvb, hf_huawei_smpp_smsc_addr, &offset);
     if ( version == '3' ) {
         smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_noa, &offset);
         smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_npi, &offset);
         smpp_handle_string(tree, tvb, hf_huawei_smpp_msc_addr, &offset);
     }
-    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);    
     smpp_handle_string(tree, tvb, hf_smpp_destination_addr, &offset);
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_mo_mt_flag, &offset);
     smpp_handle_string(tree, tvb, hf_huawei_smpp_sm_id, &offset);
@@ -2285,16 +2288,16 @@ huawei_sm_result_notify(proto_tree *tree, tvbuff_t *tvb)
     guint8 version = 0;
 
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_version, &offset);
-    version = tvb_get_guint8(tvb, offset);
+    version = tvb_get_guint8(tvb, offset);   
     smpp_handle_string(tree, tvb, hf_huawei_smpp_smsc_addr, &offset);
-
+    
     if ( version == '3' ) {
         smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_noa, &offset);
         smpp_handle_int1(tree, tvb, hf_huawei_smpp_msc_addr_npi, &offset);
         smpp_handle_string(tree, tvb, hf_huawei_smpp_msc_addr, &offset);
     }
 
-    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);
+    smpp_handle_string(tree, tvb, hf_smpp_source_addr, &offset);    
     smpp_handle_string(tree, tvb, hf_smpp_destination_addr, &offset);
     smpp_handle_int1(tree, tvb, hf_huawei_smpp_mo_mt_flag, &offset);
     smpp_handle_string(tree, tvb, hf_huawei_smpp_sm_id, &offset);
@@ -3698,7 +3701,7 @@ proto_register_smpp(void)
                         FT_UINT8, BASE_DEC, VALS(vals_notify_mode), 0x00,
                         "SMPP+: Indicates the SMS notify mode", HFILL
                 }
-        },
+        },        
         {        &hf_huawei_smpp_delivery_result,
                 {       "SMPP+: Delivery result of SMS", "smpp.delivery_result",
                         FT_UINT32, BASE_DEC, VALS(vals_delivery_result), 0x00,
