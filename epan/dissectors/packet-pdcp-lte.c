@@ -1558,7 +1558,7 @@ static int  dissect_pdcp_uor_2_ts_or_id_packet(proto_tree *tree,
         }
 
         /* m */
-        proto_tree_add_item(tree, hf_pdcp_lte_rohc_m, tvb, offset, 1, ts);
+        proto_tree_add_item(tree, hf_pdcp_lte_rohc_m, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /* TODO: */
     }
