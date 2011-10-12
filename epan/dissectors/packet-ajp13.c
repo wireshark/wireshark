@@ -337,9 +337,7 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       guint8 hid;
       const gchar *hval;
       guint16 hval_len, hname_len;
-      int orig_pos = pos;
       const gchar* hname = NULL;
-      int dp = 0;
       /* int cl = 0; TODO: Content-Length header (encoded by 0x08) is special */
 
       /* HEADER CODE/NAME
@@ -363,18 +361,17 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         pos+=hname_len+2;
       }
 
-      dp = pos-orig_pos;
-
       /* HEADER VALUE
        */
-      orig_pos = pos;
       hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      pos+=hval_len+2;
-      dp = pos - orig_pos;
+      pos+=2; /* skip over size */
       if (ajp13_tree) {
-        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval, tvb, orig_pos, dp, "%s : %s", hname, hval);
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
+                                     tvb, pos, hval_len, hname,
+                                     "%s: %s", hname, hval);
       }
+      pos+=hval_len;
     }
     break;
   }
@@ -576,9 +573,7 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
     guint8 hcd;
     guint8 hid;
-    int orig_pos = pos;
     const gchar* hname = NULL;
-    int dp = 0;
     int cl = 0;
     const gchar *hval;
     guint16 hval_len, hname_len;
@@ -600,20 +595,17 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       pos+=hname_len+2;
     }
 
-    dp = pos-orig_pos;
-
     /* HEADER VALUE
      */
-    orig_pos = pos;
     hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-    pos+=hval_len+2;
-    dp = pos - orig_pos;
+    pos+=2; /* skip over size */
     if (ajp13_tree) {
       proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
-                                   tvb, orig_pos, dp, hname,
+                                   tvb, pos, hval_len, hname,
                                    "%s: %s", hname, hval);
     }
+    pos+=hval_len;
     if (cl) {
       cl = atoi(hval);
       cd->content_length = cl;
