@@ -254,7 +254,7 @@ ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
   len = tvb_get_ntohs(tvb, offset);
 
   if (ret_len)
-    *ret_len = len;
+    *ret_len = len+1;
 
   return tvb_format_text(tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
 }
