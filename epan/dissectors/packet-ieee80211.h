@@ -55,3 +55,7 @@ typedef struct _wlan_hdr {
         guint16 type;
         struct _wlan_stats stats;
 } wlan_hdr;
+
+#define WLANCAP_MAGIC_COOKIE_BASE 0x80211000
+#define WLANCAP_MAGIC_COOKIE_V1 0x80211001
+#define WLANCAP_MAGIC_COOKIE_V2 0x80211002
