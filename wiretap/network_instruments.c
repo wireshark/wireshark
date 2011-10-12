@@ -18,7 +18,7 @@
  *   (at your option) any later version.                                   *
  *                                                                         *
  ***************************************************************************/
- 
+
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -71,19 +71,19 @@ typedef struct {
  * versions earlier. In other words, timestamps are worked with as if
  * they are GMT-encoded, and adjustments from local time are made only if
  * the source file warrants it.
- * 
+ *
  * All destination files are saved in GMT format.
  */
 static const time_t ansi_to_observer_epoch_offset = 946684800;
 static time_t gmt_to_localtime_offset = (time_t) -1;
- 
+
 static void init_gmt_to_localtime_offset(void)
 {
     if (gmt_to_localtime_offset == (time_t) -1) {
         time_t ansi_epoch_plus_one_day = 86400;
         struct tm gmt_tm;
         struct tm local_tm;
- 
+
         /*
          * Compute the local time zone offset as the number of seconds west
          * of GMT. There's no obvious cross-platform API for querying this
@@ -109,7 +109,7 @@ static int read_packet_header(FILE_T fh, packet_entry_header *packet_header,
     int *err, gchar **err_info);
 static int read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header,
     guint8 *pd, int length, int *err, char **err_info);
-static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet, 
+static gboolean skip_to_next_packet(wtap *wth, int offset_to_next_packet,
     int current_offset_from_packet_header, int *err, char **err_info);
 static gboolean observer_dump(wtap_dumper *wdh, const struct wtap_pkthdr *phdr,
     const union wtap_pseudo_header *pseudo_header, const guint8 *pd, int *err);
@@ -447,7 +447,7 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 
         *err = WTAP_ERR_BAD_RECORD;
         *err_info = g_strdup_printf("Observer: bad record: Invalid magic number 0x%08x",
-            GUINT32_FROM_LE(packet_header->packet_magic));
+            packet_header->packet_magic);
         return -1;
     }
 
@@ -484,12 +484,12 @@ read_packet_header(FILE_T fh, packet_entry_header *packet_header, int *err,
 }
 
 static int
-read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header, guint8 *pd, 
+read_packet_data(FILE_T fh, int offset_to_frame, int current_offset_from_packet_header, guint8 *pd,
     int length, int *err, char **err_info)
 {
     int seek_increment;
     int bytes_consumed = 0;
- 
+
     /* validate offsets */
     if (offset_to_frame < current_offset_from_packet_header) {
         *err = WTAP_ERR_BAD_RECORD;
@@ -519,7 +519,7 @@ skip_to_next_packet(wtap *wth, int offset_to_next_packet, int current_offset_fro
     char **err_info)
 {
     int seek_increment;
- 
+
     /* validate offsets */
     if (offset_to_next_packet < current_offset_from_packet_header) {
         *err = WTAP_ERR_BAD_RECORD;
@@ -546,7 +546,7 @@ int network_instruments_dump_can_write_encap(int encap)
     /* per-packet encapsulations aren't supported */
     if (encap == WTAP_ENCAP_PER_PACKET)
         return WTAP_ERR_ENCAP_PER_PACKET_UNSUPPORTED;
-    
+
     if (encap < 0 || (wtap_to_observer_encap(encap) == OBSERVER_UNDEFINED))
         return WTAP_ERR_UNSUPPORTED_ENCAP;
 
@@ -572,7 +572,7 @@ gboolean network_instruments_dump_open(wtap_dumper *wdh, int *err)
     private_state->packet_count = 0;
     private_state->network_type = wtap_to_observer_encap(wdh->encap);
     private_state->time_format = TIME_INFO_GMT;
- 
+
     /* populate the fields of wdh */
     wdh->priv = (void *) private_state;
     wdh->subtype_write = observer_dump;
