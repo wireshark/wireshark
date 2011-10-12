@@ -193,6 +193,10 @@ static int hf_nas_eps_eps_update_result_value = -1;
 static int hf_nas_eps_eps_update_type_value = -1;
 static int hf_nas_eps_service_type = -1;
 
+static int hf_nas_eps_nas_msg_cont = -1;
+static int hf_nas_eps_gen_msg_cont = -1;
+static int hf_nas_eps_emm_add_info = -1;
+
 /* ESM */
 static int hf_nas_eps_msg_esm_type = -1;
 int hf_nas_eps_esm_elem_id = -1;
@@ -201,9 +205,13 @@ static int hf_nas_eps_esm_proc_trans_id = -1;
 /* Initialize the subtree pointers */
 static int ett_nas_eps = -1;
 static int ett_nas_eps_esm_msg_cont = -1;
+static int ett_nas_eps_nas_msg_cont = -1;
+static int ett_nas_eps_gen_msg_cont = -1;
 
 /* Global variables */
 static packet_info *gpinfo;
+
+guint8 eps_nas_gen_msg_cont_type = 0;
 
 /* Table 9.8.1: Message types for EPS mobility management
  *  0   1   -   -   -   -   -   -       EPS mobility management messages
@@ -373,7 +381,7 @@ nas_eps_common_elem_idx_t;
 static guint16
 de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_text(tree, tvb, offset, len, "Not dissected yet");
+    proto_tree_add_item(tree, hf_nas_eps_emm_add_info, tvb, offset, len, ENC_NA);
 
     return(len);
 }
@@ -1252,20 +1260,24 @@ de_emm_nas_key_set_id(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, g
 static guint16
 de_emm_nas_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
 {
+    proto_item *item;
+    proto_tree *sub_tree;
     tvbuff_t *new_tvb;
     guint32 curr_offset;
 
     curr_offset = offset;
-
 
     /* NAS message container contents (octet 3 to octet n)
      * This IE can contain an SMS message (i.e. CP-DATA, CP-ACK or CP-ERROR)
      * as defined in subclause 7.2 in 3GPP TS 24.011 [13A].
      */
 
+    item = proto_tree_add_item(tree, hf_nas_eps_nas_msg_cont, tvb, curr_offset, len, ENC_NA);
+    sub_tree = proto_item_add_subtree(item, ett_nas_eps_nas_msg_cont);
+
     new_tvb = tvb_new_subset(tvb, curr_offset, len, len );
     if(gsm_a_dtap_handle)
-        call_dissector(gsm_a_dtap_handle,new_tvb, gpinfo, tree);
+        call_dissector(gsm_a_dtap_handle, new_tvb, gpinfo, sub_tree);
 
     return(len);
 }
@@ -1902,6 +1914,7 @@ de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
 
     curr_offset = offset;
 
+    eps_nas_gen_msg_cont_type = tvb_get_guint8(tvb, curr_offset);
     proto_tree_add_item(tree, hf_nas_eps_emm_gen_msg_cont_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
@@ -1911,9 +1924,32 @@ de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
  * 9.9.3.43 Generic message container
  */
 static guint16
-de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_text(tree, tvb, offset, len, "Not dissected yet");
+    proto_item *item;
+    proto_tree *sub_tree;
+    tvbuff_t *new_tvb;
+
+    item = proto_tree_add_item(tree, hf_nas_eps_gen_msg_cont, tvb, offset, len, ENC_NA);
+    sub_tree = proto_item_add_subtree(item, ett_nas_eps_gen_msg_cont);
+
+    new_tvb = tvb_new_subset(tvb, offset, len, len);
+
+    switch (eps_nas_gen_msg_cont_type) {
+    case 1:
+        /* LPP */
+        break;
+    case 2:
+        /* Location services */
+        if (gsm_a_dtap_handle) {
+            call_dissector(gsm_a_dtap_handle, new_tvb, pinfo, sub_tree);
+        }
+        break;
+    default:
+        break;
+    }
+
+    eps_nas_gen_msg_cont_type = 0;
 
     return(len);
 }
@@ -5274,6 +5310,21 @@ void proto_register_nas_eps(void) {
         FT_UINT8,BASE_DEC, VALS(nas_eps_service_type_vals), 0x0,
         NULL, HFILL }
     },
+    { &hf_nas_eps_nas_msg_cont,
+        { "NAS message container", "nas_eps.emm.nas_msg_cont",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_gen_msg_cont,
+        { "Generic message container", "nas_eps.emm.gen_msg_cont",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
+    { &hf_nas_eps_emm_add_info,
+        { "Additional information", "nas_eps.emm.add_info",
+        FT_BYTES, BASE_NONE, NULL, 0x0,
+        NULL, HFILL }
+    },
     /* ESM hf cvariables */
     { &hf_nas_eps_msg_esm_type,
         { "NAS EPS session management messages",    "nas_eps.nas_msg_esm_type",
@@ -5298,7 +5349,7 @@ void proto_register_nas_eps(void) {
   };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    2
+#define NUM_INDIVIDUAL_ELEMS    4
     gint *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_NAS_EPS_COMMON_ELEM +
           NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
@@ -5306,6 +5357,8 @@ void proto_register_nas_eps(void) {
 
     ett[0] = &ett_nas_eps;
     ett[1] = &ett_nas_eps_esm_msg_cont;
+    ett[2] = &ett_nas_eps_nas_msg_cont;
+    ett[3] = &ett_nas_eps_gen_msg_cont;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
