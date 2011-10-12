@@ -723,7 +723,7 @@ kind_t * getKindFromId(guint32 id) {
 
   /* then pre-defined kinds */
   {
-    guint npredefinedkinds = sizeof(predefined_kinds);
+    guint npredefinedkinds = sizeof(predefined_kinds) / sizeof(kind_t);
     for (i = 0; i < npredefinedkinds; i++) {
       if (id == predefined_kinds[i].id) {
         return (predefined_kinds+i);
@@ -2933,7 +2933,7 @@ static int dissect_dmflag(tvbuff_t *tvb, proto_tree *tree, guint16 offset) {
   ti_local = proto_tree_add_item(tree, hf_reload_dmflags, tvb, offset, 64, ENC_BIG_ENDIAN);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_dmflags);
 
-  for (i=0; i<sizeof(reload_dmflag_items); i++) {
+  for (i=0; i<(sizeof(reload_dmflag_items)/sizeof(gint *)); i++) {
     if (reload_dmflag_items[i]!=NULL) {
       proto_tree_add_bits_item(local_tree, *(reload_dmflag_items[i]), tvb, bit_offset+63-i, 1, FALSE);
     }
@@ -5355,17 +5355,17 @@ proto_register_reload(void)
       }
     },
     { &hf_reload_redirserviceproviderdata_namespace,
-      { "namespace",  "reload.reload.redirserviceprovider.data.namespace",  FT_NONE,
+      { "namespace",  "reload.redirserviceprovider.data.namespace",  FT_NONE,
         BASE_NONE,  NULL, 0x0,  NULL, HFILL
       }
     },
     { &hf_reload_redirserviceproviderdata_level,
-      { "level (uint16)",  "reload.reload.redirserviceprovider.data.level",  FT_UINT16,
+      { "level (uint16)",  "reload.redirserviceprovider.data.level",  FT_UINT16,
         BASE_DEC,  NULL, 0x0,  NULL, HFILL
       }
     },
     { &hf_reload_redirserviceproviderdata_node,
-      { "node (uint16)",  "reload.reload.redirserviceprovider.data.node",  FT_UINT16,
+      { "node (uint16)",  "reload.redirserviceprovider.data.node",  FT_UINT16,
         BASE_DEC,  NULL, 0x0,  NULL, HFILL
       }
     },
