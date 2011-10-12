@@ -42,21 +42,21 @@
 
 /* TPCP version1/2 PDU format */
 typedef struct _tpcppdu_t {
-	guint8	version; /* PDU version 1 */
-	guint8	type;	/* PDU type: 1=request, 2=reply, 3=add filter, 4=rem  filter */
-	/* Version 2 adds 5=add session 6= remove session */
-	guint16	flags;	/* 0x0001: 0=UDP, 1=TCP*/
-	/* 0x0002: 0=NONE, 1=DONT REDIRECT */
-	/* 0x0004: 0=NONE, 1=Xon */
-	/* 0x0008: 0=NONE, 1=Xoff */
-	guint16	id;	/* request/response identification or TTL */
-	guint16	cport;	/* client UDP or TCP port number */
-	guint32	caddr;	/* client IPv4 address */
-	guint32	saddr;	/* server IPV4 address */
+	guint8	version;     /* PDU version 1 */
+	guint8	type;	     /* PDU type: 1=request, 2=reply, 3=add filter, 4=rem  filter */
+	                     /* Version 2 adds 5=add session 6= remove session */
+	guint16	flags;	     /* 0x0001: 0=UDP, 1=TCP*/
+	                     /* 0x0002: 0=NONE, 1=DONT REDIRECT */
+	                     /* 0x0004: 0=NONE, 1=Xon */
+	                     /* 0x0008: 0=NONE, 1=Xoff */
+	guint16	id;	     /* request/response identification or TTL */
+	guint16	cport;	     /* client UDP or TCP port number */
+	guint32	caddr;	     /* client IPv4 address */
+	guint32	saddr;	     /* server IPV4 address */
 	/* tpcp version 2 only*/
-	guint32 vaddr;	/* Virtual Server IPv4 address */
-	guint32 rasaddr; /* RAS server IPv4 address */
-	guint32 signature; /* 0x74706370 - tpcp */
+	guint32 vaddr;	     /* Virtual Server IPv4 address */
+	guint32 rasaddr;     /* RAS server IPv4 address */
+	guint32 signature;   /* 0x74706370 - tpcp */
 } tpcpdu_t;
 
 
@@ -118,6 +118,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	/* need to find out which version!! */
 	tpcph.version = tvb_get_guint8(tvb, 0);
 	/* as version 1 and 2 are so similar use the same structure, just don't use as much for version 1*/
+        /* XXX: Doing a memcpy into a struct is *not* kosher */
 	if (tpcph.version == TPCP_VER_1) {
 		length = TPCP_VER_1_LENGTH;
 		tvb_memcpy(tvb, (guint8 *) &tpcph, 0, length);
@@ -129,9 +130,10 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 
-	tpcph.id = g_ntohs(tpcph.id);
-	tpcph.flags = g_ntohs(tpcph.flags);
-	tpcph.cport = g_ntohs(tpcph.cport);
+	tpcph.id        = g_ntohs(tpcph.id);
+	tpcph.flags     = g_ntohs(tpcph.flags);
+	tpcph.cport     = g_ntohs(tpcph.cport);
+        tpcph.signature = g_ntohl(tpcph.signature);
 
 	if (check_col(pinfo->cinfo, COL_INFO))
 		col_add_fstr(pinfo->cinfo, COL_INFO,"%s id %d CPort %s CIP %s SIP %s",
@@ -147,7 +149,7 @@ dissect_tpcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		tpcp_tree = proto_item_add_subtree(ti, ett_tpcp);
 
-		proto_tree_add_item(tpcp_tree, hf_tpcp_version, tvb, 0, 1, tpcph.version);
+		proto_tree_add_uint(tpcp_tree, hf_tpcp_version, tvb, 0, 1, tpcph.version);
 
 		proto_tree_add_uint_format(tpcp_tree, hf_tpcp_type, tvb, 1, 1, tpcph.type,
 			"Type: %s (%d)",
