@@ -2973,9 +2973,9 @@ static int dissect_diagnosticrequest(int anchor, tvbuff_t *tvb, packet_info *pin
   ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_diagnosticrequest);
 
-  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP);
+  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
   local_offset+=8;
-  proto_tree_add_item(local_tree, hf_reload_diagnosticrequest_timestampinitiated, tvb, offset+local_offset, 8, ENC_TIME_NTP);
+  proto_tree_add_item(local_tree, hf_reload_diagnosticrequest_timestampinitiated, tvb, offset+local_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
   local_offset+=8;
   local_length = tvb_get_ntohl(tvb, offset+local_offset);
   proto_tree_add_item(local_tree, hf_reload_length_uint32, tvb, offset+local_offset, 4, ENC_BIG_ENDIAN);
@@ -3199,9 +3199,9 @@ static int dissect_diagnosticresponse(int anchor, tvbuff_t *tvb, packet_info *pi
   ti_local = proto_tree_add_item(tree, hf, tvb, offset, length, FALSE);
   local_tree = proto_item_add_subtree(ti_local, ett_reload_diagnosticresponse);
 
-  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP);
+  proto_tree_add_item(local_tree, hf_reload_diagnostic_expiration, tvb, offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
   local_offset+=8;
-  proto_tree_add_item(local_tree, hf_reload_diagnosticresponse_timestampreceived, tvb, offset+local_offset, 8, ENC_TIME_NTP);
+  proto_tree_add_item(local_tree, hf_reload_diagnosticresponse_timestampreceived, tvb, offset+local_offset, 8, ENC_TIME_NTP|ENC_BIG_ENDIAN);
   local_offset+=8;
   proto_tree_add_item(local_tree, hf_reload_diagnosticresponse_hopcounter, tvb, offset+local_offset, 1, ENC_BIG_ENDIAN);
 

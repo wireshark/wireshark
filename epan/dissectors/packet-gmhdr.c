@@ -137,7 +137,7 @@ dissect_gmtlv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *gmhdr_tree, gui
           expert_add_info_format(pinfo, gmhdr_tree, PI_MALFORMED, PI_ERROR, "Field length %u invalid", fl);
           break;
         }
-        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, FALSE);
+        ti = proto_tree_add_item(gmhdr_tree, hf_gmhdr_timestamp, tvb, offset, fl, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
         proto_item_append_text(ti, "; Source: %s", val_to_str(tl>>8, gmhdr_ftype_timestamp, "Unknown"));
         break;
       default:

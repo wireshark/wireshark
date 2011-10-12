@@ -4789,7 +4789,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 151):		  /* RTP_FIRST_TS */
 		case ((VENDOR_NTOP << 16) | 151): /* RTP_FIRST_TS */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_first_ts,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 152):		  /* RTP_LAST_SSRC */
 		case ((VENDOR_NTOP << 16) | 152): /* RTP_LAST_SSRC */
@@ -4799,7 +4799,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 153):		  /* RTP_LAST_TS */
 		case ((VENDOR_NTOP << 16) | 153): /* RTP_LAST_TS */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_rtp_last_ts,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 			break;
 		case (NTOP_BASE + 154):		  /* RTP_IN_JITTER */
 		case ((VENDOR_NTOP << 16) | 154): /* RTP_IN_JITTER */
@@ -4973,7 +4973,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 		case ((VENDOR_PLIXER << 16) | 111):    /* origination_time */
 			ti = proto_tree_add_item(pdutree, hf_pie_plixer_origination_time,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 			break;
 		case ((VENDOR_PLIXER << 16) | 112):    /* encryption */
 			ti = proto_tree_add_item(pdutree, hf_pie_plixer_encryption,
@@ -5001,7 +5001,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 		case ((VENDOR_PLIXER << 16) | 117):    /* date_time */
 			ti = proto_tree_add_item(pdutree, hf_pie_plixer_date_time,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_TIME_TIMESPEC|ENC_BIG_ENDIAN);
 			break;
                 /* END Plixer International */
 
