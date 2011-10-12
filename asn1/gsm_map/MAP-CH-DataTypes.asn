@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V9.3.0 (2010-09)
+-- 3GPP TS 29.002 V10.4.0 (2011-09)
 -- 17.7.3	Call handling data types
  
 MAP-CH-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CH-DataTypes (13) version12 (12)}
+   gsm-Network (1) modules (3) map-CH-DataTypes (13) version13 (13)}
 
 DEFINITIONS
 
@@ -36,10 +36,10 @@ EXPORTS
 IST-CommandRes,
 UU-Data,
 ReleaseResourcesArg,
-ReleaseResourcesRes,
 -- WS added exports needed by gsm_map.asn (extra asn1 file to handle older proto. ver.)
 RoutingInfo,
-CUG-CheckInfo
+CUG-CheckInfo,
+ReleaseResourcesRes
 ;
 
 IMPORTS
@@ -58,14 +58,14 @@ IMPORTS
 	PagingArea
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version12 (12)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version13 (13)}
 
 	ForwardingOptions,
 	SS-List,
 	CCBS-Feature
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version12 (12)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version13 (13)}
 
 	ISDN-AddressString,
 	ISDN-SubaddressString,
@@ -80,12 +80,12 @@ FROM MAP-SS-DataTypes {
 	EMLPP-Priority
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 ;
 
 
@@ -258,14 +258,17 @@ ProvideRoamingNumberArg ::= SEQUENCE {
 	offeredCamel4CSIsInInterrogatingNode	[20] OfferedCamel4CSIs	OPTIONAL,
 	mtRoamingRetrySupported	[21] NULL		OPTIONAL,
 	pagingArea	[22] PagingArea	OPTIONAL,
-	callPriority	[23]	EMLPP-Priority	OPTIONAL
+	callPriority	[23]	EMLPP-Priority	OPTIONAL,
+	mtrf-Indicator	[24] NULL		OPTIONAL,
+	oldMSC-Number	[25] ISDN-AddressString	OPTIONAL
 	 }
 
 ProvideRoamingNumberRes ::= SEQUENCE {
 	roamingNumber	ISDN-AddressString,
 	extensionContainer	ExtensionContainer	OPTIONAL,
 	...,
-	releaseResourcesSupported	NULL			OPTIONAL }
+	releaseResourcesSupported	NULL			OPTIONAL,
+	vmsc-Address	ISDN-AddressString	OPTIONAL }
 
 ResumeCallHandlingArg ::= SEQUENCE {
 	callReferenceNumber	[0] CallReferenceNumber	OPTIONAL,

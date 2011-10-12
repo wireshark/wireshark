@@ -1,14 +1,14 @@
 -- $Id$
 -- MAP-ExtensionDataTypes.asn
 --
--- Taken from 3GPP TS 29.002 V9.3.0 (2010-09)
+-- Taken from 3GPP TS 29.002 V10.4.0 (2011-09)
 --
 -- 17.7.11 Extension data types
 --
 
 MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 
 DEFINITIONS
 

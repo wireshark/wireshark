@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V9.3.0 (2010-09)  
+-- 3GPP TS 29.002 V10.4.0 (2011-09)  
 -- 17.6.6	Errors
  
 MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version12 (12)}
+   gsm-Network (1) modules (3) map-Errors (10) version13 (13)}
 
 DEFINITIONS
 
@@ -107,7 +107,7 @@ FROM Remote-Operations-Information-Objects {joint-iso-itu-t remote-operations(4)
 	SS-Status
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-DataTypes (14) version12 (12)}
+   gsm-Network (1) modules (3) map-SS-DataTypes (14) version13 (13)}
 
 	SS-IncompatibilityCause,
 	PW-RegistrationFailureCause,
@@ -158,7 +158,7 @@ TargetCellOutsideGCA-Param,
 OngoingGroupCallParam
 FROM MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version12 (12)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version13 (13)}
 ;
 
 -- generic errors

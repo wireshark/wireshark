@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-camel.c                                                             */
-/* ../../tools/asn2wrs.py -b -L -p camel -c ./camel.cnf -s ./packet-camel-template -D . CAP-object-identifiers.asn CAP-classes.asn CAP-datatypes.asn CAP-errorcodes.asn CAP-errortypes.asn CAP-operationcodes.asn CAP-GPRS-ReferenceNumber.asn CAP-gsmSCF-gsmSRF-ops-args.asn CAP-gsmSSF-gsmSCF-ops-args.asn CAP-gprsSSF-gsmSCF-ops-args.asn CAP-SMS-ops-args.asn CAP-U-ABORT-Data.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
+/* ../../tools/asn2wrs.py -b -L -p camel -c ./camel.cnf -s ./packet-camel-template -D . -O ../../epan/dissectors CAP-object-identifiers.asn CAP-classes.asn CAP-datatypes.asn CAP-errorcodes.asn CAP-errortypes.asn CAP-operationcodes.asn CAP-GPRS-ReferenceNumber.asn CAP-gsmSCF-gsmSRF-ops-args.asn CAP-gsmSSF-gsmSCF-ops-args.asn CAP-gprsSSF-gsmSCF-ops-args.asn CAP-SMS-ops-args.asn CAP-U-ABORT-Data.asn ../ros/Remote-Operations-Information-Objects.asn ../ros/Remote-Operations-Generic-ROS-PDUs.asn */
 
 /* Input file: packet-camel-template.c */
 
@@ -525,11 +525,14 @@ static int hf_camel_lowLayerCompatibility2 = -1;  /* LowLayerCompatibility */
 static int hf_camel_enhancedDialledServicesAllowed = -1;  /* NULL */
 static int hf_camel_uu_Data = -1;                 /* UU_Data */
 static int hf_camel_collectInformationAllowed = -1;  /* NULL */
+static int hf_camel_releaseCallArgExtensionAllowed = -1;  /* NULL */
 static int hf_camel_legToBeCreated = -1;          /* LegID */
 static int hf_camel_newCallSegment = -1;          /* CallSegmentID */
 static int hf_camel_gsmSCFAddress = -1;           /* ISDN_AddressString */
 static int hf_camel_suppress_T_CSI = -1;          /* NULL */
 static int hf_camel_legIDToMove = -1;             /* LegID */
+static int hf_camel_allCallSegments = -1;         /* AllCallSegments */
+static int hf_camel_allCallSegmentsWithExtension = -1;  /* AllCallSegmentsWithExtension */
 static int hf_camel_bcsmEvents = -1;              /* SEQUENCE_SIZE_1_bound__numOfBCSMEvents_OF_BCSMEvent */
 static int hf_camel_bcsmEvents_item = -1;         /* BCSMEvent */
 static int hf_camel_timerID = -1;                 /* TimerID */
@@ -771,6 +774,8 @@ static gint ett_camel_InitiateCallAttemptArg = -1;
 static gint ett_camel_InitiateCallAttemptRes = -1;
 static gint ett_camel_MoveLegArg = -1;
 static gint ett_camel_PlayToneArg = -1;
+static gint ett_camel_ReleaseCallArg = -1;
+static gint ett_camel_AllCallSegmentsWithExtension = -1;
 static gint ett_camel_RequestReportBCSMEventArg = -1;
 static gint ett_camel_SEQUENCE_SIZE_1_bound__numOfBCSMEvents_OF_BCSMEvent = -1;
 static gint ett_camel_ResetTimerArg = -1;
@@ -4378,7 +4383,7 @@ dissect_camel_UserCSGInformation(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static const ber_sequence_t LocationInformationGPRS_sequence[] = {
   { &hf_camel_cellGlobalIdOrServiceAreaIdOrLAI, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_T_cellGlobalIdOrServiceAreaIdOrLAI },
-  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RAIdentity },
+  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_RAIdentity },
   { &hf_camel_geographicalInformation, BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GeographicalInformation },
   { &hf_camel_sgsn_Number   , BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ISDN_AddressString },
   { &hf_camel_selectedLSAIdentity, BER_CLASS_CON, 4, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_LSAIdentity },
@@ -5507,6 +5512,7 @@ static const ber_sequence_t InitialDPArgExtension_sequence[] = {
   { &hf_camel_enhancedDialledServicesAllowed, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { &hf_camel_uu_Data       , BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ch_UU_Data },
   { &hf_camel_collectInformationAllowed, BER_CLASS_CON, 13, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
+  { &hf_camel_releaseCallArgExtensionAllowed, BER_CLASS_CON, 14, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5588,6 +5594,7 @@ static const ber_sequence_t InitiateCallAttemptRes_sequence[] = {
   { &hf_camel_supportedCamelPhases, BER_CLASS_CON, 0, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_SupportedCamelPhases },
   { &hf_camel_offeredCamel4Functionalities, BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_OfferedCamel4Functionalities },
   { &hf_camel_extensions    , BER_CLASS_CON, 2, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Extensions },
+  { &hf_camel_releaseCallArgExtensionAllowed, BER_CLASS_CON, 3, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_NULL },
   { NULL, 0, 0, 0, NULL }
 };
 
@@ -5633,8 +5640,45 @@ dissect_camel_PlayToneArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offs
 
 
 static int
-dissect_camel_ReleaseCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+dissect_camel_AllCallSegments(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
   offset = dissect_camel_Cause(implicit_tag, tvb, offset, actx, tree, hf_index);
+
+  return offset;
+}
+
+
+static const ber_sequence_t AllCallSegmentsWithExtension_sequence[] = {
+  { &hf_camel_allCallSegments, BER_CLASS_CON, 0, BER_FLAGS_IMPLTAG, dissect_camel_AllCallSegments },
+  { &hf_camel_extensions    , BER_CLASS_CON, 1, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_Extensions },
+  { NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_camel_AllCallSegmentsWithExtension(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
+                                   AllCallSegmentsWithExtension_sequence, hf_index, ett_camel_AllCallSegmentsWithExtension);
+
+  return offset;
+}
+
+
+static const value_string camel_ReleaseCallArg_vals[] = {
+  {   0, "allCallSegments" },
+  {   1, "allCallSegmentsWithExtension" },
+  { 0, NULL }
+};
+
+static const ber_choice_t ReleaseCallArg_choice[] = {
+  {   0, &hf_camel_allCallSegments, BER_CLASS_UNI, BER_UNI_TAG_OCTETSTRING, BER_FLAGS_NOOWNTAG, dissect_camel_AllCallSegments },
+  {   1, &hf_camel_allCallSegmentsWithExtension, BER_CLASS_CON, 2, BER_FLAGS_IMPLTAG, dissect_camel_AllCallSegmentsWithExtension },
+  { 0, NULL, 0, 0, 0, NULL }
+};
+
+static int
+dissect_camel_ReleaseCallArg(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
+  offset = dissect_ber_choice(actx, tree, tvb, offset,
+                                 ReleaseCallArg_choice, hf_index, ett_camel_ReleaseCallArg,
+                                 NULL);
 
   return offset;
 }
@@ -5845,7 +5889,7 @@ static const ber_sequence_t InitialDPGPRSArg_sequence[] = {
   { &hf_camel_endUserAddress, BER_CLASS_CON, 6, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_EndUserAddress },
   { &hf_camel_qualityOfService, BER_CLASS_CON, 7, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_QualityOfService },
   { &hf_camel_accessPointName, BER_CLASS_CON, 8, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_AccessPointName },
-  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_RAIdentity },
+  { &hf_camel_routeingAreaIdentity, BER_CLASS_CON, 9, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_RAIdentity },
   { &hf_camel_chargingID    , BER_CLASS_CON, 10, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_gsm_map_ms_GPRSChargingID },
   { &hf_camel_sGSNCapabilities, BER_CLASS_CON, 11, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_SGSNCapabilities },
   { &hf_camel_locationInformationGPRS, BER_CLASS_CON, 12, BER_FLAGS_OPTIONAL|BER_FLAGS_IMPLTAG, dissect_camel_LocationInformationGPRS },
@@ -7443,7 +7487,7 @@ void proto_register_camel(void) {
         NULL, HFILL }},
     { &hf_camel_ReleaseCallArg_PDU,
       { "ReleaseCallArg", "camel.ReleaseCallArg",
-        FT_BYTES, BASE_NONE, NULL, 0,
+        FT_UINT32, BASE_DEC, VALS(camel_ReleaseCallArg_vals), 0,
         NULL, HFILL }},
     { &hf_camel_RequestReportBCSMEventArg_PDU,
       { "RequestReportBCSMEventArg", "camel.RequestReportBCSMEventArg",
@@ -8945,6 +8989,10 @@ void proto_register_camel(void) {
       { "collectInformationAllowed", "camel.collectInformationAllowed",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_camel_releaseCallArgExtensionAllowed,
+      { "releaseCallArgExtensionAllowed", "camel.releaseCallArgExtensionAllowed",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_camel_legToBeCreated,
       { "legToBeCreated", "camel.legToBeCreated",
         FT_UINT32, BASE_DEC, VALS(inap_LegID_vals), 0,
@@ -8965,6 +9013,14 @@ void proto_register_camel(void) {
       { "legIDToMove", "camel.legIDToMove",
         FT_UINT32, BASE_DEC, VALS(inap_LegID_vals), 0,
         "LegID", HFILL }},
+    { &hf_camel_allCallSegments,
+      { "allCallSegments", "camel.allCallSegments",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
+    { &hf_camel_allCallSegmentsWithExtension,
+      { "allCallSegmentsWithExtension", "camel.allCallSegmentsWithExtension",
+        FT_NONE, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
     { &hf_camel_bcsmEvents,
       { "bcsmEvents", "camel.bcsmEvents",
         FT_UINT32, BASE_DEC, NULL, 0,
@@ -9372,6 +9428,8 @@ void proto_register_camel(void) {
     &ett_camel_InitiateCallAttemptRes,
     &ett_camel_MoveLegArg,
     &ett_camel_PlayToneArg,
+    &ett_camel_ReleaseCallArg,
+    &ett_camel_AllCallSegmentsWithExtension,
     &ett_camel_RequestReportBCSMEventArg,
     &ett_camel_SEQUENCE_SIZE_1_bound__numOfBCSMEvents_OF_BCSMEvent,
     &ett_camel_ResetTimerArg,

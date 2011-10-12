@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V9.3.0 (2010-09) 
+-- 3GPP TS 29.002 V10.4.0 (2011-09) 
 -- 17.7.9	Teleservice Codes
  
 MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version12 (12)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version13 (13)}
 
 DEFINITIONS
 

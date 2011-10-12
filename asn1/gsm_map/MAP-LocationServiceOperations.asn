@@ -1,11 +1,11 @@
 -- $Id$
--- 3GPP TS 29.002 V9.3.0 (2010-09)  
+-- 3GPP TS 29.002 V10.4.0 (2011-09)  
 -- 17.6.8	Location service operations
  
 MAP-LocationServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-LocationServiceOperations (24)
-   version12 (12)}
+   version13 (13)}
 
 DEFINITIONS
 
@@ -41,7 +41,7 @@ systemFailure,
 	illegalSubscriber
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version12 (12)}
+   gsm-Network (1) modules (3) map-Errors (10) version13 (13)}
 
 	RoutingInfoForLCS-Arg,
 	RoutingInfoForLCS-Res,
@@ -51,7 +51,7 @@ FROM MAP-Errors {
 	SubscriberLocationReport-Res
 FROM MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version12 (12)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version13 (13)}
 ;
 
 sendRoutingInfoForLCS  OPERATION ::= {				--Timer m

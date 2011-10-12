@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002 V9.3.0 (2010-09)
+-- 3GPP TS 29.002 V10.4.0 (2011-09)
 -- 17.7.8	Common data types
 
 MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
 
 DEFINITIONS
 
@@ -30,6 +30,7 @@ AccessNetworkSignalInfo,
 	AlertingPattern,
 	TBCD-STRING,
 	DiameterIdentity,
+	Time,
 
 	-- data types for numbering and identification
 	IMSI,
@@ -47,6 +48,9 @@ AccessNetworkSignalInfo,
 	ASCI-CallReference,
 	SubscriberIdentity,
 	PLMN-Id,
+	E-UTRAN-CGI,
+	TA-Id,
+	RAIdentity,
 
 	-- data types for CAMEL
 	CellGlobalIdOrServiceAreaIdOrLAI, 
@@ -68,9 +72,9 @@ AccessNetworkSignalInfo,
 	LCSClientExternalID,
 	LCSClientInternalID,
 	LCSServiceTypeID,
-
 	-- WS added exports needed by gsm_map.asn (extra asn1 file to handle older prot. ver.)
 	ProtocolId,
+
 	-- gprs location registration types
 	GSN-Address
 
@@ -81,23 +85,23 @@ IMPORTS
 	Ext-TeleserviceCode
 FROM MAP-TS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-TS-Code (19) version12 (12)}
+   gsm-Network (1) modules (3) map-TS-Code (19) version13 (13)}
 
 	BearerServiceCode,
 	Ext-BearerServiceCode
 FROM MAP-BS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-BS-Code (20) version12 (12)}
+   gsm-Network (1) modules (3) map-BS-Code (20) version13 (13)}
 
 	SS-Code
 FROM MAP-SS-Code {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SS-Code (15) version12 (12)}
+   gsm-Network (1) modules (3) map-SS-Code (15) version13 (13)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 ;
 
 
@@ -311,6 +315,10 @@ alertingCategory-5   AlertingPattern ::= '00001000'B
 
 GSN-Address ::= OCTET STRING (SIZE (5..17))
 	-- Octets are coded according to TS 3GPP TS 23.003 [17]
+
+Time ::= OCTET STRING (SIZE (4))
+	-- Octets are coded according to IETF RFC 3588 [139]
+
 
 -- data types for numbering and identification
 
@@ -528,6 +536,17 @@ PLMN-Id ::= OCTET STRING (SIZE (3))
 	--			or filler (1111) for 2 digit MNCs
 	-- octet 3 bits 4321	Mobile Network Code 1st digit
 	--         bits 8765	Mobile Network Code 2nd digit
+
+E-UTRAN-CGI ::= OCTET STRING (SIZE (7))
+	-- Octets are coded as described in 3GPP TS 29.118.
+
+TA-Id ::= OCTET STRING (SIZE (5))
+	-- Octets are coded as described in 3GPP TS 29.118.
+
+RAIdentity ::= OCTET STRING (SIZE (6))
+-- Routing Area Identity is coded in accordance with 3GPP TS 29.060 [105].
+-- It shall contain the value part defined in 3GPP TS 29.060 only. I.e. the 3GPP TS 29.060
+-- type identifier octet shall not be included.
 
 -- data types for CAMEL
 

@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.078 9.2.0 (2010-06)
+-- 3GPP TS 29.078 11.0.0 (2011-09)
 -- 7	SMS Control
 -- 7.1	SMS operations and arguments
 CAP-SMS-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) umts-network(1) modules(3) cap-SMS-ops-args(105) version8(7)}
@@ -9,7 +9,7 @@ CAP-SMS-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0) um
 DEFINITIONS IMPLICIT TAGS::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- smsSSF– gsmSCF interface, for the control of MO-SMS and MT-SMS.
+-- smsSSF? gsmSCF interface, for the control of MO-SMS and MT-SMS.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.

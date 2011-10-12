@@ -219,7 +219,6 @@ GSMMAPOperationLocalvalue ::= INTEGER{
 	unAllocated (106),
 	unAllocated (107),
 	unAllocated (108),
-	unAllocated (109),
 	lcs-PeriodicLocationCancellation (109),
 	lcs-LocationUpdate (110),
 	lcs-PeriodicLocationRequest (111),

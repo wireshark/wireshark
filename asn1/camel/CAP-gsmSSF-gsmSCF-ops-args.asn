@@ -1,5 +1,5 @@
 -- $Id$
--- 3GPP TS 29.078 9.2.0 (2010-06)
+-- 3GPP TS 29.078 11.0.0 (2011-09)
 -- 6	Circuit Switched Call Control
 -- 6.1	gsmSSF/CCF - gsmSCF Interface
 -- 6.1.1	Operations and arguments
@@ -363,7 +363,7 @@ collectInformation {PARAMETERS-BOUND : bound} OPERATION::= {
 CollectInformationArg {PARAMETERS-BOUND : bound} ::= SEQUENCE{
 	extensions										[0]	Extensions {bound}	OPTIONAL,
 	...
-	}
+}
 
 connect {PARAMETERS-BOUND : bound} OPERATION ::= {
 	ARGUMENT		ConnectArg {bound}
@@ -686,7 +686,8 @@ InitialDPArgExtension {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	...,
 	enhancedDialledServicesAllowed		[11] NULL									OPTIONAL,
 	uu-Data								[12] UU-Data								OPTIONAL,
-	collectInformationAllowed			[13] NULL									OPTIONAL
+	collectInformationAllowed			[13] NULL									OPTIONAL,
+	releaseCallArgExtensionAllowed		[14] NULL									OPTIONAL
 }
 -- If iPSSPCapabilities is not present then this denotes that a colocated gsmSRF is not 
 -- supported by the gsmSSF. If present, then the gsmSSF supports a colocated gsmSRF capable 
@@ -729,7 +730,8 @@ InitiateCallAttemptRes {PARAMETERS-BOUND : bound} ::= SEQUENCE {
 	supportedCamelPhases				[0] SupportedCamelPhases					OPTIONAL,
 	offeredCamel4Functionalities		[1] OfferedCamel4Functionalities			OPTIONAL,
 	extensions							[2]	Extensions {bound}						OPTIONAL,
-	...
+	...,
+	releaseCallArgExtensionAllowed		[3]	NULL									OPTIONAL
 	}
 
 moveLeg {PARAMETERS-BOUND : bound} OPERATION ::= {
@@ -785,8 +787,18 @@ releaseCall {PARAMETERS-BOUND : bound} OPERATION ::= {
 -- This operation is used to tear down an existing call at any phase of the call for all parties 
 -- involved in the call. 
 
-ReleaseCallArg {PARAMETERS-BOUND : bound} ::= Cause {bound} 
+ReleaseCallArg {PARAMETERS-BOUND : bound} ::= CHOICE {
+	allCallSegments					AllCallSegments,
+	allCallSegmentsWithExtension	[2] AllCallSegmentsWithExtension
+	}
+
+AllCallSegments ::= Cause {bound} 
 -- A default value of decimal 31 (normal unspecified) shall be given.
+
+AllCallSegmentsWithExtension ::= SEQUENCE {
+	allCallSegments				[0] AllCallSegments,
+	extensions					[1] Extensions {bound} OPTIONAL
+	}
 
 requestReportBCSMEvent {PARAMETERS-BOUND : bound} OPERATION ::= {
 	ARGUMENT		RequestReportBCSMEventArg {bound}

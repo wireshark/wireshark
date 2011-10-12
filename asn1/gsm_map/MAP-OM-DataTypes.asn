@@ -1,10 +1,10 @@
 -- $Id$
 -- 17.7.2	Operation and maintenance data types
--- 3GPP TS 29.002 V9.3.0 (2010-09)
+-- 3GPP TS 29.002 V10.4.0 (2011-09)
  
 MAP-OM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-OM-DataTypes (12) version12 (12)}
+   gsm-Network (1) modules (3) map-OM-DataTypes (12) version13 (13)}
 
 DEFINITIONS
 
@@ -25,15 +25,20 @@ EXPORTS
 IMPORTS
 	AddressString,
 	IMSI,
-	GSN-Address
+	GSN-Address,
+	GlobalCellId,
+	E-UTRAN-CGI,
+	TA-Id,
+	RAIdentity,
+	LAIFixedLength
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 
 ;
 
@@ -49,8 +54,123 @@ ActivateTraceModeArg ::= SEQUENCE {
 	traceNE-TypeList	[7] TraceNE-TypeList	OPTIONAL,
 	traceInterfaceList	[8] TraceInterfaceList	OPTIONAL,
 	traceEventList	[9] TraceEventList	OPTIONAL,
-	traceCollectionEntity	[10] GSN-Address	OPTIONAL
+	traceCollectionEntity	[10] GSN-Address	OPTIONAL,
+	mdt-Configuration	[11] MDT-Configuration	OPTIONAL
 	}
+
+MDT-Configuration ::= SEQUENCE {
+	jobType		JobType,
+	areaScope		AreaScope		OPTIONAL,
+	listOfMeasurements	ListOfMeasurements	OPTIONAL,
+	reportingTrigger	[0] ReportingTrigger	OPTIONAL,
+	reportInterval	ReportInterval	OPTIONAL,
+	reportAmount	[1] ReportAmount	OPTIONAL,
+	eventThresholdRSRP	EventThresholdRSRP	OPTIONAL,
+	eventThresholdRSRQ	[2] EventThresholdRSRQ	OPTIONAL,
+	loggingInterval	[3] LoggingInterval	OPTIONAL,
+	loggingDuration	[4] LoggingDuration	OPTIONAL,
+	extensionContainer	[5] ExtensionContainer	OPTIONAL,
+	... }
+
+JobType ::= ENUMERATED {
+	immediate-MDT-only (0),
+	logged-MDT-only (1),
+	trace-only (2),
+	immediate-MDT-and-trace (3)}
+
+AreaScope ::= SEQUENCE {
+	cgi-List		[0] CGI-List	OPTIONAL,
+	e-utran-cgi-List	[1] E-UTRAN-CGI-List	OPTIONAL,
+	routingAreaId-List	[2] RoutingAreaId-List	OPTIONAL,
+	locationAreaId-List	[3] LocationAreaId-List	OPTIONAL,
+	trackingAreaId-List	[4] TrackingAreaId-List	OPTIONAL,
+	extensionContainer	[5] ExtensionContainer	OPTIONAL,
+	... }
+
+CGI-List ::= SEQUENCE SIZE (1..32) OF
+				GlobalCellId
+
+E-UTRAN-CGI-List ::= SEQUENCE SIZE (1..32) OF
+				E-UTRAN-CGI
+
+RoutingAreaId-List ::= SEQUENCE SIZE (1..8) OF
+				RAIdentity
+
+LocationAreaId-List ::= SEQUENCE SIZE (1..8) OF
+				LAIFixedLength
+
+TrackingAreaId-List ::= SEQUENCE SIZE (1..8) OF
+				TA-Id
+ListOfMeasurements ::= OCTET STRING (SIZE (4))
+	-- Octets are coded as described in 3GPP TS 32.422.
+
+ReportingTrigger ::= OCTET STRING (SIZE (1))
+	-- Octet is coded as described in 3GPP TS 32.422.
+
+ReportInterval ::= ENUMERATED {
+	umts250ms (0),
+	umts500ms (1),
+	umts1000ms (2),
+	umts2000ms (3),
+	umts3000ms (4),
+	umts4000ms (5),
+	umts6000ms (6),
+	umts8000ms (7),
+	umts12000ms (8),
+	umts16000ms (9),
+	umts20000ms (10),
+	umts24000ms (11),
+	umts28000ms (12),
+	umts32000ms (13),
+	umts64000ms (14),
+	lte120ms (15),
+	lte240ms (16),
+	lte480ms (17),
+	lte640ms (18),
+	lte1024ms (19),
+	lte2048ms (20),
+	lte5120ms (21),
+	lte10240ms (22),
+	lte1min (23),
+	lte6min (24),
+	lte12min (25),
+	lte30min (26),
+	lte60min (27)}
+
+
+ReportAmount ::= ENUMERATED {
+	d1 (0),
+	d2 (1),
+	d4 (2),
+	d8 (3),
+	d16 (4),
+	d32 (5),
+	d64 (6),
+	infinity (7)}
+
+EventThresholdRSRP ::= INTEGER
+	(0..97)
+
+EventThresholdRSRQ ::= INTEGER
+	(0..34)
+
+LoggingInterval ::= ENUMERATED {
+	d1dot28 (0),
+	d2dot56 (1),
+	d5dot12 (2),
+	d10dot24 (3),
+	d20dot48 (4),
+	d30dot72 (5),
+	d40dot96 (6),
+	d61dot44 (7)}
+
+LoggingDuration ::= ENUMERATED {
+	d600sec (0),
+	d1200sec (1),
+	d2400sec (2),
+	d3600sec (3),
+	d5400sec (4),
+	d7200sec (5)}
 
 TraceReference ::= OCTET STRING (SIZE (1..2))
 

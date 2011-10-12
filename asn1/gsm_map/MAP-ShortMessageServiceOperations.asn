@@ -1,11 +1,11 @@
 -- $Id$
--- 3GPP TS 29.002 V9.3.0 (2010-09)  
+-- 3GPP TS 29.002 V10.4.0 (2011-09)  
 -- 17.6.5	Short message service operations
  
 MAP-ShortMessageServiceOperations {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
    gsm-Network (1) modules (3) map-ShortMessageServiceOperations (9)
-   version12 (12)}
+   version13 (13)}
 
 DEFINITIONS
 
@@ -46,7 +46,7 @@ joint-iso-itu-t remote-operations(4)
 	absentSubscriberSM
 FROM MAP-Errors {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-Errors (10) version12 (12)}
+   gsm-Network (1) modules (3) map-Errors (10) version13 (13)}
 
 	RoutingInfoForSM-Arg,
 	RoutingInfoForSM-Res,
@@ -64,7 +64,7 @@ FROM MAP-Errors {
 	MT-ForwardSM-VGCS-Res
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version12 (12)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version13 (13)}
 
 ;
 
@@ -98,6 +98,7 @@ mo-ForwardSM  OPERATION ::= {				--Timer ml
 	CODE	local:46 }
 
 mt-ForwardSM  OPERATION ::= {				--Timer ml
+	-- the timer value may be subject to negotiation between GMSC and IP-SM-GW
 	ARGUMENT
 		MT-ForwardSM-Arg
 	RESULT

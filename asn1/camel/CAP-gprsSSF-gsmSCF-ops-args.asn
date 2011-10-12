@@ -1,7 +1,8 @@
 -- $Id$
--- 3GPP TS 29.078 9.2.0 (2010-06)
+-- 3GPP TS 29.078 11.0.0 (2011-09)
 -- 8	GPRS Control
 -- 8.1	gsmSCF/gprsSSF operations and arguments
+
 CAP-gprsSSF-gsmSCF-ops-args {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 umts-network(1) modules(3) cap-GPRS-ops-args(107) version8(7)}
 -- Module CAP-gprsSSF-gsmSCF-ops-args is updated to version8(7) for Rel-6. The OPERATION
@@ -10,7 +11,7 @@ umts-network(1) modules(3) cap-GPRS-ops-args(107) version8(7)}
 DEFINITIONS IMPLICIT TAGS ::= BEGIN
 
 -- This module contains the operations and operation arguments used for the
--- gprsSSF – gsmSCF interface, for the control of GPRS.
+-- gprsSSF ? gsmSCF interface, for the control of GPRS.
 
 -- The table in subclause 2.1 lists the specifications that contain the modules
 -- that are used by CAP.
@@ -39,14 +40,15 @@ cs2(20) modules(0) in-cs2-datatypes (0) version1(0)}
 	IMEI,
 	IMSI,
 	GSN-Address, -- WS moved to common datatypes in rel 9.0.0
+	RAIdentity,  -- WS moved to common datatypes in rel 10.4.0
 	ISDN-AddressString
 FROM MAP-CommonDataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-CommonDataTypes(18) version12(12)}
 
 	GPRSChargingID,
-	GPRSMSClass,
+	GPRSMSClass
 --	GSN-Address,  WS moved to common datatypes in rel 9.0.0
-	RAIdentity
+--	RAIdentity  WS moved to common datatypes in rel 10.4.0
 FROM MAP-MS-DataTypes {itu-t(0) identified-organization(4) etsi(0) mobileDomain(0)
 gsm-Network(1) modules(3) map-MS-DataTypes(11) version12(12)}
 
@@ -375,7 +377,7 @@ resetTimerGPRS OPERATION ::= {
 					unexpectedParameter |
 					unknownPDPID}
 	CODE			opcode-resetTimerGPRS}
---  Direction: gsmSCF –? gprsSSF, Timer: Trtg
+--  Direction: gsmSCF ? gprsSSF, Timer: Trtg
 --  This operation is used to request the gprsSSF to refresh an application timer in the gprsSSF.
 
 ResetTimerGPRSArg ::= SEQUENCE {

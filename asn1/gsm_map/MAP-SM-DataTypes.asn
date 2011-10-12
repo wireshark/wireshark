@@ -1,10 +1,10 @@
 -- $Id$
--- 3GPP TS 29.002  V9.3.0 (2010-09)  
+-- 3GPP TS 29.002  V10.4.0 (2011-09)  
 -- 17.7.6	Short message data types
 
 MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version12 (12)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version13 (13)}
 
 DEFINITIONS
 
@@ -40,21 +40,22 @@ IMPORTS
 	SignalInfo,
 	IMSI,
 	LMSI,
-	ASCI-CallReference
+	ASCI-CallReference,
+	Time
 
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
 
 	AbsentSubscriberDiagnosticSM
 FROM MAP-ER-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ER-DataTypes (17) version12 (12)}
+   gsm-Network (1) modules (3) map-ER-DataTypes (17) version13 (13)}
 
 	ExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 ;
 
 
@@ -69,7 +70,8 @@ RoutingInfoForSM-Arg ::= SEQUENCE {
 	-- receiving of two numbers from the HLR
 	sm-RP-MTI		[8] SM-RP-MTI	OPTIONAL,
 	sm-RP-SMEA	[9] SM-RP-SMEA	OPTIONAL,
-	sm-deliveryNotIntended	[10] SM-DeliveryNotIntended	OPTIONAL }
+	sm-deliveryNotIntended	[10] SM-DeliveryNotIntended	OPTIONAL,
+	ip-sm-gwGuidanceIndicator	[11] NULL		OPTIONAL }
 
 SM-DeliveryNotIntended ::= ENUMERATED {
 	onlyIMSI-requested  (0),
@@ -92,10 +94,14 @@ SM-RP-SMEA ::= OCTET STRING (SIZE (1..12))
 RoutingInfoForSM-Res ::= SEQUENCE {
 	imsi			IMSI,
 	locationInfoWithLMSI	[0] LocationInfoWithLMSI,
--- WS extension to handle old versions
-	mwd-Set [2] BOOLEAN OPTIONAL,	
-	-- mwd-Set must be absent in version greater 1
 	extensionContainer	[4] ExtensionContainer	OPTIONAL,
+	...,
+	ip-sm-gwGuidance	[5] IP-SM-GW-Guidance	OPTIONAL }
+
+IP-SM-GW-Guidance ::= SEQUENCE {
+	minimumDeliveryTimeValue	SM-DeliveryTimerValue,
+	recommendedDeliveryTimeValue	SM-DeliveryTimerValue,
+	extensionContainer	ExtensionContainer	OPTIONAL,
 	...}
 
 LocationInfoWithLMSI ::= SEQUENCE {
@@ -139,7 +145,10 @@ MT-ForwardSM-Arg ::= SEQUENCE {
 	sm-RP-UI		SignalInfo,
 	moreMessagesToSend	NULL			OPTIONAL,
 	extensionContainer	ExtensionContainer	OPTIONAL,
-	...}
+	...,
+	smDeliveryTimer	SM-DeliveryTimerValue	OPTIONAL,
+	smDeliveryStartTime	Time			OPTIONAL }
+	-- SM-DeliveryTimerValue contains the value used by the SMS-GMSC
 
 MT-ForwardSM-Res ::= SEQUENCE {
 	sm-RP-UI		SignalInfo	OPTIONAL,
@@ -156,6 +165,8 @@ SM-RP-OA ::= CHOICE {
 	msisdn		[2] ISDN-AddressString,
 	serviceCentreAddressOA	[4] AddressString,
 	noSM-RP-OA	[5] NULL}
+
+SM-DeliveryTimerValue ::= INTEGER (30..600)
 
 ReportSM-DeliveryStatusArg ::= SEQUENCE {
 	msisdn		ISDN-AddressString,

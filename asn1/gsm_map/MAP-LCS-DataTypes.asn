@@ -1,14 +1,14 @@
 -- $Id$
 -- MAP-LCS-DataTypes.asn
 --
--- Taken from 3GPP TS 29.002  V9.3.0 (2010-09)
+-- Taken from 3GPP TS 29.002  V10.4.0 (2011-09)
 --
 -- 17.7.13 Location service data types
 --
 
 MAP-LCS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version12 (12)}
+   gsm-Network (1) modules (3) map-LCS-DataTypes (25) version13 (13)}
 
 DEFINITIONS
 IMPLICIT TAGS
@@ -58,30 +58,30 @@ PLMN-Id,
 	DiameterIdentity
 FROM MAP-CommonDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-CommonDataTypes (18) version12 (12)}
+   gsm-Network (1) modules (3) map-CommonDataTypes (18) version13 (13)}
 
 	ExtensionContainer,
 	SLR-ArgExtensionContainer
 FROM MAP-ExtensionDataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version12 (12)}
+   gsm-Network (1) modules (3) map-ExtensionDataTypes (21) version13 (13)}
 
 	USSD-DataCodingScheme,
 USSD-String
 FROM MAP-SS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0) gsm-Network (1) modules (3)
-   map-SS-DataTypes (14) version12 (12)}
+   map-SS-DataTypes (14) version13 (13)}
 
 	APN,
 	SupportedLCS-CapabilitySets
 FROM MAP-MS-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-MS-DataTypes (11) version12 (12)}
+   gsm-Network (1) modules (3) map-MS-DataTypes (11) version13 (13)}
 
 	Additional-Number
 FROM MAP-SM-DataTypes {
    itu-t identified-organization (4) etsi (0) mobileDomain (0)
-   gsm-Network (1) modules (3) map-SM-DataTypes (16) version12 (12)}
+   gsm-Network (1) modules (3) map-SM-DataTypes (16) version13 (13)}
 ;
 
 
