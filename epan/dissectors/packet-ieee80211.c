@@ -7569,13 +7569,13 @@ dissect_ht_control(proto_tree *tree, tvbuff_t * tvb, int offset)
   /* Start: Link Adaptation Control */
   ti = proto_tree_add_item(htc_tree, hf_ieee80211_htc_lac, tvb, offset, 2, ENC_LITTLE_ENDIAN);
   lac_subtree = proto_item_add_subtree(ti, ett_htc_tree);
-  proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_reserved, tvb, offset, 1, htc);
-  proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_trq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_boolean(lac_subtree, hf_ieee80211_htc_lac_reserved, tvb, offset, 1, htc);
+  proto_tree_add_boolean(lac_subtree, hf_ieee80211_htc_lac_trq, tvb, offset, 1, htc);
 
   if (HTC_IS_ASELI(htc)) {
     proto_tree_add_uint(lac_subtree, hf_ieee80211_htc_lac_mai_aseli, tvb, offset, 1, htc);
   } else {
-    proto_tree_add_item(lac_subtree, hf_ieee80211_htc_lac_mai_mrq, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+    proto_tree_add_boolean(lac_subtree, hf_ieee80211_htc_lac_mai_mrq, tvb, offset, 1, htc);
     if (HTC_LAC_MAI_MRQ(htc)){
       proto_tree_add_uint(lac_subtree, hf_ieee80211_htc_lac_mai_msi, tvb, offset, 1, htc);
     } else {
