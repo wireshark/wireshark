@@ -47,7 +47,7 @@
  * an offset to previous data in the stream and the length of the
  *  matching data.
  *
- * The data pattern matching is done on the octects.
+ * The data pattern matching is done on the octets.
  *
  * The data is encoded as 8 field blocks with a compression flag
  * byte at the beginning.  If the bit is set in the compression
@@ -484,7 +484,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 	wcp_window_t *buf_ptr = 0;
 	wcp_pdata_t *volatile pdata_ptr;
 	volatile gboolean bounds_error = FALSE;
-	
+
 	buf_ptr = get_wcp_window_ptr( pinfo);
 
 	buf_start = buf_ptr->buffer;
@@ -512,22 +512,22 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
 				if ((*src & 0xf0) == 0x10){
 					if ( tree) {
 						ti = proto_tree_add_item( tree, hf_wcp_long_run, src_tvb,
-							 offset-1, 3, ENC_BIG_ENDIAN);
+							 offset-1, 3, ENC_NA);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
 							 offset-1, 2, pntohs(src));
 
 						proto_tree_add_item( sub_tree, hf_wcp_long_len, src_tvb,
-							 offset+1, 1, pntohs(src));
+							 offset+1, 1, ENC_BIG_ENDIAN);
 					}
 					src += 3;
 					offset += 2;
 				}else{
 					if ( tree) {
 						ti = proto_tree_add_item( tree, hf_wcp_short_run, src_tvb,
-							 offset - 1, 2, *src);
+							 offset - 1, 2, ENC_NA);
 						sub_tree = proto_item_add_subtree(ti, ett_wcp_field);
-						proto_tree_add_item( sub_tree, hf_wcp_short_len, src_tvb,
+						proto_tree_add_uint( sub_tree, hf_wcp_short_len, src_tvb,
 							 offset-1, 1, *src);
 						proto_tree_add_uint(sub_tree, hf_wcp_offset, src_tvb,
 							 offset-1, 2, pntohs(src));
@@ -595,7 +595,7 @@ static tvbuff_t *wcp_uncompress( tvbuff_t *src_tvb, int offset, packet_info *pin
         ENDTRY;
 
 	if (bounds_error) return NULL;
-		
+
 	/* Add new data to the data source list */
 	add_new_data_source( pinfo, tvb, "Uncompressed WCP");
 	return tvb;
@@ -677,10 +677,10 @@ proto_register_wcp(void)
 	  { "Compress Length", "wcp.long_len", FT_UINT8, BASE_HEX, NULL, 0,
 	  	"Compressed length", HFILL }},
 	{ &hf_wcp_long_run,
-	  { "Long Compression", "wcp.long_comp", FT_UINT16, BASE_HEX, NULL, 0,
+	  { "Long Compression", "wcp.long_comp", FT_BYTES, BASE_NONE, NULL, 0,
 	  	"Long Compression type", HFILL }},
 	{ &hf_wcp_short_run,
-	  { "Short Compression", "wcp.short_comp", FT_UINT8, BASE_HEX, NULL, 0,
+	  { "Short Compression", "wcp.short_comp", FT_BYTES, BASE_NONE, NULL, 0,
 	  	"Short Compression type", HFILL }},
 
    };
