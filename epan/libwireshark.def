@@ -618,9 +618,6 @@ hf_frame_arrival_time           DATA
 hf_frame_capture_len            DATA
 hf_frame_number                 DATA
 hf_frame_len                    DATA
-hf_register_info_add
-hf_register_info_create
-hf_register_info_destroy
 hf_text_only                    DATA
 host_ip_af
 host_name_lookup_process
@@ -875,10 +872,6 @@ ptvcursor_pop_subtree
 ptvcursor_add_with_subtree
 ptvcursor_add_text_with_subtree
 ptvcursor_set_subtree
-py_generic_dissector
-py_pinfo
-py_tree
-py_tvbuff
 q850_cause_code_vals_ext       DATA
 q931_cause_code_vals_ext       DATA
 q931_message_type_vals         DATA
