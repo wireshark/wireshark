@@ -650,6 +650,9 @@ set(DISSECTOR_SRC
 	dissectors/packet-iec104.c
 	dissectors/packet-ieee1722.c
 	dissectors/packet-ieee80211.c
+	dissectors/packet-ieee80211-prism.c
+	dissectors/packet-ieee80211-radio.c
+	dissectors/packet-ieee80211-wlancap.c
 	dissectors/packet-ieee802154.c
 	dissectors/packet-ieee8021ah.c
 	dissectors/packet-ieee8023.c
