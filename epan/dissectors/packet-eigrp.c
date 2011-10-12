@@ -32,7 +32,6 @@
 
 #include <glib.h>
 #include <epan/packet.h>
-#include <epan/prefs.h>
 #include <epan/guid-utils.h>
 #include <epan/addr_resolv.h>
 #include <epan/atalk-utils.h>
@@ -641,11 +640,11 @@ static const value_string eigrp_saf_srv2string[] = {
 
 /**
  *@fn void dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
- *				    
+ *
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  *
  * @return void
@@ -704,7 +703,7 @@ dissect_eigrp_parameter (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  *
  * @return void
@@ -778,7 +777,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  *
  * @return void
  *
@@ -873,7 +872,7 @@ dissect_eigrp_sw_version (tvbuff_t *tvb, proto_tree *tree,
  * @par
  * Dissect Next Multicast Sequence TLV, which is part of the Hello with a
  * Sequence TLV;  this gives a two-way binding between the packets and plugs a
- * hole where a multicast could be received  by the wrong peers (due to a 
+ * hole where a multicast could be received  by the wrong peers (due to a
  * string of lost packets).
  */
 static void
@@ -891,7 +890,7 @@ dissect_eigrp_next_mcast_seq (tvbuff_t *tvb, proto_tree *tree,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  * @param[out] None
  *
@@ -911,7 +910,7 @@ dissect_eigrp_peer_stubinfo (tvbuff_t *tvb, proto_tree *tree)
 /**
  *@fn void dissect_eigrp_peer_termination (packet_info *pinfo, proto_item *ti)
  *
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  * @param[out] None
  *
@@ -938,7 +937,7 @@ dissect_eigrp_peer_termination (packet_info *pinfo, proto_item *ti)
  * @par
  *  Dissect the Topology Identifier List TLV.  This TLV was introduced as part
  *  of the "MTR (Multi-Topology Routing) Project to support sub topologies
- *  within a given Autonomous System. The following represents the format of 
+ *  within a given Autonomous System. The following represents the format of
  *  the TID list
  *
  *    0                   1                   2                   3
@@ -987,11 +986,11 @@ dissect_eigrp_peer_tidlist (proto_tree *tree, tvbuff_t *tvb)
  * Dissect the Flags field in the external data section of an external
  * route.The following represents the format of the bit field
  *
- *    7 6 5 4 3 2 1 0 
+ *    7 6 5 4 3 2 1 0
  *   +-+-+-+-+-+-+-+-+
  *   |   Flags       |
  *   +-+-+-+-+-+-+-+-+
- *                | |   
+ *                | |
  *                | +- Route is External *not used*
  *                +--- Route is Candidate Default
  */
@@ -1036,7 +1035,7 @@ dissect_eigrp_extdata_flags (proto_tree *tree, tvbuff_t *tvb, int offset)
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *   |   Flags       |    MP Flags   |
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *              | | |   
+ *              | | |
  *              | | +- Route is Replicated
  *              | +--- Route is Active
  *              +----- Source Withdraw
@@ -1071,7 +1070,7 @@ dissect_eigrp_metric_flags (proto_tree *tree, tvbuff_t *tvb, int offset, int lim
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] offset	current byte offset in packet being processed
  *
  * @return int		number of bytes process
@@ -1126,7 +1125,7 @@ dissect_eigrp_ipv4_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] offset	current byte offset in packet being processed
  *
  * @return int		number of bytes process
@@ -1186,7 +1185,7 @@ dissect_eigrp_ipv6_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] offset	current byte offset in packet being processed
  *
  * @return int		number of bytes process
@@ -1222,7 +1221,7 @@ dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  * @param[in] offset	current byte offset in packet being processed
  *
@@ -1247,9 +1246,9 @@ dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *   |            Type               |           Length              |
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *   |        Reachability AFI       |    Reachability Port          | 
+ *   |        Reachability AFI       |    Reachability Port          |
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
- *   |     Reachability Protocol     |    Reachability Addr          | 
+ *   |     Reachability Protocol     |    Reachability Addr          |
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
  *   |                      Reachability Addr(cont)                  |
  *   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
@@ -1634,7 +1633,7 @@ dissect_eigrp_nexthop (proto_tree *tree, tvbuff_t *tvb, guint16 afi, int offset)
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  * @param[in] tlv	Specific TLV in to be dissected
  * @param[out] None
@@ -1688,7 +1687,7 @@ dissect_eigrp_general_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] tlv	Specific TLV in to be dissected
  *
  * @return void
@@ -1743,7 +1742,7 @@ dissect_eigrp_ipv4_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] tlv	Specific TLV in to be dissected
  *
  * @return void
@@ -1796,7 +1795,7 @@ dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] tlv	Specific TLV in to be dissected
  *
  * @return void
@@ -1838,7 +1837,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] tlv	Specific TLV in to be dissected
  *
  * @return void
@@ -1914,7 +1913,7 @@ dissect_eigrp_ipx_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
  *
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in] ti	protocol item
  * @param[in] tlv	Specific TLV in to be dissected
  *
@@ -1962,7 +1961,7 @@ dissect_eigrp_multi_topology_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
     int offset = 2;
     int unreachable = FALSE;
 
-    /* tid for you */ 
+    /* tid for you */
     proto_tree_add_item(tree, hf_eigrp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -2052,7 +2051,7 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
 	offset++;
 
 	switch (comm_type) {
-	    /* 
+	    /*
 	     * Tag for this route. It is present for all EIGRP VPNv4
 	     * routes, internal and external
 	     */
@@ -2069,7 +2068,7 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
 				tvb_get_ntohl(tvb, 2));
 	    break;
 
-	    /* 
+	    /*
 	     * Vecmetric information for given EIGRP VPNv4 route,
 	     * applies to both internal and external
 	     */
@@ -2094,7 +2093,7 @@ dissect_eigrp_metric_comm (proto_tree *tree, tvbuff_t *tvb, int offset, int limi
 				tvb_get_ntohl(tvb, 2));
 	    break;
 
-	    /* 
+	    /*
 	     * External information for given EIGRP VPNv4 route,
 	     * applies to only to external routes
 	     */
@@ -2325,7 +2324,7 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
  * @param[in|out] tree	detail dissection result
  * @param[in] tvb	packet data
  * @param[in] ti	protocol item
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  *
  * @return void
  *
@@ -2360,7 +2359,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
     guint16 afi;
     int unreachable = FALSE;
 
-    /* tid for you */ 
+    /* tid for you */
     proto_tree_add_item(tree, hf_eigrp_tid, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
@@ -2420,7 +2419,7 @@ dissect_eigrp_multi_protocol_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tv
  *@fn int dissect_eigrp (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo)
  *
  * @param[in] tvb	packet data
- * @param[in] pinfo	general data about the protocol 
+ * @param[in] pinfo	general data about the protocol
  * @param[in|out] tree	detail dissection result
  * @param[out] None
  *
@@ -2631,8 +2630,6 @@ dissect_eigrp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 void
 proto_register_eigrp(void)
 {
-    module_t *eigrp_module;
-
     /* Setup list of header fields  See Section 1.6.1 for details
      */
     static hf_register_info hf[] = {
@@ -2716,7 +2713,7 @@ proto_register_eigrp(void)
 	},
 
 	/*
-	 * Conditionally Received - Any packet with the CR-bit set can 
+	 * Conditionally Received - Any packet with the CR-bit set can
 	 * be accepted by an EIGRP speaker if and only if a previous Hello was
 	 * received with the SEQUENCE_TYPE TLV present.
 	 * This allows multicasts to be transmitted in order and reliably at the
@@ -2973,7 +2970,7 @@ proto_register_eigrp(void)
 	},
 
 /* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * EIGRP TLV 1.2 (legacy) and TLV 3.0 Metric (deprecated) definition  
+ * EIGRP TLV 1.2 (legacy) and TLV 3.0 Metric (deprecated) definition
  */
 	{ &hf_eigrp_legacy_metric_delay,
 	  { "Scaled Delay", "eigrp.old_metric.delay",
@@ -3418,10 +3415,6 @@ proto_register_eigrp(void)
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_eigrp, hf, array_length(hf));
     proto_register_subtree_array(ett, array_length(ett));
-
-    /* Register preferences module (See Section 2.6 for more on preferences) */
-    eigrp_module = prefs_register_protocol(proto_eigrp,
-					   proto_reg_handoff_eigrp);
 }
 
 /**
@@ -3449,28 +3442,8 @@ proto_register_eigrp(void)
 void
 proto_reg_handoff_eigrp(void)
 {
-    static gboolean initialized = FALSE;
-    static dissector_handle_t eigrp_handle;
+	dissector_handle_t eigrp_handle;
 
-    if (!initialized) {
-	/*  Use new_create_dissector_handle() to indicate that dissect_eigrp()
-	 *  returns the number of bytes it dissected (or 0 if it thinks the packet
-	 *  does not belong to EIGRP).
-	 */
-	eigrp_handle = new_create_dissector_handle(dissect_eigrp, proto_eigrp);
-	initialized = TRUE;
-
-    } else {
-	/*
-	  If you perform registration functions which are dependent upon
-	  prefs the you should de-register everything which was associated
-	  with the previous settings and re-register using the new prefs
-	  settings here. In general this means you need to keep track of
-	  the eigrp_handle and the value the preference had at the time
-	  you registered.  The eigrp_handle value and the value of the
-	  preference can be saved using local statics in this
-	  function (proto_reg_handoff).
-	*/
 	ipxsap_handle = find_dissector("ipxsap");
 	media_type_table = find_dissector_table("media_type");
 
@@ -3479,5 +3452,4 @@ proto_reg_handoff_eigrp(void)
 	dissector_add_uint("ip.proto", IP_PROTO_EIGRP, eigrp_handle);
 	dissector_add_uint("ddp.type", DDP_EIGRP, eigrp_handle);
 	dissector_add_uint("ipx.socket", IPX_SOCKET_EIGRP, eigrp_handle);
-    }
 }
