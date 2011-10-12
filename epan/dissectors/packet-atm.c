@@ -74,6 +74,7 @@ static dissector_handle_t ppp_handle;
 static dissector_handle_t eth_handle;
 static dissector_handle_t ip_handle;
 static dissector_handle_t data_handle;
+static dissector_handle_t gprs_ns_handle;
 
 static gboolean dissect_lanesscop = FALSE;
 
@@ -726,6 +727,7 @@ static const value_string aal5_hltype_vals[] = {
   { TRAF_FR,                "Frame Relay" },
   { TRAF_SPANS,             "FORE SPANS" },
   { TRAF_IPSILON,           "Ipsilon" },
+  { TRAF_GPRS_NS,           "GPRS NS" },
   { 0,              NULL }
 };
 
@@ -1108,6 +1110,10 @@ dissect_reassembled_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
     case TRAF_ILMI:
       call_dissector(ilmi_handle, next_tvb, pinfo, tree);
+      break;
+
+    case TRAF_GPRS_NS:
+      call_dissector(gprs_ns_handle, next_tvb, pinfo, tree);
       break;
 
     default:
@@ -2007,6 +2013,7 @@ proto_reg_handoff_atm(void)
   ip_handle = find_dissector("ip");
   data_handle = find_dissector("data");
   fp_handle = find_dissector("fp");
+  gprs_ns_handle = find_dissector("gprs_ns");
 
   atm_handle = create_dissector_handle(dissect_atm, proto_atm);
   dissector_add_uint("wtap_encap", WTAP_ENCAP_ATM_PDUS, atm_handle);

@@ -139,12 +139,14 @@ static const value_string meta_id_vals[] = {
 };
 
 #define META_AAL5PROTO_MTP3     2
+#define META_AAL5PROTO_NS       3
 #define META_AAL5PROTO_ALCAP    5
 #define META_AAL5PROTO_NBAP     6
 static const value_string meta_aal5proto_vals[] = {
     { META_AAL5PROTO_MTP3,  "SSCOP MTP3" },
     { META_AAL5PROTO_ALCAP, "SSCOP ALCAP" },
     { META_AAL5PROTO_NBAP,  "SSCOP NBAP" },
+    { META_AAL5PROTO_NS,    "GPRS NS" },
     { 0, NULL }
 };
 
@@ -330,6 +332,11 @@ static guint16 evaluate_meta_item_dxt(proto_tree *meta_tree, tvbuff_t *tvb, pack
                 case META_AAL5PROTO_NBAP:
                     p_sscop_info->subdissector = nbap_handle;
                     break;
+                case META_AAL5PROTO_NS:
+                    /* hint for ATM dissector that this frame contains GPRS NS */
+                    memset(&pinfo->pseudo_header->atm, 0, sizeof(pinfo->pseudo_header->atm));
+                    pinfo->pseudo_header->atm.type = TRAF_GPRS_NS;
+                    break;
                 /* TODO: check for additional protos on Iu 802 LLC/SNAP ... */
                 default:
                     /* TODO: add warning */
@@ -491,12 +498,11 @@ dissect_meta(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                     next_dissector = atm_untrunc_handle;
                     break;
                 case META_PROTO_DXT_ERF_AAL5:
-                    /* fake erf pseudo header */
-                    memset(&pinfo->pseudo_header->erf, 0, sizeof(pinfo->pseudo_header->erf));
-                    pinfo->pseudo_header->erf.phdr.type = ERF_TYPE_AAL5;
-                    /* store p2p direction in ERF flags */
-                    pinfo->pseudo_header->erf.phdr.flags |= pinfo->p2p_dir;
-                    next_dissector = erf_handle;
+                    atm_hdr = tvb_get_ntohl(tvb, item_len + META_HEADER_SIZE); item_len += 4;
+                    pinfo->pseudo_header->atm.vpi = ((atm_hdr & 0x0ff00000) >> 20);
+                    pinfo->pseudo_header->atm.vci = ((atm_hdr & 0x000ffff0) >>  4);
+                    pinfo->pseudo_header->atm.aal = AAL_5;
+                    next_dissector = atm_untrunc_handle;
                     break;
             }
     }

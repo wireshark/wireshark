@@ -395,6 +395,7 @@ struct isdn_phdr {
 #define TRAF_SPANS	6	/* FORE SPANS */
 #define TRAF_IPSILON	7	/* Ipsilon */
 #define TRAF_UMTS_FP	8	/* UMTS Frame Protocol */
+#define TRAF_GPRS_NS	9 /* GPRS Network Services */
 
 /*
  * Traffic subtypes.
