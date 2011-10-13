@@ -446,6 +446,8 @@ static const sip_header_t sip_headers[] = {
 #define POS_WWW_AUTHENTICATE            104
 	{ "Diversion",                      NULL },  /* 105 RFC5806  */
 #define POS_DIVERSION                   105
+	{ "User-to-User",                   NULL },  /* 106 draft-johnston-sipping-cc-uui-09  */
+#define POS_USER_TO_USER                   106
 };
 
 
@@ -558,6 +560,7 @@ static gint hf_header_array[] = {
 	-1, /* 103"Warning",                        RFC3261 */
 	-1, /* 104"WWW-Authenticate",               RFC3261 */
 	-1, /* 105"Diversion",                      RFC5806 */
+	-1, /* 106"User-to-User",  draft-johnston-sipping-cc-uui-09 */
 
 };
 
@@ -4322,6 +4325,11 @@ void proto_register_sip(void)
 			{ "Diversion", 		"sip.Diversion",
 		       FT_STRING, BASE_NONE,NULL,0x0,
 			"RFC 5806: Diversion Header", HFILL }
+		},
+		{ &hf_header_array[POS_USER_TO_USER],
+			{ "User-to-User", 	"sip.uui",
+		       FT_STRING, BASE_NONE,NULL,0x0,
+			"draft-johnston-sipping-cc-uui-09: User-to-User header", HFILL }
 		},
 		{ &hf_sip_resend,
 			{ "Resent Packet", "sip.resend",
