@@ -569,6 +569,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-flip.c
 	dissectors/packet-fmp.c
 	dissectors/packet-fmp_notify.c
+	dissectors/packet-fmtp.c
 	dissectors/packet-force10-oui.c
 	dissectors/packet-fp_hint.c
 	dissectors/packet-fr.c
