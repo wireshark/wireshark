@@ -582,8 +582,6 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
 
     flpp_dest = get_filter_list(dest_type);
     flpp_src = get_filter_list(src_type);
-    flp_src = *flpp_src;
-
     /* throw away the "old" destination list - a NULL list is ok here */
     while(*flpp_dest) {
         *flpp_dest = remove_filter_entry(*flpp_dest, g_list_first(*flpp_dest));
@@ -591,11 +589,10 @@ void copy_filter_list(filter_list_type_t dest_type, filter_list_type_t src_type)
     g_assert(g_list_length(*flpp_dest) == 0);
 
     /* copy the list entries */
-    while(flp_src) {
+    for(flp_src = g_list_first(*flpp_src); flp_src; flp_src = g_list_next(flp_src)) {
         filt = (filter_def *)(flp_src->data);
 
         *flpp_dest = add_filter_entry(*flpp_dest, filt->name, filt->strval);
-        flp_src = g_list_next(flp_src);
     }
 }
 
