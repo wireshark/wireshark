@@ -825,6 +825,17 @@ WSLUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo"),NOP);
 
 static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1; }
 
+#define PINFO_GET_BOOLEAN(name,val) static int name(lua_State *L) {  \
+    Pinfo pinfo = checkPinfo(L,1); \
+    if (!pinfo) return 0;\
+    if (pinfo->expired) { \
+        luaL_error(L,"expired_pinfo"); \
+        return 0; \
+    } \
+    lua_pushboolean(L,val);\
+    return 1;\
+}
+
 #define PINFO_GET_NUMBER(name,val) static int name(lua_State *L) {  \
     Pinfo pinfo = checkPinfo(L,1); \
     if (!pinfo) return 0;\
@@ -873,6 +884,9 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
     return 1; \
 }
 
+PINFO_GET_BOOLEAN(Pinfo_fragmented,pinfo->ws_pinfo->fragmented)
+PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->in_error_pkt)
+
 PINFO_GET_NUMBER(Pinfo_number,pinfo->ws_pinfo->fd->num)
 PINFO_GET_NUMBER(Pinfo_len,pinfo->ws_pinfo->fd->pkt_len)
 PINFO_GET_NUMBER(Pinfo_caplen,pinfo->ws_pinfo->fd->cap_len)
@@ -887,8 +901,11 @@ PINFO_GET_NUMBER(Pinfo_desegment_offset,pinfo->ws_pinfo->desegment_offset)
 PINFO_GET_NUMBER(Pinfo_ptype,pinfo->ws_pinfo->ptype)
 PINFO_GET_NUMBER(Pinfo_src_port,pinfo->ws_pinfo->srcport)
 PINFO_GET_NUMBER(Pinfo_dst_port,pinfo->ws_pinfo->destport)
+PINFO_GET_NUMBER(Pinfo_ethertype,pinfo->ws_pinfo->ethertype)
+PINFO_GET_NUMBER(Pinfo_match_uint,pinfo->ws_pinfo->match_uint)
 
 PINFO_GET_STRING(Pinfo_curr_proto,pinfo->ws_pinfo->current_proto)
+PINFO_GET_STRING(Pinfo_match_string,pinfo->ws_pinfo->match_string)
 
 PINFO_GET_ADDRESS(Pinfo_net_src,net_src)
 PINFO_GET_ADDRESS(Pinfo_net_dst,net_dst)
@@ -968,7 +985,8 @@ typedef enum {
     PARAM_CIRCUIT_ID,
     PARAM_DESEGMENT_LEN,
     PARAM_DESEGMENT_OFFSET,
-    PARAM_PORT_TYPE
+    PARAM_PORT_TYPE,
+    PARAM_ETHERTYPE
 } pinfo_param_type_t;
 
 static int pushnil_param(lua_State* L, packet_info* pinfo _U_, pinfo_param_type_t pt _U_ ) {
@@ -1041,6 +1059,9 @@ static int Pinfo_set_int(lua_State* L, packet_info* pinfo, pinfo_param_type_t pt
             return 0;
         case PARAM_DESEGMENT_OFFSET:
             pinfo->desegment_offset = (int)v;
+            return 0;
+        case PARAM_ETHERTYPE:
+            pinfo->ethertype = (guint32)v;
             return 0;
         default:
             g_assert(!"BUG: A bad parameter");
@@ -1182,6 +1203,21 @@ static const pinfo_method_t Pinfo_methods[] = {
 
 	/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data */
     {"private_data", Pinfo_private_data, pushnil_param, PARAM_NONE},
+
+	/* WSLUA_ATTRIBUTE Pinfo_ethertype RW Ethernet Type Code, if this is an Ethernet packet */
+    {"ethertype", Pinfo_ethertype, Pinfo_set_int, PARAM_ETHERTYPE},
+
+	/* WSLUA_ATTRIBUTE Pinfo_fragmented RO If the protocol is only a fragment */
+    {"fragmented", Pinfo_fragmented, pushnil_param, PARAM_NONE},
+
+	/* WSLUA_ATTRIBUTE Pinfo_in_error_pkt RO If we're inside an error packet */
+    {"in_error_pkt", Pinfo_in_error_pkt, pushnil_param, PARAM_NONE},
+
+	/* WSLUA_ATTRIBUTE Pinfo_match_uint RO Matched uint for calling subdissector from table */
+    {"match_uint", Pinfo_match_uint, pushnil_param, PARAM_NONE },
+
+	/* WSLUA_ATTRIBUTE Pinfo_match_string RO Matched string for calling subdissector from table */
+    {"match_string", Pinfo_match_string, pushnil_param, PARAM_NONE },
 
     {NULL,NULL,NULL,PARAM_NONE}
 };
