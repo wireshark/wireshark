@@ -1791,14 +1791,14 @@ static void
 dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 {
    guint32     con_format;
-   guint32     seq_number;
+/*   guint32     seq_number; */
    guint32     update_id;
    proto_item *proto_item_top;
    proto_tree *proto_tree_top;
    guint32     offset = 0;
 
    /* Pull the CIP class 1 sequence number from the incoming message */
-   seq_number = tvb_get_letohs(tvb, offset);
+/*   seq_number = tvb_get_letohs(tvb, offset); */
    offset = (offset + 2);
 
    /* Pull the actual values for the connection format and update id from the
