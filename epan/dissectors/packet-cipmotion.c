@@ -722,7 +722,7 @@ dissect_status_data_set(guint32 status_data_set, proto_tree* tree, tvbuff_t* tvb
  * as their starting offset
  */
 static guint32
-dissect_cntr_cyclic(guint32 con_format, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance)
+dissect_cntr_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance _U_)
 {
    proto_item *header_item, *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
@@ -812,7 +812,7 @@ dissect_cntr_cyclic(guint32 con_format, tvbuff_t* tvb, proto_tree* tree, guint32
  * as their starting offset
  */
 static guint32
-dissect_devce_cyclic(guint32 con_format, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance)
+dissect_devce_cyclic(guint32 con_format _U_, tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size, guint32 instance _U_)
 {
    proto_item *header_item, *temp_proto_item;
    proto_tree *header_tree, *temp_proto_tree;
@@ -1451,7 +1451,7 @@ dissect_get_axis_attr_list_response (tvbuff_t* tvb, proto_tree* tree, guint32 of
  * Returns: None
  */
 static void
-dissect_group_sync_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size)
+dissect_group_sync_response (tvbuff_t* tvb, proto_tree* tree, guint32 offset, guint32 size _U_)
 {
    proto_tree_add_item(tree, hf_cip_group_sync, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 }
