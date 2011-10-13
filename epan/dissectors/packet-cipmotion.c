@@ -57,7 +57,6 @@ static int hf_cip_node_data_valid           = -1;
 static int hf_cip_node_fault_reset          = -1;
 static int hf_cip_node_device_faulted       = -1;
 static int hf_cip_time_data_set             = -1;
-static int hf_cip_time_data_update          = -1;
 static int hf_cip_time_data_stamp           = -1;
 static int hf_cip_time_data_offset          = -1;
 static int hf_cip_time_data_diag            = -1;
