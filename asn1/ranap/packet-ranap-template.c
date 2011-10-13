@@ -44,6 +44,7 @@
 #include "packet-e212.h"
 #include "packet-sccp.h"
 #include "packet-gsm_a_common.h"
+#include "packet-isup.h"
 
 #ifdef _MSC_VER
 /* disable: "warning C4146: unary minus operator applied to unsigned type, result still unsigned" */
@@ -72,12 +73,14 @@ static dissector_handle_t rrc_ho_to_utran_cmd = NULL;
 static int hf_ranap_imsi_digits = -1;
 static int hf_ranap_transportLayerAddress_ipv4 = -1;
 static int hf_ranap_transportLayerAddress_ipv6 = -1;
+static int hf_ranap_transportLayerAddress_nsap = -1;
 
 #include "packet-ranap-hf.c"
 
 /* Initialize the subtree pointers */
 static int ett_ranap = -1;
 static int ett_ranap_TransportLayerAddress = -1;
+static int ett_ranap_TransportLayerAddress_nsap = -1;
 
 #include "packet-ranap-ett.c"
 
@@ -308,6 +311,10 @@ void proto_register_ranap(void) {
       { "transportLayerAddress IPv6", "ranap.transportLayerAddress_ipv6",
         FT_IPv6, BASE_NONE, NULL, 0,
         NULL, HFILL }},
+    { &hf_ranap_transportLayerAddress_nsap,
+      { "transportLayerAddress NSAP", "ranap.transportLayerAddress_NSAP",
+        FT_BYTES, BASE_NONE, NULL, 0,
+        NULL, HFILL }},
 
 
 #include "packet-ranap-hfarr.c"
@@ -317,6 +324,7 @@ void proto_register_ranap(void) {
   static gint *ett[] = {
 		  &ett_ranap,
 		  &ett_ranap_TransportLayerAddress,
+		  &ett_ranap_TransportLayerAddress_nsap,
 #include "packet-ranap-ettarr.c"
   };
 

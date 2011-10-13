@@ -293,9 +293,14 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 #	if (parameter_tvb)
 #		dissect_gtp_mbms_ses_dur(parameter_tvb, actx->pinfo, tree);
 
+# 9.2.2.1 Transport Layer Address
+# For details on the Transport Layer Address, see ref
+# 3GPP TS 25.414: "UTRAN Iu interface data transport and transport signalling".
+#
 #.FN_BODY TransportLayerAddress VAL_PTR = &parameter_tvb
   tvbuff_t *parameter_tvb=NULL;
-  proto_tree *subtree;
+  proto_tree *item;
+  proto_tree *subtree, *nsap_tree;
   gint tvb_len;
   
 %(DEFAULT_BODY)s
@@ -308,11 +313,16 @@ MAX_VAL = asn1_param_get_integer(%(ACTX)s,"upperBound")
 	subtree = proto_item_add_subtree(actx->created_item, ett_ranap_TransportLayerAddress);
 	if (tvb_len==4){
 		/* IPv4 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv4, parameter_tvb, 0, tvb_len, ENC_NA);
 	}
 	if (tvb_len==16){
 		/* IPv6 */
-		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, FALSE);
+		 proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_ipv6, parameter_tvb, 0, tvb_len, ENC_NA);
+	}
+	if (tvb_len==20){
+		item = proto_tree_add_item(subtree, hf_ranap_transportLayerAddress_nsap, parameter_tvb, 0, tvb_len, ENC_NA);
+		nsap_tree = proto_item_add_subtree(item, ett_ranap_TransportLayerAddress_nsap);
+		dissect_nsap(parameter_tvb, 0, 20, nsap_tree);
 	}
 	
 #.FN_BODY GTP-TEI VAL_PTR = &parameter_tvb
@@ -662,7 +672,8 @@ id-IRAT-Measurement-Configuration							ProtocolIE-ID
 id-MDT-Configuration										ProtocolIE-ID
 id-Priority-Class-Indicator									ProtocolIE-ID
 id-RNSAPRelocationParameters								ProtocolIE-ID
-id-RABParametersList										ProtocolIE-ID
+id-RNSAPRelocationParameters								ProtocolIE-ID
+id-Not-Used-246												ProtocolIE-ID
 id-Management-Based-MDT-Allowed								ProtocolIE-ID
 #.END
 
