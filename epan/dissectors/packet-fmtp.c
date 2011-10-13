@@ -40,7 +40,6 @@ static int hf_fmtp_pdu_version = -1;
 static int hf_fmtp_pdu_reserved = -1;
 static int hf_fmtp_pdu_type = -1;
 static int hf_fmtp_pdu_length = -1;
-static int hf_fmtp_data = -1;
 static gint ett_fmtp = -1;
 
 #define TCP_PORT_FMTP		8500
@@ -98,10 +97,10 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FMTP_TYP_IDENTIFICATION:
             proto_item_append_text(ti, " (%s)",
                 tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)", 
+			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
 				val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
 				tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
-            break; 
+            break;
 
         case FMTP_TYP_SYSTEM:
             proto_item_append_text(ti, " (%s)",
@@ -182,12 +181,6 @@ proto_register_fmtp(void)
             FT_UINT8, BASE_DEC,
             VALS(packet_type_names), 0x0,
             NULL, HFILL }
-        },
-        { &hf_fmtp_data,
-            { "Data", "fmtp.data",
-            FT_BYTES, BASE_NONE,
-            NULL, 0x0,
-            NULL, HFILL }
         }
     };
 
@@ -209,7 +202,7 @@ void
 proto_reg_handoff_fmtp(void)
 {
     static int fmtp_inited = FALSE;
- 
+
     if (!fmtp_inited)
     {
         /* Register as heuristic dissector for TCP */

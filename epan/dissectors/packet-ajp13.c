@@ -220,7 +220,6 @@ static int hf_ajp13_srv    = -1;
 static int hf_ajp13_port   = -1;
 static int hf_ajp13_sslp   = -1;
 static int hf_ajp13_nhdr   = -1;
-static int hf_ajp13_hname  = -1;
 static int hf_ajp13_hval   = -1;
 static int hf_ajp13_rlen   = -1;
 static int hf_ajp13_reusep = -1;
@@ -785,10 +784,6 @@ proto_register_ajp13(void)
     },
     { &hf_ajp13_nhdr,
       { "NHDR",  "ajp13.nhdr", FT_UINT16, BASE_DEC, NULL, 0x0, "Num Headers",
-        HFILL }
-    },
-    { &hf_ajp13_hname,
-      { "HNAME",  "ajp13.hname", FT_STRING, BASE_NONE, NULL, 0x0, "Header Name",
         HFILL }
     },
     { &hf_ajp13_hval,
