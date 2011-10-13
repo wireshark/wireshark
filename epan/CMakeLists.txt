@@ -394,7 +394,7 @@ set(DISSECTOR_SRC
 	dissectors/packet-cimd.c
 	dissectors/packet-cimetrics.c
 	dissectors/packet-cip.c
-	dissectors/packet-cipmotion.c.c
+	dissectors/packet-cipmotion.c
 	dissectors/packet-cisco-erspan.c
 	dissectors/packet-cisco-oui.c
 	dissectors/packet-cisco-sm.c
