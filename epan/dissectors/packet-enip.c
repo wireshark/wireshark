@@ -90,7 +90,7 @@
 static int proto_enip              = -1;
 
 static int hf_enip_command         = -1;
-static int hf_enip_length           = -1;
+static int hf_enip_length          = -1;
 static int hf_enip_options         = -1;
 static int hf_enip_sendercontex    = -1;
 static int hf_enip_status          = -1;
@@ -101,6 +101,7 @@ static int hf_enip_sinport         = -1;
 static int hf_enip_sinaddr         = -1;
 static int hf_enip_sinzero         = -1;
 static int hf_enip_timeout         = -1;
+static int hf_enip_encap_data      = -1;
 
 static int hf_enip_lir_vendor      = -1;
 static int hf_enip_lir_devtype     = -1;
@@ -131,10 +132,12 @@ static int hf_enip_cpf_cdi_seqcnt  = -1;
 static int hf_enip_cpf_cai_connid  = -1;
 static int hf_enip_cpf_sai_connid  = -1;
 static int hf_enip_cpf_sai_seqnum  = -1;
+static int hf_enip_cpf_data        = -1;
 
 static int hf_enip_response_in = -1;
 static int hf_enip_response_to = -1;
 static int hf_enip_time = -1;
+static int hf_enip_connection_transport_data = -1;
 
 /* Initialize the subtree pointers */
 static gint ett_enip          = -1;
@@ -148,6 +151,7 @@ static proto_tree          *g_tree;
 static dissector_table_t   subdissector_srrd_table;
 static dissector_table_t   subdissector_sud_table;
 static dissector_handle_t  data_handle;
+static heur_dissector_list_t   heur_subdissector_conndata_table;
 
 static gboolean enip_desegment = TRUE;
 
@@ -166,7 +170,7 @@ static int hf_dlr_beaconinterval       = -1;
 static int hf_dlr_beacontimeout        = -1;
 static int hf_dlr_beaconreserved       = -1;
 
-static int hf_dlr_nreqreserved = -1;
+static int hf_dlr_nreqreserved   = -1;
 
 static int hf_dlr_nressourceport = -1;
 static int hf_dlr_nresreserved   = -1;
@@ -228,16 +232,6 @@ static const value_string cdf_type_vals[] = {
 
    { 0,                    NULL }
 };
-
-
-/* Translate function to string - True/False */
-static const value_string enip_true_false_vals[] = {
-   { 0,        "False"       },
-   { 1,        "True"        },
-
-   { 0,        NULL          }
-};
-
 
 /* Translate interface handle to string */
 static const value_string enip_interface_handle_vals[] = {
@@ -319,31 +313,31 @@ typedef struct enip_request_val {
 static gint
 enip_request_equal(gconstpointer v, gconstpointer w)
 {
-  const enip_request_key_t *v1 = (const enip_request_key_t *)v;
-  const enip_request_key_t *v2 = (const enip_request_key_t *)w;
+   const enip_request_key_t *v1 = (const enip_request_key_t *)v;
+   const enip_request_key_t *v2 = (const enip_request_key_t *)w;
 
-  if (  v1->conversation == v2->conversation
-     && v1->session_handle == v2->session_handle
-     && v1->type == v2->type
-     && ( (  v1->sender_context == v2->sender_context   /* heuristic approach */
-          && v1->type == EPDT_UNCONNECTED
-          )
-        ||
-          (  v1->data.connected_transport.connid == v2->data.connected_transport.connid
-          && v1->data.connected_transport.sequence == v2->data.connected_transport.sequence
-          && v1->type == EPDT_CONNECTED_TRANSPORT
-          )
-        )
-     )
-    return 1;
+   if (  v1->conversation == v2->conversation
+         && v1->session_handle == v2->session_handle
+         && v1->type == v2->type
+         && ( (  v1->sender_context == v2->sender_context   /* heuristic approach */
+                 && v1->type == EPDT_UNCONNECTED
+                 )
+              ||
+              (  v1->data.connected_transport.connid == v2->data.connected_transport.connid
+                 && v1->data.connected_transport.sequence == v2->data.connected_transport.sequence
+                 && v1->type == EPDT_CONNECTED_TRANSPORT
+                 )
+            )
+      )
+      return 1;
 
-  return 0;
+   return 0;
 }
 
 static void
 enip_fmt_lir_revision( gchar *result, guint32 revision )
 {
-	g_snprintf( result, 5, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
+   g_snprintf( result, 5, "%d.%02d", (guint8)(( revision & 0xFF00 ) >> 8), (guint8)(revision & 0xFF) );
 }
 
 static guint
@@ -647,67 +641,6 @@ enip_init_protocol(void)
    enip_conn_hashtable = g_hash_table_new(enip_conn_hash, enip_conn_equal);
 }
 
-static proto_item *
-add_byte_array_text_to_proto_tree(proto_tree *tree, tvbuff_t *tvb, gint start,
-                                  gint length, const char* str, gboolean printall )
-{
-  const char *tmp;
-  char       *tmp2, *tmp2start;
-  proto_item *pi;
-  int         i,tmp_length,tmp2_length;
-  guint32     octet;
-  /* At least one version of Apple's C compiler/linker is buggy, causing
-     a complaint from the linker about the "literal C string section"
-     not ending with '\0' if we initialize a 16-element "char" array with
-     a 16-character string, the fact that initializing such an array with
-     such a string is perfectly legitimate ANSI C nonwithstanding, the 17th
-     '\0' byte in the string nonwithstanding. */
-  static const char my_hex_digits[16] =
-      { '0', '1', '2', '3', '4', '5', '6', '7',
-        '8', '9', 'A', 'B', 'C', 'D', 'E', 'F' };
-
-
-   if( !printall &&
-       ( ( length * 2 ) > 32 ) )
-   {
-      tmp_length = 16;
-      tmp2_length = 36;
-   }
-   else
-   {
-      tmp_length = length;
-      tmp2_length = ( length * 2 ) + 1;
-   }
-
-   tmp = (const char *)tvb_get_ptr( tvb, start, tmp_length );
-   tmp2 = (char *)ep_alloc( tmp2_length );
-
-   tmp2start = tmp2;
-
-   for( i = 0; i < tmp_length; i++ )
-   {
-      octet = tmp[i];
-      octet >>= 4;
-      *tmp2++ = my_hex_digits[octet&0xF];
-      octet = tmp[i];
-      *tmp2++ = my_hex_digits[octet&0xF];
-   }
-
-   if( tmp_length != length )
-   {
-      *tmp2++ = '.';
-      *tmp2++ = '.';
-      *tmp2++ = '.';
-   }
-
-   *tmp2 = '\0';
-
-   pi = proto_tree_add_text( tree, tvb, start, length, "%s%s", str, tmp2start );
-
-   return( pi );
-
-} /* end of add_byte_array_text_to_proto_tree() */
-
 /* Disssect Common Packet Format */
 static void
 dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
@@ -739,17 +672,17 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
       if( item_length )
       {
-         /* Add item data field */
+          /* Add item data field */
 
-         switch( item )
-         {
-            case CONNECTION_BASED:
+          switch( item )
+          {
+              case CONNECTION_BASED:
 
-               if ( request_key )
-               {
-                  request_key->type = EPDT_CONNECTED_TRANSPORT;
-                  request_key->data.connected_transport.connid = enip_get_connid( pinfo, request_key, tvb_get_letohl( tvb, offset+6 ) );
-               }
+                  if ( request_key )
+                  {
+                      request_key->type = EPDT_CONNECTED_TRANSPORT;
+                      request_key->data.connected_transport.connid = enip_get_connid( pinfo, request_key, tvb_get_letohl( tvb, offset+6 ) );
+                  }
                /* Add Connection identifier */
                proto_tree_add_item(item_tree, hf_enip_cpf_cai_connid, tvb, offset+6, 4, ENC_LITTLE_ENDIAN );
 
@@ -819,8 +752,14 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                else
                {
                   /* Display data */
-                  add_byte_array_text_to_proto_tree( item_tree, tvb, offset+6, item_length, "Data: ", TRUE );
-
+                  if (tvb_length_remaining(tvb, offset+6) > 0)
+                  {
+                      next_tvb = tvb_new_subset(tvb, offset+6, item_length, item_length);
+                      if(!dissector_try_heuristic(heur_subdissector_conndata_table, next_tvb, pinfo, g_tree))
+                      {
+                        proto_tree_add_item(item_tree, hf_enip_connection_transport_data, tvb, offset+6, item_length, ENC_NA);
+                      }
+                  }
                } /* End of if send unit data */
 
                break;
@@ -966,7 +905,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
             default:
 
-               add_byte_array_text_to_proto_tree( item_tree, tvb, offset+6, item_length, "Data: ", FALSE );
+               proto_tree_add_item(item_tree, hf_enip_cpf_data, tvb, offset+6, item_length, ENC_NA);
                break;
 
          } /* end of switch( item type ) */
@@ -1183,7 +1122,7 @@ dissect_enip_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          default:
 
             /* Can not decode - Just show the data */
-            add_byte_array_text_to_proto_tree( header_tree, tvb, 24, encap_data_length, "Encap Data: ", FALSE );
+            proto_tree_add_item(header_tree, hf_enip_encap_data, tvb, 24, encap_data_length, ENC_NA);
             break;
 
       } /* end of switch() */
@@ -1391,210 +1330,227 @@ proto_register_enip(void)
    /* Setup list of header fields */
    static hf_register_info hf[] = {
       { &hf_enip_command,
-         { "Command", "enip.command",
-         FT_UINT16, BASE_HEX, VALS(encap_cmd_vals), 0,
-         "Encapsulation command", HFILL }
+        { "Command", "enip.command",
+          FT_UINT16, BASE_HEX, VALS(encap_cmd_vals), 0,
+          "Encapsulation command", HFILL }
       },
       { &hf_enip_length,
-         { "Length", "enip.length",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Encapsulation length", HFILL }
+        { "Length", "enip.length",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Encapsulation length", HFILL }
       },
       { &hf_enip_session,
-         { "Session Handle", "enip.session",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         "Session identification", HFILL }
+        { "Session Handle", "enip.session",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Session identification", HFILL }
       },
       { &hf_enip_status,
-         { "Status", "enip.status",
-         FT_UINT32, BASE_HEX, VALS(encap_status_vals), 0,
-         "Status code", HFILL }
+        { "Status", "enip.status",
+          FT_UINT32, BASE_HEX, VALS(encap_status_vals), 0,
+          "Status code", HFILL }
       },
       { &hf_enip_sendercontex,
-         { "Sender Context", "enip.context",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Information pertient to the sender", HFILL }
+        { "Sender Context", "enip.context",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Information pertient to the sender", HFILL }
       },
       { &hf_enip_options,
-         { "Options", "enip.options",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         "Options flags", HFILL }
+        { "Options", "enip.options",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Options flags", HFILL }
       },
       { &hf_enip_encapver,
-         { "Encapsulation Version", "enip.encapver",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         NULL, HFILL }
+        { "Encapsulation Version", "enip.encapver",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          NULL, HFILL }
       },
       { &hf_enip_sinfamily,
-         { "sin_family", "enip.sinfamily",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Socket Address.Sin Family", HFILL }
+        { "sin_family", "enip.sinfamily",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Socket Address.Sin Family", HFILL }
       },
       { &hf_enip_sinport,
-         { "sin_port", "enip.sinport",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Socket Address.Sin Port", HFILL }
+        { "sin_port", "enip.sinport",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Socket Address.Sin Port", HFILL }
       },
       { &hf_enip_sinaddr,
-         { "sin_addr", "enip.sinaddr",
-         FT_IPv4, BASE_NONE, NULL, 0,
-         "Socket Address.Sin Addr", HFILL }
+        { "sin_addr", "enip.sinaddr",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          "Socket Address.Sin Addr", HFILL }
       },
       { &hf_enip_sinzero,
-         { "sin_zero", "enip.sinzero",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Socket Address.Sin Zero", HFILL }
+        { "sin_zero", "enip.sinzero",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Socket Address.Sin Zero", HFILL }
       },
       { &hf_enip_timeout,
-         { "Timeout", "enip.timeout",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Encapsulation Timeout", HFILL }
+        { "Timeout", "enip.timeout",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Encapsulation Timeout", HFILL }
+      },
+      { &hf_enip_encap_data,
+        { "Encap Data", "enip.encap_data",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Encapsulation Data", HFILL }
       },
       /* List Services Reply */
       { &hf_enip_lsr_capaflags,
-         { "Capability Flags", "enip.lsr.capaflags",
-         FT_UINT16, BASE_HEX, NULL, 0,
-         "ListServices Reply: Capability Flags", HFILL }
+        { "Capability Flags", "enip.lsr.capaflags",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "ListServices Reply: Capability Flags", HFILL }
       },
       { &hf_enip_lsr_tcp,
-         { "Supports CIP Encapsulation via TCP", "enip.lsr.capaflags.tcp",
-         FT_UINT16, BASE_DEC, VALS(enip_true_false_vals), 0x0020,
-         "ListServices Reply: Supports CIP Encapsulation via TCP", HFILL }
+        { "Supports CIP Encapsulation via TCP", "enip.lsr.capaflags.tcp",
+          FT_UINT16, BASE_DEC, TFS(&tfs_true_false), 0x0020,
+          "ListServices Reply: Supports CIP Encapsulation via TCP", HFILL }
       },
       { &hf_enip_lsr_udp,
-         { "Supports CIP Class 0 or 1 via UDP", "enip.lsr.capaflags.udp",
-         FT_UINT16, BASE_DEC, VALS(enip_true_false_vals), 0x0100,
-         "ListServices Reply: Supports CIP Class 0 or 1 via UDP", HFILL }
+        { "Supports CIP Class 0 or 1 via UDP", "enip.lsr.capaflags.udp",
+          FT_UINT16, BASE_DEC, TFS(&tfs_true_false), 0x0100,
+          "ListServices Reply: Supports CIP Class 0 or 1 via UDP", HFILL }
       },
       { &hf_enip_lsr_servicename,
-         { "Name of Service", "enip.lsr.servicename",
-         FT_STRING, BASE_NONE, NULL, 0,
-         "ListServices Reply: Name of Service", HFILL }
+        { "Name of Service", "enip.lsr.servicename",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "ListServices Reply: Name of Service", HFILL }
       },
       /* Register Session */
       { &hf_enip_rs_version,
-         { "Protocol Version",           "enip.rs.version",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Register Session: Protocol Version", HFILL }
+        { "Protocol Version",           "enip.rs.version",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Register Session: Protocol Version", HFILL }
       },
       { &hf_enip_rs_optionflags,
-         { "Option Flags",           "enip.rs.flags",
-         FT_UINT16, BASE_HEX, NULL, 0,
-         "Register Session: Option Flags", HFILL }
+        { "Option Flags",           "enip.rs.flags",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "Register Session: Option Flags", HFILL }
       },
       /* Send Request/Reply Data */
       { &hf_enip_srrd_ifacehnd,
-         { "Interface Handle",           "enip.srrd.iface",
-         FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0,
-         "SendRRData: Interface handle", HFILL }
+        { "Interface Handle",           "enip.srrd.iface",
+          FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0,
+          "SendRRData: Interface handle", HFILL }
       },
       /* Send Unit Data */
       { &hf_enip_sud_ifacehnd,
-         { "Interface Handle",           "enip.sud.iface",
-         FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0,
-         "SendUnitData: Interface handle", HFILL }
+        { "Interface Handle",           "enip.sud.iface",
+          FT_UINT32, BASE_HEX, VALS(enip_interface_handle_vals), 0,
+          "SendUnitData: Interface handle", HFILL }
       },
       /* List identity reply */
       { &hf_enip_lir_vendor,
-         { "Vendor ID", "enip.lir.vendor",
-         FT_UINT16, BASE_HEX, VALS(cip_vendor_vals), 0,
-         "ListIdentity Reply: Vendor ID", HFILL }
+        { "Vendor ID", "enip.lir.vendor",
+          FT_UINT16, BASE_HEX, VALS(cip_vendor_vals), 0,
+          "ListIdentity Reply: Vendor ID", HFILL }
       },
       { &hf_enip_lir_devtype,
-         { "Device Type", "enip.lir.devtype",
-         FT_UINT16, BASE_DEC, VALS(cip_devtype_vals), 0,
-         "ListIdentity Reply: Device Type", HFILL }
+        { "Device Type", "enip.lir.devtype",
+          FT_UINT16, BASE_DEC, VALS(cip_devtype_vals), 0,
+          "ListIdentity Reply: Device Type", HFILL }
       },
       { &hf_enip_lir_prodcode,
-         { "Product Code", "enip.lir.prodcode",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "ListIdentity Reply: Product Code", HFILL }
+        { "Product Code", "enip.lir.prodcode",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "ListIdentity Reply: Product Code", HFILL }
       },
       { &hf_enip_lir_revision,
-         { "Revision", "enip.lir.revision",
-         FT_UINT16, BASE_CUSTOM, enip_fmt_lir_revision, 0,
-         "ListIdentity Reply: Revision", HFILL }
+        { "Revision", "enip.lir.revision",
+          FT_UINT16, BASE_CUSTOM, enip_fmt_lir_revision, 0,
+          "ListIdentity Reply: Revision", HFILL }
       },
       { &hf_enip_lir_status,
-         { "Status", "enip.lir.status",
-         FT_UINT16, BASE_HEX, NULL, 0,
-         "ListIdentity Reply: Status", HFILL }
+        { "Status", "enip.lir.status",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "ListIdentity Reply: Status", HFILL }
       },
       { &hf_enip_lir_serial,
-         { "Serial Number", "enip.lir.serial",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         "ListIdentity Reply: Serial Number", HFILL }
+        { "Serial Number", "enip.lir.serial",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "ListIdentity Reply: Serial Number", HFILL }
       },
       { &hf_enip_lir_namelen,
-         { "Product Name Length", "enip.lir.namelen",
-         FT_UINT8, BASE_DEC, NULL, 0,
-         "ListIdentity Reply: Product Name Length", HFILL }
+        { "Product Name Length", "enip.lir.namelen",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "ListIdentity Reply: Product Name Length", HFILL }
       },
       { &hf_enip_lir_name,
-         { "Product Name", "enip.lir.name",
-         FT_STRING, BASE_NONE, NULL, 0,
-         "ListIdentity Reply: Product Name", HFILL }
+        { "Product Name", "enip.lir.name",
+          FT_STRING, BASE_NONE, NULL, 0,
+          "ListIdentity Reply: Product Name", HFILL }
       },
       { &hf_enip_lir_state,
-         { "State", "enip.lir.state",
-         FT_UINT8, BASE_HEX, NULL, 0,
-         "ListIdentity Reply: State", HFILL }
+        { "State", "enip.lir.state",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          "ListIdentity Reply: State", HFILL }
       },
       /* Common Packet Format */
       { &hf_enip_cpf_itemcount,
-         { "Item Count", "enip.cpf.itemcount",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Common Packet Format: Item Count", HFILL }
+        { "Item Count", "enip.cpf.itemcount",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Common Packet Format: Item Count", HFILL }
       },
       { &hf_enip_cpf_typeid,
-         { "Type ID",          "enip.cpf.typeid",
-         FT_UINT16, BASE_HEX, VALS(cdf_type_vals), 0,
-         "Common Packet Format: Type of encapsulated item", HFILL }
+        { "Type ID",          "enip.cpf.typeid",
+          FT_UINT16, BASE_HEX, VALS(cdf_type_vals), 0,
+          "Common Packet Format: Type of encapsulated item", HFILL }
       },
       { &hf_enip_cpf_length,
-         { "Length", "enip.cpf.length",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Common Packet Format: Length", HFILL }
+        { "Length", "enip.cpf.length",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Common Packet Format: Length", HFILL }
       },
       /* Connected Data Item */
       { &hf_enip_cpf_cdi_seqcnt,
-         { "Connection ID", "enip.cpf.cdi.seqcnt",
-         FT_UINT16, BASE_HEX, NULL, 0,
-         "Common Packet Format: Connected Data Item, Sequence Count", HFILL }
+        { "Connection ID", "enip.cpf.cdi.seqcnt",
+          FT_UINT16, BASE_HEX, NULL, 0,
+          "Common Packet Format: Connected Data Item, Sequence Count", HFILL }
       },
       /* Connection Address Item */
       { &hf_enip_cpf_cai_connid,
-         { "Connection ID", "enip.cpf.cai.connid",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         "Common Packet Format: Connection Address Item, Connection Identifier", HFILL }
+        { "Connection ID", "enip.cpf.cai.connid",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Common Packet Format: Connection Address Item, Connection Identifier", HFILL }
       },
       /* Sequenced Address Type */
       { &hf_enip_cpf_sai_connid,
-         { "Connection ID", "enip.cpf.sai.connid",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         "Common Packet Format: Sequenced Address Item, Connection Identifier", HFILL }
+        { "Connection ID", "enip.cpf.sai.connid",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          "Common Packet Format: Sequenced Address Item, Connection Identifier", HFILL }
       },
       { &hf_enip_cpf_sai_seqnum,
-         { "Sequence Number", "enip.cpf.sai.seq",
-         FT_UINT32, BASE_DEC, NULL, 0,
-         "Common Packet Format: Sequenced Address Item, Sequence Number", HFILL }
+        { "Sequence Number", "enip.cpf.sai.seq",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          "Common Packet Format: Sequenced Address Item, Sequence Number", HFILL }
       },
+      { &hf_enip_cpf_data,
+        { "Data", "enip.cpf.data",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Common Packet Format: Unknown Data", HFILL }
+      },
+
       /* Request/Response Matching */
       { &hf_enip_response_in,
-         { "Response In", "enip.response_in",
-         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-         "The response to this ENIP request is in this frame", HFILL }
+        { "Response In", "enip.response_in",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          "The response to this ENIP request is in this frame", HFILL }
       },
       { &hf_enip_response_to,
-         { "Request In", "enip.response_to",
-         FT_FRAMENUM, BASE_NONE, NULL, 0x0,
-         "This is a response to the ENIP request in this frame", HFILL }
+        { "Request In", "enip.response_to",
+          FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+          "This is a response to the ENIP request in this frame", HFILL }
       },
       { &hf_enip_time,
-         { "Time", "enip.time",
-         FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
-         "The time between the Call and the Reply", HFILL }
+        { "Time", "enip.time",
+          FT_RELATIVE_TIME, BASE_NONE, NULL, 0x0,
+          "The time between the Call and the Reply", HFILL }
+      },
+      { &hf_enip_connection_transport_data,
+        { "Data", "enip.connection_transport_data",
+          FT_BYTES, BASE_NONE, NULL, 0x0,
+          "Connection Transport Data", HFILL }
       }
+
    };
 
 
@@ -1609,151 +1565,151 @@ proto_register_enip(void)
    };
 
    /* Setup list of header fields for DLR  See Section 1.6.1 for details*/
-	static hf_register_info hfdlr[] = {
-	   /* Ring Sub-type */
+   static hf_register_info hfdlr[] = {
+      /* Ring Sub-type */
       { &hf_dlr_ringsubtype,
-         { "Subtype", "enip.dlr.ringsubtype",
-         FT_UINT8, BASE_HEX, NULL, 0,
-         "Ring Sub-Type", HFILL }
+        { "Subtype", "enip.dlr.ringsubtype",
+          FT_UINT8, BASE_HEX, NULL, 0,
+          "Ring Sub-Type", HFILL }
       },
       /* Ring Protocol Version */
       { &hf_dlr_ringprotoversion,
-         { "Version", "enip.dlr.protversion",
-         FT_UINT8, BASE_DEC, NULL, 0,
-         "Ring Protocol Version", HFILL }
+        { "Version", "enip.dlr.protversion",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          "Ring Protocol Version", HFILL }
       },
       /* Frame Type */
       { &hf_dlr_frametype,
-         { "Frametype", "enip.dlr.frametype",
-         FT_UINT8, BASE_HEX, VALS(dlr_frame_type_vals), 0,
-         "Frame Type", HFILL }
+        { "Frametype", "enip.dlr.frametype",
+          FT_UINT8, BASE_HEX, VALS(dlr_frame_type_vals), 0,
+          "Frame Type", HFILL }
       },
       /* Source Port */
       { &hf_dlr_sourceport,
-         { "Sourceport", "enip.dlr.sourceport",
-         FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
-         "Source Port", HFILL }
+        { "Sourceport", "enip.dlr.sourceport",
+          FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
+          "Source Port", HFILL }
       },
       /* Source IP Address */
       { &hf_dlr_sourceip,
-         { "Source IP", "enip.dlr.sourceip",
-         FT_IPv4, BASE_NONE, NULL, 0,
-         "Source IP Address", HFILL }
+        { "Source IP", "enip.dlr.sourceip",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          "Source IP Address", HFILL }
       },
       /* Sequence ID*/
       { &hf_dlr_sequenceid,
-         { "Sequence Id", "enip.dlr.seqid",
-         FT_UINT32, BASE_HEX, NULL, 0,
-         NULL, HFILL }
+        { "Sequence Id", "enip.dlr.seqid",
+          FT_UINT32, BASE_HEX, NULL, 0,
+          NULL, HFILL }
       },
       /* Ring State */
       { &hf_dlr_ringstate,
-         { "Ring State", "enip.dlr.state",
-         FT_UINT8, BASE_HEX, VALS(dlr_ring_state_vals), 0,
-         NULL, HFILL }
+        { "Ring State", "enip.dlr.state",
+          FT_UINT8, BASE_HEX, VALS(dlr_ring_state_vals), 0,
+          NULL, HFILL }
       },
       /* Supervisor Precedence */
       { &hf_dlr_supervisorprecedence,
-         { "Supervisor Precedence", "enip.dlr.supervisorprecedence",
-         FT_UINT8, BASE_DEC, NULL, 0,
-         NULL, HFILL }
+        { "Supervisor Precedence", "enip.dlr.supervisorprecedence",
+          FT_UINT8, BASE_DEC, NULL, 0,
+          NULL, HFILL }
       },
       /* Beacon Interval */
       { &hf_dlr_beaconinterval,
-         { "Beacon Interval", "enip.dlr.beaconinterval",
-         FT_UINT32, BASE_DEC, NULL, 0,
-         NULL, HFILL }
+        { "Beacon Interval", "enip.dlr.beaconinterval",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
       },
       /* Beacon Timeout */
       { &hf_dlr_beacontimeout,
-         { "Beacon Timeout", "enip.dlr.beacontimeout",
-         FT_UINT32, BASE_DEC, NULL, 0,
-         NULL, HFILL }
+        { "Beacon Timeout", "enip.dlr.beacontimeout",
+          FT_UINT32, BASE_DEC, NULL, 0,
+          NULL, HFILL }
       },
       /* Beacon Reserved */
       { &hf_dlr_beaconreserved,
-         { "Reserved", "enip.dlr.beaconreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Beacon Reserved", HFILL }
+        { "Reserved", "enip.dlr.beaconreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Beacon Reserved", HFILL }
       },
       /* Neighbor_Check_Request Reserved */
       { &hf_dlr_nreqreserved,
-         { "Reserved", "enip.dlr.nreqreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Neighbor_Check_Request Reserved", HFILL }
+        { "Reserved", "enip.dlr.nreqreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Neighbor_Check_Request Reserved", HFILL }
       },
       /* Neighbor_Check_Response Source Port */
       { &hf_dlr_nressourceport,
-         { "Sourceport", "enip.dlr.nressourceport",
-         FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
-         "Neighbor_Check_Response Source Port", HFILL }
+        { "Sourceport", "enip.dlr.nressourceport",
+          FT_UINT8, BASE_HEX, VALS(dlr_source_port_vals), 0,
+          "Neighbor_Check_Response Source Port", HFILL }
       },
       /* Neighbor_Check_Response Reserved */
       { &hf_dlr_nresreserved,
-         { "Reserved", "enip.dlr.nresreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Neighbor_Check_Response Reserved", HFILL }
+        { "Reserved", "enip.dlr.nresreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Neighbor_Check_Response Reserved", HFILL }
       },
       /* Link_Status/Neighbor_Status Status */
       { &hf_dlr_lnknbrstatus,
-         { "Status", "enip.dlr.lnknbrstatus",
-         FT_UINT8, BASE_HEX, VALS(dlr_lnk_nbr_status_vals), 0,
-         "Link_Status/Neighbor_Status Status", HFILL }
+        { "Status", "enip.dlr.lnknbrstatus",
+          FT_UINT8, BASE_HEX, VALS(dlr_lnk_nbr_status_vals), 0,
+          "Link_Status/Neighbor_Status Status", HFILL }
       },
       /* Link_Status/Neighbor_Status Reserved */
       { &hf_dlr_lnknbrreserved,
-         { "Reserved", "enip.dlr.lnknbrreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Link_Status/Neighbor_Status Reserved", HFILL }
+        { "Reserved", "enip.dlr.lnknbrreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Link_Status/Neighbor_Status Reserved", HFILL }
       },
       /* Locate_Fault Reserved */
       { &hf_dlr_lfreserved,
-         { "Reserved", "enip.dlr.lfreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Locate_Fault Reserved", HFILL }
+        { "Reserved", "enip.dlr.lfreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Locate_Fault Reserved", HFILL }
       },
       /* Announce Reserved */
       { &hf_dlr_anreserved,
-         { "Reserved", "enip.dlr.anreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Announce Reserved", HFILL }
+        { "Reserved", "enip.dlr.anreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Announce Reserved", HFILL }
       },
       /* Number of Nodes in List */
       { &hf_dlr_sonumnodes,
-         { "Num nodes", "enip.dlr.sonumnodes",
-         FT_UINT16, BASE_DEC, NULL, 0,
-         "Number of Nodes in List", HFILL }
+        { "Num nodes", "enip.dlr.sonumnodes",
+          FT_UINT16, BASE_DEC, NULL, 0,
+          "Number of Nodes in List", HFILL }
       },
       /* Sign_On Node # MAC Address */
       { &hf_dlr_somac,
-         { "MAC Address", "enip.dlr.somac",
-         FT_ETHER, BASE_NONE, NULL, 0,
-         "Sign_On Node MAC Address", HFILL }
+        { "MAC Address", "enip.dlr.somac",
+          FT_ETHER, BASE_NONE, NULL, 0,
+          "Sign_On Node MAC Address", HFILL }
       },
       /*  Node # IP Address */
       { &hf_dlr_soip,
-         { "IP Address", "enip.dlr.soip",
-         FT_IPv4, BASE_NONE, NULL, 0,
-         "Sign_On Node IP Address", HFILL }
+        { "IP Address", "enip.dlr.soip",
+          FT_IPv4, BASE_NONE, NULL, 0,
+          "Sign_On Node IP Address", HFILL }
       },
       /* Sign_On Reserved */
       { &hf_dlr_soreserved,
-         { "Reserved", "enip.dlr.soreserved",
-         FT_BYTES, BASE_NONE, NULL, 0,
-         "Sign_On Reserved", HFILL }
+        { "Reserved", "enip.dlr.soreserved",
+          FT_BYTES, BASE_NONE, NULL, 0,
+          "Sign_On Reserved", HFILL }
       }
    };
 
    /* Setup protocol subtree array for DLR */
    static gint *ettdlr[] = {
-	  &ett_dlr
+      &ett_dlr
    };
 
    module_t *enip_module;
 
    /* Register the protocol name and description */
    proto_enip = proto_register_protocol("EtherNet/IP (Industrial Protocol)",
-					"ENIP", "enip");
+                                        "ENIP", "enip");
 
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_enip, hf, array_length(hf));
@@ -1761,15 +1717,15 @@ proto_register_enip(void)
 
    enip_module = prefs_register_protocol(proto_enip, NULL);
    prefs_register_bool_preference(enip_module, "desegment",
-      "Desegment all EtherNet/IP messages spanning multiple TCP segments",
-      "Whether the EtherNet/IP dissector should desegment all messages spanning multiple TCP segments",
-      &enip_desegment);
+                                  "Desegment all EtherNet/IP messages spanning multiple TCP segments",
+                                  "Whether the EtherNet/IP dissector should desegment all messages spanning multiple TCP segments",
+                                  &enip_desegment);
 
    subdissector_sud_table = register_dissector_table("enip.sud.iface",
-      "SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);
+                                                     "SendUnitData.Interface Handle", FT_UINT32, BASE_HEX);
 
    subdissector_srrd_table = register_dissector_table("enip.srrd.iface",
-      "SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
+                                                      "SendRequestReplyData.Interface Handle", FT_UINT32, BASE_HEX);
 
    register_init_routine(&enip_init_protocol);
 
@@ -1779,6 +1735,10 @@ proto_register_enip(void)
    /* Required function calls to register the header fields and subtrees used */
    proto_register_field_array(proto_dlr, hfdlr, array_length(hfdlr));
    proto_register_subtree_array(ettdlr, array_length(ettdlr));
+
+   /* Register a heuristic dissector on the data in the message so encapsulated protocols
+    * can dissect the data without modifying this file */
+   register_heur_dissector_list("enip.cpf.conndata", &heur_subdissector_conndata_table);
 
 } /* end of proto_register_enip() */
 
@@ -1814,3 +1774,16 @@ proto_reg_handoff_enip(void)
    dissector_add_uint("ethertype", ETHERTYPE_DLR, dlr_handle);
 
 } /* end of proto_reg_handoff_enip() */
+
+/*
+* Editor modelines - http://www.wireshark.org/tools/modelines.html
+*
+* Local variables:
+* c-basic-offset: 3
+* tab-width: 8
+* indent-tabs-mode: nil
+* End:
+*
+* ex: set shiftwidth=3 tabstop=8 expandtab:
+* :indentSize=3:tabSize=8:noTabs=true:
+*/

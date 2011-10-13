@@ -3328,6 +3328,11 @@ Spenser Sheng           <spenser.sheng [AT] ericsson.com> {
 	LCS-AP support
 }
 
+Benjamin Stocks		<bmstocks [AT] ra.rockwell.com> {
+	CIP Motion dissector
+}
+
+
 and by:
 
 Pavel Roskin            <proski [AT] gnu.org>

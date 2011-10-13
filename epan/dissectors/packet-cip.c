@@ -361,7 +361,7 @@ static const value_string cip_cco_change_type_vals[] = {
 };
 
 /* Translate function to string - CIP General Status codes */
-static const value_string cip_gs_vals[] = {
+const value_string cip_gs_vals[] = {
    { CI_GRC_SUCCESS,             "Success" },
    { CI_GRC_FAILURE,             "Connection failure" },
    { CI_GRC_NO_RESOURCE,         "Resource unavailable" },

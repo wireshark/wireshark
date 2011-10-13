@@ -1330,3 +1330,4 @@
 
 extern const value_string cip_devtype_vals[];
 extern const value_string cip_vendor_vals[];
+extern const value_string cip_gs_vals[];

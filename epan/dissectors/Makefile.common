@@ -313,6 +313,7 @@ DISSECTOR_SRC = \
 	packet-cimd.c		\
 	packet-cimetrics.c	\
 	packet-cip.c		\
+	packet-cipmotion.c	\
 	packet-cisco-erspan.c	\
 	packet-cisco-oui.c	\
 	packet-cisco-sm.c	\
