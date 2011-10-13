@@ -585,7 +585,9 @@ const value_string nas_emm_elem_strings[] = {
     { 0x00, "SS Code" },                            /* 9.9.3.39 SS Code */
     { 0x00, "LCS indicator" },                      /* 9.9.3.40 LCS indicator */
     { 0x00, "LCS client identity" },                /* 9.9.3.41 LCS client identity */
-
+    { 0x00, "Generic message container type" },     /* 9.9.3.42 Generic message container type */
+    { 0x00, "Generic message container" },          /* 9.9.3.43 Generic message container */
+    { 0x00, "Voice domain preference and UEs usage setting" }, /* 9.9.3.44 Voice domain preference and UEs usage setting */
     { 0, NULL }
 };
 #define NUM_NAS_EMM_ELEM (sizeof(nas_emm_elem_strings)/sizeof(value_string))
@@ -1918,7 +1920,7 @@ de_emm_gen_msg_cont_type(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     proto_tree_add_item(tree, hf_nas_eps_emm_gen_msg_cont_type, tvb, curr_offset, 1, ENC_BIG_ENDIAN);
     curr_offset++;
 
-    return(len);
+    return(curr_offset - offset);
 }
 /*
  * 9.9.3.43 Generic message container
@@ -1948,8 +1950,6 @@ de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     default:
         break;
     }
-
-    eps_nas_gen_msg_cont_type = 0;
 
     return(len);
 }
@@ -3004,6 +3004,8 @@ nas_emm_dl_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     curr_offset = offset;
     curr_len = len;
 
+    pinfo->link_dir = P2P_DIR_DL;
+
     /* NAS message container    NAS message container 9.9.3.22  M   LV  3-252 */
     ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, NULL);
 
@@ -3506,6 +3508,8 @@ nas_emm_ul_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, gu
     curr_offset = offset;
     curr_len = len;
 
+    pinfo->link_dir = P2P_DIR_UL;
+
     /* NAS message container    NAS message container 9.9.3.22  M   LV  3-252*/
     ELEM_MAND_LV(NAS_PDU_TYPE_EMM, DE_EMM_NAS_MSG_CONT, NULL);
 
@@ -3525,14 +3529,18 @@ nas_emm_dl_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     curr_offset = offset;
     curr_len = len;
 
+    pinfo->link_dir = P2P_DIR_DL;
+
     /* Generic message container type Generic message container type 9.9.3.42 M V 1 */
     ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT_TYPE, NULL);
     /* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
     ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT, NULL)
     /* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
-    ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_EMM, DE_EPS_CMN_ADD_INFO, NULL);
+    ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_ADD_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+    eps_nas_gen_msg_cont_type = 0;
 }
 
 /*
@@ -3548,14 +3556,18 @@ nas_emm_ul_gen_nas_trans(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_
     curr_offset = offset;
     curr_len = len;
 
+    pinfo->link_dir = P2P_DIR_UL;
+
     /* Generic message container type Generic message container type 9.9.3.42 M V 1 */
     ELEM_MAND_V(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT_TYPE, NULL);
     /* Generic message container Generic message container 9.9.3.43 M LV-E 3-n */
     ELEM_MAND_LV_E(NAS_PDU_TYPE_EMM, DE_EMM_GEN_MSG_CONT, NULL)
     /* 65 Additional information Additional information 9.9.2.0 O TLV 3-n */
-    ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_EMM, DE_EPS_CMN_ADD_INFO, NULL);
+    ELEM_OPT_TLV(0x65, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_ADD_INFO, NULL);
 
     EXTRANEOUS_DATA_CHECK(curr_len, 0);
+
+    eps_nas_gen_msg_cont_type = 0;
 }
 
 /*
@@ -5311,17 +5323,17 @@ void proto_register_nas_eps(void) {
         NULL, HFILL }
     },
     { &hf_nas_eps_nas_msg_cont,
-        { "NAS message container", "nas_eps.emm.nas_msg_cont",
+        { "NAS message container content", "nas_eps.emm.nas_msg_cont",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_gen_msg_cont,
-        { "Generic message container", "nas_eps.emm.gen_msg_cont",
+        { "Generic message container content", "nas_eps.emm.gen_msg_cont",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
     { &hf_nas_eps_emm_add_info,
-        { "Additional information", "nas_eps.emm.add_info",
+        { "Additional information content", "nas_eps.emm.add_info",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
