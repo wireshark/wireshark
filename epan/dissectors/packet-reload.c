@@ -2023,7 +2023,6 @@ dissect_signature(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, guint16 o
 
   signeridentityvalue_length = tvb_get_ntohs(tvb, offset +2+1);
   signaturevalue_length = tvb_get_ntohs(tvb, offset + 2 + 1 + 2+ signeridentityvalue_length);
-  pinfo=pinfo;
   ti_signature = proto_tree_add_item(tree,
                                      hf_reload_signature, tvb, offset,
                                      2 +/* SignatureAndHashAlgorithm */

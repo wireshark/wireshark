@@ -280,7 +280,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 					}
 					if (dup_nr > 0)
 					{
-						dup_list = (guint32 *)(((char *)&sack_header->nr_of_dups)+sizeof(guint16)+(nr*sizeof(struct gaps)));
+						dup_list = &sack_header->a_rwnd + 2 + nr;
 						for (i = 0; i < dup_nr; i++)
 						{
 							dup = g_ntohl(dup_list[i]);
