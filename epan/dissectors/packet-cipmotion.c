@@ -1833,7 +1833,7 @@ dissect_cipmotion(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
       {
          /* Sizes of the individual channels within the connection */
          guint32 cyc_size, cyc_blk_size, evnt_size, servc_size;
-         guint32 inst_count, inst;
+         guint32 inst_count = 0, inst;
 
          /* Dissect the header fields */
          switch(con_format)
