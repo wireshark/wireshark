@@ -73,6 +73,7 @@ MessageDeliveryIdentifier
 MessageDeliveryTime
 MessageOriginAuthenticationCheck
 MessageSecurityLabel
+MessageSecurityLabel_PDU
 MessageSubmissionEnvelope
 MessageSubmissionIdentifier
 MessageSubmissionTime
