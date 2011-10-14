@@ -35,11 +35,15 @@
 #include <epan/strutil.h>
 #include <epan/prefs.h>
 #include <epan/uat.h>
+#include <epan/base64.h>
+#include <epan/expert.h>
 
 #include <wsutil/str_util.h>
 
 #include "packet-ber.h"
 #include "packet-imf.h"
+#include "packet-ess.h"
+#include "packet-p1.h"
 
 #define PNAME  "Internet Message Format"
 #define PSNAME "IMF"
@@ -128,28 +132,39 @@ static int hf_imf_mailbox_list_item = -1;
 static int hf_imf_address_list = -1;
 static int hf_imf_address_list_item = -1;
 
+/* draft-zeilenga-email-seclabel-04 */
+static int hf_imf_siolabel = -1;
+static int hf_imf_siolabel_marking = -1;
+static int hf_imf_siolabel_fgcolor = -1;
+static int hf_imf_siolabel_bgcolor = -1;
+static int hf_imf_siolabel_type = -1;
+static int hf_imf_siolabel_label = -1;
+static int hf_imf_siolabel_unknown = -1;
+
 static int ett_imf = -1;
 static int ett_imf_content_type = -1;
 static int ett_imf_mailbox = -1;
 static int ett_imf_group = -1;
 static int ett_imf_mailbox_list = -1;
 static int ett_imf_address_list = -1;
+static int ett_imf_siolabel = -1;
 static int ett_imf_extension = -1;
 static int ett_imf_message_text = -1;
 
 struct imf_field {
   const char   *name;           /* field name - in lower case for matching purposes */
   int          *hf_id;          /* wireshark field */
-  void         (*subdissector)(tvbuff_t *tvb, int offset, int length, proto_item *item);
+  void         (*subdissector)(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
   gboolean     add_to_col_info; /* add field to column info */
 };
 
 #define NO_SUBDISSECTION NULL
 
-static void dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item);
-static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item);
-static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item);
-static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item);
+static void dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
+static void dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
+static void dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
+static void dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
+static void dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo);
 
 static struct imf_field imf_fields[] = {
   {"unknown-extension",                   &hf_imf_extension_type, NO_SUBDISSECTION, FALSE}, /* unknown extension */
@@ -220,6 +235,7 @@ static struct imf_field imf_fields[] = {
   {"x-uidl",                              &hf_imf_ext_uidl, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-authentication-warning",            &hf_imf_ext_authentication_warning, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"x-virus-scanned",                     &hf_imf_ext_virus_scanned, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"sio-label",                           &hf_imf_siolabel, dissect_imf_siolabel, FALSE}, /* sio-label */
   {NULL, NULL, NULL, FALSE},
 };
 
@@ -230,6 +246,7 @@ static GHashTable *imf_field_table=NULL;
 #define FORMAT_ADDRESS       2
 #define FORMAT_MAILBOX_LIST  3
 #define FORMAT_ADDRESS_LIST  4
+#define FORMAT_SIO_LABEL     5
 
 static const value_string header_format[] = {
   { FORMAT_UNSTRUCTURED, "Unstructured" },
@@ -237,6 +254,7 @@ static const value_string header_format[] = {
   { FORMAT_ADDRESS,      "Address"      },
   { FORMAT_MAILBOX_LIST, "Mailbox List" },
   { FORMAT_ADDRESS_LIST, "Address List" },
+  { FORMAT_SIO_LABEL,    "SIO-Label"    },
   { 0, NULL }
 };
 
@@ -308,7 +326,7 @@ UAT_VS_DEF(header_fields, add_to_col_info, header_field_t, 0, "No")
 static dissector_table_t media_type_dissector_table;
 
 static void
-dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item)
+dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo)
 {
   proto_tree *group_tree;
   proto_item *group_item;
@@ -318,7 +336,7 @@ dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item)
   if((addr_pos = tvb_find_guint8(tvb, offset, length, ':')) == -1) {
 
     /* there isn't - so it must be a mailbox */
-    dissect_imf_mailbox(tvb, offset, length, item);
+    dissect_imf_mailbox(tvb, offset, length, item, pinfo);
 
   } else {
 
@@ -337,21 +355,17 @@ dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item)
 
     if(tvb_get_guint8(tvb, addr_pos) != ';') {
 
-      dissect_imf_mailbox_list(tvb, addr_pos, length - (addr_pos - offset), group_item);
+      dissect_imf_mailbox_list(tvb, addr_pos, length - (addr_pos - offset), group_item, pinfo);
 
       /* XXX: need to check for final ';' */
 
     }
 
   }
-
-
-  return;
-
 }
 
 static void
-dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item)
+dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo _U_)
 {
   proto_tree *mbox_tree;
   int        addr_pos, end_pos;
@@ -391,7 +405,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item)
 }
 
 static void
-dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item)
+dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo)
 {
   proto_item *addr_item = NULL;
   proto_tree *tree = NULL;
@@ -418,7 +432,7 @@ dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item
       item_length = end_offset - item_offset;
     }
     addr_item = proto_tree_add_item(tree, hf_imf_address_list_item, tvb, item_offset, item_length, FALSE);
-    dissect_imf_address(tvb, item_offset, item_length, addr_item);
+    dissect_imf_address(tvb, item_offset, item_length, addr_item, pinfo);
 
     if(end_offset != -1) {
       item_offset = end_offset + 1;
@@ -427,12 +441,10 @@ dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item
 
   /* now indicate the number of items found */
   proto_item_append_text(item, ", %d item%s", count, plurality(count, "", "s"));
-
-  return;
 }
 
 static void
-dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item)
+dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo)
 {
   proto_item *mbox_item = NULL;
   proto_tree *tree = NULL;
@@ -459,7 +471,7 @@ dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item
       item_length = end_offset - item_offset;
     }
     mbox_item = proto_tree_add_item(tree, hf_imf_mailbox_list_item, tvb, item_offset, item_length, FALSE);
-    dissect_imf_mailbox(tvb, item_offset, item_length, mbox_item);
+    dissect_imf_mailbox(tvb, item_offset, item_length, mbox_item, pinfo);
 
     if(end_offset != -1) {
       item_offset = end_offset + 1;
@@ -468,10 +480,99 @@ dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item
 
   /* now indicate the number of items found */
   proto_item_append_text(item, ", %d item%s", count, plurality(count, "", "s"));
-
-  return;
 }
 
+static void
+dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, packet_info *pinfo)
+{
+  proto_tree *tree = NULL;
+  proto_item *sub_item = NULL;
+  int         item_offset, item_length;
+  int         value_offset, value_length;
+  int         end_offset;
+  tvbuff_t   *label_tvb;
+  gchar      *type = NULL;
+  GString    *label_string = g_string_new ("");
+
+  /* a semicolon separated list of attributes */
+  tree = proto_item_add_subtree(item, ett_imf_siolabel);
+  item_offset = offset;
+
+  do {
+    end_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), ';');
+
+    /* skip leading space */
+    while (isspace(tvb_get_guint8(tvb, item_offset))) {
+      item_offset++;
+    }
+
+    if (end_offset == -1) {
+      /* length is to the end of the buffer */
+      item_length = tvb_find_line_end(tvb, item_offset, length - (item_offset - offset), NULL, FALSE);
+    } else {
+      item_length = end_offset - item_offset;
+    }
+
+    value_offset = tvb_find_guint8(tvb, item_offset, length - (item_offset - offset), '=') + 1;
+    while (isspace(tvb_get_guint8(tvb, value_offset))) {
+      value_offset++;
+    }
+
+    value_length = item_length - (value_offset - item_offset);
+    while (isspace(tvb_get_guint8(tvb, value_offset + value_length - 1))) {
+      value_length--;
+    }
+
+    if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
+      proto_item_append_text(item, ": %s", tvb_get_ephemeral_string(tvb, value_offset, value_length));
+      proto_tree_add_item(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, FALSE);
+
+    } else if (tvb_strneql(tvb, item_offset, "fgcolor", 7) == 0) {
+      proto_tree_add_item(tree, hf_imf_siolabel_fgcolor, tvb, value_offset, value_length, FALSE);
+
+    } else if (tvb_strneql(tvb, item_offset, "bgcolor", 7) == 0) {
+      proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, FALSE);
+
+    } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
+      type = tvb_get_ephemeral_string(tvb, value_offset + 1, value_length - 2); /* quoted */
+      proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, FALSE);
+
+    } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
+      gchar *label = tvb_get_ephemeral_string(tvb, value_offset + 1, value_length - 2); /* quoted */
+      label_string = g_string_append(label_string, label);
+
+      if (tvb_get_guint8(tvb, item_offset + 5) == '*') { /* continuations */
+        int num = strtol(tvb_get_ephemeral_string(tvb, item_offset + 6, value_offset - item_offset + 6), NULL, 10);
+        proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
+                                     label, "Label[%d]: \"%s\"", num, label);
+      } else {
+        proto_tree_add_item(tree, hf_imf_siolabel_label, tvb, value_offset, value_length, FALSE);
+      }
+
+    } else {
+      sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, FALSE);
+      expert_add_info_format(pinfo, sub_item, PI_PROTOCOL, PI_WARN, "Unknown parameter");
+    }
+
+    if (end_offset != -1) {
+      item_offset = end_offset + 1;
+    }
+  } while (end_offset != -1);
+
+  if (type && label_string->len > 0) {
+    if (strcmp (type, ":ess") == 0) {
+      label_tvb = base64_to_tvb(tvb, label_string->str);
+      add_new_data_source(pinfo, label_tvb, "ESS Security Label");
+      dissect_ess_ESSSecurityLabel_PDU(label_tvb, pinfo, tree);
+    } else if (strcmp (type, ":x411") == 0) {
+      label_tvb = base64_to_tvb(tvb, label_string->str);
+      add_new_data_source(pinfo, label_tvb, "X.411 Security Label");
+      dissect_p1_MessageSecurityLabel_PDU(label_tvb, pinfo, tree);
+    }
+  }
+
+  g_string_free (label_string, TRUE);
+}
 
 static void
 dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item,
@@ -544,7 +645,7 @@ imf_find_field_end(tvbuff_t *tvb, int offset, gint max_length, gboolean *last_fi
           return offset;
         }
       }
-    }else {
+    } else {
       /* couldn't find a CR - strange */
       return offset;
     }
@@ -672,7 +773,7 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       } else if(f_info->subdissector) {
 
         /* we have a subdissector */
-        f_info->subdissector(tvb, value_offset, end_offset - value_offset, item);
+        f_info->subdissector(tvb, value_offset, end_offset - value_offset, item, pinfo);
 
       }
     }
@@ -801,6 +902,10 @@ header_fields_initialize_cb (void)
         break;
       case FORMAT_ADDRESS_LIST:
         imffield->subdissector = dissect_imf_address_list;
+        break;
+      case FORMAT_SIO_LABEL:
+        hf[i].hfinfo.type = FT_NONE; /* constructed */
+        imffield->subdissector = dissect_imf_siolabel;
         break;
       default:
         /* unknown */
@@ -1043,6 +1148,27 @@ proto_register_imf(void)
     { &hf_imf_mailbox_list_item,
       { "Item", "imf.mailbox_list.item", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
+    { &hf_imf_siolabel,
+      { "SIO-Label", "imf.siolabel", FT_NONE,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_siolabel_marking,
+      { "Marking", "imf.siolabel.marking", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_siolabel_fgcolor,
+      { "Foreground Color", "imf.siolabel.fgcolor", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_siolabel_bgcolor,
+      { "Background Color", "imf.siolabel.bgcolor", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_siolabel_type,
+      { "Type", "imf.siolabel.type", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_siolabel_label,
+      { "Label", "imf.siolabel.label", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_siolabel_unknown,
+      { "Unknown parameter", "imf.siolabel.unknown", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
     { &hf_imf_message_text,
       { "Message-Text", "imf.message_text", FT_NONE,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
@@ -1054,6 +1180,7 @@ proto_register_imf(void)
     &ett_imf_mailbox,
     &ett_imf_mailbox_list,
     &ett_imf_address_list,
+    &ett_imf_siolabel,
     &ett_imf_extension,
     &ett_imf_message_text,
   };
