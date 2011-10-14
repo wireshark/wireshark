@@ -3694,7 +3694,7 @@ make_menu_xml(const char *path) {
  * Creates an action group for the menu items in xpath, and returns it. The caller should
  * use g_object_unref() on the returned pointer if transferring scope.
  */
-static GtkActionGroup*
+GtkActionGroup*
 make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
     GtkActionGroup  *action_group;
     GtkAction       *action;
