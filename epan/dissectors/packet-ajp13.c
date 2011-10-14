@@ -212,6 +212,22 @@ static int hf_ajp13_pragma            = -1;
 static int hf_ajp13_referer           = -1;
 static int hf_ajp13_user_agent        = -1;
 
+/* request attributes */
+static int hf_ajp13_unknown_attribute     = -1;
+static int hf_ajp13_req_attribute         = -1;
+static int hf_ajp13_context               = -1;
+static int hf_ajp13_servlet_path          = -1;
+static int hf_ajp13_remote_user           = -1;
+static int hf_ajp13_auth_type             = -1;
+static int hf_ajp13_query_string          = -1;
+static int hf_ajp13_route                 = -1;
+static int hf_ajp13_ssl_cert              = -1;
+static int hf_ajp13_ssl_cipher            = -1;
+static int hf_ajp13_ssl_session           = -1;
+static int hf_ajp13_ssl_key_size          = -1;
+static int hf_ajp13_secret                = -1;
+static int hf_ajp13_stored_method         = -1;
+
 static int hf_ajp13_rlen   = -1;
 static int hf_ajp13_reusep = -1;
 static int hf_ajp13_rstatus= -1;
@@ -255,6 +271,23 @@ static const int* req_headers[] = {
   &hf_ajp13_pragma,
   &hf_ajp13_referer,
   &hf_ajp13_user_agent
+};
+
+static const int* req_attributes[] = {
+  &hf_ajp13_unknown_attribute,
+  &hf_ajp13_context,
+  &hf_ajp13_servlet_path,
+  &hf_ajp13_remote_user,
+  &hf_ajp13_auth_type,
+  &hf_ajp13_query_string,
+  &hf_ajp13_route,
+  &hf_ajp13_ssl_cert,
+  &hf_ajp13_ssl_cipher,
+  &hf_ajp13_ssl_session,
+  &hf_ajp13_req_attribute, /* 0x0A - name and value follows */
+  &hf_ajp13_ssl_key_size,
+  &hf_ajp13_secret,
+  &hf_ajp13_stored_method
 };
 
 typedef struct ajp13_conv_data {
@@ -662,6 +695,65 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       cd->content_length = cl;
     }
   }
+
+  /* ATTRIBUTES
+   */
+  while(tvb_reported_length_remaining(tvb, pos)) {
+    guint8 aid;
+    const gchar* aname = NULL;
+    const gchar* aval;
+    guint16 aval_len, aname_len;
+
+    header_field_info *hfinfo;
+    int apos = pos;
+
+    /* ATTRIBUTE CODE/NAME
+     */
+    aid = tvb_get_guint8(tvb, pos);
+    pos+=1;
+
+    if (aid == 0xFF) {
+      /* request terminator */
+      break;
+    }
+    if (aid == 0x0A) {
+      /* req_attribute - name and value follow */
+
+      aname = ajp13_get_nstring(tvb, pos, &aname_len);
+      pos+=aname_len+2;
+
+      aval = ajp13_get_nstring(tvb, pos, &aval_len);
+      pos+=aval_len+2;
+
+      if (ajp13_tree) {
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_req_attribute,
+                                     tvb, apos, 1+aname_len+2+aval_len+2,
+                                     g_strdup_printf("%s: %s", aname, aval),
+                                     "%s: %s", aname, aval);
+      }
+    } else if (aid == 0x0B ) {
+      /* ssl_key_length */
+      if (ajp13_tree) {
+        proto_tree_add_uint(ajp13_tree, hf_ajp13_ssl_key_size,
+                            tvb, apos, 1+2, tvb_get_ntohs(tvb, pos));
+      }
+      pos+=2;
+    } else {
+
+      if (aid >= array_length(req_attributes))
+        aid = 0;
+
+      hfinfo = proto_registrar_get_nth(*req_attributes[aid]);
+      aval = ajp13_get_nstring(tvb, pos, &aval_len);
+      pos+=aval_len+2;
+
+      if (ajp13_tree) {
+        proto_tree_add_string_format(ajp13_tree, *req_attributes[aid],
+                                     tvb, apos, 1+aval_len+2, aval,
+                                     "%s: %s", hfinfo->name, aval);
+      }
+    }
+  }
 }
 
 
@@ -938,6 +1030,63 @@ proto_register_ajp13(void)
     },
     { &hf_ajp13_user_agent,
       { "User-Agent",  "ajp13.user_agent", FT_STRING, BASE_NONE, NULL, 0x0, "User-Agent Header",
+        HFILL }
+    },
+/* request attributes */
+    { &hf_ajp13_unknown_attribute,
+      { "unknown_attribute",  "ajp13.unknown_attribute", FT_STRING, BASE_NONE, NULL, 0x0, "Unknown Attribute Type",
+        HFILL }
+    },
+    { &hf_ajp13_req_attribute,
+      { "req_attribute",  "ajp13.req_attribute", FT_STRING, BASE_NONE, NULL, 0x0, "Additional Attribute Type",
+        HFILL }
+    },
+    { &hf_ajp13_context,
+      { "Context",  "ajp13.context", FT_STRING, BASE_NONE, NULL, 0x0, "Context Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_servlet_path,
+      { "Servlet-Path",  "ajp13.servlet_path", FT_STRING, BASE_NONE, NULL, 0x0, "Servlet-Path Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_remote_user,
+      { "Remote-User",  "ajp13.remote_user", FT_STRING, BASE_NONE, NULL, 0x0, "Remote-User Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_auth_type,
+      { "Auth-Type",  "ajp13.auth_type", FT_STRING, BASE_NONE, NULL, 0x0, "Auth-Type Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_query_string,
+      { "Query-String",  "ajp13.query_string", FT_STRING, BASE_NONE, NULL, 0x0, "Query-String Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_route,
+      { "Route",  "ajp13.route", FT_STRING, BASE_NONE, NULL, 0x0, "Route Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_ssl_cert,
+      { "SSL-Cert",  "ajp13.ssl_cert", FT_STRING, BASE_NONE, NULL, 0x0, "SSL-Cert Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_ssl_cipher,
+      { "SSL-Cipher",  "ajp13.ssl_cipher", FT_STRING, BASE_NONE, NULL, 0x0, "SSL-Cipher Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_ssl_session,
+      { "SSL-Session",  "ajp13.ssl_session", FT_STRING, BASE_NONE, NULL, 0x0, "SSL-Session Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_ssl_key_size,
+      { "SSL-Key-Size",  "ajp13.ssl_key_size", FT_UINT16, BASE_DEC, NULL, 0x0, "SSL-Key-Size Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_secret,
+      { "Secret",  "ajp13.secret", FT_STRING, BASE_NONE, NULL, 0x0, "Secret Attribute",
+        HFILL }
+    },
+    { &hf_ajp13_stored_method,
+      { "Stored-Method",  "ajp13.stored_method", FT_STRING, BASE_NONE, NULL, 0x0, "Stored-Method Attribute",
         HFILL }
     },
 
