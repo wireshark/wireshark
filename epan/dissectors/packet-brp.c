@@ -35,6 +35,10 @@
 #include <glib.h>
 #include <epan/packet.h>
 #include <epan/expert.h>
+#include <epan/prefs.h>
+
+/* Forward declaration we need below */
+void proto_reg_handoff_brp(void);
 
 #define PROTO_TAG_BRP   "BRP"
 
@@ -122,6 +126,9 @@ static gint ett_brp_life = -1;
 static gint ett_brp_flid = -1;
 static gint ett_brp_rmttl = -1;
 static gint ett_brp_fltype = -1;
+
+/* Preferences */
+static guint global_brp_port = 0;
 
 void
 dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
@@ -318,6 +325,8 @@ dissect_brp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /*--- proto_register_brp ----------------------------------------------*/
 void proto_register_brp (void)
 {
+    module_t *brp_module;
+
     /* A data field is something you can search/filter on.
     *
     * We create a structure to register our fields. It consists of an
@@ -385,16 +394,40 @@ void proto_register_brp (void)
     proto_brp = proto_register_protocol ("BRP Protocol", "BRP", "brp");
     proto_register_field_array (proto_brp, hf, array_length (hf));
     proto_register_subtree_array (ett, array_length (ett));
+    
+    /* Register preferences module */
+    brp_module = prefs_register_protocol(proto_brp, proto_reg_handoff_brp);
+
+    /* Register preferences */
+    prefs_register_uint_preference(brp_module, "port",
+				"BRP Port",
+				"Set the UDP port for BRP messages",
+				10, &global_brp_port);
+
     register_dissector("brp", dissect_brp, proto_brp);
 }
 
 /*--- proto_reg_handoff_brp -------------------------------------------*/
 void proto_reg_handoff_brp(void)
 {
-    dissector_handle_t brp_handle;
+    static gboolean initialized = FALSE;
+    static dissector_handle_t brp_handle;
+    static guint saved_brp_port;
 
-    brp_handle = create_dissector_handle(dissect_brp, proto_brp);
-    /*dissector_add("udp.port", global_brp_port, brp_handle);*/
-    dissector_add_handle("udp.port", brp_handle);  /* For 'Decoode as' */
+    if (!initialized) {
+	brp_handle = create_dissector_handle(dissect_brp, proto_brp);
+	dissector_add_handle("udp.port", brp_handle);
+	initialized = TRUE;
+    } else {
+      if (saved_brp_port != 0) {
+	  dissector_delete_uint("udp.port", saved_brp_port, brp_handle);
+      }
+    }
+
+    /* Set the port number */
+    if (global_brp_port != 0) {
+ 	dissector_add_uint("udp.port", global_brp_port, brp_handle);
+    }
+    saved_brp_port = global_brp_port;
 }
 
