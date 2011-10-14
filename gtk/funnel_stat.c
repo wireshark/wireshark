@@ -607,6 +607,21 @@ static void our_menu_callback(void* unused _U_, gpointer data) {
     if (mcb->retap) cf_retap_packets(&cfile);
 }
 
+static const char* stat_group_name(register_stat_group_t group _U_) {
+    static const value_string VALS_GROUP_NAMES[] = {
+    	{REGISTER_ANALYZE_GROUP_UNSORTED,            "/Menubar/AnalyzeMenu|_Analyze"},               /* unsorted analyze stuff */
+        {REGISTER_ANALYZE_GROUP_CONVERSATION_FILTER, "/Menubar/AnalyzeMenu/ConversationFilterMenu|Conversation Filter"}, /* conversation filters */
+        {REGISTER_STAT_GROUP_UNSORTED,               "/Menubar/StatisticsMenu|Statistics"},          /* unsorted statistic function */
+        {REGISTER_STAT_GROUP_GENERIC,                "/Menubar/StatisticsMenu|Statistics"},          /* generic statistic function, not specific to a protocol */
+        {REGISTER_STAT_GROUP_CONVERSATION_LIST,      "/Menubar/StatisticsMenu|Statistics/ConversationListMenu|_Conversation List"},        /* member of the conversation list */
+        {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|_Endpoint List"},                /* member of the endpoint list */
+        {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Service _Response Time"}, /* member of the service response time list */
+        {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephon_y"},           /* telephony specific */
+        {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|_Tools"}                    /* unsorted tools */
+    };
+    return val_to_str_const(group, VALS_GROUP_NAMES, "/Menubar/ToolsMenu|_Tools");
+}
+
 static void register_menu_cb(const char *name,
                              register_stat_group_t group _U_,
                              void (*callback)(gpointer),
@@ -628,8 +643,8 @@ static void register_menu_cb(const char *name,
 	}
 
 	register_lua_menu_bar_menu_items(
-		"/Menubar/ToolsMenu/LUA/LUA-menu-items", /* GUI path to the place holder in the menu */
-		name, /* Action mame */
+		stat_group_name(group), /* GUI path to the place holder in the menu */
+		name, /* Action name */
 		NULL, /* Stock id */
 		label, /* label */
 		NULL, /* Accelerator */

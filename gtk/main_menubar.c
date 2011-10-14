@@ -1326,9 +1326,6 @@ static const char *ui_desc_menubar =
 "    </menu>\n"
 "    <menu name= 'ToolsMenu' action='/Tools'>\n"
 "      <menuitem name='FirewallACLRules' action='/Tools/FirewallACLRules'/>\n"
-"      <menu name='LUA' action='/Tools/LUA'>\n"
-"         <placeholder name='LUA-menu-items'/>\n"
-"      </menu>\n"
 "    </menu>\n"
 "    <menu name= 'InternalsMenu' action='/Internals'>\n"
 "      <menuitem name='Dissectortables' action='/Internals/Dissectortables'/>\n"
@@ -1789,7 +1786,6 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Telephony/WSP",                  NULL,                       "_WAP-WSP...",              NULL,                       NULL,               G_CALLBACK(wsp_stat_cb) },
 
    { "/Tools/FirewallACLRules",     NULL,                           "Firewall ACL Rules",       NULL,                       NULL,               G_CALLBACK(firewall_rule_cb) },
-   { "/Tools/LUA",                  NULL,                           "LUA",                      NULL, NULL, NULL },
 
    { "/Internals/Dissectortables",  NULL,                           "_Dissector tables",        NULL,                       NULL,               G_CALLBACK(dissector_tables_dlg_cb) },
    { "/Internals/SupportedProtocols", NULL,                 "_Supported Protocols (slow!)",     NULL,                       NULL,               G_CALLBACK(supported_cb) },
@@ -3470,7 +3466,7 @@ menus_init(void) {
         popup_menu_list = g_slist_append((GSList *)popup_menu_list, ui_manager_statusbar_profiles_menu);
 
         menu_dissector_filter(&cfile);
-        /* Only LUA uses this currently. NOTE that "placeholders" must exist in the GUI description */
+        /* Only Lua uses this currently. */
         merge_lua_menu_items(merge_lua_menu_items_list);
 
         /* Add external menus and items */
@@ -3573,52 +3569,252 @@ void register_lua_menu_bar_menu_items(
 
 }
 
+#define XMENU_MAX_DEPTH		(1 + 32)		/* max number of menus in an xpath (+1 for Menubar) */
+#define XMENU_HEADER		"<ui><menubar name='Menubar'>\n"
+#define XMENU_FOOTER		"</menubar></ui>\n"
+
+/**
+ * Creates an XML string, containing a UI definition that can be merged
+ * with Wireshark's menu bar using gtk_ui_manager_add_ui_from_string().
+ * Free the returned string with g_free() when no longer needed.
+ *
+ * The last item in the path is treated as the menu item; all preceding path
+ * elements are the names of parent menus. Path elements are stripped of
+ * leading/trailing spaces.
+ *
+ * Examples:
+ * 	make_menu_xml("/Foo/Bar/I_tem");
+ *   -->
+ * 		"<ui><menubar name='Menubar'>
+ * 		<menu action='Foo'>
+ * 		<menu action='Bar'>
+ * 		<menuitem action='I_tem'/>    <!-- puts shortcut on 't' -->
+ * 		</menu>
+ * 		</menu>
+ * 		<menubar></ui>"
+ *
+ *  make_menu_xml("/Foo/Bar/-/Baz/Item");
+ *    -->
+ *      "<ui><menubar name='Menubar'>
+ *      <menu action='Foo'>
+ *      <menu action='Bar'>
+ *      <separator/>
+ *      <menu action='Baz'>
+ *      <menuitem action='Item'/>
+ *      </menu>
+ *      </menu>
+ *      </menu>
+ *      <menubar></ui>"
+ *
+ * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#XML-UI
+ * http://developer.gnome.org/gtk/2.24/GtkUIManager.html#gtk-ui-manager-add-ui-from-string
+ */
+const gchar*
+make_menu_xml(const char *path) {
+    GString     *xml;
+    char        **p;
+    char        **tokens;
+    const char  *tok = path;
+    char        *lbl;
+    gchar       *markup;
+    guint       num_menus;
+    size_t      len;
+
+    if (path == NULL) return NULL;
+
+    xml = g_string_new(XMENU_HEADER);
+
+    /* no need to specify menu bar...skip it */
+    len = strlen("/Menubar");
+    if (g_ascii_strncasecmp(path, "/Menubar", len) == 0) {
+        path += len;
+    }
+
+    /* open nested menu tag for each path token */
+    num_menus = 0;
+    tokens = g_strsplit(path, "/", XMENU_MAX_DEPTH);
+    for (p = tokens; (p != NULL) && (*p != NULL); p++) {
+
+        tok = g_strstrip(*p);
+        if (tok[0] == '\0') continue;
+
+        /* reserve last token for menu-item processing */
+        if (*(p+1) == NULL) break;
+
+        if (g_strcmp0(tok, "-") == 0) {
+            xml = g_string_append(xml, "<separator/>\n");
+        } else {
+            /* strip label from token...it's used later in menu actions */
+            lbl = strchr(tok, '|');
+            if (lbl != NULL) *lbl++ = '\0';
+
+            markup = g_markup_printf_escaped("<menu action='%s'>\n", tok);
+            xml = g_string_append(xml, markup);
+            g_free(markup);
+            num_menus++;
+        }
+    }
+
+    /* Use the last path element as the name of the menu item. Allow blank
+     * menu name or else the menu is hidden (and thus useless). Showing a
+     * blank menu allows the developer to see the problem and fix it.
+     */
+    if ( (tok != NULL) /* && (tok[0] != '\0') */ ) {
+        if (g_strcmp0(tok, "-") == 0) {
+            xml = g_string_append(xml, "<separator/>\n");
+        } else {
+            /* strip label from token...it's used later in menu actions */
+            lbl = strchr(tok, '|');
+            if (lbl != NULL) *lbl++ = '\0';
+
+            /* append self-closing menu-item tag */
+            markup = g_markup_printf_escaped("<menuitem action='%s'/>\n", tok);
+            xml = g_string_append(xml, markup);
+            g_free(markup);
+        }
+    }
+
+    /* we just processed the last token, so free the list */
+    g_strfreev(tokens);
+
+    /* close all menu tags, and then append the footer */
+    for (; num_menus > 0; num_menus--) {
+        xml = g_string_append(xml, "</menu>");
+    }
+    xml = g_string_append(xml, XMENU_FOOTER);
+
+    /* free the GString object, return the allocated char buf which must be g_freed */
+    markup = g_string_free(xml, FALSE);
+    /* printf("Lua Menu XML:\n%s\n", markup); */
+
+    return markup;
+}
+
+/**
+ * Creates an action group for the menu items in xpath, and returns it. The caller should
+ * use g_object_unref() on the returned pointer if transferring scope.
+ */
+static GtkActionGroup*
+make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
+    GtkActionGroup  *action_group;
+    GtkAction       *action;
+    char            **p;
+    char            **tokens;
+    char            *lbl;
+    const char      *tok = path;
+
+    action_group = gtk_action_group_new (path);
+
+    tokens = g_strsplit(path, "/", XMENU_MAX_DEPTH);
+    for (p = tokens; (p != NULL) && (*p != NULL); p++) {
+
+        tok = g_strstrip(*p);
+
+        if (tok[0] == '\0') continue;
+
+        /* reserve last token for item name */
+        if ( *(p+1) == NULL ) break;
+
+        if (g_strcmp0(tok, "-") != 0) {
+
+            /* parse label from token */
+            lbl = strchr(tok, '|');
+            if (lbl != NULL) {
+                *lbl++ = '\0';
+            }
+            if ((lbl == NULL) || (*lbl == '\0')) {
+                lbl = (char*)tok;
+            }
+
+            action = g_object_new (
+                    GTK_TYPE_ACTION,
+                    "name", tok,
+                    "label", lbl,
+                    NULL
+            );
+            gtk_action_group_add_action (action_group, action);
+            g_object_unref (action);
+        }
+    }
+
+    /* handle menu item (blank names ok) */
+    if ( (tok != NULL) /* && (tok[0] != '\0') */ && (menu_item_data != NULL) ) {
+
+        /* parse label from token */
+        lbl = strchr(tok, '|');
+        if (lbl != NULL) {
+            *lbl++ = '\0';
+        }
+        if ((lbl == NULL) || (*lbl == '\0')) {
+            lbl = (char*)tok;
+        }
+
+        action = g_object_new (
+                GTK_TYPE_ACTION,
+                "name", tok,
+                "label", lbl,
+                "stock-id", menu_item_data->stock_id,
+                "tooltip", menu_item_data->tooltip,
+                "sensitive", menu_item_data->enabled,
+                NULL
+        );
+        if (menu_item_data->callback != NULL) {
+            g_signal_connect (
+                    action,
+                    "activate",
+                    G_CALLBACK (menu_item_data->callback),
+                    menu_item_data->callback_data
+            );
+        }
+        gtk_action_group_add_action (action_group, action);
+        g_object_unref (action);
+    }
+
+    /* we just processed the last token, so free the list */
+    g_strfreev(tokens);
+
+    return action_group;
+}
+
 static void
 merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
 {
-#ifdef HAVE_LUA
+#ifdef HAVE_LUA_5_1
     guint merge_id;
     GtkActionGroup *action_group;
-    GtkAction *action;
-    GtkWidget *lua_submenu;
-    gchar *action_name;
-    guint i = 0;
     menu_item_t *menu_item_data;
-
-    merge_id = gtk_ui_manager_new_merge_id (ui_manager_main_menubar);
-
-    action_group = gtk_action_group_new ("LUA-action-group");
-
-    lua_submenu = gtk_ui_manager_get_widget(ui_manager_main_menubar, "/Menubar/ToolsMenu/LUA");
-    if(!lua_submenu){
-        g_warning("lua_submenu: No submenu for LUA found, path= /Menubar/ToolsMenu/LUA");
-    }
-
-    gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+    GError *err;
+    const gchar *xml;
+    gchar *xpath;
 
     while(merge_lua_menu_items_list != NULL) {
         menu_item_data = merge_lua_menu_items_list->data;
-        action_name = g_strdup_printf ("LUA-menuitem-%u", i);
-        /*g_warning("action_name %s, filter_entry->name %s",action_name,filter_entry->name);*/
-        action = g_object_new (GTK_TYPE_ACTION,
-                 "name", action_name,
-                 "label", menu_item_data->label,
-                 "stock-id", menu_item_data->stock_id,
-                 "tooltip", menu_item_data->tooltip,
-                 "sensitive", menu_item_data->enabled,
-                 NULL);
-        g_signal_connect (action, "activate",
-                        G_CALLBACK (menu_item_data->callback), menu_item_data->callback_data);
-        gtk_action_group_add_action (action_group, action);
-        g_object_unref (action);
+        xpath = g_strdup_printf("%s/%s", menu_item_data->gui_path, menu_item_data->name);
 
-        gtk_ui_manager_add_ui (ui_manager_main_menubar, merge_id,
-                 "/Menubar/ToolsMenu/LUA/LUA-menu-items",
-                 action_name,
-                 action_name,
-                 GTK_UI_MANAGER_MENUITEM,
-                 FALSE);
-        i++;
+		xml = make_menu_xml(xpath);
+		if (xml != NULL) {
+
+			/* create action group for menu elements */
+			action_group = make_menu_actions(xpath, menu_item_data);
+			gtk_ui_manager_insert_action_group (ui_manager_main_menubar, action_group, 0);
+
+			/* add menu elements to menu bar */
+			err = NULL;
+			merge_id = gtk_ui_manager_add_ui_from_string (ui_manager_main_menubar, xml, -1, &err);
+			if (err != NULL) {
+				fprintf (stderr, "Warning: building Lua menus failed: %s\n",
+						err->message);
+				g_error_free (err);
+
+				/* undo the mess */
+				gtk_ui_manager_remove_ui (ui_manager_main_menubar, merge_id);
+				gtk_ui_manager_remove_action_group (ui_manager_main_menubar, action_group);
+			}
+			g_free ((gchar*)xml);
+			g_object_unref (action_group);
+		}
+
+		g_free(xpath);
         merge_lua_menu_items_list = g_list_next(merge_lua_menu_items_list);
     }
 #endif
