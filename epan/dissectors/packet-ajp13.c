@@ -255,6 +255,10 @@ ajp13_get_nstring(tvbuff_t *tvb, gint offset, guint16* ret_len)
   if (ret_len)
     *ret_len = len+1;
 
+  /* a size of 0xFFFF indicates a null string - no data follows */
+  if (len == 0xFFFF)
+    len = 0;
+
   return tvb_format_text(tvb, offset+2, MIN(len, ITEM_LABEL_LENGTH));
 }
 
@@ -443,7 +447,7 @@ display_req_body(tvbuff_t *tvb, proto_tree *ajp13_tree, ajp13_conv_data* cd)
    */
   content_length = tvb_get_ntohs( tvb, pos);
   cd->content_length -= content_length;
-  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length-1, ENC_UTF_8|ENC_BIG_ENDIAN);
+  proto_tree_add_item(ajp13_tree, hf_ajp13_data, tvb, pos+2, content_length, ENC_UTF_8|ENC_BIG_ENDIAN);
 }
 
 
