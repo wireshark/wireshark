@@ -182,9 +182,6 @@ mapi_dissect_struct_request(tvbuff_t *tvb _U_, int offset _U_, packet_info *pinf
 {
 	proto_item	*item = NULL;
 	proto_tree	*tree = NULL;
-	int		old_offset;
-
-	old_offset = offset;
 
 	if (parent_tree) {
 		item = proto_tree_add_item(parent_tree, hf_index, tvb, offset, -1, TRUE);
