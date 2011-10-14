@@ -79,7 +79,7 @@ static int hf_ess_Receipt_PDU = -1;               /* Receipt */
 static int hf_ess_ContentHints_PDU = -1;          /* ContentHints */
 static int hf_ess_MsgSigDigest_PDU = -1;          /* MsgSigDigest */
 static int hf_ess_ContentReference_PDU = -1;      /* ContentReference */
-static int hf_ess_ESSSecurityLabel_PDU = -1;      /* ESSSecurityLabel */
+static int hf_ess_ess_ESSSecurityLabel_PDU = -1;  /* ESSSecurityLabel */
 static int hf_ess_RestrictiveTag_PDU = -1;        /* RestrictiveTag */
 static int hf_ess_EnumeratedTag_PDU = -1;         /* EnumeratedTag */
 static int hf_ess_PermissiveTag_PDU = -1;         /* PermissiveTag */
@@ -408,7 +408,7 @@ static const ber_sequence_t Receipt_sequence[] = {
 
 static int
 dissect_ess_Receipt(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 101 "../../asn1/ess/ess.cnf"
+#line 102 "../../asn1/ess/ess.cnf"
   col_set_str(actx->pinfo->cinfo, COL_PROTOCOL, "ESS");
   col_set_str(actx->pinfo->cinfo, COL_INFO, "Signed Receipt");
     offset = dissect_ber_sequence(implicit_tag, actx, tree, tvb, offset,
@@ -547,7 +547,7 @@ dissect_ess_T_type(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_,
 
 static int
 dissect_ess_T_value(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 50 "../../asn1/ess/ess.cnf"
+#line 51 "../../asn1/ess/ess.cnf"
   offset=call_ber_oid_callback(object_identifier_id, tvb, offset, actx->pinfo, tree);
 
 
@@ -613,7 +613,7 @@ dissect_ess_T_restrictiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_restrictiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 77 "../../asn1/ess/ess.cnf"
+#line 78 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -655,7 +655,7 @@ dissect_ess_T_tagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _
 
 static int
 dissect_ess_SecurityAttribute(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 68 "../../asn1/ess/ess.cnf"
+#line 69 "../../asn1/ess/ess.cnf"
   guint32 attribute;
   
     offset = dissect_ber_integer(implicit_tag, actx, tree, tvb, offset, hf_index,
@@ -709,7 +709,7 @@ dissect_ess_T_permissiveTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, in
 
 static int
 dissect_ess_T_permissiveAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 86 "../../asn1/ess/ess.cnf"
+#line 87 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -751,7 +751,7 @@ dissect_ess_T_informativeTagName(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, i
 
 static int
 dissect_ess_T_informativeAttributeFlags(gboolean implicit_tag _U_, tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 95 "../../asn1/ess/ess.cnf"
+#line 96 "../../asn1/ess/ess.cnf"
   tvbuff_t *attributes;
   
     offset = dissect_ber_bitstring(implicit_tag, actx, tree, tvb, offset,
@@ -1078,10 +1078,10 @@ static void dissect_ContentReference_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
   dissect_ess_ContentReference(FALSE, tvb, 0, &asn1_ctx, tree, hf_ess_ContentReference_PDU);
 }
-static void dissect_ESSSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+void dissect_ess_ESSSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_BER, TRUE, pinfo);
-  dissect_ess_ESSSecurityLabel(FALSE, tvb, 0, &asn1_ctx, tree, hf_ess_ESSSecurityLabel_PDU);
+  dissect_ess_ESSSecurityLabel(FALSE, tvb, 0, &asn1_ctx, tree, hf_ess_ess_ESSSecurityLabel_PDU);
 }
 static void dissect_RestrictiveTag_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   asn1_ctx_t asn1_ctx;
@@ -1166,7 +1166,7 @@ void proto_register_ess(void) {
       { "ContentReference", "ess.ContentReference",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
-    { &hf_ess_ESSSecurityLabel_PDU,
+    { &hf_ess_ess_ESSSecurityLabel_PDU,
       { "ESSSecurityLabel", "ess.ESSSecurityLabel",
         FT_NONE, BASE_NONE, NULL, 0,
         NULL, HFILL }},
@@ -1520,7 +1520,7 @@ void proto_reg_handoff_ess(void) {
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.4", dissect_ContentHints_PDU, proto_ess, "id-aa-contentHint");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.5", dissect_MsgSigDigest_PDU, proto_ess, "id-aa-msgSigDigest");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.10", dissect_ContentReference_PDU, proto_ess, "id-aa-contentReference");
-  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.2", dissect_ESSSecurityLabel_PDU, proto_ess, "id-aa-securityLabel");
+  register_ber_oid_dissector("1.2.840.113549.1.9.16.2.2", dissect_ess_ESSSecurityLabel_PDU, proto_ess, "id-aa-securityLabel");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.9", dissect_EquivalentLabels_PDU, proto_ess, "id-aa-equivalentLabels");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.3", dissect_MLExpansionHistory_PDU, proto_ess, "id-aa-mlExpandHistory");
   register_ber_oid_dissector("1.2.840.113549.1.9.16.2.12", dissect_SigningCertificate_PDU, proto_ess, "id-aa-signingCertificate");

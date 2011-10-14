@@ -8,6 +8,7 @@
 #.IMPORT ../cms/cms-exp.cnf
 
 #.EXPORTS
+ESSSecurityLabel_PDU
 
 #.PDU
 

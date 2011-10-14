@@ -27,7 +27,7 @@
 #ifndef PACKET_ESS_H
 #define PACKET_ESS_H
 
-/*#include "packet-ess-exp.h"*/
+#include "packet-ess-exp.h"
 
 #endif  /* PACKET_ESS_H */
 

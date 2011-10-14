@@ -35,7 +35,13 @@
 #ifndef PACKET_ESS_H
 #define PACKET_ESS_H
 
-/*#include "packet-ess-exp.h"*/
+
+/*--- Included file: packet-ess-exp.h ---*/
+#line 1 "../../asn1/ess/packet-ess-exp.h"
+void dissect_ess_ESSSecurityLabel_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_);
+
+/*--- End of included file: packet-ess-exp.h ---*/
+#line 31 "../../asn1/ess/packet-ess-template.h"
 
 #endif  /* PACKET_ESS_H */
 
