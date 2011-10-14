@@ -25,7 +25,7 @@ DISSECTOR = $(top_srcdir)/epan/dissectors/packet-$(PROTOCOL_NAME).c
 # This header file need not exist/get generated.  It is only used when cleaning.
 DISSECTOR_HEADER=$(top_srcdir)/epan/dissectors/packet-$(PROTOCOL_NAME).h
 
-all: $(DISSECTOR)
+all: generate_export $(DISSECTOR)
 
 generate_export: $(EXPORT_FILES)
 
@@ -51,7 +51,7 @@ $(EXPORT_FILES): $(top_srcdir)/tools/asn2wrs.py $(SRC_FILES)
 
 # Don't clean these up until/unless we start building them...
 #$(DISSECTOR) \
-#$(DISSECTOR_HEADER) \
+#$(DISSECTOR_HEADER)
 CLEANFILES = \
 	parsetab.py \
 	parsetab.pyc \

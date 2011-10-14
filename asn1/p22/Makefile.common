@@ -51,7 +51,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -C
+A2W_FLAGS= -b -C
 
 EXTRA_CNF= \
 	$(builddir)/../acse/acse-exp.cnf \

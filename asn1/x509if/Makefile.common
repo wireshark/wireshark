@@ -42,7 +42,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e 
+A2W_FLAGS= -b
 
 EXTRA_CNF= \
 	$(builddir)/../x509sat/x509sat-exp.cnf

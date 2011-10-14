@@ -46,7 +46,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -L -C
+A2W_FLAGS= -b -L -C
 
 EXTRA_CNF= \
 	$(builddir)/../p1/p1-exp.cnf \

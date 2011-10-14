@@ -42,11 +42,11 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -r Syntax
+A2W_FLAGS= -b -r Syntax
 
 EXTRA_CNF= \
 	$(builddir)/../x509if/x509if-exp.cnf \
-	$(builddir)/../p1/p1-exp.cnf 
+	$(builddir)/../p1/p1-exp.cnf
 
 $(builddir)/../x509if/x509if-exp.cnf:
 	(cd $(builddir)/../x509if && $(MAKE_CNF_EXPORT))

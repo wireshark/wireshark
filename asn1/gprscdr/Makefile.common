@@ -42,7 +42,7 @@ SRC_FILES = \
 	$(EXT_ASN_FILE_LIST) \
 	$(EXTRA_DIST)
 
-A2W_FLAGS= -b -e
+A2W_FLAGS= -b
 
 EXTRA_CNF=$(builddir)/../gsm_map/gsm_map-exp.cnf
 

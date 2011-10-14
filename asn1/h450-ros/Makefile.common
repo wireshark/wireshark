@@ -44,7 +44,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -e
+A2W_FLAGS=
 
 EXTRA_CNF = \
 	$(builddir)/../ros/ros-inv.cnf \

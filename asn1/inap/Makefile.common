@@ -67,14 +67,14 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e
+A2W_FLAGS= -b
 
 EXTRA_CNF= \
 	$(builddir)/../dap/dap-exp.cnf \
 	$(builddir)/../dsp/dsp-exp.cnf
-	
+
 $(builddir)/../dap/dap-exp.cnf:
-	(cd $(builddir)/../dap && $(MAKE_CNF_EXPORT))	
+	(cd $(builddir)/../dap && $(MAKE_CNF_EXPORT))
 
 $(builddir)/../dsp/dsp-exp.cnf:
-	(cd $(builddir)/../dsp && $(MAKE_CNF_EXPORT))	
+	(cd $(builddir)/../dsp && $(MAKE_CNF_EXPORT))

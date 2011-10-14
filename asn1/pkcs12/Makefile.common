@@ -39,13 +39,13 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e
+A2W_FLAGS= -b
 
-# Note the order here is important, cms needs at least x509af-exp to be generated first 
+# Note the order here is important, cms needs at least x509af-exp to be generated first
 EXTRA_CNF= \
 	$(builddir)/../x509if/x509if-exp.cnf  \
 	$(builddir)/../x509af/x509af-exp.cnf \
-	$(builddir)/../cms/cms-exp.cnf 
+	$(builddir)/../cms/cms-exp.cnf
 
 $(builddir)/../cms/cms-exp.cnf:
 	(cd $(builddir)/../cms && $(MAKE_CNF_EXPORT))

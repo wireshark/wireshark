@@ -39,9 +39,9 @@ SRC_FILES = \
 	$(EXT_ASN_FILE_LIST) \
 	$(EXTRA_DIST)
 
-A2W_FLAGS= -b -e
+A2W_FLAGS= -b
 
-EXTRA_CNF = 
+EXTRA_CNF =
 
 
 

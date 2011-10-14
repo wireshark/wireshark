@@ -39,7 +39,7 @@ SRC_FILES = \
 	$(EXTRA_DIST) \
 	$(EXT_ASN_FILE_LIST)
 
-A2W_FLAGS= -b -e -k -C
+A2W_FLAGS= -b -k -C
 
 EXTRA_CNF= \
 	$(builddir)/../cms/cms-exp.cnf \
