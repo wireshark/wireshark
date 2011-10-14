@@ -558,7 +558,6 @@ static gboolean erf_dump(
     int *err)
 {
   union wtap_pseudo_header other_phdr;
-  int newencap = -1;
   int encap;
   gint64 alignbytes = 0;
   int i;
@@ -591,7 +590,7 @@ static gboolean erf_dump(
       /*generate a fake header in other_phdr using data that we know*/
       /*covert time erf timestamp format*/
       other_phdr.erf.phdr.ts = ((guint64) phdr->ts.secs << 32) + (((guint64) phdr->ts.nsecs <<32) / 1000 / 1000 / 1000);
-      newencap = other_phdr.erf.phdr.type = wtap_wtap_encap_to_erf_encap(encap);
+      other_phdr.erf.phdr.type = wtap_wtap_encap_to_erf_encap(encap);
       other_phdr.erf.phdr.flags = 0x4;  /*vlen flag set because we're creating variable length records*/
       other_phdr.erf.phdr.lctr = 0;
       /*now we work out rlen, accounting for all the different headers and missing fcs(eth)*/
