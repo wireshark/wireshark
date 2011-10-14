@@ -617,7 +617,8 @@ static const char* stat_group_name(register_stat_group_t group _U_) {
         {REGISTER_STAT_GROUP_ENDPOINT_LIST,          "/Menubar/StatisticsMenu|Statistics/EndpointListMenu|_Endpoint List"},                /* member of the endpoint list */
         {REGISTER_STAT_GROUP_RESPONSE_TIME,          "/Menubar/StatisticsMenu|Statistics/ServiceResponseTimeMenu|Service _Response Time"}, /* member of the service response time list */
         {REGISTER_STAT_GROUP_TELEPHONY,              "/Menubar/TelephonyMenu|Telephon_y"},           /* telephony specific */
-        {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|_Tools"}                    /* unsorted tools */
+        {REGISTER_TOOLS_GROUP_UNSORTED,              "/Menubar/ToolsMenu|_Tools"},                   /* unsorted tools */
+		{ 0, NULL}
     };
     return val_to_str_const(group, VALS_GROUP_NAMES, "/Menubar/ToolsMenu|_Tools");
 }
