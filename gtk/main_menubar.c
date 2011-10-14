@@ -3694,7 +3694,10 @@ make_menu_xml(const char *path) {
  * Creates an action group for the menu items in xpath, and returns it. The caller should
  * use g_object_unref() on the returned pointer if transferring scope.
  */
-GtkActionGroup*
+#ifdef HAVE_LUA_5_1
+/* NOTE currently only used from Lua, remove this ifdef when used
+  outside of #ifdef LUA */
+static GtkActionGroup*
 make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
     GtkActionGroup  *action_group;
     GtkAction       *action;
@@ -3775,6 +3778,7 @@ make_menu_actions(const char *path, const menu_item_t *menu_item_data) {
 
     return action_group;
 }
+#endif
 
 static void
 merge_lua_menu_items(GList *merge_lua_menu_items_list _U_)
