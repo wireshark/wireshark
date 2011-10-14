@@ -117,46 +117,6 @@
  */
 
 
-/*
- * Request/response header codes. Common headers are stored as ints in
- * an effort to improve performance. Why can't we just have one big
- * list?
- */
-
-static const value_string req_header_codes[] = {
-  { 0x01, "accept" },
-  { 0x02, "accept-charset" },
-  { 0x03, "accept-encoding" },
-  { 0x04, "accept-language" },
-  { 0x05, "authorization" },
-  { 0x06, "connection" },
-  { 0x07, "content-type" },
-  { 0x08, "content-length" },
-  { 0x09, "cookie" },
-  { 0x0A, "cookie2" },
-  { 0x0B, "host" },
-  { 0x0C, "pragma" },
-  { 0x0D, "referer" },
-  { 0x0E, "user-agent" },
-  { 0, NULL}
-};
-
-
-static const value_string rsp_header_codes[] = {
-  { 0x01, "Content-Type" },
-  { 0x02, "Content-Language" },
-  { 0x03, "Content-Length" },
-  { 0x04, "Date" },
-  { 0x05, "Last-Modified" },
-  { 0x06, "Location" },
-  { 0x07, "Set-Cookie" },
-  { 0x08, "Set-Cookie2" },
-  { 0x09, "Servlet-Engine" },
-  { 0x0A, "Status" },
-  { 0x0B, "WWW-Authenticate" },
-  { 0, NULL}
-};
-
 
 #define MTYPE_FORWARD_REQUEST	2
 #define MTYPE_SEND_BODY_CHUNK	3
@@ -220,7 +180,38 @@ static int hf_ajp13_srv    = -1;
 static int hf_ajp13_port   = -1;
 static int hf_ajp13_sslp   = -1;
 static int hf_ajp13_nhdr   = -1;
-static int hf_ajp13_hval   = -1;
+
+/* response headers */
+static int hf_ajp13_unknown_header    = -1;
+static int hf_ajp13_additional_header = -1;
+static int hf_ajp13_content_type      = -1;
+static int hf_ajp13_content_language  = -1;
+static int hf_ajp13_content_length    = -1;
+static int hf_ajp13_date              = -1;
+static int hf_ajp13_last_modified     = -1;
+static int hf_ajp13_location          = -1;
+static int hf_ajp13_set_cookie        = -1;
+static int hf_ajp13_set_cookie2       = -1;
+static int hf_ajp13_servlet_engine    = -1;
+static int hf_ajp13_status            = -1;
+static int hf_ajp13_www_authenticate  = -1;
+
+/* request headers */
+static int hf_ajp13_accept            = -1;
+static int hf_ajp13_accept_charset    = -1;
+static int hf_ajp13_accept_encoding   = -1;
+static int hf_ajp13_accept_language   = -1;
+static int hf_ajp13_authorization     = -1;
+static int hf_ajp13_connection        = -1;
+                 /* content_type   */
+                 /* content_length */
+static int hf_ajp13_cookie            = -1;
+static int hf_ajp13_cookie2           = -1;
+static int hf_ajp13_host              = -1;
+static int hf_ajp13_pragma            = -1;
+static int hf_ajp13_referer           = -1;
+static int hf_ajp13_user_agent        = -1;
+
 static int hf_ajp13_rlen   = -1;
 static int hf_ajp13_reusep = -1;
 static int hf_ajp13_rstatus= -1;
@@ -228,6 +219,43 @@ static int hf_ajp13_rsmsg  = -1;
 static int hf_ajp13_data   = -1;
 static gint ett_ajp13 = -1;
 
+/*
+ * Request/response header codes. Common headers are stored as ints in
+ * an effort to improve performance. Why can't we just have one big
+ * list?
+ */
+static const int* rsp_headers[] = {
+  &hf_ajp13_unknown_header,
+  &hf_ajp13_content_type,
+  &hf_ajp13_content_language,
+  &hf_ajp13_content_length,
+  &hf_ajp13_date,
+  &hf_ajp13_last_modified,
+  &hf_ajp13_location,
+  &hf_ajp13_set_cookie,
+  &hf_ajp13_set_cookie2,
+  &hf_ajp13_servlet_engine,
+  &hf_ajp13_status,
+  &hf_ajp13_www_authenticate
+};
+
+static const int* req_headers[] = {
+  &hf_ajp13_unknown_header,
+  &hf_ajp13_accept,
+  &hf_ajp13_accept_charset,
+  &hf_ajp13_accept_encoding,
+  &hf_ajp13_accept_language,
+  &hf_ajp13_authorization,
+  &hf_ajp13_connection,
+  &hf_ajp13_content_type,
+  &hf_ajp13_content_length,
+  &hf_ajp13_cookie,
+  &hf_ajp13_cookie2,
+  &hf_ajp13_host,
+  &hf_ajp13_pragma,
+  &hf_ajp13_referer,
+  &hf_ajp13_user_agent
+};
 
 typedef struct ajp13_conv_data {
   int content_length;
@@ -319,11 +347,10 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
     /* HTTP RESPONSE STATUS MESSAGE
      */
     rsmsg = ajp13_get_nstring(tvb, pos, &rsmsg_len);
-    pos+=2;
     col_append_fstr(pinfo->cinfo, COL_INFO, " %s", rsmsg);
     if (ajp13_tree)
-      proto_tree_add_item(ajp13_tree, hf_ajp13_rsmsg, tvb, pos, rsmsg_len, ENC_UTF_8|ENC_BIG_ENDIAN);
-    pos+=rsmsg_len;
+      proto_tree_add_string(ajp13_tree, hf_ajp13_rsmsg, tvb, pos, rsmsg_len+2, rsmsg);
+    pos+=rsmsg_len+2;
 
     /* NUMBER OF HEADERS
      */
@@ -341,6 +368,8 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
       const gchar *hval;
       guint16 hval_len, hname_len;
       const gchar* hname = NULL;
+      header_field_info *hfinfo;
+      int hpos = pos;
       /* int cl = 0; TODO: Content-Length header (encoded by 0x08) is special */
 
       /* HEADER CODE/NAME
@@ -352,7 +381,18 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
         hid = tvb_get_guint8(tvb, pos);
         pos+=1;
 
-        hname = val_to_str(hid, rsp_header_codes, "UNKNOWN");
+        if (hid >= array_length(rsp_headers))
+          hid = 0;
+
+        hval = ajp13_get_nstring(tvb, pos, &hval_len);
+
+        if (ajp13_tree) {
+          hfinfo = proto_registrar_get_nth(*rsp_headers[hid]);
+          proto_tree_add_string_format(ajp13_tree, *rsp_headers[hid],
+                                       tvb, hpos, 2+hval_len+2, hval,
+                                       "%s: %s", hfinfo->name, hval);
+        }
+        pos+=hval_len+2;
 #if 0
         /* TODO: Content-Length header (encoded by 0x08) is special */
         if (hid == 0x08)
@@ -360,21 +400,18 @@ display_rsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ajp13_tree, ajp13_con
 #endif
       } else {
         hname = ajp13_get_nstring(tvb, pos, &hname_len);
-
         pos+=hname_len+2;
-      }
 
-      /* HEADER VALUE
-       */
-      hval = ajp13_get_nstring(tvb, pos, &hval_len);
+        hval = ajp13_get_nstring(tvb, pos, &hval_len);
 
-      pos+=2; /* skip over size */
-      if (ajp13_tree) {
-        proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
-                                     tvb, pos, hval_len, hname,
-                                     "%s: %s", hname, hval);
+        if (ajp13_tree) {
+          proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
+                                tvb, hpos, hname_len+2+hval_len+2,
+                                ep_strdup_printf("%s: %s", hname, hval),
+                                "%s: %s", hname, hval);
+        }
+        pos+=hval_len+2;
       }
-      pos+=hval_len;
     }
     break;
   }
@@ -472,8 +509,11 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   guint16 ver_len;
   const gchar *uri;
   guint16 uri_len;
+  const gchar *raddr;
   guint16 raddr_len;
+  const gchar *rhost;
   guint16 rhost_len;
+  const gchar *srv;
   guint16 srv_len;
   guint nhdr;
   guint i;
@@ -508,18 +548,16 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
   /* HTTP VERSION STRING
    */
   ver = ajp13_get_nstring(tvb, pos, &ver_len);
-  pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_ver, tvb, pos, ver_len, ENC_UTF_8|ENC_BIG_ENDIAN);
-  pos=pos+ver_len;  /* skip over chars + trailing null */
+    proto_tree_add_string(ajp13_tree, hf_ajp13_ver, tvb, pos, ver_len+2, ver);
+  pos=pos+ver_len+2;  /* skip over size + chars + trailing null */
 
   /* URI
    */
   uri = ajp13_get_nstring(tvb, pos, &uri_len);
-  pos+=2; /* skip over size */
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_uri, tvb, pos, uri_len, ENC_UTF_8|ENC_BIG_ENDIAN);
-  pos=pos+uri_len;  /* skip over chars + trailing null */
+    proto_tree_add_string(ajp13_tree, hf_ajp13_uri, tvb, pos, uri_len+2, uri);
+  pos=pos+uri_len+2;  /* skip over size + chars + trailing null */
 
 
   col_append_fstr(pinfo->cinfo, COL_INFO, " %s %s", uri, ver);
@@ -527,27 +565,24 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
 
   /* REMOTE ADDRESS
    */
-  ajp13_get_nstring(tvb, pos, &raddr_len);
-  pos+=2; /* skip over size */
+  raddr = ajp13_get_nstring(tvb, pos, &raddr_len);
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len, ENC_UTF_8|ENC_BIG_ENDIAN);
-  pos=pos+raddr_len;  /* skip over chars + trailing null */
+    proto_tree_add_string(ajp13_tree, hf_ajp13_raddr, tvb, pos, raddr_len+2, raddr);
+  pos=pos+raddr_len+2;  /* skip over size + chars + trailing null */
 
   /* REMOTE HOST
    */
-  ajp13_get_nstring(tvb, pos, &rhost_len);
-  pos+=2; /* skip over size */
+  rhost = ajp13_get_nstring(tvb, pos, &rhost_len);
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len, ENC_UTF_8|ENC_BIG_ENDIAN);
-  pos=pos+rhost_len;  /* skip over chars + trailing null */
+    proto_tree_add_string(ajp13_tree, hf_ajp13_rhost, tvb, pos, rhost_len+2, rhost);
+  pos=pos+rhost_len+2;  /* skip over size + chars + trailing null */
 
   /* SERVER NAME
    */
-  ajp13_get_nstring(tvb, pos, &srv_len);
-  pos+=2; /* skip over size */
+  srv = ajp13_get_nstring(tvb, pos, &srv_len);
   if (ajp13_tree)
-    proto_tree_add_item(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len, ENC_UTF_8|ENC_BIG_ENDIAN);
-  pos=pos+srv_len;  /* skip over chars + trailing null */
+    proto_tree_add_string(ajp13_tree, hf_ajp13_srv, tvb, pos, srv_len+2, srv);
+  pos=pos+srv_len+2;  /* skip over size + chars + trailing null */
 
   /* SERVER PORT
    */
@@ -577,6 +612,8 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
     guint8 hcd;
     guint8 hid;
     const gchar* hname = NULL;
+    header_field_info *hfinfo;
+    int hpos = pos;
     int cl = 0;
     const gchar *hval;
     guint16 hval_len, hname_len;
@@ -590,25 +627,36 @@ display_req_forward(tvbuff_t *tvb, packet_info *pinfo,
       hid = tvb_get_guint8(tvb, pos);
       pos+=1;
 
-      hname = val_to_str(hid, req_header_codes, "UNKNOWN");
+      if (hid >= array_length(req_headers))
+        hid = 0;
+
+      hval = ajp13_get_nstring(tvb, pos, &hval_len);
+
+      if (ajp13_tree) {
+        hfinfo = proto_registrar_get_nth(*req_headers[hid]);
+        proto_tree_add_string_format(ajp13_tree, *req_headers[hid],
+                                     tvb, hpos, 2+hval_len+2, hval,
+                                     "%s: %s", hfinfo->name, hval);
+      }
+      pos+=hval_len+2;
+
       if (hid == 0x08)
         cl = 1;
     } else {
       hname = ajp13_get_nstring(tvb, pos, &hname_len);
       pos+=hname_len+2;
+
+      hval = ajp13_get_nstring(tvb, pos, &hval_len);
+
+      if (ajp13_tree) {
+        proto_tree_add_string_format(ajp13_tree, hf_ajp13_additional_header,
+                                     tvb, hpos, hname_len+2+hval_len+2,
+                                     ep_strdup_printf("%s: %s", hname, hval),
+                                     "%s: %s", hname, hval);
+      }
+      pos+=hval_len+2;
     }
 
-    /* HEADER VALUE
-     */
-    hval = ajp13_get_nstring(tvb, pos, &hval_len);
-
-    pos+=2; /* skip over size */
-    if (ajp13_tree) {
-      proto_tree_add_string_format(ajp13_tree, hf_ajp13_hval,
-                                   tvb, pos, hval_len, hname,
-                                   "%s: %s", hname, hval);
-    }
-    pos+=hval_len;
     if (cl) {
       cl = atoi(hval);
       cd->content_length = cl;
@@ -790,10 +838,109 @@ proto_register_ajp13(void)
       { "NHDR",  "ajp13.nhdr", FT_UINT16, BASE_DEC, NULL, 0x0, "Num Headers",
         HFILL }
     },
-    { &hf_ajp13_hval,
-      { "HVAL",  "ajp13.hval", FT_STRING, BASE_NONE, NULL, 0x0, "Header Value",
+/* response headers */
+    { &hf_ajp13_unknown_header,
+      { "unknown_header",  "ajp13.unknown_header", FT_STRING, BASE_NONE, NULL, 0x0, "Unknown Header Type",
         HFILL }
     },
+    { &hf_ajp13_additional_header,
+      { "additional_header",  "ajp13.additional_header", FT_STRING, BASE_NONE, NULL, 0x0, "Additional Header Type",
+        HFILL }
+    },
+    { &hf_ajp13_content_type,
+      { "Content-Type",  "ajp13.content_type", FT_STRING, BASE_NONE, NULL, 0x0, "Content-Type Header",
+        HFILL }
+    },
+    { &hf_ajp13_content_language,
+      { "Content-Language",  "ajp13.content_language", FT_STRING, BASE_NONE, NULL, 0x0, "Content-Language Header",
+        HFILL }
+    },
+    { &hf_ajp13_content_length,
+      { "Content-Length",  "ajp13.content_length", FT_STRING, BASE_NONE, NULL, 0x0, "Content-Length header",
+        HFILL }
+    },
+    { &hf_ajp13_date,
+      { "Date",  "ajp13.date", FT_STRING, BASE_NONE, NULL, 0x0, "Date Header",
+        HFILL }
+    },
+    { &hf_ajp13_last_modified,
+      { "Last-Modified",  "ajp13.last_modified", FT_STRING, BASE_NONE, NULL, 0x0, "Last Modified Header",
+        HFILL }
+    },
+    { &hf_ajp13_location,
+      { "Location",  "ajp13.location", FT_STRING, BASE_NONE, NULL, 0x0, "Location Header",
+        HFILL }
+    },
+    { &hf_ajp13_set_cookie,
+      { "Set-Cookie",  "ajp13.set_cookie", FT_STRING, BASE_NONE, NULL, 0x0, "Set-Cookie Header",
+        HFILL }
+    },
+    { &hf_ajp13_set_cookie2,
+      { "Set-Cookie2",  "ajp13.set_cookie2", FT_STRING, BASE_NONE, NULL, 0x0, "Set-Cookie2 Header",
+        HFILL }
+    },
+    { &hf_ajp13_servlet_engine,
+      { "Servlet-Engine",  "ajp13.servlet_engine", FT_STRING, BASE_NONE, NULL, 0x0, "Servlet-Engine Header",
+        HFILL }
+    },
+    { &hf_ajp13_status,
+      { "Status",  "ajp13.status", FT_STRING, BASE_NONE, NULL, 0x0, "Status Header",
+        HFILL }
+    },
+    { &hf_ajp13_www_authenticate,
+      { "WWW-Authenticate",  "ajp13.www_authenticate", FT_STRING, BASE_NONE, NULL, 0x0, "WWW-Authenticate Header",
+        HFILL }
+    },
+/* request headers */
+    { &hf_ajp13_accept,
+      { "Accept",  "ajp13.accept", FT_STRING, BASE_NONE, NULL, 0x0, "Accept Header",
+        HFILL }
+    },
+    { &hf_ajp13_accept_charset,
+      { "Accept-Charset",  "ajp13.accept_charset", FT_STRING, BASE_NONE, NULL, 0x0, "Accept-Charset Header",
+        HFILL }
+    },
+    { &hf_ajp13_accept_encoding,
+      { "Accept-Encoding",  "ajp13.accept_encoding", FT_STRING, BASE_NONE, NULL, 0x0, "Accept-Encoding Header",
+        HFILL }
+    },
+    { &hf_ajp13_accept_language,
+      { "Accept-Language",  "ajp13.accept_language", FT_STRING, BASE_NONE, NULL, 0x0, "Accept-Language Header",
+        HFILL }
+    },
+    { &hf_ajp13_authorization,
+      { "Authorization",  "ajp13.authorization", FT_STRING, BASE_NONE, NULL, 0x0, "Authorization Header",
+        HFILL }
+    },
+    { &hf_ajp13_connection,
+      { "Connection",  "ajp13.connection", FT_STRING, BASE_NONE, NULL, 0x0, "Connection Header",
+        HFILL }
+    },
+    { &hf_ajp13_cookie,
+      { "Cookie",  "ajp13.cookie", FT_STRING, BASE_NONE, NULL, 0x0, "Cookie Header",
+        HFILL }
+    },
+    { &hf_ajp13_cookie2,
+      { "Cookie2",  "ajp13.cookie2", FT_STRING, BASE_NONE, NULL, 0x0, "Cookie2 Header",
+        HFILL }
+    },
+    { &hf_ajp13_host,
+      { "Host",  "ajp13.host", FT_STRING, BASE_NONE, NULL, 0x0, "Host Header",
+        HFILL }
+    },
+    { &hf_ajp13_pragma,
+      { "Pragma",  "ajp13.pragma", FT_STRING, BASE_NONE, NULL, 0x0, "Pragma Header",
+        HFILL }
+    },
+    { &hf_ajp13_referer,
+      { "Referer",  "ajp13.referer", FT_STRING, BASE_NONE, NULL, 0x0, "Referer Header",
+        HFILL }
+    },
+    { &hf_ajp13_user_agent,
+      { "User-Agent",  "ajp13.user_agent", FT_STRING, BASE_NONE, NULL, 0x0, "User-Agent Header",
+        HFILL }
+    },
+
     { &hf_ajp13_rlen,
       { "RLEN",  "ajp13.rlen", FT_UINT16, BASE_DEC, NULL, 0x0, "Requested Length",
         HFILL }
