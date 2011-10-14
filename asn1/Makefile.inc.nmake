@@ -26,7 +26,7 @@ DISSECTOR=../../epan/dissectors/packet-$(PROTOCOL_NAME).c
 # This header file need not exist/get generated.  It is only used when cleaning.
 DISSECTOR_HEADER=../../epan/dissectors/packet-$(PROTOCOL_NAME).h
 
-all: $(DISSECTOR)
+all: generate_export $(DISSECTOR)
 
 generate_export: $(EXPORT_FILES)
 
