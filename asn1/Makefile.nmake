@@ -132,7 +132,7 @@ PER_LIST= \
 	rua			\
 	s1ap			\
 	sabp			\
-###	t124			\
+	t124			\
 	t38			\
 	tetra			\
 	ulp			\

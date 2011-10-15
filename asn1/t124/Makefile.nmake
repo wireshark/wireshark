@@ -28,4 +28,4 @@ include Makefile.common
 include ../Makefile.inc.nmake
 
 MCS-PROTOCOL.asn: ../t125/MCS-PROTOCOL.asn
-	cp $< $@
+	cp $** $@
