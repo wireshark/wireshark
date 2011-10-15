@@ -732,7 +732,7 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 	/*proto_tree *subtree; */
 
 	guint8 type_of_shape;
-	guint8 no_of_points;
+	/*guint8 no_of_points;*/
 	int offset = 0;
 	int length;
 	guint8 value;
@@ -878,15 +878,15 @@ dissect_geographical_description(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tr
 		break;
 	case POLYGON:					/* Polygon */
 		/* Number of points */
-		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
 		proto_tree_add_item(tree, hf_gsm_a_geo_loc_no_of_points, tvb, offset, 1, ENC_BIG_ENDIAN);
-		/*
+#if 0
+		no_of_points = tvb_get_guint8(tvb,offset)&0x0f;
 		while ( no_of_points > 0){
 			offset++;
 
 			no_of_points--;
 		}
-		*/
+#endif
 		break;
 	default:
 		break;
