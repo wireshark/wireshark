@@ -42,41 +42,41 @@ static int hf_fmtp_pdu_type = -1;
 static int hf_fmtp_pdu_length = -1;
 static gint ett_fmtp = -1;
 
-#define TCP_PORT_FMTP		8500
-#define FMTP_HEADER_LEN		5
-#define FMTP_MAX_DATA_LEN	10240
-#define FMTP_MAX_LEN		FMTP_HEADER_LEN + FMTP_MAX_DATA_LEN
+/* #define TCP_PORT_FMTP       8500 */
+#define FMTP_HEADER_LEN     5
+#define FMTP_MAX_DATA_LEN   10240
+#define FMTP_MAX_LEN        FMTP_HEADER_LEN + FMTP_MAX_DATA_LEN
 
-#define FMTP_TYP_OPERATIONAL	1
-#define FMTP_TYP_OPERATOR	2
-#define FMTP_TYP_IDENTIFICATION	3
-#define FMTP_TYP_SYSTEM		4
+#define FMTP_TYP_OPERATIONAL    1
+#define FMTP_TYP_OPERATOR       2
+#define FMTP_TYP_IDENTIFICATION 3
+#define FMTP_TYP_SYSTEM         4
 
-#define INFO_STR_SIZE		1024
+#define INFO_STR_SIZE        1024
 
 static dissector_handle_t data_handle;
 
 static const value_string packet_type_names[] = {
-	{ FMTP_TYP_OPERATIONAL,    "Operational message" },
-	{ FMTP_TYP_OPERATOR,       "Operator message" },
-	{ FMTP_TYP_IDENTIFICATION, "Identification message" },
-	{ FMTP_TYP_SYSTEM        , "System message" },
-	{ 0, NULL }
+    { FMTP_TYP_OPERATIONAL,    "Operational message" },
+    { FMTP_TYP_OPERATOR,       "Operator message" },
+    { FMTP_TYP_IDENTIFICATION, "Identification message" },
+    { FMTP_TYP_SYSTEM        , "System message" },
+    { 0, NULL }
 };
 
 static const value_string system_message_names[] = {
-	{ 12337, "Startup" },   /* 0x3031 */
-	{ 12336, "Shutdown" },  /* 0x3030 */
-	{ 12339, "Heartbeat" }, /* 0x3033 */
-	{ 0, NULL }
+    { 12337, "Startup" },   /* 0x3031 */
+    { 12336, "Shutdown" },  /* 0x3030 */
+    { 12339, "Heartbeat" }, /* 0x3033 */
+    { 0, NULL }
 };
 
 static void
 dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
-    guint8 packet_type;
-    guint16 packet_len;
-	tvbuff_t *next_tvb;
+    guint8      packet_type;
+    guint16     packet_len;
+    tvbuff_t   *next_tvb;
     proto_item *ti = NULL;
     proto_tree *fmtp_tree = NULL;
 
@@ -86,7 +86,7 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     col_set_str(pinfo->cinfo, COL_PROTOCOL, "FMTP");
 
     /* Clear out stuff in the info column */
-    col_clear(pinfo->cinfo,COL_INFO);
+    col_clear(pinfo->cinfo, COL_INFO);
 
     ti = proto_tree_add_item(tree, proto_fmtp, tvb, 0, -1, ENC_LITTLE_ENDIAN);
     proto_item_append_text(ti, ", %s",
@@ -97,21 +97,21 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         case FMTP_TYP_IDENTIFICATION:
             proto_item_append_text(ti, " (%s)",
                 tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-				val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
-				tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
+                val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
+                tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
             break;
 
         case FMTP_TYP_SYSTEM:
             proto_item_append_text(ti, " (%s)",
                 tvb_get_ephemeral_string(tvb, FMTP_HEADER_LEN, packet_len-FMTP_HEADER_LEN));
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
-				val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
-				val_to_str(tvb_get_ntohs(tvb, FMTP_HEADER_LEN), system_message_names, "Unknown (0x%02x)"));
-        break;
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s (%s)",
+                val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"),
+                val_to_str(tvb_get_ntohs(tvb, FMTP_HEADER_LEN), system_message_names, "Unknown (0x%02x)"));
+            break;
 
         default:
-			col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
+            col_add_fstr(pinfo->cinfo, COL_INFO, "%s",
                 val_to_str(packet_type, packet_type_names, "Unknown (0x%02x)"));
             break;
     }
@@ -122,8 +122,8 @@ dissect_fmtp_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_length,   tvb, 2, 2, ENC_LITTLE_ENDIAN);
         proto_tree_add_item(fmtp_tree, hf_fmtp_pdu_type,     tvb, 4, 1, ENC_LITTLE_ENDIAN);
 
-		next_tvb = tvb_new_subset_remaining(tvb, FMTP_HEADER_LEN);
-		call_dissector(data_handle, next_tvb, pinfo, fmtp_tree);
+        next_tvb = tvb_new_subset_remaining(tvb, FMTP_HEADER_LEN);
+        call_dissector(data_handle, next_tvb, pinfo, fmtp_tree);
     }
 }
 
@@ -192,23 +192,17 @@ proto_register_fmtp(void)
     proto_fmtp = proto_register_protocol(
         "Flight Message Transfer Protocol (FMTP)",
         "FMTP",
-		"fmtp");
+        "fmtp");
 
-  proto_register_field_array(proto_fmtp, hf, array_length(hf));
-  proto_register_subtree_array(ett, array_length(ett));
+    proto_register_field_array(proto_fmtp, hf, array_length(hf));
+    proto_register_subtree_array(ett, array_length(ett));
 }
 
 void
 proto_reg_handoff_fmtp(void)
 {
-    static int fmtp_inited = FALSE;
-
-    if (!fmtp_inited)
-    {
-        /* Register as heuristic dissector for TCP */
-        heur_dissector_add("tcp", dissect_fmtp, proto_fmtp);
-    }
-
-	data_handle = find_dissector("data");
+    /* Register as heuristic dissector for TCP */
+    heur_dissector_add("tcp", dissect_fmtp, proto_fmtp);
+    data_handle = find_dissector("data");
 }
 
