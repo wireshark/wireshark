@@ -1019,7 +1019,7 @@ dissect_snmp_engineid(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
       case SNMP_ENGINEID_FORMAT_TEXT:
 	/* max. 27-byte string, administratively assigned */
 	if (len_remain<=27) {
-	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, ENC_BIG_ENDIAN);
+	  proto_tree_add_item(tree, hf_snmp_engineid_text, tvb, offset, len_remain, ENC_ASCII|ENC_NA);
 	  offset+=len_remain;
 	  len_remain=0;
 	}
