@@ -206,7 +206,7 @@ dissect_cisco (tvbuff_t * tvb, proto_tree * tree, gint vsif_len)
           break;
         case IOS_CONFIG_FILE:
           proto_tree_add_item (tree, hf_docsis_vsif_cisco_config_file, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_ASCII|ENC_NA);
         }
       pos += length;
     }

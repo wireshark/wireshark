@@ -553,7 +553,7 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					/* add TLV subtree */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, ucd_tree, hf_ucd_tlv_t_177_normalized_cn_override2, tvb, offset, tlv_len, FALSE);
 					proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_177_normalized_cn_override2_first_line, tvb, offset + 2, 1, ENC_BIG_ENDIAN);
-					proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_177_normalized_cn_override2_list, tvb, offset + 3, 7, FALSE);
+					proto_tree_add_item(tlv_tree, hf_ucd_tlv_t_177_normalized_cn_override2_list, tvb, offset + 3, 7, ENC_ASCII|ENC_NA);
 					break;
 				}
 				case UCD_TLV_T_186_UPPER_BOUND__AAS_PREAMBLE:

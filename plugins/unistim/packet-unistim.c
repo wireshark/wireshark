@@ -365,7 +365,7 @@ dissect_uftp_message(proto_tree *unistim_tree,packet_info *pinfo _U_,tvbuff_t *t
          offset+=1;
          /* Get filename */
          str_len = tvb_length_remaining(tvb, offset);
-         proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,FALSE);
+         proto_tree_add_item(msg_tree,hf_uftp_filename,tvb,offset,str_len,ENC_ASCII|ENC_NA);
          offset += str_len;
          break;
 
@@ -545,7 +545,7 @@ dissect_basic_phone(proto_tree *msg_tree,
       case 0x02:
    /*Firmware Version*/
          proto_tree_add_item(msg_tree,hf_basic_phone_fw_ver,
-                             tvb,offset,msg_len,FALSE);
+                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x03:
@@ -562,7 +562,7 @@ dissect_basic_phone(proto_tree *msg_tree,
       case 0x08:
    /*Product Engineering Code*/
          proto_tree_add_item(msg_tree,hf_basic_prod_eng_code,
-                             tvb,offset,msg_len,FALSE);
+                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x09:
@@ -1077,7 +1077,7 @@ dissect_display_switch(proto_tree *msg_tree,
          set_ascii_item(msg_tree,tvb,offset,msg_len);
          offset+=msg_len;
          proto_tree_add_item(msg_tree,hf_generic_string,
-                             tvb,offset,msg_len,FALSE);
+                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          break;
       case 0x1b:
@@ -1233,7 +1233,7 @@ dissect_display_switch(proto_tree *msg_tree,
                                 tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1; msg_len-=1;
          proto_tree_add_item(msg_tree,hf_generic_string,
-                             tvb,offset,msg_len,FALSE);
+                             tvb,offset,msg_len,ENC_ASCII|ENC_NA);
          offset+=msg_len;
          if((address_byte&DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG)==
                           DISPLAY_WRITE_ADDRESS_SOFT_LABEL_FLAG){
@@ -1775,10 +1775,10 @@ dissect_network_switch(proto_tree *msg_tree,
          proto_tree_add_item(msg_tree,hf_generic_data,tvb,offset,1,ENC_NA);
          offset+=1;msg_len-=1;
          string_len=tvb_strsize(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_net_full_pathname,tvb,offset,string_len,ENC_NA);
+         proto_tree_add_item(msg_tree,hf_net_full_pathname,tvb,offset,string_len,ENC_ASCII|ENC_NA);
          offset+=string_len;msg_len-=string_len;
          string_len=tvb_strsize(tvb,offset);
-         proto_tree_add_item(msg_tree,hf_net_file_identifier,tvb,offset,string_len,ENC_NA);
+         proto_tree_add_item(msg_tree,hf_net_file_identifier,tvb,offset,string_len,ENC_ASCII|ENC_NA);
          offset+=string_len;msg_len-=string_len;
          proto_tree_add_item(msg_tree,hf_net_file_server_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;

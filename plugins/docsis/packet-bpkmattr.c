@@ -163,7 +163,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         case BPKM_SERIAL_NUM:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_serial_num, tvb, pos,
-                               length, FALSE);
+                               length, ENC_ASCII|ENC_NA);
           break;
         case BPKM_MANUFACTURER_ID:
           if (length == 3)
@@ -194,7 +194,7 @@ dissect_attrs (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
           break;
         case BPKM_DISPLAY_STR:
           proto_tree_add_item (tree, hf_docsis_bpkmattr_display_str, tvb, pos,
-                               length, FALSE);
+                               length, ENC_ASCII|ENC_NA);
           break;
         case BPKM_AUTH_KEY:
           if ((length == 96) || (length == 128))

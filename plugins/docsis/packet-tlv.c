@@ -680,7 +680,7 @@ dissect_phs_err (tvbuff_t * tvb, proto_tree * tree, int start,
           break;
         case PHS_ERR_MSG:
           proto_tree_add_item (err_tree, hf_docsis_tlv_phs_err_msg, tvb, pos,
-                               length, FALSE);
+                               length, ENC_ASCII|ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -900,7 +900,7 @@ dissect_sflow_err (tvbuff_t * tvb, proto_tree * tree, int start,
           break;
         case SFW_ERR_MSG:
           proto_tree_add_item (err_tree, hf_docsis_tlv_sflow_err_msg, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_ASCII|ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -1141,7 +1141,7 @@ dissect_sflow (tvbuff_t * tvb, proto_tree * tree, int start, guint16 len,
           break;
         case SFW_SERVICE_CLASS_NAME:
           proto_tree_add_item (sflow_tree, hf_docsis_tlv_sflow_classname, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_ASCII|ENC_NA);
           break;
         case SFW_ERRORS:
           dissect_sflow_err (tvb, sflow_tree, pos, length);
@@ -1418,7 +1418,7 @@ dissect_clsfr_err (tvbuff_t * tvb, proto_tree * tree, int start,
           break;
         case CFR_ERR_MSG:
           proto_tree_add_item (err_tree, hf_docsis_tlv_clsfr_err_msg, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_ASCII|ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -2360,7 +2360,7 @@ dissect_snmpv3_kickstart(tvbuff_t * tvb, proto_tree *tree, int start, guint16 le
         case SNMPV3_SEC_NAME:
           proto_tree_add_item (snmpv3_tree,
                                hf_docsis_tlv_snmpv3_kick_name, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_ASCII|ENC_NA);
           break;
         case SNMPV3_MGR_PUB_NUM:
           proto_tree_add_item (snmpv3_tree,
@@ -2604,7 +2604,7 @@ dissect_tcc_err(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
         case TCC_ERR_MSG:
           proto_tree_add_item (tccerr_tree,
                                hf_docsis_tcc_err_msg, tvb,
-                               pos, length, FALSE);
+                               pos, length, ENC_ASCII|ENC_NA);
           break;
         }                       /* switch */
       pos = pos + length;
@@ -3976,7 +3976,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             break;
           case TLV_SW_UPG_FILE:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_sw_file, tvb, pos,
-                                 length, FALSE);
+                                 length, ENC_ASCII|ENC_NA);
             break;
           case TLV_SNMP_WRITE_CTRL:
             proto_tree_add_item (tlv_tree, hf_docsis_tlv_snmp_access, tvb,
