@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h501.c                                                              */
-/* ../../tools/asn2wrs.py -p h501 -c ./h501.cnf -s ./packet-h501-template -D . H501-MESSAGES.asn */
+/* ../../tools/asn2wrs.py -p h501 -c ./h501.cnf -s ./packet-h501-template -D . -O ../../epan/dissectors H501-MESSAGES.asn */
 
 /* Input file: packet-h501-template.c */
 

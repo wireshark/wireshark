@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h245.h                                                              */
-/* ../../tools/asn2wrs.py -e -p h245 -c ./h245.cnf -s ./packet-h245-template -D . MULTIMEDIA-SYSTEM-CONTROL.asn */
+/* ../../tools/asn2wrs.py -p h245 -c ./h245.cnf -s ./packet-h245-template -D . -O ../../epan/dissectors MULTIMEDIA-SYSTEM-CONTROL.asn */
 
 /* Input file: packet-h245-template.h */
 

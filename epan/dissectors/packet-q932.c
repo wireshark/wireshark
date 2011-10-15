@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-q932.c                                                              */
-/* ../../tools/asn2wrs.py -e -b -p q932 -c ./q932.cnf -s ./packet-q932-template -D . Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn */
+/* ../../tools/asn2wrs.py -b -p q932 -c ./q932.cnf -s ./packet-q932-template -D . -O ../../epan/dissectors Addressing-Data-Elements.asn Network-Facility-Extension.asn Network-Protocol-Profile-component.asn Interpretation-component.asn */
 
 /* Input file: packet-q932-template.c */
 

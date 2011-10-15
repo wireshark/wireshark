@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pkixac.h                                                            */
-/* ../../tools/asn2wrs.py -b -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . PKIXAttributeCertificate.asn */
+/* ../../tools/asn2wrs.py -b -p pkixac -c ./pkixac.cnf -s ./packet-pkixac-template -D . -O ../../epan/dissectors PKIXAttributeCertificate.asn */
 
 /* Input file: packet-pkixac-template.h */
 

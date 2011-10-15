@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-wlancertextn.c                                                      */
-/* ../../tools/asn2wrs.py -b -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . WLANCERTEXTN.asn */
+/* ../../tools/asn2wrs.py -b -p wlancertextn -c ./wlancertextn.cnf -s ./packet-wlancertextn-template -D . -O ../../epan/dissectors WLANCERTEXTN.asn */
 
 /* Input file: packet-wlancertextn-template.c */
 

@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-logotypecertextn.h                                                  */
-/* ../../tools/asn2wrs.py -b -p logotypecertextn -c ./logotypecertextn.cnf -s ./packet-logotypecertextn-template -D . LogotypeCertExtn.asn */
+/* ../../tools/asn2wrs.py -b -p logotypecertextn -c ./logotypecertextn.cnf -s ./packet-logotypecertextn-template -D . -O ../../epan/dissectors LogotypeCertExtn.asn */
 
 /* Input file: packet-logotypecertextn-template.h */
 

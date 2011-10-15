@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-idmp.h                                                              */
-/* ../../tools/asn2wrs.py -b -e -L -p idmp -c ./idmp.cnf -s ./packet-idmp-template -D . IDMProtocolSpecification.asn CommonProtocolSpecification.asn */
+/* ../../tools/asn2wrs.py -b -L -p idmp -c ./idmp.cnf -s ./packet-idmp-template -D . -O ../../epan/dissectors IDMProtocolSpecification.asn CommonProtocolSpecification.asn */
 
 /* Input file: packet-idmp-template.h */
 

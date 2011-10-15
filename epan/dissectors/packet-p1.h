@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-p1.h                                                                */
-/* ../../tools/asn2wrs.py -b -e -C -p p1 -c ./p1.cnf -s ./packet-p1-template -D . MTAAbstractService.asn MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn */
+/* ../../tools/asn2wrs.py -b -C -p p1 -c ./p1.cnf -s ./packet-p1-template -D . -O ../../epan/dissectors MTAAbstractService.asn MTSAbstractService.asn MTSAccessProtocol.asn MHSProtocolObjectIdentifiers.asn MTSUpperBounds.asn */
 
 /* Input file: packet-p1-template.h */
 

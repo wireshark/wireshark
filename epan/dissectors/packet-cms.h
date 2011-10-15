@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-cms.h                                                               */
-/* ../../tools/asn2wrs.py -b -e -C -p cms -c ./cms.cnf -s ./packet-cms-template -D . CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn */
+/* ../../tools/asn2wrs.py -b -C -p cms -c ./cms.cnf -s ./packet-cms-template -D . -O ../../epan/dissectors CryptographicMessageSyntax.asn AttributeCertificateVersion1.asn */
 
 /* Input file: packet-cms-template.h */
 

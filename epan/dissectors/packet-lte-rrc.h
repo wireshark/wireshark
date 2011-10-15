@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-lte-rrc.h                                                           */
-/* ../../tools/asn2wrs.py -e -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . EUTRA-RRC-Definitions.asn EUTRA-UE-Variables.asn EUTRA-InterNodeDefinitions.asn */
+/* ../../tools/asn2wrs.py -L -p lte-rrc -c ./lte-rrc.cnf -s ./packet-lte-rrc-template -D . -O ../../epan/dissectors EUTRA-RRC-Definitions.asn EUTRA-UE-Variables.asn EUTRA-InterNodeDefinitions.asn */
 
 /* Input file: packet-lte-rrc-template.h */
 

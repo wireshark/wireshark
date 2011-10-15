@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h460.c                                                              */
-/* ../../tools/asn2wrs.py -c ./h460.cnf -s ./packet-h460-template -D . NUMBER-PORTABILITY.asn CIRCUIT-STATUS-MAP.asn CALL-PRIORITY.asn QOS-MONITORING-REPORT.asn QOS-MONITORING-EXTENDED-VOIP-REPORT.asn CALL-PARTY-CATEGORY.asn MLPP.asn SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn SIGNALLING-TRAVERSAL.asn MEDIA-TRAVERSAL.asn MESSAGE-BROADCAST.asn */
+/* ../../tools/asn2wrs.py -c ./h460.cnf -s ./packet-h460-template -D . -O ../../epan/dissectors NUMBER-PORTABILITY.asn CIRCUIT-STATUS-MAP.asn CALL-PRIORITY.asn QOS-MONITORING-REPORT.asn QOS-MONITORING-EXTENDED-VOIP-REPORT.asn CALL-PARTY-CATEGORY.asn MLPP.asn SIGNALLING-CHANNEL-SUSPEND-REDIRECT.asn SIGNALLING-TRAVERSAL.asn MEDIA-TRAVERSAL.asn MESSAGE-BROADCAST.asn */
 
 /* Input file: packet-h460-template.c */
 

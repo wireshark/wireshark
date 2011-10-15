@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h283.c                                                              */
-/* ../../tools/asn2wrs.py -p h283 -c ./h283.cnf -s ./packet-h283-template -D . LCT-PROTOCOL.asn */
+/* ../../tools/asn2wrs.py -p h283 -c ./h283.cnf -s ./packet-h283-template -D . -O ../../epan/dissectors LCT-PROTOCOL.asn */
 
 /* Input file: packet-h283-template.c */
 

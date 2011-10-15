@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-pcap.c                                                              */
-/* ../../tools/asn2wrs.py -p pcap -c ./pcap.cnf -s ./packet-pcap-template -D . PCAP-CommonDataTypes.asn PCAP-Constants.asn PCAP-Containers.asn PCAP-IEs.asn PCAP-PDU-Contents.asn PCAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p pcap -c ./pcap.cnf -s ./packet-pcap-template -D . -O ../../epan/dissectors PCAP-CommonDataTypes.asn PCAP-Constants.asn PCAP-Containers.asn PCAP-IEs.asn PCAP-PDU-Contents.asn PCAP-PDU-Descriptions.asn */
 
 /* Input file: packet-pcap-template.c */
 

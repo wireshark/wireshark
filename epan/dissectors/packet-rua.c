@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-rua.c                                                               */
-/* ../../tools/asn2wrs.py -p rua -c ./rua.cnf -s ./packet-rua-template -D . RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p rua -c ./rua.cnf -s ./packet-rua-template -D . -O ../../epan/dissectors RUA-CommonDataTypes.asn RUA-Constants.asn RUA-Containers.asn RUA-IEs.asn RUA-PDU-Contents.asn RUA-PDU-Descriptions.asn */
 
 /* Input file: packet-rua-template.c */
 

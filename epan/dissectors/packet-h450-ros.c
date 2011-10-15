@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-h450-ros.c                                                          */
-/* ../../tools/asn2wrs.py -e -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
+/* ../../tools/asn2wrs.py -p h450.ros -c ./h450-ros.cnf -s ./packet-h450-ros-template -D . -O ../../epan/dissectors ../ros/Remote-Operations-Information-Objects.asn Remote-Operations-Apdus.asn */
 
 /* Input file: packet-h450-ros-template.c */
 

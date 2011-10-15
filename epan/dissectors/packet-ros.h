@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-ros.h                                                               */
-/* ../../tools/asn2wrs.py -b -e -p ros -c ./ros.cnf -s ./packet-ros-template -D . ros.asn Remote-Operations-Information-Objects.asn */
+/* ../../tools/asn2wrs.py -b -p ros -c ./ros.cnf -s ./packet-ros-template -D . -O ../../epan/dissectors ros.asn Remote-Operations-Information-Objects.asn */
 
 /* Input file: packet-ros-template.h */
 

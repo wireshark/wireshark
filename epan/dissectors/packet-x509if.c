@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509if.c                                                            */
-/* ../../tools/asn2wrs.py -b -e -p x509if -c ./x509if.cnf -s ./packet-x509if-template -D . InformationFramework.asn ServiceAdministration.asn */
+/* ../../tools/asn2wrs.py -b -p x509if -c ./x509if.cnf -s ./packet-x509if-template -D . -O ../../epan/dissectors InformationFramework.asn ServiceAdministration.asn */
 
 /* Input file: packet-x509if-template.c */
 

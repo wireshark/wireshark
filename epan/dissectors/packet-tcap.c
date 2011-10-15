@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-tcap.c                                                              */
-/* ../../tools/asn2wrs.py -b -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
+/* ../../tools/asn2wrs.py -b -p tcap -c ./tcap.cnf -s ./packet-tcap-template -D . -O ../../epan/dissectors tcap.asn UnidialoguePDUs.asn DialoguePDUs.asn */
 
 /* Input file: packet-tcap-template.c */
 

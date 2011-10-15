@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-hnbap.c                                                             */
-/* ../../tools/asn2wrs.py -p hnbap -c ./hnbap.cnf -s ./packet-hnbap-template -D . HNBAP-CommonDataTypes.asn HNBAP-Constants.asn HNBAP-Containers.asn HNBAP-IEs.asn HNBAP-PDU-Contents.asn HNBAP-PDU-Descriptions.asn */
+/* ../../tools/asn2wrs.py -p hnbap -c ./hnbap.cnf -s ./packet-hnbap-template -D . -O ../../epan/dissectors HNBAP-CommonDataTypes.asn HNBAP-Constants.asn HNBAP-Containers.asn HNBAP-IEs.asn HNBAP-PDU-Contents.asn HNBAP-PDU-Descriptions.asn */
 
 /* Input file: packet-hnbap-template.c */
 

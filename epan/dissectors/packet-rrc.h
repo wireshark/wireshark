@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-rrc.h                                                               */
-/* ../../tools/asn2wrs.py -p rrc -c ./rrc.cnf -s ./packet-rrc-template -D . Class-definitions.asn PDU-definitions.asn InformationElements.asn Constant-definitions.asn Internode-definitions.asn */
+/* ../../tools/asn2wrs.py -p rrc -c ./rrc.cnf -s ./packet-rrc-template -D . -O ../../epan/dissectors Class-definitions.asn PDU-definitions.asn InformationElements.asn Constant-definitions.asn Internode-definitions.asn */
 
 /* Input file: packet-rrc-template.h */
 

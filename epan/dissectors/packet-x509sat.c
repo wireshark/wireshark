@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-x509sat.c                                                           */
-/* ../../tools/asn2wrs.py -b -e -r Syntax -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . SelectedAttributeTypes.asn */
+/* ../../tools/asn2wrs.py -b -r Syntax -p x509sat -c ./x509sat.cnf -s ./packet-x509sat-template -D . -O ../../epan/dissectors SelectedAttributeTypes.asn */
 
 /* Input file: packet-x509sat-template.c */
 

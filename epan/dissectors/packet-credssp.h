@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-credssp.h                                                           */
-/* ../../tools/asn2wrs.py -b -e -C -p credssp -c ./credssp.cnf -s ./packet-credssp-template -D . CredSSP.asn */
+/* ../../tools/asn2wrs.py -b -C -p credssp -c ./credssp.cnf -s ./packet-credssp-template -D . -O ../../epan/dissectors CredSSP.asn */
 
 /* Input file: packet-credssp-template.h */
 

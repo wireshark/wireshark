@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-rtse.h                                                              */
-/* ../../tools/asn2wrs.py -b -e -p rtse -c ./rtse.cnf -s ./packet-rtse-template -D . rtse.asn */
+/* ../../tools/asn2wrs.py -b -p rtse -c ./rtse.cnf -s ./packet-rtse-template -D . -O ../../epan/dissectors rtse.asn */
 
 /* Input file: packet-rtse-template.h */
 

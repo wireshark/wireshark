@@ -1,7 +1,7 @@
 /* Do not modify this file.                                                   */
 /* It is created automatically by the ASN.1 to Wireshark dissector compiler   */
 /* packet-mpeg-pes.c                                                          */
-/* ../../tools/asn2wrs.py -p mpeg-pes -c ./mpeg-pes.cnf -s ./packet-mpeg-pes-template -D . mpeg-pes.asn */
+/* ../../tools/asn2wrs.py -p mpeg-pes -c ./mpeg-pes.cnf -s ./packet-mpeg-pes-template -D . -O ../../epan/dissectors mpeg-pes.asn */
 
 /* Input file: packet-mpeg-pes-template.c */
 
