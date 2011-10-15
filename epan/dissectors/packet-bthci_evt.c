@@ -891,7 +891,7 @@ dissect_bthci_evt_remote_name_req_complete(tvbuff_t *tvb, int offset, packet_inf
 
 	offset = dissect_bthci_evt_bd_addr(tvb, offset, pinfo, tree);
 
-	proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_bthci_evt_remote_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
 	offset+=248;
 
 	return offset;
@@ -1266,7 +1266,7 @@ dissect_bthci_evt_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *p
 					break;
 				case 0x08: /* Device Name, shortened */
 				case 0x09: /* Device Name, full */
-					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_device_name, tvb, offset+i+2, length-1, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_evt_device_name, tvb, offset+i+2, length-1, ENC_ASCII|ENC_NA);
 					proto_item_append_text(ti_eir_struct,": %s", tvb_format_text(tvb,offset+i+2,length-1));
 					break;
 				case 0x0A: /* Tx Power Level */
@@ -1630,7 +1630,7 @@ dissect_bthci_evt_command_complete(tvbuff_t *tvb, int offset, packet_info *pinfo
 			proto_tree_add_item(tree, hf_bthci_evt_status, tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
 
-			proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_evt_device_name, tvb, offset, 248, ENC_ASCII|ENC_NA);
 			offset+=248;
 
 			break;

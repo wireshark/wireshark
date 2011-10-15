@@ -432,7 +432,7 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 			} else {
 				/* MD name format is regular string or DNS string */
 				proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_md_name_string,
-					tvb, maid_offset, cfm_maid_md_name_length, ENC_BIG_ENDIAN);
+					tvb, maid_offset, cfm_maid_md_name_length, ENC_ASCII|ENC_NA);
 			}
 			maid_offset += cfm_maid_md_name_length;
 		}
@@ -446,7 +446,7 @@ static int dissect_cfm_ccm(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	if ((cfm_maid_ma_name_format == 2) ||
 	    (cfm_maid_ma_name_format == 32)) {
 		proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_ma_name_string,
-			tvb, maid_offset, cfm_maid_ma_name_length, ENC_BIG_ENDIAN);
+			tvb, maid_offset, cfm_maid_ma_name_length, ENC_ASCII|ENC_NA);
 	} else {
 		proto_tree_add_item(cfm_ccm_maid_tree, hf_cfm_maid_ma_name_hex,
 			tvb, maid_offset, cfm_maid_ma_name_length, ENC_NA);

@@ -2467,7 +2467,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_start_ok_mechanism,
                                 tvb, offset + 1, tvb_get_guint8(tvb, offset),
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), length);
         }
         if (flag1 & 0x04) {
@@ -2483,7 +2483,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_start_ok_locale,
                                 tvb, offset + 1, tvb_get_guint8(tvb, offset),
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), length);
         }
         break;
@@ -2582,7 +2582,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
                                      hf_amqp_method_connection_open_virtual_host,
                                      tvb,
                                      offset + 1,
-                                     tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+                                     tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, tvb_get_guint8(tvb, offset) + 1, length);
         }
         if (flag1 & 0x02) {
@@ -2638,7 +2638,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_redirect_host,
                                 tvb, offset + 2, tvb_get_ntohs(tvb, offset),
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 2 + tvb_get_ntohs(tvb, offset), length);
         }
         if (flag1 & 0x02) {
@@ -2677,7 +2677,7 @@ dissect_amqp_0_10_connection(tvbuff_t *tvb,
             proto_tree_add_item(args_tree,
                                 hf_amqp_method_connection_close_reply_text,
                                 tvb, offset + 1, tvb_get_guint8(tvb, offset),
-                                ENC_BIG_ENDIAN);
+                                ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + tvb_get_guint8(tvb, offset), length);
         }
         break;
@@ -3122,7 +3122,7 @@ dissect_amqp_0_10_execution(tvbuff_t *tvb,
             if ((offset + 2 + size) > length)
                 THROW(ReportedBoundsError);
             proto_tree_add_item(args_tree, hf_amqp_0_10_method_execution_description,
-                                tvb, offset + 2, size, ENC_BIG_ENDIAN);
+                                tvb, offset + 2, size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (2 + size), length);
         }
         if (flag1 & 0x40) {
@@ -3209,7 +3209,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
                 THROW(ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_transfer_destination,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* accept-mode (accept-mode [uint8]) */
@@ -3268,7 +3268,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_reject_text,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -3320,7 +3320,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         if (flag1 & 0x02) {
@@ -3329,7 +3329,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_resume_id,
-                                tvb, offset + 2, size, ENC_BIG_ENDIAN);
+                                tvb, offset + 2, size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 2 + size, length);
         }
         break;
@@ -3343,7 +3343,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_subscribe_queue,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         if (flag1 & 0x02) {
@@ -3352,7 +3352,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         if (flag1 & 0x04) {     /* accept-mode (accept-mode [uint8]) */
@@ -3379,7 +3379,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 2 + size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_resume_id,
-                                tvb, offset, 2 + size, ENC_BIG_ENDIAN);
+                                tvb, offset, 2 + size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 2 + size, length);
         }
         if (flag1 & 0x40) {
@@ -3416,7 +3416,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         break;
@@ -3430,7 +3430,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         if (flag1 & 0x02) {
@@ -3451,7 +3451,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         if (flag1 & 0x02) {
@@ -3479,7 +3479,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         break;
@@ -3493,7 +3493,7 @@ dissect_amqp_0_10_message(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_message_dest,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, 1 + str_size, length);
         }
         break;
@@ -3797,7 +3797,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* type (str8) */
@@ -3805,7 +3805,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_type,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x04) {     /* alternate-exchange (name [str8]) */
@@ -3813,7 +3813,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_alt_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -3854,7 +3854,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -3873,7 +3873,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -3886,7 +3886,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_bind_queue,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* exchange (name [str8]) */
@@ -3894,7 +3894,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x04) {     /* binding-key (str8) */
@@ -3902,7 +3902,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_binding_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* arguments (map) */
@@ -3931,7 +3931,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_bind_queue,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* exchange (name [str8]) */
@@ -3939,7 +3939,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x04) {     /* binding-key (str8) */
@@ -3947,7 +3947,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_binding_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -3960,7 +3960,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_declare_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* queue (queue.name [str8]) */
@@ -3968,7 +3968,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_bind_queue,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x04) {     /* binding-key (str8) */
@@ -3976,7 +3976,7 @@ dissect_amqp_0_10_exchange(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_exchange_binding_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* arguments (map) */
@@ -4063,7 +4063,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* alternate-exchange (exchange.name [str8]) */
@@ -4071,7 +4071,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_alt_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -4115,7 +4115,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -4137,7 +4137,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4150,7 +4150,7 @@ dissect_amqp_0_10_queue(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4249,7 +4249,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) <= length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* consumer-tag (str8) */
@@ -4257,7 +4257,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_consumer_tag,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -4302,7 +4302,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_consumer_tag,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4315,7 +4315,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_identifier,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* content-size (uint64) */
@@ -4345,7 +4345,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_publish_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* routing-key (str8) */
@@ -4353,7 +4353,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_publish_routing_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -4370,7 +4370,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_identifier,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4389,7 +4389,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_reply_text,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x04) {     /* exchange (exchange.name [str8]) */
@@ -4397,7 +4397,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* routing-key (str8) */
@@ -4405,7 +4405,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_return_routing_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4418,7 +4418,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_deliver_consumer_tag,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* delivery-tag (uint64) */
@@ -4438,7 +4438,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_deliver_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x10) {     /* routing-key (str8) */
@@ -4446,7 +4446,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_deliver_routing_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x20) {     /* identifier (str8) */
@@ -4454,7 +4454,7 @@ dissect_amqp_0_10_file(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_file_identifier,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4592,7 +4592,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_queue_name,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* consumer-tag (str8) */
@@ -4600,7 +4600,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_consumer_tag,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -4642,7 +4642,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_consumer_tag,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4655,7 +4655,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) <= length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_publish_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* routing-key (str8) */
@@ -4663,7 +4663,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_publish_routing_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         /*
@@ -4691,7 +4691,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_reply_text,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x04) {     /* exchange (exchange.name [str8]) */
@@ -4699,7 +4699,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* routing-key (str8) */
@@ -4707,7 +4707,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_return_routing_key,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4720,7 +4720,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_deliver_consumer_tag,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x02) {     /* delivery-tag (uint64) */
@@ -4734,7 +4734,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_deliver_exchange,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         if (flag1 & 0x08) {     /* queue (queue.name [str8]) */
@@ -4742,7 +4742,7 @@ dissect_amqp_0_10_stream(tvbuff_t *tvb,
             THROW_ON(((offset + 1 + str_size) > length), ReportedBoundsError);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_method_stream_deliver_queue,
-                                tvb, offset + 1, str_size, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, str_size, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + str_size), length);
         }
         break;
@@ -4834,7 +4834,7 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(args_tree,
                             hf_amqp_0_10_struct_delivery_properties_exchange,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag2 & 0x02) {
@@ -4842,7 +4842,7 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(args_tree,
                             hf_amqp_0_10_struct_delivery_properties_routing_key,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag2 & 0x04) {
@@ -4851,7 +4851,7 @@ dissect_amqp_0_10_struct_delivery_properties(tvbuff_t *tvb,
         THROW_ON(((offset + 2 + len16) > max_length), ReportedBoundsError);
         proto_tree_add_item(args_tree,
                             hf_amqp_0_10_method_message_resume_id,
-                            tvb, offset + 2, len16, ENC_BIG_ENDIAN);
+                            tvb, offset + 2, len16, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (2 + len16), max_length);
     }
     if (flag2 & 0x08) {
@@ -4978,7 +4978,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
             len8 = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_struct_reply_to_exchange,
-                                tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + len8), max_length);
         }
         if (subflag1 & 0x02) {
@@ -4986,7 +4986,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
             len8 = tvb_get_guint8(tvb, offset);
             proto_tree_add_item(args_tree,
                                 hf_amqp_0_10_struct_reply_to_routing_key,
-                                tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                                tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
             AMQP_INCREMENT(offset, (1 + len8), max_length);
         }
     }
@@ -4995,7 +4995,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(frag,
                             hf_amqp_0_10_struct_message_properties_content_type,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x20) {
@@ -5003,7 +5003,7 @@ dissect_amqp_0_10_struct_message_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(frag,
                             hf_amqp_0_10_struct_message_properties_content_encoding,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x40) {
@@ -5073,7 +5073,7 @@ dissect_amqp_0_10_struct_exchange_query_result(tvbuff_t *tvb,
         THROW_ON(((offset + 1 + len8) > max_length), ReportedBoundsError);
         proto_tree_add_item(result,
                             hf_amqp_0_10_method_exchange_declare_type,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     proto_tree_add_item(result,
@@ -5135,7 +5135,7 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
         THROW_ON(((offset + 1 + len8) > max_length), ReportedBoundsError);
         proto_tree_add_item(result,
                             hf_amqp_0_10_method_queue_name,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x02) {     /* alternate-exchange (exchange.name [str8]) */
@@ -5143,7 +5143,7 @@ dissect_amqp_0_10_struct_queue_query_result(tvbuff_t *tvb,
         THROW_ON(((offset + 1 + len8) > max_length), ReportedBoundsError);
         proto_tree_add_item(result,
                             hf_amqp_0_10_method_queue_alt_exchange,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     /*
@@ -5220,7 +5220,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_file_properties_content_type,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x02) {
@@ -5228,7 +5228,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_file_properties_content_encoding,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x04) {
@@ -5259,7 +5259,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_file_properties_reply_to,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x20) {
@@ -5267,7 +5267,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_file_properties_message_id,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x40) {
@@ -5275,7 +5275,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_file_properties_filename,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x80) {
@@ -5293,7 +5293,7 @@ dissect_amqp_0_10_struct_file_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_file_properties_cluster_id,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
 }
@@ -5330,7 +5330,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_stream_properties_content_type,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x02) {
@@ -5338,7 +5338,7 @@ dissect_amqp_0_10_struct_stream_properties(tvbuff_t *tvb,
         len8 = tvb_get_guint8(tvb, offset);
         proto_tree_add_item(props,
                             hf_amqp_0_10_struct_stream_properties_content_encoding,
-                            tvb, offset + 1, len8, ENC_BIG_ENDIAN);
+                            tvb, offset + 1, len8, ENC_ASCII|ENC_NA);
         AMQP_INCREMENT(offset, (1 + len8), max_length);
     }
     if (flag1 & 0x04) {
@@ -5615,7 +5615,7 @@ dissect_amqp_0_10_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_BIG_ENDIAN);
             amqp_tree = proto_item_add_subtree(ti, ett_amqp_init);
-            proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, ENC_ASCII|ENC_NA);
             proto_tree_add_item(amqp_tree, hf_amqp_init_id_major, tvb, 4, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(amqp_tree, hf_amqp_init_id_minor, tvb, 5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(amqp_tree, hf_amqp_init_version_major, tvb, 6, 1, ENC_BIG_ENDIAN);
@@ -5761,7 +5761,7 @@ dissect_amqp_0_9_frame(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
             ti = proto_tree_add_item(tree, proto_amqp, tvb, 0, -1, ENC_BIG_ENDIAN);
             amqp_tree = proto_item_add_subtree(ti, ett_amqp_init);
-            proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, ENC_BIG_ENDIAN);
+            proto_tree_add_item(amqp_tree, hf_amqp_init_protocol, tvb, 0, 4, ENC_ASCII|ENC_NA);
             proto_tree_add_item(amqp_tree, hf_amqp_init_id_major, tvb, 4, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(amqp_tree, hf_amqp_init_id_minor, tvb, 5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item(amqp_tree, hf_amqp_init_version_major, tvb, 6, 1, ENC_BIG_ENDIAN);
@@ -6464,7 +6464,7 @@ dissect_amqp_0_9_method_connection_start_ok(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  mechanism (shortstr)     */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_start_ok_mechanism,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  response (longstr)       */
@@ -6474,7 +6474,7 @@ dissect_amqp_0_9_method_connection_start_ok(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  locale (shortstr)        */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_start_ok_locale,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -6564,12 +6564,12 @@ dissect_amqp_0_9_method_connection_open(tvbuff_t *tvb,
 {
     /*  virtual-host (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_open_virtual_host,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  capabilities (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_0_9_method_connection_open_capabilities,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  insist (bit)             */
@@ -6587,7 +6587,7 @@ dissect_amqp_0_9_method_connection_open_ok(tvbuff_t *tvb,
 {
     /*  known-hosts (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_0_9_method_connection_open_ok_known_hosts,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -6601,12 +6601,12 @@ dissect_amqp_0_9_method_connection_redirect(tvbuff_t *tvb _U_,
 {
     /*  host (shortstr)          */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_redirect_host,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  known-hosts (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_0_9_method_connection_redirect_known_hosts,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -6625,7 +6625,7 @@ dissect_amqp_0_9_method_connection_close(tvbuff_t *tvb _U_,
 
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_connection_close_reply_text,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  class-id (short)         */
@@ -6658,7 +6658,7 @@ dissect_amqp_0_9_method_channel_open(tvbuff_t *tvb _U_,
 {
     /*  out-of-band (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_open_out_of_band,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -6717,7 +6717,7 @@ dissect_amqp_0_9_method_channel_close(tvbuff_t *tvb _U_,
 
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_channel_close_reply_text,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  class-id (short)         */
@@ -6791,7 +6791,7 @@ dissect_amqp_0_9_method_access_request(tvbuff_t *tvb _U_,
 {
     /*  realm (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_access_request_realm,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exclusive (bit)          */
@@ -6845,12 +6845,12 @@ dissect_amqp_0_9_method_exchange_declare(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_declare_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  type (shortstr)          */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_declare_type,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  passive (bit)            */
@@ -6907,17 +6907,17 @@ dissect_amqp_0_9_method_exchange_bind(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  destination (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_bind_destination,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  source (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_bind_source,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_bind_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -6957,7 +6957,7 @@ dissect_amqp_0_9_method_exchange_delete(tvbuff_t *tvb _U_,
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_exchange_delete_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  if-unused (bit)          */
@@ -6994,7 +6994,7 @@ dissect_amqp_0_9_method_queue_declare(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  passive (bit)            */
@@ -7036,7 +7036,7 @@ dissect_amqp_0_9_method_queue_declare_ok(tvbuff_t *tvb _U_,
 {
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_declare_ok_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  message-count (long)     */
@@ -7066,17 +7066,17 @@ dissect_amqp_0_9_method_queue_bind(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_bind_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -7117,17 +7117,17 @@ dissect_amqp_0_9_method_queue_unbind(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_unbind_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  arguments (table)        */
@@ -7162,7 +7162,7 @@ dissect_amqp_0_9_method_queue_purge(tvbuff_t *tvb _U_,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_purge_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -7199,7 +7199,7 @@ dissect_amqp_0_9_method_queue_delete(tvbuff_t *tvb _U_,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_queue_delete_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  if-unused (bit)          */
@@ -7277,12 +7277,12 @@ dissect_amqp_0_9_method_basic_consume(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  no-local (bit)           */
@@ -7320,7 +7320,7 @@ dissect_amqp_0_9_method_basic_consume_ok(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_consume_ok_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7334,7 +7334,7 @@ dissect_amqp_0_9_method_basic_cancel(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_cancel_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -7352,7 +7352,7 @@ dissect_amqp_0_9_method_basic_cancel_ok(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_cancel_ok_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7371,12 +7371,12 @@ dissect_amqp_0_9_method_basic_publish(tvbuff_t *tvb _U_,
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_publish_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_publish_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  mandatory (bit)          */
@@ -7403,17 +7403,17 @@ dissect_amqp_0_9_method_basic_return(tvbuff_t *tvb _U_,
 
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_return_reply_text,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_return_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_return_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7427,7 +7427,7 @@ dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  delivery-tag (longlong)  */
@@ -7442,12 +7442,12 @@ dissect_amqp_0_9_method_basic_deliver(tvbuff_t *tvb _U_,
     offset += 1;
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_deliver_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7466,7 +7466,7 @@ dissect_amqp_0_9_method_basic_get(tvbuff_t *tvb _U_,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  no-ack (bit)             */
@@ -7494,12 +7494,12 @@ dissect_amqp_0_9_method_basic_get_ok(tvbuff_t *tvb _U_,
     offset += 1;
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_ok_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  message-count (long)     */
@@ -7518,7 +7518,7 @@ dissect_amqp_0_9_method_basic_get_empty(tvbuff_t *tvb _U_,
 {
     /*  cluster-id (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_basic_get_empty_cluster_id,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7619,12 +7619,12 @@ dissect_amqp_0_9_method_file_consume(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  no-local (bit)           */
@@ -7662,7 +7662,7 @@ dissect_amqp_0_9_method_file_consume_ok(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_consume_ok_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7676,7 +7676,7 @@ dissect_amqp_0_9_method_file_cancel(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_cancel_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -7694,7 +7694,7 @@ dissect_amqp_0_9_method_file_cancel_ok(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_cancel_ok_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7708,7 +7708,7 @@ dissect_amqp_0_9_method_file_open(tvbuff_t *tvb _U_,
 {
     /*  identifier (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_file_open_identifier,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  content-size (longlong)  */
@@ -7755,12 +7755,12 @@ dissect_amqp_0_9_method_file_publish(tvbuff_t *tvb _U_,
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_file_publish_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_publish_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  mandatory (bit)          */
@@ -7774,7 +7774,7 @@ dissect_amqp_0_9_method_file_publish(tvbuff_t *tvb _U_,
     offset += 1;
     /*  identifier (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_file_publish_identifier,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7793,17 +7793,17 @@ dissect_amqp_0_9_method_file_return(tvbuff_t *tvb _U_,
 
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_file_return_reply_text,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_file_return_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_return_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7817,7 +7817,7 @@ dissect_amqp_0_9_method_file_deliver(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  delivery-tag (longlong)  */
@@ -7832,17 +7832,17 @@ dissect_amqp_0_9_method_file_deliver(tvbuff_t *tvb _U_,
     offset += 1;
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  identifier (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_file_deliver_identifier,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7935,12 +7935,12 @@ dissect_amqp_0_9_method_stream_consume(tvbuff_t *tvb, packet_info *pinfo,
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  no-local (bit)           */
@@ -7974,7 +7974,7 @@ dissect_amqp_0_9_method_stream_consume_ok(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_consume_ok_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -7988,7 +7988,7 @@ dissect_amqp_0_9_method_stream_cancel(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_cancel_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  nowait (bit)             */
@@ -8006,7 +8006,7 @@ dissect_amqp_0_9_method_stream_cancel_ok(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_cancel_ok_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -8025,12 +8025,12 @@ dissect_amqp_0_9_method_stream_publish(tvbuff_t *tvb _U_,
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_publish_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_publish_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  mandatory (bit)          */
@@ -8057,17 +8057,17 @@ dissect_amqp_0_9_method_stream_return(tvbuff_t *tvb _U_,
 
     /*  reply-text (shortstr)    */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_return_reply_text,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_return_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  routing-key (shortstr)   */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_return_routing_key,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -8081,7 +8081,7 @@ dissect_amqp_0_9_method_stream_deliver(tvbuff_t *tvb _U_,
 {
     /*  consumer-tag (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_deliver_consumer_tag,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  delivery-tag (longlong)  */
@@ -8091,12 +8091,12 @@ dissect_amqp_0_9_method_stream_deliver(tvbuff_t *tvb _U_,
 
     /*  exchange (shortstr)      */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_deliver_exchange,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     /*  queue (shortstr)         */
     proto_tree_add_item(args_tree, hf_amqp_method_stream_deliver_queue,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -8182,7 +8182,7 @@ dissect_amqp_0_9_method_dtx_start(tvbuff_t *tvb _U_,
 {
     /*  dtx-identifier (shortstr)  */
     proto_tree_add_item(args_tree, hf_amqp_method_dtx_start_dtx_identifier,
-        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+        tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
     offset += 1 + tvb_get_guint8(tvb, offset);
 
     return offset;
@@ -8230,7 +8230,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  content-type (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_content_type,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8238,7 +8238,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  content-encoding (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_content_encoding,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8272,7 +8272,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  correlation-id (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_correlation_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8280,7 +8280,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  reply-to (shortstr)      */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_reply_to,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8288,7 +8288,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  expiration (shortstr)    */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_expiration,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8296,7 +8296,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  message-id (shortstr)    */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_message_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8312,7 +8312,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  type (shortstr)          */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_type,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8320,7 +8320,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  user-id (shortstr)       */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_user_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8328,7 +8328,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  app-id (shortstr)        */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_app_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8336,7 +8336,7 @@ dissect_amqp_0_9_content_header_basic(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  cluster-id (shortstr)    */
         proto_tree_add_item(prop_tree, hf_amqp_header_basic_cluster_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8357,7 +8357,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  content-type (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_content_type,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8365,7 +8365,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  content-encoding (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_content_encoding,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8390,7 +8390,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  reply-to (shortstr)      */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_reply_to,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8398,7 +8398,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  message-id (shortstr)    */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_message_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8406,7 +8406,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  filename (shortstr)      */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_filename,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8422,7 +8422,7 @@ dissect_amqp_0_9_content_header_file(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  cluster-id (shortstr)    */
         proto_tree_add_item(prop_tree, hf_amqp_header_file_cluster_id,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8443,7 +8443,7 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  content-type (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_stream_content_type,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8451,7 +8451,7 @@ dissect_amqp_0_9_content_header_stream(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  content-encoding (shortstr)  */
         proto_tree_add_item(prop_tree, hf_amqp_header_stream_content_encoding,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8506,7 +8506,7 @@ dissect_amqp_0_9_content_header_tunnel(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  proxy-name (shortstr)    */
         proto_tree_add_item(prop_tree, hf_amqp_header_tunnel_proxy_name,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;
@@ -8514,7 +8514,7 @@ dissect_amqp_0_9_content_header_tunnel(tvbuff_t *tvb, packet_info *pinfo,
     if (prop_flags & 0x8000) {
         /*  data-name (shortstr)     */
         proto_tree_add_item(prop_tree, hf_amqp_header_tunnel_data_name,
-            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_BIG_ENDIAN);
+            tvb, offset + 1, tvb_get_guint8(tvb, offset), ENC_ASCII|ENC_NA);
         offset += 1 + tvb_get_guint8(tvb, offset);
     }
     prop_flags <<= 1;

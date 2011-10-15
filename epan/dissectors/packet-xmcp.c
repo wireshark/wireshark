@@ -422,7 +422,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
   switch (attr_type) {
   case XMCP_USERNAME:
     proto_tree_add_item(attr_tree, xmcp_attr_username, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_ephemeral_string(tvb, offset, attr_length));
     /*
@@ -503,14 +503,14 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     if (attr_length < 5)
       break;
     proto_tree_add_item(attr_tree, xmcp_attr_error_reason, tvb, (offset+4),
-                        (attr_length - 4), FALSE);
+                        (attr_length - 4), ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, " (%s)",
                            tvb_get_ephemeral_string(tvb, (offset+4),
                                                     (attr_length-4)));
     break;
   case XMCP_REALM:
     proto_tree_add_item(attr_tree, xmcp_attr_realm, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_ASCII|ENC_NA);
     {
       guint8 *realm;
       realm = tvb_get_ephemeral_string(tvb, offset, attr_length);
@@ -524,13 +524,13 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     break;
   case XMCP_NONCE:
     proto_tree_add_item(attr_tree, xmcp_attr_nonce, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_ephemeral_string(tvb, offset, attr_length));
     break;
   case XMCP_CLIENT_NAME:
     proto_tree_add_item(attr_tree, xmcp_attr_client_name, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_ephemeral_string(tvb, offset, attr_length));
     if (check_col(pinfo->cinfo, COL_INFO)) {
@@ -577,7 +577,7 @@ decode_xmcp_attr_value (proto_tree *attr_tree, guint16 attr_type,
     break;
   case XMCP_CLIENT_LABEL:
     proto_tree_add_item(attr_tree, xmcp_attr_client_label, tvb, offset,
-                        attr_length, FALSE);
+                        attr_length, ENC_ASCII|ENC_NA);
     proto_item_append_text(attr_tree, ": %s",
                            tvb_get_ephemeral_string(tvb, offset, attr_length));
     if (check_col(pinfo->cinfo, COL_INFO)) {

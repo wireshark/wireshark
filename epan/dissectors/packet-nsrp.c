@@ -249,7 +249,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(nsrp_tree, hf_nsrp_checksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
     }
 
@@ -299,7 +299,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(nsrp_tree, hf_nsrp_authchecksum, tvb, offset, 2, ENC_BIG_ENDIAN);
 			offset += 2;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
     }
 
@@ -344,7 +344,7 @@ dissect_nsrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			proto_tree_add_item(nsrp_tree, hf_nsrp_total_size, tvb, offset, 4, ENC_BIG_ENDIAN);
 			offset += 4;
 
-			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, FALSE);
+			proto_tree_add_item(nsrp_tree, hf_nsrp_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
     }
 

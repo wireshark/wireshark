@@ -677,7 +677,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case USERNAME:
-				proto_tree_add_item(att_tree, stun_att_username, tvb, offset, att_length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_username, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO,
@@ -722,7 +722,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				}
 				if (att_length < 5)
 					break;
-				proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, att_length-4, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_error_reason, tvb, offset+4, att_length-4, ENC_ASCII|ENC_NA);
 
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset+4, att_length-4));
 				col_append_fstr(
@@ -744,7 +744,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case REALM:
-				proto_tree_add_item(att_tree, stun_att_realm, tvb, offset, att_length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_realm, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO,
@@ -756,7 +756,7 @@ dissect_stun_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				break;
 
 			case NONCE:
-				proto_tree_add_item(att_tree, stun_att_nonce, tvb, offset, att_length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_nonce, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 				proto_item_append_text(att_tree, ": %s", tvb_get_ephemeral_string(tvb, offset, att_length));
 				col_append_fstr(
 					pinfo->cinfo, COL_INFO,
@@ -877,7 +877,7 @@ case EVEN_PORT:
 				break;
 
 			case SOFTWARE:
-				proto_tree_add_item(att_tree, stun_att_software, tvb, offset, att_length, ENC_BIG_ENDIAN);
+				proto_tree_add_item(att_tree, stun_att_software, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 				if (att_length % 4 != 0)
 					proto_tree_add_uint(att_tree, stun_att_padding, tvb, offset+att_length, 4-(att_length % 4), 4-(att_length % 4));
 				break;

@@ -1781,7 +1781,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     context_name = tvb_get_const_stringz(tvb, offset, &context_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_context, tvb,
-                            offset, context_length, FALSE);
+                            offset, context_length, ENC_ASCII|ENC_NA);
     }
     offset += context_length;
 
@@ -1809,7 +1809,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     protocol_name = tvb_get_const_stringz(tvb, offset, &protocol_length);
     if (dct2000_tree) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_protocol, tvb,
-                            offset, protocol_length, FALSE);
+                            offset, protocol_length, ENC_ASCII|ENC_NA);
     }
     is_comment = (strcmp(protocol_name, "comment") == 0);
     offset += protocol_length;
@@ -1819,7 +1819,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     variant_string = tvb_get_const_stringz(tvb, offset, &variant_length);
     if (!is_comment) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_variant, tvb,
-                            offset, variant_length, FALSE);
+                            offset, variant_length, ENC_ASCII|ENC_NA);
     }
     offset += variant_length;
 
@@ -1827,7 +1827,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     outhdr_string = tvb_get_const_stringz(tvb, offset, &outhdr_length);
     if (!is_comment && (outhdr_length > 1)) {
         proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_outhdr, tvb,
-                            offset, outhdr_length, FALSE);
+                            offset, outhdr_length, ENC_ASCII|ENC_NA);
     }
     offset += outhdr_length;
 
@@ -2009,7 +2009,7 @@ dissect_catapult_dct2000(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 /* Show comment string */
                 string_ti = proto_tree_add_item(dct2000_tree, hf_catapult_dct2000_comment, tvb,
-                                                offset, -1, FALSE);
+                                                offset, -1, ENC_ASCII|ENC_NA);
                 col_append_fstr(pinfo->cinfo, COL_INFO, "%s", string);
 
                 if (catapult_dct2000_dissect_mac_lte_oob_messages) {

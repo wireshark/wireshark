@@ -747,7 +747,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* server name */
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_server_name,
-			tvb, offset, namelen, TRUE);
+			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;
 		break;
 
@@ -776,7 +776,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		for (i = 0; i < server_count; i++) {
 			namelen = tvb_strsize(tvb, offset);
 			proto_tree_add_item(tree, hf_backup_server,
-				tvb, offset, namelen, TRUE);
+				tvb, offset, namelen, ENC_ASCII|ENC_NA);
 			offset += namelen;
 		}
 		break;
@@ -785,7 +785,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* master browser server name */
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_mb_server_name,
-			tvb, offset, namelen, TRUE);
+			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;
 		break;
 
@@ -813,7 +813,7 @@ dissect_mailslot_browse(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 		/* name of browser to promote */
 		namelen = tvb_strsize(tvb, offset);
 		proto_tree_add_item(tree, hf_browser_to_promote,
-			tvb, offset, namelen, TRUE);
+			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;
 		break;
 	}
@@ -914,7 +914,7 @@ dissect_mailslot_lanman(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tr
 			col_append_fstr(pinfo->cinfo, COL_INFO, " %s", host_name);
 		}
 		proto_tree_add_item(tree, hf_server_name,
-			tvb, offset, namelen, TRUE);
+			tvb, offset, namelen, ENC_ASCII|ENC_NA);
 		offset += namelen;
 
 		/* master browser server name or server comment */

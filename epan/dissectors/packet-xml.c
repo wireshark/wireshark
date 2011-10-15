@@ -502,7 +502,7 @@ static void before_dtd_doctype(void* tvbparse_data, const void* wanted_data _U_,
 	xml_frame_t* new_frame;
 	tvbparse_elem_t* name_tok = tok->sub->next->next->next->sub->sub;
 	proto_tree* dtd_item = proto_tree_add_item(current_frame->tree, hf_doctype,
-											   name_tok->tvb, name_tok->offset, name_tok->len, FALSE);
+											   name_tok->tvb, name_tok->offset, name_tok->len, ENC_ASCII|ENC_NA);
 
 	proto_item_set_text(dtd_item,"%s",tvb_format_text(tok->tvb,tok->offset,tok->len));
 

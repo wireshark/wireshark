@@ -925,7 +925,7 @@ dissect_rtmpt_body_command(tvbuff_t *tvb, gint offset, proto_tree *rtmpt_tree, g
                         name_tree = proto_item_add_subtree(ti, ett_rtmpt_string);
 
                         proto_tree_add_item(name_tree, hf_rtmpt_amf_stringlength, tvb, iPropertyOffset, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(name_tree, hf_rtmpt_amf_string, tvb, iPropertyOffset+2, iPropertyLength-2, FALSE);
+                        proto_tree_add_item(name_tree, hf_rtmpt_amf_string, tvb, iPropertyOffset+2, iPropertyLength-2, ENC_ASCII|ENC_NA);
                 }
 
                 if (!iPush) {

@@ -343,7 +343,7 @@ static int dissect_bencoding_str(tvbuff_t *tvb, packet_info *pinfo _U_,
          }
          if (tree) {
             proto_tree_add_uint(tree, hf_bittorrent_bstr_length, tvb, offset, used, stringlen);
-            proto_tree_add_item(tree, hf_bittorrent_bstr, tvb, offset+used, stringlen, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_bittorrent_bstr, tvb, offset+used, stringlen, ENC_ASCII|ENC_NA);
 
             if (treeadd==1) {
                proto_item_append_text(ti, " Key: %s", format_text(ep_tvb_memdup(tvb, offset+used, stringlen), stringlen));
@@ -658,7 +658,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
       throw an exception, so we won't use msgtype or type. */
    if (isamp) {
       proto_tree_add_item(mtree, hf_azureus_msg_type_len, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item(mtree, hf_azureus_msg_type, tvb, offset+4, typelen, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mtree, hf_azureus_msg_type, tvb, offset+4, typelen, ENC_ASCII|ENC_NA);
       proto_item_append_text(ti, ": Len %u, %s", length, msgtype);
       proto_tree_add_item(mtree, hf_azureus_msg_prio, tvb, offset+4+typelen, 1, ENC_BIG_ENDIAN);
       offset += 4+typelen+1;
@@ -743,7 +743,7 @@ static void dissect_bittorrent_message (tvbuff_t *tvb, packet_info *pinfo, proto
    case AZUREUS_MESSAGE_JPC_HELLO:
       stringlen = tvb_get_ntohl(tvb, offset);
       proto_tree_add_item(mtree, hf_azureus_jpc_addrlen, tvb, offset, 4, ENC_BIG_ENDIAN);
-      proto_tree_add_item(mtree, hf_azureus_jpc_addr, tvb, offset+4, stringlen, ENC_BIG_ENDIAN);
+      proto_tree_add_item(mtree, hf_azureus_jpc_addr, tvb, offset+4, stringlen, ENC_ASCII|ENC_NA);
       proto_tree_add_item(mtree, hf_azureus_jpc_port, tvb, offset+4+stringlen, 4, ENC_BIG_ENDIAN);
       proto_tree_add_item(mtree, hf_azureus_jpc_session, tvb, offset+4+stringlen+4, 4, ENC_BIG_ENDIAN);
       break;
@@ -766,7 +766,7 @@ static void dissect_bittorrent_welcome (tvbuff_t *tvb, packet_info *pinfo _U_, p
    col_set_str(pinfo->cinfo, COL_INFO, "Handshake");
 
    proto_tree_add_item(tree, hf_bittorrent_prot_name_len, tvb, offset, 1, ENC_BIG_ENDIAN); offset+=1;
-   proto_tree_add_item(tree, hf_bittorrent_prot_name, tvb, offset, 19, ENC_BIG_ENDIAN); offset += 19;
+   proto_tree_add_item(tree, hf_bittorrent_prot_name, tvb, offset, 19, ENC_ASCII|ENC_NA); offset += 19;
    proto_tree_add_item(tree, hf_bittorrent_reserved, tvb, offset, 8, ENC_NA); offset += 8;
 
    proto_tree_add_item(tree, hf_bittorrent_sha1_hash, tvb, offset, 20, ENC_NA);

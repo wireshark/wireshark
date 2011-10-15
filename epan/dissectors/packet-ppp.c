@@ -4494,7 +4494,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         peer_id_length = tvb_get_guint8(tvb, offset);
         offset +=1;
 
-        proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset, peer_id_length, FALSE);
+        proto_tree_add_item(data_tree, hf_pap_peer_id, tvb, offset, peer_id_length, ENC_ASCII|ENC_NA);
         peer_id = tvb_format_text(tvb, offset, peer_id_length);
         offset += peer_id_length;
 
@@ -4502,7 +4502,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         password_length = tvb_get_guint8(tvb, offset);
         offset +=1;
 
-        proto_tree_add_item(data_tree, hf_pap_password, tvb, offset, password_length, FALSE);
+        proto_tree_add_item(data_tree, hf_pap_password, tvb, offset, password_length, ENC_ASCII|ENC_NA);
         password = tvb_format_text(tvb, offset, password_length);
         offset += password_length;
 
@@ -4621,7 +4621,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
           /* Find name in remaining bytes */
           if (length > 0) {
             tvb_ensure_bytes_exist(tvb, offset, length);
-            proto_tree_add_item(field_tree, hf_chap_name, tvb, offset, length, FALSE);
+            proto_tree_add_item(field_tree, hf_chap_name, tvb, offset, length, ENC_ASCII|ENC_NA);
             name_offset = offset;
             name_size = length;
           }
@@ -4644,7 +4644,7 @@ dissect_chap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
   case CHAP_FAIL:
     if(tree) {
       if (length > 0) {
-        proto_tree_add_item(fh_tree, hf_chap_message, tvb, offset, length, FALSE);
+        proto_tree_add_item(fh_tree, hf_chap_message, tvb, offset, length, ENC_ASCII|ENC_NA);
       }
     }
 

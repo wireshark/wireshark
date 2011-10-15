@@ -416,25 +416,25 @@ static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff
 
 	if (bitmask & PACKETCABLE_GENERAL_DISPLAY) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_general_display,
-							tvb, intval, 80, FALSE);
+							tvb, intval, 80, ENC_ASCII|ENC_NA);
 		intval += 80;
 	}
 
 	if (bitmask & PACKETCABLE_CALLING_NUMBER) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_number,
-							tvb, intval, 40, FALSE);
+							tvb, intval, 40, ENC_ASCII|ENC_NA);
 		intval += 40;
 	}
 
 	if (bitmask & PACKETCABLE_CALLING_NAME) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_calling_name,
-							tvb, intval, 40, FALSE);
+							tvb, intval, 40, ENC_ASCII|ENC_NA);
 		intval += 40;
 	}
 
 	if (bitmask & PACKETCABLE_MESSAGE_WAITING) {
 		proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_message_waiting,
-							tvb, intval, 40, FALSE);
+							tvb, intval, 40, ENC_ASCII|ENC_NA);
 	}
 
 	return "";

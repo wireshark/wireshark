@@ -58,7 +58,7 @@ dissect_daytime(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_text(daytime_tree, tvb, 0, 0,
 			pinfo->srcport==DAYTIME_PORT ? "Type: Response":"Type: Request");
     if (pinfo->srcport == DAYTIME_PORT) {
-      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(daytime_tree, hf_daytime_string, tvb, 0, -1, ENC_ASCII|ENC_NA);
     }
   }
 }

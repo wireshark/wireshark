@@ -144,7 +144,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		proto_tree_add_item(ipxwan_tree, hf_ipxwan_identifier, tvb,
-		    offset, 4, FALSE);
+		    offset, 4, ENC_ASCII|ENC_NA);
 	}
 	offset += 4;
 	packet_type = tvb_get_guint8(tvb, offset);
@@ -222,7 +222,7 @@ dissect_ipxwan(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					    tvb, offset+2, 4, ENC_NA);
 					proto_tree_add_item(option_tree,
 					    hf_ipxwan_router_name, tvb,
-					    offset+6, 48, FALSE);
+					    offset+6, 48, ENC_ASCII|ENC_NA);
 				}
 				break;
 

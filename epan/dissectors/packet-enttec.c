@@ -143,7 +143,7 @@ dissect_enttec_poll_reply(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	offset += 1;
 	
 	proto_tree_add_item(tree, hf_enttec_poll_reply_name, tvb,
-					offset, 10, FALSE);
+					offset, 10, ENC_ASCII|ENC_NA);
 	offset += 10;
 
 	proto_tree_add_item(tree, hf_enttec_poll_reply_option, tvb,

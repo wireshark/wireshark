@@ -645,7 +645,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_initial_serial_number,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -737,7 +737,7 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_serial_number,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -810,7 +810,7 @@ PICS.    */
 		{
 			proto_tree_add_item(param_tree,
 			    hf_second_serial_number,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -821,7 +821,7 @@ PICS.    */
 		{
 			proto_tree_add_item(param_tree,
 			    hf_second_initial_serial_number,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -832,7 +832,7 @@ PICS.    */
 		{
 			proto_tree_add_item(param_tree,
 			    hf_large_initial_serial_number,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
 		}
 		break;
 
@@ -843,7 +843,7 @@ PICS.    */
 		{
 			proto_tree_add_item(param_tree,
 			    hf_large_second_initial_serial_number,
-			    tvb, offset, param_len, FALSE);
+			    tvb, offset, param_len, ENC_ASCII|ENC_NA);
 		}
 		break;
 

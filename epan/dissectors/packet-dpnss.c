@@ -936,7 +936,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_SIC:
     */
     case DPNSS_A_B_PARTY_ADDR:
-        proto_tree_add_item(tree, hf_dpnss_a_b_party_addr, tvb, par_start_offset, par_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dpnss_a_b_party_addr, tvb, par_start_offset, par_len, ENC_ASCII|ENC_NA);
         break;
 
         /*
@@ -946,7 +946,7 @@ dissect_dpnns_sup_str_par(tvbuff_t *tvb, proto_tree * tree, int par_type_num, in
     case DPNSS_TEXT:
     */
     case DPNSS_CALL_INDEX:
-        proto_tree_add_item(tree, hf_dpnss_call_idx, tvb, par_start_offset, par_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_dpnss_call_idx, tvb, par_start_offset, par_len, ENC_ASCII|ENC_NA);
         break;
         /*
 
@@ -1152,7 +1152,7 @@ dissect_dpnss_sup_info_str(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
             str_no++;
         }else{
             last_string = TRUE;
-            proto_tree_add_item(tree, hf_dpnss_dest_addr, tvb, offset, -1, ENC_BIG_ENDIAN);
+            proto_tree_add_item(tree, hf_dpnss_dest_addr, tvb, offset, -1, ENC_ASCII|ENC_NA);
         }
     }
     return offset;

@@ -500,7 +500,7 @@ static void dissect_tns_connect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( connect_tree && cd_len > 0)
 	{
 		proto_tree_add_item(connect_tree, hf_tns_connect_data, tvb,
-			tns_offset+cd_offset, -1, FALSE);
+			tns_offset+cd_offset, -1, ENC_ASCII|ENC_NA);
 	}
 	return;
 }
@@ -616,7 +616,7 @@ static void dissect_tns_accept(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( accept_tree && accept_len > 0)
 	{
 		proto_tree_add_item(accept_tree, hf_tns_accept_data, tvb,
-			tns_offset+accept_offset, -1, FALSE);
+			tns_offset+accept_offset, -1, ENC_ASCII|ENC_NA);
 	}
 	return;
 }
@@ -665,7 +665,7 @@ static void dissect_tns_refuse(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( refuse_tree )
 	{
 		proto_tree_add_item(refuse_tree, hf_tns_refuse_data, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_ASCII|ENC_NA);
 	}
 	return;
 }
@@ -707,7 +707,7 @@ static void dissect_tns_abort(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( abort_tree )
 	{
 		proto_tree_add_item(abort_tree, hf_tns_abort_data, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_ASCII|ENC_NA);
 	}
 	return;
 }
@@ -803,7 +803,7 @@ static void dissect_tns_redirect(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	if ( redirect_tree )
 	{
 		proto_tree_add_item(redirect_tree, hf_tns_redirect_data, tvb,
-			offset, -1, FALSE);
+			offset, -1, ENC_ASCII|ENC_NA);
 	}
 	return;
 }

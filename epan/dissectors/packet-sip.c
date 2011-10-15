@@ -1228,7 +1228,7 @@ display_sip_uri (tvbuff_t *tvb, proto_tree *sip_element_tree, uri_offset_info* u
 
 	if(uri_offsets->display_name_end != uri_offsets->display_name_start) {
 		proto_tree_add_item(sip_element_tree, hf_sip_display, tvb, uri_offsets->display_name_start,
-		  		    uri_offsets->display_name_end - uri_offsets->display_name_start + 1, FALSE);
+		  		    uri_offsets->display_name_end - uri_offsets->display_name_start + 1, ENC_ASCII|ENC_NA);
 	}
 
 	ti = proto_tree_add_item(sip_element_tree, *(uri->hf_sip_addr), tvb, uri_offsets->uri_start, uri_offsets->uri_end - uri_offsets->uri_start + 1, FALSE);
@@ -1317,7 +1317,7 @@ dissect_sip_contact_item(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gi
 			current_offset = tvb_skip_wsp(tvb, queried_offset+1, line_end_offset - queried_offset+1);
 		}
 		proto_tree_add_item(tree, hf_sip_contact_param, tvb, contact_params_start_offset ,
-			contact_param_end_offset - contact_params_start_offset +1, FALSE);
+			contact_param_end_offset - contact_params_start_offset +1, ENC_ASCII|ENC_NA);
 		/* In case there are more parameters, point to the start of it */
 		contact_params_start_offset = current_offset;
 	}
@@ -1483,7 +1483,7 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 			if (transport_name_started && ((c == ' ') || (c == '\t')))
 			{
 				proto_tree_add_item(tree, hf_sip_via_transport, tvb, transport_start_offset,
-									current_offset - transport_start_offset, FALSE);
+									current_offset - transport_start_offset, ENC_ASCII|ENC_NA);
 
 				break;
 			}
@@ -1519,10 +1519,10 @@ static void dissect_sip_via_header(tvbuff_t *tvb, proto_tree *tree, gint start_o
 		/* Add address to tree */
 		if (ipv6_address == TRUE) {
 			proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset + 1,
-								current_offset - address_start_offset - 2, FALSE);
+								current_offset - address_start_offset - 2, ENC_ASCII|ENC_NA);
 		} else {
 			proto_tree_add_item(tree, hf_sip_via_sent_by_address, tvb, address_start_offset,
-								current_offset - address_start_offset, FALSE);
+								current_offset - address_start_offset, ENC_ASCII|ENC_NA);
 		}
 
 		/* Transport port number may follow ([space] : [space])*/
@@ -1888,7 +1888,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	case REQUEST_LINE:
 		if (sip_tree) {
 			ti_a = proto_tree_add_item(sip_tree, hf_Request_Line, tvb,
-						offset, linelen, FALSE);
+						offset, linelen, ENC_ASCII|ENC_NA);
 
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
@@ -1898,7 +1898,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	case STATUS_LINE:
 		if (sip_tree) {
 			ti_a = proto_tree_add_item(sip_tree, hf_sip_Status_Line, tvb,
-						offset, linelen, FALSE);
+						offset, linelen, ENC_ASCII|ENC_NA);
 			reqresp_tree = proto_item_add_subtree(ti_a, ett_sip_reqresp);
 		}
 		dfilter_sip_status_line(tvb, reqresp_tree, pinfo, linelen);
@@ -1919,7 +1919,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 	offset = next_offset;
 	if (sip_tree) {
 		th = proto_tree_add_item(sip_tree, hf_sip_msg_hdr, tvb, offset,
-		                         tvb_length_remaining(tvb, offset), FALSE);
+		                         tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 		proto_item_set_text(th, "Message Header");
 		hdr_tree = proto_item_add_subtree(th, ett_sip_hdr);
 	}
@@ -2074,7 +2074,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 									parameter_end_offset = line_end_offset;
 								parameter_len = parameter_end_offset - parameter_offset;
 								proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
-													parameter_len, FALSE);
+													parameter_len, ENC_ASCII|ENC_NA);
 								/* Tag indicates in-dialog messages, in case we have a INVITE, SUBSCRIBE or REFER, mark it */
 								switch (current_method_idx) {
 
@@ -2129,7 +2129,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 									parameter_end_offset = line_end_offset;
 								parameter_len = parameter_end_offset - parameter_offset;
 								proto_tree_add_item(sip_element_tree, hf_sip_tag, tvb, parameter_offset,
-													parameter_len, FALSE);
+													parameter_len, ENC_ASCII|ENC_NA);
 
 							}
 						}/* hdr_tree */
@@ -2256,7 +2256,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 												gint turi_start_offset = hparam_offset + 12;
 												gint turi_end_offset   = tvb_find_guint8(tvb, turi_start_offset, -1,'\"');
 												if (turi_end_offset != -1)
-													proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),FALSE);
+													proto_tree_add_item(tc_uri_item_tree, hf_sip_tc_turi, tvb, turi_start_offset,(turi_end_offset - turi_start_offset),ENC_ASCII|ENC_NA);
 												else
 							 						break; /* malformed */
 											}
@@ -2335,7 +2335,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							if (cseq_tree)
 							{
 								proto_tree_add_item(cseq_tree, hf_sip_cseq_method, tvb,
-								                    value_offset + sub_value_offset, strlen_to_copy, FALSE);
+								                    value_offset + sub_value_offset, strlen_to_copy, ENC_ASCII|ENC_NA);
 							}
 						}
 					break;
@@ -2414,7 +2414,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 						{
 							proto_tree_add_item(rack_tree, hf_sip_rack_cseq_method, tvb,
 							                    value_offset + sub_value_offset,
-							                    (int)linelen-sub_value_offset, FALSE);
+							                    (int)linelen-sub_value_offset, ENC_ASCII|ENC_NA);
 						}
 
 						break;
@@ -2599,7 +2599,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 							/* Set sip.auth as a hidden field/filter */
 							ti_c = proto_tree_add_item(hdr_tree, hf_sip_auth, tvb,
 							                         offset, next_offset-offset,
-							                         FALSE);
+							                         ENC_ASCII|ENC_NA);
 							PROTO_ITEM_SET_HIDDEN(ti_c);
 
 							/* Authentication-Info does not begin with the scheme name */
@@ -2609,7 +2609,7 @@ dissect_sip_common(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *tr
 								comma_offset = tvb_pbrk_guint8(tvb, value_offset, line_end_offset - value_offset, " \t\r\n", NULL);
 								proto_tree_add_item(sip_element_tree, hf_sip_auth_scheme,
 													tvb, value_offset, comma_offset - value_offset,
-													FALSE);
+													ENC_ASCII|ENC_NA);
 							}else{
 								/* The first time comma_offset is "start of parameters" */
 								comma_offset = value_offset;

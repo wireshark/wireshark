@@ -3219,7 +3219,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 94: /* NBAR applicationDesc */
 			ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_desc,
-					    tvb, offset, length, ENC_NA);
+					    tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 95: /* NBAR applicationId */
@@ -3229,7 +3229,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 96: /* NBAR applicationName */
 			ti = proto_tree_add_item(pdutree, hf_cflow_nbar_appl_name,
-					    tvb, offset, length, ENC_NA);
+					    tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 98: /* postIpDiffServCodePoint */
@@ -3383,7 +3383,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 147: /*  wlanSSID */
 		        ti = proto_tree_add_item(pdutree, hf_cflow_wlan_ssid,
-					    tvb, offset, length, ENC_NA);
+					    tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 148: /*  flowId */
@@ -3867,7 +3867,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 236: /* VRFname */
 			ti = proto_tree_add_item(pdutree, hf_cflow_vrfname,
-				tvb, offset, length, ENC_NA);
+				tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 237: /* postMplsTopLabelExp */
@@ -3922,7 +3922,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 247: /* metroEvcId */
 			ti = proto_tree_add_item(pdutree, hf_cflow_metro_evc_id,
-				tvb, offset, length, ENC_NA);
+				tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 248: /* metroEvcType */
@@ -4246,7 +4246,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 335: /* selectorName */
 			ti = proto_tree_add_item(pdutree, hf_cflow_selector_name,
-				tvb, offset, length, ENC_NA);
+				tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 336: /* upperCILimit */
@@ -4271,12 +4271,12 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 340: /* informationElementDescription */
 			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_description,
-				tvb, offset, length, ENC_NA);
+				tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 341: /* informationElementName */
 			ti = proto_tree_add_item(pdutree, hf_cflow_information_element_name,
-				tvb, offset, length, ENC_NA);
+				tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 342: /* informationElementRangeBegin */
@@ -4430,7 +4430,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 		case 24629: /* natContextName */
 			ti = proto_tree_add_item(pdutree, hf_cflow_nat_context_name,
-				tvb, offset, length, ENC_UTF_8);
+				tvb, offset, length, ENC_UTF_8|ENC_NA);
 			break;
 		case 24630: /* natAssignTime */
 			ts.secs = tvb_get_ntohl(tvb, offset);
@@ -4476,7 +4476,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 			break;
 		case 40000: /* NF_F_USERNAME[_MAX] */
 			proto_tree_add_item(pdutree, hf_cflow_aaa_username,
-				tvb, offset, length, ENC_NA);
+				tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		/* CACE Technologies */
@@ -4622,22 +4622,22 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 101):		  /* SRC_IP_COUNTRY */
 		case ((VENDOR_NTOP << 16) | 101): /* SRC_IP_COUNTRY */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_src_ip_country,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 		case (NTOP_BASE + 102):		  /* SRC_IP_CITY */
 		case ((VENDOR_NTOP << 16) | 102): /* SRC_IP_CITY */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_src_ip_city,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 		case (NTOP_BASE + 103):		  /* DST_IP_COUNTRY */
 		case ((VENDOR_NTOP << 16) | 103): /* DST_IP_COUNTRY */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_dst_ip_country,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 		case (NTOP_BASE + 104):		  /* DST_IP_CITY */
 		case ((VENDOR_NTOP << 16) | 104): /* DST_IP_CITY */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_dst_ip_city,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 		case (NTOP_BASE + 105):	          /* FLOW_PROTO_PORT */
 		case ((VENDOR_NTOP << 16) | 105): /* FLOW_PROTO_PORT */
@@ -4709,7 +4709,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 120):		  /* DUMP_PATH */
 		case ((VENDOR_NTOP << 16) | 120): /* DUMP_PATH */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_dump_path,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case (NTOP_BASE + 130):		  /* SIP_CALL_ID */
@@ -4844,7 +4844,7 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 		case (NTOP_BASE + 169):		  /* PROC_NAME */
 		case ((VENDOR_NTOP << 16) | 169): /* PROC_NAME */
 			ti = proto_tree_add_item(pdutree, hf_pie_ntop_proc_name,
-						 tvb, offset, length, FALSE);
+						 tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 		case (NTOP_BASE + 180):		  /* HTTP_URL */
 		case ((VENDOR_NTOP << 16) | 180): /* HTTP_URL */

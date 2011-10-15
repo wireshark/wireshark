@@ -105,7 +105,7 @@ dissect_wsmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                 hf_wsmp_acmlength, tvb, offset, 1, ENC_BIG_ENDIAN);
                 offset ++;
 				
-                proto_tree_add_item(wsmp_tree, hf_wsmp_acm, tvb, offset, acmlength, FALSE);
+                proto_tree_add_item(wsmp_tree, hf_wsmp_acm, tvb, offset, acmlength, ENC_ASCII|ENC_NA);
                 offset +=acmlength;
 
                 wsmlength = tvb_get_letohs( tvb, offset);

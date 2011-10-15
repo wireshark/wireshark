@@ -125,7 +125,7 @@ static void dissect_packetlogger (tvbuff_t *tvb, packet_info *pinfo, proto_tree 
     case PKT_POWER:
     case PKT_NOTE:
     case PKT_NEW_CONTROLLER:
-      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item (packetlogger_tree, hf_info, next_tvb, 0, len, ENC_ASCII|ENC_NA);
       col_add_fstr (pinfo->cinfo, COL_INFO, "%s", tvb_format_stringzpad_wsp (next_tvb, 0, len));
       break;
     default:

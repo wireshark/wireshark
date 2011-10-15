@@ -342,7 +342,7 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
     }
 
   /* byte name[MAXVLCELLCHARS];          Cell name */
-  proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_NA);
+  proto_tree_add_item (tree, hf_fldb_vlconf_cell_name, tvb, offset, 114, ENC_ASCII|ENC_NA);
   name = tvb_get_ephemeral_string (tvb, offset, MAXVLCELLCHARS); /* XXX why 114 above and 128 here?? */
   offset += MAXVLCELLCHARS;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -381,7 +381,7 @@ dissect_vlconf_cell (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXVLHOSTSPERCELL; i++)
     {
       proto_tree_add_item (tree, hf_fldb_vlconf_cell_hostname, tvb, offset,
-			     64, ENC_NA);
+			     64, ENC_ASCII|ENC_NA);
       hostname = tvb_get_ephemeral_string (tvb, offset, 64);
       offset += 64;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -473,7 +473,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 /* proto_tree_add_string(tree, id, tvb, start, length, value_ptr); */
       proto_tree_add_item (tree,
 			     hf_fldb_afsNameString_t_principalName_string,
-			     tvb, offset, string_size, ENC_NA);
+			     tvb, offset, string_size, ENC_ASCII|ENC_NA);
       namestring = tvb_get_ephemeral_string (tvb, offset, string_size);
       offset += string_size;
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -699,7 +699,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 /*    byte            name[114];      Volume name  */
 
   proto_tree_add_item (tree, hf_fldb_vldbentry_volumename, tvb, offset, 114,
-		       ENC_NA);
+		       ENC_ASCII|ENC_NA);
   volumename = tvb_get_ephemeral_string (tvb, offset, 114);
   offset += 110;		/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -767,7 +767,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
   for (i = 0; i < MAXNSERVERS; i++)
     {
       proto_tree_add_item (tree, hf_fldb_vldbentry_siteprincipal, tvb,
-			   offset, 64, ENC_NA);
+			   offset, 64, ENC_ASCII|ENC_NA);
       siteprincipal = tvb_get_ephemeral_string (tvb, offset, 64);
       offset += 64;
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -945,7 +945,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /* byte            LockerName[MAXLOCKNAMELEN]; */
   proto_tree_add_item (tree, hf_fldb_vldbentry_lockername, tvb, offset,
-		       MAXLOCKNAMELEN, ENC_NA);
+		       MAXLOCKNAMELEN, ENC_ASCII|ENC_NA);
   lockername = tvb_get_ephemeral_string (tvb, offset, MAXLOCKNAMELEN);
   offset += MAXLOCKNAMELEN;	/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -953,7 +953,7 @@ dissect_vldbentry (tvbuff_t * tvb, int offset,
 
   /*     byte            charSpares[50]; */
   proto_tree_add_item (tree, hf_fldb_vldbentry_charspares, tvb, offset, 50,
-		       ENC_NA);
+		       ENC_ASCII|ENC_NA);
   charspares = tvb_get_ephemeral_string (tvb, offset, 50);
   offset += 50;			/* some reason this 114 seems to be incorrect... cutting 4 short to compensate.... */
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1111,7 +1111,7 @@ fldb_dissect_getsiteinfo_resp (tvbuff_t * tvb, int offset,
 
   offset += 48;			/* part of kerbprin before name... */
 
-  proto_tree_add_item (tree, hf_fldb_namestring, tvb, offset, 64, ENC_NA);
+  proto_tree_add_item (tree, hf_fldb_namestring, tvb, offset, 64, ENC_ASCII|ENC_NA);
   namestring = tvb_get_ephemeral_string (tvb, offset, 64);
   offset += 64;
   if (check_col (pinfo->cinfo, COL_INFO))

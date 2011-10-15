@@ -666,7 +666,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
                   PROTO_ITEM_SET_GENERATED(it);
                }
                else
-                  proto_tree_add_item( port_tree, hf_cip_link_address_string, tvb, offset+pathpos+2, opt_link_size, FALSE );
+                  proto_tree_add_item( port_tree, hf_cip_link_address_string, tvb, offset+pathpos+2, opt_link_size, ENC_ASCII|ENC_NA );
                proto_item_append_text( epath_item, ", Address: %s", tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
                proto_item_append_text( port_item,  ", Address: %s", tvb_format_text(tvb, offset+pathpos+2, opt_link_size) );
 
@@ -1322,7 +1322,7 @@ dissect_epath( tvbuff_t *tvb, proto_item *epath_item, int offset, int path_lengt
 
                      proto_item_append_text(epath_item, "%s", tvb_format_text(tvb, offset + pathpos + 2, seg_size ) );
 
-                     hidden_item = proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, FALSE );
+                     hidden_item = proto_tree_add_item( ds_tree, hf_cip_symbol, tvb, offset + pathpos + 2, seg_size, ENC_ASCII|ENC_NA );
                      PROTO_ITEM_SET_HIDDEN(hidden_item);
 
                      if( seg_size %2 )

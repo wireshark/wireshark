@@ -1640,7 +1640,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		 * should we check for non-printables?
 		 */
 
-		proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_id, tvb, optoff, consumed-2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_vendor_class_id, tvb, optoff, consumed-2, ENC_ASCII|ENC_NA);
 		if ((tvb_memeql(tvb, optoff, (const guint8*)PACKETCABLE_MTA_CAP10,
 				      (int)strlen(PACKETCABLE_MTA_CAP10)) == 0)
 		    ||
@@ -1856,7 +1856,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 		optoff++;
 		optleft = optlen - 1;
-		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_string, tvb, optoff, optleft, ENC_BIG_ENDIAN);
+		proto_tree_add_item(v_tree, hf_bootp_option_slp_service_scope_string, tvb, optoff, optleft, ENC_ASCII|ENC_NA);
 		break;
 
 	case 81:	/* Client Fully Qualified Domain Name */
@@ -1882,7 +1882,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				    tvb, optoff+3, optlen-3, dns_name);
 			} else {
 				proto_tree_add_item(v_tree, hf_bootp_fqdn_asciiname,
-				    tvb, optoff+3, optlen-3, ENC_BIG_ENDIAN);
+				    tvb, optoff+3, optlen-3, ENC_ASCII|ENC_NA);
 			}
 		}
 		break;
@@ -1897,7 +1897,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		/* Option 85 can be sent as a string */
 		/* Added by Greg Morris (gmorris[AT]novell.com) */
 		if (novell_string) {
-			proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_string, tvb, optoff, optlen, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_novell_dss_string, tvb, optoff, optlen, ENC_ASCII|ENC_NA);
 		} else{
 			/* IP addresses */
 			for (i = optoff, optleft = optlen; optleft > 0;
@@ -1966,7 +1966,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			break;
 
 		default:
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_rdv, tvb, optoff, 8, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_rdm_rdv, tvb, optoff, 8, ENC_ASCII|ENC_NA);
 			break;
 		}
 		optoff += 8;
@@ -1990,7 +1990,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_secret_id, tvb, optoff, 4, ENC_BIG_ENDIAN);
 					optoff += 4;
 					optleft -= 4;
-					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, optoff, 16, ENC_BIG_ENDIAN);
+					proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_hmac_md5_hash, tvb, optoff, 16, ENC_ASCII|ENC_NA);
 					break;
 				}
 
@@ -1998,7 +1998,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 				if (optleft == 0)
 					break;
 
-				proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, ENC_BIG_ENDIAN);
+				proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, ENC_ASCII|ENC_NA);
 				break;
 			}
 			break;
@@ -2007,7 +2007,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			if (optleft == 0)
 				break;
 
-			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_dhcp_authentication_information, tvb, optoff, optleft, ENC_ASCII|ENC_NA);
 			break;
 		}
 		break;
@@ -2018,7 +2018,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 		if (optleft >= 3)
 		{
 			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_what, tvb, optoff, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_country, tvb, optoff+1, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_civic_location_country, tvb, optoff+1, 2, ENC_ASCII|ENC_NA);
 			optleft = optleft - 3;
 			optoff = optoff + 3;
 
@@ -2036,7 +2036,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 
 				if (optleft >= calength)
 				{
-					proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_value, tvb, optoff, calength, ENC_BIG_ENDIAN);
+					proto_tree_add_item(v_tree, hf_bootp_option_civic_location_ca_value, tvb, optoff, calength, ENC_ASCII|ENC_NA);
 
 					optoff = optoff + calength;
 					optleft = optleft - calength;
@@ -2128,14 +2128,14 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1, 1, ENC_BIG_ENDIAN);
 			s_len = tvb_get_guint8(tvb, optoff+1);
-			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2, s_len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2, s_len, ENC_ASCII|ENC_NA);
 
 			if (optlen > s_len+2) { /* Second DSS_ID*/
 
 				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_option, tvb, optoff+2+s_len, 1, ENC_BIG_ENDIAN);
 				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id_len, tvb, optoff+1+2+s_len, 1, ENC_BIG_ENDIAN);
 				s_len = tvb_get_guint8(tvb, optoff+1+2+s_len);
-				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2+2+s_len, s_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(v_tree, hf_bootp_option_cl_dss_id, tvb, optoff+2+2+s_len, s_len, ENC_ASCII|ENC_NA);
 			}
 		} else {
 			expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "Invalid length of DHCP option!");
@@ -2168,7 +2168,7 @@ bootp_option(tvbuff_t *tvb, packet_info *pinfo, proto_tree *bp_tree, int voff,
 			optoff += 5;
 			optleft -= 5;
 
-			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data, tvb, optoff, data_len, ENC_BIG_ENDIAN);
+			proto_tree_add_item(v_tree, hf_bootp_option_vi_class_data, tvb, optoff, data_len, ENC_ASCII|ENC_NA);
 
 			/* look for next enterprise number */
 			optoff += data_len;
@@ -2851,7 +2851,7 @@ dissect_vendor_cablelabs_suboption(packet_info *pinfo, proto_item *v_ti, proto_t
 				proto_tree_add_bytes_format_value(o43cl_v_tree, hf_bootp_option43_cl_oui_bytes, tvb, suboptoff, subopt_len, NULL,
 					"%02x:%02x:%02x", tvb_get_guint8(tvb, suboptoff), tvb_get_guint8(tvb, suboptoff+1), tvb_get_guint8(tvb, suboptoff+2));
 			} else if (subopt_len == 6) {
-				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_oui_string, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(o43cl_v_tree, hf_bootp_option43_cl_oui_string, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
 			} else {
 				expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "length isn't 3 or 6");
 			}
@@ -2975,7 +2975,7 @@ dissect_vendor_alcatel_suboption(packet_info *pinfo, proto_item *v_ti, proto_tre
 		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_app_type, tvb, suboptoff, 1, ENC_BIG_ENDIAN);
 		break;
 	case 67: /* 0x43 - Alcatel-Lucent SIP URL */
-		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_sip_url, tvb, suboptoff, subopt_len, ENC_BIG_ENDIAN);
+		proto_tree_add_item(o43alcatel_v_tree, hf_bootp_option43_alcatel_sip_url, tvb, suboptoff, subopt_len, ENC_ASCII|ENC_NA);
 		break;
 	default:
 		expert_add_info_format(pinfo, vti, PI_PROTOCOL, PI_ERROR, "ERROR, please report: Unknown subopt type handler %d", subopt);
@@ -4720,7 +4720,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tvb_get_guint8(tvb, SERVER_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_server, tvb,
 					   SERVER_NAME_OFFSET,
-					   SERVER_NAME_LEN, ENC_BIG_ENDIAN);
+					   SERVER_NAME_LEN, ENC_ASCII|ENC_NA);
 
 		} else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_server, tvb,
@@ -4739,7 +4739,7 @@ dissect_bootp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (tvb_get_guint8(tvb, FILE_NAME_OFFSET) != '\0') {
 			proto_tree_add_item(bp_tree, hf_bootp_file, tvb,
 					   FILE_NAME_OFFSET,
-					   FILE_NAME_LEN, ENC_BIG_ENDIAN);
+					   FILE_NAME_LEN, ENC_ASCII|ENC_NA);
 		} else {
 			proto_tree_add_string_format(bp_tree, hf_bootp_file, tvb,
 						   FILE_NAME_OFFSET,

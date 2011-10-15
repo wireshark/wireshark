@@ -117,7 +117,7 @@ static int dissect_ssi_item(tvbuff_t *tvb, packet_info *pinfo _U_, int offset, p
 
 	/* Buddy Name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(ssi_entry, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
 		offset += buddyname_length;
 	}
 
@@ -242,7 +242,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 
 	/* show buddy name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
 		offset += buddyname_length;
 	}
 	/* get reason message length (2 bytes) */
@@ -252,7 +252,7 @@ static int dissect_aim_snac_ssi_auth_request(tvbuff_t *tvb, packet_info *pinfo _
 
 	/* show reason message if present */
 	if (reason_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_ASCII|ENC_NA);
 		offset += reason_length;
 	}
 
@@ -276,7 +276,7 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 
 	/* show buddy name */
 	if (buddyname_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
 		offset += buddyname_length;
 	}
 
@@ -291,7 +291,7 @@ static int dissect_aim_snac_ssi_auth_reply(tvbuff_t *tvb, packet_info *pinfo _U_
 
 	/* show reason message if present */
 	if (reason_length > 0) {
-		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(tree, hf_aim_fnac_subtype_ssi_reason_str, tvb, offset, reason_length, ENC_ASCII|ENC_NA);
 		offset += reason_length;
 	}
 

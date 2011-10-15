@@ -3545,7 +3545,7 @@ static void dissect_r3_upstreamcommand_debugmsg (tvbuff_t *tvb, guint32 start_of
   debugmsg_item = proto_tree_add_text (tree, tvb, start_offset, -1, "Debug message");
   debugmsg_tree = proto_item_add_subtree (debugmsg_item, ett_r3debugmsg);
 
-  proto_tree_add_item (debugmsg_tree, hf_r3_debugmsg, tvb, start_offset + 1, -1, TRUE);
+  proto_tree_add_item (debugmsg_tree, hf_r3_debugmsg, tvb, start_offset + 1, -1, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_r3_upstreamcommand_queryversion (tvbuff_t *tvb, guint32 start_offset, guint32 length, packet_info *pinfo, proto_tree *tree)
@@ -3653,7 +3653,7 @@ static void dissect_r3_upstreamcommand_queryconfig (tvbuff_t *tvb, guint32 start
         break;
 
       case CONFIGTYPE_STRING :
-        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_string, tvb, offset + 3, tvb_get_guint8 (tvb, offset + 0) - 3, TRUE);
+        proto_tree_add_item (upstreamfield_tree, hf_r3_configitemdata_string, tvb, offset + 3, tvb_get_guint8 (tvb, offset + 0) - 3, ENC_ASCII|ENC_NA);
         break;
 
       default :
@@ -4422,12 +4422,12 @@ static void dissect_r3_upstreammfgfield_keypadchar (tvbuff_t *tvb, guint32 start
 
 static void dissect_r3_upstreammfgfield_magcard (tvbuff_t *tvb, guint32 start_offset _U_, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree_add_item (tree, hf_r3_testmagcard, tvb, 0, -1, TRUE);
+  proto_tree_add_item (tree, hf_r3_testmagcard, tvb, 0, -1, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_r3_upstreammfgfield_proxcard (tvbuff_t *tvb, guint32 start_offset _U_, guint32 length _U_, packet_info *pinfo _U_, proto_tree *tree)
 {
-  proto_tree_add_item (tree, hf_r3_testproxcard, tvb, 0, -1, TRUE);
+  proto_tree_add_item (tree, hf_r3_testproxcard, tvb, 0, -1, ENC_ASCII|ENC_NA);
 }
 
 /*
@@ -4607,7 +4607,7 @@ static void dissect_r3_cmd_setconfig (tvbuff_t *tvb, guint32 start_offset, guint
           break;
 
         case CONFIGTYPE_STRING :
-          proto_tree_add_item (sc_tree, hf_r3_configitemdata_string, payload_tvb, offset + 2, tvb_get_guint8 (payload_tvb, offset + 0) - 2, TRUE);
+          proto_tree_add_item (sc_tree, hf_r3_configitemdata_string, payload_tvb, offset + 2, tvb_get_guint8 (payload_tvb, offset + 0) - 2, ENC_ASCII|ENC_NA);
           break;
 
         default :
@@ -5587,7 +5587,7 @@ static gint dissect_r3_packet (tvbuff_t *tvb, guint start_offset, packet_info *p
   if (!(tvb_strneql (tvb, start_offset, "~~~ds", 5)))
   {
     if (r3_tree)
-      proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, start_offset + 0, -1, TRUE);
+      proto_tree_add_item (r3_tree, hf_r3_tildex3ds, tvb, start_offset + 0, -1, ENC_ASCII|ENC_NA);
 
     offset = start_offset + 5;
   }

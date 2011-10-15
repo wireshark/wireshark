@@ -71,7 +71,7 @@ rs_acct_dissect_lookup_rqst (tvbuff_t *tvb, int offset,
 			hf_rs_acct_lookup_rqst_key_size, &key_size);
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
-		proto_tree_add_item (tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, key_size, ENC_NA);
+		proto_tree_add_item (tree, hf_rs_acct_lookup_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA);
 		keyx_t = tvb_get_ephemeral_string(tvb, offset, key_size);
 		offset += key_size;
 
@@ -102,7 +102,7 @@ rs_acct_dissect_get_projlist_rqst (tvbuff_t *tvb, int offset,
 			hf_rs_acct_get_projlist_rqst_key_size, &key_size);
 
 	proto_tree_add_item (tree, hf_rs_acct_get_projlist_rqst_key_t,
-			     tvb, offset, key_size, ENC_NA);
+			     tvb, offset, key_size, ENC_ASCII|ENC_NA);
 	keyx_t = tvb_get_ephemeral_string(tvb, offset, key_size);
 	offset += key_size;
 

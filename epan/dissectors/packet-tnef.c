@@ -293,14 +293,14 @@ static gint dissect_counted_address(tvbuff_t *tvb, gint offset, packet_info *pin
 	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	 offset += 2;
 
-	 proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, FALSE);
+	 proto_tree_add_item(tree, hf_tnef_attribute_display_name, tvb, offset, length, ENC_ASCII|ENC_NA);
 	 offset += length;
 
 	 length = tvb_get_letohs(tvb, offset);
 	 proto_tree_add_item(tree, hf_tnef_value_length, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 	 offset += 2;
 
-	 proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, FALSE);
+	 proto_tree_add_item(tree, hf_tnef_attribute_email_address, tvb, offset, length, ENC_ASCII|ENC_NA);
 	 offset += length;
 
 	 return offset;
@@ -576,10 +576,10 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	    proto_tree_add_item(attr_tree, hf_tnef_version, tvb, offset, length, ENC_LITTLE_ENDIAN);
 	    break;
     case ATT_MESSAGE_CLASS:
-	    proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, TRUE);
+	    proto_tree_add_item(attr_tree, hf_tnef_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
 	    break;
     case ATT_ORIGINAL_MESSAGE_CLASS:
-	    proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, TRUE);
+	    proto_tree_add_item(attr_tree, hf_tnef_original_message_class, tvb, offset, length, ENC_ASCII|ENC_NA);
 	    break;
     case ATT_MAPI_PROPS:
 	    item = proto_tree_add_item(attr_tree, hf_tnef_mapi_props, tvb, offset, length, ENC_NA);
@@ -613,7 +613,7 @@ static void dissect_tnef(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		    break;
 	    case ATP_STRING:
-		    proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, FALSE);
+		    proto_tree_add_item(attr_tree, hf_tnef_attribute_string, tvb, offset, length, ENC_ASCII|ENC_NA);
 		    proto_item_append_text(attr_item, " %s", tvb_get_ephemeral_string(tvb, offset, length));
 		    break;
 	    default:

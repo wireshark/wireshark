@@ -253,7 +253,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_version, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_version, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_version);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += 2;
@@ -263,13 +263,13 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uname);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_aname);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
@@ -280,7 +280,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		break;
 	case RERROR:
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_ename, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_ename, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_ename);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset +=2;
@@ -299,13 +299,13 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uname, tvb, offset+2, tmp16, ENC_ASCII|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uname);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16 + 2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_aname, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_aname);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
@@ -338,7 +338,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			proto_tree *wname_tree;
 
 			tmplen = tvb_get_letohs(tvb,offset);
-			wname = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, tmplen, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+			wname = proto_tree_add_item(ninep_tree, hf_9P_wname, tvb, offset+2, tmplen, ENC_UTF_8|ENC_NA);
 			wname_tree = proto_item_add_subtree(wname,ett_9P_wname);
 			proto_tree_add_item(wname_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 
@@ -379,7 +379,7 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=4;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_name, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_name, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_filename);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16 + 2;
@@ -483,25 +483,25 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=8;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_filename);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uid);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_gid);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_muid);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
@@ -543,25 +543,25 @@ static void dissect_9P(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 		offset +=8;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_filename, tvb, offset+2, tmp16, ENC_ASCII|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_filename);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_uid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_uid);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_gid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_gid);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;
 
 		tmp16 = tvb_get_letohs(tvb,offset);
-		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_LITTLE_ENDIAN);
+		ti = proto_tree_add_item(ninep_tree, hf_9P_muid, tvb, offset+2, tmp16, ENC_UTF_8|ENC_NA);
 		tmp_tree = proto_item_add_subtree(ti,ett_9P_muid);
 		proto_tree_add_item(tmp_tree, hf_9P_parmsz, tvb, offset, 2, ENC_LITTLE_ENDIAN);
 		offset += tmp16+2;

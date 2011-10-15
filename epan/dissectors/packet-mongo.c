@@ -139,9 +139,9 @@ dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
   fcn_tree = proto_item_add_subtree(ti, ett_mongo_fcn);
 
-  proto_tree_add_item(fcn_tree, hf_mongo_database_name, tvb, offset, dbn_length, ENC_NA);
+  proto_tree_add_item(fcn_tree, hf_mongo_database_name, tvb, offset, dbn_length, ENC_ASCII|ENC_NA);
 
-  proto_tree_add_item(fcn_tree, hf_mongo_collection_name, tvb, offset + 1 + dbn_length, fcn_length - dbn_length - 2, ENC_NA);
+  proto_tree_add_item(fcn_tree, hf_mongo_collection_name, tvb, offset + 1 + dbn_length, fcn_length - dbn_length - 2, ENC_ASCII|ENC_NA);
 
   return fcn_length;
 }
@@ -199,7 +199,7 @@ dissect_mongo_msg(tvbuff_t *tvb, guint offset, proto_tree *tree)
 
   proto_item *ti;
 
-  ti = proto_tree_add_item(tree, hf_mongo_message, tvb, offset, -1, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_mongo_message, tvb, offset, -1, ENC_ASCII|ENC_NA);
   offset += proto_item_get_len(ti);
 
   return offset;

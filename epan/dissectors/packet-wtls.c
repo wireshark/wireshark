@@ -573,7 +573,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					size = tvb_get_ntohs (tvb, offset);
 					proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 						hf_wtls_hands_cli_hello_key_parameter_set,
-						tvb,offset,size+2,ENC_BIG_ENDIAN);
+						tvb,offset,size+2,ENC_ASCII|ENC_NA);
 					offset+=size+2;
 					client_size+=size+2;
 				}
@@ -702,7 +702,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 					size = tvb_get_ntohs (tvb, offset);
 					proto_tree_add_item(wtls_msg_type_item_sub_sub_tree,
 						hf_wtls_hands_cli_hello_key_parameter_set,
-						tvb,offset,size+2,ENC_BIG_ENDIAN);
+						tvb,offset,size+2,ENC_ASCII|ENC_NA);
 					offset+=size+2;
 					client_size+=size+2;
 				}
@@ -1016,7 +1016,7 @@ dissect_wtls_handshake(proto_tree *tree, tvbuff_t *tvb, guint offset, guint coun
 							size = tvb_get_ntohs (tvb, offset);
 							proto_tree_add_item(wtls_msg_type_item_sub_tree,
 								hf_wtls_hands_certificate_wtls_key_parameter_set,
-								tvb,offset,size+2,ENC_BIG_ENDIAN);
+								tvb,offset,size+2,ENC_ASCII|ENC_NA);
 							offset+=size+2;
 							client_size+=size+2;
 						}

@@ -1430,7 +1430,7 @@ dissect_conn_desc(tvbuff_t *tvb, gint offset,
         /* everything from here to the descriptor's end is a hostname */
         hostname_len = (offset_body+len_field)-offset;
         proto_tree_add_item(conn_desc_tree, hf_dvbci_lsc_hostname,
-                tvb, offset, hostname_len, ENC_ASCII|ENC_BIG_ENDIAN);
+                tvb, offset, hostname_len, ENC_ASCII|ENC_NA);
         offset += hostname_len;
     } else {
         proto_tree_add_text(conn_desc_tree, tvb,
@@ -2266,11 +2266,11 @@ dissect_dvbci_payload_hlc(guint32 tag, gint len_field _U_,
 
   if (tag==T_HOST_COUNTRY) {
       proto_tree_add_item(tree, hf_dvbci_host_country,
-              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
   }
   else if (tag==T_HOST_LANGUAGE) {
       proto_tree_add_item(tree, hf_dvbci_host_language,
-              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_BIG_ENDIAN);
+              tvb, offset, tvb_reported_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
   }
 
   /* both apdus' body is only a country code, this can be shared */
@@ -2515,7 +2515,7 @@ dissect_dvbci_payload_cc(guint32 tag, gint len_field _U_,
         case T_CC_PIN_MMI_REQ:
             proto_tree_add_item(tree, hf_dvbci_pincode, tvb, offset,
                     tvb_reported_length_remaining(tvb, offset),
-                    ENC_ASCII|ENC_BIG_ENDIAN);
+                    ENC_ASCII|ENC_NA);
             break;
         default:
             break;
@@ -2551,7 +2551,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
                     "Initial Object length %d", init_obj_len);
             offset++;
             proto_tree_add_item(tree, hf_dvbci_app_dom_id,
-                    tvb, offset, app_dom_id_len, ENC_BIG_ENDIAN);
+                    tvb, offset, app_dom_id_len, ENC_ASCII|ENC_NA);
             app_dom_id = tvb_get_ephemeral_string(tvb, offset, app_dom_id_len);
             if (app_dom_id) {
                 col_append_sep_fstr(pinfo->cinfo, COL_INFO, " ",
@@ -2559,7 +2559,7 @@ dissect_dvbci_payload_ami(guint32 tag, gint len_field _U_,
             }
             offset += app_dom_id_len;
             proto_tree_add_item(tree, hf_dvbci_init_obj,
-                    tvb, offset, init_obj_len, ENC_BIG_ENDIAN);
+                    tvb, offset, init_obj_len, ENC_ASCII|ENC_NA);
             break;
         case T_REQUEST_START_ACK:
             ack_code = tvb_get_guint8(tvb, offset);

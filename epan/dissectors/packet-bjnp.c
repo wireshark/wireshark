@@ -100,7 +100,7 @@ static void dissect_bjnp (tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
   ti = proto_tree_add_item (tree, proto_bjnp, tvb, offset, -1, ENC_NA);
   bjnp_tree = proto_item_add_subtree (ti, ett_bjnp);
 
-  proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, ENC_BIG_ENDIAN);
+  proto_tree_add_item (bjnp_tree, hf_bjnp_id, tvb, offset, 4, ENC_ASCII|ENC_NA);
   offset += 4;
 
   dev_type = tvb_get_guint8 (tvb, offset);

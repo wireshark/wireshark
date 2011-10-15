@@ -362,7 +362,7 @@ dissect_sdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     type = tvb_get_guint8(tvb,offset);
     delim = tvb_get_guint8(tvb,offset + 1);
     if (delim != '=') {
-      proto_item *ti2 = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, FALSE);
+      proto_item *ti2 = proto_tree_add_item(sdp_tree, hf_invalid, tvb, offset, linelen, ENC_ASCII|ENC_NA);
       expert_add_info_format(pinfo, ti2, PI_MALFORMED, PI_NOTE,
                              "Invalid SDP line (no '=' delimiter)");
       offset = next_offset;
@@ -636,7 +636,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_owner_tree, hf_owner_username, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
   offset = next_offset  + 1;
 
   /* Find the session id */
@@ -646,7 +646,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_owner_tree, hf_owner_sessionid, tvb, offset,
-                      tokenlen, FALSE);
+                      tokenlen, ENC_ASCII|ENC_NA);
   offset = next_offset + 1;
 
   /* Find the version */
@@ -656,7 +656,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_owner_tree, hf_owner_version, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
   offset = next_offset + 1;
 
   /* Find the network type */
@@ -666,7 +666,7 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_owner_tree, hf_owner_network_type, tvb, offset,
-                      tokenlen, FALSE);
+                      tokenlen, ENC_ASCII|ENC_NA);
   offset = next_offset + 1;
 
   /* Find the address type */
@@ -676,11 +676,11 @@ dissect_sdp_owner(tvbuff_t *tvb, proto_item *ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_owner_tree, hf_owner_address_type, tvb, offset,
-                      tokenlen, FALSE);
+                      tokenlen, ENC_ASCII|ENC_NA);
   offset = next_offset + 1;
 
   /* Find the address */
-  proto_tree_add_item(sdp_owner_tree,hf_owner_address, tvb, offset, -1, FALSE);
+  proto_tree_add_item(sdp_owner_tree,hf_owner_address, tvb, offset, -1, ENC_ASCII|ENC_NA);
 }
 
 /*
@@ -708,7 +708,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
 
   proto_tree_add_item(sdp_connection_info_tree,
                       hf_connection_info_network_type, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
   offset = next_offset + 1;
 
   /* Find the address type */
@@ -722,7 +722,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
 
   proto_tree_add_item(sdp_connection_info_tree,
                       hf_connection_info_address_type, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
   offset = next_offset + 1;
 
   /* Find the connection address */
@@ -741,7 +741,7 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
 
   proto_tree_add_item(sdp_connection_info_tree,
                       hf_connection_info_connection_address, tvb, offset,
-                      tokenlen, FALSE);
+                      tokenlen, ENC_ASCII|ENC_NA);
   if(next_offset != -1){
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset,-1,'/');
@@ -751,11 +751,11 @@ dissect_sdp_connection_info(tvbuff_t *tvb, proto_item* ti,
       tokenlen = next_offset - offset;
     }
     proto_tree_add_item(sdp_connection_info_tree,
-                        hf_connection_info_ttl, tvb, offset, tokenlen, FALSE);
+                        hf_connection_info_ttl, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
     if(next_offset != -1){
       offset = next_offset + 1;
       proto_tree_add_item(sdp_connection_info_tree,
-                          hf_connection_info_num_addr, tvb, offset, -1, FALSE);
+                          hf_connection_info_num_addr, tvb, offset, -1, ENC_ASCII|ENC_NA);
     }
   }
 }
@@ -783,7 +783,7 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   tokenlen = next_offset - offset;
 
   item = proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_modifier, tvb, offset,
-                      tokenlen, FALSE);
+                      tokenlen, ENC_ASCII|ENC_NA);
   if (tvb_strneql(tvb, offset, "CT", 2) == 0){
     proto_item_append_text(item, " [Conference Total(total bandwidth of all RTP sessions)]");
     unit_is_kbs = TRUE;
@@ -799,7 +799,7 @@ dissect_sdp_bandwidth(tvbuff_t *tvb, proto_item *ti){
   offset = next_offset + 1;
 
   item = proto_tree_add_item(sdp_bandwidth_tree, hf_bandwidth_value, tvb, offset, -1,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
   if (unit_is_kbs == TRUE)
     proto_item_append_text(item, " kb/s");
   if (unit_is_bps == TRUE)
@@ -823,11 +823,11 @@ static void dissect_sdp_time(tvbuff_t *tvb, proto_item* ti){
 
   tokenlen = next_offset - offset;
   proto_tree_add_item(sdp_time_tree, hf_time_start, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
 
   /* get stop time */
   offset = next_offset + 1;
-  proto_tree_add_item(sdp_time_tree, hf_time_stop, tvb, offset, -1, FALSE);
+  proto_tree_add_item(sdp_time_tree, hf_time_stop, tvb, offset, -1, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
@@ -847,7 +847,7 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
 
   tokenlen = next_offset - offset;
   proto_tree_add_item(sdp_repeat_time_tree, hf_repeat_time_interval, tvb,
-                      offset, tokenlen, FALSE);
+                      offset, tokenlen, ENC_ASCII|ENC_NA);
 
   /* get duration */
   offset = next_offset + 1;
@@ -857,7 +857,7 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
 
   tokenlen = next_offset - offset;
   proto_tree_add_item(sdp_repeat_time_tree,hf_repeat_time_duration, tvb,
-                      offset, tokenlen, FALSE);
+                      offset, tokenlen, ENC_ASCII|ENC_NA);
 
   /* get offsets */
   do{
@@ -869,7 +869,7 @@ static void dissect_sdp_repeat_time(tvbuff_t *tvb, proto_item* ti){
       tokenlen = -1; /* end of tvbuff */
     }
     proto_tree_add_item(sdp_repeat_time_tree, hf_repeat_time_offset,
-                        tvb, offset, tokenlen, FALSE);
+                        tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
   } while( next_offset != -1 );
 
 }
@@ -890,7 +890,7 @@ dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti){
     tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_timezone_tree, hf_timezone_time, tvb, offset,
-                        tokenlen, FALSE);
+                        tokenlen, ENC_ASCII|ENC_NA);
     offset = next_offset + 1;
     next_offset = tvb_find_guint8(tvb,offset,-1,' ');
     if(next_offset != -1){
@@ -899,7 +899,7 @@ dissect_sdp_timezone(tvbuff_t *tvb, proto_item* ti){
       tokenlen = -1; /* end of tvbuff */
     }
     proto_tree_add_item(sdp_timezone_tree, hf_timezone_offset, tvb, offset,
-                        tokenlen, FALSE);
+                        tokenlen, ENC_ASCII|ENC_NA);
     offset = next_offset + 1;
   } while (next_offset != -1);
 
@@ -924,11 +924,11 @@ static void dissect_sdp_encryption_key(tvbuff_t *tvb, proto_item * ti){
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_encryption_key_tree,hf_encryption_key_type,
-                      tvb, offset, tokenlen, FALSE);
+                      tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
   offset = next_offset + 1;
   proto_tree_add_item(sdp_encryption_key_tree,hf_encryption_key_data,
-                      tvb, offset, -1, FALSE);
+                      tvb, offset, -1, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti){
@@ -952,7 +952,7 @@ static void dissect_key_mgmt(tvbuff_t *tvb, packet_info * pinfo, proto_item * ti
   tokenlen = next_offset - offset;
   prtcl_id = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
-  proto_tree_add_item(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, FALSE);
+  proto_tree_add_item(key_tree, hf_key_mgmt_prtcl_id, tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
   offset = next_offset + 1;
 
@@ -1004,7 +1004,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
   tokenlen = next_offset - offset;
 
   proto_tree_add_item(sdp_session_attribute_tree, hf_session_attribute_field,
-                      tvb, offset, tokenlen, FALSE);
+                      tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
 
   field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
@@ -1023,7 +1023,7 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
 
     tokenlen = next_offset - offset;
 
-    proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_version,tvb,offset,tokenlen,FALSE);
+    proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_version,tvb,offset,tokenlen,ENC_ASCII|ENC_NA);
 
     offset = tvb_pbrk_guint8(tvb,offset,-1,(guint8 *)"ABCDEFGHIJKLMNOPQRSTUVWXYZ", NULL);
 
@@ -1035,18 +1035,18 @@ static void dissect_sdp_session_attribute(tvbuff_t *tvb, packet_info * pinfo, pr
     if (tokenlen == -1)
       return;
 
-    proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_type,tvb,offset,tokenlen,FALSE);
+    proto_tree_add_item(sdp_session_attribute_tree,hf_ipbcp_type,tvb,offset,tokenlen,ENC_ASCII|ENC_NA);
   } else if (strcmp((char*)field_name, "key-mgmt") == 0) {
     tvbuff_t *key_tvb;
     proto_item *key_ti;
 
     key_tvb = tvb_new_subset_remaining(tvb, offset);
-    key_ti = proto_tree_add_item(sdp_session_attribute_tree, hf_key_mgmt_att_value, key_tvb, 0, -1, FALSE);
+    key_ti = proto_tree_add_item(sdp_session_attribute_tree, hf_key_mgmt_att_value, key_tvb, 0, -1, ENC_ASCII|ENC_NA);
 
     dissect_key_mgmt(key_tvb, pinfo, key_ti);
   } else {
     proto_tree_add_item(sdp_session_attribute_tree, hf_session_attribute_value,
-                        tvb, offset, -1, FALSE);
+                        tvb, offset, -1, ENC_ASCII|ENC_NA);
   }
 }
 
@@ -1078,7 +1078,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   /* Type of media session */
   proto_tree_add_item(sdp_media_tree, hf_media_media, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
 
   transport_info->media_type = (char*)tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
@@ -1103,7 +1103,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
       return;
     tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_media_tree, hf_media_portcount, tvb, offset,
-                        tokenlen, FALSE);
+                        tokenlen, ENC_ASCII|ENC_NA);
     offset = next_offset + 1;
   } else {
     next_offset = tvb_find_guint8(tvb,offset, -1, ' ');
@@ -1131,7 +1131,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
 
   /* XXX Remember Protocol */
   proto_tree_add_item(sdp_media_tree, hf_media_proto, tvb, offset, tokenlen,
-                      FALSE);
+                      ENC_ASCII|ENC_NA);
 
   do {
     offset = next_offset + 1;
@@ -1156,7 +1156,7 @@ dissect_sdp_media(tvbuff_t *tvb, proto_item *ti,
         transport_info->media[transport_info->media_count].pt_count++;
     } else {
       proto_tree_add_item(sdp_media_tree, hf_media_format, tvb, offset,
-                          tokenlen, FALSE);
+                          tokenlen, ENC_ASCII|ENC_NA);
     }
   } while (next_offset != -1);
 
@@ -1527,7 +1527,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   tokenlen = colon_offset - offset;
   proto_tree_add_item(sdp_media_attribute_tree,
                       hf_media_attribute_field,
-                      tvb, offset, tokenlen, FALSE);
+                      tvb, offset, tokenlen, ENC_ASCII|ENC_NA);
   /*??field_name = tvb_get_ephemeral_string(tvb, offset, tokenlen);*/
   sdp_media_attrbute_code = find_sdp_media_attribute_names(tvb, offset, tokenlen);
 
@@ -1555,7 +1555,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_format, tvb,
-                        offset, tokenlen, FALSE);
+                        offset, tokenlen, ENC_ASCII|ENC_NA);
 
     payload_type = tvb_get_ephemeral_string(tvb, offset, tokenlen);
 
@@ -1570,7 +1570,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     tokenlen = next_offset - offset;
 
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_encoding_name, tvb,
-                        offset, tokenlen, FALSE);
+                        offset, tokenlen, ENC_ASCII|ENC_NA);
 
     key=g_malloc( sizeof(gint) );
     *key=atol((char*)payload_type);
@@ -1589,7 +1589,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
     }
     tokenlen = next_offset - offset;
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_sample_rate, tvb,
-                        offset, tokenlen, FALSE);
+                        offset, tokenlen, ENC_ASCII|ENC_NA);
     transport_info->sample_rate[pt] = atoi(tvb_get_ephemeral_string(tvb, offset, tokenlen));
     /* As per RFC2327 it is possible to have multiple Media Descriptions ("m=").
        For example:
@@ -1657,7 +1657,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
 
       media_format_item = proto_tree_add_item(sdp_media_attribute_tree,
                                               hf_media_format, tvb, offset,
-                                              tokenlen, FALSE);
+                                              tokenlen, ENC_ASCII|ENC_NA);
       media_format = atoi((char*)tvb_get_ephemeral_string(tvb, offset, tokenlen));
       if (media_format >= SDP_NO_OF_PT) {
         return;   /* Invalid */
@@ -1686,7 +1686,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
         tokenlen = next_offset - offset;
         fmtp_item = proto_tree_add_item(sdp_media_attribute_tree,
                                         hf_media_format_specific_parameter, tvb,
-                                        offset, tokenlen, FALSE);
+                                        offset, tokenlen, ENC_ASCII|ENC_NA);
 
         fmtp_tree = proto_item_add_subtree(fmtp_item, ett_sdp_fmtp);
 
@@ -1766,7 +1766,7 @@ static void dissect_sdp_media_attribute(tvbuff_t *tvb, packet_info *pinfo, proto
   default:
     /* No special treatment for values of this attribute type, just add as one item. */
     proto_tree_add_item(sdp_media_attribute_tree, hf_media_attribute_value,
-                        tvb, offset, -1, FALSE);
+                        tvb, offset, -1, ENC_ASCII|ENC_NA);
     break;
   }
 }

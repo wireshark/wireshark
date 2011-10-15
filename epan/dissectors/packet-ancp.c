@@ -427,7 +427,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                 default:
                     /* Assume TLV value is string - covers ALCID, OAM resp */
                     proto_tree_add_item(tlv_tree, hf_ancp_ext_tlv_value_str,
-                            tvb, offset, tlen, FALSE);
+                            tvb, offset, tlen, ENC_ASCII|ENC_NA);
                     offset += tlen;
                     SKIPPADDING(offset, tlen);
                     break;

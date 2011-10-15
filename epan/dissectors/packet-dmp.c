@@ -3098,12 +3098,12 @@ static void dissect_dmp_structured_id (tvbuff_t *tvb, proto_tree *body_tree,
 
   case STRUCT_ID_STRING:
     dmp.struct_id = tvb_get_ephemeral_string (tvb, offset, (gint) dmp_struct_length);
-    proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, ENC_BIG_ENDIAN);
+    proto_tree_add_item (body_tree, hf_message_bodyid_string, tvb, offset, dmp_struct_length, ENC_ASCII|ENC_NA);
     break;
 
   case STRUCT_ID_ZSTRING:
     dmp.struct_id = tvb_get_ephemeral_stringz (tvb, offset, &length);
-    proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb, offset, length, ENC_BIG_ENDIAN);
+    proto_tree_add_item (body_tree, hf_message_bodyid_zstring, tvb, offset, length, ENC_ASCII|ENC_NA);
     break;
 
   }
@@ -3131,7 +3131,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
     if (dmp_subject_as_id) {
       dmp.struct_id = tvb_get_ephemeral_string (tvb, offset, len);
     }
-    proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_BIG_ENDIAN);
+    proto_tree_add_item (message_tree, hf_message_subject, tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
   }
 
@@ -3205,7 +3205,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
                                                  "Uncompressed User data, "
                                                  "Length: %d", zlen);
                 field_tree = proto_item_add_subtree (tf, ett_message_body_uncompr);
-                proto_tree_add_item (field_tree, hf_message_body_uncompressed, next_tvb, 0, -1, ENC_BIG_ENDIAN);
+                proto_tree_add_item (field_tree, hf_message_body_uncompressed, next_tvb, 0, -1, ENC_ASCII|ENC_NA);
       } else {
                 tf = proto_tree_add_text (message_tree, tvb, offset, -1,
                                           "Error: Unable to uncompress content");
@@ -3213,7 +3213,7 @@ static gint dissect_dmp_message (tvbuff_t *tvb, packet_info *pinfo,
                                         "Unable to uncompress content");
       }
     } else if (eit != EIT_BILATERAL) {
-      proto_tree_add_item (field_tree, hf_message_body_plain, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item (field_tree, hf_message_body_plain, tvb, offset, len, ENC_ASCII|ENC_NA);
     }
   }
   offset += len;
@@ -3373,7 +3373,7 @@ static gint dissect_dmp_report (tvbuff_t *tvb, packet_info *pinfo,
                                 128 - (offset - boffset));
       }
       field_tree = proto_item_add_subtree (tf, ett_report_suppl_info);
-      proto_tree_add_item (field_tree, hf_report_suppl_info, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item (field_tree, hf_report_suppl_info, tvb, offset, len, ENC_ASCII|ENC_NA);
     }
     offset += len;
   }
@@ -3446,7 +3446,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
                                 128 - (offset - boffset));
       }
       field_tree = proto_item_add_subtree (tf, ett_notif_suppl_info);
-      proto_tree_add_item (field_tree, hf_notif_suppl_info, tvb, offset, len, ENC_BIG_ENDIAN);
+      proto_tree_add_item (field_tree, hf_notif_suppl_info, tvb, offset, len, ENC_ASCII|ENC_NA);
     }
     offset += len;
 
@@ -3462,7 +3462,7 @@ static gint dissect_dmp_notification (tvbuff_t *tvb, packet_info *pinfo _U_,
           proto_item_append_text (tf, " (incorrect, must be less than 64)");
         }
         field_tree = proto_item_add_subtree (tf, ett_notif_acp127recip);
-        proto_tree_add_item (field_tree, hf_notif_acp127recip, tvb, offset, len, ENC_BIG_ENDIAN);
+        proto_tree_add_item (field_tree, hf_notif_acp127recip, tvb, offset, len, ENC_ASCII|ENC_NA);
       }
       offset += len;
     }

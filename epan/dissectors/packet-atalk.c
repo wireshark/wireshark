@@ -1019,7 +1019,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   proto_tree_add_item(sub_tree, hf_asp_server_flag_utf8_name     , tvb, ofs, 2, ENC_BIG_ENDIAN);
   proto_tree_add_item(sub_tree, hf_asp_server_flag_fast_copy     , tvb, ofs, 2, ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_asp_server_name, tvb, offset +AFPSTATUS_PRELEN, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 
   flag = tvb_get_ntohs(tvb, ofs);
   if ((flag & AFPSRVRINFO_SRVSIGNATURE)) {
@@ -1054,7 +1054,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   }
 
   if (machine_ofs)
-    proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_asp_server_type, tvb, machine_ofs, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 
   ofs = offset +tvb_get_ntohs(tvb, offset +AFPSTATUS_VERSOFF);
   if (ofs) {
@@ -1064,7 +1064,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     sub_tree = proto_item_add_subtree(ti, ett_asp_vers);
     for (i = 0; i < nbe; i++) {
       len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_asp_server_vers, tvb, ofs, 1, ENC_ASCII|ENC_BIG_ENDIAN);
       ofs += len + 1;
     }
   }
@@ -1077,7 +1077,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     sub_tree = proto_item_add_subtree(ti, ett_asp_uams);
     for (i = 0; i < nbe; i++) {
       len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_asp_server_uams, tvb, ofs, 1, ENC_ASCII|ENC_BIG_ENDIAN);
       ofs += len + 1;
     }
   }
@@ -1153,7 +1153,7 @@ dissect_asp_reply_get_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
     sub_tree = proto_item_add_subtree(ti, ett_asp_directory);
     for (i = 0; i < nbe; i++) {
       len = tvb_get_guint8(tvb, ofs);
-      proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, ENC_BIG_ENDIAN);
+      proto_tree_add_item(sub_tree, hf_asp_server_directory, tvb, ofs, 1, ENC_ASCII|ENC_BIG_ENDIAN);
       ofs += len + 1;
     }
   }
@@ -1516,7 +1516,7 @@ dissect_atp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       sub_tree = proto_item_add_subtree(ti, ett_zip_zones_list);
       for (i= 0; i < count; i++) {
         len = tvb_get_guint8(tvb, offset);
-        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
+        proto_tree_add_item(sub_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
         offset += len +1;
       }
       break;
@@ -1580,7 +1580,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 4;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     offset += len +1;
 
     len = tvb_get_guint8(tvb, offset);
@@ -1589,7 +1589,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
     offset += len;
 
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     break;
 
   case 2: /* Reply */
@@ -1605,7 +1605,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(net_tree, hf_zip_network, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       len = tvb_get_guint8(tvb, offset);
-      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(net_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
       offset += len +1;
     }
     break;
@@ -1615,7 +1615,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset++;
     proto_tree_add_item(zip_tree, hf_zip_zero_value, tvb, offset, 4, ENC_NA);
     offset += 4;
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     break;
 
   case 6 :  /* GetNetInfo reply */
@@ -1634,7 +1634,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     offset += 2;
 
     len = tvb_get_guint8(tvb, offset);
-    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_BIG_ENDIAN);
+    proto_tree_add_item(zip_tree, hf_zip_zone_name, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     offset += len +1;
 
     len = tvb_get_guint8(tvb, offset);
@@ -1643,7 +1643,7 @@ dissect_ddp_zip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     proto_tree_add_item(zip_tree, hf_zip_multicast_address,tvb, offset, len,ENC_NA);
     offset += len;
     if ((flag & 0x80) != 0)
-      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,ENC_BIG_ENDIAN);
+      proto_tree_add_item(zip_tree, hf_zip_default_zone, tvb, offset, 1,ENC_ASCII|ENC_BIG_ENDIAN);
     break;
 
   default:

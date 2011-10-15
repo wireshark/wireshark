@@ -169,7 +169,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 1;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, FALSE);
+			    32, ENC_ASCII|ENC_NA);
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
@@ -203,7 +203,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 1;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, FALSE);
+			    32, ENC_ASCII|ENC_NA);
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_conf_rev_num, tvb,
@@ -228,7 +228,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 1;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, FALSE);
+			    32, ENC_ASCII|ENC_NA);
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_start_value, tvb,
@@ -244,7 +244,7 @@ dissect_vtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			offset += 1;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_md, tvb, offset,
-			    32, FALSE);
+			    32, ENC_ASCII|ENC_NA);
 			offset += 32;
 
 			proto_tree_add_item(vtp_tree, hf_vtp_pruning_first_vid, tvb, offset,
@@ -398,7 +398,7 @@ dissect_vlan_info(tvbuff_t *tvb, int offset, proto_tree *tree)
 	if (vlan_info_left < vlan_name_len)
 		return -1;
 	proto_tree_add_item(vlan_info_tree, hf_vtp_vlan_name, tvb, offset,
-	    vlan_name_len, FALSE);
+	    vlan_name_len, ENC_ASCII|ENC_NA);
 	offset += vlan_name_len;
 	vlan_info_left -= vlan_name_len;
 

@@ -452,7 +452,7 @@ static void dissect_listen_channel(proto_item *tlv_root, proto_item *tlv_item,
                                    tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_listen_channel_country, tvb,
-                      offset + 3, 3, FALSE);
+                      offset + 3, 3, ENC_ASCII|ENC_NA);
   proto_tree_add_item(tlv_root, hf_p2p_attr_listen_channel_oper_class, tvb,
                       offset + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tlv_root, hf_p2p_attr_listen_channel_number, tvb,
@@ -468,7 +468,7 @@ static void dissect_operating_channel(proto_item *tlv_root,
                                       tvbuff_t *tvb, int offset)
 {
   proto_tree_add_item(tlv_root, hf_p2p_attr_operating_channel_country, tvb,
-                      offset + 3, 3, FALSE);
+                      offset + 3, 3, ENC_ASCII|ENC_NA);
   proto_tree_add_item(tlv_root, hf_p2p_attr_operating_channel_oper_class, tvb,
                       offset + 6, 1, ENC_BIG_ENDIAN);
   proto_tree_add_item(tlv_root, hf_p2p_attr_operating_channel_number, tvb,
@@ -486,7 +486,7 @@ static void dissect_channel_list(proto_item *tlv_root, tvbuff_t *tvb,
   guint8 num_chan;
 
   proto_tree_add_item(tlv_root, hf_p2p_attr_channel_list_country, tvb,
-                      s_offset, 3, FALSE);
+                      s_offset, 3, ENC_ASCII|ENC_NA);
   s_offset += 3;
 
   while (offset + 3 + slen > s_offset) {
@@ -596,7 +596,7 @@ static void dissect_wifi_p2p_device_info(packet_info *pinfo,
     item = proto_tree_add_item(tlv_root, hf_p2p_attr_dev_info_dev_name,
                                tvb, s_offset,
                                nlen > attr_len ? attr_len : nlen,
-                               FALSE);
+                               ENC_ASCII|ENC_NA);
   if (nlen != attr_len) {
     expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                            "Invalid Device Name attribute");
@@ -656,7 +656,7 @@ static void dissect_wifi_p2p_group_id(proto_item *tlv_root,
   proto_item_append_text(tlv_item, ": %s", ether_to_str(addr));
   s_offset += 6;
   proto_tree_add_item(tlv_root, hf_p2p_attr_p2p_group_id_ssid, tvb,
-                      s_offset, offset + 3 + slen - s_offset, FALSE);
+                      s_offset, offset + 3 + slen - s_offset, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_wifi_p2p_group_bssid(packet_info *pinfo,
@@ -828,7 +828,7 @@ static void dissect_wifi_p2p_group_info(packet_info *pinfo,
       item = proto_tree_add_item(tlv_root, hf_p2p_attr_gi_dev_name,
                                  tvb, s_offset,
                                  nlen > attr_len ? attr_len : nlen,
-                                 FALSE);
+                                 ENC_ASCII|ENC_NA);
     if (nlen != attr_len) {
       expert_add_info_format(pinfo, item, PI_MALFORMED, PI_ERROR,
                              "Invalid Device Name attribute");

@@ -138,7 +138,7 @@ static int dissect_aim_snac_location_request_user_information(tvbuff_t *tvb,
 	offset += 1;
 
 	/* Buddy name */
-	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
 	offset += buddyname_length;
 
 	return offset;
@@ -157,7 +157,7 @@ static int dissect_aim_snac_location_user_information(tvbuff_t *tvb,
 	offset += 1;
 
 	/* Buddy name */
-	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
 	offset += buddyname_length;
 
 	/* Warning level */

@@ -216,7 +216,7 @@ dissect_pktc_app_specific_data(packet_info *pinfo _U_, proto_tree *parent_tree, 
             offset+=1;
 
             /* usmUserName */
-            proto_tree_add_item(tree, hf_pktc_usmUserName, tvb, offset, len, FALSE);
+            proto_tree_add_item(tree, hf_pktc_usmUserName, tvb, offset, len, ENC_ASCII|ENC_NA);
             offset+=len;
 
             break;
@@ -324,7 +324,7 @@ dissect_pktc_wakeup(proto_tree *tree, tvbuff_t *tvb, int offset)
 
     /* Server Kerberos Principal Identifier */
     string_len=tvb_strsize(tvb, offset);
-    proto_tree_add_item(tree, hf_pktc_server_principal, tvb, offset, string_len, FALSE);
+    proto_tree_add_item(tree, hf_pktc_server_principal, tvb, offset, string_len, ENC_ASCII|ENC_NA);
     offset+=string_len;
 
     return offset;
@@ -427,7 +427,7 @@ dissect_pktc_rekey(packet_info *pinfo, proto_tree *tree, tvbuff_t *tvb, int offs
 
     /* Server Kerberos Principal Identifier */
     string_len=tvb_strsize(tvb, offset);
-    proto_tree_add_item(tree, hf_pktc_server_principal, tvb, offset, string_len, FALSE);
+    proto_tree_add_item(tree, hf_pktc_server_principal, tvb, offset, string_len, ENC_ASCII|ENC_NA);
     offset+=string_len;
 
     /* Timestamp: YYMMDDhhmmssZ */
@@ -525,7 +525,7 @@ dissect_pktc_mtafqdn_krbsafeuserdata(packet_info *pinfo, tvbuff_t *tvb, proto_tr
         string_len = tvb_length_remaining(tvb, offset) - 4;
         if (string_len <= 0)
                 THROW(ReportedBoundsError);
-        proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, FALSE);
+        proto_tree_add_item(tree, hf_pktc_mtafqdn_fqdn, tvb, offset, string_len, ENC_ASCII|ENC_NA);
         offset+=string_len;
 
         /* MTA IP address */

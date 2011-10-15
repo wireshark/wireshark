@@ -110,7 +110,7 @@ redbackli_dissect_avp(guint8 avptype, guint8 avplen, tvbuff_t *tvb, gint offset,
 			break;
 		case(RB_AVP_LABEL):
 			proto_tree_add_item(st, hf_redbackli_label, tvb,
-					    offset+2, avplen, FALSE);
+					    offset+2, avplen, ENC_ASCII|ENC_NA);
 			break;
 		case(RB_AVP_EOH):
 			proto_tree_add_item(st, hf_redbackli_eohpad, tvb,

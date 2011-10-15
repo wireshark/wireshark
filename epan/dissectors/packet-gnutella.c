@@ -132,7 +132,7 @@ static void dissect_gnutella_query(tvbuff_t *tvb, guint offset, proto_tree *tree
 			tvb,
 			offset + GNUTELLA_QUERY_SEARCH_OFFSET,
 			size - GNUTELLA_SHORT_LENGTH,
-			FALSE);
+			ENC_ASCII|ENC_NA);
 	}
 	else {
 		proto_tree_add_text(tree,
@@ -251,7 +251,7 @@ static void dissect_gnutella_queryhit(tvbuff_t *tvb, guint offset, proto_tree *t
 			tvb,
 			name_at_offset,
 			name_length,
-			FALSE);
+			ENC_ASCII|ENC_NA);
 
 		if(extra_length) {
 			proto_tree_add_item(hit_tree,

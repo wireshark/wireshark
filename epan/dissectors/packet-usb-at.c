@@ -92,7 +92,7 @@ static void dissect_at(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         at_tree = proto_item_add_subtree(item, ett_at);
 
         /* Command */
-        proto_tree_add_item(at_tree, hf_at_command, tvb, 0, len, ENC_NA);
+        proto_tree_add_item(at_tree, hf_at_command, tvb, 0, len, ENC_ASCII|ENC_NA);
         proto_item_append_text(item, ": %s", tvb_format_text_wsp(tvb, 0, len));
     }
 }

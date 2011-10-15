@@ -343,7 +343,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_sequence,tvb,prime_offset+2,2,ENC_BIG_ENDIAN);
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_cookie,tvb,prime_offset+4,4,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_cookie,tvb,prime_offset+4,4,ENC_ASCII|ENC_NA);
 
   proto_tree_add_item(zrtp_tree,hf_zrtp_source_id,tvb,prime_offset+8,4,ENC_BIG_ENDIAN);
 
@@ -359,7 +359,7 @@ dissect_zrtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
   tvb_memcpy(tvb,(void *)message_type,msg_offset+4,8);
   message_type[8] = '\0';
-  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_type,tvb,msg_offset+4,8,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_msg_tree,hf_zrtp_msg_type,tvb,msg_offset+4,8,ENC_ASCII|ENC_NA);
 
   linelen = tvb_reported_length_remaining(tvb,msg_offset+12);
 
@@ -494,7 +494,7 @@ dissect_Ping(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "Ping Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,ENC_ASCII|ENC_NA);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+4,8,ENC_BIG_ENDIAN);
 }
 
@@ -504,7 +504,7 @@ dissect_PingACK(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
 
   col_set_str(pinfo->cinfo, COL_INFO, "PingACK Packet");
 
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_version,tvb,data_offset,4,ENC_ASCII|ENC_NA);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_pingack_endpointhash,tvb,data_offset+4,8,ENC_BIG_ENDIAN);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_endpointhash,tvb,data_offset+12,8,ENC_BIG_ENDIAN);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_ping_ssrc,tvb,data_offset+20,4,ENC_BIG_ENDIAN);
@@ -666,8 +666,8 @@ dissect_Hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *zrtp_tree) {
   if (check_valid_version(version_str) == NULL){
     col_set_str(pinfo->cinfo, COL_INFO, "Unsupported version of ZRTP protocol");
   }
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_version,tvb,msg_offset+12,4,ENC_BIG_ENDIAN);
-  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_client_id,tvb,msg_offset+16,16,ENC_BIG_ENDIAN);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_version,tvb,msg_offset+12,4,ENC_ASCII|ENC_NA);
+  proto_tree_add_item(zrtp_tree,hf_zrtp_msg_client_id,tvb,msg_offset+16,16,ENC_ASCII|ENC_NA);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_hash_image,tvb,msg_offset+32,32,ENC_NA);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_zid,tvb,msg_offset+64,12,ENC_NA);
   proto_tree_add_item(zrtp_tree,hf_zrtp_msg_sigcap,tvb,data_offset+0,1,ENC_BIG_ENDIAN);

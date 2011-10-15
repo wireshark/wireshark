@@ -335,7 +335,7 @@ rsip_parameter(tvbuff_t *tvb, proto_tree *rsip_tree, int off, int eoff)
 			if (paramlen - 1 > 0) {
 				proto_tree_add_item(v_tree,
 				    hf_rsip_parameter_address_fqdn, tvb,
-				    off + 4, paramlen - 1, FALSE);
+				    off + 4, paramlen - 1, ENC_ASCII|ENC_NA);
 				proto_item_append_text(pti, ": %s",
 				    tvb_format_text(tvb, off + 4, paramlen - 1));
 			} else

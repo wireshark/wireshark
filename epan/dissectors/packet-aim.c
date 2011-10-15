@@ -840,7 +840,7 @@ dissect_aim_buddyname(tvbuff_t *tvb, packet_info *pinfo _U_, int offset,
 					 tvb_format_text(tvb, offset, buddyname_length));
 		buddy_tree = proto_item_add_subtree(ti, ett_aim_buddyname);
 		proto_tree_add_item(buddy_tree, hf_aim_buddyname_len, tvb, offset-1, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_BIG_ENDIAN);
+		proto_tree_add_item(buddy_tree, hf_aim_buddyname, tvb, offset, buddyname_length, ENC_ASCII|ENC_NA);
 	}
 
 	return offset+buddyname_length;
@@ -1293,7 +1293,7 @@ dissect_aim_tlv_value_messageblock (proto_item *ti, guint16 valueid _U_, tvbuff_
 		proto_item_set_text(ti, "Message: %s",
 				    format_text(buf, blocklen - 4));
 		proto_tree_add_item(entry, hf_aim_messageblock_message, tvb,
-				    offset, blocklen-4, ENC_ASCII|ENC_BIG_ENDIAN);
+				    offset, blocklen-4, ENC_ASCII|ENC_NA);
 
 		offset += tvb_length_remaining(tvb, offset);
 	}

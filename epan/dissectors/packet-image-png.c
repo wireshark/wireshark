@@ -137,10 +137,10 @@ dissect_png_text(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		offset++;
 	}
 
-	proto_tree_add_item(tree, hf_png_text_keyword, tvb, 0, offset, FALSE);
+	proto_tree_add_item(tree, hf_png_text_keyword, tvb, 0, offset, ENC_ASCII|ENC_NA);
 	offset++;
 
-	proto_tree_add_item(tree, hf_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), FALSE);
+	proto_tree_add_item(tree, hf_png_text_string, tvb, offset, tvb_length_remaining(tvb, offset), ENC_ASCII|ENC_NA);
 
 }
 
@@ -267,7 +267,7 @@ dissect_png(tvbuff_t *tvb, packet_info *pinfo, proto_tree *parent_tree)
 		offset+=4;
 
 
-		it=proto_tree_add_item(chunk_tree, hf_png_chunk_type, tvb, offset, 4, FALSE);
+		it=proto_tree_add_item(chunk_tree, hf_png_chunk_type, tvb, offset, 4, ENC_ASCII|ENC_NA);
 		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_anc, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_priv, tvb, offset, 4, ENC_BIG_ENDIAN);
 		proto_tree_add_item(chunk_tree, hf_png_chunk_flag_stc, tvb, offset, 4, ENC_BIG_ENDIAN);

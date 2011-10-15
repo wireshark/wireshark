@@ -451,7 +451,7 @@ dissect_daap_one_tag(proto_tree *tree, tvbuff_t *tvb)
                                tagsize,
                                plurality(tagsize, ' ', 's'));
 
-      ti2 = proto_tree_add_item(tree, hf_daap_name, tvb, offset, 4, ENC_BIG_ENDIAN);
+      ti2 = proto_tree_add_item(tree, hf_daap_name, tvb, offset, 4, ENC_ASCII|ENC_NA);
       PROTO_ITEM_SET_HIDDEN(ti2);
       ti2 = proto_tree_add_item(tree, hf_daap_size, tvb, offset+4, 4, ENC_BIG_ENDIAN);
       PROTO_ITEM_SET_HIDDEN(ti2);

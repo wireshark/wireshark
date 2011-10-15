@@ -794,7 +794,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			return TRUE; /* we still hope to get a SERVER_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_server_proto_ver, tvb, 4,
-				    7, FALSE);
+				    7, ENC_ASCII|ENC_NA);
 		per_conversation_info->server_proto_ver =
 			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 		per_conversation_info->server_port = pinfo->srcport;
@@ -812,7 +812,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 			return TRUE; /* we still hope to get a CLIENT_VERSION message some day. Do not proceed yet */
 
 		proto_tree_add_item(tree, hf_vnc_client_proto_ver, tvb,
-				    4, 7, FALSE);
+				    4, 7, ENC_ASCII|ENC_NA);
 		per_conversation_info->client_proto_ver =
 			g_ascii_strtod((char *)tvb_get_ephemeral_string(tvb, 4, 7), NULL);
 
@@ -1104,7 +1104,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 				offset += 4;
 
 				proto_tree_add_item(tree, hf_vnc_auth_error, tvb,
-						    offset, text_len, FALSE);
+						    offset, text_len, ENC_ASCII|ENC_NA);
 			}
 
 			return TRUE; /* All versions: Do not continue
@@ -1192,7 +1192,7 @@ vnc_startup_messages(tvbuff_t *tvb, packet_info *pinfo, gint offset,
 
 			proto_tree_add_item(tree, hf_vnc_desktop_name,
 					    tvb, offset, desktop_name_len,
-					    FALSE);
+					    ENC_ASCII|ENC_NA);
 		}
 
 		if(per_conversation_info->tight_enabled == TRUE)
@@ -1576,7 +1576,7 @@ vnc_client_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	*offset += 4;
 
 	proto_tree_add_item(tree, hf_vnc_client_cut_text, tvb, *offset,
-			    text_len, FALSE);
+			    text_len, ENC_ASCII|ENC_NA);
 	*offset += text_len;
 
 }
@@ -2484,7 +2484,7 @@ vnc_server_cut_text(tvbuff_t *tvb, packet_info *pinfo, gint *offset,
 	VNC_BYTES_NEEDED(text_len);
 
 	proto_tree_add_item(tree, hf_vnc_server_cut_text, tvb, *offset,
-			    text_len, FALSE);
+			    text_len, ENC_ASCII|ENC_NA);
 	*offset += text_len;
 
 	return *offset;

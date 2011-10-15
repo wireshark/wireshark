@@ -769,7 +769,7 @@ rq39(tvbuff_t *tvb, proto_tree *tree)
 
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_app_39_byte1, byte1, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_app_39_user, tvb, 1, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_app_39_user, tvb, 1, 16, ENC_ASCII|ENC_NA);
 }
 
 static void

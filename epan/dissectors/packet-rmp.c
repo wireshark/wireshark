@@ -133,13 +133,13 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(rmp_tree,
 				    hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
 				proto_tree_add_item(rmp_tree,
-				    hf_rmp_machtype, tvb, 10, 20, FALSE);
+				    hf_rmp_machtype, tvb, 10, 20, ENC_ASCII|ENC_NA);
 				/* The remaining fields are optional */
 				if(!tvb_offset_exists(tvb, 30))
 					return;
 				len = tvb_get_guint8(tvb, 30);
 				proto_tree_add_item(rmp_tree,
-				    hf_rmp_filename, tvb, 30, 1, ENC_BIG_ENDIAN);
+				    hf_rmp_filename, tvb, 30, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 				if(tvb_offset_exists(tvb, len+31))
 					call_dissector(data_handle,
 					    tvb_new_subset_remaining(tvb, len+31),
@@ -157,7 +157,7 @@ dissect_rmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				    hf_rmp_version, tvb, 8, 2, ENC_BIG_ENDIAN);
 				len = tvb_get_guint8(tvb, 10);
 				proto_tree_add_item(rmp_tree,
-				    hf_rmp_filename, tvb, 10, 1, ENC_BIG_ENDIAN);
+				    hf_rmp_filename, tvb, 10, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 				if(tvb_offset_exists(tvb, len+11))
 					call_dissector(data_handle,
 					    tvb_new_subset_remaining(tvb, len+11),

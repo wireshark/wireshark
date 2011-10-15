@@ -631,7 +631,7 @@ static int DissectTLV_data(tvbuff_t *pTvb, proto_tree *pTlv, int iOffs, guint8 u
     case 138: /*Label_138*/
         {
             proto_item_append_text(pTlv, "'%s'", tvb_get_string(pTvb, iOffs, u8Length));
-            proto_tree_add_item(pTlv, hf_tlv_label, pTvb, iOffs, u8Length, ENC_NA);
+            proto_tree_add_item(pTlv, hf_tlv_label, pTvb, iOffs, u8Length, ENC_ASCII|ENC_NA);
 
             /* append text on NOE level */
             pNoeItem = proto_item_get_parent(pTlv);

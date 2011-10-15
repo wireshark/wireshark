@@ -179,7 +179,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			/* Request just subscribes to messages */
 
 			proto_tree_add_item(tree, hf_zebra_interface,
-				tvb, offset, INTERFACE_NAMSIZ, FALSE);
+				tvb, offset, INTERFACE_NAMSIZ, ENC_ASCII|ENC_NA);
 			offset += INTERFACE_NAMSIZ;
 
 			proto_tree_add_item(tree, hf_zebra_index, tvb,
@@ -205,7 +205,7 @@ dissect_zebra_request(proto_tree *tree, gboolean request, tvbuff_t *tvb,
 			break;
 		case ZEBRA_INTERFACE_DELETE:
 			proto_tree_add_item(tree, hf_zebra_interface,
-				tvb, offset, INTERFACE_NAMSIZ, FALSE);
+				tvb, offset, INTERFACE_NAMSIZ, ENC_ASCII|ENC_NA);
 			offset += INTERFACE_NAMSIZ;
 
 			proto_tree_add_item(tree, hf_zebra_index, tvb,

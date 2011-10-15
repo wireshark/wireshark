@@ -107,7 +107,7 @@ dissect_laplink_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_uint(laplink_tree, hf_laplink_udp_ident, tvb, offset, 4, udp_ident);
 		offset += 4;
 
-		proto_tree_add_item(laplink_tree, hf_laplink_udp_name, tvb, offset, -1, FALSE);
+		proto_tree_add_item(laplink_tree, hf_laplink_udp_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
 	}
 	return tvb_length(tvb);
 }

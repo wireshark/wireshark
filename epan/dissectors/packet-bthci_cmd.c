@@ -929,7 +929,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 					break;
 				case 0x08: /* Device Name, shortened */
 				case 0x09: /* Device Name, full */
-					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_device_name, tvb, offset+i+2, length-1, ENC_LITTLE_ENDIAN);
+					proto_tree_add_item(ti_eir_struct_subtree, hf_bthci_cmd_device_name, tvb, offset+i+2, length-1, ENC_ASCII|ENC_NA);
 					proto_item_append_text(ti_eir_struct,": %s", tvb_format_text(tvb,offset+i+2,length-1));
 					break;
 				case 0x0A: /* Tx Power Level */
@@ -1069,7 +1069,7 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 
 			proto_tree_add_item(tree, hf_bthci_cmd_pin_code_length ,tvb, offset, 1, ENC_LITTLE_ENDIAN);
 			offset++;
-			proto_tree_add_item(tree, hf_bthci_cmd_pin_code ,tvb, offset, 16, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_bthci_cmd_pin_code ,tvb, offset, 16, ENC_ASCII|ENC_NA);
 			offset+=16;
 			break;
 
@@ -1543,7 +1543,7 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 
 		case 0x0013: /* Change Local Name */
 			proto_tree_add_item(tree, hf_bthci_cmd_device_name,
-					tvb, offset, 248, ENC_BIG_ENDIAN);
+					tvb, offset, 248, ENC_ASCII|ENC_NA);
 			offset+=248;
 			break;
 

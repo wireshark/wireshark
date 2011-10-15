@@ -156,7 +156,7 @@ dissect_ipa_attr(tvbuff_t *tvb, int base_offs, proto_tree *tree)
 			proto_tree_add_item(tree, hf_ipaccess_attr_tag,
 					    tvb, offset+2, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(tree, hf_ipaccess_attr_string,
-					    tvb, offset+3, len-1, ENC_BIG_ENDIAN);
+					    tvb, offset+3, len-1, ENC_ASCII|ENC_NA);
 			break;
 		case 0x01:	/* a single-byte reqest for a certain attr */
 			len = 0;
@@ -234,7 +234,7 @@ dissect_osmo(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ipatree, proto_tree 
 	/* Simply display the CTRL data as text */
 	} else if (osmo_proto == IPAC_PROTO_EXT_CTRL) {
 		if (tree) {
-			proto_tree_add_item(tree, hf_ipa_osmo_ctrl_data, next_tvb, 0, -1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tree, hf_ipa_osmo_ctrl_data, next_tvb, 0, -1, ENC_ASCII|ENC_NA);
 		}
 		return 1;
 	}
@@ -319,10 +319,10 @@ dissect_ipa(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case HSL_DEBUG:
 			if (tree) {
 				proto_tree_add_item(ipa_tree, hf_ipa_hsl_debug,
-						    next_tvb, 0, len, ENC_BIG_ENDIAN);
+						    next_tvb, 0, len, ENC_ASCII|ENC_NA);
 				if (global_ipa_in_root == TRUE)
 					proto_tree_add_item(tree, hf_ipa_hsl_debug,
-							    next_tvb, 0, len, ENC_BIG_ENDIAN);
+							    next_tvb, 0, len, ENC_ASCII|ENC_NA);
 			}
 			if (global_ipa_in_info == TRUE)
 				col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",

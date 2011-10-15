@@ -2423,15 +2423,15 @@ dissect_spc_inquiry (tvbuff_t *tvb, packet_info *pinfo,
         offset_v=dissect_spc_inq_reladrflags(tvb_v, offset_v, tree);
 
         /* vendor id */
-        proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb_v, offset_v, 8, 0);
+        proto_tree_add_item(tree, hf_scsi_inq_vendor_id, tvb_v, offset_v, 8, ENC_ASCII|ENC_NA);
         offset_v+=8;
 
         /* product id */
-        proto_tree_add_item(tree, hf_scsi_inq_product_id, tvb_v, offset_v, 16, 0);
+        proto_tree_add_item(tree, hf_scsi_inq_product_id, tvb_v, offset_v, 16, ENC_ASCII|ENC_NA);
         offset_v+=16;
 
         /* product revision level */
-        proto_tree_add_item(tree, hf_scsi_inq_product_rev, tvb_v, offset_v, 4, 0);
+        proto_tree_add_item(tree, hf_scsi_inq_product_rev, tvb_v, offset_v, 4, ENC_ASCII|ENC_NA);
         offset_v+=4;
 
         /* vendor specific, 20 bytes */

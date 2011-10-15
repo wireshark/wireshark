@@ -285,7 +285,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
                         tvb,
                         LWRES_LWPACKET_LENGTH + 8,
                         realnamelen,
-                        FALSE);
+                        ENC_ASCII|ENC_NA);
 
     offset=LWRES_LWPACKET_LENGTH + 8 + realnamelen;
 
@@ -311,7 +311,7 @@ static void dissect_getnamebyaddr_response(tvbuff_t* tvb, proto_tree* lwres_tree
                                 tvb,
                                 offset + 2,
                                 aliaslen,
-                                FALSE);
+                                ENC_ASCII|ENC_NA);
 
             offset+=(2 + aliaslen + 1);
         }
@@ -364,7 +364,7 @@ static void dissect_getaddrsbyname_request(tvbuff_t* tvb, proto_tree* lwres_tree
                 tvb,
                 LWRES_LWPACKET_LENGTH+10,
                 namelen,
-                FALSE);
+                ENC_ASCII|ENC_NA);
 
 }
 
@@ -411,7 +411,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
                 LWRES_LWPACKET_LENGTH + 8, 2, ENC_BIG_ENDIAN);
 
     proto_tree_add_item(adn_resp_tree, hf_adn_realname, tvb,
-                LWRES_LWPACKET_LENGTH + 10, realnamelen, FALSE);
+                LWRES_LWPACKET_LENGTH + 10, realnamelen, ENC_ASCII|ENC_NA);
 
     offset = LWRES_LWPACKET_LENGTH + 10 + realnamelen + 1;
 
@@ -429,7 +429,7 @@ static void dissect_getaddrsbyname_response(tvbuff_t* tvb, proto_tree* lwres_tre
                         offset, 2, aliaslen);
 
             proto_tree_add_item(alias_tree, hf_adn_aliasname, tvb,
-                        offset + 2, aliaslen, FALSE);
+                        offset + 2, aliaslen, ENC_ASCII|ENC_NA);
 
             offset+=(2 + aliaslen + 1);
         }
@@ -737,7 +737,7 @@ static void dissect_rdata_request(tvbuff_t* tvb, proto_tree* lwres_tree)
             tvb,
             LWRES_LWPACKET_LENGTH+10,
             namelen,
-                FALSE);
+                ENC_ASCII|ENC_NA);
 
 }
 
@@ -817,7 +817,7 @@ static void dissect_rdata_response(tvbuff_t* tvb, proto_tree* lwres_tree)
                         tvb,
                         LWRES_LWPACKET_LENGTH+18,
                         realnamelen,
-                FALSE);
+                ENC_ASCII|ENC_NA);
 
     switch(rdtype)
     {

@@ -265,9 +265,9 @@ static void dissect_xot_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
            pkt_size = 1 << tvb_get_guint8(tvb, hdr_offset);
            proto_tree_add_uint(xot_tree, hf_xot_pvc_send_out_pkt_size, tvb, hdr_offset, 1, pkt_size);
            hdr_offset += 1;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_init_itf_name, tvb, hdr_offset, init_itf_name_len, ENC_ASCII|ENC_NA);
            hdr_offset += init_itf_name_len;
-           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, FALSE);
+           proto_tree_add_item(xot_tree, hf_xot_pvc_resp_itf_name, tvb, hdr_offset, resp_itf_name_len, ENC_ASCII|ENC_NA);
         } else {
            next_tvb = tvb_new_subset(tvb, offset,
                                   MIN(plen, tvb_length_remaining(tvb, offset)), plen);

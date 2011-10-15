@@ -623,7 +623,7 @@ dissect_ppi_vector_v1(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
         case  PPI_VECTOR_DESCSTR:
             if (length_remaining < 32)
                 break;
-            proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA);
+            proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_ASCII|ENC_NA);
             offset+=32;
             length_remaining-=32;
             break;
@@ -911,7 +911,7 @@ dissect_ppi_vector_v2(tvbuff_t *tvb, int offset, gint length_remaining, proto_tr
                 break;
             if (ppi_vector_tree)
             {
-                /* proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_NA); */
+                /* proto_tree_add_item(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, ENC_ASCII|ENC_NA); */
                 curr_str = tvb_format_stringzpad(tvb, offset, 32); /* need to append_text this */
                 proto_tree_add_string(ppi_vector_tree, hf_ppi_vector_descstr, tvb, offset, 32, curr_str);
                 proto_item_append_text(vector_line, " (%s)", curr_str);

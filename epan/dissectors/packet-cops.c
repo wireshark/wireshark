@@ -1281,7 +1281,7 @@ static void dissect_cops_object_data(tvbuff_t *tvb, packet_info *pinfo, guint32 
         }
         else
             proto_tree_add_item(tree, hf_cops_pepid, tvb, offset,
-                                tvb_strnlen(tvb, offset, len) + 1, FALSE);
+                                tvb_strnlen(tvb, offset, len) + 1, ENC_ASCII|ENC_NA);
 
         break;
     case COPS_OBJ_REPORT_TYPE:
@@ -3538,7 +3538,7 @@ cops_docsis_service_class_name(tvbuff_t *tvb, proto_tree *st, guint object_len, 
     offset += 3;
 
     if (object_len >= 12) {
-        proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, FALSE);
+        proto_tree_add_item(stt, hf_cops_pcmm_docsis_scn, tvb, offset, object_len - 8, ENC_ASCII|ENC_NA);
         offset += object_len - 8;
     } else {
         proto_tree_add_text(stt, tvb, offset - 8, 2, "Invalid object length: %u", object_len);

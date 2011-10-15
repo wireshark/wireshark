@@ -150,7 +150,7 @@ dissect_applemidi_common( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, g
 			/* Name is optional */
 			if ( len > 0 ) {
 				name = tvb_get_ephemeral_string( tvb, offset, len );
-				proto_tree_add_item( applemidi_tree, hf_applemidi_name, tvb, offset, len, FALSE );
+				proto_tree_add_item( applemidi_tree, hf_applemidi_name, tvb, offset, len, ENC_ASCII|ENC_NA );
 				col_append_fstr( pinfo->cinfo, COL_INFO, ": peer = \"%s\"", name );
 			}
 

@@ -722,10 +722,10 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         cmdresp_tree = proto_item_add_subtree(ti, ett_smtp_cmdresp);
 
         proto_tree_add_item(cmdresp_tree, hf_smtp_req_command, tvb,
-                            loffset, cmdlen, FALSE);
+                            loffset, cmdlen, ENC_ASCII|ENC_NA);
         if (linelen > 5) {
           proto_tree_add_item(cmdresp_tree, hf_smtp_req_parameter, tvb,
-                              loffset + 5, linelen - 5, FALSE);
+                              loffset + 5, linelen - 5, ENC_ASCII|ENC_NA);
         }
 
         if (smtp_data_desegment && !spd_frame_data->more_frags) {
@@ -820,7 +820,7 @@ dissect_smtp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
           if (linelen >= 4) {
             proto_tree_add_item(cmdresp_tree, hf_smtp_rsp_parameter, tvb,
-                                offset + 4, linelen - 4, FALSE);
+                                offset + 4, linelen - 4, ENC_ASCII|ENC_NA);
           }
         }
       }

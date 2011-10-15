@@ -399,7 +399,7 @@ dissect_dcc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				offset += 2;
 
 				proto_tree_add_item(dcc_optree, hf_dcc_brand, tvb,
-					offset, sizeof(DCC_BRAND), FALSE);
+					offset, sizeof(DCC_BRAND), ENC_ASCII|ENC_NA);
 				offset += sizeof(DCC_BRAND);
 
 				D_SIGNATURE();

@@ -267,7 +267,7 @@ dissect_pgsql_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         if (type == '\0')
             n = 0;
         proto_tree_add_text(ptree, tvb, 0, n, "Type: %s", typestr);
-        hidden_item = proto_tree_add_item(ptree, hf_type, tvb, 0, n, ENC_NA);
+        hidden_item = proto_tree_add_item(ptree, hf_type, tvb, 0, n, ENC_ASCII|ENC_NA);
         PROTO_ITEM_SET_HIDDEN(hidden_item);
         proto_tree_add_item(ptree, hf_length, tvb, n, 4, ENC_BIG_ENDIAN);
         hidden_item = proto_tree_add_boolean(ptree, hf_frontend, tvb, 0, 0, fe);
@@ -295,23 +295,23 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Password */
     case 'p':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_passwd, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_passwd, tvb, n, siz, ENC_ASCII|ENC_NA);
         break;
 
     /* Simple query */
     case 'Q':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_query, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_query, tvb, n, siz, ENC_ASCII|ENC_NA);
         break;
 
     /* Parse */
     case 'P':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_statement, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_statement, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
 
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_query, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_query, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
 
         i = tvb_get_ntohs(tvb, n);
@@ -327,11 +327,11 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Bind */
     case 'B':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
 
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_statement, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_statement, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
 
         i = tvb_get_ntohs(tvb, n);
@@ -370,7 +370,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Execute */
     case 'E':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_portal, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
 
         ti = proto_tree_add_text(tree, tvb, n, 4, "Returns: ");
@@ -418,9 +418,9 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
                 if ((signed)length <= 0) {
                     break;
                 }
-                proto_tree_add_item(tree, hf_parameter_name,  tvb, n,       siz, ENC_NA);
+                proto_tree_add_item(tree, hf_parameter_name,  tvb, n,       siz, ENC_ASCII|ENC_NA);
                 i = tvb_strsize(tvb, n+siz);
-                proto_tree_add_item(tree, hf_parameter_value, tvb, n + siz, i,   ENC_NA);
+                proto_tree_add_item(tree, hf_parameter_value, tvb, n + siz, i,   ENC_ASCII|ENC_NA);
                 length -= i;
 
                 n += siz+i;
@@ -451,7 +451,7 @@ static void dissect_pgsql_fe_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Copy failure */
     case 'f':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_error, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_error, tvb, n, siz, ENC_ASCII|ENC_NA);
         break;
 
     /* Function call */
@@ -548,7 +548,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         while (i-- > 0) {
             proto_tree *twig;
             siz = tvb_strsize(tvb, n);
-            ti = proto_tree_add_item(shrub, hf_val_name, tvb, n, siz, ENC_NA);
+            ti = proto_tree_add_item(shrub, hf_val_name, tvb, n, siz, ENC_ASCII|ENC_NA);
             twig = proto_item_add_subtree(ti, ett_values);
             n += siz;
             proto_tree_add_item(twig, hf_tableoid, tvb, n, 4, ENC_BIG_ENDIAN);
@@ -586,7 +586,7 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
     /* Command completion */
     case 'C':
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_tag, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_tag, tvb, n, siz, ENC_ASCII|ENC_NA);
         break;
 
     /* Ready */
@@ -627,11 +627,11 @@ static void dissect_pgsql_be_msg(guchar type, guint length, tvbuff_t *tvb,
         proto_tree_add_item(tree, hf_pid, tvb, n, 4, ENC_BIG_ENDIAN);
         n += 4;
         siz = tvb_strsize(tvb, n);
-        proto_tree_add_item(tree, hf_condition, tvb, n, siz, ENC_NA);
+        proto_tree_add_item(tree, hf_condition, tvb, n, siz, ENC_ASCII|ENC_NA);
         n += siz;
         siz = tvb_strsize(tvb, n);
         if (siz > 1)
-            proto_tree_add_item(tree, hf_text, tvb, n, siz, ENC_NA);
+            proto_tree_add_item(tree, hf_text, tvb, n, siz, ENC_ASCII|ENC_NA);
         break;
 
     /* Copy in/out */

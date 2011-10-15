@@ -3987,7 +3987,7 @@ static int decode_qos_umts(tvbuff_t * tvb, int offset, proto_tree * tree, const 
 
         ext_tree_qos = proto_item_add_subtree(te, ett_gtp_qos);
 
-        proto_tree_add_item(ext_tree_qos, hf_gtp_qos_version, tvb, offset, 2, ENC_BIG_ENDIAN);
+        proto_tree_add_item(ext_tree_qos, hf_gtp_qos_version, tvb, offset, 2, ENC_ASCII|ENC_NA);
 
         /* Hyphen handling */
         hyphen = tvb_get_guint8(tvb, offset + 2);

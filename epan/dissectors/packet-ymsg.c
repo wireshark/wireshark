@@ -437,7 +437,7 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		if (content_len) {
 			/* Create content subtree */
 			content_item = proto_tree_add_item(ymsg_tree, hf_ymsg_content, tvb,
-			                                   offset, -1, TRUE);
+			                                   offset, -1, ENC_ASCII|ENC_NA);
 			content_tree = proto_item_add_subtree(content_item, ett_ymsg_content);
 
 			/* Each entry consists of:
@@ -475,9 +475,9 @@ dissect_ymsg_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 				/* And add the key and value separately inside */
 				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_key, tvb,
-				                    offset, keylen, FALSE);
+				                    offset, keylen, ENC_ASCII|ENC_NA);
 				proto_tree_add_item(content_line_tree, hf_ymsg_content_line_value, tvb,
-				                    offset+keylen+2, vallen, FALSE);
+				                    offset+keylen+2, vallen, ENC_ASCII|ENC_NA);
 
 				/* Move beyone key and value lines */
 				offset += keylen+2+vallen+2;

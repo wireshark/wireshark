@@ -959,7 +959,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
             /* Friendly Name Length */
             proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset,2, "Length of Friendly name : %d",tvb_get_letohs(tvb,offset));
             /* Friendly Name */
-            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName, tvb, offset+2, tvb_get_letohs(tvb,offset), FALSE);
+            proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_friendlyName, tvb, offset+2, tvb_get_letohs(tvb,offset), ENC_ASCII|ENC_NA);
             offset +=tvb_get_letohs(tvb,offset)+2;
         }
         /* Service Address List */
@@ -1047,10 +1047,10 @@ static void dissect_publicKey_structure(tvbuff_t *tvb, gint offset, gint length,
         proto_tree_add_text(pnrp_publicKey_tree, tvb, offset,1, "Unused Bits : %d",7);
         offset +=1;
         /* Algorithm ObjID */
-        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_objID, tvb, offset, objIDLength, FALSE);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_objID, tvb, offset, objIDLength, ENC_ASCII|ENC_NA);
         offset += objIDLength;
         /*  Public Key Data */
-        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_publicKeyData, tvb, offset, cbDataLength, FALSE);
+        proto_tree_add_item(pnrp_publicKey_tree, hf_pnrp_publicKey_publicKeyData, tvb, offset, cbDataLength, ENC_ASCII|ENC_NA);
     }
 }
 static void dissect_signature_structure(tvbuff_t *tvb, gint offset, gint length, proto_tree *tree)

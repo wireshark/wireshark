@@ -1223,7 +1223,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				item_len = tvb_get_guint8( tvb, offset );
 				/* Item len of 1 because its an FT_UINT_STRING... */
 				proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_sip_uri,
-				                    tvb, offset, 1, ENC_BIG_ENDIAN );
+				                    tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN );
 				offset++;
 
 				col_append_fstr(pinfo->cinfo, COL_INFO, " CNAME=\"%s\"",
@@ -1254,7 +1254,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 					item_len = tvb_get_guint8( tvb, offset );
 					/* Item len of 1 because its an FT_UINT_STRING... */
 					proto_tree_add_item(PoC1_tree, hf_rtcp_app_poc1_disp_name,
-					                    tvb, offset, 1, ENC_BIG_ENDIAN);
+					                    tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN);
 					offset++;
 
 					col_append_fstr(pinfo->cinfo, COL_INFO, " DISPLAY-NAME=\"%s\"",
@@ -1332,7 +1332,7 @@ dissect_rtcp_app( tvbuff_t *tvb,packet_info *pinfo, int offset, proto_tree *tree
 				/* Reason phrase */
 				item_len = tvb_get_guint8( tvb, offset );
 				if ( item_len != 0 )
-					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, ENC_BIG_ENDIAN );
+					proto_tree_add_item( PoC1_tree, hf_rtcp_app_poc1_reason1_phrase, tvb, offset, 1, ENC_ASCII|ENC_BIG_ENDIAN );
 
 				offset += (item_len+1);
 				packet_len -= (item_len+1);
@@ -1728,13 +1728,13 @@ dissect_rtcp_sdes( tvbuff_t *tvb, int offset, proto_tree *tree,
 					proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_prefix_len, tvb, offset, 1, ENC_BIG_ENDIAN );
 					offset++;
 
-					proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_prefix_string, tvb, offset, prefix_len, FALSE );
+					proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_prefix_string, tvb, offset, prefix_len, ENC_ASCII|ENC_NA );
 					offset += prefix_len;
 					item_len -= prefix_len +1;
 					if ( item_len == 0 )
 						continue;
 				}
-				proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_text, tvb, offset, item_len, FALSE );
+				proto_tree_add_item( sdes_item_tree, hf_rtcp_sdes_text, tvb, offset, item_len, ENC_ASCII|ENC_NA );
 				offset += item_len;
 			}
 		}

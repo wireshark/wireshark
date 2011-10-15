@@ -3588,9 +3588,9 @@ dissect_venue_name_info(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
       break;
     }
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_language,
-                        tvb, offset, 3, ENC_BIG_ENDIAN);
+                        tvb, offset, 3, ENC_ASCII|ENC_NA);
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_venue_name,
-                        tvb, offset + 3, vlen - 3, ENC_BIG_ENDIAN);
+                        tvb, offset + 3, vlen - 3, ENC_ASCII|ENC_NA);
     offset += vlen;
   }
 }
@@ -3617,7 +3617,7 @@ dissect_network_auth_type(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
     offset += 2;
     if (len)
       proto_tree_add_item(tree, hf_ieee80211_ff_anqp_nw_auth_type_url,
-                          tvb, offset, len, ENC_BIG_ENDIAN);
+                          tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
   }
 }
@@ -3746,7 +3746,7 @@ dissect_nai_realm_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
       break;
     }
     proto_tree_add_item(realm_tree, hf_ieee80211_ff_anqp_nai_realm,
-                        tvb, offset, nai_len, ENC_NA);
+                        tvb, offset, nai_len, ENC_ASCII|ENC_NA);
     realm = tvb_get_string(tvb, offset, nai_len);
     if (realm) {
       proto_item_append_text(r_item, " (%s)", realm);
@@ -3875,7 +3875,7 @@ dissect_domain_name_list(proto_tree *tree, tvbuff_t *tvb, int offset, int end)
                         tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     proto_tree_add_item(tree, hf_ieee80211_ff_anqp_domain_name,
-                        tvb, offset, len, ENC_BIG_ENDIAN);
+                        tvb, offset, len, ENC_ASCII|ENC_NA);
     offset += len;
   }
 }
@@ -5048,7 +5048,7 @@ wnm_bss_trans_mgmt_req(proto_tree *tree, tvbuff_t *tvb, int offset)
                         ENC_LITTLE_ENDIAN);
     offset++;
     proto_tree_add_item(tree, hf_ieee80211_ff_url, tvb, offset, url_len,
-                        ENC_NA);
+                        ENC_ASCII|ENC_NA);
     offset += url_len;
   }
 
@@ -6567,7 +6567,7 @@ dissect_fast_bss_transition(proto_tree *tree, tvbuff_t *tvb, int offset,
       break;
     case 3:
       proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_r0kh_id,
-                          tvb, offset, len, ENC_BIG_ENDIAN);
+                          tvb, offset, len, ENC_ASCII|ENC_NA);
       break;
     case 4:
       proto_tree_add_item(tree, hf_ieee80211_tag_ft_subelem_igtk_key_id,
@@ -6980,7 +6980,7 @@ static int dissect_time_zone(proto_tree *tree, tvbuff_t *tvb, int offset,
                              guint32 tag_len)
 {
   proto_tree_add_item(tree, hf_ieee80211_tag_time_zone, tvb, offset, tag_len,
-                      ENC_NA);
+                      ENC_ASCII|ENC_NA);
   return offset + tag_len;
 }
 
@@ -7598,7 +7598,7 @@ static int ieee80211_tag_ssid(packet_info *pinfo, proto_tree *tree,
   ssid = tvb_get_ephemeral_string(tvb, offset + 2, tag_len);
   AirPDcapSetLastSSID(&airpdcap_ctx, (CHAR *) ssid, tag_len);
   proto_tree_add_item(tree, hf_ieee80211_tag_ssid, tvb, offset + 2, tag_len,
-                      ENC_BIG_ENDIAN);
+                      ENC_ASCII|ENC_NA);
   if (tag_len > 0) {
     proto_item_append_text(ti, ": %s", ssid);
 
@@ -7836,7 +7836,7 @@ static int ieee80211_tag_country_info(packet_info *pinfo, proto_tree *tree,
   offset += 2;
 
   proto_tree_add_item(tree, hf_ieee80211_tag_country_info_code,
-                      tvb, offset, 2, ENC_BIG_ENDIAN);
+                      tvb, offset, 2, ENC_ASCII|ENC_NA);
   proto_item_append_text(ti, ": Country Code %s",
                          tvb_get_ephemeral_string(tvb, offset, 2));
   offset += 2;
@@ -8463,7 +8463,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
               switch(sub_id){
                 case MEASURE_REQ_BEACON_SUB_SSID: /* SSID (0) */
-                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_ssid, tvb, offset, sub_length, ENC_BIG_ENDIAN);
+                  proto_tree_add_item(sub_tree, hf_ieee80211_tag_measure_request_beacon_sub_ssid, tvb, offset, sub_length, ENC_ASCII|ENC_NA);
                   offset += sub_length;
                   break;
                 case MEASURE_REQ_BEACON_SUB_BRI: /* Beacon Reporting Information (1) */
@@ -9043,7 +9043,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
 
       /* The Name of the sending device starts at offset 10 and is up to
          15 or 16 bytes in length, \0 padded */
-      proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_name, tvb, offset, 16, ENC_NA);
+      proto_tree_add_item(tree, hf_ieee80211_tag_cisco_ccx1_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
       offset += 16;
 
       /* Total number off associated clients and repeater access points */
@@ -9219,7 +9219,7 @@ add_tagged_field(packet_info * pinfo, proto_tree * tree, tvbuff_t * tvb, int off
       {
         offset += 2;
 
-        proto_tree_add_item(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_BIG_ENDIAN);
+        proto_tree_add_item(tree, hf_ieee80211_mesh_id, tvb, offset, tag_len, ENC_ASCII|ENC_NA);
         if (tag_len > 0) {
             col_append_fstr(pinfo->cinfo, COL_INFO, ", MESHID=%s", tvb_get_ephemeral_string(tvb, offset, tag_len));
             proto_item_append_text(ti, ": %s", tvb_get_ephemeral_string(tvb, offset, tag_len));

@@ -523,7 +523,7 @@ static int dissect_olsrorg_nameservice(tvbuff_t *tvb, packet_info *pinfo, proto_
           NULL, "Not enough bytes for content of last nameservice entry");
       return message_end;
     }
-    proto_tree_add_item(olsr_ns_tree, hf_olsrorg_ns_content, tvb, offset + 20, length, FALSE);
+    proto_tree_add_item(olsr_ns_tree, hf_olsrorg_ns_content, tvb, offset + 20, length, ENC_ASCII|ENC_NA);
     offset += 4 + 16 + ((length - 1) | 3) + 1;
   }
   return message_end;

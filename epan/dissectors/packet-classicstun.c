@@ -449,7 +449,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						proto_tree_add_item(att_tree, classicstun_att_error_number, tvb, offset+3, 1, ENC_BIG_ENDIAN);
 						if (att_length < 5)
 							break;
-						proto_tree_add_item(att_tree, classicstun_att_error_reason, tvb, offset+4, (att_length-4), FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_error_reason, tvb, offset+4, (att_length-4), ENC_ASCII|ENC_NA);
 						break;
 
 					case LIFETIME:
@@ -482,7 +482,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 
 					case SERVER:
-						proto_tree_add_item(att_tree, classicstun_att_server_string, tvb, offset, att_length, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_server_string, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 						break;
 
 					case XOR_MAPPED_ADDRESS:
@@ -533,7 +533,7 @@ dissect_classicstun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						break;
 
 					case CONNECTION_REQUEST_BINDING:
-						proto_tree_add_item(att_tree, classicstun_att_connection_request_binding, tvb, offset, att_length, FALSE);
+						proto_tree_add_item(att_tree, classicstun_att_connection_request_binding, tvb, offset, att_length, ENC_ASCII|ENC_NA);
 						break;
 
 					default:

@@ -359,10 +359,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_password, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_password, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_version, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -378,7 +378,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             "Login successful: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
           offset += 1;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_login_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_login_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           if (i == 1){
             proto_tree_add_ipv4(slsk_tree, hf_slsk_client_ip, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
@@ -407,7 +407,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_ipv4(slsk_tree, hf_slsk_ip, tvb, offset, 4, tvb_get_ntohl(tvb, offset));
           offset += 4;
@@ -421,7 +421,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -444,7 +444,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_user_exists, tvb, offset, 1, tvb_get_guint8(tvb, offset),
             "User exists: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
@@ -457,7 +457,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "i*")) {
@@ -602,7 +602,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_status_code, tvb, offset, 4, tvb_get_letohl(tvb, offset),
             "Status: %s (Code: %d)", val_to_str(tvb_get_letohl(tvb, offset), slsk_status_codes, "Unknown"), tvb_get_letohl(tvb, offset));
@@ -615,7 +615,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -660,7 +660,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                 len = tvb_get_letohl(uncompr_tvb, uncompr_tvb_offset);
                 proto_tree_add_uint(slsk_compr_packet_tree, hf_slsk_string_length, uncompr_tvb, uncompr_tvb_offset, 4, len);
-                proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_username, uncompr_tvb, uncompr_tvb_offset+4, len, TRUE);
+                proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_username, uncompr_tvb, uncompr_tvb_offset+4, len, ENC_ASCII|ENC_NA);
                 uncompr_tvb_offset += 4+len;
                 proto_tree_add_item(slsk_compr_packet_tree, hf_slsk_token, uncompr_tvb, uncompr_tvb_offset, 4, ENC_LITTLE_ENDIAN);
                 uncompr_tvb_offset += 4;
@@ -747,13 +747,13 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "iss")) {
@@ -763,10 +763,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -779,7 +779,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "isi*")) {
@@ -789,7 +789,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
@@ -870,7 +870,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "i")) {
@@ -890,10 +890,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_total_uploads, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -917,7 +917,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_user_description, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_user_description, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_picture_exists, tvb, offset, 1, tvb_get_guint8(tvb, offset),
             "Picture exists: %s (Byte: %d)", val_to_str(tvb_get_guint8(tvb, offset), slsk_yes_no, "Unknown"), tvb_get_guint8(tvb, offset));
@@ -925,7 +925,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           if ( tvb_get_guint8(tvb, offset -1 ) == 1 ) {
             proto_tree_add_uint_format(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset),
               "Picture Size: %d", tvb_get_letohl(tvb, offset));
-            proto_tree_add_item(slsk_tree, hf_slsk_picture, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_picture, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
             offset += 4+tvb_get_letohl(tvb, offset);
           }
           proto_tree_add_uint(slsk_tree, hf_slsk_total_uploads, tvb, offset, 4, tvb_get_letohl(tvb, offset));
@@ -946,10 +946,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -967,7 +967,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           offset += 4;
           len = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, ENC_ASCII|ENC_NA);
           offset += 4+len;
           len = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
@@ -987,7 +987,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           offset += 4;
           len = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, ENC_ASCII|ENC_NA);
           offset += 4+len;
           len = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
@@ -1013,10 +1013,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "iiiss")) {
@@ -1030,10 +1030,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_timestamp, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1060,7 +1060,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1096,7 +1096,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_average_speed, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1125,7 +1125,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_average_speed, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1146,7 +1146,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "iis")) {
@@ -1158,7 +1158,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_directory, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_directory, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1313,7 +1313,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_slotsfull, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1331,7 +1331,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           if (i == 1){
             proto_tree_add_uint(slsk_tree, hf_slsk_size, tvb, offset, 4, tvb_get_letohl(tvb, offset));
@@ -1365,7 +1365,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             }
           } else {
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-            proto_tree_add_item(slsk_tree, hf_slsk_string, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_string, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
             offset += 4+tvb_get_letohl(tvb, offset);
           }
         }
@@ -1379,7 +1379,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1392,7 +1392,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1405,7 +1405,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_place_in_queue, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1420,7 +1420,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1433,7 +1433,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "isi")) {
@@ -1443,7 +1443,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_ranking, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1455,10 +1455,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_string, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_string, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1472,7 +1472,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1485,7 +1485,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1584,7 +1584,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "isi*")) {
@@ -1594,7 +1594,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -1625,7 +1625,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_string, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_string, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_number_of_users, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -1656,7 +1656,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1673,7 +1673,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1686,7 +1686,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1746,15 +1746,15 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_directory, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_directory, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 16, 0,
             "(+12 0 bytes)");
@@ -1769,10 +1769,10 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_filename, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_directory, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_directory, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 13, 0,
             "(+13 0 bytes)");
@@ -1788,7 +1788,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -1808,7 +1808,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_room, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_users_in_room, tvb, offset, 4, tvb_get_letohl(tvb, offset));
@@ -1889,7 +1889,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           proto_tree_add_uint(slsk_tree, hf_slsk_code, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
@@ -1900,7 +1900,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_port, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_chat_message, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -2044,7 +2044,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -2084,12 +2084,12 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_uint(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-            proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
             offset += 4+tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-            proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
             offset += 4+tvb_get_letohl(tvb, offset);
           }
         }
@@ -2150,7 +2150,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
       break;
@@ -2213,7 +2213,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "isi*")) {
@@ -2223,7 +2223,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -2257,7 +2257,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "isi*")) {
@@ -2267,7 +2267,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                      "Message Type: %s (Code: %02d)", message_type, msg_code);
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_recommendation, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
           i=0; j = tvb_get_letohl(tvb, offset);
           proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset),
@@ -2300,7 +2300,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
           proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
           offset += 4;
           proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+          proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
           offset += 4+tvb_get_letohl(tvb, offset);
         }
         else if (check_slsk_format(tvb, offset, "ii")) {
@@ -2325,12 +2325,12 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             proto_tree_add_uint(slsk_tree, hf_slsk_integer, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-            proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
             offset += 4+tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_token, tvb, offset, 4, tvb_get_letohl(tvb, offset));
             offset += 4;
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, tvb_get_letohl(tvb, offset));
-            proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_search_text, tvb, offset+4, tvb_get_letohl(tvb, offset), ENC_ASCII|ENC_NA);
             offset += 4+tvb_get_letohl(tvb, offset);
           }
         }
@@ -2345,7 +2345,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
             offset += 1;
             len = tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);
-            proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, FALSE);
+            proto_tree_add_item(slsk_tree, hf_slsk_username, tvb, offset+4, len, ENC_ASCII|ENC_NA);
             offset += 4+len;
             len = tvb_get_letohl(tvb, offset);
             proto_tree_add_uint(slsk_tree, hf_slsk_string_length, tvb, offset, 4, len);

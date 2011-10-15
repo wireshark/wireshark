@@ -1030,7 +1030,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 
 			if ((message_type == TIPCv2_RESET_MSG)
 					|| ((message_type == TIPCv2_STATE_MSG) && ((msg_size-(orig_hdr_size*4)) != 0))) /* is allowed */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipcv2_bearer_instance, tipc_tvb, offset, -1, ENC_ASCII|ENC_NA);
 				/* the bearer instance string is padded with \0 to the next word boundry */
 				b_inst_strlen = tvb_strsize(tipc_tvb, offset);
 				offset += b_inst_strlen;
@@ -1892,7 +1892,7 @@ dissect_tipc_int_prot_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tipc_tr
 
 	switch (user) {
 		case TIPC_LINK_PROTOCOL:
-			proto_tree_add_item(tipc_tree, hf_tipc_bearer_name, tvb, offset, -1, FALSE);
+			proto_tree_add_item(tipc_tree, hf_tipc_bearer_name, tvb, offset, -1, ENC_ASCII|ENC_NA);
 			break;
 		case TIPC_CHANGEOVER_PROTOCOL:
 			switch (msg_type) {

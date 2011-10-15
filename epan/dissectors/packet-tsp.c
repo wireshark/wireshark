@@ -163,7 +163,7 @@ dissect_tsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tsp_tree) {
 		proto_tree_add_item(tsp_tree, hf_tsp_name, tvb, 12,
-			-1, FALSE);
+			-1, ENC_ASCII|ENC_NA);
 	}
 }
 

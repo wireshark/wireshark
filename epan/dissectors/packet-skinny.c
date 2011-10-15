@@ -1254,7 +1254,7 @@ dissect_skinny_xml(proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo, const gi
   tvbuff_t *next_tvb;
   dissector_handle_t handle;
 
-  item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, start, length, TRUE);
+  item = proto_tree_add_item(tree, hf_skinny_xmlData, tvb, start, length, ENC_ASCII|ENC_NA);
   subtree = proto_item_add_subtree(item, 0);
   next_tvb = tvb_new_subset(tvb, start, length, -1);
   handle = dissector_get_string_handle(media_type_dissector_table, "text/xml");
@@ -1346,7 +1346,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0001: /* RegisterMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, offset+28, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, offset+32, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_ipAddress, tvb, offset+36, 4, ENC_BIG_ENDIAN);
@@ -1369,7 +1369,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0004: /* EnblocCallMessage -- This decode NOT verified*/
-      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, offset+12, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, offset+12, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0005: /* StimulusMessage */
@@ -1451,7 +1451,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x0020: /* AlarmMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_alarmSeverity, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxAlarmMessageSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxAlarmMessageSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_alarmParam1, tvb, offset+96, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_alarmParam2, tvb, offset+100, 4, ENC_BIG_ENDIAN);
       break;
@@ -1501,7 +1501,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0023: /* ConnectionStatisticsRes */
-      proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, offset+12, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, offset+12, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+36, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_statsProcessingType, tvb, offset+40, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_packetsSent, tvb, offset+44, 4, ENC_LITTLE_ENDIAN);
@@ -1515,7 +1515,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0024: /* OffHookWithCgpnMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, offset+12,StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, offset+12,StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0025: /* SoftKeySetReqMessage */
@@ -1536,7 +1536,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0029: /* RegisterTokenReq */
-      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, 4, ENC_ASCII|ENC_NA);
       i = offset+12+StationMaxDeviceNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, i+4, 4, ENC_LITTLE_ENDIAN);
@@ -1847,7 +1847,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_directoryIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_unknown, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_directoryPhoneNumber, tvb, offset+24, 256, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryPhoneNumber, tvb, offset+24, 256, ENC_ASCII|ENC_NA);
       break;
 
 
@@ -1858,7 +1858,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
        */
     case 0x0081: /* RegisterAckMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_keepAliveInterval, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_dateTemplate, tvb, offset+16, StationDateTemplateSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_dateTemplate, tvb, offset+16, StationDateTemplateSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_secondaryKeepAliveInterval, tvb, offset+24, 4, ENC_LITTLE_ENDIAN);
       break;
 
@@ -1980,14 +1980,14 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x008f: /* CallInfoMessage */
       i = offset+12;
-      proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, StationMaxNameSize, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
       si->callingParty = g_strdup(tvb_format_stringzpad(tvb, i, StationMaxDirnumSize));
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
-      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       si->calledParty = g_strdup(tvb_format_stringzpad(tvb, i, StationMaxDirnumSize));
       i += StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
@@ -1998,25 +1998,25 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       i += 4;
       proto_tree_add_item(skinny_tree, hf_skinny_callType, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
-      proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_cast_originalCdpnRedirectReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
       proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingReason, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
-      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_cast_callInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
@@ -2047,40 +2047,40 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_item(skinny_tree, hf_skinny_activeForward, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_forwardAllActive, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, offset+24, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, offset+24, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i = offset+24+StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_forwardBusyActive, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i += StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_forwardNoAnswerActive, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_forwardNumber, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0091: /* SpeedDialStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_speedDialNumber, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_speedDialDirNumber, tvb, offset+16, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_speedDialDisplayName, tvb, offset+40, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialDirNumber, tvb, offset+16, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_speedDialDisplayName, tvb, offset+40, StationMaxNameSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0092: /* LineStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_lineNumber, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineDirNumber, tvb, offset+16, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineFullyQualifiedDisplayName, tvb, offset+16+StationMaxDirnumSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_lineDisplayName, tvb, offset+16+StationMaxDirnumSize+StationMaxNameSize, StationMaxDisplayNameSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0093: /* ConfigStatMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_deviceName, tvb, offset+12, StationMaxDeviceNameSize, ENC_ASCII|ENC_NA);
       i = offset+12+StationMaxDeviceNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_stationUserId, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
       proto_tree_add_item(skinny_tree, hf_skinny_stationInstance, tvb, i, 4, ENC_LITTLE_ENDIAN);
       i += 4;
-      proto_tree_add_item(skinny_tree, hf_skinny_userName, tvb, i, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_userName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
-      proto_tree_add_item(skinny_tree, hf_skinny_serverName, tvb, i, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_serverName, tvb, i, StationMaxNameSize, ENC_ASCII|ENC_NA);
       i += StationMaxNameSize;
       proto_tree_add_item(skinny_tree, hf_skinny_numberLines, tvb, i, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_numberSpeedDials, tvb, i+4, 4, ENC_LITTLE_ENDIAN);
@@ -2125,11 +2125,11 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x0098: /* VersionMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_version, tvb, offset+12, StationMaxVersionSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_version, tvb, offset+12, StationMaxVersionSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0099: /* DisplayTextMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x009a: /* ClearDisplay */
@@ -2148,12 +2148,12 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x009d: /* RegisterRejectMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+12, StationMaxDisplayTextSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x009e: /* ServerResMessage */
       for (i = 0; i < StationMaxServers; i++) {
-	      proto_tree_add_item(skinny_tree, hf_skinny_serverIdentifier, tvb, offset+12+(i*StationMaxServers), StationMaxServerNameSize, ENC_LITTLE_ENDIAN);
+	      proto_tree_add_item(skinny_tree, hf_skinny_serverIdentifier, tvb, offset+12+(i*StationMaxServers), StationMaxServerNameSize, ENC_ASCII|ENC_NA);
       }
       j = offset+12+(i*StationMaxServers);
       for (i = 0; i < StationMaxServers; i++) {
@@ -2229,7 +2229,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x0107: /* ConnectionStatisticsReq */
 
       i = 12;
-      proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, i, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_directoryNumber, tvb, i, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       i = 12 + StationMaxDirnumSize;
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, i, 4, ENC_LITTLE_ENDIAN);
       si->callId = tvb_get_letohl(tvb, i);
@@ -2243,7 +2243,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       proto_tree_add_uint(skinny_tree, hf_skinny_softKeyCount, tvb, offset+16, 4, softKeyCount);
       proto_tree_add_item(skinny_tree, hf_skinny_totalSoftKeyCount, tvb, offset+20, 4, ENC_LITTLE_ENDIAN);
       for (i = 0; ((i < StationMaxSoftKeyDefinition) && (i < softKeyCount)); i++){
-	      proto_tree_add_item(skinny_tree, hf_skinny_softKeyLabel, tvb, offset+(i*20)+24, StationMaxSoftKeyLabelSize, ENC_LITTLE_ENDIAN);
+	      proto_tree_add_item(skinny_tree, hf_skinny_softKeyLabel, tvb, offset+(i*20)+24, StationMaxSoftKeyLabelSize, ENC_ASCII|ENC_NA);
 	      proto_tree_add_item(skinny_tree, hf_skinny_softKeyEvent, tvb, offset+(i*20)+40, 4, ENC_LITTLE_ENDIAN);
       }
       /* there is more data here, but it doesn't make a whole lot of sense, I imagine
@@ -2305,7 +2305,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x0112: /* DisplayPromptStatusMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayPromptStatusSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayPromptStatusSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+48, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+52, 4, ENC_LITTLE_ENDIAN);
       si->lineId = tvb_get_letohl(tvb, offset+48);
@@ -2321,7 +2321,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x0114: /* DisplayNotifyMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayNotifySize , ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_displayMessage, tvb, offset+16, StationMaxDisplayNotifySize , ENC_ASCII|ENC_NA);
       break;
 
     case 0x0115: /* ClearNotifyMessage */
@@ -2366,7 +2366,7 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       break;
 
     case 0x011D: /* DialedNumberMessage */
-      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, offset+12, StationMaxDirnumSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, offset+12, StationMaxDirnumSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_lineInstance, tvb, offset+12+StationMaxDirnumSize, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_callIdentifier, tvb, offset+12+StationMaxDirnumSize+4, 4, ENC_LITTLE_ENDIAN);
       si->lineId = tvb_get_letohl(tvb, offset+12+StationMaxDirnumSize);
@@ -2388,14 +2388,14 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     case 0x011F: /* FeatureStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_featureIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_featureID, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_featureTextLabel, tvb, offset+20, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_featureTextLabel, tvb, offset+20, StationMaxNameSize, ENC_ASCII|ENC_NA);
       proto_tree_add_item(skinny_tree, hf_skinny_featureStatus, tvb, offset+20+StationMaxNameSize, 4, ENC_LITTLE_ENDIAN);
       break;
 
     case 0x0120: /* DisplayPriNotifyMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_messageTimeOutValue, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
       proto_tree_add_item(skinny_tree, hf_skinny_priority, tvb, offset+16, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_notify, tvb, offset+16, StationMaxDisplayNotifySize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_notify, tvb, offset+16, StationMaxDisplayNotifySize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0121: /* ClearPriNotifyMessage */
@@ -2493,8 +2493,8 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     case 0x012F: /* ServiceURLStatMessage */
       proto_tree_add_item(skinny_tree, hf_skinny_serviceURLIndex, tvb, offset+12, 4, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_serviceURL, tvb, offset+16, StationMaxServiceURLSize, ENC_LITTLE_ENDIAN);
-      proto_tree_add_item(skinny_tree, hf_skinny_serviceURLDisplayName, tvb, offset+16+StationMaxServiceURLSize, StationMaxNameSize, ENC_LITTLE_ENDIAN);
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURL, tvb, offset+16, StationMaxServiceURLSize, ENC_ASCII|ENC_NA);
+      proto_tree_add_item(skinny_tree, hf_skinny_serviceURLDisplayName, tvb, offset+16+StationMaxServiceURLSize, StationMaxNameSize, ENC_ASCII|ENC_NA);
       break;
 
     case 0x0130: /* CallSelectStatMessage */
@@ -2813,81 +2813,81 @@ dissect_skinny_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         {
           /* 8x party numbers */
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           /* 4x party names */
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
         }
         else if(hdr_version == CM7_MSG_TYPE_B || hdr_version == CM7_MSG_TYPE_A)
         {/* I'm not sure. Not enough examples. */
           /* 8x party numbers */
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyNumber, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_cgpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyNumber, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingParty, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_cdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_originalCdpnVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingVoiceMailbox, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           /* 4x party names */
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_callingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_calledPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_skinny_originalCalledPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
           i += count;
           count = tvb_strnlen(tvb, i, -1)+1;
-          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, ENC_LITTLE_ENDIAN);
+          proto_tree_add_item(skinny_tree, hf_cast_lastRedirectingPartyName, tvb, i, count, ENC_ASCII|ENC_NA);
         }
       }
       break;

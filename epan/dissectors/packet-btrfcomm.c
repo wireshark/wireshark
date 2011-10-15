@@ -846,7 +846,7 @@ dissect_bthf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
 				pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", tvb_format_text(tvb, 0, length));
 
-	proto_tree_add_item(st, hf_at_cmd, tvb, 0, -1, ENC_LITTLE_ENDIAN);
+	proto_tree_add_item(st, hf_at_cmd, tvb, 0, -1, ENC_ASCII|ENC_NA);
 }
 
 void
@@ -909,7 +909,7 @@ dissect_btdun(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		col_add_fstr(pinfo->cinfo, COL_INFO, "%s \"%s\"",
 	                pinfo->p2p_dir==P2P_DIR_SENT?"Sent":"Rcvd", tvb_format_text(tvb, 0, length));
 
-	       proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, -1, ENC_LITTLE_ENDIAN);
+	       proto_tree_add_item(st, hf_dun_at_cmd, tvb, 0, -1, ENC_ASCII|ENC_NA);
 	}
 	else {
 		/* ... or raw PPP */

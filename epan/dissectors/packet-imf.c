@@ -344,7 +344,7 @@ dissect_imf_address(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
     group_tree = proto_item_add_subtree(item, ett_imf_group);
 
     /* the display-name is mandatory */
-    group_item = proto_tree_add_item(group_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, FALSE);
+    group_item = proto_tree_add_item(group_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII|ENC_NA);
 
     /* consume any whitespace */
     for(addr_pos++ ;addr_pos < (offset + length); addr_pos++) {
@@ -381,7 +381,7 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
   if((addr_pos = tvb_find_guint8(tvb, offset, length, '<')) == -1) {
     /* we can't find an angle bracket - the whole field is therefore the address */
 
-    (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, offset, length, FALSE);
+    (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, offset, length, ENC_ASCII|ENC_NA);
 
   } else {
     /* we can find an angle bracket - let's see if we can find a display name */
@@ -394,12 +394,12 @@ dissect_imf_mailbox(tvbuff_t *tvb, int offset, int length, proto_item *item, pac
     }
 
     if(offset != addr_pos) { /* there is a display name */
-      (void) proto_tree_add_item(mbox_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, FALSE);
+      (void) proto_tree_add_item(mbox_tree, hf_imf_display_name, tvb, offset, addr_pos - offset - 1, ENC_ASCII|ENC_NA);
     }
     end_pos = tvb_find_guint8(tvb, addr_pos + 1, length - (addr_pos + 1 - offset), '>');
 
     if(end_pos != -1) {
-      (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, FALSE);
+      (void) proto_tree_add_item(mbox_tree, hf_imf_address, tvb, addr_pos + 1, end_pos - addr_pos - 1, ENC_ASCII|ENC_NA);
     }
   }
 }
@@ -431,7 +431,7 @@ dissect_imf_address_list(tvbuff_t *tvb, int offset, int length, proto_item *item
     } else {
       item_length = end_offset - item_offset;
     }
-    addr_item = proto_tree_add_item(tree, hf_imf_address_list_item, tvb, item_offset, item_length, FALSE);
+    addr_item = proto_tree_add_item(tree, hf_imf_address_list_item, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
     dissect_imf_address(tvb, item_offset, item_length, addr_item, pinfo);
 
     if(end_offset != -1) {
@@ -470,7 +470,7 @@ dissect_imf_mailbox_list(tvbuff_t *tvb, int offset, int length, proto_item *item
     } else {
       item_length = end_offset - item_offset;
     }
-    mbox_item = proto_tree_add_item(tree, hf_imf_mailbox_list_item, tvb, item_offset, item_length, FALSE);
+    mbox_item = proto_tree_add_item(tree, hf_imf_mailbox_list_item, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
     dissect_imf_mailbox(tvb, item_offset, item_length, mbox_item, pinfo);
 
     if(end_offset != -1) {
@@ -525,17 +525,17 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
 
     if (tvb_strneql(tvb, item_offset, "marking", 7) == 0) {
       proto_item_append_text(item, ": %s", tvb_get_ephemeral_string(tvb, value_offset, value_length));
-      proto_tree_add_item(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, FALSE);
+      proto_tree_add_item(tree, hf_imf_siolabel_marking, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "fgcolor", 7) == 0) {
-      proto_tree_add_item(tree, hf_imf_siolabel_fgcolor, tvb, value_offset, value_length, FALSE);
+      proto_tree_add_item(tree, hf_imf_siolabel_fgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "bgcolor", 7) == 0) {
-      proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, FALSE);
+      proto_tree_add_item(tree, hf_imf_siolabel_bgcolor, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "type", 4) == 0) {
       type = tvb_get_ephemeral_string(tvb, value_offset + 1, value_length - 2); /* quoted */
-      proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, FALSE);
+      proto_tree_add_item(tree, hf_imf_siolabel_type, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
 
     } else if (tvb_strneql(tvb, item_offset, "label", 5) == 0) {
       gchar *label = tvb_get_ephemeral_string(tvb, value_offset + 1, value_length - 2); /* quoted */
@@ -546,11 +546,11 @@ dissect_imf_siolabel(tvbuff_t *tvb, int offset, int length, proto_item *item, pa
         proto_tree_add_string_format(tree, hf_imf_siolabel_label, tvb, value_offset, value_length,
                                      label, "Label[%d]: \"%s\"", num, label);
       } else {
-        proto_tree_add_item(tree, hf_imf_siolabel_label, tvb, value_offset, value_length, FALSE);
+        proto_tree_add_item(tree, hf_imf_siolabel_label, tvb, value_offset, value_length, ENC_ASCII|ENC_NA);
       }
 
     } else {
-      sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, FALSE);
+      sub_item = proto_tree_add_item(tree, hf_imf_siolabel_unknown, tvb, item_offset, item_length, ENC_ASCII|ENC_NA);
       expert_add_info_format(pinfo, sub_item, PI_PROTOCOL, PI_WARN, "Unknown parameter");
     }
 
@@ -598,13 +598,13 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
     ct_tree = proto_item_add_subtree(item, ett_imf_content_type);
 
     len = first_colon - offset;
-    proto_tree_add_item(ct_tree, hf_imf_content_type_type, tvb, offset, len, FALSE);
+    proto_tree_add_item(ct_tree, hf_imf_content_type_type, tvb, offset, len, ENC_ASCII|ENC_NA);
     if(type) {
       /* This string will be automatically freed */
       (*type) = tvb_get_ephemeral_string(tvb, offset, len);
     }
     len = length - (first_colon + 1 - offset);
-    proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, FALSE);
+    proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA);
     if(parameters) {
       /* This string will be automatically freed */
       (*parameters) = tvb_get_ephemeral_string(tvb, first_colon + 1, len);
@@ -743,16 +743,16 @@ dissect_imf(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
       if(hf_id == hf_imf_extension_type) {
 
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
-        item = proto_tree_add_item(tree, hf_imf_extension, tvb, unknown_offset, end_offset - unknown_offset - 2, FALSE);
+        item = proto_tree_add_item(tree, hf_imf_extension, tvb, unknown_offset, end_offset - unknown_offset - 2, ENC_ASCII|ENC_NA);
 
         proto_item_append_text(item, " (Contact Wireshark developers if you want this supported.)");
 
         unknown_tree = proto_item_add_subtree(item, ett_imf_extension);
 
-        proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, FALSE);
+        proto_tree_add_item(unknown_tree, hf_imf_extension_type, tvb, unknown_offset, start_offset - 1 - unknown_offset, ENC_ASCII|ENC_NA);
 
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */
-        item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, start_offset, end_offset - start_offset - 2, FALSE);
+        item = proto_tree_add_item(unknown_tree, hf_imf_extension_value, tvb, start_offset, end_offset - start_offset - 2, ENC_ASCII|ENC_NA);
 
       } else {
         /* remove 2 bytes to take off the final CRLF to make things a little prettier */

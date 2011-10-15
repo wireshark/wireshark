@@ -162,7 +162,7 @@ dissect_quake_CCREQ_CONNECT
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_game,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 
 		proto_tree_add_item(tree, hf_quake_CCREQ_CONNECT_version,
@@ -182,7 +182,7 @@ dissect_quake_CCREQ_SERVER_INFO
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_game,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 		proto_tree_add_item(tree, hf_quake_CCREQ_SERVER_INFO_version,
 			tvb, offset, 1, ENC_LITTLE_ENDIAN);
@@ -207,7 +207,7 @@ dissect_quake_CCREQ_RULE_INFO
 {
 	if (tree) {
 		proto_tree_add_item(tree, hf_quake_CCREQ_RULE_INFO_lastrule,
-			tvb, 0, -1, TRUE);
+			tvb, 0, -1, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -236,7 +236,7 @@ dissect_quake_CCREP_REJECT
 {
 	if (tree) {
 		proto_tree_add_item(tree, hf_quake_CCREP_REJECT_reason,
-			tvb, 0, -1, TRUE);
+			tvb, 0, -1, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -253,16 +253,16 @@ dissect_quake_CCREP_SERVER_INFO
 	if (tree) {
 		ti = proto_tree_add_item(tree,
 			hf_quake_CCREP_SERVER_INFO_address, tvb, offset, -1,
-			TRUE);
+			ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 
 		ti = proto_tree_add_item(tree,
 			hf_quake_CCREP_SERVER_INFO_server, tvb, offset, -1,
-			TRUE);
+			ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 
 		ti = proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_map,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 
 		proto_tree_add_item(tree, hf_quake_CCREP_SERVER_INFO_num_player,
@@ -297,7 +297,7 @@ dissect_quake_CCREP_PLAYER_INFO
 		offset += 1;
 
 		ti = proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_name,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 
 		colors       = tvb_get_letohl(tvb, offset + 0);
@@ -324,7 +324,7 @@ dissect_quake_CCREP_PLAYER_INFO
 		offset += 4;
 
 		proto_tree_add_item(tree, hf_quake_CCREP_PLAYER_INFO_address,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -342,11 +342,11 @@ dissect_quake_CCREP_RULE_INFO
 
 	if (tree) {
 		ti = proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_rule,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 		offset += proto_item_get_len(ti);
 
 		proto_tree_add_item(tree, hf_quake_CCREP_RULE_INFO_value,
-			tvb, offset, -1, TRUE);
+			tvb, offset, -1, ENC_ASCII|ENC_NA);
 	}
 }
 

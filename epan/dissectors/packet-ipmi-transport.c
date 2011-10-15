@@ -833,7 +833,7 @@ lan_15(tvbuff_t *tvb, proto_tree *tree)
 static void
 lan_16(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_lan16_comm_string, tvb, 0, 18, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_lan16_comm_string, tvb, 0, 18, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1279,25 +1279,25 @@ static void
 serial_10(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_serial10_set_sel, tvb, 0, 1, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial10_init_str, tvb, 1, tvb_length(tvb) - 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial10_init_str, tvb, 1, tvb_length(tvb) - 1, ENC_ASCII|ENC_NA);
 }
 
 static void
 serial_11(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial11_esc_seq, tvb, 0, 5, TRUE); 
+	proto_tree_add_item(tree, hf_ipmi_trn_serial11_esc_seq, tvb, 0, 5, ENC_ASCII|ENC_NA); 
 }
 
 static void
 serial_12(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial12_hangup_seq, tvb, 0, 8, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial12_hangup_seq, tvb, 0, 8, ENC_ASCII|ENC_NA);
 }
 
 static void
 serial_13(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial13_dial_cmd, tvb, 0, 8, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial13_dial_cmd, tvb, 0, 8, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1309,7 +1309,7 @@ serial_14(tvbuff_t *tvb, proto_tree *tree)
 static void
 serial_15(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial15_comm_string, tvb, 0, 18, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial15_comm_string, tvb, 0, 18, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1399,7 +1399,7 @@ serial_21(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_bitmask_text(tree, tvb, 0, 1, NULL, NULL,
 			ett_ipmi_trn_serial21_byte1, byte1, TRUE, 0);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial21_blockno, tvb, 1, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial21_dialstr, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial21_dialstr, tvb, 2, 1, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1444,14 +1444,14 @@ static void
 serial_26(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_serial26_tap_acct, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial26_tap_passwd, tvb, 1, 6, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial26_tap_passwd, tvb, 1, 6, ENC_ASCII|ENC_NA);
 }
 
 static void
 serial_27(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_trn_serial27_tap_acct, tvb, 0, 1, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial27_tap_pager_id, tvb, 1, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial27_tap_pager_id, tvb, 1, 16, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1469,7 +1469,7 @@ serial_28(tvbuff_t *tvb, proto_tree *tree)
 			ett_ipmi_trn_serial28_byte1, byte1, TRUE, 0);
 	proto_tree_add_bitmask_text(tree, tvb, 1, 1, NULL, NULL,
 			ett_ipmi_trn_serial28_byte2, byte2, TRUE, 0);
-	proto_tree_add_item(tree, hf_ipmi_trn_serial28_srvtype, tvb, 2, 3, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial28_srvtype, tvb, 2, 3, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial28_ctrl_esc, tvb, 5, 4, ENC_LITTLE_ENDIAN);
 	proto_tree_add_bitmask_text(tree, tvb, 9, 1, NULL, NULL,
 			ett_ipmi_trn_serial28_byte10, byte10, TRUE, 0);
@@ -1537,7 +1537,7 @@ serial_33(tvbuff_t *tvb, proto_tree *tree)
 static void
 serial_34(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial34_chap_name, tvb, 0, 16, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial34_chap_name, tvb, 0, 16, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1586,7 +1586,7 @@ serial_40(tvbuff_t *tvb, proto_tree *tree)
 	if (slen > 16) {
 		slen = 16;
 	}
-	proto_tree_add_item(tree, hf_ipmi_trn_serial40_username, tvb, 1, slen, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial40_username, tvb, 1, slen, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1599,7 +1599,7 @@ serial_41(tvbuff_t *tvb, proto_tree *tree)
 	if (slen > 16) {
 		slen = 16;
 	}
-	proto_tree_add_item(tree, hf_ipmi_trn_serial41_userdomain, tvb, 1, slen, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial41_userdomain, tvb, 1, slen, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1612,7 +1612,7 @@ serial_42(tvbuff_t *tvb, proto_tree *tree)
 	if (slen > 16) {
 		slen = 16;
 	}
-	proto_tree_add_item(tree, hf_ipmi_trn_serial42_userpass, tvb, 1, slen, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial42_userpass, tvb, 1, slen, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1667,7 +1667,7 @@ serial_49(tvbuff_t *tvb, proto_tree *tree)
 	if (slen > 16) {
 		slen = 16;
 	}
-	proto_tree_add_item(tree, hf_ipmi_trn_serial49_dialstr, tvb, 1, slen, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial49_dialstr, tvb, 1, slen, ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1934,11 +1934,11 @@ rq13(tvbuff_t *tvb, proto_tree *tree)
 static void
 rs13(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_13_code1, tvb, 0, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_13_code2, tvb, 3, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_13_code3, tvb, 6, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_13_code4, tvb, 9, 3, TRUE);
-	proto_tree_add_item(tree, hf_ipmi_trn_13_code5, tvb, 12, 3, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_13_code1, tvb, 0, 3, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_trn_13_code2, tvb, 3, 3, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_trn_13_code3, tvb, 6, 3, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_trn_13_code4, tvb, 9, 3, ENC_ASCII|ENC_NA);
+	proto_tree_add_item(tree, hf_ipmi_trn_13_code5, tvb, 12, 3, ENC_ASCII|ENC_NA);
 }
 
 /* Set PPP UDP Proxy Transmit Data

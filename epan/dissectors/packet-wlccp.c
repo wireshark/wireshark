@@ -830,7 +830,7 @@ dissect_wlccp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						    tvb, 38, 4, ENC_BIG_ENDIAN);
 
 				proto_tree_add_item(wlccp_tree, hf_wlccp_hostname,
-						    tvb, 44, 28, ENC_BIG_ENDIAN);
+						    tvb, 44, 28, ENC_ASCII|ENC_NA);
 			} /* if type = 0x4081 */
 		} /* if version == 0x00 */
 
@@ -2853,7 +2853,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 			_radius_user_name_length = _length - 23 - 4;
 
-			proto_tree_add_item(_tree, hf_wlccp_radius_user_name, _tvb, _offset, _radius_user_name_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_radius_user_name, _tvb, _offset, _radius_user_name_length, ENC_ASCII|ENC_NA);
 			_offset += _radius_user_name_length;
 
 
@@ -2970,7 +2970,7 @@ static guint dissect_wlccp_nm_tlv(proto_tree *_tree, tvbuff_t *_tvb, guint _offs
 
 			_radius_user_name_length = _length - 23 - 4;
 
-			proto_tree_add_item(_tree, hf_wlccp_radius_user_name, _tvb, _offset, _radius_user_name_length, ENC_BIG_ENDIAN);
+			proto_tree_add_item(_tree, hf_wlccp_radius_user_name, _tvb, _offset, _radius_user_name_length, ENC_ASCII|ENC_NA);
 			_offset += _radius_user_name_length;
 
 			break;

@@ -158,8 +158,8 @@ dissect_componentstatusprotocol_componentstatusreport_message(tvbuff_t *message_
   gint        offset;
 
   proto_tree_add_item(message_tree, hf_componentstatusreport_reportinterval, message_tvb, COMPONENTSTATUSREPORT_REPORTINTERVAL_OFFSET, COMPONENTSTATUSREPORT_REPORTINTERVAL_LENGTH, ENC_BIG_ENDIAN);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_location,       message_tvb, COMPONENTSTATUSREPORT_LOCATION_OFFSET,       COMPONENTSTATUSREPORT_LOCATION_LENGTH,       ENC_BIG_ENDIAN);
-  proto_tree_add_item(message_tree, hf_componentstatusreport_status,         message_tvb, COMPONENTSTATUSREPORT_STATUS_OFFSET,         COMPONENTSTATUSREPORT_STATUS_LENGTH,         ENC_BIG_ENDIAN);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_location,       message_tvb, COMPONENTSTATUSREPORT_LOCATION_OFFSET,       COMPONENTSTATUSREPORT_LOCATION_LENGTH,       ENC_ASCII|ENC_NA);
+  proto_tree_add_item(message_tree, hf_componentstatusreport_status,         message_tvb, COMPONENTSTATUSREPORT_STATUS_OFFSET,         COMPONENTSTATUSREPORT_STATUS_LENGTH,         ENC_ASCII|ENC_NA);
   proto_tree_add_item(message_tree, hf_componentstatusreport_workload,       message_tvb, COMPONENTSTATUSREPORT_WORKLOAD_OFFSET,       COMPONENTSTATUSREPORT_WORKLOAD_LENGTH,       ENC_BIG_ENDIAN);
   proto_tree_add_item(message_tree, hf_componentstatusreport_associations,   message_tvb, COMPONENTSTATUSREPORT_ASSOCIATIONS_OFFSET,   COMPONENTSTATUSREPORT_ASSOCIATIONS_LENGTH,   ENC_BIG_ENDIAN);
 

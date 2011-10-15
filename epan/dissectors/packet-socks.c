@@ -503,7 +503,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 						/* display user name 	*/
 			username_len = tvb_strsize(tvb, offset);
 			proto_tree_add_item( tree, hf_user_name, tvb, offset,
-				username_len, FALSE);
+				username_len, ENC_ASCII|ENC_NA);
 			offset += username_len;
 			if ( ipaddr[0] == 0 && ipaddr[1] == 0 &&
 			     ipaddr[2] == 0 && ipaddr[3] != 0) {
@@ -511,7 +511,7 @@ display_socks_v4(tvbuff_t *tvb, int offset, packet_info *pinfo,
 			     	domainname_len = tvb_strsize(tvb, offset);
 				proto_tree_add_item( tree, hf_v4a_dns_name,
 					tvb, offset, domainname_len,
-					FALSE);
+					ENC_ASCII|ENC_NA);
 			}
 		}
 

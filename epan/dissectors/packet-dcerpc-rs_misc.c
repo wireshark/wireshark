@@ -69,7 +69,7 @@ rs_misc_dissect_login_get_info_rqst (tvbuff_t *tvb, int offset,
 
 	if (key_size){ /* Not able to yet decipher the OTHER versions of this call just yet. */
 
-		proto_tree_add_item (tree, hf_rs_misc_login_get_info_rqst_key_t, tvb, offset, key_size, ENC_NA);
+		proto_tree_add_item (tree, hf_rs_misc_login_get_info_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA);
 		key_t1 = tvb_get_ephemeral_string(tvb, offset, key_size);
 		offset += key_size;
 

@@ -248,7 +248,7 @@ dissect_ziop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree) {
       ti = proto_tree_add_item (tree, proto_ziop, tvb, 0, -1, FALSE);
       ziop_tree = proto_item_add_subtree (ti, ett_ziop);
 
-      proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, FALSE);
+      proto_tree_add_item(ziop_tree, hf_ziop_magic, tvb, offset, 4, ENC_ASCII|ENC_NA);
       offset += 4;
       proto_tree_add_item(ziop_tree, hf_ziop_giop_version_major, tvb, offset, 1, ENC_BIG_ENDIAN);
       offset++;

@@ -2995,7 +2995,7 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     if (sec_addr_len != 0) {
         tvb_ensure_bytes_exist(tvb, offset, sec_addr_len);
         proto_tree_add_item (dcerpc_tree, hf_dcerpc_cn_sec_addr, tvb, offset,
-                             sec_addr_len, FALSE);
+                             sec_addr_len, ENC_ASCII|ENC_NA);
         offset += sec_addr_len;
     }
 

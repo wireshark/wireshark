@@ -392,7 +392,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
   proto_tree_add_item(tree, hf_erldp_length_2, tvb, offset, 2, ENC_BIG_ENDIAN);
   offset += 2;
   tag = tvb_get_guint8(tvb, offset);
-  proto_tree_add_item(tree, hf_erldp_tag, tvb, offset, 1, ENC_BIG_ENDIAN);
+  proto_tree_add_item(tree, hf_erldp_tag, tvb, offset, 1, ENC_ASCII|ENC_NA);
   offset++;
 
   switch (tag) {
@@ -414,7 +414,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
       }
       str_len = tvb_length_remaining(tvb, offset);
       str = tvb_get_ephemeral_string(tvb, offset, str_len);
-      proto_tree_add_item(tree, hf_erldp_name, tvb, offset, str_len, ENC_NA);
+      proto_tree_add_item(tree, hf_erldp_name, tvb, offset, str_len, ENC_ASCII|ENC_NA);
       col_add_fstr(pinfo->cinfo, COL_INFO, "%s %s", (is_challenge) ? "SEND_CHALLENGE" : "SEND_NAME", str);
       break;
 
@@ -435,7 +435,7 @@ static void dissect_erldp_handshake(tvbuff_t *tvb, packet_info *pinfo, proto_tre
     case 's' :
       str_len = tvb_length_remaining(tvb, offset);
       str = tvb_get_ephemeral_string(tvb, offset, str_len);
-      proto_tree_add_item(tree, hf_erldp_status, tvb, offset, str_len, ENC_NA);
+      proto_tree_add_item(tree, hf_erldp_status, tvb, offset, str_len, ENC_ASCII|ENC_NA);
       col_add_fstr(pinfo->cinfo, COL_INFO, "SEND_STATUS %s", str);
       break;
   }

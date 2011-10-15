@@ -1327,7 +1327,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		 * 3629 [50]. This means that the 1st octet of the UTF-8 string is coded in octet 4 and the
 		 * last octet of the UTF-8 string is coded in the last octet of this IE (octet n).
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_Service_name_value, tvb, ie_offset, ie_len -1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ap_Service_name_value, tvb, ie_offset, ie_len -1, ENC_ASCII|ENC_NA);
 		break;
 	case 62:
 		/* 11.2.62 GAN Service Zone Information

@@ -190,7 +190,7 @@ static gint dissect_netsync_cmd_error( tvbuff_t *tvb,  gint offset, proto_tree *
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_error_msg, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_ASCII|ENC_NA );
 	offset += len;
 
 	return offset;
@@ -209,7 +209,7 @@ static gint dissect_netsync_cmd_hello(tvbuff_t *tvb,  gint offset, proto_tree *t
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_hello_keyname, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_ASCII|ENC_NA );
 	offset += len;
 
 
@@ -238,7 +238,7 @@ static gint dissect_netsync_cmd_anonymous(tvbuff_t *tvb,  gint offset, proto_tre
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_anonymous_collection, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_ASCII|ENC_NA );
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_nonce, tvb,
@@ -261,7 +261,7 @@ static gint dissect_netsync_cmd_auth(tvbuff_t *tvb,  gint offset, proto_tree *tr
 	offset += dissect_uleb128( tvb, offset, &len );
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_collection, tvb,
-				offset, len, FALSE );
+				offset, len, ENC_ASCII|ENC_NA );
 	offset += len;
 
 	proto_tree_add_item(tree, hf_netsync_cmd_auth_id, tvb,

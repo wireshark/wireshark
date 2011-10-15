@@ -4946,7 +4946,7 @@ dissect_sir(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* ProvURL */
     tvb_ensure_bytes_exist(tvb, offset, val_len);
     ti = proto_tree_add_item (tree, hf_sir_prov_url,
-            tvb, offset, val_len, FALSE);
+            tvb, offset, val_len, ENC_ASCII|ENC_NA);
     offset += val_len;
 
     /* Number of entries in the CPITag list */
@@ -5496,7 +5496,7 @@ add_uri (proto_tree *tree, packet_info *pinfo, tvbuff_t *tvb,
     tvb_ensure_bytes_exist(tvb, URIOffset, uriLen);
     if (tree)
         proto_tree_add_item (tree, hf_wsp_header_uri,
-                tvb, URIOffset, uriLen, ENC_LITTLE_ENDIAN);
+                tvb, URIOffset, uriLen, ENC_ASCII|ENC_NA);
 
     str = tvb_format_text (tvb, URIOffset, uriLen);
     /* XXX - tvb_format_text() returns a pointer to a static text string

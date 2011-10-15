@@ -239,7 +239,7 @@ dissect_fcfcs_gieln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset, 1, "Name Length: %d",
                                  tvb_get_guint8 (tvb, offset));
             proto_tree_add_item (tree, hf_fcs_lname, tvb, offset+1,
-                                 tvb_get_guint8 (tvb, offset), 0);
+                                 tvb_get_guint8 (tvb, offset), ENC_ASCII|ENC_NA);
         }
     }
 }
@@ -265,7 +265,7 @@ dissect_fcfcs_gmal (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 proto_tree_add_text (tree, tvb, offset, 1, "Name Length: %d",
                                      tvb_get_guint8 (tvb, offset));
                 proto_tree_add_item (tree, hf_fcs_mgmtaddr, tvb, offset+1,
-                                     tvb_get_guint8 (tvb, offset), 0);
+                                     tvb_get_guint8 (tvb, offset), ENC_ASCII|ENC_NA);
                 offset += 256;
             }
         }
@@ -291,17 +291,17 @@ dissect_fcfcs_gieil (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             prevlen = 0;
             len = tvb_strsize(tvb, offset+4);
             proto_tree_add_item (tree, hf_fcs_vendorname, tvb, offset+4,
-                                 len, FALSE);
+                                 len, ENC_ASCII|ENC_NA);
             prevlen += len;
 
             len = tvb_strsize(tvb, offset+4+prevlen);
             proto_tree_add_item (tree, hf_fcs_modelname, tvb, offset+4+prevlen,
-                                 len, FALSE);
+                                 len, ENC_ASCII|ENC_NA);
             prevlen += len;
 
             len = tvb_strsize(tvb, offset+4+prevlen);
             proto_tree_add_item (tree, hf_fcs_releasecode, tvb,
-                                 offset+4+prevlen, len, FALSE);
+                                 offset+4+prevlen, len, ENC_ASCII|ENC_NA);
             prevlen += len;
             offset += (4+prevlen);
             while (tot_len > prevlen) {
@@ -504,7 +504,7 @@ dissect_fcfcs_gplml (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                                      "Mgmt Address Length: %d",
                                      len);
                 proto_tree_add_item (tree, hf_fcs_platformaddr, tvb, offset+1,
-                                     len, 0);
+                                     len, ENC_ASCII|ENC_NA);
                 offset += 256;
             }
         }
@@ -572,7 +572,7 @@ dissect_fcfcs_rieln (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             len = tvb_get_guint8 (tvb, offset+8);
             proto_tree_add_text (tree, tvb, offset+8, 1,
                                  "Logical Name Length: %d", len);
-            proto_tree_add_item (tree, hf_fcs_lname, tvb, offset+9, len, 0);
+            proto_tree_add_item (tree, hf_fcs_lname, tvb, offset+9, len, ENC_ASCII|ENC_NA);
         }
     }
 }
@@ -601,7 +601,7 @@ dissect_fcfcs_rpl (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
                 proto_tree_add_text (tree, tvb, offset, 1,
                                      "Mgmt. Addr Length: %d", len);
                 proto_tree_add_item (tree, hf_fcs_mgmtaddr, tvb, offset+1,
-                                     len, 0);
+                                     len, ENC_ASCII|ENC_NA);
                 offset += 256;
             }
 
@@ -674,7 +674,7 @@ dissect_fcfcs_rplm (tvbuff_t *tvb, proto_tree *tree, gboolean isreq)
             proto_tree_add_text (tree, tvb, offset+256, 1,
                                  "Platform Mgmt. Address Length: %d", len);
             proto_tree_add_item (tree, hf_fcs_platformaddr, tvb, offset+257,
-                                 len, 0);
+                                 len, ENC_ASCII|ENC_NA);
         }
     }
 }

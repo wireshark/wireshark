@@ -1841,7 +1841,7 @@ telnet_add_text(proto_tree *tree, tvbuff_t *tvb, int offset, int len)
      */
     linelen = next_offset - offset;
 
-    proto_tree_add_item(tree, hf_telnet_data, tvb, offset, linelen, FALSE);
+    proto_tree_add_item(tree, hf_telnet_data, tvb, offset, linelen, ENC_ASCII|ENC_NA);
     offset = next_offset;
   }
 }

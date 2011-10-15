@@ -392,7 +392,7 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (tree) {
 				proto_tree_add_item(reqresp_tree,
 				    hf_ftp_request_command, tvb, offset,
-				    tokenlen, FALSE);
+				    tokenlen, ENC_ASCII|ENC_NA);
 			}
 			if (strncmp(line, "PORT", tokenlen) == 0)
 				is_port_request = TRUE;
@@ -469,11 +469,11 @@ dissect_ftp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			if (is_request) {
 				proto_tree_add_item(reqresp_tree,
 				    hf_ftp_request_arg, tvb, offset,
-				    linelen, FALSE);
+				    linelen, ENC_ASCII|ENC_NA);
 			} else {
 				proto_tree_add_item(reqresp_tree,
 				    hf_ftp_response_arg, tvb, offset,
-				    linelen, FALSE);
+				    linelen, ENC_ASCII|ENC_NA);
 			}
 		}
 		offset = next_offset;

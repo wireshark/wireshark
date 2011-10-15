@@ -1331,7 +1331,7 @@ prop_02(tvbuff_t *tvb, proto_tree *tree)
 	if (len > 12) {
 		len = 12;
 	}
-	proto_tree_add_item(tree, hf_ipmi_picmg_prop02_desc, tvb, 0, len, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_picmg_prop02_desc, tvb, 0, len, ENC_ASCII|ENC_NA);
 }
 
 static const struct {

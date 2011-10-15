@@ -196,15 +196,15 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
             /* This is the protocol item */
             case 0:
-                proto_tree_add_item(xcsl_tree, hf_xcsl_protocol_version, tvb, offset, len, FALSE);
+                proto_tree_add_item(xcsl_tree, hf_xcsl_protocol_version, tvb, offset, len, ENC_ASCII|ENC_NA);
                 break;
 
                 /* This should be the transaction ID, if non-digit, it is treated as info */
             case 1:
                 if ( isdigit(str[0]) ) {
-                    proto_tree_add_item(xcsl_tree, hf_xcsl_transaction_id, tvb, offset, len, FALSE);
+                    proto_tree_add_item(xcsl_tree, hf_xcsl_transaction_id, tvb, offset, len, ENC_ASCII|ENC_NA);
                 } else {
-                    proto_tree_add_item(xcsl_tree, hf_xcsl_information, tvb, offset, len, FALSE);
+                    proto_tree_add_item(xcsl_tree, hf_xcsl_information, tvb, offset, len, ENC_ASCII|ENC_NA);
                 }
                 if (check_col(pinfo->cinfo, COL_INFO))
                     col_append_fstr(pinfo->cinfo, COL_INFO, "%s ",str);
@@ -223,7 +223,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                     code = val_to_str(result, xcsl_action_vals, "Unknown: %d");
 
                     /* Print result code and description */
-                    xcsl_item = proto_tree_add_item(xcsl_tree, hf_xcsl_result, tvb, offset, len, FALSE);
+                    xcsl_item = proto_tree_add_item(xcsl_tree, hf_xcsl_result, tvb, offset, len, ENC_ASCII|ENC_NA);
                     proto_item_append_text(xcsl_item, " (%s)", code);
 
                     if (result != 0 && check_col(pinfo->cinfo, COL_INFO))
@@ -232,7 +232,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 } else {
 
                     request = TRUE;
-                    proto_tree_add_item(xcsl_tree, hf_xcsl_command, tvb, offset, len, FALSE);
+                    proto_tree_add_item(xcsl_tree, hf_xcsl_command, tvb, offset, len, ENC_ASCII|ENC_NA);
 
                     if (check_col(pinfo->cinfo, COL_INFO))
                         col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", str);
@@ -242,7 +242,7 @@ static void dissect_xcsl_tcp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 
                 /* This is a command parameter */
             default:
-                proto_tree_add_item(xcsl_tree, hf_xcsl_parameter, tvb, offset, len, FALSE);
+                proto_tree_add_item(xcsl_tree, hf_xcsl_parameter, tvb, offset, len, ENC_ASCII|ENC_NA);
 
                 if (check_col(pinfo->cinfo, COL_INFO)) {
                     if ( request == TRUE ) {

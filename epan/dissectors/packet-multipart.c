@@ -601,7 +601,7 @@ process_body_part(proto_tree *tree, tvbuff_t *tvb, const guint8 *boundary,
 	gboolean last_field = FALSE;
 
 	if (tree) {
-		ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_BIG_ENDIAN);
+		ti = proto_tree_add_item(tree, hf_multipart_part, tvb, start, 0, ENC_ASCII|ENC_NA);
 		subtree = proto_item_add_subtree(ti, ett_multipart_body);
 	}
 	/*

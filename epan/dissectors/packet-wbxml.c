@@ -6824,7 +6824,7 @@ dissect_wbxml_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 					    tvb, 1, publicid_len, publicid);
 		} else { /* Public identifier in string table */
 			proto_tree_add_item (wbxml_tree, hf_wbxml_public_id_literal,
-					     tvb, 1, publicid_len, FALSE);
+					     tvb, 1, publicid_len, ENC_ASCII|ENC_NA);
 		}
 		offset = 1 + publicid_len;
 

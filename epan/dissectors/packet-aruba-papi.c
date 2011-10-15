@@ -90,7 +90,7 @@ dissect_papi_debug(tvbuff_t *tvb, guint offset, proto_tree *tree)
 	while(offset < tvb_reported_length(tvb)) {
 		switch(tvb_get_guint8(tvb,offset)) {
 		case 0x00:
-		    ti = proto_tree_add_item(debug_tree, hf_papi_debug_text, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), FALSE);
+		    ti = proto_tree_add_item(debug_tree, hf_papi_debug_text, tvb, offset+3, tvb_get_ntohs(tvb,offset+1), ENC_ASCII|ENC_NA);
 		    debug_sub_tree = proto_item_add_subtree(ti, ett_papi);
 		    proto_tree_add_item(debug_sub_tree, hf_papi_debug_text_length, tvb, offset+1, 2, ENC_BIG_ENDIAN);
 		    offset += tvb_get_ntohs(tvb, offset+1) + 3;

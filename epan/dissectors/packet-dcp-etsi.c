@@ -450,7 +450,7 @@ dissect_pft(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree) {                   /* we are being asked for details */
     ti = proto_tree_add_item (tree, proto_pft, tvb, 0, -1, ENC_BIG_ENDIAN);
     pft_tree = proto_item_add_subtree (ti, ett_pft);
-    proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (pft_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
   }
   offset += 2;
   seq = tvb_get_ntohs (tvb, offset);
@@ -552,7 +552,7 @@ dissect_af (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
   if (tree) {                   /* we are being asked for details */
     ti = proto_tree_add_item (tree, proto_af, tvb, 0, -1, ENC_BIG_ENDIAN);
     af_tree = proto_item_add_subtree (ti, ett_af);
-    proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (af_tree, hf_edcp_sync, tvb, offset, 2, ENC_ASCII|ENC_NA);
   }
   offset += 2;
   payload_len = tvb_get_ntohl(tvb, offset);

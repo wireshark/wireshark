@@ -82,13 +82,13 @@ rpriv_dissect_get_eptgt_rqst (tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size);
 	/* advance to get size of cell, and princ */
 
-	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, key_size, ENC_NA);
+	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t, tvb, offset, key_size, ENC_ASCII|ENC_NA);
 	key_t1 = tvb_get_ephemeral_string(tvb, offset, key_size);
 	offset += key_size;
 
 	offset += 8;
 	offset = dissect_ndr_uint32 (tvb, offset, pinfo, tree, drep, hf_rpriv_get_eptgt_rqst_key_size2, &key_size2);
-	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, key_size2, ENC_NA);
+	proto_tree_add_item (tree, hf_rpriv_get_eptgt_rqst_key_t2, tvb, offset, key_size2, ENC_ASCII|ENC_NA);
 	key_t2 = tvb_get_ephemeral_string(tvb, offset, key_size2);
 	offset += key_size2;
 

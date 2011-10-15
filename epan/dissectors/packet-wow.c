@@ -290,7 +290,7 @@ dissect_wow_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(wow_tree,
 						    hf_wow_srp_i, tvb,
 						    offset, srp_i_len,
-						    TRUE);
+						    ENC_ASCII|ENC_NA);
 				offset += srp_i_len;
 
 

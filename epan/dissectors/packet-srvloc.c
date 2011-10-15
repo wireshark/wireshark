@@ -394,7 +394,7 @@ dissect_authblk_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
     length = tvb_get_ntohs(tvb, offset + 8);
     proto_tree_add_uint(tree, hf_srvloc_authblkv2_slpspilen, tvb, offset + 8, 2, length);
     offset += 10;
-    proto_tree_add_item(tree, hf_srvloc_authblkv2_slpspi, tvb, offset, length, TRUE);
+    proto_tree_add_item(tree, hf_srvloc_authblkv2_slpspi, tvb, offset, length, ENC_ASCII|ENC_NA);
     offset += length;
     /* add code in here to handle Structured Authentication Block */
     return offset;
@@ -789,7 +789,7 @@ dissect_url_entry_v2(tvbuff_t *tvb, int offset, proto_tree *tree)
     proto_tree_add_uint(tree, hf_srvloc_url_urllen, tvb, offset, 2,
 			url_len);
     offset += 2;
-    proto_tree_add_item(tree, hf_srvloc_url_url, tvb, offset, url_len, TRUE);
+    proto_tree_add_item(tree, hf_srvloc_url_url, tvb, offset, url_len, ENC_ASCII|ENC_NA);
     offset += url_len;
     num_auths = tvb_get_guint8(tvb, offset);
     proto_tree_add_uint(tree, hf_srvloc_url_numauths, tvb, offset, 1,
@@ -1086,7 +1086,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             col_append_fstr(pinfo->cinfo, COL_INFO, ", V2 XID - %u", tvb_get_ntohs(tvb, offset + 10));
         lang_tag_len = tvb_get_ntohs(tvb, offset + 12);
         proto_tree_add_uint(srvloc_tree, hf_srvloc_langtaglen, tvb, offset + 12, 2, lang_tag_len);
-        proto_tree_add_item(srvloc_tree, hf_srvloc_langtag, tvb, offset + 14, lang_tag_len, TRUE);
+        proto_tree_add_item(srvloc_tree, hf_srvloc_langtag, tvb, offset + 14, lang_tag_len, ENC_ASCII|ENC_NA);
         offset += 14+lang_tag_len;
 
         switch (function) {
@@ -1096,35 +1096,35 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_prlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_prlist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_srvtypelen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_srvtypelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_srvtypelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_predicatelen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_predicate, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreq_slpspilen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreq_slpspi, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             break;
@@ -1151,14 +1151,14 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_srvtypelen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_srvtype, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_srvtype, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvreg_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvreg_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
@@ -1182,7 +1182,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             offset = dissect_url_entry_v2(tvb, offset, srvloc_tree);
@@ -1190,7 +1190,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvdereg_taglistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvdereg_taglist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             break;
@@ -1209,35 +1209,35 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_prlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_prlist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_urllen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_url, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_taglistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_taglist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_taglist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_attrreq_slpspilen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_slpspi, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_attrreq_slpspi, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             break;
@@ -1281,28 +1281,28 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_urllen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_url, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_attrlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_attrlist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_attrlist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_daadvert_slpspilen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_daadvert_slpspi, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             count = tvb_get_guint8(tvb, offset);
@@ -1319,7 +1319,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_prlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_prlist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
@@ -1330,7 +1330,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_nameauthlistlen, tvb, offset, 2, length);
                 offset += 2;
                 if (length) {
-                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, TRUE);
+                    proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_nameauthlist, tvb, offset, length, ENC_ASCII|ENC_NA);
                     offset += length;
                 }
             }
@@ -1338,7 +1338,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtypereq_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtypereq_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             break;
@@ -1354,7 +1354,7 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_srvtyperply_srvtypelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtyperply_srvtypelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_srvtyperply_srvtypelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             break;
@@ -1364,21 +1364,21 @@ dissect_srvloc(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_urllen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_url, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_scopelistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_scopelist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             length = tvb_get_ntohs(tvb, offset);
             proto_tree_add_uint(srvloc_tree, hf_srvloc_saadvert_attrlistlen, tvb, offset, 2, length);
             offset += 2;
             if (length) {
-                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_attrlist, tvb, offset, length, TRUE);
+                proto_tree_add_item(srvloc_tree, hf_srvloc_saadvert_attrlist, tvb, offset, length, ENC_ASCII|ENC_NA);
                 offset += length;
             }
             count = tvb_get_guint8(tvb, offset);

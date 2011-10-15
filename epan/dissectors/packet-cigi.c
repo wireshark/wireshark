@@ -4155,7 +4155,7 @@ cigi2_add_image_generator_message(tvbuff_t *tvb, proto_tree *tree, gint offset)
     proto_tree_add_item(tree, hf_cigi2_image_generator_message_id, tvb, offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
-    proto_tree_add_item(tree, hf_cigi2_image_generator_message_message, tvb, offset, packet_size-4, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_cigi2_image_generator_message_message, tvb, offset, packet_size-4, ENC_ASCII|ENC_NA);
     offset += packet_size-4;
 
     return offset;

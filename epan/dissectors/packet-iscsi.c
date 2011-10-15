@@ -625,7 +625,7 @@ addTextKeys(packet_info *pinfo, proto_tree *tt, tvbuff_t *tvb, gint offset, guin
 		iscsi_dissect_TargetAddress(pinfo, tt, value);
 	}
 
-	proto_tree_add_item(tt, hf_iscsi_KeyValue, tvb, offset, len, FALSE);
+	proto_tree_add_item(tt, hf_iscsi_KeyValue, tvb, offset, len, ENC_ASCII|ENC_NA);
 	offset += len;
     }
     return offset;

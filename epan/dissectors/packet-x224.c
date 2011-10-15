@@ -117,7 +117,7 @@ dissect_x224_cr(packet_info *pinfo _U_, proto_tree *tree, tvbuff_t *tvb, int off
 	if(tvb_length_remaining(tvb, offset) > 0) {
 		len = tvb_find_line_end(tvb, offset, -1, &next_offset, TRUE);
 		proto_tree_add_item(tree, hf_x224_rdp_rt, tvb, offset, len,
-				    FALSE);
+				    ENC_ASCII|ENC_NA);
 		offset = next_offset;
 	}
 

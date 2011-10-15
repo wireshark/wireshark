@@ -208,12 +208,12 @@ dissect_fw1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
     /* create display subtree for the protocol */
     fh_tree = proto_item_add_subtree(ti, ett_fw1);
 
-    proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, FALSE);
+    proto_tree_add_item(fh_tree, hf_fw1_direction, tvb, 0, 1, ENC_ASCII|ENC_NA);
 
     if (fw1_iflist_with_chain)
-      proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1, 1, FALSE);
+      proto_tree_add_item(fh_tree, hf_fw1_chain, tvb, 1, 1, ENC_ASCII|ENC_NA);
 
-    proto_tree_add_item(fh_tree, hf_fw1_interface, tvb, 2, iface_len, FALSE);
+    proto_tree_add_item(fh_tree, hf_fw1_interface, tvb, 2, iface_len, ENC_ASCII|ENC_NA);
 
     if (fw1_with_uuid)
       proto_tree_add_item(fh_tree, hf_fw1_uuid, tvb, 8, 4, ENC_BIG_ENDIAN);

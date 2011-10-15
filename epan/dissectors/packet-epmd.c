@@ -145,7 +145,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
       offset += 2;
       name_length = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_NA);
+      proto_tree_add_item(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA);
       name = tvb_get_ephemeral_string(tvb, offset + 2, name_length);
       offset += 2 + name_length;
       if (tvb_length_remaining(tvb, offset) >= 2) {
@@ -161,7 +161,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
     case EPMD_PORT_REQ:
     case EPMD_PORT2_REQ:
       name_length = tvb_length_remaining(tvb, offset);
-      proto_tree_add_item(tree, hf_epmd_name, tvb, offset, name_length, ENC_NA);
+      proto_tree_add_item(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA);
       name = tvb_get_ephemeral_string(tvb, offset, name_length);
       break;
 
@@ -169,7 +169,7 @@ dissect_epmd_request(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree 
       proto_tree_add_item(tree, hf_epmd_port_no, tvb, offset, 2, ENC_BIG_ENDIAN);
       offset += 2;
       name_length = tvb_length_remaining(tvb, offset);
-      proto_tree_add_item(tree, hf_epmd_name, tvb, offset, name_length, ENC_NA);
+      proto_tree_add_item(tree, hf_epmd_name, tvb, offset, name_length, ENC_ASCII|ENC_NA);
       name = tvb_get_ephemeral_string(tvb, offset, name_length);
       break;
 
@@ -248,7 +248,7 @@ dissect_epmd_response(packet_info *pinfo, tvbuff_t *tvb, gint offset, proto_tree
       offset += 2;
       name_length = tvb_get_ntohs(tvb, offset);
       proto_tree_add_item(tree, hf_epmd_name_len, tvb, offset, 2, ENC_BIG_ENDIAN);
-      proto_tree_add_item(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_NA);
+      proto_tree_add_item(tree, hf_epmd_name, tvb, offset + 2, name_length, ENC_ASCII|ENC_NA);
       name = tvb_get_ephemeral_string(tvb, offset + 2, name_length);
       offset += 2 + name_length;
       if (tvb_length_remaining(tvb, offset) >= 2) {

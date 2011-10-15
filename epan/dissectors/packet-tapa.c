@@ -273,7 +273,7 @@ dissect_tapa_discover_unknown_new_tlv(tvbuff_t *tvb, packet_info *pinfo, proto_t
 
 		if (is_ascii)
 			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuetext,
-				tvb, offset, item_length, ENC_BIG_ENDIAN);
+				tvb, offset, item_length, ENC_ASCII|ENC_NA);
 		else
 			proto_tree_add_item(tapa_discover_item_tree, hf_tapa_discover_newtlv_valuehex,
 				tvb, offset, item_length, ENC_NA);

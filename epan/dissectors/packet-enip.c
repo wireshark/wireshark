@@ -821,7 +821,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
 
                /* Product Name */
                proto_tree_add_item(item_tree, hf_enip_lir_name,
-                     tvb, offset+39, name_length, ENC_NA );
+                     tvb, offset+39, name_length, ENC_ASCII|ENC_NA );
 
                /* Append product name to info column */
                if(check_col(pinfo->cinfo, COL_INFO))
@@ -891,7 +891,7 @@ dissect_cpf(enip_request_key_t *request_key, int command, tvbuff_t *tvb,
                proto_tree_add_item( temp_tree, hf_enip_lsr_udp, tvb, offset+8, 2, ENC_LITTLE_ENDIAN );
 
                /* Name of service */
-               proto_tree_add_item( item_tree, hf_enip_lsr_servicename, tvb, offset+10, 16, ENC_NA );
+               proto_tree_add_item( item_tree, hf_enip_lsr_servicename, tvb, offset+10, 16, ENC_ASCII|ENC_NA );
 
                /* Append service name to info column */
                if(check_col(pinfo->cinfo, COL_INFO))

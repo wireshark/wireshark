@@ -60,13 +60,13 @@ static gint ett_irc = -1;
 static void
 dissect_irc_request(proto_tree *tree, tvbuff_t *tvb, int offset, int linelen)
 {
-	proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, TRUE);
+	proto_tree_add_item(tree, hf_irc_request, tvb, offset, linelen, ENC_ASCII|ENC_NA);
 }
 
 static void
 dissect_irc_response(proto_tree *tree, tvbuff_t *tvb, int offset, int linelen)
 {
-	proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, TRUE);
+	proto_tree_add_item(tree, hf_irc_response, tvb, offset, linelen, ENC_ASCII|ENC_NA);
 }
 
 static void

@@ -286,7 +286,7 @@ dissect_syslog(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         msg_off, pri);
     }
     proto_tree_add_item(syslog_tree, hf_syslog_msg, tvb, msg_off,
-      msg_len, FALSE);
+      msg_len, ENC_ASCII|ENC_NA);
 
     if (mtp3_tvb) {
       proto_item *mtp3_item;

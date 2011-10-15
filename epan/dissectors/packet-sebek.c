@@ -198,13 +198,13 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(sebek_tree, hf_sebek_fd, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, ENC_ASCII|ENC_NA);
 				offset += 12;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_data, tvb, offset, -1, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
 
 				break;
 
@@ -241,7 +241,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 				proto_tree_add_item(sebek_tree, hf_sebek_inode, tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 
-				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, FALSE);
+				proto_tree_add_item(sebek_tree, hf_sebek_cmd, tvb, offset, 12, ENC_ASCII|ENC_NA);
 				offset += 12;
 
 				proto_tree_add_item(sebek_tree, hf_sebek_len, tvb, offset, 4, ENC_BIG_ENDIAN);
@@ -262,7 +262,7 @@ dissect_sebek(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					proto_tree_add_item(sebek_tree, hf_sebek_socket_proto, tvb, offset, 1, ENC_BIG_ENDIAN);
 					offset += 1;
 				} else {
-                			proto_tree_add_item(sebek_tree, hf_sebek_data, tvb, offset, -1, FALSE);
+                			proto_tree_add_item(sebek_tree, hf_sebek_data, tvb, offset, -1, ENC_ASCII|ENC_NA);
 				}
 
 				break;

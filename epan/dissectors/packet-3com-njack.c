@@ -487,7 +487,7 @@ dissect_tlvs(tvbuff_t *tvb, proto_tree *njack_tree, guint32 offset)
 		case NJACK_CMD_PRODUCTNAME:
 		case NJACK_CMD_SERIALNO:
 			proto_tree_add_item(tlv_tree, hf_njack_tlv_typestring,
-				tvb, offset, tlv_length, ENC_BIG_ENDIAN);
+				tvb, offset, tlv_length, ENC_ASCII|ENC_NA);
 			offset += tlv_length;
 			break;
 		case NJACK_CMD_PORT1:
@@ -585,7 +585,7 @@ dissect_njack(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		njack_tree = proto_item_add_subtree(ti, ett_njack);
 
 		proto_tree_add_item(njack_tree, hf_njack_magic, tvb, offset, 5,
-			ENC_BIG_ENDIAN);
+			ENC_ASCII|ENC_NA);
 		offset += 5;
 
 		proto_tree_add_item(njack_tree, hf_njack_type, tvb, offset, 1,

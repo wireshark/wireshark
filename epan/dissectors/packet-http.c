@@ -1309,7 +1309,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_request_method, tvb, offset, tokenlen,
-			    FALSE);
+			    ENC_ASCII|ENC_NA);
 	if ((next_token - line) > 2 && next_token[-1] == ' ' && next_token[-2] == ' ') {
 	  /* Two spaces in a now indicates empty URI, so roll back one here */
 	  next_token--;
@@ -1333,7 +1333,7 @@ basic_request_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	/* Everything to the end of the line is the version. */
 	tokenlen = (int) (lineend - line);
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
-	    FALSE);
+	    ENC_ASCII|ENC_NA);
 }
 
 static void
@@ -1352,7 +1352,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen == 0)
 		return;
 	proto_tree_add_item(tree, hf_http_version, tvb, offset, tokenlen,
-			    FALSE);
+			    ENC_ASCII|ENC_NA);
 	/* Advance to the start of the next token. */
 	offset += (int) (next_token - line);
 	line = next_token;
@@ -1387,7 +1387,7 @@ basic_response_dissector(tvbuff_t *tvb, proto_tree *tree, int offset,
 	if (tokenlen < 1)
 		return;
 	proto_tree_add_item(tree, hf_http_response_phrase, tvb, offset,
-				tokenlen, FALSE);
+				tokenlen, ENC_ASCII|ENC_NA);
 
 }
 

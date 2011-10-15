@@ -594,7 +594,7 @@ typedef [string] byte   NameString_t[AFS_NAMEMAX];
 	col_append_fstr (pinfo->cinfo, COL_INFO, " String_size:%u", string_size);
   if (string_size < AFS_NAMEMAX)
     {
-      proto_tree_add_item (tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_NA);
+      proto_tree_add_item (tree, hf_fileexp_afsNameString_t_principalName_string, tvb, offset, string_size, ENC_ASCII|ENC_NA);
       namestring = tvb_get_ephemeral_string (tvb, offset, string_size);
       offset += string_size;
       if (check_col (pinfo->cinfo, COL_INFO))
@@ -783,7 +783,7 @@ dissect_afsTaggedPath (tvbuff_t * tvb, int offset,
     dissect_ndr_uint16 (tvb, offset, pinfo, tree, drep,
 			hf_fileexp_afsTaggedPath_tp_length, &tp_length);
   proto_tree_add_item (tree, hf_fileexp_afsTaggedPath_tp_chars, tvb, offset,
-		       tp_length, ENC_NA);
+		       tp_length, ENC_ASCII|ENC_NA);
   tp_chars = tvb_get_ephemeral_string (tvb, offset, 1025);
   offset += 1025;
   if (check_col (pinfo->cinfo, COL_INFO))
@@ -1363,7 +1363,7 @@ dissect_afstaggedname (tvbuff_t * tvb, int offset,
   if (tn_length < 254)
     {
       proto_tree_add_item (tree, hf_fileexp_tn_string, tvb, offset,
-			     tn_length, ENC_NA);
+			     tn_length, ENC_ASCII|ENC_NA);
       tn_string = tvb_get_ephemeral_string (tvb, offset, 257);
       offset += 257;
       if (check_col (pinfo->cinfo, COL_INFO))

@@ -3063,7 +3063,7 @@ static int dissect_diagnosticinfo(tvbuff_t *tvb, proto_tree *tree, guint16 offse
     break;
 
   case DIAGNOSTICKINDID_SOFTWARE_VERSION:
-    proto_tree_add_item(local_tree, hf_reload_diagnosticinfo_software_version, tvb, offset+local_offset, length, FALSE);
+    proto_tree_add_item(local_tree, hf_reload_diagnosticinfo_software_version, tvb, offset+local_offset, length, ENC_ASCII|ENC_NA);
     break;
 
   case DIAGNOSTICKINDID_MACHINE_UPTIME:
@@ -3785,7 +3785,7 @@ extern gint dissect_reload_messagecontents(tvbuff_t *tvb, packet_info *pinfo, pr
 
     case ERRORCODE_UNDERLAY_DESTINATION_UNREACHABLE:
     {
-      proto_tree_add_item(error_tree, hf_reload_opaque_string, tvb, offset+2, 32, FALSE);
+      proto_tree_add_item(error_tree, hf_reload_opaque_string, tvb, offset+2, 32, ENC_ASCII|ENC_NA);
     }
     break;
 

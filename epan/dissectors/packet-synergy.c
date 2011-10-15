@@ -230,7 +230,7 @@ static void dissect_synergy_handshake( tvbuff_t *tvb, packet_info *pinfo _U_, pr
     if (tvb_length_remaining(tvb, offset + 11) != 0)
 	{
         proto_tree_add_item(sub_tree, hf_synergy_unknown, tvb, offset + 11, 4, ENC_NA);
-        proto_tree_add_item(sub_tree, hf_synergy_handshake_clientname, tvb, offset + 15, -1, FALSE);
+        proto_tree_add_item(sub_tree, hf_synergy_handshake_clientname, tvb, offset + 15, -1, ENC_ASCII|ENC_NA);
 	}
 }
 
@@ -332,7 +332,7 @@ static void dissect_synergy_dclp( tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 
     proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboardidentifier, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
     proto_tree_add_item(sub_tree, hf_synergy_dclp_sequencenumber, tvb, offset + 5, 4, ENC_BIG_ENDIAN);
-    proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboarddata, tvb, offset + 9, -1, FALSE);
+    proto_tree_add_item(sub_tree, hf_synergy_dclp_clipboarddata, tvb, offset + 9, -1, ENC_ASCII|ENC_NA);
 }
 
 static void dissect_synergy_dinf( tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, gint offset )

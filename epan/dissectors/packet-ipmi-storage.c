@@ -422,7 +422,7 @@ static void
 rq27(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_27_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_stor_27_clr, tvb, 2, 3, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_27_clr, tvb, 2, 3, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_ipmi_stor_27_action, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 }
 
@@ -619,7 +619,7 @@ static void
 rq47(tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_tree_add_item(tree, hf_ipmi_stor_47_rsrv_id, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-	proto_tree_add_item(tree, hf_ipmi_stor_47_clr, tvb, 2, 3, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_stor_47_clr, tvb, 2, 3, ENC_ASCII|ENC_NA);
 	proto_tree_add_item(tree, hf_ipmi_stor_47_action, tvb, 5, 1, ENC_LITTLE_ENDIAN);
 }
 

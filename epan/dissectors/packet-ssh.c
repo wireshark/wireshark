@@ -890,7 +890,7 @@ ssh_dissect_protocol(tvbuff_t *tvb, packet_info *pinfo,
 	}
 	if (tree ) {
 		ssh_proto_tree_add_item(tree, hf_ssh_protocol,
-		    		tvb, offset, linelen, FALSE);
+		    		tvb, offset, linelen, ENC_ASCII|ENC_NA);
   	}
 	offset+=linelen;
 	return offset;

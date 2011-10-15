@@ -1596,7 +1596,7 @@ static void show_pdcp_config(packet_info *pinfo, tvbuff_t *tvb, proto_tree *tree
     proto_tree *configuration_tree;
     proto_item *configuration_ti = proto_tree_add_item(tree,
                                                        hf_pdcp_lte_configuration,
-                                                       tvb, 0, 0, FALSE);
+                                                       tvb, 0, 0, ENC_ASCII|ENC_NA);
     configuration_tree = proto_item_add_subtree(configuration_ti, ett_pdcp_configuration);
 
     /* Direction */

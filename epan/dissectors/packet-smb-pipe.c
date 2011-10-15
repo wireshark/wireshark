@@ -694,21 +694,21 @@ add_logon_args(tvbuff_t *tvb, int offset, int count, packet_info *pinfo _U_,
 	}
 
 	/* user name */
-	proto_tree_add_item(tree, hf_user_name, tvb, offset, 21, TRUE);
+	proto_tree_add_item(tree, hf_user_name, tvb, offset, 21, ENC_ASCII|ENC_NA);
 	offset += 21;
 
 	/* pad1 */
 	offset += 1;
 
 	/* password */
-	proto_tree_add_item(tree, hf_password, tvb, offset, 15, TRUE);
+	proto_tree_add_item(tree, hf_password, tvb, offset, 15, ENC_ASCII|ENC_NA);
 	offset += 15;
 
 	/* pad2 */
 	offset += 1;
 
 	/* workstation name */
-	proto_tree_add_item(tree, hf_workstation_name, tvb, offset, 16, TRUE);
+	proto_tree_add_item(tree, hf_workstation_name, tvb, offset, 16, ENC_ASCII|ENC_NA);
 	offset += 16;
 	return offset;
 }
@@ -2694,7 +2694,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* parameter descriptor */
 		param_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 		proto_tree_add_item(tree, hf_param_desc, p_tvb, offset,
-		    descriptor_len, TRUE);
+		    descriptor_len, ENC_ASCII|ENC_NA);
 		if (!pinfo->fd->flags.visited) {
 			/*
 			 * Save the parameter descriptor for future use.
@@ -2707,7 +2707,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 		/* return descriptor */
 		data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 		proto_tree_add_item(tree, hf_return_desc, p_tvb, offset,
-		    descriptor_len, TRUE);
+		    descriptor_len, ENC_ASCII|ENC_NA);
 		if (!pinfo->fd->flags.visited) {
 			/*
 			 * Save the return descriptor for future use.
@@ -2732,7 +2732,7 @@ dissect_pipe_lanman(tvbuff_t *pd_tvb, tvbuff_t *p_tvb, tvbuff_t *d_tvb,
 			 */
 			aux_data_descrip = tvb_get_const_stringz(p_tvb, offset, &descriptor_len);
 			proto_tree_add_item(tree, hf_aux_data_desc, p_tvb, offset,
-			    descriptor_len, TRUE);
+			    descriptor_len, ENC_ASCII|ENC_NA);
 			if (!pinfo->fd->flags.visited) {
 				/*
 				 * Save the auxiliary data descriptor for
@@ -3810,7 +3810,7 @@ dissect_pipe_smb(tvbuff_t *sp_tvb, tvbuff_t *s_tvb, tvbuff_t *pd_tvb,
 				/* XXX - can this be Unicode? */
 				proto_tree_add_item(pipe_tree,
 				    hf_pipe_getinfo_pipe_name,
-				    d_tvb, offset, pipe_namelen, TRUE);
+				    d_tvb, offset, pipe_namelen, ENC_ASCII|ENC_NA);
 				break;
 			}
 		}

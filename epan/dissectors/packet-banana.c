@@ -181,7 +181,7 @@ dissect_banana_element(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int 
             if (val > MAX_ELEMENT_VAL) {
                 expert_add_info_format(pinfo, NULL, PI_UNDECODED, PI_ERROR, "String length %" G_GINT64_MODIFIER "d longer than we can handle", val);
             }
-            proto_tree_add_item(tree, hf_banana_string, tvb, offset, (guint32) val, FALSE);
+            proto_tree_add_item(tree, hf_banana_string, tvb, offset, (guint32) val, ENC_ASCII|ENC_NA);
             offset += (gint) val;
             break;
         case BE_NEG_INT:

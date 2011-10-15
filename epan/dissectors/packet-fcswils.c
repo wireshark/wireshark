@@ -532,15 +532,15 @@ dissect_swils_interconnect_element_info (tvbuff_t *tvb, proto_tree *tree, int of
     if (tree) {
         proto_tree_add_item (tree, hf_swils_interconnect_list_len, tvb, offset+3, 1, ENC_BIG_ENDIAN);
         len = tvb_strsize (tvb, offset+4);
-        proto_tree_add_item (tree, hf_swils_ess_vendorname, tvb, offset+4, len, FALSE);
+        proto_tree_add_item (tree, hf_swils_ess_vendorname, tvb, offset+4, len, ENC_ASCII|ENC_NA);
         offset += (4 + len);
         max_len -= len;
         len = tvb_strsize (tvb, offset);
-        proto_tree_add_item (tree, hf_swils_ess_modelname, tvb, offset, len, FALSE);
+        proto_tree_add_item (tree, hf_swils_ess_modelname, tvb, offset, len, ENC_ASCII|ENC_NA);
         offset += len;
         max_len -= len;
         len = tvb_strsize (tvb, offset);
-        proto_tree_add_item (tree, hf_swils_ess_relcode, tvb, offset, len, FALSE);
+        proto_tree_add_item (tree, hf_swils_ess_relcode, tvb, offset, len, ENC_ASCII|ENC_NA);
         offset += len;
         max_len -= len;
         while (max_len > 0) {
@@ -548,7 +548,7 @@ dissect_swils_interconnect_element_info (tvbuff_t *tvb, proto_tree *tree, int of
              * strings
              */
             len = tvb_strsize (tvb, offset);
-            proto_tree_add_item (tree, hf_swils_ess_vendorspecific, tvb, offset, len, FALSE);
+            proto_tree_add_item (tree, hf_swils_ess_vendorspecific, tvb, offset, len, ENC_ASCII|ENC_NA);
             offset += len;
             max_len -= len;
         }
@@ -680,7 +680,7 @@ dissect_swils_ess_capability_obj (tvbuff_t *tvb, proto_tree *tree, int offset)
             proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_len, tvb, offset+3,
                                  1, ENC_BIG_ENDIAN);
             proto_tree_add_item (capinfo_tree, hf_swils_ess_cap_t10, tvb, offset+4,
-                                 8, 0);
+                                 8, ENC_ASCII|ENC_NA);
             i -= 8;          /* reduce length by t10 object size */
             offset += 12;
             len += 12;
@@ -1592,7 +1592,7 @@ dissect_swils_esc (tvbuff_t *tvb, proto_tree *esc_tree, guint8 isreq)
             proto_tree_add_text (esc_tree, tvb, offset+2, 2,
                                  "Payload Length: %d", plen);
             proto_tree_add_item (esc_tree, hf_swils_esc_swvendorid, tvb,
-                                 offset+4, 8, 0);
+                                 offset+4, 8, ENC_ASCII|ENC_NA);
             numrec = (plen - 12)/12;
             offset = 12;
 
@@ -1602,7 +1602,7 @@ dissect_swils_esc (tvbuff_t *tvb, proto_tree *esc_tree, guint8 isreq)
                 pdesc_tree = proto_item_add_subtree (subti,
                                                      ett_fcswils_esc_pdesc);
                 proto_tree_add_item (pdesc_tree, hf_swils_esc_pdesc_vendorid, tvb,
-                                     offset, 8, 0);
+                                     offset, 8, ENC_ASCII|ENC_NA);
                 proto_tree_add_item (pdesc_tree, hf_swils_esc_protocolid,
                                      tvb, offset+10, 2, ENC_BIG_ENDIAN);
                 offset += 12;
@@ -1610,13 +1610,13 @@ dissect_swils_esc (tvbuff_t *tvb, proto_tree *esc_tree, guint8 isreq)
         }
         else {
             proto_tree_add_item (esc_tree, hf_swils_esc_swvendorid, tvb,
-                                 offset+4, 8, 0);
+                                 offset+4, 8, ENC_ASCII|ENC_NA);
             subti = proto_tree_add_text (esc_tree, tvb, offset+12, 12,
                                          "Accepted Protocol Descriptor");
             pdesc_tree = proto_item_add_subtree (subti, ett_fcswils_esc_pdesc);
 
             proto_tree_add_item (pdesc_tree, hf_swils_esc_pdesc_vendorid, tvb,
-                                 offset+12, 8, 0);
+                                 offset+12, 8, ENC_ASCII|ENC_NA);
             proto_tree_add_item (pdesc_tree, hf_swils_esc_protocolid,
                                  tvb, offset+22, 2, ENC_BIG_ENDIAN);
         }
@@ -1698,12 +1698,12 @@ dissect_swils_mrra (tvbuff_t *tvb, proto_tree *tree, guint8 isreq)
     if (isreq) {
         proto_tree_add_item (tree, hf_swils_mrra_rev, tvb, offset+4, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_swils_mrra_size, tvb, offset+8, 4, ENC_BIG_ENDIAN);
-        proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+12, 8, 0);
+        proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+12, 8, ENC_ASCII|ENC_NA);
         proto_tree_add_item (tree, hf_swils_mrra_vendorinfo, tvb, offset+20,
                              8, ENC_NA);
     } else {
         proto_tree_add_item (tree, hf_swils_mrra_vendorid, tvb, offset+4,
-                             8, 0);
+                             8, ENC_ASCII|ENC_NA);
         proto_tree_add_item (tree, hf_swils_mrra_reply, tvb, offset+12,
                              4, ENC_BIG_ENDIAN);
         proto_tree_add_item (tree, hf_swils_mrra_reply_size, tvb, offset+16,

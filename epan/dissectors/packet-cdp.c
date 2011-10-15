@@ -308,7 +308,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	  proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
 	  proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-	  proto_tree_add_item(tlv_tree, hf_cdp_deviceid, tvb, offset + 4, length - 4, FALSE);
+	  proto_tree_add_item(tlv_tree, hf_cdp_deviceid, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
 	}
 	offset += length;
 	break;
@@ -337,7 +337,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	  proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
 	  proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-	  proto_tree_add_item(tlv_tree, hf_cdp_portid, tvb, offset + 4, real_length - 4, FALSE);
+	  proto_tree_add_item(tlv_tree, hf_cdp_portid, tvb, offset + 4, real_length - 4, ENC_ASCII|ENC_NA);
 	}
 	offset += real_length;
 	break;
@@ -409,7 +409,7 @@ dissect_cdp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  tlv_tree = proto_item_add_subtree(tlvi, ett_cdp_tlv);
 	  proto_tree_add_item(tlv_tree, hf_cdp_tlvtype, tvb, offset + TLV_TYPE, 2, ENC_BIG_ENDIAN);
 	  proto_tree_add_item(tlv_tree, hf_cdp_tlvlength, tvb, offset + TLV_LENGTH, 2, ENC_BIG_ENDIAN);
-	  proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, FALSE);
+	  proto_tree_add_item(tlv_tree, hf_cdp_platform, tvb, offset + 4, length - 4, ENC_ASCII|ENC_NA);
 	}
 	offset += length;
 	break;

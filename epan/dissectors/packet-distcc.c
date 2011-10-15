@@ -151,7 +151,7 @@ dissect_distcc_argv(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
-	proto_tree_add_item(tree, hf_distcc_argv, tvb, offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_distcc_argv, tvb, offset, len, ENC_ASCII|ENC_NA);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "%s ", argv);
 
@@ -180,7 +180,7 @@ dissect_distcc_serr(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
-	proto_tree_add_item(tree, hf_distcc_serr, tvb, offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_distcc_serr, tvb, offset, len, ENC_ASCII|ENC_NA);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "SERR:%s ", argv);
 
@@ -209,7 +209,7 @@ dissect_distcc_sout(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, int
 	tvb_memcpy(tvb, argv, offset, argv_len);
 	argv[argv_len]=0;
 
-	proto_tree_add_item(tree, hf_distcc_sout, tvb, offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_distcc_sout, tvb, offset, len, ENC_ASCII|ENC_NA);
 
 	col_append_fstr(pinfo->cinfo, COL_INFO, "SOUT:%s ", argv);
 
@@ -233,7 +233,7 @@ dissect_distcc_doti(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int off
 
 	col_append_str(pinfo->cinfo, COL_INFO, "DOTI source ");
 
-	proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_distcc_doti_source, tvb, offset, len, ENC_ASCII|ENC_NA);
 	if(len!=parameter){
 		proto_tree_add_text(tree, tvb, 0, 0, "[Short DOTI PDU]");
 	}

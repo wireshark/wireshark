@@ -503,7 +503,7 @@ read_string(unsigned int *offset, tvbuff_t *tvb, proto_tree *etch_tree)
   byteLength = read_length(offset, tvb, etch_tree);
 
   proto_tree_add_item(etch_tree, hf_etch_string, tvb, *offset,
-                      byteLength, ENC_NA);
+                      byteLength, ENC_ASCII|ENC_NA);
   (*offset) += byteLength;
 }
 

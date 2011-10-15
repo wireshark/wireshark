@@ -142,7 +142,7 @@ dissect_diameter_3gpp_visited_nw_id(tvbuff_t *tvb, packet_info *pinfo _U_, proto
 		if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
 			return length;
 
-	item = proto_tree_add_item(tree, hf_diameter_3gpp_visited_nw_id, tvb, offset, length, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_visited_nw_id, tvb, offset, length, ENC_ASCII|ENC_NA);
 	PROTO_ITEM_SET_GENERATED(item);
 
 
@@ -200,10 +200,10 @@ dissect_diameter_3gpp_path(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tr
 	while (offset < end_offset){
 		comma_offset = tvb_find_guint8(tvb, offset, -1, ',');
 		if(comma_offset == -1){
-			proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_BIG_ENDIAN);
+			proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII|ENC_NA);
 			return end_offset;
 		}
-		proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_BIG_ENDIAN);
+		proto_tree_add_item(sub_tree, hf_diameter_3gpp_path, tvb, offset, comma_offset, ENC_ASCII|ENC_NA);
 		offset = comma_offset+1;
 	}
 
@@ -224,7 +224,7 @@ dissect_diameter_3gpp_contact(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
 	proto_item* item;
 	int offset = 0;
 
-	item = proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_contact, tvb, offset, -1, ENC_ASCII|ENC_NA);
 	PROTO_ITEM_SET_GENERATED(item);
 
 	return tvb_length(tvb);
@@ -295,7 +295,7 @@ dissect_diameter_3gpp_service_ind(tvbuff_t *tvb, packet_info *pinfo _U_, proto_t
 		if(!g_ascii_isprint(tvb_get_guint8(tvb, i)))
 			return length;
 
-	item = proto_tree_add_item(tree, hf_diameter_3gpp_service_ind, tvb, offset, length, ENC_BIG_ENDIAN);
+	item = proto_tree_add_item(tree, hf_diameter_3gpp_service_ind, tvb, offset, length, ENC_ASCII|ENC_NA);
 	PROTO_ITEM_SET_GENERATED(item);
 
 	return length;

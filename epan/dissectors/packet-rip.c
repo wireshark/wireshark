@@ -260,7 +260,7 @@ dissect_rip_authentication(tvbuff_t *tvb, int offset, proto_tree *tree)
 
     case AUTH_PASSWORD: /* Plain text password */
 	proto_tree_add_item(rip_authentication_tree, hf_rip_auth_passwd,
-			tvb, offset+4, 16, FALSE);
+			tvb, offset+4, 16, ENC_ASCII|ENC_NA);
 	break;
 
     case AUTH_KEYED_MSG_DIGEST: /* Keyed MD5 rfc 2082 */

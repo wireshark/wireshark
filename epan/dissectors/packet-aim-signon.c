@@ -112,7 +112,7 @@ static int dissect_aim_snac_signon_signon_reply(tvbuff_t *tvb,
 	offset += 2;
 
 	/* Challenge */
-	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, ENC_ASCII|ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_aim_signon_challenge, tvb, offset, challenge_length, ENC_ASCII|ENC_NA);
 	offset += challenge_length;
 	return offset;
 }

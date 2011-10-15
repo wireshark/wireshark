@@ -600,7 +600,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_FTDDNS:
 			proto_tree_add_item(option_tree, hf_dhcpfo_ftddns, tvb,
-			    offset, option_length, ENC_BIG_ENDIAN);
+			    offset, option_length, ENC_ASCII|ENC_NA);
 			break;
 
 		case DHCP_FO_PD_REJECT_REASON:
@@ -624,7 +624,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		case DHCP_FO_PD_MESSAGE:
 			proto_tree_add_item(option_tree, hf_dhcpfo_message, tvb,
-			    offset, option_length, ENC_BIG_ENDIAN);
+			    offset, option_length, ENC_ASCII|ENC_NA);
 			break;
 
 		case DHCP_FO_PD_MCLT:
@@ -883,7 +883,7 @@ dissect_dhcpfo_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 			proto_tree_add_item(option_tree,
 			    hf_dhcpfo_message_digest, tvb, offset+1,
-			    option_length-1, ENC_BIG_ENDIAN);
+			    option_length-1, ENC_ASCII|ENC_NA);
 			break;
 
 		case DHCP_FO_PD_PROTOCOL_VERSION:

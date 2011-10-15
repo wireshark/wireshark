@@ -194,7 +194,7 @@ static void dissect_miop (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
       miop_tree = proto_item_add_subtree (ti, ett_miop);
 
       /* XXX - Should we bail out if we don't have the right magic number? */
-      proto_tree_add_item(miop_tree, hf_miop_magic, tvb, offset, 4, FALSE);
+      proto_tree_add_item(miop_tree, hf_miop_magic, tvb, offset, 4, ENC_ASCII|ENC_NA);
       offset += 4;
       proto_tree_add_uint_format(miop_tree, hf_miop_hdr_version, tvb, offset, 1, hdr_version,
                                  "Version: %u.%u", version_major, version_minor);

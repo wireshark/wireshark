@@ -391,7 +391,7 @@ dissect_rpcap_error (tvbuff_t *tvb, packet_info *pinfo,
 		     tvb_format_text_wsp (tvb, offset, len));
   }
 
-  ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_BIG_ENDIAN);
+  ti = proto_tree_add_item (parent_tree, hf_error, tvb, offset, len, ENC_ASCII|ENC_NA);
   expert_add_info_format (pinfo, ti, PI_SEQUENCE, PI_NOTE,
 			  "Error: %s", tvb_format_text_wsp (tvb, offset, len));
 }
@@ -497,12 +497,12 @@ dissect_rpcap_findalldevs_if (tvbuff_t *tvb, packet_info *pinfo _U_,
 
   if (namelen) {
     proto_item_append_text (ti, ": %s", tvb_get_ephemeral_string (tvb, offset, namelen));
-    proto_tree_add_item (tree, hf_if_name, tvb, offset, namelen, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_if_name, tvb, offset, namelen, ENC_ASCII|ENC_NA);
     offset += namelen;
   }
 
   if (desclen) {
-    proto_tree_add_item (tree, hf_if_desc, tvb, offset, desclen, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_if_desc, tvb, offset, desclen, ENC_ASCII|ENC_NA);
     offset += desclen;
   }
 
@@ -664,11 +664,11 @@ dissect_rpcap_auth_request (tvbuff_t *tvb, packet_info *pinfo _U_,
     guint8 *username, *password;
 
     username = tvb_get_ephemeral_string (tvb, offset, slen1);
-    proto_tree_add_item (tree, hf_auth_username, tvb, offset, slen1, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_auth_username, tvb, offset, slen1, ENC_ASCII|ENC_NA);
     offset += slen1;
 
     password = tvb_get_ephemeral_string (tvb, offset, slen2);
-    proto_tree_add_item (tree, hf_auth_password, tvb, offset, slen2, ENC_BIG_ENDIAN);
+    proto_tree_add_item (tree, hf_auth_password, tvb, offset, slen2, ENC_ASCII|ENC_NA);
     offset += slen2;
 
     proto_item_append_text (ti, " (%s/%s)", username, password);
@@ -683,7 +683,7 @@ dissect_rpcap_open_request (tvbuff_t *tvb, packet_info *pinfo _U_,
   gint len;
 
   len = tvb_length_remaining (tvb, offset);
-  proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, ENC_BIG_ENDIAN);
+  proto_tree_add_item (parent_tree, hf_open_request, tvb, offset, len, ENC_ASCII|ENC_NA);
 }
 
 
