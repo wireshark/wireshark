@@ -333,7 +333,6 @@ static int proto_eigrp = -1;
 /* header */
 static gint hf_eigrp_version = -1;
 static gint hf_eigrp_opcode = -1;
-static gint hf_eigrp_checksum = -1;
 static gint hf_eigrp_flags = -1;
 static gint hf_eigrp_sequence = -1;
 static gint hf_eigrp_acknowledge = -1;
@@ -389,13 +388,6 @@ static gint hf_eigrp_seq_addrlen = -1;
 static gint hf_eigrp_seq_ipv4addr = -1;
 static gint hf_eigrp_seq_ipv6addr = -1;
 
-/* sw version */
-static gint hf_eigrp_sw_version = -1;
-static gint hf_eigrp_sw_version_os_majorver = -1;
-static gint hf_eigrp_sw_version_os_minorver = -1;
-static gint hf_eigrp_sw_version_tlv_majorrev = -1;
-static gint hf_eigrp_sw_version_tlv_minorrev = -1;
-
 /* multicast seq */
 static gint hf_eigrp_next_mcast_seq = -1;
 
@@ -444,8 +436,6 @@ static gint hf_eigrp_metric_rel = -1;
 static gint hf_eigrp_metric_load = -1;
 static gint hf_eigrp_metric_mtu = -1;
 static gint hf_eigrp_metric_hopcount = -1;
-static gint hf_eigrp_metric_delay = -1;
-static gint hf_eigrp_metric_bw = -1;
 static gint hf_eigrp_metric_reserved = -1;
 
 /* router id*/
@@ -481,7 +471,6 @@ static gint ett_eigrp_extdata_flags = -1;
 /* ipv4 address */
 static gint hf_eigrp_ipv4_nexthop = -1;
 static gint hf_eigrp_ipv4_prefixlen = -1;
-static gint hf_eigrp_ipv4_dest = -1;
 
 /* ipv6 address */
 static gint hf_eigrp_ipv6_nexthop = -1;
@@ -1758,7 +1747,7 @@ dissect_eigrp_atalk_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     int offset = 0;
 
     /* cable tlv? */
-    if ((tlv & EIGRP_TLV_TYPEMASK) == EIGRP_TLV_AT_CBL) {
+    if (EIGRP_TLV_AT_CBL == tlv) {
 	proto_tree_add_text(tree, tvb, 0, 4, "AppleTalk Cable Range = %u-%u",
 			    tvb_get_ntohs(tvb, 0), tvb_get_ntohs(tvb, 2));
 	proto_tree_add_item(tree, hf_eigrp_atalk_routerid, tvb, 4, 4,
@@ -2286,6 +2275,10 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
     proto_tree_add_item(sub_tree, hf_eigrp_metric_hopcount,
 			sub_tvb, 7,  1, ENC_BIG_ENDIAN);
 
+    /* The one-way latency along an unloaded path to the destination
+     * expressed in units of nanoseconds per kilobyte. This number is not
+     * scaled, as is the case with scaled delay. A delay of 0xFFFFFFFFFFFF
+     * indicates an unreachable route. */
     big_num = tvb_get_ntoh64(sub_tvb, 8);
     big_num >>= 16;
     if (big_num == G_GINT64_CONSTANT(0x0000ffffffffffffU)) {
@@ -2294,6 +2287,11 @@ dissect_eigrp_wide_metric (proto_tree *tree, tvbuff_t *tvb, int offset)
         proto_tree_add_text(sub_tree, sub_tvb, 8, 6, "Delay: %" G_GINT64_MODIFIER "u", big_num);
     }
 
+    /* The path bandwidth measured in kilobyte per second as presented by
+     * the interface.  This number is not scaled, as is the case with scaled
+     * bandwidth. A bandwidth of 0xFFFFFFFFFFFF indicates an unreachable
+     * route.
+     */
     big_num = tvb_get_ntoh64(sub_tvb, 14);
     big_num >>= 16;
     if (big_num == G_GINT64_CONSTANT(0x0000ffffffffffffU)) {
@@ -2661,12 +2659,6 @@ proto_register_eigrp(void)
 	    FT_UINT8, BASE_DEC, VALS(eigrp_opcode2string), 0x0,
 	    "Opcode - Operation code indicating the message type", HFILL }
 	},
-	{ &hf_eigrp_checksum,
-	  { "Checksum", "eigrp.checksum",
-	    FT_UINT16, BASE_HEX, NULL, 0x0,
-	    "Checksum - computed using the same checksum algorithm as a UDP"
-	    "checksum", HFILL }
-	},
 	{ &hf_eigrp_flags,
 	  { "Flags", "eigrp.flags",
 	    FT_UINT32, BASE_HEX, NULL, 0x0,
@@ -2851,41 +2843,6 @@ proto_register_eigrp(void)
 	{ &hf_eigrp_seq_ipv6addr,
 	  { "IPv6 Address", "eigrp.seq.ipv6addr",
 	    FT_IPv6, BASE_NONE, NULL, 0x0,
-	    NULL, HFILL }
-	},
-
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
- * Software Version
- */
-	/*
-	 * The revision level is used to track upward compatible changes in the
-	 * protocol, so that newer code can know whether or not it may exploit these
-	 * changes.  Non-upward compatible changes should be signaled by changing
-	 * the "version" field in the EIGRP header (and woe be unto you).
-	 */
-	{ &hf_eigrp_sw_version,
-	  { "Software Version", "eigrp.sw_version",
-	    FT_UINT32, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL }
-	},
-	{ &hf_eigrp_sw_version_os_majorver,
-	  { "IOS Release Major", "eigrp.sw_version.os_majorver",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL }
-	},
-	{ &hf_eigrp_sw_version_os_minorver,
-	  { "IOS Release Minor", "eigrp.sw_version.os_minorver",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL }
-	},
-	{ &hf_eigrp_sw_version_tlv_majorrev,
-	  { "EIGRP Release Major", "eigrp.sw_version.tlv_majorrev",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL }
-	},
-	{ &hf_eigrp_sw_version_tlv_minorrev,
-	  { "EIGRP Release Minor", "eigrp.sw_version.tlv_minorrev",
-	    FT_UINT8, BASE_DEC, NULL, 0x0,
 	    NULL, HFILL }
 	},
 
@@ -3175,26 +3132,6 @@ proto_register_eigrp(void)
 	    "Number of hops to destination", HFILL }
 	},
 
-	/** The one-way latency along an unloaded path to the destination
-	 * expressed in units of nanoseconds per kilobyte. This number is not
-	 * scaled, as is the case with scaled delay. A delay of 0xFFFFFFFFFFFF
-	 * indicates an unreachable route. */
-	{ &hf_eigrp_metric_delay,
-	  { "Delay", "eigrp.metric.delay",
-	    FT_BYTES, BASE_NONE, NULL, 0x0,
-	    "delay, nanoseconds per kilobyte", HFILL }
-	},
-
-	/** The path bandwidth measured in kilobyte per second as presented by
-	 * the interface.  This number is not scaled, as is the case with scaled
-	 * bandwidth. A bandwidth of 0xFFFFFFFFFFFF indicates an unreachable
-	 * route.
-	 */
-	{ &hf_eigrp_metric_bw,
-	  { "Bandwidth", "eigrp.metric.bw",
-	    FT_BYTES, BASE_NONE, NULL, 0x0,
-	    "bandwidth, Kilobyte per second", HFILL }
-	},
 	/* Reserved - Transmitted as 0x0000 */
 	{ &hf_eigrp_metric_reserved,
 	  { "Reserved", "eigrp.metric.reserved",
@@ -3253,11 +3190,6 @@ proto_register_eigrp(void)
 	{ &hf_eigrp_ipv4_prefixlen,
 	  { "Prefix Length", "eigrp.ipv4.prefixlen",
 	    FT_UINT8, BASE_DEC, NULL, 0x0,
-	    NULL, HFILL }
-	},
-	{ &hf_eigrp_ipv4_dest,
-	  { "Destination", "eigrp.ipv4.dest",
-	    FT_STRING, BASE_NONE, NULL, 0x0,
 	    NULL, HFILL }
 	},
 
