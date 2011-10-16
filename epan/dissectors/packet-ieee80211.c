@@ -1391,6 +1391,7 @@ static const value_string ieee80211_tclas_process_flag[] = {
 static int proto_wlan = -1;
 static int proto_aggregate = -1;
 static packet_info * g_pinfo;
+static gboolean ieee80211_tvb_invalid = FALSE;
 
 /* ************************************************************************* */
 /*                Header field info values for FC-field                      */
@@ -4069,9 +4070,49 @@ dissect_gas_initial_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   return offset - start;
 }
 
+static GHashTable *gas_fragment_table = NULL;
+static GHashTable *gas_reassembled_table = NULL;
+
+static void ieee80211_gas_reassembly_init(void)
+{
+  fragment_table_init(&gas_fragment_table);
+  reassembled_table_init(&gas_reassembled_table);
+}
+
+static gint ett_gas_resp_fragment = -1;
+static gint ett_gas_resp_fragments = -1;
+
+static int hf_ieee80211_gas_resp_fragments = -1;
+static int hf_ieee80211_gas_resp_fragment = -1;
+static int hf_ieee80211_gas_resp_fragment_overlap = -1;
+static int hf_ieee80211_gas_resp_fragment_overlap_conflict = -1;
+static int hf_ieee80211_gas_resp_fragment_multiple_tails = -1;
+static int hf_ieee80211_gas_resp_fragment_too_long_fragment = -1;
+static int hf_ieee80211_gas_resp_fragment_error = -1;
+static int hf_ieee80211_gas_resp_fragment_count = -1;
+static int hf_ieee80211_gas_resp_reassembled_in = -1;
+static int hf_ieee80211_gas_resp_reassembled_length = -1;
+
+static const fragment_items gas_resp_frag_items = {
+  &ett_gas_resp_fragment,
+  &ett_gas_resp_fragments,
+  &hf_ieee80211_gas_resp_fragments,
+  &hf_ieee80211_gas_resp_fragment,
+  &hf_ieee80211_gas_resp_fragment_overlap,
+  &hf_ieee80211_gas_resp_fragment_overlap_conflict,
+  &hf_ieee80211_gas_resp_fragment_multiple_tails,
+  &hf_ieee80211_gas_resp_fragment_too_long_fragment,
+  &hf_ieee80211_gas_resp_fragment_error,
+  &hf_ieee80211_gas_resp_fragment_count,
+  &hf_ieee80211_gas_resp_reassembled_in,
+  &hf_ieee80211_gas_resp_reassembled_length,
+  "GAS Response fragments"
+};
+
 static guint
 dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
-                              gboolean anqp, guint8 frag)
+                              gboolean anqp, guint8 frag, gboolean more,
+                              guint8 dialog_token)
 {
   guint16 resp_len;
   int start = offset;
@@ -4095,11 +4136,38 @@ dissect_gas_comeback_response(proto_tree *tree, tvbuff_t *tvb, int offset,
   offset += 2;
   /* Query Response (optional) */
   if (resp_len) {
-    if (anqp && frag == 0)
+    if (anqp && frag == 0 && !more)
       dissect_anqp(query, tvb, offset, FALSE);
-    else
-      proto_tree_add_item(query, hf_ieee80211_ff_query_response,
-                          tvb, offset, resp_len, ENC_NA);
+    else {
+      fragment_data *frag_msg;
+      gboolean save_fragmented;
+      tvbuff_t *new_tvb;
+
+      save_fragmented = g_pinfo->fragmented;
+      g_pinfo->fragmented = TRUE;
+      frag_msg = fragment_add_seq_check(tvb, offset, g_pinfo, dialog_token,
+                                        gas_fragment_table,
+                                        gas_reassembled_table, frag, resp_len,
+                                        more);
+      new_tvb = process_reassembled_data(tvb, offset, g_pinfo,
+                                         "Reassembled GAS Query Response",
+                                         frag_msg, &gas_resp_frag_items,
+                                         NULL, tree);
+      if (new_tvb) {
+        if (anqp)
+          dissect_anqp(query, new_tvb, 0, FALSE);
+        else
+          proto_tree_add_item(query, hf_ieee80211_ff_query_response,
+                              new_tvb, 0,
+                              tvb_reported_length_remaining(new_tvb, 0),
+                              ENC_NA);
+      }
+
+      /* The old tvb cannot be used anymore */
+      ieee80211_tvb_invalid = TRUE;
+
+      g_pinfo->fragmented = save_fragmented;
+    }
     offset += resp_len;
   }
 
@@ -4835,7 +4903,9 @@ add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, int offset)
   guint8 code;
   guint8 subtype;
   gboolean anqp;
+  guint8 dialog_token;
   guint8 frag;
+  gboolean more;
 
   offset += add_fixed_field(tree, tvb, offset, FIELD_CATEGORY_CODE);
   code = tvb_get_guint8(tvb, offset);
@@ -4878,14 +4948,17 @@ add_ff_action_public(proto_tree *tree, tvbuff_t *tvb, int offset)
     offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
     break;
   case PA_GAS_COMEBACK_RESPONSE:
+    dialog_token = tvb_get_guint8(tvb, offset);
     offset += add_fixed_field(tree, tvb, offset, FIELD_DIALOG_TOKEN);
     offset += add_fixed_field(tree, tvb, offset, FIELD_STATUS_CODE);
     frag = tvb_get_guint8(tvb, offset) & 0x7f;
+    more = (tvb_get_guint8(tvb, offset) & 0x80) != 0;
     offset += add_fixed_field(tree, tvb, offset, FIELD_GAS_FRAGMENT_ID);
     offset += add_fixed_field(tree, tvb, offset, FIELD_GAS_COMEBACK_DELAY);
     offset += dissect_advertisement_protocol(g_pinfo, tree, tvb, offset,
                                              &anqp);
-    offset += dissect_gas_comeback_response(tree, tvb, offset, anqp, frag);
+    offset += dissect_gas_comeback_response(tree, tvb, offset, anqp, frag,
+                                            more, dialog_token);
     break;
   case PA_TDLS_DISCOVERY_RESPONSE:
     col_set_str(g_pinfo->cinfo, COL_PROTOCOL, "TDLS");
@@ -9576,6 +9649,7 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
   int tagged_parameter_tree_len;
 
   g_pinfo = pinfo;
+  ieee80211_tvb_invalid = FALSE;
 
   CHECK_DISPLAY_AS_X(data_handle,proto_wlan_mgt, tvb, pinfo, tree);
 
@@ -9763,6 +9837,8 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
       offset += add_fixed_field(lcl_fixed_tree, tvb, 0, FIELD_ACTION);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
+      if (ieee80211_tvb_invalid)
+        break; /* Buffer not available for further processing */
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       if (tagged_parameter_tree_len > 0)
       {
@@ -9783,6 +9859,8 @@ dissect_ieee80211_mgt (guint16 fcf, tvbuff_t * tvb, packet_info * pinfo,
       offset += add_fixed_field(lcl_fixed_tree, tvb, 0, FIELD_ACTION);
 
       proto_item_set_len(lcl_fixed_hdr, offset);
+      if (ieee80211_tvb_invalid)
+        break; /* Buffer not available for further processing */
       tagged_parameter_tree_len = tvb_reported_length_remaining(tvb, offset);
       if (tagged_parameter_tree_len > 0)
       {
@@ -13627,6 +13705,40 @@ proto_register_ieee80211 (void)
      {"Query Response", "wlan_mgt.fixed.query_response",
       FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL }},
 
+    {&hf_ieee80211_gas_resp_fragments,
+     {"GAS Query Response fragments", "wlan_mgt.fixed.fragments",
+      FT_NONE, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment,
+     {"GAS Query Response fragment", "wlan_mgt.fixed.fragment",
+      FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment_overlap,
+     {"GAS Query Response fragment overlap", "wlan_mgt.fixed.fragment.overlap",
+      FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment_overlap_conflict,
+     {"GAS Query Response fragment overlapping with conflicting data",
+      "wlan_mgt.fixed.fragment.overlap.conflicts",
+      FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment_multiple_tails,
+     {"GAS Query Response has multiple tail fragments",
+      "wlan_mgt.fixed.fragment.multiple_tails",
+      FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment_too_long_fragment,
+     {"GAS Query Response fragment too long",
+      "wlan_mgt.fixed.fragment.too_long_fragment",
+      FT_BOOLEAN, 0, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment_error,
+     {"GAS Query Response reassembly error", "wlan_mgt.fixed.fragment.error",
+      FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_fragment_count,
+     {"GAS Query Response fragment count", "wlan_mgt.fixed.fragment.count",
+      FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_reassembled_in,
+     {"Reassembled in", "wlan_mgt.fixed.reassembled.in",
+      FT_FRAMENUM, BASE_NONE, NULL, 0x00, NULL, HFILL } },
+    {&hf_ieee80211_gas_resp_reassembled_length,
+     {"Reassembled length", "wlan_mgt.fixed.reassembled.length",
+      FT_UINT32, BASE_DEC, NULL, 0x00, NULL, HFILL } },
+
     {&hf_ieee80211_ff_anqp_info_id,
      {"Info ID", "wlan_mgt.fixed.anqp.info_id",
       FT_UINT16, BASE_DEC, VALS(anqp_info_id_vals), 0,
@@ -16362,6 +16474,8 @@ proto_register_ieee80211 (void)
     &ett_adv_proto,
     &ett_adv_proto_tuple,
     &ett_gas_query,
+    &ett_gas_resp_fragment,
+    &ett_gas_resp_fragments,
     &ett_gas_anqp,
     &ett_nai_realm,
     &ett_nai_realm_eap,
@@ -16389,6 +16503,7 @@ proto_register_ieee80211 (void)
   register_dissector("wlan_ht", dissect_ieee80211_ht, proto_wlan);
   register_init_routine(wlan_defragment_init);
   register_init_routine(wlan_retransmit_init);
+  register_init_routine(ieee80211_gas_reassembly_init);
 
   wlan_tap = register_tap("wlan");
 
