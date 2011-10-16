@@ -283,7 +283,7 @@ void dissect_pw_cesopsn( tvbuff_t * tvb_original
 								,"Bits 0..3 of Control Word must be 0");
 						}
 
-						item3 = proto_tree_add_item(tree3, hf_cw_lm,  tvb, 0, 1, FALSE);
+						item3 = proto_tree_add_item(tree3, hf_cw_lm,  tvb, 0, 1, ENC_BIG_ENDIAN);
 						if (properties & PWC_CW_SUSPECT_LM)
 						{
 							expert_add_info_format(pinfo, item3, PI_UNDECODED, PI_WARN

@@ -498,12 +498,12 @@ dissect_tpkt_encap(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 			/* Version */
 			proto_tree_add_item(tpkt_tree, hf_tpkt_version, tvb,
-			    offset, 1, FALSE);
+			    offset, 1, ENC_BIG_ENDIAN);
 			proto_item_append_text(ti, ", Version: 3");
 
 			/* Reserved octet*/
 			proto_tree_add_item(tpkt_tree, hf_tpkt_reserved, tvb,
-			    offset + 1, 1, FALSE);
+			    offset + 1, 1, ENC_BIG_ENDIAN);
 
 			/* Length */
 			proto_tree_add_uint(tpkt_tree, hf_tpkt_length, tvb,

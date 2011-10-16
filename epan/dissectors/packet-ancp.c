@@ -310,7 +310,7 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
             ENC_BIG_ENDIAN);
     offset += 4;
 
-    proto_tree_add_item(ancp_tree, hf_ancp_label, tvb, offset, 8, FALSE);
+    proto_tree_add_item(ancp_tree, hf_ancp_label, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;
 
     /* Start of the Extension Block */
@@ -407,10 +407,10 @@ dissect_ancp_port_up_dn_mgmt(tvbuff_t *tvb, proto_tree *ancp_tree, gint offset)
                 case TLV_PING_OPAQUE_DATA:
                     /* 2 32b values*/
                     proto_tree_add_item(tlv_tree, hf_ancp_oam_opaque,
-                            tvb, offset, 4, FALSE);
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                     proto_tree_add_item(tlv_tree, hf_ancp_oam_opaque,
-                            tvb, offset, 4, FALSE);
+                            tvb, offset, 4, ENC_BIG_ENDIAN);
                     offset += 4;
                     break;
                 case TLV_PING_PARAMS:
@@ -452,7 +452,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     proto_item_append_text(sti, " msec");
 
     sti = proto_tree_add_item(ancp_tree, hf_ancp_adj_code, tvb, offset, 1,
-            FALSE);
+            ENC_BIG_ENDIAN);
     byte = tvb_get_guint8(tvb, offset);
     offset += 1;
     adjcode = byte & ADJ_CODE_MASK;
@@ -506,7 +506,7 @@ dissect_ancp_adj_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *ancp_tree,
     ancp_cap_tree = proto_item_add_subtree(sti, ett_ancp_tot_len);
 
     proto_tree_add_item(ancp_cap_tree, hf_ancp_tot_len, tvb,
-            offset, 2, FALSE);
+            offset, 2, ENC_BIG_ENDIAN);
     offset += 2;
 
     for ( ;numcaps; numcaps--) {

@@ -1239,10 +1239,10 @@ void dissect_control_word(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree
 				}
 				if (pd->mode == PWATM_MODE_AAL5_SDU)
 				{
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_t, tvb, 0, 1, FALSE);
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_e, tvb, 0, 1, FALSE);
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_c, tvb, 0, 1, FALSE);
-					proto_tree_add_item(tree2, hf_pref_cw_a5s_u, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_t, tvb, 0, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_e, tvb, 0, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_c, tvb, 0, 1, ENC_BIG_ENDIAN);
+					proto_tree_add_item(tree2, hf_pref_cw_a5s_u, tvb, 0, 1, ENC_BIG_ENDIAN);
 					/*
 					 * rfc4717: [When FRF.8.1 Frame Relay/ATM PVC Service Interworking [RFC3916]
 					 * traffic is being transported, the CPCS-UU Least Significant Bit
@@ -1521,7 +1521,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					proto_tree_add_uint(tree2, hf_cell_h_vpi, tvb, 0, 2, (unsigned)pd->vpi);
 					proto_tree_add_uint(tree2, hf_cell_h_vci, tvb, 1, 3, (unsigned)pd->vci);
 
-					item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 3, 1, FALSE);
+					item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 3, 1, ENC_BIG_ENDIAN);
 					if (NULL == match_strval(pd->pti,atm_pt_vals))
 					{
 						expert_add_info_format(pinfo, item2, PI_UNDECODED, PI_WARN,
@@ -1536,11 +1536,11 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							pd->pti);
 					}
 
-					proto_tree_add_item(tree2, hf_cell_h_clp, tvb, 3, 1, FALSE);
+					proto_tree_add_item(tree2, hf_cell_h_clp, tvb, 3, 1, ENC_BIG_ENDIAN);
 				}
 				else if (MODE_11_OR_AAL5_PDU(pd->mode))
 				{
-					item2 = proto_tree_add_item(tree2, hf_cell_h_m  , tvb, 0, 1, FALSE);
+					item2 = proto_tree_add_item(tree2, hf_cell_h_m  , tvb, 0, 1, ENC_BIG_ENDIAN);
 					if ((0 != pd->cwb3.m) && MODE_11(pd->mode))
 					{
 						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
@@ -1548,7 +1548,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 							" M bit must be 0 to distinguish from AAL5 PDU mode");
 					}
 
-					item2 = proto_tree_add_item(tree2, hf_cell_h_v  , tvb, 0, 1, FALSE);
+					item2 = proto_tree_add_item(tree2, hf_cell_h_v  , tvb, 0, 1, ENC_BIG_ENDIAN);
 					if ((0 == pd->cwb3.v) && (PWATM_MODE_11_VPC == pd->mode))
 					{
 						expert_add_info_format(pinfo, item2, PI_MALFORMED, PI_ERROR
@@ -1585,7 +1585,7 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 					if (MODE_11(pd->mode))
 					{
-						item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 0, 1, FALSE);
+						item2 = proto_tree_add_item(tree2, hf_cell_h_pti, tvb, 0, 1, ENC_BIG_ENDIAN);
 						if (NULL == match_strval(pd->pti,atm_pt_vals))
 						{
 							expert_add_info_format(pinfo, item2, PI_UNDECODED, PI_WARN,
@@ -1595,11 +1595,11 @@ int dissect_cell_header(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 					}
 					else
 					{
-						proto_tree_add_item(tree2, hf_aal5_pdu_u, tvb, 0, 1, FALSE);
-						proto_tree_add_item(tree2, hf_aal5_pdu_e, tvb, 0, 1, FALSE);
+						proto_tree_add_item(tree2, hf_aal5_pdu_u, tvb, 0, 1, ENC_BIG_ENDIAN);
+						proto_tree_add_item(tree2, hf_aal5_pdu_e, tvb, 0, 1, ENC_BIG_ENDIAN);
 					}
 
-					proto_tree_add_item(tree2, hf_cell_h_clp, tvb, 0, 1, FALSE);
+					proto_tree_add_item(tree2, hf_cell_h_clp, tvb, 0, 1, ENC_BIG_ENDIAN);
 
 					if (PWATM_MODE_11_VPC == pd->mode)
 					{

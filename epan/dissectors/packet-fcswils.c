@@ -930,7 +930,7 @@ dissect_swils_efp (tvbuff_t *tvb, proto_tree *efp_tree, guint8 isreq _U_)
                 break;
 
             case FC_SWILS_LRECTYPE_MCAST:
-                proto_tree_add_item (lrec_tree, hf_swils_efp_mcast_grpno, tvb, offset+1, 1, 0);
+                proto_tree_add_item (lrec_tree, hf_swils_efp_mcast_grpno, tvb, offset+1, 1, ENC_BIG_ENDIAN);
                 break;
             }
             offset += efp.reclen;
@@ -1401,9 +1401,9 @@ dissect_swils_mergereq (tvbuff_t *tvb, proto_tree *mr_tree, guint8 isreq)
         }
         else {
             proto_tree_add_item (mr_tree, hf_swils_zone_status, tvb,
-                                 offset+5, 1, 0);
+                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (mr_tree, hf_swils_zone_reason, tvb,
-                                 offset+6, 1, 0);
+                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_text (mr_tree, tvb, offset+7, 1,
                                  "Vendor Unique: 0x%x",
                                  tvb_get_guint8 (tvb, offset+7));
@@ -1437,9 +1437,9 @@ dissect_swils_aca (tvbuff_t *tvb, proto_tree *aca_tree, guint8 isreq)
         }
         else {
             proto_tree_add_item (aca_tree, hf_swils_zone_status, tvb,
-                                 offset+5, 1, 0);
+                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (aca_tree, hf_swils_zone_reason, tvb,
-                                 offset+6, 1, 0);
+                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_text (aca_tree, tvb, offset+7, 1,
                                  "Vendor Unique: 0x%x",
                                  tvb_get_guint8 (tvb, offset+7));
@@ -1456,9 +1456,9 @@ dissect_swils_rca (tvbuff_t *tvb, proto_tree *rca_tree, guint8 isreq)
     if (rca_tree) {
         if (!isreq) {
             proto_tree_add_item (rca_tree, hf_swils_zone_status, tvb,
-                                 offset+5, 1, 0);
+                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (rca_tree, hf_swils_zone_reason, tvb,
-                                 offset+6, 1, 0);
+                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_text (rca_tree, tvb, offset+7, 1,
                                  "Vendor Unique: 0x%x",
                                  tvb_get_guint8 (tvb, offset+7));
@@ -1548,9 +1548,9 @@ dissect_swils_sfc (tvbuff_t *tvb, proto_tree *sfc_tree, guint8 isreq)
         }
         else {
             proto_tree_add_item (sfc_tree, hf_swils_zone_status, tvb,
-                                 offset+5, 1, 0);
+                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (sfc_tree, hf_swils_zone_reason, tvb,
-                                 offset+6, 1, 0);
+                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_text (sfc_tree, tvb, offset+7, 1,
                                  "Vendor Unique: 0x%x",
                                  tvb_get_guint8 (tvb, offset+7));
@@ -1567,9 +1567,9 @@ dissect_swils_ufc (tvbuff_t *tvb, proto_tree *ufc_tree, guint8 isreq)
     if (ufc_tree) {
         if (!isreq) {
             proto_tree_add_item (ufc_tree, hf_swils_zone_status, tvb,
-                                 offset+5, 1, 0);
+                                 offset+5, 1, ENC_BIG_ENDIAN);
             proto_tree_add_item (ufc_tree, hf_swils_zone_reason, tvb,
-                                 offset+6, 1, 0);
+                                 offset+6, 1, ENC_BIG_ENDIAN);
             proto_tree_add_text (ufc_tree, tvb, offset+7, 1,
                                  "Vendor Unique: 0x%x",
                                  tvb_get_guint8 (tvb, offset+7));

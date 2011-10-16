@@ -653,7 +653,7 @@ static int dissect_pnrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                         pnrp_message_tree = proto_item_add_subtree(pnrp_message_item, ett_pnrp_message);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_type, tvb, offset , 2, ENC_BIG_ENDIAN);
                         proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_length, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_certChain, tvb, offset + 4, data_length-4, FALSE);
+                        proto_tree_add_item(pnrp_message_tree, hf_pnrp_message_certChain, tvb, offset + 4, data_length-4, ENC_NA);
                     }
 
                     /* There might be padding, so fill up to the next byte */
@@ -929,7 +929,7 @@ static void dissect_encodedCPA_structure(tvbuff_t *tvb, gint offset, gint length
         /* Reserved */
         proto_tree_add_text(pnrp_encodedCPA_tree, tvb, offset + 7, 1, "Reserved");
         /* Not After */
-        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_notAfter, tvb, offset+8, 8, FALSE);
+        proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_notAfter, tvb, offset+8, 8, ENC_BIG_ENDIAN);
         /* Service Location */
         proto_tree_add_item(pnrp_encodedCPA_tree, hf_pnrp_encodedCPA_serviceLocation, tvb, offset+16, 16, ENC_NA);
 

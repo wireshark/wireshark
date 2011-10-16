@@ -990,18 +990,18 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 6:
 		/* GSM Coverage Indicator */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gci, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gci, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 7:
 		/* 11.2.7 GAN Classmark */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_tura, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gc, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uc, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_tura, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_gc, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uc, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* UMA Protocols (Stage 3) R1.0.3 */
 		if(ie_len>1){
 			ie_offset++;
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_gmsi, tvb, ie_offset, 1, FALSE);
-			proto_tree_add_item(urr_ie_tree, hf_uma_urr_psho, tvb, ie_offset, 1, FALSE);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_gmsi, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(urr_ie_tree, hf_uma_urr_psho, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(urr_ie_tree, hf_uma_urr_rrs, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		}
 		break;
@@ -1052,12 +1052,12 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		/*
 		 * 11.2.14 GAN Control Channel Description
 		 */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMC, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_NMO, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_DTM, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ATT, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_MSCR, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMC, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_NMO, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_GPRS, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_DTM, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ATT, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_MSCR, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* T3212 timeout value */
 		ie_offset++;
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_T3212_timer, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
@@ -1067,10 +1067,10 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		ie_offset++;
 		/* SGSNR, SGSN Release (octet 6) B1*/
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_SGSNR, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMP, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RE, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PFCFM, tvb, ie_offset, 1, FALSE);
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_3GECS, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ECMP, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RE, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PFCFM, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_3GECS, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		/* PS HO, PS Handover indicator (octet 6) Bit 6 */
 
 		ie_offset++;
@@ -1177,7 +1177,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 33:
 		/* 11.2.33 UL Quality Indication */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ULQI, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_ULQI, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 34:
 		/* 11.2.34 TLLI
@@ -1268,7 +1268,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_channel, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 52:		/* PDU in Error */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PDU_in_error, tvb, ie_offset, ie_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_PDU_in_error, tvb, ie_offset, ie_len, ENC_NA);
 		break;
 	case 53:
 		/* Sample Size
@@ -1310,7 +1310,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		  }
 		break;
 	case 58:		/* 11.2.58 Location Black List indicator */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LBLI, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_LBLI, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 59:		/* 11.2.59 Reset Indicator */
 		proto_tree_add_item(urr_ie_tree, hf_uma_urr_RI, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
@@ -1340,7 +1340,7 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		str_len = tvb_get_guint8(tvb,ie_offset);
 		ie_offset++;
 		/* UMA Service Zone string, 1st character */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_service_zone_str, tvb, ie_offset, str_len, ENC_ASCII|ENC_NA);
 		break;
 	/* 11.2.63 RTP Redundancy Configuration */
 	case 63:
@@ -1394,11 +1394,11 @@ dissect_uma_IE(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset)
 		break;
 	case 67:
 		/* 11.2.67 Serving GANC table indicator */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_suti, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_suti, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 68:
 		/* 11.2.68 Registration indicators */
-		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_mps, tvb, ie_offset, 1, FALSE);
+		proto_tree_add_item(urr_ie_tree, hf_uma_urr_uma_mps, tvb, ie_offset, 1, ENC_BIG_ENDIAN);
 		break;
 	case 69:
 		/* 11.2.69 GAN PLMN List */

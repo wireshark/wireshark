@@ -496,7 +496,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             msg_length = 1 + 1 + 2 + attribute_list_length;
             msg_ti = proto_tree_add_item(msrp_tree, hf_msrp_message, tvb,
                                          MSRP_MESSAGE_GROUP_OFFSET + msg_offset,
-                                         msg_length, FALSE);
+                                         msg_length, ENC_NA);
             msg_tree = proto_item_add_subtree(msg_ti, ett_msg);
 
             /* Append AttributeType description to the end of the "Message" heading */
@@ -511,7 +511,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
              */
             attr_list_ti = proto_tree_add_item(msg_tree, hf_msrp_attribute_list, tvb,
                                                MSRP_ATTRIBUTE_LIST_GROUP_OFFSET + msg_offset,
-                                               attribute_list_length, FALSE);
+                                               attribute_list_length, ENC_NA);
             attr_list_tree = proto_item_add_subtree(attr_list_ti, ett_attr_list);
 
 
@@ -539,7 +539,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
                 vect_attr_ti = proto_tree_add_item(attr_list_tree, hf_msrp_vector_attribute, tvb,
                                                    MSRP_VECTOR_ATTRIBUTE_GROUP_OFFSET + msg_offset + vect_offset,
-                                                   vect_attr_len, FALSE);
+                                                   vect_attr_len, ENC_NA);
  
                 vect_attr_tree = proto_item_add_subtree(vect_attr_ti, ett_vect_attr);
 
@@ -555,7 +555,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      */
                     first_value_ti = proto_tree_add_item(vect_attr_tree, hf_msrp_first_value, tvb,
                                                          MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
-                                                         attribute_length, FALSE);
+                                                         attribute_length, ENC_NA);
                     first_value_tree = proto_item_add_subtree(first_value_ti, ett_first_value);
 
                     /* Add Domain components to First Value tree */
@@ -585,7 +585,7 @@ dissect_msrp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                      */
                     first_value_ti = proto_tree_add_item(vect_attr_tree, hf_msrp_first_value, tvb,
                                                          MSRP_FIRST_VALUE_GROUP_OFFSET + msg_offset + vect_offset,
-                                                         attribute_length, FALSE);
+                                                         attribute_length, ENC_NA);
                     first_value_tree = proto_item_add_subtree(first_value_ti, ett_first_value);
 
                     /* Decode StreamID */

@@ -1864,11 +1864,11 @@ dissect_l2tp_udp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	}
 
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_tunnel, tvb, idx, 2, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_tunnel, tvb, idx, 2, ENC_BIG_ENDIAN);
 	}
 	idx += 2;
 	if (tree) {
-		proto_tree_add_item(l2tp_tree, hf_l2tp_session, tvb, idx, 2, FALSE);
+		proto_tree_add_item(l2tp_tree, hf_l2tp_session, tvb, idx, 2, ENC_BIG_ENDIAN);
 	}
 	idx += 2;
 

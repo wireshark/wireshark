@@ -292,20 +292,20 @@ dissect_usb_hid_report_mainitem_data(packet_info *pinfo _U_, proto_tree *tree, t
 		case USBHID_MAINITEM_TAG_INPUT:
 		case USBHID_MAINITEM_TAG_OUTPUT:
 		case USBHID_MAINITEM_TAG_FEATURE:
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit0, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit1, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit2, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit3, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit4, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit5, tvb, offset, bSize, TRUE);
-			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit6, tvb, offset, bSize, TRUE);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit0, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit1, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit2, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit3, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit4, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit5, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
+			proto_tree_add_item(tree, hf_usb_hid_mainitem_bit6, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			if (bTag == USBHID_MAINITEM_TAG_INPUT) {
-				proto_tree_add_item(tree, hf_usb_hid_mainitem_bit7_input, tvb, offset, bSize, TRUE);
+				proto_tree_add_item(tree, hf_usb_hid_mainitem_bit7_input, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			} else {
-				proto_tree_add_item(tree, hf_usb_hid_mainitem_bit7, tvb, offset, bSize, TRUE);
+				proto_tree_add_item(tree, hf_usb_hid_mainitem_bit7, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			}
 			if (bSize > 1) {
-				proto_tree_add_item(tree, hf_usb_hid_mainitem_bit8, tvb, offset, bSize, TRUE);
+				proto_tree_add_item(tree, hf_usb_hid_mainitem_bit8, tvb, offset, bSize, ENC_LITTLE_ENDIAN);
 			} else {
 				proto_tree_add_text(tree, tvb, offset, 0, "Bits or bytes: Buffered bytes (default, no second byte present)");
 			}

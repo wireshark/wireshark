@@ -1133,7 +1133,7 @@ static void dissect_icep_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		offset++;
 
 		proto_tree_add_item(icep_tree, hf_icep_message_size,
-				    tvb, offset, 4, TRUE);
+				    tvb, offset, 4, ENC_LITTLE_ENDIAN);
 		offset += 4;
 	} else {
 		offset += ICEP_HEADER_SIZE;

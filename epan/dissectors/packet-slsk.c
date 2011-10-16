@@ -482,7 +482,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 "(uncompression failed !)");
             } else {
 
-              proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, FALSE);
+              proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
               proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
 
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
@@ -643,7 +643,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 "(uncompression failed !)");
             } else {
 
-              proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, FALSE);
+              proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
               proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
 
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,
@@ -1186,7 +1186,7 @@ static void dissect_slsk_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                 "[uncompression failed !]");
             } else {
 
-              proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, FALSE);
+              proto_item *ti2 = proto_tree_add_item(slsk_tree, hf_slsk_compr_packet, tvb, offset, -1, ENC_NA);
               proto_tree *slsk_compr_packet_tree = proto_item_add_subtree(ti2, ett_slsk_compr_packet);
 
               proto_tree_add_uint_format(slsk_tree, hf_slsk_integer, tvb, offset, -1, 0,

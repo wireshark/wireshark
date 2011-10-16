@@ -1971,7 +1971,7 @@ dissect_dect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	proto_tree_add_item(DectTree, hf_dect_slot, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset+=2;
 
-	proto_tree_add_item(DectTree, hf_dect_framenumber, tvb, offset, 1, FALSE);
+	proto_tree_add_item(DectTree, hf_dect_framenumber, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset++;
 
 	proto_tree_add_item(DectTree, hf_dect_rssi, tvb, offset, 1, ENC_BIG_ENDIAN);

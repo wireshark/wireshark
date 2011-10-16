@@ -1527,7 +1527,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Digital Signature */
                 par_len = opt_len - 20;
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, ENC_NA);
                 opt_offset += par_len;
 
                 /* Padding */
@@ -1899,7 +1899,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Encrypted Handover Key */
                 par_len = opt_len-6-padd_length;
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_encrypted_handover_key, tvb, opt_offset, par_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_hkr_encrypted_handover_key, tvb, opt_offset, par_len, ENC_NA);
                 opt_offset += par_len;
 
                 /* Padding */
@@ -2005,7 +2005,7 @@ dissect_icmpv6_nd_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree 
 
                 /* Digital Signature */
                 par_len = opt_len - 20;
-                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6opt_tree, hf_icmpv6_opt_digital_signature_padding , tvb, opt_offset, par_len, ENC_NA);
                 opt_offset += par_len;
                 /* Padding */
                 /* TODO: Calculate padding length and exlude from the signature */
@@ -2309,7 +2309,7 @@ dissect_icmpv6_rpl_opt(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree
                         opt_offset += 8;
                         break;
                     case 18:
-                        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_prefix, tvb, opt_offset, 16, ENC_BIG_ENDIAN);
+                        proto_tree_add_item(icmp6opt_tree, hf_icmpv6_rpl_opt_target_prefix, tvb, opt_offset, 16, ENC_NA);
                         proto_item_append_text(ti, " %s/%d", tvb_ip6_to_str(tvb, opt_offset), prefix_len);
                         opt_offset += 16;
                         break;
@@ -3687,7 +3687,7 @@ dissect_icmpv6(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                 offset += 8;
 
                 /* Address */
-                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_raddr, tvb, offset, 16, ENC_BIG_ENDIAN);
+                proto_tree_add_item(icmp6_tree, hf_icmpv6_da_raddr, tvb, offset, 16, ENC_NA);
                 offset += 16;
                 break;
             }

@@ -3261,8 +3261,8 @@ extern int dissect_codec_mode(proto_tree *tree, tvbuff_t *tvb, int offset, int l
       }
       if ( len > 4 ) {
         offset = offset + 1;
-        proto_tree_add_item(tree, hf_optimisation_mode, tvb, offset, 1, TRUE);
-        proto_tree_add_item(tree, hf_max_codec_modes, tvb, offset, 1, TRUE);
+        proto_tree_add_item(tree, hf_optimisation_mode, tvb, offset, 1, ENC_LITTLE_ENDIAN);
+        proto_tree_add_item(tree, hf_max_codec_modes, tvb, offset, 1, ENC_LITTLE_ENDIAN);
       }
       offset = offset + 1;
       break;

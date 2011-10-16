@@ -687,7 +687,7 @@ static void dissect_h263_data( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tr
 		}
 	}
 	if( tree )
-		proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, FALSE );
+		proto_tree_add_item( h263_payload_tree, hf_h263_data, tvb, offset, -1, ENC_NA );
 }
 
 void

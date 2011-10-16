@@ -1242,7 +1242,7 @@ dissect_shimopts(tvbuff_t *tvb, int offset, proto_tree *tree, packet_info *pinfo
 	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 	/* Critical */
-	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_critical, tvb, offset+1, 1, FALSE);
+	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_critical, tvb, offset+1, 1, ENC_BIG_ENDIAN);
 
 	/* Content Length */
 	proto_tree_add_item(opt_tree, hf_ipv6_shim6_opt_len, tvb, offset + 2, 2, ENC_BIG_ENDIAN);

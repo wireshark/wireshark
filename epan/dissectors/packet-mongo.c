@@ -131,7 +131,7 @@ dissect_fullcollectionname(tvbuff_t *tvb, guint offset, proto_tree *tree)
   proto_item *ti;
   proto_tree *fcn_tree;
 
-  ti = proto_tree_add_item(tree, hf_mongo_fullcollectionname, tvb, offset, -1, ENC_NA);
+  ti = proto_tree_add_item(tree, hf_mongo_fullcollectionname, tvb, offset, -1, ENC_ASCII|ENC_NA);
   fcn_length = tvb_strsize(tvb, offset);
 
   /* If this doesn't find anything, we'll just throw an exception below */

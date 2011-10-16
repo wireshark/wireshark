@@ -1112,7 +1112,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 			if (message_type == TIPCv2_CONMGR_MSG_ACK || (handle_v2_as & (V2_AS_ALL + V2_AS_1_7)))
 			{
 				/* W9 */
-				proto_tree_add_item(tipc_tree, hf_tipcv2_conn_mgr_msg_ack, tipc_tvb, offset, 4, FALSE);
+				proto_tree_add_item(tipc_tree, hf_tipcv2_conn_mgr_msg_ack, tipc_tvb, offset, 4, ENC_BIG_ENDIAN);
 				offset += 4;
 			}
 			break;
@@ -1183,7 +1183,7 @@ dissect_tipc_v2_internal_msg(tvbuff_t *tipc_tvb, proto_tree *tipc_tree, packet_i
 						proto_tree_add_string(tipc_tree, hf_tipcv2_cluster_address, tipc_tvb, offset, 4, addr_str_ptr);
 						offset = offset + 4;
 						/* bitmap */
-						proto_tree_add_item(tipc_tree, hf_tipcv2_bitmap, tipc_tvb, offset, -1, FALSE);
+						proto_tree_add_item(tipc_tree, hf_tipcv2_bitmap, tipc_tvb, offset, -1, ENC_NA);
 						break;
 					case TIPCv2_ROUTE_ADDITION:			/* 3  */
 					case TIPCv2_ROUTE_REMOVAL:			/* 4  */

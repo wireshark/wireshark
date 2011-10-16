@@ -4878,7 +4878,7 @@ static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packe
     local_offset += 40; /* skip reserved field */
     local_offset += 1;  /* skip reserved field */
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortSelect,  tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
-    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_CounterSelect, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_CounterSelect, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_SymbolErrorCounter, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_LinkErrorRecoveryCounter, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_LinkDownedCounter, tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
@@ -4893,8 +4893,8 @@ static void parse_PERF_PortCounters(proto_tree* parentTree, tvbuff_t* tvb, packe
     proto_tree_add_bits_item(perf_tree, hf_infiniband_PortCounters_ExcessiveBufferOverrunErrors, tvb, local_offset*8 + 4, 4, FALSE); local_offset += 1;
     local_offset += 2;  /* skip reserved field */
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_VL15Dropped, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
-    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitData, tvb, local_offset, 4, FALSE); local_offset += 4;
-    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvData, tvb, local_offset, 4, FALSE); local_offset += 4;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitData, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvData, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortXmitPkts, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCounters_PortRcvPkts, tvb, local_offset, 4, ENC_BIG_ENDIAN); local_offset += 4;
 
@@ -4921,10 +4921,10 @@ static void parse_PERF_PortCountersExtended(proto_tree* parentTree, tvbuff_t* tv
     local_offset += 40; /* skip reserved field */
     local_offset += 1;  /* skip reserved field */
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortSelect,  tvb, local_offset, 1, ENC_BIG_ENDIAN); local_offset += 1;
-    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_CounterSelect, tvb, local_offset, 2, FALSE); local_offset += 2;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_CounterSelect, tvb, local_offset, 2, ENC_BIG_ENDIAN); local_offset += 2;
     local_offset += 4;  /* skip reserved field */
-    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortXmitData, tvb, local_offset, 8, FALSE); local_offset += 8;
-    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortRcvData, tvb, local_offset, 8, FALSE); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortXmitData, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
+    proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortRcvData, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortXmitPkts, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortRcvPkts, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;
     proto_tree_add_item(perf_tree, hf_infiniband_PortCountersExt_PortUnicastXmitPkts, tvb, local_offset, 8, ENC_BIG_ENDIAN); local_offset += 8;

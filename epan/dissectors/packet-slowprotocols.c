@@ -1671,7 +1671,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
         }
         { /* event flag */
             event_flag = ((tvb_get_guint8(tvb, offset) & 0x08) != 0);
-            proto_tree_add_item(tree_a, hf_esmc_event_flag, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree_a, hf_esmc_event_flag, tvb, offset, 1, ENC_BIG_ENDIAN);
             /*stay at the same octet in tvb*/
         }
         if (pref_decode_esmc_timestamp)
@@ -1821,7 +1821,7 @@ dissect_esmc_pdu(tvbuff_t *tvb, packet_info *pinfo, proto_tree *treex)
 
                         /* value */
                         timestamp = (gint32)tvb_get_ntohl(tvb, offset);
-                        item_c = proto_tree_add_item(tree_b, hf_esmc_timestamp, tvb, offset, 4, FALSE);
+                        item_c = proto_tree_add_item(tree_b, hf_esmc_timestamp, tvb, offset, 4, ENC_BIG_ENDIAN);
                         if (!timestamp_valid_flag) proto_item_append_text(item_c, " [invalid]");
                         offset += 4;
 

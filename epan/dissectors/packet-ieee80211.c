@@ -7620,7 +7620,7 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
   }
 
   item = proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi1,
-                             tvb, offset, oi1_len, ENC_BIG_ENDIAN);
+                             tvb, offset, oi1_len, ENC_NA);
   add_manuf(item, tvb, offset);
   offset += oi1_len;
 
@@ -7632,13 +7632,13 @@ dissect_roaming_consortium(packet_info *pinfo, proto_tree *tree,
 
   if (oi2_len > 0) {
     proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi2,
-                        tvb, offset, oi2_len, ENC_BIG_ENDIAN);
+                        tvb, offset, oi2_len, ENC_NA);
     offset += oi2_len;
   }
 
   if (end > offset) {
     proto_tree_add_item(tree, hf_ieee80211_tag_roaming_consortium_oi3,
-                        tvb, offset, end - offset, ENC_BIG_ENDIAN);
+                        tvb, offset, end - offset, ENC_NA);
   }
 
   return 2 + len;

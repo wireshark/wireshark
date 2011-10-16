@@ -1026,16 +1026,16 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 	if(tree) {
 		offset = 4;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_transaction, tvb,
-							offset, 4, FALSE);
+							offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_statement, tvb,
-							offset, 4, FALSE);
+							offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_dialect, tvb,
-							offset, 4, FALSE);
+							offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_querystr, tvb,
-							offset, 4, FALSE);
+							offset, 4, ENC_ASCII|ENC_BIG_ENDIAN);
 		length = tvb_get_ntohl(tvb, offset);
 		offset += length + 6;
 		proto_tree_add_uint_format_value(tree,
@@ -1043,7 +1043,7 @@ gdsdb_prepare(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 					length, "%i data bytes", length);
         	offset += tvb_get_ntohl(tvb, offset) + 6;
 		proto_tree_add_item(tree, hf_gdsdb_prepare_bufferlength, tvb,
-							offset, 2, FALSE);
+							offset, 2, ENC_BIG_ENDIAN);
 	}
 
 	return tvb_length(tvb);

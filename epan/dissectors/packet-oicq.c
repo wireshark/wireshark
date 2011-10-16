@@ -150,7 +150,7 @@ dissect_oicq(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		proto_tree_add_item(oicq_tree, hf_oicq_seq, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
-		proto_tree_add_item(oicq_tree, hf_oicq_qqid, tvb, offset, 4, FALSE);
+		proto_tree_add_item(oicq_tree, hf_oicq_qqid, tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 		
 		proto_tree_add_item(oicq_tree, hf_oicq_data, tvb, offset, -1, ENC_ASCII|ENC_NA);

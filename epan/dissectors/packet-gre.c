@@ -424,7 +424,7 @@ dissect_gre(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
          /* RFC2637 Section 4.1 : Enhanced GRE Header */
       if (is_ppp && type!=ETHERTYPE_CDMA2000_A10_UBS) {
 
-	proto_tree_add_item(gre_tree, hf_gre_key_payload_length, tvb, offset, 2, FALSE);
+	proto_tree_add_item(gre_tree, hf_gre_key_payload_length, tvb, offset, 2, ENC_BIG_ENDIAN);
         offset += 2;
 
 	proto_tree_add_item(gre_tree, hf_gre_key_call_id, tvb, offset, 2, ENC_BIG_ENDIAN);

@@ -482,7 +482,7 @@ static void common_secondary_header_dissector ( proto_tree* ehs_secondary_header
   ++(*offset);
 
   /* proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_pdss_reserved_3, tvb, *offset, 2, ENC_BIG_ENDIAN ); */
-  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_gse_pkt_id, tvb, *offset, 2, FALSE );
+  proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_gse_pkt_id, tvb, *offset, 2, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_payload_vs_core_id, tvb, *offset, 2, ENC_BIG_ENDIAN );
   proto_tree_add_item ( ehs_secondary_header_tree, hf_ehs_sh_apid, tvb, *offset, 2, ENC_BIG_ENDIAN );
   *offset += 2;
@@ -1117,7 +1117,7 @@ dissect_ehs(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
         proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_new_data_flag, tvb, offset, 1, ENC_BIG_ENDIAN );
         /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad1, tvb, offset, 1, ENC_BIG_ENDIAN ); */
         proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_hold_flag, tvb, offset, 1, ENC_BIG_ENDIAN );
-        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_sign_flag, tvb, offset, 1, FALSE );
+        proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_sign_flag, tvb, offset, 1, ENC_BIG_ENDIAN );
         ++offset;
 
         /* proto_tree_add_item ( ehs_primary_header_tree, hf_ehs_ph_pad2, tvb, offset, 1, ENC_BIG_ENDIAN ); */

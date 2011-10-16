@@ -587,7 +587,7 @@ dissect_ncp_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
         proto_tree_add_item(ncp_tree, hf_ncp_packet_seqno,
             tvb, commhdr + 12, 4, ENC_BIG_ENDIAN);
         proto_tree_add_item(ncp_tree, hf_ncp_delay_time,
-            tvb, commhdr + 16, 4, FALSE);
+            tvb, commhdr + 16, 4, ENC_BIG_ENDIAN);
         ncp_burst_seqno = tvb_get_ntohs(tvb, commhdr+20);
         proto_tree_add_item(ncp_tree, hf_ncp_burst_seqno,
             tvb, commhdr + 20, 2, ENC_BIG_ENDIAN);

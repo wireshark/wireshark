@@ -2763,7 +2763,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* TA value */
                         ta_value = tvb_get_guint8(tvb, offset) & 0x3f;
                         ta_ti = proto_tree_add_item(tree, hf_mac_lte_control_timing_advance,
-                                                    tvb, offset, 1, FALSE);
+                                                    tvb, offset, 1, ENC_BIG_ENDIAN);
 
                         if (ta_value == 31) {
                             expert_add_info_format(pinfo, ta_ti, PI_SEQUENCE,
@@ -2816,7 +2816,7 @@ static void dissect_ulsch_or_dlsch(tvbuff_t *tvb, packet_info *pinfo, proto_tree
                         /* Check 2 Reserved bits */
                         reserved = (tvb_get_guint8(tvb, offset) & 0xc0) >> 6;
                         ti = proto_tree_add_item(phr_tree, hf_mac_lte_control_power_headroom_reserved,
-                                                 tvb, offset, 1, FALSE);
+                                                 tvb, offset, 1, ENC_BIG_ENDIAN);
                         if (reserved != 0) {
                             expert_add_info_format(pinfo, ti, PI_MALFORMED, PI_ERROR,
                                                    "Power Headroom Reserved bits not zero (found 0x%x)", reserved);

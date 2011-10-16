@@ -632,18 +632,18 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 	guint16 framesize;
 
 	/* SYNC and flags */
-	temp_item = proto_tree_add_item(tree, hf_sync, tvb, offset, 2, FALSE);
+	temp_item = proto_tree_add_item(tree, hf_sync, tvb, offset, 2, ENC_BIG_ENDIAN);
 	temp_tree = proto_item_add_subtree(temp_item, ett_frtype);
-		proto_tree_add_item(temp_tree, hf_sync_frtype,	tvb, offset, 2, FALSE);
-		proto_tree_add_item(temp_tree, hf_sync_version, tvb, offset, 2, FALSE);
+		proto_tree_add_item(temp_tree, hf_sync_frtype,	tvb, offset, 2, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_sync_version, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* FRAMESIZE */
-	proto_tree_add_item(tree, hf_frsize, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_frsize, tvb, offset, 2, ENC_BIG_ENDIAN);
 	framesize = tvb_get_ntohs(tvb, offset); offset += 2;
 
 	/* IDCODE */
-	proto_tree_add_item(tree, hf_idcode, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_idcode, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	/* SOC */
@@ -662,13 +662,13 @@ static gint dissect_header(tvbuff_t *tvb, proto_tree *tree)
 	/* time quality flags */
 	temp_item = proto_tree_add_text(tree, tvb, offset, 1, "Time quality flags");
 	temp_tree = proto_item_add_subtree(temp_item, ett_timequal);
-		proto_tree_add_item(temp_tree, hf_timeqal_lsdir,	 tvb, offset, 1, FALSE);
-		proto_tree_add_item(temp_tree, hf_timeqal_lsocc,	 tvb, offset, 1, FALSE);
-		proto_tree_add_item(temp_tree, hf_timeqal_lspend,	 tvb, offset, 1, FALSE);
-		proto_tree_add_item(temp_tree, hf_timeqal_timequalindic, tvb, offset, 1, FALSE);
+		proto_tree_add_item(temp_tree, hf_timeqal_lsdir,	 tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_timeqal_lsocc,	 tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_timeqal_lspend,	 tvb, offset, 1, ENC_BIG_ENDIAN);
+		proto_tree_add_item(temp_tree, hf_timeqal_timequalindic, tvb, offset, 1, ENC_BIG_ENDIAN);
 	offset += 1;
 
-	proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, FALSE); offset += 3;
+	proto_tree_add_item(tree, hf_fracsec,  tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
 
 	return framesize;
 }
@@ -693,8 +693,8 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 
 	/* TIME_BASE and NUM_PMU */
 	offset += 1; /* skip the reserved byte */
-	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, FALSE); offset += 3;
-	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, FALSE);
+	proto_tree_add_item(config_tree, hf_conf_timebase, tvb, offset, 3, ENC_BIG_ENDIAN); offset += 3;
+	proto_tree_add_item(config_tree, hf_conf_numpmu,   tvb, offset, 2, ENC_BIG_ENDIAN);
 	/* add number of included PMUs to the text in the list view  */
 	num_pmu = tvb_get_ntohs(tvb, offset); offset += 2;
 	proto_item_append_text(config_item, ", %"G_GUINT16_FORMAT" PMU(s) included", num_pmu);
@@ -715,15 +715,15 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset += CHNAM_LEN;
 
 		/* IDCODE */
-		proto_tree_add_item(station_tree, hf_idcode, tvb, offset, 2, FALSE); offset += 2;
+		proto_tree_add_item(station_tree, hf_idcode, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
 		/* FORMAT */
 		temp_item = proto_tree_add_text(station_tree, tvb, offset, 2, "Data format in data frame");
 		temp_tree = proto_item_add_subtree(temp_item, ett_conf_format);
-			proto_tree_add_item(temp_tree, hf_conf_formatb3, tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_conf_formatb2, tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_conf_formatb1, tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_conf_formatb0, tvb, offset, 2, FALSE);
+			proto_tree_add_item(temp_tree, hf_conf_formatb3, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_conf_formatb2, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_conf_formatb1, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_conf_formatb0, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* PHNMR, ANNMR, DGNMR */
@@ -746,8 +746,8 @@ static int dissect_config_frame(tvbuff_t *tvb, proto_item *config_item)
 		offset = dissect_DIGUNIT(tvb, station_tree, offset, num_dg);
 
 		/* FNOM and CFGCNT */
-		proto_tree_add_item(station_tree, hf_conf_fnom,	  tvb, offset, 2, FALSE); offset += 2;
-		proto_tree_add_item(station_tree, hf_conf_cfgcnt, tvb, offset, 2, FALSE); offset += 2;
+		proto_tree_add_item(station_tree, hf_conf_fnom,	  tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
+		proto_tree_add_item(station_tree, hf_conf_cfgcnt, tvb, offset, 2, ENC_BIG_ENDIAN); offset += 2;
 
 		/* set the correct length for the "Station :" item */
 		proto_item_set_len(station_item, offset - oldoffset);
@@ -829,14 +829,14 @@ static int dissect_data_frame(tvbuff_t	  *tvb,
 		/* STAT */
 		proto_item *temp_item = proto_tree_add_text(block_tree, tvb, offset, 2, "Flags");
 		proto_tree *temp_tree = proto_item_add_subtree(temp_item, ett_data_stat);
-			proto_tree_add_item(temp_tree, hf_data_statb15,	    tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb14,	    tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb12,	    tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb11,	    tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb10,	    tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb05to04, tvb, offset, 2, FALSE);
-			proto_tree_add_item(temp_tree, hf_data_statb03to00, tvb, offset, 2, FALSE);
+			proto_tree_add_item(temp_tree, hf_data_statb15,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb14,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb13,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb12,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb11,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb10,	    tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb05to04, tvb, offset, 2, ENC_BIG_ENDIAN);
+			proto_tree_add_item(temp_tree, hf_data_statb03to00, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* PHASORS, (D)FREQ, ANALOG, and DIGITAL */
@@ -864,7 +864,7 @@ static int dissect_command_frame(tvbuff_t    *tvb,
 	command_tree = proto_item_add_subtree(command_item, ett_command);
 
 	/* CMD */
-	proto_tree_add_item(command_tree, hf_command, tvb, 0, 2, FALSE);
+	proto_tree_add_item(command_tree, hf_command, tvb, 0, 2, ENC_BIG_ENDIAN);
 	if (check_col(pinfo->cinfo, COL_INFO)) {
 		const char *s = val_to_str(tvb_get_ntohs(tvb, 0), command_names, "invalid command");
 		col_append_str(pinfo->cinfo, COL_INFO, ", ");

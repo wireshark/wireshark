@@ -1278,7 +1278,7 @@ serial_09(tvbuff_t *tvb, proto_tree *tree)
 static void
 serial_10(tvbuff_t *tvb, proto_tree *tree)
 {
-	proto_tree_add_item(tree, hf_ipmi_trn_serial10_set_sel, tvb, 0, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_trn_serial10_set_sel, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_item(tree, hf_ipmi_trn_serial10_init_str, tvb, 1, tvb_length(tvb) - 1, ENC_ASCII|ENC_NA);
 }
 

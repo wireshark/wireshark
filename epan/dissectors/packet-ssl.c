@@ -2876,9 +2876,9 @@ dissect_ssl3_hnd_finished(tvbuff_t *tvb,
 
     case SSL_VER_SSLv3:
         proto_tree_add_item(tree, hf_ssl_handshake_md5_hash,
-                            tvb, offset, 16, ENC_BIG_ENDIAN);
+                            tvb, offset, 16, ENC_NA);
         proto_tree_add_item(tree, hf_ssl_handshake_sha_hash,
-                            tvb, offset + 16, 20, ENC_BIG_ENDIAN);
+                            tvb, offset + 16, 20, ENC_NA);
         break;
     }
 }
@@ -3801,7 +3801,7 @@ dissect_ssl2_hnd_client_master_key(tvbuff_t *tvb,
     {
         tvb_ensure_bytes_exist(tvb, offset, key_arg_length);
         proto_tree_add_item(tree, hf_ssl2_handshake_key_arg,
-                            tvb, offset, key_arg_length, ENC_BIG_ENDIAN);
+                            tvb, offset, key_arg_length, ENC_NA);
     }
 
 }

@@ -757,7 +757,7 @@ try_dissect_unknown_ber(packet_info *pinfo, tvbuff_t *tvb, volatile int offset, 
 						offset = dissect_ber_identifier(pinfo, tree, tvb, start_offset, NULL, NULL, NULL);
 						offset = dissect_ber_length(pinfo, tree, tvb, offset, NULL, NULL);
 					}
-					item = ber_proto_tree_add_item(pinfo, tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, ENC_BIG_ENDIAN);
+					item = ber_proto_tree_add_item(pinfo, tree, hf_ber_unknown_BER_OCTETSTRING, tvb, offset, len, ENC_NA);
 					next_tree = proto_item_add_subtree(item, ett_ber_octet_string);
 					offset = try_dissect_unknown_ber(pinfo, tvb, offset, next_tree, nest_level+1);
 				}

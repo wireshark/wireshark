@@ -927,7 +927,7 @@ dissect_tds_all_headers(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_
             case TDS_HEADER_TRANS_DESCR:
                 if(header_length != 18)
                     expert_add_info_format(pinfo, length_item, PI_MALFORMED, PI_ERROR, "Length should equal 18");
-                proto_tree_add_item(header_sub_tree, hf_tds_all_headers_trans_descr, tvb, *offset + 6, 8, TRUE);
+                proto_tree_add_item(header_sub_tree, hf_tds_all_headers_trans_descr, tvb, *offset + 6, 8, ENC_LITTLE_ENDIAN);
                 proto_tree_add_item(header_sub_tree, hf_tds_all_headers_request_cnt, tvb, *offset + 14, 4, ENC_LITTLE_ENDIAN);
                 break;
             default:
@@ -1810,7 +1810,7 @@ dissect_tds_type_info(tvbuff_t *tvb, guint *offset, packet_info *pinfo, proto_tr
         case TDS_DATA_TYPE_NVARCHAR:        /* NVarChar */
             item1 = proto_tree_add_item(sub_tree, hf_tds_type_info_collation, tvb, *offset, 5, ENC_NA);
             collation_tree = proto_item_add_subtree(item1, ett_tds_type_info_collation);
-            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_lcid, tvb, *offset, 4, TRUE);
+            proto_tree_add_item(collation_tree, hf_tds_type_info_collation_lcid, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_case, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_accent, tvb, *offset, 4, ENC_LITTLE_ENDIAN);
             proto_tree_add_item(collation_tree, hf_tds_type_info_collation_ign_kana, tvb, *offset, 4, ENC_LITTLE_ENDIAN);

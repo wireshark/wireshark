@@ -128,7 +128,7 @@ dissect_tapi_TYPE_1(tvbuff_t *tvb, int offset,
 	}
 
 	proto_tree_add_item(tree, hf_tapi_unknown_bytes, tvb, offset,
-		di->array_actual_count, FALSE);
+		di->array_actual_count, ENC_NA);
 	offset += di->array_actual_count;
 
 	return offset;

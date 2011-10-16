@@ -1504,7 +1504,7 @@ dissect_execute_cdb_request(tvbuff_t *tvb, int offset, packet_info *pinfo,
 	offset = dissect_execute_cdb_flags(tvb, offset, pinfo, tree);
 
 	/* timeout */
-	proto_tree_add_item(tree, hf_ndmp_execute_cdb_timeout, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_execute_cdb_timeout, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* datain_len */
@@ -2528,17 +2528,17 @@ dissect_file_stats(tvbuff_t *tvb, int offset, packet_info *pinfo, proto_tree *pa
 	offset += 4;
 
 	/* owner */
-	proto_tree_add_item(tree, hf_ndmp_file_owner, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_owner, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/* group */
-	proto_tree_add_item(tree, hf_ndmp_file_group, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_group, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/*XXX here we should do proper dissection of mode for unix or
 	      fattr for nt, call appropriate functions in nfs/smb*/
 	/* fattr */
-	proto_tree_add_item(tree, hf_ndmp_file_fattr, tvb, offset, 4, FALSE);
+	proto_tree_add_item(tree, hf_ndmp_file_fattr, tvb, offset, 4, ENC_BIG_ENDIAN);
 	offset += 4;
 
 	/*file size*/

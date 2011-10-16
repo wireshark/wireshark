@@ -547,7 +547,7 @@ dissect_btobex(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		case BTOBEX_CODE_VALS_SET_PATH:
 			proto_tree_add_item(st, hf_flags, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			proto_tree_add_item(st, hf_set_path_flags_0, next_tvb, offset, 1, ENC_BIG_ENDIAN);
-			proto_tree_add_item(st, hf_set_path_flags_1, next_tvb, offset, 1, FALSE);
+			proto_tree_add_item(st, hf_set_path_flags_1, next_tvb, offset, 1, ENC_BIG_ENDIAN);
 			offset++;
 
 			proto_tree_add_item(st, hf_constants, next_tvb, offset, 1, ENC_BIG_ENDIAN);

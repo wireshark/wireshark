@@ -466,7 +466,7 @@ dissect_pimv1(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
                             tvb_ip_to_str(tvb, offset));
         offset += 4;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, ENC_BIG_ENDIAN);
         pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
         proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
                                    offset, 4, pref,
@@ -785,7 +785,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                 break;
 
             case 2: /* LAN Prune Delay Option */
-                proto_tree_add_item(opt_tree, hf_pim_t, tvb, offset + 4, 1, FALSE);
+                proto_tree_add_item(opt_tree, hf_pim_t, tvb, offset + 4, 1, ENC_BIG_ENDIAN);
                 proto_tree_add_item(opt_tree, hf_pim_propagation_delay, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
                 proto_tree_add_item(opt_tree, hf_pim_override_interval, tvb, offset + 6, 2, ENC_BIG_ENDIAN);
                 proto_item_append_text(opt_item,
@@ -1111,7 +1111,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
         proto_tree_add_text(pimopt_tree, tvb, offset, advance, "Source: %s", s);
         offset += advance;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, ENC_BIG_ENDIAN);
         pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
         proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
                                    offset, 4, pref,
@@ -1190,7 +1190,7 @@ dissect_pim(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
                             "Originator: %s", s);
         offset += advance;
 
-        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, FALSE);
+        proto_tree_add_item(pimopt_tree, hf_pim_rpt, tvb, offset, 1, ENC_BIG_ENDIAN);
         pref = tvb_get_ntohl(tvb, offset) & 0x7fffffff;
         proto_tree_add_uint_format(pimopt_tree, hf_pim_metric_pref, tvb,
                                    offset, 4, pref,

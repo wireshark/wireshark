@@ -3230,9 +3230,9 @@ dissect_tcpopt_rvbd_trpy(const ip_tcp_opt *optp _U_, tvbuff_t *tvb,
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst_probe,
                         tvb, offset + TRPY_OPTIONS_OFFSET, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst_inner,
-                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_fw_rst,
-                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, FALSE);
+                        tvb, offset + TRPY_OPTIONS_OFFSET, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_chksum,
                         tvb, offset + TRPY_OPTIONS_OFFSET, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(flag_tree, hf_tcp_option_rvbd_trpy_flag_oob,

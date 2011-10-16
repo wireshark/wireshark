@@ -1802,7 +1802,7 @@ parse_platform_event(tvbuff_t *tvb, proto_tree *tree)
 	proto_tree_add_item(tree, hf_ipmi_se_evt_rev, tvb, 0, 1, ENC_LITTLE_ENDIAN);
 	proto_tree_add_uint_format_value(tree, hf_ipmi_se_evt_sensor_type, tvb, 1, 1, stype,
 			"%s (0x%02x)", si->desc, stype);
-	proto_tree_add_item(tree, hf_ipmi_se_evt_sensor_num, tvb, 2, 1, TRUE);
+	proto_tree_add_item(tree, hf_ipmi_se_evt_sensor_num, tvb, 2, 1, ENC_LITTLE_ENDIAN);
 	ti = proto_tree_add_item(tree, hf_ipmi_se_evt_byte3, tvb, 3, 1, ENC_LITTLE_ENDIAN);
 	s_tree = proto_item_add_subtree(ti, ett_ipmi_se_evt_byte3);
 	proto_tree_add_item(s_tree, hf_ipmi_se_evt_dir, tvb, 3, 1, ENC_LITTLE_ENDIAN);

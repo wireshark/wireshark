@@ -311,7 +311,7 @@ dissect_evrc_aux(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, evrc_varia
         }
 
         proto_tree_add_item(evrc_tree, hf_mode_request, tvb, offset, 1, FALSE);
-        proto_tree_add_item(evrc_tree, hf_evrc_frame_count, tvb, offset, 1, FALSE);
+        proto_tree_add_item(evrc_tree, hf_evrc_frame_count, tvb, offset, 1, ENC_BIG_ENDIAN);
 
         /*
          * number of frames in PACKET is frame_count + 1

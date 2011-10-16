@@ -1079,7 +1079,7 @@ dissect_eis_parameter_value (proto_tree *tree, tvbuff_t *tvb, packet_info *pinfo
 		proto_tree_add_item(tree, hf_simulcrypt_error_information, tvb, offset, plen, ENC_NA);
 		break;
 	case SIMULCRYPT_EIS_ERROR_DESCRIPTION:
-		proto_tree_add_item(tree, hf_simulcrypt_error_description, tvb, offset, plen, FALSE);
+		proto_tree_add_item(tree, hf_simulcrypt_error_description, tvb, offset, plen, ENC_ASCII|ENC_NA);
 		break;
 
 	default:  /* Unknown parameter type */
@@ -1237,18 +1237,18 @@ dissect_simulcrypt_message(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		/* Simulcrypt_header_tree analysis */
 		/* Message Version 1 Byte */
-		proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_version, tvb, offset, 1, FALSE);
+		proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_version, tvb, offset, 1, ENC_BIG_ENDIAN);
 		offset+=1;
 
 		/* Message Type 2 Bytes */
-		proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_message_type, tvb, offset, 2, FALSE);
+		proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_message_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 		simulcrypt_item = proto_tree_add_uint_format(simulcrypt_header_tree, hf_simulcrypt_interface, tvb, offset, 2, iftype,
 							     "Interface: %s", val_to_str(iftype, interfacenames, "Unknown"));
 		PROTO_ITEM_SET_GENERATED (simulcrypt_item);
 		offset+=2;
 
 		/* Message Length 2 Bytes */
-		simulcrypt_item = proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_message_length, tvb, offset, 2, FALSE);
+		simulcrypt_item = proto_tree_add_item(simulcrypt_header_tree, hf_simulcrypt_message_length, tvb, offset, 2, ENC_BIG_ENDIAN);
 		proto_item_append_text(simulcrypt_item, " (bytes)");
 		msg_length = tvb_get_ntohs(tvb, offset); /* read 2 byte message length value */
 		offset+=2;
@@ -1331,24 +1331,24 @@ dissect_simulcrypt_data(proto_tree *simulcrypt_tree, proto_item *simulcrypt_item
 		simulcrypt_parameter_tree = proto_item_add_subtree(simulcrypt_item, ett_simulcrypt_parameter); /* add subtree for Length and Value */
 		switch (iftype) { /* parameter type */
 		case SIMULCRYPT_ECMG_SCS:
-			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_ecmg_parameter_type, tvb, offset, 2, FALSE);
+			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_ecmg_parameter_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case SIMULCRYPT_EMMG_MUX:
-			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_emmg_parameter_type, tvb, offset, 2, FALSE);
+			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_emmg_parameter_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case SIMULCRYPT_EIS_SCS:
-			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_eis_parameter_type, tvb, offset, 2, FALSE);
+			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_eis_parameter_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		case SIMULCRYPT_PSIG_MUX:
 		case SIMULCRYPT_MUX_CIM:
 		case SIMULCRYPT_PSIG_CIP:
-			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_psig_parameter_type, tvb, offset, 2, FALSE);
+			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_psig_parameter_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		default:
-			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_parameter_type, tvb, offset, 2, FALSE);
+			proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_parameter_type, tvb, offset, 2, ENC_BIG_ENDIAN);
 			break;
 		}
-		simulcrypt_item = proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_parameter_length, tvb, offset+2, 2, FALSE); /* length item */
+		simulcrypt_item = proto_tree_add_item(simulcrypt_parameter_tree, hf_simulcrypt_parameter_length, tvb, offset+2, 2, ENC_BIG_ENDIAN); /* length item */
 		proto_item_append_text(simulcrypt_item, " (bytes)");
 		offset += 2+2;  /* offset --> parameter value */
 

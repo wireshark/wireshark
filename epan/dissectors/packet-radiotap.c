@@ -1441,72 +1441,72 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_tsft, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_flags, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_rate, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_channel, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_fhss, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_dbm_antsignal,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_dbm_antnoise,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_lock_quality,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_tx_attenuation,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_db_tx_attenuation,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_dbm_tx_attenuation,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_antenna, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_db_antsignal,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_db_antnoise,
-					    tvb, offset + 4, 4, TRUE);
+					    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			if (radiotap_bit14_fcs) {
 				proto_tree_add_item(present_tree,
 						    hf_radiotap_present_hdrfcs,
-						    tvb, offset + 4, 4, TRUE);
+						    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			} else {
 				proto_tree_add_item(present_tree,
 						    hf_radiotap_present_rxflags,
-						    tvb, offset + 4, 4, TRUE);
+						    tvb, offset + 4, 4, ENC_LITTLE_ENDIAN);
 			}
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_xchannel, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_mcs, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
  always_bits:
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_rtap_ns, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_vendor_ns, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 			proto_tree_add_item(present_tree,
 					    hf_radiotap_present_ext, tvb,
-					    offset + 4, 4, TRUE);
+					    offset + 4, 4, ENC_LITTLE_ENDIAN);
 		}
 	}
 

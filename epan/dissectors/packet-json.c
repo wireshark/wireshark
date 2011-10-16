@@ -231,12 +231,12 @@ static void after_value(void *tvbparse_data, const void *wanted_data _U_, tvbpar
 				str[tok->len - 2] = '\0';
 				proto_tree_add_string(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, str);
 			} else
-				proto_tree_add_item(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, FALSE);
+				proto_tree_add_item(tree, hf_json_value_string, tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
 			break;
 
 		case JSON_TOKEN_NUMBER:
 			/* XXX, convert to number */
-			proto_tree_add_item(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, FALSE);
+			proto_tree_add_item(tree, hf_json_value_number, tok->tvb, tok->offset, tok->len, ENC_ASCII|ENC_NA);
 			break;
 
 		case JSON_TOKEN_FALSE:

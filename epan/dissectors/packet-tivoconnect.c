@@ -138,7 +138,7 @@ dissect_tivoconnect(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
             else if ( g_ascii_strcasecmp(field,"platform") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,
                     hf_tivoconnect_platform, tvb, offset+fieldlen,
-                    length-fieldlen-1, FALSE);
+                    length-fieldlen-1, ENC_ASCII|ENC_NA);
             }
             else if ( g_ascii_strcasecmp(field,"machine") == 0 ) {
                 proto_tree_add_item(tivoconnect_tree,

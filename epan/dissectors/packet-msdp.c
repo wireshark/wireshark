@@ -349,7 +349,7 @@ static void dissect_msdp_notification(tvbuff_t *tvb, packet_info *pinfo, proto_t
         guint8 error, error_sub;
         const value_string *vals;
 
-        proto_tree_add_item(tree, hf_msdp_not_o, tvb, *offset, 1, FALSE);
+        proto_tree_add_item(tree, hf_msdp_not_o, tvb, *offset, 1, ENC_BIG_ENDIAN);
         proto_tree_add_item(tree, hf_msdp_not_error, tvb, *offset, 1, ENC_BIG_ENDIAN);
         error = tvb_get_guint8(tvb, *offset);
         error &= 0x7F;             /* Error is 7-bit field. O-bit is bit 8 */

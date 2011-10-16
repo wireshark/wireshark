@@ -181,10 +181,10 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		proto_item_append_text(ti, ", Version: %s", str);
 		gif_tree = proto_item_add_subtree(ti, ett_gif);
 		/* GIF signature */
-		proto_tree_add_item(gif_tree, hf_version, tvb, 0, 6, TRUE);
+		proto_tree_add_item(gif_tree, hf_version, tvb, 0, 6, ENC_ASCII|ENC_NA);
 		/* Screen descriptor */
-		proto_tree_add_item(gif_tree, hf_screen_width, tvb, 6, 2, TRUE);
-		proto_tree_add_item(gif_tree, hf_screen_height, tvb, 8, 2, TRUE);
+		proto_tree_add_item(gif_tree, hf_screen_width, tvb, 6, 2, ENC_LITTLE_ENDIAN);
+		proto_tree_add_item(gif_tree, hf_screen_height, tvb, 8, 2, ENC_LITTLE_ENDIAN);
 
 		peek = tvb_get_guint8(tvb, 10);
 		/* Bitfield gccc 0ppp
@@ -208,19 +208,19 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				image_bpp, plurality(image_bpp, "", "s"));
 		subtree = proto_item_add_subtree(ti, ett_global_flags);
 		proto_tree_add_item(subtree, hf_global_color_map_present,
-				tvb, 10, 1, TRUE);
+				tvb, 10, 1, ENC_LITTLE_ENDIAN);
 		proto_tree_add_item(subtree, hf_global_color_resolution,
-				tvb, 10, 1, TRUE);
+				tvb, 10, 1, ENC_LITTLE_ENDIAN);
 		if (version == GIF_89a) {
 			proto_tree_add_item(subtree, hf_global_color_map_ordered,
-					tvb, 10, 1, TRUE);
+					tvb, 10, 1, ENC_LITTLE_ENDIAN);
 		}
 		proto_tree_add_item(subtree, hf_global_image_bpp,
-				tvb, 10, 1, TRUE);
+				tvb, 10, 1, ENC_LITTLE_ENDIAN);
 
 		/* Background color */
 		proto_tree_add_item(gif_tree, hf_background_color,
-				tvb, 11, 1, TRUE);
+				tvb, 11, 1, ENC_LITTLE_ENDIAN);
 
 		/* byte at offset 12 is 0x00 - reserved in GIF87a but encodes the
 		 * pixel aspect ratio in GIF89a as:
@@ -245,7 +245,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		if (color_map_present) {
 			len = 3 * (1 << image_bpp);
 			proto_tree_add_item(gif_tree, hf_global_color_map,
-					tvb, 13, len, TRUE);
+					tvb, 13, len, ENC_NA);
 		} else {
 			len = 0;
 		}
@@ -311,11 +311,11 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 										 */
 
 				ti = proto_tree_add_item(gif_tree, hf_extension,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_NA);
 				subtree = proto_item_add_subtree(ti, ett_extension);
 				offset++;
 				proto_tree_add_item(subtree, hf_extension_label,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				peek = tvb_get_guint8(tvb, offset);
 				proto_item_append_text(ti, ": %s",
 						val_to_str(peek, vals_extensions,
@@ -345,18 +345,18 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 										 */
 
 				ti = proto_tree_add_item(gif_tree, hf_image,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_NA);
 				subtree = proto_item_add_subtree(ti, ett_image);
 				offset++;
 				/* Screen descriptor */
 				proto_tree_add_item(subtree, hf_image_left,
-						tvb, offset, 2, TRUE); offset += 2;
+						tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 				proto_tree_add_item(subtree, hf_image_top,
-						tvb, offset, 2, TRUE); offset += 2;
+						tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 				proto_tree_add_item(subtree, hf_image_width,
-						tvb, offset, 2, TRUE); offset += 2;
+						tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 				proto_tree_add_item(subtree, hf_image_height,
-						tvb, offset, 2, TRUE); offset += 2;
+						tvb, offset, 2, ENC_LITTLE_ENDIAN); offset += 2;
 				/* bit field */
 				peek = tvb_get_guint8(tvb, offset);
 				color_map_present = peek & 0x80;
@@ -373,15 +373,15 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 						image_bpp, plurality(image_bpp, "", "s"));
 				subtree2 = proto_item_add_subtree(ti2, ett_local_flags);
 				proto_tree_add_item(subtree2, hf_local_color_map_present,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				proto_tree_add_item(subtree2, hf_local_color_resolution,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				if (version == GIF_89a) {
 					proto_tree_add_item(subtree2, hf_local_color_map_ordered,
-							tvb, offset, 1, TRUE);
+							tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				}
 				proto_tree_add_item(subtree2, hf_global_image_bpp,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 
 				/* Local color map
@@ -391,7 +391,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				if (color_map_present) {
 					len = 3 * (1 << image_bpp);
 					proto_tree_add_item(subtree, hf_local_color_map,
-							tvb, offset, len, TRUE);
+							tvb, offset, len, ENC_NA);
 				} else {
 					len = 0;
 				}
@@ -399,7 +399,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 				item_len += len;
 
 				proto_tree_add_item(subtree, hf_image_code_size,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_LITTLE_ENDIAN);
 				offset++;
 				do {
 					/* Read length of data block */
@@ -414,7 +414,7 @@ dissect_gif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			} else {
 				/* GIF processing stops at this very byte */
 				proto_tree_add_item(gif_tree, hf_trailer,
-						tvb, offset, 1, TRUE);
+						tvb, offset, 1, ENC_NA);
 				break;
 			}
 		} /* while */

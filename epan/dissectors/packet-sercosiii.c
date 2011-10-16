@@ -790,8 +790,8 @@ void dissect_siii_mst(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
   ti = proto_tree_add_text(subtree, tvb, 1, 1, "Phase Field");
   subtree2 = proto_item_add_subtree(ti, ett_siii_mst_phase);
 
-  proto_tree_add_item(subtree2, hf_siii_mst_phase, tvb, 1, 1, TRUE);
-  proto_tree_add_item(subtree2, hf_siii_mst_cyclecnt, tvb, 1, 1, TRUE);
+  proto_tree_add_item(subtree2, hf_siii_mst_phase, tvb, 1, 1, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree2, hf_siii_mst_cyclecnt, tvb, 1, 1, ENC_LITTLE_ENDIAN);
   proto_tree_add_item(subtree, hf_siii_mst_crc32, tvb, 2, 4, ENC_LITTLE_ENDIAN);
 
 }
@@ -825,8 +825,8 @@ void dissect_siii_mdt_devctrl(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree 
   subtree = proto_item_add_subtree(ti, ett_siii_mdt_devctrl);
 
   proto_tree_add_item(subtree, hf_siii_at_dev_control_ident, tvb, 0, 2, ENC_LITTLE_ENDIAN);
-  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_change_topology, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_top_control, tvb, 0, 2, TRUE);
+  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_change_topology, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_mdt_dev_control_top_control, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 void dissect_siii_mdt_svc(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint devno _U_) /* devno will be needed in later versions */
@@ -1002,14 +1002,14 @@ void dissect_siii_at_devstat(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *
   ti = proto_tree_add_item(tree, hf_siii_at_dev_status, tvb, 0, 2, ENC_LITTLE_ENDIAN);
   subtree = proto_item_add_subtree(ti, ett_siii_at_devstatus);
 
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_commwarning, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_change_topology, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_top_status, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_inactive_port_status, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_errorconnection, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_slave_valid, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_proc_command_change, tvb, 0, 2, TRUE);
-  proto_tree_add_item(subtree, hf_siii_at_dev_status_parameterization_level_active, tvb, 0, 2, TRUE);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_commwarning, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_change_topology, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_top_status, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_inactive_port_status, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_errorconnection, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_slave_valid, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_proc_command_change, tvb, 0, 2, ENC_LITTLE_ENDIAN);
+  proto_tree_add_item(subtree, hf_siii_at_dev_status_parameterization_level_active, tvb, 0, 2, ENC_LITTLE_ENDIAN);
 }
 
 void dissect_siii_at_hp(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)

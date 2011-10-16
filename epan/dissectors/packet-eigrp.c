@@ -726,7 +726,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
     offset += 4;
     proto_tree_add_item(tree, hf_eigrp_auth_keyseq, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(tree, hf_eigrp_nullpad, tvb, offset, 8, ENC_BIG_ENDIAN);
+    proto_tree_add_item(tree, hf_eigrp_nullpad, tvb, offset, 8, ENC_NA);
     offset += 8;
 
     switch (auth_type) {
@@ -736,7 +736,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
 				   "Invalid auth len %u:", auth_len);
 	} else {
 	    proto_tree_add_item(tree, hf_eigrp_auth_digest, tvb, offset,
-				EIGRP_AUTH_TYPE_MD5_LEN, ENC_BIG_ENDIAN);
+				EIGRP_AUTH_TYPE_MD5_LEN, ENC_NA);
 	}
 	break;
 
@@ -747,7 +747,7 @@ dissect_eigrp_auth_tlv (proto_tree *tree, tvbuff_t *tvb,
 
 	} else {
 	    proto_tree_add_item(tree, hf_eigrp_auth_digest, tvb, offset,
-				EIGRP_AUTH_TYPE_SHA256_LEN, ENC_BIG_ENDIAN);
+				EIGRP_AUTH_TYPE_SHA256_LEN, ENC_NA);
 	}
 	break;
 
@@ -801,7 +801,7 @@ dissect_eigrp_seq_tlv (proto_tree *tree, tvbuff_t *tvb,
     case 16:
 	/* IPv6 */
 	proto_tree_add_item(tree, hf_eigrp_seq_ipv6addr, tvb, offset, addr_len,
-			    ENC_BIG_ENDIAN);
+			    ENC_NA);
 	break;
     default:
 	expert_add_info_format(pinfo, ti_addrlen, PI_MALFORMED, PI_ERROR,
@@ -1189,7 +1189,7 @@ dissect_eigrp_ipx_addr (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     proto_item *ti_dst;
 
     ti_dst = proto_tree_add_item(tree, hf_eigrp_ipx_dest, tvb, offset, 4,
-				 ENC_BIG_ENDIAN);
+				 ENC_NA);
 
     /* add it to the top level line */
     proto_item_append_text(ti,"  =   %s",
@@ -1316,17 +1316,17 @@ dissect_eigrp_service (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
 	    proto_tree_add_item(reach_tree, hf_eigrp_saf_reachability_addr_ipv4,
 				reach_tvb, 6, 4, ENC_BIG_ENDIAN);
 	    proto_tree_add_item(reach_tree, hf_eigrp_nullpad, reach_tvb, 10, 12,
-				ENC_BIG_ENDIAN);
+				ENC_NA);
 	    break;
 
 	case EIGRP_AF_IPv6:
 	    proto_tree_add_item(reach_tree, hf_eigrp_saf_reachability_addr_ipv6,
-				reach_tvb, 6, 16, ENC_BIG_ENDIAN);
+				reach_tvb, 6, 16, ENC_NA);
 	    break;
 	default:
 	    /* just print zeros... */
 	    proto_tree_add_item(reach_tree, hf_eigrp_saf_reachability_addr_hex,
-				reach_tvb, 6, 16, ENC_BIG_ENDIAN);
+				reach_tvb, 6, 16, ENC_NA);
 	    break;
 	}
 	sub_offset += 22;
@@ -1593,13 +1593,13 @@ dissect_eigrp_nexthop (proto_tree *tree, tvbuff_t *tvb, guint16 afi, int offset)
     case EIGRP_SF_IPv6:
     case EIGRP_AF_IPv6:
 	proto_tree_add_item(tree, hf_eigrp_ipv6_nexthop, tvb, offset, 16,
-			    ENC_BIG_ENDIAN);
+			    ENC_NA);
 	offset += 16;
 	break;
 
     case EIGRP_AF_IPX:
 	proto_tree_add_item(tree, hf_eigrp_ipx_nexthop_net, tvb, offset, 4,
-			    ENC_BIG_ENDIAN);
+			    ENC_NA);
 	offset += 4;
 	proto_tree_add_item(tree, hf_eigrp_ipx_nexthop_host, tvb, offset, 6,
 			    ENC_BIG_ENDIAN);
@@ -1804,7 +1804,7 @@ dissect_eigrp_ipv6_tlv (proto_item *ti, proto_tree *tree, tvbuff_t *tvb,
     int unreachable = FALSE;
 
     proto_tree_add_item(tree, hf_eigrp_ipv6_nexthop, tvb, offset, 16,
-			ENC_BIG_ENDIAN);
+			ENC_NA);
     offset += 16;
 
     /* dissect external data if needed */

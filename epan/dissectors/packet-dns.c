@@ -2786,7 +2786,7 @@ dissect_dns_answer(tvbuff_t *tvb, int offsetx, int dns_data_offset,
                 goto bad_rr;
       	     afdpart_len = tvb_get_guint8(tvb, cur_offset) & DNS_APL_AFDLENGTH;
       	     proto_tree_add_item(rr_tree, hf_dns_apl_negation, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
-      	     proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, FALSE);
+      	     proto_tree_add_item(rr_tree, hf_dns_apl_afdlength, tvb, cur_offset, 1, ENC_BIG_ENDIAN);
       	     cur_offset += 1;
       	     rr_len -= 1;
 
@@ -3242,7 +3242,7 @@ dissect_dns_common(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
     proto_tree_add_item(field_tree, hf_dns_flags_truncated,
 		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(field_tree, hf_dns_flags_tentative,
-		tvb, offset + DNS_FLAGS, 2, FALSE);
+		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);
     if (flags & F_RESPONSE) {
       proto_tree_add_item(field_tree, hf_dns_flags_rcode,
 		tvb, offset + DNS_FLAGS, 2, ENC_BIG_ENDIAN);

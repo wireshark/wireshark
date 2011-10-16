@@ -648,7 +648,7 @@ dissect_dlm3_rcom_lock(tvbuff_t *tvb, proto_tree *tree,
   sub_offset = offset;
   proto_tree_add_item(sub_tree,
                       hf_dlm3_rl_name_contents, tvb, sub_offset,
-                      namelen, ENC_LITTLE_ENDIAN);
+                      namelen, ENC_ASCII|ENC_NA);
 
   sub_offset += namelen;
   proto_tree_add_item(sub_tree,

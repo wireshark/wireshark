@@ -228,7 +228,7 @@ static void dissect_turbocell(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tre
 
                     proto_tree_add_uint_format(subframe_tree, hf_turbocell_aggregate_msdu_len, next_tvb, msdu_offset, 2,
                     msdu_length, "MSDU length: %u (0x%04X)", msdu_length,msdu_length);
-                    proto_tree_add_item(subframe_tree, hf_turbocell_aggregate_unknown2, next_tvb, msdu_offset+1, 1, FALSE);
+                    proto_tree_add_item(subframe_tree, hf_turbocell_aggregate_unknown2, next_tvb, msdu_offset+1, 1, ENC_BIG_ENDIAN);
 
                     msdu_offset += 0x02;
                     remaining_length -= 0x02;

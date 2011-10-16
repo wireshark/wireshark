@@ -2808,8 +2808,8 @@ dissect_cip_cco_all_attribute_common( proto_tree *cmd_tree, tvbuff_t *tvb, int o
 
       /* Add the data to the tree */
       proto_tree_add_item(confg_tree, hf_cip_cco_con_type, tvb, offset, 2, ENC_LITTLE_ENDIAN );
-      proto_tree_add_item(confg_tree, hf_cip_cco_ot_rtf, tvb, offset, 2, TRUE );
-      proto_tree_add_item(confg_tree, hf_cip_cco_to_rtf, tvb, offset, 2, TRUE );
+      proto_tree_add_item(confg_tree, hf_cip_cco_ot_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
+      proto_tree_add_item(confg_tree, hf_cip_cco_to_rtf, tvb, offset, 2, ENC_LITTLE_ENDIAN );
 
    /* Target device id */
    tdii = proto_tree_add_text( cmd_tree, tvb, offset+2, 10, "Target Device ID");

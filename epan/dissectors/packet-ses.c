@@ -608,10 +608,10 @@ dissect_parameter(tvbuff_t *tvb, int offset, proto_tree *tree,
 		{
 			proto_tree_add_item(param_tree,
 			    hf_proposed_tsdu_maximum_size_i2r,
-			    tvb, offset, 2, FALSE);
+			    tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_tree_add_item(param_tree,
 			    hf_proposed_tsdu_maximum_size_r2i,
-			    tvb, offset+2, 2, FALSE);
+			    tvb, offset+2, 2, ENC_BIG_ENDIAN);
 		}
 		break;
 

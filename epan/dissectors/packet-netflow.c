@@ -3111,17 +3111,17 @@ dissect_v9_v10_pdu_data(tvbuff_t *tvb, packet_info *pinfo, proto_tree *pdutree, 
 
 		case 82: /* IF_NAME  */
 			ti = proto_tree_add_item(pdutree, hf_cflow_if_name,
-			    tvb, offset, length, ENC_NA);
+			    tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 83: /* IF_DESCR  */
 			ti = proto_tree_add_item(pdutree, hf_cflow_if_descr,
-			    tvb, offset, length, ENC_NA);
+			    tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 84: /* SAMPLER_NAME  */
 			ti = proto_tree_add_item(pdutree, hf_cflow_sampler_name,
-			    tvb, offset, length, ENC_NA);
+			    tvb, offset, length, ENC_ASCII|ENC_NA);
 			break;
 
 		case 85: /* BYTES_PERMANENT */

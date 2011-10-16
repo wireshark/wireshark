@@ -2168,11 +2168,11 @@ dissect_sflow_5_processor_information(proto_tree *counter_data_tree, tvbuff_t *t
     struct processor proc;
 
     tvb_memcpy(tvb, (guint8 *) & proc, offset, sizeof (proc));
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_5s, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_5s, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_1m, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_1m, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
-    proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_5m, tvb, offset, 4, FALSE);
+    proto_tree_add_item(counter_data_tree, hf_sflow_5_cpu_5m, tvb, offset, 4, ENC_BIG_ENDIAN);
     offset += 4;
     proto_tree_add_item(counter_data_tree, hf_sflow_5_total_memory, tvb, offset, 8, ENC_BIG_ENDIAN);
     offset += 8;

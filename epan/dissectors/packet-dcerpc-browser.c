@@ -107,7 +107,7 @@ dissect_browser_TYPE_4_data(tvbuff_t *tvb, int offset,
 		hf_browser_unknown_long, &len);
 
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
-		FALSE);
+		ENC_NA);
 	offset += len;
 	if (offset < old_offset)
 		THROW(ReportedBoundsError);
@@ -157,7 +157,7 @@ dissect_browser_TYPE_3_data(tvbuff_t *tvb, int offset,
 	offset = dissect_ndr_uint32(tvb, offset, pinfo, tree, drep,
 		hf_browser_unknown_long, &len);
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
-		FALSE);
+		ENC_NA);
 	offset += len;
 	if (offset < old_offset)
 		THROW(ReportedBoundsError);
@@ -764,7 +764,7 @@ dissect_browser_TYPE_9_data(tvbuff_t *tvb, int offset,
 		hf_browser_unknown_long, &len);
 
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
-		FALSE);
+		ENC_NA);
 	offset += len;
 	if (offset < old_offset)
 		THROW(ReportedBoundsError);
@@ -956,7 +956,7 @@ dissect_browser_TYPE_12_data(tvbuff_t *tvb, int offset,
 		hf_browser_unknown_long, &len);
 
 	proto_tree_add_item(tree, hf_browser_unknown_bytes, tvb, offset, len,
-		FALSE);
+		ENC_NA);
 	offset += len;
 	if (offset < old_offset)
 		THROW(ReportedBoundsError);

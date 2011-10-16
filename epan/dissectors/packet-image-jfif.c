@@ -373,13 +373,13 @@ process_marker_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		return;
 
 	ti = proto_tree_add_item(tree, hf_marker_segment,
-			tvb, 0, -1, FALSE);
+			tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 	proto_tree_add_text(subtree, tvb, 4, -1,
 			"Remaining segment data (%u bytes)", len - 2);
@@ -399,29 +399,29 @@ process_sof_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
 		return;
 
 	ti = proto_tree_add_item(tree, hf_sof_header,
-			tvb, 0, -1, FALSE);
+			tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_sof_precision, tvb, 4, 1, FALSE);
+	proto_tree_add_item(subtree, hf_sof_precision, tvb, 4, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_sof_lines, tvb, 5, 2, FALSE);
+	proto_tree_add_item(subtree, hf_sof_lines, tvb, 5, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_sof_samples_per_line, tvb, 7, 2, FALSE);
+	proto_tree_add_item(subtree, hf_sof_samples_per_line, tvb, 7, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_sof_nf, tvb, 9, 1, FALSE);
+	proto_tree_add_item(subtree, hf_sof_nf, tvb, 9, 1, ENC_BIG_ENDIAN);
 	{
 		guint8 count = tvb_get_guint8(tvb, 9);
 		guint32 offset = 10;
 		while (count > 0) {
-			proto_tree_add_item(subtree, hf_sof_c_i, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(subtree, hf_sof_h_i, tvb, offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_sof_v_i, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(subtree, hf_sof_tq_i, tvb, offset++, 1, FALSE);
+			proto_tree_add_item(subtree, hf_sof_c_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_sof_h_i, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_sof_v_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_sof_tq_i, tvb, offset++, 1, ENC_BIG_ENDIAN);
 			count--;
 		}
 	}
@@ -442,31 +442,31 @@ process_sos_header(proto_tree *tree, tvbuff_t *tvb, guint32 len _U_,
 		return;
 
 	ti = proto_tree_add_item(tree, hf_sos_header,
-			tvb, 0, -1, FALSE);
+			tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_sos_ns, tvb, 4, 1, FALSE);
+	proto_tree_add_item(subtree, hf_sos_ns, tvb, 4, 1, ENC_BIG_ENDIAN);
 	{
 		guint8 count = tvb_get_guint8(tvb, 4);
 		offset = 5;
 		while (count > 0) {
-			proto_tree_add_item(subtree, hf_sos_cs_j, tvb, offset++, 1, FALSE);
-			proto_tree_add_item(subtree, hf_sos_td_j, tvb, offset, 1, FALSE);
-			proto_tree_add_item(subtree, hf_sos_ta_j, tvb, offset++, 1, FALSE);
+			proto_tree_add_item(subtree, hf_sos_cs_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_sos_td_j, tvb, offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(subtree, hf_sos_ta_j, tvb, offset++, 1, ENC_BIG_ENDIAN);
 			count--;
 		}
 	}
 
-	proto_tree_add_item(subtree, hf_sos_ss, tvb, offset++, 1, FALSE);
-	proto_tree_add_item(subtree, hf_sos_se, tvb, offset++, 1, FALSE);
+	proto_tree_add_item(subtree, hf_sos_ss, tvb, offset++, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_sos_se, tvb, offset++, 1, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_sos_ah, tvb, offset, 1, FALSE);
-	proto_tree_add_item(subtree, hf_sos_al, tvb, offset++, 1, FALSE);
+	proto_tree_add_item(subtree, hf_sos_ah, tvb, offset, 1, ENC_BIG_ENDIAN);
+	proto_tree_add_item(subtree, hf_sos_al, tvb, offset++, 1, ENC_BIG_ENDIAN);
 }
 
 /* Process an APP0 block.
@@ -488,16 +488,16 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		return;
 
 	ti = proto_tree_add_item(tree, hf_marker_segment,
-			tvb, 0, -1, FALSE);
+			tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 	str = tvb_get_ephemeral_stringz(tvb, 4, &str_size);
-	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
+	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
 	if (strcmp(str, "JFIF") == 0) {
 		/* Version */
 		ti = proto_tree_add_none_format(subtree, hf_version,
@@ -506,30 +506,30 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 				tvb_get_guint8(tvb, 10));
 		subtree_details = proto_item_add_subtree(ti, ett_details);
 		proto_tree_add_item(subtree_details, hf_version_major,
-				tvb, 9, 1, FALSE);
+				tvb, 9, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree_details, hf_version_minor,
-				tvb, 10, 1, FALSE);
+				tvb, 10, 1, ENC_BIG_ENDIAN);
 
 		proto_tree_add_item(subtree, hf_units,
-				tvb, 11, 1, FALSE);
+				tvb, 11, 1, ENC_BIG_ENDIAN);
 
 		/* Aspect ratio */
 		proto_tree_add_item(subtree, hf_xdensity,
-				tvb, 12, 2, FALSE);
+				tvb, 12, 2, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree, hf_ydensity,
-				tvb, 14, 2, FALSE);
+				tvb, 14, 2, ENC_BIG_ENDIAN);
 
 		/* Thumbnail */
 		proto_tree_add_item(subtree, hf_xthumbnail,
-				tvb, 16, 1, FALSE);
+				tvb, 16, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(subtree, hf_ythumbnail,
-				tvb, 17, 1, FALSE);
+				tvb, 17, 1, ENC_BIG_ENDIAN);
 		{
 			guint16 x = tvb_get_guint8(tvb, 16);
 			guint16 y = tvb_get_guint8(tvb, 17);
 			if (x || y) {
 				proto_tree_add_item(subtree, hf_rgb,
-						tvb, 18, 3 * (x * y), FALSE);
+						tvb, 18, 3 * (x * y), ENC_NA);
 				offset = 18 + (3 * (x * y));
 			} else {
 				offset = 18;
@@ -537,7 +537,7 @@ process_app0_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		}
 	} else if (strcmp(str, "JFXX") == 0) {
 		proto_tree_add_item(subtree, hf_extension_code,
-				tvb, 9, 1, FALSE);
+				tvb, 9, 1, ENC_BIG_ENDIAN);
 		{
 			guint8 code = tvb_get_guint8(tvb, 9);
 			switch (code) {
@@ -580,18 +580,18 @@ process_app1_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		return;
 
 	ti = proto_tree_add_item(tree, hf_marker_segment,
-			tvb, 0, -1, FALSE);
+			tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, offset, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
-	proto_tree_add_item(subtree, hf_len, tvb, offset, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, offset, 2, ENC_BIG_ENDIAN);
 	offset += 2;
 
 	str = tvb_get_ephemeral_stringz(tvb, offset, &str_size);
-	ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, FALSE);
+	ti = proto_tree_add_item(subtree, hf_identifier, tvb, offset, str_size, ENC_ASCII|ENC_NA);
 	offset += str_size;
 	if (strcmp(str, "Exif") == 0) {
 		/*
@@ -738,16 +738,16 @@ process_app2_segment(proto_tree *tree, tvbuff_t *tvb, guint32 len,
 		return;
 
 	ti = proto_tree_add_item(tree, hf_marker_segment,
-			tvb, 0, -1, FALSE);
+			tvb, 0, -1, ENC_NA);
 	subtree = proto_item_add_subtree(ti, ett_marker_segment);
 
 	proto_item_append_text(ti, ": %s (0x%04X)", marker_name, marker);
-	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+	proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 
-	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, FALSE);
+	proto_tree_add_item(subtree, hf_len, tvb, 2, 2, ENC_BIG_ENDIAN);
 
 	str = tvb_get_ephemeral_stringz(tvb, 4, &str_size);
-	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, FALSE);
+	ti = proto_tree_add_item(subtree, hf_identifier, tvb, 4, str_size, ENC_ASCII|ENC_NA);
 	if (strcmp(str, "FPXR") == 0) {
 		proto_tree_add_text(tree, tvb, 0, -1, "Exif FlashPix APP2 application marker");
 	} else {
@@ -781,7 +781,7 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 		ti = proto_tree_add_item(tree, proto_jfif,
 				tvb, 0, -1, FALSE);
 		subtree = proto_item_add_subtree(ti, ett_jfif);
-		proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, FALSE);
+		proto_tree_add_item(subtree, hf_marker, tvb, 0, 2, ENC_BIG_ENDIAN);
 	}
 
 	offset = 2;		/* skip MARKER_SOI */
@@ -841,12 +841,12 @@ dissect_jfif(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree)
 			} else { /* Marker but no segment */
 				/* Length = 2 */
 				proto_tree_add_item(subtree, hf_marker,
-						tvb, offset, 2, FALSE);
+						tvb, offset, 2, ENC_BIG_ENDIAN);
 				offset += 2;
 			}
 		} else { /* Reserved! */
 			ti = proto_tree_add_item(subtree, hf_marker,
-					tvb, offset, 2, FALSE);
+					tvb, offset, 2, ENC_BIG_ENDIAN);
 			proto_item_append_text(ti, " (Reserved)");
 			return tvb_len;
 		}

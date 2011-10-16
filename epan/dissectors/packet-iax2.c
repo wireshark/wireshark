@@ -1247,7 +1247,7 @@ static guint32 dissect_ies (tvbuff_t * tvb, guint32 offset,
           proto_tree_add_item(codec_tree, hf_iax2_cap_g726, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_adpcm, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_slinear, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
-          proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10, tvb, offset + 2, ies_len, FALSE );
+          proto_tree_add_item(codec_tree, hf_iax2_cap_lpc10, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_g729a, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_speex, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
           proto_tree_add_item(codec_tree, hf_iax2_cap_ilbc, tvb, offset + 2, ies_len, ENC_BIG_ENDIAN );
@@ -1558,7 +1558,7 @@ dissect_fullpacket (tvbuff_t * tvb, guint32 offset,
       iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
 
       proto_tree_add_item (iax2_tree, hf_iax2_oseqno, tvb, offset+6, 1,
-                           FALSE);
+                           ENC_BIG_ENDIAN);
 
       proto_tree_add_item (iax2_tree, hf_iax2_iseqno, tvb, offset+7, 1,
                            ENC_BIG_ENDIAN);
@@ -1747,7 +1747,7 @@ static guint32 dissect_minivideopacket (tvbuff_t * tvb, guint32 offset,
       PROTO_ITEM_SET_GENERATED(item);
     }
 
-    proto_tree_add_item (iax2_tree, hf_iax2_minividts, tvb, offset, 2, FALSE);
+    proto_tree_add_item (iax2_tree, hf_iax2_minividts, tvb, offset, 2, ENC_BIG_ENDIAN);
     iax2_add_ts_fields(pinfo, iax2_tree, iax_packet, (guint16)ts);
     proto_tree_add_item (iax2_tree, hf_iax2_minividmarker, tvb, offset, 2, ENC_BIG_ENDIAN);
   } else {
@@ -1845,7 +1845,7 @@ static guint32 dissect_trunkcall_ts (tvbuff_t * tvb, guint32 offset, proto_tree 
 
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_len, tvb, offset, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_scallno, tvb, offset + 2, 2, ENC_BIG_ENDIAN);
-    proto_tree_add_item(call_tree, hf_iax2_trunk_call_ts, tvb, offset + 4, 2, FALSE);
+    proto_tree_add_item(call_tree, hf_iax2_trunk_call_ts, tvb, offset + 4, 2, ENC_BIG_ENDIAN);
     proto_tree_add_item(call_tree, hf_iax2_trunk_call_data, tvb, offset + 6, rlen, ENC_NA);
   }
   offset += 6 + rlen;
@@ -1920,7 +1920,7 @@ static guint32 dissect_trunkpacket (tvbuff_t * tvb, guint32 offset,
     proto_tree_add_boolean(field_tree, hf_iax2_trunk_cmddata_ts, tvb, offset + 1, 1, cmddata);
 
     /* Timestamp */
-    proto_tree_add_item(iax2_tree, hf_iax2_trunk_ts, tvb, offset + 2, 4, FALSE);
+    proto_tree_add_item(iax2_tree, hf_iax2_trunk_ts, tvb, offset + 2, 4, ENC_BIG_ENDIAN);
   }
 
   offset += 6;

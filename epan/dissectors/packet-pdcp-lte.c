@@ -1163,7 +1163,7 @@ static int dissect_pdcp_feedback_packet(proto_tree *tree,
 
     /* Code */
     code = tvb_get_guint8(tvb, offset) & 0x07;
-    ti = proto_tree_add_item(feedback_tree, hf_pdcp_lte_rohc_feedback_code, tvb, offset, 1, FALSE);
+    ti = proto_tree_add_item(feedback_tree, hf_pdcp_lte_rohc_feedback_code, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
 
     /* Optional length field */
@@ -2071,7 +2071,7 @@ static void dissect_pdcp_lte(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
                             /* Bitmap tree */
                             if (tvb_length_remaining(tvb, offset) > 0) {
                                 bitmap_ti = proto_tree_add_item(pdcp_tree, hf_pdcp_lte_bitmap, tvb,
-                                                                offset, -1, FALSE);
+                                                                offset, -1, ENC_NA);
                                 bitmap_tree = proto_item_add_subtree(bitmap_ti, ett_pdcp_rohc_report_bitmap);
 
 

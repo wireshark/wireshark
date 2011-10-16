@@ -101,7 +101,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset += 16;
 
 		/* Route Tag */
-		proto_tree_add_item(rte_tree, hf_ripng_rte_route_tag, tvb, offset, 2, FALSE);
+		proto_tree_add_item(rte_tree, hf_ripng_rte_route_tag, tvb, offset, 2, ENC_BIG_ENDIAN);
 		offset += 2;
 
 		/* Prefix Length */
@@ -110,7 +110,7 @@ dissect_ripng(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 		offset += 1;
 
 		/* Metric */
-		proto_tree_add_item(rte_tree, hf_ripng_rte_metric, tvb, offset, 1, FALSE);
+		proto_tree_add_item(rte_tree, hf_ripng_rte_metric, tvb, offset, 1, ENC_BIG_ENDIAN);
 		proto_item_append_text(rte_ti, " Metric: %u", tvb_get_guint8(tvb, offset));
 		offset += 1;
 	}

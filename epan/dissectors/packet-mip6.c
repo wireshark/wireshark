@@ -1541,7 +1541,7 @@ static void dissect_pmip6_opt_lla(const ip_tcp_opt *optp _U_, tvbuff_t *tvb, int
     ti = proto_tree_add_text(opt_tree, tvb, offset, optlen, "%s", optp->name);
         field_tree = proto_item_add_subtree(ti, *optp->subtree_index);
 
-        proto_tree_add_item(field_tree, hf_pmip6_opt_lila_lla, tvb, offset + 2, 16, FALSE);
+        proto_tree_add_item(field_tree, hf_pmip6_opt_lila_lla, tvb, offset + 2, 16, ENC_NA);
    }
 }
 

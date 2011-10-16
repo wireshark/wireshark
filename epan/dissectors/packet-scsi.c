@@ -4118,7 +4118,7 @@ dissect_scsi_fix_snsinfo (tvbuff_t *tvb, proto_tree *sns_tree, guint offset)
     proto_tree_add_text (sns_tree, tvb, offset+8, 4,
                              "Command-Specific Information: %s",
                              tvb_bytes_to_str (tvb, offset+8, 4));
-    proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, 0);
+    proto_tree_add_item (sns_tree, hf_scsi_ascascq, tvb, offset+12, 2, ENC_BIG_ENDIAN);
     hidden_item = proto_tree_add_item (sns_tree, hf_scsi_asc, tvb, offset+12, 1, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item (sns_tree, hf_scsi_ascq, tvb, offset+13, 1, ENC_BIG_ENDIAN);

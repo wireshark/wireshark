@@ -862,7 +862,7 @@ static gint dissect_type13_message(proto_tree *tree, tvbuff_t *tvb, gint offset)
         offset = dissect_packed_player(tree, tvb, offset);
     if (pw_ofs)
         offset = display_unicode_string(tree, hf_dplay_type_13_password, tvb, offset);
-    proto_tree_add_item(tree, hf_dplay_type_13_tick_count, tvb, offset, 4, ENC_LITTLE_ENDIAN); offset += 4;
+    proto_tree_add_item(tree, hf_dplay_type_13_tick_count, tvb, offset, 4, ENC_NA); offset += 4;
 
     return offset;
 }

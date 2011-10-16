@@ -264,10 +264,10 @@ dissect_dsi_attention(tvbuff_t *tvb, proto_tree *dsi_tree, gint offset)
 
 	ti = proto_tree_add_item(tree, hf_dsi_attn_flag, tvb, offset, 2, ENC_BIG_ENDIAN);
 	tree = proto_item_add_subtree(ti, ett_dsi_attn_flag);
-	proto_tree_add_item(tree, hf_dsi_attn_flag_shutdown, tvb, offset, 2, FALSE);
-	proto_tree_add_item(tree, hf_dsi_attn_flag_crash, tvb, offset, 2, FALSE);
-	proto_tree_add_item(tree, hf_dsi_attn_flag_msg, tvb, offset, 2, FALSE);
-	proto_tree_add_item(tree, hf_dsi_attn_flag_reconnect, tvb, offset, 2, FALSE);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_shutdown, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_crash, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_msg, tvb, offset, 2, ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_dsi_attn_flag_reconnect, tvb, offset, 2, ENC_BIG_ENDIAN);
 	/* FIXME */
 	if ((flag & 0xf000) != 0x3000)
 		proto_tree_add_item(tree, hf_dsi_attn_flag_time, tvb, offset, 2, ENC_BIG_ENDIAN);

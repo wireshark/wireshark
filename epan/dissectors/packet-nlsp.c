@@ -443,7 +443,7 @@ nlsp_dissect_nlsp_hello(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 			    offset, 1, ENC_BIG_ENDIAN);
 		} else {
 			proto_tree_add_item(tree, hf_nlsp_hello_multicast, tvb,
-			    offset, 1, FALSE);
+			    offset, 1, ENC_BIG_ENDIAN);
 		}
 		proto_tree_add_item(tree, hf_nlsp_hello_circuit_type, tvb,
 		    offset, 1, ENC_BIG_ENDIAN);
@@ -1068,7 +1068,7 @@ nlsp_dissect_nlsp_lsp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
 
 	if (tree) {
 		proto_tree_add_item(tree, hf_nlsp_lsp_p, tvb,
-		    offset, 1, FALSE);
+		    offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_nlsp_lsp_attached_flag, tvb,
 		    offset, 1, ENC_BIG_ENDIAN);
 		proto_tree_add_item(tree, hf_nlsp_lsp_lspdbol, tvb,

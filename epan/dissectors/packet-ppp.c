@@ -4514,7 +4514,7 @@ dissect_pap( tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree ) {
         message_length = tvb_get_guint8(tvb, offset);
         offset +=1;
 
-        proto_tree_add_item(data_tree, hf_pap_message, tvb, offset, message_length, FALSE);
+        proto_tree_add_item(data_tree, hf_pap_message, tvb, offset, message_length, ENC_ASCII|ENC_NA);
         message = tvb_format_text(tvb, offset, message_length);
         offset += message_length;
 

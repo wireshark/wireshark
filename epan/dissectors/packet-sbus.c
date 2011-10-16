@@ -912,7 +912,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 /* Continue adding stuff to the main tree*/
               sbus_attribut = tvb_get_guint8(tvb,offset);
               proto_tree_add_item(sbus_tree,
-                                  hf_sbus_attribut, tvb, offset, 1, FALSE);
+                                  hf_sbus_attribut, tvb, offset, 1, ENC_BIG_ENDIAN);
               offset += 1;
 
               if (sbus_attribut == SBUS_REQUEST) {
@@ -1063,7 +1063,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        hf_sbus_week_day, tvb, offset, 2, ENC_BIG_ENDIAN);
                                    offset += 2;
                                    proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_date, tvb, offset, 3, FALSE);
+                                                       hf_sbus_date, tvb, offset, 3, ENC_BIG_ENDIAN);
                                    offset += 3;
                                    proto_tree_add_item(sbusdata_tree,
                                                        hf_sbus_time, tvb, offset, 3, ENC_BIG_ENDIAN);
@@ -1455,7 +1455,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                           case SBUS_GET_PROGRAM_BLOCK_LIST:
                                                  proto_tree_add_item(sbus_tree,
                                                                      hf_sbus_rdwr_list_type, tvb, offset,
-                                                                     1, FALSE);
+                                                                     1, ENC_BIG_ENDIAN);
                                                  offset += 1;
                                                  break;
 
@@ -1568,7 +1568,7 @@ dissect_sbus(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
                                                        hf_sbus_week_day, tvb, offset, 2, ENC_BIG_ENDIAN);
                                    offset += 2;
                                    proto_tree_add_item(sbusdata_tree,
-                                                       hf_sbus_date, tvb, offset, 3, FALSE);
+                                                       hf_sbus_date, tvb, offset, 3, ENC_BIG_ENDIAN);
                                    offset += 3;
                                    proto_tree_add_item(sbusdata_tree,
                                                        hf_sbus_time, tvb, offset, 3, ENC_BIG_ENDIAN);

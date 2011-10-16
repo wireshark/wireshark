@@ -187,19 +187,19 @@ dissect_isis(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 	if (tree) {
 		proto_tree_add_item(isis_tree, hf_isis_version2, tvb, offset, 1,
-			FALSE );
+			ENC_BIG_ENDIAN );
 	}
 	offset += 1;
 
 	if (tree) {
 		proto_tree_add_item(isis_tree, hf_isis_reserved, tvb, offset, 1,
-			FALSE );
+			ENC_BIG_ENDIAN );
 	}
 	offset += 1;
 
 	if (tree) {
 		proto_tree_add_item(isis_tree, hf_isis_max_area_adr, tvb, offset, 1,
-			FALSE );
+			ENC_BIG_ENDIAN );
 	}
 	offset += 1;
 

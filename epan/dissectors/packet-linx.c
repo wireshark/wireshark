@@ -325,10 +325,10 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 			   +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
 			 */
 			proto_tree_add_item(multicore_header_tree, hf_linx_nexthdr,             tvb, 0, 4, ENC_BIG_ENDIAN);
-			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_reserved,  tvb, 0, 4, FALSE);
-			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_dcoreid,   tvb, 0, 4, FALSE);
-			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_scoreid,   tvb, 0, 4, FALSE);
-			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_reserved1, tvb, 0, 4, FALSE);
+			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_reserved,  tvb, 0, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_dcoreid,   tvb, 0, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_scoreid,   tvb, 0, 4, ENC_BIG_ENDIAN);
+			proto_tree_add_item(multicore_header_tree, hf_linx_multicore_reserved1, tvb, 0, 4, ENC_BIG_ENDIAN);
 
 			offset += 4;
 			/* read main header*/
@@ -360,11 +360,11 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 		*/
 
 		proto_tree_add_item(main_header_tree, hf_linx_nexthdr        , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-		proto_tree_add_item(main_header_tree, hf_linx_main_version   , linx_tvb, offset, 4, FALSE);
-		proto_tree_add_item(main_header_tree, hf_linx_main_reserved  , linx_tvb, offset, 4, FALSE);
-		proto_tree_add_item(main_header_tree, hf_linx_main_connection, linx_tvb, offset, 4, FALSE);
-		proto_tree_add_item(main_header_tree, hf_linx_main_bundle    , linx_tvb, offset, 4, FALSE);
-		proto_tree_add_item(main_header_tree, hf_linx_main_pkgsize   , linx_tvb, offset, 4, FALSE);
+		proto_tree_add_item(main_header_tree, hf_linx_main_version   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_reserved  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_connection, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_bundle    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+		proto_tree_add_item(main_header_tree, hf_linx_main_pkgsize   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 		offset += 4;
 
 		while (nexthdr != ETHCM_NONE) {
@@ -404,11 +404,11 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, (4+2*size), "Connection Header");
 					conn_header_tree = proto_item_add_subtree(item, ett_linx_main);
 					proto_tree_add_item(conn_header_tree, hf_linx_nexthdr      , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_cmd     , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_size    , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_winsize , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_reserved, linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(conn_header_tree, hf_linx_conn_publcid , linx_tvb, offset, 4, FALSE);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_cmd     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_size    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_winsize , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(conn_header_tree, hf_linx_conn_publcid , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					/* MEDIA ADDRESS */
 					if (size == 6) {
@@ -420,7 +420,7 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					offset += (2*size);
 					/* Feature Negotiation String */
 					if(version > 2) {
-					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, linx_tvb, offset, -1, FALSE);
+					        proto_tree_add_item(conn_header_tree, hf_linx_conn_feat_neg_str, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
 						offset += tvb_strnlen(linx_tvb, offset, -1);
 					}
 					break;
@@ -445,10 +445,10 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "NACK Header");
 					nack_header_tree = proto_item_add_subtree(item, ett_linx_main);
 					proto_tree_add_item(nack_header_tree, hf_linx_nexthdr     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv1, linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_count  , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv2, linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(nack_header_tree, hf_linx_nack_seqno  , linx_tvb, offset, 4, FALSE);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv1, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_count  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_reserv2, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(nack_header_tree, hf_linx_nack_seqno  , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					break;
 
@@ -490,22 +490,22 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 12, "Udata Header");
 					udata_header_tree = proto_item_add_subtree(item, ett_linx_main);
 					proto_tree_add_item(udata_header_tree, hf_linx_nexthdr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(udata_header_tree, hf_linx_udata_reserved , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(udata_header_tree, hf_linx_udata_morefrags, linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(udata_header_tree, hf_linx_udata_fragno   , linx_tvb, offset, 4, FALSE);
+					proto_tree_add_item(udata_header_tree, hf_linx_udata_reserved , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(udata_header_tree, hf_linx_udata_morefrags, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(udata_header_tree, hf_linx_udata_fragno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					/* signo removed in version 3 and linkaddresses extended to 32 bits */
 					if(version == 2) {
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_signo    , linx_tvb, offset, 4, FALSE);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_signo    , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					     offset += 4;
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr16, linx_tvb, offset, 4, FALSE);
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr16, linx_tvb, offset, 4, FALSE);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr16, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr16, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					     dword = tvb_get_ntohl(linx_tvb, offset);
 					} else {
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr32, linx_tvb, offset, 4, FALSE);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_dstaddr32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					     dword = tvb_get_ntohl(linx_tvb, offset);
 					     offset += 4;
-					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr32, linx_tvb, offset, 4, FALSE);
+					     proto_tree_add_item(udata_header_tree, hf_linx_udata_srcaddr32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					     if(dword == 0 && tvb_get_ntohl(linx_tvb, offset) == 0) {
 						     dword = 0;
 					     } else {
@@ -526,12 +526,12 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 						rlnh_header_tree = proto_item_add_subtree(item, ett_linx_main);
 
 						if(version == 1) {
-							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type32, linx_tvb, offset, 4, FALSE);
+							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type32, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 							offset += 4;
 						} else {
 							/* in version 2 of the rlnh protocol the length of the message type is restricted to 8 bits */
-							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_reserved, linx_tvb, offset, 4, FALSE);
-							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type8, linx_tvb, offset, 4, FALSE);
+							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+							proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_msg_type8, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 							offset += 4;
 						}
 
@@ -540,43 +540,43 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 							  /* XXX what is this? */
 								break;
 							case RLNH_QUERY_NAME:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, linx_tvb, offset, -1, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
 									offset += tvb_strnlen(linx_tvb, offset, -1);
 								break;
 							case RLNH_PUBLISH:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, linx_tvb, offset, -1, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_name, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
 									offset += tvb_strnlen(linx_tvb, offset, -1);
 								break;
 							case RLNH_UNPUBLISH:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 								break;
 							case RLNH_UNPUBLISH_ACK:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 								break;
 							case RLNH_INIT:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_version, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_version, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									/* This is not working if nodes are at different versions. Only the latest value will be saved in rlnh_version */
 									rlnh_version = tvb_get_ntohl(linx_tvb, offset);
 									offset += 4;
 								break;
 							case RLNH_INIT_REPLY:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_status, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_status, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
 									if(rlnh_version > 1) {
-									        proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_feat_neg_str, linx_tvb, offset, -1, FALSE);
+									        proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_feat_neg_str, linx_tvb, offset, -1, ENC_ASCII|ENC_NA);
 										offset += tvb_strnlen(linx_tvb, offset, -1);
 									}
 								break;
 							case RLNH_PUBLISH_PEER:
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_src_linkaddr, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 									offset += 4;
-									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_peer_linkaddr, linx_tvb, offset, -1, FALSE);
+									proto_tree_add_item(rlnh_header_tree, hf_linx_rlnh_peer_linkaddr, linx_tvb, offset, -1, ENC_BIG_ENDIAN);
 									offset += tvb_strnlen(linx_tvb, offset, -1);
 								break;
 							default:
@@ -607,10 +607,10 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "Ack Header");
 					ack_header_tree = proto_item_add_subtree(item, ett_linx_main);
 					proto_tree_add_item(ack_header_tree, hf_linx_nexthdr     , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_request , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_reserved, linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_ackno   , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(ack_header_tree, hf_linx_ack_seqno   , linx_tvb, offset, 4, FALSE);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_request , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_reserved, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_ackno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(ack_header_tree, hf_linx_ack_seqno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					break;
 
@@ -628,9 +628,9 @@ dissect_linx(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 					item = proto_tree_add_text(linx_tree, linx_tvb, offset, 4, "Fragmentation Header");
 					frag_header_tree = proto_item_add_subtree(item, ett_linx_main);
 					proto_tree_add_item(frag_header_tree, hf_linx_nexthdr       , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
-					proto_tree_add_item(frag_header_tree, hf_linx_frag_reserved , linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(frag_header_tree, hf_linx_frag_morefrags, linx_tvb, offset, 4, FALSE);
-					proto_tree_add_item(frag_header_tree, hf_linx_frag_fragno   , linx_tvb, offset, 4, FALSE);
+					proto_tree_add_item(frag_header_tree, hf_linx_frag_reserved , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(frag_header_tree, hf_linx_frag_morefrags, linx_tvb, offset, 4, ENC_BIG_ENDIAN);
+					proto_tree_add_item(frag_header_tree, hf_linx_frag_fragno   , linx_tvb, offset, 4, ENC_BIG_ENDIAN);
 					offset += 4;
 					break;
 

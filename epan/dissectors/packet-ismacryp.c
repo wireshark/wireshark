@@ -573,7 +573,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	/* IV */
 	if (first_au_flag == TRUE && iv_length != 0)
 	{
-		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_iv, tvb, poffset->offset_bytes, iv_length, FALSE);
+		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_iv, tvb, poffset->offset_bytes, iv_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes",iv_length); /* add IV info */
 		if ( check_col( pinfo->cinfo, COL_INFO) ) {
 			col_append_fstr( pinfo->cinfo, COL_INFO,
@@ -585,7 +585,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	if (first_au_flag == FALSE && delta_iv_length != 0)
 	{
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_delta_iv,
-						    tvb, poffset->offset_bytes, delta_iv_length, FALSE);
+						    tvb, poffset->offset_bytes, delta_iv_length, ENC_NA);
 		proto_item_append_text(ismacryp_item, ": Length=%d bytes",delta_iv_length); /* add delta IV info */
 		if ( check_col( pinfo->cinfo, COL_INFO) ) {
 			col_append_fstr( pinfo->cinfo, COL_INFO,
@@ -598,7 +598,7 @@ static offset_struct* dissect_auheader( tvbuff_t *tvb, offset_struct *poffset, p
 	{
 		/* (first AU or KI for each AU) and non-zero KeyIndicator size */
 		ismacryp_item = proto_tree_add_item(ismacryp_header_tree, hf_ismacryp_key_indicator,
-						    tvb, poffset->offset_bytes, key_indicator_length, FALSE);
+						    tvb, poffset->offset_bytes, key_indicator_length, ENC_NA);
 		proto_item_append_text(ismacryp_item,": Length=%d bytes",key_indicator_length); /* add KI info */
 		if ( check_col( pinfo->cinfo, COL_INFO) ) {
 			col_append_fstr( pinfo->cinfo, COL_INFO,
