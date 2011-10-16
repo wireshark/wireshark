@@ -1216,6 +1216,7 @@ DISSECTOR_INCLUDES =	\
 	packet-kerberos.h	\
 	packet-klm.h	\
 	packet-ldap.h	\
+	packet-lcsap.h \
 	packet-ldp.h	\
 	packet-llc.h	\
 	packet-logotypecertextn.h	\
