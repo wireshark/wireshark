@@ -195,6 +195,14 @@ if !HAVE_PLUGINS
 def_sym_filter_symbols += /^register_all_wiretap_modules/ || /^register_all_plugin_tap_listeners/ || /^plugin_list/ {next;};
 endif
 
+if HAVE_LIBPY
+# If we're not building python, these symbols don't get built.
+# Keep them out of the symbol list.
+def_sym_filter_symbols += /^py_create_dissector_handle/ || /^py_dissector_args/  {next;};
+def_sym_filter_symbols += /^py_generic_dissector/ || /^py_pinfo/ || /^py_tree/ || /^py_tvbuff/ {next;};
+def_sym_filter_symbols += /^hf_register_info_add/  || /^hf_register_info_create/  || /^hf_register_info_destroy/ {next;};
+endif
+
 if HAVE_PLUGINS
 
 if ENABLE_STATIC
