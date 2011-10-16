@@ -1,0 +1,59 @@
+# lpp.cnf
+# llp conformation file
+# Copyright 2011 Pascal Quantin 
+# $Id$
+
+#.OPT
+PER
+UNALIGNED
+#.END
+
+#.PDU_NEW
+LPP-Message
+
+#.FN_HDR LPP-Message
+	
+  proto_tree_add_item(tree, proto_lpp, tvb, 0, -1, ENC_NA);
+
+  col_append_str(actx->pinfo->cinfo, COL_PROTOCOL, "/LPP");
+#.END
+
+# Handle 64 bit constraint
+#.FN_PARS NavModelCNAV-KeplerianSet/cnavMo FN_VARIANT = _64b
+#.FN_PARS NavModelCNAV-KeplerianSet/cnavE FN_VARIANT = _64b
+#.FN_PARS NavModelCNAV-KeplerianSet/cnavOmega FN_VARIANT = _64b
+#.FN_PARS NavModelCNAV-KeplerianSet/cnavOMEGA0 FN_VARIANT = _64b
+#.FN_PARS NavModelCNAV-KeplerianSet/cnavIo FN_VARIANT = _64b
+
+#.FN_HDR RequestCapabilities
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Capabilities");
+
+#.FN_HDR ProvideCapabilities
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Capabilities");
+
+#.FN_HDR RequestAssistanceData
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Assistance Data");
+
+#.FN_HDR ProvideAssistanceData
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Assistance Data");
+
+#.FN_HDR RequestLocationInformation
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Request Location Information");
+
+#.FN_HDR ProvideLocationInformation
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Provide Location Information");
+
+#.FN_HDR Abort
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Abort");
+
+#.FN_HDR Error
+
+  col_append_sep_str(actx->pinfo->cinfo, COL_INFO, NULL, "Error");
+

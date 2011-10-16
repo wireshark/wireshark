@@ -178,6 +178,7 @@ DIRTY_ASN1_DISSECTOR_SRC = \
 	packet-gprscdr.c \
 	packet-gsm_map.c \
 	packet-ldap.c \
+	packet-lpp.c \
 	packet-lte-rrc.c \
 	packet-nbap.c \
 	packet-p1.c \

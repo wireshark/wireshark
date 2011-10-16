@@ -37,6 +37,7 @@
 #include "packet-gsm_map.h"
 #include "packet-gsm_a_common.h"
 #include "packet-e212.h"
+#include "packet-lcsap.h"
 
 #define PNAME  "Non-Access-Stratum (NAS)PDU"
 #define PSNAME "NAS-EPS"
@@ -47,6 +48,7 @@ static int proto_nas_eps = -1;
 
 /* Dissector handles */
 static dissector_handle_t gsm_a_dtap_handle;
+static dissector_handle_t lpp_handle;
 
 /* Forward declaration */
 static void disect_nas_eps_esm_msg(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, int offset);
@@ -195,7 +197,8 @@ static int hf_nas_eps_service_type = -1;
 
 static int hf_nas_eps_nas_msg_cont = -1;
 static int hf_nas_eps_gen_msg_cont = -1;
-static int hf_nas_eps_emm_add_info = -1;
+
+static int hf_nas_eps_cmn_add_info = -1;
 
 /* ESM */
 static int hf_nas_eps_msg_esm_type = -1;
@@ -207,6 +210,7 @@ static int ett_nas_eps = -1;
 static int ett_nas_eps_esm_msg_cont = -1;
 static int ett_nas_eps_nas_msg_cont = -1;
 static int ett_nas_eps_gen_msg_cont = -1;
+static int ett_nas_eps_cmn_add_info = -1;
 
 /* Global variables */
 static packet_info *gpinfo;
@@ -379,9 +383,25 @@ nas_eps_common_elem_idx_t;
 
 /* 9.9.2.0 Additional information */
 static guint16
-de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guint32 offset, guint len _U_, gchar *add_string _U_, int string_len _U_)
+de_eps_cmn_add_info(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32 offset, guint len, gchar *add_string _U_, int string_len _U_)
 {
-    proto_tree_add_item(tree, hf_nas_eps_emm_add_info, tvb, offset, len, ENC_NA);
+    proto_item *item;
+    proto_tree *sub_tree;
+    tvbuff_t *new_tvb;
+
+    item = proto_tree_add_item(tree, hf_nas_eps_cmn_add_info, tvb, offset, len, ENC_NA);
+    sub_tree = proto_item_add_subtree(item, ett_nas_eps_cmn_add_info);
+
+    new_tvb = tvb_new_subset(tvb, offset, len, len);
+
+    switch (eps_nas_gen_msg_cont_type) {
+    case 1:
+        /* LPP */
+        dissect_lcsap_Correlation_ID_PDU(new_tvb, pinfo, sub_tree);
+        break;
+    default:
+        break;
+    }
 
     return(len);
 }
@@ -1940,6 +1960,9 @@ de_emm_gen_msg_cont(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo, guint32
     switch (eps_nas_gen_msg_cont_type) {
     case 1:
         /* LPP */
+        if (lpp_handle) {
+            call_dissector(lpp_handle, new_tvb, pinfo, sub_tree);
+        }
         break;
     case 2:
         /* Location services */
@@ -2651,7 +2674,7 @@ nas_emm_attach_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U_, guin
     /* 59   T3423 value GPRS timer 9.9.3.16 O   TV  2 */
     ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3423 value");
     /* 4A   Equivalent PLMNs    PLMN list 9.9.2.8   O   TLV 5-47 */
-    ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_PLM_LST, " - Equivalent PLMNs");
+    ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_PLMN_LIST, " - Equivalent PLMNs");
     /* 34   Emergency Number List 9.9.3.37  O   TLV 5-50 */
     ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
     /* 64   EPS network feature support EPS network feature support 9.9.3.12A   O   TLV 3 */
@@ -3390,7 +3413,7 @@ nas_emm_trac_area_upd_acc(tvbuff_t *tvb, proto_tree *tree, packet_info *pinfo _U
     /* 59   T3423 value GPRS timer 9.9.3.16 O   TV  2 */
     ELEM_OPT_TV(0x59, GSM_A_PDU_TYPE_GM, DE_GPRS_TIMER, " - T3423 value");
     /* 4A   Equivalent PLMNs    PLMN list 9.9.2.8   O   TLV 5-47 */
-    ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_EPS_CMN_PLM_LST, " - PLMN list");
+    ELEM_OPT_TLV(0x4a, NAS_PDU_TYPE_COMMON, DE_PLMN_LIST, " - PLMN list");
     /* 34   Emergency Number List   Emergency Number List 9.9.3.37  O   TLV 5-50 */
     ELEM_OPT_TLV(0x34, GSM_A_PDU_TYPE_DTAP, DE_EMERGENCY_NUM_LIST, NULL);
     /* 64   EPS network feature support EPS network feature support 9.9.3.12A   O   TLV 3 */
@@ -5332,8 +5355,8 @@ void proto_register_nas_eps(void) {
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
-    { &hf_nas_eps_emm_add_info,
-        { "Additional information content", "nas_eps.emm.add_info",
+    { &hf_nas_eps_cmn_add_info,
+        { "Additional information content", "nas_eps.cmn.add_info",
         FT_BYTES, BASE_NONE, NULL, 0x0,
         NULL, HFILL }
     },
@@ -5361,7 +5384,7 @@ void proto_register_nas_eps(void) {
   };
 
     /* Setup protocol subtree array */
-#define NUM_INDIVIDUAL_ELEMS    4
+#define NUM_INDIVIDUAL_ELEMS    5
     gint *ett[NUM_INDIVIDUAL_ELEMS +
           NUM_NAS_EPS_COMMON_ELEM +
           NUM_NAS_MSG_EMM + NUM_NAS_EMM_ELEM+
@@ -5371,6 +5394,7 @@ void proto_register_nas_eps(void) {
     ett[1] = &ett_nas_eps_esm_msg_cont;
     ett[2] = &ett_nas_eps_nas_msg_cont;
     ett[3] = &ett_nas_eps_gen_msg_cont;
+    ett[4] = &ett_nas_eps_cmn_add_info;
 
     last_offset = NUM_INDIVIDUAL_ELEMS;
 
@@ -5421,7 +5445,6 @@ void proto_register_nas_eps(void) {
 void
 proto_reg_handoff_nas_eps(void)
 {
-
     gsm_a_dtap_handle = find_dissector("gsm_a_dtap");
-
+    lpp_handle = find_dissector("lpp");
 }

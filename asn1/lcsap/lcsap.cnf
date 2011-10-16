@@ -9,6 +9,7 @@ ALIGNED
 #.END
 
 #.EXPORTS
+Correlation-ID_PDU
 
 #.PDU_NEW
 LCS-AP-PDU

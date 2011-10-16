@@ -1929,6 +1929,7 @@ AC_OUTPUT(
   asn1/lcsap/Makefile
   asn1/ldap/Makefile
   asn1/logotypecertextn/Makefile
+  asn1/lpp/Makefile
   asn1/lte-rrc/Makefile
   asn1/mms/Makefile
   asn1/mpeg-audio/Makefile

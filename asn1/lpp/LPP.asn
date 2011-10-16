@@ -1,0 +1,1854 @@
+-- 3GPP TS 36.355 V9.7.0 (2011-10)
+-- $Id$
+--
+
+LPP-PDU-Definitions {
+itu-t (0) identified-organization (4) etsi (0) mobileDomain (0) 
+eps-Access (21) modules (3) lpp (7) version1 (1) lpp-PDU-Definitions (1) }
+
+DEFINITIONS AUTOMATIC TAGS ::=
+
+BEGIN
+
+LPP-Message ::= SEQUENCE {
+	transactionID			LPP-TransactionID	OPTIONAL,	-- Need ON
+	endTransaction			BOOLEAN,
+	sequenceNumber			SequenceNumber		OPTIONAL,	-- Need ON
+	acknowledgement			Acknowledgement		OPTIONAL,	-- Need ON
+	lpp-MessageBody			LPP-MessageBody		OPTIONAL	-- Need ON
+}
+
+SequenceNumber ::= INTEGER (0..255)
+
+Acknowledgement ::= SEQUENCE {
+	ackRequested	BOOLEAN,
+	ackIndicator	SequenceNumber		OPTIONAL
+}
+
+LPP-MessageBody ::= CHOICE {
+	c1						CHOICE {
+		requestCapabilities			RequestCapabilities,
+		provideCapabilities			ProvideCapabilities,
+		requestAssistanceData		RequestAssistanceData,
+		provideAssistanceData		ProvideAssistanceData,
+		requestLocationInformation	RequestLocationInformation,
+		provideLocationInformation	ProvideLocationInformation,
+		abort						Abort,
+		error						Error,
+		spare7 NULL, spare6 NULL, spare5 NULL, spare4 NULL,
+		spare3 NULL, spare2 NULL, spare1 NULL, spare0 NULL
+	},
+	messageClassExtension	SEQUENCE {}
+}
+
+LPP-TransactionID ::= SEQUENCE {
+	initiator				Initiator,
+	transactionNumber		TransactionNumber,
+	...
+}
+
+Initiator ::= ENUMERATED {
+	locationServer,
+	targetDevice,
+	...
+}
+
+TransactionNumber ::= INTEGER (0..255)
+
+RequestCapabilities ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			requestCapabilities-r9		RequestCapabilities-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+RequestCapabilities-r9-IEs ::= SEQUENCE {
+	commonIEsRequestCapabilities		CommonIEsRequestCapabilities		OPTIONAL,	-- Need ON
+	a-gnss-RequestCapabilities			A-GNSS-RequestCapabilities			OPTIONAL,	-- Need ON
+	otdoa-RequestCapabilities			OTDOA-RequestCapabilities			OPTIONAL,	-- Need ON
+	ecid-RequestCapabilities			ECID-RequestCapabilities			OPTIONAL,	-- Need ON
+	epdu-RequestCapabilities			EPDU-Sequence						OPTIONAL,	-- Need ON
+	...
+}
+
+ProvideCapabilities ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			provideCapabilities-r9		ProvideCapabilities-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+ProvideCapabilities-r9-IEs ::= SEQUENCE {
+	commonIEsProvideCapabilities		CommonIEsProvideCapabilities		OPTIONAL,
+	a-gnss-ProvideCapabilities			A-GNSS-ProvideCapabilities			OPTIONAL,
+	otdoa-ProvideCapabilities			OTDOA-ProvideCapabilities			OPTIONAL,
+	ecid-ProvideCapabilities			ECID-ProvideCapabilities			OPTIONAL,
+	epdu-ProvideCapabilities			EPDU-Sequence						OPTIONAL,
+	...
+}
+
+RequestAssistanceData ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			requestAssistanceData-r9	RequestAssistanceData-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+RequestAssistanceData-r9-IEs ::= SEQUENCE {
+	commonIEsRequestAssistanceData		CommonIEsRequestAssistanceData		OPTIONAL,
+	a-gnss-RequestAssistanceData		A-GNSS-RequestAssistanceData		OPTIONAL,
+	otdoa-RequestAssistanceData			OTDOA-RequestAssistanceData			OPTIONAL,
+	epdu-RequestAssistanceData			EPDU-Sequence						OPTIONAL,
+	...
+}
+
+ProvideAssistanceData ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			provideAssistanceData-r9	ProvideAssistanceData-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+ProvideAssistanceData-r9-IEs ::= SEQUENCE {
+	commonIEsProvideAssistanceData		CommonIEsProvideAssistanceData		OPTIONAL,	-- Need ON
+	a-gnss-ProvideAssistanceData		A-GNSS-ProvideAssistanceData		OPTIONAL,	-- Need ON
+	otdoa-ProvideAssistanceData			OTDOA-ProvideAssistanceData			OPTIONAL,	-- Need ON
+	epdu-Provide-Assistance-Data		EPDU-Sequence						OPTIONAL,	-- Need ON
+	...
+}
+
+RequestLocationInformation ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			requestLocationInformation-r9	RequestLocationInformation-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+RequestLocationInformation-r9-IEs ::= SEQUENCE {
+	commonIEsRequestLocationInformation
+									CommonIEsRequestLocationInformation		OPTIONAL,	-- Need ON
+	a-gnss-RequestLocationInformation	A-GNSS-RequestLocationInformation	OPTIONAL,	-- Need ON
+	otdoa-RequestLocationInformation	OTDOA-RequestLocationInformation	OPTIONAL,	-- Need ON
+	ecid-RequestLocationInformation		ECID-RequestLocationInformation		OPTIONAL,	-- Need ON
+	epdu-RequestLocationInformation		EPDU-Sequence						OPTIONAL,	-- Need ON
+	...
+}
+
+ProvideLocationInformation ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			provideLocationInformation-r9	ProvideLocationInformation-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+ProvideLocationInformation-r9-IEs ::= SEQUENCE {
+	commonIEsProvideLocationInformation
+									CommonIEsProvideLocationInformation		OPTIONAL,
+	a-gnss-ProvideLocationInformation	A-GNSS-ProvideLocationInformation	OPTIONAL,
+	otdoa-ProvideLocationInformation	OTDOA-ProvideLocationInformation	OPTIONAL,
+	ecid-ProvideLocationInformation		ECID-ProvideLocationInformation		OPTIONAL,
+	epdu-ProvideLocationInformation		EPDU-Sequence						OPTIONAL,
+	...
+}
+
+Abort ::= SEQUENCE {
+	criticalExtensions		CHOICE {
+		c1						CHOICE {
+			abort-r9		Abort-r9-IEs,
+			spare3 NULL, spare2 NULL, spare1 NULL
+		},
+		criticalExtensionsFuture	SEQUENCE {}
+	}
+}
+
+Abort-r9-IEs ::= SEQUENCE {
+	commonIEsAbort		CommonIEsAbort			OPTIONAL,	-- Need ON
+	...,
+	epdu-Abort			EPDU-Sequence			OPTIONAL	-- Need ON
+}
+
+Error ::= CHOICE {
+	error-r9					Error-r9-IEs,
+	criticalExtensionsFuture	SEQUENCE {}
+}
+
+Error-r9-IEs ::= SEQUENCE {
+	commonIEsError		CommonIEsError			OPTIONAL,	-- Need ON
+	...,
+	epdu-Error			EPDU-Sequence			OPTIONAL	-- Need ON
+}
+
+AccessTypes ::= SEQUENCE {
+	accessTypes		BIT STRING {	eutra		(0),
+									utra		(1),
+									gsm			(2)	 } (SIZE (1..8)),
+	...
+}
+
+ARFCN-ValueEUTRA ::= INTEGER (0.. 65535)
+
+ARFCN-ValueUTRA ::=	INTEGER (0..16383)
+
+CellGlobalIdEUTRA-AndUTRA ::= SEQUENCE {
+	plmn-Identity		SEQUENCE {
+							mcc		SEQUENCE (SIZE (3)) 	OF INTEGER (0..9),
+							mnc		SEQUENCE (SIZE (2..3)) 	OF INTEGER (0..9)
+						},
+	cellIdentity		CHOICE {
+		eutra	BIT STRING (SIZE (28)),
+		utra	BIT STRING (SIZE (32))
+	},
+	...
+}
+
+CellGlobalIdGERAN ::= SEQUENCE {
+	plmn-Identity		SEQUENCE {
+							mcc		SEQUENCE (SIZE (3)) 	OF INTEGER (0..9),
+							mnc		SEQUENCE (SIZE (2..3)) 	OF INTEGER (0..9)
+							},
+	locationAreaCode		BIT STRING (SIZE (16)),
+	cellIdentity			BIT STRING (SIZE (16)),
+	...
+}
+
+ECGI ::= SEQUENCE {
+	mcc				SEQUENCE (SIZE (3)) 	OF INTEGER (0..9),
+	mnc				SEQUENCE (SIZE (2..3)) 	OF INTEGER (0..9),
+	cellidentity	BIT STRING (SIZE (28))
+}
+
+Ellipsoid-Point ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607)		-- 24 bit field
+}
+
+Ellipsoid-PointWithUncertaintyCircle ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607),	-- 24 bit field
+	uncertainty					INTEGER (0..127)
+}
+
+EllipsoidPointWithUncertaintyEllipse ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607),	-- 24 bit field
+	uncertaintySemiMajor		INTEGER (0..127),
+	uncertaintySemiMinor		INTEGER (0..127),
+	orientationMajorAxis		INTEGER (0..179),
+	confidence					INTEGER (0..100)
+}
+
+EllipsoidPointWithAltitude ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607),	-- 24 bit field
+	altitudeDirection			ENUMERATED {height, depth},
+	altitude					INTEGER (0..32767)				-- 15 bit field
+}
+
+EllipsoidPointWithAltitudeAndUncertaintyEllipsoid ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607),	-- 24 bit field
+	altitudeDirection			ENUMERATED {height, depth},
+	altitude					INTEGER (0..32767),				-- 15 bit field
+	uncertaintySemiMajor		INTEGER (0..127),
+	uncertaintySemiMinor		INTEGER (0..127),
+	orientationMajorAxis		INTEGER (0..179),
+	uncertaintyAltitude			INTEGER (0..127),
+	confidence					INTEGER (0..100)
+}
+
+EllipsoidArc ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607),	-- 24 bit field
+	innerRadius					INTEGER (0..65535),				-- 16 bit field,
+	uncertaintyRadius			INTEGER (0..127),
+	offsetAngle					INTEGER (0..179),
+	includedAngle				INTEGER (0..179),
+	confidence					INTEGER (0..100)
+}
+
+EPDU-Sequence ::= SEQUENCE (SIZE (1..maxEPDU)) OF EPDU
+
+maxEPDU INTEGER ::= 16
+
+EPDU ::= SEQUENCE {
+	ePDU-Identifier			EPDU-Identifier,
+	ePDU-Body				EPDU-Body
+}
+
+EPDU-Identifier ::= SEQUENCE {
+	ePDU-ID					EPDU-ID,
+	ePDU-Name				EPDU-Name		OPTIONAL,
+	...
+}
+
+EPDU-ID ::= INTEGER (1..256)
+
+EPDU-Name ::= VisibleString (SIZE (1..32))
+
+EPDU-Body ::= OCTET STRING 
+
+HorizontalVelocity ::= SEQUENCE {
+	bearing						INTEGER(0..359),
+	horizontalSpeed				INTEGER(0..2047)
+}
+
+HorizontalWithVerticalVelocity ::= SEQUENCE {
+	bearing						INTEGER(0..359),
+	horizontalSpeed				INTEGER(0..2047),
+	verticalDirection			ENUMERATED{upward, downward},
+	verticalSpeed				INTEGER(0..255)
+}
+
+HorizontalVelocityWithUncertainty ::= SEQUENCE {
+	bearing						INTEGER(0..359),
+	horizontalSpeed				INTEGER(0..2047),
+	uncertaintySpeed			INTEGER(0..255)
+}
+
+HorizontalWithVerticalVelocityAndUncertainty ::= SEQUENCE {
+	bearing						INTEGER(0..359),
+	horizontalSpeed				INTEGER(0..2047),
+	verticalDirection			ENUMERATED{upward, downward},
+	verticalSpeed				INTEGER(0..255),
+	horizontalUncertaintySpeed	INTEGER(0..255),
+	verticalUncertaintySpeed	INTEGER(0..255)
+}
+
+LocationCoordinateTypes ::= SEQUENCE {
+	ellipsoidPoint											BOOLEAN,
+	ellipsoidPointWithUncertaintyCircle 					BOOLEAN,
+	ellipsoidPointWithUncertaintyEllipse					BOOLEAN,
+	polygon													BOOLEAN,
+	ellipsoidPointWithAltitude								BOOLEAN,
+	ellipsoidPointWithAltitudeAndUncertaintyEllipsoid		BOOLEAN,
+	ellipsoidArc											BOOLEAN,
+	...
+}
+
+Polygon ::= SEQUENCE (SIZE (3..15)) OF PolygonPoints
+
+PolygonPoints ::= SEQUENCE {
+	latitudeSign				ENUMERATED {north, south},
+	degreesLatitude				INTEGER (0..8388607),			-- 23 bit field
+	degreesLongitude			INTEGER (-8388608..8388607)		-- 24 bit field
+}
+
+PositioningModes ::= SEQUENCE {
+	posModes		BIT STRING { 	standalone 	(0),
+									ue-based	(1),
+									ue-assisted	(2)  } (SIZE (1..8)),
+	...
+}
+
+VelocityTypes ::= SEQUENCE {
+	horizontalVelocity										BOOLEAN,
+	horizontalWithVerticalVelocity							BOOLEAN,
+	horizontalVelocityWithUncertainty						BOOLEAN,
+	horizontalWithVerticalVelocityAndUncertainty			BOOLEAN,
+	...
+}
+
+CommonIEsRequestCapabilities ::= SEQUENCE {
+	...
+}
+
+CommonIEsProvideCapabilities ::= SEQUENCE {
+	...
+}
+
+CommonIEsRequestAssistanceData ::= SEQUENCE {
+	servingCellID		ECGI		OPTIONAL,	-- Cond EUTRA
+	...
+}
+
+CommonIEsProvideAssistanceData ::= SEQUENCE {
+	...
+}
+
+CommonIEsRequestLocationInformation ::= SEQUENCE {
+	locationInformationType		LocationInformationType,
+	triggeredReporting			TriggeredReportingCriteria	OPTIONAL,	-- Cond ECID
+    periodicalReporting         PeriodicalReportingCriteria OPTIONAL,	-- Need ON
+	additionalInformation		AdditionalInformation		OPTIONAL,	-- Need ON
+	qos							QoS							OPTIONAL,	-- Need ON
+	environment					Environment					OPTIONAL,	-- Need ON
+	locationCoordinateTypes		LocationCoordinateTypes		OPTIONAL,	-- Need ON
+	velocityTypes				VelocityTypes				OPTIONAL,	-- Need ON
+	...
+}
+
+LocationInformationType ::= ENUMERATED {
+	locationEstimateRequired,
+	locationMeasurementsRequired,
+	locationEstimatePreferred, 
+	locationMeasurementsPreferred,
+	...
+}
+
+PeriodicalReportingCriteria ::=		SEQUENCE {
+	reportingAmount						ENUMERATED {
+											ra1, ra2, ra4, ra8, ra16, ra32,
+											ra64, ra-Infinity
+										} DEFAULT ra-Infinity,
+	reportingInterval					ENUMERATED {
+											noPeriodicalReporting, ri0-25,
+											ri0-5, ri1, ri2, ri4, ri8, ri16, ri32, ri64
+										}
+}
+
+TriggeredReportingCriteria ::=		SEQUENCE {
+	cellChange							BOOLEAN,
+	reportingDuration					ReportingDuration,
+	...
+}
+
+ReportingDuration ::=				INTEGER (0..255)
+
+AdditionalInformation ::= ENUMERATED {
+	onlyReturnInformationRequested,
+	mayReturnAditionalInformation,
+	...
+}
+
+QoS ::= SEQUENCE {
+	horizontalAccuracy			HorizontalAccuracy		OPTIONAL,	-- Need ON
+	verticalCoordinateRequest	BOOLEAN,
+	verticalAccuracy			VerticalAccuracy		OPTIONAL,	-- Need ON
+	responseTime				ResponseTime			OPTIONAL,	-- Need ON
+	velocityRequest				BOOLEAN,				
+	...
+}	
+
+HorizontalAccuracy ::= SEQUENCE {
+	accuracy		INTEGER(0..127),
+	confidence		INTEGER(0..100),
+	...
+}
+
+VerticalAccuracy ::= SEQUENCE {
+	accuracy		INTEGER(0..127), 
+	confidence		INTEGER(0..100),
+	...
+}
+
+ResponseTime ::= SEQUENCE {
+	time			INTEGER (1..128),
+	...
+}
+
+Environment ::= ENUMERATED {
+	badArea,
+	notBadArea,
+	mixedArea,
+	...
+}
+
+CommonIEsProvideLocationInformation ::= SEQUENCE {
+	locationEstimate			LocationCoordinates		OPTIONAL,
+	velocityEstimate			Velocity				OPTIONAL,
+	locationError				LocationError			OPTIONAL,
+	...
+}
+
+LocationCoordinates ::= CHOICE {
+	ellipsoidPoint								Ellipsoid-Point,
+	ellipsoidPointWithUncertaintyCircle 		Ellipsoid-PointWithUncertaintyCircle,
+	ellipsoidPointWithUncertaintyEllipse		EllipsoidPointWithUncertaintyEllipse,
+	polygon										Polygon,
+	ellipsoidPointWithAltitude					EllipsoidPointWithAltitude,
+	ellipsoidPointWithAltitudeAndUncertaintyEllipsoid
+												EllipsoidPointWithAltitudeAndUncertaintyEllipsoid,
+	ellipsoidArc								EllipsoidArc,
+	...
+}
+
+Velocity ::= CHOICE {
+	horizontalVelocity							HorizontalVelocity,
+	horizontalWithVerticalVelocity				HorizontalWithVerticalVelocity,
+	horizontalVelocityWithUncertainty			HorizontalVelocityWithUncertainty,
+	horizontalWithVerticalVelocityAndUncertainty
+												HorizontalWithVerticalVelocityAndUncertainty,
+	...
+}
+
+LocationError ::= SEQUENCE {
+	locationfailurecause			LocationFailureCause,
+	...
+}
+
+LocationFailureCause ::= ENUMERATED {
+	undefined,
+	requestedMethodNotSupported,
+	positionMethodFailure, 
+	periodicLocationMeasurementsNotAvailable,
+	...
+}
+
+CommonIEsAbort ::= SEQUENCE {
+	abortCause			ENUMERATED {
+		undefined,
+		stopPeriodicReporting,
+		targetDeviceAbort,
+		networkAbort,
+		...
+	}
+}
+
+CommonIEsError ::= SEQUENCE {
+	errorCause		ENUMERATED {
+		undefined,
+		lppMessageHeaderError, 
+		lppMessageBodyError,
+		epduError,
+		incorrectDataValue,
+		...
+	}
+}
+
+OTDOA-ProvideAssistanceData ::= SEQUENCE {
+	otdoa-ReferenceCellInfo			OTDOA-ReferenceCellInfo				OPTIONAL,	-- Need ON
+	otdoa-NeighbourCellInfo			OTDOA-NeighbourCellInfoList			OPTIONAL,	-- Need ON
+	otdoa-Error						OTDOA-Error							OPTIONAL,	-- Need ON
+	...
+}
+
+OTDOA-ReferenceCellInfo ::= SEQUENCE {
+	physCellId					INTEGER (0..503),
+	cellGlobalId				ECGI						OPTIONAL,		-- Need ON
+	earfcnRef					ARFCN-ValueEUTRA			OPTIONAL,		-- Cond NotSameAsServ0
+	antennaPortConfig			ENUMERATED {ports1-or-2, ports4, ... }
+															OPTIONAL,		-- Cond NotSameAsServ1
+	cpLength					ENUMERATED { normal, extended, ... },
+	prsInfo						PRS-Info					OPTIONAL,		-- Cond PRS
+	...	
+}
+
+PRS-Info ::= SEQUENCE {
+	prs-Bandwidth			ENUMERATED { n6, n15, n25, n50, n75, n100, ... },
+	prs-ConfigurationIndex	INTEGER (0..4095),
+	numDL-Frames			ENUMERATED {sf-1, sf-2, sf-4, sf-6, ...},
+	...,
+	prs-MutingInfo-r9		CHOICE {
+		po2-r9					BIT STRING (SIZE(2)),
+		po4-r9					BIT STRING (SIZE(4)),
+		po8-r9					BIT STRING (SIZE(8)),
+		po16-r9					BIT STRING (SIZE(16)),
+		...
+	}														OPTIONAL				-- Need OP
+}
+
+OTDOA-NeighbourCellInfoList ::= SEQUENCE (SIZE (1..maxFreqLayers)) OF OTDOA-NeighbourFreqInfo
+OTDOA-NeighbourFreqInfo ::= SEQUENCE (SIZE (1..24)) OF OTDOA-NeighbourCellInfoElement
+
+OTDOA-NeighbourCellInfoElement ::= SEQUENCE {
+	physCellId							INTEGER (0..503),
+	cellGlobalId						ECGI				OPTIONAL,		-- Need ON
+	earfcn								ARFCN-ValueEUTRA	OPTIONAL,		-- Cond NotSameAsRef0
+	cpLength							ENUMERATED {normal, extended, ...} 
+															OPTIONAL,		-- Cond NotSameAsRef1
+	prsInfo								PRS-Info			OPTIONAL,		-- Cond NotSameAsRef2
+	antennaPortConfig					ENUMERATED {ports-1-or-2, ports-4, ...}
+															OPTIONAL,		-- Cond NotsameAsRef3
+	slotNumberOffset					INTEGER (0..19)		OPTIONAL,		-- Cond NotSameAsRef4
+	prs-SubframeOffset					INTEGER (0..1279)	OPTIONAL,		-- Cond InterFreq
+	expectedRSTD						INTEGER (0..16383),
+	expectedRSTD-Uncertainty			INTEGER (0..1023),
+	...
+}
+
+maxFreqLayers	INTEGER ::= 3
+
+OTDOA-RequestAssistanceData ::= SEQUENCE {
+	physCellId		INTEGER (0..503),
+	...
+}
+
+OTDOA-ProvideLocationInformation ::= SEQUENCE {
+	otdoaSignalMeasurementInformation	OTDOA-SignalMeasurementInformation	OPTIONAL,
+	otdoa-Error							OTDOA-Error							OPTIONAL,
+	...
+}
+
+OTDOA-SignalMeasurementInformation ::= SEQUENCE {
+	systemFrameNumber		BIT STRING (SIZE (10)),
+	physCellIdRef			INTEGER (0..503),
+	cellGlobalIdRef			ECGI					OPTIONAL,
+	earfcnRef				ARFCN-ValueEUTRA		OPTIONAL,
+	referenceQuality		OTDOA-MeasQuality		OPTIONAL,
+	neighbourMeasurementList	NeighbourMeasurementList,
+	...
+}
+
+NeighbourMeasurementList ::= SEQUENCE (SIZE(1..24)) OF NeighbourMeasurementElement
+
+NeighbourMeasurementElement ::= SEQUENCE {
+	physCellIdNeighbor		INTEGER (0..503),
+	cellGlobalIdNeighbour	ECGI					OPTIONAL,
+	earfcnNeighbour			ARFCN-ValueEUTRA		OPTIONAL,
+	rstd					INTEGER (0..12711),
+	rstd-Quality			OTDOA-MeasQuality,
+	...
+}
+
+OTDOA-MeasQuality ::= SEQUENCE {
+	error-Resolution		BIT STRING (SIZE (2)),
+	error-Value				BIT STRING (SIZE (5)),
+	error-NumSamples		BIT STRING (SIZE (3))				OPTIONAL,
+	...
+}
+
+OTDOA-RequestLocationInformation ::= SEQUENCE {
+	assistanceAvailability		BOOLEAN,
+	...
+}
+
+OTDOA-ProvideCapabilities ::= SEQUENCE {
+	otdoa-Mode		BIT STRING { 	ue-assisted (0) } (SIZE (1..8)),
+	...,
+	supportedBandListEUTRA 		SEQUENCE (SIZE (1..maxBands)) OF SupportedBandEUTRA		OPTIONAL
+}
+
+maxBands INTEGER ::= 64
+
+SupportedBandEUTRA ::= SEQUENCE {
+	bandEUTRA							INTEGER (1..64)
+}
+
+OTDOA-RequestCapabilities ::= SEQUENCE {
+	...
+}
+
+OTDOA-Error ::= CHOICE {
+	locationServerErrorCauses		OTDOA-LocationServerErrorCauses,
+	targetDeviceErrorCauses			OTDOA-TargetDeviceErrorCauses,
+	...
+}
+
+OTDOA-LocationServerErrorCauses ::= SEQUENCE {
+	cause		ENUMERATED	{	undefined,
+								assistanceDataNotSupportedByServer,
+								assistanceDataSupportedButCurrentlyNotAvailableByServer,
+								...
+							},
+	...
+}
+
+OTDOA-TargetDeviceErrorCauses ::= SEQUENCE {
+	cause		ENUMERATED {	undefined,
+								assistance-data-missing,
+								unableToMeasureReferenceCell,
+								unableToMeasureAnyNeighbourCell,
+								attemptedButUnableToMeasureSomeNeighbourCells,
+								...
+							},
+	...
+}
+
+A-GNSS-ProvideAssistanceData ::= SEQUENCE {
+	gnss-CommonAssistData			GNSS-CommonAssistData				OPTIONAL,	-- Need ON
+	gnss-GenericAssistData			GNSS-GenericAssistData				OPTIONAL,	-- Need ON
+	gnss-Error						A-GNSS-Error						OPTIONAL,	-- Need ON
+	...
+}
+
+GNSS-CommonAssistData ::= SEQUENCE {
+	gnss-ReferenceTime		 		GNSS-ReferenceTime		 			OPTIONAL,	-- Need ON
+	gnss-ReferenceLocation			GNSS-ReferenceLocation		 		OPTIONAL,	-- Need ON
+	gnss-IonosphericModel			GNSS-IonosphericModel	 			OPTIONAL,	-- Need ON
+	gnss-EarthOrientationParameters	GNSS-EarthOrientationParameters		OPTIONAL,	-- Need ON
+	...
+}
+
+GNSS-GenericAssistData ::= SEQUENCE (SIZE (1..16)) OF GNSS-GenericAssistDataElement
+
+GNSS-GenericAssistDataElement ::= SEQUENCE {
+	gnss-ID 						GNSS-ID,
+	sbas-ID							SBAS-ID 						OPTIONAL, -- Cond GNSS-ID-SBAS
+	gnss-TimeModels					GNSS-TimeModelList				OPTIONAL,	-- Need ON
+	gnss-DifferentialCorrections	GNSS-DifferentialCorrections	OPTIONAL,	-- Need ON
+	gnss-NavigationModel			GNSS-NavigationModel			OPTIONAL,	-- Need ON
+	gnss-RealTimeIntegrity			GNSS-RealTimeIntegrity			OPTIONAL,	-- Need ON
+	gnss-DataBitAssistance			GNSS-DataBitAssistance			OPTIONAL,	-- Need ON
+	gnss-AcquisitionAssistance		GNSS-AcquisitionAssistance 		OPTIONAL,	-- Need ON
+	gnss-Almanac					GNSS-Almanac					OPTIONAL,	-- Need ON
+	gnss-UTC-Model					GNSS-UTC-Model					OPTIONAL,	-- Need ON
+	gnss-AuxiliaryInformation		GNSS-AuxiliaryInformation		OPTIONAL,	-- Need ON
+	...
+}
+
+GNSS-ReferenceTime ::= SEQUENCE  {
+	gnss-SystemTime				GNSS-SystemTime,
+	referenceTimeUnc			INTEGER (0..127)					OPTIONAL,	-- Cond noFTA
+	gnss-ReferenceTimeForCells  SEQUENCE (SIZE (1..16)) OF 
+									GNSS-ReferenceTimeForOneCell	OPTIONAL,	-- Need ON
+	...
+}
+
+GNSS-ReferenceTimeForOneCell  ::= SEQUENCE {	
+	networkTime 				NetworkTime,
+	referenceTimeUnc			INTEGER (0..127),
+	bsAlign						ENUMERATED {true}	OPTIONAL,
+	...
+}
+
+GNSS-SystemTime ::= SEQUENCE {
+	gnss-TimeID						GNSS-ID,
+	gnss-DayNumber					INTEGER (0..32767),
+	gnss-TimeOfDay					INTEGER (0..86399),
+	gnss-TimeOfDayFrac-msec			INTEGER (0..999)		OPTIONAL,	-- Need ON
+	notificationOfLeapSecond		BIT STRING (SIZE(2)) 	OPTIONAL,	-- Cond gnss-TimeID-glonass
+	gps-TOW-Assist					GPS-TOW-Assist 			OPTIONAL,	-- Cond gnss-TimeID-gps
+	...
+}
+
+GPS-TOW-Assist ::= SEQUENCE (SIZE(1..64)) OF GPS-TOW-AssistElement
+
+GPS-TOW-AssistElement ::= SEQUENCE {
+	satelliteID		INTEGER (1..64),
+	tlmWord			INTEGER (0..16383),
+	antiSpoof		INTEGER (0..1),
+	alert			INTEGER (0..1),
+	tlmRsvdBits		INTEGER (0..3),
+	...
+}
+
+NetworkTime ::= SEQUENCE {
+	secondsFromFrameStructureStart 				INTEGER(0..12533),
+	fractionalSecondsFromFrameStructureStart 	INTEGER(0..3999999),
+	frameDrift									INTEGER (-64..63) 	OPTIONAL,	-- Cond GNSSsynch
+	cellID 		CHOICE { 
+				eUTRA		SEQUENCE {
+							physCellId			INTEGER (0..503),
+							cellGlobalIdEUTRA	CellGlobalIdEUTRA-AndUTRA	OPTIONAL,	-- Need ON
+							earfcn				ARFCN-ValueEUTRA,
+							...
+							},
+				uTRA		SEQUENCE {
+							mode 	CHOICE {
+									fdd		SEQUENCE {
+											primary-CPICH-Info	INTEGER (0..511),
+											...
+											},
+									tdd		SEQUENCE {
+											cellParameters		INTEGER (0..127),
+											...
+											}
+									},
+							cellGlobalIdUTRA	CellGlobalIdEUTRA-AndUTRA	OPTIONAL,	-- Need ON
+							uarfcn				ARFCN-ValueUTRA,
+							...
+							},
+				gSM			SEQUENCE {
+							bcchCarrier			INTEGER (0..1023),
+							bsic				INTEGER (0..63),
+							cellGlobalIdGERAN	CellGlobalIdGERAN			OPTIONAL,	-- Need ON
+							...
+							},
+				...
+				},
+	...
+}
+
+GNSS-ReferenceLocation ::= SEQUENCE {
+		threeDlocation			EllipsoidPointWithAltitudeAndUncertaintyEllipsoid,
+		...
+}
+
+GNSS-IonosphericModel ::= SEQUENCE {
+	klobucharModel			KlobucharModelParameter		OPTIONAL,	-- Need ON
+	neQuickModel			NeQuickModelParameter		OPTIONAL,	-- Need ON
+	...
+}
+
+KlobucharModelParameter ::= SEQUENCE {
+	dataID			BIT STRING (SIZE (2)),
+	alfa0			INTEGER (-128..127),
+	alfa1			INTEGER (-128..127),
+	alfa2			INTEGER (-128..127),
+	alfa3			INTEGER (-128..127),
+	beta0			INTEGER (-128..127),
+	beta1			INTEGER (-128..127),
+	beta2			INTEGER (-128..127),
+	beta3			INTEGER (-128..127),
+	...
+}
+
+NeQuickModelParameter ::= SEQUENCE {
+	ai0 			INTEGER (0..4095),
+ 	ai1 			INTEGER (0..4095),
+ 	ai2 			INTEGER (0..4095),
+	ionoStormFlag1	INTEGER (0..1)		OPTIONAL,	-- Need OP
+	ionoStormFlag2	INTEGER (0..1)		OPTIONAL,	-- Need OP
+	ionoStormFlag3	INTEGER (0..1)		OPTIONAL,	-- Need OP
+	ionoStormFlag4	INTEGER (0..1)		OPTIONAL,	-- Need OP
+	ionoStormFlag5	INTEGER (0..1)		OPTIONAL,	-- Need OP
+	...
+}
+
+GNSS-EarthOrientationParameters ::= SEQUENCE {
+	teop				INTEGER (0..65535),
+	pmX					INTEGER (-1048576..1048575),
+	pmXdot				INTEGER (-16384..16383),
+	pmY					INTEGER (-1048576..1048575),
+	pmYdot				INTEGER (-16384..16383),
+	deltaUT1			INTEGER (-1073741824..1073741823),
+	deltaUT1dot			INTEGER (-262144..262143),
+	...
+}
+
+GNSS-TimeModelList ::= SEQUENCE (SIZE (1..15)) OF GNSS-TimeModelElement
+
+GNSS-TimeModelElement ::= SEQUENCE {
+	gnss-TimeModelRefTime		INTEGER (0..65535),
+	tA0		 					INTEGER (-67108864..67108863),
+	tA1		 					INTEGER (-4096..4095) 					OPTIONAL,	-- Need ON
+	tA2		 					INTEGER (-64..63) 						OPTIONAL,	-- Need ON
+ 	gnss-TO-ID 					INTEGER (1..15),
+ 	weekNumber 					INTEGER (0..8191) 						OPTIONAL,	-- Need ON
+	deltaT						INTEGER (-128..127)						OPTIONAL,	-- Need ON
+	...
+}
+
+GNSS-DifferentialCorrections ::= SEQUENCE {
+	dgnss-RefTime		INTEGER (0..3599),
+	dgnss-SgnTypeList	DGNSS-SgnTypeList,
+	...
+}
+
+DGNSS-SgnTypeList ::= SEQUENCE (SIZE (1..3)) OF DGNSS-SgnTypeElement
+
+DGNSS-SgnTypeElement ::= SEQUENCE {
+	gnss-SignalID		 GNSS-SignalID, 
+ 	gnss-StatusHealth	 INTEGER (0..7),
+	dgnss-SatList		 DGNSS-SatList,
+	...
+}
+
+DGNSS-SatList ::= SEQUENCE (SIZE (1..64)) OF DGNSS-CorrectionsElement
+
+DGNSS-CorrectionsElement ::= SEQUENCE {
+	svID		 		SV-ID,
+	iod 				BIT STRING (SIZE(11)),
+	udre				INTEGER (0..3),		
+	pseudoRangeCor		INTEGER (-2047..2047),
+	rangeRateCor		INTEGER (-127..127),
+	udreGrowthRate		INTEGER (0..7)			OPTIONAL,	-- Need ON
+	udreValidityTime	INTEGER (0..7)			OPTIONAL,	-- Need ON	
+	...
+}
+
+GNSS-NavigationModel ::= SEQUENCE {
+	nonBroadcastIndFlag 	INTEGER (0..1), 
+	gnss-SatelliteList 		GNSS-NavModelSatelliteList,
+	...
+}
+
+GNSS-NavModelSatelliteList ::= SEQUENCE (SIZE(1..64)) OF GNSS-NavModelSatelliteElement
+
+GNSS-NavModelSatelliteElement ::= SEQUENCE {
+	svID 				SV-ID,
+ 	svHealth 			BIT STRING (SIZE(8)), 	
+	iod 				BIT STRING (SIZE(11)),	
+	gnss-ClockModel		GNSS-ClockModel,
+	gnss-OrbitModel		GNSS-OrbitModel,
+	...
+}
+
+GNSS-ClockModel ::= CHOICE {
+	standardClockModelList	StandardClockModelList,	 		-- Model-1
+	nav-ClockModel			NAV-ClockModel,					-- Model-2
+	cnav-ClockModel			CNAV-ClockModel, 				-- Model-3
+	glonass-ClockModel		GLONASS-ClockModel,				-- Model-4
+	sbas-ClockModel			SBAS-ClockModel,				-- Model-5
+	...
+} 
+
+GNSS-OrbitModel ::= CHOICE {
+	keplerianSet	 		NavModelKeplerianSet,			-- Model-1
+	nav-KeplerianSet		NavModelNAV-KeplerianSet,		-- Model-2
+	cnav-KeplerianSet		NavModelCNAV-KeplerianSet,		-- Model-3
+	glonass-ECEF			NavModel-GLONASS-ECEF, 			-- Model-4
+	sbas-ECEF				NavModel-SBAS-ECEF,				-- Model-5
+	...
+}
+
+StandardClockModelList ::= SEQUENCE (SIZE(1..2)) OF StandardClockModelElement
+
+StandardClockModelElement ::= SEQUENCE {
+ 	stanClockToc 	INTEGER (0..16383), 
+ 	stanClockAF2 	INTEGER (-2048..2047), 
+ 	stanClockAF1 	INTEGER (-131072..131071), 
+ 	stanClockAF0 	INTEGER (-134217728..134217727),
+ 	stanClockTgd 	INTEGER (-512..511) 				OPTIONAL,	-- Need ON
+ 	stanModelID 	INTEGER (0..1) 						OPTIONAL,	-- Need ON
+ 	...
+}
+
+NAV-ClockModel ::= SEQUENCE {
+	navToc			INTEGER (0..37799),
+	navaf2			INTEGER (-128..127),
+	navaf1			INTEGER (-32768..32767),
+	navaf0			INTEGER (-2097152..2097151),
+	navTgd			INTEGER (-128..127),
+	...
+}
+
+CNAV-ClockModel ::= SEQUENCE {
+	cnavToc			INTEGER (0..2015),
+	cnavTop			INTEGER (0..2015),
+	cnavURA0		INTEGER (-16..15),
+	cnavURA1		INTEGER (0..7),
+	cnavURA2		INTEGER (0..7),
+	cnavAf2			INTEGER (-512..511),
+	cnavAf1			INTEGER (-524288..524287),
+	cnavAf0			INTEGER (-33554432..33554431),
+	cnavTgd			INTEGER (-4096..4095),
+	cnavISCl1cp		INTEGER (-4096..4095) 			OPTIONAL,	-- Need ON
+	cnavISCl1cd		INTEGER (-4096..4095) 			OPTIONAL,	-- Need ON
+	cnavISCl1ca		INTEGER (-4096..4095) 			OPTIONAL,	-- Need ON
+	cnavISCl2c		INTEGER (-4096..4095) 			OPTIONAL,	-- Need ON
+	cnavISCl5i5		INTEGER (-4096..4095) 			OPTIONAL,	-- Need ON
+	cnavISCl5q5		INTEGER (-4096..4095) 			OPTIONAL,	-- Need ON
+	...
+}
+
+GLONASS-ClockModel ::= SEQUENCE {
+	gloTau			INTEGER (-2097152..2097151),
+	gloGamma		INTEGER (-1024..1023),
+	gloDeltaTau		INTEGER (-16..15) 				OPTIONAL,	-- Need ON
+	...
+}
+
+SBAS-ClockModel ::= SEQUENCE {
+	sbasTo			INTEGER (0..5399),
+	sbasAgfo		INTEGER (-2048..2047),
+	sbasAgf1		INTEGER (-128..127),
+	...
+}
+
+NavModelKeplerianSet ::= SEQUENCE {
+	keplerToe 		 INTEGER (0 .. 16383), 
+	keplerW			 INTEGER (-2147483648..2147483647),
+	keplerDeltaN	 INTEGER (-32768..32767),
+	keplerM0		 INTEGER (-2147483648..2147483647),
+	keplerOmegaDot	 INTEGER (-8388608.. 8388607),
+	keplerE 	 	 INTEGER (0..4294967295),
+	keplerIDot		 INTEGER (-8192..8191),
+	keplerAPowerHalf INTEGER (0.. 4294967295),
+	keplerI0		 INTEGER (-2147483648..2147483647),
+	keplerOmega0 	 INTEGER (-2147483648..2147483647),
+	keplerCrs		 INTEGER (-32768..32767),
+	keplerCis		 INTEGER (-32768..32767),
+	keplerCus		 INTEGER (-32768..32767),
+	keplerCrc		 INTEGER (-32768..32767),
+	keplerCic		 INTEGER (-32768..32767),
+	keplerCuc		 INTEGER (-32768..32767),
+	...
+}
+
+NavModelNAV-KeplerianSet ::= SEQUENCE {
+	navURA			INTEGER (0..15),
+	navFitFlag		INTEGER (0..1),
+	navToe			INTEGER (0..37799),
+	navOmega		INTEGER (-2147483648..2147483647),
+	navDeltaN		INTEGER (-32768..32767),
+	navM0			INTEGER (-2147483648..2147483647),
+	navOmegaADot	INTEGER (-8388608..8388607),
+	navE			INTEGER (0..4294967295),
+	navIDot			INTEGER (-8192..8191),
+	navAPowerHalf	INTEGER (0..4294967295),
+	navI0			INTEGER (-2147483648..2147483647),
+	navOmegaA0		INTEGER (-2147483648..2147483647),
+	navCrs			INTEGER (-32768..32767),
+	navCis			INTEGER (-32768..32767),
+	navCus			INTEGER (-32768..32767),
+	navCrc			INTEGER (-32768..32767),
+	navCic			INTEGER (-32768..32767),
+	navCuc			INTEGER (-32768..32767),
+	addNAVparam		SEQUENCE {
+		ephemCodeOnL2	INTEGER (0..3),
+		ephemL2Pflag	INTEGER (0..1),
+		ephemSF1Rsvd	SEQUENCE {
+			reserved1		INTEGER (0..8388607),	-- 23-bit field
+			reserved2		INTEGER (0..16777215),	-- 24-bit field
+			reserved3		INTEGER (0..16777215),	-- 24-bit field
+			reserved4		INTEGER (0..65535)		-- 16-bit field
+		},
+		ephemAODA		INTEGER (0..31)
+	} 	OPTIONAL,	-- Need ON
+	...
+}
+
+NavModelCNAV-KeplerianSet ::= SEQUENCE {
+	cnavTop				INTEGER (0..2015),
+	cnavURAindex		INTEGER (-16..15),
+	cnavDeltaA			INTEGER (-33554432..33554431),
+	cnavAdot			INTEGER (-16777216..16777215),
+	cnavDeltaNo			INTEGER (-65536..65535),
+	cnavDeltaNoDot		INTEGER (-4194304..4194303),
+	cnavMo				INTEGER (-4294967296..4294967295),
+	cnavE				INTEGER (0..8589934591),
+	cnavOmega			INTEGER (-4294967296..4294967295),
+	cnavOMEGA0			INTEGER (-4294967296..4294967295),
+	cnavDeltaOmegaDot	INTEGER (-65536..65535),
+	cnavIo				INTEGER (-4294967296..4294967295),
+	cnavIoDot			INTEGER (-16384..16383),
+	cnavCis				INTEGER (-32768..32767),
+	cnavCic				INTEGER (-32768..32767),
+	cnavCrs				INTEGER (-8388608..8388607),
+	cnavCrc				INTEGER (-8388608..8388607),
+	cnavCus				INTEGER (-1048576..1048575),
+	cnavCuc				INTEGER (-1048576..1048575),
+	...
+}
+
+NavModel-GLONASS-ECEF ::= SEQUENCE {
+	gloEn				INTEGER (0..31),
+	gloP1				BIT STRING (SIZE(2)),
+	gloP2				BOOLEAN,
+	gloM				INTEGER (0..3),
+	gloX				INTEGER (-67108864..67108863),
+	gloXdot				INTEGER (-8388608..8388607),
+	gloXdotdot			INTEGER (-16..15),
+	gloY				INTEGER (-67108864..67108863),
+	gloYdot				INTEGER (-8388608..8388607),
+	gloYdotdot			INTEGER (-16..15),
+	gloZ				INTEGER (-67108864..67108863),
+	gloZdot				INTEGER (-8388608..8388607),
+	gloZdotdot			INTEGER (-16..15),
+	...
+}
+
+NavModel-SBAS-ECEF ::= SEQUENCE {
+	sbasTo				INTEGER (0..5399) 					OPTIONAL,	-- Cond ClockModel
+	sbasAccuracy		BIT STRING (SIZE(4)),
+	sbasXg				INTEGER (-536870912..536870911),
+	sbasYg				INTEGER (-536870912..536870911),
+	sbasZg				INTEGER (-16777216..16777215),
+	sbasXgDot			INTEGER (-65536..65535),
+	sbasYgDot			INTEGER (-65536..65535),
+	sbasZgDot			INTEGER (-131072..131071),
+	sbasXgDotDot		INTEGER (-512..511),
+	sbagYgDotDot		INTEGER (-512..511),
+	sbasZgDotDot		INTEGER (-512..511),
+	...
+}
+
+GNSS-RealTimeIntegrity ::= SEQUENCE { 
+ 	gnss-BadSignalList 	GNSS-BadSignalList,
+	...
+}
+
+GNSS-BadSignalList ::= SEQUENCE (SIZE(1..64)) OF BadSignalElement
+
+BadSignalElement ::= SEQUENCE {
+ 	badSVID 			SV-ID, 						 
+ 	badSignalID 		GNSS-SignalIDs 	OPTIONAL,	-- Need OP
+	...
+}
+
+GNSS-DataBitAssistance ::= SEQUENCE {
+	gnss-TOD				INTEGER (0..3599),
+	gnss-TODfrac			INTEGER (0..999)		OPTIONAL,	-- Need ON
+	gnss-DataBitsSatList	GNSS-DataBitsSatList,
+	...
+}
+
+GNSS-DataBitsSatList ::= SEQUENCE (SIZE(1..64))OF GNSS-DataBitsSatElement
+
+GNSS-DataBitsSatElement ::= SEQUENCE {
+	svID					SV-ID,
+	gnss-DataBitsSgnList	GNSS-DataBitsSgnList,
+	...
+}
+
+GNSS-DataBitsSgnList ::= SEQUENCE (SIZE(1..8)) OF GNSS-DataBitsSgnElement
+
+GNSS-DataBitsSgnElement ::= SEQUENCE {
+	gnss-SignalType			GNSS-SignalID,
+	gnss-DataBits			BIT STRING (SIZE (1..1024)),
+	...
+}
+
+GNSS-AcquisitionAssistance ::= SEQUENCE {
+	gnss-SignalID				GNSS-SignalID,
+	gnss-AcquisitionAssistList	GNSS-AcquisitionAssistList,
+	...
+}
+
+GNSS-AcquisitionAssistList ::= SEQUENCE (SIZE(1..64)) OF GNSS-AcquisitionAssistElement
+
+GNSS-AcquisitionAssistElement  ::= SEQUENCE {
+	svID						SV-ID,
+	doppler0					INTEGER (-2048..2047),
+	doppler1					INTEGER (0..63),
+	dopplerUncertainty			INTEGER (0..4),
+	codePhase					INTEGER (0..1022),
+	intCodePhase				INTEGER (0..127),
+	codePhaseSearchWindow		INTEGER (0..31),
+	azimuth						INTEGER (0..511),
+	elevation					INTEGER (0..127),		
+	...,
+	codePhase1023				BOOLEAN				OPTIONAL 	-- Need OP
+}
+
+GNSS-Almanac ::= SEQUENCE {
+ 	weekNumber 					INTEGER (0..255)	OPTIONAL,	-- Need ON
+	toa 						INTEGER (0..255) 	OPTIONAL,	-- Need ON
+	ioda 						INTEGER (0..3) 		OPTIONAL,	-- Need ON
+	completeAlmanacProvided		BOOLEAN,
+	gnss-AlmanacList			GNSS-AlmanacList,
+	...
+}
+
+GNSS-AlmanacList ::= SEQUENCE (SIZE(1..64)) OF GNSS-AlmanacElement
+
+GNSS-AlmanacElement ::= CHOICE {
+	keplerianAlmanacSet	 	AlmanacKeplerianSet,		-- Model-1
+ 	keplerianNAV-Almanac 	AlmanacNAV-KeplerianSet, 	-- Model-2
+	keplerianReducedAlmanac	AlmanacReducedKeplerianSet,	-- Model-3
+	keplerianMidiAlmanac	AlmanacMidiAlmanacSet, 		-- Model-4
+	keplerianGLONASS		AlmanacGLONASS-AlmanacSet, 	-- Model-5
+	ecef-SBAS-Almanac		AlmanacECEF-SBAS-AlmanacSet,-- Model-6
+	...
+}
+
+AlmanacKeplerianSet ::= SEQUENCE {
+	svID					SV-ID,
+ 	kepAlmanacE			 	INTEGER (0..2047),
+	kepAlmanacDeltaI		INTEGER (-1024..1023),
+	kepAlmanacOmegaDot		INTEGER (-1024..1023),
+ 	kepSVHealth 			INTEGER (0..15), 			 
+	kepAlmanacAPowerHalf	INTEGER (-65536..65535),
+	kepAlmanacOmega0		INTEGER (-32768..32767),
+	kepAlmanacW			 	INTEGER (-32768..32767),
+	kepAlmanacM0			INTEGER (-32768..32767),
+	kepAlmanacAF0			INTEGER (-8192..8191),
+	kepAlmanacAF1			INTEGER (-1024..1023),
+	...
+}
+
+AlmanacNAV-KeplerianSet ::= SEQUENCE {
+	svID					SV-ID,
+	navAlmE					INTEGER (0..65535),
+	navAlmDeltaI			INTEGER (-32768..32767),
+	navAlmOMEGADOT			INTEGER (-32768..32767),
+	navAlmSVHealth			INTEGER (0..255),
+	navAlmSqrtA				INTEGER (0..16777215),
+	navAlmOMEGAo			INTEGER (-8388608..8388607),
+	navAlmOmega				INTEGER (-8388608..8388607),
+	navAlmMo				INTEGER (-8388608..8388607),
+	navAlmaf0				INTEGER (-1024..1023),
+	navAlmaf1				INTEGER (-1024..1023),
+	...
+}
+
+AlmanacReducedKeplerianSet ::= SEQUENCE {
+	svID					SV-ID,
+	redAlmDeltaA			INTEGER (-128..127),
+	redAlmOmega0			INTEGER (-64..63),
+	redAlmPhi0				INTEGER (-64..63),
+	redAlmL1Health			BOOLEAN,
+	redAlmL2Health			BOOLEAN,
+	redAlmL5Health			BOOLEAN,
+	...
+}
+
+AlmanacMidiAlmanacSet ::= SEQUENCE {
+	svID					SV-ID,
+	midiAlmE				INTEGER (0..2047),
+	midiAlmDeltaI			INTEGER (-1024..1023),
+	midiAlmOmegaDot			INTEGER (-1024..1023),
+	midiAlmSqrtA			INTEGER (0..131071),
+	midiAlmOmega0			INTEGER (-32768..32767),
+	midiAlmOmega			INTEGER (-32768..32767),
+	midiAlmMo				INTEGER (-32768..32767),
+	midiAlmaf0				INTEGER (-1024..1023),
+	midiAlmaf1				INTEGER (-512..511),
+	midiAlmL1Health			BOOLEAN,
+	midiAlmL2Health			BOOLEAN,
+	midiAlmL5Health			BOOLEAN,
+	...
+}
+
+AlmanacGLONASS-AlmanacSet ::= SEQUENCE {
+	gloAlm-NA				INTEGER (1..1461),
+	gloAlmnA				INTEGER (1..24),
+	gloAlmHA				INTEGER (0..31),
+	gloAlmLambdaA			INTEGER (-1048576..1048575),
+	gloAlmtlambdaA			INTEGER (0..2097151),
+	gloAlmDeltaIa			INTEGER (-131072..131071),
+	gloAlmDeltaTA			INTEGER (-2097152..2097151),
+	gloAlmDeltaTdotA		INTEGER (-64..63),
+	gloAlmEpsilonA			INTEGER (0..32767),
+	gloAlmOmegaA			INTEGER (-32768..32767),
+	gloAlmTauA				INTEGER (-512..511),
+	gloAlmCA				INTEGER (0..1),
+	gloAlmMA				BIT STRING (SIZE(2)) 			OPTIONAL,	-- Need ON
+	...
+}
+
+AlmanacECEF-SBAS-AlmanacSet ::= SEQUENCE {
+	sbasAlmDataID			INTEGER (0..3),
+	svID					SV-ID,
+	sbasAlmHealth			BIT STRING (SIZE(8)),
+	sbasAlmXg				INTEGER (-16384..16383),
+	sbasAlmYg				INTEGER (-16384..16383),
+	sbasAlmZg				INTEGER (-256..255),
+	sbasAlmXgdot			INTEGER (-4..3),
+	sbasAlmYgDot			INTEGER (-4..3),
+	sbasAlmZgDot			INTEGER (-8..7),
+	sbasAlmTo				INTEGER (0..2047),
+	...
+}
+
+GNSS-UTC-Model ::= CHOICE {
+	utcModel1			UTC-ModelSet1,	-- Model-1
+	utcModel2			UTC-ModelSet2,	-- Model-2
+	utcModel3			UTC-ModelSet3,	-- Model-3
+	utcModel4			UTC-ModelSet4,	-- Model-4
+	...
+}
+
+UTC-ModelSet1 ::= SEQUENCE {
+	gnss-Utc-A1			INTEGER (-8388608..8388607),
+	gnss-Utc-A0			INTEGER (-2147483648..2147483647),
+	gnss-Utc-Tot		INTEGER (0..255),
+	gnss-Utc-WNt		INTEGER (0..255),
+	gnss-Utc-DeltaTls	INTEGER (-128..127),
+	gnss-Utc-WNlsf		INTEGER (0..255),
+	gnss-Utc-DN			INTEGER (-128..127),
+	gnss-Utc-DeltaTlsf	INTEGER (-128..127),
+	...
+}
+
+UTC-ModelSet2 ::= SEQUENCE {
+	utcA0				INTEGER (-32768..32767),
+	utcA1				INTEGER (-4096..4095),
+	utcA2				INTEGER (-64..63),
+	utcDeltaTls			INTEGER (-128..127),
+	utcTot				INTEGER (0..65535),
+	utcWNot				INTEGER (0..8191),
+	utcWNlsf			INTEGER (0..255),
+	utcDN				BIT STRING (SIZE(4)),
+	utcDeltaTlsf		INTEGER (-128..127),
+	...
+}
+
+UTC-ModelSet3 ::= SEQUENCE {
+	nA					INTEGER (1..1461),
+	tauC				INTEGER (-2147483648..2147483647),
+	b1					INTEGER (-1024..1023) 					OPTIONAL,	-- Cond GLONASS-M
+	b2					INTEGER (-512..511) 					OPTIONAL,	-- Cond GLONASS-M
+	kp					BIT STRING (SIZE(2)) 					OPTIONAL,	-- Cond GLONASS-M
+	...
+}
+
+UTC-ModelSet4 ::= SEQUENCE {
+	utcA1wnt			INTEGER (-8388608..8388607),
+	utcA0wnt			INTEGER (-2147483648..2147483647),
+	utcTot				INTEGER (0..255),
+	utcWNt				INTEGER (0..255),
+	utcDeltaTls			INTEGER (-128..127),
+	utcWNlsf			INTEGER (0..255),
+	utcDN				INTEGER (-128..127),
+	utcDeltaTlsf		INTEGER (-128..127),
+	utcStandardID		INTEGER (0..7),
+	...
+}
+
+GNSS-AuxiliaryInformation ::= CHOICE {
+	gnss-ID-GPS		GNSS-ID-GPS,
+	gnss-ID-GLONASS	GNSS-ID-GLONASS,
+	...
+}
+
+GNSS-ID-GPS ::= SEQUENCE	(SIZE(1..64)) OF GNSS-ID-GPS-SatElement
+
+GNSS-ID-GPS-SatElement ::= SEQUENCE {
+	svID				SV-ID,
+	signalsAvailable	GNSS-SignalIDs,
+	...
+}
+
+GNSS-ID-GLONASS ::= SEQUENCE (SIZE(1..64)) OF GNSS-ID-GLONASS-SatElement
+
+GNSS-ID-GLONASS-SatElement ::= SEQUENCE {
+	svID				SV-ID,
+	signalsAvailable	GNSS-SignalIDs,
+	channelNumber		INTEGER (-7..13)		OPTIONAL,		-- Cond FDMA
+	...
+}
+
+A-GNSS-RequestAssistanceData ::= SEQUENCE {
+	gnss-CommonAssistDataReq		GNSS-CommonAssistDataReq		OPTIONAL, -- Cond CommonADReq
+	gnss-GenericAssistDataReq		GNSS-GenericAssistDataReq		OPTIONAL, -- Cond GenADReq
+	...
+}
+
+GNSS-CommonAssistDataReq ::= SEQUENCE {
+	gnss-ReferenceTimeReq		 		GNSS-ReferenceTimeReq		 		
+																OPTIONAL, -- Cond RefTimeReq
+	gnss-ReferenceLocationReq			GNSS-ReferenceLocationReq		 	
+																OPTIONAL, -- Cond RefLocReq
+	gnss-IonosphericModelReq			GNSS-IonosphericModelReq	 			
+																OPTIONAL, -- Cond IonoModReq
+	gnss-EarthOrientationParametersReq	GNSS-EarthOrientationParametersReq	
+																OPTIONAL, -- Cond EOPReq
+	...
+}
+
+GNSS-GenericAssistDataReq ::= SEQUENCE (SIZE (1..16)) OF GNSS-GenericAssistDataReqElement
+
+GNSS-GenericAssistDataReqElement ::= SEQUENCE {
+	gnss-ID							GNSS-ID,
+	sbas-ID							SBAS-ID 						OPTIONAL, -- Cond GNSS-ID-SBAS
+	gnss-TimeModelsReq				GNSS-TimeModelListReq			OPTIONAL, -- Cond TimeModReq
+	gnss-DifferentialCorrectionsReq	GNSS-DifferentialCorrectionsReq	OPTIONAL, -- Cond DGNSS-Req
+	gnss-NavigationModelReq			GNSS-NavigationModelReq			OPTIONAL, -- Cond NavModReq
+	gnss-RealTimeIntegrityReq		GNSS-RealTimeIntegrityReq		OPTIONAL, -- Cond RTIReq
+	gnss-DataBitAssistanceReq		GNSS-DataBitAssistanceReq		OPTIONAL, -- Cond DataBitsReq
+	gnss-AcquisitionAssistanceReq	GNSS-AcquisitionAssistanceReq 	OPTIONAL, -- Cond AcquAssistReq
+	gnss-AlmanacReq					GNSS-AlmanacReq					OPTIONAL, -- Cond AlmanacReq
+	gnss-UTCModelReq				GNSS-UTC-ModelReq				OPTIONAL, -- Cond UTCModReq
+	gnss-AuxiliaryInformationReq	GNSS-AuxiliaryInformationReq	OPTIONAL, -- Cond AuxInfoReq
+	...
+}
+
+GNSS-ReferenceTimeReq ::= SEQUENCE {
+	gnss-TimeReqPrefList	SEQUENCE (SIZE (1..8)) OF GNSS-ID,			
+	gps-TOW-assistReq		BOOLEAN								OPTIONAL, -- Cond gps
+	notOfLeapSecReq			BOOLEAN								OPTIONAL, -- Cond glonass
+	...
+}
+
+GNSS-ReferenceLocationReq ::= 	SEQUENCE {
+	...
+}
+
+GNSS-IonosphericModelReq ::= 	SEQUENCE {
+	klobucharModelReq		BIT STRING (SIZE(2))	OPTIONAL,	-- Cond klobuchar
+	neQuickModelReq			NULL					OPTIONAL,	-- Cond	nequick
+	...
+}
+
+GNSS-EarthOrientationParametersReq ::= 	SEQUENCE {
+	...
+}
+
+GNSS-TimeModelListReq ::= SEQUENCE (SIZE(1..15)) OF GNSS-TimeModelElementReq
+
+GNSS-TimeModelElementReq ::= SEQUENCE {
+	gnss-TO-IDsReq	INTEGER (1..15),
+	deltaTreq		BOOLEAN,
+	...
+}
+
+GNSS-DifferentialCorrectionsReq ::= 	SEQUENCE {
+	dgnss-SignalsReq			GNSS-SignalIDs,
+	dgnss-ValidityTimeReq		BOOLEAN,
+	...
+}
+
+GNSS-NavigationModelReq ::= 	CHOICE {
+	storedNavList		StoredNavListInfo,
+	reqNavList			ReqNavListInfo,
+	...
+}
+
+
+StoredNavListInfo ::= SEQUENCE { 
+	gnss-WeekOrDay			INTEGER (0..4095),
+	gnss-Toe				INTEGER (0..255),
+	t-toeLimit				INTEGER (0..15),
+	satListRelatedDataList	SatListRelatedDataList	OPTIONAL,
+	...
+}
+
+SatListRelatedDataList ::= SEQUENCE (SIZE (1..64)) OF SatListRelatedDataElement
+
+SatListRelatedDataElement ::= SEQUENCE {
+	svID 				SV-ID,
+	iod 				BIT STRING (SIZE(11)),
+	clockModelID		INTEGER (1..8)			OPTIONAL,
+orbitModelID		INTEGER (1..8)			OPTIONAL,			
+	...
+}
+
+ReqNavListInfo ::=	SEQUENCE { 
+	svReqList				BIT STRING (SIZE (64)),
+	clockModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,
+	orbitModelID-PrefList	SEQUENCE (SIZE (1..8)) OF	INTEGER (1..8)		OPTIONAL,	
+	addNavparamReq			BOOLEAN				OPTIONAL,	-- Cond orbitModelID-2
+	...
+}
+
+GNSS-RealTimeIntegrityReq ::= 	SEQUENCE {
+	...
+}
+
+GNSS-DataBitAssistanceReq ::= 	SEQUENCE {
+	gnss-TOD-Req		INTEGER (0..3599),
+	gnss-TOD-FracReq	INTEGER (0..999)		OPTIONAL,
+	dataBitInterval		INTEGER (0..15),
+	gnss-SignalType		GNSS-SignalIDs,
+	gnss-DataBitsReq	GNSS-DataBitsReqSatList	OPTIONAL, 
+	...
+}
+
+GNSS-DataBitsReqSatList ::= SEQUENCE (SIZE(1..64)) OF GNSS-DataBitsReqSatElement
+
+GNSS-DataBitsReqSatElement ::= SEQUENCE {
+	svID				SV-ID,
+	...
+}
+
+GNSS-AcquisitionAssistanceReq ::= 	SEQUENCE {
+	gnss-SignalID-Req		GNSS-SignalID,
+	...
+}
+
+GNSS-AlmanacReq ::= SEQUENCE {
+	modelID				INTEGER(1..8)	OPTIONAL,
+	...
+}
+
+GNSS-UTC-ModelReq ::= 	SEQUENCE {
+	modelID				INTEGER(1..8)	OPTIONAL,
+	...
+}
+
+GNSS-AuxiliaryInformationReq ::= 	SEQUENCE {
+	...
+}
+
+A-GNSS-ProvideLocationInformation ::= SEQUENCE {
+	gnss-SignalMeasurementInformation	GNSS-SignalMeasurementInformation		OPTIONAL,
+	gnss-LocationInformation			GNSS-LocationInformation				OPTIONAL,
+	gnss-Error							A-GNSS-Error							OPTIONAL,
+	...
+}
+
+GNSS-SignalMeasurementInformation ::= SEQUENCE {
+	measurementReferenceTime		MeasurementReferenceTime,
+	gnss-MeasurementList			GNSS-MeasurementList,
+	...
+}
+
+MeasurementReferenceTime  ::= SEQUENCE {
+	gnss-TOD-msec		INTEGER (0..3599999),
+	gnss-TOD-frac		INTEGER (0..3999)			OPTIONAL,		
+	gnss-TOD-unc		INTEGER (0..127)			OPTIONAL,		
+	gnss-TimeID			GNSS-ID,
+	networkTime			CHOICE {
+		eUTRA	SEQUENCE {
+				physCellId			INTEGER (0..503),
+				cellGlobalId		CellGlobalIdEUTRA-AndUTRA		OPTIONAL,
+				systemFrameNumber	BIT STRING (SIZE (10)),
+				...
+				},
+		uTRA	SEQUENCE {
+				mode					CHOICE {
+										fdd			SEQUENCE {
+													primary-CPICH-Info	INTEGER (0..511),
+													...
+													},
+										tdd			SEQUENCE {
+													cellParameters		INTEGER (0..127),
+													...
+													}
+										},
+				cellGlobalId			CellGlobalIdEUTRA-AndUTRA		OPTIONAL,
+				referenceSystemFrameNumber
+										INTEGER (0..4095),
+				...
+				},
+		gSM		SEQUENCE {
+				bcchCarrier			INTEGER (0..1023),
+				bsic				INTEGER (0..63),
+				cellGlobalId		CellGlobalIdGERAN					OPTIONAL,
+				referenceFrame		SEQUENCE {
+									referenceFN 		INTEGER (0..65535),
+									referenceFNMSB 		INTEGER (0..63)		OPTIONAL,
+									...
+									},
+				deltaGNSS-TOD 		INTEGER (0 .. 127)		OPTIONAL,
+				...
+				},
+		...
+		}		OPTIONAL,												
+	...
+}
+
+GNSS-MeasurementList  ::= SEQUENCE (SIZE(1..16)) OF GNSS-MeasurementForOneGNSS
+
+GNSS-MeasurementForOneGNSS ::= SEQUENCE {
+	gnss-ID					GNSS-ID,
+	gnss-SgnMeasList 		GNSS-SgnMeasList,
+	...
+}
+
+GNSS-SgnMeasList ::= SEQUENCE (SIZE(1..8)) OF GNSS-SgnMeasElement
+
+GNSS-SgnMeasElement ::= SEQUENCE {
+	gnss-SignalID			GNSS-SignalID,
+	gnss-CodePhaseAmbiguity	INTEGER (0..127)		OPTIONAL,
+	gnss-SatMeasList 		GNSS-SatMeasList,
+	...
+}
+
+GNSS-SatMeasList ::= SEQUENCE (SIZE(1..64)) OF GNSS-SatMeasElement
+
+GNSS-SatMeasElement ::= SEQUENCE {
+	svID 				SV-ID,
+	cNo 				INTEGER (0..63),
+	mpathDet 			ENUMERATED {notMeasured (0), low (1), medium (2), high (3), ...},
+	carrierQualityInd 	INTEGER (0..3) 				OPTIONAL, 	 
+	codePhase 			INTEGER (0..2097151),
+	integerCodePhase 	INTEGER (0..127) 			OPTIONAL,
+	codePhaseRMSError 	INTEGER (0..63), 						 
+	doppler 			INTEGER (-32768..32767) 	OPTIONAL,
+	adr 				INTEGER (0..33554431) 		OPTIONAL,
+	...
+}
+
+GNSS-LocationInformation ::= SEQUENCE {
+	measurementReferenceTime		MeasurementReferenceTime,
+	agnss-List						GNSS-ID-Bitmap,					
+	...
+}
+
+A-GNSS-RequestLocationInformation ::= SEQUENCE {
+	gnss-PositioningInstructions		GNSS-PositioningInstructions,
+	...
+}
+
+GNSS-PositioningInstructions ::= SEQUENCE {
+	gnss-Methods				GNSS-ID-Bitmap,	
+	fineTimeAssistanceMeasReq	BOOLEAN,
+	adrMeasReq					BOOLEAN,
+	multiFreqMeasReq			BOOLEAN,
+	assistanceAvailability		BOOLEAN,
+	...
+}
+
+A-GNSS-ProvideCapabilities ::= SEQUENCE {
+	gnss-SupportList			GNSS-SupportList				OPTIONAL,
+	assistanceDataSupportList	AssistanceDataSupportList		OPTIONAL,
+	locationCoordinateTypes		LocationCoordinateTypes			OPTIONAL,
+	velocityTypes				VelocityTypes					OPTIONAL,
+	...
+}
+
+GNSS-SupportList ::= SEQUENCE (SIZE(1..16)) OF GNSS-SupportElement
+
+GNSS-SupportElement ::= SEQUENCE {
+	gnss-ID							GNSS-ID,
+	sbas-IDs						SBAS-IDs					OPTIONAL,	-- Cond GNSS-ID-SBAS
+	agnss-Modes						PositioningModes, 
+	gnss-Signals					GNSS-SignalIDs,
+	fta-MeasSupport					SEQUENCE {
+										cellTime	AccessTypes,
+										mode		PositioningModes,
+										...
+									}							OPTIONAL,	-- Cond fta
+	adr-Support						BOOLEAN,
+	velocityMeasurementSupport		BOOLEAN,
+	...
+}
+
+AssistanceDataSupportList ::= SEQUENCE {
+	gnss-CommonAssistanceDataSupport	GNSS-CommonAssistanceDataSupport,
+	gnss-GenericAssistanceDataSupport	GNSS-GenericAssistanceDataSupport,
+	...
+}
+
+GNSS-CommonAssistanceDataSupport ::= SEQUENCE {
+	gnss-ReferenceTimeSupport		 		GNSS-ReferenceTimeSupport		 		
+																OPTIONAL, -- Cond RefTimeSup
+	gnss-ReferenceLocationSupport			GNSS-ReferenceLocationSupport		 	
+																OPTIONAL, -- Cond RefLocSup
+	gnss-IonosphericModelSupport			GNSS-IonosphericModelSupport	 			
+																OPTIONAL, -- Cond IonoModSup
+	gnss-EarthOrientationParametersSupport	GNSS-EarthOrientationParametersSupport	
+																OPTIONAL, -- Cond EOPSup
+	...
+}
+
+GNSS-ReferenceTimeSupport ::= 	SEQUENCE {
+	gnss-SystemTime		GNSS-ID-Bitmap,
+	fta-Support			AccessTypes										OPTIONAL, -- Cond fta
+	...
+}
+
+GNSS-ReferenceLocationSupport ::= 	SEQUENCE {
+	...
+}
+
+GNSS-IonosphericModelSupport ::= 	SEQUENCE {
+	ionoModel		BIT STRING { 	klobuchar 	(0),
+									neQuick 	(1) } (SIZE (1..8)),
+	...
+}
+
+GNSS-EarthOrientationParametersSupport ::= 	SEQUENCE {
+	...
+}
+
+GNSS-GenericAssistanceDataSupport ::= 
+								SEQUENCE (SIZE (1..16)) OF GNSS-GenericAssistDataSupportElement
+
+GNSS-GenericAssistDataSupportElement ::= SEQUENCE {
+	gnss-ID 							GNSS-ID,
+	sbas-ID								SBAS-ID 					OPTIONAL, -- Cond GNSS-ID-SBAS
+	gnss-TimeModelsSupport				GNSS-TimeModelListSupport
+																	OPTIONAL, -- Cond TimeModSup
+	gnss-DifferentialCorrectionsSupport	GNSS-DifferentialCorrectionsSupport
+																	OPTIONAL, -- Cond DGNSS-Sup
+	gnss-NavigationModelSupport			GNSS-NavigationModelSupport
+																	OPTIONAL, -- Cond NavModSup
+	gnss-RealTimeIntegritySupport		GNSS-RealTimeIntegritySupport
+																	OPTIONAL, -- Cond RTISup
+	gnss-DataBitAssistanceSupport		GNSS-DataBitAssistanceSupport
+																	OPTIONAL, -- Cond DataBitsSup
+	gnss-AcquisitionAssistanceSupport	GNSS-AcquisitionAssistanceSupport
+																 	OPTIONAL, -- Cond AcquAssistSup
+	gnss-AlmanacSupport					GNSS-AlmanacSupport
+																	OPTIONAL, -- Cond AlmanacSup
+	gnss-UTC-ModelSupport				GNSS-UTC-ModelSupport
+																	OPTIONAL, -- Cond UTCModSup
+	gnss-AuxiliaryInformationSupport	GNSS-AuxiliaryInformationSupport
+																	OPTIONAL, -- Cond AuxInfoSup
+	...
+}
+
+GNSS-TimeModelListSupport ::= 	SEQUENCE {
+	...
+}
+
+GNSS-DifferentialCorrectionsSupport ::= 	SEQUENCE {
+	gnssSignalIDs			GNSS-SignalIDs,
+	dgnss-ValidityTimeSup	BOOLEAN,
+	...
+}
+
+GNSS-NavigationModelSupport ::= SEQUENCE {
+	clockModel		BIT STRING { 	model-1 	(0),
+									model-2 	(1),
+									model-3		(2),
+									model-4		(3),
+									model-5		(4) } (SIZE (1..8))		OPTIONAL,
+	orbitModel		BIT STRING { 	model-1 	(0),
+									model-2 	(1),
+									model-3		(2),
+									model-4		(3),
+									model-5		(4) } (SIZE (1..8))		OPTIONAL,
+	...
+}
+
+GNSS-RealTimeIntegritySupport ::= 	SEQUENCE {
+	...
+}
+
+GNSS-DataBitAssistanceSupport ::= 	SEQUENCE {
+	...
+}
+
+GNSS-AcquisitionAssistanceSupport ::= 	SEQUENCE {
+	...
+}
+
+GNSS-AlmanacSupport ::= 	SEQUENCE {
+	almanacModel		BIT STRING { 	model-1 	(0),
+										model-2 	(1),
+										model-3		(2),
+										model-4		(3),
+										model-5		(4),
+										model-6 	(5) } (SIZE (1..8))		OPTIONAL,
+	...
+}
+
+GNSS-UTC-ModelSupport ::= 	SEQUENCE {
+	utc-Model		BIT STRING { 	model-1 	(0),
+									model-2 	(1),
+									model-3		(2),
+									model-4		(3) } (SIZE (1..8))		OPTIONAL,
+	...
+}
+
+GNSS-AuxiliaryInformationSupport ::= 	SEQUENCE {
+	...
+}
+
+A-GNSS-RequestCapabilities ::= SEQUENCE {
+	gnss-SupportListReq				BOOLEAN,
+	assistanceDataSupportListReq	BOOLEAN,
+	locationVelocityTypesReq		BOOLEAN,
+	...
+}
+
+A-GNSS-Error ::= CHOICE {
+	locationServerErrorCauses		GNSS-LocationServerErrorCauses,
+	targetDeviceErrorCauses			GNSS-TargetDeviceErrorCauses,
+	...
+}
+
+GNSS-LocationServerErrorCauses ::= SEQUENCE {
+	cause		ENUMERATED	{	
+					undefined,
+					undeliveredAssistanceDataIsNotSupportedByServer,
+					undeliveredAssistanceDataIsSupportedButCurrentlyNotAvailableByServer,								undeliveredAssistanceDataIsPartlyNotSupportedAndPartlyNotAvailableByServer,
+					...
+					},
+	...
+}
+
+GNSS-TargetDeviceErrorCauses ::= SEQUENCE {
+	cause		ENUMERATED {	undefined,
+								thereWereNotEnoughSatellitesReceived, 
+								assistanceDataMissing,
+								notAllRequestedMeasurementsPossible,
+								...
+							},
+	fineTimeAssistanceMeasurementsNotPossible		NULL		OPTIONAL,
+	adrMeasurementsNotPossible						NULL		OPTIONAL,
+	multiFrequencyMeasurementsNotPossible			NULL		OPTIONAL,
+	...
+}
+
+GNSS-ID ::= SEQUENCE {
+	gnss-id				ENUMERATED{ gps, sbas, qzss, galileo, glonass, ...},
+	...
+}
+
+GNSS-ID-Bitmap ::= SEQUENCE {
+	gnss-ids			BIT STRING {	gps 		(0),	
+										sbas 		(1),
+										qzss		(2),
+										galileo		(3),
+										glonass		(4)	 } (SIZE (1..16)),
+	...
+}
+
+GNSS-SignalID	::= SEQUENCE { 
+	gnss-SignalID		INTEGER (0 .. 7),
+	...
+}
+
+GNSS-SignalIDs	::= SEQUENCE { 
+	gnss-SignalIDs		BIT STRING (SIZE(8)),
+	...
+}
+
+SBAS-ID ::= SEQUENCE { 
+	sbas-id				ENUMERATED { waas, egnos, msas, gagan, ...},
+	...
+}
+
+SBAS-IDs ::= SEQUENCE { 
+	sbas-IDs		BIT STRING {	waas 		(0),	
+									egnos 		(1),
+									msas		(2),
+									gagan		(3)	 } (SIZE (1..8)),
+	...
+}
+
+SV-ID ::= SEQUENCE { 
+	satellite-id		INTEGER(0..63),
+	...
+}
+
+ECID-ProvideLocationInformation ::= SEQUENCE {
+	ecid-SignalMeasurementInformation	ECID-SignalMeasurementInformation		OPTIONAL,
+	ecid-Error							ECID-Error								OPTIONAL,
+	...
+}
+
+ECID-SignalMeasurementInformation ::= SEQUENCE {
+	servingCellMeasuredResults	MeasuredResultsElement	OPTIONAL,
+	measuredResultsList			MeasuredResultsList,
+	...
+}
+
+MeasuredResultsList ::= SEQUENCE (SIZE(1..32)) OF MeasuredResultsElement
+
+MeasuredResultsElement ::= SEQUENCE {
+	physCellId		INTEGER (0..503),
+	cellGlobalId	CellGlobalIdEUTRA-AndUTRA			OPTIONAL,
+	arfcnEUTRA 		ARFCN-ValueEUTRA,
+	systemFrameNumber
+					BIT STRING (SIZE (10))				OPTIONAL,
+	rsrp-Result		INTEGER (0..97)						OPTIONAL,
+	rsrq-Result		INTEGER (0..34)						OPTIONAL,
+	ue-RxTxTimeDiff	INTEGER (0..4095)					OPTIONAL,
+	...
+}
+
+ECID-RequestLocationInformation ::= SEQUENCE {
+	requestedMeasurements		BIT STRING { 	rsrpReq		(0),
+												rsrqReq		(1),
+												ueRxTxReq	(2)	} (SIZE(1..8)),
+	...
+}
+
+ECID-ProvideCapabilities ::= SEQUENCE {
+	ecid-MeasSupported	BIT STRING { 	rsrpSup		(0),
+										rsrqSup		(1),
+										ueRxTxSup	(2)	} (SIZE(1..8)),
+	...
+}
+
+ECID-RequestCapabilities ::= SEQUENCE {
+	...
+}
+
+ECID-Error ::= CHOICE {
+	locationServerErrorCauses		ECID-LocationServerErrorCauses,
+	targetDeviceErrorCauses			ECID-TargetDeviceErrorCauses,
+	...
+}
+
+ECID-LocationServerErrorCauses ::= SEQUENCE {
+	cause		ENUMERATED	{	undefined,								
+								...
+							},
+	...
+}
+
+ECID-TargetDeviceErrorCauses ::= SEQUENCE {
+	cause		ENUMERATED {	undefined,
+								requestedMeasurementNotAvailable,
+								notAllrequestedMeasurementsPossible,
+								...
+							},
+	rsrpMeasurementNotPossible				NULL		OPTIONAL,
+	rsrqMeasurementNotPossible				NULL		OPTIONAL,
+	ueRxTxMeasurementNotPossible			NULL		OPTIONAL,
+	...
+}
+
+END

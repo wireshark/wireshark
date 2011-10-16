@@ -119,7 +119,7 @@ static int proto_lcsap  =   -1;
 /*--- Included file: packet-lcsap-hf.c ---*/
 #line 1 "../../asn1/lcsap/packet-lcsap-hf.c"
 static int hf_lcsap_Accuracy_Fulfillment_Indicator_PDU = -1;  /* Accuracy_Fulfillment_Indicator */
-static int hf_lcsap_Correlation_ID_PDU = -1;      /* Correlation_ID */
+static int hf_lcsap_lcsap_Correlation_ID_PDU = -1;  /* Correlation_ID */
 static int hf_lcsap_E_CGI_PDU = -1;               /* E_CGI */
 static int hf_lcsap_Geographical_Area_PDU = -1;   /* Geographical_Area */
 static int hf_lcsap_IMSI_PDU = -1;                /* IMSI */
@@ -340,7 +340,7 @@ dissect_lcsap_ProcedureCode(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 255U, &ProcedureCode, FALSE);
 
-#line 64 "../../asn1/lcsap/lcsap.cnf"
+#line 65 "../../asn1/lcsap/lcsap.cnf"
 
 	if (check_col(actx->pinfo->cinfo, COL_INFO))
 	{
@@ -418,7 +418,7 @@ dissect_lcsap_ProtocolIE_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx 
   offset = dissect_per_constrained_integer(tvb, offset, actx, tree, hf_index,
                                                             0U, 65535U, &ProtocolIE_ID, FALSE);
 
-#line 52 "../../asn1/lcsap/lcsap.cnf"
+#line 53 "../../asn1/lcsap/lcsap.cnf"
   if (tree) {
     proto_item_append_text(proto_item_get_parent_nth(actx->created_item, 2), ": %s", val_to_str(ProtocolIE_ID, VALS(lcsap_ProtocolIE_ID_vals), "unknown (%d)"));
   }
@@ -646,7 +646,7 @@ dissect_lcsap_DegreesLongitude(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *ac
 
 static int
 dissect_lcsap_PLMN_ID(tvbuff_t *tvb _U_, int offset _U_, asn1_ctx_t *actx _U_, proto_tree *tree _U_, int hf_index _U_) {
-#line 135 "../../asn1/lcsap/lcsap.cnf"
+#line 136 "../../asn1/lcsap/lcsap.cnf"
   tvbuff_t *parameter_tvb=NULL;
   offset = dissect_per_octet_string(tvb, offset, actx, tree, hf_index,
                                        3, 3, FALSE, &parameter_tvb);
@@ -1791,11 +1791,11 @@ static int dissect_Accuracy_Fulfillment_Indicator_PDU(tvbuff_t *tvb _U_, packet_
   offset += 7; offset >>= 3;
   return offset;
 }
-static int dissect_Correlation_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
+int dissect_lcsap_Correlation_ID_PDU(tvbuff_t *tvb _U_, packet_info *pinfo _U_, proto_tree *tree _U_) {
   int offset = 0;
   asn1_ctx_t asn1_ctx;
   asn1_ctx_init(&asn1_ctx, ASN1_ENC_PER, TRUE, pinfo);
-  offset = dissect_lcsap_Correlation_ID(tvb, offset, &asn1_ctx, tree, hf_lcsap_Correlation_ID_PDU);
+  offset = dissect_lcsap_Correlation_ID(tvb, offset, &asn1_ctx, tree, hf_lcsap_lcsap_Correlation_ID_PDU);
   offset += 7; offset >>= 3;
   return offset;
 }
@@ -2077,7 +2077,7 @@ proto_reg_handoff_lcsap(void)
   dissector_add_uint("lcsap.ies", id_Destination_ID, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Source_Identity, new_create_dissector_handle(dissect_Network_Element_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Location_Estimate, new_create_dissector_handle(dissect_Geographical_Area_PDU, proto_lcsap));
-  dissector_add_uint("lcsap.ies", id_Correlation_ID, new_create_dissector_handle(dissect_Correlation_ID_PDU, proto_lcsap));
+  dissector_add_uint("lcsap.ies", id_Correlation_ID, new_create_dissector_handle(dissect_lcsap_Correlation_ID_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_Location_Type, new_create_dissector_handle(dissect_Location_Type_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_E_UTRAN_Cell_Identifier, new_create_dissector_handle(dissect_E_CGI_PDU, proto_lcsap));
   dissector_add_uint("lcsap.ies", id_LCS_Priority, new_create_dissector_handle(dissect_LCS_Priority_PDU, proto_lcsap));
@@ -2132,7 +2132,7 @@ void proto_register_lcsap(void) {
       { "Accuracy-Fulfillment-Indicator", "lcsap.Accuracy_Fulfillment_Indicator",
         FT_UINT32, BASE_DEC, VALS(lcsap_Accuracy_Fulfillment_Indicator_vals), 0,
         NULL, HFILL }},
-    { &hf_lcsap_Correlation_ID_PDU,
+    { &hf_lcsap_lcsap_Correlation_ID_PDU,
       { "Correlation-ID", "lcsap.Correlation_ID",
         FT_BYTES, BASE_NONE, NULL, 0,
         NULL, HFILL }},
