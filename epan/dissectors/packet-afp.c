@@ -184,7 +184,7 @@ static int hf_afp_reserved		    = -1;
 static int hf_afp_unknown		    = -1;
 
 static int hf_afp_command		    = -1;		/* CommandCode */
-static int hf_afp_AFPVersion		    = -1;
+static int hf_afp_Version		    = -1;
 static int hf_afp_UAM			    = -1;
 static int hf_afp_user			    = -1;
 static int hf_afp_passwd		    = -1;
@@ -2482,7 +2482,7 @@ dissect_query_afp_login(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree,
 	const guint8 *uam;
 
 	len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,ENC_UTF_8|ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_afp_Version, tvb, offset, 1,ENC_UTF_8|ENC_BIG_ENDIAN);
 	offset += len +1;
 	len_uam = tvb_get_guint8(tvb, offset);
 	uam = tvb_get_ephemeral_string(tvb, offset +1, len_uam);
@@ -2516,7 +2516,7 @@ dissect_query_afp_login_ext(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *t
 	offset += 2;
 
 	len = tvb_get_guint8(tvb, offset);
-	proto_tree_add_item(tree, hf_afp_AFPVersion, tvb, offset, 1,ENC_UTF_8|ENC_BIG_ENDIAN);
+	proto_tree_add_item(tree, hf_afp_Version, tvb, offset, 1,ENC_UTF_8|ENC_BIG_ENDIAN);
 	offset += len +1;
 
 	len_uam = tvb_get_guint8(tvb, offset);
@@ -5093,8 +5093,8 @@ proto_register_afp(void)
 		    FT_NONE,   BASE_NONE, NULL, 0,
 		    "Pad Byte",	HFILL }},
 
-		{ &hf_afp_AFPVersion,
-		  { "AFP Version",  "afp.AFPVersion",
+		{ &hf_afp_Version,
+		  { "AFP Version",  "afp.Version",
 		    FT_UINT_STRING, BASE_NONE, NULL, 0x0,
 		    "Client AFP version", HFILL }},
 
