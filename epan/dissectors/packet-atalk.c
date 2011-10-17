@@ -2334,11 +2334,11 @@ proto_register_atalk(void)
         "Flow quantum", HFILL }},
 
     { &hf_pap_waittime,
-      { "Wait time",    "pap.quantum",  FT_UINT16,  BASE_DEC, NULL, 0x0,
+      { "Wait time",    "pap.waittime",  FT_UINT16,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_pap_result,
-      { "Result",       "pap.quantum",  FT_UINT16,  BASE_DEC, NULL, 0x0,
+      { "Result",       "pap.result",  FT_UINT16,  BASE_DEC, NULL, 0x0,
         NULL, HFILL }},
 
     { &hf_pap_seq,
@@ -2354,7 +2354,7 @@ proto_register_atalk(void)
                 NULL, 0x0, NULL, HFILL }},
 
     { &hf_pap_pad,
-      { "Pad",          "pad.pad",              FT_NONE,   BASE_NONE, NULL, 0,
+      { "Pad",          "pap.pad",              FT_NONE,   BASE_NONE, NULL, 0,
                 "Pad Byte",     HFILL }},
 
   };
