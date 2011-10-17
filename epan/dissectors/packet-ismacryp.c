@@ -733,11 +733,6 @@ void proto_register_ismacryp (void)
 		{ &hf_ismacryp_header_byte,
 		  { "Header Byte", "ismacryp.header.byte", FT_NONE, BASE_NONE, NULL, 0x0, /* 1 byte */
 		    NULL, HFILL }},
-#if 0
-		{ &hf_ismacryp_header_byte,
-		  { "Header Byte", "ismacryp.header.byte", FT_NONE, BASE_NONE, NULL, 0x0,
-		    NULL, HFILL }},
-#endif
 
 		{ &hf_ismacryp_version,
 		  { "Version", "ismacryp.version", FT_UINT8, BASE_HEX, NULL, 0x0, 	/* version 1 byte */
