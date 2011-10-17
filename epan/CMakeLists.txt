@@ -259,6 +259,7 @@ set(DIRTY_ASN1_DISSECTOR_SRC
 	dissectors/packet-HI2Operations.c
 	dissectors/packet-hnbap.c
 	dissectors/packet-inap.c
+	dissectors/packet-lcsap.c
 	dissectors/packet-ldap.c
 	dissectors/packet-lte-rrc.c
 	dissectors/packet-nbap.c
