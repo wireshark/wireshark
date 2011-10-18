@@ -256,6 +256,25 @@ typedef struct _protocol protocol_t;
 #define ENC_EBCDIC		0x0EBCD1C0
 
 /*
+ * TODO:
+ *
+ * These could probably be used by existing code:
+ *
+ *	ENC_UTF_16 - UTF-16
+ *	ENC_UCS_4 - UCS-4
+ *	ENC_UCS_2 - UCS-2 (not the same as UTF-16!)
+ *	ENC_ISO_8859_1 - ISO 8859/1
+ *	ENC_ISO_8859_8 - ISO 8859/8
+ *	 - "IBM MS DBCS"
+ *	 - JIS C 6226
+ *	7-bit encodings such as ETSI 03.38 (GSM SMS character set
+ *	    (see packet-ansi_337.c, packet-gsm_a_dtap.c, packet-gsm_map.c,
+ *	    packet-gsm_sms.c)?
+ *
+ * See also packet-bacapp.c.
+ */
+
+/*
  * For protocols (FT_PROTOCOL), aggregate items with subtrees (FT_NONE),
  * opaque byte-array fields (FT_BYTES), and other fields where there
  * is no choice of encoding (either because it's "just a bucket
