@@ -197,7 +197,7 @@ error_set_title(expert_comp_dlg_t *ss)
 {
     char *title;
 
-    title = g_strdup_printf("Expert Info Composite: %s",
+    title = g_strdup_printf("Expert Info: %s",
         cf_get_display_name(&cfile));
     gtk_window_set_title(GTK_WINDOW(ss->win), title);
     g_free(title);
@@ -635,7 +635,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     GtkWidget *close_bt;
     GtkWidget *help_bt;
     expert_tapdata_t *etd;
- 
+
     ss=g_malloc(sizeof(expert_comp_dlg_t));
 
     ss->disp_events = 0;
@@ -665,7 +665,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->error_label = gtk_label_new("Errors: 0/y");
     gtk_widget_show(ss->error_label);
     hbox = gtk_hbox_new(FALSE, 3);
-    if ( prefs.gui_expert_composite_eyecandy ) { 
+    if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_error_pb_data);
         gtk_widget_show(image);
         gtk_container_add(GTK_CONTAINER(hbox), image);
@@ -679,7 +679,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->warn_label = gtk_label_new("Warnings: 0/y");
     gtk_widget_show(ss->warn_label);
     hbox = gtk_hbox_new(FALSE, 3);
-    if ( prefs.gui_expert_composite_eyecandy ) { 
+    if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_warn_pb_data);
         gtk_widget_show(image);
         gtk_container_add(GTK_CONTAINER(hbox), image);
@@ -693,7 +693,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->note_label = gtk_label_new("Notes: 0/y");
     gtk_widget_show(ss->note_label);
     hbox = gtk_hbox_new(FALSE, 3);
-    if ( prefs.gui_expert_composite_eyecandy ) { 
+    if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_note_pb_data);
         gtk_widget_show(image);
         gtk_container_add(GTK_CONTAINER(hbox), image);
@@ -707,7 +707,7 @@ expert_comp_init(const char *optarg _U_, void* userdata _U_)
     ss->chat_label = gtk_label_new("Chats: 0/y");
     gtk_widget_show(ss->chat_label);
     hbox = gtk_hbox_new(FALSE, 3);
-    if ( prefs.gui_expert_composite_eyecandy ) { 
+    if ( prefs.gui_expert_composite_eyecandy ) {
         image = pixbuf_to_widget(expert_chat_pb_data);
         gtk_widget_show(image);
         gtk_container_add(GTK_CONTAINER(hbox), image);

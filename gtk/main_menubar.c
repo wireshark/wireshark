@@ -1176,7 +1176,7 @@ static const char *ui_desc_menubar =
 "      <menuitem name='FollowTCPStream' action='/Analyze/FollowTCPStream'/>\n"
 "      <menuitem name='FollowUDPStream' action='/Analyze/FollowUDPStream'/>\n"
 "      <menuitem name='FollowSSLStream' action='/Analyze/FollowSSLStream'/>\n"
-"      <menuitem name='ExpertInfoComposite' action='/Analyze/ExpertInfoComposite'/>\n"
+"      <menuitem name='ExpertInfo' action='/Analyze/ExpertInfo'/>\n"
 "      <menu name= 'ConversationFilterMenu' action='/Analyze/ConversationFilter'>\n"
 "        <placeholder name='Filters'/>\n"
 "      </menu>\n"
@@ -1638,7 +1638,7 @@ static const GtkActionEntry main_menu_bar_entries[] = {
    { "/Analyze/FollowUDPStream",                            NULL,       "Follow UDP Stream",                    NULL, NULL, G_CALLBACK(follow_udp_stream_cb) },
    { "/Analyze/FollowSSLStream",                            NULL,       "Follow SSL Stream",                    NULL, NULL, G_CALLBACK(follow_ssl_stream_cb) },
 
-   { "/Analyze/ExpertInfoComposite",WIRESHARK_STOCK_EXPERT_INFO,        "Expert Info _Composite",               NULL, NULL, G_CALLBACK(expert_comp_dlg_launch) },
+   { "/Analyze/ExpertInfo",          WIRESHARK_STOCK_EXPERT_INFO,       "Expert _Info",               NULL, NULL, G_CALLBACK(expert_comp_dlg_launch) },
 
    { "/Analyze/ConversationFilter",                         NULL,       "Conversation Filter",                  NULL, NULL, NULL },
 
