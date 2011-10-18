@@ -2026,25 +2026,25 @@ dissect_ansi_map_callingfeaturesindicator(tvbuff_t *tvb, packet_info *pinfo _U_,
     subtree = proto_item_add_subtree(actx->created_item, ett_mscid);
 
     /* Call Waiting: FeatureActivity, CW-FA (Octet 1 bits GH )          */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cwfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cwfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Forwarding No Answer FeatureActivity, CFNA-FA (Octet 1 bits EF )    */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfnafa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfnafa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Forwarding Busy FeatureActivity, CFB-FA (Octet 1 bits CD )  */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfbfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfbfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Forwarding Unconditional FeatureActivity, CFU-FA (Octet 1 bits AB ) */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfufa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cfufa, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
     /* Call Transfer: FeatureActivity, CT-FA (Octet 2 bits GH )         */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ctfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_ctfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Voice Privacy FeatureActivity, VP-FA (Octet 2 bits EF )  */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_vpfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_vpfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Call Delivery: FeatureActivity (not interpreted on reception by IS-41-C or later)
        CD-FA (Octet 2 bits CD )         */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cdfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_cdfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     /* Three-Way Calling FeatureActivity, 3WC-FA (Octet 2 bits AB )     */
-    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_3wcfa, tvb, offset, 1, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_callingfeaturesindicator_3wcfa, tvb, offset, 1, ENC_BIG_ENDIAN);
     offset++;
     length--;
 
@@ -3700,7 +3700,7 @@ dissect_ansi_map_cdmaserviceoption(tvbuff_t *tvb, packet_info *pinfo _U_, proto_
 
     subtree = proto_item_add_subtree(actx->created_item, ett_cdmaserviceoption);
 
-    proto_tree_add_item(subtree, hf_ansi_map_cdmaserviceoption, tvb, offset, 2, FALSE);
+    proto_tree_add_item(subtree, hf_ansi_map_cdmaserviceoption, tvb, offset, 2, ENC_BIG_ENDIAN);
 
 
 }
