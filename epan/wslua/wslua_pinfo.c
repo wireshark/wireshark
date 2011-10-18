@@ -886,6 +886,7 @@ static int Pinfo_tostring(lua_State *L) { lua_pushstring(L,"a Pinfo"); return 1;
 
 PINFO_GET_BOOLEAN(Pinfo_fragmented,pinfo->ws_pinfo->fragmented)
 PINFO_GET_BOOLEAN(Pinfo_in_error_pkt,pinfo->ws_pinfo->in_error_pkt)
+PINFO_GET_BOOLEAN(Pinfo_visited,pinfo->ws_pinfo->fd->flags.visited)
 
 PINFO_GET_NUMBER(Pinfo_number,pinfo->ws_pinfo->fd->num)
 PINFO_GET_NUMBER(Pinfo_len,pinfo->ws_pinfo->fd->pkt_len)
@@ -915,18 +916,6 @@ PINFO_GET_ADDRESS(Pinfo_src,src)
 PINFO_GET_ADDRESS(Pinfo_dst,dst)
 
 PINFO_GET_LIGHTUSERDATA(Pinfo_private_data, pinfo->ws_pinfo->private_data)
-
-static int Pinfo_visited(lua_State *L) {
-    Pinfo pinfo = checkPinfo(L,1);
-    if (!pinfo) return 0;
-    if (pinfo->expired) {
-        luaL_error(L,"expired_pinfo");
-        return 0;
-    }
-    lua_pushboolean(L,pinfo->ws_pinfo->fd->flags.visited);
-    return 1;
-}
-
 
 static int Pinfo_match(lua_State *L) {
     Pinfo pinfo = checkPinfo(L,1);
