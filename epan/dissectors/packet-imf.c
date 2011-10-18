@@ -63,6 +63,7 @@ static int hf_imf_in_reply_to = -1;
 static int hf_imf_references = -1;
 static int hf_imf_subject = -1;
 static int hf_imf_comments = -1;
+static int hf_imf_user_agent = -1;
 static int hf_imf_keywords = -1;
 static int hf_imf_resent_date = -1;
 static int hf_imf_resent_from = -1;
@@ -180,6 +181,7 @@ static struct imf_field imf_fields[] = {
   {"references",                          &hf_imf_references, NO_SUBDISSECTION, FALSE}, /* msg-id */
   {"subject",                             &hf_imf_subject, NO_SUBDISSECTION, TRUE}, /* unstructured */
   {"comments",                            &hf_imf_comments, NO_SUBDISSECTION, FALSE}, /* unstructured */
+  {"user-agent",                          &hf_imf_user_agent, NO_SUBDISSECTION, FALSE}, /* unstructured */
   {"keywords",                            &hf_imf_keywords, NULL, FALSE}, /* phrase_list */
   {"resent-date",                         &hf_imf_resent_date, NO_SUBDISSECTION, FALSE},
   {"resent-from",                         &hf_imf_resent_from, dissect_imf_mailbox_list, FALSE},
@@ -603,7 +605,7 @@ dissect_imf_content_type(tvbuff_t *tvb, int offset, int length, proto_item *item
       /* This string will be automatically freed */
       (*type) = tvb_get_ephemeral_string(tvb, offset, len);
     }
-    len = length - (first_colon + 1 - offset);
+    len = tvb_find_line_end(tvb, first_colon + 1, length, NULL, FALSE);
     proto_tree_add_item(ct_tree, hf_imf_content_type_parameters, tvb, first_colon + 1, len, ENC_ASCII|ENC_NA);
     if(parameters) {
       /* This string will be automatically freed */
@@ -961,6 +963,9 @@ proto_register_imf(void)
         NULL, HFILL }},
     { &hf_imf_comments,
       { "Comments", "imf.comments", FT_STRING,  BASE_NONE, NULL, 0x0,
+        NULL, HFILL }},
+    { &hf_imf_user_agent,
+      { "User-Agent", "imf.user_agent", FT_STRING,  BASE_NONE, NULL, 0x0,
         NULL, HFILL }},
     { &hf_imf_keywords,
       { "Keywords", "imf.keywords", FT_STRING,  BASE_NONE, NULL, 0x0,
