@@ -72,17 +72,17 @@ proto_register_btsco(void)
 {                 
 	static hf_register_info hf[] = {
 		{ &hf_btsco_chandle,
-			{ "Connection Handle",           "btsco.chandle",
+			{ "Connection Handle",           "bthci_sco.chandle",
 			FT_UINT16, BASE_HEX, NULL, 0x0FFF,          
 			NULL, HFILL }
 		},
 		{ &hf_btsco_length,
-			{ "Data Total Length",           "btsco.length",
+			{ "Data Total Length",           "bthci_sco.length",
 			FT_UINT8, BASE_DEC, NULL, 0x0,          
 			NULL, HFILL }
 		},
 		{ &hf_btsco_data,
-			{ "Data",           "btsco.data",
+			{ "Data",           "bthci_sco.data",
 			FT_NONE, BASE_NONE, NULL, 0x0,          
 			NULL, HFILL }
 		},

@@ -3475,32 +3475,32 @@ proto_register_bthci_evt(void)
 				NULL, HFILL}
 		},
 		{ &hf_bthci_evt_eir_data,
-			{"Data", "bthci_cmd.eir_data",
+			{"Data", "bthci_evt.eir_data",
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"EIR Data", HFILL}
 		},
 		{ &hf_bthci_evt_eir_struct_length,
-			{ "Length",           "bthci_cmd.eir_struct_length",
+			{ "Length",           "bthci_evt.eir_struct_length",
 				FT_UINT8, BASE_DEC, NULL, 0x0,
 				"Structure Length", HFILL }
 		},
 		{ &hf_bthci_evt_eir_struct_type,
-			{ "Type",           "bthci_cmd.eir_data_type",
+			{ "Type",           "bthci_evt.eir_data_type",
 				FT_UINT8, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_eir_data_type_vals_ext, 0x0,
 				"Data Type", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid16,
-			{ "UUID",           "bthci_cmd.service_class_uuid16",
+			{ "UUID",           "bthci_evt.service_class_uuid16",
 				FT_UINT16, BASE_HEX|BASE_EXT_STRING, &bthci_cmd_service_class_type_vals_ext, 0x0,
 				"16-bit Service Class UUID", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid32,
-			{ "UUID",           "bthci_cmd.service_class_uuid32",
+			{ "UUID",           "bthci_evt.service_class_uuid32",
 				FT_UINT32, BASE_HEX, NULL, 0x0,
 				"32-bit Service Class UUID", HFILL }
 		},
 		{ &hf_bthci_evt_sc_uuid128,
-			{ "UUID",           "bthci_cmd.service_class_uuid128",
+			{ "UUID",           "bthci_evt.service_class_uuid128",
 				FT_BYTES, BASE_NONE, NULL, 0x0,
 				"128-bit Service Class UUID", HFILL }
 		}

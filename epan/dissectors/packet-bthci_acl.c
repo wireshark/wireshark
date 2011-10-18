@@ -230,35 +230,35 @@ proto_register_btacl(void)
 	/* Setup list of header fields  See Section 1.6.1 for details*/
 	static hf_register_info hf[] = {
 		{ &hf_btacl_chandle,
-			{ "Connection Handle",           "btacl.chandle",
+			{ "Connection Handle",           "bthci_acl.chandle",
 				FT_UINT16, BASE_HEX, NULL, 0x0FFF,
 				NULL, HFILL }
 		},
 		{ &hf_btacl_pb_flag,
-			{ "PB Flag",           "btacl.pb_flag",
+			{ "PB Flag",           "bthci_acl.pb_flag",
 				FT_UINT16, BASE_DEC, VALS(pb_flag_vals), 0x3000,
 				"Packet Boundary Flag", HFILL }
 		},
 		{ &hf_btacl_bc_flag,
-			{ "BC Flag",           "btacl.bc_flag",
+			{ "BC Flag",           "bthci_acl.bc_flag",
 				FT_UINT16, BASE_DEC, VALS(bc_flag_vals), 0xC000,
 				"Broadcast Flag", HFILL }
 		},
 		{ &hf_btacl_length,
-			{ "Data Total Length",           "btacl.length",
+			{ "Data Total Length",           "bthci_acl.length",
 				FT_UINT16, BASE_DEC, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btacl_data,
-			{ "Data",           "btacl.data",
+			{ "Data",           "bthci_acl.data",
 				FT_NONE, BASE_NONE, NULL, 0x0,
 				NULL, HFILL }
 		},
 		{ &hf_btacl_continuation_to,
-			{ "This is a continuation to the PDU in frame",		"btacl.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			{ "This is a continuation to the PDU in frame",		"bthci_acl.continuation_to", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This is a continuation to the PDU in frame #", HFILL }},
 		{ &hf_btacl_reassembled_in,
-			{ "This PDU is reassembled in frame",		"btacl.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
+			{ "This PDU is reassembled in frame",		"bthci_acl.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0x0,
 			"This PDU is reassembled in frame #", HFILL }},
 	};
 
