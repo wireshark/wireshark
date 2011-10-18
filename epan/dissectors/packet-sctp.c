@@ -3814,7 +3814,7 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
   guint16 source_port, destination_port;
   guint length, reported_length;
   gboolean crc32c_correct = FALSE, adler32_correct = FALSE;
-  proto_item *sctp_item, *hidden_item;
+  proto_item *sctp_item, *hidden_item, *item;
   proto_tree *sctp_tree;
   guint32 vtag;
   sctp_half_assoc_t* ha = NULL;
@@ -3855,14 +3855,14 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     }
   }
 
-  /* In the interest of speed, if "tree" is NULL, don't do any work not
-     necessary to generate protocol tree items. */
   source_port      = tvb_get_ntohs(tvb, SOURCE_PORT_OFFSET);
   destination_port = tvb_get_ntohs(tvb, DESTINATION_PORT_OFFSET);
   vtag             = tvb_get_ntohl(tvb,VERIFICATION_TAG_OFFSET);
 
   ha = get_half_assoc(pinfo, source_port, destination_port, vtag);
 
+  /* In the interest of speed, if "tree" is NULL, don't do any work not
+     necessary to generate protocol tree items. */
   if (tree) {
 
     /* create the sctp protocol tree */
@@ -3883,60 +3883,68 @@ dissect_sctp_packet(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree, gboolea
     PROTO_ITEM_SET_HIDDEN(hidden_item);
     hidden_item = proto_tree_add_item(sctp_tree, hf_port, tvb, DESTINATION_PORT_OFFSET, DESTINATION_PORT_LENGTH, ENC_BIG_ENDIAN);
     PROTO_ITEM_SET_HIDDEN(hidden_item);
-
-    if (tvb_bytes_exist(tvb, 0, reported_length)) {
-      /* We have the whole packet */
-
-      switch(sctp_checksum) {
-      case SCTP_CHECKSUM_NONE:
-        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "Checksum: 0x%08x (not verified)", checksum);
-        break;
-      case SCTP_CHECKSUM_ADLER32:
-        if (adler32_correct)
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
-        else
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]", checksum, calculated_adler32);
-        hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        break;
-      case SCTP_CHECKSUM_CRC32C:
-        if (crc32c_correct)
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
-        else
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]", checksum, calculated_crc32c);
-        hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        break;
-      case SCTP_CHECKSUM_AUTOMATIC:
-        if ((adler32_correct) && !(crc32c_correct))
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
-        else if ((!adler32_correct) && (crc32c_correct))
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
-        else if ((adler32_correct) && (crc32c_correct))
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [correct Adler32 and CRC32C]", checksum);
-        else
-          proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                     checksum, "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
-                                     checksum, calculated_adler32, calculated_crc32c);
-        hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
-        PROTO_ITEM_SET_HIDDEN(hidden_item);
-        break;
-      }
-    } else {
-      /* We don't have the whole packet so we can't verify the checksum */
-      proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
-                                 checksum, "Checksum: 0x%08x [unchecked, not all data available]", checksum);
-    }
   } else {
     sctp_tree = NULL;
     sctp_item = NULL;
+  }
+
+  if (tvb_bytes_exist(tvb, 0, reported_length)) {
+    /* We have the whole packet */
+
+    switch(sctp_checksum) {
+    case SCTP_CHECKSUM_NONE:
+      proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum, "Checksum: 0x%08x (not verified)", checksum);
+      break;
+    case SCTP_CHECKSUM_ADLER32:
+      if (adler32_correct)
+        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
+      else {
+        item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                          "Checksum: 0x%08x [incorrect Adler32, should be 0x%08x]",
+                                          checksum, calculated_adler32);
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum");
+      }
+      hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(adler32_correct));
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      break;
+    case SCTP_CHECKSUM_CRC32C:
+      if (crc32c_correct)
+        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
+      else {
+        item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                          "Checksum: 0x%08x [incorrect CRC32C, should be 0x%08x]",
+                                          checksum, calculated_crc32c);
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum");
+      }
+      hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct));
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      break;
+    case SCTP_CHECKSUM_AUTOMATIC:
+      if ((adler32_correct) && !(crc32c_correct))
+        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "Checksum: 0x%08x [correct Adler32]", checksum);
+      else if ((!adler32_correct) && (crc32c_correct))
+        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "Checksum: 0x%08x [correct CRC32C]", checksum);
+      else if ((adler32_correct) && (crc32c_correct))
+        proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                                   checksum, "Checksum: 0x%08x [correct Adler32 and CRC32C]", checksum);
+      else {
+        item = proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, checksum,
+                                          "Checksum: 0x%08x [incorrect, should be 0x%08x (Adler32) or 0x%08x (CRC32C)]",
+                                          checksum, calculated_adler32, calculated_crc32c);
+        expert_add_info_format(pinfo, item, PI_CHECKSUM, PI_ERROR, "Bad SCTP checksum");
+      }
+      hidden_item = proto_tree_add_boolean(sctp_tree, hf_checksum_bad, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH, !(crc32c_correct || adler32_correct));
+      PROTO_ITEM_SET_HIDDEN(hidden_item);
+      break;
+    }
+  } else {
+    /* We don't have the whole packet so we can't verify the checksum */
+    proto_tree_add_uint_format(sctp_tree, hf_checksum, tvb, CHECKSUM_OFFSET, CHECKSUM_LENGTH,
+                               checksum, "Checksum: 0x%08x [unchecked, not all data available]", checksum);
   }
 
   /* add all chunks of the sctp datagram to the protocol tree */
