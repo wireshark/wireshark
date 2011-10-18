@@ -181,17 +181,17 @@ dissect_macmgmt (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_msg_len, tvb, 12, 2,
                            ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_dsap, tvb, 14, 1,
-                           FALSE);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_ssap, tvb, 15, 1,
-                           FALSE);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_control, tvb, 16, 1,
-                           FALSE);
+                           ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_version, tvb, 17, 1,
                            ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_type, tvb, 18, 1,
                            ENC_BIG_ENDIAN);
       proto_tree_add_item (mgt_hdr_tree, hf_docsis_mgt_rsvd, tvb, 19, 1,
-                           FALSE);
+                           ENC_BIG_ENDIAN);
 
     }
   /* Code to Call subdissector */

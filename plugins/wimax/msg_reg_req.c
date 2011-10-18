@@ -272,33 +272,33 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 #ifdef WIMAX_16E_2005
 			if (tlv_len == 2){
 				proto_tree_add_item(tlv_tree, hf_reg_encap_atm_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_802_3_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_802_1q_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_3_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_3_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_1q_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_1q_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_rohc_header_compression_2, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_ecrtp_header_compression_2, tvb, tlv_offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_802_3_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_802_1q_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_3_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_3_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_1q_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_1q_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_rohc_header_compression_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_ecrtp_header_compression_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tlv_tree, hf_reg_encap_rsvd_2, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 			} else if(tlv_len == 4){
 				proto_tree_add_item(tlv_tree, hf_reg_encap_atm_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_802_3_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_802_1q_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_3_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_3_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_1q_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_1q_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_rohc_header_compression_4, tvb, tlv_offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_ecrtp_header_compression_4, tvb, tlv_offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_802_3_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_802_1q_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_3_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_3_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv4_802_1q_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_ipv6_802_1q_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_rohc_header_compression_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_8023_ethernet_and_ecrtp_header_compression_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_rohc_header_compression_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_reg_encap_packet_ip_ecrtp_header_compression_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tlv_tree, hf_reg_encap_rsvd_4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 			}
 #endif
@@ -491,8 +491,8 @@ void dissect_extended_tlv(proto_tree *reg_req_tree, gint tlv_type, tvbuff_t *tvb
 		case REG_REQ_BS_SWITCHING_TIMER:
 			/* add TLV subtree */
 			tlv_tree = add_protocol_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, proto_registry, tvb, tlv_offset, tlv_len, "BS switching timer (%d)", tvb_get_guint8(tvb, tlv_offset));
-			proto_tree_add_item(tlv_tree, hf_reg_req_min_time_for_intra_fa, tvb, tlv_offset, 1, FALSE);
-			proto_tree_add_item(tlv_tree, hf_reg_req_min_time_for_inter_fa, tvb, tlv_offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_reg_req_min_time_for_intra_fa, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+			proto_tree_add_item(tlv_tree, hf_reg_req_min_time_for_inter_fa, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 			break;
 		case VENDOR_SPECIFIC_INFO:
 		case VENDOR_ID_ENCODING:
@@ -607,10 +607,10 @@ void dissect_mac_mgmt_msg_reg_req_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				case REG_REQ_TLV_T_33_MS_PREV_IP_ADDR:
 					if ( tlv_len == 4 ) {
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v4, tvb, tlv_offset, tlv_len, ENC_BIG_ENDIAN);
 					} else if ( tlv_len == 16 ) {
 						tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_reg_req_decoder, reg_req_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, FALSE);
-						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, FALSE);
+						proto_tree_add_item(tlv_tree, hf_ms_previous_ip_address_v6, tvb, tlv_offset, tlv_len, ENC_NA);
 					}
 					break;
 				case REG_TLV_T_37_IDLE_MODE_TIMEOUT:

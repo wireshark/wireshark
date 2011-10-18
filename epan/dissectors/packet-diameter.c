@@ -869,7 +869,7 @@ dissect_diameter_common(tvbuff_t* tvb, packet_info* pinfo, proto_tree* tree)
 			cmd_vs = (value_string*)(void*)all_cmds->data;
 			/* Store the application id to be used by subdissectors */
 			pinfo->private_data = &application_id;
-			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id,tvb,8,4,FALSE);
+			app_item = proto_tree_add_item(diam_tree, hf_diameter_application_id,tvb,8,4,ENC_BIG_ENDIAN);
 			if (strcmp(val_to_str(tvb_get_ntohl(tvb, 8), dictionary.applications,
 				                  "Unknown"), "Unknown") == 0) {
 				proto_tree* tu = proto_item_add_subtree(app_item,ett_unknown);

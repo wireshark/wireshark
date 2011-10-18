@@ -2241,7 +2241,7 @@ dissect_wimaxasncp(
     {
         proto_tree_add_item(
             wimaxasncp_tree, hf_wimaxasncp_version,
-            tvb, offset, 1, FALSE);
+            tvb, offset, 1, ENC_BIG_ENDIAN);
     }
 
     offset += 1;

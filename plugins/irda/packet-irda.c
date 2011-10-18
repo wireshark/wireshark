@@ -16,12 +16,12 @@
  * modify it under the terms of the GNU General Public License
  * as published by the Free Software Foundation; either version 2
  * of the License, or (at your option) any later version.
- * 
+ *
  * This program is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU General Public License
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
@@ -471,7 +471,7 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
 
     g_snprintf(buf, 128, ", Credit=%d", head & ~TTP_PARAMETERS);
     col_append_str(pinfo->cinfo, COL_INFO, buf);
- 
+
     if (root)
     {
         /* create display subtree for the protocol */
@@ -481,13 +481,13 @@ static unsigned dissect_ttp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root,
         if (data)
         {
             proto_tree_add_item(tree, hf_ttp_m, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_ttp_dcredit, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_ttp_dcredit, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
         else
         {
             proto_tree_add_item(tree, hf_ttp_p, tvb, offset, 1, ENC_BIG_ENDIAN);
-            proto_tree_add_item(tree, hf_ttp_icredit, tvb, offset, 1, FALSE);
+            proto_tree_add_item(tree, hf_ttp_icredit, tvb, offset, 1, ENC_BIG_ENDIAN);
             offset++;
         }
         proto_item_set_len(tree, offset);
@@ -916,7 +916,7 @@ gboolean check_iap_octet_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset
     {
         if (tree)
         {
-            proto_item* ti = proto_tree_add_item(tree, hf_iap_invaloctet, tvb, offset, 0, FALSE);
+            proto_item* ti = proto_tree_add_item(tree, hf_iap_invaloctet, tvb, offset, 0, ENC_NA);
             proto_item_append_text(ti, "%s", attr_name);
             proto_item_append_text(ti, "\" attribute must be octet sequence!");
         }
@@ -942,7 +942,7 @@ guint8 check_iap_lsap_result(tvbuff_t* tvb, proto_tree* tree, unsigned offset,
     {
         if (tree)
         {
-            proto_item* ti = proto_tree_add_item(tree, hf_iap_invallsap, tvb, offset, 0, FALSE);
+            proto_item* ti = proto_tree_add_item(tree, hf_iap_invallsap, tvb, offset, 0, ENC_NA);
             proto_item_append_text(ti, "%s", attr_name);
             proto_item_append_text(ti, "\" attribute must be integer value between 0x01 and 0x6F!");
         }
@@ -968,7 +968,7 @@ static void dissect_appl_proto(tvbuff_t* tvb, packet_info* pinfo, proto_tree* ro
     lmp_conversation_t* lmp_conv = NULL;
     guint32             num;
 
-    
+
     src = pinfo->circuit_id ^ CMD_FRAME;
     srcaddr.type  = AT_NONE;
     srcaddr.len   = 1;
@@ -1080,13 +1080,13 @@ static void dissect_irlmp(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         ti       = proto_tree_add_item(tree, hf_lmp_dst, tvb, offset, 1, ENC_BIG_ENDIAN);
         dst_tree = proto_item_add_subtree(ti, ett_lmp_dst);
         proto_tree_add_item(dst_tree, hf_lmp_dst_control, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(dst_tree, hf_lmp_dst_lsap, tvb, offset, 1, FALSE);
+        proto_tree_add_item(dst_tree, hf_lmp_dst_lsap, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         ti       = proto_tree_add_item(tree, hf_lmp_src, tvb, offset, 1, ENC_BIG_ENDIAN);
         src_tree = proto_item_add_subtree(ti, ett_lmp_src);
         proto_tree_add_item(src_tree, hf_lmp_src_r, tvb, offset, 1, ENC_BIG_ENDIAN);
-        proto_tree_add_item(src_tree, hf_lmp_src_lsap, tvb, offset, 1, FALSE);
+        proto_tree_add_item(src_tree, hf_lmp_src_lsap, tvb, offset, 1, ENC_BIG_ENDIAN);
         offset++;
 
         if (cbit != 0)
@@ -1203,7 +1203,7 @@ void add_lmp_conversation(packet_info* pinfo, guint8 dlsap, gboolean ttp, dissec
     conversation_t*     conv;
     lmp_conversation_t* lmp_conv = NULL;
 
-    
+
 /*g_message("%d: add_lmp_conversation(%p, %d, %d, %p) = ", pinfo->fd->num, pinfo, dlsap, ttp, proto_dissector); */
     srcaddr.type  = AT_NONE;
     srcaddr.len   = 1;
@@ -1562,7 +1562,7 @@ static void dissect_xid(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root, pro
 
                 service_hints[0] = 0;
 
-                if (hint1 & 0x01)                
+                if (hint1 & 0x01)
                     g_strlcat(service_hints, ", PnP Compatible", 256);
                 if (hint1 & 0x02)
                     g_strlcat(service_hints, ", PDA/Palmtop", 256);
@@ -1645,7 +1645,7 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
     {
         col_set_str(pinfo->cinfo, COL_INFO, "WARNING: Missed one or more messages while capturing!");
     }
-    else 
+    else
     {
         guint   length;
         char    buf[256];
@@ -1670,9 +1670,9 @@ static void dissect_log(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         proto_tree* tree = proto_item_add_subtree(ti, ett_log);
 
         if (pinfo->pseudo_header->irda.pkttype == IRDA_MISSED_MSG)
-            proto_tree_add_item(tree, hf_log_missed, tvb, 0, 0, FALSE);
+            proto_tree_add_item(tree, hf_log_missed, tvb, 0, 0, ENC_NA);
         else
-            proto_tree_add_item(tree, hf_log_msg, tvb, 0, -1, ENC_ASCII|ENC_NA);    
+            proto_tree_add_item(tree, hf_log_msg, tvb, 0, -1, ENC_ASCII|ENC_NA);
     }
 }
 
@@ -1704,7 +1704,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         case IRDA_OUTGOING:
             col_set_str(pinfo->cinfo, COL_IF_DIR, "Out");
             break;
-            
+
         case IRDA_INCOMING:
             col_set_str(pinfo->cinfo, COL_IF_DIR, "In");
             break;
@@ -1734,7 +1734,7 @@ static void dissect_irlap(tvbuff_t* tvb, packet_info* pinfo, proto_tree* root)
         ti     = proto_tree_add_item(tree, hf_lap_a, tvb, offset, 1, ENC_BIG_ENDIAN);
         a_tree = proto_item_add_subtree(ti, ett_lap_a);
         proto_tree_add_item(a_tree, hf_lap_a_cr, tvb, offset, 1, ENC_BIG_ENDIAN);
-        addr_item = proto_tree_add_item(a_tree, hf_lap_a_address, tvb, offset, 1, FALSE);
+        addr_item = proto_tree_add_item(a_tree, hf_lap_a_address, tvb, offset, 1, ENC_BIG_ENDIAN);
         switch (a & ~CMD_FRAME)
         {
             case 0:
@@ -2241,7 +2241,7 @@ void proto_register_irda(void)
 void proto_reg_handoff_irda(void)
 {
     dissector_handle_t irda_handle;
-    
+
     irda_handle = find_dissector("irda");
     dissector_add_uint("wtap_encap", WTAP_ENCAP_IRDA, irda_handle);
     dissector_add_uint("sll.ltype", LINUX_SLL_P_IRDA_LAP, irda_handle);

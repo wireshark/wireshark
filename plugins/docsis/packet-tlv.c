@@ -1839,7 +1839,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_down_said,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1850,7 +1850,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_up_sid, tvb,
-                                   pos, length, FALSE);
+                                   pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -1886,7 +1886,7 @@ dissect_modemcap (tvbuff_t * tvb, proto_tree * tree, int start,
           if (length == 1)
             {
               proto_tree_add_item (mcap_tree, hf_docsis_tlv_mcap_xmit_eq_taps,
-                                   tvb, pos, length, FALSE);
+                                   tvb, pos, length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2646,7 +2646,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
             {
               proto_tree_add_item (rngparm_tree,
                                    hf_docsis_rng_parms_time_off_int, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -2658,7 +2658,7 @@ dissect_tcc_rng_parms(tvbuff_t * tvb, proto_tree *tree, int start, guint16 len)
             {
               proto_tree_add_item (rngparm_tree,
                                    hf_docsis_rng_parms_time_off_frac, tvb, pos,
-                                   length, FALSE);
+                                   length, ENC_BIG_ENDIAN);
             }
           else
             {
@@ -4028,7 +4028,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
             if (length == 1)
               {
                 proto_tree_add_item (tlv_tree, hf_docsis_tlv_max_cpe, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_BIG_ENDIAN);
               }
             else
               {
@@ -4098,7 +4098,7 @@ dissect_tlv (tvbuff_t * tvb, packet_info * pinfo _U_, proto_tree * tree)
               {
                 proto_tree_add_item (tlv_tree,
                                      hf_docsis_tlv_max_classifiers, tvb,
-                                     pos, length, FALSE);
+                                     pos, length, ENC_BIG_ENDIAN);
               }
             else
               {

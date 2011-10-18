@@ -308,7 +308,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_fec, tvb, pos,
-						      tlvlen, FALSE);
+						      tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {
@@ -455,7 +455,7 @@ static void
 			      {
 				 proto_tree_add_item (tlv_tree,
 						      hf_docsis_burst_fec, tvb, pos,
-						      tlvlen, FALSE);
+						      tlvlen, ENC_BIG_ENDIAN);
 			      }
 			    else
 			      {

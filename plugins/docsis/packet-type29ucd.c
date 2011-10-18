@@ -476,7 +476,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_fec, tvb, pos,
-					       tlvlen, FALSE);
+					       tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{
@@ -628,7 +628,7 @@ dissect_type29ucd (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 			{
 			  proto_tree_add_item (burst_descr_tree,
 					       hf_docsis_burst_fec, tvb, pos,
-					       tlvlen, FALSE);
+					       tlvlen, ENC_BIG_ENDIAN);
 			}
 		      else
 			{

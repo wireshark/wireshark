@@ -256,7 +256,7 @@ dissect_ehdr (tvbuff_t * tvb, proto_tree * tree, gboolean isfrag)
               proto_tree_add_item (ehdr_tree, hf_docsis_frag_last, tvb, pos+5,
                                   1, ENC_BIG_ENDIAN);
               proto_tree_add_item (ehdr_tree, hf_docsis_frag_seq, tvb, pos+5,
-                                  1, FALSE);
+                                  1, ENC_BIG_ENDIAN);
             }
           break;
         case EH_BP_DOWN:

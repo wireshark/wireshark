@@ -991,7 +991,7 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			proto_tree_add_item(tree, hf_rcid_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix)
 			{	/* display the CID11 */
-				proto_tree_add_item(tree, hf_rcid_ie_cid11_3, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_rcid_ie_cid11_3, tvb, offset, 2, ENC_BIG_ENDIAN);
 				length = 3;
 			}
 			else
@@ -1028,7 +1028,7 @@ static guint wimax_compact_ulmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			proto_tree_add_item(tree, hf_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix || (cid_type == CID_TYPE_RCID11))
 			{	/* display the CID11 */
-				proto_tree_add_item(tree, hf_rcid_ie_cid11_2, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_rcid_ie_cid11_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				length = 3;
 			}
 			else
@@ -1203,39 +1203,39 @@ guint wimax_cdma_allocation_ie_decoder(proto_tree *tree, packet_info *pinfo _U_,
 #endif
 	if(nibble_offset & 1)
 	{	/* display the Duration */
-		proto_tree_add_item(tree, hf_cdma_allocation_duration_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_duration_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the UIUC */
-		proto_tree_add_item(tree, hf_cdma_allocation_uiuc_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_uiuc_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the Repetition Coding Indication */
-		proto_tree_add_item(tree, hf_cdma_allocation_repetition_1, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_repetition_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the frame number index */
-		proto_tree_add_item(tree, hf_cdma_allocation_frame_number_index_1, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_frame_number_index_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* display the Ranging Code */
-		proto_tree_add_item(tree, hf_cdma_allocation_ranging_code_1, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_ranging_code_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* display the Ranging Symbol */
-		proto_tree_add_item(tree, hf_cdma_allocation_ranging_symbol_1, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_ranging_symbol_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* display the Ranging Subchannel */
-		proto_tree_add_item(tree, hf_cdma_allocation_ranging_subchannel_1, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_ranging_subchannel_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 		/* display the BW Request Mandatory */
-		proto_tree_add_item(tree, hf_cdma_allocation_bw_req_1, tvb, offset, 4, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_bw_req_1, tvb, offset, 4, ENC_BIG_ENDIAN);
 	}
 	else
 	{	/* display the Duration */
-		proto_tree_add_item(tree, hf_cdma_allocation_duration, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_duration, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the UIUC */
-		proto_tree_add_item(tree, hf_cdma_allocation_uiuc, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_uiuc, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the Repetition Coding Indication */
-		proto_tree_add_item(tree, hf_cdma_allocation_repetition, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_repetition, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the frame number index */
-		proto_tree_add_item(tree, hf_cdma_allocation_frame_number_index, tvb, offset, 2, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_frame_number_index, tvb, offset, 2, ENC_BIG_ENDIAN);
 		/* display the Ranging Code */
-		proto_tree_add_item(tree, hf_cdma_allocation_ranging_code, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_ranging_code, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Ranging Symbol */
-		proto_tree_add_item(tree, hf_cdma_allocation_ranging_symbol, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_ranging_symbol, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the Ranging Subchannel */
-		proto_tree_add_item(tree, hf_cdma_allocation_ranging_subchannel, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_ranging_subchannel, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display the BW Request Mandatory */
-		proto_tree_add_item(tree, hf_cdma_allocation_bw_req, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_cdma_allocation_bw_req, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	/* return the IE length in nibbles */
 	return 8;
@@ -1271,7 +1271,7 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 	{	/* get the extended UIUC */
 		ext_uiuc = (byte & LSB_NIBBLE_MASK);
 		/* display extended UIUC */
-		proto_tree_add_item(tree, hf_extended_uiuc_ie_uiuc_1, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_uiuc_ie_uiuc_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next byte */
 		offset++;
 		/* get the 2nd byte */
@@ -1279,7 +1279,7 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 		/* get the length */
 		length = ((byte & MSB_NIBBLE_MASK) >> 4);
 		/* display extended UIUC length */
-		proto_tree_add_item(tree, hf_extended_uiuc_ie_length_1, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_uiuc_ie_length_1, tvb, offset, 1, ENC_BIG_ENDIAN);
 	}
 	else
 	{	/* get the extended UIUC */
@@ -1287,9 +1287,9 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 		/* get the length */
 		length = (byte & LSB_NIBBLE_MASK);
 		/* display extended UIUC */
-		proto_tree_add_item(tree, hf_extended_uiuc_ie_uiuc, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_uiuc_ie_uiuc, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* display extended UIUC length */
-		proto_tree_add_item(tree, hf_extended_uiuc_ie_length, tvb, offset, 1, FALSE);
+		proto_tree_add_item(tree, hf_extended_uiuc_ie_length, tvb, offset, 1, ENC_BIG_ENDIAN);
 		/* move to next byte */
 		offset++;
 	}
@@ -1300,13 +1300,13 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 			/* 8.4.5.4.5 Power Control IE */
 			if(nibble_offset & 1)
 			{	/* display power control value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_control_24, tvb, offset, 3, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_control_24, tvb, offset, 3, ENC_BIG_ENDIAN);
 				/* display power measurement frame value */
 				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_measurement_frame_24, tvb, offset, 3, ENC_BIG_ENDIAN);
 			}
 			else
 			{	/* display power control value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_control, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_control, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* display power measurement frame value */
 				proto_tree_add_item(tree, hf_extended_uiuc_ie_power_measurement_frame, tvb, (offset + 1), 1, ENC_BIG_ENDIAN);
 			}
@@ -1336,7 +1336,7 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 			}
 			else
 			{	/* display MINI Subchannel Allocation CType value */
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_ctype, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_ctype, tvb, offset, 1, ENC_BIG_ENDIAN);
 				/* display MINI Subchannel Allocation Duration value */
 				proto_tree_add_item(tree, hf_extended_uiuc_ie_mini_subchannel_alloc_duration, tvb, offset, 1, ENC_BIG_ENDIAN);
 			}
@@ -1390,109 +1390,109 @@ guint wimax_extended_uiuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 			/* 8.4.5.4.6 AAS UL IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_aas_ul, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_aas_ul, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_aas_ul, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_aas_ul, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case CQICH_ALLOC_IE:
 			/* 8.4.5.4.12 CQICH_ALLOC_IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_cqich_alloc, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_cqich_alloc, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_cqich_alloc, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_cqich_alloc, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case UL_ZONE_IE:
 			/* 8.4.5.4.7 UL Zone Switch IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_zone, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_zone, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_zone, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_zone, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case PHYMOD_UL_IE:
 			/* 8.4.5.4.14 PHYMOD_UL_IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_phymod_ul, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_phymod_ul, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_phymod_ul, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_phymod_ul, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case MIMO_UL_BASIC_IE:
 			/* 8.4.5.4.11 MIMO_UL_BASIC_IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_mimo_ul_basic, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_mimo_ul_basic, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_mimo_ul_basic, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_mimo_ul_basic, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case UL_MAP_FAST_TRACKING_IE:
 			/* 8.4.5.4.22 UL_MAP_FAST_TRACKING_IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_tracking, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_tracking, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_tracking, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_tracking, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case UL_PUSC_BURST_ALLOCATION_IN_OTHER_SEGMENT_IE:
 			/* 8.4.5.4.17 UL PUSC Burst Allocation in Other Segment IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_pusc_burst_allocation, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_pusc_burst_allocation, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_pusc_burst_allocation, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_pusc_burst_allocation, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case FAST_RANGING_IE:
 			/* 8.4.5.4.21 FAST_RANGING_IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_ranging, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_ranging, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_ranging, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_fast_ranging, tvb, offset, length, ENC_NA);
 			}
 		break;
 		case UL_ALLOCATION_START_IE:
 			/* 8.4.5.4.15`UL_ALLOCATION_START_IE */
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_allocation_start, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_allocation_start, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_allocation_start, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_ul_allocation_start, tvb, offset, length, ENC_NA);
 			}
 		break;
 		default:
 			if(nibble_offset & 1)
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_unknown_uiuc, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_unknown_uiuc, tvb, offset, (length + 1), ENC_NA);
 			}
 			else
 			{
-				proto_tree_add_item(tree, hf_extended_uiuc_ie_unknown_uiuc, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_uiuc_ie_unknown_uiuc, tvb, offset, length, ENC_NA);
 			}
 		break;
 	}

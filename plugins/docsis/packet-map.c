@@ -108,7 +108,7 @@ dissect_map (tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
       proto_tree_add_item (map_tree, hf_docsis_map_ucd_count, tvb, 1, 1,
 			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_numie, tvb, 2, 1, ENC_BIG_ENDIAN);
-      proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, FALSE);
+      proto_tree_add_item (map_tree, hf_docsis_map_rsvd, tvb, 3, 1, ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_alloc_start, tvb, 4, 4,
 			   ENC_BIG_ENDIAN);
       proto_tree_add_item (map_tree, hf_docsis_map_ack_time, tvb, 8, 4,

@@ -420,21 +420,21 @@ void dissect_mac_mgmt_msg_rng_rsp_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 					break;
 				case RNG_RSP_HO_PROCESS_OPTIMIZATION:
 					sub_tree = add_tlv_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, hf_rng_rsp_ho_process_optimization, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_0, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_1_2, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_3, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_4, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_5, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_6, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_7, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_8, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_9, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_10, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_11, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_12, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_13, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_14, tvb, tlv_offset, 2, FALSE);
-					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_15, tvb, tlv_offset, 2, FALSE);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_0, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_1_2, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_3, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_4, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_5, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_6, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_7, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_8, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_9, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_10, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_11, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_12, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_13, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_14, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+					proto_tree_add_item(sub_tree, hf_rng_rsp_ho_process_optimization_15, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
 					break;
 				case RNG_RSP_SBC_RSP_ENCODINGS:
 					sub_tree = add_protocol_subtree(&tlv_info, ett_rng_rsp_message_tree, rng_rsp_tree, proto_mac_mgmt_msg_rng_rsp_decoder, tvb, tlv_offset, tlv_len, "SBC-RSP Encodings (%u byte(s))", tlv_len);

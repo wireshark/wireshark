@@ -2283,7 +2283,7 @@ dissect_audio_switch(proto_tree *msg_tree,packet_info *pinfo,
          /* In this circumstance the packet is truncated at the far end */
          /* rtp port */
          if(msg_len > 0){
-            proto_tree_add_item(msg_tree,hf_audio_far_ip_add,tvb,offset,4,FALSE);
+            proto_tree_add_item(msg_tree,hf_audio_far_ip_add,tvb,offset,4,ENC_BIG_ENDIAN);
             offset+=4;msg_len-=4;
             {
                guint32 far_ip_addr;
@@ -2618,7 +2618,7 @@ dissect_audio_phone(proto_tree *msg_tree,
          offset+=2;msg_len-=2;
          proto_tree_add_item(msg_tree,hf_audio_far_rtcp_port,tvb,offset,2,ENC_BIG_ENDIAN);
          offset+=2;msg_len-=2;
-         proto_tree_add_item(msg_tree,hf_audio_far_ip_add,tvb,offset,4,FALSE);
+         proto_tree_add_item(msg_tree,hf_audio_far_ip_add,tvb,offset,4,ENC_BIG_ENDIAN);
          offset+=4;msg_len-=4;
          proto_tree_add_item(msg_tree,hf_audio_transducer_list_length,tvb,offset,1,ENC_BIG_ENDIAN);
          offset+=1;msg_len-=1;

@@ -1124,7 +1124,7 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			proto_tree_add_item(tree, hf_harq_rcid_ie_prefix_1, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix)
 			{	/* display the CID11 */
-				proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_3, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_3, tvb, offset, 2, ENC_BIG_ENDIAN);
 				length = 3;
 			}
 			else
@@ -1161,7 +1161,7 @@ static guint wimax_compact_dlmap_rcid_ie_decoder(proto_tree *tree, packet_info *
 			proto_tree_add_item(tree, hf_harq_rcid_ie_prefix, tvb, offset, 2, ENC_BIG_ENDIAN);
 			if(prefix || (cid_type == CID_TYPE_RCID11))
 			{	/* display the CID11 */
-				proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_2, tvb, offset, 2, FALSE);
+				proto_tree_add_item(tree, hf_harq_rcid_ie_cid11_2, tvb, offset, 2, ENC_BIG_ENDIAN);
 				length = 3;
 			}
 			else
@@ -1433,50 +1433,50 @@ guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 		{
 			case CHANNEL_MEASUREMENT_IE:
 				/* 8.4.5.3.? Channel_Measurement_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_channel_measurement, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_channel_measurement, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case STC_ZONE_IE:
 				/* 8.4.5.3.4 STC_Zone_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_stc_zone, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_stc_zone, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case AAS_DL_IE:
 				/* 8.4.5.3.3 AAS_DL_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_aas_dl, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_aas_dl, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case DATA_LOCATION_IN_ANOTHER_BS_IE:
 				/* 8.4.5.3.6 Data_location_in_another_BS_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_data_location, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_data_location, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case CID_SWITCH_IE:
 				/* 8.4.5.3.7 CID_Switch_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_cid_switch, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_cid_switch, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case MIMO_DL_BASIC_IE:
 				/* 8.4.5.3.8 MIMO_DL_Basic_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_basic, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_basic, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case MIMO_DL_ENHANCED_IE:
 				/* 8.4.5.3.9 MIMO_DL_Enhanced_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_enhanced, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_enhanced, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case HARQ_MAP_POINTER_IE:
 				/* 8.4.5.3.10 HARQ_Map_Pointer_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_harq_map_pointer, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_harq_map_pointer, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case PHYMOD_DL_IE:
 				/* 8.4.5.3.11 PHYMOD_DL_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_phymod_dl, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_phymod_dl, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case DL_PUSC_BURST_ALLOCATION_IN_OTHER_SEGMENT_IE:
 				/* 8.4.5.3.13 DL PUSC Burst Allocation in Other Segment IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation, tvb, offset, (length + 1), ENC_NA);
 			break;
 			case UL_INTERFERENCE_AND_NOISE_LEVEL_IE:
 				/* 8.4.5.3.19 UL_interference_and_noise_level_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_ul_interference_and_noise_level, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_ul_interference_and_noise_level, tvb, offset, (length + 1), ENC_NA);
 			break;
 			default:
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_unknown_diuc, tvb, offset, (length + 1), FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_unknown_diuc, tvb, offset, (length + 1), ENC_NA);
 			break;
 		}
 	}
@@ -1496,50 +1496,50 @@ guint wimax_extended_diuc_dependent_ie_decoder(proto_tree *tree, packet_info *pi
 		{
 			case CHANNEL_MEASUREMENT_IE:
 				/* 8.4.5.3.? Channel_Measurement_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_channel_measurement, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_channel_measurement, tvb, offset, length, ENC_NA);
 			break;
 			case STC_ZONE_IE:
 				/* 8.4.5.3.4 STC_Zone_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_stc_zone, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_stc_zone, tvb, offset, length, ENC_NA);
 			break;
 			case AAS_DL_IE:
 				/* 8.4.5.3.3 AAS_DL_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_aas_dl, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_aas_dl, tvb, offset, length, ENC_NA);
 			break;
 			case DATA_LOCATION_IN_ANOTHER_BS_IE:
 				/* 8.4.5.3.6 Data_location_in_another_BS_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_data_location, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_data_location, tvb, offset, length, ENC_NA);
 			break;
 			case CID_SWITCH_IE:
 				/* 8.4.5.3.7 CID_Switch_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_cid_switch, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_cid_switch, tvb, offset, length, ENC_NA);
 			break;
 			case MIMO_DL_BASIC_IE:
 				/* 8.4.5.3.8 MIMO_DL_Basic_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_basic, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_basic, tvb, offset, length, ENC_NA);
 			break;
 			case MIMO_DL_ENHANCED_IE:
 				/* 8.4.5.3.9 MIMO_DL_Enhanced_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_enhanced, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_mimo_dl_enhanced, tvb, offset, length, ENC_NA);
 			break;
 			case HARQ_MAP_POINTER_IE:
 				/* 8.4.5.3.10 HARQ_Map_Pointer_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_harq_map_pointer, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_harq_map_pointer, tvb, offset, length, ENC_NA);
 			break;
 			case PHYMOD_DL_IE:
 				/* 8.4.5.3.11 PHYMOD_DL_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_phymod_dl, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_phymod_dl, tvb, offset, length, ENC_NA);
 			break;
 			case DL_PUSC_BURST_ALLOCATION_IN_OTHER_SEGMENT_IE:
 				/* 8.4.5.3.13 DL PUSC Burst Allocation in Other Segment IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_dl_pusc_burst_allocation, tvb, offset, length, ENC_NA);
 			break;
 			case UL_INTERFERENCE_AND_NOISE_LEVEL_IE:
 				/* 8.4.5.3.19 UL_interference_and_noise_level_IE */
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_ul_interference_and_noise_level, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_ul_interference_and_noise_level, tvb, offset, length, ENC_NA);
 			break;
 			default:
-				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_unknown_diuc, tvb, offset, length, FALSE);
+				proto_tree_add_item(tree, hf_extended_diuc_dependent_ie_unknown_diuc, tvb, offset, length, ENC_NA);
 			break;
 		}
 	}

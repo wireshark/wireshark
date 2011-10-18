@@ -1742,15 +1742,15 @@ void wimax_error_parameter_set_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_
 		{
 			case CST_ERROR_SET_ERRORED_PARAM:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_error_parameter_set, ceps_tree, hf_cst_error_set_errored_param, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_cst_error_set_errored_param, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_cst_error_set_errored_param, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case CST_ERROR_SET_ERROR_CODE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_error_parameter_set, ceps_tree, hf_cst_error_set_error_code, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_cst_error_set_error_code, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_cst_error_set_error_code, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case CST_ERROR_SET_ERROR_MSG:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_error_parameter_set, ceps_tree, hf_cst_error_set_error_msg, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_cst_error_set_error_msg, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_cst_error_set_error_msg, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
 			break;
 		}
 		offset += tlv_len;
@@ -1826,7 +1826,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 			{
 				case CST_ATM_SWITCHING:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, csper_tree, hf_csper_atm_switching_encoding, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_csper_atm_switching_encoding, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_csper_atm_switching_encoding, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				break;
 				case CST_ATM_CLASSIFIER:
 					/* add TLV subtree */
@@ -1855,15 +1855,15 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						{
 							case ATM_VPI_CLASSIFIER:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_csper_atm_classifier_vpi, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_csper_atm_classifier_vpi, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_csper_atm_classifier_vpi, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case ATM_VCI_CLASSIFIER:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_csper_atm_classifier_vci, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_csper_atm_classifier_vci, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_csper_atm_classifier_vci, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case ATM_CLASSIFIER_ID:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_csper_atm_classifier_id, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_csper_atm_classifier_id, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_csper_atm_classifier_id, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							default:
 							break;
@@ -1873,7 +1873,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 				break;
 				case CST_ATM_CLASSIFIER_DSC_ACTION:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, csper_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				break;
 				case CST_ATM_CLASSIFIER_ERROR_PARAMETER_SET:
 					/* call the error parameter set function */
@@ -1883,7 +1883,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 				default:
 					/* display the unknown ATM CS encoding in hex */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, csper_tree, hf_csper_unknown_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_csper_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_csper_unknown_type, tvb, offset, tlv_len, ENC_NA);
 				break;
 			}
 		}
@@ -1893,7 +1893,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 			{
 				case CST_CLASSIFIER_ACTION:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, csper_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_cst_classifier_dsc_action, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				break;
 				case CST_CLASSIFIER_ERROR_PARAM_SET:
 				case CST_PHS_ERROR_PARAM_SET:
@@ -1929,34 +1929,34 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						{
 							case CST_PKT_CLASS_RULE_PRIORITY:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_priority, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_priority, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_priority, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_RANGE_MASK:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_range_mask, tvb, tlv_offset, length, FALSE);
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_tos_low, tvb,
-								tlv_offset, 1, FALSE);
+								tlv_offset, 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_tos_high, tvb,
-								tlv_offset + 1, 1, FALSE);
+								tlv_offset + 1, 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_tos_mask, tvb,
-								tlv_offset + 2, 1, FALSE);
+								tlv_offset + 2, 1, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_PROTOCOL:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_protocol, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_protocol, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_protocol, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_SRC_IP:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_ip_masked_src_address, tvb, tlv_offset, length, FALSE);
 								if(ipv6)
 								{
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_ipv6, tvb, tlv_offset, 16, FALSE);
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv6, tvb, tlv_offset + 16, 16, FALSE);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_ipv6, tvb, tlv_offset, 16, ENC_NA);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv6, tvb, tlv_offset + 16, 16, ENC_NA);
 								}
 								else
 								{
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_ipv4, tvb, tlv_offset, 4, FALSE);
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv4, tvb, tlv_offset + 4, 4, FALSE);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_ipv4, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv4, tvb, tlv_offset + 4, 4, ENC_BIG_ENDIAN);
 								}
 							break;
 							case CST_PKT_CLASS_RULE_DST_IP:
@@ -1964,26 +1964,26 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_ip_masked_dest_address, tvb, tlv_offset, length, FALSE);
 								if(ipv6)
 								{
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_ipv6, tvb, tlv_offset, 16, FALSE);
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv6, tvb, tlv_offset + 16, 16, FALSE);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_ipv6, tvb, tlv_offset, 16, ENC_NA);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv6, tvb, tlv_offset + 16, 16, ENC_NA);
 								}
 								else
 								{
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_ipv4, tvb, tlv_offset, 4, FALSE);
-									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv4, tvb, tlv_offset + 4, 4, FALSE);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_ipv4, tvb, tlv_offset, 4, ENC_BIG_ENDIAN);
+									proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_mask_ipv4, tvb, tlv_offset + 4, 4, ENC_BIG_ENDIAN);
 								}
 							break;
 							case CST_PKT_CLASS_RULE_SRCPORT_RANGE:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_prot_src_port_range, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_port_low, tvb, tlv_offset, 2, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_port_high, tvb, tlv_offset + 2, 2, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_port_low, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_src_port_high, tvb, tlv_offset + 2, 2, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_DSTPORT_RANGE:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_prot_dest_port_range, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_port_low, tvb, tlv_offset, 2, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_port_high, tvb, tlv_offset + 2, 2, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_port_low, tvb, tlv_offset, 2, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_dest_port_high, tvb, tlv_offset + 2, 2, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_DST_MAC:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_dest_mac_address, tvb, tlv_offset, length, FALSE);
@@ -2000,9 +2000,9 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 							case CST_PKT_CLASS_RULE_ETHERTYPE:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_ethertype, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_etype, tvb, tlv_offset, 1, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_eprot1, tvb, tlv_offset + 1, 1, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_eprot2, tvb, tlv_offset + 2, 1, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_etype, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_eprot1, tvb, tlv_offset + 1, 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_eprot2, tvb, tlv_offset + 2, 1, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_USER_PRIORITY:
 								/* add TLV subtree */
@@ -2013,39 +2013,39 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 							case CST_PKT_CLASS_RULE_VLAN_ID:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_vlan_id, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_vlan_id1, tvb, tlv_offset, 1, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_vlan_id2, tvb, tlv_offset + 1, 1, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_vlan_id1, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_vlan_id2, tvb, tlv_offset + 1, 1, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_PHSI:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_phsi, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_phsi, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_phsi, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_INDEX:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_index, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_index, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_index, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_IPv6_FLOW_LABEL:
 /*???								if(ipv6)*/
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_ipv6_flow_label, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_ipv6_flow_label, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_ipv6_flow_label, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_VENDOR_SPEC:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_vendor_spec, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_vendor_spec, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_vendor_spec, tvb, tlv_offset, length, ENC_NA);
 							break;
 							case CST_CLASSIFIER_ACTION_RULE:
 								/* add TLV subtree */
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_pkt_class_rule_classifier_action_rule, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_classifier_action_rule_bit0, tvb, tlv_offset, 1, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_classifier_action_rule_bit0, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 								proto_tree_add_item(ti_tree, hf_cst_pkt_class_rule_classifier_action_rule_bit1, tvb, tlv_offset, 1, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_LARGE_CONTEXT_ID:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_large_context_id, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_large_context_id, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_large_context_id, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PKT_CLASS_RULE_SHORT_FORMAT_CONTEXT_ID:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_short_format_context_id, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_short_format_context_id, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_short_format_context_id, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							default:
 							break;
@@ -2056,7 +2056,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 				}
 				case CST_PHS_DSC_ACTION:
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, csper_tree, hf_cst_phs_dsc_action, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_cst_phs_dsc_action, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_cst_phs_dsc_action, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				break;
 				case CST_PHS_RULE:
 				{
@@ -2086,27 +2086,27 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 						{
 							case CST_PHS_PHSI:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_phs_phsi, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_phs_phsi, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_phs_phsi, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PHS_PHSF:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_phs_phsf, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_phs_phsf, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_phs_phsf, tvb, tlv_offset, length, ENC_NA);
 							break;
 							case CST_PHS_PHSM:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_phs_phsm, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_phs_phsm, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_phs_phsm, tvb, tlv_offset, length, ENC_NA);
 							break;
 							case CST_PHS_PHSS:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_phs_phss, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_phs_phss, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_phs_phss, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PHS_PHSV:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_phs_phsv, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_phs_phsv, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_phs_phsv, tvb, tlv_offset, length, ENC_BIG_ENDIAN);
 							break;
 							case CST_PHS_VENDOR_SPEC:
 								ti_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tlv_tree, hf_cst_phs_vendor_spec, tvb, tlv_offset, length, FALSE);
-								proto_tree_add_item(ti_tree, hf_cst_phs_vendor_spec, tvb, tlv_offset, length, FALSE);
+								proto_tree_add_item(ti_tree, hf_cst_phs_vendor_spec, tvb, tlv_offset, length, ENC_NA);
 							break;
 						}
 						tlv_offset += length;
@@ -2116,7 +2116,7 @@ void wimax_convengence_service_parameter_encoding_rules_decoder(guint sfe_type, 
 				default:
 					/* display the unknown csper type in hex */
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_cst_encoding_rules, tree, hf_csper_unknown_type, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_csper_unknown_type, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_csper_unknown_type, tvb, offset, tlv_len, ENC_NA);
 				break;
 			}	/* end of switch */
 		}	/* end of if */
@@ -2184,172 +2184,172 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 		{
 			case SFE_SF_ID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_sf_id, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_sf_id, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_sf_id, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_CID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_cid, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_cid, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_cid, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_SERVICE_CLASS_NAME:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_service_class_name, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_service_class_name, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_service_class_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
 			break;
 			case SFE_MBS_SERVICE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_mbs_service, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_mbs_service, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_mbs_service, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_QOS_PARAMS_SET:
 				/* add TLV subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_qos_params_set, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_set_provisioned, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_set_admitted, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_set_active, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_set_rsvd, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_set_provisioned, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_set_admitted, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_set_active, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_set_rsvd, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TRAFFIC_PRIORITY:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_traffic_priority, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_traffic_priority, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_traffic_priority, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " (allowed values are 0-7)");
 			break;
 			case SFE_MAX_STR:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_max_str, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_max_str, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_max_str, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " bps");
 			break;
 			case SFE_MAX_TRAFFIC_BURST:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_max_traffic_burst, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_max_traffic_burst, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_max_traffic_burst, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " bytes");
 			break;
 			case SFE_MIN_RTR:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_min_rtr, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_min_rtr, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_min_rtr, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " bps");
 			break;
 			case SFE_RESERVED_10:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_reserved_10, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_reserved_10, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_reserved_10, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_UL_SCHEDULING:
 				/* TODO: Find a way to get the correct service type from the TLV */
 				tlv_value = tvb_get_guint8(tvb, offset);
 				set_service_type( tlv_value );
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_ul_grant_scheduling, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_ul_grant_scheduling, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_ul_grant_scheduling, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TX_POLICY:
 				/* add TLV subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_req_tx_policy, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_broadcast_bwr, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_multicast_bwr, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_piggyback, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_fragment, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_headers, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_packing, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_crc, tvb, offset, 1, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_policy_rsvd1, tvb, offset, 1, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_broadcast_bwr, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_multicast_bwr, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_piggyback, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_fragment, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_headers, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_packing, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_crc, tvb, offset, 1, ENC_BIG_ENDIAN);
+				proto_tree_add_item(tlv_tree, hf_sfe_policy_rsvd1, tvb, offset, 1, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TOLERATED_JITTER:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_jitter, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_jitter, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_jitter, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " ms");
 			break;
 			case SFE_MAX_LATENCY:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_max_latency, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_max_latency, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_max_latency, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " ms");
 			break;
 			case SFE_FIXED_LEN_SDU:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_fixed_len_sdu, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_fixed_len_sdu, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_fixed_len_sdu, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_SDU_SIZE:
 				/* save the SDU size */
 				mac_sdu_length = tvb_get_guint8(tvb, offset);
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_sdu_size, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_sdu_size, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_sdu_size, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " bytes");
 			break;
 			case SFE_TARGET_SAID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_target_said, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_target_said, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_target_said, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_ARQ_ENABLE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_enable, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_arq_enable, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_arq_enable, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_ARQ_WINDOW_SIZE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_window_size, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_arq_window_size, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_arq_window_size, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_ARQ_TRANSMITTER_DELAY:
 				if (include_cor2_changes)
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_transmitter_delay_cor2, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_transmitter_delay_cor2, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_transmitter_delay_cor2, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_transmitter_delay, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_transmitter_delay, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_transmitter_delay, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 			break;
 			case SFE_ARQ_RECEIVER_DELAY:
 				if (include_cor2_changes)
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_receiver_delay_cor2, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_receiver_delay_cor2, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_receiver_delay_cor2, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_receiver_delay, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_receiver_delay, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_receiver_delay, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 			break;
 			case SFE_ARQ_BLOCK_LIFETIME:
 				if (include_cor2_changes)
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_block_lifetime_cor2, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_block_lifetime_cor2, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_block_lifetime_cor2, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_block_lifetime, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_block_lifetime, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_block_lifetime, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 			break;
 			case SFE_ARQ_SYNC_LOSS_TIMEOUT:
 				if (include_cor2_changes)
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_sync_loss_timeout_cor2, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_sync_loss_timeout_cor2, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_sync_loss_timeout_cor2, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 				else
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_sync_loss_timeout, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_sync_loss_timeout, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_sync_loss_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 			break;
 			case SFE_ARQ_DELIVER_IN_ORDER:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_deliver_in_order, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_arq_deliver_in_order, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_arq_deliver_in_order, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_ARQ_RX_PURGE_TIMEOUT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_rx_purge_timeout, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_arq_rx_purge_timeout, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_arq_rx_purge_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_ARQ_BLOCK_SIZE:
 				if (include_cor2_changes)
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_block_size_cor2, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_block_size_cor2, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_block_size_cor2, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					/* add TLV subtree */
 					tlv_tree = proto_item_add_subtree(tlv_item, ett_wimax_service_flow_encodings);
 					value = tvb_get_guint8(tvb, offset);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_min_block_size, tvb, offset, 1, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_min_block_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 					/* Size is 2^((value & 0x0F) + 4)) */
 					proto_item_append_text(tlv_item, " ( %d bytes )", 0x10 << (value & 0x0F));
-					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_max_block_size, tvb, offset, 1, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_arq_max_block_size, tvb, offset, 1, ENC_BIG_ENDIAN);
 					if (value & 0xF0)
 						/* Size is 2^(((value & 0xF0) >> 4) + 4)) */
 						proto_item_append_text(tlv_item, " ( %d bytes )", 0x10 << ((value & 0xF0) >> 4));
@@ -2357,41 +2357,41 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 				else
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_arq_block_size, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_sfe_arq_block_size, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_arq_block_size, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				}
 			break;
 			case SFE_CS_SPECIFICATION:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_cs_specification, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_cs_specification, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_cs_specification, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TYPE_OF_DATA_DELIVERY_SERVICES:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_type_of_data_delivery_services, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_type_of_data_delivery_services, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_type_of_data_delivery_services, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_SDU_INTER_ARRIVAL_INTERVAL:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_sdu_inter_arrival_interval, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_sdu_inter_arrival_interval, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_sdu_inter_arrival_interval, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_TIME_BASE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_time_base, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_time_base, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_time_base, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " ms");
 			break;
 			case SFE_PAGING_PREFERENCE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_paging_preference, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_paging_preference, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_paging_preference, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_MBS_ZONE_IDENTIFIER_ASSIGNMENT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_mbs_zone_identifier_assignment, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_mbs_zone_identifier_assignment, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_mbs_zone_identifier_assignment, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case SFE_RESERVED_34:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_reserved_34, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_reserved_34, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_reserved_34, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_GLOBAL_SERVICE_CLASS_NAME:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_global_service_class_name, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_global_service_class_name, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_global_service_class_name, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
 			break;
 /* 36 reserved */
 			case SFE_RESERVED_36:
@@ -2401,49 +2401,49 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 
 			case SFE_SN_FEEDBACK_ENABLED:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_sn_feedback_enabled, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_sn_feedback_enabled, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_sn_feedback_enabled, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_FSN_SIZE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_fsn_size, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_fsn_size, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_fsn_size, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_CID_ALLOCATION_FOR_ACTIVE_BS:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_cid_alloc_for_active_bs_cid, tvb, offset, tlv_len, FALSE);
 				for(i = 0; i < tlv_len; i+=2)
-					proto_tree_add_item(tlv_tree, hf_sfe_cid_alloc_for_active_bs_cid, tvb, (offset+i), 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_cid_alloc_for_active_bs_cid, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
 			break;
 			case SFE_UNSOLICITED_GRANT_INTERVAL:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_unsolicited_grant_interval, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_unsolicited_grant_interval, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_unsolicited_grant_interval, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " ms");
 			break;
 			case SFE_UNSOLOCITED_POLLING_INTERVAL:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_unsolicited_polling_interval, tvb, offset, tlv_len, FALSE);
-				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_unsolicited_polling_interval, tvb, offset, tlv_len, FALSE);
+				tlv_item = proto_tree_add_item(tlv_tree, hf_sfe_unsolicited_polling_interval, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 				proto_item_append_text(tlv_item, " ms");
 			break;
 			case SFE_PDU_SN_EXT_SUBHEADER_HARQ_REORDER:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_pdu_sn_ext_subheader_reorder, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_pdu_sn_ext_subheader_reorder, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_pdu_sn_ext_subheader_reorder, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_MBS_CONTENTS_ID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_mbs_contents_ids, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_mbs_contents_ids, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_mbs_contents_ids, tvb, offset, tlv_len, ENC_NA);
 				for(i = 0; i < tlv_len; i+=2)
-					proto_tree_add_item(tlv_tree, hf_sfe_mbs_contents_ids_id, tvb, (offset+i), 2, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_mbs_contents_ids_id, tvb, (offset+i), 2, ENC_BIG_ENDIAN);
 			break;
 			case SFE_HARQ_SERVICE_FLOWS:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_harq_service_flows, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_harq_service_flows, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_harq_service_flows, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case SFE_AUTHORIZATION_TOKEN:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_authorization_token, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_sfe_authorization_token, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_authorization_token, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case SFE_HARQ_CHANNEL_MAPPING:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_harq_channel_mapping_index, tvb, offset, tlv_len, FALSE);
 				for(i = 0; i < tlv_len; i++)
-					proto_tree_add_item(tlv_tree, hf_sfe_harq_channel_mapping_index, tvb, (offset+i), 1, FALSE);
+					proto_tree_add_item(tlv_tree, hf_sfe_harq_channel_mapping_index, tvb, (offset+i), 1, ENC_BIG_ENDIAN);
 			break;
 /* 99 - 111 CS parameter encodings */
 			case SFE_CSPER_ATM:
@@ -2466,7 +2466,7 @@ void wimax_service_flow_encodings_decoder(tvbuff_t *tvb, packet_info *pinfo, pro
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_wimax_service_flow_encodings, tree, hf_sfe_unknown_type, tvb, offset, tlv_len, FALSE);
 				/* display the unknown sfe type in hex */
-				proto_tree_add_item(tlv_tree, hf_sfe_unknown_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_sfe_unknown_type, tvb, offset, tlv_len, ENC_NA);
 			break;
 		}	/* end of switch */
 		offset += tlv_len;
@@ -2664,15 +2664,15 @@ void wimax_security_negotiation_parameters_decoder(tvbuff_t *tvb, packet_info *p
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_PN_WINDOW_SIZE:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_pn_window_size, tvb, offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_pn_window_size, tvb, offset, tlv_len, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_pn_window_size, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_PKM_FLOW_CONTROL:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_max_conc_transactions, tvb, offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_max_conc_transactions, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_max_conc_transactions, tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 		case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETER_SUB_MAX_SUPPT_SECURITY_ASSNS:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_max_suppt_sec_assns, tvb, offset, tlv_len, FALSE);
-			proto_tree_add_item(tlv_tree, hf_snp_max_suppt_sec_assns, tvb, offset, 1, FALSE);
+			proto_tree_add_item(tlv_tree, hf_snp_max_suppt_sec_assns, tvb, offset, 1, ENC_BIG_ENDIAN);
 		break;
 		default:
 			tlv_tree = add_tlv_subtree(&tlv_info, ett_security_negotiation_parameters, tree, hf_snp_unknown_type, tvb, offset, tlv_len, FALSE);
@@ -2804,31 +2804,31 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		{
 			case PKM_ATTR_DISPLAY_STRING:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_display, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_display, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_display, tvb, offset, tlv_len, ENC_ASCII|ENC_NA);
 			break;
 			case PKM_ATTR_AUTH_KEY:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_auth_key, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_auth_key, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_auth_key, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_TEK:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_tek, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_tek, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_tek, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_KEY_LIFE_TIME:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_key_life_time, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_life_time, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_life_time, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_KEY_SEQ_NUM:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_key_seq_num, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_seq_num, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_seq_num, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_HMAC_DIGEST:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_hmac_digest, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_hmac_digest, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_hmac_digest, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_SAID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_said, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_said, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_said, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_TEK_PARAM:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "TEK Parameters (%u bytes)", tlv_len);
@@ -2837,19 +2837,19 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			case PKM_ATTR_CBC_IV:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_cbc_iv, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_cbc_iv, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_cbc_iv, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_ERROR_CODE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_error_code, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_error_code, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_error_code, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_CA_CERTIFICATE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_ca_certificate, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_ca_certificate, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_ca_certificate, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_SS_CERTIFICATE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_ss_certificate, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_ss_certificate, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_ss_certificate, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_SECURITY_CAPABILITIES:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "Security Capabilities (%u bytes)", tlv_len);
@@ -2870,7 +2870,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 #if 0 /* rserved by IEE 802.16E */
 			case PKM_ATTR_VERSION:
-				proto_tree_add_item(tree, hf_pkm_msg_version, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tree, hf_pkm_msg_version, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 #endif
 			case PKM_ATTR_SA_DESCRIPTOR:
@@ -2880,7 +2880,7 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			break;
 			case PKM_ATTR_SA_TYPE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_sa_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_sa_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_sa_type, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_SECURITY_NEGOTIATION_PARAMETERS:
 				tlv_tree = add_protocol_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, proto_wimax_utility_decoders, tvb, offset, tlv_len, "Security Negotiation Parameters (%u bytes)", tlv_len);
@@ -2897,43 +2897,43 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 				if (eap_handle)
 					call_dissector(eap_handle, tvb_new_subset(tvb, offset, tlv_len, tlv_len), pinfo, tlv_tree);
 				else
-					proto_tree_add_item(tlv_tree, hf_pkm_attr_eap_payload, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_pkm_attr_eap_payload, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_PKM_NONCE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_nonce, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_nonce, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_nonce, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_AUTH_RESULT_CODE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_auth_result_code, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_auth_result_code, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_auth_result_code, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_SA_SERVICE_TYPE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_sa_service_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_sa_service_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_sa_service_type, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_FRAME_NUMBER:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_frame_number, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_frame_number, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_frame_number, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_SS_RANDOM:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_ss_random, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_ss_random, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_ss_random, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_BS_RANDOM:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_bs_random, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_bs_random, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_bs_random, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_PRE_PAK:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_pre_pak, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_pre_pak, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_pre_pak, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_BS_CERTIFICATE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_bs_certificate, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_bs_certificate, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_bs_certificate, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_SIG_BS:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_sig_bs, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_sig_bs, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_sig_bs, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_MS_MAC_ADDRESS:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_ms_mac_address, tvb, offset, tlv_len, FALSE);
@@ -2942,28 +2942,28 @@ void wimax_pkm_tlv_encoded_attributes_decoder(tvbuff_t *tvb, packet_info *pinfo,
 			case PKM_ATTR_CMAC_DIGEST:
 				/* add TLV subtree */
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_cmac_digest, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_cmac_digest_pn, tvb, offset, 4, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_cmac_digest_pn, tvb, offset, 4, ENC_BIG_ENDIAN);
 				proto_tree_add_item(tlv_tree, hf_pkm_attr_cmac_digest_value, tvb, (offset + 4), 8, ENC_NA);
 			break;
 			case PKM_ATTR_KEY_PUSH_MODES:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_push_modes, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_push_modes, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_push_modes, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_KEY_PUSH_COUNTER:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_key_push_counter, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_key_push_counter, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_key_push_counter, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_GKEK:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_gkek, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_gkek, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_gkek, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_SIG_SS:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_sig_ss, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_sig_ss, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_sig_ss, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_AKID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_akid, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_akid, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_akid, tvb, offset, tlv_len, ENC_NA);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
@@ -3028,23 +3028,23 @@ void wimax_tek_parameters_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree 
 		{
 			case PKM_ATTR_TEK:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_tek, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_tek, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_tek, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_KEY_LIFE_TIME:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_key_life_time, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_life_time, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_life_time, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_KEY_SEQ_NUM:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_key_seq_num, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_seq_num, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_key_seq_num, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_CBC_IV:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_attr_cbc_iv, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_cbc_iv, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_cbc_iv, tvb, offset, tlv_len, ENC_NA);
 			break;
 			case PKM_ATTR_ASSOCIATED_GKEK_SEQ_NUM:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_attr_associated_gkek_seq_number, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_associated_gkek_seq_number, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_associated_gkek_seq_number, tvb, offset, tlv_len, ENC_NA);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_msg_unknown_type, tvb, offset, tlv_len, FALSE);
@@ -3109,31 +3109,31 @@ void wimax_pkm_configuration_settings_decoder(tvbuff_t *tvb, packet_info *pinfo,
 		{
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_AUTHORIZE_WAIT_TIMEOUT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_authorize_waitout, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_authorize_waitout, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_authorize_waitout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_REAUTHORIZE_WAIT_TIMEOUT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_reauthorize_waitout, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_reauthorize_waitout, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_reauthorize_waitout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_AUTHORIZATION_GRACE_TIME:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_grace_time, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_grace_time, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_grace_time, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_OPERATIONAL_WAIT_TIMEOUT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_operational_waittime, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_operational_waittime, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_operational_waittime, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_REKEY_WAIT_TIMEOUT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_rekey_wait_timeout, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_rekey_wait_timeout, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_rekey_wait_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_TEK_GRACE_TIME:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_tek_grace_time, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_tek_grace_time, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_tek_grace_time, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_PKM_CONFIG_SETTINGS_AUTHORIZE_REJECT_WAIT_TIMEOUT:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_authorize_reject_wait_timeout, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_authorize_reject_wait_timeout, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_config_settings_authorize_reject_wait_timeout, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			default:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_pkm_tlv_encoded_attributes_decoder, tree, hf_pkm_config_settings_authorize_reject_wait_timeout, tvb, offset, tlv_len, FALSE);
@@ -3198,15 +3198,15 @@ void wimax_sa_descriptor_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_tree *
 		{
 			case PKM_ATTR_SAID:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_msg_attr_said, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_said, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_msg_attr_said, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_SA_TYPE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_sa_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_sa_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_sa_type, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_SA_SERVICE_TYPE:
 				tlv_tree = add_tlv_subtree(&tlv_info, ett_sa_descriptor_decoder, tree, hf_pkm_attr_sa_service_type, tvb, offset, tlv_len, FALSE);
-				proto_tree_add_item(tlv_tree, hf_pkm_attr_sa_service_type, tvb, offset, tlv_len, FALSE);
+				proto_tree_add_item(tlv_tree, hf_pkm_attr_sa_service_type, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 			break;
 			case PKM_ATTR_CRYPTO_SUITE:
 				/* add subtree */

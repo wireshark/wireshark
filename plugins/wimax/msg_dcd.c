@@ -526,7 +526,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_rss, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_rss, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_rss, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " dBm");
 					break;
 				}
@@ -536,7 +536,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 					proto_item *tlv_item = NULL;
 
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_eirxp, tvb, offset, tlv_len, FALSE);
-					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_eirxp, tvb, offset, tlv_len, FALSE);
+					tlv_item = proto_tree_add_item(tlv_tree, hf_dcd_eirxp, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					proto_item_append_text(tlv_item, " dBm");
 					break;
 				}
@@ -578,7 +578,7 @@ void dissect_mac_mgmt_msg_dcd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 				case DCD_SIZE_CQICH_ID:
 				{
 					tlv_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_dcd_decoder, dcd_tree, hf_dcd_size_cqich_id, tvb, offset, tlv_len, FALSE);
-					proto_tree_add_item(tlv_tree, hf_dcd_size_cqich_id, tvb, offset, tlv_len, FALSE);
+					proto_tree_add_item(tlv_tree, hf_dcd_size_cqich_id, tvb, offset, tlv_len, ENC_BIG_ENDIAN);
 					break;
 				}
 #endif

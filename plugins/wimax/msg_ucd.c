@@ -400,14 +400,14 @@ void dissect_mac_mgmt_msg_ucd_decoder(tvbuff_t *tvb, packet_info *pinfo, proto_t
 							case UCD_BURST_POWER_BOOST:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, tlv_tree, hf_ucd_burst_power_boost, tvb, (offset+tlv_offset), 1, FALSE);
-								tlv_item2 = proto_tree_add_item(sub_tree, hf_ucd_burst_power_boost, tvb, (offset+tlv_offset), length, FALSE);
+								tlv_item2 = proto_tree_add_item(sub_tree, hf_ucd_burst_power_boost, tvb, (offset+tlv_offset), length, ENC_BIG_ENDIAN);
 								proto_item_append_text(tlv_item2, " dB");
 								break;
 							}
 							case UCD_BURST_TCS_ENABLE:
 							{
 								sub_tree = add_tlv_subtree(&tlv_info, ett_mac_mgmt_msg_ucd_decoder, tlv_tree, hf_ucd_burst_tcs_enable, tvb, (offset+tlv_offset), 1, FALSE);
-								proto_tree_add_item(sub_tree, hf_ucd_burst_tcs_enable, tvb, (offset+tlv_offset), 1, FALSE);
+								proto_tree_add_item(sub_tree, hf_ucd_burst_tcs_enable, tvb, (offset+tlv_offset), 1, ENC_BIG_ENDIAN);
 								break;
 							}
 #endif
