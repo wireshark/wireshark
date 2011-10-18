@@ -5,6 +5,7 @@
  *
  * (c) 2006, Luis E. Garcia Ontanon <luis@ontanon.org>
  * (c) 2008, Balint Reczey <balint.reczey@ericsson.com>
+ * (c) 2011, Stig Bjorlykke <stig@bjorlykke.org>
  *
  * $Id$
  *
@@ -48,10 +49,12 @@
 static GPtrArray* outstanding_Pinfo = NULL;
 static GPtrArray* outstanding_Column = NULL;
 static GPtrArray* outstanding_Columns = NULL;
+static GPtrArray* outstanding_PrivateTable = NULL;
 
 CLEAR_OUTSTANDING(Pinfo,expired, TRUE)
 CLEAR_OUTSTANDING(Column,expired, TRUE)
 CLEAR_OUTSTANDING(Columns,expired, TRUE)
+CLEAR_OUTSTANDING(PrivateTable,expired, TRUE)
 
 Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
     Pinfo pinfo = NULL;
@@ -66,6 +69,7 @@ Pinfo* push_Pinfo(lua_State* L, packet_info* ws_pinfo) {
 
 #define PUSH_COLUMN(L,c) {g_ptr_array_add(outstanding_Column,c);pushColumn(L,c);}
 #define PUSH_COLUMNS(L,c) {g_ptr_array_add(outstanding_Columns,c);pushColumns(L,c);}
+#define PUSH_PRIVATE_TABLE(L,c) {g_ptr_array_add(outstanding_PrivateTable,c);pushPrivateTable(L,c);}
 
 WSLUA_CLASS_DEFINE(NSTime,NOP,NOP);
 	/* NSTime represents a nstime_t.  This is an object with seconds and nano seconds. */
@@ -819,6 +823,117 @@ int Columns_register(lua_State *L) {
     return 1;
 }
 
+WSLUA_CLASS_DEFINE(PrivateTable,NOP,NOP);
+	/* PrivateTable represents the pinfo->private_table. */
+
+WSLUA_METAMETHOD PrivateTable__tostring(lua_State* L) {
+    PrivateTable priv = checkPrivateTable(L,1);
+    GString *key_string = g_string_new ("");
+    GList *keys, *key;
+
+    if (!priv) return 0;
+
+    keys = g_hash_table_get_keys (priv->table);
+    key = g_list_first (keys);
+    while (key) {
+        key_string = g_string_append (key_string, key->data);
+        key = g_list_next (key);
+        if (key) {
+            key_string = g_string_append_c (key_string, ',');
+        }
+    }
+
+    lua_pushstring(L,ep_strdup(key_string->str));
+
+    g_string_free (key_string, TRUE);
+    g_list_free (keys);
+
+    WSLUA_RETURN(1); /* A string with all keys in the table, mostly for debugging. */
+}
+
+static int PrivateTable__index(lua_State* L) {
+	/* Gets the text of a specific entry */
+    PrivateTable priv = checkPrivateTable(L,1);
+    const gchar* name = luaL_checkstring(L,2);
+    const gchar* string;
+
+    if (! (priv && name) ) return 0;
+
+    if (priv->expired) {
+        luaL_error(L,"expired private_table");
+        return 0;
+    }
+
+    string = g_hash_table_lookup (priv->table, (gpointer) name);
+
+    if (string) {
+        lua_pushstring(L, string);
+    } else {
+        lua_pushnil(L);
+    }
+
+    return 1;
+}
+
+static int PrivateTable__newindex(lua_State* L) {
+	/* Sets the text of a specific entry */
+    PrivateTable priv = checkPrivateTable(L,1);
+    const gchar* name = luaL_checkstring(L,2);
+    const gchar* string = NULL;
+
+    if (! (priv && name) ) return 0;
+
+    if (priv->expired) {
+        luaL_error(L,"expired private_table");
+        return 0;
+    }
+
+    if (lua_isstring(L,3)) {
+        /* This also catches numbers, which is converted to string */
+        string = luaL_checkstring(L,3);
+    } else if (lua_isboolean(L,3)) {
+        /* We support boolean by setting a empty string if true and NULL if false */
+        string = lua_toboolean(L,3) ? "" : NULL;
+    } else if (!lua_isnil(L,3)) {
+        luaL_error(L,"unsupported type: %s", lua_typename(L,3));
+        return 0;
+    }
+
+    g_hash_table_replace (priv->table, (gpointer) name, (gpointer) string);
+
+    return 1;
+}
+
+static int PrivateTable__gc(lua_State* L) {
+    PrivateTable priv = checkPrivateTable(L,1);
+
+    if (!priv) return 0;
+
+    if (!priv->expired) {
+        priv->expired = TRUE;
+    } else {
+        if (priv->is_allocated) {
+            g_hash_table_destroy (priv->table);
+        }
+        g_free(priv);
+    }
+
+    return 0;
+}
+
+WSLUA_META PrivateTable_meta[] = {
+    {"__index", PrivateTable__index},
+    {"__newindex", PrivateTable__newindex},
+    {"__tostring", PrivateTable__tostring},
+    {"__gc", PrivateTable__gc},
+    { NULL, NULL}
+};
+
+int PrivateTable_register(lua_State* L) {
+    WSLUA_REGISTER_META(PrivateTable);
+    return 1;
+}
+
 
 WSLUA_CLASS_DEFINE(Pinfo,FAIL_ON_NULL("expired pinfo"),NOP);
 /* Packet information */
@@ -960,6 +1075,39 @@ static int Pinfo_columns(lua_State *L) {
     return 1;
 }
 
+static int Pinfo_private(lua_State *L) {
+    PrivateTable priv = NULL;
+    Pinfo pinfo = checkPinfo(L,1);
+    const gchar* privname = luaL_optstring(L,2,NULL);
+    gboolean is_allocated = FALSE;
+
+    if (!pinfo) return 0;
+
+    if (pinfo->expired) {
+        luaL_error(L,"expired private_table");
+        return 0;
+    }
+
+    if (!pinfo->ws_pinfo->private_table) {
+        pinfo->ws_pinfo->private_table = g_hash_table_new(g_str_hash,g_str_equal);
+        is_allocated = TRUE;
+    }
+
+    priv = g_malloc(sizeof(struct _wslua_private_table));
+    priv->table = pinfo->ws_pinfo->private_table;
+    priv->is_allocated = is_allocated;
+    priv->expired = FALSE;
+
+    if (!privname) {
+        PUSH_PRIVATE_TABLE(L,priv);
+    } else {
+        lua_settop(L,0);
+        PUSH_PRIVATE_TABLE(L,priv);
+        lua_pushstring(L,privname);
+        return PrivateTable__index(L);
+    }
+    return 1;
+}
 
 typedef enum {
     PARAM_NONE,
@@ -1193,6 +1341,9 @@ static const pinfo_method_t Pinfo_methods[] = {
 	/* WSLUA_ATTRIBUTE Pinfo_private_data RO Access to private data */
     {"private_data", Pinfo_private_data, pushnil_param, PARAM_NONE},
 
+	/* WSLUA_ATTRIBUTE Pinfo_private RW Access to the private table entries */
+    {"private", Pinfo_private, pushnil_param, PARAM_NONE},
+
 	/* WSLUA_ATTRIBUTE Pinfo_ethertype RW Ethernet Type Code, if this is an Ethernet packet */
     {"ethertype", Pinfo_ethertype, Pinfo_set_int, PARAM_ETHERTYPE},
 
@@ -1298,5 +1449,6 @@ int Pinfo_register(lua_State* L) {
     outstanding_Pinfo = g_ptr_array_new();
     outstanding_Column = g_ptr_array_new();
     outstanding_Columns = g_ptr_array_new();
+    outstanding_PrivateTable = g_ptr_array_new();
     return 1;
 }

@@ -56,6 +56,7 @@ static void lua_frame_end(void)
     clear_outstanding_Pinfo();
     clear_outstanding_Column();
     clear_outstanding_Columns();
+    clear_outstanding_PrivateTable();
     clear_outstanding_TreeItem();
 }
 

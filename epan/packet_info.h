@@ -175,6 +175,7 @@ typedef struct _packet_info {
                                       * in the SCTP packet
                                       */
   void    *private_data;	/* pointer to data passed from one dissector to another */
+  GHashTable *private_table;	/* a hash table passed from one dissector to another */
   /* TODO: Use emem_strbuf_t instead */
   GString *layer_names; 	/* layers of each protocol */
   guint16 link_number;

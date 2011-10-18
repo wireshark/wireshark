@@ -165,6 +165,12 @@ struct _wslua_cols {
     gboolean expired;
 };
 
+struct _wslua_private_table {
+    GHashTable *table;
+    gboolean is_allocated;
+    gboolean expired;
+};
+
 struct _wslua_treeitem {
     proto_item* item;
     proto_tree* tree;
@@ -237,6 +243,7 @@ typedef tvbparse_elem_t* Node;
 typedef tvbparse_action_t* Shortcut;
 typedef struct _wslua_main* WireShark;
 typedef struct _wslua_dir* Dir;
+typedef struct _wslua_private_table* PrivateTable;
 
 /*
  * toXxx(L,idx) gets a Xxx from an index (Lua Error if fails)
@@ -397,6 +404,7 @@ extern Pinfo* push_Pinfo(lua_State* L, packet_info* p);
 extern void clear_outstanding_Pinfo(void);
 extern void clear_outstanding_Column(void);
 extern void clear_outstanding_Columns(void);
+extern void clear_outstanding_PrivateTable(void);
 
 extern TreeItem* push_TreeItem(lua_State* L, TreeItem ti);
 extern void clear_outstanding_TreeItem(void);
