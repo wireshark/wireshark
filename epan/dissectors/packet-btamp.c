@@ -377,7 +377,7 @@ dissect_discphysicalchanresponse(tvbuff_t *tvb, int offset, packet_info *pinfo _
     return offset;
 }
 
-static void dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static int dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     int offset=0;
     proto_item *ti=NULL;
@@ -494,6 +494,7 @@ static void dissect_btamp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
     proto_item_append_text(ti_command, "%s", val_to_str(cmd_code, command_code_vals, "Unknown PDU (%u)"));
     col_append_str(pinfo->cinfo, COL_INFO, val_to_str(cmd_code, command_code_vals, "Unknown PDU (%u)"));
+return offset;
 }
 
 /* Register the protocol with Wireshark */
@@ -641,7 +642,7 @@ proto_register_btamp(void)
     /* Register the protocol name and description */
     proto_btamp = proto_register_protocol("Bluetooth AMP Packet", "AMP", "btamp");
 
-    register_dissector("btamp", dissect_btamp, proto_btamp);
+    new_register_dissector("btamp", dissect_btamp, proto_btamp);
 
     /* Required function calls to register the header fields and subtrees used */
     proto_register_field_array(proto_btamp, hf, array_length(hf));
