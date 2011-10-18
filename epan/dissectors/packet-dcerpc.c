@@ -52,12 +52,14 @@
 
 static int dcerpc_tap = -1;
 
-/* standard transport syntax */
+/* 32bit Network Data Representation, see DCE/RPC Appendix I */
 static e_uuid_t uuid_data_repr_proto = { 0x8a885d04, 0x1ceb, 0x11c9, { 0x9f, 0xe8, 0x08, 0x00, 0x2b, 0x10, 0x48, 0x60 } };
-/* ndr64 transport syntax, introduced in w2k8 */
-static e_uuid_t ndr64_uuid = { 0x71710533, 0xbeba, 0x4937, { 0x83, 0x19, 0xb5, 0xdb, 0xef, 0x9c, 0xcc, 0x36 } };
-
-
+/* 64bit Network Data Representation, introduced in Windows Server 2008 */
+static e_uuid_t uuid_ndr64 = { 0x71710533, 0xbeba, 0x4937, { 0x83, 0x19, 0xb5, 0xdb, 0xef, 0x9c, 0xcc, 0x36 } };
+/* Bind Time Feature Negotiation, see [MS-RPCE] 3.3.1.5.3 */
+static e_uuid_t uuid_bind_time_feature_nego = { 0x6cb71c2c, 0x9812, 0x4540, { 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 } };
+/* see [MS-OXRPC] Appendix A: Full IDL, http://msdn.microsoft.com/en-us/library/ee217991%28v=exchg.80%29.aspx */
+static e_uuid_t uuid_asyncemsmdb = { 0x5261574a, 0x4572, 0x206e, { 0xb2, 0x68, 0x6b, 0x19, 0x92, 0x13, 0xb4, 0xe4 } };
 
 static const value_string pckt_vals[] = {
     { PDU_REQ,        "Request"},
@@ -207,6 +209,7 @@ static const value_string p_cont_result_vals[] = {
     { 0, "Acceptance" },
     { 1, "User rejection" },
     { 2, "Provider rejection" },
+    { 3, "Negotiate ACK" }, /* [MS-RPCE] 2.2.2.4 */
     { 0, NULL }
 };
 
@@ -2778,10 +2781,9 @@ static void
 dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                         proto_tree *dcerpc_tree, e_dce_cn_common_hdr_t *hdr)
 {
-    conversation_t *conv = NULL;
+    conversation_t *conv = find_or_create_conversation(pinfo);
     guint8 num_ctx_items = 0;
     guint i;
-    gboolean saw_ctx_item = FALSE;
     guint16 ctx_id;
     guint8 num_trans_items;
     guint j;
@@ -2808,6 +2810,8 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
     /* padding */
     offset += 3;
+
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items:", num_ctx_items);
 
     for (i = 0; i < num_ctx_items; i++) {
         proto_item *ctx_item = NULL;
@@ -2878,7 +2882,6 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             proto_item_set_len(iface_item, 20);
         }
 
-
         memset(&trans_id, 0, sizeof(trans_id));
         for (j = 0; j < num_trans_items; j++) {
             proto_tree *trans_tree = NULL;
@@ -2913,10 +2916,6 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             }
         }
 
-        if (!saw_ctx_item) {
-            conv = find_or_create_conversation(pinfo);
-        }
-
         /* if this is the first time we see this packet, we need to
            update the dcerpc_binds table so that any later calls can
            match to the interface.
@@ -2936,22 +2935,15 @@ dissect_dcerpc_cn_bind (tvbuff_t *tvb, gint offset, packet_info *pinfo,
             value->ver = if_ver;
             value->transport=trans_id;
 
-            /* add this entry to the bind table, first removing any
-               previous ones that are identical
-            */
-            if(g_hash_table_lookup(dcerpc_binds, key)){
-                g_hash_table_remove(dcerpc_binds, key);
-            }
+            /* add this entry to the bind table */
             g_hash_table_insert (dcerpc_binds, key, value);
         }
-        if (!saw_ctx_item) {
-            if (num_ctx_items > 1)
-                col_append_fstr(pinfo->cinfo, COL_INFO, ", %u context items, 1st", num_ctx_items);
 
-            col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u",
-                            guids_resolve_uuid_to_str(&if_id), if_ver, if_ver_minor);
-            saw_ctx_item = TRUE;
-        }
+	if (i > 0)
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ",");
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s V%u.%u (%s)",
+			guids_resolve_uuid_to_str(&if_id), if_ver, if_ver_minor,
+			guids_resolve_uuid_to_str(&trans_id));
 
         if(ctx_tree) {
             proto_item_set_len(ctx_item, offset - ctx_offset);
@@ -3009,6 +3001,9 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
     /* padding */
     offset += 3;
 
+    col_append_fstr(pinfo->cinfo, COL_INFO, ", max_xmit: %u max_recv: %u, %u results:",
+		    max_xmit, max_recv, num_results);
+
     for (i = 0; i < num_results; i++) {
         proto_tree *ctx_tree = NULL;
 
@@ -3045,6 +3040,11 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
 
         offset = dissect_dcerpc_uint32 (tvb, offset, pinfo, ctx_tree, hdr->drep,
                                         hf_dcerpc_cn_ack_trans_ver, &trans_ver);
+
+	if (i > 0)
+	    col_append_fstr(pinfo->cinfo, COL_INFO, ",");
+	col_append_fstr(pinfo->cinfo, COL_INFO, " %s",
+			val_to_str(result, p_cont_result_vals, "Unknown result (%u)"));
     }
 
     /*
@@ -3052,22 +3052,6 @@ dissect_dcerpc_cn_bind_ack (tvbuff_t *tvb, gint offset, packet_info *pinfo,
      * we get back from this?
      */
     dissect_dcerpc_cn_auth (tvb, offset, pinfo, dcerpc_tree, hdr, TRUE, &auth_info);
-
-    if (num_results != 0) {
-        if (result == 0) {
-            /* XXX - only checks the last result */
-            col_append_fstr (pinfo->cinfo, COL_INFO,
-                             " accept max_xmit: %u max_recv: %u",
-                             max_xmit, max_recv);
-        } else {
-            /* XXX - only shows the last result and reason */
-            col_append_fstr (pinfo->cinfo, COL_INFO, " %s, reason: %s",
-                             val_to_str(result, p_cont_result_vals,
-                                        "Unknown result (%u)"),
-                             val_to_str(reason, p_provider_reason_vals,
-                                        "Unknown (%u)"));
-        }
-    }
 }
 
 static void
@@ -3407,18 +3391,12 @@ dcerpc_add_conv_to_bind_table(decode_dcerpc_bind_values_t *binding)
     */
     bind_value->transport=uuid_data_repr_proto;
 
-
     key = se_alloc(sizeof (dcerpc_bind_key));
     key->conv = conv;
     key->ctx_id = binding->ctx_id;
     key->smb_fid = binding->smb_fid;
 
-    /* add this entry to the bind table, first removing any
-       previous ones that are identical
-    */
-    if(g_hash_table_lookup(dcerpc_binds, key)){
-        g_hash_table_remove(dcerpc_binds, key);
-    }
+    /* add this entry to the bind table */
     g_hash_table_insert(dcerpc_binds, key, bind_value);
 
     return bind_value;
@@ -3545,7 +3523,7 @@ dissect_dcerpc_cn_rqst (tvbuff_t *tvb, gint offset, packet_info *pinfo,
                     call_value->private_data = NULL;
                     call_value->pol = NULL;
                     call_value->flags = 0;
-                    if (!memcmp(&bind_value->transport, &ndr64_uuid, sizeof(ndr64_uuid))) {
+                    if (!memcmp(&bind_value->transport, &uuid_ndr64, sizeof(uuid_ndr64))) {
                         call_value->flags |= DCERPC_IS_NDR64;
                     }
 
@@ -5918,7 +5896,8 @@ proto_reg_handoff_dcerpc (void)
     heur_dissector_add ("http", dissect_dcerpc_cn_bs, proto_dcerpc);
     dcerpc_smb_init(proto_dcerpc);
 
-
-    guids_add_uuid(&uuid_data_repr_proto, "Version 1.1 network data representation protocol");
-    guids_add_uuid(&ndr64_uuid, "NDR64");
+    guids_add_uuid(&uuid_data_repr_proto, "32bit NDR");
+    guids_add_uuid(&uuid_ndr64, "64bit NDR");
+    guids_add_uuid(&uuid_bind_time_feature_nego, "bind time feature negotiation");
+    guids_add_uuid(&uuid_asyncemsmdb, "async MAPI");
 }
