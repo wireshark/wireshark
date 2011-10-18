@@ -31,10 +31,6 @@
 #include "config.h"
 #endif
 
-#include <stdlib.h>
-
-#include <glib.h>
-
 #include <epan/packet.h>
 #include <epan/dissectors/packet-tcp.h>
 
@@ -235,6 +231,7 @@ static gint ett_pcep_obj_close = -1;
 static gint ett_pcep_obj_path_key = -1;
 static gint ett_pcep_obj_xro = -1;
 static gint pcep_xro_flags_f= -1;
+static gint ett_pcep_obj_of = -1;
 static gint pcep_subobj_flags_lpa= -1;
 static gint pcep_subobj_flags_lpu= -1;
 static gint pcep_subobj_label_flags_gl= -1;
@@ -348,7 +345,7 @@ static const value_string pcep_route_u_obj_vals[] = {
 static const value_string pcep_notification_types_vals[] = {
 	{NOT_REQ_CANCEL,		"Pending Request Cancelled"	},
 	{PCEP_CONGESTION, 		"PCE Congestion" 		},
-	{0,			         NULL            					}
+	{0,			         NULL				}
 };
 
 /*Values of Notification value for Notification Type=1*/
@@ -561,6 +558,7 @@ enum pcep_filter_keys{
     PCEPF_OBJ_CLOSE,
     PCEPF_OBJ_PATH_KEY,
     PCEPF_OBJ_XRO,
+    PCEPF_OBJ_OF,
     PCEPF_SUBOBJ,
     PCEPF_SUBOBJ_IPv4,
     PCEPF_SUBOBJ_IPv6,
@@ -600,6 +598,7 @@ static gint *ett[] = {
 	&ett_pcep_obj_close,
 	&ett_pcep_obj_path_key,
 	&ett_pcep_obj_xro,
+	&ett_pcep_obj_of,
 	&ett_pcep_obj_unknown
 };
 
@@ -647,7 +646,7 @@ dissect_pcep_tlvs(proto_tree *pcep_obj, tvbuff_t *tvb, int offset, gint length, 
 		    case 4:   /* OF TLV */
 			for (i=0; i<tlv_length/2; i++)
 			    proto_tree_add_text(tlv, tvb, offset+4+j+i*2, 2, "OF-Code #%d: %s (%u)",
-						i+1, val_to_str(tvb_get_ntohs(tvb, offset+4+j+i), pcep_of_vals, "Unknown"),
+						i+1, val_to_str(tvb_get_ntohs(tvb, offset+4+j+i*2), pcep_of_vals, "Unknown"),
 						tvb_get_ntohs(tvb, offset+4+j+i*2));
 			break;
 
@@ -2171,6 +2170,11 @@ dissect_pcep_obj_tree(proto_tree *pcep_tree, tvbuff_t *tvb, int len, int offset,
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_xro);
 		break;
 
+	case PCEP_OF_OBJ:
+		pcep_object_item = proto_tree_add_item(pcep_tree, pcep_filter[PCEPF_OBJ_OF], tvb, offset, -1, FALSE);
+		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_of);
+		break;
+
 	default:
 		pcep_object_item = proto_tree_add_text(pcep_tree, tvb, offset, -1, "Unknown object (%u)", obj_class);
 		pcep_object_tree = proto_item_add_subtree(pcep_object_item, ett_pcep_obj_unknown);
@@ -2562,6 +2566,9 @@ proto_register_pcep(void){
 			NULL, HFILL }},
 		{&pcep_filter[PCEPF_OBJ_XRO],
 		 { "EXCLUDE ROUTE object (XRO)", "pcep.obj.xro", FT_NONE, BASE_NONE, NULL, 0x0,
+			NULL, HFILL }},
+		{&pcep_filter[PCEPF_OBJ_OF],
+		 { "OBJECTIVE FUNCTION object (OF)", "pcep.obj.of", FT_NONE, BASE_NONE, NULL, 0x0,
 			NULL, HFILL }},
 
 		/*Subobjects*/
