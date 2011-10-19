@@ -3247,6 +3247,7 @@ Grzegorz Szczytowski	<Grzegorz.Szczytowski [AT] gmail.com>  {
 
 Martin Kaiser		<martin [AT] kaiser.cx> {
 	DVB-CI (Common Interface) dissector
+	HDCP dissector 
 }
 
 Jakub Zawadzki		<darkjames-ws [AT] darkjames.pl> {
