@@ -224,7 +224,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 								if (xvalue >= LEFT_BORDER+u_data->io->offset &&
 								    xvalue <= u_data->io->surface_width-RIGHT_BORDER+u_data->io->offset &&
 								    yvalue >= TOP_BORDER-u_data->io->offset-POINT_SIZE &&
-								    yvalue <= u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset)
+								    yvalue <= u_data->io->surface_height-BOTTOM_BORDER-u_data->io->offset) {
 #if GTK_CHECK_VERSION(2,22,0)
 									cr = cairo_create (u_data->io->surface);
 #else
@@ -239,6 +239,7 @@ draw_sack_graph(struct sctp_udata *u_data)
 										2 * G_PI);
 									cairo_fill(cr);
 									cairo_destroy(cr);
+								}
 							}
 							if (i < nr-1)
 								gap++;
