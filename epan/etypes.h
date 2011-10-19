@@ -430,6 +430,10 @@
 #define ETHERTYPE_IEEE_802_1AH  	0x88E7  /* IEEE 802.1ah Provider Backbone Bridge Mac-in-Mac */
 #endif
 
+#ifndef ETHERTYPE_MVRP
+#define ETHERTYPE_MVRP			0x88F5  /* IEEE 802.1ak Multiple VLAN Registration Protocol */
+#endif
+
 #ifndef ETHERTYPE_MMRP
 #define ETHERTYPE_MMRP			0x88F6  /* IEEE 802.1ak Multiple MAC Registration Protocol */
 #endif
