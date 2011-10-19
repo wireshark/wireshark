@@ -949,7 +949,7 @@ dissect_bthci_ext_inquiry_response(tvbuff_t *tvb, int offset, packet_info *pinfo
 	return offset+240;
 }
 
-static void
+static int
 dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
 {
 	proto_item *item;
@@ -1228,9 +1228,10 @@ dissect_link_control_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, prot
 			offset+=tvb_length_remaining(tvb, offset);
 			break;
 	}
+return offset;
 }
 
-static void
+static int
 dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
 {
 	proto_item *item;
@@ -1369,9 +1370,10 @@ dissect_link_policy_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto
 			break;
 
 	}
+return offset;
 }
 
-static void
+static int
 dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, guint16 cmd_ocf)
 {
@@ -1802,9 +1804,10 @@ dissect_host_controller_baseband_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 	}
+return offset;
 }
 
-static void
+static int
 dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, guint16 cmd_ocf)
 {
@@ -1821,9 +1824,10 @@ dissect_informational_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pin
 			break;
 
 	}
+return offset;
 }
 
-static void
+static int
 dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 		proto_tree *tree, guint16 cmd_ocf)
 {
@@ -1851,9 +1855,10 @@ dissect_status_parameters_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_,
 			break;
 
 	}
+return offset;
 }
 
-static void
+static int
 dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tree *tree, guint16 cmd_ocf)
 {
 	switch(cmd_ocf) {
@@ -1874,6 +1879,7 @@ dissect_testing_cmd(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, proto_tre
 			break;
 
 	}
+return offset;
 }
 
 /* Code to actually dissect the packets */

@@ -2302,7 +2302,7 @@ dissect_bthci_evt_inq_result(tvbuff_t *tvb, int offset, packet_info *pinfo _U_, 
 
 
 /* Code to actually dissect the packets */
-static void
+static int
 dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti;
@@ -2538,10 +2538,12 @@ dissect_bthci_evt(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 
 		default:
 			proto_tree_add_item(bthci_evt_tree, hf_bthci_evt_params, tvb, 2, -1, ENC_NA);
+			offset+=tvb_length_remaining(tvb, offset);
 			break;
 		}
 
 	}
+return offset;
 }
 
 
@@ -3520,7 +3522,7 @@ proto_register_bthci_evt(void)
 	proto_bthci_evt = proto_register_protocol("Bluetooth HCI Event",
 			"HCI_EVT", "bthci_evt");
 
-	register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
+	new_register_dissector("bthci_evt", dissect_bthci_evt, proto_bthci_evt);
 
 
 
