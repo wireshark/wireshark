@@ -91,7 +91,16 @@ next_tvb = tvb_new_subset(tvb, offset, len+comp_offset-offset, len+comp_offset-o
 if (!next_tvb)
   return comp_offset;
 
+TRY {
 %(DEFAULT_BODY)s
+}
+CATCH(BoundsError) {
+  RETHROW;
+}
+CATCH(ReportedBoundsError) {
+  show_reported_bounds_error(tvb, actx->pinfo, tree);
+}
+ENDTRY;
 
  dissect_tcap_ITU_ComponentPDU(implicit_tag, next_tvb, 0, actx, tcap_top_tree, hf_index);
 
