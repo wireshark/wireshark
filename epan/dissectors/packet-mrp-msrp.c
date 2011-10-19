@@ -167,6 +167,9 @@ static const value_string failure_vals[] = {
     { 14, "MaxFrameSize (35.2.2.8.4(a)) is too large for media" },
     { 15, "msrpMaxFanInPorts (35.2.1.4(f)) limit has been reached" },
     { 16, "Changes in FirstValue for a registered StreamID" },
+    { 17, "VLAN is blocked on this egress port (Registration Forbidden)" },
+    { 18, "VLAN tagging is disabled on this egress port (untagged set)" },
+    { 19, "SR class priority mismatch" },
     { 0, NULL }
 };
 
