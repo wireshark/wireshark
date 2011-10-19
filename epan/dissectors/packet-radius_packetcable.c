@@ -405,13 +405,13 @@ static const gchar* dissect_packetcable_term_dsply_info(proto_tree* tree, tvbuff
 							 tvb, 0, 1, ENC_BIG_ENDIAN);
 	proto_tree* obj_tree = proto_item_add_subtree(ti, ett_packetcable_term_dsply);
 
-	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_general_display,
+	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_general_display,
 						tvb, 0, 1, bitmask);
-	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_number,
+	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_number,
 						tvb, 0, 1, bitmask);
-	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_name,
+	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_calling_name,
 						tvb, 0, 1, bitmask);
-	proto_tree_add_item(obj_tree, hf_packetcable_terminal_display_info_sbm_message_waiting,
+	proto_tree_add_boolean(obj_tree, hf_packetcable_terminal_display_info_sbm_message_waiting,
 						tvb, 0, 1, bitmask);
 
 	if (bitmask & PACKETCABLE_GENERAL_DISPLAY) {

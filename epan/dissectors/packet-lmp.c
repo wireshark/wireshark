@@ -801,7 +801,7 @@ dissect_lmp(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 	  proto_tree_add_text(lmp_object_header_tree, tvb, offset+1, 1,
 			      "Object Class: %u - %s",
 			      class, object_type);
-	  proto_tree_add_item(lmp_object_header_tree, hf_lmp_filter[LMPF_VAL_CTYPE],
+	  proto_tree_add_uint(lmp_object_header_tree, hf_lmp_filter[LMPF_VAL_CTYPE],
 			      tvb, offset, 1, type);
 	  offset2 = offset+4;
 	  mylen = obj_length - 4;
