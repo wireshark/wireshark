@@ -35,7 +35,6 @@
 
 #define NSIP_DEBUG 0
 #define NSIP_SEP ", " /* Separator string */
-#define NSIP_LITTLE_ENDIAN 0
 
 static range_t *global_nsip_udp_port_range;
 #define DEFAULT_NSIP_PORT_RANGE "2157,19999"
@@ -412,7 +411,7 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
       ip4_addr = tvb_get_ipv4(bi->tvb, bi->offset);
       proto_tree_add_item(field_tree, hf_nsip_ip_address_ipv4,
                           bi->tvb, bi->offset, element->address_length,
-                          NSIP_LITTLE_ENDIAN);
+                          ENC_BIG_ENDIAN);
       proto_item_append_text(tf, ": IP address: %s",
                              ip_to_str((guint8 *)&ip4_addr));
 
@@ -421,7 +420,7 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
       tvb_get_ipv6(bi->tvb, bi->offset, &ip6_addr);
       proto_tree_add_item(field_tree, hf_nsip_ip_address_ipv6, bi->tvb,
                           bi->offset, element->address_length,
-                          NSIP_LITTLE_ENDIAN);
+                          ENC_NA);
       proto_item_append_text(tf, ": IP address: %s",
                              ip6_to_str((struct e_in6_addr *)&ip6_addr));
       break;
@@ -444,14 +443,14 @@ decode_ip_element(nsip_ip_element_info_t *element, build_info_t *bi, proto_tree 
   if (bi->nsip_tree) {
     /* Signalling weight */
     proto_tree_add_item(field_tree, hf_nsip_ip_element_signalling_weight,
-                        bi->tvb, bi->offset, 1, NSIP_LITTLE_ENDIAN);
+                        bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   }
   bi->offset++;
 
   if (bi->nsip_tree) {
     /* Data weight */
     proto_tree_add_item(field_tree, hf_nsip_ip_element_data_weight,
-                        bi->tvb, bi->offset, 1, NSIP_LITTLE_ENDIAN);
+                        bi->tvb, bi->offset, 1, ENC_BIG_ENDIAN);
   }
   bi->offset++;
   return tf;
@@ -1007,7 +1006,7 @@ dissect_nsip(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree) {
 
   if (tree) {
     bi.ti = proto_tree_add_item(tree, proto_nsip, tvb, 0, -1,
-                             NSIP_LITTLE_ENDIAN);
+                             FALSE);
     nsip_tree = proto_item_add_subtree(bi.ti, ett_nsip);
     proto_tree_add_uint_format(nsip_tree, hf_nsip_pdu_type, tvb, 0, 1,
                                pdu_type,
