@@ -1404,7 +1404,7 @@ dissect_radiotap(tvbuff_t * tvb, packet_info * pinfo, proto_tree * tree)
 
 		pt = proto_tree_add_item(radiotap_tree, hf_radiotap_present,
 					 tvb, 4, n_bitmaps * 4,
-					 FALSE /* ?? */ );
+					 ENC_NA);
 
 		for (i = 0; i < n_bitmaps; i++) {
 			guint32 bmap = pletohl(bmap_start + 4 * i);
