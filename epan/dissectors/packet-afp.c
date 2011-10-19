@@ -4229,7 +4229,7 @@ spotlight_dissect_query_loop(tvbuff_t *tvb, proto_tree *tree, gint offset, guint
 			offset += query_length;
 			break;
 		default:
-			item_query = proto_tree_add_text(tree, tvb, offset, query_length, "type: %s",
+			proto_tree_add_text(tree, tvb, offset, query_length, "type: %s",
 							 spotlight_get_qtype_string(query_type));
 			offset += query_length;
 			break;
