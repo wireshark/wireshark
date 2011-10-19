@@ -245,7 +245,8 @@ struct rlc_li {
 /* hashtable functions for fragment table
  * rlc_channel -> SDU
  */
-static guint rlc_channel_hash(gconstpointer key)
+static guint
+rlc_channel_hash(gconstpointer key)
 {
 	const struct rlc_channel *ch = key;
 
@@ -255,7 +256,8 @@ static guint rlc_channel_hash(gconstpointer key)
 	return (ch->vci << 16) | (ch->link << 16) | ch->vpi | ch->vci;
 }
 
-static gboolean rlc_channel_equal(gconstpointer a, gconstpointer b)
+static gboolean
+rlc_channel_equal(gconstpointer a, gconstpointer b)
 {
 	const struct rlc_channel *x = a, *y = b;
 
@@ -274,7 +276,8 @@ static gboolean rlc_channel_equal(gconstpointer a, gconstpointer b)
 		x->link == y->link ? TRUE : FALSE;
 }
 
-static int rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinfo)
+static int
+rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet_info *pinfo)
 {
 	struct atm_phdr *atm;
 	rlc_info *rlcinf;
@@ -299,11 +302,12 @@ static int rlc_channel_assign(struct rlc_channel *ch, enum rlc_mode mode, packet
 	ch->dir = pinfo->p2p_dir;
 	ch->mode = mode;
 	ch->li_size = rlcinf->li_size[fpinf->cur_tb];
-	
+
 	return 0;
 }
 
-static struct rlc_channel *rlc_channel_create(enum rlc_mode mode, packet_info *pinfo)
+static struct rlc_channel *
+rlc_channel_create(enum rlc_mode mode, packet_info *pinfo)
 {
 	struct rlc_channel *ch;
 	int rv;
@@ -319,7 +323,8 @@ static struct rlc_channel *rlc_channel_create(enum rlc_mode mode, packet_info *p
 	return ch;
 }
 
-static void rlc_channel_delete(gpointer data)
+static void
+rlc_channel_delete(gpointer data)
 {
 	g_free(data);
 }
@@ -327,13 +332,15 @@ static void rlc_channel_delete(gpointer data)
 /* hashtable functions for reassembled table
  * fragment -> SDU
  */
-static guint rlc_frag_hash(gconstpointer key)
+static guint
+rlc_frag_hash(gconstpointer key)
 {
 	const struct rlc_frag *frag = key;
 	return rlc_channel_hash(&frag->ch) | frag->li | frag->seq;
 }
 
-static gboolean rlc_frag_equal(gconstpointer a, gconstpointer b)
+static gboolean
+rlc_frag_equal(gconstpointer a, gconstpointer b)
 {
 	const struct rlc_frag *x = a, *y = b;
 
@@ -344,14 +351,16 @@ static gboolean rlc_frag_equal(gconstpointer a, gconstpointer b)
 }
 
 
-static struct rlc_sdu *rlc_sdu_create(void)
+static struct rlc_sdu *
+rlc_sdu_create(void)
 {
 	struct rlc_sdu *sdu;
 	sdu = se_alloc0(sizeof(struct rlc_sdu));
 	return sdu;
 }
 
-static void rlc_frag_delete(gpointer data)
+static void
+rlc_frag_delete(gpointer data)
 {
 	struct rlc_frag *frag = data;
 	if (frag->data) {
@@ -360,7 +369,8 @@ static void rlc_frag_delete(gpointer data)
 	}
 }
 
-static void rlc_sdu_frags_delete(gpointer data)
+static void
+rlc_sdu_frags_delete(gpointer data)
 {
 	struct rlc_sdu *sdu = data;
 	struct rlc_frag *frag;
@@ -375,8 +385,9 @@ static void rlc_sdu_frags_delete(gpointer data)
 	}
 }
 
-static int rlc_frag_assign(struct rlc_frag *frag, enum rlc_mode mode, packet_info *pinfo,
-	guint16 seq, guint16 li)
+static int
+rlc_frag_assign(struct rlc_frag *frag, enum rlc_mode mode, packet_info *pinfo,
+		guint16 seq, guint16 li)
 {
 	frag->frame_num = pinfo->fd->num;
 	frag->seq = seq;
@@ -388,8 +399,9 @@ static int rlc_frag_assign(struct rlc_frag *frag, enum rlc_mode mode, packet_inf
 	return 0;
 }
 
-static int rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb, 
-	guint16 offset, guint16 length)
+static int
+rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb,
+		     guint16 offset, guint16 length)
 {
 	frag->len = length;
 	frag->data = g_malloc(length);
@@ -397,8 +409,9 @@ static int rlc_frag_assign_data(struct rlc_frag *frag, tvbuff_t *tvb,
 	return 0;
 }
 
-static struct rlc_frag *rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
-	guint16 offset, guint16 length, guint16 seq, guint16 li)
+static struct rlc_frag *
+rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packet_info *pinfo,
+		guint16 offset, guint16 length, guint16 seq, guint16 li)
 {
 	struct rlc_frag *frag;
 	frag = se_alloc0(sizeof(struct rlc_frag));
@@ -408,7 +421,8 @@ static struct rlc_frag *rlc_frag_create(tvbuff_t *tvb, enum rlc_mode mode, packe
 	return frag;
 }
 
-static int rlc_cmp_seq(gconstpointer a, gconstpointer b)
+static int
+rlc_cmp_seq(gconstpointer a, gconstpointer b)
 {
 	const struct rlc_seq *_a = a, *_b = b;
 
@@ -425,8 +439,8 @@ static int rlc_cmp_seq(gconstpointer a, gconstpointer b)
  * hashtables are emptied using g_hash_table_foreach_remove()
  * in conjunction with this funcion)
  */
-static gboolean free_table_entry(gpointer key _U_,
-	gpointer value _U_, gpointer user_data _U_)
+static gboolean
+free_table_entry(gpointer key _U_, gpointer value _U_, gpointer user_data _U_)
 {
 	return TRUE;
 }
@@ -435,7 +449,8 @@ static gboolean free_table_entry(gpointer key _U_,
  *  from the sequence_table hash.
  * It frees the GList pointed to by the entry.
  */
-static void free_sequence_table_entry_data(gpointer data)
+static void
+free_sequence_table_entry_data(gpointer data)
 {
 	struct rlc_seqlist *list = data;
 	if (list->list != NULL) {
@@ -444,7 +459,8 @@ static void free_sequence_table_entry_data(gpointer data)
 	}
 }
 
-static void fragment_table_init(void)
+static void
+fragment_table_init(void)
 {
 	if (fragment_table) {
 		g_hash_table_foreach_remove(fragment_table, free_table_entry, NULL);
@@ -463,12 +479,13 @@ static void fragment_table_init(void)
 		rlc_channel_delete, rlc_sdu_frags_delete);
 	reassembled_table = g_hash_table_new_full(rlc_frag_hash, rlc_frag_equal,
 		rlc_frag_delete, rlc_sdu_frags_delete);
-	sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal, 
+	sequence_table = g_hash_table_new_full(rlc_channel_hash, rlc_channel_equal,
 		NULL, free_sequence_table_entry_data);
 }
 
 /* add the list of fragments for this sdu to 'tree' */
-static void tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
+static void
+tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *frag_tree;
@@ -490,7 +507,8 @@ static void tree_add_fragment_list(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tre
 }
 
 /* add the list of fragments for this sdu to 'tree' */
-static void tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
+static void
+tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *frag_tree;
@@ -512,13 +530,14 @@ static void tree_add_fragment_list_incomplete(struct rlc_sdu *sdu, tvbuff_t *tvb
 }
 
 /* add information for an LI to 'tree' */
-static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_offs,
-                               gboolean li_is_on_2_bytes, tvbuff_t *tvb, proto_tree *tree)
+static proto_tree *
+tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_idx, guint8 hdr_offs,
+            gboolean li_is_on_2_bytes, tvbuff_t *tvb, proto_tree *tree)
 {
 	proto_item *ti;
 	proto_tree *li_tree;
 	guint8 li_offs;
-	
+
 	if (!tree) return NULL;
 
 	if (li_is_on_2_bytes) {
@@ -609,7 +628,7 @@ static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_
 
 	if (li->len > 0) {
 		if (li->li > tvb_length_remaining(tvb, hdr_offs)) return li_tree;
-		if (li->len > li->li) return li_tree; 
+		if (li->len > li->li) return li_tree;
 		ti = proto_tree_add_item(li_tree, hf_rlc_li_data, tvb, hdr_offs + li->li - li->len, li->len, ENC_NA);
 		PROTO_ITEM_SET_HIDDEN(ti);
 	}
@@ -618,8 +637,8 @@ static proto_tree *tree_add_li(enum rlc_mode mode, struct rlc_li *li, guint8 li_
 }
 
 /* add a fragment to an SDU */
-static int rlc_sdu_add_fragment(enum rlc_mode mode, struct rlc_sdu *sdu,
-	struct rlc_frag *frag)
+static int
+rlc_sdu_add_fragment(enum rlc_mode mode, struct rlc_sdu *sdu, struct rlc_frag *frag)
 {
 	struct rlc_frag *tmp;
 
@@ -662,7 +681,8 @@ static int rlc_sdu_add_fragment(enum rlc_mode mode, struct rlc_sdu *sdu,
 	return 0;
 }
 
-static void reassemble_message(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *frag)
+static void
+reassemble_message(struct rlc_channel *ch, struct rlc_sdu *sdu, struct rlc_frag *frag)
 {
 	struct rlc_frag *temp;
 	guint16 offs = 0;
@@ -693,8 +713,10 @@ static void reassemble_message(struct rlc_channel *ch, struct rlc_sdu *sdu, stru
 /* add a new fragment to an SDU
  * if length == 0, just finalize the specified SDU
  */
-static struct rlc_frag *add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *tree, guint16 offset, guint16 seq, guint16 num_li, guint16 len, gboolean final)
+static struct rlc_frag *
+add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
+	     proto_tree *tree, guint16 offset, guint16 seq, guint16 num_li,
+	     guint16 len, gboolean final)
 {
 	struct rlc_channel ch_lookup;
 	struct rlc_frag frag_lookup, *frag = NULL, *tmp;
@@ -761,8 +783,9 @@ static struct rlc_frag *add_fragment(enum rlc_mode mode, tvbuff_t *tvb, packet_i
  * these can be valid reassembly points, but only if the LI of the *next* relevant RLC frame is
  * set to '0' (this is indicated in the reassembled SDU
  */
-static tvbuff_t *get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	guint16 seq, guint16 num_li)
+static tvbuff_t *
+get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo,
+		     proto_tree *tree, guint16 seq, guint16 num_li)
 {
 	gpointer orig_frag, orig_sdu;
 	struct rlc_sdu *sdu;
@@ -809,7 +832,9 @@ static tvbuff_t *get_reassembled_data(enum rlc_mode mode, tvbuff_t *tvb, packet_
 }
 
 #define RLC_RETRANSMISSION_TIMEOUT 5 /* in seconds */
-static gboolean rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq, guint32 *original)
+static gboolean
+rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16 seq,
+		 guint32 *original)
 {
 	GList *element;
 	struct rlc_seqlist lookup, *list;
@@ -848,10 +873,11 @@ static gboolean rlc_is_duplicate(enum rlc_mode mode, packet_info *pinfo, guint16
 	return FALSE;
 }
 
-static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
-	packet_info *pinfo,	proto_tree *tree)
+static void
+rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
+		      packet_info *pinfo, proto_tree *tree)
 {
-	enum rrc_message_type msgtype; 
+	enum rrc_message_type msgtype;
 
 	switch (channel) {
 		case UL_CCCH:
@@ -897,8 +923,9 @@ static void rlc_call_subdissector(enum channel_type channel, tvbuff_t *tvb,
 	}
 }
 
-static void dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *top_level, proto_tree *tree)
+static void
+dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
+	       proto_tree *top_level, proto_tree *tree)
 {
 	if (tree) {
 		proto_tree_add_item(tree, hf_rlc_data, tvb, 0, -1, ENC_NA);
@@ -907,9 +934,10 @@ static void dissect_rlc_tm(enum channel_type channel, tvbuff_t *tvb, packet_info
 }
 
 
-static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
-                              proto_tree *top_level, enum channel_type channel, guint16 seq,
-                              struct rlc_li *li, guint16 num_li, gboolean li_is_on_2_bytes)
+static void
+rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
+		  proto_tree *top_level, enum channel_type channel, guint16 seq,
+		  struct rlc_li *li, guint16 num_li, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
 	gboolean dissected = FALSE;
@@ -957,7 +985,7 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 			dissected = TRUE;
 			rlc_call_subdissector(channel, next_tvb, pinfo, top_level);
 			next_tvb = NULL;
-		} 
+		}
 		offs += li[i].len;
 	}
 
@@ -975,8 +1003,9 @@ static void rlc_um_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 	}
 }
 
-static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
-	                        struct rlc_li *li, guint8 max_li, gboolean li_on_2_bytes)
+static gint16
+rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree,
+	      struct rlc_li *li, guint8 max_li, gboolean li_on_2_bytes)
 {
 	guint8 ext, hdr_len, offs = 0, num_li = 0, li_offs;
 	guint16 next_bytes, prev_li = 0;
@@ -997,7 +1026,7 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 		hdr_len += li_on_2_bytes ? 2 : 1;
 	}
 	total_len = tvb_length_remaining(tvb, hdr_len);
-	
+
 	/* do actual evaluation of LIs */
 	ext = tvb_get_guint8(tvb, offs++) & 0x01;
 	li_offs = offs;
@@ -1115,8 +1144,9 @@ static gint16 rlc_decode_li(enum rlc_mode mode, tvbuff_t *tvb, packet_info *pinf
 	return num_li;
 }
 
-static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *top_level, proto_tree *tree)
+static void
+dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
+	       proto_tree *top_level, proto_tree *tree)
 {
 #define MAX_LI 16
 	struct rlc_li li[MAX_LI];
@@ -1188,7 +1218,8 @@ static void dissect_rlc_um(enum channel_type channel, tvbuff_t *tvb, packet_info
 	rlc_um_reassemble(tvb, offs, pinfo, tree, top_level, channel, seq, li, num_li, li_is_on_2_bytes);
 }
 
-static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 offset)
+static void
+dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree *tree, guint8 offset)
 {
 	guint8 sufi_type, bits;
 	guint64 len, sn, l;
@@ -1198,7 +1229,7 @@ static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	guint i, j;
 	proto_tree *sufi_tree, *bitmap_tree, *rlist_tree;
 	proto_item *sufi_item, *malformed, *ti;
-	#define BUFF_SIZE 40
+	#define BUFF_SIZE 41
 	gchar *buff = NULL;
 	guint8 cw[15];
 
@@ -1257,9 +1288,9 @@ static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 					bits = tvb_get_bits8(tvb, bit_offset, 8);
 					for (l=0, j=0; l<8; l++) {
 						if ((bits << l) & 0x80) {
-							j += g_snprintf(&buff[j], BUFF_SIZE, "%04u,", (unsigned)(sn+(8*i)+l)&0xfff);
+							j += g_snprintf(&buff[j], BUFF_SIZE-j, "%04u,", (unsigned)(sn+(8*i)+l)&0xfff);
 						} else {
-							j += g_snprintf(&buff[j], BUFF_SIZE, "    ,");
+							j += g_snprintf(&buff[j], BUFF_SIZE-j, "    ,");
 						}
 					}
 					proto_tree_add_text(bitmap_tree, tvb, bit_offset/8, 1, "%s", buff);
@@ -1354,7 +1385,8 @@ static void dissect_rlc_status(tvbuff_t *tvb, packet_info *pinfo _U_, proto_tree
 	}
 }
 
-static void dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	guint8 type, next_byte;
 	proto_item *malformed;
@@ -1393,9 +1425,11 @@ static void dissect_rlc_control(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 	}
 }
 
-static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, proto_tree *tree,
-	proto_tree *top_level, enum channel_type channel, guint16 seq, struct rlc_li *li, guint16 num_li,
-	gboolean final, gboolean li_is_on_2_bytes)
+static void
+rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo,
+		  proto_tree *tree, proto_tree *top_level,
+		  enum channel_type channel, guint16 seq, struct rlc_li *li,
+		  guint16 num_li, gboolean final, gboolean li_is_on_2_bytes)
 {
 	guint8 i;
 	gboolean piggyback = FALSE, dissected = FALSE;
@@ -1454,8 +1488,9 @@ static void rlc_am_reassemble(tvbuff_t *tvb, guint8 offs, packet_info *pinfo, pr
 		col_set_str(pinfo->cinfo, COL_INFO, "[RLC AM Fragment]");
 }
 
-static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
-	proto_tree *top_level, proto_tree *tree)
+static void
+dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info *pinfo,
+	       proto_tree *top_level, proto_tree *tree)
 {
 #define MAX_LI 16
 	struct rlc_li li[MAX_LI];
@@ -1554,7 +1589,8 @@ static void dissect_rlc_am(enum channel_type channel, tvbuff_t *tvb, packet_info
 }
 
 /* dissect entry functions */
-static void dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_tree *subtree = NULL;
 	col_set_str(pinfo->cinfo, COL_PROTOCOL, "RLC");
@@ -1570,7 +1606,8 @@ static void dissect_rlc_pcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	dissect_rlc_tm(PCCH, tvb, pinfo, tree, subtree);
 }
 
-static void dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	fp_info *fpi;
 	proto_item *ti = NULL;
@@ -1598,7 +1635,8 @@ static void dissect_rlc_ccch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 }
 
-static void dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
     fp_info *fpi;
     proto_item *ti = NULL;
@@ -1621,7 +1659,8 @@ static void dissect_rlc_ctch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
     dissect_rlc_um(DL_CTCH, tvb, pinfo, tree, subtree);
 }
 
-static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti = NULL;
 	proto_tree *subtree = NULL;
@@ -1646,7 +1685,7 @@ static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
-	
+
 	channel = fpi->is_uplink ? UL_DCCH : DL_DCCH;
 
 	switch (rlci->mode[fpi->cur_tb]) {
@@ -1661,7 +1700,8 @@ static void dissect_rlc_dcch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree
 	}
 }
 
-static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
+static void
+dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	proto_item *ti = NULL;
 	proto_tree *subtree = NULL;
@@ -1680,7 +1720,7 @@ static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 		ti = proto_tree_add_item(tree, proto_rlc, tvb, 0, -1, ENC_BIG_ENDIAN);
 		subtree = proto_item_add_subtree(ti, ett_rlc);
 	}
-	
+
 	switch (rlci->mode[fpi->cur_tb]) {
 		case RLC_UM:
 			proto_item_append_text(ti, " UM (PS DTCH)");
@@ -1698,8 +1738,8 @@ static void dissect_rlc_ps_dtch(tvbuff_t *tvb, packet_info *pinfo, proto_tree *t
 }
 
 /* Heuristic dissector looks for supported framing protocol (see wiki page)  */
-static gboolean dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo,
-                                 proto_tree *tree)
+static gboolean
+dissect_rlc_heur(tvbuff_t *tvb, packet_info *pinfo, proto_tree *tree)
 {
 	gint                 offset = 0;
 	fp_info              *fpi;
@@ -1877,7 +1917,7 @@ proto_register_rlc(void)
 		{ &hf_rlc_frags, { "Reassembled Fragments", "rlc.fragments", FT_NONE, BASE_NONE, NULL, 0, "Fragments", HFILL } },
 		{ &hf_rlc_frag, { "RLC Fragment", "rlc.fragment", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_duplicate_of, { "Duplicate of", "rlc.duplicate_of", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
-		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } }, 
+		{ &hf_rlc_reassembled_in, { "Reassembled Message in frame", "rlc.reassembled_in", FT_FRAMENUM, BASE_NONE, NULL, 0, NULL, HFILL } },
 		{ &hf_rlc_data, { "Data", "rlc.data", FT_BYTES, BASE_NONE, NULL, 0, NULL, HFILL } },
 		/* LI information */
 		{ &hf_rlc_li, { "LI", "rlc.li", FT_NONE, BASE_NONE, NULL, 0, "Length Indicator", HFILL } },
